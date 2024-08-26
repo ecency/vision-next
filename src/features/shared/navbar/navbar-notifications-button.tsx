@@ -7,15 +7,15 @@ import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
 import { useNotificationUnreadCountQuery } from "@/api/queries";
 import { bellOffSvg, bellSvg } from "@ui/svg";
+import { EcencyConfigManager } from "@/config";
 
 export function NavbarNotificationsButton({ onClick }: { onClick?: () => void }) {
-  const usePrivate = useGlobalStore((state) => state.usePrivate);
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
   const globalNotifications = useGlobalStore((state) => state.globalNotifications);
 
   const { data: unread } = useNotificationUnreadCountQuery();
 
-  return usePrivate ? (
+  return EcencyConfigManager.CONFIG.features.notifications.enabled ? (
     <>
       <Tooltip content={i18next.t("user-nav.notifications")}>
         <div

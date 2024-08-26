@@ -6,6 +6,7 @@ import { useNotificationUnreadCountQuery } from "@/api/queries";
 import { bellSvg, rocketSvg } from "@ui/svg";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { WalletBadge } from "@/features/shared";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   isExpanded: boolean;
@@ -19,11 +20,8 @@ export const DeckToolbarBaseActions = ({
   setIsExpanded
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const setActiveUser = useGlobalStore((s) => s.setActiveUser);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
-  const uiNotifications = useGlobalStore((s) => s.uiNotifications);
   const usePrivate = useGlobalStore((s) => s.usePrivate);
-  const uiLogin = useGlobalStore((s) => s.login);
 
   const { data: unread } = useNotificationUnreadCountQuery();
 
@@ -33,7 +31,7 @@ export const DeckToolbarBaseActions = ({
     <div className="base-actions">
       {activeUser && (
         <>
-          {usePrivate && (
+          {EcencyConfigManager.CONFIG.features.notifications.enabled && (
             <div className="notifications" onClick={() => toggleUIProp("notifications")}>
               {unread > 0 && (
                 <span className="notifications-badge notranslate">

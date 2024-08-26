@@ -3,7 +3,10 @@
     "privateMode": false,
     "features": {
       "notifications": {
-        "enabled": true
+        "enabled": true,
+        "push": {
+          "enabled": true
+        }
       }
     },
     "service": {

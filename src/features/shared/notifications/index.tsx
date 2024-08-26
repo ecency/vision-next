@@ -5,15 +5,15 @@ import { NotificationsContent } from "@/features/shared/notifications/notificati
 import "./_index.scss";
 import { useGlobalStore } from "@/core/global-store";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
+import { EcencyConfigManager } from "@/config";
 
 export * from "./notification-list-item";
 
 interface Props {
-  className?: string;
   openLinksInNewTab?: boolean;
 }
 
-export function NotificationsDialog({ className, openLinksInNewTab = false }: Props) {
+export function NotificationsDialog({ openLinksInNewTab = false }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const showNotifications = useGlobalStore((state) => state.uiNotifications);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -24,7 +24,7 @@ export function NotificationsDialog({ className, openLinksInNewTab = false }: Pr
     setShow(showNotifications && !!activeUser);
   }, [showNotifications, activeUser]);
 
-  return (
+  return (EcencyConfigManager.CONFIG.features.notifications.enabled ?
     <ModalSidebar
       className="notifications-modal min-w-[32rem]"
       show={show}
@@ -35,6 +35,6 @@ export function NotificationsDialog({ className, openLinksInNewTab = false }: Pr
       placement="right"
     >
       <NotificationsContent openLinksInNewTab={openLinksInNewTab} />
-    </ModalSidebar>
+    </ModalSidebar> : <></>
   );
 }

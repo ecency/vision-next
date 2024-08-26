@@ -1,9 +1,9 @@
-import config from "@/config/ecency-config.json";
 import { decodeToken } from "@/utils";
+import { EcencyConfigManager } from "@/config";
 
 export async function POST(req: Request) {
-  const hsSecret = config.visionConfig.service.hsClientSecret;
-  if (hsSecret && !config.visionConfig.privateMode) {
+  const hsSecret = EcencyConfigManager.CONFIG.service.hsClientSecret;
+  if (hsSecret && !EcencyConfigManager.CONFIG.privateMode) {
     const body = await req.json();
     if (!decodeToken(body.code)) {
       Response.json({
