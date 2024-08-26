@@ -4,25 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added redirect with cat to submit page when community category doesn't have any data">
-      <change afterPath="$PROJECT_DIR$/src/consts/cookies.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added setting category from url in submit page">
+      <change afterPath="$PROJECT_DIR$/src/app/api/auth-api/hs-token-refresh/route.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-account-posts-feed-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-account-posts-feed-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_feed-components/feed-content.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_feed-components/feed-content.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/consts/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/consts/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/global-store/modules/authentication-module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/modules/authentication-module.ts" afterDir="false" />
-    </list>
-    <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="">
-      <change afterPath="$PROJECT_DIR$/src/config/ecency-config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/ecency-config.template.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/ecency-config.template.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/config/ecency-config.template.yml" beforeDir="false" />
     </list>
+    <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feature/feed-my-community" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -33,7 +32,7 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/ecency/ecency-vision.git&quot;,
+    &quot;url&quot;: &quot;https://github.com/ecency/vision-next.git&quot;,
     &quot;accountId&quot;: &quot;f57d4960-ae31-4716-8d6e-f39ff28df9e4&quot;
   }
 }</component>
@@ -59,64 +58,64 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Jest.Account Reputation.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Bookmark button.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BookmarkBtn.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BookmarkBtn.renders login required when no active user.executor&quot;: &quot;Debug&quot;,
-    &quot;Jest.BookmarksDialog.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BookmarksDialog.hides the modal when close button is clicked.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BoostDialog.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BoostDialog.finishes and calls onHide when finish button is clicked.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BoostDialog.handles signing process and transitions to step 3.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.ClickAwayListener (1).executor&quot;: &quot;Run&quot;,
-    &quot;Jest.ClickAwayListener.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment Component.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment.handles keyboard shortcuts.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment.renders with initial text and submit button.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment.submits comment when submit button is clicked.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Tests in utils/.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Vesting.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.scratch_39.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.scratch_40.js.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/nextjs-migration&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/jest&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;/Users/ildartimerbaev/.nvm/versions/node/v18.17.1/bin/node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.build.executor&quot;: &quot;Run&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;npm.start.executor&quot;: &quot;Run&quot;,
-    &quot;npm.test.executor&quot;: &quot;Run&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/prettier&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Jest.Account Reputation.executor": "Run",
+    "Jest.Bookmark button.executor": "Run",
+    "Jest.BookmarkBtn.executor": "Run",
+    "Jest.BookmarkBtn.renders login required when no active user.executor": "Debug",
+    "Jest.BookmarksDialog.executor": "Run",
+    "Jest.BookmarksDialog.hides the modal when close button is clicked.executor": "Run",
+    "Jest.BoostDialog.executor": "Run",
+    "Jest.BoostDialog.finishes and calls onHide when finish button is clicked.executor": "Run",
+    "Jest.BoostDialog.handles signing process and transitions to step 3.executor": "Run",
+    "Jest.ClickAwayListener (1).executor": "Run",
+    "Jest.ClickAwayListener.executor": "Run",
+    "Jest.Comment Component.executor": "Run",
+    "Jest.Comment.executor": "Run",
+    "Jest.Comment.handles keyboard shortcuts.executor": "Run",
+    "Jest.Comment.renders with initial text and submit button.executor": "Run",
+    "Jest.Comment.submits comment when submit button is clicked.executor": "Run",
+    "Jest.Tests in utils/.executor": "Run",
+    "Jest.Vesting.executor": "Run",
+    "Node.js.scratch_39.js.executor": "Run",
+    "Node.js.scratch_40.js.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "code.cleanup.on.save": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/jest",
+    "nodejs_interpreter_path": "/Users/ildartimerbaev/.nvm/versions/node/v18.17.1/bin/node",
+    "nodejs_package_manager_path": "npm",
+    "npm.build.executor": "Run",
+    "npm.dev.executor": "Run",
+    "npm.start.executor": "Run",
+    "npm.test.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/prettier",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "rearrange.code.on.save": "true",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
-      &quot;TEXT&quot;,
-      &quot;JavaScript&quot;
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "TEXT",
+      "JavaScript"
     ]
   }
-}</component>
+}]]></component>
   <component name="ReactDesignerToolWindowState">
     <option name="myId2Visible">
       <map>
@@ -231,11 +230,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.dev" />
         <item itemvalue="npm.test" />
-        <item itemvalue="Jest.Comment" />
-        <item itemvalue="Jest.Comment.handles keyboard shortcuts" />
+        <item itemvalue="npm.dev" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
+        <item itemvalue="Jest.Comment.handles keyboard shortcuts" />
+        <item itemvalue="Jest.Comment" />
       </list>
     </recent_temporary>
   </component>
@@ -372,7 +371,17 @@
       <workItem from="1724094490055" duration="5948000" />
       <workItem from="1724237333526" duration="16335000" />
       <workItem from="1724353944136" duration="3610000" />
-      <workItem from="1724415803934" duration="4601000" />
+      <workItem from="1724415803934" duration="836000" />
+      <workItem from="1724663757913" duration="1496000" />
+      <workItem from="1724703768137" duration="564000" />
+    </task>
+    <task id="LOCAL-00131" summary="Fixed profile search loading">
+      <option name="closed" value="true" />
+      <created>1722369099379</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1722369099379</updated>
     </task>
     <task id="LOCAL-00132" summary="Fixed search list item highlights">
       <option name="closed" value="true" />
@@ -758,15 +767,7 @@
       <option name="project" value="LOCAL" />
       <updated>1724416444165</updated>
     </task>
-    <task id="LOCAL-00180" summary="Added redirect with cat to submit page when community category doesn't have any data">
-      <option name="closed" value="true" />
-      <created>1724416751467</created>
-      <option name="number" value="00180" />
-      <option name="presentableId" value="LOCAL-00180" />
-      <option name="project" value="LOCAL" />
-      <updated>1724416751467</updated>
-    </task>
-    <option name="localTasksCounter" value="181" />
+    <option name="localTasksCounter" value="180" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -787,6 +788,7 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added loading state for discover page" />
     <MESSAGE value="Fixed bugs with private API, added framer-motion animation to communities list" />
     <MESSAGE value="Improved modal animations, improved sidebar animations" />
     <MESSAGE value="Fixed profile menu and added dropdown animations" />
@@ -811,8 +813,7 @@
     <MESSAGE value="Fixed and improved layout of community and profile menus, improved layout of community cover image" />
     <MESSAGE value="Fixed community page filters" />
     <MESSAGE value="Added setting category from url in submit page" />
-    <MESSAGE value="Added redirect with cat to submit page when community category doesn't have any data" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added redirect with cat to submit page when community category doesn't have any data" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added setting category from url in submit page" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

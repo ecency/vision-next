@@ -1,9 +1,13 @@
 {
   "visionConfig": {
+    "privateMode": false,
     "features": {
       "notifications": {
         "enabled": true
       }
+    },
+    "service": {
+      "hsClientSecret": ""
     }
   }
 }
