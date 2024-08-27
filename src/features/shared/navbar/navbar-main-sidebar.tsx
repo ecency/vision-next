@@ -18,6 +18,7 @@ import { Search } from "@/features/shared/navbar/search";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   show: boolean;
@@ -81,12 +82,14 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           onClick={() => setShow(false)}
           icon={<UilUserSquare size={16} />}
         />
-        <NavbarSideMainMenuItem
-          label={i18next.t("navbar.decks")}
-          to="/decks"
-          onClick={() => setShow(false)}
-          icon={<UilColumns size={16} />}
-        />
+        <EcencyConfigManager.Conditional condition={({ features }) => features.decks.enabled}>
+          <NavbarSideMainMenuItem
+            label={i18next.t("navbar.decks")}
+            to="/decks"
+            onClick={() => setShow(false)}
+            icon={<UilColumns size={16} />}
+          />
+        </EcencyConfigManager.Conditional>
 
         <NavbarSideMainMenuItem
           label={i18next.t("proposals.page-title")}

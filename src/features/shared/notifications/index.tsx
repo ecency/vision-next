@@ -24,17 +24,19 @@ export function NotificationsDialog({ openLinksInNewTab = false }: Props) {
     setShow(showNotifications && !!activeUser);
   }, [showNotifications, activeUser]);
 
-  return (EcencyConfigManager.CONFIG.features.notifications.enabled ?
-    <ModalSidebar
-      className="notifications-modal min-w-[32rem]"
-      show={show}
-      setShow={(v) => {
-        setShow(v);
-        toggleUIProp("notifications", v);
-      }}
-      placement="right"
-    >
-      <NotificationsContent openLinksInNewTab={openLinksInNewTab} />
-    </ModalSidebar> : <></>
+  return (
+    <EcencyConfigManager.Conditional condition={({ features }) => features.notifications.enabled}>
+      <ModalSidebar
+        className="notifications-modal min-w-[32rem]"
+        show={show}
+        setShow={(v) => {
+          setShow(v);
+          toggleUIProp("notifications", v);
+        }}
+        placement="right"
+      >
+        <NotificationsContent openLinksInNewTab={openLinksInNewTab} />
+      </ModalSidebar>
+    </EcencyConfigManager.Conditional>
   );
 }

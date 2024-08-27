@@ -31,7 +31,9 @@ export const DeckToolbarBaseActions = ({
     <div className="base-actions">
       {activeUser && (
         <>
-          {EcencyConfigManager.CONFIG.features.notifications.enabled && (
+          <EcencyConfigManager.Conditional
+            condition={({ features }) => features.notifications.enabled}
+          >
             <div className="notifications" onClick={() => toggleUIProp("notifications")}>
               {unread > 0 && (
                 <span className="notifications-badge notranslate">
@@ -40,7 +42,7 @@ export const DeckToolbarBaseActions = ({
               )}
               {bellSvg}
             </div>
-          )}
+          </EcencyConfigManager.Conditional>
           {usePrivate && <div onClick={() => setShowPurchaseDialog(true)}>{rocketSvg}</div>}
           <WalletBadge icon={walletIconSvg} />
         </>

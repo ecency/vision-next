@@ -15,8 +15,8 @@ export function NavbarNotificationsButton({ onClick }: { onClick?: () => void })
 
   const { data: unread } = useNotificationUnreadCountQuery();
 
-  return EcencyConfigManager.CONFIG.features.notifications.enabled ? (
-    <>
+  return (
+    <EcencyConfigManager.Conditional condition={({ features }) => features.notifications.enabled}>
       <Tooltip content={i18next.t("user-nav.notifications")}>
         <div
           className="notifications"
@@ -33,8 +33,6 @@ export function NavbarNotificationsButton({ onClick }: { onClick?: () => void })
           <Button icon={globalNotifications ? bellSvg : bellOffSvg} appearance="gray-link" />
         </div>
       </Tooltip>
-    </>
-  ) : (
-    <></>
+    </EcencyConfigManager.Conditional>
   );
 }

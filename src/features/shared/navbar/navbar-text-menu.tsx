@@ -2,6 +2,7 @@ import React from "react";
 import { useGlobalStore } from "@/core/global-store";
 import Link from "next/link";
 import i18next from "i18next";
+import { EcencyConfigManager } from "@/config";
 
 export function NavbarTextMenu() {
   const usePrivate = useGlobalStore((state) => state.usePrivate);
@@ -20,14 +21,14 @@ export function NavbarTextMenu() {
       >
         {i18next.t("navbar.communities")}
       </Link>
-      {usePrivate && (
+      <EcencyConfigManager.Conditional condition={({ features }) => features.decks.enabled}>
         <Link
           className="menu-item text-gunmetal hover:text-gray-warm dark:text-blue-duck-egg mt-0"
           href="/decks"
         >
           {i18next.t("navbar.decks")}
         </Link>
-      )}
+      </EcencyConfigManager.Conditional>
     </div>
   );
 }

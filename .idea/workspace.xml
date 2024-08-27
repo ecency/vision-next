@@ -4,13 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Migrated hs token refresh endpoint">
-      <change afterPath="$PROJECT_DIR$/src/config/index.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Wrap notifications with new config">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/api/auth-api/hs-token-refresh/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/auth-api/hs-token-refresh/route.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-toolbar/deck-toolbar-base-actions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-toolbar/deck-toolbar-base-actions.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/ecency-config.template.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/ecency-config.template.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-main-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-main-sidebar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-notifications-button.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-notifications-button.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/notification-handler.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notification-handler.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-text-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-text-menu.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
@@ -108,7 +110,7 @@
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
     "rearrange.code.on.save": "true",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "actions.on.save",
     "ts.external.directory.path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
@@ -376,23 +378,7 @@
       <workItem from="1724353944136" duration="3610000" />
       <workItem from="1724415803934" duration="836000" />
       <workItem from="1724663757913" duration="1496000" />
-      <workItem from="1724703768137" duration="1320000" />
-    </task>
-    <task id="LOCAL-00132" summary="Fixed search list item highlights">
-      <option name="closed" value="true" />
-      <created>1722408255571</created>
-      <option name="number" value="00132" />
-      <option name="presentableId" value="LOCAL-00132" />
-      <option name="project" value="LOCAL" />
-      <updated>1722408255571</updated>
-    </task>
-    <task id="LOCAL-00133" summary="Improved main screen menu">
-      <option name="closed" value="true" />
-      <created>1722409815015</created>
-      <option name="number" value="00133" />
-      <option name="presentableId" value="LOCAL-00133" />
-      <option name="project" value="LOCAL" />
-      <updated>1722409815015</updated>
+      <workItem from="1724703768137" duration="3778000" />
     </task>
     <task id="LOCAL-00134" summary="Added Dockerfile and GitHub CI/CD">
       <option name="closed" value="true" />
@@ -770,7 +756,23 @@
       <option name="project" value="LOCAL" />
       <updated>1724704366617</updated>
     </task>
-    <option name="localTasksCounter" value="181" />
+    <task id="LOCAL-00181" summary="Wrap notifications with new config">
+      <option name="closed" value="true" />
+      <created>1724705118626</created>
+      <option name="number" value="00181" />
+      <option name="presentableId" value="LOCAL-00181" />
+      <option name="project" value="LOCAL" />
+      <updated>1724705118626</updated>
+    </task>
+    <task id="LOCAL-00182" summary="Wrap notifications with new config">
+      <option name="closed" value="true" />
+      <created>1724705132068</created>
+      <option name="number" value="00182" />
+      <option name="presentableId" value="LOCAL-00182" />
+      <option name="project" value="LOCAL" />
+      <updated>1724705132068</updated>
+    </task>
+    <option name="localTasksCounter" value="183" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +793,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed bugs with private API, added framer-motion animation to communities list" />
     <MESSAGE value="Improved modal animations, improved sidebar animations" />
     <MESSAGE value="Fixed profile menu and added dropdown animations" />
     <MESSAGE value="Fixed and improved entry voting slider actions" />
@@ -816,7 +817,8 @@
     <MESSAGE value="Fixed community page filters" />
     <MESSAGE value="Added setting category from url in submit page" />
     <MESSAGE value="Migrated hs token refresh endpoint" />
-    <option name="LAST_COMMIT_MESSAGE" value="Migrated hs token refresh endpoint" />
+    <MESSAGE value="Wrap notifications with new config" />
+    <option name="LAST_COMMIT_MESSAGE" value="Wrap notifications with new config" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

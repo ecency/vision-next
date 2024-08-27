@@ -1,6 +1,8 @@
 import { DecksPage } from "@/app/decks/_page";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
+import { EcencyConfigManager } from "@/config";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,10 @@ export async function generateMetadata(
   return PagesMetadataGenerator.getForPage("decks");
 }
 
-export default function Page() {
-  return <DecksPage />;
-}
+export default EcencyConfigManager.withConditionalComponent(
+  ({ features }) => features.decks.enabled,
+  function () {
+    return <DecksPage />;
+  },
+  notFound(),
+);
