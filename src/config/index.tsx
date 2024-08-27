@@ -1,5 +1,7 @@
 import config from "./ecency-config.json";
 import { ComponentType, memo, PropsWithChildren, ReactNode, useEffect } from "react";
+import { QueryClient, useMutation, UseMutationOptions } from "@tanstack/react-query";
+import type { DefaultError } from "@tanstack/query-core";
 
 export namespace EcencyConfigManager {
   export const CONFIG = { ...config.visionConfig } as const;
@@ -30,6 +32,34 @@ export namespace EcencyConfigManager {
 
     return fallback();
   }
+
+  export const useConditionalMutation = <
+    TData = unknown,
+    TError = DefaultError,
+    TVariables = void,
+    TContext = unknown
+  >(
+    condition: ConfigBasedCondition,
+    options: UseMutationOptions<TData, TError, TVariables, TContext>,
+    queryClient?: QueryClient
+  ) =>
+    useMutation(
+      {
+        ...options,
+        mutationFn: (args) => {
+          if (condition(CONFIG) && options.mutationFn) {
+            return options.mutationFn(args);
+          }
+
+          if (!options.mutationFn) {
+            throw new Error("Called conditional mutation w/o mutationFn");
+          }
+
+          throw new Error("Called conditional mutation which isn`t configured");
+        }
+      },
+      queryClient
+    );
 
   interface ConditionalProps extends PropsWithChildren {
     condition: ConfigBasedCondition;

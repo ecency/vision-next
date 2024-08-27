@@ -10,6 +10,9 @@
       },
       "decks": {
         "enabled": true
+      },
+      "userActivityTracking": {
+        "enabled": true
       }
     },
     "service": {

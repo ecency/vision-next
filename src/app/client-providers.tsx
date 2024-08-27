@@ -13,6 +13,7 @@ import { UserActivityRecorder } from "@/features/user-activity";
 import { Tracker } from "@/features/monitoring";
 import { Announcements } from "@/features/announcement";
 import { FloatingFAQ } from "@/features/faq";
+import { EcencyConfigManager } from "@/config";
 
 export function ClientProviders(props: PropsWithChildren) {
   const usePrivate = useGlobalStore((s) => s.usePrivate);
@@ -25,7 +26,11 @@ export function ClientProviders(props: PropsWithChildren) {
     <QueryClientProvider client={getQueryClient()}>
       <UIManager>
         <ClientInit />
-        <UserActivityRecorder />
+        <EcencyConfigManager.Conditional
+          condition={({ features }) => features.userActivityTracking.enabled}
+        >
+          <UserActivityRecorder />
+        </EcencyConfigManager.Conditional>
         <Tracker />
         <ChatProvider>{props.children}</ChatProvider>
         <Announcements />

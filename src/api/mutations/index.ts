@@ -29,4 +29,3 @@ export * from "./upload-post-image";
 export * from "./withdraw-routes";
 export * from "./delegate-vesting-shares";
 export * from "./claim-reward-balance";
-export * from "./user-activity";
