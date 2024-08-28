@@ -1,24 +1,26 @@
 import config from "./ecency-config.json";
-import { ComponentType, memo, PropsWithChildren, ReactNode, useEffect } from "react";
+import { ComponentType, memo, PropsWithChildren, ReactNode } from "react";
 import { QueryClient, useMutation, UseMutationOptions } from "@tanstack/react-query";
 import type { DefaultError } from "@tanstack/query-core";
 
 export namespace EcencyConfigManager {
   export const CONFIG = { ...config.visionConfig } as const;
 
-  type ConfigBasedCondition = (config: typeof CONFIG) => boolean;
+  export type ConfigBasedCondition = (config: typeof CONFIG) => boolean;
 
-  export function useConditionallyEffect<T>(
-    condition: ConfigBasedCondition,
-    callback: () => void,
-    deps: T[]
-  ) {
-    return useEffect(() => {
-      if (condition(CONFIG)) {
-        callback();
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [callback, condition, ...deps]);
+  export function withConditional<T>(condition: ConfigBasedCondition, callback: () => T) {
+    if (condition(CONFIG)) {
+      return callback();
+    }
+  }
+
+  /**
+   * Use it for more declarative spreading operations
+   */
+  export function composeConditionals<T extends ReturnType<typeof withConditional>>(
+    ...withConditionals: T[]
+  ): NonNullable<T>[] {
+    return withConditionals.filter((c) => !!c) as NonNullable<T>[];
   }
 
   export function withConditionalComponent<F, CT>(

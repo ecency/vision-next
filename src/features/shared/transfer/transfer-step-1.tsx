@@ -22,6 +22,7 @@ import { useTransferSharedState } from "./transfer-shared-state";
 import { useDebounceTransferAccountData } from "./use-debounce-transfer-account-data";
 import { amountFormatCheck } from "@/utils/amount-format-check";
 import { cryptoUtils } from "@hiveio/dhive";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   titleLngKey: string;
@@ -29,7 +30,6 @@ interface Props {
 
 export function TransferStep1({ titleLngKey }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const {
     asset,
@@ -109,7 +109,7 @@ export function TransferStep1({ titleLngKey }: Props) {
     let assets: TransferAsset[] = [];
     switch (mode) {
       case "transfer":
-        if (usePrivate) {
+        if (EcencyConfigManager.CONFIG.visionFeatures.points.enabled) {
           assets = ["HIVE", "HBD", "POINT"];
         } else {
           assets = ["HIVE", "HBD"];
@@ -135,7 +135,7 @@ export function TransferStep1({ titleLngKey }: Props) {
     }
 
     return assets;
-  }, [mode, usePrivate]);
+  }, [mode]);
   const showTo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving", "power-up", "delegate"].includes(mode),
     [mode]

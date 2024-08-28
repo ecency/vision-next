@@ -2,18 +2,17 @@ import { BookmarkBtn, ProfileLink, UserAvatar } from "@/features/shared";
 import i18next from "i18next";
 import { Entry } from "@/entities";
 import ReadTime from "@/app/[...slugs]/_entry-components/entry-read-time";
-import { useGlobalStore } from "@/core/global-store";
 import moment from "moment/moment";
 import { accountReputation, parseDate } from "@/utils";
 import { TagLink } from "@/features/shared/tag";
 import { EntryPageMainInfoMenu } from "@/app/[...slugs]/_entry-components/entry-page-main-info-menu";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   entry: Entry;
 }
 
 export function EntryPageMainInfo({ entry }: Props) {
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
   const isComment = !!entry.parent_author;
 
   const published = moment(parseDate(entry.created));
@@ -62,7 +61,13 @@ export function EntryPageMainInfo({ entry }: Props) {
 
       <ReadTime entry={entry} toolTip={true} />
 
-      {!isComment && usePrivate && <BookmarkBtn entry={entry} />}
+      {!isComment && (
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.bookmarks.enabled}
+        >
+          <BookmarkBtn entry={entry} />
+        </EcencyConfigManager.Conditional>
+      )}
       {!isComment && <EntryPageMainInfoMenu entry={entry} />}
     </div>
   );

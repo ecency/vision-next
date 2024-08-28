@@ -4,16 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Covered decks with config flags">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Covered left files with use private with configuration">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/record-user-activity.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/record-user-activity.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/upload-post-image.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/upload-post-image.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/user-activity.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/client-providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-providers.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/ecency-config.template.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/ecency-config.template.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/config/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/user-activity/user-activity-recorder.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/user-activity/user-activity-recorder.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notification-handler.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notification-handler.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/redirect.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/redirect.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -146,7 +141,7 @@
       <recent name="$PROJECT_DIR$/src/features/shared" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.dev">
+  <component name="RunManager" selected="npm.build">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ecency-vision-next" />
       <method v="2">
@@ -159,18 +154,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="Comment" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
-      <node-interpreter value="project" />
-      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
-      <working-dir value="$PROJECT_DIR$" />
-      <envs />
-      <scope-kind value="SUITE" />
-      <test-file value="$PROJECT_DIR$/src/specs/features/shared/comment.spec.tsx" />
-      <test-names>
-        <test-name value="Comment" />
-      </test-names>
-      <method v="2" />
     </configuration>
     <configuration name="Comment.handles keyboard shortcuts" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
@@ -196,6 +179,16 @@
         <test-name value="Comment" />
         <test-name value="submits comment when submit button is clicked" />
       </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="build" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
       <method v="2" />
     </configuration>
     <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
@@ -226,20 +219,20 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Jest.Comment" />
       <item itemvalue="Jest.Comment.handles keyboard shortcuts" />
       <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
       <item itemvalue="npm.run" />
+      <item itemvalue="npm.build" />
       <item itemvalue="npm.dev" />
       <item itemvalue="npm.test" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.build" />
         <item itemvalue="npm.test" />
         <item itemvalue="npm.dev" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
         <item itemvalue="Jest.Comment.handles keyboard shortcuts" />
-        <item itemvalue="Jest.Comment" />
       </list>
     </recent_temporary>
   </component>
@@ -379,23 +372,7 @@
       <workItem from="1724415803934" duration="836000" />
       <workItem from="1724663757913" duration="1496000" />
       <workItem from="1724703768137" duration="3836000" />
-      <workItem from="1724765744418" duration="1051000" />
-    </task>
-    <task id="LOCAL-00135" summary="Added ns-query, yarn.lock">
-      <option name="closed" value="true" />
-      <created>1722461082825</created>
-      <option name="number" value="00135" />
-      <option name="presentableId" value="LOCAL-00135" />
-      <option name="project" value="LOCAL" />
-      <updated>1722461082825</updated>
-    </task>
-    <task id="LOCAL-00136" summary="Added ns-query, yarn.lock">
-      <option name="closed" value="true" />
-      <created>1722461542671</created>
-      <option name="number" value="00136" />
-      <option name="presentableId" value="LOCAL-00136" />
-      <option name="project" value="LOCAL" />
-      <updated>1722461542671</updated>
+      <workItem from="1724765744418" duration="7267000" />
     </task>
     <task id="LOCAL-00137" summary="Moved and migrated utils tests">
       <option name="closed" value="true" />
@@ -773,7 +750,23 @@
       <option name="project" value="LOCAL" />
       <updated>1724742335408</updated>
     </task>
-    <option name="localTasksCounter" value="184" />
+    <task id="LOCAL-00184" summary="Covered user record activity with config flags">
+      <option name="closed" value="true" />
+      <created>1724766835013</created>
+      <option name="number" value="00184" />
+      <option name="presentableId" value="LOCAL-00184" />
+      <option name="project" value="LOCAL" />
+      <updated>1724766835013</updated>
+    </task>
+    <task id="LOCAL-00185" summary="Covered left files with use private with configuration">
+      <option name="closed" value="true" />
+      <created>1724827451587</created>
+      <option name="number" value="00185" />
+      <option name="presentableId" value="LOCAL-00185" />
+      <option name="project" value="LOCAL" />
+      <updated>1724827451588</updated>
+    </task>
+    <option name="localTasksCounter" value="186" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -794,8 +787,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed profile menu and added dropdown animations" />
-    <MESSAGE value="Fixed and improved entry voting slider actions" />
     <MESSAGE value="Fixed and updated author info card" />
     <MESSAGE value="Improved author info card layout and added animations" />
     <MESSAGE value="Improved and fixed entry discussions bots" />
@@ -819,7 +810,9 @@
     <MESSAGE value="Migrated hs token refresh endpoint" />
     <MESSAGE value="Wrap notifications with new config" />
     <MESSAGE value="Covered decks with config flags" />
-    <option name="LAST_COMMIT_MESSAGE" value="Covered decks with config flags" />
+    <MESSAGE value="Covered user record activity with config flags" />
+    <MESSAGE value="Covered left files with use private with configuration" />
+    <option name="LAST_COMMIT_MESSAGE" value="Covered left files with use private with configuration" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

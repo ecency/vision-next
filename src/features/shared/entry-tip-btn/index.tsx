@@ -11,6 +11,7 @@ import { giftOutlineSvg } from "@ui/svg";
 import { useGlobalStore } from "@/core/global-store";
 import useMount from "react-use/lib/useMount";
 import useUnmount from "react-use/lib/useUnmount";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   entry: Entry;
@@ -21,7 +22,6 @@ interface Props {
 
 export function EntryTipBtn({ entry, setTipDialogMounted, handleClickAway, account }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const [dialog, setDialog] = useState(false);
 
@@ -52,9 +52,11 @@ export function EntryTipBtn({ entry, setTipDialogMounted, handleClickAway, accou
           <ModalHeader thin={true} closeButton={true} />
           <ModalBody>
             <Transfer
-              asset={usePrivate ? "POINT" : "HIVE"}
+              asset={EcencyConfigManager.CONFIG.visionFeatures.points.enabled ? "POINT" : "HIVE"}
               mode="transfer"
-              amount={usePrivate ? "100.000" : "1.000"}
+              amount={
+                EcencyConfigManager.CONFIG.visionFeatures.points.enabled ? "100.000" : "1.000"
+              }
               to={to}
               memo={memo}
               handleClickAway={handleClickAway}

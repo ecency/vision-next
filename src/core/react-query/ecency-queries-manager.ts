@@ -7,6 +7,7 @@ import {
   UseQueryOptions
 } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query/index";
+import { EcencyConfigManager } from "@/config";
 
 export namespace EcencyQueriesManager {
   export function getQueryData<T>(queryKey: QueryKey) {
@@ -49,5 +50,25 @@ export namespace EcencyQueriesManager {
       getData: () => getInfiniteQueryData<T>(options.queryKey),
       useClientQuery: () => useInfiniteQuery(options)
     };
+  }
+
+  export function generateConfiguredClientServerQuery<T>(
+    condition: EcencyConfigManager.ConfigBasedCondition,
+    options: UseQueryOptions<T>
+  ) {
+    return generateClientServerQuery({
+      ...options,
+      enabled: options && condition(EcencyConfigManager.CONFIG)
+    });
+  }
+
+  export function generateConfiguredClientServerInfiniteQuery<T, P>(
+    condition: EcencyConfigManager.ConfigBasedCondition,
+    options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, T, QueryKey, P>
+  ) {
+    return generateClientServerInfiniteQuery({
+      ...options,
+      enabled: options && condition(EcencyConfigManager.CONFIG)
+    });
   }
 }

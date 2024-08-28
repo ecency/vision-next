@@ -9,6 +9,7 @@ import { FollowControls } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { FavouriteBtn } from "@/features/shared/favorite-btn";
 import { ProfileInfo } from "@/app/[...slugs]/_profile-components/profile-info";
+import { EcencyConfigManager } from "@/config";
 
 setProxyBase(defaults.imageServer);
 
@@ -17,7 +18,6 @@ interface Props {
 }
 
 export function ProfileCover({ account }: Props) {
-  const usePrivate = useGlobalStore((state) => state.usePrivate);
   const theme = useGlobalStore((state) => state.theme);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const activeUser = useGlobalStore((state) => state.activeUser);
@@ -48,7 +48,11 @@ export function ProfileCover({ account }: Props) {
         {!hideControls && (
           <>
             <FollowControls targetUsername={account?.name} />
-            {usePrivate && <FavouriteBtn targetUsername={account?.name} />}
+            <EcencyConfigManager.Conditional
+              condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
+            >
+              <FavouriteBtn targetUsername={account?.name} />
+            </EcencyConfigManager.Conditional>
           </>
         )}
       </div>

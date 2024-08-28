@@ -4,6 +4,7 @@ import { Tooltip } from "@ui/tooltip";
 import { PopperDropdown } from "@/features/ui";
 import i18next from "i18next";
 import { videoSvg } from "@ui/svg";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   onSelect: (video: string) => void;
@@ -11,7 +12,6 @@ interface Props {
 
 export function DeckThreadsFormToolbarVideoPicker({ onSelect }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const [showUpload, setShowUpload] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
@@ -25,11 +25,15 @@ export function DeckThreadsFormToolbarVideoPicker({ onSelect }: Props) {
               <div className="dropdown-item" onClick={() => setShowUpload(true)}>
                 {i18next.t("video-upload.upload-video")}
               </div>
-              {usePrivate && (
+              <EcencyConfigManager.Conditional
+                condition={({ thirdPartyFeatures }) =>
+                  thirdPartyFeatures.threeSpeak.uploading.enabled
+                }
+              >
                 <div className="dropdown-item" onClick={() => setShowGallery(true)}>
                   {i18next.t("video-upload.video-gallery")}
                 </div>
-              )}
+              </EcencyConfigManager.Conditional>
             </div>
           </PopperDropdown>
         </Tooltip>

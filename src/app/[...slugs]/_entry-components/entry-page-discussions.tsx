@@ -13,6 +13,7 @@ import { createReplyPermlink, makeJsonMetaDataReply } from "@/utils";
 import appPackage from "../../../../package.json";
 import { useCreateReply } from "@/api/mutations";
 import { getCommunityCache } from "@/core/caches";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   entry: Entry;
@@ -25,12 +26,15 @@ export function EntryPageDiscussions({ entry, category }: Props) {
   const { commentsInputRef, selection } = EcencyClientServerBridge.useSafeContext(EntryPageContext);
 
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const [isCommented, setIsCommented] = useState(false);
 
   const { data: community } = getCommunityCache(category).useClientQuery();
-  const isRawContent = useMemo(() => usePrivate && !!params.get("raw"), [params, usePrivate]);
+  const isRawContent = useMemo(
+    () =>
+      EcencyConfigManager.CONFIG.visionFeatures.entries.rawContent.enabled && !!params.get("raw"),
+    [params]
+  );
 
   const { mutateAsync: createReply, isPending: isCreateReplyLoading } = useCreateReply(
     entry,

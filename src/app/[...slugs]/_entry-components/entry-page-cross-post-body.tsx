@@ -6,6 +6,7 @@ import { Entry } from "@/entities";
 import { renderPostBody } from "@ecency/render-helper";
 import { useGlobalStore } from "@/core/global-store";
 import { TagLink } from "@/features/shared/tag";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   entry: Entry;
@@ -13,7 +14,6 @@ interface Props {
 
 export function EntryPageCrossPostBody({ entry }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   if (!entry.original_entry) {
     return <></>;
@@ -70,7 +70,11 @@ export function EntryPageCrossPostBody({ entry }: Props) {
             </div>
           </div>
           <span className="flex-spacer" />
-          {usePrivate && <BookmarkBtn entry={entry.original_entry} />}
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.bookmarks.enabled}
+          >
+            <BookmarkBtn entry={entry.original_entry} />
+          </EcencyConfigManager.Conditional>
           <EntryMenu entry={entry} separatedSharing={true} />
         </div>
       </div>

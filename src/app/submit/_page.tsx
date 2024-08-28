@@ -71,6 +71,7 @@ import { PREFIX } from "@/utils/local-storage";
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { handleFloatingContainer } from "@/features/faq";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   path: string;
@@ -87,7 +88,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const { body, setBody } = useBodyVersioningManager();
 
   const router = useRouter();
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
   const activeUser = useGlobalStore((s) => s.activeUser);
   const previousActiveUser = usePrevious(activeUser);
 
@@ -609,18 +609,22 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                         {i18next.t("floating-faq.help")}
                       </Button>
                     </ClickAwayListener>
-                    {usePrivate && isDraftEmpty ? (
-                      <LoginRequired>
-                        <Button
-                          outline={true}
-                          className="mr-[6px]"
-                          onClick={() => setDrafts(!drafts)}
-                          icon={contentLoadSvg}
-                          iconPlacement="left"
-                        >
-                          {i18next.t("submit.load-draft")}
-                        </Button>
-                      </LoginRequired>
+                    {isDraftEmpty ? (
+                      <EcencyConfigManager.Conditional
+                        condition={({ visionFeatures }) => visionFeatures.drafts.enabled}
+                      >
+                        <LoginRequired>
+                          <Button
+                            outline={true}
+                            className="mr-[6px]"
+                            onClick={() => setDrafts(!drafts)}
+                            icon={contentLoadSvg}
+                            iconPlacement="left"
+                          >
+                            {i18next.t("submit.load-draft")}
+                          </Button>
+                        </LoginRequired>
+                      </EcencyConfigManager.Conditional>
                     ) : (
                       <LoginRequired>
                         <Button
@@ -799,8 +803,10 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                       </div>
                     </div>
                     {editingEntry === null && (
-                      <>
-                        {usePrivate && !threeSpeakManager.hasUnpublishedVideo && (
+                      <EcencyConfigManager.Conditional
+                        condition={({ visionFeatures }) => visionFeatures.schedules.enabled}
+                      >
+                        {!threeSpeakManager.hasUnpublishedVideo && (
                           <div className="grid grid-cols-12 mb-4">
                             <div className="col-span-12 sm:col-span-3">
                               <label>{i18next.t("submit.schedule")}</label>
@@ -818,7 +824,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                             </div>
                           </div>
                         )}
-                      </>
+                      </EcencyConfigManager.Conditional>
                     )}
                     {editingEntry === null && tags?.length > 0 && isCommunity(tags[0]) && (
                       <div className="grid grid-cols-12 mb-4">

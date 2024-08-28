@@ -24,8 +24,6 @@ export function createGlobalState() {
     globalNotifications: true,
     nsfw: false,
     isMobile: false,
-    usePrivate: true,
-    hsClientId: "ecency.app",
     lastIndexPath: null as string | null
   };
 }

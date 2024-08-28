@@ -39,6 +39,7 @@ import { AddImage } from "@/features/shared/editor-toolbar/add-image";
 import { AddLink } from "@/features/shared/editor-toolbar/add-link";
 import { AddImageMobile } from "@/features/shared/editor-toolbar/add-image-mobile";
 import useMount from "react-use/lib/useMount";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   sm?: boolean;
@@ -74,7 +75,6 @@ export function EditorToolbar({
   readonlyPoll
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
   const isMobile = useGlobalStore((s) => s.isMobile);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -325,13 +325,15 @@ export function EditorToolbar({
             {formatQuoteCloseSvg}
           </div>
         </Tooltip>
-        {usePrivate && (
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
+        >
           <Tooltip content={i18next.t("editor-toolbar.fragments")}>
             <div className="editor-tool" onClick={() => setFragments(!fragments)}>
               {textShortSvg}
             </div>
           </Tooltip>
-        )}
+        </EcencyConfigManager.Conditional>
         <div className="tool-separator" />
         <Tooltip content={i18next.t("editor-toolbar.ol")}>
           <div className="editor-tool" onClick={ol}>
@@ -382,7 +384,9 @@ export function EditorToolbar({
                   >
                     {i18next.t("editor-toolbar.upload")}
                   </div>
-                  {usePrivate && (
+                  <EcencyConfigManager.Conditional
+                    condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
+                  >
                     <div
                       className="sub-tool-menu-item"
                       onClick={(e: React.MouseEvent<HTMLElement>) => {
@@ -392,28 +396,31 @@ export function EditorToolbar({
                     >
                       {i18next.t("editor-toolbar.gallery")}
                     </div>
-                  )}
+                  </EcencyConfigManager.Conditional>
                 </div>
               )}
             </div>
           </Tooltip>
         )}
         {!comment && (
-          <Tooltip content={i18next.t("video-upload.upload-video")}>
-            <div className="editor-tool" role="none">
-              <VideoUpload
-                className="new-feature"
-                show={showVideoUpload}
-                setShow={(v) => setShowVideoUpload(v)}
-                setShowGallery={(v) => setShowVideoGallery(v)}
-              >
-                {videoSvg}
-                {activeUser && (
-                  <div className="sub-tool-menu">
-                    <div className="sub-tool-menu-item" onClick={() => setShowVideoUpload(true)}>
-                      {i18next.t("video-upload.upload-video")}
-                    </div>
-                    {usePrivate && (
+          <EcencyConfigManager.Conditional
+            condition={({ thirdPartyFeatures }) => thirdPartyFeatures.threeSpeak.uploading.enabled}
+          >
+            <Tooltip content={i18next.t("video-upload.upload-video")}>
+              <div className="editor-tool" role="none">
+                <VideoUpload
+                  className="new-feature"
+                  show={showVideoUpload}
+                  setShow={(v) => setShowVideoUpload(v)}
+                  setShowGallery={(v) => setShowVideoGallery(v)}
+                >
+                  {videoSvg}
+                  {activeUser && (
+                    <div className="sub-tool-menu">
+                      <div className="sub-tool-menu-item" onClick={() => setShowVideoUpload(true)}>
+                        {i18next.t("video-upload.upload-video")}
+                      </div>
+
                       <div
                         className="sub-tool-menu-item"
                         onClick={(e: React.MouseEvent<HTMLElement>) => {
@@ -423,20 +430,20 @@ export function EditorToolbar({
                       >
                         {i18next.t("video-upload.video-gallery")}
                       </div>
-                    )}
-                  </div>
-                )}
-              </VideoUpload>
-              <VideoGallery
-                showGallery={showVideoGallery}
-                setShowGallery={(v) => setShowVideoGallery(v)}
-                insertText={insertText}
-                setVideoEncoderBeneficiary={setVideoEncoderBeneficiary}
-                toggleNsfwC={toggleNsfwC}
-                setVideoMetadata={setVideoMetadata}
-              />
-            </div>
-          </Tooltip>
+                    </div>
+                  )}
+                </VideoUpload>
+                <VideoGallery
+                  showGallery={showVideoGallery}
+                  setShowGallery={(v) => setShowVideoGallery(v)}
+                  insertText={insertText}
+                  setVideoEncoderBeneficiary={setVideoEncoderBeneficiary}
+                  toggleNsfwC={toggleNsfwC}
+                  setVideoMetadata={setVideoMetadata}
+                />
+              </div>
+            </Tooltip>
+          </EcencyConfigManager.Conditional>
         )}
         {isMounted() && (
           <Tooltip content={i18next.t("editor-toolbar.emoji")}>
@@ -493,35 +500,47 @@ export function EditorToolbar({
         multiple={true}
         style={{ display: "none" }}
       />
-      {gallery && activeUser && (
-        <GalleryDialog
-          show={gallery}
-          setShow={setGallery}
-          onPick={(url: string) => {
-            const fileName = "";
-            insertImage(fileName, url);
-            setGallery(false);
-          }}
-        />
-      )}
-      {fragments && activeUser && (
-        <Fragments
-          onHide={() => setFragments(false)}
-          onPick={(body: string) => {
-            insertText(body);
-            setFragments(false);
-          }}
-        />
-      )}
-      {image && (
-        <AddImage
-          onHide={() => setImage(false)}
-          onSubmit={(text: string, link: string) => {
-            insertImage(text, link);
-            setImage(false);
-          }}
-        />
-      )}
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
+      >
+        {activeUser && (
+          <GalleryDialog
+            show={gallery}
+            setShow={setGallery}
+            onPick={(url: string) => {
+              const fileName = "";
+              insertImage(fileName, url);
+              setGallery(false);
+            }}
+          />
+        )}
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
+      >
+        {fragments && activeUser && (
+          <Fragments
+            onHide={() => setFragments(false)}
+            onPick={(body: string) => {
+              insertText(body);
+              setFragments(false);
+            }}
+          />
+        )}
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.imageServer.enabled}
+      >
+        {image && (
+          <AddImage
+            onHide={() => setImage(false)}
+            onSubmit={(text: string, link: string) => {
+              insertImage(text, link);
+              setImage(false);
+            }}
+          />
+        )}
+      </EcencyConfigManager.Conditional>
       {link && (
         <AddLink
           onHide={() => setLink(false)}
@@ -531,32 +550,42 @@ export function EditorToolbar({
           }}
         />
       )}
-      {mobileImage && (
-        <AddImageMobile
-          onHide={() => setMobileImage(false)}
-          onPick={(url) => {
-            const fileName = "";
-            insertImage(fileName, url);
-            setMobileImage(false);
-          }}
-          onGallery={() => {
-            setMobileImage(false);
-            setGallery(!gallery);
-          }}
-          onUpload={() => {
-            setMobileImage(false);
-            fileInputRef.current?.click();
-          }}
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) =>
+          visionFeatures.gallery.enabled && visionFeatures.imageServer.enabled
+        }
+      >
+        {mobileImage && (
+          <AddImageMobile
+            onHide={() => setMobileImage(false)}
+            onPick={(url) => {
+              const fileName = "";
+              insertImage(fileName, url);
+              setMobileImage(false);
+            }}
+            onGallery={() => {
+              setMobileImage(false);
+              setGallery(!gallery);
+            }}
+            onUpload={() => {
+              setMobileImage(false);
+              fileInputRef.current?.click();
+            }}
+          />
+        )}
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ features }) => features.polls.creating.enabled}
+      >
+        <PollsCreation
+          readonly={readonlyPoll}
+          existingPoll={existingPoll}
+          show={showPollsCreation}
+          setShow={(v) => setShowPollsCreation(v)}
+          onAdd={(snap) => onAddPoll?.(snap)}
+          onDeletePoll={() => onDeletePoll?.()}
         />
-      )}
-      <PollsCreation
-        readonly={readonlyPoll}
-        existingPoll={existingPoll}
-        show={showPollsCreation}
-        setShow={(v) => setShowPollsCreation(v)}
-        onAdd={(snap) => onAddPoll?.(snap)}
-        onDeletePoll={() => onDeletePoll?.()}
-      />
+      </EcencyConfigManager.Conditional>
     </>
   );
 }

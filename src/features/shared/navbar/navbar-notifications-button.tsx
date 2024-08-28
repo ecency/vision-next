@@ -16,7 +16,9 @@ export function NavbarNotificationsButton({ onClick }: { onClick?: () => void })
   const { data: unread } = useNotificationUnreadCountQuery();
 
   return (
-    <EcencyConfigManager.Conditional condition={({ features }) => features.notifications.enabled}>
+    <EcencyConfigManager.Conditional
+      condition={({ visionFeatures }) => visionFeatures.notifications.enabled}
+    >
       <Tooltip content={i18next.t("user-nav.notifications")}>
         <div
           className="notifications"

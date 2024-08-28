@@ -20,6 +20,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { getCommunityCache } from "@/core/caches";
 import { CommunityCardEditPic } from "@/app/[...slugs]/_components/community-card/community-card-edit-pic";
 import { Followers, Following } from "../friends";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   account: Account;
@@ -28,7 +29,6 @@ interface Props {
 
 export const ProfileCard = ({ account, section }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const [followersList, setFollowersList] = useState(false);
   const [followingList, setFollowingList] = useState(false);
@@ -241,11 +241,13 @@ export const ProfileCard = ({ account, section }: Props) => {
         )}
         {isMyProfile && (
           <>
-            {usePrivate && (
+            <EcencyConfigManager.Conditional
+              condition={({ visionFeatures }) => visionFeatures.referrals.enabled}
+            >
               <Link href={`/@${account?.name}/referrals`}>
                 <Button size="sm">{i18next.t("profile.referrals")}</Button>
               </Link>
-            )}
+            </EcencyConfigManager.Conditional>
             <Link href="/witnesses">
               <Button size="sm">{i18next.t("profile.witnesses")}</Button>
             </Link>

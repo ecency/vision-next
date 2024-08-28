@@ -21,7 +21,6 @@ export const DeckToolbarBaseActions = ({
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const { data: unread } = useNotificationUnreadCountQuery();
 
@@ -32,7 +31,7 @@ export const DeckToolbarBaseActions = ({
       {activeUser && (
         <>
           <EcencyConfigManager.Conditional
-            condition={({ features }) => features.notifications.enabled}
+            condition={({ visionFeatures }) => visionFeatures.notifications.enabled}
           >
             <div className="notifications" onClick={() => toggleUIProp("notifications")}>
               {unread > 0 && (
@@ -43,7 +42,11 @@ export const DeckToolbarBaseActions = ({
               {bellSvg}
             </div>
           </EcencyConfigManager.Conditional>
-          {usePrivate && <div onClick={() => setShowPurchaseDialog(true)}>{rocketSvg}</div>}
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.perks.enabled}
+          >
+            <div onClick={() => setShowPurchaseDialog(true)}>{rocketSvg}</div>
+          </EcencyConfigManager.Conditional>
           <WalletBadge icon={walletIconSvg} />
         </>
       )}

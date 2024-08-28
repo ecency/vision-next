@@ -7,6 +7,7 @@ import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
 import { getImagesQuery } from "@/api/queries";
 import defaults from "@/defaults.json";
+import { EcencyConfigManager } from "@/config";
 
 setProxyBase(defaults.imageServer);
 
@@ -20,7 +21,6 @@ interface Props {
 export function AddImageMobile({ onHide, onPick, onUpload, onGallery }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const { data: items } = getImagesQuery(activeUser?.username).useClientQuery();
 
@@ -51,10 +51,16 @@ export function AddImageMobile({ onHide, onPick, onUpload, onGallery }: Props) {
               </div>
             </div>
             <div className="flex justify-between">
-              {usePrivate && (
+              <EcencyConfigManager.Conditional
+                condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
+              >
                 <Button onClick={onGallery}>{i18next.t("add-image-mobile.gallery")}</Button>
-              )}
-              <Button onClick={onUpload}>{i18next.t("add-image-mobile.upload")}</Button>
+              </EcencyConfigManager.Conditional>
+              <EcencyConfigManager.Conditional
+                condition={({ visionFeatures }) => visionFeatures.imageServer.enabled}
+              >
+                <Button onClick={onUpload}>{i18next.t("add-image-mobile.upload")}</Button>
+              </EcencyConfigManager.Conditional>
             </div>
           </div>
         )}

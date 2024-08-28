@@ -16,6 +16,7 @@ import { CommunityCardRules } from "./community-card-rules";
 import { CommunityCardTeam } from "./community-card-team";
 import { CommunitySettingsDialog } from "@/app/[...slugs]/_components/community-settings";
 import { CommunityRewardsRegistrationDialog } from "../community-rewards-registration";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   community: Community;
@@ -25,7 +26,6 @@ interface Props {
 export function CommunityCard({ community, account }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const users = useGlobalStore((state) => state.users);
-  const usePrivate = useGlobalStore((state) => state.usePrivate);
 
   const [info, setInfo] = useState<DialogInfo>();
   const [settings, setSettings] = useState(false);
@@ -91,20 +91,24 @@ export function CommunityCard({ community, account }: Props) {
           )}
         </div>
       )}
-      {usePrivate && roleInTeam === ROLES.OWNER.toString() && (
-        <p className="community-rewards">
-          <Button
-            size="sm"
-            outline={true}
-            type="button"
-            onClick={(e: { preventDefault: () => void }) => {
-              e.preventDefault();
-              setRewards(true);
-            }}
-          >
-            {i18next.t("community-card.community-rewards")}
-          </Button>
-        </p>
+      {roleInTeam === ROLES.OWNER.toString() && (
+        <EcencyConfigManager.Conditional
+          condition={({ features }) => features.communities.rewards.enabled}
+        >
+          <p className="community-rewards">
+            <Button
+              size="sm"
+              outline={true}
+              type="button"
+              onClick={(e: { preventDefault: () => void }) => {
+                e.preventDefault();
+                setRewards(true);
+              }}
+            >
+              {i18next.t("community-card.community-rewards")}
+            </Button>
+          </p>
+        </EcencyConfigManager.Conditional>
       )}
       <JoinCommunityChatBtn community={community} />
       {info && (

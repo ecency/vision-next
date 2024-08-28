@@ -1,9 +1,9 @@
 import React from "react";
 import "./_index.scss";
-import { useGlobalStore } from "@/core/global-store";
 import Link from "next/link";
 import Image from "next/image";
 import { hiveEngineSvg, hiveSvg, spkSvg } from "@ui/svg";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   username: string;
@@ -11,11 +11,11 @@ interface Props {
 }
 
 export function WalletMenu({ username, active }: Props) {
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
-
   return (
     <div className="wallet-menu">
-      {usePrivate && (
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.points.enabled}
+      >
         <Link
           className={`menu-item ecency ${active === "ecency" ? "active" : ""}`}
           href={`/@${username}/points`}
@@ -26,7 +26,7 @@ export function WalletMenu({ username, active }: Props) {
             <Image alt="ecency" width={100} height={100} src="/assets/logo-small-transparent.png" />
           </span>
         </Link>
-      )}
+      </EcencyConfigManager.Conditional>
       <Link
         className={`menu-item hive ${active === "hive" ? "active" : ""}`}
         href={`/@${username}/wallet`}

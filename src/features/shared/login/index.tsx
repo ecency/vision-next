@@ -9,8 +9,8 @@ import { LoginKc } from "./login-kc";
 import { Login } from "./login";
 import { Account, User } from "@/entities";
 import { hsTokenRenew } from "@/api/auth-api";
-import { usrActivity } from "@/api/private-api";
 import { usePathname, useRouter } from "next/navigation";
+import { useRecordUserActivity } from "@/api/mutations";
 
 export function LoginDialog() {
   const userListRef = useRef();
@@ -18,12 +18,13 @@ export function LoginDialog() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const usePrivate = useGlobalStore((state) => state.usePrivate);
   const loginKc = useGlobalStore((state) => state.loginKc);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
+
+  const { mutateAsync: recordActivity } = useRecordUserActivity();
 
   useUnmount(() => {
     if (loginKc) {
@@ -55,10 +56,8 @@ export function LoginDialog() {
       // add account data of the user to the reducer
       updateActiveUser(account);
 
-      if (usePrivate) {
-        // login activity
-        usrActivity(user.username, 20);
-      }
+      // login activity
+      recordActivity({ ty: 20 });
 
       // redirection based on path name
       if (pathname.startsWith("/signup")) {

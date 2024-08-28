@@ -24,6 +24,7 @@ import { formatError, setUserRole, updateCommunity } from "@/api/operations";
 import * as keychain from "@/utils/keychain";
 import { User } from "@/entities";
 import { hsTokenRenew } from "@/api/auth-api";
+import { EcencyConfigManager } from "@/config";
 
 const namePattern = "^hive-[1]\\d{4,6}$";
 
@@ -31,7 +32,6 @@ export function CreateCommunityPage() {
   const formRef = useRef<HTMLFormElement>(null);
 
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const hsClientId = useGlobalStore((s) => s.hsClientId);
 
   const [fee, setFee] = useState("");
   const [title, setTitle] = useState("");
@@ -71,7 +71,7 @@ export function CreateCommunityPage() {
       const hash = cryptoUtils.sha256(message);
       return new Promise<string>((resolve) => resolve(keys.activeKey.sign(hash).toString()));
     };
-    const code = await makeHsCode(hsClientId, username, signer);
+    const code = await makeHsCode(EcencyConfigManager.CONFIG.service.hsClientId, username, signer);
     if (code) {
       const callback = `${
         window.location.origin
@@ -147,7 +147,7 @@ export function CreateCommunityPage() {
     // create hive signer code from active private key
     const signer = (message: string): Promise<string> =>
       keychain.signBuffer(username, message, "Active").then((r) => r.result);
-    const code = await makeHsCode(hsClientId, username, signer);
+    const code = await makeHsCode(EcencyConfigManager.CONFIG.service.hsClientId, username, signer);
 
     return finalizeSubmit(code);
   };
@@ -228,7 +228,7 @@ export function CreateCommunityPage() {
       const hash = cryptoUtils.sha256(message);
       return new Promise<string>((resolve) => resolve(keys.activeKey.sign(hash).toString()));
     };
-    const code = await makeHsCode(hsClientId, username, signer);
+    const code = await makeHsCode(EcencyConfigManager.CONFIG.service.hsClientId, username, signer);
 
     return finalizeSubmit(code);
   };

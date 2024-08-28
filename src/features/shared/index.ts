@@ -56,3 +56,4 @@ export * from "./boost";
 export * from "./static-navbar";
 export * from "./edit-history";
 export * from "./editor-toolbar";
+export * from "./redirect";

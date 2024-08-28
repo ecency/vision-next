@@ -8,7 +8,7 @@ export function useRecordUserActivity() {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   return EcencyConfigManager.useConditionalMutation(
-    ({ features }) => features.userActivityTracking.enabled,
+    ({ visionFeatures }) => visionFeatures.userActivityTracking.enabled,
     {
       mutationKey: ["recordUserActivity", activeUser?.username],
       mutationFn: ({

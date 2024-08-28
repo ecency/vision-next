@@ -11,6 +11,7 @@ import { addAccountAuthority, makeHsCode, signBuffer } from "@/utils";
 import { formatError } from "@/api/operations";
 import { error } from "@/features/shared";
 import Image from "next/image";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   doLogin: (
@@ -21,7 +22,6 @@ interface Props {
 }
 
 export function LoginKc({ doLogin }: Props) {
-  const hsClientId = useGlobalStore((state) => state.hsClientId);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   const [username, setUsername] = useState("");
@@ -55,14 +55,21 @@ export function LoginKc({ doLogin }: Props) {
     setInProgress(true);
 
     const hasPostingPerm =
-      account.posting!.account_auths.filter((x) => x[0] === hsClientId).length > 0;
+      account.posting!.account_auths.filter(
+        (x) => x[0] === EcencyConfigManager.CONFIG.service.hsClientId
+      ).length > 0;
 
     if (!hasPostingPerm) {
       const weight = account.posting!.weight_threshold;
 
       setInProgress(true);
       try {
-        await addAccountAuthority(username, hsClientId, "Posting", weight);
+        await addAccountAuthority(
+          username,
+          EcencyConfigManager.CONFIG.service.hsClientId,
+          "Posting",
+          weight
+        );
       } catch (err) {
         error(i18next.t("login.error-permission"));
         return;
@@ -75,7 +82,7 @@ export function LoginKc({ doLogin }: Props) {
 
     let code: string;
     try {
-      code = await makeHsCode(hsClientId, username, signer);
+      code = await makeHsCode(EcencyConfigManager.CONFIG.service.hsClientId, username, signer);
     } catch (err) {
       error(...formatError(err));
       setInProgress(false);

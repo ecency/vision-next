@@ -1,6 +1,7 @@
-import { useGlobalStore } from "@/core/global-store";
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { getPoints, getPointTransactions } from "@/api/private-api";
+import { getPointTransactions } from "@/api/private-api";
+import { appAxios } from "@/api/axios";
+import { apiBase } from "@/api/helper";
 
 const DEFAULT = {
   points: "0.000",
@@ -8,29 +9,36 @@ const DEFAULT = {
   transactions: []
 };
 
+interface PointsResponse {
+  points: string;
+  unclaimed_points: string;
+}
+
 export const getPointsQuery = (username?: string, filter = 0) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const usePrivate = useGlobalStore((state) => state.usePrivate);
+  return EcencyQueriesManager.generateConfiguredClientServerQuery(
+    ({ visionFeatures }) => visionFeatures.points.enabled,
+    {
+      queryKey: [QueryIdentifiers.POINTS, username, filter],
+      queryFn: async () => {
+        if (!username) {
+          throw new Error("Get points query – username wasn`t provided");
+        }
 
-  return EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.POINTS, username, filter],
-    queryFn: async () => {
-      if (!username) {
-        throw new Error("Get points query – username wasn`t provided");
-      }
+        const name = username.replace("@", "");
 
-      const name = username.replace("@", "");
-
-      const points = await getPoints(name, usePrivate);
-      const transactions = await getPointTransactions(name, filter);
-      return {
-        points: points.points,
-        uPoints: points.unclaimed_points,
-        transactions
-      } as const;
-    },
-    initialData: DEFAULT,
-    enabled: !!username,
-    retryDelay: 30000
-  });
+        const points = (
+          await appAxios.post<PointsResponse>(apiBase(`/private-api/points`), { username: name })
+        ).data;
+        const transactions = await getPointTransactions(name, filter);
+        return {
+          points: points.points,
+          uPoints: points.unclaimed_points,
+          transactions
+        } as const;
+      },
+      initialData: DEFAULT,
+      enabled: !!username,
+      retryDelay: 30000
+    }
+  );
 };

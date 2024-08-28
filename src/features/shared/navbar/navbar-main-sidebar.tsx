@@ -82,7 +82,9 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           onClick={() => setShow(false)}
           icon={<UilUserSquare size={16} />}
         />
-        <EcencyConfigManager.Conditional condition={({ features }) => features.decks.enabled}>
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.decks.enabled}
+        >
           <NavbarSideMainMenuItem
             label={i18next.t("navbar.decks")}
             to="/decks"

@@ -2,7 +2,6 @@ import React from "react";
 import "./_index.scss";
 import { Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
-import { useGlobalStore } from "@/core/global-store";
 import { getPromotedEntriesQuery } from "@/api/queries";
 import { EntryListContentNoData } from "@/features/shared/entry-list-content/entry-list-content-no-data";
 
@@ -23,12 +22,10 @@ export function EntryListContent({
   username,
   showEmptyPlaceholder = true
 }: Props) {
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
-
   let dataToRender = [...entries];
   let promotedEntries: Entry[] = [];
   if (isPromoted) {
-    const promotedEntriesResponse = getPromotedEntriesQuery(usePrivate).getData();
+    const promotedEntriesResponse = getPromotedEntriesQuery().getData();
     promotedEntries = promotedEntriesResponse ?? [];
   }
 

@@ -5,15 +5,13 @@ import { Entry } from "@/entities";
 import { BookmarkBtn, EntryMenu, ProfileLink, UserAvatar } from "@/features/shared";
 import i18next from "i18next";
 import { TagLink } from "@/features/shared/tag";
-import { useGlobalStore } from "@/core/global-store";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   entry: Entry;
 }
 
 export const EntryInfo = ({ entry }: Props) => {
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
-
   const reputation = accountReputation(entry.author_reputation);
   const published = moment(parseDate(entry.created));
 
@@ -57,7 +55,11 @@ export const EntryInfo = ({ entry }: Props) => {
         </div>
       </div>
       <span className="flex-spacer" />
-      {usePrivate && <BookmarkBtn entry={entry} />}
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.bookmarks.enabled}
+      >
+        <BookmarkBtn entry={entry} />
+      </EcencyConfigManager.Conditional>
       <EntryMenu entry={entry} separatedSharing={true} />
     </div>
   );

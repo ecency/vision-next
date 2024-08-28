@@ -1,4 +1,5 @@
 "use client";
+
 import React, { Fragment, useState } from "react";
 import "./_index.scss";
 
@@ -33,7 +34,6 @@ import { claimPoints, getCurrencyTokenRate } from "@/api/private-api";
 import { useGlobalStore } from "@/core/global-store";
 import { getPointsQuery } from "@/api/queries";
 import { useQueryClient } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
 import { TransactionType } from "@/enums";
 import { Tooltip } from "@ui/tooltip";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
@@ -67,13 +67,9 @@ interface Props {
 }
 
 export const WalletEcency = ({ account }: Props) => {
-  const router = useRouter();
-  const pathname = usePathname();
-
   const currency = useGlobalStore((s) => s.currency);
   const activeUser = useGlobalStore((s) => s.activeUser);
   const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const [claiming, setClaiming] = useState(false);
   const [purchase, setPurchase] = useState(false);
@@ -95,10 +91,6 @@ export const WalletEcency = ({ account }: Props) => {
 
   useMount(() => {
     refetch();
-
-    if (!usePrivate) {
-      router.push("/");
-    }
     getEstimatedPointsValue();
   });
 
@@ -149,17 +141,9 @@ export const WalletEcency = ({ account }: Props) => {
     setTransfer(!transfer);
   };
 
-  const toggleBoost = () => {
-    setBoost(!boost);
-  };
-
   const filterChanged = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilter(Number(e.target.value));
   };
-
-  if (!usePrivate) {
-    return null;
-  }
 
   const isMyPage = activeUser && activeUser.username === account.name;
 

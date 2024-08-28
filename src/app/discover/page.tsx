@@ -1,5 +1,4 @@
 import "./page.scss";
-import { useGlobalStore } from "@/core/global-store";
 import { Metadata, ResolvingMetadata } from "next";
 import {
   DiscoverContributors,
@@ -16,6 +15,7 @@ import { CurationDuration, LeaderBoardDuration } from "@/entities";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { PagesMetadataGenerator } from "@/features/metadata";
+import { EcencyConfigManager } from "@/config";
 
 export const dynamic = "force-dynamic";
 
@@ -31,8 +31,6 @@ interface Props {
 }
 
 export default async function Discover({ searchParams }: Props) {
-  const usePrivate = useGlobalStore((state) => state.usePrivate);
-
   const dynamicProps = await getDynamicPropsQuery().prefetch();
   const leaderboardData = await getDiscoverLeaderboardQuery(
     (searchParams["period"] as LeaderBoardDuration) ?? "day"
@@ -45,15 +43,19 @@ export default async function Discover({ searchParams }: Props) {
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       <div className="app-content discover-page">
-        {usePrivate && (
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.discover.leaderboard.enabled}
+        >
           <div className="top-users">
             <DiscoverLeaderboard
               data={leaderboardData}
               period={searchParams["period"] as LeaderBoardDuration}
             />
           </div>
-        )}
-        {usePrivate && (
+        </EcencyConfigManager.Conditional>
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.discover.curation.enabled}
+        >
           <div className="curation-users">
             <DiscoverCuration
               dynamicProps={dynamicProps}
@@ -61,7 +63,7 @@ export default async function Discover({ searchParams }: Props) {
               period={searchParams["period"] as CurationDuration}
             />
           </div>
-        )}
+        </EcencyConfigManager.Conditional>
         <div className="popular-users">
           <DiscoverContributors />
         </div>

@@ -37,7 +37,7 @@ export function useUploadPostImage() {
   });
 
   const { mutateAsync: add } = useConditionalMutation(
-    ({ features }) => features.userActivityTracking.enabled,
+    ({ visionFeatures }) => visionFeatures.imageServer.enabled,
     {
       mutationKey: ["addPostImage"],
       mutationFn: async ({ url }: { url: string }) => {

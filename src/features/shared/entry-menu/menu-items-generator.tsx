@@ -9,7 +9,7 @@ import { clipboard } from "@/utils/clipboard";
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { MenuItem } from "@ui/dropdown";
-import { isCommunity } from "@/utils";
+import { isCommunity, safeSpread } from "@/utils";
 import {
   UilHistory,
   UilHistoryAlt,
@@ -21,6 +21,7 @@ import {
   UilVolume,
   UilVolumeOff
 } from "@iconscout/react-unicons";
+import { EcencyConfigManager } from "@/config";
 
 export function useMenuItemsGenerator(
   entry: Entry,
@@ -31,7 +32,6 @@ export function useMenuItemsGenerator(
 ) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
-  const usePrivate = useGlobalStore((state) => state.usePrivate);
 
   const { data: isPinned } = useCommunityPinCache(entry);
 
@@ -118,113 +118,110 @@ export function useMenuItemsGenerator(
     const canPinBlog = isOwn && !canUnpinBlog;
 
     setMenuItems([
-      ...(isOwn
-        ? [
-            {
-              label: i18next.t("g.edit"),
-              onClick:
-                isComment && toggleEdit
-                  ? toggleEdit
-                  : () => router.push(`/@${entry.author}/${entry.permlink}/edit`),
-              icon: <UilPen />
-            }
-          ]
-        : []),
-      ...(isCross
-        ? [
-            {
-              label: i18next.t("entry-menu.cross-post"),
-              onClick: () => setCross(!cross),
-              icon: <UilHistory />
-            }
-          ]
-        : []),
-      ...(canMute
-        ? [
-            {
-              label: !!entry.stats?.gray
-                ? i18next.t("entry-menu.unmute")
-                : i18next.t("entry-menu.mute"),
-              onClick: () => setMute(!mute),
-              icon: !!entry.stats?.gray ? <UilVolumeOff /> : <UilVolume />
-            }
-          ]
-        : []),
+      ...safeSpread(
+        () => isOwn,
+        () => ({
+          label: i18next.t("g.edit"),
+          onClick:
+            isComment && toggleEdit
+              ? toggleEdit
+              : () => router.push(`/@${entry.author}/${entry.permlink}/edit`),
+          icon: <UilPen />
+        })
+      ),
+      ...safeSpread(
+        () => isCross === true,
+        () => ({
+          label: i18next.t("entry-menu.cross-post"),
+          onClick: () => setCross(!cross),
+          icon: <UilHistory />
+        })
+      ),
+      ...safeSpread(
+        () => canMute,
+        () => ({
+          label: !!entry.stats?.gray
+            ? i18next.t("entry-menu.unmute")
+            : i18next.t("entry-menu.mute"),
+          onClick: () => setMute(!mute),
+          icon: !!entry.stats?.gray ? <UilVolumeOff /> : <UilVolume />
+        })
+      ),
       ...(extraMenuItems ?? []),
-      ...(usePrivate
-        ? [
-            {
-              label: i18next.t("entry-menu.edit-history"),
-              onClick: () => setEditHistory(!editHistory),
-              icon: <UilHistoryAlt />
-            },
-            {
-              label: i18next.t("entry-menu.promote"),
-              onClick:
-                activeUser !== null ? () => setPromote(!promote) : () => toggleUIProp("login"),
-              icon: bullHornSvg
-            },
-            {
-              label: i18next.t("entry.address-copy"),
-              onClick: copyAddress,
-              icon: <UilLink />
-            }
-          ]
-        : []),
-      ...(!separatedSharing
-        ? [
-            {
-              label: i18next.t("entry-menu.share"),
-              onClick: () => setShare(!share),
-              icon: <UilShare />
-            }
-          ]
-        : []),
-      ...(canUnpinCommunity
-        ? [
-            {
-              label: i18next.t("entry-menu.unpin-from-community"),
-              onClick: () => toggleUnpin("community"),
-              icon: <UilMapPin />
-            }
-          ]
-        : []),
-      ...(canUnpinBlog
-        ? [
-            {
-              label: i18next.t("entry-menu.unpin-from-blog"),
-              onClick: () => toggleUnpin("blog"),
-              icon: <UilMapPin />
-            }
-          ]
-        : []),
-      ...(canPinCommunity
-        ? [
-            {
-              label: i18next.t("entry-menu.pin-to-community"),
-              onClick: () => togglePin("community"),
-              icon: <UilMapPin />
-            }
-          ]
-        : []),
-      ...(canPinBlog
-        ? [
-            {
-              label: i18next.t("entry-menu.pin-to-blog"),
-              onClick: () => togglePin("blog"),
-              icon: <UilMapPin />
-            }
-          ]
-        : []),
-      ...(isDeletable
-        ? [
-            {
-              label: i18next.t("g.delete"),
-              onClick: () => setDelete_(!delete_),
-              icon: <UilTrash />
-            }
-          ]
-        : [])
+      ...EcencyConfigManager.composeConditionals(
+        EcencyConfigManager.withConditional(
+          ({ visionFeatures }) => visionFeatures.editHistory.enabled,
+          () => ({
+            label: i18next.t("entry-menu.edit-history"),
+            onClick: () => setEditHistory(!editHistory),
+            icon: <UilHistoryAlt />
+          })
+        ),
+        EcencyConfigManager.withConditional(
+          ({ visionFeatures }) => visionFeatures.promotions.enabled,
+          () => ({
+            label: i18next.t("entry-menu.promote"),
+            onClick: activeUser !== null ? () => setPromote(!promote) : () => toggleUIProp("login"),
+            icon: bullHornSvg
+          })
+        ),
+        EcencyConfigManager.withConditional(
+          ({ privateMode }) => privateMode,
+          () => ({
+            label: i18next.t("entry.address-copy"),
+            onClick: copyAddress,
+            icon: <UilLink />
+          })
+        )
+      ),
+      ...safeSpread(
+        () => !separatedSharing,
+        () => ({
+          label: i18next.t("entry-menu.share"),
+          onClick: () => setShare(!share),
+          icon: <UilShare />
+        })
+      ),
+      ...safeSpread(
+        () => canUnpinCommunity,
+        () => ({
+          label: i18next.t("entry-menu.unpin-from-community"),
+          onClick: () => toggleUnpin("community"),
+          icon: <UilMapPin />
+        })
+      ),
+      ...safeSpread(
+        () => canUnpinBlog,
+        () => ({
+          label: i18next.t("entry-menu.unpin-from-blog"),
+          onClick: () => toggleUnpin("blog"),
+          icon: <UilMapPin />
+        })
+      ),
+      ...safeSpread(
+        () => canPinCommunity,
+        () => ({
+          label: i18next.t("entry-menu.pin-to-community"),
+          onClick: () => togglePin("community"),
+          icon: <UilMapPin />
+        })
+      ),
+      ...safeSpread(
+        () => canPinBlog,
+        () => ({
+          label: i18next.t("entry-menu.pin-to-blog"),
+          onClick: () => togglePin("blog"),
+          icon: <UilMapPin />
+        })
+      ),
+      ...safeSpread(
+        () => isDeletable,
+        () => ({
+          label: i18next.t("g.delete"),
+          onClick: () => setDelete_(!delete_),
+          icon: <UilTrash />
+        })
+      )
     ]);
   }, [
     activeUser,
@@ -252,8 +249,7 @@ export function useMenuItemsGenerator(
     toggleEdit,
     togglePin,
     toggleUIProp,
-    toggleUnpin,
-    usePrivate
+    toggleUnpin
   ]);
 
   useEffect(() => {

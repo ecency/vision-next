@@ -7,7 +7,7 @@ import { hsTokenRenew } from "@/api/auth-api";
 import { User } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { getAccount } from "@/api/hive";
-import { usrActivity } from "@/api/private-api";
+import { useRecordUserActivity } from "@/api/mutations";
 
 export function AuthPage() {
   const searchParams = useSearchParams();
@@ -15,6 +15,8 @@ export function AuthPage() {
 
   const setActiveUser = useGlobalStore((s) => s.setActiveUser);
   const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+
+  const { mutateAsync: recordActivity } = useRecordUserActivity();
 
   useMount(() => {
     const code = searchParams.get("code");
@@ -34,7 +36,7 @@ export function AuthPage() {
             getAccount(user.username)
               .then((r) => {
                 updateActiveUser(r);
-                usrActivity(user.username, 20);
+                recordActivity({ ty: 20 });
               })
               .finally(() => {
                 router.push(`/@${user.username}/feed`);

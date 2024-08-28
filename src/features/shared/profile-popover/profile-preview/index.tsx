@@ -13,13 +13,13 @@ import { ProfilePreviewPropertiesRowLayout } from "@/features/shared/profile-pop
 import { ProfilePreviewUsername } from "@/features/shared/profile-popover/profile-preview/profile-preview-username";
 import { ProfilePreviewCover } from "@/features/shared/profile-popover/profile-preview/profile-preview-cover";
 import { ProfilePreviewAvatar } from "@/features/shared/profile-popover/profile-preview/profile-preview-avatar";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   username: string;
 }
 
 export const ProfilePreview = ({ username }: Props) => {
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const { data: profile, isLoading: isProfileLoading } =
@@ -32,7 +32,12 @@ export const ProfilePreview = ({ username }: Props) => {
         {username !== activeUser?.username && (
           <>
             <FollowControls targetUsername={username} />
-            {usePrivate && <FavouriteBtn targetUsername={username} />}
+
+            <EcencyConfigManager.Conditional
+              condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
+            >
+              <FavouriteBtn targetUsername={username} />
+            </EcencyConfigManager.Conditional>
           </>
         )}
       </div>

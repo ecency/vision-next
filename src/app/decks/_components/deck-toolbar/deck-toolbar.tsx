@@ -15,6 +15,7 @@ import { GalleryDialog } from "@/features/shared/gallery";
 import { NotificationsDialog } from "@/features/shared/notifications";
 import { useRouter } from "next/navigation";
 import i18next from "i18next";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   isExpanded: boolean;
@@ -26,7 +27,6 @@ export const DeckToolbar = ({ isExpanded, setIsExpanded }: Props) => {
   const setActiveUser = useGlobalStore((s) => s.setActiveUser);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const uiNotifications = useGlobalStore((s) => s.uiNotifications);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
   const uiLogin = useGlobalStore((s) => s.login);
 
   const router = useRouter();
@@ -43,30 +43,43 @@ export const DeckToolbar = ({ isExpanded, setIsExpanded }: Props) => {
       label: i18next.t("user-nav.profile"),
       onClick: () => router.push(`/@${activeUser?.username}`)
     },
-    ...(usePrivate
-      ? [
-          {
-            label: i18next.t("user-nav.drafts"),
-            onClick: () => setDrafts(true)
-          },
-          {
-            label: i18next.t("user-nav.gallery"),
-            onClick: () => setGallery(true)
-          },
-          {
-            label: i18next.t("user-nav.bookmarks"),
-            onClick: () => setBookmarks(true)
-          },
-          {
-            label: i18next.t("user-nav.schedules"),
-            onClick: () => setSchedules(true)
-          },
-          {
-            label: i18next.t("user-nav.fragments"),
-            onClick: () => setFragments(true)
-          }
-        ]
-      : []),
+    ...EcencyConfigManager.composeConditionals(
+      EcencyConfigManager.withConditional(
+        ({ visionFeatures }) => visionFeatures.drafts.enabled,
+        () => ({
+          label: i18next.t("user-nav.drafts"),
+          onClick: () => setDrafts(true)
+        })
+      ),
+      EcencyConfigManager.withConditional(
+        ({ visionFeatures }) => visionFeatures.gallery.enabled,
+        () => ({
+          label: i18next.t("user-nav.gallery"),
+          onClick: () => setGallery(true)
+        })
+      ),
+      EcencyConfigManager.withConditional(
+        ({ visionFeatures }) => visionFeatures.bookmarks.enabled,
+        () => ({
+          label: i18next.t("user-nav.bookmarks"),
+          onClick: () => setBookmarks(true)
+        })
+      ),
+      EcencyConfigManager.withConditional(
+        ({ visionFeatures }) => visionFeatures.schedules.enabled,
+        () => ({
+          label: i18next.t("user-nav.schedules"),
+          onClick: () => setSchedules(true)
+        })
+      ),
+      EcencyConfigManager.withConditional(
+        ({ visionFeatures }) => visionFeatures.fragments.enabled,
+        () => ({
+          label: i18next.t("user-nav.fragments"),
+          onClick: () => setFragments(true)
+        })
+      )
+    ),
     {
       label: i18next.t("user-nav.settings"),
       onClick: () => router.push(`/@${activeUser?.username}/settings`)
@@ -98,12 +111,36 @@ export const DeckToolbar = ({ isExpanded, setIsExpanded }: Props) => {
         <DeckToolbarManager isExpanded={isExpanded} />
       </div>
       <DeckToolbarToggleArea isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
-      <GalleryDialog show={gallery} setShow={setGallery} />
-      <DraftsDialog show={drafts} setShow={setDrafts} />
-      <BookmarksDialog show={bookmarks} setShow={setBookmarks} />
-      <SchedulesDialog show={schedules} setShow={setSchedules} />
-      <FragmentsDialog show={fragments} setShow={setFragments} />
-      {usePrivate && <NotificationHandler />}
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
+      >
+        <GalleryDialog show={gallery} setShow={setGallery} />
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.drafts.enabled}
+      >
+        <DraftsDialog show={drafts} setShow={setDrafts} />
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.bookmarks.enabled}
+      >
+        <BookmarksDialog show={bookmarks} setShow={setBookmarks} />
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.schedules.enabled}
+      >
+        <SchedulesDialog show={schedules} setShow={setSchedules} />
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
+      >
+        <FragmentsDialog show={fragments} setShow={setFragments} />
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.notifications.enabled}
+      >
+        <NotificationHandler />
+      </EcencyConfigManager.Conditional>
       {uiNotifications && activeUser && <NotificationsDialog openLinksInNewTab={true} />}
       {uiLogin && <LoginDialog />}
       <PurchaseQrDialog show={showPurchaseDialog} setShow={(v) => setShowPurchaseDialog(v)} />

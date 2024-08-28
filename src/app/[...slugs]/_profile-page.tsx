@@ -26,6 +26,8 @@ import {
 import { notFound } from "next/navigation";
 import { ProfilePermissions } from "@/app/[...slugs]/_profile-components/profile-permissions";
 import { ProfileEntriesLayout } from "@/app/[...slugs]/_profile-components/profile-entries-layout";
+import { EcencyConfigManager } from "@/config";
+import { Redirect } from "@/features/shared";
 
 interface Props {
   username: string;
@@ -84,7 +86,14 @@ export async function ProfilePage({
               {section === "wallet" && <WalletHive account={account} />}
               {section === "engine" && <WalletHiveEngine account={account} />}
               {section === "spk" && <WalletSpk account={account} />}
-              {section === "points" && <WalletEcency account={account} />}
+              {section === "points" && (
+                <EcencyConfigManager.Conditional
+                  condition={({ visionFeatures }) => visionFeatures.points.enabled}
+                  fallback={<Redirect path="/" />}
+                >
+                  <WalletEcency account={account} />
+                </EcencyConfigManager.Conditional>
+              )}
               {section === "communities" && <ProfileCommunities account={account} />}
               {section === "settings" && <ProfileSettings account={account} />}
               {section === "referrals" && <ProfileReferrals account={account} />}

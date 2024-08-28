@@ -11,6 +11,7 @@ import { Tooltip } from "@ui/tooltip";
 import { PopperDropdown } from "@/features/ui";
 import { AddImage } from "@/features/shared/editor-toolbar/add-image";
 import { GalleryDialog } from "@/features/shared/gallery";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   onAddImage: (link: string, name: string) => void;
@@ -18,7 +19,6 @@ interface Props {
 
 export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const fileInputRef = useRef<any>();
 
@@ -98,7 +98,9 @@ export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
               >
                 {i18next.t("editor-toolbar.upload")}
               </div>
-              {usePrivate && (
+              <EcencyConfigManager.Conditional
+                condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
+              >
                 <div
                   className="dropdown-item"
                   onClick={(e: React.MouseEvent<HTMLElement>) => {
@@ -108,7 +110,7 @@ export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
                 >
                   {i18next.t("editor-toolbar.gallery")}
                 </div>
-              )}
+              </EcencyConfigManager.Conditional>
             </div>
           </PopperDropdown>
         </Tooltip>

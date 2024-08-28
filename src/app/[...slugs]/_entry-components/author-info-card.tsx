@@ -8,6 +8,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { FavouriteBtn } from "@/features/shared/favorite-btn";
 import { getAccountFullQuery } from "@/api/queries";
 import { motion } from "framer-motion";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   entry: Entry;
@@ -15,7 +16,6 @@ interface Props {
 
 export const AuthorInfoCard = ({ entry }: Props) => {
   const isMobile = useGlobalStore((s) => s.isMobile);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
   const activeUser = useGlobalStore((s) => s.activeUser);
   const reputation = accountReputation(entry.author_reputation);
 
@@ -47,8 +47,12 @@ export const AuthorInfoCard = ({ entry }: Props) => {
 
       <div className="flex items-center justify-start flex-wrap border-t pt-4 border[--border-color]">
         {entry.author && <FollowControls targetUsername={entry.author} where={"author-card"} />}
-        {usePrivate && entry.author && entry.author !== activeUser?.username && (
-          <FavouriteBtn targetUsername={entry.author} />
+        {entry.author && entry.author !== activeUser?.username && (
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
+          >
+            <FavouriteBtn targetUsername={entry.author} />
+          </EcencyConfigManager.Conditional>
         )}
       </div>
     </motion.div>

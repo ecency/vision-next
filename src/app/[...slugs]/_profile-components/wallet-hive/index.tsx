@@ -43,6 +43,7 @@ import {
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { useClaimRewardBalance } from "@/api/mutations";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   account: FullAccount;
@@ -52,7 +53,6 @@ export function WalletHive({ account }: Props) {
   const router = useRouter();
 
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const usePrivate = useGlobalStore((s) => s.usePrivate);
 
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
   const { data: openOrdersData } = getOpenOrdersQuery(account.name).useClientQuery();
@@ -448,7 +448,7 @@ export function WalletHive({ account }: Props) {
                   { prefix: "+", suffix: "HP" }
                 );
 
-                if (usePrivate) {
+                if (EcencyConfigManager.CONFIG.features.hiveWallet.receivedList.enabled) {
                   return (
                     <div className="amount amount-passive received-shares">
                       <Tooltip content={i18next.t("wallet.hive-power-received")}>

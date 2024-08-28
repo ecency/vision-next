@@ -16,6 +16,7 @@ import { grantPostingPermission } from "@/api/operations";
 import { UserItem } from "@/features/shared/login/user-item";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   doLogin: (
@@ -27,7 +28,6 @@ interface Props {
 }
 
 export function Login({ doLogin, userListRef }: Props) {
-  const hsClientId = useGlobalStore((state) => state.hsClientId);
   const activeUser = useGlobalStore((state) => state.activeUser);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const deleteUser = useGlobalStore((state) => state.deleteUser);
@@ -97,7 +97,8 @@ export function Login({ doLogin, userListRef }: Props) {
     }
   };
 
-  const hsLogin = () => (window.location.href = getAuthUrl(hsClientId));
+  const hsLogin = () =>
+    (window.location.href = getAuthUrl(EcencyConfigManager.CONFIG.service.hsClientId));
   const kcLogin = () => toggleUIProp("loginKc");
 
   const captchaCheck = (value: string | null) => {
@@ -214,12 +215,18 @@ export function Login({ doLogin, userListRef }: Props) {
       }
 
       const hasPostingPerm =
-        account?.posting!.account_auths.filter((x) => x[0] === hsClientId).length > 0;
+        account?.posting!.account_auths.filter(
+          (x) => x[0] === EcencyConfigManager.CONFIG.service.hsClientId
+        ).length > 0;
 
       if (!hasPostingPerm) {
         setInProgress(true);
         try {
-          await grantPostingPermission(thePrivateKey, account, hsClientId);
+          await grantPostingPermission(
+            thePrivateKey,
+            account,
+            EcencyConfigManager.CONFIG.service.hsClientId
+          );
         } catch (err) {
           error(i18next.t("login.error-permission"));
           return;
@@ -234,7 +241,11 @@ export function Login({ doLogin, userListRef }: Props) {
       const hash = cryptoUtils.sha256(message);
       return new Promise<string>((resolve) => resolve(thePrivateKey.sign(hash).toString()));
     };
-    const code = await makeHsCode(hsClientId, account.name, signer);
+    const code = await makeHsCode(
+      EcencyConfigManager.CONFIG.service.hsClientId,
+      account.name,
+      signer
+    );
 
     setInProgress(true);
 

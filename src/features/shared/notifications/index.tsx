@@ -25,7 +25,9 @@ export function NotificationsDialog({ openLinksInNewTab = false }: Props) {
   }, [showNotifications, activeUser]);
 
   return (
-    <EcencyConfigManager.Conditional condition={({ features }) => features.notifications.enabled}>
+    <EcencyConfigManager.Conditional
+      condition={({ visionFeatures }) => visionFeatures.notifications.enabled}
+    >
       <ModalSidebar
         className="notifications-modal min-w-[32rem]"
         show={show}
