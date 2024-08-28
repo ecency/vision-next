@@ -54,8 +54,12 @@ export default function ProposalDetailsPage({ params: { id } }: Props) {
           />
         )}
         <meta property="og:url" content={`/proposals/${proposal?.id}`} />
-        <meta property="og:modified" content={parseDate(entry?.updated).toISOString()} />
-        <meta property="og:published" content={parseDate(entry?.created).toISOString()} />
+        {entry && (
+          <>
+            <meta property="og:modified" content={parseDate(entry.updated).toISOString()} />
+            <meta property="og:published" content={parseDate(entry.created).toISOString()} />
+          </>
+        )}
         <link rel="canonical" href={`/proposals/${proposal?.id}`} />
       </Head>
       <ScrollToTop />

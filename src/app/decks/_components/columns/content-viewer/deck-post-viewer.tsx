@@ -34,7 +34,7 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
   const [isMounted, setIsMounted] = useState(false);
   const [renderInitiated, setRenderInitiated] = useState(false);
 
-  const { data: entry } = EcencyEntriesCacheManagement.useEntryQuery(initialEntry);
+  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
 
   const { height, ref } = useResizeDetector();
 
@@ -61,7 +61,7 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
     }
   }, [height, extendedRenderBody, renderInitiated]);
 
-  return (
+  return entry ? (
     <div className={"deck-post-viewer " + (isMounted ? "visible" : "")}>
       <div className="deck-post-viewer-header">
         <div className="actions flex pt-3 mr-3">
@@ -113,5 +113,7 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
         <Discussion parent={entry} community={null} hideControls={false} isRawContent={false} />
       </div>
     </div>
+  ) : (
+    <></>
   );
 };

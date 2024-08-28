@@ -121,7 +121,7 @@ export const DeckThreadItemViewer = ({
           if (data) {
             addReplyToDiscussionsList(entry!, reply);
             // Update entry in global cache
-            addReply(entry!, reply);
+            EcencyEntriesCacheManagement.addReply(entry!, reply);
           }
         }}
       />
@@ -134,7 +134,9 @@ export const DeckThreadItemViewer = ({
                 key={reply.post_id}
                 entry={reply as IdentifiableEntry}
                 parentEntry={entry!}
-                incrementParentEntryCount={() => updateRepliesCount(entry!, entry!.children + 1)}
+                incrementParentEntryCount={() =>
+                  EcencyEntriesCacheManagement.updateRepliesCount(entry!, entry!.children + 1)
+                }
               />
             ))}
             {data.length === 0 && (

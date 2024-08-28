@@ -24,7 +24,7 @@ interface Props {
 
 export async function EntryPage({ category, searchParams, permlink, username, isEdit }: Props) {
   const entry = await getPostQuery(username, permlink).prefetch();
-  const author = await getAccountFullQuery(entry.author).prefetch();
+  await getAccountFullQuery(entry?.author).prefetch();
 
   if (!entry) {
     const deletedEntry = await getDeletedEntryQuery(username, permlink).prefetch();

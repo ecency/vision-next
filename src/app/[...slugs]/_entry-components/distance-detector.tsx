@@ -1,6 +1,6 @@
 "use client";
 
-import { MutableRefObject, useEffect } from "react";
+import { MutableRefObject, useCallback, useEffect } from "react";
 
 export function useDistanceDetector<T extends Element | null>(
   entryControlsRef: MutableRefObject<T>,
@@ -9,18 +9,8 @@ export function useDistanceDetector<T extends Element | null>(
   setShowProfileBox: (v: boolean) => void,
   setShowWordCount: (v: boolean) => void
 ) {
-  useEffect(() => {
-    window.addEventListener("scroll", detect);
-    window.addEventListener("resize", detect);
-
-    return () => {
-      window.removeEventListener("scroll", detect);
-      window.removeEventListener("resize", detect);
-    };
-  }, []);
-
   // detects distance between title and comments section sets visibility of profile card
-  const detect = () => {
+  const detect = useCallback(() => {
     const infoCard: HTMLElement | null = document.getElementById("avatar-fixed-container");
     const wordCounter: HTMLElement | null = document.getElementById("word-count");
     const top = entryControlsRef.current?.getBoundingClientRect().top || 120;
@@ -42,5 +32,15 @@ export function useDistanceDetector<T extends Element | null>(
       wordCounter?.classList.replace("visible", "invisible");
       setShowWordCount(false);
     } else return;
-  };
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", detect);
+    window.addEventListener("resize", detect);
+
+    return () => {
+      window.removeEventListener("scroll", detect);
+      window.removeEventListener("resize", detect);
+    };
+  }, [detect]);
 }

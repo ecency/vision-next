@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createElement, ReactElement, useMemo } from "react";
+import React, { createElement, useMemo } from "react";
 import { isCommunity } from "@/utils";
 import { EntryFilter } from "@/enums";
 import { useGlobalStore } from "@/core/global-store";
@@ -32,7 +32,7 @@ interface CommunityTag {
 interface Props {
   tag: string | CommunityTag;
   type?: "link" | "span";
-  children: ReactElement;
+  children: any;
 }
 
 export function TagLink({ tag, type, children }: Props) {

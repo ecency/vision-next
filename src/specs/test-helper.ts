@@ -154,9 +154,7 @@ export const globalInstance: Partial<GlobalStore> = {
   globalNotifications: true,
   nsfw: false,
   newVersion: null,
-  usePrivate: true,
-  lastIndexPath: null,
-  hsClientId: "ecency.app"
+  lastIndexPath: null
 };
 
 export const TrendingTagsInstance: TrendingTags = {

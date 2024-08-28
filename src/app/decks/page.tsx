@@ -14,9 +14,7 @@ export async function generateMetadata(
 }
 
 export default EcencyConfigManager.withConditionalComponent(
-  ({ features }) => features.decks.enabled,
-  function () {
-    return <DecksPage />;
-  },
-  notFound(),
+  ({ visionFeatures }) => visionFeatures.decks.enabled,
+  () => <DecksPage />,
+  () => notFound()
 );

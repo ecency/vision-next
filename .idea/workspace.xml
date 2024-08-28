@@ -6,9 +6,18 @@
   <component name="ChangeListManager">
     <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Covered left files with use private with configuration">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/notification-handler.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notification-handler.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/redirect.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/redirect.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-activities/index.spec.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/distance-detector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/distance-detector.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-post-viewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-post-viewer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/proposals/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/tag/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/tag/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/specs/setup-any-spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/specs/setup-any-spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/specs/test-helper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/specs/test-helper.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -372,15 +381,8 @@
       <workItem from="1724415803934" duration="836000" />
       <workItem from="1724663757913" duration="1496000" />
       <workItem from="1724703768137" duration="3836000" />
-      <workItem from="1724765744418" duration="7267000" />
-    </task>
-    <task id="LOCAL-00137" summary="Moved and migrated utils tests">
-      <option name="closed" value="true" />
-      <created>1722462833558</created>
-      <option name="number" value="00137" />
-      <option name="presentableId" value="LOCAL-00137" />
-      <option name="project" value="LOCAL" />
-      <updated>1722462833559</updated>
+      <workItem from="1724765744418" duration="8600000" />
+      <workItem from="1724853359751" duration="3099000" />
     </task>
     <task id="LOCAL-00138" summary="Moved and migrated utils tests">
       <option name="closed" value="true" />
@@ -766,7 +768,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724827451588</updated>
     </task>
-    <option name="localTasksCounter" value="186" />
+    <task id="LOCAL-00186" summary="Covered left files with use private with configuration">
+      <option name="closed" value="true" />
+      <created>1724828215028</created>
+      <option name="number" value="00186" />
+      <option name="presentableId" value="LOCAL-00186" />
+      <option name="project" value="LOCAL" />
+      <updated>1724828215028</updated>
+    </task>
+    <option name="localTasksCounter" value="187" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
