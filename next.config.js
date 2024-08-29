@@ -37,6 +37,10 @@ const config = {
       {
         source: "/:author/rss",
         destination: "/api/:author/posts/rss"
+      },
+      {
+        source: "/:author(@\\w+)/:permlink",
+        destination: "/ecency/:author/:permlink"
       }
     ];
   }
