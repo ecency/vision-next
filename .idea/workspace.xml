@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Moved firebase messaging sw">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-account-full-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-account-full-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/search-list-item/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/search-list-item/index.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed account reputation in popover profile">
+      <change beforePath="$PROJECT_DIR$/src/app/api/[author]/[section]/rss/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/[author]/[section]/rss/route.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -140,7 +138,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.dev">
+  <component name="RunManager" selected="npm.build">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ecency-vision-next" />
       <method v="2">
@@ -227,8 +225,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.dev" />
         <item itemvalue="npm.build" />
+        <item itemvalue="npm.dev" />
         <item itemvalue="npm.test" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
         <item itemvalue="Jest.Comment.handles keyboard shortcuts" />
@@ -373,15 +371,7 @@
       <workItem from="1724703768137" duration="3836000" />
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
-      <workItem from="1724947178815" duration="9627000" />
-    </task>
-    <task id="LOCAL-00143" summary="Fixed side widget for communities">
-      <option name="closed" value="true" />
-      <created>1722538967856</created>
-      <option name="number" value="00143" />
-      <option name="presentableId" value="LOCAL-00143" />
-      <option name="project" value="LOCAL" />
-      <updated>1722538967856</updated>
+      <workItem from="1724947178815" duration="10146000" />
     </task>
     <task id="LOCAL-00144" summary="Fixed entry editing">
       <option name="closed" value="true" />
@@ -767,7 +757,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724959918209</updated>
     </task>
-    <option name="localTasksCounter" value="192" />
+    <task id="LOCAL-00192" summary="Fixed account reputation in popover profile">
+      <option name="closed" value="true" />
+      <created>1724963644052</created>
+      <option name="number" value="00192" />
+      <option name="presentableId" value="LOCAL-00192" />
+      <option name="project" value="LOCAL" />
+      <updated>1724963644052</updated>
+    </task>
+    <option name="localTasksCounter" value="193" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -788,7 +786,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed FAQ page scrolling by anchor" />
     <MESSAGE value="Fixed trending tags closing and styles" />
     <MESSAGE value="Removed extra empty feed data" />
     <MESSAGE value="Improved floating FAQ layout" />
@@ -813,7 +810,8 @@
     <MESSAGE value="Added RSS feed for users, fixed review bugs" />
     <MESSAGE value="Added opening posts via direct link w/o category" />
     <MESSAGE value="Moved firebase messaging sw" />
-    <option name="LAST_COMMIT_MESSAGE" value="Moved firebase messaging sw" />
+    <MESSAGE value="Fixed account reputation in popover profile" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed account reputation in popover profile" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

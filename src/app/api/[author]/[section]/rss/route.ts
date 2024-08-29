@@ -1,6 +1,5 @@
 import { getAccountPostsQuery } from "@/api/queries";
-import { NextApiRequest } from "next";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import RSS from "rss";
 import defaults from "@/defaults.json";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
@@ -9,7 +8,7 @@ interface Props {
   params: Record<string, string | undefined>;
 }
 
-export async function GET(request: NextApiRequest, { params }: Props) {
+export async function GET(request: NextRequest, { params }: Props) {
   const { author, section } = params;
 
   if (typeof author !== "string" || typeof section !== "string") {
