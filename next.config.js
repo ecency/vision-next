@@ -31,6 +31,14 @@ const config = {
         port: ""
       }
     ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/:author/rss",
+        destination: "/api/:author/posts/rss"
+      }
+    ];
   }
 };
 

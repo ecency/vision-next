@@ -48,7 +48,7 @@ export function useThreadsApi() {
     EcencyEntriesCacheManagement.addReply(entry, nReply);
 
     if (entry.children === 0) {
-      // Activate discussion section with first comment.
+      // Activate discussion [section] with first comment.
       const nEntry: Entry = {
         ...entry,
         children: 1

@@ -47,7 +47,7 @@ describe("BookmarksDialog", () => {
     document.body.innerHTML = "";
   });
 
-  test("renders the modal with bookmarks section active", () => {
+  test("renders the modal with bookmarks [section] active", () => {
     useBookmarksQuery.mockReturnValue({
       refetch: jest.fn()
     });
@@ -63,11 +63,11 @@ describe("BookmarksDialog", () => {
     expect(screen.getByText("bookmarks.title")).toBeInTheDocument();
     expect(screen.getByText("favorites.title")).toBeInTheDocument();
 
-    // Check if the bookmarks section is active and rendered
+    // Check if the bookmarks [section] is active and rendered
     expect(screen.getByText("Bookmarks List")).toBeInTheDocument();
   });
 
-  test("switches to favourites section when the corresponding menu item is clicked", () => {
+  test("switches to favourites [section] when the corresponding menu item is clicked", () => {
     useBookmarksQuery.mockReturnValue({
       refetch: jest.fn()
     });
@@ -82,7 +82,7 @@ describe("BookmarksDialog", () => {
     // Click the favourites menu item
     fireEvent.click(screen.getByText("favorites.title"));
 
-    // Check if the favourites section is active and rendered
+    // Check if the favourites [section] is active and rendered
     expect(screen.getByText("Favourites List")).toBeInTheDocument();
   });
 

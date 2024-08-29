@@ -2,12 +2,12 @@ import React from "react";
 
 import { StaticRouter } from "react-router-dom";
 
-import { createLocation, createBrowserHistory } from "history";
+import { createBrowserHistory, createLocation } from "history";
 
 import { CommunityMenu } from "./index";
 import TestRenderer from "react-test-renderer";
 
-import { globalInstance, communityInstance1 } from "../../helper/test-helper";
+import { communityInstance1, globalInstance } from "../../helper/test-helper";
 
 const defProps = {
   history: createBrowserHistory(),
@@ -65,7 +65,7 @@ it("(2) Hot filter", () => {
   expect(renderer.toJSON()).toMatchSnapshot();
 });
 
-it("(3) In section", () => {
+it("(3) In [section]", () => {
   const props = {
     ...defProps,
     ...{

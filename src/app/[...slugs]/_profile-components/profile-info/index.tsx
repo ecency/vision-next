@@ -9,6 +9,7 @@ import { formattedNumber } from "@/utils";
 import i18next from "i18next";
 import { hiveSvg, informationVariantSvg } from "@ui/svg";
 import { StyledTooltip } from "@ui/tooltip";
+import { Spinner } from "@ui/spinner";
 
 interface ContentProps {
   account: FullAccount;
@@ -88,16 +89,15 @@ interface Props {
 export function ProfileInfo({ account }: Props) {
   const { data } = getRcAccountsQuery(account.name).useClientQuery();
   const rcAccount = useMemo(() => data?.[0], [data]);
+  const isLoaded = account?.__loaded && rcAccount;
 
-  if (account?.__loaded && rcAccount) {
-    return (
-      <span className="profile-info">
-        <StyledTooltip content={<ProfileInfoContent account={account} rcAccount={rcAccount} />}>
-          {informationVariantSvg}
-        </StyledTooltip>
-      </span>
-    );
-  }
-
-  return <></>;
+  return (
+    <span className="profile-info">
+      <StyledTooltip
+        content={isLoaded && <ProfileInfoContent account={account} rcAccount={rcAccount} />}
+      >
+        {isLoaded ? informationVariantSvg : <Spinner className="w-3.5 h-3.5" />}
+      </StyledTooltip>
+    </span>
+  );
 }

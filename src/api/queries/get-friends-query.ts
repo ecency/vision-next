@@ -38,9 +38,12 @@ export const getFriendsQuery = (
     },
     initialData: { pages: [], pageParams: [] },
     initialPageParam: { startFollowing: "" },
-    getNextPageParam: (lastPage) => ({
-      startFollowing: lastPage[lastPage.length - 1].name
-    }),
+    getNextPageParam: (lastPage) =>
+      lastPage
+        ? {
+            startFollowing: lastPage[lastPage.length - 1].name
+          }
+        : undefined,
     enabled
   });
 

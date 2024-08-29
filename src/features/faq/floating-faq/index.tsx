@@ -39,8 +39,8 @@ export const FloatingFAQ = () => {
   const [show, setShow] = useState(false);
   const [display, setDisplay] = useState(false);
   const [expandedHelp, setExpandedHelp] = useState(true);
-  const [helpClass, setHelpClass] = useState("section flex flex-col");
-  const [contactClass, setContactClass] = useState("section flex flex-col");
+  const [helpClass, setHelpClass] = useState("[section] flex flex-col");
+  const [contactClass, setContactClass] = useState("[section] flex flex-col");
   const [expandedContact, setExpandedContact] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [faqKeys, setFaqKeys] = useState<string[]>([]);
@@ -98,10 +98,10 @@ export const FloatingFAQ = () => {
 
   useEffect(() => {
     if (expandedHelp) {
-      setHelpClass("section flex flex-col border-b border-[--border-color]");
+      setHelpClass("[section] flex flex-col border-b border-[--border-color]");
     }
     if (expandedContact) {
-      setContactClass("section flex flex-col border-b border-[--border-color]");
+      setContactClass("[section] flex flex-col border-b border-[--border-color]");
     }
   }, [expandedHelp, expandedContact]);
 

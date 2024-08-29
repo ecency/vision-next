@@ -93,7 +93,7 @@ export function ManageChatKey() {
       ) : (
         <>
           <div className="text-center text-gray-600 dark:text-gray-400">
-            {i18next.t("chat.unlock-the-section")}
+            {i18next.t("chat.unlock-the-[section]")}
           </div>
           <CodeInput value={validationPin} setValue={setValidationPin} codeSize={8} />
           {validationPin !== pin && validationPin.length === pin?.length && (

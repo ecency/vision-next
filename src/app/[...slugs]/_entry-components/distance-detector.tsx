@@ -9,7 +9,7 @@ export function useDistanceDetector<T extends Element | null>(
   setShowProfileBox: (v: boolean) => void,
   setShowWordCount: (v: boolean) => void
 ) {
-  // detects distance between title and comments section sets visibility of profile card
+  // detects distance between title and comments [section] sets visibility of profile card
   const detect = useCallback(() => {
     const infoCard: HTMLElement | null = document.getElementById("avatar-fixed-container");
     const wordCounter: HTMLElement | null = document.getElementById("word-count");

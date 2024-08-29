@@ -48,7 +48,8 @@ export namespace EcencyQueriesManager {
     return {
       prefetch: () => prefetchInfiniteQuery(options),
       getData: () => getInfiniteQueryData<T>(options.queryKey),
-      useClientQuery: () => useInfiniteQuery(options)
+      useClientQuery: () => useInfiniteQuery(options),
+      fetchAndGet: () => getQueryClient().fetchInfiniteQuery(options)
     };
   }
 
