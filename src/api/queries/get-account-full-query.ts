@@ -1,6 +1,6 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { getAccount, getFollowCount } from "@/api/hive";
-import { AccountFollowStats } from "@/entities";
+import { client, getAccount, getFollowCount } from "@/api/hive";
+import { AccountFollowStats, Reputations } from "@/entities";
 
 export const getAccountFullQuery = (username?: string) =>
   EcencyQueriesManager.generateClientServerQuery({
@@ -15,7 +15,21 @@ export const getAccountFullQuery = (username?: string) =>
         follow_stats = await getFollowCount(username);
       } catch (e) {}
 
-      return { ...response, follow_stats };
+      const reputation: Reputations[] = await client.call(
+        "condenser_api",
+        "get_account_reputations",
+        [username, 1]
+      );
+
+      return {
+        ...response,
+        follow_stats,
+        reputation: reputation[0].reputation,
+        profile: {
+          ...response.profile,
+          reputation: reputation[0].reputation
+        }
+      };
     },
     enabled: !!username
   });

@@ -60,9 +60,9 @@ export function SearchListItem({ res }: Props) {
             </ProfileLink>
           </div>
           <TagLink tag={res.category} type="link">
-            <a className="category">{res.category}</a>
+            {res.category}
           </TagLink>
-          <span className="date" title={dateFormatted}>
+          <span className="date ml-2" title={dateFormatted}>
             {dateRelative}
           </span>
         </div>

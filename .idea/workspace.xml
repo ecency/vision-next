@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added RSS feed for users, fixed review bugs">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Moved firebase messaging sw">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-account-full-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-account-full-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/search-list-item/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/search-list-item/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -84,7 +85,7 @@
     "code.cleanup.on.save": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs",
+    "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/public",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -125,11 +126,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/public" />
       <recent name="$PROJECT_DIR$/src/config" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/api/mutations" />
       <recent name="$PROJECT_DIR$/src/features" />
-      <recent name="$PROJECT_DIR$/src/features/monitoring" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/app/api/[author]/[section]" />
@@ -372,23 +373,7 @@
       <workItem from="1724703768137" duration="3836000" />
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
-      <workItem from="1724947178815" duration="7885000" />
-    </task>
-    <task id="LOCAL-00141" summary="Fixed profile page active user using on SSR">
-      <option name="closed" value="true" />
-      <created>1722534807053</created>
-      <option name="number" value="00141" />
-      <option name="presentableId" value="LOCAL-00141" />
-      <option name="project" value="LOCAL" />
-      <updated>1722534807053</updated>
-    </task>
-    <task id="LOCAL-00142" summary="Fixed feed controversial tags selection">
-      <option name="closed" value="true" />
-      <created>1722537716611</created>
-      <option name="number" value="00142" />
-      <option name="presentableId" value="LOCAL-00142" />
-      <option name="project" value="LOCAL" />
-      <updated>1722537716612</updated>
+      <workItem from="1724947178815" duration="9627000" />
     </task>
     <task id="LOCAL-00143" summary="Fixed side widget for communities">
       <option name="closed" value="true" />
@@ -766,7 +751,23 @@
       <option name="project" value="LOCAL" />
       <updated>1724959271590</updated>
     </task>
-    <option name="localTasksCounter" value="190" />
+    <task id="LOCAL-00190" summary="Added opening posts via direct link w/o category">
+      <option name="closed" value="true" />
+      <created>1724959792600</created>
+      <option name="number" value="00190" />
+      <option name="presentableId" value="LOCAL-00190" />
+      <option name="project" value="LOCAL" />
+      <updated>1724959792600</updated>
+    </task>
+    <task id="LOCAL-00191" summary="Moved firebase messaging sw">
+      <option name="closed" value="true" />
+      <created>1724959918209</created>
+      <option name="number" value="00191" />
+      <option name="presentableId" value="LOCAL-00191" />
+      <option name="project" value="LOCAL" />
+      <updated>1724959918209</updated>
+    </task>
+    <option name="localTasksCounter" value="192" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -787,8 +788,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Improved and fixed entry discussions bots" />
-    <MESSAGE value="Improved and fixed reputation and entry footer layout" />
     <MESSAGE value="Fixed FAQ page scrolling by anchor" />
     <MESSAGE value="Fixed trending tags closing and styles" />
     <MESSAGE value="Removed extra empty feed data" />
@@ -812,7 +811,9 @@
     <MESSAGE value="Covered left files with use private with configuration" />
     <MESSAGE value="Fixed build" />
     <MESSAGE value="Added RSS feed for users, fixed review bugs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added RSS feed for users, fixed review bugs" />
+    <MESSAGE value="Added opening posts via direct link w/o category" />
+    <MESSAGE value="Moved firebase messaging sw" />
+    <option name="LAST_COMMIT_MESSAGE" value="Moved firebase messaging sw" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
