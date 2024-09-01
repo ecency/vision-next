@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed autocomplete styles">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed account reputation in entry page">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-page-main-info.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-page-main-info.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-accounts-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-accounts-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -373,15 +374,7 @@
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
-      <workItem from="1725175109524" duration="11350000" />
-    </task>
-    <task id="LOCAL-00151" summary="Fixed entry voting">
-      <option name="closed" value="true" />
-      <created>1723298517122</created>
-      <option name="number" value="00151" />
-      <option name="presentableId" value="LOCAL-00151" />
-      <option name="project" value="LOCAL" />
-      <updated>1723298517126</updated>
+      <workItem from="1725175109524" duration="12447000" />
     </task>
     <task id="LOCAL-00152" summary="Added loading state for communities">
       <option name="closed" value="true" />
@@ -767,7 +760,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725195502803</updated>
     </task>
-    <option name="localTasksCounter" value="200" />
+    <task id="LOCAL-00200" summary="Fixed account reputation in entry page">
+      <option name="closed" value="true" />
+      <created>1725198792113</created>
+      <option name="number" value="00200" />
+      <option name="presentableId" value="LOCAL-00200" />
+      <option name="project" value="LOCAL" />
+      <updated>1725198792113</updated>
+    </task>
+    <option name="localTasksCounter" value="201" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -788,7 +789,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Removed market charts from main page" />
     <MESSAGE value="Fixed index menu navigating between sections" />
     <MESSAGE value="Fixed warnings and announcement links" />
     <MESSAGE value="Fixed polls showing in entry" />
@@ -813,7 +813,8 @@
     <MESSAGE value="Fixed redirecting from short post URL to long" />
     <MESSAGE value="Fixed transfer first step" />
     <MESSAGE value="Fixed autocomplete styles" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed autocomplete styles" />
+    <MESSAGE value="Fixed account reputation in entry page" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed account reputation in entry page" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

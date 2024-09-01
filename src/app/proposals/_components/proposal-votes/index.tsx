@@ -6,8 +6,8 @@ import { FormControl } from "@ui/input";
 import { List, ListItem } from "@ui/list";
 import { Badge } from "@ui/badge";
 import i18next from "i18next";
-import { Proposal } from "@/entities";
-import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
+import { Entry, Proposal } from "@/entities";
+import { LinearProgress, ProfileLink, ProfilePopover, UserAvatar } from "@/features/shared";
 import { accountReputation, parseAsset } from "@/utils";
 import { getAccountsQuery, getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
 
@@ -52,7 +52,9 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
             totalHp
           };
         })
-        ?.filter((item) => item.name.toLowerCase().includes(searchText.toLocaleLowerCase()))
+        ?.filter(
+          (item) => !searchText || item.name.toLowerCase().includes(searchText.toLocaleLowerCase())
+        )
         .sort((a, b) => {
           if (sort === "reputation") {
             return b.reputation > a.reputation ? 1 : -1;
@@ -61,6 +63,8 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
         }),
     [accounts, dynamicProps, searchText, sort]
   );
+
+  console.log(votes, voters);
 
   return (
     <Modal onHide={onHide} show={true} centered={true} size="lg" className="proposal-votes-dialog">
@@ -96,18 +100,18 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
                 const strProxyHp = numeral(x.proxyHp).format("0.00,");
 
                 return (
-                  <ListItem styledDefer={true} className="!flex gap-3" key={x.name}>
+                  <ListItem styledDefer={true} className="!flex gap-3">
                     <ProfileLink username={x.name}>
                       <UserAvatar username={x.name} size="small" />
                     </ProfileLink>
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <ProfileLink username={x.name}>
-                          <span className="item-name notranslate">{x.name}</span>
-                        </ProfileLink>
-                        <Badge className="text-xs leading-3">
-                          {accountReputation(x.reputation)}
-                        </Badge>
+                        <ProfilePopover entry={{ author: x.name } as Entry} />
+                        {+x.reputation > 0 && (
+                          <Badge className="text-xs leading-3">
+                            {accountReputation(x.reputation)}
+                          </Badge>
+                        )}
                       </div>
                       <div className="item-extra">
                         <span>{`${strHp} HP`}</span>
