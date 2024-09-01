@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
@@ -13,6 +13,8 @@ import { Account } from "@/entities";
 import { TransferStep2 } from "@/features/shared/transfer/transfer-step-2";
 import { TransferStep3 } from "@/features/shared/transfer/transfer-step-3";
 import { TransferStep4 } from "@/features/shared/transfer/transfer-step-4";
+import { useGlobalStore } from "@/core/global-store";
+import { getPointsQuery } from "@/api/queries";
 
 export type TransferMode =
   | "transfer"
@@ -40,7 +42,10 @@ interface Props {
 }
 
 function TransferC({ onHide, handleClickAway, account }: Props) {
+  const activeUser = useGlobalStore((state) => state.activeUser);
   const { step, asset, mode } = useTransferSharedState();
+
+  const { refetch } = getPointsQuery(activeUser?.username).useClientQuery();
 
   const titleLngKey = useMemo(
     () =>
@@ -49,6 +54,10 @@ function TransferC({ onHide, handleClickAway, account }: Props) {
         : `${mode}-title`,
     [mode, asset]
   );
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   return (
     <Modal show={true} centered={true} onHide={onHide} className="transfer-dialog" size="lg">

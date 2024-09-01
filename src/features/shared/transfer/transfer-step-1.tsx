@@ -170,7 +170,7 @@ export function TransferStep1({ titleLngKey }: Props) {
     }
 
     return 0;
-  }, [activeUser, asset, dynamicProps, mode]);
+  }, [activeUser, activeUserPoints?.points, asset, dynamicProps, mode]);
 
   useEffect(() => {
     if (amount === "") {
