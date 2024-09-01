@@ -19,7 +19,7 @@ interface Props {
 export function ProfileMenu({ username, section }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const kebabMenuItems = ["trail", "replies", "communities"]
+  const kebabMenuItems = ["trail", "replies"]
     .map((x) => ({
       label: i18next.t(`profile.section-${x}`),
       href: `/@${username}/${x}`,

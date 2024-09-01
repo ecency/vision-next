@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed typo">
-      <change afterPath="$PROJECT_DIR$/src/features/shared/edit-history/hooks/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/features/shared/edit-history/hooks/use-history-list.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed NPEs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-comment-history-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-comment-history-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/edit-history/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/edit-history/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/promote/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/promote/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-menu/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -377,15 +373,7 @@
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
-      <workItem from="1725175109524" duration="1463000" />
-    </task>
-    <task id="LOCAL-00146" summary="Updated deps">
-      <option name="closed" value="true" />
-      <created>1723119891546</created>
-      <option name="number" value="00146" />
-      <option name="presentableId" value="LOCAL-00146" />
-      <option name="project" value="LOCAL" />
-      <updated>1723119891546</updated>
+      <workItem from="1725175109524" duration="1699000" />
     </task>
     <task id="LOCAL-00147" summary="Removed extra console log">
       <option name="closed" value="true" />
@@ -771,7 +759,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724963975890</updated>
     </task>
-    <option name="localTasksCounter" value="195" />
+    <task id="LOCAL-00195" summary="Fixed NPEs">
+      <option name="closed" value="true" />
+      <created>1725177495574</created>
+      <option name="number" value="00195" />
+      <option name="presentableId" value="LOCAL-00195" />
+      <option name="project" value="LOCAL" />
+      <updated>1725177495574</updated>
+    </task>
+    <option name="localTasksCounter" value="196" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -792,7 +788,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Removed extra empty feed data" />
     <MESSAGE value="Improved floating FAQ layout" />
     <MESSAGE value="Fixed and improved profile preview widget" />
     <MESSAGE value="Added and improved mobile layout of profile preview" />
@@ -817,7 +812,8 @@
     <MESSAGE value="Moved firebase messaging sw" />
     <MESSAGE value="Fixed account reputation in popover profile" />
     <MESSAGE value="Fixed typo" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed typo" />
+    <MESSAGE value="Fixed NPEs" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed NPEs" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
