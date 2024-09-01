@@ -31,5 +31,6 @@ export const getAccountFullQuery = (username?: string) =>
         }
       };
     },
-    enabled: !!username
+    enabled: !!username,
+    staleTime: 60000
   });

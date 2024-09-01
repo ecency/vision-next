@@ -20,17 +20,20 @@ export function DropdownMenu(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Pr
           key="dropdown"
           initial={{
             opacity: 0,
-            scale: 0.95,
+            scaleX: 0.95,
+            scaleY: 0.9,
             y: -8
           }}
           animate={{
             opacity: 1,
-            scale: 1,
+            scaleX: 1,
+            scaleY: 1,
             y: 0
           }}
           exit={{
             opacity: 0,
-            scale: 0.95,
+            scaleX: 0.95,
+            scaleY: 0.9,
             y: -8
           }}
           {...nativeProps}

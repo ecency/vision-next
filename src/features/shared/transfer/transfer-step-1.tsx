@@ -227,9 +227,8 @@ export function TransferStep1({ titleLngKey }: Props) {
 
   const toChanged = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value: to } = e.target;
-      setTo(to);
-      exchangeHandler(to, memo);
+      setTo(e.target.value);
+      exchangeHandler(e.target.value, memo);
     },
     [exchangeHandler, memo, setTo]
   );

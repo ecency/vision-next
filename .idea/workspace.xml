@@ -4,12 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed profile menu extra items">
-      <change afterPath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/features/next-middleware/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/middleware.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed redirecting from short post URL to long">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-account-full-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-account-full-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/use-debounce-transfer-account-data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/use-debounce-transfer-account-data.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/ui/dropdown/dropdown-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/dropdown/dropdown-menu.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -376,15 +376,7 @@
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
-      <workItem from="1725175109524" duration="8511000" />
-    </task>
-    <task id="LOCAL-00148" summary="Fixed language selection">
-      <option name="closed" value="true" />
-      <created>1723120634303</created>
-      <option name="number" value="00148" />
-      <option name="presentableId" value="LOCAL-00148" />
-      <option name="project" value="LOCAL" />
-      <updated>1723120634304</updated>
+      <workItem from="1725175109524" duration="9607000" />
     </task>
     <task id="LOCAL-00149" summary="Fixed login dialog hiding">
       <option name="closed" value="true" />
@@ -770,7 +762,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725177780694</updated>
     </task>
-    <option name="localTasksCounter" value="197" />
+    <task id="LOCAL-00197" summary="Fixed redirecting from short post URL to long">
+      <option name="closed" value="true" />
+      <created>1725193864873</created>
+      <option name="number" value="00197" />
+      <option name="presentableId" value="LOCAL-00197" />
+      <option name="project" value="LOCAL" />
+      <updated>1725193864873</updated>
+    </task>
+    <option name="localTasksCounter" value="198" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +791,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed and improved profile preview widget" />
     <MESSAGE value="Added and improved mobile layout of profile preview" />
     <MESSAGE value="Fixed floating FAQ layout" />
     <MESSAGE value="Removed market charts from main page" />
@@ -816,7 +815,8 @@
     <MESSAGE value="Fixed typo" />
     <MESSAGE value="Fixed NPEs" />
     <MESSAGE value="Fixed profile menu extra items" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed profile menu extra items" />
+    <MESSAGE value="Fixed redirecting from short post URL to long" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed redirecting from short post URL to long" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -28,6 +28,7 @@ export function useDebounceTransferAccountData() {
     error: toError,
     isLoading: toLoading
   } = getAccountFullQuery(toDebounce).useClientQuery();
+  console.log(toData, toDebounce);
   const {
     data: vestingDelegations,
     error: vestingDelegationsError,
@@ -60,17 +61,17 @@ export function useDebounceTransferAccountData() {
   }, [activeUser?.username, dynamicProps, to, vestingDelegations]);
 
   useDebounce(
-    async () => {
+    () => {
       if (to === "") {
         setToWarning(undefined);
         return;
       }
 
       setToWarning(badActors.includes(to) ? i18next.t("transfer.to-bad-actor") : "");
-      setToDebounce(toDebounce);
+      setToDebounce(to);
     },
     500,
-    []
+    [to, setTo, setToWarning, setToDebounce]
   );
 
   useEffect(() => {
