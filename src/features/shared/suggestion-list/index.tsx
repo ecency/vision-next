@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import useMount from "react-use/lib/useMount";
 import { usePrevious } from "react-use";
 import useUnmount from "react-use/lib/useUnmount";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
   items: any[];
@@ -168,72 +169,99 @@ export function SuggestionList({
     >
       {children}
       <div ref={clickAwayRef}>
-        {showList && modeItems && modeItems.length > 0 ? (
-          <div className="suggestion-list-parent">
-            {modeItems.map((modeItem, modeKey) => {
-              const _items = modeItem.items;
-              return (
-                _items.length > 0 && (
-                  <div className="search-suggestion-list" key={modeKey}>
-                    {modeItem.header && <div className="list-header">{modeItem.header}</div>}
-                    <div className="list-body">
-                      {_items.map((x: any, i: number) => (
-                        <a
-                          href="#"
-                          key={i}
-                          className="list-item"
-                          onClick={(e: React.MouseEvent) => {
-                            e.preventDefault();
-                            modeItem.onSelect?.(x);
-                            setShowList(false);
-                          }}
-                        >
-                          {modeItem.renderer?.(x) ?? x}
-                        </a>
-                      ))}
+        <AnimatePresence>
+          {showList && modeItems && modeItems.length > 0 && (
+            <motion.div
+              initial={{
+                opacity: 0,
+                scaleY: 0.85
+              }}
+              animate={{
+                opacity: 1,
+                scaleY: 1
+              }}
+              exit={{
+                opacity: 0,
+                scaleY: 0.85
+              }}
+              className="suggestion-list-parent origin-top"
+            >
+              {modeItems.map((modeItem, modeKey) => {
+                const _items = modeItem.items;
+                return (
+                  _items.length > 0 && (
+                    <div className="search-suggestion-list" key={modeKey}>
+                      {modeItem.header && <div className="list-header">{modeItem.header}</div>}
+                      <div className="list-body">
+                        {_items.map((x: any, i: number) => (
+                          <a
+                            href="#"
+                            key={i}
+                            className="list-item"
+                            onClick={(e: React.MouseEvent) => {
+                              e.preventDefault();
+                              modeItem.onSelect?.(x);
+                              setShowList(false);
+                            }}
+                          >
+                            {modeItem.renderer?.(x) ?? x}
+                          </a>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )
-              );
-            })}
-            <div className="search-suggestion-list more-result">
+                  )
+                );
+              })}
+              <div className="search-suggestion-list more-result">
+                <div className="list-body">
+                  <a href="#" className="list-item" onClick={moreResultsClick}>
+                    {i18next.t("g.more-results")}
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          )}
+          {showList && !modeItems && items.length > 0 && (
+            <motion.div
+              initial={{
+                opacity: 0,
+                scaleY: 0.85
+              }}
+              animate={{
+                opacity: 1,
+                scaleY: 1
+              }}
+              exit={{
+                opacity: 0,
+                scaleY: 0.85
+              }}
+              className="modal-suggestion-list rounded-3xl absolute origin-top"
+              style={listStyle}
+            >
+              {header && (
+                <div className="list-header bg-gray-100 dark:bg-gray-700 text-sm font-semibold text-gray-600 px-2 pb-2 pt-12">
+                  {header}
+                </div>
+              )}
               <div className="list-body">
-                <a href="#" className="list-item" onClick={moreResultsClick}>
-                  {i18next.t("g.more-results")}
-                </a>
+                {items.map((x, i) => (
+                  <a
+                    href="#"
+                    key={i}
+                    className="list-item"
+                    onClick={(e: React.MouseEvent) => {
+                      e.preventDefault();
+                      onSelect?.(x);
+                      setShowList(false);
+                    }}
+                  >
+                    {renderer?.(x) ?? x}
+                  </a>
+                ))}
               </div>
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
-        {showList && !modeItems && items.length > 0 ? (
-          <div className="modal-suggestion-list rounded-3xl -top-[44px] absolute" style={listStyle}>
-            {header && (
-              <div className="list-header bg-gray-100 dark:bg-gray-700 text-sm font-semibold text-gray-600 px-2 pb-2 pt-12">
-                {header}
-              </div>
-            )}
-            <div className="list-body">
-              {items.map((x, i) => (
-                <a
-                  href="#"
-                  key={i}
-                  className="list-item"
-                  onClick={(e: React.MouseEvent) => {
-                    e.preventDefault();
-                    onSelect?.(x);
-                    setShowList(false);
-                  }}
-                >
-                  {renderer?.(x) ?? x}
-                </a>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

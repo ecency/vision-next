@@ -2,7 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { ProfileFilter } from "@/enums";
 
 export function handleEntriesRedirect(request: NextRequest) {
-  const profileSections = [...Object.values(ProfileFilter), "communities", "likes", "wallet"];
+  const profileSections = [
+    ...Object.values(ProfileFilter),
+    "communities",
+    "likes",
+    "wallet",
+    "points",
+    "spk",
+    "engine"
+  ];
   const isAnySection = profileSections.some((section) => request.url.includes(section));
   const isEntryLikePage = /\/(@.+)\/(.+)/gm.test(request.nextUrl.pathname);
 

@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed redirecting from short post URL to long">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed transfer first step">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-account-full-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-account-full-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/use-debounce-transfer-account-data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/use-debounce-transfer-account-data.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/ui/dropdown/dropdown-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/dropdown/dropdown-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/suggestion-list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/suggestion-list/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -376,15 +374,7 @@
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
-      <workItem from="1725175109524" duration="9607000" />
-    </task>
-    <task id="LOCAL-00149" summary="Fixed login dialog hiding">
-      <option name="closed" value="true" />
-      <created>1723121913483</created>
-      <option name="number" value="00149" />
-      <option name="presentableId" value="LOCAL-00149" />
-      <option name="project" value="LOCAL" />
-      <updated>1723121913483</updated>
+      <workItem from="1725175109524" duration="10178000" />
     </task>
     <task id="LOCAL-00150" summary="Re-worked entries cache management">
       <option name="closed" value="true" />
@@ -770,7 +760,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725193864873</updated>
     </task>
-    <option name="localTasksCounter" value="198" />
+    <task id="LOCAL-00198" summary="Fixed transfer first step">
+      <option name="closed" value="true" />
+      <created>1725194935706</created>
+      <option name="number" value="00198" />
+      <option name="presentableId" value="LOCAL-00198" />
+      <option name="project" value="LOCAL" />
+      <updated>1725194935706</updated>
+    </task>
+    <option name="localTasksCounter" value="199" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +789,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added and improved mobile layout of profile preview" />
     <MESSAGE value="Fixed floating FAQ layout" />
     <MESSAGE value="Removed market charts from main page" />
     <MESSAGE value="Fixed index menu navigating between sections" />
@@ -816,7 +813,8 @@
     <MESSAGE value="Fixed NPEs" />
     <MESSAGE value="Fixed profile menu extra items" />
     <MESSAGE value="Fixed redirecting from short post URL to long" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed redirecting from short post URL to long" />
+    <MESSAGE value="Fixed transfer first step" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed transfer first step" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
