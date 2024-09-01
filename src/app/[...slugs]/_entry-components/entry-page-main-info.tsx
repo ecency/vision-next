@@ -16,7 +16,7 @@ export function EntryPageMainInfo({ entry }: Props) {
   const isComment = !!entry.parent_author;
 
   const published = moment(parseDate(entry.created));
-  const reputation = accountReputation(entry.original_entry?.author_reputation ?? 0);
+  const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
     <div className="entry-info">

@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed transfer first step">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed autocomplete styles">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/suggestion-list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/suggestion-list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-page-main-info.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-page-main-info.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -374,15 +373,7 @@
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
-      <workItem from="1725175109524" duration="10178000" />
-    </task>
-    <task id="LOCAL-00150" summary="Re-worked entries cache management">
-      <option name="closed" value="true" />
-      <created>1723296749242</created>
-      <option name="number" value="00150" />
-      <option name="presentableId" value="LOCAL-00150" />
-      <option name="project" value="LOCAL" />
-      <updated>1723296749243</updated>
+      <workItem from="1725175109524" duration="11350000" />
     </task>
     <task id="LOCAL-00151" summary="Fixed entry voting">
       <option name="closed" value="true" />
@@ -768,7 +759,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725194935706</updated>
     </task>
-    <option name="localTasksCounter" value="199" />
+    <task id="LOCAL-00199" summary="Fixed autocomplete styles">
+      <option name="closed" value="true" />
+      <created>1725195502803</created>
+      <option name="number" value="00199" />
+      <option name="presentableId" value="LOCAL-00199" />
+      <option name="project" value="LOCAL" />
+      <updated>1725195502803</updated>
+    </task>
+    <option name="localTasksCounter" value="200" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -789,7 +788,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed floating FAQ layout" />
     <MESSAGE value="Removed market charts from main page" />
     <MESSAGE value="Fixed index menu navigating between sections" />
     <MESSAGE value="Fixed warnings and announcement links" />
@@ -814,7 +812,8 @@
     <MESSAGE value="Fixed profile menu extra items" />
     <MESSAGE value="Fixed redirecting from short post URL to long" />
     <MESSAGE value="Fixed transfer first step" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed transfer first step" />
+    <MESSAGE value="Fixed autocomplete styles" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed autocomplete styles" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
