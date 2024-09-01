@@ -9,7 +9,6 @@ export function useFragmentsQuery() {
   return useQuery({
     queryKey: [QueryIdentifiers.FRAGMENTS, activeUser?.username],
     queryFn: () => getFragments(activeUser!.username),
-    enabled: !!activeUser,
-    initialData: []
+    enabled: !!activeUser
   });
 }

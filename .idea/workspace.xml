@@ -4,10 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Hiding default reputation in proposals page">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed balance fetching in gift modal">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/drafts-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/drafts-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/fragments-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/fragments-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/gallery-images-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/gallery-images-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/schedules-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/schedules-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/drafts/drafts-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/drafts/drafts-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/fragments/fragments-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/fragments/fragments-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/gallery/gallery-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/gallery/gallery-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/schedules/schedules-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/schedules/schedules-list.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -374,15 +380,7 @@
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
-      <workItem from="1725175109524" duration="13157000" />
-    </task>
-    <task id="LOCAL-00153" summary="Added loading state for discover page">
-      <option name="closed" value="true" />
-      <created>1723392252263</created>
-      <option name="number" value="00153" />
-      <option name="presentableId" value="LOCAL-00153" />
-      <option name="project" value="LOCAL" />
-      <updated>1723392252263</updated>
+      <workItem from="1725175109524" duration="13952000" />
     </task>
     <task id="LOCAL-00154" summary="Fixed bugs with private API, added framer-motion animation to communities list">
       <option name="closed" value="true" />
@@ -768,7 +766,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725200003115</updated>
     </task>
-    <option name="localTasksCounter" value="202" />
+    <task id="LOCAL-00202" summary="Fixed balance fetching in gift modal">
+      <option name="closed" value="true" />
+      <created>1725200711462</created>
+      <option name="number" value="00202" />
+      <option name="presentableId" value="LOCAL-00202" />
+      <option name="project" value="LOCAL" />
+      <updated>1725200711462</updated>
+    </task>
+    <option name="localTasksCounter" value="203" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -789,7 +795,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed warnings and announcement links" />
     <MESSAGE value="Fixed polls showing in entry" />
     <MESSAGE value="Fixed notifications filters dropdown" />
     <MESSAGE value="Moved static pages under single group" />
@@ -814,7 +819,8 @@
     <MESSAGE value="Fixed autocomplete styles" />
     <MESSAGE value="Fixed account reputation in entry page" />
     <MESSAGE value="Hiding default reputation in proposals page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Hiding default reputation in proposals page" />
+    <MESSAGE value="Fixed balance fetching in gift modal" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed balance fetching in gift modal" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -9,7 +9,6 @@ export function useDraftsQuery() {
   return useQuery({
     queryKey: [QueryIdentifiers.DRAFTS, activeUser?.username],
     queryFn: () => getDrafts(activeUser!.username),
-    enabled: !!activeUser,
-    initialData: []
+    enabled: !!activeUser
   });
 }

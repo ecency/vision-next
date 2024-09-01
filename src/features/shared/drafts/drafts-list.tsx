@@ -20,13 +20,14 @@ export function DraftsList({ onHide, onPick }: Props) {
   const pathname = usePathname();
 
   const [filter, setFilter] = useState("");
-  const { data, isLoading, refetch } = useDraftsQuery();
+  const { data, isPending, refetch } = useDraftsQuery();
 
   const items = useMemo(
     () =>
       data
-        .filter((x) => x.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1)
-        .sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1)),
+        ?.filter((x) => x.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1)
+        .sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1)) ??
+      [],
     [data, filter]
   );
 
@@ -45,16 +46,16 @@ export function DraftsList({ onHide, onPick }: Props) {
   });
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (data && data.length > 0) {
       innerRef.current?.focus();
     }
   }, [data]);
 
-  if (isLoading) {
+  if (isPending) {
     return <LinearProgress />;
   }
 
-  if (data.length === 0) {
+  if (data?.length === 0) {
     return <div className="drafts-list">{i18next.t("g.empty-list")}</div>;
   }
 

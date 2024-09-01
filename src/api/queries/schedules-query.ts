@@ -9,7 +9,6 @@ export function useSchedulesQuery() {
   return useQuery({
     queryKey: [QueryIdentifiers.SCHEDULES, activeUser?.username],
     queryFn: () => getSchedules(activeUser!.username),
-    enabled: !!activeUser,
-    initialData: []
+    enabled: !!activeUser
   });
 }

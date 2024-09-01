@@ -9,7 +9,6 @@ export function useGalleryImagesQuery() {
   return useQuery({
     queryKey: [QueryIdentifiers.GALLERY_IMAGES, activeUser?.username],
     queryFn: () => getImages(activeUser!.username),
-    enabled: !!activeUser,
-    initialData: []
+    enabled: !!activeUser
   });
 }

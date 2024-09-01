@@ -16,33 +16,35 @@ export function SchedulesList({}: Props) {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isLoading, refetch } = useSchedulesQuery();
+  const { data, isPending, refetch } = useSchedulesQuery();
   const { mutateAsync: moveSchedule, isPending: isScheduleMoving } = useMoveSchedule();
   const { mutateAsync: deleteSchedule, isPending: isScheduleDeleting } = useDeleteSchedule();
 
   const items = useMemo(
     () =>
       data
-        .filter((x) => x.title.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
-        .sort((a, b) => (new Date(b.schedule).getTime() > new Date(a.schedule).getTime() ? 1 : -1)),
+        ?.filter((x) => x.title.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
+        .sort((a, b) =>
+          new Date(b.schedule).getTime() > new Date(a.schedule).getTime() ? 1 : -1
+        ) ?? [],
     [data, searchQuery]
   );
 
   useMount(() => {
     refetch();
-  })
+  });
 
   useEffect(() => {
-    if (data?.length > 0) {
+    if (data && data.length > 0) {
       inputRef?.current?.focus();
     }
   }, [data]);
 
-  if (isLoading) {
+  if (isPending) {
     return <LinearProgress />;
   }
 
-  if (data.length === 0) {
+  if (data?.length === 0) {
     return <div className="schedules-list">{i18next.t("g.empty-list")}</div>;
   }
 

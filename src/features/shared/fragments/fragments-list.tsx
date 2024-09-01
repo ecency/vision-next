@@ -22,13 +22,14 @@ export function Fragments(props: Props) {
   const [mode, setMode] = useState<"" | "add" | "edit">("");
   const [editingItem, setEditingItem] = useState<Fragment | undefined>();
 
-  const { data, refetch, isLoading } = useFragmentsQuery();
+  const { data, refetch, isPending } = useFragmentsQuery();
 
   const items = useMemo(
     () =>
       data
-        .filter((x) => x.title.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
-        .sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1)),
+        ?.filter((x) => x.title.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
+        .sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1)) ??
+      [],
     [data, searchQuery]
   );
 
@@ -37,10 +38,10 @@ export function Fragments(props: Props) {
   });
 
   useEffect(() => {
-    if (!isLoading && data.length > 0) {
+    if (!isPending && data && data.length > 0) {
       innerRef.current && innerRef.current.focus();
     }
-  }, [isLoading, data]);
+  }, [isPending, data]);
 
   const filterChanged = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setSearchQuery(e.target.value);
@@ -58,8 +59,8 @@ export function Fragments(props: Props) {
 
   return (
     <div className="dialog-content">
-      {isLoading && <LinearProgress />}
-      {!isLoading && data.length === 0 && (
+      {isPending && <LinearProgress />}
+      {!isPending && data?.length === 0 && (
         <div className="fragments-list flex items-center flex-col gap-4">
           <p>{i18next.t("g.empty-list")}</p>
           <p>
@@ -67,7 +68,7 @@ export function Fragments(props: Props) {
           </p>
         </div>
       )}
-      {data.length > 0 && (
+      {data && data.length > 0 && (
         <>
           <div className="flex gap-3">
             <FormControl

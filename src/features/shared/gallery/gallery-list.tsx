@@ -19,10 +19,12 @@ interface Props {
 export function GalleryList({ onPick }: Props) {
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
 
-  const { data, refetch, isLoading } = useGalleryImagesQuery();
+  const { data, refetch, isPending } = useGalleryImagesQuery();
   const items = useMemo(
     () =>
-      data.sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1)),
+      data?.sort((a, b) =>
+        new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1
+      ) ?? [],
     [data]
   );
 
@@ -44,7 +46,7 @@ export function GalleryList({ onPick }: Props) {
 
   return (
     <div className="dialog-content">
-      {isLoading && <LinearProgress />}
+      {isPending && <LinearProgress />}
       {items.length > 0 && (
         <div className="gallery-list">
           <div className="gallery-list-body">
@@ -70,7 +72,7 @@ export function GalleryList({ onPick }: Props) {
           </div>
         </div>
       )}
-      {!isLoading && items.length === 0 && (
+      {!isPending && items.length === 0 && (
         <div className="gallery-list">{i18next.t("g.empty-list")}</div>
       )}
     </div>
