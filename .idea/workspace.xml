@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed NPEs">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed profile menu extra items">
+      <change afterPath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/features/next-middleware/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/middleware.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-menu/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.js" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -84,7 +87,7 @@
     "code.cleanup.on.save": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/public",
+    "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.standard": "true",
     "node.js.detected.package.tslint": "true",
@@ -125,11 +128,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/app" />
       <recent name="$PROJECT_DIR$/public" />
       <recent name="$PROJECT_DIR$/src/config" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/api/mutations" />
-      <recent name="$PROJECT_DIR$/src/features" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/app/api/[author]/[section]" />
@@ -373,15 +376,7 @@
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
-      <workItem from="1725175109524" duration="1699000" />
-    </task>
-    <task id="LOCAL-00147" summary="Removed extra console log">
-      <option name="closed" value="true" />
-      <created>1723120223464</created>
-      <option name="number" value="00147" />
-      <option name="presentableId" value="LOCAL-00147" />
-      <option name="project" value="LOCAL" />
-      <updated>1723120223464</updated>
+      <workItem from="1725175109524" duration="8511000" />
     </task>
     <task id="LOCAL-00148" summary="Fixed language selection">
       <option name="closed" value="true" />
@@ -767,7 +762,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725177495574</updated>
     </task>
-    <option name="localTasksCounter" value="196" />
+    <task id="LOCAL-00196" summary="Fixed profile menu extra items">
+      <option name="closed" value="true" />
+      <created>1725177780694</created>
+      <option name="number" value="00196" />
+      <option name="presentableId" value="LOCAL-00196" />
+      <option name="project" value="LOCAL" />
+      <updated>1725177780694</updated>
+    </task>
+    <option name="localTasksCounter" value="197" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -788,7 +791,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Improved floating FAQ layout" />
     <MESSAGE value="Fixed and improved profile preview widget" />
     <MESSAGE value="Added and improved mobile layout of profile preview" />
     <MESSAGE value="Fixed floating FAQ layout" />
@@ -813,7 +815,8 @@
     <MESSAGE value="Fixed account reputation in popover profile" />
     <MESSAGE value="Fixed typo" />
     <MESSAGE value="Fixed NPEs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed NPEs" />
+    <MESSAGE value="Fixed profile menu extra items" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed profile menu extra items" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
