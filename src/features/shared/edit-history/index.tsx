@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { diff_match_patch } from "diff-match-patch";
 import defaults from "@/defaults.json";
 import { renderPostBody, setProxyBase } from "@ecency/render-helper";
 import "./index.scss";
@@ -14,27 +13,9 @@ import { useGetCommentHistoryQuery } from "@/api/queries";
 import { LinearProgress } from "@/features/shared";
 import { dateToFormatted } from "@/utils";
 import { classNameObject } from "@ui/util";
+import { useHistoryList } from "@/features/shared/edit-history/hooks";
 
 setProxyBase(defaults.imageServer);
-
-const dmp = new diff_match_patch();
-
-const make_diff = (str1: string, str2: string): string => {
-  const d = dmp.diff_main(str1, str2);
-  dmp.diff_cleanupSemantic(d);
-  return dmp.diff_prettyHtml(d).replace(/&para;/g, "&nbsp;");
-};
-
-export interface CommentHistoryListItemDiff {
-  title: string;
-  titleDiff?: string;
-  body: string;
-  bodyDiff?: string;
-  tags: string;
-  tagsDiff?: string;
-  timestamp: string;
-  v: number;
-}
 
 interface Props {
   entry: Entry;
@@ -45,39 +26,8 @@ export function EditHistory({ onHide, entry }: Props) {
   const [showDiff, setShowDiff] = useState(true);
   const [selected, setSelected] = useState(1);
 
-  const { data: historyData, isLoading } = useGetCommentHistoryQuery(entry);
-  const history = useMemo(() => {
-    const t: CommentHistoryListItemDiff[] = [];
-
-    let h = "";
-    for (let l = 0; l < historyData.length; l += 1) {
-      if (historyData[l].body.startsWith("@@")) {
-        const p = dmp.patch_fromText(historyData[l].body);
-        h = dmp.patch_apply(p, h)[0];
-        historyData[l].body = h;
-      } else {
-        h = historyData[l].body;
-      }
-
-      t.push({
-        v: historyData[l].v,
-        title: historyData[l].title,
-        body: h,
-        timestamp: historyData[l].timestamp,
-        tags: historyData[l].tags.join(", ")
-      });
-    }
-
-    for (let l = 0; l < t.length; l += 1) {
-      const p = l > 0 ? l - 1 : l;
-
-      t[l].titleDiff = make_diff(t[p].title, t[l].title);
-      t[l].bodyDiff = make_diff(t[p].body, t[l].body);
-      t[l].tagsDiff = make_diff(t[p].tags, t[l].tags);
-    }
-
-    return t;
-  }, [historyData]);
+  const { data: isLoading } = useGetCommentHistoryQuery(entry);
+  const history = useHistoryList(entry);
 
   const selectedItem = useMemo(() => history.find((x) => x.v === selected), [history, selected]);
 

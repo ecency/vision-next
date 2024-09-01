@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
-import { Entry } from "@/entities";
+import { CommentHistory, Entry } from "@/entities";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 
@@ -14,7 +14,7 @@ export function useGetCommentHistoryQuery(entry: Entry, onlyMeta = false) {
         onlyMeta: onlyMeta ? "1" : ""
       };
       const resp = await appAxios.post(apiBase(`/private-api/comment-history`), data);
-      return resp.data;
+      return resp.data as CommentHistory;
     }
   });
 }

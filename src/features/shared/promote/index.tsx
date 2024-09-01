@@ -70,13 +70,13 @@ export function Promote({ onHide, entry }: Props) {
   }, [prices]);
 
   useEffect(() => {
-    const { price } = prices?.find((x) => x.duration === duration)!;
+    const { price } = prices?.find((x) => x.duration === duration) ?? { price: 0.0 };
     setBalanceError(
       parseFloat(activeUserPoints?.points ?? "0.0") < price
         ? i18next.t("trx-common.insufficient-funds")
         : ""
     );
-  }, [activeUser, duration, prices]);
+  }, [activeUser, activeUserPoints?.points, duration, prices]);
 
   const pathChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const path = e.target.value;

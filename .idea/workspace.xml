@@ -4,8 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed account reputation in popover profile">
-      <change beforePath="$PROJECT_DIR$/src/app/api/[author]/[section]/rss/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/[author]/[section]/rss/route.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed typo">
+      <change afterPath="$PROJECT_DIR$/src/features/shared/edit-history/hooks/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/features/shared/edit-history/hooks/use-history-list.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-comment-history-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-comment-history-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/edit-history/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/edit-history/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/promote/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/promote/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -94,7 +99,7 @@
     "nodejs_interpreter_path": "/Users/ildartimerbaev/.nvm/versions/node/v18.17.1/bin/node",
     "nodejs_package_manager_path": "npm",
     "npm.build.executor": "Run",
-    "npm.dev.executor": "Debug",
+    "npm.dev.executor": "Run",
     "npm.start.executor": "Run",
     "npm.test.executor": "Run",
     "prettierjs.PrettierConfiguration.Package": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/prettier",
@@ -138,7 +143,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.build">
+  <component name="RunManager" selected="npm.dev">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ecency-vision-next" />
       <method v="2">
@@ -225,8 +230,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.build" />
         <item itemvalue="npm.dev" />
+        <item itemvalue="npm.build" />
         <item itemvalue="npm.test" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
         <item itemvalue="Jest.Comment.handles keyboard shortcuts" />
@@ -371,23 +376,8 @@
       <workItem from="1724703768137" duration="3836000" />
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
-      <workItem from="1724947178815" duration="10146000" />
-    </task>
-    <task id="LOCAL-00144" summary="Fixed entry editing">
-      <option name="closed" value="true" />
-      <created>1722688895440</created>
-      <option name="number" value="00144" />
-      <option name="presentableId" value="LOCAL-00144" />
-      <option name="project" value="LOCAL" />
-      <updated>1722688895441</updated>
-    </task>
-    <task id="LOCAL-00145" summary="Fixed after review">
-      <option name="closed" value="true" />
-      <created>1723109709964</created>
-      <option name="number" value="00145" />
-      <option name="presentableId" value="LOCAL-00145" />
-      <option name="project" value="LOCAL" />
-      <updated>1723109709964</updated>
+      <workItem from="1724947178815" duration="10420000" />
+      <workItem from="1725175109524" duration="1463000" />
     </task>
     <task id="LOCAL-00146" summary="Updated deps">
       <option name="closed" value="true" />
@@ -765,7 +755,23 @@
       <option name="project" value="LOCAL" />
       <updated>1724963644052</updated>
     </task>
-    <option name="localTasksCounter" value="193" />
+    <task id="LOCAL-00193" summary="Fixed account reputation in popover profile">
+      <option name="closed" value="true" />
+      <created>1724963967142</created>
+      <option name="number" value="00193" />
+      <option name="presentableId" value="LOCAL-00193" />
+      <option name="project" value="LOCAL" />
+      <updated>1724963967142</updated>
+    </task>
+    <task id="LOCAL-00194" summary="Fixed typo">
+      <option name="closed" value="true" />
+      <created>1724963975890</created>
+      <option name="number" value="00194" />
+      <option name="presentableId" value="LOCAL-00194" />
+      <option name="project" value="LOCAL" />
+      <updated>1724963975890</updated>
+    </task>
+    <option name="localTasksCounter" value="195" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -786,7 +792,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed trending tags closing and styles" />
     <MESSAGE value="Removed extra empty feed data" />
     <MESSAGE value="Improved floating FAQ layout" />
     <MESSAGE value="Fixed and improved profile preview widget" />
@@ -811,7 +816,8 @@
     <MESSAGE value="Added opening posts via direct link w/o category" />
     <MESSAGE value="Moved firebase messaging sw" />
     <MESSAGE value="Fixed account reputation in popover profile" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed account reputation in popover profile" />
+    <MESSAGE value="Fixed typo" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed typo" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
