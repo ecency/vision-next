@@ -67,26 +67,27 @@ export function ProfileCommunities({ account }: Props) {
 
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <AnimatePresence>
-              {items.map((i, k) => (
-                <motion.div
-                  initial={{ opacity: 0, y: -48 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -48 }}
-                  transition={{ delay: k * 0.2 }}
-                  key={k}
-                  className="border border-[--border-color] rounded-2xl p-2 xl:p-3 flex flex-col gap-2 xl:gap-3"
-                >
-                  {communities.find((c) => c.data?.name === i[0])?.data && (
-                    <CommunityListItem
-                      vertical={true}
-                      community={communities.find((c) => c.data?.name === i[0])?.data!}
-                    />
-                  )}
-                  <div>
-                    <Badge>{i[2]}</Badge>
-                  </div>
-                </motion.div>
-              ))}
+              {items.map(
+                (i, k) =>
+                  communities.find((c) => c.data?.name === i[0])?.data && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -48 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -48 }}
+                      transition={{ delay: k * 0.2 }}
+                      key={k}
+                      className="border border-[--border-color] rounded-2xl p-2 xl:p-3 flex flex-col gap-2 xl:gap-3"
+                    >
+                      <CommunityListItem
+                        vertical={true}
+                        community={communities.find((c) => c.data?.name === i[0])?.data!}
+                      />
+                      <div>
+                        <Badge>{i[2]}</Badge>
+                      </div>
+                    </motion.div>
+                  )
+              )}
             </AnimatePresence>
           </ul>
           {showCreateLink && (

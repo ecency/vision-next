@@ -7,9 +7,10 @@ import { getDynamicPropsQuery, getRcAccountsQuery } from "@/api/queries";
 import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@/api/hive";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
-import { hiveSvg, informationVariantSvg } from "@ui/svg";
+import { hiveSvg } from "@ui/svg";
 import { StyledTooltip } from "@ui/tooltip";
 import { Spinner } from "@ui/spinner";
+import { UilInfoCircle } from "@iconscout/react-unicons";
 
 interface ContentProps {
   account: FullAccount;
@@ -96,7 +97,7 @@ export function ProfileInfo({ account }: Props) {
       <StyledTooltip
         content={isLoaded && <ProfileInfoContent account={account} rcAccount={rcAccount} />}
       >
-        {isLoaded ? informationVariantSvg : <Spinner className="w-3.5 h-3.5" />}
+        {isLoaded ? <UilInfoCircle width={20} height={20} /> : <Spinner className="w-3.5 h-3.5" />}
       </StyledTooltip>
     </span>
   );

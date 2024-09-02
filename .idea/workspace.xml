@@ -7,7 +7,9 @@
     <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Improved and fixed communities list of user profile">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-communities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-communities/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/sort-profile-communities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/sort-profile-communities/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-cover/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-cover/_index.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-cover/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-cover/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -375,15 +377,7 @@
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
       <workItem from="1725175109524" duration="14583000" />
-      <workItem from="1725270048258" duration="9355000" />
-    </task>
-    <task id="LOCAL-00156" summary="Fixed profile menu and added dropdown animations">
-      <option name="closed" value="true" />
-      <created>1723577388757</created>
-      <option name="number" value="00156" />
-      <option name="presentableId" value="LOCAL-00156" />
-      <option name="project" value="LOCAL" />
-      <updated>1723577388757</updated>
+      <workItem from="1725270048258" duration="9877000" />
     </task>
     <task id="LOCAL-00157" summary="Fixed profile menu and added dropdown animations">
       <option name="closed" value="true" />
@@ -769,7 +763,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725287582377</updated>
     </task>
-    <option name="localTasksCounter" value="205" />
+    <task id="LOCAL-00205" summary="Improved and fixed communities list of user profile">
+      <option name="closed" value="true" />
+      <created>1725288653311</created>
+      <option name="number" value="00205" />
+      <option name="presentableId" value="LOCAL-00205" />
+      <option name="project" value="LOCAL" />
+      <updated>1725288653311</updated>
+    </task>
+    <option name="localTasksCounter" value="206" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
