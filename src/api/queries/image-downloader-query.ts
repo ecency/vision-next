@@ -10,7 +10,8 @@ export function useImageDownloader(
   noImage: string,
   width: number,
   height: number,
-  enabled: boolean
+  enabled: boolean,
+  useFallback = true
 ) {
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
 
@@ -37,7 +38,7 @@ export function useImageDownloader(
         const response = await appAxios.get(
           canUseWebp
             ? catchPostImage(entry, width, height, "webp")
-            : catchPostImage(entry, width, height) || noImage,
+            : catchPostImage(entry, width, height),
           {
             responseType: "blob"
           }
@@ -45,7 +46,7 @@ export function useImageDownloader(
 
         return (await blobToBase64(response.data)) as string;
       } catch (e) {
-        return noImage;
+        return useFallback ? noImage : "";
       }
     },
     enabled,
