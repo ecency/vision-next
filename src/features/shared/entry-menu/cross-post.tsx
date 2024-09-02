@@ -7,6 +7,7 @@ import { SuggestionList } from "@/features/shared";
 import i18next from "i18next";
 import { useCrossPost } from "@/api/mutations";
 import { Entry } from "@/entities";
+import { useGlobalStore } from "@/core/global-store";
 
 interface Props {
   entry: Entry;
@@ -15,10 +16,12 @@ interface Props {
 }
 
 export function CrossPost({ entry, onSuccess, onHide }: Props) {
+  const activeUser = useGlobalStore((state) => state.activeUser);
+
   const [community, setCommunity] = useState("");
   const [message, setMessage] = useState("");
 
-  const { data: subscriptions, isLoading } = useGetSubscriptionsQuery();
+  const { data: subscriptions, isLoading } = useGetSubscriptionsQuery(activeUser?.username);
 
   const communities = useMemo(
     () => subscriptions?.map((x) => ({ id: x[0], name: x[1] })) ?? [],

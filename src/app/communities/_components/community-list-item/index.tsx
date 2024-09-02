@@ -11,9 +11,10 @@ import i18next from "i18next";
 interface Props {
   community: Community;
   small?: boolean;
+  vertical?: boolean;
 }
 
-export function CommunityListItem({ community, small }: Props) {
+export function CommunityListItem({ community, small, vertical }: Props) {
   const subscribers = useMemo(
     () => formattedNumber(community.subscribers, { fractionDigits: 0 }),
     [community]
@@ -28,7 +29,7 @@ export function CommunityListItem({ community, small }: Props) {
   );
 
   return (
-    <div className={"community-list-item " + (small ? "small" : "")}>
+    <div className={"community-list-item " + (small ? "small" : "") + (vertical ? "vertical" : "")}>
       <div className="item-content">
         <h2 className="item-title">
           <div className="item-details">

@@ -5,6 +5,7 @@ import i18next from "i18next";
 import { getCommunitiesQuery, useGetSubscriptionsQuery } from "@/api/queries";
 import { useDebounce } from "react-use";
 import useMount from "react-use/lib/useMount";
+import { useGlobalStore } from "@/core/global-store";
 
 interface BrowserProps {
   onSelect: (name: string | null) => void;
@@ -12,7 +13,8 @@ interface BrowserProps {
 }
 
 export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
-  const { data: subscriptions, refetch } = useGetSubscriptionsQuery();
+  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { data: subscriptions, refetch } = useGetSubscriptionsQuery(activeUser?.username);
 
   const [query, setQuery] = useState("");
   const [fetchingQuery, setFetchingQuery] = useState("");

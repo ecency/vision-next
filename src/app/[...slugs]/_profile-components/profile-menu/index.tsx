@@ -39,12 +39,7 @@ export function ProfileMenu({ username, section }: Props) {
     })
   ];
 
-  const dropDownMenuItems = [
-    ...menuItems,
-    ...(username === activeUser?.username
-      ? kebabMenuItems
-      : kebabMenuItems.filter((item) => item.id != "communities"))
-  ];
+  const dropDownMenuItems = [...menuItems, ...kebabMenuItems];
 
   return (
     <PageMenu className="pb-4 pt-4 md:pt-0">
@@ -71,13 +66,11 @@ export function ProfileMenu({ username, section }: Props) {
             isSelected={menuItem.selected}
           />
         ))}
-        {username !== activeUser?.username && (
-          <PageMenuLink
-            isSelected={section === "communities"}
-            href={`/@${username}/communities`}
-            label={i18next.t(`profile.section-communities`)}
-          />
-        )}
+        <PageMenuLink
+          isSelected={section === "communities"}
+          href={`/@${username}/communities`}
+          label={i18next.t(`profile.section-communities`)}
+        />
 
         <PageMenuLink
           isSelected={["wallet", "points", "engine", "spk"].includes(section)}

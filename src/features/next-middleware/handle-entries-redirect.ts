@@ -5,7 +5,7 @@ export function handleEntriesRedirect(request: NextRequest) {
   const profileSections = [
     ...Object.values(ProfileFilter),
     "communities",
-    "likes",
+    "trail",
     "wallet",
     "points",
     "spk",
