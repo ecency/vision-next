@@ -4,40 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Do not show fallback images in comments">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed balance fetching in gift modal">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/staging.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/staging.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-footer-controls.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-footer-controls.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/sort-profile-communities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/sort-profile-communities/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/_components/trending-tags-card/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/_components/trending-tags-card/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/chat-channel-messages.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/chat-channel-messages.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/chats-direct-messages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/chats-direct-messages/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/chats-sidebar/chat-sidebar-channel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/chats-sidebar/chat-sidebar-channel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/reply-to-messages/chat-reply-direct-message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/reply-to-messages/chat-reply-direct-message.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/reply-to-messages/chat-reply-public-message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/reply-to-messages/chat-reply-public-message.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-emoji-picker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-emoji-picker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-toolbar-image-picker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-toolbar-image-picker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-toolbar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/perks/_page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/perks/_page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/polls/components/poll-option.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/polls/components/poll-option.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/polls/components/poll-widget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/polls/components/poll-widget.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/polls/components/polls-creation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/polls/components/polls-creation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/bookmark-btn/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/bookmark-btn/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/editor-toolbar/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/editor-toolbar/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-list-item/entry-list-item-poll-icon.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-list-item/entry-list-item-poll-icon.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-menu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-menu/menu-items-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-menu/menu-items-generator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-desktop.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-desktop.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-main-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-main-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-mobile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-mobile.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-perks-button.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-perks-button.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side-main-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side-main-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/ui/input/input-vote.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/input/input-vote.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shims/icons.d.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/specs/features/shared/bookmark-btn.spec.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/specs/features/shared/bookmark-btn.spec.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/ecency-config.template.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/config.template.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -87,64 +59,65 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Jest.Account Reputation.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Bookmark button.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BookmarkBtn.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BookmarkBtn.renders login required when no active user.executor&quot;: &quot;Debug&quot;,
-    &quot;Jest.BookmarksDialog.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BookmarksDialog.hides the modal when close button is clicked.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BoostDialog.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BoostDialog.finishes and calls onHide when finish button is clicked.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.BoostDialog.handles signing process and transitions to step 3.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.ClickAwayListener (1).executor&quot;: &quot;Run&quot;,
-    &quot;Jest.ClickAwayListener.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment Component.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment.handles keyboard shortcuts.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment.renders with initial text and submit button.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Comment.submits comment when submit button is clicked.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Tests in utils/.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.Vesting.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.scratch_39.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.scratch_40.js.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/jest&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;/Users/ildartimerbaev/.nvm/versions/node/v18.17.1/bin/node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.build.executor&quot;: &quot;Run&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;npm.start.executor&quot;: &quot;Run&quot;,
-    &quot;npm.test.executor&quot;: &quot;Run&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/prettier&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Jest.Account Reputation.executor": "Run",
+    "Jest.Bookmark button.executor": "Run",
+    "Jest.BookmarkBtn.executor": "Run",
+    "Jest.BookmarkBtn.renders login required when no active user.executor": "Debug",
+    "Jest.BookmarksDialog.executor": "Run",
+    "Jest.BookmarksDialog.hides the modal when close button is clicked.executor": "Run",
+    "Jest.BoostDialog.executor": "Run",
+    "Jest.BoostDialog.finishes and calls onHide when finish button is clicked.executor": "Run",
+    "Jest.BoostDialog.handles signing process and transitions to step 3.executor": "Run",
+    "Jest.ClickAwayListener (1).executor": "Run",
+    "Jest.ClickAwayListener.executor": "Run",
+    "Jest.Comment Component.executor": "Run",
+    "Jest.Comment.executor": "Run",
+    "Jest.Comment.handles keyboard shortcuts.executor": "Run",
+    "Jest.Comment.renders with initial text and submit button.executor": "Run",
+    "Jest.Comment.submits comment when submit button is clicked.executor": "Run",
+    "Jest.Tests in utils/.executor": "Run",
+    "Jest.Vesting.executor": "Run",
+    "Node.js.scratch_39.js.executor": "Run",
+    "Node.js.scratch_40.js.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "code.cleanup.on.save": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "develop",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/jest",
+    "nodejs_interpreter_path": "/Users/ildartimerbaev/.nvm/versions/node/v18.17.1/bin/node",
+    "nodejs_package_manager_path": "npm",
+    "npm.build.executor": "Run",
+    "npm.dev.executor": "Run",
+    "npm.start.executor": "Run",
+    "npm.test.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "/Users/fm/pjs/ecency-vision/node_modules/prettier",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "rearrange.code.on.save": "true",
+    "settings.editor.selected.configurable": "actions.on.save",
+    "ts.external.directory.path": "/Users/fm/pjs/ecency-vision/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
-      &quot;TEXT&quot;,
-      &quot;JavaScript&quot;
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "TEXT",
+      "JavaScript"
     ]
   }
-}</component>
+}]]></component>
   <component name="ReactDesignerToolWindowState">
     <option name="myId2Visible">
       <map>
@@ -171,19 +144,6 @@
     </key>
   </component>
   <component name="RunManager" selected="npm.dev">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="ecency-vision-next" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="ecency-vision-next" />
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Comment.handles keyboard shortcuts" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
@@ -209,6 +169,19 @@
         <test-name value="submits comment when submit button is clicked" />
       </test-names>
       <method v="2" />
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="ecency-vision-next" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="ecency-vision-next" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
     <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -404,9 +377,55 @@
       <workItem from="1724765744418" duration="8600000" />
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
-      <workItem from="1725175109524" duration="14583000" />
-      <workItem from="1725270048258" duration="14542000" />
-      <workItem from="1725471455703" duration="2372000" />
+      <workItem from="1725175109524" duration="13952000" />
+    </task>
+    <task id="LOCAL-00154" summary="Fixed bugs with private API, added framer-motion animation to communities list">
+      <option name="closed" value="true" />
+      <created>1723490557421</created>
+      <option name="number" value="00154" />
+      <option name="presentableId" value="LOCAL-00154" />
+      <option name="project" value="LOCAL" />
+      <updated>1723490557422</updated>
+    </task>
+    <task id="LOCAL-00155" summary="Improved modal animations, improved sidebar animations">
+      <option name="closed" value="true" />
+      <created>1723554436232</created>
+      <option name="number" value="00155" />
+      <option name="presentableId" value="LOCAL-00155" />
+      <option name="project" value="LOCAL" />
+      <updated>1723554436233</updated>
+    </task>
+    <task id="LOCAL-00156" summary="Fixed profile menu and added dropdown animations">
+      <option name="closed" value="true" />
+      <created>1723577388757</created>
+      <option name="number" value="00156" />
+      <option name="presentableId" value="LOCAL-00156" />
+      <option name="project" value="LOCAL" />
+      <updated>1723577388757</updated>
+    </task>
+    <task id="LOCAL-00157" summary="Fixed profile menu and added dropdown animations">
+      <option name="closed" value="true" />
+      <created>1723578660785</created>
+      <option name="number" value="00157" />
+      <option name="presentableId" value="LOCAL-00157" />
+      <option name="project" value="LOCAL" />
+      <updated>1723578660786</updated>
+    </task>
+    <task id="LOCAL-00158" summary="Fixed and improved entry voting slider actions">
+      <option name="closed" value="true" />
+      <created>1723579843003</created>
+      <option name="number" value="00158" />
+      <option name="presentableId" value="LOCAL-00158" />
+      <option name="project" value="LOCAL" />
+      <updated>1723579843004</updated>
+    </task>
+    <task id="LOCAL-00159" summary="Fixed and updated author info card">
+      <option name="closed" value="true" />
+      <created>1723584760050</created>
+      <option name="number" value="00159" />
+      <option name="presentableId" value="LOCAL-00159" />
+      <option name="project" value="LOCAL" />
+      <updated>1723584760050</updated>
     </task>
     <task id="LOCAL-00160" summary="Improved author info card layout and added animations">
       <option name="closed" value="true" />
@@ -752,55 +771,7 @@
       <option name="project" value="LOCAL" />
       <updated>1725200711462</updated>
     </task>
-    <task id="LOCAL-00203" summary="Fixed loading state of drafts, fragments, gallery, schedules">
-      <option name="closed" value="true" />
-      <created>1725201513191</created>
-      <option name="number" value="00203" />
-      <option name="presentableId" value="LOCAL-00203" />
-      <option name="project" value="LOCAL" />
-      <updated>1725201513191</updated>
-    </task>
-    <task id="LOCAL-00204" summary="Improved and fixed communities list of user profile">
-      <option name="closed" value="true" />
-      <created>1725287582371</created>
-      <option name="number" value="00204" />
-      <option name="presentableId" value="LOCAL-00204" />
-      <option name="project" value="LOCAL" />
-      <updated>1725287582377</updated>
-    </task>
-    <task id="LOCAL-00205" summary="Improved and fixed communities list of user profile">
-      <option name="closed" value="true" />
-      <created>1725288653311</created>
-      <option name="number" value="00205" />
-      <option name="presentableId" value="LOCAL-00205" />
-      <option name="project" value="LOCAL" />
-      <updated>1725288653311</updated>
-    </task>
-    <task id="LOCAL-00206" summary="Fixed profile cover info icon">
-      <option name="closed" value="true" />
-      <created>1725289143823</created>
-      <option name="number" value="00206" />
-      <option name="presentableId" value="LOCAL-00206" />
-      <option name="project" value="LOCAL" />
-      <updated>1725289143823</updated>
-    </task>
-    <task id="LOCAL-00207" summary="Fixed comments image hiding when there isn't one">
-      <option name="closed" value="true" />
-      <created>1725298545494</created>
-      <option name="number" value="00207" />
-      <option name="presentableId" value="LOCAL-00207" />
-      <option name="project" value="LOCAL" />
-      <updated>1725298545494</updated>
-    </task>
-    <task id="LOCAL-00208" summary="Do not show fallback images in comments">
-      <option name="closed" value="true" />
-      <created>1725473214631</created>
-      <option name="number" value="00208" />
-      <option name="presentableId" value="LOCAL-00208" />
-      <option name="project" value="LOCAL" />
-      <updated>1725473214631</updated>
-    </task>
-    <option name="localTasksCounter" value="209" />
+    <option name="localTasksCounter" value="203" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -821,6 +792,12 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="Fixed polls showing in entry" />
+    <MESSAGE value="Fixed notifications filters dropdown" />
+    <MESSAGE value="Moved static pages under single group" />
+    <MESSAGE value="Fixed and improved layout of community and profile menus, improved layout of community cover image" />
+    <MESSAGE value="Fixed community page filters" />
+    <MESSAGE value="Added setting category from url in submit page" />
     <MESSAGE value="Migrated hs token refresh endpoint" />
     <MESSAGE value="Wrap notifications with new config" />
     <MESSAGE value="Covered decks with config flags" />
@@ -840,13 +817,7 @@
     <MESSAGE value="Fixed account reputation in entry page" />
     <MESSAGE value="Hiding default reputation in proposals page" />
     <MESSAGE value="Fixed balance fetching in gift modal" />
-    <MESSAGE value="Fixed loading state of drafts, fragments, gallery, schedules" />
-    <MESSAGE value="Improved and fixed communities list of user profile" />
-    <MESSAGE value="Fixed profile cover info icon" />
-    <MESSAGE value="Fixed comments image hiding when there isn't one" />
-    <MESSAGE value="Do not show images in comments" />
-    <MESSAGE value="Do not show fallback images in comments" />
-    <option name="LAST_COMMIT_MESSAGE" value="Do not show fallback images in comments" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed balance fetching in gift modal" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

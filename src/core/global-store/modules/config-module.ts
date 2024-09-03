@@ -1,4 +1,4 @@
-import config from "../../../config/ecency-config.json";
+import config from "../../../config/config.json";
 
 export function createConfigState() {
   if (!config.visionConfig) {

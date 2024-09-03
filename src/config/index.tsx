@@ -1,4 +1,4 @@
-import config from "./ecency-config.json";
+import config from "./config.json";
 import { ComponentType, memo, PropsWithChildren, ReactNode } from "react";
 import { QueryClient, useMutation, UseMutationOptions } from "@tanstack/react-query";
 import type { DefaultError } from "@tanstack/query-core";
