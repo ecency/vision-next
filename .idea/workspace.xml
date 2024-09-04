@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed balance fetching in gift modal">
-      <change afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/friends/friend-list-item.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed following and followers dialog window">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/friends/friends-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/friends/friends-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-info/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -377,14 +375,6 @@
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
       <workItem from="1725175109524" duration="13952000" />
-    </task>
-    <task id="LOCAL-00154" summary="Fixed bugs with private API, added framer-motion animation to communities list">
-      <option name="closed" value="true" />
-      <created>1723490557421</created>
-      <option name="number" value="00154" />
-      <option name="presentableId" value="LOCAL-00154" />
-      <option name="project" value="LOCAL" />
-      <updated>1723490557422</updated>
     </task>
     <task id="LOCAL-00155" summary="Improved modal animations, improved sidebar animations">
       <option name="closed" value="true" />
@@ -770,7 +760,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725200711462</updated>
     </task>
-    <option name="localTasksCounter" value="203" />
+    <task id="LOCAL-00203" summary="Fixed following and followers dialog window">
+      <option name="closed" value="true" />
+      <created>1725476081211</created>
+      <option name="number" value="00203" />
+      <option name="presentableId" value="LOCAL-00203" />
+      <option name="project" value="LOCAL" />
+      <updated>1725476081211</updated>
+    </task>
+    <option name="localTasksCounter" value="204" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +789,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed polls showing in entry" />
     <MESSAGE value="Fixed notifications filters dropdown" />
     <MESSAGE value="Moved static pages under single group" />
     <MESSAGE value="Fixed and improved layout of community and profile menus, improved layout of community cover image" />
@@ -816,7 +813,8 @@
     <MESSAGE value="Fixed account reputation in entry page" />
     <MESSAGE value="Hiding default reputation in proposals page" />
     <MESSAGE value="Fixed balance fetching in gift modal" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed balance fetching in gift modal" />
+    <MESSAGE value="Fixed following and followers dialog window" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed following and followers dialog window" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

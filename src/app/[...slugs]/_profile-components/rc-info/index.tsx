@@ -212,10 +212,10 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
             <div className="rc-details">
               <div className="delegations">
                 <span className="outgoing" onClick={showOutGoingList}>
-                  {`${i18next.t("rc-info.delegated")}: ${delegated}`}
+                  {`${i18next.t("rc-info.delegated")}: ${delegated ?? 0}`}
                 </span>
                 <span className="incoming" onClick={showIncomingList}>
-                  {`${i18next.t("rc-info.received-delegations")}: ${receivedDelegation}`}
+                  {`${i18next.t("rc-info.received-delegations")}: ${receivedDelegation ?? 0}`}
                 </span>
               </div>
 
