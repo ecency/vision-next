@@ -20,7 +20,7 @@ import {
   videoSvg
 } from "@/assets/img/svg";
 import "./_index.scss";
-import { UilPanelAdd } from "@iconscout/react-unicons";
+import { UilPanelAdd } from "@tooni/iconscout-unicons-react";
 import { ThreeSpeakVideo } from "@/api/threespeak";
 import { PollsCreation, PollSnapshot } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";

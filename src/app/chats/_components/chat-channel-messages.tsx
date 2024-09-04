@@ -18,7 +18,7 @@ import { ChatFloatingDate } from "./chat-floating-date";
 import { differenceInCalendarDays } from "date-fns";
 import useDebounce from "react-use/lib/useDebounce";
 import { ForwardMessageDialog } from "./forward-message-dialog";
-import { UilCommentAltMessage, UilMessage } from "@iconscout/react-unicons";
+import { UilCommentAltMessage, UilMessage } from "@tooni/iconscout-unicons-react";
 import { usePersistentReplyToMessage } from "../_hooks";
 import { useGlobalStore } from "@/core/global-store";
 import { getCommunityCache } from "@/core/caches";

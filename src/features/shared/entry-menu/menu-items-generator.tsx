@@ -20,7 +20,7 @@ import {
   UilTrash,
   UilVolume,
   UilVolumeOff
-} from "@iconscout/react-unicons";
+} from "@tooni/iconscout-unicons-react";
 import { EcencyConfigManager } from "@/config";
 
 export function useMenuItemsGenerator(

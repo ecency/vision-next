@@ -1,5 +1,5 @@
 import { Button } from "@ui/button";
-import { UilMessage, UilMultiply } from "@iconscout/react-unicons";
+import { UilMessage, UilMultiply } from "@tooni/iconscout-unicons-react";
 import React, { useMemo } from "react";
 import { usePersistentReplyToMessage } from "../../_hooks";
 import { Channel, useNostrGetUserProfileQuery } from "@ecency/ns-query";

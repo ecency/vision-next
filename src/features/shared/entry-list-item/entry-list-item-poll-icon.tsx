@@ -2,7 +2,7 @@
 
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { UilPanelAdd } from "@iconscout/react-unicons";
+import { UilPanelAdd } from "@tooni/iconscout-unicons-react";
 import React from "react";
 import { Entry } from "@/entities";
 

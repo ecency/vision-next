@@ -14,7 +14,7 @@ import { differenceInCalendarDays } from "date-fns";
 import { groupMessages } from "../../_utils";
 import useDebounce from "react-use/lib/useDebounce";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu } from "@ui/dropdown";
-import { UilCommentAltMessage, UilMessage } from "@iconscout/react-unicons";
+import { UilCommentAltMessage, UilMessage } from "@tooni/iconscout-unicons-react";
 import { ForwardMessageDialog } from "../forward-message-dialog";
 import { usePersistentReplyToMessage } from "../../_hooks";
 import i18next from "i18next";

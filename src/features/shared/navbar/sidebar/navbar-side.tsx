@@ -4,7 +4,7 @@ import { NavbarSideMainMenu } from "./navbar-side-main-menu";
 import { Button } from "@ui/button";
 import { NavbarPerksButton } from "../navbar-perks-button";
 import { NavbarNotificationsButton } from "../navbar-notifications-button";
-import { UilEditAlt } from "@iconscout/react-unicons";
+import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { closeSvg } from "@ui/svg";
 import { walletIconSvg } from "@ui/icons";
 import { useGlobalStore } from "@/core/global-store";

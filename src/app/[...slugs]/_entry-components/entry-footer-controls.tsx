@@ -19,7 +19,7 @@ import { EcencyClientServerBridge } from "@/core/client-server-bridge";
 import { EntryPageContext } from "@/app/[...slugs]/_entry-components/context";
 import { useRouter } from "next/navigation";
 import { Button } from "@ui/button";
-import { UilEye } from "@iconscout/react-unicons";
+import { UilEye } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   entry: Entry;

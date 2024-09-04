@@ -10,7 +10,7 @@ import i18next from "i18next";
 import { hiveSvg } from "@ui/svg";
 import { StyledTooltip } from "@ui/tooltip";
 import { Spinner } from "@ui/spinner";
-import { UilInfoCircle } from "@iconscout/react-unicons";
+import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
 
 interface ContentProps {
   account: FullAccount;

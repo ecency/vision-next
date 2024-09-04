@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import i18next from "i18next";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, MenuItem } from "@ui/dropdown";
 import { Button } from "@ui/button";
-import { UilSort } from "@iconscout/react-unicons";
+import { UilSort } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   sortCommunitiesInAsc: Function;

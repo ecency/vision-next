@@ -6,7 +6,7 @@ import {
   UilListUl,
   UilUsersAlt,
   UilUserSquare
-} from "@iconscout/react-unicons";
+} from "@tooni/iconscout-unicons-react";
 import { NavbarSideMainMenuItem } from "./sidebar/navbar-side-main-menu-item";
 import pack from "../../../../package.json";
 import { NavbarSideThemeSwitcher } from "@/features/shared/navbar/sidebar";

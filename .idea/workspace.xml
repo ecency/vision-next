@@ -4,11 +4,40 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed comments image hiding when there isn't one">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Do not show fallback images in comments">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/image-downloader-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/image-downloader-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-list-item/entry-list-item-thumbnail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-list-item/entry-list-item-thumbnail.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-footer-controls.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-footer-controls.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/sort-profile-communities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/sort-profile-communities/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/_components/trending-tags-card/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/_components/trending-tags-card/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/chat-channel-messages.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/chat-channel-messages.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/chats-direct-messages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/chats-direct-messages/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/chats-sidebar/chat-sidebar-channel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/chats-sidebar/chat-sidebar-channel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/reply-to-messages/chat-reply-direct-message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/reply-to-messages/chat-reply-direct-message.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/reply-to-messages/chat-reply-public-message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/reply-to-messages/chat-reply-public-message.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-emoji-picker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-emoji-picker.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-toolbar-image-picker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-toolbar-image-picker.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/deck-threads-form-toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/perks/_page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/perks/_page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/polls/components/poll-option.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/polls/components/poll-option.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/polls/components/poll-widget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/polls/components/poll-widget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/polls/components/polls-creation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/polls/components/polls-creation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/bookmark-btn/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/bookmark-btn/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/editor-toolbar/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/editor-toolbar/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-list-item/entry-list-item-poll-icon.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-list-item/entry-list-item-poll-icon.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-menu/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-menu/menu-items-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-menu/menu-items-generator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-desktop.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-desktop.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-main-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-main-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-mobile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-mobile.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-perks-button.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-perks-button.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side-main-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side-main-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/ui/input/input-vote.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/input/input-vote.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shims/icons.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/specs/features/shared/bookmark-btn.spec.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/specs/features/shared/bookmark-btn.spec.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -377,15 +406,7 @@
       <workItem from="1724947178815" duration="10420000" />
       <workItem from="1725175109524" duration="14583000" />
       <workItem from="1725270048258" duration="14542000" />
-      <workItem from="1725471455703" duration="1428000" />
-    </task>
-    <task id="LOCAL-00159" summary="Fixed and updated author info card">
-      <option name="closed" value="true" />
-      <created>1723584760050</created>
-      <option name="number" value="00159" />
-      <option name="presentableId" value="LOCAL-00159" />
-      <option name="project" value="LOCAL" />
-      <updated>1723584760050</updated>
+      <workItem from="1725471455703" duration="2372000" />
     </task>
     <task id="LOCAL-00160" summary="Improved author info card layout and added animations">
       <option name="closed" value="true" />
@@ -771,7 +792,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725298545494</updated>
     </task>
-    <option name="localTasksCounter" value="208" />
+    <task id="LOCAL-00208" summary="Do not show fallback images in comments">
+      <option name="closed" value="true" />
+      <created>1725473214631</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
+      <option name="project" value="LOCAL" />
+      <updated>1725473214631</updated>
+    </task>
+    <option name="localTasksCounter" value="209" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -792,8 +821,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed community page filters" />
-    <MESSAGE value="Added setting category from url in submit page" />
     <MESSAGE value="Migrated hs token refresh endpoint" />
     <MESSAGE value="Wrap notifications with new config" />
     <MESSAGE value="Covered decks with config flags" />
@@ -817,7 +844,9 @@
     <MESSAGE value="Improved and fixed communities list of user profile" />
     <MESSAGE value="Fixed profile cover info icon" />
     <MESSAGE value="Fixed comments image hiding when there isn't one" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed comments image hiding when there isn't one" />
+    <MESSAGE value="Do not show images in comments" />
+    <MESSAGE value="Do not show fallback images in comments" />
+    <option name="LAST_COMMIT_MESSAGE" value="Do not show fallback images in comments" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
