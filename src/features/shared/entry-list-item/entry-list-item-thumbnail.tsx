@@ -32,10 +32,10 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
     false
   );
   const showImage = useMemo(() => {
-    const isComment = !!entry.parent_permlink;
+    const isComment = !!entry.parent_permlink && entry.parent_permlink !== entry.permlink;
     const hasImage = !!imgGrid || !!imgRow;
     return !isComment || hasImage;
-  }, [entry.parent_permlink, imgGrid, imgRow]);
+  }, [entry.parent_permlink, entry.permlink, imgGrid, imgRow]);
 
   return (
     showImage && (
@@ -47,14 +47,18 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
                 width={1000}
                 height={1000}
                 className="w-full mx-auto"
-                src={imgGrid ?? noImage}
+                src={imgGrid || noImage}
                 alt={isGridLoading ? "" : entry.title}
                 style={{ width: imgGrid === noImage ? "172px" : "100%" }}
               />
             ) : (
               <picture>
-                <source srcSet={imgRow} media="(min-width: 576px)" />
-                <img className="w-full" srcSet={imgRow} alt={isRowLoading ? "" : entry.title} />
+                <source srcSet={imgRow || noImage} media="(min-width: 576px)" />
+                <img
+                  className="w-full"
+                  srcSet={imgRow || noImage}
+                  alt={isRowLoading ? "" : entry.title}
+                />
               </picture>
             )}
           </div>

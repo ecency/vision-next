@@ -43,8 +43,18 @@ export function useImageDownloader(
             responseType: "blob"
           }
         );
+        const data = (await blobToBase64(response.data)) as string;
 
-        return (await blobToBase64(response.data)) as string;
+        if (data) {
+          return data;
+        } else if (useFallback) {
+          const response = await appAxios.get(noImage, {
+            responseType: "blob"
+          });
+          return (await blobToBase64(response.data)) as string;
+        }
+
+        return "";
       } catch (e) {
         return useFallback ? noImage : "";
       }

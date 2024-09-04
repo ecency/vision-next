@@ -36,6 +36,8 @@ export const getFriendsQuery = (
         };
       });
     },
+    refetchOnMount: true,
+    staleTime: 60000,
     initialData: { pages: [], pageParams: [] },
     initialPageParam: { startFollowing: "" },
     getNextPageParam: (lastPage) =>

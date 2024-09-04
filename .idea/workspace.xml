@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed profile cover info icon">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed comments image hiding when there isn't one">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/queries/image-downloader-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/image-downloader-query.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/features/shared/entry-list-item/entry-list-item-thumbnail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-list-item/entry-list-item-thumbnail.tsx" afterDir="false" />
     </list>
@@ -375,15 +376,8 @@
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
       <workItem from="1725175109524" duration="14583000" />
-      <workItem from="1725270048258" duration="13034000" />
-    </task>
-    <task id="LOCAL-00158" summary="Fixed and improved entry voting slider actions">
-      <option name="closed" value="true" />
-      <created>1723579843003</created>
-      <option name="number" value="00158" />
-      <option name="presentableId" value="LOCAL-00158" />
-      <option name="project" value="LOCAL" />
-      <updated>1723579843004</updated>
+      <workItem from="1725270048258" duration="14542000" />
+      <workItem from="1725471455703" duration="1428000" />
     </task>
     <task id="LOCAL-00159" summary="Fixed and updated author info card">
       <option name="closed" value="true" />
@@ -769,7 +763,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725289143823</updated>
     </task>
-    <option name="localTasksCounter" value="207" />
+    <task id="LOCAL-00207" summary="Fixed comments image hiding when there isn't one">
+      <option name="closed" value="true" />
+      <created>1725298545494</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
+      <option name="project" value="LOCAL" />
+      <updated>1725298545494</updated>
+    </task>
+    <option name="localTasksCounter" value="208" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -790,7 +792,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed and improved layout of community and profile menus, improved layout of community cover image" />
     <MESSAGE value="Fixed community page filters" />
     <MESSAGE value="Added setting category from url in submit page" />
     <MESSAGE value="Migrated hs token refresh endpoint" />
@@ -815,7 +816,8 @@
     <MESSAGE value="Fixed loading state of drafts, fragments, gallery, schedules" />
     <MESSAGE value="Improved and fixed communities list of user profile" />
     <MESSAGE value="Fixed profile cover info icon" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed profile cover info icon" />
+    <MESSAGE value="Fixed comments image hiding when there isn't one" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed comments image hiding when there isn't one" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
