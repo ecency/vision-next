@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed resource credits default value">
-      <change beforePath="$PROJECT_DIR$/src/features/shared/login/login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/login/login.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed auth screen logo source">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/submit/_components/community-selector/community-selector-browser.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/submit/_components/community-selector/community-selector-browser.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -374,14 +375,6 @@
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
       <workItem from="1725175109524" duration="13952000" />
-    </task>
-    <task id="LOCAL-00156" summary="Fixed profile menu and added dropdown animations">
-      <option name="closed" value="true" />
-      <created>1723577388757</created>
-      <option name="number" value="00156" />
-      <option name="presentableId" value="LOCAL-00156" />
-      <option name="project" value="LOCAL" />
-      <updated>1723577388757</updated>
     </task>
     <task id="LOCAL-00157" summary="Fixed profile menu and added dropdown animations">
       <option name="closed" value="true" />
@@ -767,7 +760,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725476980057</updated>
     </task>
-    <option name="localTasksCounter" value="205" />
+    <task id="LOCAL-00205" summary="Fixed auth screen logo source">
+      <option name="closed" value="true" />
+      <created>1725477342171</created>
+      <option name="number" value="00205" />
+      <option name="presentableId" value="LOCAL-00205" />
+      <option name="project" value="LOCAL" />
+      <updated>1725477342171</updated>
+    </task>
+    <option name="localTasksCounter" value="206" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -788,7 +789,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Moved static pages under single group" />
     <MESSAGE value="Fixed and improved layout of community and profile menus, improved layout of community cover image" />
     <MESSAGE value="Fixed community page filters" />
     <MESSAGE value="Added setting category from url in submit page" />
@@ -813,7 +813,8 @@
     <MESSAGE value="Fixed balance fetching in gift modal" />
     <MESSAGE value="Fixed following and followers dialog window" />
     <MESSAGE value="Fixed resource credits default value" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed resource credits default value" />
+    <MESSAGE value="Fixed auth screen logo source" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed auth screen logo source" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
