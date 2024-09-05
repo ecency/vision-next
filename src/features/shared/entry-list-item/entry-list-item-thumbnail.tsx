@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { useImageDownloader } from "@/api/queries";
@@ -20,37 +20,50 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
     noImage,
     600,
     500,
-    listStyle === "grid"
+    listStyle === "grid",
+    false
   );
   const { data: imgRow, isLoading: isRowLoading } = useImageDownloader(
     entry,
     noImage,
     260,
     200,
-    listStyle !== "grid"
+    listStyle !== "grid",
+    false
   );
+  const showImage = useMemo(() => {
+    const isComment = !!entry.parent_permlink && entry.parent_permlink !== entry.permlink;
+    const hasImage = !!imgGrid || !!imgRow;
+    return !isComment || hasImage;
+  }, [entry.parent_permlink, entry.permlink, imgGrid, imgRow]);
 
   return (
-    <div className={"item-image " + (imgRow === noImage ? "noImage" : "")}>
-      <EntryLink entry={isCrossPost ? entryProp : entry}>
-        <div>
-          {listStyle === "grid" ? (
-            <Image
-              width={1000}
-              height={1000}
-              className="w-full mx-auto"
-              src={imgGrid ?? noImage}
-              alt={isGridLoading ? "" : entry.title}
-              style={{ width: imgGrid === noImage ? "172px" : "100%" }}
-            />
-          ) : (
-            <picture>
-              <source srcSet={imgRow} media="(min-width: 576px)" />
-              <img className="w-full" srcSet={imgRow} alt={isRowLoading ? "" : entry.title} />
-            </picture>
-          )}
-        </div>
-      </EntryLink>
-    </div>
+    showImage && (
+      <div className={"item-image " + (imgRow === noImage ? "noImage" : "")}>
+        <EntryLink entry={isCrossPost ? entryProp : entry}>
+          <div>
+            {listStyle === "grid" ? (
+              <Image
+                width={1000}
+                height={1000}
+                className="w-full mx-auto"
+                src={imgGrid || noImage}
+                alt={isGridLoading ? "" : entry.title}
+                style={{ width: imgGrid === noImage ? "172px" : "100%" }}
+              />
+            ) : (
+              <picture>
+                <source srcSet={imgRow || noImage} media="(min-width: 576px)" />
+                <img
+                  className="w-full"
+                  srcSet={imgRow || noImage}
+                  alt={isRowLoading ? "" : entry.title}
+                />
+              </picture>
+            )}
+          </div>
+        </EntryLink>
+      </div>
+    )
   );
 }

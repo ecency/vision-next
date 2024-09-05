@@ -1,5 +1,5 @@
 import React from "react";
-import { UilCheck } from "@iconscout/react-unicons";
+import { UilCheck } from "@tooni/iconscout-unicons-react";
 import { classNameObject } from "@ui/util";
 
 export function PollCheck({ checked }: { checked: boolean }) {

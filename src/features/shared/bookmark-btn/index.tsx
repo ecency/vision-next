@@ -10,7 +10,7 @@ import { useBookmarksQuery } from "@/api/queries";
 import { Entry } from "@/entities";
 import { useBookmarkAdd, useBookmarkDelete } from "@/api/mutations/bookmarks";
 import { Button } from "@ui/button";
-import { UilBookmark } from "@iconscout/react-unicons";
+import { UilBookmark } from "@tooni/iconscout-unicons-react";
 
 export interface Props {
   entry: Entry;

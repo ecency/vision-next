@@ -7,7 +7,7 @@ import { useGetPollDetailsQuery, useSignPollVoteByKey } from "../api";
 import { PollOption } from "./poll-option";
 import { PollOptionWithResults } from "./poll-option-with-results";
 import { PollVotesListDialog } from "./poll-votes-list-dialog";
-import { UilClock, UilPanelAdd } from "@iconscout/react-unicons";
+import { UilClock, UilPanelAdd } from "@tooni/iconscout-unicons-react";
 import { format, isBefore, isDate } from "date-fns";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { FormControl } from "@ui/input";

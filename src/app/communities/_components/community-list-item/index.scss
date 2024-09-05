@@ -9,6 +9,27 @@
 
   @media (min-width: $md-break) {
     flex-direction: row;
+
+    &.vertical {
+      margin-top: 0;
+      flex-direction: column;
+    }
+  }
+
+  &.vertical {
+    .item-about {
+      height: 82px;
+
+      @apply line-clamp-3;
+    }
+
+    .item-content {
+      @apply flex flex-col gap-1 mr-0 mb-4;
+    }
+
+    .item-stats {
+      height: 44px;
+    }
   }
 
   .item-content {

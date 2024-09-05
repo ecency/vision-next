@@ -8,7 +8,7 @@ import {
   useUnreadCountQuery
 } from "@ecency/ns-query";
 import { Badge } from "@ui/badge";
-import { UilUsersAlt } from "@iconscout/react-unicons";
+import { UilUsersAlt } from "@tooni/iconscout-unicons-react";
 import { getCommunityCache } from "@/core/caches";
 import { UserAvatar } from "@/features/shared";
 import i18next from "i18next";

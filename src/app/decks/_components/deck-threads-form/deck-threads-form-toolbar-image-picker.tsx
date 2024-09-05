@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import axios from "axios";
 import { Button } from "@ui/button";
-import { UilImage } from "@iconscout/react-unicons";
+import { UilImage } from "@tooni/iconscout-unicons-react";
 import { useGlobalStore } from "@/core/global-store";
 import { getAccessToken } from "@/utils";
 import { uploadImage } from "@/api/misc";

@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { DeckThreadsFormToolbarImagePicker } from "./deck-threads-form-toolbar-image-picker";
 import { DeckThreadsFormEmojiPicker } from "./deck-threads-form-emoji-picker";
 import { Button } from "@ui/button";
-import { UilChart } from "@iconscout/react-unicons";
+import { UilChart } from "@tooni/iconscout-unicons-react";
 import { PollsContext, PollsCreation } from "@/features/polls";
 
 interface Props {

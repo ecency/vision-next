@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState
 } from "react";
-import { UilArrowDown, UilArrowUp } from "@iconscout/react-unicons";
+import { UilArrowDown, UilArrowUp } from "@tooni/iconscout-unicons-react";
 import "./_input-vote.scss";
 import { InputGroup } from "@ui/input/input-group";
 import useInterval from "react-use/lib/useInterval";

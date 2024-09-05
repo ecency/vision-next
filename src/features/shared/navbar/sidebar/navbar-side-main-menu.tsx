@@ -12,7 +12,7 @@ import {
   UilSignout,
   UilUser,
   UilWallet
-} from "@iconscout/react-unicons";
+} from "@tooni/iconscout-unicons-react";
 import { NavbarSideMainMenuItem } from "./navbar-side-main-menu-item";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";

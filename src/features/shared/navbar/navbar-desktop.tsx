@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { NavbarTextMenu } from "./navbar-text-menu";
 import { useGlobalStore } from "@/core/global-store";
 import { classNameObject } from "@ui/util";
-import { UilEditAlt } from "@iconscout/react-unicons";
+import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
 import { Search } from "@/features/shared/navbar/search";
 import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button";

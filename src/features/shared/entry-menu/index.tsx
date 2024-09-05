@@ -23,7 +23,7 @@ import { EditHistory } from "@/features/shared/edit-history";
 import { Button, ModalConfirm } from "@/features/ui";
 import { MuteBtn } from "@/features/shared/mute-btn";
 import { Promote } from "@/features/shared/promote";
-import { UilFacebook, UilRedditAlienAlt, UilTwitter } from "@iconscout/react-unicons";
+import { UilFacebook, UilRedditAlienAlt, UilTwitter } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   entry: Entry;
