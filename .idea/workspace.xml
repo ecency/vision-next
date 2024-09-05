@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed auth screen logo source">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added loader for community loader">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/submit/_components/community-selector/community-selector-browser.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/submit/_components/community-selector/community-selector-browser.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/config.template.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/config.template.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/global-store/modules/config-module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/modules/config-module.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,7 +20,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="feature/new-updates" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -83,7 +86,7 @@
     "WebServerToolWindowFactoryState": "false",
     "code.cleanup.on.save": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feature/new-updates",
+    "git-widget-placeholder": "feature/config-1.1",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
     "node.js.detected.package.eslint": "true",
@@ -375,14 +378,8 @@
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
       <workItem from="1725175109524" duration="13952000" />
-    </task>
-    <task id="LOCAL-00157" summary="Fixed profile menu and added dropdown animations">
-      <option name="closed" value="true" />
-      <created>1723578660785</created>
-      <option name="number" value="00157" />
-      <option name="presentableId" value="LOCAL-00157" />
-      <option name="project" value="LOCAL" />
-      <updated>1723578660786</updated>
+      <workItem from="1725538069598" duration="8000" />
+      <workItem from="1725557342430" duration="1015000" />
     </task>
     <task id="LOCAL-00158" summary="Fixed and improved entry voting slider actions">
       <option name="closed" value="true" />
@@ -768,7 +765,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725477342171</updated>
     </task>
-    <option name="localTasksCounter" value="206" />
+    <task id="LOCAL-00206" summary="Added loader for community loader">
+      <option name="closed" value="true" />
+      <created>1725477682647</created>
+      <option name="number" value="00206" />
+      <option name="presentableId" value="LOCAL-00206" />
+      <option name="project" value="LOCAL" />
+      <updated>1725477682647</updated>
+    </task>
+    <option name="localTasksCounter" value="207" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -789,7 +794,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed and improved layout of community and profile menus, improved layout of community cover image" />
     <MESSAGE value="Fixed community page filters" />
     <MESSAGE value="Added setting category from url in submit page" />
     <MESSAGE value="Migrated hs token refresh endpoint" />
@@ -814,7 +818,8 @@
     <MESSAGE value="Fixed following and followers dialog window" />
     <MESSAGE value="Fixed resource credits default value" />
     <MESSAGE value="Fixed auth screen logo source" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed auth screen logo source" />
+    <MESSAGE value="Added loader for community loader" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added loader for community loader" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
