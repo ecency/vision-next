@@ -1,6 +1,6 @@
 const CONFIG = {
   visionConfig: {
-    privateMode: process.env.USE_PRIVATE || true,
+    privateMode: process.env.USE_PRIVATE || "1",
     features: {
       communities: {
         rewards: {

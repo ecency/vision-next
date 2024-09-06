@@ -166,7 +166,7 @@ export function useMenuItemsGenerator(
           })
         ),
         EcencyConfigManager.withConditional(
-          ({ privateMode }) => privateMode,
+          ({ privateMode }) => Boolean(parseInt(privateMode, 10)),
           () => ({
             label: i18next.t("entry.address-copy"),
             onClick: copyAddress,

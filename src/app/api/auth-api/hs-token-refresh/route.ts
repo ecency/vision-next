@@ -3,7 +3,7 @@ import { EcencyConfigManager } from "@/config";
 
 export async function POST(req: Request) {
   const hsSecret = EcencyConfigManager.CONFIG.service.hsClientSecret;
-  if (hsSecret && !EcencyConfigManager.CONFIG.privateMode) {
+  if (hsSecret && !Boolean(parseInt(EcencyConfigManager.CONFIG.privateMode, 10))) {
     const body = await req.json();
     if (!decodeToken(body.code)) {
       Response.json({
