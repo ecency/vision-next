@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed balance fetching in gift modal">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/staging.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/staging.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/ecency-config.template.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/config.template.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -96,7 +93,7 @@
     "node.js.selected.package.standard": "",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs.jest.jest_package": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/jest",
-    "nodejs_interpreter_path": "/Users/ildartimerbaev/.nvm/versions/node/v18.17.1/bin/node",
+    "nodejs_interpreter_path": "node",
     "nodejs_package_manager_path": "npm",
     "npm.build.executor": "Run",
     "npm.dev.executor": "Run",
@@ -108,6 +105,7 @@
     "project.structure.side.proportion": "0.0",
     "rearrange.code.on.save": "true",
     "settings.editor.selected.configurable": "actions.on.save",
+    "show.migrate.to.gradle.popup": "false",
     "ts.external.directory.path": "/Users/fm/pjs/ecency-vision/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
@@ -378,6 +376,7 @@
       <workItem from="1724853359751" duration="5506000" />
       <workItem from="1724947178815" duration="10420000" />
       <workItem from="1725175109524" duration="13952000" />
+      <workItem from="1725586762745" duration="73000" />
     </task>
     <task id="LOCAL-00154" summary="Fixed bugs with private API, added framer-motion animation to communities list">
       <option name="closed" value="true" />
