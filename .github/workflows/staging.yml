@@ -76,4 +76,4 @@ jobs:
           cd ~/vision-next
           git pull origin develop
           docker pull ecency/vision-next:develop
-          docker-compose up -d
+          docker stack deploy -c stack.yml vision
