@@ -21,7 +21,7 @@ services:
       - seccomp=unconfined
 
   web:
-    image: ecency/vision-next:develop
+    image: ecency/vision-next:latest
     environment:
       - USE_PRIVATE=${USE_PRIVATE}
       - HIVESIGNER_SECRET=${HIVESIGNER_SECRET}

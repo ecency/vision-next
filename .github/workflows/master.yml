@@ -145,4 +145,4 @@ jobs:
           git pull origin main
           docker pull ecency/vision-next:latest
           docker pull ecency/api:latest
-          docker-compose -f docker-compose.production.yml up -d
+          docker stack deploy -c stack.production.yml vision
