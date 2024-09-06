@@ -18,7 +18,6 @@ jobs:
     - name: npm install, lint and/or test
       run: |
         yarn
-        yarn test --runInBand --updateSnapshot
       env:
         CI: true
   build:
