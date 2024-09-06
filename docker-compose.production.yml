@@ -16,15 +16,15 @@ services:
     networks:
       - vision
 
-  web1:
+  web:
     image: ecency/vision-next:latest
     environment:
       - USE_PRIVATE
       - HIVESIGNER_SECRET
     restart: always
     ports:
-      - "3001:3000"
-    hostname: web1
+      - "3000:3000"
+    hostname: web
     networks:
       - vision
 
@@ -33,7 +33,7 @@ services:
     ports:
       - '3000:80'
     depends_on:
-      - web1
+      - web
     networks:
       - vision
 
