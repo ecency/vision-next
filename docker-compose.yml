@@ -28,16 +28,6 @@ services:
     networks:
       - vision
 
-  nginx:
-    build: ./nginx
-    ports:
-      - '3000:80'
-    depends_on:
-      - web
-    networks:
-      - vision
-
-
 networks:
   vision:
     external: true
