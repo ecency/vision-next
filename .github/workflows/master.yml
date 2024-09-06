@@ -2,13 +2,13 @@ name: Master CI/CD
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
@@ -41,7 +41,7 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: ecency/vision:latest
+          tags: ecency/vision-next:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -54,10 +54,9 @@ jobs:
       uses: appleboy/ssh-action@master
       env:
         USE_PRIVATE: ${{secrets.USE_PRIVATE}}
-        REDIS_HOST_PASSWORD: ${{secrets.REDIS_HOST_PASSWORD}}
         PRIVATE_API_ADDR: ${{secrets.PRIVATE_API_ADDR}}
         PRIVATE_API_AUTH: ${{secrets.PRIVATE_API_AUTH}}
-        HIVESIGNER_CLIENT_SECRET: ${{secrets.HIVESIGNER_CLIENT_SECRET}}
+        HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
         API_PORT: ${{secrets.API_PORT}}
@@ -66,19 +65,18 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,REDIS_HOST_PASSWORD,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_CLIENT_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
         script: |
           export USE_PRIVATE=$USE_PRIVATE
-          export REDIS_HOST_PASSWORD=$REDIS_HOST_PASSWORD
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
           export PRIVATE_API_AUTH=$PRIVATE_API_AUTH
-          export HIVESIGNER_CLIENT_SECRET=$HIVESIGNER_CLIENT_SECRET
+          export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export API_PORT=$API_PORT
-          cd ~/vision-production
-          git pull origin master
-          docker pull ecency/vision:latest
+          cd ~/vision-next
+          git pull origin main
+          docker pull ecency/vision-next:latest
           docker pull ecency/api:latest
           docker-compose -f docker-compose.production.yml up -d
 
@@ -90,10 +88,9 @@ jobs:
       uses: appleboy/ssh-action@master
       env:
         USE_PRIVATE: ${{secrets.USE_PRIVATE}}
-        REDIS_HOST_PASSWORD: ${{secrets.REDIS_HOST_PASSWORD}}
         PRIVATE_API_ADDR: ${{secrets.PRIVATE_API_ADDR}}
         PRIVATE_API_AUTH: ${{secrets.PRIVATE_API_AUTH}}
-        HIVESIGNER_CLIENT_SECRET: ${{secrets.HIVESIGNER_CLIENT_SECRET}}
+        HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
         API_PORT: ${{secrets.API_PORT}}
@@ -102,19 +99,18 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,REDIS_HOST_PASSWORD,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_CLIENT_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
         script: |
           export USE_PRIVATE=$USE_PRIVATE
-          export REDIS_HOST_PASSWORD=$REDIS_HOST_PASSWORD
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
           export PRIVATE_API_AUTH=$PRIVATE_API_AUTH
-          export HIVESIGNER_CLIENT_SECRET=$HIVESIGNER_CLIENT_SECRET
+          export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export API_PORT=$API_PORT
-          cd ~/vision-production
-          git pull origin master
-          docker pull ecency/vision:latest
+          cd ~/vision-next
+          git pull origin main
+          docker pull ecency/vision-next:latest
           docker pull ecency/api:latest
           docker-compose -f docker-compose.production.yml up -d
 
@@ -126,10 +122,9 @@ jobs:
       uses: appleboy/ssh-action@master
       env:
         USE_PRIVATE: ${{secrets.USE_PRIVATE}}
-        REDIS_HOST_PASSWORD: ${{secrets.REDIS_HOST_PASSWORD}}
         PRIVATE_API_ADDR: ${{secrets.PRIVATE_API_ADDR}}
         PRIVATE_API_AUTH: ${{secrets.PRIVATE_API_AUTH}}
-        HIVESIGNER_CLIENT_SECRET: ${{secrets.HIVESIGNER_CLIENT_SECRET}}
+        HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
         API_PORT: ${{secrets.API_PORT}}
@@ -138,18 +133,17 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,REDIS_HOST_PASSWORD,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_CLIENT_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
         script: |
           export USE_PRIVATE=$USE_PRIVATE
-          export REDIS_HOST_PASSWORD=$REDIS_HOST_PASSWORD
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
           export PRIVATE_API_AUTH=$PRIVATE_API_AUTH
-          export HIVESIGNER_CLIENT_SECRET=$HIVESIGNER_CLIENT_SECRET
+          export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export API_PORT=$API_PORT
-          cd ~/vision-production
-          git pull origin master
-          docker pull ecency/vision:latest
+          cd ~/vision-next
+          git pull origin main
+          docker pull ecency/vision-next:latest
           docker pull ecency/api:latest
           docker-compose -f docker-compose.production.yml up -d

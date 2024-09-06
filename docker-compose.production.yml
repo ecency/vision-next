@@ -1,0 +1,81 @@
+version: "3.7"
+
+services:
+  vapi:
+    image: ecency/api:latest
+    environment:
+      - PRIVATE_API_ADDR
+      - PRIVATE_API_AUTH
+      - HIVESIGNER_SECRET
+      - SEARCH_API_ADDR
+      - SEARCH_API_SECRET
+    restart: always
+    ports:
+      - "4000:4000"
+    hostname: vapi
+    networks:
+      - vision
+
+  web1:
+    image: ecency/vision-next:latest
+    environment:
+      - USE_PRIVATE
+      - HIVESIGNER_SECRET
+    restart: always
+    ports:
+      - "3001:3000"
+    hostname: web1
+    networks:
+      - vision
+
+  web2:
+    image: ecency/vision-next:latest
+    environment:
+      - USE_PRIVATE
+      - HIVESIGNER_SECRET
+    restart: always
+    ports:
+      - "3002:3000"
+    hostname: web2
+    networks:
+      - vision
+
+  web3:
+    image: ecency/vision-next:latest
+    environment:
+      - USE_PRIVATE
+      - HIVESIGNER_SECRET
+    restart: always
+    ports:
+      - "3003:3000"
+    hostname: web3
+    networks:
+      - vision
+
+  web4:
+    image: ecency/vision-next:latest
+    environment:
+      - USE_PRIVATE
+      - HIVESIGNER_SECRET
+    restart: always
+    ports:
+      - "3004:3000"
+    hostname: web4
+    networks:
+      - vision
+
+  nginx:
+    build: ./nginx
+    ports:
+      - '3000:80'
+    depends_on:
+      - web1
+      - web2
+      - web3
+      - web4
+    networks:
+      - vision
+
+networks:
+  vision:
+    external: true

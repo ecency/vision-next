@@ -1,6 +1,6 @@
 const CONFIG = {
   visionConfig: {
-    privateMode: true,
+    privateMode: process.env.USE_PRIVATE || true,
     features: {
       communities: {
         rewards: {
@@ -90,8 +90,8 @@ const CONFIG = {
       }
     },
     service: {
-      hsClientId: process.env.HS_CLIENT_ID || "ecency.app",
-      hsClientSecret: process.env.HS_CLIENT_SECRET || ""
+      hsClientId: process.env.HIVESIGNER_ID || "ecency.app",
+      hsClientSecret: process.env.HIVESIGNER_SECRET || ""
     }
   }
 };
