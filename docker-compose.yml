@@ -13,8 +13,6 @@ services:
     ports:
       - "4000:4000"
     hostname: vapi
-    depends_on:
-      - redis
     networks:
       - vision
 
