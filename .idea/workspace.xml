@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed login button showing in mobile layout">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-entries-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-entries-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-list-content/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-list-content/index.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed pinned entries">
+      <change beforePath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -379,14 +376,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00162" summary="Improved and fixed reputation and entry footer layout">
-      <option name="closed" value="true" />
-      <created>1723661652034</created>
-      <option name="number" value="00162" />
-      <option name="presentableId" value="LOCAL-00162" />
-      <option name="project" value="LOCAL" />
-      <updated>1723661652034</updated>
     </task>
     <task id="LOCAL-00163" summary="Fixed FAQ page scrolling by anchor">
       <option name="closed" value="true" />
@@ -772,7 +761,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725743119506</updated>
     </task>
-    <option name="localTasksCounter" value="211" />
+    <task id="LOCAL-00211" summary="Fixed pinned entries">
+      <option name="closed" value="true" />
+      <created>1725743796102</created>
+      <option name="number" value="00211" />
+      <option name="presentableId" value="LOCAL-00211" />
+      <option name="project" value="LOCAL" />
+      <updated>1725743796102</updated>
+    </task>
+    <option name="localTasksCounter" value="212" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -793,7 +790,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Covered decks with config flags" />
     <MESSAGE value="Covered user record activity with config flags" />
     <MESSAGE value="Covered left files with use private with configuration" />
     <MESSAGE value="Fixed build" />
@@ -818,7 +814,8 @@
     <MESSAGE value="Fixed search bar layout" />
     <MESSAGE value="Fixed advanced search toggling" />
     <MESSAGE value="Fixed login button showing in mobile layout" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed login button showing in mobile layout" />
+    <MESSAGE value="Fixed pinned entries" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed pinned entries" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
