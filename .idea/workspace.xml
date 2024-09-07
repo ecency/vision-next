@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added loader for community loader">
-      <change beforePath="$PROJECT_DIR$/src/config/config.template.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/config.template.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/client-providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -83,7 +84,7 @@
     "WebServerToolWindowFactoryState": "false",
     "code.cleanup.on.save": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feature/lost-changes",
+    "git-widget-placeholder": "bugfix/search-page",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
     "node.js.detected.package.eslint": "true",

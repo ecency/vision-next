@@ -88,7 +88,7 @@ export enum QueryIdentifiers {
   GET_ORDER_BOOK = "get-order-book"
 }
 
-function makeQueryClient() {
+export function makeQueryClient() {
   // Cache creates one single instance per request in a server side
   return new QueryClient({
     defaultOptions: {
