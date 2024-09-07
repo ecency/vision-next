@@ -5,7 +5,7 @@ import { EcencyConfigManager } from "@/config";
 
 export function NavbarTextMenu() {
   return (
-    <div className="text-menu flex items-center justify-center h-full md:mr-2">
+    <div className="hidden sm:flex md:hidden lg:flex text-menu items-center justify-center h-full md:mr-2">
       <Link
         className="menu-item text-gunmetal hover:text-gray-warm dark:text-blue-duck-egg mt-0"
         href="/discover"

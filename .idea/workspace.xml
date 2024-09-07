@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed search bar layout">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed advanced search toggling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/search/_components/search-comment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/search/_components/search-comment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-text-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-text-menu.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -83,7 +83,7 @@
     "WebServerToolWindowFactoryState": "false",
     "code.cleanup.on.save": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "bugfix/search-page",
+    "git-widget-placeholder": "bugfix/review-issues",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
     "node.js.detected.package.eslint": "true",
@@ -377,14 +377,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00160" summary="Improved author info card layout and added animations">
-      <option name="closed" value="true" />
-      <created>1723654523756</created>
-      <option name="number" value="00160" />
-      <option name="presentableId" value="LOCAL-00160" />
-      <option name="project" value="LOCAL" />
-      <updated>1723654523758</updated>
     </task>
     <task id="LOCAL-00161" summary="Improved and fixed entry discussions bots">
       <option name="closed" value="true" />
@@ -770,7 +762,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725742653265</updated>
     </task>
-    <option name="localTasksCounter" value="209" />
+    <task id="LOCAL-00209" summary="Fixed advanced search toggling">
+      <option name="closed" value="true" />
+      <created>1725742897770</created>
+      <option name="number" value="00209" />
+      <option name="presentableId" value="LOCAL-00209" />
+      <option name="project" value="LOCAL" />
+      <updated>1725742897770</updated>
+    </task>
+    <option name="localTasksCounter" value="210" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +791,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Migrated hs token refresh endpoint" />
     <MESSAGE value="Wrap notifications with new config" />
     <MESSAGE value="Covered decks with config flags" />
     <MESSAGE value="Covered user record activity with config flags" />
@@ -816,7 +815,8 @@
     <MESSAGE value="Added loader for community loader" />
     <MESSAGE value="Fixed 500 error because of client" />
     <MESSAGE value="Fixed search bar layout" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed search bar layout" />
+    <MESSAGE value="Fixed advanced search toggling" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed advanced search toggling" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
