@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed 500 error because of client">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed search bar layout">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/suggestion-list/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/suggestion-list/_index.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/suggestion-list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/suggestion-list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/search/_components/search-comment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/search/_components/search-comment/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -378,14 +377,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00159" summary="Fixed and updated author info card">
-      <option name="closed" value="true" />
-      <created>1723584760050</created>
-      <option name="number" value="00159" />
-      <option name="presentableId" value="LOCAL-00159" />
-      <option name="project" value="LOCAL" />
-      <updated>1723584760050</updated>
     </task>
     <task id="LOCAL-00160" summary="Improved author info card layout and added animations">
       <option name="closed" value="true" />
@@ -771,7 +762,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725742010813</updated>
     </task>
-    <option name="localTasksCounter" value="208" />
+    <task id="LOCAL-00208" summary="Fixed search bar layout">
+      <option name="closed" value="true" />
+      <created>1725742653265</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
+      <option name="project" value="LOCAL" />
+      <updated>1725742653265</updated>
+    </task>
+    <option name="localTasksCounter" value="209" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -792,7 +791,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added setting category from url in submit page" />
     <MESSAGE value="Migrated hs token refresh endpoint" />
     <MESSAGE value="Wrap notifications with new config" />
     <MESSAGE value="Covered decks with config flags" />
@@ -817,7 +815,8 @@
     <MESSAGE value="Fixed auth screen logo source" />
     <MESSAGE value="Added loader for community loader" />
     <MESSAGE value="Fixed 500 error because of client" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed 500 error because of client" />
+    <MESSAGE value="Fixed search bar layout" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed search bar layout" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
