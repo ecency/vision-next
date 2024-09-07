@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added loader for community loader">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed 500 error because of client">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/client-providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-providers.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/suggestion-list/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/suggestion-list/_index.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/suggestion-list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/suggestion-list/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -378,14 +378,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00158" summary="Fixed and improved entry voting slider actions">
-      <option name="closed" value="true" />
-      <created>1723579843003</created>
-      <option name="number" value="00158" />
-      <option name="presentableId" value="LOCAL-00158" />
-      <option name="project" value="LOCAL" />
-      <updated>1723579843004</updated>
     </task>
     <task id="LOCAL-00159" summary="Fixed and updated author info card">
       <option name="closed" value="true" />
@@ -771,7 +763,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725477682647</updated>
     </task>
-    <option name="localTasksCounter" value="207" />
+    <task id="LOCAL-00207" summary="Fixed 500 error because of client">
+      <option name="closed" value="true" />
+      <created>1725742010813</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
+      <option name="project" value="LOCAL" />
+      <updated>1725742010813</updated>
+    </task>
+    <option name="localTasksCounter" value="208" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -792,7 +792,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed community page filters" />
     <MESSAGE value="Added setting category from url in submit page" />
     <MESSAGE value="Migrated hs token refresh endpoint" />
     <MESSAGE value="Wrap notifications with new config" />
@@ -817,7 +816,8 @@
     <MESSAGE value="Fixed resource credits default value" />
     <MESSAGE value="Fixed auth screen logo source" />
     <MESSAGE value="Added loader for community loader" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added loader for community loader" />
+    <MESSAGE value="Fixed 500 error because of client" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed 500 error because of client" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -9,39 +9,10 @@
   }
 
   .suggestion-list-parent {
-    position: absolute;
-    left: 0;
-    top: 100%;
-    width: 100%;
-    z-index: 99;
+    @apply absolute border border-[--border-color] left-0 top-[calc(100%+0.5rem)] w-full z-[100] rounded-2xl overflow-hidden min-w-[200px] bg-white dark:bg-dark-600-010-light mb-4
   }
 
   .search-suggestion-list {
-    display: block;
-    left: 0;
-    top: 100%;
-    width: 100%;
-    box-shadow: $box-shadow;
-    z-index: 100;
-    border-radius: $border-radius;
-    min-width: 200px;
-
-    @include themify(day) {
-      @apply bg-white;
-    }
-
-    @include themify(night) {
-      @apply bg-dark-600-010-light;
-    }
-
-    .list-header {
-      padding: 8px 20px;
-      font-weight: 500;
-      @apply bg-blue-dark-sky;
-      @apply text-white;
-      border-top-left-radius: $border-radius;
-      border-top-right-radius: $border-radius;
-    }
 
     .list-body {
       max-height: 200px;

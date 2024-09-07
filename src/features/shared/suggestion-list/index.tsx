@@ -191,7 +191,11 @@ export function SuggestionList({
                 return (
                   _items.length > 0 && (
                     <div className="search-suggestion-list" key={modeKey}>
-                      {modeItem.header && <div className="list-header">{modeItem.header}</div>}
+                      {modeItem.header && (
+                        <div className="bg-gray-100 dark:bg-gray-700 text-sm font-semibold text-gray-600 p-2">
+                          {modeItem.header}
+                        </div>
+                      )}
                       <div className="list-body">
                         {_items.map((x: any, i: number) => (
                           <a
@@ -239,7 +243,7 @@ export function SuggestionList({
               style={listStyle}
             >
               {header && (
-                <div className="list-header bg-gray-100 dark:bg-gray-700 text-sm font-semibold text-gray-600 px-2 pb-2 pt-12">
+                <div className="bg-gray-100 dark:bg-gray-700 text-sm font-semibold text-gray-600 px-2 pb-2 pt-12">
                   {header}
                 </div>
               )}
