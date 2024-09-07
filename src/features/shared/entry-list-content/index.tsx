@@ -1,6 +1,6 @@
 import React from "react";
 import "./_index.scss";
-import { Entry } from "@/entities";
+import { Account, Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
 import { getPromotedEntriesQuery } from "@/api/queries";
 import { EntryListContentNoData } from "@/features/shared/entry-list-content/entry-list-content-no-data";
@@ -12,6 +12,7 @@ interface Props {
   isPromoted: boolean;
   username: string;
   showEmptyPlaceholder?: boolean;
+  account: Account;
 }
 
 export function EntryListContent({
@@ -20,7 +21,8 @@ export function EntryListContent({
   isPromoted,
   loading,
   username,
-  showEmptyPlaceholder = true
+  showEmptyPlaceholder = true,
+  account
 }: Props) {
   let dataToRender = [...entries];
   let promotedEntries: Entry[] = [];
@@ -55,9 +57,23 @@ export function EntryListContent({
             }
 
             if (isPromoted) {
-              l.push(<EntryListItem key={`${e.author}-${e.permlink}`} entry={e} order={i} />);
+              l.push(
+                <EntryListItem
+                  account={account}
+                  key={`${e.author}-${e.permlink}`}
+                  entry={e}
+                  order={i}
+                />
+              );
             } else {
-              l.push(<EntryListItem key={`${e.author}-${e.permlink}`} entry={e} order={i} />);
+              l.push(
+                <EntryListItem
+                  account={account}
+                  key={`${e.author}-${e.permlink}`}
+                  entry={e}
+                  order={i}
+                />
+              );
             }
             return [...l];
           })}

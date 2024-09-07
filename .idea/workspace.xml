@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed advanced search toggling">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed login button showing in mobile layout">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-text-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-text-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-entries-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-entries-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-list-content/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-list-content/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -377,14 +379,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00161" summary="Improved and fixed entry discussions bots">
-      <option name="closed" value="true" />
-      <created>1723658162554</created>
-      <option name="number" value="00161" />
-      <option name="presentableId" value="LOCAL-00161" />
-      <option name="project" value="LOCAL" />
-      <updated>1723658162554</updated>
     </task>
     <task id="LOCAL-00162" summary="Improved and fixed reputation and entry footer layout">
       <option name="closed" value="true" />
@@ -770,7 +764,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725742897770</updated>
     </task>
-    <option name="localTasksCounter" value="210" />
+    <task id="LOCAL-00210" summary="Fixed login button showing in mobile layout">
+      <option name="closed" value="true" />
+      <created>1725743119506</created>
+      <option name="number" value="00210" />
+      <option name="presentableId" value="LOCAL-00210" />
+      <option name="project" value="LOCAL" />
+      <updated>1725743119506</updated>
+    </task>
+    <option name="localTasksCounter" value="211" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +793,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Wrap notifications with new config" />
     <MESSAGE value="Covered decks with config flags" />
     <MESSAGE value="Covered user record activity with config flags" />
     <MESSAGE value="Covered left files with use private with configuration" />
@@ -816,7 +817,8 @@
     <MESSAGE value="Fixed 500 error because of client" />
     <MESSAGE value="Fixed search bar layout" />
     <MESSAGE value="Fixed advanced search toggling" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed advanced search toggling" />
+    <MESSAGE value="Fixed login button showing in mobile layout" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed login button showing in mobile layout" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

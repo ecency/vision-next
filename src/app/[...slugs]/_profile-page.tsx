@@ -28,6 +28,7 @@ import { ProfilePermissions } from "@/app/[...slugs]/_profile-components/profile
 import { ProfileEntriesLayout } from "@/app/[...slugs]/_profile-components/profile-entries-layout";
 import { EcencyConfigManager } from "@/config";
 import { Redirect } from "@/features/shared";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 interface Props {
   username: string;
@@ -43,6 +44,10 @@ export async function ProfilePage({
   const account = await getAccountFullQuery(username).prefetch();
   await prefetchGetPostsFeedQuery(section, `@${username}`);
   await getDynamicPropsQuery().prefetch();
+  await EcencyEntriesCacheManagement.getEntryQueryByPath(
+    username,
+    account?.profile.pinned
+  ).prefetch();
 
   let searchData: SearchResult[] | undefined = undefined;
   if (searchParam && searchParam !== "") {
