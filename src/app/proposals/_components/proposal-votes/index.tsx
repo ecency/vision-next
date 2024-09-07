@@ -95,12 +95,12 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
         <div className="voters-list mb-4">
           <List grid={true} inline={true} defer={true}>
             {(voters?.length ?? 0) > 0 ? (
-              voters?.map((x) => {
+              voters?.map((x,index) => {
                 const strHp = numeral(x.hp).format("0.00,");
                 const strProxyHp = numeral(x.proxyHp).format("0.00,");
 
                 return (
-                  <ListItem styledDefer={true} className="!flex gap-3">
+                  <ListItem styledDefer={true} key={index} className="!flex gap-3">
                     <ProfileLink username={x.name}>
                       <UserAvatar username={x.name} size="small" />
                     </ProfileLink>

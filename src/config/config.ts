@@ -90,8 +90,8 @@ const CONFIG = {
       }
     },
     service: {
-      hsClientId: process.env.NEXT_PUBLUC_HS_CLIENT_ID || "ecency.app",
-      hsClientSecret: process.env.NEXT_PUBLIC_HS_CLIENT_SECRET || ""
+      hsClientId: process.env.HIVESIGNER_ID || "ecency.app",
+      hsClientSecret: process.env.HIVESIGNER_SECRET || ""
     }
   }
 };

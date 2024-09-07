@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  vapi:
+    image: ecency/api:latest
+    environment:
+      - PRIVATE_API_ADDR
+      - PRIVATE_API_AUTH
+      - HIVESIGNER_SECRET
+      - SEARCH_API_ADDR
+      - SEARCH_API_SECRET
+    restart: always
+    ports:
+      - "4000:4000"
+    hostname: vapi
+    networks:
+      - vision
+
+  web:
+    image: ecency/vision-next:develop
+    environment:
+      - USE_PRIVATE
+      - HIVESIGNER_SECRET
+    restart: always
+    ports:
+      - "3000:3000"
+    hostname: web
+    networks:
+      - vision
+
+networks:
+  vision:
+    external: true

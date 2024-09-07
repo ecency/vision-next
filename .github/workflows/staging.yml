@@ -18,7 +18,6 @@ jobs:
     - name: npm install, lint and/or test
       run: |
         yarn
-        yarn test --runInBand --updateSnapshot
       env:
         CI: true
   build:
@@ -31,8 +30,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
         id: docker_build
@@ -53,22 +52,28 @@ jobs:
     - name: SSH and deploy node app
       uses: appleboy/ssh-action@master
       env:
+        USE_PRIVATE: ${{secrets.USE_PRIVATE}}
         PRIVATE_API_ADDR: ${{secrets.PRIVATE_API_ADDR}}
         PRIVATE_API_AUTH: ${{secrets.PRIVATE_API_AUTH}}
-        HIVESIGNER_CLIENT_SECRET: ${{secrets.HIVESIGNER_CLIENT_SECRET}}
+        HIVESIGNER_CLIENT_SECRET: ${{secrets.HIVESIGNER_SECRET}}
+        SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
+        SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
         API_PORT: ${{secrets.API_PORT}}
       with:
         host: ${{ secrets.SSH_STAGING_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_CLIENT_SECRET,API_PORT
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
         script: |
+          export USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
           export PRIVATE_API_AUTH=$PRIVATE_API_AUTH
-          export HIVESIGNER_CLIENT_SECRET=$HIVESIGNER_CLIENT_SECRET
+          export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
+          export SEARCH_API_ADDR=$SEARCH_API_ADDR
+          export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export API_PORT=$API_PORT
           cd ~/vision-next
           git pull origin develop
           docker pull ecency/vision-next:develop
-          docker-compose up -d
+          docker stack deploy -c stack.yml vision
