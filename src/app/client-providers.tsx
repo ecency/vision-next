@@ -6,7 +6,7 @@ import { UIManager } from "@ui/core";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ChatProvider } from "@/app/chat-provider";
 import { ClientInit } from "@/app/client-init";
-import { getQueryClient } from "@/core/react-query";
+import { makeQueryClient } from "@/core/react-query";
 import { UserActivityRecorder } from "@/features/user-activity";
 import { Tracker } from "@/features/monitoring";
 import { Announcements } from "@/features/announcement";
@@ -15,7 +15,7 @@ import { EcencyConfigManager } from "@/config";
 
 export function ClientProviders(props: PropsWithChildren) {
   return (
-    <QueryClientProvider client={getQueryClient()}>
+    <QueryClientProvider client={makeQueryClient()}>
       <UIManager>
         <ClientInit />
         <EcencyConfigManager.Conditional

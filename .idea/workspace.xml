@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added loader for community loader" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed pinned entries">
+      <change beforePath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/next-middleware/handle-entries-redirect.ts" afterDir="false" />
+    </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +82,7 @@
     "WebServerToolWindowFactoryState": "false",
     "code.cleanup.on.save": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "bugfix/review-issues",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
     "node.js.detected.package.eslint": "true",
@@ -374,46 +376,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00158" summary="Fixed and improved entry voting slider actions">
-      <option name="closed" value="true" />
-      <created>1723579843003</created>
-      <option name="number" value="00158" />
-      <option name="presentableId" value="LOCAL-00158" />
-      <option name="project" value="LOCAL" />
-      <updated>1723579843004</updated>
-    </task>
-    <task id="LOCAL-00159" summary="Fixed and updated author info card">
-      <option name="closed" value="true" />
-      <created>1723584760050</created>
-      <option name="number" value="00159" />
-      <option name="presentableId" value="LOCAL-00159" />
-      <option name="project" value="LOCAL" />
-      <updated>1723584760050</updated>
-    </task>
-    <task id="LOCAL-00160" summary="Improved author info card layout and added animations">
-      <option name="closed" value="true" />
-      <created>1723654523756</created>
-      <option name="number" value="00160" />
-      <option name="presentableId" value="LOCAL-00160" />
-      <option name="project" value="LOCAL" />
-      <updated>1723654523758</updated>
-    </task>
-    <task id="LOCAL-00161" summary="Improved and fixed entry discussions bots">
-      <option name="closed" value="true" />
-      <created>1723658162554</created>
-      <option name="number" value="00161" />
-      <option name="presentableId" value="LOCAL-00161" />
-      <option name="project" value="LOCAL" />
-      <updated>1723658162554</updated>
-    </task>
-    <task id="LOCAL-00162" summary="Improved and fixed reputation and entry footer layout">
-      <option name="closed" value="true" />
-      <created>1723661652034</created>
-      <option name="number" value="00162" />
-      <option name="presentableId" value="LOCAL-00162" />
-      <option name="project" value="LOCAL" />
-      <updated>1723661652034</updated>
     </task>
     <task id="LOCAL-00163" summary="Fixed FAQ page scrolling by anchor">
       <option name="closed" value="true" />
@@ -767,7 +729,47 @@
       <option name="project" value="LOCAL" />
       <updated>1725477682647</updated>
     </task>
-    <option name="localTasksCounter" value="207" />
+    <task id="LOCAL-00207" summary="Fixed 500 error because of client">
+      <option name="closed" value="true" />
+      <created>1725742010813</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
+      <option name="project" value="LOCAL" />
+      <updated>1725742010813</updated>
+    </task>
+    <task id="LOCAL-00208" summary="Fixed search bar layout">
+      <option name="closed" value="true" />
+      <created>1725742653265</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
+      <option name="project" value="LOCAL" />
+      <updated>1725742653265</updated>
+    </task>
+    <task id="LOCAL-00209" summary="Fixed advanced search toggling">
+      <option name="closed" value="true" />
+      <created>1725742897770</created>
+      <option name="number" value="00209" />
+      <option name="presentableId" value="LOCAL-00209" />
+      <option name="project" value="LOCAL" />
+      <updated>1725742897770</updated>
+    </task>
+    <task id="LOCAL-00210" summary="Fixed login button showing in mobile layout">
+      <option name="closed" value="true" />
+      <created>1725743119506</created>
+      <option name="number" value="00210" />
+      <option name="presentableId" value="LOCAL-00210" />
+      <option name="project" value="LOCAL" />
+      <updated>1725743119506</updated>
+    </task>
+    <task id="LOCAL-00211" summary="Fixed pinned entries">
+      <option name="closed" value="true" />
+      <created>1725743796102</created>
+      <option name="number" value="00211" />
+      <option name="presentableId" value="LOCAL-00211" />
+      <option name="project" value="LOCAL" />
+      <updated>1725743796102</updated>
+    </task>
+    <option name="localTasksCounter" value="212" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -788,11 +790,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed community page filters" />
-    <MESSAGE value="Added setting category from url in submit page" />
-    <MESSAGE value="Migrated hs token refresh endpoint" />
-    <MESSAGE value="Wrap notifications with new config" />
-    <MESSAGE value="Covered decks with config flags" />
     <MESSAGE value="Covered user record activity with config flags" />
     <MESSAGE value="Covered left files with use private with configuration" />
     <MESSAGE value="Fixed build" />
@@ -813,7 +810,12 @@
     <MESSAGE value="Fixed resource credits default value" />
     <MESSAGE value="Fixed auth screen logo source" />
     <MESSAGE value="Added loader for community loader" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added loader for community loader" />
+    <MESSAGE value="Fixed 500 error because of client" />
+    <MESSAGE value="Fixed search bar layout" />
+    <MESSAGE value="Fixed advanced search toggling" />
+    <MESSAGE value="Fixed login button showing in mobile layout" />
+    <MESSAGE value="Fixed pinned entries" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed pinned entries" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

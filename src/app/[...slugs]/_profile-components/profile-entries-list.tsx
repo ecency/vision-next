@@ -12,15 +12,15 @@ interface Props {
 
 function shouldShowPinnedEntry(account: FullAccount, section: string) {
   return (
-    !["blog", "posts"].includes(section) ||
-    !((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned) ||
-    !((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned !== "none")
+    ["blog", "posts"].includes(section) ||
+    ((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned) ||
+    ((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned !== "none")
   );
 }
 
 export async function ProfileEntriesList({ section, account }: Props) {
   const pinnedEntry = shouldShowPinnedEntry(account, section)
-    ? await getPostQuery(account.name, account.profile?.pinned).prefetch()
+    ? getPostQuery(account.name, account.profile?.pinned).getData()
     : undefined;
 
   const data = getPostsFeedQueryData(section, `@${account.name}`)?.pages ?? [];
@@ -36,6 +36,7 @@ export async function ProfileEntriesList({ section, account }: Props) {
     <>
       <ProfileEntriesLayout section={section} username={account.name}>
         <EntryListContent
+          account={account}
           username={`@${account.name}`}
           loading={false}
           entries={entryList}

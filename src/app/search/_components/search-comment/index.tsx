@@ -106,7 +106,7 @@ export function SearchComment({ disableResults }: Props) {
         </a>
       </div>
       <div className="p-4">
-        <SearchAdvancedForm />
+        {advanced && <SearchAdvancedForm />}
         {(() => {
           if (results.length > 0 && !disableResults) {
             return (

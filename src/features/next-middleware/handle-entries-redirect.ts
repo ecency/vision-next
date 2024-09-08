@@ -9,7 +9,8 @@ export function handleEntriesRedirect(request: NextRequest) {
     "wallet",
     "points",
     "spk",
-    "engine"
+    "engine",
+    "settings"
   ];
   const isAnySection = profileSections.some((section) => request.url.includes(section));
   const isEntryLikePage = /\/(@.+)\/(.+)/gm.test(request.nextUrl.pathname);
