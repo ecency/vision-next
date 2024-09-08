@@ -5,6 +5,8 @@ import i18next from "i18next";
 import { getCommunitiesQuery, useGetSubscriptionsQuery } from "@/api/queries";
 import { useDebounce } from "react-use";
 import useMount from "react-use/lib/useMount";
+import { useGlobalStore } from "@/core/global-store";
+import { LinearProgress } from "@/features/shared";
 
 interface BrowserProps {
   onSelect: (name: string | null) => void;
@@ -12,12 +14,17 @@ interface BrowserProps {
 }
 
 export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
-  const { data: subscriptions, refetch } = useGetSubscriptionsQuery();
+  const activeUser = useGlobalStore((state) => state.activeUser);
+  const {
+    data: subscriptions,
+    refetch,
+    isLoading: isSubsLoading
+  } = useGetSubscriptionsQuery(activeUser?.username);
 
   const [query, setQuery] = useState("");
   const [fetchingQuery, setFetchingQuery] = useState("");
 
-  const { data: results } = getCommunitiesQuery(
+  const { data: results, isLoading } = getCommunitiesQuery(
     "rank",
     fetchingQuery,
     14,
@@ -55,7 +62,8 @@ export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
       <div className="browser">
         {search}
 
-        <div className="browser-list">
+        <div className="browser-list mt-4">
+          {isLoading && <LinearProgress />}
           <div className="flex flex-wrap py-3 gap-3">
             {results?.map((x) => (
               <CommunitySelectorItem
@@ -77,7 +85,8 @@ export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
     <div className="browser">
       {search}
 
-      <div className="browser-list">
+      <div className="browser-list mt-4">
+        {isSubsLoading && <LinearProgress />}
         <div className="flex flex-wrap py-3 gap-3">
           <CommunitySelectorItem
             name={null}

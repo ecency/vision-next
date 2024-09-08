@@ -243,7 +243,6 @@
       display: grid;
 
       @media (min-width: $sm-break) {
-        float: right;
         width: calc(100% - 167px);
       }
 

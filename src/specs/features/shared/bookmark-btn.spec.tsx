@@ -24,7 +24,7 @@ jest.mock("i18next", () => ({
   t: jest.fn((key) => key)
 }));
 
-jest.mock("@iconscout/react-unicons", () => ({
+jest.mock("@tooni/iconscout-unicons-react", () => ({
   UilBookmark: () => <svg data-testid="bookmark-icon" />
 }));
 

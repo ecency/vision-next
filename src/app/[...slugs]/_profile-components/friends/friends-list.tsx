@@ -5,11 +5,12 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import { FormControl, InputGroup } from "@ui/input";
 import { Spinner } from "@ui/spinner";
-import { accountReputation, formatTimeDIfference } from "@/utils";
-import { ProfileLink, UserAvatar } from "@/features/shared";
+import { formatTimeDIfference } from "@/utils";
 import { FilterFriendsType } from "@/enums";
 import { FilterFriends } from "./filter-friends";
 import { useDebounce } from "react-use";
+import { FriendListItem } from "@/app/[...slugs]/_profile-components/friends/friend-list-item";
+import { AnimatePresence, motion } from "framer-motion";
 
 const loadLimit = 30;
 
@@ -112,26 +113,19 @@ export const FriendsList = ({ account, mode }: Props) => {
             <div className="empty-list"> {i18next.t("g.empty-list")}</div>
           )}
 
-          {dataFlow?.map((item) => (
-            <div className="list-item" key={item.name}>
-              <div className="item-main">
-                <ProfileLink username={item.name}>
-                  <UserAvatar username={item.name} size="small" />
-                </ProfileLink>
-                <div className="item-info">
-                  <ProfileLink username={item.name}>
-                    <span className="item-name notranslate">{item.name}</span>
-                  </ProfileLink>
-                  {item?.reputation !== undefined && (
-                    <span className="item-reputation">{accountReputation(item.reputation)}</span>
-                  )}
-                </div>
-              </div>
-              <div className="last-seen mt-1">
-                <a href="#">{`${i18next.t("friends.active")} ${item.lastSeen}`}</a>
-              </div>
-            </div>
-          ))}
+          <AnimatePresence>
+            {dataFlow?.map((item, i) => (
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, y: 32 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 32 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <FriendListItem item={item} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       </div>
 

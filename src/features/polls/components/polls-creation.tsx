@@ -11,7 +11,7 @@ import {
   UilSave,
   UilTrash,
   UilTrashAlt
-} from "@iconscout/react-unicons";
+} from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { format, setHours, setMinutes } from "date-fns";
 import i18next from "i18next";

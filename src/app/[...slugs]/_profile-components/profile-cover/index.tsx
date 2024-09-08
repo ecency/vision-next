@@ -41,9 +41,9 @@ export function ProfileCover({ account }: Props) {
   const hideControls = activeUser && activeUser.username === account?.name;
 
   return (
-    <div className="profile-cover">
+    <div className="profile-cover rounded-2xl overflow-hidden">
       <div className="cover-image" style={style} />
-      <div className="follow-controls-holder">
+      <div className="relative flex items-center justify-end w-full gap-2 p-4">
         <ProfileInfo account={account} />
         {!hideControls && (
           <>

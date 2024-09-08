@@ -1,14 +1,16 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import "./_index.scss";
 import { LinearProgress } from "@/features/shared";
 import Link from "next/link";
 import i18next from "i18next";
-import { TagLink } from "@/features/shared/tag";
 import { SortCommunities } from "../sort-profile-communities";
 import { useGetSubscriptionsQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { Account } from "@/entities";
+import { CommunityListItem } from "@/app/communities/_components";
+import { useCommunitiesCache } from "@/core/caches";
+import { AnimatePresence, motion } from "framer-motion";
+import { Badge } from "@ui/badge";
 
 interface Props {
   account: Account;
@@ -19,7 +21,8 @@ export function ProfileCommunities({ account }: Props) {
 
   const [sort, setSort] = useState<"asc" | "desc">("asc");
 
-  const { data, isLoading } = useGetSubscriptionsQuery();
+  const { data, isLoading } = useGetSubscriptionsQuery(account.name);
+  const communities = useCommunitiesCache(data?.map((item) => item[0]) ?? []);
 
   const showCreateLink = activeUser && activeUser.username === account.name;
   const items = useMemo(
@@ -33,7 +36,7 @@ export function ProfileCommunities({ account }: Props) {
   );
 
   return (
-    <div className="profile-communities">
+    <div>
       {isLoading && <LinearProgress />}
       {!isLoading && items?.length === 0 && (
         <>
@@ -50,26 +53,42 @@ export function ProfileCommunities({ account }: Props) {
       )}
       {items && items.length > 0 && (
         <>
-          <h2>{i18next.t("profile.communities-title")}</h2>
+          <div className="flex items-center justify-between my-4 lg:mt-8">
+            <h2 className="text-xl font-bold">{i18next.t("profile.communities-title")}</h2>
 
-          {items.length >= 3 && (
-            <SortCommunities
-              sortCommunitiesInAsc={() => setSort("asc")}
-              sortCommunitiesInDsc={() => setSort("desc")}
-            />
-          )}
+            {items.length >= 3 && (
+              <SortCommunities
+                sort={sort}
+                sortCommunitiesInAsc={() => setSort("asc")}
+                sortCommunitiesInDsc={() => setSort("desc")}
+              />
+            )}
+          </div>
 
-          <ul className="community-list">
-            {items.map((i, k) => {
-              return (
-                <li key={k}>
-                  <TagLink tag={i[0]} type="link">
-                    <span>{i[1]}</span>
-                  </TagLink>{" "}
-                  <span className="user-role">{i[2]}</span>
-                </li>
-              );
-            })}
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <AnimatePresence>
+              {items.map(
+                (i, k) =>
+                  communities.find((c) => c.data?.name === i[0])?.data && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -48 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -48 }}
+                      transition={{ delay: k * 0.2 }}
+                      key={k}
+                      className="border border-[--border-color] rounded-2xl p-2 xl:p-3 flex flex-col gap-2 xl:gap-3"
+                    >
+                      <CommunityListItem
+                        vertical={true}
+                        community={communities.find((c) => c.data?.name === i[0])?.data!}
+                      />
+                      <div>
+                        <Badge>{i[2]}</Badge>
+                      </div>
+                    </motion.div>
+                  )
+              )}
+            </AnimatePresence>
           </ul>
           {showCreateLink && (
             <p>

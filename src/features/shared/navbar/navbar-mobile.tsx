@@ -2,7 +2,7 @@ import { NavbarTextMenu } from "./navbar-text-menu";
 import React from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { classNameObject } from "@ui/util";
-import { UilEditAlt } from "@iconscout/react-unicons";
+import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";

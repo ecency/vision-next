@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Button } from "@ui/button";
-import { UilEmoji } from "@iconscout/react-unicons";
+import { UilEmoji } from "@tooni/iconscout-unicons-react";
 import { EmojiPicker } from "@/features/ui";
 
 interface Props {

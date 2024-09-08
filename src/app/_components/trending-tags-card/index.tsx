@@ -2,7 +2,7 @@
 
 import React, { Fragment, useCallback, useMemo } from "react";
 import "./_index.scss";
-import { UilMultiply } from "@iconscout/react-unicons";
+import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { TagLink } from "@/features/shared/tag";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";

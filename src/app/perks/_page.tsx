@@ -11,7 +11,7 @@ import {
 } from "@/features/shared";
 import i18next from "i18next";
 import { MajorPerkCard, PerksHeader } from "@/app/perks/components";
-import { UilChart, UilFire, UilMoneyWithdraw, UilRocket } from "@iconscout/react-unicons";
+import { UilChart, UilFire, UilMoneyWithdraw, UilRocket } from "@tooni/iconscout-unicons-react";
 
 export function PerksPage() {
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
