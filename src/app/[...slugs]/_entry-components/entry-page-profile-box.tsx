@@ -18,7 +18,7 @@ export function EntryPageProfileBox({ entry }: Props): JSX.Element {
   return !isMobile ? (
     <div
       id="avatar-fixed-container"
-      className="invisible sticky top-[8rem] translate-x-[calc(-100%-2rem)] max-w-[180px]"
+      className="invisible sticky hidden xl:block top-[8rem] translate-x-[calc(-100%-2rem)] max-w-[180px]"
     >
       <AnimatePresence>{showProfileBox && <AuthorInfoCard entry={entry} />}</AnimatePresence>
     </div>

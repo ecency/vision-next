@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed friends feed">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed double transfer option">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-page-profile-box.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/entry-page-profile-box.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -377,14 +377,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00167" summary="Fixed and improved profile preview widget">
-      <option name="closed" value="true" />
-      <created>1724096772594</created>
-      <option name="number" value="00167" />
-      <option name="presentableId" value="LOCAL-00167" />
-      <option name="project" value="LOCAL" />
-      <updated>1724096772594</updated>
     </task>
     <task id="LOCAL-00168" summary="Added and improved mobile layout of profile preview">
       <option name="closed" value="true" />
@@ -770,7 +762,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725829385272</updated>
     </task>
-    <option name="localTasksCounter" value="216" />
+    <task id="LOCAL-00216" summary="Fixed double transfer option">
+      <option name="closed" value="true" />
+      <created>1725829904765</created>
+      <option name="number" value="00216" />
+      <option name="presentableId" value="LOCAL-00216" />
+      <option name="project" value="LOCAL" />
+      <updated>1725829904765</updated>
+    </task>
+    <option name="localTasksCounter" value="217" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +791,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added opening posts via direct link w/o category" />
     <MESSAGE value="Moved firebase messaging sw" />
     <MESSAGE value="Fixed account reputation in popover profile" />
     <MESSAGE value="Fixed typo" />
@@ -816,7 +815,8 @@
     <MESSAGE value="Fixed profile popover" />
     <MESSAGE value="Fixed infinite loop in decks" />
     <MESSAGE value="Fixed friends feed" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed friends feed" />
+    <MESSAGE value="Fixed double transfer option" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed double transfer option" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
