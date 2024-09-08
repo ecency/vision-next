@@ -26,9 +26,8 @@ export function BookmarksList({ onHide }: Props) {
                       author: item.author,
                       permlink: item.permlink
                     }}
-                    afterClick={onHide}
                   >
-                    <div className="dialog-list-item">
+                    <div onClick={onHide} className="dialog-list-item">
                       <UserAvatar username={item.author} size="medium" />
                       <div className="item-body">
                         <span className="author with-slash">{item.author}</span>

@@ -15,15 +15,14 @@ export interface PartialEntry {
 
 interface Props {
   entry: Entry | PartialEntry;
-  afterClick?: () => void;
   target?: string;
 }
 
-export function EntryLink({ children, entry, afterClick, target }: PropsWithChildren<Props>) {
+export function EntryLink({ children, entry, target }: PropsWithChildren<Props>) {
   const path = useMemo(() => makePath(entry.category, entry.author, entry.permlink), [entry]);
 
   return (
-    <Link legacyBehavior={true} href={path} target={target} onClick={(e) => afterClick?.()}>
+    <Link legacyBehavior={true} href={path} target={target}>
       {children}
     </Link>
   );
