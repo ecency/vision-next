@@ -4,8 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed entry page author information showing">
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-text-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-text-menu.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed top text menu">
+      <change afterPath="$PROJECT_DIR$/src/features/next-middleware/handle-index-redirect.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/_components/index-route-listener.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/_components/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/_components/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/next-middleware/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/next-middleware/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/middleware.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -376,14 +382,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00169" summary="Added and improved mobile layout of profile preview">
-      <option name="closed" value="true" />
-      <created>1724099001861</created>
-      <option name="number" value="00169" />
-      <option name="presentableId" value="LOCAL-00169" />
-      <option name="project" value="LOCAL" />
-      <updated>1724099001861</updated>
     </task>
     <task id="LOCAL-00170" summary="Fixed floating FAQ layout">
       <option name="closed" value="true" />
@@ -769,7 +767,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725830122919</updated>
     </task>
-    <option name="localTasksCounter" value="218" />
+    <task id="LOCAL-00218" summary="Fixed top text menu">
+      <option name="closed" value="true" />
+      <created>1725830235689</created>
+      <option name="number" value="00218" />
+      <option name="presentableId" value="LOCAL-00218" />
+      <option name="project" value="LOCAL" />
+      <updated>1725830235689</updated>
+    </task>
+    <option name="localTasksCounter" value="219" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -790,7 +796,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed account reputation in popover profile" />
     <MESSAGE value="Fixed typo" />
     <MESSAGE value="Fixed NPEs" />
     <MESSAGE value="Fixed profile menu extra items" />
@@ -815,7 +820,8 @@
     <MESSAGE value="Fixed friends feed" />
     <MESSAGE value="Fixed double transfer option" />
     <MESSAGE value="Fixed entry page author information showing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed entry page author information showing" />
+    <MESSAGE value="Fixed top text menu" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed top text menu" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
