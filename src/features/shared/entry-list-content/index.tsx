@@ -12,7 +12,7 @@ interface Props {
   isPromoted: boolean;
   username: string;
   showEmptyPlaceholder?: boolean;
-  account: Account;
+  account?: Account;
 }
 
 export function EntryListContent({

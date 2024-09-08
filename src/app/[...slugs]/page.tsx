@@ -28,6 +28,7 @@ export default function FilteredOrCategorizedPage({ params: { slugs }, searchPar
       <Feedback />
       <Navbar />
       {page === "index" && <EntryIndex filter={slugs[0]} tag={slugs[1] ?? ""} />}
+      {page === "feed" && <EntryIndex filter={slugs[1]} tag={slugs[0].replace("%40", "@")} />}
       {page === "profile" && (
         <ProfilePage
           username={slugs[0].replace("%40", "")}

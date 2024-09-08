@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
-import { handleEntriesRedirect } from "@/features/next-middleware";
+import { handleEntriesRedirect, isEntriesRedirect } from "@/features/next-middleware";
 
 export function middleware(request: NextRequest) {
-  return handleEntriesRedirect(request);
+  if (isEntriesRedirect(request)) {
+    return handleEntriesRedirect(request);
+  }
 }

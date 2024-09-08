@@ -5,7 +5,7 @@ export namespace PageDetector {
   interface Props {
     params: { slugs: string[] };
   }
-  type Page = "index" | "entry" | "community" | "profile" | "edit" | "not-detected";
+  type Page = "index" | "entry" | "community" | "profile" | "edit" | "feed" | "not-detected";
 
   export function detect({ params: { slugs } }: Props): Page {
     const isEntryPage = slugs.length > 2;
@@ -13,6 +13,11 @@ export namespace PageDetector {
     const isProfilePage = slugs[0].startsWith("@") || (slugs[0].startsWith("%40") && !isEditPage);
     const isCommunityPage = slugs[1] ? isCommunity(slugs[1]) : false;
     const isIndexPage = Object.values<string>(EntryFilter).includes(slugs[0]);
+    const isFeedPage = slugs[1] === "feed";
+
+    if (isFeedPage && !isEditPage && isProfilePage && !isEntryPage && !isCommunityPage) {
+      return "feed";
+    }
 
     if (isIndexPage && !isEditPage && !isProfilePage && !isEntryPage && !isCommunityPage) {
       return "index";
