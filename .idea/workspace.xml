@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed build">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed profile popover">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/profile-popover/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/profile-popover/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/ui/popover/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/popover/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/ui/popover/popover-popper.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/popover/popover-popper.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-manager.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-manager.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -379,14 +377,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00164" summary="Fixed trending tags closing and styles">
-      <option name="closed" value="true" />
-      <created>1723744514298</created>
-      <option name="number" value="00164" />
-      <option name="presentableId" value="LOCAL-00164" />
-      <option name="project" value="LOCAL" />
-      <updated>1723744514298</updated>
     </task>
     <task id="LOCAL-00165" summary="Removed extra empty feed data">
       <option name="closed" value="true" />
@@ -772,7 +762,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725821725433</updated>
     </task>
-    <option name="localTasksCounter" value="213" />
+    <task id="LOCAL-00213" summary="Fixed profile popover">
+      <option name="closed" value="true" />
+      <created>1725825720672</created>
+      <option name="number" value="00213" />
+      <option name="presentableId" value="LOCAL-00213" />
+      <option name="project" value="LOCAL" />
+      <updated>1725825720672</updated>
+    </task>
+    <option name="localTasksCounter" value="214" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -793,7 +791,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Covered user record activity with config flags" />
     <MESSAGE value="Covered left files with use private with configuration" />
     <MESSAGE value="Added RSS feed for users, fixed review bugs" />
     <MESSAGE value="Added opening posts via direct link w/o category" />
@@ -818,7 +815,8 @@
     <MESSAGE value="Fixed login button showing in mobile layout" />
     <MESSAGE value="Fixed pinned entries" />
     <MESSAGE value="Fixed build" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed build" />
+    <MESSAGE value="Fixed profile popover" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed profile popover" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
