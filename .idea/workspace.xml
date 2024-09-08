@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed top text menu">
-      <change afterPath="$PROJECT_DIR$/src/features/next-middleware/handle-index-redirect.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed redirecting to homepage">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/_components/index-route-listener.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/_components/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/_components/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/next-middleware/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/next-middleware/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/middleware.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/notification-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/notification-list.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -382,14 +377,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00170" summary="Fixed floating FAQ layout">
-      <option name="closed" value="true" />
-      <created>1724237916551</created>
-      <option name="number" value="00170" />
-      <option name="presentableId" value="LOCAL-00170" />
-      <option name="project" value="LOCAL" />
-      <updated>1724237916551</updated>
     </task>
     <task id="LOCAL-00171" summary="Removed market charts from main page">
       <option name="closed" value="true" />
@@ -775,7 +762,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725830235689</updated>
     </task>
-    <option name="localTasksCounter" value="219" />
+    <task id="LOCAL-00219" summary="Fixed redirecting to homepage">
+      <option name="closed" value="true" />
+      <created>1725830732355</created>
+      <option name="number" value="00219" />
+      <option name="presentableId" value="LOCAL-00219" />
+      <option name="project" value="LOCAL" />
+      <updated>1725830732355</updated>
+    </task>
+    <option name="localTasksCounter" value="220" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,7 +791,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed typo" />
     <MESSAGE value="Fixed NPEs" />
     <MESSAGE value="Fixed profile menu extra items" />
     <MESSAGE value="Fixed redirecting from short post URL to long" />
@@ -821,7 +815,8 @@
     <MESSAGE value="Fixed double transfer option" />
     <MESSAGE value="Fixed entry page author information showing" />
     <MESSAGE value="Fixed top text menu" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed top text menu" />
+    <MESSAGE value="Fixed redirecting to homepage" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed redirecting to homepage" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -21,15 +21,15 @@ export function NotificationList({
   select,
   setSelectedNotifications
 }: Props) {
-  const { data, isLoading, fetchNextPage } = useNotificationsQuery(filter);
+  const { data, isFetching, fetchNextPage } = useNotificationsQuery(filter);
 
   const dataFlow = useMemo(() => data?.pages.reduce((acc, page) => [...acc, ...page], []), [data]);
 
   return (
     <>
-      {isLoading ? <LinearProgress /> : <></>}
+      {isFetching && dataFlow.length === 0 ? <LinearProgress /> : <></>}
 
-      {!isLoading && dataFlow.length === 0 && (
+      {!isFetching && dataFlow.length === 0 && (
         <div className="list-body empty-list">
           <span className="empty-text">{i18next.t("g.empty-list")}</span>
         </div>
@@ -90,7 +90,7 @@ export function NotificationList({
           ))}
         </div>
       )}
-      {isLoading && dataFlow.length > 0 && <LinearProgress />}
+      {isFetching && dataFlow.length > 0 && <LinearProgress />}
     </>
   );
 }
