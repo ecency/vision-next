@@ -19,7 +19,6 @@ interface ShowProps {
 interface Props {
   children: ReactNode;
   anchorParent?: boolean;
-  stopPropagationForChild?: boolean;
   customClassName?: string;
   useMobileSheet?: boolean;
 }
@@ -30,8 +29,7 @@ export function Popover(props: (ShowProps | Props) & HTMLAttributes<HTMLDivEleme
     "show",
     "setShow",
     "customClassName",
-    "useMobileSheet",
-    "stopPropagationForChild"
+    "useMobileSheet"
   ]);
 
   const [host, setHost] = useState<any>();
@@ -52,15 +50,24 @@ export function Popover(props: (ShowProps | Props) & HTMLAttributes<HTMLDivEleme
     if ((props as Props).anchorParent && host) {
       host.parentElement.addEventListener("click", () => setShow(true));
       host.parentElement.addEventListener("mouseenter", () => setShow(true));
-      host.parentElement.addEventListener(
-        "mouseleave",
-        () => !props.stopPropagationForChild && setShow(false)
-      );
+      host.parentElement.addEventListener("mouseleave", () => setShow(false));
     }
   }, [host, props]);
 
   return (
     <div {...nativeProps} ref={setHost}>
+      {isMounted && !isSheet && (
+        <PopoverPopper
+          host={host}
+          setShow={setShow}
+          show={show}
+          stopPropagationForChild={props.stopPropagationForChild}
+          placement={"placement" in props ? props.placement : undefined}
+          customClassName={"customClassName" in props ? props.customClassName : undefined}
+        >
+          {props.children}
+        </PopoverPopper>
+      )}
       {isMounted() &&
         createPortal(
           isSheet ? (
@@ -68,16 +75,7 @@ export function Popover(props: (ShowProps | Props) & HTMLAttributes<HTMLDivEleme
               {props.children}
             </PopoverSheet>
           ) : (
-            <PopoverPopper
-              host={host}
-              setShow={setShow}
-              show={show}
-              stopPropagationForChild={props.stopPropagationForChild}
-              placement={"placement" in props ? props.placement : undefined}
-              customClassName={"customClassName" in props ? props.customClassName : undefined}
-            >
-              {props.children}
-            </PopoverPopper>
+            <></>
           ),
           document.querySelector("#popper-container")!!
         )}
