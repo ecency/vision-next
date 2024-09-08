@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed redirecting to homepage">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/notification-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/notification-list.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added loader to notifications">
+      <change beforePath="$PROJECT_DIR$/src/app/discover/page.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/discover/page.scss" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -377,14 +376,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00171" summary="Removed market charts from main page">
-      <option name="closed" value="true" />
-      <created>1724238118398</created>
-      <option name="number" value="00171" />
-      <option name="presentableId" value="LOCAL-00171" />
-      <option name="project" value="LOCAL" />
-      <updated>1724238118398</updated>
     </task>
     <task id="LOCAL-00172" summary="Fixed index menu navigating between sections">
       <option name="closed" value="true" />
@@ -770,7 +761,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725830732355</updated>
     </task>
-    <option name="localTasksCounter" value="220" />
+    <task id="LOCAL-00220" summary="Added loader to notifications">
+      <option name="closed" value="true" />
+      <created>1725831408699</created>
+      <option name="number" value="00220" />
+      <option name="presentableId" value="LOCAL-00220" />
+      <option name="project" value="LOCAL" />
+      <updated>1725831408699</updated>
+    </task>
+    <option name="localTasksCounter" value="221" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -791,7 +790,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed NPEs" />
     <MESSAGE value="Fixed profile menu extra items" />
     <MESSAGE value="Fixed redirecting from short post URL to long" />
     <MESSAGE value="Fixed transfer first step" />
@@ -816,7 +814,8 @@
     <MESSAGE value="Fixed entry page author information showing" />
     <MESSAGE value="Fixed top text menu" />
     <MESSAGE value="Fixed redirecting to homepage" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed redirecting to homepage" />
+    <MESSAGE value="Added loader to notifications" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added loader to notifications" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
