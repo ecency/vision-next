@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added loader to notifications">
-      <change beforePath="$PROJECT_DIR$/src/features/ui/popover/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/popover/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/notifications/mark-notifications.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/notifications/mark-notifications.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/notifications/update-notifications-settings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/notifications/update-notifications-settings.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/notifications/notifications-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/notifications/notifications-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/comment/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/comment/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/notification-list-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/notification-list-item.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,7 +21,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feature/new-updates" />
+        <entry key="$PROJECT_DIR$" value="bugfix/review-issues" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -82,7 +87,7 @@
     "WebServerToolWindowFactoryState": "false",
     "code.cleanup.on.save": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "bugfix/review-issues-2",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
     "node.js.detected.package.eslint": "true",
@@ -104,7 +109,7 @@
     "project.structure.side.proportion": "0.0",
     "rearrange.code.on.save": "true",
     "settings.editor.selected.configurable": "actions.on.save",
-    "ts.external.directory.path": "/Users/fm/pjs/ecency-vision/node_modules/typescript/lib",
+    "ts.external.directory.path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -140,6 +145,19 @@
     </key>
   </component>
   <component name="RunManager" selected="npm.dev">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="ecency-vision-next" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="ecency-vision-next" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Comment.handles keyboard shortcuts" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
@@ -165,19 +183,6 @@
         <test-name value="submits comment when submit button is clicked" />
       </test-names>
       <method v="2" />
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="ecency-vision-next" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="ecency-vision-next" />
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
     </configuration>
     <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />

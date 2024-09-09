@@ -10,9 +10,13 @@ export function useMarkNotifications() {
   return useMutation({
     mutationKey: ["notifications", "mark"],
     mutationFn: ({ id }: { id: string | undefined }) => markNotifications(activeUser!.username, id),
-    onSuccess: () =>
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QueryIdentifiers.NOTIFICATIONS_UNREAD_COUNT, activeUser?.username]
-      })
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryIdentifiers.NOTIFICATIONS, activeUser?.username]
+      });
+    }
   });
 }

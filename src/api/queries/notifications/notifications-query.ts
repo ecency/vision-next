@@ -4,11 +4,6 @@ import { useGlobalStore } from "@/core/global-store";
 import { getNotifications } from "@/api/private-api";
 import { NotificationFilter } from "@/enums";
 
-/**
- * TODO: Make it infinite query
- * @param filter
- * @param since
- */
 export function useNotificationsQuery(filter: NotificationFilter | null) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 

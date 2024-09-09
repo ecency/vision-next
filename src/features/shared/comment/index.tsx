@@ -192,7 +192,6 @@ export function Comment({
             acceptCharset="UTF-8"
             id="the-editor"
             spellCheck={true}
-            activeUser={(activeUser && activeUser.username) || ""}
             isComment={true}
           />
           <div className="editor-toolbar bottom">
