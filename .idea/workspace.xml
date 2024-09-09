@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed dynamic props query fetching, added missed PWA scripts">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed reblogging">
+      <change afterPath="$PROJECT_DIR$/src/app/error.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/entry-reblog.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/entry-reblog.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/caches/entries-cache.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/caches/entries-cache.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-reblog-btn/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-reblog-btn/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/client-init.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-init.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/client-providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -379,14 +381,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00177" summary="Fixed and improved layout of community and profile menus, improved layout of community cover image">
-      <option name="closed" value="true" />
-      <created>1724320991532</created>
-      <option name="number" value="00177" />
-      <option name="presentableId" value="LOCAL-00177" />
-      <option name="project" value="LOCAL" />
-      <updated>1724320991532</updated>
     </task>
     <task id="LOCAL-00178" summary="Fixed community page filters">
       <option name="closed" value="true" />
@@ -772,7 +766,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725878536145</updated>
     </task>
-    <option name="localTasksCounter" value="226" />
+    <task id="LOCAL-00226" summary="Fixed reblogging">
+      <option name="closed" value="true" />
+      <created>1725881168437</created>
+      <option name="number" value="00226" />
+      <option name="presentableId" value="LOCAL-00226" />
+      <option name="project" value="LOCAL" />
+      <updated>1725881168437</updated>
+    </task>
+    <option name="localTasksCounter" value="227" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -793,7 +795,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Hiding default reputation in proposals page" />
     <MESSAGE value="Fixed balance fetching in gift modal" />
     <MESSAGE value="Fixed following and followers dialog window" />
     <MESSAGE value="Fixed resource credits default value" />
@@ -818,7 +819,8 @@
     <MESSAGE value="Fixed language selection after reloading" />
     <MESSAGE value="Fixed theme flickering on page load" />
     <MESSAGE value="Fixed dynamic props query fetching, added missed PWA scripts" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed dynamic props query fetching, added missed PWA scripts" />
+    <MESSAGE value="Fixed reblogging" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed reblogging" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

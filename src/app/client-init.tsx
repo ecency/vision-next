@@ -2,8 +2,8 @@ import { useGlobalStore } from "@/core/global-store";
 import useMount from "react-use/lib/useMount";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
-import { getDynamicPropsQuery } from "@/api/queries";
 import { initI18next } from "@/features/i18n";
+import Bugsnag from "@bugsnag/js";
 
 export function ClientInit() {
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
@@ -18,7 +18,7 @@ export function ClientInit() {
       updateActiveUser();
     }
 
-    getDynamicPropsQuery().prefetch();
+    Bugsnag.setUser(activeUsername);
   });
 
   return <></>;

@@ -10,6 +10,9 @@
     "test": "jest"
   },
   "dependencies": {
+    "@bugsnag/browser-performance": "^2.9.0",
+    "@bugsnag/js": "^8.0.0",
+    "@bugsnag/plugin-react": "^8.0.0",
     "@ecency/ns-query": "1.2.9-next",
     "@ecency/render-helper": "^2.2.29",
     "@emoji-mart/data": "^1.1.2",
