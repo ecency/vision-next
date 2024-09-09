@@ -21,6 +21,7 @@ interface Props {
   anchorParent?: boolean;
   customClassName?: string;
   useMobileSheet?: boolean;
+  stopPropagationForChild?: boolean;
 }
 
 export function Popover(props: (ShowProps | Props) & HTMLAttributes<HTMLDivElement>) {
