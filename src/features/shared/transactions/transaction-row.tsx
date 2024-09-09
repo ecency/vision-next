@@ -17,7 +17,7 @@ import { dateToFullRelative, formattedNumber, parseAsset, vestsToHp } from "@/ut
 import i18next from "i18next";
 import { EntryLink, UserAvatar } from "@/features/shared";
 import { TwoUserAvatar } from "@/features/shared/two-user-avatar";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { Transaction } from "@/entities";
 
 interface Props {
@@ -29,7 +29,7 @@ interface Props {
 export function TransactionRow({ entry, transaction: item }: Props) {
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
-  const { hivePerMVests } = dynamicProps!;
+  const { hivePerMVests } = dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
   const tr = item || entry;
 
   let flag = false;

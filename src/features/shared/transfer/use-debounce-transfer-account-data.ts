@@ -4,6 +4,7 @@ import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { useTransferSharedState } from "./transfer-shared-state";
 import {
+  DEFAULT_DYNAMIC_PROPS,
   getAccountFullQuery,
   getDynamicPropsQuery,
   getVestingDelegationsQuery
@@ -47,7 +48,7 @@ export function useDebounceTransferAccountData() {
           formattedNumber(
             vestsToHp(
               Number(parseAsset(delegateAccount!.vesting_shares).amount),
-              dynamicProps!.hivePerMVests
+              (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
             )
           )
         )

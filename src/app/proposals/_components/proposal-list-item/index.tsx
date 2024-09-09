@@ -9,7 +9,7 @@ import { linkSvg } from "@ui/svg";
 import Link from "next/link";
 import { parseAsset } from "@/utils";
 import { ProposalVoteBtn, ProposalVotes } from "@/app/proposals/_components";
-import { getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
 import { useSearchParams } from "next/navigation";
 
 interface Props {
@@ -38,7 +38,8 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
   const endDate = moment(new Date(proposal.end_date));
   const duration = endDate.diff(startDate, "days");
 
-  const votesHP = (Number(proposal.total_votes) / 1e12) * dynamicProps!.hivePerMVests;
+  const votesHP =
+    (Number(proposal.total_votes) / 1e12) * (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
   const strVotes = numeral(votesHP).format("0.00,") + " HP";
 
   const dailyPayment = parseAsset(proposal.daily_pay);

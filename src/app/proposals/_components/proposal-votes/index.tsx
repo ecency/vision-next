@@ -9,7 +9,12 @@ import i18next from "i18next";
 import { Entry, Proposal } from "@/entities";
 import { LinearProgress, ProfileLink, ProfilePopover, UserAvatar } from "@/features/shared";
 import { accountReputation, parseAsset } from "@/utils";
-import { getAccountsQuery, getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
+import {
+  DEFAULT_DYNAMIC_PROPS,
+  getAccountsQuery,
+  getDynamicPropsQuery,
+  getProposalVotesQuery
+} from "@/api/queries";
 
 type SortOption = "reputation" | "hp";
 
@@ -36,12 +41,14 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
       accounts
         ?.map((account) => {
           const hp =
-            (parseAsset(account.vesting_shares).amount * dynamicProps!.hivePerMVests) / 1e6;
+            (parseAsset(account.vesting_shares).amount *
+              (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests) /
+            1e6;
 
           let vsfVotes = 0;
           account.proxied_vsf_votes.forEach((x: string | number) => (vsfVotes += Number(x)));
 
-          const proxyHp = (vsfVotes * dynamicProps!.hivePerMVests) / 1e12;
+          const proxyHp = (vsfVotes * (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests) / 1e12;
           const totalHp = hp + proxyHp;
 
           return {
@@ -95,7 +102,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
         <div className="voters-list mb-4">
           <List grid={true} inline={true} defer={true}>
             {(voters?.length ?? 0) > 0 ? (
-              voters?.map((x,index) => {
+              voters?.map((x, index) => {
                 const strHp = numeral(x.hp).format("0.00,");
                 const strProxyHp = numeral(x.proxyHp).format("0.00,");
 

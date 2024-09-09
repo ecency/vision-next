@@ -3,7 +3,7 @@ import moment from "moment";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
-import { getDynamicPropsQuery, getRcAccountsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getRcAccountsQuery } from "@/api/queries";
 import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@/api/hive";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
@@ -27,8 +27,10 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
   const vPowerRechargeDate = moment().add(vPowerRecharge, "seconds");
 
   // Voting value
-  const vValue = votingValue(account, dynamicProps!, vPower * 100).toFixed(3);
-  const vValueFull = votingValue(account, dynamicProps!, 10000).toFixed(3);
+  const vValue = votingValue(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS, vPower * 100).toFixed(
+    3
+  );
+  const vValueFull = votingValue(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS, 10000).toFixed(3);
 
   // Join date
   const created = moment.utc(account.created).format("LL");

@@ -39,7 +39,7 @@ import { SortEngineTokens } from "./sort-hive-engine-tokens";
 import { EngineTokensEstimated } from "./engine-tokens-estimated";
 import { Account, TokenStatus } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { formatError } from "@/api/operations";
 import useMount from "react-use/lib/useMount";
 import Image from "next/image";
@@ -141,7 +141,8 @@ export function WalletHiveEngine({ account }: Props) {
   };
   const tokenUsdValue = async () => {
     const userTokens: any = await getHiveEngineTokenBalances(account.name);
-    const pricePerHive = dynamicProps!.base / dynamicProps!.quote;
+    const pricePerHive =
+      (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base / (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).quote;
 
     let balanceMetrics: any = userTokens.map((item: any) => {
       let eachMetric = allTokens.find((m: any) => m.symbol === item.symbol);

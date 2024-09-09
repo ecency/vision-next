@@ -34,6 +34,7 @@ import { WalletMenu } from "../wallet-menu";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { useMemo, useState } from "react";
 import {
+  DEFAULT_DYNAMIC_PROPS,
   getCollateralizedConversionRequestsQuery,
   getConversionRequestsQuery,
   getDynamicPropsQuery,
@@ -82,7 +83,7 @@ export function WalletHive({ account }: Props) {
     const decreasePercentPerIncrement = 0.01;
 
     // How many increments have happened since block 7m?
-    const headBlock = dynamicProps!.headBlock;
+    const headBlock = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).headBlock;
     const deltaBlocks = headBlock - initialBlock;
     const decreaseIncrements = deltaBlocks / decreaseRate;
 
@@ -96,9 +97,10 @@ export function WalletHive({ account }: Props) {
     }
 
     // Now lets calculate the "APR"
-    const vestingRewardPercent = dynamicProps!.vestingRewardPercent / 10000;
-    const virtualSupply = dynamicProps!.virtualSupply;
-    const totalVestingFunds = dynamicProps!.totalVestingFund;
+    const vestingRewardPercent =
+      (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).vestingRewardPercent / 10000;
+    const virtualSupply = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).virtualSupply;
+    const totalVestingFunds = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).totalVestingFund;
     return (
       (virtualSupply * currentInflationRate * vestingRewardPercent) /
       totalVestingFunds
@@ -147,7 +149,7 @@ export function WalletHive({ account }: Props) {
     [activeUser, account]
   );
   const w = useMemo(
-    () => new HiveWallet(account, dynamicProps!, converting),
+    () => new HiveWallet(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS, converting),
     [account, converting, dynamicProps]
   );
   const lastIPaymentRelative = useMemo(
@@ -189,7 +191,9 @@ export function WalletHive({ account }: Props) {
     [pendingSeconds, w.savingHbdSeconds]
   );
   const estimatedUIn = useMemo(
-    () => (secondsToEstimate / (60 * 60 * 24 * 365)) * (dynamicProps!.hbdInterestRate / 10000),
+    () =>
+      (secondsToEstimate / (60 * 60 * 24 * 365)) *
+      ((dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hbdInterestRate / 10000),
     [dynamicProps, secondsToEstimate]
   );
   const estimatedInterest = useMemo(
@@ -199,17 +203,23 @@ export function WalletHive({ account }: Props) {
   const remainingDays = useMemo(() => 30 - lastIPaymentDiff, [lastIPaymentDiff]);
   const totalHP = useMemo(
     () =>
-      formattedNumber(vestsToHp(w.vestingShares, dynamicProps!.hivePerMVests), {
-        suffix: "HP"
-      }),
+      formattedNumber(
+        vestsToHp(w.vestingShares, (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests),
+        {
+          suffix: "HP"
+        }
+      ),
     [dynamicProps, w.vestingShares]
   );
   const totalDelegated = useMemo(
     () =>
-      formattedNumber(vestsToHp(w.vestingSharesDelegated, dynamicProps!.hivePerMVests), {
-        prefix: "-",
-        suffix: "HP"
-      }),
+      formattedNumber(
+        vestsToHp(w.vestingSharesDelegated, (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests),
+        {
+          prefix: "-",
+          suffix: "HP"
+        }
+      ),
     [dynamicProps, w.vestingSharesDelegated]
   );
 
@@ -427,7 +437,10 @@ export function WalletHive({ account }: Props) {
                   <Tooltip content={i18next.t("wallet.hive-power-delegated")}>
                     <span className="amount-btn" onClick={() => setDelegatedList(true)}>
                       {formattedNumber(
-                        vestsToHp(w.vestingSharesDelegated, dynamicProps!.hivePerMVests),
+                        vestsToHp(
+                          w.vestingSharesDelegated,
+                          (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
+                        ),
                         {
                           prefix: "-",
                           suffix: "HP"
@@ -444,7 +457,10 @@ export function WalletHive({ account }: Props) {
                 }
 
                 const strReceived = formattedNumber(
-                  vestsToHp(w.vestingSharesReceived, dynamicProps!.hivePerMVests),
+                  vestsToHp(
+                    w.vestingSharesReceived,
+                    (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
+                  ),
                   { prefix: "+", suffix: "HP" }
                 );
 
@@ -474,7 +490,10 @@ export function WalletHive({ account }: Props) {
                   <Tooltip content={i18next.t("wallet.next-power-down-amount")}>
                     <span>
                       {formattedNumber(
-                        vestsToHp(w.nextVestingSharesWithdrawal, dynamicProps!.hivePerMVests),
+                        vestsToHp(
+                          w.nextVestingSharesWithdrawal,
+                          (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
+                        ),
                         {
                           prefix: "-",
                           suffix: "HP"
@@ -492,7 +511,10 @@ export function WalletHive({ account }: Props) {
                   <Tooltip content={i18next.t("wallet.hive-power-total")}>
                     <span>
                       {formattedNumber(
-                        vestsToHp(w.vestingSharesTotal, dynamicProps!.hivePerMVests),
+                        vestsToHp(
+                          w.vestingSharesTotal,
+                          (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
+                        ),
                         {
                           prefix: "=",
                           suffix: "HP"
@@ -617,7 +639,7 @@ export function WalletHive({ account }: Props) {
               <div className="description">{i18next.t("wallet.savings-description")}</div>
               <div className="description font-bold mt-2">
                 {i18next.t("wallet.hive-dollars-apr-rate", {
-                  value: dynamicProps!.hbdInterestRate / 100
+                  value: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hbdInterestRate / 100
                 })}
               </div>
               {estimatedUIn >= 0.001 && (

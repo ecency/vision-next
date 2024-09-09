@@ -5,7 +5,7 @@ import { UserDeckGridItem } from "../types";
 import "./_deck-wallet-balance-column.scss";
 import { DeckGridContext } from "../deck-manager";
 import { Spinner } from "@ui/spinner";
-import { getDynamicPropsQuery, getPointsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getPointsQuery } from "@/api/queries";
 import { FullAccount } from "@/entities";
 import { getAccount, getConversionRequests } from "@/api/hive";
 import { getCurrencyTokenRate } from "@/api/private-api";
@@ -124,12 +124,15 @@ export const DeckWalletBalanceColumn = ({
       });
 
       if (account) {
-        const wallet = new HiveWallet(account, dynamicProps!, converting);
+        const wallet = new HiveWallet(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS, converting);
         setHive(formattedNumber(wallet.balance, { suffix: "HIVE" }));
         setHp(
-          formattedNumber(vestsToHp(wallet.vestingShares, dynamicProps!.hivePerMVests), {
-            suffix: "HP"
-          })
+          formattedNumber(
+            vestsToHp(wallet.vestingShares, (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests),
+            {
+              suffix: "HP"
+            }
+          )
         );
         setHbd(formattedNumber(wallet.hbdBalance, { prefix: "$" }));
         setSavings(formattedNumber(wallet.savingBalance, { suffix: "HIVE" }));
@@ -148,7 +151,9 @@ export const DeckWalletBalanceColumn = ({
       const tokens = await getMetrics();
       const userTokens = await getHiveEngineTokenBalances(username);
 
-      const pricePerHive = dynamicProps!.base / dynamicProps!.quote;
+      const pricePerHive =
+        (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base /
+        (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).quote;
 
       const mappedBalanceMetrics = userTokens.map((item: any) => ({
         ...item,

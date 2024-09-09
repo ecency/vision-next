@@ -4,11 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Improved search by username">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-boost-plus-prices-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-boost-plus-prices-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/points-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/points-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/boost/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/boost/index.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed Boost+">
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/sign-transfer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/sign-transfer.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/dynamic-props-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/dynamic-props-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/delegated-vesting/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/delegated-vesting/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive-engine/engine-tokens-estimated/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive-engine/engine-tokens-estimated/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive-engine/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive-engine/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/deck-wallet-balance-column.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/deck-wallet-balance-column.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/onboard-friend/[...slugs]/_page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/onboard-friend/[...slugs]/_page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/proposals/_components/proposal-list-item/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/_components/proposal-list-item/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-vote-btn/entry-vote-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-vote-btn/entry-vote-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/transactions/transaction-row.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transactions/transaction-row.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-2.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/use-debounce-transfer-account-data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/use-debounce-transfer-account-data.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/wallet-badge.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/wallet-badge.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -380,15 +393,7 @@
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
       <workItem from="1725905832826" duration="466000" />
-      <workItem from="1725906308423" duration="6118000" />
-    </task>
-    <task id="LOCAL-00184" summary="Covered user record activity with config flags">
-      <option name="closed" value="true" />
-      <created>1724766835013</created>
-      <option name="number" value="00184" />
-      <option name="presentableId" value="LOCAL-00184" />
-      <option name="project" value="LOCAL" />
-      <updated>1724766835013</updated>
+      <workItem from="1725906308423" duration="6430000" />
     </task>
     <task id="LOCAL-00185" summary="Covered left files with use private with configuration">
       <option name="closed" value="true" />
@@ -774,7 +779,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725912158125</updated>
     </task>
-    <option name="localTasksCounter" value="233" />
+    <task id="LOCAL-00233" summary="Fixed Boost+">
+      <option name="closed" value="true" />
+      <created>1725912475538</created>
+      <option name="number" value="00233" />
+      <option name="presentableId" value="LOCAL-00233" />
+      <option name="project" value="LOCAL" />
+      <updated>1725912475538</updated>
+    </task>
+    <option name="localTasksCounter" value="234" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -795,7 +808,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed 500 error because of client" />
     <MESSAGE value="Fixed search bar layout" />
     <MESSAGE value="Fixed advanced search toggling" />
     <MESSAGE value="Fixed login button showing in mobile layout" />
@@ -820,7 +832,8 @@
     <MESSAGE value="Fixed referrals page opening" />
     <MESSAGE value="Fixed entry cache management" />
     <MESSAGE value="Improved search by username" />
-    <option name="LAST_COMMIT_MESSAGE" value="Improved search by username" />
+    <MESSAGE value="Fixed Boost+" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed Boost+" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
