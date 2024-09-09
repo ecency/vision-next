@@ -86,7 +86,8 @@ export enum QueryIdentifiers {
   GET_FOLLOWING = "get-following",
   HIVE_HBD_STATS = "hive-hbd-stats",
   GET_ORDER_BOOK = "get-order-book",
-  SIMILAR_ENTRIES = "similar-entries"
+  SIMILAR_ENTRIES = "similar-entries",
+  SEARCH_BY_USERNAME = "search-by-username"
 }
 
 export function makeQueryClient() {

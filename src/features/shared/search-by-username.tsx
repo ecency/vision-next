@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormControl, InputGroup } from "@ui/input";
 import { Spinner } from "@ui/spinner";
 import { useGlobalStore } from "@/core/global-store";
-import { lookupAccounts } from "@/api/hive";
-import { formatError } from "@/api/operations";
-import { error } from "@/features/shared/feedback";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { SuggestionList } from "@/features/shared/suggestion-list";
 import i18next from "i18next";
+import { useSearchByUsernameQuery } from "@/api/queries";
+import { useDebounce } from "react-use";
 
 interface Props {
   username?: string;
@@ -21,10 +20,16 @@ export const SearchByUsername = ({ setUsername, excludeActiveUser, recent, usern
 
   const [prefilledUsername, setPrefilledUsername] = useState(username || "");
   const [usernameInput, setUsernameInput] = useState(username || "");
-  const [usernameData, setUsernameData] = useState<string[]>([]);
   const [isActiveUserSet, setIsActiveUserSet] = useState(false);
-  const [timer, setTimer] = useState<any>(null);
-  const [isUsernameDataLoading, setIsUsernameDataLoading] = useState(false);
+
+  const [query, setQuery] = useState("");
+
+  const { data: usernameData, isLoading: isUsernameDataLoading } = useSearchByUsernameQuery(
+    query,
+    !isActiveUserSet
+  );
+
+  useDebounce(() => setQuery(usernameInput), 500, [usernameInput]);
 
   useEffect(() => {
     if (activeUser && !excludeActiveUser) {
@@ -34,53 +39,11 @@ export const SearchByUsername = ({ setUsername, excludeActiveUser, recent, usern
     }
   }, [activeUser, excludeActiveUser, setUsername]);
 
-  const getUsernameData = useCallback(
-    async (query: string) => {
-      try {
-        const resp = await lookupAccounts(query, 5);
-        if (resp) {
-          setUsernameData(
-            resp.filter((item) => (excludeActiveUser ? item !== activeUser?.username : true))
-          );
-        }
-      } catch (e) {
-        error(...formatError(e));
-      } finally {
-        setIsUsernameDataLoading(false);
-      }
-    },
-    [activeUser?.username, excludeActiveUser]
-  );
-  const fetchUsernameData = useCallback(
-    (query: string) => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-
-      if (usernameInput === "" || isActiveUserSet) {
-        setIsActiveUserSet(false);
-        setIsUsernameDataLoading(false);
-        return;
-      }
-
-      setIsUsernameDataLoading(true);
-      setTimer(setTimeout(() => getUsernameData(query), 500));
-    },
-    [getUsernameData, isActiveUserSet, timer, usernameInput]
-  );
-
   useEffect(() => {
-    if (!usernameInput) {
-      setUsername("");
-      if (recent) {
-        setUsernameData(recent);
-      }
-    }
     if (usernameInput !== prefilledUsername) {
-      fetchUsernameData(usernameInput);
       setPrefilledUsername("");
     }
-  }, [fetchUsernameData, prefilledUsername, recent, setUsername, usernameInput]);
+  }, [prefilledUsername, usernameInput]);
 
   const suggestionProps = {
     renderer: (i: any) => {
@@ -99,7 +62,7 @@ export const SearchByUsername = ({ setUsername, excludeActiveUser, recent, usern
 
   return (
     <SuggestionList
-      items={usernameData}
+      items={usernameData ?? []}
       {...suggestionProps}
       header={!usernameInput ? i18next.t("transfer.recent-transfers") : ""}
     >
