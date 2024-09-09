@@ -22,7 +22,7 @@ export function ClientProviders(props: PropsWithChildren) {
     plugins: [new BugsnagPluginReact()]
   });
   BugsnagPerformance.start({ apiKey: "53c03fdd42cd699cb95f60abe77a5b19" });
-  const ErrorBoundary = Bugsnag.getPlugin("react").createErrorBoundary(React);
+  const ErrorBoundary = Bugsnag.getPlugin("react")!.createErrorBoundary(React);
 
   return (
     <ErrorBoundary>
