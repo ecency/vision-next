@@ -122,11 +122,13 @@ export function ChatsDirectMessages(props: Props) {
           ))}
         </div>
       ))}
-      <ForwardMessageDialog
-        message={forwardingMessage!!}
-        show={!!forwardingMessage}
-        setShow={() => setForwardingMessage(undefined)}
-      />
+      {forwardingMessage && (
+        <ForwardMessageDialog
+          message={forwardingMessage!!}
+          show={!!forwardingMessage}
+          setShow={() => setForwardingMessage(undefined)}
+        />
+      )}
     </div>
   );
 }
