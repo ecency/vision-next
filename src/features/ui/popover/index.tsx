@@ -56,7 +56,7 @@ export function Popover(props: (ShowProps | Props) & HTMLAttributes<HTMLDivEleme
 
   return (
     <div {...nativeProps} ref={setHost}>
-      {isMounted && !isSheet && (
+      {isMounted() && !isSheet && (
         <PopoverPopper
           host={host}
           setShow={setShow}
