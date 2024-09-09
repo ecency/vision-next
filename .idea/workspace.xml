@@ -4,13 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed build">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed referrals page opening">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/[...params]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/[...params]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/chat-channel-messages.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/chat-channel-messages.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/_components/chats-direct-messages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_components/chats-direct-messages/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/chats/_screens/chats.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/chats/_screens/chats.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/create-reply.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/create-reply.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/entry-reblog.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/entry-reblog.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/entry-vote.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/entry-vote.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/update-reply.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/update-reply.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-discussions-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-discussions-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer-reply.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer-reply.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/deck-items/deck-thread-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/deck-items/deck-thread-item.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/deck-threads-manager/deck-threads-column-manager.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/deck-threads-manager/deck-threads-column-manager.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/api/threads-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/api/threads-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/api/use-community-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/deck-threads-form/api/use-community-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/submit/_api/publish.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/submit/_api/publish.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/submit/_api/update.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/submit/_api/update.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/caches/entries-cache.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/caches/entries-cache.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/discussion/discussion-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/discussion/discussion-item.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/discussion/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/discussion/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -382,23 +394,7 @@
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
       <workItem from="1725905832826" duration="466000" />
-      <workItem from="1725906308423" duration="708000" />
-    </task>
-    <task id="LOCAL-00180" summary="Migrated hs token refresh endpoint">
-      <option name="closed" value="true" />
-      <created>1724704366617</created>
-      <option name="number" value="00180" />
-      <option name="presentableId" value="LOCAL-00180" />
-      <option name="project" value="LOCAL" />
-      <updated>1724704366617</updated>
-    </task>
-    <task id="LOCAL-00181" summary="Wrap notifications with new config">
-      <option name="closed" value="true" />
-      <created>1724705118626</created>
-      <option name="number" value="00181" />
-      <option name="presentableId" value="LOCAL-00181" />
-      <option name="project" value="LOCAL" />
-      <updated>1724705118626</updated>
+      <workItem from="1725906308423" duration="4997000" />
     </task>
     <task id="LOCAL-00182" summary="Wrap notifications with new config">
       <option name="closed" value="true" />
@@ -776,7 +772,23 @@
       <option name="project" value="LOCAL" />
       <updated>1725883426748</updated>
     </task>
-    <option name="localTasksCounter" value="229" />
+    <task id="LOCAL-00229" summary="Fixed chats channel opening">
+      <option name="closed" value="true" />
+      <created>1725907028188</created>
+      <option name="number" value="00229" />
+      <option name="presentableId" value="LOCAL-00229" />
+      <option name="project" value="LOCAL" />
+      <updated>1725907028189</updated>
+    </task>
+    <task id="LOCAL-00230" summary="Fixed referrals page opening">
+      <option name="closed" value="true" />
+      <created>1725907231289</created>
+      <option name="number" value="00230" />
+      <option name="presentableId" value="LOCAL-00230" />
+      <option name="project" value="LOCAL" />
+      <updated>1725907231289</updated>
+    </task>
+    <option name="localTasksCounter" value="231" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -797,8 +809,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed following and followers dialog window" />
-    <MESSAGE value="Fixed resource credits default value" />
     <MESSAGE value="Fixed auth screen logo source" />
     <MESSAGE value="Added loader for community loader" />
     <MESSAGE value="Fixed 500 error because of client" />
@@ -822,7 +832,9 @@
     <MESSAGE value="Fixed reblogging" />
     <MESSAGE value="Added bugsnag to the client side" />
     <MESSAGE value="Fixed build" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed build" />
+    <MESSAGE value="Fixed chats channel opening" />
+    <MESSAGE value="Fixed referrals page opening" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed referrals page opening" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

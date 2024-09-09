@@ -10,6 +10,13 @@ import { useGlobalStore } from "@/core/global-store";
 
 export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?: () => void) {
   const activeUser = useGlobalStore((state) => state.activeUser);
+
+  const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry ?? undefined);
+  const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(
+    entry ?? undefined
+  );
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -58,15 +65,15 @@ export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?:
         return;
       }
 
-      EcencyEntriesCacheManagement.addReply(entry, data);
-      EcencyEntriesCacheManagement.updateEntryQueryData([data]);
+      addReply(data);
+      updateEntryQueryData([data]);
 
       // remove reply draft
       ss.remove(`reply_draft_${entry.author}_${entry.permlink}`);
 
       if (entry.children === 0) {
         // Update parent comment.
-        EcencyEntriesCacheManagement.updateRepliesCount(entry, 1);
+        updateRepliesCount(1);
       }
       const previousReplies =
         queryClient.getQueryData<Entry[]>([

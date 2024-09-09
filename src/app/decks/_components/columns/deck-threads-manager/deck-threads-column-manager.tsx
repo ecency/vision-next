@@ -18,6 +18,7 @@ interface Props {
 
 export const DeckThreadsColumnManager = ({ children }: Props) => {
   const queryClient = useQueryClient();
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const fetch = async (hosts: string[], lastContainers?: ThreadItemEntry[]) => {
     let nextThreadItems: ThreadItemEntry[] = [];
@@ -39,7 +40,7 @@ export const DeckThreadsColumnManager = ({ children }: Props) => {
 
       if (response instanceof Array) {
         // Add entries to global cache
-        EcencyEntriesCacheManagement.updateEntryQueryData(response);
+        updateEntryQueryData(response);
 
         nextThreadItems = [...nextThreadItems, ...response];
       }

@@ -3,6 +3,7 @@ import * as bridgeApi from "../../api/bridge";
 import dmca from "@/dmca.json";
 import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
 export namespace EcencyEntriesCacheManagement {
   export function getEntryQueryByPath(author?: string, permlink?: string) {
@@ -12,8 +13,7 @@ export namespace EcencyEntriesCacheManagement {
         author && permlink ? makeEntryPath("", author!!, permlink!!) : "EMPTY"
       ],
       queryFn: () => bridgeApi.getPost(author, permlink),
-      enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink,
-      staleTime: Infinity
+      enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink
     });
   }
 
@@ -25,8 +25,7 @@ export namespace EcencyEntriesCacheManagement {
       ],
       queryFn: () => bridgeApi.getPost(initialEntry?.author, initialEntry?.permlink) as Promise<T>,
       initialData: initialEntry,
-      enabled: !!initialEntry,
-      staleTime: Infinity
+      enabled: !!initialEntry
     });
   }
 
@@ -41,41 +40,118 @@ export namespace EcencyEntriesCacheManagement {
     });
   }
 
-  export function addReply(entry: Entry | undefined, reply: Entry) {
-    return mutateEntryInstance(entry, (value) => ({
-      ...value,
-      children: value.children + 1,
-      replies: [reply, ...value.replies]
-    }));
+  export function useAddReply(initialEntry?: Entry) {
+    const qc = useQueryClient();
+
+    return {
+      addReply: (reply: Entry, entry = initialEntry) =>
+        mutateEntryInstance(
+          entry,
+          (value) => ({
+            ...value,
+            children: value.children + 1,
+            replies: [reply, ...value.replies]
+          }),
+          qc
+        )
+    };
   }
 
-  export function updateRepliesCount(entry: Entry, count: number) {
-    return mutateEntryInstance(entry, (value) => ({
-      ...value,
-      children: count
-    }));
+  export function useUpdateRepliesCount(initialEntry?: Entry) {
+    const qc = useQueryClient();
+
+    return {
+      updateRepliesCount: (count: number, entry = initialEntry) =>
+        mutateEntryInstance(
+          entry,
+          (value) => ({
+            ...value,
+            children: count
+          }),
+          qc
+        )
+    };
   }
 
-  export function updateVotes(entry: Entry, votes: EntryVote[], payout: number) {
-    return mutateEntryInstance(entry, (value) => ({
-      ...value,
-      active_votes: votes,
-      stats: { ...entry.stats, total_votes: votes.length, flag_weight: entry.stats.flag_weight },
-      total_votes: votes.length,
-      payout,
-      pending_payout_value: String(payout)
-    }));
+  export function useInvalidation(entry?: Entry) {
+    const qc = useQueryClient();
+    return {
+      invalidate: () =>
+        qc.invalidateQueries({
+          queryKey: [
+            QueryIdentifiers.ENTRY,
+            makeEntryPath("", entry?.author ?? "", entry?.permlink ?? "")
+          ]
+        })
+    };
   }
 
-  export function invalidate(entry: Entry) {
-    return getQueryClient().invalidateQueries({
-      queryKey: [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)]
-    });
+  export function useUpdateVotes(entry?: Entry) {
+    const qc = useQueryClient();
+    return {
+      update: (votes: EntryVote[], payout: number) =>
+        entry &&
+        mutateEntryInstance(
+          entry,
+          (value) => ({
+            ...value,
+            active_votes: votes,
+            stats: {
+              ...entry.stats,
+              total_votes: votes.length,
+              flag_weight: entry.stats.flag_weight
+            },
+            total_votes: votes.length,
+            payout,
+            pending_payout_value: String(payout)
+          }),
+          qc
+        )
+    };
   }
 
-  export function updateEntryQueryData(entries: Entry[]) {
+  export function useUpdateEntry() {
+    const qc = useQueryClient();
+
+    return {
+      updateEntryQueryData: (entries: Entry[]) =>
+        entries.forEach((entry) => {
+          qc.setQueryData<Entry>(
+            [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
+            () => {
+              const data = { ...entry };
+              if (
+                dmca.some((rx: string) => new RegExp(rx).test(`@${entry.author}/${entry.permlink}`))
+              ) {
+                data.body = "This post is not available due to a copyright/fraudulent claim.";
+                data.title = "";
+              }
+
+              return data;
+            }
+          );
+        })
+    };
+  }
+
+  export function useUpdateReblogsCount(entry: Entry) {
+    const qc = useQueryClient();
+    return {
+      update: (count: number) =>
+        mutateEntryInstance(
+          entry,
+          (value) => ({
+            ...value,
+            reblogs: count
+          }),
+          qc
+        )
+    };
+  }
+
+  function updateEntryQueryData(entries: Entry[], qc: QueryClient = getQueryClient()) {
     entries.forEach((entry) => {
-      getQueryClient().setQueryData<Entry>(
+      qc.setQueryData<Entry>(
         [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
         () => {
           const data = { ...entry };
@@ -92,24 +168,20 @@ export namespace EcencyEntriesCacheManagement {
     });
   }
 
-  export function updateReblogsCount(entry: Entry, count: number) {
-    console.log(entry, count);
-    return mutateEntryInstance(entry, (value) => {
-      value.reblogs = count;
-      return value;
-    });
-  }
-
-  function mutateEntryInstance(entry: Entry | undefined, callback: (value: Entry) => Entry) {
+  function mutateEntryInstance(
+    entry: Entry | undefined,
+    callback: (value: Entry) => Entry,
+    qc: QueryClient = getQueryClient()
+  ) {
     if (!entry) {
       throw new Error("Mutate entry instance – entry not provided");
     }
 
-    const actualEntryValue = getQueryClient().getQueryData<Entry>([
+    const actualEntryValue = qc.getQueryData<Entry>([
       QueryIdentifiers.ENTRY,
       makeEntryPath("", entry.author, entry.permlink)
     ]);
     const value = callback(actualEntryValue ?? entry);
-    return updateEntryQueryData([value]);
+    return updateEntryQueryData([value], qc);
   }
 }

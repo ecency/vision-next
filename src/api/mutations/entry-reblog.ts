@@ -10,7 +10,10 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 export function useEntryReblog(entry: Entry) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+
   const { mutateAsync: recordUserActivity } = useRecordUserActivity();
+
+  const { update: updateReblogsCount } = EcencyEntriesCacheManagement.useUpdateReblogsCount(entry);
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -36,10 +39,7 @@ export function useEntryReblog(entry: Entry) {
       isDelete
         ? info(i18next.t("entry-reblog.delete-success"))
         : success(i18next.t("entry-reblog.success"));
-      EcencyEntriesCacheManagement.updateReblogsCount(
-        entry,
-        (entry.reblogs ?? 0) + (isDelete ? -1 : 1)
-      );
+      updateReblogsCount((entry.reblogs ?? 0) + (isDelete ? -1 : 1));
       queryClient.setQueryData<BlogEntry[]>(
         [QueryIdentifiers.REBLOGS, activeUser?.username, 200],
         (data) => {

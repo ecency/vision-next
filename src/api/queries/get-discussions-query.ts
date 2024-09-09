@@ -4,7 +4,6 @@ import { bridgeApiCall } from "@/api/bridge";
 import { parseAsset } from "@/utils";
 import { SortOrder } from "@/enums";
 import { IdentifiableEntry } from "@/app/decks/_components/columns/deck-threads-manager";
-import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOrder) {
   const allPayout = (c: Entry) =>
@@ -89,9 +88,7 @@ export const getDiscussionsQuery = (entry: Entry, order: SortOrder, enabled: boo
         permlink: entry.permlink
       });
       if (response) {
-        const entries = Array.from(Object.values(response));
-        EcencyEntriesCacheManagement.updateEntryQueryData([...entries]);
-        return entries;
+        return Array.from(Object.values(response));
       }
       return [];
     },
@@ -112,8 +109,6 @@ export const getDiscussionsMapQuery = (entry: Entry | undefined, enabled: boolea
         }
       );
       if (response) {
-        const entries = Array.from(Object.values(response));
-        EcencyEntriesCacheManagement.updateEntryQueryData([...entries]);
         return response;
       }
       return {};

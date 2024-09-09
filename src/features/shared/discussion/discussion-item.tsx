@@ -60,6 +60,8 @@ export function DiscussionItem({
   const { data: mutedUsers } = getMutedUsersQuery(activeUser).useClientQuery();
   const { data: botsList } = getBotsQuery().useClientQuery();
 
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+
   const readMore = useMemo(() => (entry ? entry.children > 0 && entry.depth > 5 : false), [entry]);
   const showSubList = useMemo(
     () => (entry ? !readMore && entry.children > 0 : false),
@@ -266,7 +268,7 @@ export function DiscussionItem({
                 <MuteBtn
                   entry={entry}
                   community={community}
-                  onSuccess={(entry) => EcencyEntriesCacheManagement.updateEntryQueryData([entry])}
+                  onSuccess={(entry) => updateEntryQueryData([entry])}
                 />
               )}
 

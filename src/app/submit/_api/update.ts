@@ -16,6 +16,8 @@ export function useUpdateApi(onClear: () => void) {
   const { buildBody } = useThreeSpeakManager();
   const router = useRouter();
 
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+
   return useMutation({
     mutationKey: ["update"],
     mutationFn: async ({
@@ -74,7 +76,7 @@ export function useUpdateApi(onClear: () => void) {
           json_metadata: jsonMeta,
           updated: correctIsoDate(moment().toISOString())
         };
-        EcencyEntriesCacheManagement.updateEntryQueryData([entry]);
+        updateEntryQueryData([entry]);
 
         onClear();
         success(i18next.t("submit.updated"));
