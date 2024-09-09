@@ -74,7 +74,7 @@ export namespace EcencyEntriesCacheManagement {
   }
 
   export function updateEntryQueryData(entries: Entry[]) {
-    entries.forEach((entry) =>
+    entries.forEach((entry) => {
       getQueryClient().setQueryData<Entry>(
         [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
         () => {
@@ -88,8 +88,16 @@ export namespace EcencyEntriesCacheManagement {
 
           return data;
         }
-      )
-    );
+      );
+    });
+  }
+
+  export function updateReblogsCount(entry: Entry, count: number) {
+    console.log(entry, count);
+    return mutateEntryInstance(entry, (value) => {
+      value.reblogs = count;
+      return value;
+    });
   }
 
   function mutateEntryInstance(entry: Entry | undefined, callback: (value: Entry) => Entry) {

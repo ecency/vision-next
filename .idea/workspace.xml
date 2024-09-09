@@ -4,17 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed theme flickering on page load">
-      <change afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/workbox-9b4d2a02.js" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed dynamic props query fetching, added missed PWA scripts">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/dynamic-props-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/dynamic-props-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/deleted-post-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/deleted-post-screen.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/preferences/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/preferences/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-payout/entry-payout-detail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-payout/entry-payout-detail.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-vote-btn/entry-vote-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-vote-btn/entry-vote-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/entry-reblog.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/entry-reblog.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/caches/entries-cache.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/caches/entries-cache.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-reblog-btn/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-reblog-btn/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -385,14 +379,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00176" summary="Moved static pages under single group">
-      <option name="closed" value="true" />
-      <created>1724256675037</created>
-      <option name="number" value="00176" />
-      <option name="presentableId" value="LOCAL-00176" />
-      <option name="project" value="LOCAL" />
-      <updated>1724256675037</updated>
     </task>
     <task id="LOCAL-00177" summary="Fixed and improved layout of community and profile menus, improved layout of community cover image">
       <option name="closed" value="true" />
@@ -778,7 +764,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725874022255</updated>
     </task>
-    <option name="localTasksCounter" value="225" />
+    <task id="LOCAL-00225" summary="Fixed dynamic props query fetching, added missed PWA scripts">
+      <option name="closed" value="true" />
+      <created>1725878536145</created>
+      <option name="number" value="00225" />
+      <option name="presentableId" value="LOCAL-00225" />
+      <option name="project" value="LOCAL" />
+      <updated>1725878536145</updated>
+    </task>
+    <option name="localTasksCounter" value="226" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -799,7 +793,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed account reputation in entry page" />
     <MESSAGE value="Hiding default reputation in proposals page" />
     <MESSAGE value="Fixed balance fetching in gift modal" />
     <MESSAGE value="Fixed following and followers dialog window" />
@@ -824,7 +817,8 @@
     <MESSAGE value="Fixed similar entries component, unoptimized images" />
     <MESSAGE value="Fixed language selection after reloading" />
     <MESSAGE value="Fixed theme flickering on page load" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed theme flickering on page load" />
+    <MESSAGE value="Fixed dynamic props query fetching, added missed PWA scripts" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed dynamic props query fetching, added missed PWA scripts" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

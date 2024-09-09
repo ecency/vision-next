@@ -11,12 +11,14 @@ import { repeatSvg } from "@ui/svg";
 import { useGlobalStore } from "@/core/global-store";
 import { useEntryReblog } from "@/api/mutations";
 import { useGetReblogsQuery } from "@/api/queries";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 interface Props {
   entry: Entry;
 }
 
 export function EntryReblogBtn({ entry }: Props) {
+  const { data } = EcencyEntriesCacheManagement.getEntryQuery(entry).useClientQuery();
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const { data: reblogs } = useGetReblogsQuery(activeUser?.username);
@@ -25,9 +27,8 @@ export function EntryReblogBtn({ entry }: Props) {
   const reblogged = useMemo(
     () =>
       !!activeUser &&
-      reblogs?.find((x) => x.author === entry.author && x.permlink === entry.permlink) !==
-        undefined,
-    [activeUser, entry, reblogs]
+      reblogs?.find((x) => x.author === data?.author && x.permlink === data.permlink) !== undefined,
+    [activeUser, data, reblogs]
   );
 
   const content = (
@@ -43,7 +44,7 @@ export function EntryReblogBtn({ entry }: Props) {
       >
         <a className="inner-btn">
           {repeatSvg}
-          <span>{entry.reblogs && entry.reblogs > 0 ? entry.reblogs : ""}</span>
+          <span>{data?.reblogs && data.reblogs > 0 ? data.reblogs : ""}</span>
         </a>
       </Tooltip>
     </div>
