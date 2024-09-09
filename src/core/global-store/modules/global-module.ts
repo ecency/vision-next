@@ -16,7 +16,7 @@ export function createGlobalState() {
     currency: "hbd",
     currencyRate: 1,
     currencySymbol: "$",
-    lang: "en-US",
+    lang: ls.get("lang") || ls.get("current-language") || "en-US",
     searchIndexCount: 0,
     canUseWebp: false,
     hasKeyChain: false,
