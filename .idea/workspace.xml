@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed entry cache management">
-      <change afterPath="$PROJECT_DIR$/src/api/queries/get-search-by-username-query.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Improved search by username">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/search-by-username.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/search-by-username.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-boost-plus-prices-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-boost-plus-prices-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/points-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/points-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/boost/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/boost/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -381,15 +380,7 @@
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
       <workItem from="1725905832826" duration="466000" />
-      <workItem from="1725906308423" duration="5719000" />
-    </task>
-    <task id="LOCAL-00183" summary="Covered decks with config flags">
-      <option name="closed" value="true" />
-      <created>1724742335408</created>
-      <option name="number" value="00183" />
-      <option name="presentableId" value="LOCAL-00183" />
-      <option name="project" value="LOCAL" />
-      <updated>1724742335408</updated>
+      <workItem from="1725906308423" duration="6118000" />
     </task>
     <task id="LOCAL-00184" summary="Covered user record activity with config flags">
       <option name="closed" value="true" />
@@ -775,7 +766,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725911415433</updated>
     </task>
-    <option name="localTasksCounter" value="232" />
+    <task id="LOCAL-00232" summary="Improved search by username">
+      <option name="closed" value="true" />
+      <created>1725912158125</created>
+      <option name="number" value="00232" />
+      <option name="presentableId" value="LOCAL-00232" />
+      <option name="project" value="LOCAL" />
+      <updated>1725912158125</updated>
+    </task>
+    <option name="localTasksCounter" value="233" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,7 +795,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added loader for community loader" />
     <MESSAGE value="Fixed 500 error because of client" />
     <MESSAGE value="Fixed search bar layout" />
     <MESSAGE value="Fixed advanced search toggling" />
@@ -821,7 +819,8 @@
     <MESSAGE value="Fixed chats channel opening" />
     <MESSAGE value="Fixed referrals page opening" />
     <MESSAGE value="Fixed entry cache management" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed entry cache management" />
+    <MESSAGE value="Improved search by username" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improved search by username" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

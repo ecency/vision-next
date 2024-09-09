@@ -19,5 +19,6 @@ export const getBoostPlusPricesQuery = (activeUser: ActiveUser | null) =>
       );
       return response.data;
     },
-    initialData: []
+    staleTime: Infinity,
+    refetchOnMount: true
   });

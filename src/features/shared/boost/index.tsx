@@ -61,7 +61,7 @@ export function BoostDialog({ onHide }: Props) {
   );
 
   useEffect(() => {
-    if (prices!.length > 0) {
+    if (prices && prices.length > 0) {
       setDuration(prices![0].duration);
     }
   }, [prices]);
@@ -126,7 +126,7 @@ export function BoostDialog({ onHide }: Props) {
                       className={`balance-input ${balanceError ? "is-invalid" : ""}`}
                       plaintext={true}
                       readOnly={true}
-                      value={`${activeUserPoints?.points} POINTS`}
+                      value={`${activeUserPoints?.points ?? "0.000"} POINTS`}
                     />
                     {balanceError && <small className="pl-3 text-red">{balanceError}</small>}
                     {isAlreadyBoosted && (
