@@ -10,7 +10,7 @@ export function createGlobalState() {
   return {
     filter: AllFilter.hot,
     tag: "",
-    theme: Theme.day,
+    theme: Cookies.get("theme") || Theme.day,
     listStyle: ListStyle.row,
     intro: true,
     currency: "hbd",
