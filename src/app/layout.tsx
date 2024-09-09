@@ -1,14 +1,16 @@
 import "@/styles/style.scss";
 import Providers from "@/app/providers";
 import { HiringConsoleLog } from "@/app/_components";
-import { WebVitalsReporter } from "@/features/monitoring";
+import { cookies } from "next/headers";
+import { Theme } from "@/enums";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const theme = cookies().get("theme")?.value;
+
   return (
     <html lang="en">
-      <body>
+      <body className={theme === Theme.night ? "dark" : ""}>
         <HiringConsoleLog />
-        <WebVitalsReporter />
         <Providers>{children}</Providers>
         <div id="modal-overlay-container" />
         <div id="modal-dialog-container" />

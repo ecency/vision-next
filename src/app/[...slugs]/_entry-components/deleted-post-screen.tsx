@@ -81,7 +81,6 @@ export const DeletedPostScreen = ({ username, permlink, staticNav, deletedEntry 
                         json_metadata: { tags: deletedEntry.tags }
                       } as any
                     }
-                    display=""
                   />
                 </div>
               </div>

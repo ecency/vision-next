@@ -66,6 +66,7 @@ export function Preferences() {
     [setCurrency]
   );
 
+  // @ts-ignore
   return (
     <>
       <div className="preferences">
@@ -146,7 +147,11 @@ export function Preferences() {
               <div className="col-span-12 lg:col-span-6 xl:col-span-4">
                 <div className="mb-4">
                   <label>{i18next.t("preferences.theme")}</label>
-                  <FormControl value={Theme[defaultTheme]} type="select" onChange={themeChanged}>
+                  <FormControl
+                    value={Theme[defaultTheme as Theme]}
+                    type="select"
+                    onChange={themeChanged}
+                  >
                     <option value={Theme.system}>
                       {i18next.t("preferences.theme-system-default")}
                     </option>

@@ -4,8 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added loader to notifications">
-      <change beforePath="$PROJECT_DIR$/src/features/ui/popover/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/popover/index.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed reblogging">
+      <change afterPath="$PROJECT_DIR$/src/app/error.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/client-init.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-init.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/client-providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,7 +21,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feature/new-updates" />
+        <entry key="$PROJECT_DIR$" value="bugfix/review-issues" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -82,7 +87,7 @@
     "WebServerToolWindowFactoryState": "false",
     "code.cleanup.on.save": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "bugfix/review-issues-2",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
     "node.js.detected.package.eslint": "true",
@@ -104,7 +109,7 @@
     "project.structure.side.proportion": "0.0",
     "rearrange.code.on.save": "true",
     "settings.editor.selected.configurable": "actions.on.save",
-    "ts.external.directory.path": "/Users/fm/pjs/ecency-vision/node_modules/typescript/lib",
+    "ts.external.directory.path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -140,6 +145,19 @@
     </key>
   </component>
   <component name="RunManager" selected="npm.dev">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="ecency-vision-next" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="ecency-vision-next" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Comment.handles keyboard shortcuts" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
@@ -165,19 +183,6 @@
         <test-name value="submits comment when submit button is clicked" />
       </test-names>
       <method v="2" />
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="ecency-vision-next" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="ecency-vision-next" />
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
     </configuration>
     <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -376,54 +381,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00172" summary="Fixed index menu navigating between sections">
-      <option name="closed" value="true" />
-      <created>1724238485799</created>
-      <option name="number" value="00172" />
-      <option name="presentableId" value="LOCAL-00172" />
-      <option name="project" value="LOCAL" />
-      <updated>1724238485799</updated>
-    </task>
-    <task id="LOCAL-00173" summary="Fixed warnings and announcement links">
-      <option name="closed" value="true" />
-      <created>1724239523953</created>
-      <option name="number" value="00173" />
-      <option name="presentableId" value="LOCAL-00173" />
-      <option name="project" value="LOCAL" />
-      <updated>1724239523953</updated>
-    </task>
-    <task id="LOCAL-00174" summary="Fixed polls showing in entry">
-      <option name="closed" value="true" />
-      <created>1724254217509</created>
-      <option name="number" value="00174" />
-      <option name="presentableId" value="LOCAL-00174" />
-      <option name="project" value="LOCAL" />
-      <updated>1724254217509</updated>
-    </task>
-    <task id="LOCAL-00175" summary="Fixed notifications filters dropdown">
-      <option name="closed" value="true" />
-      <created>1724254944807</created>
-      <option name="number" value="00175" />
-      <option name="presentableId" value="LOCAL-00175" />
-      <option name="project" value="LOCAL" />
-      <updated>1724254944807</updated>
-    </task>
-    <task id="LOCAL-00176" summary="Moved static pages under single group">
-      <option name="closed" value="true" />
-      <created>1724256675037</created>
-      <option name="number" value="00176" />
-      <option name="presentableId" value="LOCAL-00176" />
-      <option name="project" value="LOCAL" />
-      <updated>1724256675037</updated>
-    </task>
-    <task id="LOCAL-00177" summary="Fixed and improved layout of community and profile menus, improved layout of community cover image">
-      <option name="closed" value="true" />
-      <created>1724320991532</created>
-      <option name="number" value="00177" />
-      <option name="presentableId" value="LOCAL-00177" />
-      <option name="project" value="LOCAL" />
-      <updated>1724320991532</updated>
     </task>
     <task id="LOCAL-00178" summary="Fixed community page filters">
       <option name="closed" value="true" />
@@ -769,7 +726,55 @@
       <option name="project" value="LOCAL" />
       <updated>1725831408699</updated>
     </task>
-    <option name="localTasksCounter" value="221" />
+    <task id="LOCAL-00221" summary="Fixed marking as read in notifications">
+      <option name="closed" value="true" />
+      <created>1725870158470</created>
+      <option name="number" value="00221" />
+      <option name="presentableId" value="LOCAL-00221" />
+      <option name="project" value="LOCAL" />
+      <updated>1725870158470</updated>
+    </task>
+    <task id="LOCAL-00222" summary="Fixed similar entries component, unoptimized images">
+      <option name="closed" value="true" />
+      <created>1725872871540</created>
+      <option name="number" value="00222" />
+      <option name="presentableId" value="LOCAL-00222" />
+      <option name="project" value="LOCAL" />
+      <updated>1725872871541</updated>
+    </task>
+    <task id="LOCAL-00223" summary="Fixed language selection after reloading">
+      <option name="closed" value="true" />
+      <created>1725873756595</created>
+      <option name="number" value="00223" />
+      <option name="presentableId" value="LOCAL-00223" />
+      <option name="project" value="LOCAL" />
+      <updated>1725873756595</updated>
+    </task>
+    <task id="LOCAL-00224" summary="Fixed theme flickering on page load">
+      <option name="closed" value="true" />
+      <created>1725874022255</created>
+      <option name="number" value="00224" />
+      <option name="presentableId" value="LOCAL-00224" />
+      <option name="project" value="LOCAL" />
+      <updated>1725874022255</updated>
+    </task>
+    <task id="LOCAL-00225" summary="Fixed dynamic props query fetching, added missed PWA scripts">
+      <option name="closed" value="true" />
+      <created>1725878536145</created>
+      <option name="number" value="00225" />
+      <option name="presentableId" value="LOCAL-00225" />
+      <option name="project" value="LOCAL" />
+      <updated>1725878536145</updated>
+    </task>
+    <task id="LOCAL-00226" summary="Fixed reblogging">
+      <option name="closed" value="true" />
+      <created>1725881168437</created>
+      <option name="number" value="00226" />
+      <option name="presentableId" value="LOCAL-00226" />
+      <option name="project" value="LOCAL" />
+      <updated>1725881168437</updated>
+    </task>
+    <option name="localTasksCounter" value="227" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -790,12 +795,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed profile menu extra items" />
-    <MESSAGE value="Fixed redirecting from short post URL to long" />
-    <MESSAGE value="Fixed transfer first step" />
-    <MESSAGE value="Fixed autocomplete styles" />
-    <MESSAGE value="Fixed account reputation in entry page" />
-    <MESSAGE value="Hiding default reputation in proposals page" />
     <MESSAGE value="Fixed balance fetching in gift modal" />
     <MESSAGE value="Fixed following and followers dialog window" />
     <MESSAGE value="Fixed resource credits default value" />
@@ -815,7 +814,13 @@
     <MESSAGE value="Fixed top text menu" />
     <MESSAGE value="Fixed redirecting to homepage" />
     <MESSAGE value="Added loader to notifications" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added loader to notifications" />
+    <MESSAGE value="Fixed marking as read in notifications" />
+    <MESSAGE value="Fixed similar entries component, unoptimized images" />
+    <MESSAGE value="Fixed language selection after reloading" />
+    <MESSAGE value="Fixed theme flickering on page load" />
+    <MESSAGE value="Fixed dynamic props query fetching, added missed PWA scripts" />
+    <MESSAGE value="Fixed reblogging" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed reblogging" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

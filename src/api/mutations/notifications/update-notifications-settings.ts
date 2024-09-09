@@ -22,7 +22,6 @@ export function useUpdateNotificationsSettings() {
       ),
     onError: (e) => error(...formatError(e)),
     onSuccess: (settings) => {
-      console.log("here", settings);
       success(i18next.t("preferences.updated"));
       getQueryClient().setQueryData(
         [QueryIdentifiers.NOTIFICATIONS_SETTINGS, activeUser?.username],

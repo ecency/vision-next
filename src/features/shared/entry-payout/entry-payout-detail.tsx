@@ -12,7 +12,7 @@ interface Props {
 export function EntryPayoutDetail({ entry }: Props) {
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
-  const { base, quote, hbdPrintRate } = dynamicProps!;
+  const { base, quote, hbdPrintRate } = dynamicProps ?? { base: 1, hbdPrintRate: 1, quote: 1 };
 
   const payoutDate = dateToFullRelative(entry.payout_at);
 

@@ -12,6 +12,8 @@ export const getDynamicPropsQuery = () =>
   EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.DYNAMIC_PROPS],
     refetchInterval: 60000,
+    staleTime: 60000,
+    refetchOnMount: true,
     queryFn: async (): Promise<DynamicProps> => {
       const globalDynamic = await getDynamicGlobalProperties();
       const feedHistory = await getFeedHistory();
@@ -50,20 +52,5 @@ export const getDynamicPropsQuery = () =>
         vestingRewardPercent,
         accountCreationFee
       };
-    },
-    initialData: {
-      hivePerMVests: 1,
-      base: 1,
-      quote: 1,
-      fundRecentClaims: 1,
-      fundRewardBalance: 1,
-      hbdPrintRate: 1,
-      hbdInterestRate: 1,
-      headBlock: 1,
-      totalVestingFund: 1,
-      totalVestingShares: 1,
-      virtualSupply: 1,
-      vestingRewardPercent: 1,
-      accountCreationFee: "3.000 HIVE"
     }
   });

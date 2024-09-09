@@ -147,7 +147,7 @@ export function NotificationListItem({
           >
             {!(notification as ApiMentionNotification).deck && notification.read === 0 && (
               <Tooltip content={i18next.t("notifications.mark-read")}>
-                <span onClick={markAsRead} className="mark-read" />
+                <span onClick={() => markAsRead()} className="mark-read" />
               </Tooltip>
             )}
           </div>
