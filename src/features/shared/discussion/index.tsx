@@ -34,6 +34,7 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
 
   const [visible, setVisible] = useState(false);
   const [order, setOrder] = useState(SortOrder.trending);
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const { isLoading, data } = getDiscussionsQuery(
     parent,
@@ -68,7 +69,7 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
   useEffect(() => setVisible(!!activeUser), [activeUser]);
 
   useEffect(() => {
-    EcencyEntriesCacheManagement.updateEntryQueryData(Array.from(Object.values(data ?? [])));
+    updateEntryQueryData(Array.from(Object.values(data ?? [])));
   }, [data]);
 
   const show = () => setVisible(true);

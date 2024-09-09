@@ -36,6 +36,7 @@ export const DeckThreadItemViewer = ({
   const { data: discussions } = getDiscussionsMapQuery(entry).useClientQuery();
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);
   const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(entry);
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const build = useCallback(
     (dataset: Record<string, IdentifiableEntry>) => {
@@ -80,7 +81,7 @@ export const DeckThreadItemViewer = ({
   }, [build, discussions, entry?.host]);
 
   useEffect(() => {
-    EcencyEntriesCacheManagement.updateEntryQueryData(Array.from(Object.values(discussions ?? {})));
+    updateEntryQueryData(Array.from(Object.values(discussions ?? {})));
   }, [discussions]);
 
   return (

@@ -28,7 +28,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   const [sort, setSort] = useState<SortOption>("hp");
 
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { data: votes, isLoading } = getProposalVotesQuery(
+  const { data: votes, isFetching } = getProposalVotesQuery(
     proposal.proposal_id,
     "",
     1000
@@ -71,8 +71,6 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
     [accounts, dynamicProps, searchText, sort]
   );
 
-  console.log(votes, voters);
-
   return (
     <Modal onHide={onHide} show={true} centered={true} size="lg" className="proposal-votes-dialog">
       <ModalHeader closeButton={true} className="items-center">
@@ -97,7 +95,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
         </FormControl>
       </div>
       <ModalBody>
-        {isLoading && <LinearProgress />}
+        {isFetching && <LinearProgress />}
 
         <div className="voters-list mb-4">
           <List grid={true} inline={true} defer={true}>
@@ -138,7 +136,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
               })
             ) : (
               <div className="user-info">
-                {isLoading ? i18next.t("proposals.searching") : i18next.t("proposals.no-results")}
+                {isFetching ? i18next.t("proposals.searching") : i18next.t("proposals.no-results")}
               </div>
             )}
           </List>

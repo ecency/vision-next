@@ -4,24 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed Boost+">
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/sign-transfer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/sign-transfer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/dynamic-props-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/dynamic-props-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/delegated-vesting/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/delegated-vesting/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive-engine/engine-tokens-estimated/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive-engine/engine-tokens-estimated/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive-engine/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive-engine/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-hive/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/deck-wallet-balance-column.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/deck-wallet-balance-column.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/onboard-friend/[...slugs]/_page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/onboard-friend/[...slugs]/_page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/proposals/_components/proposal-list-item/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/_components/proposal-list-item/index.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed dynamic props query, fixed proposals">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-vote-btn/entry-vote-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-vote-btn/entry-vote-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/transactions/transaction-row.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transactions/transaction-row.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-1.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/transfer-step-2.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/transfer/use-debounce-transfer-account-data.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/transfer/use-debounce-transfer-account-data.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/wallet-badge.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/wallet-badge.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/discussion/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/discussion/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -155,7 +143,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.dev">
+  <component name="RunManager" selected="npm.build">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ecency-vision-next" />
       <method v="2">
@@ -242,8 +230,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.dev" />
         <item itemvalue="npm.build" />
+        <item itemvalue="npm.dev" />
         <item itemvalue="npm.test" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
         <item itemvalue="Jest.Comment.handles keyboard shortcuts" />
@@ -393,15 +381,7 @@
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
       <workItem from="1725905832826" duration="466000" />
-      <workItem from="1725906308423" duration="6430000" />
-    </task>
-    <task id="LOCAL-00185" summary="Covered left files with use private with configuration">
-      <option name="closed" value="true" />
-      <created>1724827451587</created>
-      <option name="number" value="00185" />
-      <option name="presentableId" value="LOCAL-00185" />
-      <option name="project" value="LOCAL" />
-      <updated>1724827451588</updated>
+      <workItem from="1725906308423" duration="6978000" />
     </task>
     <task id="LOCAL-00186" summary="Covered left files with use private with configuration">
       <option name="closed" value="true" />
@@ -787,7 +767,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725912475538</updated>
     </task>
-    <option name="localTasksCounter" value="234" />
+    <task id="LOCAL-00234" summary="Fixed dynamic props query, fixed proposals">
+      <option name="closed" value="true" />
+      <created>1725912937075</created>
+      <option name="number" value="00234" />
+      <option name="presentableId" value="LOCAL-00234" />
+      <option name="project" value="LOCAL" />
+      <updated>1725912937075</updated>
+    </task>
+    <option name="localTasksCounter" value="235" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -808,7 +796,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed search bar layout" />
     <MESSAGE value="Fixed advanced search toggling" />
     <MESSAGE value="Fixed login button showing in mobile layout" />
     <MESSAGE value="Fixed pinned entries" />
@@ -833,7 +820,8 @@
     <MESSAGE value="Fixed entry cache management" />
     <MESSAGE value="Improved search by username" />
     <MESSAGE value="Fixed Boost+" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed Boost+" />
+    <MESSAGE value="Fixed dynamic props query, fixed proposals" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed dynamic props query, fixed proposals" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
