@@ -25,14 +25,14 @@ export function PopoverPopper({
   const popoverContentRef = useRef<HTMLDivElement | null>(null);
   const [popperElement, setPopperElement] = useState<any>();
   const popper = usePopper(host, popperElement, {
-    placement: placement ?? "top"
+    placement: placement ?? "auto"
   });
 
   useClickAway(popoverContentRef, () => show && setShow(false));
 
   return (
     <div
-      className="z-[1060]"
+      className="z-[1060] -top-4 -left-4"
       style={popper.styles.popper}
       {...popper.attributes.popper}
       ref={setPopperElement}

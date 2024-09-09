@@ -550,7 +550,7 @@ export function WalletHive({ account }: Props) {
                           </DropdownItem>
                         </>
                       )}
-                      {activeUser && (
+                      {activeUser && !isMyPage && (
                         <DropdownItem
                           onClick={() => {
                             setTransfer(true);

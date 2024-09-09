@@ -132,6 +132,13 @@ export namespace MetadataGenerator {
     };
   }
 
+  function buildForFeed(username: string): Metadata {
+    return {
+      title: `@${username}'s community feed on decentralized web`,
+      description: i18next.t("entry-index.description-user-feed", { u: username })
+    };
+  }
+
   export async function build(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
     await initI18next();
     const page = PageDetector.detect(props);
@@ -156,6 +163,8 @@ export namespace MetadataGenerator {
           props.params.slugs[0].replace("%40", "").replace("@", ""),
           props.params.slugs[1]
         );
+      case "feed":
+        return buildForFeed(props.params.slugs[0].replace("%40", ""));
     }
 
     return {};

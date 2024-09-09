@@ -18,7 +18,6 @@ export const ProfilePopover = ({ entry }: { entry: Entry }) => {
         useMobileSheet={true}
         placement="auto"
         anchorParent={true}
-        stopPropagationForChild={true}
         customClassName="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-xl w-[320px]"
       >
         <ProfilePreview username={author} />

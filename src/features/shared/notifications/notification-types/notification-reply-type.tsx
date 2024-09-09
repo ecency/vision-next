@@ -36,10 +36,11 @@ export function NotificationReplyType({
               author: notification.parent_author,
               permlink: notification.parent_permlink
             }}
-            afterClick={afterClick}
             target={openLinksInNewTab ? "_blank" : undefined}
           >
-            <div className="post-link">{notification.parent_permlink}</div>
+            <div className="post-link" onClick={afterClick}>
+              {notification.parent_permlink}
+            </div>
           </EntryLink>
         )}
       </div>
@@ -55,10 +56,11 @@ export function NotificationReplyType({
               author: notification.author,
               permlink: notification.permlink
             }}
-            afterClick={afterClick}
             target={openLinksInNewTab ? "_blank" : undefined}
           >
-            <div className="post-link">{postBodySummary(notification.body, 100)}</div>
+            <div className="post-link" onClick={afterClick}>
+              {postBodySummary(notification.body, 100)}
+            </div>
           </EntryLink>
         )}
       </div>

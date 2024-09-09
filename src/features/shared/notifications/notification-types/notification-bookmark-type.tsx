@@ -36,10 +36,11 @@ export function NotificationBookmarkType({
               author: notification.author,
               permlink: notification.permlink
             }}
-            afterClick={afterClick}
             target={openLinksInNewTab ? "_blank" : undefined}
           >
-            <div className="post-link">{notification.permlink}</div>
+            <div className="post-link" onClick={afterClick}>
+              {notification.permlink}
+            </div>
           </EntryLink>
         )}
       </div>
