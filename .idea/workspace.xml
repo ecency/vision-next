@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed language selection after reloading">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed theme flickering on page load">
+      <change afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/workbox-9b4d2a02.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/global-store/modules/global-module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/modules/global-module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/dynamic-props-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/dynamic-props-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/deleted-post-screen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/deleted-post-screen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/preferences/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/preferences/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-payout/entry-payout-detail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-payout/entry-payout-detail.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-vote-btn/entry-vote-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-vote-btn/entry-vote-dialog.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -378,14 +385,6 @@
       <workItem from="1725175109524" duration="13952000" />
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
-    </task>
-    <task id="LOCAL-00175" summary="Fixed notifications filters dropdown">
-      <option name="closed" value="true" />
-      <created>1724254944807</created>
-      <option name="number" value="00175" />
-      <option name="presentableId" value="LOCAL-00175" />
-      <option name="project" value="LOCAL" />
-      <updated>1724254944807</updated>
     </task>
     <task id="LOCAL-00176" summary="Moved static pages under single group">
       <option name="closed" value="true" />
@@ -771,7 +770,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725873756595</updated>
     </task>
-    <option name="localTasksCounter" value="224" />
+    <task id="LOCAL-00224" summary="Fixed theme flickering on page load">
+      <option name="closed" value="true" />
+      <created>1725874022255</created>
+      <option name="number" value="00224" />
+      <option name="presentableId" value="LOCAL-00224" />
+      <option name="project" value="LOCAL" />
+      <updated>1725874022255</updated>
+    </task>
+    <option name="localTasksCounter" value="225" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -792,7 +799,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed autocomplete styles" />
     <MESSAGE value="Fixed account reputation in entry page" />
     <MESSAGE value="Hiding default reputation in proposals page" />
     <MESSAGE value="Fixed balance fetching in gift modal" />
@@ -817,7 +823,8 @@
     <MESSAGE value="Fixed marking as read in notifications" />
     <MESSAGE value="Fixed similar entries component, unoptimized images" />
     <MESSAGE value="Fixed language selection after reloading" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed language selection after reloading" />
+    <MESSAGE value="Fixed theme flickering on page load" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed theme flickering on page load" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

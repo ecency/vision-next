@@ -17,12 +17,7 @@ import {
   WalletHiveEngine,
   WalletSpk
 } from "@/app/[...slugs]/_profile-components";
-import {
-  getAccountFullQuery,
-  getDynamicPropsQuery,
-  getSearchApiQuery,
-  prefetchGetPostsFeedQuery
-} from "@/api/queries";
+import { getAccountFullQuery, getSearchApiQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
 import { ProfilePermissions } from "@/app/[...slugs]/_profile-components/profile-permissions";
 import { ProfileEntriesLayout } from "@/app/[...slugs]/_profile-components/profile-entries-layout";
@@ -43,7 +38,6 @@ export async function ProfilePage({
 }: Props) {
   const account = await getAccountFullQuery(username).prefetch();
   await prefetchGetPostsFeedQuery(section, `@${username}`);
-  await getDynamicPropsQuery().prefetch();
   await EcencyEntriesCacheManagement.getEntryQueryByPath(
     username,
     account?.profile.pinned

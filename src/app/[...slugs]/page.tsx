@@ -8,6 +8,7 @@ import { EntryPage } from "@/app/[...slugs]/_entry-page";
 import { EntryEditPage } from "@/app/[...slugs]/_entry-edit-page";
 import { Metadata, ResolvingMetadata } from "next";
 import { MetadataGenerator, PageDetector } from "@/app/[...slugs]/_utils";
+import { getDynamicPropsQuery } from "@/api/queries";
 
 interface Props {
   params: { slugs: string[] };
@@ -18,8 +19,12 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   return MetadataGenerator.build(props, parent);
 }
 
-export default function FilteredOrCategorizedPage({ params: { slugs }, searchParams }: Props) {
+export default async function FilteredOrCategorizedPage({
+  params: { slugs },
+  searchParams
+}: Props) {
   const page = PageDetector.detect({ params: { slugs } });
+  await getDynamicPropsQuery().prefetch();
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
