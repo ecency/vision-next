@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Animated notifications list, improved notifications layout, fixed notifications filtering">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-card/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-card/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-menu/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-menu/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/ui/dropdown/dropdown-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/dropdown/dropdown-item.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme">
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -382,15 +379,7 @@
       <workItem from="1725905832826" duration="466000" />
       <workItem from="1725906308423" duration="7297000" />
       <workItem from="1725960993392" duration="6345000" />
-      <workItem from="1725970077150" duration="8984000" />
-    </task>
-    <task id="LOCAL-00195" summary="Fixed NPEs">
-      <option name="closed" value="true" />
-      <created>1725177495574</created>
-      <option name="number" value="00195" />
-      <option name="presentableId" value="LOCAL-00195" />
-      <option name="project" value="LOCAL" />
-      <updated>1725177495574</updated>
+      <workItem from="1725970077150" duration="9107000" />
     </task>
     <task id="LOCAL-00196" summary="Fixed profile menu extra items">
       <option name="closed" value="true" />
@@ -776,7 +765,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725985382653</updated>
     </task>
-    <option name="localTasksCounter" value="244" />
+    <task id="LOCAL-00244" summary="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme">
+      <option name="closed" value="true" />
+      <created>1725985999066</created>
+      <option name="number" value="00244" />
+      <option name="presentableId" value="LOCAL-00244" />
+      <option name="project" value="LOCAL" />
+      <updated>1725985999066</updated>
+    </task>
+    <option name="localTasksCounter" value="245" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -797,7 +794,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed double transfer option" />
     <MESSAGE value="Fixed entry page author information showing" />
     <MESSAGE value="Fixed top text menu" />
     <MESSAGE value="Fixed redirecting to homepage" />
@@ -822,7 +818,8 @@
     <MESSAGE value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
     <MESSAGE value="Fixed similar entries routing, improved similar entries layout and design" />
     <MESSAGE value="Animated notifications list, improved notifications layout, fixed notifications filtering" />
-    <option name="LAST_COMMIT_MESSAGE" value="Animated notifications list, improved notifications layout, fixed notifications filtering" />
+    <MESSAGE value="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme" />
+    <option name="LAST_COMMIT_MESSAGE" value="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
