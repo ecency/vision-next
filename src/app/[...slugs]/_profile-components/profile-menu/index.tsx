@@ -10,6 +10,7 @@ import { kebabMenuHorizontalSvg } from "@ui/svg";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { Button } from "@ui/button";
 import { PageMenu, PageMenuItems, PageMenuLink, PageMenuMobileDropdown } from "@/features/ui";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   username: string;
@@ -19,14 +20,39 @@ interface Props {
 export function ProfileMenu({ username, section }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const kebabMenuItems = ["trail", "replies"]
-    .map((x) => ({
-      label: i18next.t(`profile.section-${x}`),
-      href: `/@${username}/${x}`,
-      selected: section === x,
-      id: x
-    }))
-    .filter((item) => !item.selected);
+  const kebabMenuItems = [
+    ...["trail", "replies"]
+      .map((x) => ({
+        label: i18next.t(`profile.section-${x}`),
+        href: `/@${username}/${x}`,
+        selected: section === x,
+        id: x
+      }))
+      .filter((item) => !item.selected),
+    {
+      label: i18next.t("profile.witnesses"),
+      href: "/witnesses",
+      selected: false,
+      id: "witnesses"
+    },
+    {
+      label: i18next.t("profile.proposals"),
+      href: "/proposals",
+      selected: false,
+      id: "proposals"
+    },
+    ...EcencyConfigManager.composeConditionals(
+      EcencyConfigManager.withConditional(
+        (config) => config.visionFeatures.referrals.enabled,
+        () => ({
+          label: i18next.t("profile.referrals"),
+          href: `/@${username}/referrals`,
+          selected: section === "referrals",
+          id: "referrals"
+        })
+      )
+    )
+  ];
 
   const menuItems = [
     ...[ProfileFilter.blog, ProfileFilter.posts, ProfileFilter.comments].map((x) => {
