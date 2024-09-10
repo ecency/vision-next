@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { DeckThreadItemSkeleton, ThreadItem } from "../deck-items";
 import { IdentifiableEntry } from "../deck-threads-manager";
 import { DeckThreadsForm } from "../../deck-threads-form";
@@ -34,6 +34,9 @@ export const DeckThreadItemViewer = ({
   const isMounted = useMounted();
 
   const { data: discussions } = getDiscussionsMapQuery(entry).useClientQuery();
+  const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);
+  const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(entry);
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const build = useCallback(
     (dataset: Record<string, IdentifiableEntry>) => {
@@ -76,6 +79,10 @@ export const DeckThreadItemViewer = ({
 
     return build(tempResponse);
   }, [build, discussions, entry?.host]);
+
+  useEffect(() => {
+    updateEntryQueryData(Array.from(Object.values(discussions ?? {})));
+  }, [discussions]);
 
   return (
     <div
@@ -121,7 +128,7 @@ export const DeckThreadItemViewer = ({
           if (data) {
             addReplyToDiscussionsList(entry!, reply);
             // Update entry in global cache
-            EcencyEntriesCacheManagement.addReply(entry!, reply);
+            addReply(reply);
           }
         }}
       />
@@ -134,9 +141,7 @@ export const DeckThreadItemViewer = ({
                 key={reply.post_id}
                 entry={reply as IdentifiableEntry}
                 parentEntry={entry!}
-                incrementParentEntryCount={() =>
-                  EcencyEntriesCacheManagement.updateRepliesCount(entry!, entry!.children + 1)
-                }
+                incrementParentEntryCount={() => updateRepliesCount(entry!.children + 1)}
               />
             ))}
             {data.length === 0 && (

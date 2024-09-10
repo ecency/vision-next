@@ -5,9 +5,12 @@ import { CommentOptions, Entry, MetaData } from "@/entities";
 import { comment, formatError } from "@/api/operations";
 import { error } from "@/features/shared";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import useUpdateEntry = EcencyEntriesCacheManagement.useUpdateEntry;
 
 export function useUpdateReply(entry?: Entry | null, onSuccess?: () => void) {
   const activeUser = useGlobalStore((state) => state.activeUser);
+
+  const { updateEntryQueryData } = useUpdateEntry();
 
   return useMutation({
     mutationKey: ["reply-update", activeUser?.username, entry?.author, entry?.permlink],
@@ -48,7 +51,7 @@ export function useUpdateReply(entry?: Entry | null, onSuccess?: () => void) {
         return;
       }
 
-      EcencyEntriesCacheManagement.updateEntryQueryData([data]);
+      updateEntryQueryData([data]);
 
       // remove reply draft
       ss.remove(`reply_draft_${entry.author}_${entry.permlink}`);

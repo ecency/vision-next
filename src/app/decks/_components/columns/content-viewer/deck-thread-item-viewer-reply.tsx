@@ -21,6 +21,8 @@ export const DeckThreadItemViewerReply = ({
   incrementParentEntryCount
 }: Props) => {
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+  const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);
+  const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(entry);
 
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -47,7 +49,7 @@ export const DeckThreadItemViewerReply = ({
           replySource={entry}
           onSuccess={(reply) => {
             // Update entry in global cache
-            EcencyEntriesCacheManagement.addReply(entry, reply);
+            addReply(reply);
             incrementParentEntryCount();
           }}
         />
@@ -59,12 +61,7 @@ export const DeckThreadItemViewerReply = ({
               key={reply.post_id}
               entry={reply}
               parentEntry={entry}
-              incrementParentEntryCount={() =>
-                EcencyEntriesCacheManagement.updateRepliesCount(
-                  parentEntry,
-                  parentEntry.children + 1
-                )
-              }
+              incrementParentEntryCount={() => updateRepliesCount(parentEntry.children + 1)}
             />
           ))}
         </div>

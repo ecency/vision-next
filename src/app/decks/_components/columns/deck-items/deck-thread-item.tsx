@@ -59,9 +59,10 @@ export const ThreadItem = ({
   const [intervalStarted, setIntervalStarted] = useState(false);
 
   const poll = useEntryPollExtractor(entry);
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   useEntryChecking(entry, intervalStarted, (nextEntry) => {
-    EcencyEntriesCacheManagement.updateEntryQueryData([
+    updateEntryQueryData([
       { ...nextEntry, host: initialEntry.host, container: initialEntry.container } as Entry
     ]);
     setIntervalStarted(false);

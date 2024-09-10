@@ -36,9 +36,9 @@ export const getPointsQuery = (username?: string, filter = 0) => {
           transactions
         } as const;
       },
-      initialData: DEFAULT,
-      enabled: !!username,
-      retryDelay: 30000
+      staleTime: 30000,
+      refetchOnMount: true,
+      enabled: !!username
     }
   );
 };

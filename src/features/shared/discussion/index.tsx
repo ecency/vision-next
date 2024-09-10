@@ -17,6 +17,7 @@ import { LinearProgress, LoginRequired } from "@/features/shared";
 import { getBotsQuery } from "@/api/queries";
 import { SortOrder } from "@/enums";
 import { getDiscussionsQuery } from "@/api/queries/get-discussions-query";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 setProxyBase(defaults.imageServer);
 
@@ -33,6 +34,7 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
 
   const [visible, setVisible] = useState(false);
   const [order, setOrder] = useState(SortOrder.trending);
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const { isLoading, data } = getDiscussionsQuery(
     parent,
@@ -65,6 +67,10 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
     }
   }, [isRawContent, previousIsRawContent]);
   useEffect(() => setVisible(!!activeUser), [activeUser]);
+
+  useEffect(() => {
+    updateEntryQueryData(Array.from(Object.values(data ?? [])));
+  }, [data]);
 
   const show = () => setVisible(true);
 

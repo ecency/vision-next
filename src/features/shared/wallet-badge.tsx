@@ -7,7 +7,7 @@ import Link from "next/link";
 import { creditCardSvg } from "@ui/svg";
 import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 
 export const WalletBadge = ({ icon }: { icon: ReactNode }) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -18,7 +18,9 @@ export const WalletBadge = ({ icon }: { icon: ReactNode }) => {
 
   useEffect(() => {
     if (activeUser?.data?.__loaded) {
-      setHasUnclaimedRewards(new HiveWallet(activeUser.data, dynamicProps!).hasUnclaimedRewards);
+      setHasUnclaimedRewards(
+        new HiveWallet(activeUser.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hasUnclaimedRewards
+      );
     }
   }, [activeUser, dynamicProps]);
   return (

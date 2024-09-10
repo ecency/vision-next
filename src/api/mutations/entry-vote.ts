@@ -1,14 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { formatError, vote } from "@/api/operations";
 import { error } from "@/features/shared";
-import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 export function useEntryVote(entry?: Entry) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+
+  const { invalidate } = EcencyEntriesCacheManagement.useInvalidation(entry);
+  const { update: updateVotes } = EcencyEntriesCacheManagement.useUpdateVotes(entry);
+  const qc = useQueryClient();
 
   return useMutation({
     mutationKey: ["entryVote", entry?.author, entry?.permlink],
@@ -22,7 +26,7 @@ export function useEntryVote(entry?: Entry) {
       }
 
       await vote(activeUser?.username, entry.author, entry.permlink, weight);
-      await updateActiveUser(); // refresh voting power
+      updateActiveUser(); // refresh voting power
 
       return [
         estimated,
@@ -41,12 +45,12 @@ export function useEntryVote(entry?: Entry) {
 
       const newPayout = entry.payout + estimated;
       if (entry.active_votes) {
-        EcencyEntriesCacheManagement.updateVotes(entry, [...votes], newPayout);
+        updateVotes([...votes], newPayout);
       } else {
-        EcencyEntriesCacheManagement.invalidate(entry);
+        invalidate();
       }
 
-      getQueryClient().invalidateQueries({
+      qc.invalidateQueries({
         queryKey: [QueryIdentifiers.ENTRY_ACTIVE_VOTES, entry!.author, entry!.permlink]
       });
     },

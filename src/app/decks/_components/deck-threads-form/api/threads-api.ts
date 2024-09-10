@@ -13,6 +13,9 @@ export function useThreadsApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const { activePoll } = useContext(PollsContext);
 
+  const { addReply } = EcencyEntriesCacheManagement.useAddReply();
+  const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount();
+
   const request = async (entry: Entry, raw: string, editingEntry?: ThreadItemEntry) => {
     if (!activeUser || !activeUser.data.__loaded) {
       throw new Error("No user");
@@ -45,7 +48,7 @@ export function useThreadsApi() {
     });
 
     // add new reply to store
-    EcencyEntriesCacheManagement.addReply(entry, nReply);
+    addReply(nReply, entry);
 
     if (entry.children === 0) {
       // Activate discussion [section] with first comment.
@@ -53,7 +56,7 @@ export function useThreadsApi() {
         ...entry,
         children: 1
       };
-      EcencyEntriesCacheManagement.updateRepliesCount(entry, 1);
+      updateRepliesCount(1, entry);
     }
 
     return nReply;

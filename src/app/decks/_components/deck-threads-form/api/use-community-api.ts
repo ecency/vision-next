@@ -11,6 +11,8 @@ export function useCommunityApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const { activePoll } = useContext(PollsContext);
 
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+
   const request = async (host: string, raw: string, editingEntry?: Entry) => {
     if (!activeUser || !activeUser.data.__loaded) {
       throw new Error("No user");
@@ -56,7 +58,7 @@ export function useCommunityApi() {
       max_accepted_payout: options.max_accepted_payout,
       percent_hbd: options.percent_hbd
     };
-    EcencyEntriesCacheManagement.updateEntryQueryData([entry]);
+    updateEntryQueryData([entry]);
 
     return entry;
   };

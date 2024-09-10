@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { getMetrics } from "@/api/hive-engine";
 import i18next from "i18next";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 
 export const EngineTokensEstimated = (props: any) => {
   const { tokens: userTokens } = props;
@@ -12,7 +12,8 @@ export const EngineTokensEstimated = (props: any) => {
   const getEstimatedUsdValue = useCallback(async () => {
     const AllMarketTokens = await getMetrics();
 
-    const pricePerHive = dynamicProps!.base / dynamicProps!.quote;
+    const pricePerHive =
+      (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base / (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).quote;
 
     let mappedBalanceMetrics = userTokens.map((item: any) => {
       let eachMetric = AllMarketTokens.find((m: any) => m.symbol === item.symbol);

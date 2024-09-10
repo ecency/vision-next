@@ -3,12 +3,18 @@ import { ChatsScreen } from "@/app/chats/_screens";
 
 export const dynamic = "force-dynamic";
 
-export default function Chats() {
+interface Props {
+  params: {
+    params: string[];
+  };
+}
+
+export default function Chats({ params }: Props) {
   return (
     <>
       <Feedback />
       <Navbar />
-      <ChatsScreen />
+      <ChatsScreen params={params.params ?? []} />
     </>
   );
 }

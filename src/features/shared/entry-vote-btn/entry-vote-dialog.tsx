@@ -10,7 +10,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { InputVote } from "@ui/input";
 import { parseAsset } from "@/utils";
 import { votingPower } from "@/api/hive";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { Account, Entry } from "@/entities";
 import { Spinner } from "@ui/spinner";
 
@@ -126,7 +126,8 @@ export function EntryVoteDialog({
       return 0;
     }
 
-    const { fundRecentClaims, fundRewardBalance, base, quote } = dynamicProps!;
+    const { fundRecentClaims, fundRewardBalance, base, quote } =
+      dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
     const { data: account } = activeUser;
 
     if (!account.__loaded) {

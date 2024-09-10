@@ -7,7 +7,7 @@ import React, { useMemo } from "react";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { useGlobalStore } from "@/core/global-store";
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 
 interface Props {
   titleLngKey: string;
@@ -48,7 +48,7 @@ export function TransferStep2({ titleLngKey }: Props) {
           </div>
           {asset === "HP" && (
             <div className="amount-vests">
-              {hpToVests(Number(amount), dynamicProps!.hivePerMVests)}
+              {hpToVests(Number(amount), (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests)}
             </div>
           )}
           {memo && <div className="memo">{memo}</div>}

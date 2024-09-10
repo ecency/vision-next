@@ -34,6 +34,7 @@ export function usePublishApi(onClear: () => void) {
   const { videos, isNsfw, buildBody } = useThreeSpeakManager();
 
   const { clearAll } = usePollsCreationManagement();
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   return useMutation({
     mutationKey: ["publish"],
@@ -152,7 +153,7 @@ export function usePublishApi(onClear: () => void) {
           max_accepted_payout: options.max_accepted_payout,
           percent_hbd: options.percent_hbd
         };
-        EcencyEntriesCacheManagement.updateEntryQueryData([entry]);
+        updateEntryQueryData([entry]);
 
         success(i18next.t("submit.published"));
         onClear();

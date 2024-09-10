@@ -37,7 +37,7 @@ import {
   createAccountWithCreditKey,
   delegateRC
 } from "@/api/operations";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { onboardEmail } from "@/api/private-api";
 import { generatePassword, getPrivateKeys } from "@/utils/onBoard-helper";
 
@@ -296,7 +296,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
             {
               username: formatUsername(decodedInfo!.username),
               pub_keys: decodedInfo?.pubkeys,
-              fee: dynamicProps!.accountCreationFee
+              fee: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).accountCreationFee
             },
             activeUser?.username
           );
@@ -354,7 +354,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
             {
               username: formatUsername(decodedInfo!.username),
               pub_keys: decodedInfo?.pubkeys,
-              fee: dynamicProps!.accountCreationFee
+              fee: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).accountCreationFee
             },
             activeUser?.username,
             key
@@ -420,7 +420,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
             {
               username: formatUsername(decodedInfo!.username),
               pub_keys: decodedInfo?.pubkeys,
-              fee: dynamicProps!.accountCreationFee
+              fee: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).accountCreationFee
             },
             activeUser?.username,
             hashedInfo

@@ -86,7 +86,8 @@ export enum QueryIdentifiers {
   GET_FOLLOWING = "get-following",
   HIVE_HBD_STATS = "hive-hbd-stats",
   GET_ORDER_BOOK = "get-order-book",
-  SIMILAR_ENTRIES = "similar-entries"
+  SIMILAR_ENTRIES = "similar-entries",
+  SEARCH_BY_USERNAME = "search-by-username"
 }
 
 export function makeQueryClient() {
@@ -104,13 +105,14 @@ export function makeQueryClient() {
   });
 }
 
-let browserQueryClient: QueryClient | undefined = undefined;
+export let BROWSER_QUERY_CLIENT: QueryClient | undefined = undefined;
+
+export function setBrowserQueryClient(queryClient: QueryClient) {
+  BROWSER_QUERY_CLIENT = queryClient;
+}
 
 export const getQueryClient = isServer
   ? cache(() => makeQueryClient())
-  : () => {
-      if (!browserQueryClient) browserQueryClient = makeQueryClient();
-      return browserQueryClient;
-    };
+  : () => BROWSER_QUERY_CLIENT!;
 
 export * from "./ecency-queries-manager";

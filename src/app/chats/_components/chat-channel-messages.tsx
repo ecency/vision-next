@@ -172,11 +172,13 @@ export function ChatsChannelMessages({ publicMessages, currentChannel, isPage }:
           </div>
         ))}
 
-        <ForwardMessageDialog
-          message={forwardingMessage!!}
-          show={!!forwardingMessage}
-          setShow={() => setForwardingMessage(undefined)}
-        />
+        {forwardingMessage && (
+          <ForwardMessageDialog
+            message={forwardingMessage!!}
+            show={!!forwardingMessage}
+            setShow={() => setForwardingMessage(undefined)}
+          />
+        )}
       </div>
     </>
   );

@@ -7,7 +7,11 @@ import i18next from "i18next";
 import { Pagination, Tooltip } from "@/features/ui";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 import { KeyOrHotDialog, LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
-import { getDynamicPropsQuery, getVestingDelegationsQuery } from "@/api/queries";
+import {
+  DEFAULT_DYNAMIC_PROPS,
+  getDynamicPropsQuery,
+  getVestingDelegationsQuery
+} from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { useDelegateVestingSharesByKey, useDelegateVestingSharesByKeychain } from "@/api/mutations";
 import { delegateVestingSharesHot } from "@/api/operations";
@@ -55,7 +59,7 @@ export function DelegatedVesting({ onHide, account, totalDelegated }: Props) {
   useEffect(() => {
     const totalDelegatedValue = data.reduce((n, item) => {
       let parsedValue: any = parseAsset(item.vesting_shares).amount;
-      parsedValue = vestsToHp(parsedValue, dynamicProps!.hivePerMVests);
+      parsedValue = vestsToHp(parsedValue, (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests);
       parsedValue = formattedNumber(parsedValue);
       parsedValue = parsedValue.replace(/,/g, "");
       parsedValue = parseFloat(parsedValue);
@@ -119,7 +123,10 @@ export function DelegatedVesting({ onHide, account, totalDelegated }: Props) {
                         <Tooltip content={x.vesting_shares}>
                           <span>
                             {formattedNumber(
-                              vestsToHp(vestingShares, dynamicProps!.hivePerMVests),
+                              vestsToHp(
+                                vestingShares,
+                                (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
+                              ),
                               { suffix: "HP" }
                             )}
                           </span>
