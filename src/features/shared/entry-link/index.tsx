@@ -1,6 +1,4 @@
-"use client";
-
-import React, { PropsWithChildren, useMemo } from "react";
+import React, { PropsWithChildren } from "react";
 import { Entry } from "@/entities";
 import Link from "next/link";
 
@@ -19,7 +17,7 @@ interface Props {
 }
 
 export function EntryLink({ children, entry, target }: PropsWithChildren<Props>) {
-  const path = useMemo(() => makePath(entry.category, entry.author, entry.permlink), [entry]);
+  const path = makePath(entry.category, entry.author, entry.permlink);
 
   return (
     <Link legacyBehavior={true} href={path} target={target}>

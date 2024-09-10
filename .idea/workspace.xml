@@ -4,17 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Improved voters dialog in proposals">
-      <change afterPath="$PROJECT_DIR$/src/api/mutations/subscribe-to-community.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed subscribe to community, improved create community button, got rid of unused subs store module">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-communities/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-communities/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/client-init.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-init.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/communities/_components/subscription-btn/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/communities/_components/subscription-btn/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/global-store/initialization/client-init.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/initialization/client-init.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/global-store/initialization/initial-state.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/initialization/initial-state.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/global-store/initialization/server-init.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/initialization/server-init.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/global-store/modules/subscriptions-module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/similar-entries/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/similar-entries/_index.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/similar-entries/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/similar-entries/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-link/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-link/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -388,15 +382,7 @@
       <workItem from="1725905832826" duration="466000" />
       <workItem from="1725906308423" duration="7297000" />
       <workItem from="1725960993392" duration="6345000" />
-      <workItem from="1725970077150" duration="3090000" />
-    </task>
-    <task id="LOCAL-00192" summary="Fixed account reputation in popover profile">
-      <option name="closed" value="true" />
-      <created>1724963644052</created>
-      <option name="number" value="00192" />
-      <option name="presentableId" value="LOCAL-00192" />
-      <option name="project" value="LOCAL" />
-      <updated>1724963644052</updated>
+      <workItem from="1725970077150" duration="5985000" />
     </task>
     <task id="LOCAL-00193" summary="Fixed account reputation in popover profile">
       <option name="closed" value="true" />
@@ -782,7 +768,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725967243243</updated>
     </task>
-    <option name="localTasksCounter" value="241" />
+    <task id="LOCAL-00241" summary="Fixed subscribe to community, improved create community button, got rid of unused subs store module">
+      <option name="closed" value="true" />
+      <created>1725976056954</created>
+      <option name="number" value="00241" />
+      <option name="presentableId" value="LOCAL-00241" />
+      <option name="project" value="LOCAL" />
+      <updated>1725976056954</updated>
+    </task>
+    <option name="localTasksCounter" value="242" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -803,7 +797,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed profile popover" />
     <MESSAGE value="Fixed infinite loop in decks" />
     <MESSAGE value="Fixed friends feed" />
     <MESSAGE value="Fixed double transfer option" />
@@ -828,7 +821,8 @@
     <MESSAGE value="Added bugsnag sourcemap uploader" />
     <MESSAGE value="Fixed populating active user data on client init" />
     <MESSAGE value="Improved voters dialog in proposals" />
-    <option name="LAST_COMMIT_MESSAGE" value="Improved voters dialog in proposals" />
+    <MESSAGE value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

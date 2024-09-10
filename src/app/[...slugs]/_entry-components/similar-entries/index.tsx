@@ -8,10 +8,11 @@ import "./_index.scss";
 import { Entry } from "@/entities";
 import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
-import { dateToFullRelative } from "@/utils";
-import { EntryLink } from "@/features/shared";
+import { dateToFullRelative, makeEntryPath } from "@/utils";
 import Image from "next/image";
 import { getSimilarEntriesQuery } from "@/api/queries/get-similar-entries-query";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 setProxyBase(defaults.imageServer);
 
@@ -22,6 +23,7 @@ interface Props {
 export function SimilarEntries({ entry }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
+  const router = useRouter();
   const { data: entries } = getSimilarEntriesQuery(entry).useClientQuery();
 
   return entries?.length === 3 ? (
@@ -30,35 +32,38 @@ export function SimilarEntries({ entry }: Props) {
         <div className="list-header-text">{i18next.t("similar-entries.title")}</div>
       </div>
       <div className="similar-entries-list-body">
-        {entries?.map((en, i) => {
-          const img =
-            catchPostImage(en.img_url, 600, 500, canUseWebp ? "webp" : "match") ||
-            "/assets/noimage.svg";
-          const imgSize = img == "/assets/noimage.svg" ? "75px" : "auto";
-          const dateRelative = dateToFullRelative(en.created_at);
-
-          return (
-            <div className="similar-entries-list-item" key={i}>
-              <EntryLink entry={{ category: "relevant", author: en.author, permlink: en.permlink }}>
-                <>
-                  <div className="item-image">
-                    <Image
-                      src={img ?? "/assets/fallback.png"}
-                      alt={en.title}
-                      width={1000}
-                      height={1000}
-                    />
-                  </div>
-                  <div className="item-title">{en.title}</div>
-                  <div className="item-footer">
-                    <span className="item-footer-author">{en.author}</span>
-                    <span className="item-footer-date">{dateRelative}</span>
-                  </div>
-                </>
-              </EntryLink>
+        {entries?.map((en, i) => (
+          <motion.div
+            className="similar-entries-list-item bg-gray-100 hover:bg-blue-dark-sky-040 dark:bg-gray-900 rounded-2xl overflow-hidden"
+            whileHover={{
+              rotate: 1.5
+            }}
+            key={i}
+            initial={{
+              opacity: 0,
+              y: -24
+            }}
+            animate={{ opacity: 1, y: 0, transition: { delay: i * 0.2 } }}
+            onClick={() => router.push(makeEntryPath(en.category, en.author, en.permlink))}
+          >
+            <Image
+              src={
+                (catchPostImage(en.img_url, 600, 500, canUseWebp ? "webp" : "match") ||
+                  "/assets/noimage.svg") ??
+                "/assets/fallback.png"
+              }
+              alt={en.title}
+              width={1000}
+              height={1000}
+              className="object-cover w-full h-[8rem]"
+            />
+            <div className="truncate py-2 px-4">{en.title}</div>
+            <div className="item-footer py-2 px-4">
+              <span className="item-footer-author">{en.author}</span>
+              <span className="item-footer-date">{dateToFullRelative(en.created_at)}</span>
             </div>
-          );
-        })}
+          </motion.div>
+        ))}
       </div>
     </div>
   ) : (
