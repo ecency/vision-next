@@ -15,15 +15,18 @@ export function ClientInit() {
 
   useMount(() => {
     initI18next();
+
+    const activeUsername = ls.get("active_user") ?? Cookies.get("active_user");
+    if (activeUsername) {
+      setActiveUser(activeUsername);
+    }
   });
 
   useEffect(() => {
-    const activeUsername = ls.get("active_user") ?? Cookies.get("active_user");
-    if (activeUsername && data) {
-      setActiveUser(activeUsername);
+    if (data) {
       updateActiveUser(data);
     }
-  }, [data]);
+  }, [data, updateActiveUser]);
 
   return <></>;
 }

@@ -22,7 +22,6 @@ const getServerStore = () =>
   createStore(
     combine(INITIAL_STATE, (set, getState, store) => ({
       ...createUiActions(set, getState),
-      ...createSubscriptionsActions(set),
       ...createGlobalActions(set, getState),
       ...createUsersActions(),
       ...createAuthenticationActions(set, getState),
