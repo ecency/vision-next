@@ -5,7 +5,6 @@ import { apiBase } from "@/api/helper";
 import { useGlobalStore } from "@/core/global-store";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
-import { formatError } from "@/api/operations";
 
 export function useAddFavourite(onSuccess: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -40,8 +39,7 @@ export function useCheckFavourite() {
       const data = { code: getAccessToken(activeUser.username), account };
       const response = await appAxios.post(apiBase(`/private-api/favorites-check`), data);
       return response.data;
-    },
-    onError: (err) => error(...formatError(err))
+    }
   });
 }
 

@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed sidebar dark theme">
-      <change beforePath="$PROJECT_DIR$/src/features/market/market-swap-form/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/market/market-swap-form/index.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Disable market swap form swapping if there isn't any balance value">
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/favourites.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/favourites.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -379,15 +379,7 @@
       <workItem from="1725905832826" duration="466000" />
       <workItem from="1725906308423" duration="7297000" />
       <workItem from="1725960993392" duration="6345000" />
-      <workItem from="1725970077150" duration="9523000" />
-    </task>
-    <task id="LOCAL-00199" summary="Fixed autocomplete styles">
-      <option name="closed" value="true" />
-      <created>1725195502803</created>
-      <option name="number" value="00199" />
-      <option name="presentableId" value="LOCAL-00199" />
-      <option name="project" value="LOCAL" />
-      <updated>1725195502803</updated>
+      <workItem from="1725970077150" duration="9693000" />
     </task>
     <task id="LOCAL-00200" summary="Fixed account reputation in entry page">
       <option name="closed" value="true" />
@@ -773,7 +765,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725986360746</updated>
     </task>
-    <option name="localTasksCounter" value="248" />
+    <task id="LOCAL-00248" summary="Disable market swap form swapping if there isn't any balance value">
+      <option name="closed" value="true" />
+      <created>1725986525274</created>
+      <option name="number" value="00248" />
+      <option name="presentableId" value="LOCAL-00248" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986525274</updated>
+    </task>
+    <option name="localTasksCounter" value="249" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -794,7 +794,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added loader to notifications" />
     <MESSAGE value="Fixed marking as read in notifications" />
     <MESSAGE value="Fixed similar entries component, unoptimized images" />
     <MESSAGE value="Fixed language selection after reloading" />
@@ -819,7 +818,8 @@
     <MESSAGE value="Fixed profile info icon" />
     <MESSAGE value="Fixed unclaimed points initial state" />
     <MESSAGE value="Fixed sidebar dark theme" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed sidebar dark theme" />
+    <MESSAGE value="Disable market swap form swapping if there isn't any balance value" />
+    <option name="LAST_COMMIT_MESSAGE" value="Disable market swap form swapping if there isn't any balance value" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
