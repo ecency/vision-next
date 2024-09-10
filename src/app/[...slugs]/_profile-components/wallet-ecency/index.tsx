@@ -172,7 +172,7 @@ export const WalletEcency = ({ account }: Props) => {
                 <div className="unclaimed-rewards">
                   <div className="title">{i18next.t("points.unclaimed-points")}</div>
                   <div className="rewards">
-                    <span className="reward-type">{`${points?.uPoints}`}</span>
+                    <span className="reward-type">{`${points?.uPoints ?? "0.000"}`}</span>
                     {isMyPage && (
                       <Tooltip content={i18next.t("points.claim-reward-points")}>
                         <a className={`claim-btn ${claiming ? "in-progress" : ""}`} onClick={claim}>

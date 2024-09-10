@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme">
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/profile-info/index.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed profile info icon">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-ecency/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/wallet-ecency/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -379,15 +380,7 @@
       <workItem from="1725905832826" duration="466000" />
       <workItem from="1725906308423" duration="7297000" />
       <workItem from="1725960993392" duration="6345000" />
-      <workItem from="1725970077150" duration="9107000" />
-    </task>
-    <task id="LOCAL-00196" summary="Fixed profile menu extra items">
-      <option name="closed" value="true" />
-      <created>1725177780694</created>
-      <option name="number" value="00196" />
-      <option name="presentableId" value="LOCAL-00196" />
-      <option name="project" value="LOCAL" />
-      <updated>1725177780694</updated>
+      <workItem from="1725970077150" duration="9208000" />
     </task>
     <task id="LOCAL-00197" summary="Fixed redirecting from short post URL to long">
       <option name="closed" value="true" />
@@ -773,7 +766,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725985999066</updated>
     </task>
-    <option name="localTasksCounter" value="245" />
+    <task id="LOCAL-00245" summary="Fixed profile info icon">
+      <option name="closed" value="true" />
+      <created>1725986072268</created>
+      <option name="number" value="00245" />
+      <option name="presentableId" value="LOCAL-00245" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986072268</updated>
+    </task>
+    <option name="localTasksCounter" value="246" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -794,7 +795,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed entry page author information showing" />
     <MESSAGE value="Fixed top text menu" />
     <MESSAGE value="Fixed redirecting to homepage" />
     <MESSAGE value="Added loader to notifications" />
@@ -819,7 +819,8 @@
     <MESSAGE value="Fixed similar entries routing, improved similar entries layout and design" />
     <MESSAGE value="Animated notifications list, improved notifications layout, fixed notifications filtering" />
     <MESSAGE value="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme" />
-    <option name="LAST_COMMIT_MESSAGE" value="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme" />
+    <MESSAGE value="Fixed profile info icon" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed profile info icon" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
