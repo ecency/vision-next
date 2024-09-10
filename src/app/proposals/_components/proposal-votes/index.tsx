@@ -15,6 +15,8 @@ import {
   getDynamicPropsQuery,
   getProposalVotesQuery
 } from "@/api/queries";
+import { Spinner } from "@ui/spinner";
+import { Pagination } from "@/features/ui";
 
 type SortOption = "reputation" | "hp";
 
@@ -26,6 +28,7 @@ interface ProposalVotesProps {
 export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   const [searchText, setSearchText] = useState("");
   const [sort, setSort] = useState<SortOption>("hp");
+  const [page, setPage] = useState(1);
 
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
   const { data: votes, isFetching } = getProposalVotesQuery(
@@ -35,7 +38,8 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   ).useClientQuery();
 
   const usernames = useMemo(() => Array.from(new Set(votes?.map((x) => x.voter))), [votes]);
-  const { data: accounts } = getAccountsQuery(usernames).useClientQuery();
+  const { data: accounts, isFetching: isFetchingAccounts } =
+    getAccountsQuery(usernames).useClientQuery();
   const voters = useMemo(
     () =>
       accounts
@@ -59,7 +63,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
             totalHp
           };
         })
-        ?.filter(
+        .filter(
           (item) => !searchText || item.name.toLowerCase().includes(searchText.toLocaleLowerCase())
         )
         .sort((a, b) => {
@@ -71,11 +75,20 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
     [accounts, dynamicProps, searchText, sort]
   );
 
+  const paginatedVoters = useMemo(() => voters?.slice((page - 1) * 10, page * 10), [page, voters]);
+
   return (
     <Modal onHide={onHide} show={true} centered={true} size="lg" className="proposal-votes-dialog">
       <ModalHeader closeButton={true} className="items-center">
         <ModalTitle>
-          {accounts?.length + " " + i18next.t("proposals.votes-dialog-title", { n: proposal.id })}
+          <span className="text-blue-dark-sky mr-2">
+            {isFetchingAccounts || isFetching ? (
+              <Spinner className="inline-flex w-3.5 h-3.5" />
+            ) : (
+              accounts?.length
+            )}
+          </span>
+          <span>{i18next.t("proposals.votes-dialog-title", { n: proposal.id })}</span>
         </ModalTitle>
       </ModalHeader>
       <div className="w-full flex flex-col sm:flex-row gap-4 p-3 mb-3">
@@ -95,12 +108,12 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
         </FormControl>
       </div>
       <ModalBody>
-        {isFetching && <LinearProgress />}
+        {isFetching && isFetchingAccounts && <LinearProgress />}
 
         <div className="voters-list mb-4">
           <List grid={true} inline={true} defer={true}>
             {(voters?.length ?? 0) > 0 ? (
-              voters?.map((x, index) => {
+              paginatedVoters?.map((x, index) => {
                 const strHp = numeral(x.hp).format("0.00,");
                 const strProxyHp = numeral(x.proxyHp).format("0.00,");
 
@@ -136,10 +149,22 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
               })
             ) : (
               <div className="user-info">
-                {isFetching ? i18next.t("proposals.searching") : i18next.t("proposals.no-results")}
+                {isFetching || isFetchingAccounts
+                  ? i18next.t("proposals.searching")
+                  : i18next.t("proposals.no-results")}
               </div>
             )}
           </List>
+          {voters && voters.length > 10 && (
+            <div className="mt-4">
+              <Pagination
+                dataLength={voters?.length ?? 0}
+                pageSize={10}
+                onPageChange={setPage}
+                page={page}
+              />
+            </div>
+          )}
         </div>
       </ModalBody>
     </Modal>

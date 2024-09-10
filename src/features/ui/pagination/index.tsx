@@ -31,7 +31,7 @@ function PageButton(
 interface Props {
   dataLength: number;
   pageSize: number;
-  maxItems: number;
+  maxItems?: number;
   page?: number;
   onPageChange: (num: number) => void;
   className?: string;
@@ -40,7 +40,6 @@ interface Props {
 
 export function Pagination({
   dataLength,
-  maxItems,
   onPageChange,
   pageSize,
   className,

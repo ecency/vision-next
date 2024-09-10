@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Added bugsnag sourcemap uploader">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed populating active user data on client init">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/client-init.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-init.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/bugsnag.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/bugsnag.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/proposals/_page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/_page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/profile-popover/profile-preview/profile-preview-username.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/profile-popover/profile-preview/profile-preview-username.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/ui/pagination/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/ui/pagination/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -380,15 +382,7 @@
       <workItem from="1725557342430" duration="1015000" />
       <workItem from="1725905832826" duration="466000" />
       <workItem from="1725906308423" duration="7297000" />
-      <workItem from="1725960993392" duration="2419000" />
-    </task>
-    <task id="LOCAL-00190" summary="Added opening posts via direct link w/o category">
-      <option name="closed" value="true" />
-      <created>1724959792600</created>
-      <option name="number" value="00190" />
-      <option name="presentableId" value="LOCAL-00190" />
-      <option name="project" value="LOCAL" />
-      <updated>1724959792600</updated>
+      <workItem from="1725960993392" duration="4547000" />
     </task>
     <task id="LOCAL-00191" summary="Moved firebase messaging sw">
       <option name="closed" value="true" />
@@ -774,7 +768,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725964633369</updated>
     </task>
-    <option name="localTasksCounter" value="239" />
+    <task id="LOCAL-00239" summary="Fixed populating active user data on client init">
+      <option name="closed" value="true" />
+      <created>1725965090112</created>
+      <option name="number" value="00239" />
+      <option name="presentableId" value="LOCAL-00239" />
+      <option name="project" value="LOCAL" />
+      <updated>1725965090112</updated>
+    </task>
+    <option name="localTasksCounter" value="240" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -795,7 +797,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed login button showing in mobile layout" />
     <MESSAGE value="Fixed pinned entries" />
     <MESSAGE value="Fixed profile popover" />
     <MESSAGE value="Fixed infinite loop in decks" />
@@ -820,7 +821,8 @@
     <MESSAGE value="Fixed dynamic props query, fixed proposals" />
     <MESSAGE value="Fixed build" />
     <MESSAGE value="Added bugsnag sourcemap uploader" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added bugsnag sourcemap uploader" />
+    <MESSAGE value="Fixed populating active user data on client init" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed populating active user data on client init" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

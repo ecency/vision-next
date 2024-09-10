@@ -17,7 +17,7 @@ export function ProfilePreviewUsername({ username }: Props) {
     getAccountFullQuery(username).useClientQuery();
 
   const { data: relationsBetweenAccounts, isLoading: followsActiveUserLoading } =
-    useGetRelationshipBtwAccounts(username, activeUser!.username);
+    useGetRelationshipBtwAccounts(username, activeUser?.username);
 
   const followsActiveUser = useMemo(
     () => relationsBetweenAccounts?.follows ?? false,
