@@ -4,11 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed subscribe to community, improved create community button, got rid of unused subs store module">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed similar entries routing, improved similar entries layout and design">
+      <change afterPath="$PROJECT_DIR$/src/features/shared/notifications/animated-notification-list-item-layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/similar-entries/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/similar-entries/_index.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/similar-entries/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_entry-components/similar-entries/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-link/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-link/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/notifications/notifications-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/notifications/notifications-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/_index.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/notification-list-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/notification-list-item.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/notification-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/notification-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/notification-types/notification-delegations-type.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/notification-types/notification-delegations-type.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/notification-types/notification-transfer-type.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/notification-types/notification-transfer-type.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -382,15 +387,7 @@
       <workItem from="1725905832826" duration="466000" />
       <workItem from="1725906308423" duration="7297000" />
       <workItem from="1725960993392" duration="6345000" />
-      <workItem from="1725970077150" duration="5985000" />
-    </task>
-    <task id="LOCAL-00193" summary="Fixed account reputation in popover profile">
-      <option name="closed" value="true" />
-      <created>1724963967142</created>
-      <option name="number" value="00193" />
-      <option name="presentableId" value="LOCAL-00193" />
-      <option name="project" value="LOCAL" />
-      <updated>1724963967142</updated>
+      <workItem from="1725970077150" duration="8397000" />
     </task>
     <task id="LOCAL-00194" summary="Fixed typo">
       <option name="closed" value="true" />
@@ -776,7 +773,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725976056954</updated>
     </task>
-    <option name="localTasksCounter" value="242" />
+    <task id="LOCAL-00242" summary="Fixed similar entries routing, improved similar entries layout and design">
+      <option name="closed" value="true" />
+      <created>1725979588503</created>
+      <option name="number" value="00242" />
+      <option name="presentableId" value="LOCAL-00242" />
+      <option name="project" value="LOCAL" />
+      <updated>1725979588503</updated>
+    </task>
+    <option name="localTasksCounter" value="243" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -797,7 +802,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed infinite loop in decks" />
     <MESSAGE value="Fixed friends feed" />
     <MESSAGE value="Fixed double transfer option" />
     <MESSAGE value="Fixed entry page author information showing" />
@@ -822,7 +826,8 @@
     <MESSAGE value="Fixed populating active user data on client init" />
     <MESSAGE value="Improved voters dialog in proposals" />
     <MESSAGE value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
+    <MESSAGE value="Fixed similar entries routing, improved similar entries layout and design" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed similar entries routing, improved similar entries layout and design" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
