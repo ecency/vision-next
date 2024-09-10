@@ -266,7 +266,13 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
           )}
           {step === MarketSwapFormStep.FORM ? (
             <Button
-              disabled={disabled || loading || numberAmount(from) === 0 || isAmountMoreThanBalance}
+              disabled={
+                disabled ||
+                loading ||
+                numberAmount(from) === 0 ||
+                isAmountMoreThanBalance ||
+                !balance
+              }
               className="w-full mt-4"
               onClick={() => submit()}
             >

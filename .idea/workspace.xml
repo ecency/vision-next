@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed unclaimed points initial state">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/navbar-main-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/navbar-main-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side-main-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/navbar/sidebar/navbar-side-main-menu.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed sidebar dark theme">
+      <change beforePath="$PROJECT_DIR$/src/features/market/market-swap-form/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/market/market-swap-form/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -381,15 +379,7 @@
       <workItem from="1725905832826" duration="466000" />
       <workItem from="1725906308423" duration="7297000" />
       <workItem from="1725960993392" duration="6345000" />
-      <workItem from="1725970077150" duration="9377000" />
-    </task>
-    <task id="LOCAL-00198" summary="Fixed transfer first step">
-      <option name="closed" value="true" />
-      <created>1725194935706</created>
-      <option name="number" value="00198" />
-      <option name="presentableId" value="LOCAL-00198" />
-      <option name="project" value="LOCAL" />
-      <updated>1725194935706</updated>
+      <workItem from="1725970077150" duration="9523000" />
     </task>
     <task id="LOCAL-00199" summary="Fixed autocomplete styles">
       <option name="closed" value="true" />
@@ -775,7 +765,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725986182971</updated>
     </task>
-    <option name="localTasksCounter" value="247" />
+    <task id="LOCAL-00247" summary="Fixed sidebar dark theme">
+      <option name="closed" value="true" />
+      <created>1725986360746</created>
+      <option name="number" value="00247" />
+      <option name="presentableId" value="LOCAL-00247" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986360746</updated>
+    </task>
+    <option name="localTasksCounter" value="248" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,7 +794,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed redirecting to homepage" />
     <MESSAGE value="Added loader to notifications" />
     <MESSAGE value="Fixed marking as read in notifications" />
     <MESSAGE value="Fixed similar entries component, unoptimized images" />
@@ -821,7 +818,8 @@
     <MESSAGE value="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme" />
     <MESSAGE value="Fixed profile info icon" />
     <MESSAGE value="Fixed unclaimed points initial state" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed unclaimed points initial state" />
+    <MESSAGE value="Fixed sidebar dark theme" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed sidebar dark theme" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
