@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Do not notify favourites check in UI">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed edit roles button">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-card/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-card/_index.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-card/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-card/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/workbox-9b4d2a02.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/workbox-9b4d2a02.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-cover/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-cover/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/global-store/initialization/server-init.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/initialization/server-init.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -141,7 +144,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.dev">
+  <component name="RunManager" selected="npm.build">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ecency-vision-next" />
       <method v="2">
@@ -228,8 +231,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.dev" />
         <item itemvalue="npm.build" />
+        <item itemvalue="npm.dev" />
         <item itemvalue="npm.test" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
         <item itemvalue="Jest.Comment.handles keyboard shortcuts" />
@@ -381,15 +384,7 @@
       <workItem from="1725905832826" duration="466000" />
       <workItem from="1725906308423" duration="7297000" />
       <workItem from="1725960993392" duration="6345000" />
-      <workItem from="1725970077150" duration="9934000" />
-    </task>
-    <task id="LOCAL-00202" summary="Fixed balance fetching in gift modal">
-      <option name="closed" value="true" />
-      <created>1725200711462</created>
-      <option name="number" value="00202" />
-      <option name="presentableId" value="LOCAL-00202" />
-      <option name="project" value="LOCAL" />
-      <updated>1725200711462</updated>
+      <workItem from="1725970077150" duration="10242000" />
     </task>
     <task id="LOCAL-00203" summary="Fixed following and followers dialog window">
       <option name="closed" value="true" />
@@ -775,7 +770,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725986660652</updated>
     </task>
-    <option name="localTasksCounter" value="251" />
+    <task id="LOCAL-00251" summary="Fixed edit roles button">
+      <option name="closed" value="true" />
+      <created>1725986899877</created>
+      <option name="number" value="00251" />
+      <option name="presentableId" value="LOCAL-00251" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986899877</updated>
+    </task>
+    <option name="localTasksCounter" value="252" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,7 +799,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed similar entries component, unoptimized images" />
     <MESSAGE value="Fixed language selection after reloading" />
     <MESSAGE value="Fixed theme flickering on page load" />
     <MESSAGE value="Fixed dynamic props query fetching, added missed PWA scripts" />
@@ -821,7 +823,8 @@
     <MESSAGE value="Fixed sidebar dark theme" />
     <MESSAGE value="Disable market swap form swapping if there isn't any balance value" />
     <MESSAGE value="Do not notify favourites check in UI" />
-    <option name="LAST_COMMIT_MESSAGE" value="Do not notify favourites check in UI" />
+    <MESSAGE value="Fixed edit roles button" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed edit roles button" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

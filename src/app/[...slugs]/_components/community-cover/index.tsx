@@ -49,7 +49,7 @@ export function CommunityCover({ community, account }: Props) {
     [community.num_authors]
   );
   const canUpdateCoverImage = useMemo(
-    () => activeUser && !!users.find((x) => x.username === community.name),
+    () => activeUser && !!users.find((x: { username: string }) => x.username === community.name),
     [activeUser, users, community.name]
   );
 

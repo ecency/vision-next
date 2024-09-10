@@ -20,7 +20,7 @@ const config = {
     });
 
     if (process.env.NODE_ENV === "production") {
-      config.module.plugins.push(
+      config.plugins.push(
         new BugsnagBuildReporterPlugin({
           apiKey: "53c03fdd42cd699cb95f60abe77a5b19",
           appVersion: appPackage.version
