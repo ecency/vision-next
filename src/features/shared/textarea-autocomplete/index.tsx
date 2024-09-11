@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "./_index.scss";
 import { searchPath } from "@/api/search-api";
@@ -28,6 +28,12 @@ export function TextareaAutocomplete(props: any) {
   if ((!disableRows || !isDesktop) && typeof window !== "undefined") {
     attrs.rows = isComment ? rows : rows;
   }
+
+  useEffect(() => {
+    if (!value && props.value) {
+      setValue(props.value);
+    }
+  }, [props.value, value]);
 
   const handleChange = (event: any) => {
     const isMobile = typeof window !== "undefined" && window.innerWidth < 570;

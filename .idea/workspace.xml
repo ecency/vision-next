@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed voting on proposals and witnesses">
-      <change beforePath="$PROJECT_DIR$/src/app/(staticPages)/faq/_components/faq-anchor-listener.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(staticPages)/faq/_components/faq-anchor-listener.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed FAQ opening">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/textarea-autocomplete/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/textarea-autocomplete/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -378,15 +380,7 @@
       <workItem from="1725960993392" duration="6345000" />
       <workItem from="1725970077150" duration="10382000" />
       <workItem from="1726037932528" duration="1257000" />
-      <workItem from="1726074299325" duration="4174000" />
-    </task>
-    <task id="LOCAL-00208" summary="Fixed search bar layout">
-      <option name="closed" value="true" />
-      <created>1725742653265</created>
-      <option name="number" value="00208" />
-      <option name="presentableId" value="LOCAL-00208" />
-      <option name="project" value="LOCAL" />
-      <updated>1725742653265</updated>
+      <workItem from="1726074299325" duration="4578000" />
     </task>
     <task id="LOCAL-00209" summary="Fixed advanced search toggling">
       <option name="closed" value="true" />
@@ -772,7 +766,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726088318625</updated>
     </task>
-    <option name="localTasksCounter" value="257" />
+    <task id="LOCAL-00257" summary="Fixed FAQ opening">
+      <option name="closed" value="true" />
+      <created>1726088435982</created>
+      <option name="number" value="00257" />
+      <option name="presentableId" value="LOCAL-00257" />
+      <option name="project" value="LOCAL" />
+      <updated>1726088435982</updated>
+    </task>
+    <option name="localTasksCounter" value="258" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -793,7 +795,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added bugsnag to the client side" />
     <MESSAGE value="Fixed chats channel opening" />
     <MESSAGE value="Fixed referrals page opening" />
     <MESSAGE value="Fixed entry cache management" />
@@ -818,7 +819,8 @@
     <MESSAGE value="Fixed notifications dark theme and layout" />
     <MESSAGE value="Fixed infinite fetching of posts" />
     <MESSAGE value="Fixed voting on proposals and witnesses" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed voting on proposals and witnesses" />
+    <MESSAGE value="Fixed FAQ opening" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed FAQ opening" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
