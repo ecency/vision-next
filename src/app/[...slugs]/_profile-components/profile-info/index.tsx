@@ -10,7 +10,7 @@ import i18next from "i18next";
 import { hiveSvg } from "@ui/svg";
 import { StyledTooltip } from "@ui/tooltip";
 import { Spinner } from "@ui/spinner";
-import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import { UilInfo } from "@tooni/iconscout-unicons-react";
 
 interface ContentProps {
   account: FullAccount;
@@ -99,7 +99,7 @@ export function ProfileInfo({ account }: Props) {
       <StyledTooltip
         content={isLoaded && <ProfileInfoContent account={account} rcAccount={rcAccount} />}
       >
-        {isLoaded ? <UilInfoCircle width={20} height={20} /> : <Spinner className="w-3.5 h-3.5" />}
+        {isLoaded ? <UilInfo width={20} height={20} /> : <Spinner className="w-3.5 h-3.5" />}
       </StyledTooltip>
     </span>
   );

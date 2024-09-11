@@ -48,25 +48,6 @@
         }
       }
 
-      .item-title {
-        display: block;
-        font-size: 16px;
-        font-weight: 500;
-        margin-bottom: 5px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: 100%;
-
-        @include themify(day) {
-          @apply text-gray-steel;
-        }
-
-        @include themify(night) {
-          @apply text-gray-pinkish;
-        }
-      }
-
       .item-image {
         align-items: center;
         cursor: pointer;

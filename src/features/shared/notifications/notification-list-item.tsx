@@ -23,10 +23,6 @@ import useMount from "react-use/lib/useMount";
 import { useInViewport } from "react-in-viewport";
 import { FormControl } from "@ui/input";
 
-interface State {
-  isChecked: boolean;
-}
-
 interface Props {
   notification: ApiNotification;
   entry?: ApiNotification;
@@ -105,9 +101,7 @@ export function NotificationListItem({
       afterClick={afterClick}
       target={openLinksInNewTab ? "_blank" : undefined}
     >
-      <span className="source-avatar">
-        <UserAvatar username={notification?.source} size="medium" />
-      </span>
+      <UserAvatar username={notification?.source} size="medium" />
     </ProfileLink>
   );
   const sourceLink = (
@@ -116,7 +110,7 @@ export function NotificationListItem({
       afterClick={afterClick}
       target={openLinksInNewTab ? "_blank" : undefined}
     >
-      <span className="source-name"> {notification.source}</span>
+      <span className="source-name">@{notification.source}</span>
     </ProfileLink>
   );
 
@@ -135,6 +129,79 @@ export function NotificationListItem({
       <div
         className={`item-inner ${(notification as ApiMentionNotification).deck ? "p-2 m-0" : ""}`}
       >
+        <div className="flex items-center w-full">
+          <div className="source">{sourceLinkMain}</div>
+
+          {(notification.type === "vote" || notification.type === "unvote") && (
+            <NotificationVoteType
+              onLinkClick={onLinkClick}
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              notification={notification}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
+          {notification.type === "reply" && (
+            <NotificationReplyType
+              onLinkClick={onLinkClick}
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              notification={notification}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
+          {notification.type === "mention" && (
+            <NotificationMentionType
+              onLinkClick={onLinkClick}
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              notification={notification}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
+          {notification.type === "favorites" && (
+            <NotificationFavouriteType
+              onLinkClick={onLinkClick}
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              notification={notification}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
+          {notification.type === "bookmarks" && (
+            <NotificationBookmarkType
+              onLinkClick={onLinkClick}
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              notification={notification}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
+          {(notification.type === "follow" ||
+            notification.type === "unfollow" ||
+            notification.type === "ignore") && (
+            <NotificationFollowType sourceLink={sourceLink} notification={notification} />
+          )}
+          {notification.type === "reblog" && (
+            <NotificationReblogType
+              onLinkClick={onLinkClick}
+              sourceLink={sourceLink}
+              notification={notification}
+              afterClick={afterClick}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
+          {notification.type === "transfer" && (
+            <NotificationTransferType sourceLink={sourceLink} notification={notification} />
+          )}
+          {notification.type === "delegations" && (
+            <NotificationDelegationsType sourceLink={sourceLink} notification={notification} />
+          )}
+          {notification.type === "spin" && <NotificationSpinType sourceLink={sourceLink} />}
+          {notification.type === "inactive" && <NotificationInactiveType sourceLink={sourceLink} />}
+          {notification.type === "referral" && <NotificationReferralType sourceLink={sourceLink} />}
+        </div>
+
         {isSelect ? (
           <div className="checkbox">
             <FormControl type="checkbox" checked={isChecked} onChange={() => {}} />
@@ -152,77 +219,6 @@ export function NotificationListItem({
             )}
           </div>
         )}
-
-        <div className="source">{sourceLinkMain}</div>
-
-        {(notification.type === "vote" || notification.type === "unvote") && (
-          <NotificationVoteType
-            onLinkClick={onLinkClick}
-            sourceLink={sourceLink}
-            afterClick={afterClick}
-            notification={notification}
-            openLinksInNewTab={openLinksInNewTab}
-          />
-        )}
-        {notification.type === "reply" && (
-          <NotificationReplyType
-            onLinkClick={onLinkClick}
-            sourceLink={sourceLink}
-            afterClick={afterClick}
-            notification={notification}
-            openLinksInNewTab={openLinksInNewTab}
-          />
-        )}
-        {notification.type === "mention" && (
-          <NotificationMentionType
-            onLinkClick={onLinkClick}
-            sourceLink={sourceLink}
-            afterClick={afterClick}
-            notification={notification}
-            openLinksInNewTab={openLinksInNewTab}
-          />
-        )}
-        {notification.type === "favorites" && (
-          <NotificationFavouriteType
-            onLinkClick={onLinkClick}
-            sourceLink={sourceLink}
-            afterClick={afterClick}
-            notification={notification}
-            openLinksInNewTab={openLinksInNewTab}
-          />
-        )}
-        {notification.type === "bookmarks" && (
-          <NotificationBookmarkType
-            onLinkClick={onLinkClick}
-            sourceLink={sourceLink}
-            afterClick={afterClick}
-            notification={notification}
-            openLinksInNewTab={openLinksInNewTab}
-          />
-        )}
-        {(notification.type === "follow" ||
-          notification.type === "unfollow" ||
-          notification.type === "ignore") && (
-          <NotificationFollowType sourceLink={sourceLink} notification={notification} />
-        )}
-        {notification.type === "reblog" && (
-          <NotificationReblogType
-            onLinkClick={onLinkClick}
-            sourceLink={sourceLink}
-            notification={notification}
-            afterClick={afterClick}
-            openLinksInNewTab={openLinksInNewTab}
-          />
-        )}
-        {notification.type === "transfer" && (
-          <NotificationTransferType sourceLink={sourceLink} notification={notification} />
-        )}
-        {notification.type === "delegations" && (
-          <NotificationDelegationsType sourceLink={sourceLink} notification={notification} />
-        )}
-        {notification.type === "spin" && <NotificationSpinType sourceLink={sourceLink} />}
-        {notification.type === "inactive" && <NotificationInactiveType sourceLink={sourceLink} />}
-        {notification.type === "referral" && <NotificationReferralType sourceLink={sourceLink} />}
       </div>
     </div>
   );

@@ -8,11 +8,11 @@ import { Feedback, LinearProgress, Navbar, ScrollToTop, SearchBox, Theme } from 
 import { Tsx } from "@/features/i18n/helper";
 import i18next from "i18next";
 import { ProposalListItem } from "@/app/proposals/_components";
-import { getAccountFullQuery, getDynamicPropsQuery, getProposalsQuery } from "@/api/queries";
+import { getAccountFullQuery, getProposalsQuery } from "@/api/queries";
 import { parseAsset } from "@/utils";
 import { Proposal } from "@/entities";
-import { useMount } from "react-use";
 import { Button } from "@ui/button";
+import { AnimatePresence, motion } from "framer-motion";
 
 setProxyBase(defaults.imageServer);
 
@@ -94,10 +94,6 @@ export function ProposalsPage() {
     };
   }, [dailyBudget, proposals]);
 
-  useMount(() => {
-    getDynamicPropsQuery().prefetch();
-  });
-
   return (
     <>
       <ScrollToTop />
@@ -163,9 +159,19 @@ export function ProposalsPage() {
         {isLoading && <LinearProgress />}
         {(sliced?.length ?? 0) > 0 && (
           <div className="proposal-list">
-            {sliced?.map((p) => (
-              <ProposalListItem key={p.id} proposal={p} thresholdProposalId={thresholdProposalId} />
-            ))}
+            <AnimatePresence>
+              {sliced?.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 48 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 48 }}
+                  transition={{ delay: i * 0.2 }}
+                >
+                  <ProposalListItem proposal={p} thresholdProposalId={thresholdProposalId} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
         {page * 5 < (filteredProposals?.length ?? 0) && (

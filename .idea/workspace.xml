@@ -4,12 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed dynamic props query, fixed proposals">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed edit roles button">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/proposals/_components/proposal-votes/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/discussion/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/discussion/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/workbox-9b4d2a02.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/workbox-9b4d2a02.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-cover/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_components/community-cover/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/global-store/initialization/server-init.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/initialization/server-init.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,7 +21,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="bugfix/review-issues" />
+        <entry key="$PROJECT_DIR$" value="bugfix/review-issues-2" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -86,7 +87,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;bugfix/review-issues-2&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;bugfix/review-issues-3&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -381,143 +382,9 @@
       <workItem from="1725538069598" duration="8000" />
       <workItem from="1725557342430" duration="1015000" />
       <workItem from="1725905832826" duration="466000" />
-      <workItem from="1725906308423" duration="6978000" />
-    </task>
-    <task id="LOCAL-00186" summary="Covered left files with use private with configuration">
-      <option name="closed" value="true" />
-      <created>1724828215028</created>
-      <option name="number" value="00186" />
-      <option name="presentableId" value="LOCAL-00186" />
-      <option name="project" value="LOCAL" />
-      <updated>1724828215028</updated>
-    </task>
-    <task id="LOCAL-00187" summary="Fixed build">
-      <option name="closed" value="true" />
-      <created>1724867331503</created>
-      <option name="number" value="00187" />
-      <option name="presentableId" value="LOCAL-00187" />
-      <option name="project" value="LOCAL" />
-      <updated>1724867331503</updated>
-    </task>
-    <task id="LOCAL-00188" summary="Added RSS feed for users, fixed review bugs">
-      <option name="closed" value="true" />
-      <created>1724958988031</created>
-      <option name="number" value="00188" />
-      <option name="presentableId" value="LOCAL-00188" />
-      <option name="project" value="LOCAL" />
-      <updated>1724958988031</updated>
-    </task>
-    <task id="LOCAL-00189" summary="Added RSS feed for users, fixed review bugs">
-      <option name="closed" value="true" />
-      <created>1724959271588</created>
-      <option name="number" value="00189" />
-      <option name="presentableId" value="LOCAL-00189" />
-      <option name="project" value="LOCAL" />
-      <updated>1724959271590</updated>
-    </task>
-    <task id="LOCAL-00190" summary="Added opening posts via direct link w/o category">
-      <option name="closed" value="true" />
-      <created>1724959792600</created>
-      <option name="number" value="00190" />
-      <option name="presentableId" value="LOCAL-00190" />
-      <option name="project" value="LOCAL" />
-      <updated>1724959792600</updated>
-    </task>
-    <task id="LOCAL-00191" summary="Moved firebase messaging sw">
-      <option name="closed" value="true" />
-      <created>1724959918209</created>
-      <option name="number" value="00191" />
-      <option name="presentableId" value="LOCAL-00191" />
-      <option name="project" value="LOCAL" />
-      <updated>1724959918209</updated>
-    </task>
-    <task id="LOCAL-00192" summary="Fixed account reputation in popover profile">
-      <option name="closed" value="true" />
-      <created>1724963644052</created>
-      <option name="number" value="00192" />
-      <option name="presentableId" value="LOCAL-00192" />
-      <option name="project" value="LOCAL" />
-      <updated>1724963644052</updated>
-    </task>
-    <task id="LOCAL-00193" summary="Fixed account reputation in popover profile">
-      <option name="closed" value="true" />
-      <created>1724963967142</created>
-      <option name="number" value="00193" />
-      <option name="presentableId" value="LOCAL-00193" />
-      <option name="project" value="LOCAL" />
-      <updated>1724963967142</updated>
-    </task>
-    <task id="LOCAL-00194" summary="Fixed typo">
-      <option name="closed" value="true" />
-      <created>1724963975890</created>
-      <option name="number" value="00194" />
-      <option name="presentableId" value="LOCAL-00194" />
-      <option name="project" value="LOCAL" />
-      <updated>1724963975890</updated>
-    </task>
-    <task id="LOCAL-00195" summary="Fixed NPEs">
-      <option name="closed" value="true" />
-      <created>1725177495574</created>
-      <option name="number" value="00195" />
-      <option name="presentableId" value="LOCAL-00195" />
-      <option name="project" value="LOCAL" />
-      <updated>1725177495574</updated>
-    </task>
-    <task id="LOCAL-00196" summary="Fixed profile menu extra items">
-      <option name="closed" value="true" />
-      <created>1725177780694</created>
-      <option name="number" value="00196" />
-      <option name="presentableId" value="LOCAL-00196" />
-      <option name="project" value="LOCAL" />
-      <updated>1725177780694</updated>
-    </task>
-    <task id="LOCAL-00197" summary="Fixed redirecting from short post URL to long">
-      <option name="closed" value="true" />
-      <created>1725193864873</created>
-      <option name="number" value="00197" />
-      <option name="presentableId" value="LOCAL-00197" />
-      <option name="project" value="LOCAL" />
-      <updated>1725193864873</updated>
-    </task>
-    <task id="LOCAL-00198" summary="Fixed transfer first step">
-      <option name="closed" value="true" />
-      <created>1725194935706</created>
-      <option name="number" value="00198" />
-      <option name="presentableId" value="LOCAL-00198" />
-      <option name="project" value="LOCAL" />
-      <updated>1725194935706</updated>
-    </task>
-    <task id="LOCAL-00199" summary="Fixed autocomplete styles">
-      <option name="closed" value="true" />
-      <created>1725195502803</created>
-      <option name="number" value="00199" />
-      <option name="presentableId" value="LOCAL-00199" />
-      <option name="project" value="LOCAL" />
-      <updated>1725195502803</updated>
-    </task>
-    <task id="LOCAL-00200" summary="Fixed account reputation in entry page">
-      <option name="closed" value="true" />
-      <created>1725198792113</created>
-      <option name="number" value="00200" />
-      <option name="presentableId" value="LOCAL-00200" />
-      <option name="project" value="LOCAL" />
-      <updated>1725198792113</updated>
-    </task>
-    <task id="LOCAL-00201" summary="Hiding default reputation in proposals page">
-      <option name="closed" value="true" />
-      <created>1725200003115</created>
-      <option name="number" value="00201" />
-      <option name="presentableId" value="LOCAL-00201" />
-      <option name="project" value="LOCAL" />
-      <updated>1725200003115</updated>
-    </task>
-    <task id="LOCAL-00202" summary="Fixed balance fetching in gift modal">
-      <option name="closed" value="true" />
-      <created>1725200711462</created>
-      <option name="number" value="00202" />
-      <option name="presentableId" value="LOCAL-00202" />
-      <option name="project" value="LOCAL" />
-      <updated>1725200711462</updated>
+      <workItem from="1725906308423" duration="7297000" />
+      <workItem from="1725960993392" duration="6345000" />
+      <workItem from="1725970077150" duration="10242000" />
     </task>
     <task id="LOCAL-00203" summary="Fixed following and followers dialog window">
       <option name="closed" value="true" />
@@ -775,7 +642,143 @@
       <option name="project" value="LOCAL" />
       <updated>1725912937075</updated>
     </task>
-    <option name="localTasksCounter" value="235" />
+    <task id="LOCAL-00235" summary="Fixed build">
+      <option name="closed" value="true" />
+      <created>1725913334037</created>
+      <option name="number" value="00235" />
+      <option name="presentableId" value="LOCAL-00235" />
+      <option name="project" value="LOCAL" />
+      <updated>1725913334037</updated>
+    </task>
+    <task id="LOCAL-00236" summary="Fixed build">
+      <option name="closed" value="true" />
+      <created>1725913369322</created>
+      <option name="number" value="00236" />
+      <option name="presentableId" value="LOCAL-00236" />
+      <option name="project" value="LOCAL" />
+      <updated>1725913369322</updated>
+    </task>
+    <task id="LOCAL-00237" summary="Added bugsnag sourcemap uploader">
+      <option name="closed" value="true" />
+      <created>1725964013967</created>
+      <option name="number" value="00237" />
+      <option name="presentableId" value="LOCAL-00237" />
+      <option name="project" value="LOCAL" />
+      <updated>1725964013967</updated>
+    </task>
+    <task id="LOCAL-00238" summary="Added bugsnag sourcemap uploader">
+      <option name="closed" value="true" />
+      <created>1725964633369</created>
+      <option name="number" value="00238" />
+      <option name="presentableId" value="LOCAL-00238" />
+      <option name="project" value="LOCAL" />
+      <updated>1725964633369</updated>
+    </task>
+    <task id="LOCAL-00239" summary="Fixed populating active user data on client init">
+      <option name="closed" value="true" />
+      <created>1725965090112</created>
+      <option name="number" value="00239" />
+      <option name="presentableId" value="LOCAL-00239" />
+      <option name="project" value="LOCAL" />
+      <updated>1725965090112</updated>
+    </task>
+    <task id="LOCAL-00240" summary="Improved voters dialog in proposals">
+      <option name="closed" value="true" />
+      <created>1725967243243</created>
+      <option name="number" value="00240" />
+      <option name="presentableId" value="LOCAL-00240" />
+      <option name="project" value="LOCAL" />
+      <updated>1725967243243</updated>
+    </task>
+    <task id="LOCAL-00241" summary="Fixed subscribe to community, improved create community button, got rid of unused subs store module">
+      <option name="closed" value="true" />
+      <created>1725976056954</created>
+      <option name="number" value="00241" />
+      <option name="presentableId" value="LOCAL-00241" />
+      <option name="project" value="LOCAL" />
+      <updated>1725976056954</updated>
+    </task>
+    <task id="LOCAL-00242" summary="Fixed similar entries routing, improved similar entries layout and design">
+      <option name="closed" value="true" />
+      <created>1725979588503</created>
+      <option name="number" value="00242" />
+      <option name="presentableId" value="LOCAL-00242" />
+      <option name="project" value="LOCAL" />
+      <updated>1725979588503</updated>
+    </task>
+    <task id="LOCAL-00243" summary="Animated notifications list, improved notifications layout, fixed notifications filtering">
+      <option name="closed" value="true" />
+      <created>1725985382653</created>
+      <option name="number" value="00243" />
+      <option name="presentableId" value="LOCAL-00243" />
+      <option name="project" value="LOCAL" />
+      <updated>1725985382653</updated>
+    </task>
+    <task id="LOCAL-00244" summary="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme">
+      <option name="closed" value="true" />
+      <created>1725985999066</created>
+      <option name="number" value="00244" />
+      <option name="presentableId" value="LOCAL-00244" />
+      <option name="project" value="LOCAL" />
+      <updated>1725985999066</updated>
+    </task>
+    <task id="LOCAL-00245" summary="Fixed profile info icon">
+      <option name="closed" value="true" />
+      <created>1725986072268</created>
+      <option name="number" value="00245" />
+      <option name="presentableId" value="LOCAL-00245" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986072268</updated>
+    </task>
+    <task id="LOCAL-00246" summary="Fixed unclaimed points initial state">
+      <option name="closed" value="true" />
+      <created>1725986182971</created>
+      <option name="number" value="00246" />
+      <option name="presentableId" value="LOCAL-00246" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986182971</updated>
+    </task>
+    <task id="LOCAL-00247" summary="Fixed sidebar dark theme">
+      <option name="closed" value="true" />
+      <created>1725986360746</created>
+      <option name="number" value="00247" />
+      <option name="presentableId" value="LOCAL-00247" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986360746</updated>
+    </task>
+    <task id="LOCAL-00248" summary="Disable market swap form swapping if there isn't any balance value">
+      <option name="closed" value="true" />
+      <created>1725986525274</created>
+      <option name="number" value="00248" />
+      <option name="presentableId" value="LOCAL-00248" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986525274</updated>
+    </task>
+    <task id="LOCAL-00249" summary="Do not notify favourites check in UI">
+      <option name="closed" value="true" />
+      <created>1725986657463</created>
+      <option name="number" value="00249" />
+      <option name="presentableId" value="LOCAL-00249" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986657463</updated>
+    </task>
+    <task id="LOCAL-00250" summary="Do not notify favourites check in UI">
+      <option name="closed" value="true" />
+      <created>1725986660652</created>
+      <option name="number" value="00250" />
+      <option name="presentableId" value="LOCAL-00250" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986660652</updated>
+    </task>
+    <task id="LOCAL-00251" summary="Fixed edit roles button">
+      <option name="closed" value="true" />
+      <created>1725986899877</created>
+      <option name="number" value="00251" />
+      <option name="presentableId" value="LOCAL-00251" />
+      <option name="project" value="LOCAL" />
+      <updated>1725986899877</updated>
+    </task>
+    <option name="localTasksCounter" value="252" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,32 +799,32 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed advanced search toggling" />
-    <MESSAGE value="Fixed login button showing in mobile layout" />
-    <MESSAGE value="Fixed pinned entries" />
-    <MESSAGE value="Fixed profile popover" />
-    <MESSAGE value="Fixed infinite loop in decks" />
-    <MESSAGE value="Fixed friends feed" />
-    <MESSAGE value="Fixed double transfer option" />
-    <MESSAGE value="Fixed entry page author information showing" />
-    <MESSAGE value="Fixed top text menu" />
-    <MESSAGE value="Fixed redirecting to homepage" />
-    <MESSAGE value="Added loader to notifications" />
-    <MESSAGE value="Fixed marking as read in notifications" />
-    <MESSAGE value="Fixed similar entries component, unoptimized images" />
     <MESSAGE value="Fixed language selection after reloading" />
     <MESSAGE value="Fixed theme flickering on page load" />
     <MESSAGE value="Fixed dynamic props query fetching, added missed PWA scripts" />
     <MESSAGE value="Fixed reblogging" />
     <MESSAGE value="Added bugsnag to the client side" />
-    <MESSAGE value="Fixed build" />
     <MESSAGE value="Fixed chats channel opening" />
     <MESSAGE value="Fixed referrals page opening" />
     <MESSAGE value="Fixed entry cache management" />
     <MESSAGE value="Improved search by username" />
     <MESSAGE value="Fixed Boost+" />
     <MESSAGE value="Fixed dynamic props query, fixed proposals" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed dynamic props query, fixed proposals" />
+    <MESSAGE value="Fixed build" />
+    <MESSAGE value="Added bugsnag sourcemap uploader" />
+    <MESSAGE value="Fixed populating active user data on client init" />
+    <MESSAGE value="Improved voters dialog in proposals" />
+    <MESSAGE value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
+    <MESSAGE value="Fixed similar entries routing, improved similar entries layout and design" />
+    <MESSAGE value="Animated notifications list, improved notifications layout, fixed notifications filtering" />
+    <MESSAGE value="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme" />
+    <MESSAGE value="Fixed profile info icon" />
+    <MESSAGE value="Fixed unclaimed points initial state" />
+    <MESSAGE value="Fixed sidebar dark theme" />
+    <MESSAGE value="Disable market swap form swapping if there isn't any balance value" />
+    <MESSAGE value="Do not notify favourites check in UI" />
+    <MESSAGE value="Fixed edit roles button" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed edit roles button" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

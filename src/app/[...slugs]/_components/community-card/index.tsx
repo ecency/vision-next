@@ -17,6 +17,7 @@ import { CommunityCardTeam } from "./community-card-team";
 import { CommunitySettingsDialog } from "@/app/[...slugs]/_components/community-settings";
 import { CommunityRewardsRegistrationDialog } from "../community-rewards-registration";
 import { EcencyConfigManager } from "@/config";
+import Link from "next/link";
 
 interface Props {
   community: Community;
@@ -38,7 +39,7 @@ export function CommunityCard({ community, account }: Props) {
   );
   const roleInTeam = useMemo(() => (role ? role[1] : null), [role]);
   const canUpdatePic = useMemo(
-    () => activeUser && !!users.find((x) => x.username === community.name),
+    () => activeUser && !!users.find((x: { username: string }) => x.username === community.name),
     [activeUser, community.name, users]
   );
   const canEditCommunity = useMemo(
@@ -78,16 +79,14 @@ export function CommunityCard({ community, account }: Props) {
       {(canEditCommunity || canEditTeam) && (
         <div className="community-controls">
           {canEditCommunity && (
-            <p className="community-control" onClick={() => setSettings(true)}>
-              <Button size="sm">{i18next.t("community-card.edit")}</Button>
-            </p>
+            <Button size="sm" onClick={() => setSettings(true)}>
+              {i18next.t("community-card.edit")}
+            </Button>
           )}
           {canEditTeam && (
-            <p className="community-control">
-              <Button href={`/roles/${community.name}`} size="sm">
-                {i18next.t("community-card.edit-team")}
-              </Button>
-            </p>
+            <Link href={`/roles/${community.name}`}>
+              <Button size="sm">{i18next.t("community-card.edit-team")}</Button>
+            </Link>
           )}
         </div>
       )}

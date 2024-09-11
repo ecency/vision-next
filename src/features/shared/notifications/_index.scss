@@ -151,26 +151,10 @@
     }
 
     .group-title {
-      font-size: 16px;
-      font-weight: 500;
-      padding: 16px;
+      @apply text-sm p-4 font-semibold border-light-400 border-y text-gray-steel dark:border-blue-metallic dark:text-blue-powder;
 
       &:first-letter {
         text-transform: capitalize;
-      }
-
-      @include themify(day) {
-        border-bottom: 1px solid;
-        border-top: 1px solid;
-        @apply border-light-400;
-        @apply text-gray-steel;
-      }
-
-      @include themify(night) {
-        border-bottom: 1px solid;
-        border-top: 1px solid;
-        @apply border-blue-metallic;
-        @apply text-blue-powder;
       }
 
       &:first-child {
@@ -198,17 +182,7 @@
       }
 
       .item-inner {
-        display: flex;
-        @include clearfix();
-        border-bottom-right-radius: 40px;
-        border-top-right-radius: 40px;
-        margin-right: 6px;
-        padding: 14px 10px;
-
-        @media (min-width: $md-break) {
-          margin-right: 40px;
-          padding: 14px 40px 15px 30px;
-        }
+        @apply flex justify-between clear-both p-4;
 
         .item-control {
           align-items: center;
@@ -216,11 +190,7 @@
           float: left;
           height: 100%;
           padding-top: 15px;
-          width: 24px;
-
-          @media (min-width: $md-break) {
-            width: 41px;
-          }
+          justify-content: flex-end;
 
           .mark-read {
             @apply bg-blue-dark-sky;
@@ -247,30 +217,13 @@
           float: left;
           width: calc(100% - 94px);
 
-          @include themify(day) {
-            @apply text-gray-charcoal;
+          @apply text-gray-charcoal dark:text-gray-pinkish;
 
-            a {
-              @apply text-gray-charcoal;
-            }
-          }
-
-          @include themify(night) {
-            @apply text-gray-pinkish;
-
-            a {
-              @apply text-gray-pinkish;
-            }
-          }
-
-          .first-line,
-          .second-line {
-            padding-top: 9px;
+          a {
+            @apply text-gray-charcoal dark:text-gray-pinkish;
           }
 
           .first-line {
-            margin-bottom: 4px;
-
             .source-name {
               cursor: pointer;
               font-weight: 700;
@@ -296,16 +249,11 @@
             white-space: nowrap;
           }
 
-          .transfer-amount {
-            font-weight: 500;
-          }
-
           .second-line {
             .reply-body,
             .transfer-memo {
               border-left: 5px solid;
-              @apply border-gray-steel-light-030;
-              @apply text-gray-steel;
+              @apply border-gray-steel-light-030 text-gray-800;
               cursor: pointer;
               font-size: 13px;
               padding-left: 10px;

@@ -136,7 +136,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
         {mainMenu.map(({ label, onClick, icon, to }) => (
           <NavbarSideMainMenuItem to={to} key={label} label={label} onClick={onClick} icon={icon} />
         ))}
-        <hr className="my-2" />
+        <hr className="my-2 border-[--border-color]" />
         <NavbarSideMainMenuItem
           label={i18next.t("market.swap-title")}
           to="/market#swap"
@@ -149,7 +149,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
           onClick={onHide}
           icon={<UilDashboard size={16} />}
         />
-        <hr className="my-2" />
+        <hr className="my-2 border-[--border-color]" />
         {authMenu.map(({ label, onClick, icon }) => (
           <NavbarSideMainMenuItem
             key={label}

@@ -68,7 +68,7 @@ export enum QueryIdentifiers {
   DISCOVER_CURATION = "discover-curation",
   CONTRIBUTORS = "contributors",
   GIFS = "GIFS",
-  NOTIFICATIONS = "NOTIFICATIONS",
+  NOTIFICATIONS = "notifications",
   PROPOSAL = "proposal",
   GET_FRIENDS = "get-friends",
   GET_SEARCH_FRIENDS = "get-search-friends",

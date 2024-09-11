@@ -5,6 +5,7 @@ import { NotificationFilter, NotificationViewType } from "@/enums";
 import { NotificationListItem } from "@/features/shared/notifications/notification-list-item";
 import i18next from "i18next";
 import { date2key } from "@/features/shared/notifications/utils";
+import { AnimatedNotificationListItemLayout } from "@/features/shared/notifications/animated-notification-list-item-layout";
 
 interface Props {
   filter: NotificationFilter | null;
@@ -39,7 +40,7 @@ export function NotificationList({
           {dataFlow.map((n, i) => (
             <Fragment key={n.id}>
               {currentStatus === NotificationViewType.ALL && (
-                <>
+                <AnimatedNotificationListItemLayout key={n.id} index={i}>
                   {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
                   <NotificationListItem
                     notification={n}
@@ -52,10 +53,10 @@ export function NotificationList({
                       }
                     }}
                   />
-                </>
+                </AnimatedNotificationListItemLayout>
               )}
               {currentStatus === NotificationViewType.READ && n.read === 1 && (
-                <>
+                <AnimatedNotificationListItemLayout key={n.id} index={i}>
                   {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
                   <NotificationListItem
                     notification={n}
@@ -68,10 +69,10 @@ export function NotificationList({
                       }
                     }}
                   />
-                </>
+                </AnimatedNotificationListItemLayout>
               )}
               {currentStatus === NotificationViewType.UNREAD && n.read === 0 && (
-                <>
+                <AnimatedNotificationListItemLayout key={n.id} index={i}>
                   {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
                   <NotificationListItem
                     notification={n}
@@ -84,7 +85,7 @@ export function NotificationList({
                       }
                     }}
                   />
-                </>
+                </AnimatedNotificationListItemLayout>
               )}
             </Fragment>
           ))}

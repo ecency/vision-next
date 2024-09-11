@@ -11,6 +11,8 @@ import { CommunityListItem } from "@/app/communities/_components";
 import { useCommunitiesCache } from "@/core/caches";
 import { AnimatePresence, motion } from "framer-motion";
 import { Badge } from "@ui/badge";
+import { Button } from "@ui/button";
+import { UilUser } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   account: Account;
@@ -21,7 +23,7 @@ export function ProfileCommunities({ account }: Props) {
 
   const [sort, setSort] = useState<"asc" | "desc">("asc");
 
-  const { data, isLoading } = useGetSubscriptionsQuery(account.name);
+  const { data, isFetching } = useGetSubscriptionsQuery(account.name);
   const communities = useCommunitiesCache(data?.map((item) => item[0]) ?? []);
 
   const showCreateLink = activeUser && activeUser.username === account.name;
@@ -36,9 +38,9 @@ export function ProfileCommunities({ account }: Props) {
   );
 
   return (
-    <div>
-      {isLoading && <LinearProgress />}
-      {!isLoading && items?.length === 0 && (
+    <div className="mt-4">
+      {isFetching && <LinearProgress />}
+      {!isFetching && items?.length === 0 && (
         <>
           <h2>{i18next.t("profile.communities-title")}</h2>
           <p className="text-gray-600">{i18next.t("g.empty-list")}</p>
@@ -64,6 +66,15 @@ export function ProfileCommunities({ account }: Props) {
               />
             )}
           </div>
+          {showCreateLink && (
+            <p>
+              <Link href="/communities/create" className="mb-4 flex">
+                <Button outline={true} icon={<UilUser />}>
+                  {i18next.t("profile.create-community")}
+                </Button>
+              </Link>
+            </p>
+          )}
 
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <AnimatePresence>
@@ -90,13 +101,6 @@ export function ProfileCommunities({ account }: Props) {
               )}
             </AnimatePresence>
           </ul>
-          {showCreateLink && (
-            <p>
-              <Link href="/communities/create" className="create-link">
-                {i18next.t("profile.create-community")}
-              </Link>
-            </p>
-          )}
         </>
       )}
     </div>

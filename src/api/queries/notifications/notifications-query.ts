@@ -14,7 +14,6 @@ export function useNotificationsQuery(filter: NotificationFilter | null) {
     initialData: { pages: [], pageParams: [] },
     initialPageParam: "",
     getNextPageParam: (lastPage) => lastPage?.[lastPage.length - 1]?.timestamp ?? "",
-    refetchOnMount: true,
-    staleTime: 30000
+    refetchOnMount: true
   });
 }
