@@ -38,7 +38,7 @@ export function KeyOrHotDialog({
           </PopoverConfirm>
         </div>
       ) : (
-        children
+        <div onClick={() => setKeyDialog(true)}>{children}</div>
       )}
 
       {keyDialog && (
