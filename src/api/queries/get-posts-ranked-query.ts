@@ -2,7 +2,7 @@ import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { Entry } from "@/entities";
 import { bridgeApiCall, resolvePost } from "@/api/bridge";
 
-type PageParam = { author: string | undefined; permlink: string | undefined };
+type PageParam = { author: string | undefined; permlink: string | undefined; hasNextPage: boolean };
 
 export const getPostsRankedQuery = (
   sort: string,
@@ -14,6 +14,10 @@ export const getPostsRankedQuery = (
   EcencyQueriesManager.generateClientServerInfiniteQuery({
     queryKey: [QueryIdentifiers.GET_POSTS_RANKED, sort, tag, limit, observer],
     queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
+      if (!pageParam.hasNextPage) {
+        return [];
+      }
+
       const response = await bridgeApiCall<Entry[] | null>("get_ranked_posts", {
         sort,
         start_author: pageParam.author,
@@ -31,12 +35,13 @@ export const getPostsRankedQuery = (
     },
     enabled,
     initialData: { pages: [], pageParams: [] },
-    initialPageParam: { author: undefined, permlink: undefined } as PageParam,
+    initialPageParam: { author: undefined, permlink: undefined, hasNextPage: true } as PageParam,
     getNextPageParam: (lastPage: Entry[]) => {
       const last = lastPage?.[lastPage!.length - 1];
       return {
         author: last?.author,
-        permlink: last?.permlink
+        permlink: last?.permlink,
+        hasNextPage: (lastPage?.length ?? 0) > 0
       };
     }
   });

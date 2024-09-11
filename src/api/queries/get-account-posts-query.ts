@@ -2,7 +2,7 @@ import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { bridgeApiCall, resolvePost } from "@/api/bridge";
 import { Entry } from "@/entities";
 
-type PageParam = { author: string | undefined; permlink: string | undefined };
+type PageParam = { author: string | undefined; permlink: string | undefined; hasNextPage: boolean };
 
 export const getAccountPostsQuery = (
   username: string | undefined,
@@ -14,6 +14,10 @@ export const getAccountPostsQuery = (
   EcencyQueriesManager.generateClientServerInfiniteQuery({
     queryKey: [QueryIdentifiers.GET_POSTS, username, filter, limit],
     queryFn: async ({ pageParam }) => {
+      if (!pageParam.hasNextPage) {
+        return [];
+      }
+
       const resp = await bridgeApiCall<Entry[] | null>("get_account_posts", {
         sort: filter,
         account: username,
@@ -30,12 +34,13 @@ export const getAccountPostsQuery = (
     },
     enabled: !!username && enabled,
     initialData: { pages: [], pageParams: [] },
-    initialPageParam: { author: undefined, permlink: undefined } as PageParam,
+    initialPageParam: { author: undefined, permlink: undefined, hasNextPage: true } as PageParam,
     getNextPageParam: (lastPage: Entry[]) => {
       const last = lastPage?.[lastPage!.length - 1];
       return {
         author: last?.author,
-        permlink: last?.permlink
+        permlink: last?.permlink,
+        hasNextPage: (lastPage?.length ?? 0) > 0
       };
     }
   });

@@ -5,12 +5,21 @@ import { SearchResponse } from "@/entities";
 
 type PageParam = {
   sid: string | undefined;
+  hasNextPage: boolean;
 };
 
 export const getControversialRisingQuery = (what: string, tag: string, enabled = true) =>
   EcencyQueriesManager.generateClientServerInfiniteQuery({
     queryKey: [QueryIdentifiers.GET_POSTS_CONTROVERSIAL_OR_RISING, what, tag],
     queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
+      if (!pageParam.hasNextPage) {
+        return {
+          hits: 0,
+          took: 0,
+          results: []
+        };
+      }
+
       let sinceDate: Moment | undefined;
 
       switch (tag) {
@@ -35,13 +44,14 @@ export const getControversialRisingQuery = (what: string, tag: string, enabled =
       const hideLow_ = "0";
       const votes = tag === "today" ? 50 : 200;
 
-      return await search(q, sort, hideLow_, since, pageParam.sid, votes);
+      return search(q, sort, hideLow_, since, pageParam.sid, votes);
     },
     initialData: { pages: [], pageParams: [] },
-    initialPageParam: { sid: undefined } as PageParam,
+    initialPageParam: { sid: undefined, hasNextPage: true } as PageParam,
     getNextPageParam: (resp: SearchResponse) => {
       return {
-        sid: resp?.scroll_id
+        sid: resp?.scroll_id,
+        hasNextPage: resp.results.length > 0
       };
     },
     enabled
