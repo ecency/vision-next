@@ -129,8 +129,8 @@ export function NotificationListItem({
       <div
         className={`item-inner ${(notification as ApiMentionNotification).deck ? "p-2 m-0" : ""}`}
       >
-        <div className="flex items-center w-full">
-          <div className="source">{sourceLinkMain}</div>
+        <div className="flex w-full">
+          <div className="source pt-0.5">{sourceLinkMain}</div>
 
           {(notification.type === "vote" || notification.type === "unvote") && (
             <NotificationVoteType
