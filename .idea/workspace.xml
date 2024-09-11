@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed FAQ opening">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed submit page draft opening">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/textarea-autocomplete/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/textarea-autocomplete/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/account-claiming.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/account-claiming.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/bookmarks.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/bookmarks.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/delete-comment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/delete-comment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/notifications/update-notifications-settings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/notifications/update-notifications-settings.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/update-profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/update-profile.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-discussions-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-discussions-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/client-providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/providers.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -141,7 +148,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.dev">
+  <component name="RunManager" selected="npm.build">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ecency-vision-next" />
       <method v="2">
@@ -225,9 +232,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.build" />
         <item itemvalue="npm.dev" />
         <item itemvalue="npm.start" />
-        <item itemvalue="npm.build" />
         <item itemvalue="npm.test" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
       </list>
@@ -380,15 +387,7 @@
       <workItem from="1725960993392" duration="6345000" />
       <workItem from="1725970077150" duration="10382000" />
       <workItem from="1726037932528" duration="1257000" />
-      <workItem from="1726074299325" duration="4578000" />
-    </task>
-    <task id="LOCAL-00209" summary="Fixed advanced search toggling">
-      <option name="closed" value="true" />
-      <created>1725742897770</created>
-      <option name="number" value="00209" />
-      <option name="presentableId" value="LOCAL-00209" />
-      <option name="project" value="LOCAL" />
-      <updated>1725742897770</updated>
+      <workItem from="1726074299325" duration="5052000" />
     </task>
     <task id="LOCAL-00210" summary="Fixed login button showing in mobile layout">
       <option name="closed" value="true" />
@@ -774,7 +773,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726088435982</updated>
     </task>
-    <option name="localTasksCounter" value="258" />
+    <task id="LOCAL-00258" summary="Fixed submit page draft opening">
+      <option name="closed" value="true" />
+      <created>1726088803874</created>
+      <option name="number" value="00258" />
+      <option name="presentableId" value="LOCAL-00258" />
+      <option name="project" value="LOCAL" />
+      <updated>1726088803874</updated>
+    </task>
+    <option name="localTasksCounter" value="259" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -795,7 +802,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed chats channel opening" />
     <MESSAGE value="Fixed referrals page opening" />
     <MESSAGE value="Fixed entry cache management" />
     <MESSAGE value="Improved search by username" />
@@ -820,7 +826,8 @@
     <MESSAGE value="Fixed infinite fetching of posts" />
     <MESSAGE value="Fixed voting on proposals and witnesses" />
     <MESSAGE value="Fixed FAQ opening" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed FAQ opening" />
+    <MESSAGE value="Fixed submit page draft opening" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed submit page draft opening" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

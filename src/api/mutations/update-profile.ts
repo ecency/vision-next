@@ -1,11 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateProfile } from "@/api/operations";
 import { AccountProfile, FullAccount } from "@/entities";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
-import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 
 export function useUpdateProfile(account: FullAccount) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["update-profile", account],
     mutationFn: async ({ nextProfile }: { nextProfile: AccountProfile }) => {
@@ -16,7 +18,7 @@ export function useUpdateProfile(account: FullAccount) {
     onSuccess: (profile) => {
       success(i18next.t("g.success"));
 
-      getQueryClient().setQueryData<FullAccount>(
+      queryClient.setQueryData<FullAccount>(
         [QueryIdentifiers.GET_ACCOUNT_FULL, account.name],
         (data) => {
           if (!data) {

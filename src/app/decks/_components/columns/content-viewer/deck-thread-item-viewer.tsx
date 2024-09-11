@@ -13,6 +13,7 @@ import {
   getDiscussionsMapQuery
 } from "@/api/queries/get-discussions-query";
 import { useMounted } from "@/utils/use-mounted";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   entry: IdentifiableEntry;
@@ -28,6 +29,7 @@ export const DeckThreadItemViewer = ({
   highlightedEntry
 }: Props) => {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: entry } =
     EcencyEntriesCacheManagement.getEntryQuery<IdentifiableEntry>(initialEntry).useClientQuery();
@@ -126,7 +128,7 @@ export const DeckThreadItemViewer = ({
         onSuccess={(reply) => {
           reply.replies = [];
           if (data) {
-            addReplyToDiscussionsList(entry!, reply);
+            addReplyToDiscussionsList(entry!, reply, queryClient);
             // Update entry in global cache
             addReply(reply);
           }

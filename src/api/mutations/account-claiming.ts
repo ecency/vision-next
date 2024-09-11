@@ -1,10 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PrivateKey } from "@hiveio/dhive";
 import { claimAccount, claimAccountByKeychain } from "../operations";
 import { FullAccount } from "@/entities";
-import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 
 export function useAccountClaiming(account: FullAccount) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["account-claiming", account.name],
     mutationFn: async ({ isKeychain, key }: { key?: PrivateKey; isKeychain?: boolean }) => {
@@ -23,7 +25,7 @@ export function useAccountClaiming(account: FullAccount) {
       }
     },
     onSuccess: () => {
-      getQueryClient().setQueryData<FullAccount>(
+      queryClient.setQueryData<FullAccount>(
         [QueryIdentifiers.GET_ACCOUNT_FULL, account.name],
         (data) => {
           if (!data) {

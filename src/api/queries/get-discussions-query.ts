@@ -1,9 +1,10 @@
-import { EcencyQueriesManager, getQueryClient, QueryIdentifiers } from "@/core/react-query";
+import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { Entry } from "@/entities";
 import { bridgeApiCall } from "@/api/bridge";
 import { parseAsset } from "@/utils";
 import { SortOrder } from "@/enums";
 import { IdentifiableEntry } from "@/app/decks/_components/columns/deck-threads-manager";
+import { QueryClient } from "@tanstack/react-query";
 
 export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOrder) {
   const allPayout = (c: Entry) =>
@@ -117,8 +118,12 @@ export const getDiscussionsMapQuery = (entry: Entry | undefined, enabled: boolea
     initialData: {}
   });
 
-export function addReplyToDiscussionsList(entry: IdentifiableEntry, reply: Entry) {
-  getQueryClient().setQueryData<Record<string, Entry | null>>(
+export function addReplyToDiscussionsList(
+  entry: IdentifiableEntry,
+  reply: Entry,
+  queryClient: QueryClient
+) {
+  queryClient.setQueryData<Record<string, Entry | null>>(
     [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink],
     (data) => {
       if (!data) {
