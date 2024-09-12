@@ -4,12 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed build">
-      <change afterPath="$PROJECT_DIR$/src/app/global-error.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed submit page draft opening">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/account-claiming.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/account-claiming.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/bookmarks.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/bookmarks.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/delete-comment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/delete-comment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/notifications/update-notifications-settings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/notifications/update-notifications-settings.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/mutations/update-profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/update-profile.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-discussions-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-discussions-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/client-providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/providers.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/bugsnag.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/bugsnag.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,7 +25,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="bugfix/review-issues-3" />
+        <entry key="$PROJECT_DIR$" value="bugfix/bugsnag" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -86,7 +91,7 @@
     "WebServerToolWindowFactoryState": "false",
     "code.cleanup.on.save": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "bugfix/final-review",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
     "node.js.detected.package.eslint": "true",
@@ -143,7 +148,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.start">
+  <component name="RunManager" selected="npm.build">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ecency-vision-next" />
       <method v="2">
@@ -227,9 +232,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.start" />
         <item itemvalue="npm.build" />
         <item itemvalue="npm.dev" />
+        <item itemvalue="npm.start" />
         <item itemvalue="npm.test" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
       </list>
@@ -381,55 +386,8 @@
       <workItem from="1725906308423" duration="7297000" />
       <workItem from="1725960993392" duration="6345000" />
       <workItem from="1725970077150" duration="10382000" />
-      <workItem from="1726037932528" duration="716000" />
-    </task>
-    <task id="LOCAL-00204" summary="Fixed resource credits default value">
-      <option name="closed" value="true" />
-      <created>1725476980057</created>
-      <option name="number" value="00204" />
-      <option name="presentableId" value="LOCAL-00204" />
-      <option name="project" value="LOCAL" />
-      <updated>1725476980057</updated>
-    </task>
-    <task id="LOCAL-00205" summary="Fixed auth screen logo source">
-      <option name="closed" value="true" />
-      <created>1725477342171</created>
-      <option name="number" value="00205" />
-      <option name="presentableId" value="LOCAL-00205" />
-      <option name="project" value="LOCAL" />
-      <updated>1725477342171</updated>
-    </task>
-    <task id="LOCAL-00206" summary="Added loader for community loader">
-      <option name="closed" value="true" />
-      <created>1725477682647</created>
-      <option name="number" value="00206" />
-      <option name="presentableId" value="LOCAL-00206" />
-      <option name="project" value="LOCAL" />
-      <updated>1725477682647</updated>
-    </task>
-    <task id="LOCAL-00207" summary="Fixed 500 error because of client">
-      <option name="closed" value="true" />
-      <created>1725742010813</created>
-      <option name="number" value="00207" />
-      <option name="presentableId" value="LOCAL-00207" />
-      <option name="project" value="LOCAL" />
-      <updated>1725742010813</updated>
-    </task>
-    <task id="LOCAL-00208" summary="Fixed search bar layout">
-      <option name="closed" value="true" />
-      <created>1725742653265</created>
-      <option name="number" value="00208" />
-      <option name="presentableId" value="LOCAL-00208" />
-      <option name="project" value="LOCAL" />
-      <updated>1725742653265</updated>
-    </task>
-    <task id="LOCAL-00209" summary="Fixed advanced search toggling">
-      <option name="closed" value="true" />
-      <created>1725742897770</created>
-      <option name="number" value="00209" />
-      <option name="presentableId" value="LOCAL-00209" />
-      <option name="project" value="LOCAL" />
-      <updated>1725742897770</updated>
+      <workItem from="1726037932528" duration="1257000" />
+      <workItem from="1726074299325" duration="5052000" />
     </task>
     <task id="LOCAL-00210" summary="Fixed login button showing in mobile layout">
       <option name="closed" value="true" />
@@ -775,7 +733,55 @@
       <option name="project" value="LOCAL" />
       <updated>1725987260111</updated>
     </task>
-    <option name="localTasksCounter" value="253" />
+    <task id="LOCAL-00253" summary="Turned off bugsnag">
+      <option name="closed" value="true" />
+      <created>1726038669754</created>
+      <option name="number" value="00253" />
+      <option name="presentableId" value="LOCAL-00253" />
+      <option name="project" value="LOCAL" />
+      <updated>1726038669754</updated>
+    </task>
+    <task id="LOCAL-00254" summary="Fixed notifications dark theme and layout">
+      <option name="closed" value="true" />
+      <created>1726075323400</created>
+      <option name="number" value="00254" />
+      <option name="presentableId" value="LOCAL-00254" />
+      <option name="project" value="LOCAL" />
+      <updated>1726075323400</updated>
+    </task>
+    <task id="LOCAL-00255" summary="Fixed infinite fetching of posts">
+      <option name="closed" value="true" />
+      <created>1726077423355</created>
+      <option name="number" value="00255" />
+      <option name="presentableId" value="LOCAL-00255" />
+      <option name="project" value="LOCAL" />
+      <updated>1726077423355</updated>
+    </task>
+    <task id="LOCAL-00256" summary="Fixed voting on proposals and witnesses">
+      <option name="closed" value="true" />
+      <created>1726088318625</created>
+      <option name="number" value="00256" />
+      <option name="presentableId" value="LOCAL-00256" />
+      <option name="project" value="LOCAL" />
+      <updated>1726088318625</updated>
+    </task>
+    <task id="LOCAL-00257" summary="Fixed FAQ opening">
+      <option name="closed" value="true" />
+      <created>1726088435982</created>
+      <option name="number" value="00257" />
+      <option name="presentableId" value="LOCAL-00257" />
+      <option name="project" value="LOCAL" />
+      <updated>1726088435982</updated>
+    </task>
+    <task id="LOCAL-00258" summary="Fixed submit page draft opening">
+      <option name="closed" value="true" />
+      <created>1726088803874</created>
+      <option name="number" value="00258" />
+      <option name="presentableId" value="LOCAL-00258" />
+      <option name="project" value="LOCAL" />
+      <updated>1726088803874</updated>
+    </task>
+    <option name="localTasksCounter" value="259" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,12 +802,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed language selection after reloading" />
-    <MESSAGE value="Fixed theme flickering on page load" />
-    <MESSAGE value="Fixed dynamic props query fetching, added missed PWA scripts" />
-    <MESSAGE value="Fixed reblogging" />
-    <MESSAGE value="Added bugsnag to the client side" />
-    <MESSAGE value="Fixed chats channel opening" />
     <MESSAGE value="Fixed referrals page opening" />
     <MESSAGE value="Fixed entry cache management" />
     <MESSAGE value="Improved search by username" />
@@ -821,7 +821,13 @@
     <MESSAGE value="Do not notify favourites check in UI" />
     <MESSAGE value="Fixed edit roles button" />
     <MESSAGE value="Fixed build" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed build" />
+    <MESSAGE value="Turned off bugsnag" />
+    <MESSAGE value="Fixed notifications dark theme and layout" />
+    <MESSAGE value="Fixed infinite fetching of posts" />
+    <MESSAGE value="Fixed voting on proposals and witnesses" />
+    <MESSAGE value="Fixed FAQ opening" />
+    <MESSAGE value="Fixed submit page draft opening" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed submit page draft opening" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -151,7 +151,7 @@
     }
 
     .group-title {
-      @apply text-sm p-4 font-semibold border-light-400 border-y text-gray-steel dark:border-blue-metallic dark:text-blue-powder;
+      @apply text-sm p-4 font-semibold border-light-400 border-y text-gray-steel dark:border-dark-200-010-light dark:text-blue-powder;
 
       &:first-letter {
         text-transform: capitalize;
@@ -168,29 +168,15 @@
       font-size: 90%;
 
       &.not-read {
-        @include themify(day) {
-          @apply bg-blue-duck-egg;
-
-          &:hover {
-            @apply bg-blue-powder;
-          }
-        }
-
-        @include themify(night) {
-          @apply bg-blue-metallic-20;
-        }
+        @apply bg-blue-duck-egg hover:bg-blue-powder dark:bg-dark-200-010-light;
       }
 
       .item-inner {
         @apply flex justify-between clear-both p-4;
 
         .item-control {
-          align-items: center;
           display: flex;
-          float: left;
-          height: 100%;
           padding-top: 15px;
-          justify-content: flex-end;
 
           .mark-read {
             @apply bg-blue-dark-sky;
@@ -199,6 +185,7 @@
             height: 8px;
             margin-left: 5px;
             width: 8px;
+            min-width: 8px;
           }
         }
 
@@ -252,8 +239,7 @@
           .second-line {
             .reply-body,
             .transfer-memo {
-              border-left: 5px solid;
-              @apply border-gray-steel-light-030 text-gray-800;
+              @apply border-l-2 border-gray-steel-light-030 text-gray-800 dark:text-white dark:border-white dark:border-opacity-50;
               cursor: pointer;
               font-size: 13px;
               padding-left: 10px;

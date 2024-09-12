@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
 import { Entry } from "@/entities";
 import { addBookmark } from "@/api/private-api";
@@ -7,10 +7,11 @@ import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
-import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 
 export function useBookmarkAdd(entry: Entry) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["bookmarks", "addBookmark"],
@@ -29,7 +30,7 @@ export function useBookmarkAdd(entry: Entry) {
     },
     onSuccess: () => {
       success(i18next.t("bookmark-btn.added"));
-      getQueryClient().invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: [QueryIdentifiers.BOOKMARKS, activeUser?.username]
       });
     },
@@ -39,6 +40,7 @@ export function useBookmarkAdd(entry: Entry) {
 
 export function useBookmarkDelete(bookmarkId?: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["bookmarks", "deleteBookmark"],
@@ -53,7 +55,7 @@ export function useBookmarkDelete(bookmarkId?: string) {
     },
     onSuccess: () => {
       success(i18next.t("bookmark-btn.deleted"));
-      getQueryClient().invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: [QueryIdentifiers.BOOKMARKS, activeUser?.username]
       });
     },

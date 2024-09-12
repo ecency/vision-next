@@ -12,6 +12,7 @@ import { Tracker } from "@/features/monitoring";
 import { Announcements } from "@/features/announcement";
 import { FloatingFAQ } from "@/features/faq";
 import { EcencyConfigManager } from "@/config";
+import { PushNotificationsProvider } from "@/features/push-notifications";
 
 export function ClientProviders(props: PropsWithChildren) {
   return (
@@ -24,7 +25,9 @@ export function ClientProviders(props: PropsWithChildren) {
           <UserActivityRecorder />
         </EcencyConfigManager.Conditional>
         <Tracker />
-        <ChatProvider>{props.children}</ChatProvider>
+        <PushNotificationsProvider>
+          <ChatProvider>{props.children}</ChatProvider>
+        </PushNotificationsProvider>
         <Announcements />
         <FloatingFAQ />
       </UIManager>

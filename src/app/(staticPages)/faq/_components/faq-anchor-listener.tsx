@@ -7,7 +7,7 @@ export function FaqSearchListener({ searchResult }: { searchResult: string[] }) 
   const prev = usePrevious(searchResult);
 
   useLayoutEffect(() => {
-    if (searchResult.length > 0 && prev?.length !== searchResult.length) {
+    if (searchResult.length > 0 && prev?.length !== searchResult.length && window.location.hash) {
       const rect = document.querySelector(window.location.hash)?.getBoundingClientRect();
       if (rect) {
         window.scrollTo(0, rect.top - 120); // 120 px for navigation

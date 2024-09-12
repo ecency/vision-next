@@ -1,13 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { broadcastPostingOperations, formatError } from "@/api/operations";
 import { useGlobalStore } from "@/core/global-store";
 import { Entry } from "@/entities";
 import { error } from "@/features/shared";
 import { Operation } from "@hiveio/dhive";
-import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 
 export function useDeleteComment(entry: Entry, onSuccess: () => void, parent?: Entry) {
   const activeUser = useGlobalStore((state) => state.activeUser);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["deleteComment", activeUser?.username, entry?.id],
@@ -29,12 +30,12 @@ export function useDeleteComment(entry: Entry, onSuccess: () => void, parent?: E
     onSuccess: () => {
       if (parent) {
         const previousReplies =
-          getQueryClient().getQueryData<Entry[]>([
+          queryClient.getQueryData<Entry[]>([
             QueryIdentifiers.FETCH_DISCUSSIONS,
             parent?.author,
             parent?.permlink
           ]) ?? [];
-        getQueryClient().setQueryData(
+        queryClient.setQueryData(
           [QueryIdentifiers.FETCH_DISCUSSIONS, parent?.author, parent?.permlink],
           [
             ...previousReplies.filter(
