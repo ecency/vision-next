@@ -53,13 +53,15 @@ export const getSearchFriendsQuery = (username: string, mode: string, query: str
     queryKey: [QueryIdentifiers.GET_SEARCH_FRIENDS, username, mode, query],
     refetchOnMount: false,
     queryFn: async () => {
-      let request = appAxios.post<FriendSearchResult[]>(apiBase(`/search-api/search-follower`), {
-        following: username,
-        q: query
-      });
+      let request;
       if (mode === "following") {
         request = appAxios.post<FriendSearchResult[]>(apiBase(`/search-api/search-following`), {
           follower: username,
+          q: query
+        });
+      } else {
+        request = appAxios.post<FriendSearchResult[]>(apiBase(`/search-api/search-follower`), {
+          following: username,
           q: query
         });
       }

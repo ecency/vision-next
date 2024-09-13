@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed announcements multiple requests">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-reblogs-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-reblogs-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -381,6 +381,7 @@
       <workItem from="1726037932528" duration="1257000" />
       <workItem from="1726074299325" duration="5850000" />
       <workItem from="1726215810059" duration="8081000" />
+      <workItem from="1726254148069" duration="500000" />
     </task>
     <task id="LOCAL-00219" summary="Fixed redirecting to homepage">
       <option name="closed" value="true" />
