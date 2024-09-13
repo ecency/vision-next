@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed RC API requests, fixed N + 1 votes requests">
-      <change afterPath="$PROJECT_DIR$/src/api/queries/get-announcements-query.ts" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed announcements multiple requests">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/announcement/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/announcement/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/available-credits/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/available-credits/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/queries/get-reblogs-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-reblogs-query.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -384,23 +380,7 @@
       <workItem from="1725970077150" duration="10382000" />
       <workItem from="1726037932528" duration="1257000" />
       <workItem from="1726074299325" duration="5850000" />
-      <workItem from="1726215810059" duration="6624000" />
-    </task>
-    <task id="LOCAL-00217" summary="Fixed entry page author information showing">
-      <option name="closed" value="true" />
-      <created>1725830122919</created>
-      <option name="number" value="00217" />
-      <option name="presentableId" value="LOCAL-00217" />
-      <option name="project" value="LOCAL" />
-      <updated>1725830122919</updated>
-    </task>
-    <task id="LOCAL-00218" summary="Fixed top text menu">
-      <option name="closed" value="true" />
-      <created>1725830235689</created>
-      <option name="number" value="00218" />
-      <option name="presentableId" value="LOCAL-00218" />
-      <option name="project" value="LOCAL" />
-      <updated>1725830235689</updated>
+      <workItem from="1726215810059" duration="8081000" />
     </task>
     <task id="LOCAL-00219" summary="Fixed redirecting to homepage">
       <option name="closed" value="true" />
@@ -778,7 +758,23 @@
       <option name="project" value="LOCAL" />
       <updated>1726242469364</updated>
     </task>
-    <option name="localTasksCounter" value="266" />
+    <task id="LOCAL-00266" summary="Fixed announcements multiple requests">
+      <option name="closed" value="true" />
+      <created>1726243444357</created>
+      <option name="number" value="00266" />
+      <option name="presentableId" value="LOCAL-00266" />
+      <option name="project" value="LOCAL" />
+      <updated>1726243444357</updated>
+    </task>
+    <task id="LOCAL-00267" summary="Fixed announcements multiple requests">
+      <option name="closed" value="true" />
+      <created>1726243590882</created>
+      <option name="number" value="00267" />
+      <option name="presentableId" value="LOCAL-00267" />
+      <option name="project" value="LOCAL" />
+      <updated>1726243590883</updated>
+    </task>
+    <option name="localTasksCounter" value="268" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -799,7 +795,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed populating active user data on client init" />
     <MESSAGE value="Improved voters dialog in proposals" />
     <MESSAGE value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
     <MESSAGE value="Fixed similar entries routing, improved similar entries layout and design" />
@@ -824,7 +819,8 @@
     <MESSAGE value="Added keychain support" />
     <MESSAGE value="Fixed community leaderships showing" />
     <MESSAGE value="Fixed RC API requests, fixed N + 1 votes requests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed RC API requests, fixed N + 1 votes requests" />
+    <MESSAGE value="Fixed announcements multiple requests" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed announcements multiple requests" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
