@@ -23,8 +23,7 @@ export function createGlobalState() {
     newVersion: null,
     globalNotifications: true,
     nsfw: false,
-    isMobile: false,
-    lastIndexPath: null as string | null
+    isMobile: false
   };
 }
 
@@ -92,10 +91,8 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       });
       success(i18next.t("preferences.updated"));
     },
-    setLastIndexPath(value: string | null) {
-      set({
-        lastIndexPath: value
-      });
+    initKeychain() {
+      (window as unknown as any).hive_keychain.requestHandshake(() => set({ hasKeyChain: true }));
     }
   };
 }

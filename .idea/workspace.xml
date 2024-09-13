@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Improved notification reply type layout">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed circle layout in notifications">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/_index.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/notification-list-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/notification-list-item.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/client-init.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-init.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/global-store/modules/global-module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/global-store/modules/global-module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -381,15 +382,7 @@
       <workItem from="1725970077150" duration="10382000" />
       <workItem from="1726037932528" duration="1257000" />
       <workItem from="1726074299325" duration="5850000" />
-      <workItem from="1726215810059" duration="2946000" />
-    </task>
-    <task id="LOCAL-00213" summary="Fixed profile popover">
-      <option name="closed" value="true" />
-      <created>1725825720672</created>
-      <option name="number" value="00213" />
-      <option name="presentableId" value="LOCAL-00213" />
-      <option name="project" value="LOCAL" />
-      <updated>1725825720672</updated>
+      <workItem from="1726215810059" duration="3910000" />
     </task>
     <task id="LOCAL-00214" summary="Fixed infinite loop in decks">
       <option name="closed" value="true" />
@@ -775,7 +768,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726239259738</updated>
     </task>
-    <option name="localTasksCounter" value="262" />
+    <task id="LOCAL-00262" summary="Fixed circle layout in notifications">
+      <option name="closed" value="true" />
+      <created>1726239707168</created>
+      <option name="number" value="00262" />
+      <option name="presentableId" value="LOCAL-00262" />
+      <option name="project" value="LOCAL" />
+      <updated>1726239707168</updated>
+    </task>
+    <option name="localTasksCounter" value="263" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,7 +797,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Improved search by username" />
     <MESSAGE value="Fixed Boost+" />
     <MESSAGE value="Fixed dynamic props query, fixed proposals" />
     <MESSAGE value="Added bugsnag sourcemap uploader" />
@@ -821,7 +821,8 @@
     <MESSAGE value="Fixed submit page draft opening" />
     <MESSAGE value="Fixed setQueryData error" />
     <MESSAGE value="Improved notification reply type layout" />
-    <option name="LAST_COMMIT_MESSAGE" value="Improved notification reply type layout" />
+    <MESSAGE value="Fixed circle layout in notifications" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed circle layout in notifications" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -10,6 +10,7 @@ export function ClientInit() {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
+  const initKeychain = useGlobalStore((state) => state.initKeychain);
 
   const { data } = getAccountFullQuery(activeUser?.username).useClientQuery();
 
@@ -20,6 +21,8 @@ export function ClientInit() {
     if (activeUsername) {
       setActiveUser(activeUsername);
     }
+
+    initKeychain();
   });
 
   useEffect(() => {

@@ -104,15 +104,6 @@ export function makeQueryClient() {
     }
   });
 }
-
-export let BROWSER_QUERY_CLIENT: QueryClient | undefined = undefined;
-
-export function setBrowserQueryClient(queryClient: QueryClient) {
-  BROWSER_QUERY_CLIENT = queryClient;
-}
-
-export const getQueryClient = isServer
-  ? cache(() => makeQueryClient())
-  : () => BROWSER_QUERY_CLIENT!;
+export const getQueryClient = isServer ? cache(() => makeQueryClient()) : () => undefined;
 
 export * from "./ecency-queries-manager";
