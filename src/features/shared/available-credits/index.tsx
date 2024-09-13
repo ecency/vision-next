@@ -43,7 +43,7 @@ export const AvailableCredits = ({ username, className }: Props) => {
   const isMounted = useMounted();
 
   useEffect(() => {
-    if (!rcValues) {
+    if (!rcValues || !rcStats) {
       return;
     }
 

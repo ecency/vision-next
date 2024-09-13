@@ -4,14 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed community leaderships showing">
-      <change afterPath="$PROJECT_DIR$/src/api/queries/get-rc-operators-stats-query.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/features/shared/entry-votes/entry-votes-dialog.tsx" afterDir="false" />
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed RC API requests, fixed N + 1 votes requests">
+      <change afterPath="$PROJECT_DIR$/src/api/queries/get-announcements-query.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/queries/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/announcement/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/announcement/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/features/shared/available-credits/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/available-credits/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/shared/entry-votes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/entry-votes/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -385,15 +384,7 @@
       <workItem from="1725970077150" duration="10382000" />
       <workItem from="1726037932528" duration="1257000" />
       <workItem from="1726074299325" duration="5850000" />
-      <workItem from="1726215810059" duration="5631000" />
-    </task>
-    <task id="LOCAL-00216" summary="Fixed double transfer option">
-      <option name="closed" value="true" />
-      <created>1725829904765</created>
-      <option name="number" value="00216" />
-      <option name="presentableId" value="LOCAL-00216" />
-      <option name="project" value="LOCAL" />
-      <updated>1725829904765</updated>
+      <workItem from="1726215810059" duration="6624000" />
     </task>
     <task id="LOCAL-00217" summary="Fixed entry page author information showing">
       <option name="closed" value="true" />
@@ -779,7 +770,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726241294668</updated>
     </task>
-    <option name="localTasksCounter" value="265" />
+    <task id="LOCAL-00265" summary="Fixed RC API requests, fixed N + 1 votes requests">
+      <option name="closed" value="true" />
+      <created>1726242469364</created>
+      <option name="number" value="00265" />
+      <option name="presentableId" value="LOCAL-00265" />
+      <option name="project" value="LOCAL" />
+      <updated>1726242469364</updated>
+    </task>
+    <option name="localTasksCounter" value="266" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -800,7 +799,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added bugsnag sourcemap uploader" />
     <MESSAGE value="Fixed populating active user data on client init" />
     <MESSAGE value="Improved voters dialog in proposals" />
     <MESSAGE value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
@@ -825,7 +823,8 @@
     <MESSAGE value="Fixed circle layout in notifications" />
     <MESSAGE value="Added keychain support" />
     <MESSAGE value="Fixed community leaderships showing" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed community leaderships showing" />
+    <MESSAGE value="Fixed RC API requests, fixed N + 1 votes requests" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed RC API requests, fixed N + 1 votes requests" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
