@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed followers extra request calling">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed followings(ers) queries">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-delegations-list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-delegations-list/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-info/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/announcement/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/announcement/index.tsx" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -381,15 +383,7 @@
       <workItem from="1726037932528" duration="1257000" />
       <workItem from="1726074299325" duration="5850000" />
       <workItem from="1726215810059" duration="8081000" />
-      <workItem from="1726254148069" duration="1082000" />
-    </task>
-    <task id="LOCAL-00220" summary="Added loader to notifications">
-      <option name="closed" value="true" />
-      <created>1725831408699</created>
-      <option name="number" value="00220" />
-      <option name="presentableId" value="LOCAL-00220" />
-      <option name="project" value="LOCAL" />
-      <updated>1725831408699</updated>
+      <workItem from="1726254148069" duration="1283000" />
     </task>
     <task id="LOCAL-00221" summary="Fixed marking as read in notifications">
       <option name="closed" value="true" />
@@ -775,7 +769,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726254723763</updated>
     </task>
-    <option name="localTasksCounter" value="269" />
+    <task id="LOCAL-00269" summary="Fixed followings(ers) queries">
+      <option name="closed" value="true" />
+      <created>1726255327428</created>
+      <option name="number" value="00269" />
+      <option name="presentableId" value="LOCAL-00269" />
+      <option name="project" value="LOCAL" />
+      <updated>1726255327429</updated>
+    </task>
+    <option name="localTasksCounter" value="270" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,7 +798,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
     <MESSAGE value="Fixed similar entries routing, improved similar entries layout and design" />
     <MESSAGE value="Animated notifications list, improved notifications layout, fixed notifications filtering" />
     <MESSAGE value="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme" />
@@ -821,7 +822,8 @@
     <MESSAGE value="Fixed RC API requests, fixed N + 1 votes requests" />
     <MESSAGE value="Fixed announcements multiple requests" />
     <MESSAGE value="Fixed followers extra request calling" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed followers extra request calling" />
+    <MESSAGE value="Fixed followings(ers) queries" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed followings(ers) queries" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

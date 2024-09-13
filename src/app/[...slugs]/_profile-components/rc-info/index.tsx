@@ -266,6 +266,7 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
         </ModalHeader>
         <ModalBody>
           <RcDelegationsList
+            account={account}
             showDelegation={showDelegation}
             listMode={listMode}
             setToFromList={setToFromList}

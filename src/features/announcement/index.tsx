@@ -38,13 +38,6 @@ export const Announcements = () => {
     const laterList: LaterAnnouncement[] = ls.get("later_announcements_detail");
     const displayList: Announcement[] = [];
 
-    console.log(
-      data,
-      data.filter(
-        (announcement) => !(dismissList !== null && dismissList.includes(announcement.id))
-      )
-    );
-
     data
       .filter((announcement) => !(dismissList !== null && dismissList.includes(announcement.id)))
       .forEach((announcement) => {

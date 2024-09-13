@@ -8,10 +8,10 @@ import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { delegateRC } from "@/api/operations";
-import { useParams } from "next/navigation";
 import { useGlobalStore } from "@/core/global-store";
 import { rcFormatter } from "@/utils";
 import useMount from "react-use/lib/useMount";
+import { FullAccount } from "@/entities";
 
 interface Props {
   showDelegation: () => void;
@@ -21,6 +21,7 @@ interface Props {
   confirmDelete: () => void;
   setDelegateeData: (value: any) => void;
   setShowDelegationsList: (value: boolean) => void;
+  account: FullAccount;
 }
 
 export const RcDelegationsList = ({
@@ -30,14 +31,13 @@ export const RcDelegationsList = ({
   setAmountFromList,
   confirmDelete,
   setDelegateeData,
-  setShowDelegationsList
+  setShowDelegationsList,
+  account
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const params: any = useParams();
-
   const [outGoingList, setOutGoingList]: any = useState([]);
-  const [otherUser, setOtherUser]: any = useState(params.username.substring(1));
+  const [otherUser, setOtherUser]: any = useState(account.name);
   const [incoming, setIncoming]: any = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setsearch] = useState("");
