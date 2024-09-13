@@ -15,13 +15,13 @@ export const getFriendsQuery = (
   }: { enabled?: boolean; followType?: string; limit?: number }
 ) =>
   EcencyQueriesManager.generateClientServerInfiniteQuery({
-    queryKey: [QueryIdentifiers.GET_FRIENDS, mode, following, followType, limit],
+    queryKey: [QueryIdentifiers.GET_FRIENDS, following, mode, followType, limit],
     queryFn: async ({ pageParam: { startFollowing } }) => {
       const response = (await client.database.call(
         mode === "following" ? "get_following" : "get_followers",
         [following, startFollowing === "" ? null : startFollowing, followType, limit]
       )) as Follow[];
-      const accountNames = response.map((e) => e.follower);
+      const accountNames = response.map((e) => (mode === "following" ? e.following : e.follower));
       const accounts = await getAccounts(accountNames);
       return accounts.map((a) => {
         const lastActive = moment.max(
@@ -52,6 +52,7 @@ export const getSearchFriendsQuery = (username: string, mode: string, query: str
   EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.GET_SEARCH_FRIENDS, username, mode, query],
     refetchOnMount: false,
+    enabled: !!query,
     queryFn: async () => {
       let request;
       if (mode === "following") {

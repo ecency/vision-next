@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed announcements multiple requests">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed followers extra request calling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-friends-query.ts" afterDir="false" />
     </list>
@@ -381,15 +381,7 @@
       <workItem from="1726037932528" duration="1257000" />
       <workItem from="1726074299325" duration="5850000" />
       <workItem from="1726215810059" duration="8081000" />
-      <workItem from="1726254148069" duration="500000" />
-    </task>
-    <task id="LOCAL-00219" summary="Fixed redirecting to homepage">
-      <option name="closed" value="true" />
-      <created>1725830732355</created>
-      <option name="number" value="00219" />
-      <option name="presentableId" value="LOCAL-00219" />
-      <option name="project" value="LOCAL" />
-      <updated>1725830732355</updated>
+      <workItem from="1726254148069" duration="1082000" />
     </task>
     <task id="LOCAL-00220" summary="Added loader to notifications">
       <option name="closed" value="true" />
@@ -775,7 +767,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726243590883</updated>
     </task>
-    <option name="localTasksCounter" value="268" />
+    <task id="LOCAL-00268" summary="Fixed followers extra request calling">
+      <option name="closed" value="true" />
+      <created>1726254723763</created>
+      <option name="number" value="00268" />
+      <option name="presentableId" value="LOCAL-00268" />
+      <option name="project" value="LOCAL" />
+      <updated>1726254723763</updated>
+    </task>
+    <option name="localTasksCounter" value="269" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -796,7 +796,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Improved voters dialog in proposals" />
     <MESSAGE value="Fixed subscribe to community, improved create community button, got rid of unused subs store module" />
     <MESSAGE value="Fixed similar entries routing, improved similar entries layout and design" />
     <MESSAGE value="Animated notifications list, improved notifications layout, fixed notifications filtering" />
@@ -821,7 +820,8 @@
     <MESSAGE value="Fixed community leaderships showing" />
     <MESSAGE value="Fixed RC API requests, fixed N + 1 votes requests" />
     <MESSAGE value="Fixed announcements multiple requests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed announcements multiple requests" />
+    <MESSAGE value="Fixed followers extra request calling" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed followers extra request calling" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
