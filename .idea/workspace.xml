@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed submit page draft opening">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Improved notification reply type layout">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/account-claiming.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/account-claiming.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/bookmarks.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/bookmarks.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/delete-comment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/delete-comment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/notifications/update-notifications-settings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/notifications/update-notifications-settings.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/mutations/update-profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/mutations/update-profile.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/queries/get-discussions-query.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/queries/get-discussions-query.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/client-providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/client-providers.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/decks/_components/columns/content-viewer/deck-thread-item-viewer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/shared/notifications/_index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/shared/notifications/_index.scss" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -64,65 +56,65 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Jest.Account Reputation.executor": "Run",
-    "Jest.Bookmark button.executor": "Run",
-    "Jest.BookmarkBtn.executor": "Run",
-    "Jest.BookmarkBtn.renders login required when no active user.executor": "Debug",
-    "Jest.BookmarksDialog.executor": "Run",
-    "Jest.BookmarksDialog.hides the modal when close button is clicked.executor": "Run",
-    "Jest.BoostDialog.executor": "Run",
-    "Jest.BoostDialog.finishes and calls onHide when finish button is clicked.executor": "Run",
-    "Jest.BoostDialog.handles signing process and transitions to step 3.executor": "Run",
-    "Jest.ClickAwayListener (1).executor": "Run",
-    "Jest.ClickAwayListener.executor": "Run",
-    "Jest.Comment Component.executor": "Run",
-    "Jest.Comment.executor": "Run",
-    "Jest.Comment.handles keyboard shortcuts.executor": "Run",
-    "Jest.Comment.renders with initial text and submit button.executor": "Run",
-    "Jest.Comment.submits comment when submit button is clicked.executor": "Run",
-    "Jest.Tests in utils/.executor": "Run",
-    "Jest.Vesting.executor": "Run",
-    "Node.js.scratch_39.js.executor": "Run",
-    "Node.js.scratch_40.js.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "code.cleanup.on.save": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "bugfix/final-review",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.standard": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.standard": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/jest",
-    "nodejs_interpreter_path": "/Users/ildartimerbaev/.nvm/versions/node/v18.17.1/bin/node",
-    "nodejs_package_manager_path": "npm",
-    "npm.build.executor": "Run",
-    "npm.dev.executor": "Run",
-    "npm.start.executor": "Run",
-    "npm.test.executor": "Run",
-    "prettierjs.PrettierConfiguration.Package": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/prettier",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "rearrange.code.on.save": "true",
-    "settings.editor.selected.configurable": "actions.on.save",
-    "ts.external.directory.path": "/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Jest.Account Reputation.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.Bookmark button.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.BookmarkBtn.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.BookmarkBtn.renders login required when no active user.executor&quot;: &quot;Debug&quot;,
+    &quot;Jest.BookmarksDialog.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.BookmarksDialog.hides the modal when close button is clicked.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.BoostDialog.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.BoostDialog.finishes and calls onHide when finish button is clicked.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.BoostDialog.handles signing process and transitions to step 3.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.ClickAwayListener (1).executor&quot;: &quot;Run&quot;,
+    &quot;Jest.ClickAwayListener.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.Comment Component.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.Comment.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.Comment.handles keyboard shortcuts.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.Comment.renders with initial text and submit button.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.Comment.submits comment when submit button is clicked.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.Tests in utils/.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.Vesting.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.scratch_39.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.scratch_40.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;bugfix/final-review&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/src/app&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/jest&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;/Users/ildartimerbaev/.nvm/versions/node/v18.17.1/bin/node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.build.executor&quot;: &quot;Run&quot;,
+    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
+    &quot;npm.start.executor&quot;: &quot;Run&quot;,
+    &quot;npm.test.executor&quot;: &quot;Run&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/prettier&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;rearrange.code.on.save&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/ildartimerbaev/Work2/ecency-vision-nextjs/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "TEXT",
-      "JavaScript"
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;TEXT&quot;,
+      &quot;JavaScript&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="ReactDesignerToolWindowState">
     <option name="myId2Visible">
       <map>
@@ -148,7 +140,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.build">
+  <component name="RunManager" selected="npm.dev">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="ecency-vision-next" />
       <method v="2">
@@ -232,9 +224,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.build" />
         <item itemvalue="npm.dev" />
         <item itemvalue="npm.start" />
+        <item itemvalue="npm.build" />
         <item itemvalue="npm.test" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
       </list>
@@ -387,23 +379,8 @@
       <workItem from="1725960993392" duration="6345000" />
       <workItem from="1725970077150" duration="10382000" />
       <workItem from="1726037932528" duration="1257000" />
-      <workItem from="1726074299325" duration="5052000" />
-    </task>
-    <task id="LOCAL-00210" summary="Fixed login button showing in mobile layout">
-      <option name="closed" value="true" />
-      <created>1725743119506</created>
-      <option name="number" value="00210" />
-      <option name="presentableId" value="LOCAL-00210" />
-      <option name="project" value="LOCAL" />
-      <updated>1725743119506</updated>
-    </task>
-    <task id="LOCAL-00211" summary="Fixed pinned entries">
-      <option name="closed" value="true" />
-      <created>1725743796102</created>
-      <option name="number" value="00211" />
-      <option name="presentableId" value="LOCAL-00211" />
-      <option name="project" value="LOCAL" />
-      <updated>1725743796102</updated>
+      <workItem from="1726074299325" duration="5850000" />
+      <workItem from="1726215810059" duration="2489000" />
     </task>
     <task id="LOCAL-00212" summary="Fixed build">
       <option name="closed" value="true" />
@@ -781,7 +758,23 @@
       <option name="project" value="LOCAL" />
       <updated>1726088803874</updated>
     </task>
-    <option name="localTasksCounter" value="259" />
+    <task id="LOCAL-00259" summary="Fixed setQueryData error">
+      <option name="closed" value="true" />
+      <created>1726089436600</created>
+      <option name="number" value="00259" />
+      <option name="presentableId" value="LOCAL-00259" />
+      <option name="project" value="LOCAL" />
+      <updated>1726089436601</updated>
+    </task>
+    <task id="LOCAL-00260" summary="Improved notification reply type layout">
+      <option name="closed" value="true" />
+      <created>1726239136569</created>
+      <option name="number" value="00260" />
+      <option name="presentableId" value="LOCAL-00260" />
+      <option name="project" value="LOCAL" />
+      <updated>1726239136570</updated>
+    </task>
+    <option name="localTasksCounter" value="261" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -802,8 +795,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed referrals page opening" />
-    <MESSAGE value="Fixed entry cache management" />
     <MESSAGE value="Improved search by username" />
     <MESSAGE value="Fixed Boost+" />
     <MESSAGE value="Fixed dynamic props query, fixed proposals" />
@@ -827,7 +818,9 @@
     <MESSAGE value="Fixed voting on proposals and witnesses" />
     <MESSAGE value="Fixed FAQ opening" />
     <MESSAGE value="Fixed submit page draft opening" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed submit page draft opening" />
+    <MESSAGE value="Fixed setQueryData error" />
+    <MESSAGE value="Improved notification reply type layout" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improved notification reply type layout" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -164,7 +164,7 @@
 
     .list-item {
       @include clearfix();
-      cursor: default;
+      cursor: pointer;
       font-size: 90%;
 
       &.not-read {
@@ -234,6 +234,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+
+            @apply text-blue-dark-sky;
           }
 
           .second-line {
