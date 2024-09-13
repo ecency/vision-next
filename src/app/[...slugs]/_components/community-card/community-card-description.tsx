@@ -19,27 +19,25 @@ export function CommunityCardDescription({ community, toggleInfo }: Props) {
           dangerouslySetInnerHTML={{ __html: renderPostBody(community.description, true) }}
         />
       ) : (
-        <></>
+        ""
       ),
     [community.description]
   );
 
-  return (
-    description && (
-      <div className="community-section">
-        <div
-          className="section-header"
-          onClick={() => {
-            toggleInfo({
-              title: i18next.t("community-card.description"),
-              content: description
-            });
-          }}
-        >
-          {informationOutlineSvg} {i18next.t("community-card.description")}
-        </div>
-        <div className="section-content">{description}</div>
+  return description ? (
+    <div className="community-section">
+      <div
+        className="section-header"
+        onClick={() => {
+          toggleInfo({
+            title: i18next.t("community-card.description"),
+            content: description
+          });
+        }}
+      >
+        {informationOutlineSvg} {i18next.t("community-card.description")}
       </div>
-    )
-  );
+      <div className="section-content">{description}</div>
+    </div>
+  ) : null;
 }
