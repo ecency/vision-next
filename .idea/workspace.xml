@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed followings(ers) queries">
+    <list default="true" id="567b3f09-0d14-4afd-b660-f387a4319347" name="Changes" comment="Fixed RC info delegation list error">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-delegations-list/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-delegations-list/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-info/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/[...slugs]/_profile-components/rc-info/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/features/announcement/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/announcement/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/(staticPages)/faq/_components/faq-anchor-listener.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(staticPages)/faq/_components/faq-anchor-listener.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/(staticPages)/faq/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(staticPages)/faq/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/react-query/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/react-query/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/static-pages.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/static-pages.scss" afterDir="false" />
     </list>
     <list id="c0010c83-5fb5-4c60-99a2-f005b2ed038b" name="dont" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -227,8 +229,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="npm.dev" />
-        <item itemvalue="npm.start" />
         <item itemvalue="npm.build" />
+        <item itemvalue="npm.start" />
         <item itemvalue="npm.test" />
         <item itemvalue="Jest.Comment.submits comment when submit button is clicked" />
       </list>
@@ -383,15 +385,8 @@
       <workItem from="1726037932528" duration="1257000" />
       <workItem from="1726074299325" duration="5850000" />
       <workItem from="1726215810059" duration="8081000" />
-      <workItem from="1726254148069" duration="1283000" />
-    </task>
-    <task id="LOCAL-00221" summary="Fixed marking as read in notifications">
-      <option name="closed" value="true" />
-      <created>1725870158470</created>
-      <option name="number" value="00221" />
-      <option name="presentableId" value="LOCAL-00221" />
-      <option name="project" value="LOCAL" />
-      <updated>1725870158470</updated>
+      <workItem from="1726254148069" duration="1979000" />
+      <workItem from="1726342224052" duration="195000" />
     </task>
     <task id="LOCAL-00222" summary="Fixed similar entries component, unoptimized images">
       <option name="closed" value="true" />
@@ -777,7 +772,15 @@
       <option name="project" value="LOCAL" />
       <updated>1726255327429</updated>
     </task>
-    <option name="localTasksCounter" value="270" />
+    <task id="LOCAL-00270" summary="Fixed RC info delegation list error">
+      <option name="closed" value="true" />
+      <created>1726255494461</created>
+      <option name="number" value="00270" />
+      <option name="presentableId" value="LOCAL-00270" />
+      <option name="project" value="LOCAL" />
+      <updated>1726255494461</updated>
+    </task>
+    <option name="localTasksCounter" value="271" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -798,7 +801,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed similar entries routing, improved similar entries layout and design" />
     <MESSAGE value="Animated notifications list, improved notifications layout, fixed notifications filtering" />
     <MESSAGE value="Moved referrals, witnesses and proposals to dropdown. Fixed dropdown item dark theme" />
     <MESSAGE value="Fixed profile info icon" />
@@ -823,7 +825,8 @@
     <MESSAGE value="Fixed announcements multiple requests" />
     <MESSAGE value="Fixed followers extra request calling" />
     <MESSAGE value="Fixed followings(ers) queries" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed followings(ers) queries" />
+    <MESSAGE value="Fixed RC info delegation list error" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed RC info delegation list error" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

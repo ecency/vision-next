@@ -70,8 +70,8 @@ export default function FAQ({ searchParams }: Props) {
                   itemScope={true}
                   itemProp="mainEntity"
                   itemType="https://schema.org/Question"
+                  id={x}
                 >
-                  <span className="anchor" id={x} />
                   <h4 className="faq-item-header text-[1.5rem] font-semibold" itemProp="name">
                     {i18next.t(`static.faq.${x}-header`)}
                   </h4>
