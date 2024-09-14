@@ -1,14 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePopper } from "react-popper";
-import {
-  client,
-  findRcAccounts,
-  getRcOperationStats,
-  powerRechargeTime,
-  rcPower
-} from "@/api/hive";
+import { client, powerRechargeTime, rcPower } from "@/api/hive";
 import moment, { Moment } from "moment";
 import { PurchaseQrDialog } from "../purchase-qr";
 import "./index.scss";
@@ -18,6 +12,7 @@ import { RcOperation } from "@/entities";
 import { useMounted } from "@/utils/use-mounted";
 import { rcFormatter } from "@/utils";
 import i18next from "i18next";
+import { getRcAccountsQuery, getRcOperatorsStatsQuery } from "@/api/queries";
 
 interface Props {
   username: string;
@@ -40,46 +35,43 @@ export const AvailableCredits = ({ username, className }: Props) => {
   const [popperElement, setPopperElement] = useState<any>();
   const [isShow, setIsShow] = useState(false);
 
+  const { data: rcValues } = getRcAccountsQuery(username).useClientQuery();
+  const { data: rcStats } = getRcOperatorsStatsQuery().useClientQuery();
+
   const popper = usePopper(host, popperElement);
 
   const isMounted = useMounted();
 
-  const fetchRc = useCallback(async () => {
-    try {
-      const response = await findRcAccounts(username);
-      const account = response[0];
-
-      setRcp(client.rc.calculateRCMana(account).current_mana);
-      setRcpFixed(Math.floor(+rcPower(account)));
-      setRcpRechargeDate(moment().add(powerRechargeTime(rcPower(account)), "seconds"));
-
-      const outGoing = response.map((a: any) => a.delegated_rc);
-      const delegated = outGoing[0];
-      const formatOutGoing: any = rcFormatter(delegated);
-      setDelegated(formatOutGoing);
-
-      const inComing: any = response.map((a: any) => Number(a.received_delegated_rc));
-      const formatIncoming = rcFormatter(inComing);
-      setReceivedDelegation(formatIncoming);
-
-      const rcStats: any = await getRcOperationStats();
-      const operationCosts = rcStats.rc_stats.ops;
-      const commentCost = operationCosts.comment_operation.avg_cost;
-      const transferCost = operationCosts.transfer_operation.avg_cost;
-      const voteCost = operationCosts.vote_operation.avg_cost;
-
-      const availableResourceCredit: any = response.map((a: any) => a.rc_manabar.current_mana);
-      setCommentAmount(Math.ceil(Number(availableResourceCredit[0]) / commentCost));
-      setVoteAmount(Math.ceil(Number(availableResourceCredit[0]) / voteCost));
-      setTransferAmount(Math.ceil(Number(availableResourceCredit[0]) / transferCost));
-    } catch (error) {
-      console.log(error);
-    }
-  }, [username]);
-
   useEffect(() => {
-    fetchRc();
-  }, [fetchRc, username]);
+    if (!rcValues || !rcStats) {
+      return;
+    }
+
+    const account = rcValues[0];
+
+    setRcp(client.rc.calculateRCMana(account).current_mana);
+    setRcpFixed(Math.floor(+rcPower(account)));
+    setRcpRechargeDate(moment().add(powerRechargeTime(rcPower(account)), "seconds"));
+
+    const outGoing = rcValues.map((a: any) => a.delegated_rc);
+    const delegated = outGoing[0];
+    const formatOutGoing: any = rcFormatter(delegated);
+    setDelegated(formatOutGoing);
+
+    const inComing: any = rcValues.map((a: any) => Number(a.received_delegated_rc));
+    const formatIncoming = rcFormatter(inComing);
+    setReceivedDelegation(formatIncoming);
+
+    const operationCosts = rcStats.rc_stats.ops;
+    const commentCost = operationCosts.comment_operation.avg_cost;
+    const transferCost = operationCosts.transfer_operation.avg_cost;
+    const voteCost = operationCosts.vote_operation.avg_cost;
+
+    const availableResourceCredit: any = rcValues.map((a: any) => a.rc_manabar.current_mana);
+    setCommentAmount(Math.ceil(Number(availableResourceCredit[0]) / commentCost));
+    setVoteAmount(Math.ceil(Number(availableResourceCredit[0]) / voteCost));
+    setTransferAmount(Math.ceil(Number(availableResourceCredit[0]) / transferCost));
+  }, [rcStats, rcValues]);
 
   const show = () => {
     setIsShow(true);

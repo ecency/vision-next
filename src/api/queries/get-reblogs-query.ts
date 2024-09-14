@@ -18,6 +18,7 @@ export function useGetReblogsQuery(username?: string, limit = 200) {
       return response
         .filter((i) => i.author !== activeUser?.username && !i.reblogged_on.startsWith("1970-"))
         .map((i) => ({ author: i.author, permlink: i.permlink }));
-    }
+    },
+    enabled: !!username
   });
 }

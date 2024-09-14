@@ -1,52 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import * as ls from "@/utils/local-storage";
 import { Announcement, LaterAnnouncement } from "./types";
 import "./index.scss";
 import { Button } from "@ui/button";
-import { getAnnouncementsData } from "@/api/private-api";
 import { useGlobalStore } from "@/core/global-store";
 import { usePathname } from "next/navigation";
 import { closeSvg } from "@ui/svg";
 import Link from "next/link";
 import i18next from "i18next";
-import { Announcement as AnnouncementApiData } from "@/entities";
+import { getAnnouncementsQuery } from "@/api/queries";
 
 export const Announcements = () => {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const pathname = usePathname();
 
-  const [allAnnouncements, setAllAnnouncements] = useState<AnnouncementApiData[]>([]);
+  const { data: allAnnouncements } = getAnnouncementsQuery().useClientQuery();
+
   const [show, setShow] = useState(true);
   const [list, setList] = useState<Announcement[]>([]);
-  const [superList, setSuperList] = useState<Announcement[]>([]);
   const [bannerState, setBannerState] = useState(1);
   const [index, setIndex] = useState(0);
   const [currentAnnouncement, setCurrentAnnouncement] = useState<Announcement[]>([]);
 
-  useEffect(() => {
-    getAnnouncementsData().then((data) => setAllAnnouncements(data));
-  }, []);
-
-  useEffect(() => {
-    getAnnouncements();
-  }, [allAnnouncements, activeUser]);
-
-  useEffect(() => {
-    setCurrentAnnouncement([list[bannerState - 1]]);
-  }, [superList]);
-
-  useEffect(() => {
-    if (index < list.length) {
-      setCurrentAnnouncement([list[index]]);
-    } else {
-      setCurrentAnnouncement([list[0]]);
-    }
-  }, [list]);
-
-  const getAnnouncements = () => {
-    const data = allAnnouncements
+  const superList = useMemo(() => {
+    const data = (allAnnouncements ?? [])
       .filter((announcement) => (announcement.auth ? !!activeUser : true))
       .filter((announcement) => {
         if (typeof announcement.path === "object") {
@@ -59,44 +38,55 @@ export const Announcements = () => {
     const laterList: LaterAnnouncement[] = ls.get("later_announcements_detail");
     const displayList: Announcement[] = [];
 
-    data.forEach((announcement) => {
-      if (dismissList !== null && dismissList.includes(announcement.id)) {
-        return;
-      }
-      if (laterList) {
-        const filteredAnnouncement: LaterAnnouncement[] = laterList.filter(
-          (a) => a.id == announcement.id
-        );
+    data
+      .filter((announcement) => !(dismissList !== null && dismissList.includes(announcement.id)))
+      .forEach((announcement) => {
+        if (laterList) {
+          const filteredAnnouncement: LaterAnnouncement[] = laterList.filter(
+            (a) => a.id == announcement.id
+          );
 
-        if (filteredAnnouncement[0] !== undefined) {
-          let pastDateTime = filteredAnnouncement[0].dateTime;
-          const past = moment(pastDateTime);
-          const now = moment(new Date());
-          const duration = moment.duration(now.diff(past));
-          const hours = duration.asHours();
+          if (filteredAnnouncement[0] !== undefined) {
+            let pastDateTime = filteredAnnouncement[0].dateTime;
+            const past = moment(pastDateTime);
+            const now = moment(new Date());
+            const duration = moment.duration(now.diff(past));
+            const hours = duration.asHours();
 
-          if (hours >= 24) {
-            let i = 0;
-            for (const item of laterList) {
-              if (item.id === announcement.id) {
-                laterList.splice(i, 1);
-                i++;
+            if (hours >= 24) {
+              let i = 0;
+              for (const item of laterList) {
+                if (item.id === announcement.id) {
+                  laterList.splice(i, 1);
+                  i++;
+                }
               }
+              ls.set("later_announcements_detail", laterList);
+              displayList.push(announcement);
             }
-            ls.set("later_announcements_detail", laterList);
+          } else {
             displayList.push(announcement);
           }
         } else {
           displayList.push(announcement);
         }
-      } else {
-        displayList.push(announcement);
-      }
-    });
+      });
 
-    setList(displayList);
-    setSuperList(displayList);
-  };
+    return displayList;
+  }, [activeUser, allAnnouncements, pathname]);
+
+  useEffect(() => {
+    setList(superList);
+    setCurrentAnnouncement([list[bannerState - 1]]);
+  }, [superList]);
+
+  useEffect(() => {
+    if (index < list.length) {
+      setCurrentAnnouncement([list[index]]);
+    } else {
+      setCurrentAnnouncement([list[0]]);
+    }
+  }, [list]);
 
   const closeClick = () => {
     setShow(false);
@@ -109,16 +99,6 @@ export const Announcements = () => {
     } else {
       setBannerState(1);
       setCurrentAnnouncement([list[0]]);
-    }
-  };
-
-  const downClick = () => {
-    if (bannerState > 1) {
-      setCurrentAnnouncement([list[bannerState - 2]]);
-      setBannerState(bannerState - 1);
-    } else {
-      setBannerState(list.length);
-      setCurrentAnnouncement([list[list.length - 1]]);
     }
   };
 

@@ -39,7 +39,7 @@ export function CommunityCardTeam({ community, toggleInfo }: Props) {
       >
         {accountGroupSvg} {i18next.t("community-card.team")}
       </div>
-      <div className="section-content"></div>
+      <div className="section-content">{team.map((item) => item)}</div>
     </div>
   );
 }

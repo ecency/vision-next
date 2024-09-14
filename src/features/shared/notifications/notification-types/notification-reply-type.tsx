@@ -50,18 +50,23 @@ export function NotificationReplyType({
             {postBodySummary(notification.body, 100)}
           </div>
         ) : (
-          <EntryLink
-            entry={{
-              category: "category",
-              author: notification.author,
-              permlink: notification.permlink
-            }}
-            target={openLinksInNewTab ? "_blank" : undefined}
-          >
-            <div className="post-link" onClick={afterClick}>
-              {postBodySummary(notification.body, 100)}
-            </div>
-          </EntryLink>
+          postBodySummary(notification.body, 100) && (
+            <EntryLink
+              entry={{
+                category: "category",
+                author: notification.author,
+                permlink: notification.permlink
+              }}
+              target={openLinksInNewTab ? "_blank" : undefined}
+            >
+              <div
+                className="bg-gray-100 dark:bg-gray-900 rounded-lg mt-2 p-2 text-gray-800 dark:text-gray-200"
+                onClick={afterClick}
+              >
+                {postBodySummary(notification.body, 100)}
+              </div>
+            </EntryLink>
+          )
         )}
       </div>
     </div>

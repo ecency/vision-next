@@ -164,7 +164,7 @@
 
     .list-item {
       @include clearfix();
-      cursor: default;
+      cursor: pointer;
       font-size: 90%;
 
       &.not-read {
@@ -172,7 +172,7 @@
       }
 
       .item-inner {
-        @apply flex justify-between clear-both p-4;
+        @apply flex justify-between p-4;
 
         .item-control {
           display: flex;
@@ -228,12 +228,7 @@
           }
 
           .post-link {
-            display: block;
-            font-weight: 500;
-            max-width: 140%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            @apply text-sm text-blue-dark-sky;
           }
 
           .second-line {

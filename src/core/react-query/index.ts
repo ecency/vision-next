@@ -2,6 +2,7 @@ import { isServer, QueryClient } from "@tanstack/react-query";
 import { cache } from "react";
 
 export enum QueryIdentifiers {
+  ANNOUNCEMENTS = "announcements",
   COMMUNITY_THREADS = "community-threads",
   THREADS = "threads",
   ENTRY = "entry",
@@ -73,6 +74,7 @@ export enum QueryIdentifiers {
   GET_FRIENDS = "get-friends",
   GET_SEARCH_FRIENDS = "get-search-friends",
   RC_ACCOUNTS = "rc-accounts",
+  RC_OPERATORS = "rc-operators",
   ACCOUNT_VOTES_HISTORY = "account-votes-history",
   WITHDRAW_ROUTES = "withdraw-routers",
   OPEN_ORDERS = "open-orders",
@@ -104,15 +106,6 @@ export function makeQueryClient() {
     }
   });
 }
-
-export let BROWSER_QUERY_CLIENT: QueryClient | undefined = undefined;
-
-export function setBrowserQueryClient(queryClient: QueryClient) {
-  BROWSER_QUERY_CLIENT = queryClient;
-}
-
-export const getQueryClient = isServer
-  ? cache(() => makeQueryClient())
-  : () => BROWSER_QUERY_CLIENT!;
+export const getQueryClient = isServer ? cache(() => makeQueryClient()) : () => undefined;
 
 export * from "./ecency-queries-manager";
