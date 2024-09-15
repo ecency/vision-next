@@ -153,8 +153,7 @@ export const globalInstance: Partial<GlobalStore> = {
   isMobile: false,
   globalNotifications: true,
   nsfw: false,
-  newVersion: null,
-  lastIndexPath: null
+  newVersion: null
 };
 
 export const TrendingTagsInstance: TrendingTags = {
