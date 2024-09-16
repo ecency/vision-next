@@ -13,6 +13,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       "outline",
       "icon",
       "iconPlacement",
+      "iconClassName",
       "noPadding",
       "full"
     ]);

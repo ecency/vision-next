@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 interface Props {
   onClick: () => void;
@@ -12,7 +13,7 @@ export function NavbarMainSidebarToggle({ onClick }: Props) {
         <span className="w-[20px] h-[2px] bg-gray-400 dark:bg-gray-700" />
         <span className="w-[20px] h-[2px] bg-gray-400 dark:bg-gray-700" />
       </div>
-      <a href="/">
+      <Link href="/">
         <Image
           src="/assets/logo-circle.svg"
           className="logo relative min-w-[40px] max-w-[40px]"
@@ -20,7 +21,7 @@ export function NavbarMainSidebarToggle({ onClick }: Props) {
           width={40}
           height={40}
         />
-      </a>
+      </Link>
     </div>
   );
 }
