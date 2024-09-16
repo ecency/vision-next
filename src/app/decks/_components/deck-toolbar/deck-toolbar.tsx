@@ -102,11 +102,7 @@ export const DeckToolbar = ({ isExpanded, setIsExpanded }: Props) => {
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
         />
-        <DeckToolbarBaseActions
-          isExpanded={isExpanded}
-          setIsExpanded={setIsExpanded}
-          setShowPurchaseDialog={setShowPurchaseDialog}
-        />
+        <DeckToolbarBaseActions setShowPurchaseDialog={setShowPurchaseDialog} />
         <DeckToolbarCreate isExpanded={isExpanded} />
         <DeckToolbarManager isExpanded={isExpanded} />
       </div>
@@ -141,7 +137,7 @@ export const DeckToolbar = ({ isExpanded, setIsExpanded }: Props) => {
       >
         <NotificationHandler />
       </EcencyConfigManager.Conditional>
-      {uiNotifications && activeUser && <NotificationsDialog openLinksInNewTab={true} />}
+      {activeUser && <NotificationsDialog openLinksInNewTab={true} />}
       {uiLogin && <LoginDialog />}
       <PurchaseQrDialog show={showPurchaseDialog} setShow={(v) => setShowPurchaseDialog(v)} />
     </div>

@@ -9,16 +9,10 @@ import { WalletBadge } from "@/features/shared";
 import { EcencyConfigManager } from "@/config";
 
 interface Props {
-  isExpanded: boolean;
   setShowPurchaseDialog: (v: boolean) => void;
-  setIsExpanded: (v: boolean) => void;
 }
 
-export const DeckToolbarBaseActions = ({
-  setShowPurchaseDialog,
-  isExpanded,
-  setIsExpanded
-}: Props) => {
+export const DeckToolbarBaseActions = ({ setShowPurchaseDialog }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
