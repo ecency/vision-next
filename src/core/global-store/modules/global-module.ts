@@ -92,7 +92,9 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       success(i18next.t("preferences.updated"));
     },
     initKeychain() {
-      (window as unknown as any).hive_keychain.requestHandshake(() => set({ hasKeyChain: true }));
+      if (typeof window !== "undefined" && "hive_keychain" in window) {
+        (window as unknown as any).hive_keychain.requestHandshake(() => set({ hasKeyChain: true }));
+      }
     }
   };
 }
