@@ -1118,10 +1118,10 @@
   dependencies:
     long "~3"
 
-"@ecency/ns-query@^1.2.10-next":
-  version "1.2.10-next"
-  resolved "https://registry.yarnpkg.com/@ecency/ns-query/-/ns-query-1.2.10-next.tgz#087375b0e3d685ad34522a50751b0a62775ba0d6"
-  integrity sha512-FD80cyqcH072aiQ1YcUiRc/VgJ23VcSv+/LAnP2dX1nEkisQYLjDwplgwdiyqqf/nFhkbQ36V2pQ8BhiJ6eNFA==
+"@ecency/ns-query@^1.2.11-next":
+  version "1.2.11-next"
+  resolved "https://registry.yarnpkg.com/@ecency/ns-query/-/ns-query-1.2.11-next.tgz#e4a8d163935038ed02f1ff73c0694418e724e5a1"
+  integrity sha512-50+E6M7YS6bxKmP85WJCqPsLrS7iuKMWSYQuZapCHSzDsR5CyFSHy/8d4WfJjtihFDty406JBdNNIy1/ubiIKw==
   dependencies:
     nostr-tools "^1.17.0"
 
