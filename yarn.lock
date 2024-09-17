@@ -1118,10 +1118,10 @@
   dependencies:
     long "~3"
 
-"@ecency/ns-query@1.2.9-next":
-  version "1.2.9-next"
-  resolved "https://registry.yarnpkg.com/@ecency/ns-query/-/ns-query-1.2.9-next.tgz#b006f776b2fafcd1fdaba399cd94fb21e3be47ac"
-  integrity sha512-kALsZVbXgZME/ppYFotIjVcSmC2M4Tnhc53oC0Hmfx8xv0OQNNAidNcOekiH70n1MV4/aFW4ZK7DR3HHPTX47A==
+"@ecency/ns-query@^1.2.10-next":
+  version "1.2.10-next"
+  resolved "https://registry.yarnpkg.com/@ecency/ns-query/-/ns-query-1.2.10-next.tgz#087375b0e3d685ad34522a50751b0a62775ba0d6"
+  integrity sha512-FD80cyqcH072aiQ1YcUiRc/VgJ23VcSv+/LAnP2dX1nEkisQYLjDwplgwdiyqqf/nFhkbQ36V2pQ8BhiJ6eNFA==
   dependencies:
     nostr-tools "^1.17.0"
 
@@ -1274,10 +1274,10 @@
     verror "^1.10.0"
     whatwg-fetch "^3.0.0"
 
-"@hiveio/hivescript@^1.3.2":
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/@hiveio/hivescript/-/hivescript-1.3.2.tgz#08054cd40cf0e98af8dd82352a606532fab87b48"
-  integrity sha512-j2aC6sefOfNv1dJGaxvV5RSnVan3/8qprTeI3MqzFP0/7Kr6wrgXb2Qb6CsOzvlyHjjfD3RXivtISDFGSnNj/A==
+"@hiveio/hivescript@^1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@hiveio/hivescript/-/hivescript-1.3.3.tgz#70f4e2f521b73bccb6d2c92104c44bd556740786"
+  integrity sha512-nOeGespwSujSaEl4R09u9FXGgMyOywtWWQiJdiWsmJDknCUqXXxTfs3KICssPTjkDlbGp2gkg3WjUyrlxm28Qg==
 
 "@humanwhocodes/config-array@^0.11.13":
   version "0.11.13"
