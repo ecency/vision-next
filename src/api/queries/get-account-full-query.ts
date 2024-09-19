@@ -7,7 +7,7 @@ export const getAccountFullQuery = (username?: string) =>
     queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, username],
     queryFn: async () => {
       if (!username) {
-        return;
+        return null;
       }
       const response = await getAccount(username);
       let follow_stats: AccountFollowStats | undefined;
