@@ -26,6 +26,10 @@ export function createUsersActions(set: (state: Partial<State>) => void, getStat
         })
       }),
     addUser: (user: User) => {
+      set({
+        users: [...getState().users.filter((x) => x.username !== user.username), user]
+      });
+
       ls.set(`user_${user.username}`, encodeObj(user));
       ls.getByPrefix("user_").map((x) => {
         const u = decodeObj(x) as User;
@@ -38,6 +42,11 @@ export function createUsersActions(set: (state: Partial<State>) => void, getStat
         };
       });
     },
-    deleteUser: (username: string) => ls.remove(`user_${username}`)
+    deleteUser: (username: string) => {
+      ls.remove(`user_${username}`);
+      set({
+        users: getState().users.filter((x) => x.username !== username)
+      });
+    }
   };
 }
