@@ -8,8 +8,23 @@ export function createUsersState() {
   };
 }
 
-export function createUsersActions() {
+type State = ReturnType<typeof createUsersState>;
+
+export function createUsersActions(set: (state: Partial<State>) => void, getState: () => State) {
   return {
+    loadUsers: () =>
+      set({
+        users: ls.getByPrefix("user_").map((x) => {
+          const u = decodeObj(x) as User;
+          return {
+            username: u.username,
+            refreshToken: "",
+            accessToken: "",
+            expiresIn: u.expiresIn,
+            postingKey: u.postingKey
+          };
+        })
+      }),
     addUser: (user: User) => {
       ls.set(`user_${user.username}`, encodeObj(user));
       ls.getByPrefix("user_").map((x) => {
