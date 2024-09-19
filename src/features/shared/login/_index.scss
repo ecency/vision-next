@@ -51,37 +51,9 @@
         max-height: 300px;
 
         .user-list-item {
-          align-items: center;
-          border-radius: 25px;
-          cursor: pointer;
-          display: flex;
-          font-size: 16px;
-          line-height: 16px;
-          padding: 6px;
-          position: relative;
 
           &:not(:last-child) {
             margin-bottom: 10px;
-          }
-
-          @include themify(day) {
-            @apply text-blue-dark-sky;
-            @apply bg-blue-duck-egg;
-          }
-
-          @include themify(night) {
-            @apply bg-blue-metallic;
-            @apply text-blue-powder;
-          }
-
-          &:hover {
-            @include themify(day) {
-              @apply bg-blue-dark-sky-030;
-            }
-
-            @include themify(night) {
-              @apply bg-blue-metallic-20;
-            }
           }
 
           .user-avatar {
@@ -106,47 +78,12 @@
             width: 5px;
           }
 
-          .btn-delete {
-            align-items: center;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-            height: 24px;
-            justify-content: center;
-            width: 24px;
-
-            svg {
-              @apply text-white;
-              height: 16px;
-            }
-
-            &:hover {
-              svg {
-                @apply text-red-light-020;
-              }
-            }
-
-            @include themify(day) {
-              @apply bg-blue-duck-egg-200;
-
-              &:hover {
-                @apply bg-blue-duck-egg;
-              }
-            }
-
-            @include themify(night) {
-              @apply bg-blue-metallic-10;
-
-              &:hover {
-                @apply bg-blue-metallic;
-              }
-            }
+          button {
+            opacity: 0;
           }
 
-          &:hover {
-            .btn-delete {
-              display: flex;
-            }
+          &:hover button {
+              opacity: 100;
           }
 
           &.disabled {

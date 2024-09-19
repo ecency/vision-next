@@ -1,12 +1,11 @@
 import React from "react";
 import { UserAvatar } from "@/features/shared";
 import { PopoverConfirm } from "@ui/popover-confirm";
-import { Tooltip } from "@ui/tooltip";
 import { classNameObject } from "@ui/util";
 import { User } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import i18next from "i18next";
-import { deleteForeverSvg } from "@ui/svg";
+import { UilTrash } from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
 
 interface Props {
   user: User;
@@ -22,7 +21,9 @@ export function UserItem({ disabled, user, onSelect, onDelete, containerRef }: P
   return (
     <div
       className={classNameObject({
-        "user-list-item": true,
+        "user-list-item flex items-center pointer text-base p-2 rounded-full relative": true,
+        "text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-metallic-20 dark:text-blue-powder hover:bg-blue-dark-sky-030 dark:hover:bg-blue-metallic duration-300":
+          true,
         disabled: disabled,
         active: !!activeUser && activeUser.username === user.username
       })}
@@ -30,7 +31,11 @@ export function UserItem({ disabled, user, onSelect, onDelete, containerRef }: P
     >
       <UserAvatar username={user.username} size="medium" />
       <span className="username">@{user.username}</span>
-      {activeUser && activeUser.username === user.username && <div className="check-mark" />}
+      {activeUser?.username === user.username && (
+        <div className="rounded-full absolute left-8 bottom-1 p-1 bg-blue-duck-egg dark:bg-blue-metallic-20">
+          <div className="bg-green w-3 h-3 rounded-full" />
+        </div>
+      )}
       <div className="flex-spacer" />
       <PopoverConfirm
         onConfirm={() => onDelete(user)}
@@ -38,16 +43,9 @@ export function UserItem({ disabled, user, onSelect, onDelete, containerRef }: P
         trigger="click"
         containerRef={containerRef}
       >
-        <div
-          className="btn-delete"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <Tooltip content={i18next.t("g.delete")}>
-            <span>{deleteForeverSvg}</span>
-          </Tooltip>
-        </div>
+        <Button appearance="secondary" size="sm" type="button">
+          <UilTrash className="w-3.5 h-3.5" />
+        </Button>
       </PopoverConfirm>
     </div>
   );
