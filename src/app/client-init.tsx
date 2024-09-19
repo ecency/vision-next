@@ -11,11 +11,13 @@ export function ClientInit() {
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
   const initKeychain = useGlobalStore((state) => state.initKeychain);
+  const loadUsers = useGlobalStore((state) => state.loadUsers);
 
   const { data } = getAccountFullQuery(activeUser?.username).useClientQuery();
 
   useMount(() => {
     initI18next();
+    loadUsers();
 
     const activeUsername = ls.get("active_user") ?? Cookies.get("active_user");
     if (activeUsername) {
