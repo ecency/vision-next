@@ -37,39 +37,44 @@ export function LoginDialog() {
     postingKey: null | undefined | string,
     account: Account
   ) => {
+    const x = await hsTokenRenew(hsCode);
     // get access token from code
-    return hsTokenRenew(hsCode).then((x) => {
-      const user: User = {
-        username: x.username,
-        accessToken: x.access_token,
-        refreshToken: x.refresh_token,
-        expiresIn: x.expires_in,
-        postingKey
-      };
+    const user: User = {
+      username: x.username,
+      accessToken: x.access_token,
+      refreshToken: x.refresh_token,
+      expiresIn: x.expires_in,
+      postingKey
+    };
 
-      // add / update user data
-      addUser(user);
+    // add / update user data
+    addUser(user);
 
-      // activate user
-      setActiveUser(user.username);
+    // activate user
+    setActiveUser(user.username);
 
-      // add account data of the user to the reducer
-      updateActiveUser(account);
+    // add account data of the user to the reducer
+    await updateActiveUser(account);
 
-      // login activity
-      recordActivity({ ty: 20 });
+    // login activity
+    recordActivity({ ty: 20 });
 
-      // redirection based on path name
-      if (pathname.startsWith("/signup")) {
-        const u = `/@${x.username}/feed`;
-        router.push(u);
-      }
+    // redirection based on path name
+    if (pathname.startsWith("/signup")) {
+      const u = `/@${x.username}/feed`;
+      router.push(u);
+    }
 
-      hide();
-    });
+    hide();
   };
 
-  const hide = () => toggleUIProp("login");
+  const hide = () => {
+    toggleUIProp("login");
+
+    if (loginKc) {
+      toggleUIProp("loginKc");
+    }
+  };
 
   return (
     <Modal show={true} centered={true} onHide={hide} className="login-modal">

@@ -51,7 +51,6 @@ export function Login({ doLogin, userListRef }: Props) {
       let token = getRefreshToken(user.username);
       if (token) {
         await doLogin(token, user.postingKey, account);
-        toggleUIProp("login");
         let shouldShowTutorialJourney = ls.get(`${user.username}HadTutorial`);
 
         if (
@@ -295,18 +294,16 @@ export function Login({ doLogin, userListRef }: Props) {
           <div className="user-list" ref={userListRef}>
             <div className="user-list-header">{i18next.t("g.login-as")}</div>
             <div className="user-list-body">
-              {users.map((u) => {
-                return (
-                  <UserItem
-                    key={u.username}
-                    disabled={inProgress}
-                    user={u}
-                    onSelect={userSelect}
-                    onDelete={userDelete}
-                    containerRef={userListRef}
-                  />
-                );
-              })}
+              {users.map((u) => (
+                <UserItem
+                  key={u.username}
+                  disabled={inProgress}
+                  user={u}
+                  onSelect={userSelect}
+                  onDelete={userDelete}
+                  containerRef={userListRef}
+                />
+              ))}
             </div>
           </div>
           <OrDivider />

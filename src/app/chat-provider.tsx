@@ -20,7 +20,7 @@ export function ChatProvider(props: PropsWithChildren) {
       storage={typeof window !== "undefined" ? window.localStorage : undefined}
       privateApiHost={defaults.base}
       activeUsername={activeUser?.username}
-      activeUserData={activeUserAccount}
+      activeUserData={activeUserAccount ?? undefined}
       ecencyAccessToken={accessToken}
     >
       {props.children}

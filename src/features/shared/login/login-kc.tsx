@@ -7,7 +7,7 @@ import { Account } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { getAccountFullQuery } from "@/api/queries";
 import i18next from "i18next";
-import { addAccountAuthority, makeHsCode, signBuffer } from "@/utils";
+import { addAccountAuthority, generateKeys, makeHsCode, signBuffer } from "@/utils";
 import { formatError } from "@/api/operations";
 import { error } from "@/features/shared";
 import Image from "next/image";
@@ -83,19 +83,12 @@ export function LoginKc({ doLogin }: Props) {
     let code: string;
     try {
       code = await makeHsCode(EcencyConfigManager.CONFIG.service.hsClientId, username, signer);
+
+      await doLogin(code, null, account!);
     } catch (err) {
       error(...formatError(err));
       setInProgress(false);
       return;
-    }
-
-    try {
-      await doLogin(code, null, account!);
-      toggleUIProp("login");
-    } catch (e) {
-      error(i18next.t("g.server-error"));
-    } finally {
-      setInProgress(false);
     }
   };
 
@@ -110,8 +103,14 @@ export function LoginKc({ doLogin }: Props) {
 
   return (
     <>
-      <div className="dialog-header">
-        <Image width={100} height={100} src="/assets/keychain.png" alt="Logo" />
+      <div className="dialog-header flex flex-col  items-center justify-center">
+        <Image
+          width={100}
+          height={100}
+          src="/assets/keychain.png"
+          className="w-[100px] min-h-[100px]"
+          alt="Logo"
+        />
         <h2>{i18next.t("login.with-keychain")}</h2>
       </div>
 
@@ -129,13 +128,15 @@ export function LoginKc({ doLogin }: Props) {
             onKeyDown={inputKeyDown}
           />
         </div>
-        <Button disabled={inProgress} className="block" onClick={login}>
-          {inProgress && spinner}
-          {i18next.t("g.login")}
-        </Button>
-        <Button outline={true} className="block" disabled={inProgress} onClick={back}>
-          {i18next.t("g.back")}
-        </Button>
+        <div className="flex items-center justify-center flex-wrap gap-4 my-4">
+          <Button disabled={inProgress} className="block" onClick={login}>
+            {inProgress && spinner}
+            {i18next.t("g.login")}
+          </Button>
+          <Button outline={true} className="block" disabled={inProgress} onClick={back}>
+            {i18next.t("g.back")}
+          </Button>
+        </div>
       </Form>
     </>
   );

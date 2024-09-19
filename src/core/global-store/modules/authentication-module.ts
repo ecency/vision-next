@@ -44,7 +44,7 @@ export const createAuthenticationActions = (
   set: (state: Partial<AuthenticationState>) => void,
   getState: () => AuthenticationState
 ) => ({
-  updateActiveUser: async (data?: Account) => {
+  updateActiveUser: async (data?: Account | null) => {
     const { activeUser } = getState();
     if (!activeUser) {
       error(...formatError("Cannot update non-active user"));
