@@ -12,7 +12,8 @@ export function isEntriesRedirect(request: NextRequest) {
     "engine",
     "settings",
     "feed",
-    "referrals"
+    "referrals",
+    "permissions"
   ];
   const isAnySection = profileSections.some((section) => request.url.includes(section));
   const isEntryLikePage = /\/(@.+)\/(.+)/gm.test(request.nextUrl.pathname);
