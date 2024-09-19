@@ -97,7 +97,7 @@ export function ProfileInfo({ account }: Props) {
   return (
     <span className="profile-info">
       <StyledTooltip
-        content={isLoaded && <ProfileInfoContent account={account} rcAccount={rcAccount} />}
+        content={isLoaded ? <ProfileInfoContent account={account} rcAccount={rcAccount} /> : <></>}
       >
         {isLoaded ? <UilInfo width={20} height={20} /> : <Spinner className="w-3.5 h-3.5" />}
       </StyledTooltip>
