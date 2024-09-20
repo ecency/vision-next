@@ -58,13 +58,12 @@ jobs:
         HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
-        API_PORT: ${{secrets.API_PORT}}
       with:
         host: ${{ secrets.SSH_HOST_EU }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET
         script: |
           export NEXT_PUBLIC_USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
@@ -72,7 +71,6 @@ jobs:
           export NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
-          export API_PORT=$API_PORT
           cd ~/vision-next
           git pull origin main
           docker pull ecency/vision-next:latest
@@ -92,13 +90,12 @@ jobs:
         HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
-        API_PORT: ${{secrets.API_PORT}}
       with:
         host: ${{ secrets.SSH_HOST_US }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET
         script: |
           export NEXT_PUBLIC_USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
@@ -106,7 +103,6 @@ jobs:
           export NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
-          export API_PORT=$API_PORT
           cd ~/vision-next
           git pull origin main
           docker pull ecency/vision-next:latest
@@ -126,13 +122,12 @@ jobs:
         HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
-        API_PORT: ${{secrets.API_PORT}}
       with:
         host: ${{ secrets.SSH_HOST_SG }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,API_PORT
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET
         script: |
           export NEXT_PUBLIC_USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
@@ -140,7 +135,6 @@ jobs:
           export NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
-          export API_PORT=$API_PORT
           cd ~/vision-next
           git pull origin main
           docker pull ecency/vision-next:latest
