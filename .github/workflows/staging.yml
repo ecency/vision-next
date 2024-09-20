@@ -65,14 +65,16 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET
         script: |
+          touch .env
           echo "NEXT_PUBLIC_USE_PRIVATE=$USE_PRIVATE" >> .env
           echo "PRIVATE_API_ADDR=$PRIVATE_API_ADDR" >> .env
           echo "PRIVATE_API_AUTH=$PRIVATE_API_AUTH" >> .env
           echo "NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET" >> .env
+          echo "HIVESIGNER_SECRET=$HIVESIGNER_SECRET" >> .env
           echo "SEARCH_API_ADDR=$SEARCH_API_ADDR" >> .env
           echo "SEARCH_API_SECRET=$SEARCH_API_SECRET" >> .env
           cd ~/vision-next
           git pull origin develop
           docker pull ecency/vision-next:develop
           export $(cat .env) > /dev/null 2>&1;
-          docker-compose -c docker-compose.yml up -d
+          docker-compose up -d
