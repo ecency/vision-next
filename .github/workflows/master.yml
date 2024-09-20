@@ -65,18 +65,18 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET
         script: |
-          echo "NEXT_PUBLIC_USE_PRIVATE=$USE_PRIVATE" >> .env
-          echo "PRIVATE_API_ADDR=$PRIVATE_API_ADDR" >> .env
-          echo "PRIVATE_API_AUTH=$PRIVATE_API_AUTH" >> .env
-          echo "NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET" >> .env
-          echo "SEARCH_API_ADDR=$SEARCH_API_ADDR" >> .env
-          echo "SEARCH_API_SECRET=$SEARCH_API_SECRET" >> .env
+          export NEXT_PUBLIC_USE_PRIVATE=$USE_PRIVATE
+          export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
+          export PRIVATE_API_AUTH=$PRIVATE_API_AUTH
+          export NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET
+          export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
+          export SEARCH_API_ADDR=$SEARCH_API_ADDR
+          export SEARCH_API_SECRET=$SEARCH_API_SECRET
           cd ~/vision-next
           git pull origin main
           docker pull ecency/vision-next:latest
           docker pull ecency/api:latest
-          export $(cat .env) > /dev/null 2>&1;
-          docker stack deploy -c stack.production.yml vision
+          docker-compose -f docker-compose.production.yml up -d
 
   deploy-US:
     needs: build
@@ -102,13 +102,14 @@ jobs:
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
           export PRIVATE_API_AUTH=$PRIVATE_API_AUTH
           export NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET
+          export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           cd ~/vision-next
           git pull origin main
           docker pull ecency/vision-next:latest
           docker pull ecency/api:latest
-          docker stack deploy -c stack.production.yml vision
+          docker-compose -f docker-compose.production.yml up -d
 
   deploy-SG:
     needs: build
@@ -134,10 +135,11 @@ jobs:
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
           export PRIVATE_API_AUTH=$PRIVATE_API_AUTH
           export NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET
+          export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           cd ~/vision-next
           git pull origin main
           docker pull ecency/vision-next:latest
           docker pull ecency/api:latest
-          docker stack deploy -c stack.production.yml vision
+          docker-compose -f docker-compose.production.yml up -d
