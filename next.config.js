@@ -2,7 +2,6 @@ const path = require("path");
 const withPWA = require("next-pwa")({
   dest: "public"
 });
-const { BugsnagBuildReporterPlugin } = require("webpack-bugsnag-plugins");
 const appPackage = require("./package.json");
 
 const config = {
@@ -18,15 +17,6 @@ const config = {
         filename: "static/chunks/[path][name].[hash][ext]"
       }
     });
-
-    if (process.env.NODE_ENV === "production") {
-      config.plugins.push(
-        new BugsnagBuildReporterPlugin({
-          apiKey: "53c03fdd42cd699cb95f60abe77a5b19",
-          appVersion: appPackage.version
-        })
-      );
-    }
 
     return config;
   },
