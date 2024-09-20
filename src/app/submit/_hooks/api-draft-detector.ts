@@ -56,7 +56,7 @@ export function useApiDraftDetector(
       onDraftLoaded(draftQuery.data);
       setActivePoll(draftQuery.data.meta?.poll);
     }
-  }, [draftQuery.data, onDraftLoaded, setActivePoll]);
+  }, [draftQuery.data]);
 
   useEffect(() => {
     // location change. only occurs once a draft picked on drafts dialog

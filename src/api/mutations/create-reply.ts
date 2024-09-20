@@ -4,17 +4,15 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { comment, formatError } from "../operations";
 import { tempEntry } from "@/utils";
 import { QueryIdentifiers } from "@/core/react-query";
-import { error } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import * as ss from "@/utils/session-storage";
 import { useGlobalStore } from "@/core/global-store";
+import i18next from "i18next";
 
 export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?: () => void) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry ?? undefined);
-  const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(
-    entry ?? undefined
-  );
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const queryClient = useQueryClient();
@@ -61,36 +59,24 @@ export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?:
       });
     },
     onSuccess: (data) => {
-      if (!entry) {
-        return;
-      }
-
       addReply(data);
       updateEntryQueryData([data]);
 
       // remove reply draft
-      ss.remove(`reply_draft_${entry.author}_${entry.permlink}`);
+      ss.remove(`reply_draft_${entry!.author}_${entry!.permlink}`);
 
-      if (entry.children === 0) {
-        // Update parent comment.
-        updateRepliesCount(1);
-      }
-      const previousReplies =
-        queryClient.getQueryData<Entry[]>([
-          QueryIdentifiers.FETCH_DISCUSSIONS,
-          parent?.author ?? entry.author,
-          parent?.permlink ?? entry.permlink
-        ]) ?? [];
-      queryClient.setQueryData(
+      queryClient.setQueryData<Entry[]>(
         [
           QueryIdentifiers.FETCH_DISCUSSIONS,
-          parent?.author ?? entry.author,
-          parent?.permlink ?? entry.permlink
+          parent?.author ?? entry!.author,
+          parent?.permlink ?? entry!.permlink
         ],
-        [data, ...previousReplies]
+        (previousReplies) => [data, ...(previousReplies ?? [])]
       );
 
       onSuccess?.();
+
+      success(i18next.t("comment.success"));
     },
     onError: (e) => error(...formatError(e))
   });

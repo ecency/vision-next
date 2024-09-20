@@ -114,23 +114,7 @@ export namespace EcencyEntriesCacheManagement {
     const qc = useQueryClient();
 
     return {
-      updateEntryQueryData: (entries: Entry[]) =>
-        entries.forEach((entry) => {
-          qc.setQueryData<Entry>(
-            [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
-            () => {
-              const data = { ...entry };
-              if (
-                dmca.some((rx: string) => new RegExp(rx).test(`@${entry.author}/${entry.permlink}`))
-              ) {
-                data.body = "This post is not available due to a copyright/fraudulent claim.";
-                data.title = "";
-              }
-
-              return data;
-            }
-          );
-        })
+      updateEntryQueryData: (entries: Entry[]) => updateEntryQueryData(entries, qc)
     };
   }
 
