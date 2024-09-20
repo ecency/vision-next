@@ -43,18 +43,19 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
   ).useClientQuery();
   const { data: botsList } = getBotsQuery().useClientQuery();
 
-  const count = useMemo(() => parent.children, [parent]);
-  const strCount = useMemo(
-    () =>
-      count > 1 ? i18next.t("discussion.n-replies", { n: count }) : i18next.t("discussion.replies"),
-    [count]
-  );
   const filtered = useMemo(
     () =>
       data?.filter(
         (x) => x.parent_author === parent.author && x.parent_permlink === parent.permlink
-      ),
+      ) ?? [],
     [data, parent]
+  );
+  const strCount = useMemo(
+    () =>
+      filtered.length > 1
+        ? i18next.t("discussion.n-replies", { n: filtered.length })
+        : i18next.t("discussion.replies"),
+    [filtered]
   );
   const botsData = useMemo(
     () => filtered?.filter((entry) => botsList?.includes(entry.author) && entry.children === 0),
@@ -69,8 +70,8 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
   useEffect(() => setVisible(!!activeUser), [activeUser]);
 
   useEffect(() => {
-    updateEntryQueryData(Array.from(Object.values(data ?? [])));
-  }, [data]);
+    updateEntryQueryData(filtered);
+  }, [filtered]);
 
   const show = () => setVisible(true);
 
@@ -92,15 +93,15 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
     );
   }
 
-  if (!activeUser && count < 1) {
+  if (!activeUser && filtered.length < 1) {
     return <div className="discussion">{join}</div>;
   }
 
-  if (count < 1) {
-    return <div className="discussion empty" />;
+  if (filtered.length < 1) {
+    return <></>;
   }
 
-  if (!visible && count >= 1) {
+  if (!visible && filtered.length >= 1) {
     return (
       <div className="discussion">
         <div className="discussion-card">

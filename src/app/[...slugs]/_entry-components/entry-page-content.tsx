@@ -1,6 +1,3 @@
-"use client";
-
-import { EntryPageNsfwWarning } from "@/app/[...slugs]/_entry-components/entry-page-nsfw-warning";
 import { EntryPageCrossPostBody } from "@/app/[...slugs]/_entry-components/entry-page-cross-post-body";
 import { EntryPageWarnings } from "@/app/[...slugs]/_entry-components/entry-page-warnings";
 import { EntryPageIsCommentHeader } from "@/app/[...slugs]/_entry-components/entry-page-is-comment-header";
@@ -14,9 +11,7 @@ import { EntryPageShowOriginal } from "@/app/[...slugs]/_entry-components/entry-
 import { EntryPageSimilarEntries } from "@/app/[...slugs]/_entry-components/entry-page-similar-entries";
 import { EntryPageDiscussions } from "@/app/[...slugs]/_entry-components/entry-page-discussions";
 import { Entry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
-import { EcencyClientServerBridge } from "@/core/client-server-bridge";
-import { EntryPageContext } from "@/app/[...slugs]/_entry-components/context";
+import { EntryPageNsfwRevealing } from "@/app/[...slugs]/_entry-components/entry-page-nsfw-revealing";
 
 interface Props {
   entry: Entry;
@@ -26,37 +21,25 @@ interface Props {
 }
 
 export function EntryPageContent({ entry, rawParam, isEdit, category }: Props) {
-  const globalNsfw = useGlobalStore((s) => s.nsfw);
-
-  const { showIfNsfw } = EcencyClientServerBridge.useSafeContext(EntryPageContext);
-
-  const showNsfwWarning =
-    (entry.json_metadata.tags?.includes("nsfw") ?? false) && !showIfNsfw && !globalNsfw;
-
   return (
-    <>
-      {showNsfwWarning && <EntryPageNsfwWarning />}
-      {!showNsfwWarning && (
-        <>
-          <EntryPageCrossPostBody entry={entry} />
-          <EntryPageProfileBox entry={entry} />
-          <div className="entry-header">
-            <EntryPageWarnings entry={entry} />
-            <EntryPageIsCommentHeader entry={entry} />
-            <h1 className="entry-title">{entry.title}</h1>
-            <EntryPageMainInfo entry={entry} />
-          </div>
-          <EntryPageBodyViewer entry={entry} rawParam={rawParam} isEdit={isEdit} />
-          <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
-            <EntryTags entry={entry} />
-            <EntryFooterInfo entry={entry} />
-            <EntryFooterControls entry={entry} />
-          </div>
-          <EntryPageShowOriginal entry={entry} />
-          <EntryPageSimilarEntries entry={entry} />
-          <EntryPageDiscussions category={category} entry={entry} />
-        </>
-      )}
-    </>
+    <EntryPageNsfwRevealing entry={entry}>
+      <EntryPageCrossPostBody entry={entry} />
+      <EntryPageProfileBox entry={entry} />
+      <div className="entry-header">
+        <EntryPageWarnings entry={entry} />
+        <EntryPageIsCommentHeader entry={entry} />
+        <h1 className="entry-title">{entry.title}</h1>
+        <EntryPageMainInfo entry={entry} />
+      </div>
+      <EntryPageBodyViewer entry={entry} rawParam={rawParam} isEdit={isEdit} />
+      <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
+        <EntryTags entry={entry} />
+        <EntryFooterInfo entry={entry} />
+        <EntryFooterControls entry={entry} />
+      </div>
+      <EntryPageShowOriginal entry={entry} />
+      <EntryPageSimilarEntries entry={entry} />
+      <EntryPageDiscussions category={category} entry={entry} />
+    </EntryPageNsfwRevealing>
   );
 }

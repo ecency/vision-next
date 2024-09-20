@@ -15,7 +15,7 @@ import { Entry } from "@/entities";
 import { useDebounce, useMount } from "react-use";
 import useUnmount from "react-use/lib/useUnmount";
 import { detectEvent, EditorToolbar, toolbarEventListener } from "@/features/shared/editor-toolbar";
-import { AvailableCredits } from "../available-credits";
+import { AvailableCredits } from "@/features/shared";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
 import usePrevious from "react-use/lib/usePrevious";
 
@@ -149,9 +149,10 @@ export function Comment({
       if (resetSelection) resetSelection();
       updateLsCommentDraft(commentText);
     }
-    if (previousIsCommented && !isCommented) {
+    if (!previousIsCommented && isCommented) {
       setText("");
       setPreview("");
+      updateLsCommentDraft("");
     }
   }, [
     defText,
