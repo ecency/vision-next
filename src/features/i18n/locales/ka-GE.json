@@ -1,21 +1,21 @@
 {
   "g": {
-    "add": "დამატება",
-    "edit": "რედაქტირება",
+    "add": "Add",
+    "edit": "Edit",
     "clone": "Clone",
     "copy": "Copy of",
     "clone-success": "Created new draft copy",
     "continue": "Continue",
     "submit": "Write a post",
-    "search": "ძებნა",
+    "search": "Search",
     "loading-chunk": "Loading component",
-    "downloads": "ჩამოტვირთვა",
-    "login": "ავტორიზაცია",
+    "downloads": "Downloads",
+    "login": "Login",
     "login-as": "Login As",
-    "signup": "რეგისტრაცია",
+    "signup": "Signup",
     "permissions": "Permissions",
-    "delete": "წაშლა",
-    "cancel": "გაუქმება",
+    "delete": "Delete",
+    "cancel": "Cancel",
     "reply": "Reply",
     "update": "Update",
     "learnMore": "Learn more",
@@ -745,7 +745,8 @@
   },
   "comment": {
     "body-placeholder": "Write your reply here",
-    "preview": "Preview"
+    "preview": "Preview",
+    "success": "Your reply created successfully!"
   },
   "discussion": {
     "join": "Join the conversation now",
@@ -898,7 +899,7 @@
     "com-mod": "Moderator of these communities"
   },
   "profile-info": {
-    "joined": "Joined: {{n}}",
+    "joined": "Joined",
     "last-active": "Last active: {{n}}",
     "vote-value": "Vote value: {{n}}",
     "vote-value-max": "(out of max {{n}})",
