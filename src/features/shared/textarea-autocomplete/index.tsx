@@ -30,9 +30,7 @@ export function TextareaAutocomplete(props: any) {
   }
 
   useEffect(() => {
-    if (!value && props.value) {
-      setValue(props.value);
-    }
+    setValue(props.value);
   }, [props.value, value]);
 
   const handleChange = (event: any) => {

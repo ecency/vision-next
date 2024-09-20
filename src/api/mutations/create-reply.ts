@@ -4,9 +4,10 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { comment, formatError } from "../operations";
 import { tempEntry } from "@/utils";
 import { QueryIdentifiers } from "@/core/react-query";
-import { error } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import * as ss from "@/utils/session-storage";
 import { useGlobalStore } from "@/core/global-store";
+import i18next from "i18next";
 
 export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?: () => void) {
   const activeUser = useGlobalStore((state) => state.activeUser);
@@ -91,6 +92,8 @@ export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?:
       );
 
       onSuccess?.();
+
+      success(i18next.t("comment.success"));
     },
     onError: (e) => error(...formatError(e))
   });

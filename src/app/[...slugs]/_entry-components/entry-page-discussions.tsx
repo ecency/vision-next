@@ -23,7 +23,8 @@ interface Props {
 export function EntryPageDiscussions({ entry, category }: Props) {
   const params = useSearchParams();
 
-  const { commentsInputRef, selection } = EcencyClientServerBridge.useSafeContext(EntryPageContext);
+  const { commentsInputRef, selection, setSelection } =
+    EcencyClientServerBridge.useSafeContext(EntryPageContext);
 
   const activeUser = useGlobalStore((s) => s.activeUser);
 
@@ -48,12 +49,15 @@ export function EntryPageDiscussions({ entry, category }: Props) {
     const permlink = createReplyPermlink(entry!.author);
     const tags = entry!.json_metadata.tags || ["ecency"];
 
-    return createReply({
+    const response = await createReply({
       jsonMeta: makeJsonMetaDataReply(tags, appPackage.version),
       text,
       permlink,
       point: true
     });
+
+    setSelection("");
+    return response;
   };
 
   return (
