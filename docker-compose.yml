@@ -19,8 +19,8 @@ services:
   web:
     image: ecency/vision-next:develop
     environment:
-      - USE_PRIVATE
-      - HIVESIGNER_SECRET
+      - NEXT_PUBLIC_USE_PRIVATE
+      - NEXT_PUBLIC_HS_CLIENT_SECRET
     restart: always
     ports:
       - "3000:3000"
