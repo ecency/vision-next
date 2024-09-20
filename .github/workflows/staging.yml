@@ -45,6 +45,9 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
+      - name: Env setup
+        run: echo ${{ secrets.API_PORT }}
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -73,7 +76,6 @@ jobs:
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export API_PORT=$API_PORT
-          echo $API_PORT
           cd ~/vision-next
           git pull origin develop
           docker pull ecency/vision-next:develop
