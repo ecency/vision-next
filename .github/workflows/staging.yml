@@ -75,4 +75,4 @@ jobs:
           git pull origin develop
           docker pull ecency/vision-next:develop
           export $(cat .env) > /dev/null 2>&1;
-          docker stack deploy -c <(docker-compose config) stack.yml vision
+          docker stack deploy -c stack.yml vision
