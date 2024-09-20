@@ -76,19 +76,13 @@ export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?:
         // Update parent comment.
         updateRepliesCount(1);
       }
-      const previousReplies =
-        queryClient.getQueryData<Entry[]>([
-          QueryIdentifiers.FETCH_DISCUSSIONS,
-          parent?.author ?? entry.author,
-          parent?.permlink ?? entry.permlink
-        ]) ?? [];
-      queryClient.setQueryData(
+      queryClient.setQueryData<Entry[]>(
         [
           QueryIdentifiers.FETCH_DISCUSSIONS,
           parent?.author ?? entry.author,
           parent?.permlink ?? entry.permlink
         ],
-        [data, ...previousReplies]
+        (previousReplies) => [data, ...(previousReplies ?? [])]
       );
 
       onSuccess?.();
