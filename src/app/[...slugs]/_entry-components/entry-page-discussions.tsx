@@ -12,7 +12,7 @@ import { EntryPageContext } from "@/app/[...slugs]/_entry-components/context";
 import { createReplyPermlink, makeJsonMetaDataReply } from "@/utils";
 import appPackage from "../../../../package.json";
 import { useCreateReply } from "@/api/mutations";
-import { getCommunityCache } from "@/core/caches";
+import { EcencyEntriesCacheManagement, getCommunityCache } from "@/core/caches";
 import { EcencyConfigManager } from "@/config";
 
 interface Props {
@@ -20,7 +20,7 @@ interface Props {
   category: string;
 }
 
-export function EntryPageDiscussions({ entry, category }: Props) {
+export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
   const params = useSearchParams();
 
   const { commentsInputRef, selection, setSelection } =
@@ -30,6 +30,7 @@ export function EntryPageDiscussions({ entry, category }: Props) {
 
   const [isCommented, setIsCommented] = useState(false);
 
+  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
   const { data: community } = getCommunityCache(category).useClientQuery();
   const isRawContent = useMemo(
     () =>
@@ -65,17 +66,17 @@ export function EntryPageDiscussions({ entry, category }: Props) {
       <Comment
         defText={selection}
         submitText={i18next.t("g.reply")}
-        entry={entry}
+        entry={entry!}
         onSubmit={replySubmitted}
         isCommented={isCommented}
         inProgress={isCreateReplyLoading}
         inputRef={commentsInputRef}
       />
 
-      {activeUser && entry.children === 0 && <CommentEngagement />}
+      {activeUser && entry!.children === 0 && <CommentEngagement />}
 
       <Discussion
-        parent={entry}
+        parent={entry!}
         community={community!!}
         hideControls={false}
         isRawContent={isRawContent}

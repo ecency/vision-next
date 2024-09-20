@@ -13,9 +13,6 @@ export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?:
   const activeUser = useGlobalStore((state) => state.activeUser);
 
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry ?? undefined);
-  const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(
-    entry ?? undefined
-  );
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const queryClient = useQueryClient();
@@ -62,25 +59,17 @@ export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?:
       });
     },
     onSuccess: (data) => {
-      if (!entry) {
-        return;
-      }
-
       addReply(data);
       updateEntryQueryData([data]);
 
       // remove reply draft
-      ss.remove(`reply_draft_${entry.author}_${entry.permlink}`);
+      ss.remove(`reply_draft_${entry!.author}_${entry!.permlink}`);
 
-      if (entry.children === 0) {
-        // Update parent comment.
-        updateRepliesCount(1);
-      }
       queryClient.setQueryData<Entry[]>(
         [
           QueryIdentifiers.FETCH_DISCUSSIONS,
-          parent?.author ?? entry.author,
-          parent?.permlink ?? entry.permlink
+          parent?.author ?? entry!.author,
+          parent?.permlink ?? entry!.permlink
         ],
         (previousReplies) => [data, ...(previousReplies ?? [])]
       );
