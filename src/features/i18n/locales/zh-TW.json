@@ -745,7 +745,8 @@
   },
   "comment": {
     "body-placeholder": "Write your reply here",
-    "preview": "Preview"
+    "preview": "Preview",
+    "success": "Your reply created successfully!"
   },
   "discussion": {
     "join": "Join the conversation now",
@@ -898,7 +899,7 @@
     "com-mod": "Moderator of these communities"
   },
   "profile-info": {
-    "joined": "Joined: {{n}}",
+    "joined": "Joined",
     "last-active": "Last active: {{n}}",
     "vote-value": "Vote value: {{n}}",
     "vote-value-max": "(out of max {{n}})",
