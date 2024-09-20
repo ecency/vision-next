@@ -73,6 +73,7 @@ jobs:
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export API_PORT=$API_PORT
+          echo $API_PORT
           cd ~/vision-next
           git pull origin develop
           docker pull ecency/vision-next:develop
