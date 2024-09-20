@@ -6,7 +6,7 @@ services:
     environment:
       - PRIVATE_API_ADDR=${PRIVATE_API_ADDR}
       - PRIVATE_API_AUTH=${PRIVATE_API_AUTH}
-      - HIVESIGNER_SECRET=${HIVESIGNER_SECRET}
+      - HIVESIGNER_SECRET=${NEXT_PUBLIC_HIVESIGNER_SECRET}
       - SEARCH_API_ADDR=${SEARCH_API_ADDR}
       - SEARCH_API_SECRET=${SEARCH_API_SECRET}
     deploy:
@@ -23,8 +23,8 @@ services:
   web:
     image: ecency/vision-next:develop
     environment:
-      - USE_PRIVATE=${USE_PRIVATE}
-      - HIVESIGNER_SECRET=${HIVESIGNER_SECRET}
+      - NEXT_PUBLIC_USE_PRIVATE=${NEXT_PUBLIC_USE_PRIVATE}
+      - NEXT_PUBLIC_HIVESIGNER_SECRET=${NEXT_PUBLIC_HIVESIGNER_SECRET}
     deploy:
       restart_policy:
         condition: any
