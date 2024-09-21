@@ -34,7 +34,7 @@ export function ModalSidebar({
           x: (placement === "right" ? 1 : -1) * 320
         }}
         className={classNameObject({
-          "h-full-dynamic overflow-y-auto no-scrollbar bg-white dark:bg-dark-700 absolute w-[20rem] top-0 bottom-0":
+          "ecency-sidebar h-full-dynamic overflow-y-auto no-scrollbar bg-white dark:bg-dark-700 absolute w-[20rem] top-0 bottom-0":
             true,
           "right-0 rounded-l-2xl": placement === "right",
           "left-0 rounded-r-2xl": placement === "left",
