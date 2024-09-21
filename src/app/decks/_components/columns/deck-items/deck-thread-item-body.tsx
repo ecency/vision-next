@@ -60,7 +60,7 @@ export const DeckThreadItemBody = ({
     });
     renderVideos(renderAreaRef);
     renderTweets(renderAreaRef);
-  }, [entry.parent_author, setRenderInitiated]);
+  }, [entry.parent_author]);
 
   const renderContentBody = useCallback(() => {
     if (entry.parent_author === "liketu.moments") {
@@ -83,7 +83,7 @@ export const DeckThreadItemBody = ({
     if (!renderInitiated) {
       renderBody();
     }
-  }, [height, entry, onResize, renderBody, renderInitiated]);
+  }, [height, entry, renderBody, renderInitiated]);
 
   return (
     <div className="thread-item-body">
