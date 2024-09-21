@@ -258,7 +258,7 @@ export function SuggestionList({
                   <a
                     href="#"
                     key={i}
-                    className="list-item"
+                    className="flex pointer items-center px-4 py-3 text-gray-warm hover:bg-blue-dark-sky-040 dark:text-silver dark:hover:text-white dark:bg-dark-200 dark:hover:bg-dark-default duration-300 border-b border-[--border-color] last:border-0"
                     onClick={(e: React.MouseEvent) => {
                       e.preventDefault();
                       onSelect?.(x);
