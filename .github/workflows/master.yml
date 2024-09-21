@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: SSH and deploy node app
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.0.3
       env:
         USE_PRIVATE: ${{secrets.USE_PRIVATE}}
         PRIVATE_API_ADDR: ${{secrets.PRIVATE_API_ADDR}}
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: SSH and deploy node app
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.0.3
       env:
         USE_PRIVATE: ${{secrets.USE_PRIVATE}}
         PRIVATE_API_ADDR: ${{secrets.PRIVATE_API_ADDR}}
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: SSH and deploy node app
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.0.3
       env:
         USE_PRIVATE: ${{secrets.USE_PRIVATE}}
         PRIVATE_API_ADDR: ${{secrets.PRIVATE_API_ADDR}}
