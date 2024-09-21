@@ -55,12 +55,20 @@ export function ProfileMenu({ username, section }: Props) {
   ];
 
   const menuItems = [
-    ...[ProfileFilter.blog, ProfileFilter.posts, ProfileFilter.comments, "wallet"].map((x) => ({
-      label: i18next.t(`profile.section-${x}`),
-      href: `/@${username}/${x}`,
-      selected: section === x,
-      id: x
-    }))
+    ...[ProfileFilter.blog, ProfileFilter.posts, ProfileFilter.comments, "communities"].map(
+      (x) => ({
+        label: i18next.t(`profile.section-${x}`),
+        href: `/@${username}/${x}`,
+        selected: section === x,
+        id: x
+      })
+    ),
+    {
+      label: i18next.t(`profile.section-wallet`),
+      selected: ["wallet", "points", "engine", "spk"].includes(section),
+      href: `/@${username}/wallet`,
+      id: "wallet"
+    }
   ];
 
   const dropDownMenuItems = [...menuItems, ...kebabMenuItems];
@@ -90,17 +98,6 @@ export function ProfileMenu({ username, section }: Props) {
             isSelected={menuItem.selected}
           />
         ))}
-        <PageMenuLink
-          isSelected={section === "communities"}
-          href={`/@${username}/communities`}
-          label={i18next.t(`profile.section-communities`)}
-        />
-
-        <PageMenuLink
-          isSelected={["wallet", "points", "engine", "spk"].includes(section)}
-          href={`/@${username}/wallet`}
-          label={i18next.t(`profile.section-wallet`)}
-        />
 
         {activeUser && activeUser.username === username && (
           <PageMenuLink
