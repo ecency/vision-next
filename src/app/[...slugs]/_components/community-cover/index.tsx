@@ -54,7 +54,7 @@ export function CommunityCover({ community, account }: Props) {
   );
 
   return (
-    <div className="relative overflow-hidden rounded-2xl">
+    <div className="relative overflow-hidden rounded-2xl lg:max-h-[210px]">
       <div
         className="bg-cover absolute top-0 left-0 w-full h-full bg-light-300 dark:bg-dark-default"
         style={style}

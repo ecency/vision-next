@@ -11,9 +11,10 @@ interface Props {
   size?: string;
   src?: string;
   onClick?: () => void;
+  className?: string;
 }
 
-export function UserAvatar({ username, size, src, onClick }: Props) {
+export function UserAvatar({ username, size, src, onClick, className }: Props) {
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
 
   const imgSize = useMemo(
@@ -31,7 +32,7 @@ export function UserAvatar({ username, size, src, onClick }: Props) {
   return (
     <span
       onClick={onClick}
-      className={`user-avatar ${size}`}
+      className={`user-avatar ${size} ${className}`}
       style={{ backgroundImage: `url(${imageSrc})` }}
     />
   );
