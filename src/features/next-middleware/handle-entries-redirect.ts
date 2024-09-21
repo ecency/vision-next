@@ -18,8 +18,9 @@ export function isEntriesRedirect(request: NextRequest) {
   const isAnySection = profileSections.some((section) => request.url.includes(section));
   const isEntryLikePage = /\/(@.+)\/(.+)/gm.test(request.nextUrl.pathname);
   const [author] = request.nextUrl.pathname.split("/").filter((i) => !!i);
+  const isEditPage = request.nextUrl.pathname.endsWith("/edit");
 
-  return !isAnySection && isEntryLikePage && author.startsWith("@");
+  return !isEditPage && !isAnySection && isEntryLikePage && author.startsWith("@");
 }
 
 export function handleEntriesRedirect(request: NextRequest) {

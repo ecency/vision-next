@@ -50,7 +50,7 @@ export function CommunityCard({ community, account }: Props) {
 
   return (
     <div className="community-card">
-      <div className="community-avatar">
+      <div className="community-avatar flex items-center justify-center md:justify-start">
         {canUpdatePic && (
           <CommunityCardEditPic
             account={account as FullAccount}
@@ -58,6 +58,7 @@ export function CommunityCard({ community, account }: Props) {
           />
         )}
         <UserAvatar
+          className="border border-[--border-color]"
           username={community.name}
           size="xLarge"
           src={account.__loaded && useNewImage ? account.profile?.profile_image : undefined}

@@ -15,7 +15,7 @@ export function CommunityCardTeam({ community, toggleInfo }: Props) {
     () =>
       community.team.map((m, i) => {
         if (m[0].startsWith("hive-")) {
-          return <></>;
+          return <div key={i} />;
         }
 
         return (

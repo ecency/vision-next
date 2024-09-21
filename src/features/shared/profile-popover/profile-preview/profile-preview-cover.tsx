@@ -15,7 +15,7 @@ export function ProfilePreviewCover({ username }: Props) {
     getAccountFullQuery(username).useClientQuery();
 
   return isProfileLoading ? (
-    <div className="animate-pulse h-[128px] w-full bg-blue-dark-sky-040" />
+    <div className="animate-pulse h-[128px] w-full bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
   ) : (
     profile && (
       <Image

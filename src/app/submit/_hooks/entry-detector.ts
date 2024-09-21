@@ -29,5 +29,5 @@ export function useEntryDetector(
     }
 
     if (normalizedEntry) onEntryDetected(normalizedEntry);
-  }, [isSuccess, normalizedEntry, onEntryDetected, router]);
+  }, [isSuccess, normalizedEntry, router]);
 }

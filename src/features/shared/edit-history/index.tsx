@@ -26,7 +26,7 @@ export function EditHistory({ onHide, entry }: Props) {
   const [showDiff, setShowDiff] = useState(true);
   const [selected, setSelected] = useState(1);
 
-  const { data: isLoading } = useGetCommentHistoryQuery(entry);
+  const { isLoading } = useGetCommentHistoryQuery(entry);
   const history = useHistoryList(entry);
 
   const selectedItem = useMemo(() => history.find((x) => x.v === selected), [history, selected]);

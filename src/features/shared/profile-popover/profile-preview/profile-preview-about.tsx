@@ -13,7 +13,7 @@ export function ProfilePreviewAbout({ username }: Props) {
   return (
     <div className="text-sm">
       {isLoading && (
-        <div className="animate-pulse h-[48px] rounded-lg w-full bg-blue-dark-sky-040" />
+        <div className="animate-pulse h-[48px] rounded-lg w-full bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
       )}
 
       {profile?.profile?.about && (

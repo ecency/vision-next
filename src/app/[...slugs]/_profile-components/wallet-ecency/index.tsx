@@ -193,26 +193,28 @@ export const WalletEcency = ({ account }: Props) => {
               <div className="balance-values">
                 <div className="amount">
                   <div className="amount-actions">
-                    <Dropdown>
-                      <DropdownToggle>{menuDownSvg}</DropdownToggle>
-                      <DropdownMenu align="right">
-                        {isMyPage && (
-                          <>
+                    {activeUser && (
+                      <Dropdown>
+                        <DropdownToggle>{menuDownSvg}</DropdownToggle>
+                        <DropdownMenu align="right">
+                          {isMyPage && (
+                            <>
+                              <DropdownItem onClick={toggleTransfer}>
+                                {i18next.t("points.transfer")}
+                              </DropdownItem>
+                              <DropdownItem onClick={togglePromote}>
+                                {i18next.t("points.promote")}
+                              </DropdownItem>
+                            </>
+                          )}
+                          {activeUser && (
                             <DropdownItem onClick={toggleTransfer}>
                               {i18next.t("points.transfer")}
                             </DropdownItem>
-                            <DropdownItem onClick={togglePromote}>
-                              {i18next.t("points.promote")}
-                            </DropdownItem>
-                          </>
-                        )}
-                        {activeUser && (
-                          <DropdownItem onClick={toggleTransfer}>
-                            {i18next.t("points.transfer")}
-                          </DropdownItem>
-                        )}
-                      </DropdownMenu>
-                    </Dropdown>
+                          )}
+                        </DropdownMenu>
+                      </Dropdown>
+                    )}
                   </div>
                   {/* {isMyPage && (
                                         <div className="amount-actions">
