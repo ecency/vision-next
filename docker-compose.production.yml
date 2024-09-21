@@ -18,6 +18,8 @@ services:
 
   web:
     image: ecency/vision-next:latest
+    deploy:
+      replicas: 4
     environment:
       - NEXT_PUBLIC_USE_PRIVATE
       - NEXT_PUBLIC_HS_CLIENT_SECRET
