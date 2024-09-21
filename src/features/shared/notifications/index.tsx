@@ -29,7 +29,7 @@ export function NotificationsDialog({ openLinksInNewTab = false }: Props) {
       condition={({ visionFeatures }) => visionFeatures.notifications.enabled}
     >
       <ModalSidebar
-        className="notifications-modal min-w-[32rem]"
+        className="notifications-modal min-w-[90%] md:min-w-[32rem] [&_.ecency-sidebar]:overflow-hidden"
         show={show}
         setShow={(v) => {
           setShow(v);
