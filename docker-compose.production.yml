@@ -14,7 +14,7 @@ services:
       - "4000:4000"
     hostname: vapi
     networks:
-      - vision2
+      - vision
 
   web:
     image: ecency/vision-next:latest
@@ -26,8 +26,8 @@ services:
       - "3000:3000"
     hostname: web
     networks:
-      - vision2
+      - vision
 
 networks:
-  vision2:
+  vision:
     external: true
