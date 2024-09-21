@@ -8,6 +8,7 @@ import {
   MenuItem
 } from "@ui/dropdown";
 import { menuDownSvg } from "@ui/svg";
+import { useGlobalStore } from "@/core/global-store";
 
 interface Props {
   account: Account;
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export const WalletSpkSection = (props: Props) => {
+  const activeUser = useGlobalStore((state) => state.activeUser);
   return (
     <div className={"balance-row hive " + (props.isAlternative ? "alternative" : "")}>
       <div className="balance-info text-left">
@@ -35,19 +37,21 @@ export const WalletSpkSection = (props: Props) => {
           {props.items.length > 0 &&
           (typeof props.showItems === "boolean" ? props.showItems : true) ? (
             <div className="amount-actions">
-              <Dropdown>
-                <DropdownToggle>{menuDownSvg}</DropdownToggle>
-                <DropdownMenu align="right">
-                  {props.items.map((item, i) => (
-                    <DropdownItemWithIcon
-                      key={i}
-                      onClick={item.onClick}
-                      icon={item.icon}
-                      label={item.label}
-                    />
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
+              {activeUser && (
+                <Dropdown>
+                  <DropdownToggle>{menuDownSvg}</DropdownToggle>
+                  <DropdownMenu align="right">
+                    {props.items.map((item, i) => (
+                      <DropdownItemWithIcon
+                        key={i}
+                        onClick={item.onClick}
+                        icon={item.icon}
+                        label={item.label}
+                      />
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              )}
             </div>
           ) : (
             <></>

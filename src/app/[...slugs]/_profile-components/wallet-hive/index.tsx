@@ -268,11 +268,45 @@ export function WalletHive({ account }: Props) {
             <div className="balance-values">
               <div className="amount">
                 <div className="amount-actions">
-                  <Dropdown>
-                    <DropdownToggle>{menuDownSvg}</DropdownToggle>
-                    <DropdownMenu align="right">
-                      {isMyPage && (
-                        <>
+                  {activeUser && (
+                    <Dropdown>
+                      <DropdownToggle>{menuDownSvg}</DropdownToggle>
+                      <DropdownMenu align="right">
+                        {isMyPage && (
+                          <>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("transfer");
+                                setTransferAsset("HIVE");
+                              }}
+                            >
+                              {i18next.t("wallet.transfer")}
+                            </DropdownItem>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("transfer-saving");
+                                setTransferAsset("HIVE");
+                              }}
+                            >
+                              {i18next.t("wallet.transfer-to-savings")}
+                            </DropdownItem>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("power-up");
+                                setTransferAsset("HIVE");
+                              }}
+                            >
+                              {i18next.t("wallet.power-up")}
+                            </DropdownItem>
+                            <DropdownItem onClick={() => router.push("/market")}>
+                              {i18next.t("market-data.trade")}
+                            </DropdownItem>
+                          </>
+                        )}
+                        {!isMyPage && activeUser && (
                           <DropdownItem
                             onClick={() => {
                               setTransfer(true);
@@ -282,42 +316,10 @@ export function WalletHive({ account }: Props) {
                           >
                             {i18next.t("wallet.transfer")}
                           </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              setTransfer(true);
-                              setTransferMode("transfer-saving");
-                              setTransferAsset("HIVE");
-                            }}
-                          >
-                            {i18next.t("wallet.transfer-to-savings")}
-                          </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              setTransfer(true);
-                              setTransferMode("power-up");
-                              setTransferAsset("HIVE");
-                            }}
-                          >
-                            {i18next.t("wallet.power-up")}
-                          </DropdownItem>
-                          <DropdownItem onClick={() => router.push("/market")}>
-                            {i18next.t("market-data.trade")}
-                          </DropdownItem>
-                        </>
-                      )}
-                      {!isMyPage && activeUser && (
-                        <DropdownItem
-                          onClick={() => {
-                            setTransfer(true);
-                            setTransferMode("transfer");
-                            setTransferAsset("HIVE");
-                          }}
-                        >
-                          {i18next.t("wallet.transfer")}
-                        </DropdownItem>
-                      )}
-                    </DropdownMenu>
-                  </Dropdown>
+                        )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  )}
                 </div>
 
                 <span>{formattedNumber(w.balance, { suffix: "HIVE" })}</span>
@@ -376,58 +378,60 @@ export function WalletHive({ account }: Props) {
             <div className="balance-values">
               <div className="amount">
                 <div className="amount-actions">
-                  <Dropdown>
-                    <DropdownToggle>{menuDownSvg}</DropdownToggle>
-                    <DropdownMenu align="right">
-                      {isMyPage && (
-                        <>
-                          <DropdownItem
-                            onClick={() => {
-                              setTransfer(true);
-                              setTransferMode("delegate");
-                              setTransferAsset("HP");
-                            }}
-                          >
-                            {i18next.t("wallet.delegate")}
-                          </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              setTransfer(true);
-                              setTransferMode("power-down");
-                              setTransferAsset("HP");
-                            }}
-                          >
-                            {i18next.t("wallet.power-down")}
-                          </DropdownItem>
-                          <DropdownItem onClick={() => setWithDrawRoutes(true)}>
-                            {i18next.t("wallet.withdraw-routes")}
-                          </DropdownItem>
-                        </>
-                      )}
-                      {!isMyPage && activeUser && (
-                        <>
-                          <DropdownItem
-                            onClick={() => {
-                              setTransfer(true);
-                              setTransferMode("delegate");
-                              setTransferAsset("HP");
-                            }}
-                          >
-                            {i18next.t("wallet.delegate")}
-                          </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              setTransfer(true);
-                              setTransferMode("power-up");
-                              setTransferAsset("HIVE");
-                            }}
-                          >
-                            {i18next.t("wallet.power-up")}
-                          </DropdownItem>
-                        </>
-                      )}
-                    </DropdownMenu>
-                  </Dropdown>
+                  {activeUser && (
+                    <Dropdown>
+                      <DropdownToggle>{menuDownSvg}</DropdownToggle>
+                      <DropdownMenu align="right">
+                        {isMyPage && (
+                          <>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("delegate");
+                                setTransferAsset("HP");
+                              }}
+                            >
+                              {i18next.t("wallet.delegate")}
+                            </DropdownItem>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("power-down");
+                                setTransferAsset("HP");
+                              }}
+                            >
+                              {i18next.t("wallet.power-down")}
+                            </DropdownItem>
+                            <DropdownItem onClick={() => setWithDrawRoutes(true)}>
+                              {i18next.t("wallet.withdraw-routes")}
+                            </DropdownItem>
+                          </>
+                        )}
+                        {!isMyPage && activeUser && (
+                          <>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("delegate");
+                                setTransferAsset("HP");
+                              }}
+                            >
+                              {i18next.t("wallet.delegate")}
+                            </DropdownItem>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("power-up");
+                                setTransferAsset("HIVE");
+                              }}
+                            >
+                              {i18next.t("wallet.power-up")}
+                            </DropdownItem>
+                          </>
+                        )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  )}
                 </div>
                 {totalHP}
               </div>
@@ -535,11 +539,45 @@ export function WalletHive({ account }: Props) {
             <div className="balance-values">
               <div className="amount">
                 <div className="amount-actions">
-                  <Dropdown>
-                    <DropdownToggle>{menuDownSvg}</DropdownToggle>
-                    <DropdownMenu align="right">
-                      {isMyPage && (
-                        <>
+                  {activeUser && (
+                    <Dropdown>
+                      <DropdownToggle>{menuDownSvg}</DropdownToggle>
+                      <DropdownMenu align="right">
+                        {isMyPage && (
+                          <>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("transfer");
+                                setTransferAsset("HBD");
+                              }}
+                            >
+                              {i18next.t("wallet.transfer")}
+                            </DropdownItem>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("transfer-saving");
+                                setTransferAsset("HBD");
+                              }}
+                            >
+                              {i18next.t("wallet.transfer-to-savings")}
+                            </DropdownItem>
+                            <DropdownItem
+                              onClick={() => {
+                                setTransfer(true);
+                                setTransferMode("convert");
+                                setTransferAsset("HBD");
+                              }}
+                            >
+                              {i18next.t("wallet.convert")}
+                            </DropdownItem>
+                            <DropdownItem onClick={() => router.push("/market")}>
+                              {i18next.t("market-data.trade")}
+                            </DropdownItem>
+                          </>
+                        )}
+                        {activeUser && !isMyPage && (
                           <DropdownItem
                             onClick={() => {
                               setTransfer(true);
@@ -549,42 +587,10 @@ export function WalletHive({ account }: Props) {
                           >
                             {i18next.t("wallet.transfer")}
                           </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              setTransfer(true);
-                              setTransferMode("transfer-saving");
-                              setTransferAsset("HBD");
-                            }}
-                          >
-                            {i18next.t("wallet.transfer-to-savings")}
-                          </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              setTransfer(true);
-                              setTransferMode("convert");
-                              setTransferAsset("HBD");
-                            }}
-                          >
-                            {i18next.t("wallet.convert")}
-                          </DropdownItem>
-                          <DropdownItem onClick={() => router.push("/market")}>
-                            {i18next.t("market-data.trade")}
-                          </DropdownItem>
-                        </>
-                      )}
-                      {activeUser && !isMyPage && (
-                        <DropdownItem
-                          onClick={() => {
-                            setTransfer(true);
-                            setTransferMode("transfer");
-                            setTransferAsset("HBD");
-                          }}
-                        >
-                          {i18next.t("wallet.transfer")}
-                        </DropdownItem>
-                      )}
-                    </DropdownMenu>
-                  </Dropdown>
+                        )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  )}
                 </div>
                 <span>{formattedNumber(w.hbdBalance, { prefix: "$" })}</span>
               </div>
@@ -673,64 +679,68 @@ export function WalletHive({ account }: Props) {
             <div className="balance-values">
               <div className="amount">
                 <div className="amount-actions">
-                  <Dropdown>
-                    <DropdownToggle>{menuDownSvg}</DropdownToggle>
-                    <DropdownMenu align="right">
-                      {isMyPage ? (
-                        <DropdownItem
-                          onClick={() => {
-                            setTransfer(true);
-                            setTransferMode("withdraw-saving");
-                            setTransferAsset("HIVE");
-                          }}
-                        >
-                          {i18next.t("wallet.withdraw-hive")}
-                        </DropdownItem>
-                      ) : (
-                        <DropdownItem
-                          onClick={() => {
-                            setTransfer(true);
-                            setTransferMode("transfer-saving");
-                            setTransferAsset("HIVE");
-                          }}
-                        >
-                          {i18next.t("wallet.transfer")}
-                        </DropdownItem>
-                      )}
-                    </DropdownMenu>
-                  </Dropdown>
+                  {activeUser && (
+                    <Dropdown>
+                      <DropdownToggle>{menuDownSvg}</DropdownToggle>
+                      <DropdownMenu align="right">
+                        {isMyPage ? (
+                          <DropdownItem
+                            onClick={() => {
+                              setTransfer(true);
+                              setTransferMode("withdraw-saving");
+                              setTransferAsset("HIVE");
+                            }}
+                          >
+                            {i18next.t("wallet.withdraw-hive")}
+                          </DropdownItem>
+                        ) : (
+                          <DropdownItem
+                            onClick={() => {
+                              setTransfer(true);
+                              setTransferMode("transfer-saving");
+                              setTransferAsset("HIVE");
+                            }}
+                          >
+                            {i18next.t("wallet.transfer")}
+                          </DropdownItem>
+                        )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  )}
                 </div>
 
                 <span>{formattedNumber(w.savingBalance, { suffix: "HIVE" })}</span>
               </div>
               <div className="amount">
                 <div className="amount-actions">
-                  <Dropdown>
-                    <DropdownToggle>{menuDownSvg}</DropdownToggle>
-                    <DropdownMenu align="right">
-                      {isMyPage ? (
-                        <DropdownItem
-                          onClick={() => {
-                            setTransfer(true);
-                            setTransferMode("withdraw-saving");
-                            setTransferAsset("HBD");
-                          }}
-                        >
-                          {i18next.t("wallet.withdraw-hbd")}
-                        </DropdownItem>
-                      ) : (
-                        <DropdownItem
-                          onClick={() => {
-                            setTransfer(true);
-                            setTransferMode("transfer-saving");
-                            setTransferAsset("HBD");
-                          }}
-                        >
-                          {i18next.t("wallet.transfer")}
-                        </DropdownItem>
-                      )}
-                    </DropdownMenu>
-                  </Dropdown>
+                  {activeUser && (
+                    <Dropdown>
+                      <DropdownToggle>{menuDownSvg}</DropdownToggle>
+                      <DropdownMenu align="right">
+                        {isMyPage ? (
+                          <DropdownItem
+                            onClick={() => {
+                              setTransfer(true);
+                              setTransferMode("withdraw-saving");
+                              setTransferAsset("HBD");
+                            }}
+                          >
+                            {i18next.t("wallet.withdraw-hbd")}
+                          </DropdownItem>
+                        ) : (
+                          <DropdownItem
+                            onClick={() => {
+                              setTransfer(true);
+                              setTransferMode("transfer-saving");
+                              setTransferAsset("HBD");
+                            }}
+                          >
+                            {i18next.t("wallet.transfer")}
+                          </DropdownItem>
+                        )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  )}
                 </div>
 
                 <span>{formattedNumber(w.savingBalanceHbd, { suffix: "$" })}</span>
