@@ -10,6 +10,7 @@ import useMount from "react-use/lib/useMount";
 import { usePrevious } from "react-use";
 import useUnmount from "react-use/lib/useUnmount";
 import { AnimatePresence, motion } from "framer-motion";
+import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   items: any[];
@@ -192,7 +193,7 @@ export function SuggestionList({
                   _items.length > 0 && (
                     <div className="search-suggestion-list" key={modeKey}>
                       {modeItem.header && (
-                        <div className="bg-gray-100 dark:bg-gray-700 text-sm font-semibold text-gray-600 p-2">
+                        <div className="bg-gray-100 dark:bg-gray-900 text-sm font-semibold text-gray-600 dark:text-gray-400 p-2">
                           {modeItem.header}
                         </div>
                       )}
@@ -201,7 +202,7 @@ export function SuggestionList({
                           <a
                             href="#"
                             key={i}
-                            className="list-item"
+                            className="flex pointer items-center px-4 py-3 text-gray-warm hover:bg-blue-dark-sky-040 dark:text-silver dark:hover:text-white dark:bg-dark-200 dark:hover:bg-dark-default duration-300 border-b border-[--border-color] last:border-0"
                             onClick={(e: React.MouseEvent) => {
                               e.preventDefault();
                               modeItem.onSelect?.(x);
@@ -218,8 +219,13 @@ export function SuggestionList({
               })}
               <div className="search-suggestion-list more-result">
                 <div className="list-body">
-                  <a href="#" className="list-item" onClick={moreResultsClick}>
+                  <a
+                    href="#"
+                    className="flex items-center text-gray-warm hover:bg-blue-dark-sky-040 dark:text-silver dark:hover:text-white dark:bg-dark-200 dark:hover:bg-dark-default duration-300 border-t border-[--border-color] gap-1 text-xs uppercase font-bold px-4 py-3"
+                    onClick={moreResultsClick}
+                  >
                     {i18next.t("g.more-results")}
+                    <UilArrowUpRight className="w-5 h-5" />
                   </a>
                 </div>
               </div>

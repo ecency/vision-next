@@ -13,6 +13,7 @@ import { getAccountReputations } from "@/api/hive";
 import { SuggestionList, UserAvatar } from "@/features/shared";
 import { accountReputation } from "@/utils";
 import { dataLimit, getCommunities } from "@/api/bridge";
+import { Badge } from "@ui/badge";
 
 interface Props {
   value: string;
@@ -191,8 +192,8 @@ export function SearchSuggester({ changed, value, children, containerClassName }
               return (
                 <>
                   <UserAvatar username={i.account} size="medium" />
-                  <span style={{ marginLeft: "8px" }}>{i.account}</span>
-                  <span style={{ marginLeft: "8px" }}>({accountReputation(i.reputation)})</span>
+                  <span className="mx-2">{i.account}</span>
+                  <Badge>{accountReputation(i.reputation)}</Badge>
                 </>
               );
             },

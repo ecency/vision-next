@@ -17,62 +17,6 @@
     .list-body {
       max-height: 200px;
       overflow-x: auto;
-
-      .list-item {
-        padding: 8px 20px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        white-space: nowrap;
-
-        &:last-child {
-          border-bottom-left-radius: $border-radius;
-          border-bottom-right-radius: $border-radius;
-        }
-
-        @include themify(day) {
-          @apply text-gray-warm;
-
-          &:hover,
-          &:focus {
-            @apply bg-blue-dark-sky-010;
-            @apply text-white;
-          }
-        }
-
-        @include themify(night) {
-          @apply text-silver;
-
-          &:hover,
-          &:focus {
-            @apply text-white;
-          }
-        }
-      }
-    }
-  }
-
-  .more-result {
-    .list-item {
-      @include themify(day) {
-        @apply bg-light-400;
-
-        &:hover,
-        &:focus {
-          @apply text-dark-default;
-        }
-      }
-
-      @include themify(night) {
-        @apply text-white;
-        @apply bg-indigo-dark;
-      }
-    }
-
-    .list-item {
-      &:last-child {
-        border-radius: 0 !important;
-      }
     }
   }
 
