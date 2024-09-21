@@ -55,14 +55,12 @@ export function ProfileMenu({ username, section }: Props) {
   ];
 
   const menuItems = [
-    ...[ProfileFilter.blog, ProfileFilter.posts, ProfileFilter.comments].map((x) => {
-      return {
-        label: i18next.t(`profile.section-${x}`),
-        href: `/@${username}/${x}`,
-        selected: section === x,
-        id: x
-      };
-    })
+    ...[ProfileFilter.blog, ProfileFilter.posts, ProfileFilter.comments, "wallet"].map((x) => ({
+      label: i18next.t(`profile.section-${x}`),
+      href: `/@${username}/${x}`,
+      selected: section === x,
+      id: x
+    }))
   ];
 
   const dropDownMenuItems = [...menuItems, ...kebabMenuItems];
