@@ -22,7 +22,7 @@ export function ProfilePreviewAvatar({ username }: Props) {
         }`}
       >
         {isProfileLoading ? (
-          <div className="animate-pulse w-[96px] h-[96px] border border-[--border-color] rounded-full bg-blue-dark-sky-040" />
+          <div className="animate-pulse w-[96px] h-[96px] border border-[--border-color] rounded-full bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
         ) : (
           profile && (
             <Link href={`/@${username}`}>

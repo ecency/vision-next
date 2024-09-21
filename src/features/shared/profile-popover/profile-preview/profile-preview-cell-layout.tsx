@@ -11,7 +11,7 @@ export function ProfilePreviewCellLayout({ title, isLoading, children }: PropsWi
       <div className="opacity-50 font-bold text-xs uppercase">{title}</div>
       <div className="text-break-wrap">
         {isLoading ? (
-          <div className="animate-pulse h-[48px] rounded-lg w-full bg-blue-dark-sky-040" />
+          <div className="animate-pulse h-[44px] rounded-lg w-full bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
         ) : (
           children
         )}

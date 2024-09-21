@@ -65,7 +65,7 @@ export const ProfilePreview = ({ username }: Props) => {
 
           <ProfilePreviewPropertiesRowLayout>
             <ProfilePreviewCellLayout
-              title={i18next.t("profile.[section]-posts")}
+              title={i18next.t("profile.section-posts")}
               isLoading={isProfileLoading}
             >
               {profile && <Link href={`/@${username}/posts`}>{profile.post_count}</Link>}

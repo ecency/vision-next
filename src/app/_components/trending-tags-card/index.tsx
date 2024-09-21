@@ -57,7 +57,7 @@ export function TrendingTagsCard({ filter, tag }: Props) {
         {trendingTags?.length === 0 &&
           Array.from(new Array(30).keys()).map((i) => (
             <div
-              className="animate-pulse rounded-full h-[22px] bg-blue-dark-sky-040"
+              className="animate-pulse rounded-full h-[22px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey"
               key={i}
               style={{
                 width: 64 + (i % 3) * 10
