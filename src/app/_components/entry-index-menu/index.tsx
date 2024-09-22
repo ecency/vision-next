@@ -495,7 +495,7 @@ export function EntryIndexMenu({ filter, tag }: Props) {
                   <DropdownMenu align="left">
                     {secondaryMenu.map((item, i) => (
                       <Link href={item.href} key={i}>
-                        <DropdownItem>{item.label}</DropdownItem>
+                        <DropdownItem selected={item.selected}>{item.label}</DropdownItem>
                       </Link>
                     ))}
                   </DropdownMenu>
@@ -513,7 +513,7 @@ export function EntryIndexMenu({ filter, tag }: Props) {
                   </DropdownToggle>
                   <DropdownMenu align="left">
                     {mobileItems.map((item, i) => (
-                      <DropdownItem key={i} onClick={item.onClick}>
+                      <DropdownItem selected={item.selected} key={i} onClick={item.onClick}>
                         {item.label}
                       </DropdownItem>
                     ))}
