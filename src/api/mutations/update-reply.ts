@@ -25,8 +25,8 @@ export function useUpdateReply(entry?: Entry | null, onSuccess?: () => void) {
       point: boolean;
       options?: CommentOptions;
     }) => {
-      if (!activeUser || !activeUser.data.__loaded || !entry) {
-        throw new Error("[Reply][Create] – no active user provided");
+      if (!activeUser || !entry) {
+        throw new Error("[Reply][Update] – no active user provided");
       }
 
       await comment(

@@ -32,7 +32,7 @@ export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?:
       point: boolean;
       options?: CommentOptions;
     }) => {
-      if (!activeUser || !activeUser.data.__loaded || !entry) {
+      if (!activeUser || !entry) {
         throw new Error("[Reply][Create] – no active user provided");
       }
 

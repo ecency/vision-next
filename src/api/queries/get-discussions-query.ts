@@ -115,7 +115,7 @@ export const getDiscussionsMapQuery = (entry: Entry | undefined, enabled: boolea
       return {};
     },
     enabled: enabled && !!entry,
-    initialData: {}
+    refetchOnMount: true
   });
 
 export function addReplyToDiscussionsList(
