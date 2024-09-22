@@ -51,7 +51,7 @@ const withSentry = withSentryConfig(config, {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
-  org: "ildar-timerbaev",
+  org: "ecency",
   project: "ecency-next",
 
   // Only print logs for uploading source maps in CI
