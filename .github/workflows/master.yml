@@ -58,7 +58,7 @@ jobs:
         HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
-        SENTRY_AUTH_TOKEN: ${{SENTRY_AUTH_TOKEN}}
+        SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
       with:
         host: ${{ secrets.SSH_HOST_EU }}
         username: ${{ secrets.SSH_USERNAME }}
@@ -93,7 +93,7 @@ jobs:
         HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
-        SENTRY_AUTH_TOKEN: ${{SENTRY_AUTH_TOKEN}}
+        SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
       with:
         host: ${{ secrets.SSH_HOST_US }}
         username: ${{ secrets.SSH_USERNAME }}
@@ -128,7 +128,7 @@ jobs:
         HIVESIGNER_SECRET: ${{secrets.HIVESIGNER_SECRET}}
         SEARCH_API_ADDR: ${{secrets.SEARCH_API_ADDR}}
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
-        SENTRY_AUTH_TOKEN: ${{SENTRY_AUTH_TOKEN}}
+        SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
       with:
         host: ${{ secrets.SSH_HOST_SG }}
         username: ${{ secrets.SSH_USERNAME }}
