@@ -7,11 +7,34 @@ export const getPromotedEntriesQuery = () =>
   EcencyQueriesManager.generateConfiguredClientServerQuery(
     ({ visionFeatures }) => visionFeatures.promotions.enabled,
     {
-      queryKey: [QueryIdentifiers.PROMOTED_ENTRIES],
+      queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "list"],
       queryFn: async () => {
         const response = await appAxios.get<Entry[]>(apiBase(`/private-api/promoted-entries`));
         return response.data;
       },
       initialData: []
+    }
+  );
+
+/**
+ * Use this query for fetching promotion entries as single list in SSR
+ * Because SSR index page requires paginated response
+ */
+export const getPromotedEntriesInfiniteQuery = () =>
+  EcencyQueriesManager.generateConfiguredClientServerInfiniteQuery(
+    ({ visionFeatures }) => visionFeatures.promotions.enabled,
+    {
+      queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "infinite"],
+      queryFn: async ({ pageParam }) => {
+        if (pageParam === "fetched") {
+          return [];
+        }
+
+        const response = await appAxios.get<Entry[]>(apiBase(`/private-api/promoted-entries`));
+        return response.data;
+      },
+      initialData: { pages: [], pageParams: [] },
+      initialPageParam: "empty",
+      getNextPageParam: () => "fetched"
     }
   );

@@ -3,6 +3,7 @@ import { getControversialRisingQuery } from "@/api/queries/get-controversial-ris
 import { getPostsRankedQuery } from "@/api/queries/get-posts-ranked-query";
 import { InfiniteData } from "@tanstack/react-query";
 import { Entry, SearchResponse } from "@/entities";
+import { getPromotedEntriesInfiniteQuery } from "@/api/queries/get-promoted-entries-query";
 
 export async function prefetchGetPostsFeedQuery(
   what: string,
@@ -15,6 +16,11 @@ export async function prefetchGetPostsFeedQuery(
 
   const isAccountPosts = isUser && !isControversial;
   const isControversialPosts = !isUser && isControversial;
+  const isPromotedSection = what === "promoted";
+
+  if (isPromotedSection) {
+    return getPromotedEntriesInfiniteQuery().prefetch();
+  }
 
   if (isAccountPosts) {
     return getAccountPostsQuery(tag.replace("@", ""), what, limit, observer ?? "", true).prefetch();
@@ -33,6 +39,11 @@ export function getPostsFeedQueryData(what: string, tag: string, limit = 20, obs
 
   const isAccountPosts = isUser && !isControversial;
   const isControversialPosts = !isUser && isControversial;
+  const isPromotedSection = what === "promoted";
+
+  if (isPromotedSection) {
+    return getPromotedEntriesInfiniteQuery().getData();
+  }
 
   if (isAccountPosts) {
     return getAccountPostsQuery(tag.replace("@", ""), what, limit, observer ?? "", true).getData();
@@ -51,6 +62,11 @@ export function usePostsFeedQuery(what: string, tag: string, limit = 20) {
 
   const isAccountPosts = isUser && !isControversial;
   const isControversialPosts = !isUser && isControversial;
+  const isPromotedSection = what === "promoted";
+
+  if (isPromotedSection) {
+    return getPromotedEntriesInfiniteQuery().useClientQuery();
+  }
 
   if (isAccountPosts) {
     return getAccountPostsQuery(tag.replace("@", ""), what, limit, "", true).useClientQuery();

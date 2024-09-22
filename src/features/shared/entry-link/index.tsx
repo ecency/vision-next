@@ -20,7 +20,7 @@ export function EntryLink({ children, entry, target }: PropsWithChildren<Props>)
   const path = makePath(entry.category, entry.author, entry.permlink);
 
   return (
-    <Link href={path} target={target}>
+    <Link legacyBehavior={true} href={path} target={target}>
       {children}
     </Link>
   );
