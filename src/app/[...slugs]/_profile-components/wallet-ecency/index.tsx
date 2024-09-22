@@ -207,11 +207,6 @@ export const WalletEcency = ({ account }: Props) => {
                               </DropdownItem>
                             </>
                           )}
-                          {activeUser && (
-                            <DropdownItem onClick={toggleTransfer}>
-                              {i18next.t("points.transfer")}
-                            </DropdownItem>
-                          )}
                         </DropdownMenu>
                       </Dropdown>
                     )}
