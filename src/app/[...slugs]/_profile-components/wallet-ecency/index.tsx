@@ -198,20 +198,14 @@ export const WalletEcency = ({ account }: Props) => {
                         <DropdownToggle>{menuDownSvg}</DropdownToggle>
                         <DropdownMenu align="right">
                           {isMyPage && (
-                            <>
-                              <DropdownItem onClick={toggleTransfer}>
-                                {i18next.t("points.transfer")}
-                              </DropdownItem>
-                              <DropdownItem onClick={togglePromote}>
-                                {i18next.t("points.promote")}
-                              </DropdownItem>
-                            </>
-                          )}
-                          {activeUser && (
-                            <DropdownItem onClick={toggleTransfer}>
-                              {i18next.t("points.transfer")}
+                            <DropdownItem onClick={togglePromote}>
+                              {i18next.t("points.promote")}
                             </DropdownItem>
                           )}
+
+                          <DropdownItem onClick={toggleTransfer}>
+                            {i18next.t("points.transfer")}
+                          </DropdownItem>
                         </DropdownMenu>
                       </Dropdown>
                     )}

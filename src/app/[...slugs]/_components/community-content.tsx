@@ -52,7 +52,7 @@ export async function CommunityContent({ filter, community, tag, query, section 
         <ProfileEntriesLayout section={section} username={community.name}>
           <EntryListContent
             username={community.name}
-            isPromoted={filter === "promoted"}
+            isPromoted={false}
             entries={data.pages.reduce<Entry[]>((acc, page) => [...acc, ...(page as Entry[])], [])}
             loading={false}
             sectionParam={filter}

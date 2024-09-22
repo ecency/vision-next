@@ -19,7 +19,7 @@ export function DetectBottom({ onBottom }: Props) {
       }
     },
     500,
-    [inViewport, onBottom]
+    [inViewport]
   );
 
   return <div ref={ref} />;

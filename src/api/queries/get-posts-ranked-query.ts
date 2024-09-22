@@ -28,7 +28,8 @@ export const getPostsRankedQuery = (
       });
 
       if (response) {
-        return Promise.all(response.map((item) => resolvePost(item, observer)));
+        const data = await Promise.all(response.map((item) => resolvePost(item, observer)));
+        return data.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
       }
 
       return [];
