@@ -11,8 +11,7 @@ export const getPromotedEntriesQuery = () =>
       queryFn: async () => {
         const response = await appAxios.get<Entry[]>(apiBase(`/private-api/promoted-entries`));
         return response.data;
-      },
-      initialData: []
+      }
     }
   );
 

@@ -3,7 +3,7 @@ import "./entry-index.scss";
 import { useGlobalStore } from "@/core/global-store";
 import { TrendingTagsCard } from "@/app/_components/trending-tags-card";
 import { EntryIndexMenu } from "@/app/_components/entry-index-menu";
-import { prefetchGetPostsFeedQuery } from "@/api/queries";
+import { getPromotedEntriesQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
 import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
 import { FeedContent } from "@/app/[...slugs]/_feed-components";
 import { cookies } from "next/headers";
@@ -20,6 +20,7 @@ export async function EntryIndex({ filter, tag }: Props) {
 
   const observer = cookiesStore.get(ACTIVE_USER_COOKIE_NAME)?.value;
   await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
+  await getPromotedEntriesQuery().prefetch();
 
   return (
     <>

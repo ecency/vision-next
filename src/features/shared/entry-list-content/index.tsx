@@ -56,9 +56,10 @@ export function EntryListContent({
               }
             }
 
-            if (isPromoted) {
+            if (section === "promoted") {
               l.push(
                 <EntryListItem
+                  promoted={true}
                   account={account}
                   key={`${e.author}-${e.permlink}`}
                   entry={e}
