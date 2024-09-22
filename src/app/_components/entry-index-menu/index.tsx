@@ -83,18 +83,14 @@ export function EntryIndexMenu({ filter, tag }: Props) {
       href: `/rising/today`,
       selected: filter === "rising",
       id: "rising"
+    },
+    {
+      label: i18next.t(`entry-filter.filter-promoted`),
+      href: `/promoted`,
+      selected: filter === "promoted",
+      id: "promoted"
     }
   ];
-
-  let rising = secondaryMenu.filter((f) => f.id === "rising");
-  let controversial = secondaryMenu.filter((f) => f.id === "controversial");
-
-  if (
-    pathname.includes("rising") ||
-    (!pathname.includes("controversial") && prevFilter === "rising")
-  )
-    secondaryMenu = [...rising, ...controversial];
-  else secondaryMenu = [...controversial, ...rising];
 
   let menuTagValue = tag ? `/${tag}` : "";
 
@@ -116,10 +112,8 @@ export function EntryIndexMenu({ filter, tag }: Props) {
           (x === "hot" && introduction === IntroductionType.HOT) ||
           (x === "created" && introduction === IntroductionType.NEW)
       };
-    }),
-    { ...secondaryMenu[0] }
+    })
   ];
-  const kebabMenuItems: MenuItem[] = [{ ...secondaryMenu[1] }];
 
   const introductionOverlayClass =
     introduction === IntroductionType.NONE ? "hidden" : "overlay-for-introduction";
@@ -131,7 +125,7 @@ export function EntryIndexMenu({ filter, tag }: Props) {
       id: "feed"
     },
     ...menuItems,
-    ...kebabMenuItems
+    ...secondaryMenu
   ];
 
   const onChangeGlobal = (value: string) => {
@@ -499,10 +493,10 @@ export function EntryIndexMenu({ filter, tag }: Props) {
                     <Button size="sm" appearance="gray-link" icon={kebabMenuHorizontalSvg} />
                   </DropdownToggle>
                   <DropdownMenu align="left">
-                    {kebabMenuItems.map((item, i) => (
-                      <DropdownItem key={i} onClick={item.onClick}>
-                        {item.label}
-                      </DropdownItem>
+                    {secondaryMenu.map((item, i) => (
+                      <Link href={item.href} key={i}>
+                        <DropdownItem>{item.label}</DropdownItem>
+                      </Link>
                     ))}
                   </DropdownMenu>
                 </Dropdown>
