@@ -383,7 +383,7 @@ export const transferPoint = (
   });
 
   const op = {
-    id: "ecency_pointi18next.transfer",
+    id: "ecency_point_transfer",
     json,
     required_auths: [from],
     required_posting_auths: []
@@ -397,7 +397,7 @@ export const transferPointHot = (from: string, to: string, amount: string, memo:
     authority: "active",
     required_auths: `["${from}"]`,
     required_posting_auths: "[]",
-    id: "ecency_pointi18next.transfer",
+    id: "ecency_point_transfer",
     json: JSON.stringify({
       sender: from,
       receiver: to,
@@ -419,7 +419,7 @@ export const transferPointKc = (from: string, to: string, amount: string, memo: 
 
   return keychain.customJson(
     from,
-    "ecency_pointi18next.transfer",
+    "ecency_point_transfer",
     "Active",
     json,
     "Point Transfer"
