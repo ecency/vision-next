@@ -2461,5 +2461,9 @@
     "invalid-time": "Invalid time format. Use HH:MM",
     "max-choices-voted": "Max choices voted by user",
     "max-votes-hint": "You may select {{n}} choices"
+  },
+  "hs-login": {
+    "title": "Logging in to Ecency from HiveSigner",
+    "message": "Please wait a bit, You will be redirected automatically."
   }
 }
