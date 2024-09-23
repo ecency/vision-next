@@ -44,24 +44,17 @@ export function WordCount({ selector, watch }: Props) {
     setCount(words);
   }, [selector]);
 
-  useEffect(() => {
-    countTime();
-  }, [countTime]);
+  useInterval(() => countTime(), watch ? 1000 : null);
 
-  useInterval(() => countTime, watch ? 1000 : null);
-
-  if (count > 0) {
-    return (
-      <div className="words-count">
-        <span className="words">{i18next.t("word-count.label", { n: count })}</span>
-        <span className="time">
-          {" "}
-          {time <= 0.8
-            ? i18next.t("word-count.read-time-less-1-min")
-            : i18next.t("word-count.read-time-n-min", { n: Math.ceil(time) })}{" "}
-        </span>
-      </div>
-    );
-  }
-  return <></>;
+  return (
+    <div className="words-count">
+      <span className="words">{i18next.t("word-count.label", { n: count })}</span>
+      <span className="time">
+        {" "}
+        {time <= 0.8
+          ? i18next.t("word-count.read-time-less-1-min")
+          : i18next.t("word-count.read-time-n-min", { n: Math.ceil(time) })}{" "}
+      </span>
+    </div>
+  );
 }
