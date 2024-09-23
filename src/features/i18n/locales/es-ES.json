@@ -1168,18 +1168,18 @@
     "filter-100": "Puntos por publicar",
     "filter-110": "Puntos por comentar",
     "filter-120": "Puntos por votar",
-    "filter-130": "Points for reblog",
-    "filter-150": "Delegation reward",
-    "filter-160": "Referral reward",
-    "filter-170": "Community reward",
-    "filter-998": "Outgoing transfer",
-    "filter-999": "Incoming transfer"
+    "filter-130": "Puntos por rebloguear",
+    "filter-150": "Recompensa de delegación",
+    "filter-160": "Recompensa por referido",
+    "filter-170": "Recompensa de la comunidad",
+    "filter-998": "Transferencia enviada",
+    "filter-999": "Transferencia recibida"
   },
   "purchase": {
-    "select-asset": "Select Asset",
-    "slider-hint": "Drag the slider to adjust the amount.",
-    "submit": "Purchase",
-    "purchase-message": "Or send any amount to @esteem.app with `points` as a memo to purchase Points."
+    "select-asset": "Seleccionar activos",
+    "slider-hint": "Arrastra el deslizador para ajustar la cantidad.",
+    "submit": "Comprar",
+    "purchase-message": "O envía cualquier cantidad a @esteem.app con `points` como nota en el memo para comprar puntos."
   },
   "purchase-qr": {
     "scan-code": "Scan with Ecency mobile app to continue",
