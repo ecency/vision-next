@@ -3,52 +3,67 @@
 import useMount from "react-use/lib/useMount";
 import { useRouter, useSearchParams } from "next/navigation";
 import { validateToken } from "@/utils";
-import { hsTokenRenew } from "@/api/auth-api";
 import { User } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { getAccount } from "@/api/hive";
-import { useRecordUserActivity } from "@/api/mutations";
+import { useHsLoginRefresh, useRecordUserActivity } from "@/api/mutations";
+import { useCallback } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 export function AuthPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((s) => s.setActiveUser);
   const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+  const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
 
   const { mutateAsync: recordActivity } = useRecordUserActivity();
+  const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
+
+  const initUser = useCallback(async () => {
+    const code = searchParams.get("code");
+    const isValidToken = validateToken(code);
+
+    if (!code || !isValidToken) {
+      router.push("/");
+      toggleUiProp("login");
+      return;
+    }
+
+    try {
+      const response = await hsTokenRenew({ code });
+      const user: User = {
+        username: response.username,
+        accessToken: response.access_token,
+        refreshToken: response.refresh_token,
+        expiresIn: response.expires_in,
+        postingKey: null
+      };
+
+      addUser(user);
+      setActiveUser(user.username);
+
+      await updateActiveUser();
+      recordActivity({ ty: 20 });
+
+      router.push(`/@${user.username}/feed`);
+    } catch (e) {
+      Sentry.captureException(e);
+    }
+  }, [
+    addUser,
+    hsTokenRenew,
+    recordActivity,
+    router,
+    searchParams,
+    setActiveUser,
+    toggleUiProp,
+    updateActiveUser
+  ]);
 
   useMount(() => {
-    const code = searchParams.get("code");
-    if (code) {
-      if (validateToken(code)) {
-        hsTokenRenew(code)
-          .then((x) => {
-            const user: User = {
-              username: x.username,
-              accessToken: x.access_token,
-              refreshToken: x.refresh_token,
-              expiresIn: x.expires_in,
-              postingKey: null
-            };
-
-            setActiveUser(user.username);
-            getAccount(user.username)
-              .then((r) => {
-                updateActiveUser(r);
-                recordActivity({ ty: 20 });
-              })
-              .finally(() => {
-                router.push(`/@${user.username}/feed`);
-              });
-          })
-          .catch(() => {
-            router.push("/");
-          });
-      } else {
-        router.push("/");
-      }
-    }
+    initUser();
   });
 
   return <></>;

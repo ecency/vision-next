@@ -10,7 +10,7 @@ import { Login } from "./login";
 import { Account, User } from "@/entities";
 import { hsTokenRenew } from "@/api/auth-api";
 import { usePathname, useRouter } from "next/navigation";
-import { useRecordUserActivity } from "@/api/mutations";
+import { useHsLoginRefresh, useRecordUserActivity } from "@/api/mutations";
 
 export function LoginDialog() {
   const userListRef = useRef();
@@ -25,6 +25,7 @@ export function LoginDialog() {
   const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
 
   const { mutateAsync: recordActivity } = useRecordUserActivity();
+  const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
 
   useUnmount(() => {
     if (loginKc) {
@@ -32,12 +33,8 @@ export function LoginDialog() {
     }
   });
 
-  const doLogin = async (
-    hsCode: string,
-    postingKey: null | undefined | string,
-    account: Account
-  ) => {
-    const x = await hsTokenRenew(hsCode);
+  const doLogin = async (code: string, postingKey: null | undefined | string, account: Account) => {
+    const x = await hsTokenRenew({ code });
     // get access token from code
     const user: User = {
       username: x.username,

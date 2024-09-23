@@ -39,7 +39,11 @@ export function decodeToken(code: string): HiveSignerMessage | null {
   }
 }
 
-export function validateToken(code: string): boolean {
+export function validateToken(code: string | null): boolean {
+  if (!code) {
+    return false;
+  }
+
   const dt = decodeToken(code);
   const sevenDaysAgo: Date = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
