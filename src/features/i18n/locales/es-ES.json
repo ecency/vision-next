@@ -302,8 +302,8 @@
     "memo": "Clave Memo:",
     "owner-use": "Cambiar contraseña, cambiar claves, Recuperar cuenta",
     "active-use": "Transferencia de fondos, Encender/Apagar Poder, Votar Testigos/Propuestas",
-    "posting-use": "Post, Comment, Vote, Reblog, Follow, Profile updates",
-    "memo-use": "Send/View encrypted messages on transfers",
+    "posting-use": "Publicación, Comentario, Voto, Reblog, Seguimiento, Actualizaciones del Perfil",
+    "memo-use": "Enviar/Ver mensajes cifrados en transferencias",
     "copy-tooltip": "Copiar contraseña",
     "regenerate-password": "Regeneración de la contraseña",
     "copy-password": "Contraseña copiada correctamente",
@@ -373,7 +373,7 @@
     "delete-success": "Reblog eliminado"
   },
   "entry-tip": {
-    "title": "Tip"
+    "title": "Sugerencia"
   },
   "entry-share": {
     "title": "Compartir"
@@ -566,10 +566,10 @@
       "hide-replies": "Ocultar respuestas",
       "filters": "Filtros",
       "market-swap-form": "Formulario de intercambio de mercado",
-      "market": "Market",
-      "swap-form": "Swapping form",
-      "msf-description": "Swap your funds quickie with zero latency.",
-      "faq": "Help center",
+      "market": "Mercado",
+      "swap-form": "Formulario de intercambio",
+      "msf-description": "Cambia tus fondos rápidamente con latencia cero.",
+      "faq": "Centro de ayuda",
       "faq-subtitle": "Preguntas Frecuentes (FAQ)",
       "faq-description": "Encuentra respuesta a todas tus preguntas sobre Ecency en nuestro centro de ayuda.",
       "no-replies": "No hay respuestas todavía",
@@ -722,9 +722,9 @@
     "lowrep-warning": "El autor de este contenido tiene poca reputación.",
     "deleted-content-warning": "Este contenido fue eliminado por el autor. Puedes verlo desde la Blockchain ",
     "comments-hidden": "Silenciaste al autor de esta publicación.",
-    "address-copy": "Copy link",
-    "address-copied": "Link copied to clipboard",
-    "content-copied": "Content copied to clipboard",
+    "address-copy": "Copiar enlace",
+    "address-copied": "Enlace copiado al portapapeles",
+    "content-copied": "Contenido copiado al portapapeles",
     "browse-original": "Open original post",
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
