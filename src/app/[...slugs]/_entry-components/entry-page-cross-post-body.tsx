@@ -82,7 +82,6 @@ export function EntryPageCrossPostBody({ entry }: Props) {
         itemProp="articleBody"
         className="entry-body markdown-view user-selectable"
         dangerouslySetInnerHTML={renderedBody}
-        onMouseUp={(e) => {}}
       />
     </>
   );
