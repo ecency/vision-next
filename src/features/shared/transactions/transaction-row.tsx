@@ -134,7 +134,7 @@ export function TransactionRow({ entry, transaction: item }: Props) {
   ) {
     flag = true;
     // @ts-ignore
-    icon = <TwoUserAvatar from={tr.from_account} to={tr.to_account} size="small" />;
+    icon = <TwoUserAvatar from={tr.from} to={tr.to} size="small" />;
 
     details = (
       <span>
