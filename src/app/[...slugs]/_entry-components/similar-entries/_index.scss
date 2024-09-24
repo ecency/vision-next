@@ -34,19 +34,9 @@
   }
 
   .similar-entries-list-body {
-    display: flex;
-    justify-content: space-between;
 
     .similar-entries-list-item {
       cursor: pointer;
-      width: 32%;
-
-      @media (max-width: $sm-break - 1px) {
-        width: 48%;
-        &:nth-child(3) {
-          display: none;
-        }
-      }
 
       .item-image {
         align-items: center;
