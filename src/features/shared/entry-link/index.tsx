@@ -21,7 +21,9 @@ export function EntryLink({ children, entry, target }: PropsWithChildren<Props>)
 
   return (
     <Link legacyBehavior={true} href={path} target={target}>
-      <a href={path}>{children}</a>
+      <a href={path} className="no-style">
+        {children}
+      </a>
     </Link>
   );
 }

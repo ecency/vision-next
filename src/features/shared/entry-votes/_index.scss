@@ -67,18 +67,9 @@
 }
 
 .entry-votes {
-  margin-right: 15px;
   align-items: center;
   display: flex;
   @apply text-gray-steel;
-
-  @media (min-width: $sm-break) {
-    margin-right: 25px;
-  }
-
-  @include themify(night) {
-    font-weight: 500;
-  }
 
   &:hover {
     @apply text-blue-dark-sky;

@@ -2,18 +2,11 @@
 
 .entry-payout {
   @apply text-gray-steel;
-  margin-right: 15px;
   cursor: default;
 
-  @media (min-width: $sm-break) {
-    margin-right: 25px;
-  }
+
   @media (max-width: $xxsm-break) {
     font-size: 12px;
-    margin-right: 5px;
-  }
-  @include themify(night) {
-    font-weight: 500;
   }
 
   &.payout-declined {

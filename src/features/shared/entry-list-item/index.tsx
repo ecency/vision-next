@@ -26,6 +26,7 @@ import { EntryListItemProvider } from "@/features/shared/entry-list-item/entry-l
 import { EntryListItemNsfwContent } from "@/features/shared/entry-list-item/entry-list-item-nsfw-content";
 import { EntryListItemClientInit } from "@/features/shared/entry-list-item/entry-list-item-client-init";
 import { EntryListItemPollIcon } from "@/features/shared/entry-list-item/entry-list-item-poll-icon";
+import { UilComment } from "@tooni/iconscout-unicons-react";
 
 setProxyBase(defaults.imageServer);
 
@@ -128,30 +129,32 @@ export function EntryListItemComponent({
       <div className="item-body">
         <EntryListItemNsfwContent entry={entryProp} />
         <EntryListItemMutedContent entry={entryProp} />
-        <div className="item-controls">
+      </div>
+      <div>
+        <div className="w-auto inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm">
           <EntryVoteBtn isPostSlider={true} entry={entry} account={account} />
           <EntryPayout entry={entry} />
+          <div className="border-r border-[--border-color] w-[1px] h-4" />
           <EntryVotes entry={entry} />
           {(entry.children > 0 || entryProp.children > 0) && (
             <EntryLink entry={isCrossPost ? entryProp : entry}>
-              <a className="replies notranslate">
-                <Tooltip
-                  content={
-                    entry.children > 0
-                      ? entry.children === 1
-                        ? i18next.t("entry-list-item.replies")
-                        : i18next.t("entry-list-item.replies-n", { n: entry.children })
-                      : i18next.t("entry-list-item.no-replies")
-                  }
-                >
-                  <span className="inner">
-                    {commentSvg} {entry.children}
-                  </span>
-                </Tooltip>
-              </a>
+              <Tooltip
+                content={
+                  entry.children > 0
+                    ? entry.children === 1
+                      ? i18next.t("entry-list-item.replies")
+                      : i18next.t("entry-list-item.replies-n", { n: entry.children })
+                    : i18next.t("entry-list-item.no-replies")
+                }
+              >
+                <span className="flex items-center gap-1 text-gray-steel hover:text-blue-dark-sky">
+                  <UilComment className="w-3.5 h-3.5" /> {entry.children}
+                </span>
+              </Tooltip>
             </EntryLink>
           )}
           <EntryReblogBtn entry={entry} />
+          <div className="border-r border-[--border-color] w-[1px] h-4" />
           <EntryMenu alignBottom={order >= 1} entry={entry} />
         </div>
       </div>

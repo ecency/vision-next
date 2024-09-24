@@ -48,7 +48,7 @@ export function EntryFooterControls({ entry }: Props) {
 
   return (
     <div className="entry-controls text-sm flex-wrap gap-4" ref={ref}>
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <EntryVoteBtn isPostSlider={true} entry={entry} />
         <EntryPayout entry={entry} />
         <EntryVotes entry={entry} />
@@ -66,7 +66,7 @@ export function EntryFooterControls({ entry }: Props) {
           />
         </Tooltip>
         <BookmarkBtn entry={entry} />
-        <div className="border-l border-[--border-color] h-6 ml-4 w-[1px]" />
+        <div className="border-l border-[--border-color] h-6 mx-4 w-[1px]" />
         <EntryMenu
           entry={entry}
           alignBottom={true}
