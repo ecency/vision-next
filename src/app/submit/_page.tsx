@@ -486,7 +486,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               className="the-editor accepts-emoji form-control"
               as="textarea"
               placeholder={i18next.t("submit.body-placeholder")}
-              value={body && body.length > 0 ? body : preview.body}
+              value={body}
               onChange={(e: { target: { value: string } }) => {
                 setBody(e.target.value);
               }}
