@@ -72,6 +72,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { handleFloatingContainer } from "@/features/faq";
 import { EcencyConfigManager } from "@/config";
+import { SUBMIT_TOUR_ITEMS } from "@/app/submit/_consts";
 
 interface Props {
   path: string;
@@ -119,46 +120,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const postPoll = useEntryPollExtractor(editingEntry);
 
   const tourEnabled = useMemo(() => !activeUser, [activeUser]);
-  const introSteps = useMemo<IntroStep[]>(
-    () => [
-      {
-        title: i18next.t("submit-tour.title"),
-        message: i18next.t("submit-tour.title-hint"),
-        targetSelector: "#submit-title"
-      },
-      {
-        title: i18next.t("submit-tour.title"),
-        message: i18next.t("submit-tour.tags-hint"),
-        targetSelector: "#submit-tags-selector"
-      },
-      {
-        title: i18next.t("submit-tour.title"),
-        message: i18next.t("submit-tour.body-hint"),
-        targetSelector: "#the-editor"
-      },
-      {
-        title: i18next.t("submit-tour.title"),
-        message: i18next.t("submit-tour.community-hint"),
-        targetSelector: "#community-picker"
-      },
-      {
-        title: i18next.t("submit-tour.title"),
-        message: i18next.t("submit-tour.toolbar-hint"),
-        targetSelector: "#editor-toolbar"
-      },
-      {
-        title: i18next.t("submit-tour.title"),
-        message: i18next.t("submit-tour.advanced-hint"),
-        targetSelector: "#editor-advanced"
-      },
-      {
-        title: i18next.t("submit-tour.title"),
-        message: i18next.t("submit-tour.help-hint"),
-        targetSelector: "#editor-help"
-      }
-    ],
-    []
-  );
+  const introSteps = useMemo(() => SUBMIT_TOUR_ITEMS, []);
 
   let _updateTimer: any; // todo think about it
 
@@ -187,7 +149,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     setBeneficiaries,
     schedule,
     setSchedule,
-    hasAdvanced,
     clearAdvanced,
     getHasAdvanced
   } = useAdvancedManager();
@@ -286,11 +247,11 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
       // clear not current user videos
       threeSpeakManager.clear();
     }
-  }, [activeUser]);
+  }, [activeUser, beneficiaries, previousActiveUser, setBeneficiaries, threeSpeakManager]);
 
   useEffect(() => {
     setLocalDraft({ tags, title, body, description });
-  }, [tags, title, body]);
+  }, [tags, title, body, setLocalDraft, description]);
 
   useEffect(() => {
     handleFloatingContainer(showHelp);
@@ -525,7 +486,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               className="the-editor accepts-emoji form-control"
               as="textarea"
               placeholder={i18next.t("submit.body-placeholder")}
-              value={body && body.length > 0 ? body : preview.body}
+              value={body}
               onChange={(e: { target: { value: string } }) => {
                 setBody(e.target.value);
               }}
