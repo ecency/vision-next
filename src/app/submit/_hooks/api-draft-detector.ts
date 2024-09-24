@@ -14,6 +14,7 @@ export function useApiDraftDetector(
   onInvalidDraft: () => void
 ) {
   const { setActivePoll } = useContext(PollsContext);
+
   const activeUser = useGlobalStore((s) => s.activeUser);
   const queryClient = useQueryClient();
 
