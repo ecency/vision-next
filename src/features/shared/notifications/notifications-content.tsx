@@ -5,16 +5,21 @@ import React, { useState } from "react";
 import { NotificationFilter, NotificationViewType } from "@/enums";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import i18next from "i18next";
+import useLocalStorage from "react-use/lib/useLocalStorage";
+import { PREFIX } from "@/utils/local-storage";
 
 interface Props {
   openLinksInNewTab: boolean;
 }
 
 export function NotificationsContent({ openLinksInNewTab }: Props) {
-  const [filter, setFilter] = useState<NotificationFilter | null>(null);
+  const [filter, setFilter] = useLocalStorage<NotificationFilter | null>(PREFIX + "_ntf_f", null);
   // TODO: SHOULD BE AN ARRAY??
   const [selectedNotifications, setSelectedNotifications] = useState<string>();
-  const [status, setStatus] = useState<NotificationViewType>(NotificationViewType.ALL);
+  const [status, setStatus] = useLocalStorage<NotificationViewType>(
+    PREFIX + "_ntf_s",
+    NotificationViewType.ALL
+  );
   const [select, setSelect] = useState(false);
   const [isSelectIcon, setIsSelectIcon] = useState(false);
 
@@ -38,11 +43,11 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
             </DropdownMenu>
           </Dropdown>
         </div>
-        <NotificationsActions filter={filter} />
+        <NotificationsActions filter={filter ?? null} />
       </div>
 
       <NotificationsStatusButtons
-        currentStatus={status}
+        currentStatus={status!}
         select={select}
         isSelectIcon={isSelectIcon}
         onStatusClick={(v) => {
@@ -62,8 +67,8 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
       <NotificationList
         openLinksInNewTab={openLinksInNewTab}
         select={select}
-        filter={filter}
-        currentStatus={status}
+        filter={filter ?? null}
+        currentStatus={status!}
         setSelectedNotifications={setSelectedNotifications}
       />
     </div>
