@@ -14,7 +14,8 @@ export function isEntriesRedirect(request: NextRequest) {
     "feed",
     "referrals",
     "permissions",
-    "rss"
+    "rss",
+    "rss.xml"
   ];
   const isAnySection = profileSections.some((section) => request.url.includes(section));
   const isEntryLikePage = /\/(@.+)\/(.+)/gm.test(request.nextUrl.pathname);

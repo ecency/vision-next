@@ -2,11 +2,17 @@ import { NextRequest } from "next/server";
 import {
   handleEntriesRedirect,
   handleIndexRedirect,
+  handleRssRewrite,
   isEntriesRedirect,
-  isIndexRedirect
+  isIndexRedirect,
+  isRssXmlRequest
 } from "@/features/next-middleware";
 
 export function middleware(request: NextRequest) {
+  if (isRssXmlRequest(request)) {
+    return handleRssRewrite(request);
+  }
+
   if (isIndexRedirect(request)) {
     return handleIndexRedirect(request);
   }

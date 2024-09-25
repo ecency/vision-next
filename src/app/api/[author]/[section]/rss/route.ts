@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: Props) {
 
   const feed = new RSS({
     title: "RSS Feed",
-    feed_url: `${defaults.base}${request.url}`,
+    feed_url: `${defaults.base}${request.nextUrl.pathname}`,
     site_url: defaults.base,
     image_url: `${defaults.base}/logo512.png`
   });
