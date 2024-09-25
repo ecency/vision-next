@@ -13,7 +13,8 @@ export function isEntriesRedirect(request: NextRequest) {
     "settings",
     "feed",
     "referrals",
-    "permissions"
+    "permissions",
+    "rss"
   ];
   const isAnySection = profileSections.some((section) => request.url.includes(section));
   const isEntryLikePage = /\/(@.+)\/(.+)/gm.test(request.nextUrl.pathname);
@@ -27,6 +28,6 @@ export function handleEntriesRedirect(request: NextRequest) {
   const [author, permlink] = request.nextUrl.pathname.split("/").filter((i) => !!i);
 
   const url = request.nextUrl.clone();
-  url.pathname = `/ecency/${author}/${permlink}`;
+  url.pathname = `/post/${author}/${permlink}`;
   return NextResponse.redirect(url);
 }
