@@ -12,9 +12,9 @@ interface Props {
 
 function shouldShowPinnedEntry(account: FullAccount, section: string) {
   return (
-    ["blog", "posts"].includes(section) ||
-    ((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned) ||
-    ((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned !== "none")
+    ["blog", "posts", ""].includes(section) &&
+    (((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned) ||
+      ((account as FullAccount)?.profile && (account as FullAccount)?.profile?.pinned !== "none"))
   );
 }
 
@@ -24,9 +24,8 @@ export async function ProfileEntriesList({ section, account }: Props) {
     : undefined;
 
   const data = getPostsFeedQueryData(section, `@${account.name}`)?.pages ?? [];
-  const entryList = (data[0] as Entry[]).filter(
-    (item: Entry) => item.permlink !== account.profile?.pinned
-  );
+  const entryList =
+    (data[0] as Entry[])?.filter((item: Entry) => item.permlink !== account.profile?.pinned) ?? [];
 
   if (pinnedEntry) {
     entryList.unshift(pinnedEntry);

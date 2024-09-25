@@ -1,6 +1,6 @@
 import { getAccountFullQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
-import { WalletEcency } from "../_components";
+import { ProfileReferrals, WalletEcency } from "../_components";
 import { Redirect } from "@/features/shared";
 import { EcencyConfigManager } from "@/config";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
@@ -26,10 +26,10 @@ export default async function ReferralsPage({ params: { username } }: Props) {
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       <EcencyConfigManager.Conditional
-        condition={({ visionFeatures }) => visionFeatures.points.enabled}
+        condition={({ visionFeatures }) => visionFeatures.referrals.enabled}
         fallback={<Redirect path="/" />}
       >
-        <WalletEcency account={account} />
+        <ProfileReferrals account={account} />
       </EcencyConfigManager.Conditional>
     </HydrationBoundary>
   );

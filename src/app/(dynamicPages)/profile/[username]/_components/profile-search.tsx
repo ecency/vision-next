@@ -34,10 +34,10 @@ export function ProfileSearch({ username }: Props) {
   useDebounce(
     () => {
       if (search) {
-        router.push(`/@${username}/?query=${encodeURIComponent(search)}`);
+        router.push(`${pathname}/?query=${encodeURIComponent(search)}`);
         setTyping(false);
-      } else if (params.has("q")) {
-        router.push(`/@${username}`);
+      } else if (params.has("query")) {
+        router.push(`${pathname}`);
         setTyping(false);
       }
     },
