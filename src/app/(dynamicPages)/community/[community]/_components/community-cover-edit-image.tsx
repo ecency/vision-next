@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { pencilOutlineSvg } from "@ui/svg";
-import { ImageUploadDialog } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-card/community-image-upload-dialog";
+import { ImageUploadDialog } from "@/app/(dynamicPages)/community/[community]/_components/community-card/community-image-upload-dialog";
 import { useUpdateProfile } from "@/api/mutations";
 import { FullAccount } from "@/entities";
 

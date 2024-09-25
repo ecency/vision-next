@@ -14,7 +14,7 @@ import { CommunityCardEditPic } from "./community-card-edit-pic";
 import { CommunityCardDescription } from "./community-card-description";
 import { CommunityCardRules } from "./community-card-rules";
 import { CommunityCardTeam } from "./community-card-team";
-import { CommunitySettingsDialog } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-settings";
+import { CommunitySettingsDialog } from "@/app/(dynamicPages)/community/[community]/_components/community-settings";
 import { CommunityRewardsRegistrationDialog } from "../community-rewards-registration";
 import { EcencyConfigManager } from "@/config";
 import Link from "next/link";

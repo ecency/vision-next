@@ -8,7 +8,7 @@ import { Community, roleMap } from "@/entities";
 import i18next from "i18next";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
-import { CommunityRoleEditDialog } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-role-edit";
+import { CommunityRoleEditDialog } from "@/app/(dynamicPages)/community/[community]/_components/community-role-edit";
 
 interface Props {
   community: Community;

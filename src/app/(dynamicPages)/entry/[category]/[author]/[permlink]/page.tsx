@@ -14,7 +14,6 @@ import { getQueryClient } from "@/core/react-query";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
-import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { generateEntryMetadata } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_helpers";
 
 interface Props {
@@ -23,7 +22,7 @@ interface Props {
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateEntryMetadata(props.params.author, props.params.permlink);
+  return generateEntryMetadata(props.params.author.replace("%40", ""), props.params.permlink);
 }
 
 export default async function EntryPage({

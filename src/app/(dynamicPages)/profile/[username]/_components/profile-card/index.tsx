@@ -18,7 +18,7 @@ import { findRcAccounts, rcPower } from "@/api/hive";
 import { getRelationshipBetweenAccounts, getSubscriptions } from "@/api/bridge";
 import { useGlobalStore } from "@/core/global-store";
 import { getCommunityCache } from "@/core/caches";
-import { CommunityCardEditPic } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-card/community-card-edit-pic";
+import { CommunityCardEditPic } from "@/app/(dynamicPages)/community/[community]/_components/community-card/community-card-edit-pic";
 import { Followers, Following } from "../friends";
 import { usePathname } from "next/navigation";
 

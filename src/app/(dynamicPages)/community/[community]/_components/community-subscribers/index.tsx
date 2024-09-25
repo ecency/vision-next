@@ -8,7 +8,7 @@ import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { accountReputation } from "@/utils";
 import { useGlobalStore } from "@/core/global-store";
 import { pencilOutlineSvg } from "@ui/svg";
-import { CommunityRoleEditDialog } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-role-edit";
+import { CommunityRoleEditDialog } from "@/app/(dynamicPages)/community/[community]/_components/community-role-edit";
 
 interface Props {
   community: Community;
