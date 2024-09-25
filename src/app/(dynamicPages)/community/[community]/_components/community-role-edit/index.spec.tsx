@@ -4,7 +4,7 @@ import renderer from "react-test-renderer";
 
 import { CommunityRoleEdit } from "./index";
 
-import { roleMap } from "../../store/communities/types";
+import { roleMap } from "../../store/communities/_types";
 
 import { communityInstance1, globalInstance, activeUserMaker } from "../../helper/test-helper";
 

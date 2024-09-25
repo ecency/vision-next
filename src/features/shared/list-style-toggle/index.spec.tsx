@@ -2,7 +2,7 @@ import React from "react";
 
 import ListStyleToggle from "./index";
 
-import { ListStyle } from "../../store/global/types";
+import { ListStyle } from "../../store/global/_types";
 
 import TestRenderer from "react-test-renderer";
 

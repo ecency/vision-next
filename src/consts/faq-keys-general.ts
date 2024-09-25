@@ -64,7 +64,7 @@ export const faqKeysGeneral = [
   "how-sort-feed",
   "how-change-design",
   "what-is-deck",
-  "what-deck-types",
+  "what-deck-_types",
   "what-is-reblog",
   "how-to-reblog",
   "how-to-bookmark",

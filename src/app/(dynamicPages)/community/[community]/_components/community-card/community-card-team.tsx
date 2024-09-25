@@ -2,7 +2,7 @@ import i18next from "i18next";
 import { accountGroupSvg } from "@ui/svg";
 import React, { useMemo } from "react";
 import { Community } from "@/entities";
-import { DialogInfo } from "@/app/[...slugs]/types";
+import { DialogInfo } from "../../_types";
 import { ProfileLink } from "@/features/shared";
 
 interface Props {

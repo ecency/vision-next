@@ -65,7 +65,7 @@ it("(2) Hot filter", () => {
   expect(renderer.toJSON()).toMatchSnapshot();
 });
 
-it("(3) In [section]", () => {
+it("(3) In [...sections]", () => {
   const props = {
     ...defProps,
     ...{

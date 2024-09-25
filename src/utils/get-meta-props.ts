@@ -4,8 +4,8 @@ import i18next from "i18next";
 
 export function getMetaProps<T extends Record<string, any>>({ activeUser, filter, tag }: T) {
   const fC = capitalize(filter);
-  let title = i18next.t("entry-index.title", { f: fC });
-  let description = i18next.t("entry-index.description", { f: fC });
+  let title = i18next.t("entry-feed.title", { f: fC });
+  let description = i18next.t("entry-feed.description", { f: fC });
   let url = `/${filter}`;
   let canonical = `${defaults.base}/${filter}`;
   let rss = "";
@@ -13,15 +13,15 @@ export function getMetaProps<T extends Record<string, any>>({ activeUser, filter
   if (tag) {
     if (activeUser && tag === "my") {
       title = `@${activeUser.username}'s community feed on decentralized web`;
-      description = i18next.t("entry-index.description-user-feed", { u: tag });
+      description = i18next.t("entry-feed.description-user-feed", { u: tag });
       canonical = `${defaults.base}/@${tag}/${filter}`;
     } else if (tag.startsWith("@")) {
       title = `${tag}'s ${filter} on decentralized web`;
-      description = i18next.t("entry-index.description-user-feed", { u: tag });
+      description = i18next.t("entry-feed.description-user-feed", { u: tag });
       canonical = `${defaults.base}/@${tag}/${filter}`;
     } else {
       title = `latest #${tag} ${filter} topics on internet`;
-      description = i18next.t("entry-index.description-tag", { f: fC, t: tag });
+      description = i18next.t("entry-feed.description-tag", { f: fC, t: tag });
 
       url = `/${filter}/${tag}`;
       canonical = `${defaults.base}/${filter}/${tag}`;

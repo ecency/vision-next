@@ -14,7 +14,7 @@ import { getQueryClient } from "@/core/react-query";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
-import { generateEntryMetadata } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_helpers";
+import { generateEntryMetadata } from "../../../_helpers";
 
 interface Props {
   params: { author: string; permlink: string; category: string };

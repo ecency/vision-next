@@ -3,7 +3,7 @@ import { Community } from "@/entities";
 import { nl2list } from "@/utils";
 import { scriptTextOutlineSvg } from "@ui/svg";
 import i18next from "i18next";
-import { DialogInfo } from "@/app/[...slugs]/types";
+import { DialogInfo } from "../../_types";
 
 interface Props {
   community: Community;

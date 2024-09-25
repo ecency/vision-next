@@ -1,9 +1,9 @@
 import { EntryListContent } from "@/features/shared";
 import React from "react";
-import { FeedLayout } from "@/app/[...slugs]/_feed-components/feed-layout";
+import { FeedLayout } from "@/app/(dynamicPages)/feed/_components/feed-layout";
 import { getPostsFeedQueryData } from "@/api/queries";
 import { Entry } from "@/entities";
-import { FeedInfiniteList } from "@/app/[...slugs]/_feed-components/feed-infinite-list";
+import { FeedInfiniteList } from "@/app/(dynamicPages)/feed/_components/feed-infinite-list";
 
 interface Props {
   filter: string;

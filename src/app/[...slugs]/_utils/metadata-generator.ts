@@ -14,38 +14,10 @@ export namespace MetadataGenerator {
     searchParams: Record<string, string | undefined>;
   }
 
-  async function buildForIndex(filter: string, tag: string): Promise<Metadata> {
-    const fC = capitalize(filter);
-    let title = i18next.t("entry-index.title", { f: fC });
-    let description = i18next.t("entry-index.description", { f: fC });
-    let url = `/${filter}`;
-    let canonical = `${defaults.base}/${filter}`;
-    let rss = "";
-
-    if (tag) {
-      title = `latest #${tag} ${filter} topics on internet`;
-      description = i18next.t("entry-index.description-tag", { f: fC, t: tag });
-
-      url = `/${filter}/${tag}`;
-      canonical = `${defaults.base}/${filter}/${tag}`;
-      rss = `${defaults.base}/${filter}/${tag}/rss.xml`;
-    }
-
-    return { title, description, openGraph: { url } };
-  }
-
-  async function buildForEdit(username: string, permlink: string): Promise<Metadata> {
-    const forEntry = await buildForEntry(username, permlink);
-    return {
-      ...forEntry,
-      title: `Edit – ${forEntry.title}`
-    };
-  }
-
   function buildForFeed(username: string): Metadata {
     return {
       title: `@${username}'s community feed on decentralized web`,
-      description: i18next.t("entry-index.description-user-feed", { u: username })
+      description: i18next.t("entry-feed.description-user-feed", { u: username })
     };
   }
 

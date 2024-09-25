@@ -8,7 +8,7 @@ import { StaticRouter } from "react-router-dom";
 import { ProfileReferrals } from "./index";
 
 import { allOver, dynamicPropsIntance1, globalInstance } from "../../helper/test-helper";
-import { initialState as transactionsInitialState } from "../../store/transactions/index";
+import { initialState as transactionsInitialState } from "../../store/transactions/feed";
 
 jest.mock("../../api/bridge", () => ({
   getReferrals: () =>

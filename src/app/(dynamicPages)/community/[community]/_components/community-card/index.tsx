@@ -9,7 +9,7 @@ import { Account, Community, FullAccount, roleMap, ROLES } from "@/entities";
 import i18next from "i18next";
 import { JoinCommunityChatBtn } from "@/app/chats/_components/join-community-chat-btn";
 import { UserAvatar } from "@/features/shared";
-import { DialogInfo } from "@/app/[...slugs]/types";
+import { DialogInfo } from "../../_types";
 import { CommunityCardEditPic } from "./community-card-edit-pic";
 import { CommunityCardDescription } from "./community-card-description";
 import { CommunityCardRules } from "./community-card-rules";

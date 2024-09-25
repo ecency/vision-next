@@ -4,7 +4,7 @@ import { MuteBtn, DialogBody } from "./index";
 import TestRenderer from "react-test-renderer";
 
 import { entryInstance1, communityInstance1, activeUserMaker } from "../../helper/test-helper";
-import { Entry, EntryStat } from "../../store/entries/types";
+import { Entry, EntryStat } from "../../store/entries/_types";
 
 const defProps = {
   entry: { ...entryInstance1 },

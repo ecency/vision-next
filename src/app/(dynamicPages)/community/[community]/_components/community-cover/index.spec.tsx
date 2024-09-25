@@ -4,8 +4,8 @@ import renderer from "react-test-renderer";
 
 import CommunityCover from "./index";
 
-import { Theme } from "../../store/global/types";
-import { Account } from "../../store/accounts/types";
+import { Theme } from "../../store/global/_types";
+import { Account } from "../../store/accounts/_types";
 
 import {
   globalInstance,

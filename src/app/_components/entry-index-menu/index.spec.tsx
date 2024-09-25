@@ -8,7 +8,7 @@ import { EntryIndexMenu } from "./index";
 
 import { globalInstance, activeUserMaker } from "../../helper/test-helper";
 
-import { EntryFilter, AllFilter } from "../../store/global/types";
+import { EntryFilter, AllFilter } from "../../store/global/_types";
 
 const defaultProps = {
   history: createBrowserHistory(),

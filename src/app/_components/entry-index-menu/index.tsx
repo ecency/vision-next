@@ -281,7 +281,7 @@ export function EntryIndexMenu({ filter, tag }: Props) {
         entryIndexMenuElements &&
           entryIndexMenuElements.length > 1 &&
           entryIndexMenuElements[0] &&
-          entryIndexMenuElements[0].classList.remove("entry-index-menu");
+          entryIndexMenuElements[0].classList.remove("entry-feed-menu");
       }
     }
 

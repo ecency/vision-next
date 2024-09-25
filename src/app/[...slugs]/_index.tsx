@@ -1,11 +1,11 @@
 import React from "react";
-import "./entry-index.scss";
+import "../(dynamicPages)/feed/[...sections]/entry-index.scss";
 import { useGlobalStore } from "@/core/global-store";
 import { TrendingTagsCard } from "@/app/_components/trending-tags-card";
 import { EntryIndexMenu } from "@/app/_components/entry-index-menu";
 import { getPromotedEntriesQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
 import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
-import { FeedContent } from "@/app/[...slugs]/_feed-components";
+import { FeedContent } from "../(dynamicPages)/feed/_components";
 import { cookies } from "next/headers";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 

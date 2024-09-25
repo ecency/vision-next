@@ -4,7 +4,7 @@ import { createBrowserHistory } from "history";
 
 import { StaticRouter } from "react-router-dom";
 
-import { Account } from "../../store/accounts/types";
+import { Account } from "../../store/accounts/_types";
 
 import ProfileCard from "./index";
 
