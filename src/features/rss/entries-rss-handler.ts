@@ -1,4 +1,4 @@
-import { RssHandler } from "@/app/api/rss/_handlers/rss-handler";
+import { RssHandler } from "@/features/rss/rss-handler";
 import { Entry } from "@/entities";
 import RSS from "rss";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
