@@ -6,6 +6,8 @@ import { CommunityContentSearch } from "@/app/(dynamicPages)/community/[tag]/[co
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { Entry } from "@/entities";
 import { CommunityContentInfiniteList } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-content-infinite-list";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getQueryClient } from "@/core/react-query";
 
 interface Props {
   params: { tag: string; community: string };
@@ -23,7 +25,7 @@ export default async function CommunityPostsPage({ params: { community, tag } }:
   }
 
   return (
-    <>
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
       {data.pages.length === 0 ? <LinearProgress /> : ""}
 
       {["hot", "created", "trending"].includes(tag) && data.pages.length > 0 && (
@@ -45,6 +47,6 @@ export default async function CommunityPostsPage({ params: { community, tag } }:
         <CommunityContentInfiniteList community={communityData} section={tag} />
       </ProfileEntriesLayout>
       {/*)}*/}
-    </>
+    </HydrationBoundary>
   );
 }

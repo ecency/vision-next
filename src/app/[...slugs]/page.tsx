@@ -2,7 +2,6 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import { EntryIndex } from "@/app/[...slugs]/_index";
-import { EntryPage } from "@/app/[...slugs]/_entry-page";
 import { EntryEditPage } from "@/app/[...slugs]/_entry-edit-page";
 import { Metadata, ResolvingMetadata } from "next";
 import { MetadataGenerator, PageDetector } from "@/app/[...slugs]/_utils";
@@ -32,15 +31,6 @@ export default async function FilteredOrCategorizedPage({
       <Navbar />
       {page === "index" && <EntryIndex filter={slugs[0]} tag={slugs[1] ?? ""} />}
       {page === "feed" && <EntryIndex filter={slugs[1]} tag={slugs[0].replace("%40", "@")} />}
-      {page === "entry" && (
-        <EntryPage
-          category={slugs[0]}
-          username={slugs[1].replace("%40", "").replace("@", "")}
-          permlink={slugs[2]}
-          isEdit={slugs[3] === "edit"}
-          searchParams={searchParams}
-        />
-      )}
       {page === "edit" && (
         <EntryEditPage
           username={slugs[0].replace("%40", "").replace("@", "")}
