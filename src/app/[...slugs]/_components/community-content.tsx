@@ -6,7 +6,7 @@ import { Fragment } from "react";
 import { Community, Entry } from "@/entities";
 import { getPostsFeedQueryData } from "@/api/queries/get-account-posts-feed-query";
 import { CommunityContentSearch } from "@/app/[...slugs]/_components/community-content-search";
-import { ProfileEntriesLayout } from "@/app/[...slugs]/_profile-components/profile-entries-layout";
+import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { CommunityContentSearchData } from "@/app/[...slugs]/_components/community-content-search-data";
 import { CommunityContentInfiniteList } from "@/app/[...slugs]/_components/community-content-infinite-list";
 

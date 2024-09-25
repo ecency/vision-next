@@ -1,6 +1,6 @@
 import { getAccountFullQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
-import { ProfileCommunities } from "@/app/[...slugs]/_profile-components";
+import { ProfileCommunities } from "../_components";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 

@@ -1,6 +1,6 @@
 import { getAccountFullQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
-import { WalletEcency } from "@/app/[...slugs]/_profile-components";
+import { WalletEcency } from "../_components";
 import { Redirect } from "@/features/shared";
 import { EcencyConfigManager } from "@/config";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";

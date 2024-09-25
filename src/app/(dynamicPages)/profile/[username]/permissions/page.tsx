@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { ProfilePermissions } from "@/app/[...slugs]/_profile-components/profile-permissions";
+import { ProfilePermissions } from "@/app/(dynamicPages)/profile/[username]/_components/profile-permissions";
 import { cookies } from "next/headers";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";

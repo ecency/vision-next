@@ -1,4 +1,4 @@
-import { ProfileEntriesList } from "@/app/[...slugs]/_profile-components";
+import { ProfileEntriesList } from "../_components";
 import { getAccountFullQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";

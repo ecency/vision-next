@@ -1,6 +1,6 @@
 import { getAccountFullQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
-import { ProfileReferrals } from "@/app/[...slugs]/_profile-components";
+import { ProfileReferrals } from "../_components";
 import { Redirect } from "@/features/shared";
 import { EcencyConfigManager } from "@/config";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";

@@ -1,9 +1,4 @@
-import {
-  ProfileCard,
-  ProfileCover,
-  ProfileMenu,
-  ProfileSearch
-} from "@/app/[...slugs]/_profile-components";
+import { ProfileCard, ProfileCover, ProfileMenu, ProfileSearch } from "./_components";
 import { getAccountFullQuery } from "@/api/queries";
 import { PropsWithChildren } from "react";
 import "./profile.scss";

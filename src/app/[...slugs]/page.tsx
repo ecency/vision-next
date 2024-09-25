@@ -1,6 +1,5 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
-import { ProfilePage } from "@/app/[...slugs]/_profile-page";
 import { CommunityPage } from "@/app/[...slugs]/_community-page";
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import { EntryIndex } from "@/app/[...slugs]/_index";
@@ -34,13 +33,6 @@ export default async function FilteredOrCategorizedPage({
       <Navbar />
       {page === "index" && <EntryIndex filter={slugs[0]} tag={slugs[1] ?? ""} />}
       {page === "feed" && <EntryIndex filter={slugs[1]} tag={slugs[0].replace("%40", "@")} />}
-      {page === "profile" && (
-        <ProfilePage
-          username={slugs[0].replace("%40", "")}
-          section={slugs[1]}
-          searchParams={searchParams}
-        />
-      )}
       {page === "entry" && (
         <EntryPage
           category={slugs[0]}

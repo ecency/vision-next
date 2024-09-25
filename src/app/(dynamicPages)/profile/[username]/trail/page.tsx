@@ -1,7 +1,7 @@
 import { getAccountFullQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
-import { CurationTrail } from "@/app/[...slugs]/_profile-components";
-import { ProfileEntriesLayout } from "@/app/[...slugs]/_profile-components/profile-entries-layout";
+import { CurationTrail } from "../_components";
+import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 
