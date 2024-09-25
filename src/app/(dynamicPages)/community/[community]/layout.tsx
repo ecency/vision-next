@@ -24,8 +24,6 @@ export default async function CommunityPageLayout({
       <Theme />
       <Feedback />
       <Navbar />
-      {/*TODO move to page because search params isn't available here*/}
-      {/*<JoinCommunityModal community={community} communityId={searchParams.communityid} />*/}
       <div className="app-content community-page">
         <div className="profile-side">
           {account && communityData && (
@@ -42,8 +40,8 @@ export default async function CommunityPageLayout({
           <meta itemProp="url" content={`${defaults.base}${metaUrl}`} />
         </span>
         <div className="content-side">
-          {communityData && <CommunityMenu community={communityData} filter={tag} />}
-          {communityData && <CommunityCover account={account!!} community={communityData} />}
+          {communityData && <CommunityMenu community={communityData} />}
+          {communityData && <CommunityCover account={account!} community={communityData} />}
           {children}
         </div>
       </div>

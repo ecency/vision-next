@@ -48,6 +48,14 @@ const config = {
       {
         source: "/:author(@.+)/:section",
         destination: "/profile/:author/:section"
+      },
+      {
+        source: "/:tag/:community(hive-.+)/:sub",
+        destination: "/community/:community/:tag/:sub"
+      },
+      {
+        source: "/:tag/:community(hive-.+)",
+        destination: "/community/:community/:tag"
       }
     ];
   }

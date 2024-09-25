@@ -9,5 +9,5 @@ Examples:
 3. Entry: `/<some_tag>/<author>/<permlink>`
 4. Index: `/<some_tag>?`
 
-NextJs cannot declare dynamic routes by regex so the routing stage is on the middleware responsibility. Check out: `/features/next-middleware`. 
+NextJs cannot declare dynamic routes by regex so the routing stage is on the middleware or rewrites responsibility. Check out: `/features/next-middleware`, `./next.config.js`. 
 There is special handler for it.

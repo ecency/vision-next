@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Community } from "@/entities";
 import { EntryFilter } from "@/enums";
 import Link from "next/link";
@@ -8,10 +8,10 @@ import { DropdownItem } from "@ui/dropdown";
 import i18next from "i18next";
 import { ListStyleToggle } from "@/features/shared";
 import { PageMenu, PageMenuItems, PageMenuLink, PageMenuMobileDropdown } from "@ui/page-menu";
+import { usePathname } from "next/navigation";
 
 interface Props {
   community: Community;
-  filter: string;
 }
 
 export const CommunityMenu = (props: Props) => {
@@ -24,28 +24,31 @@ export const CommunityMenu = (props: Props) => {
   ]);
   const [label, setLabel] = useState<string>(EntryFilter.hot);
 
+  const pathname = usePathname();
+  const filter = useMemo(() => pathname.split("/")[1], [pathname]);
+
   useEffect(() => {
     let newLabel: string | undefined;
 
-    if (props.filter === EntryFilter.trending) {
+    if (filter === EntryFilter.trending) {
       newLabel = i18next.t("community.posts");
-    } else if (menuItems.some((item) => item === props.filter)) {
-      newLabel = i18next.t(`entry-filter.filter-${props.filter}`);
+    } else if (menuItems.some((item) => item === filter)) {
+      newLabel = i18next.t(`entry-filter.filter-${filter}`);
     } else if (label && !newLabel) {
       newLabel = label;
     } else {
       newLabel = i18next.t(`entry-filter.filter-${menuItems[0]}`);
     }
     setLabel(newLabel);
-  }, [props.filter, label, menuItems]);
+  }, [filter, label, menuItems]);
 
-  const isFilterInItems = () => menuItems.some((item) => props.filter === item);
+  const isFilterInItems = () => menuItems.some((item) => filter === item);
 
   return (
     <PageMenu className="pb-4 pt-4 md:pt-0">
       <PageMenuMobileDropdown isSelected={isFilterInItems()} label={label}>
         {menuItems.map((x) => (
-          <DropdownItem key={x} selected={props.filter === x}>
+          <DropdownItem key={x} selected={filter === x}>
             <Link href={`/${x}/${props.community.name}`}>
               {i18next.t(`entry-filter.filter-${x}`)}
             </Link>
@@ -57,7 +60,7 @@ export const CommunityMenu = (props: Props) => {
           .map((x) => ({
             label: i18next.t(`entry-filter.filter-${x}`),
             href: `/${x}/${props.community.name}`,
-            selected: props.filter === x
+            selected: filter === x
           }))
           .map((menuItem) => (
             <PageMenuLink
@@ -69,12 +72,12 @@ export const CommunityMenu = (props: Props) => {
           ))}
         <PageMenuLink
           href={`/subscribers/${props.community.name}`}
-          isSelected={props.filter === "subscribers"}
+          isSelected={filter === "subscribers"}
           label={i18next.t("community.subscribers")}
         />
         <PageMenuLink
           href={`/activities/${props.community.name}`}
-          isSelected={props.filter === "activities"}
+          isSelected={filter === "activities"}
           label={i18next.t("community.activities")}
         />
       </PageMenuItems>
@@ -82,7 +85,7 @@ export const CommunityMenu = (props: Props) => {
         <div className="hidden lg:flex items-center"></div>
       </div>
       {/*@ts-ignore*/}
-      {EntryFilter[props.filter!] && <ListStyleToggle float="right" />}
+      {EntryFilter[filter!] && <ListStyleToggle float="right" />}
     </PageMenu>
   );
 };

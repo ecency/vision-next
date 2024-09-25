@@ -13,6 +13,8 @@ import { formattedNumber } from "@/utils";
 import { Button } from "@ui/button";
 import Link from "next/link";
 import { CommunityStatItem } from "@/app/(dynamicPages)/community/[community]/_components/community-cover/community-stat-item";
+import { JoinCommunityModal } from "@/app/(dynamicPages)/community/[community]/_components";
+import { useSearchParams } from "next/navigation";
 
 setProxyBase(defaults.imageServer);
 
@@ -53,6 +55,8 @@ export function CommunityCover({ community, account }: Props) {
     [activeUser, users, community.name]
   );
 
+  const searchParams = useSearchParams();
+
   return (
     <div className="relative overflow-hidden rounded-2xl lg:max-h-[210px]">
       <div
@@ -79,6 +83,10 @@ export function CommunityCover({ community, account }: Props) {
         </Link>
       </div>
       {canUpdateCoverImage && <CommunityCoverEditImage account={account as FullAccount} />}
+      <JoinCommunityModal
+        community={community}
+        communityId={searchParams.get("communityid") ?? ""}
+      />
     </div>
   );
 }
