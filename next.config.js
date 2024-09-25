@@ -5,12 +5,14 @@ const withPWA = require("next-pwa")({
   dest: "public"
 });
 const appPackage = require("./package.json");
+const { v4 } = require("uuid");
 
 const config = {
   productionBrowserSourceMaps: true,
   sassOptions: {
     includePaths: [path.join(__dirname, "src/styles")]
   },
+  generateBuildId: async () => v4(),
   webpack: (config, options) => {
     config.module.rules.push({
       test: /\.(mp3)$/,

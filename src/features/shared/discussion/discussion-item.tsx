@@ -257,7 +257,7 @@ export function DiscussionItem({
           {hideControls ? (
             <></>
           ) : (
-            <div className="item-controls">
+            <div className="item-controls flex items-center gap-2">
               <EntryVoteBtn entry={entry} isPostSlider={false} />
               <EntryPayout entry={entry} />
               <EntryVotes entry={entry} />
