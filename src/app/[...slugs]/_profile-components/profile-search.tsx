@@ -3,21 +3,23 @@
 import { useDebounce } from "react-use";
 import { LinearProgress, SearchBox } from "@/features/shared";
 import i18next from "i18next";
-import React, { useCallback, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useMount from "react-use/lib/useMount";
 
 interface Props {
-  section: string;
   username: string;
 }
 
-export function ProfileSearch({ username, section }: Props) {
+export function ProfileSearch({ username }: Props) {
   const router = useRouter();
   const params = useSearchParams();
 
   const [search, setSearch] = useState("");
   const [typing, setTyping] = useState(false);
+
+  const pathname = usePathname();
+  const section = useMemo(() => pathname.split("/")[3] ?? "posts", [pathname]);
 
   useMount(() => {
     setSearch(params.get("query") ?? "");

@@ -20,13 +20,13 @@ import { useGlobalStore } from "@/core/global-store";
 import { getCommunityCache } from "@/core/caches";
 import { CommunityCardEditPic } from "@/app/[...slugs]/_components/community-card/community-card-edit-pic";
 import { Followers, Following } from "../friends";
+import { usePathname } from "next/navigation";
 
 interface Props {
   account: Account;
-  section?: string;
 }
 
-export const ProfileCard = ({ account, section }: Props) => {
+export const ProfileCard = ({ account }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const [followersList, setFollowersList] = useState(false);
@@ -36,6 +36,7 @@ export const ProfileCard = ({ account, section }: Props) => {
   const [subs, setSubs] = useState([] as Subscription[]);
   const [rcPercent, setRcPercent] = useState(100);
 
+  const pathname = usePathname();
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({} as any), []);
 
@@ -120,7 +121,7 @@ export const ProfileCard = ({ account, section }: Props) => {
     activeUser.username === account?.name &&
     activeUser.data.__loaded &&
     activeUser.data.profile;
-  const isSettings = section === "settings";
+  const isSettings = pathname.includes("settings");
 
   return (
     <div className="profile-card">

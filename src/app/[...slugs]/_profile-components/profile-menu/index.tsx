@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { ListStyleToggle } from "@/features/shared";
 import { ProfileFilter } from "@/enums";
 import { useGlobalStore } from "@/core/global-store";
@@ -11,14 +11,16 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdo
 import { Button } from "@ui/button";
 import { PageMenu, PageMenuItems, PageMenuLink, PageMenuMobileDropdown } from "@/features/ui";
 import { EcencyConfigManager } from "@/config";
+import { usePathname } from "next/navigation";
 
 interface Props {
   username: string;
-  section: string;
 }
 
-export function ProfileMenu({ username, section }: Props) {
+export function ProfileMenu({ username }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const pathname = usePathname();
+  const section = useMemo(() => pathname.split("/")[3] ?? "posts", [pathname]);
 
   const kebabMenuItems = [
     ...["trail", "replies"]

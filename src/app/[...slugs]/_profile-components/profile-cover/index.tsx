@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import defaults from "@/defaults.json";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
@@ -10,6 +10,8 @@ import { useGlobalStore } from "@/core/global-store";
 import { FavouriteBtn } from "@/features/shared/favorite-btn";
 import { ProfileInfo } from "@/app/[...slugs]/_profile-components/profile-info";
 import { EcencyConfigManager } from "@/config";
+import { ProfileFilter } from "@/enums";
+import { usePathname } from "next/navigation";
 
 setProxyBase(defaults.imageServer);
 
@@ -21,6 +23,10 @@ export function ProfileCover({ account }: Props) {
   const theme = useGlobalStore((state) => state.theme);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const activeUser = useGlobalStore((state) => state.activeUser);
+
+  const pathname = usePathname();
+  const section = useMemo(() => pathname.split("/")[3] ?? "posts", [pathname]);
+  console.log(section);
 
   const coverFallbackDay = "/assets/cover-fallback-day.png";
   const coverFallbackNight = "/assets/cover-fallback-night.png";
@@ -40,7 +46,7 @@ export function ProfileCover({ account }: Props) {
 
   const hideControls = activeUser && activeUser.username === account?.name;
 
-  return (
+  return [...Object.keys(ProfileFilter), "communities"].includes(section) ? (
     <div className="profile-cover rounded-2xl overflow-hidden">
       <div className="cover-image" style={style} />
       <div className="relative flex items-center justify-end w-full gap-2 p-4">
@@ -57,5 +63,7 @@ export function ProfileCover({ account }: Props) {
         )}
       </div>
     </div>
+  ) : (
+    <></>
   );
 }
