@@ -4,9 +4,15 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
+import { Metadata, ResolvingMetadata } from "next";
+import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 
 interface Props {
   params: { username: string; section: string };
+}
+
+export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+  return generateProfileMetadata(props.params.username, props.params.section);
 }
 
 export default async function Page({ params: { username, section } }: Props) {
