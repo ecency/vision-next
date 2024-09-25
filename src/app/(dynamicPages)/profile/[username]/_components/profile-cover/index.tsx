@@ -25,8 +25,7 @@ export function ProfileCover({ account }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
   const pathname = usePathname();
-  const section = useMemo(() => pathname.split("/")[3] ?? "posts", [pathname]);
-  console.log(section);
+  const section = useMemo(() => pathname.split("/")[2] ?? "posts", [pathname]);
 
   const coverFallbackDay = "/assets/cover-fallback-day.png";
   const coverFallbackNight = "/assets/cover-fallback-night.png";

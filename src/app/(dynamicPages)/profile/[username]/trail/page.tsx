@@ -12,11 +12,11 @@ interface Props {
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateProfileMetadata(props.params.username, "trail");
+  return generateProfileMetadata(props.params.username.replace("%40", ""), "trail");
 }
 
 export default async function TrailPage({ params: { username } }: Props) {
-  const account = await getAccountFullQuery(username).prefetch();
+  const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
 
   if (!account) {
     return notFound();
@@ -24,7 +24,7 @@ export default async function TrailPage({ params: { username } }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ProfileEntriesLayout username={username} section="trail">
+      <ProfileEntriesLayout username={username.replace("%40", "")} section="trail">
         <CurationTrail account={account} section="trail" />
       </ProfileEntriesLayout>
     </HydrationBoundary>

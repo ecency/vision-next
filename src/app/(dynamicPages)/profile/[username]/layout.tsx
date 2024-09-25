@@ -12,7 +12,7 @@ export default async function ProfileLayout({
   params: { username },
   children
 }: PropsWithChildren<Props>) {
-  const account = await getAccountFullQuery(username).prefetch();
+  const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
 
   return (
     <>
@@ -26,9 +26,9 @@ export default async function ProfileLayout({
           <meta itemProp="name" content={account?.profile?.name || account?.name} />
         </span>
         <div className="content-side">
-          <ProfileMenu username={username} />
+          <ProfileMenu username={username.replace("%40", "")} />
           {account && <ProfileCover account={account} />}
-          <ProfileSearch username={username} />
+          <ProfileSearch username={username.replace("%40", "")} />
           {children}
         </div>
       </div>

@@ -12,7 +12,10 @@ interface Props {
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateProfileMetadata(props.params.username, "permissions");
+  return generateProfileMetadata(
+    cookies().get(ACTIVE_USER_COOKIE_NAME)?.value ?? "Current user",
+    "permissions"
+  );
 }
 
 export default async function PermissionsPage({ params: { username } }: Props) {

@@ -12,10 +12,11 @@ interface Props {
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateProfileMetadata(props.params.username, props.params.section);
+  return generateProfileMetadata(props.params.username.replace("%40", ""), props.params.section);
 }
 
-export default async function Page({ params: { username, section } }: Props) {
+export default async function Page({ params: { username: usernameParam, section } }: Props) {
+  const username = usernameParam.replace("%40", "");
   const account = await getAccountFullQuery(username).prefetch();
   await prefetchGetPostsFeedQuery(section, `@${username}`);
   await EcencyEntriesCacheManagement.getEntryQueryByPath(

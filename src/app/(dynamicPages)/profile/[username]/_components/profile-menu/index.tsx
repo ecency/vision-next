@@ -20,7 +20,7 @@ interface Props {
 export function ProfileMenu({ username }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const pathname = usePathname();
-  const section = useMemo(() => pathname.split("/")[3] ?? "posts", [pathname]);
+  const section = useMemo(() => pathname.split("/")[2] ?? "posts", [pathname]);
 
   const kebabMenuItems = [
     ...["trail", "replies"]

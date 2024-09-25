@@ -11,11 +11,11 @@ interface Props {
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateProfileMetadata(props.params.username, "communities");
+  return generateProfileMetadata(props.params.username.replace("%40", ""), "communities");
 }
 
 export default async function ProfileCommunitiesPage({ params: { username } }: Props) {
-  const account = await getAccountFullQuery(username).prefetch();
+  const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
 
   if (!account) {
     return notFound();

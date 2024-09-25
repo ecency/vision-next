@@ -42,11 +42,11 @@ const config = {
   async rewrites() {
     return [
       {
-        source: "/:author(\\.+)",
+        source: "/:author(@.+)",
         destination: "/profile/:author"
       },
       {
-        source: "/:author(@\\.+)/:section",
+        source: "/:author(@.+)/:section",
         destination: "/profile/:author/:section"
       }
     ];
