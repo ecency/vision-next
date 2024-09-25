@@ -42,8 +42,12 @@ const config = {
   async rewrites() {
     return [
       {
-        source: "/:author/rss",
-        destination: "/api/:author/posts/rss"
+        source: "/:author(\\.+)",
+        destination: "/profile/:author"
+      },
+      {
+        source: "/:author(@\\.+)/:section",
+        destination: "/profile/:author/:section"
       }
     ];
   }

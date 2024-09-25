@@ -5,14 +5,14 @@ import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 import defaults from "@/defaults.json";
 import i18next from "i18next";
-import { CommunityCoverEditImage } from "@/app/[...slugs]/_components/community-cover-edit-image";
+import { CommunityCoverEditImage } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-cover-edit-image";
 import { SubscriptionBtn } from "@/app/communities/_components";
 import { Account, Community, FullAccount } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { formattedNumber } from "@/utils";
 import { Button } from "@ui/button";
 import Link from "next/link";
-import { CommunityStatItem } from "@/app/[...slugs]/_components/community-cover/community-stat-item";
+import { CommunityStatItem } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-cover/community-stat-item";
 
 setProxyBase(defaults.imageServer);
 

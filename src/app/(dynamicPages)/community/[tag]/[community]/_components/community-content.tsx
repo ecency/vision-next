@@ -1,14 +1,14 @@
-import { CommunitySubscribers } from "@/app/[...slugs]/_components/community-subscribers";
-import { CommunityActivities } from "@/app/[...slugs]/_components/community-activities";
-import { CommunityRoles } from "@/app/[...slugs]/_components/community-roles";
+import { CommunitySubscribers } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-subscribers";
+import { CommunityActivities } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-activities";
+import { CommunityRoles } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-roles";
 import { EntryListContent, LinearProgress } from "@/features/shared";
 import { Fragment } from "react";
 import { Community, Entry } from "@/entities";
 import { getPostsFeedQueryData } from "@/api/queries/get-account-posts-feed-query";
-import { CommunityContentSearch } from "@/app/[...slugs]/_components/community-content-search";
+import { CommunityContentSearch } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-content-search";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
-import { CommunityContentSearchData } from "@/app/[...slugs]/_components/community-content-search-data";
-import { CommunityContentInfiniteList } from "@/app/[...slugs]/_components/community-content-infinite-list";
+import { CommunityContentSearchData } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-content-search-data";
+import { CommunityContentInfiniteList } from "@/app/(dynamicPages)/community/[tag]/[community]/_components/community-content-infinite-list";
 
 interface Props {
   filter: string;

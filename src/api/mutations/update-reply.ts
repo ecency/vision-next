@@ -5,12 +5,11 @@ import { CommentOptions, Entry, MetaData } from "@/entities";
 import { comment, formatError } from "@/api/operations";
 import { error } from "@/features/shared";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import useUpdateEntry = EcencyEntriesCacheManagement.useUpdateEntry;
 
 export function useUpdateReply(entry?: Entry | null, onSuccess?: () => void) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
-  const { updateEntryQueryData } = useUpdateEntry();
+  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   return useMutation({
     mutationKey: ["reply-update", activeUser?.username, entry?.author, entry?.permlink],

@@ -1,6 +1,5 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
-import { CommunityPage } from "@/app/[...slugs]/_community-page";
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import { EntryIndex } from "@/app/[...slugs]/_index";
 import { EntryPage } from "@/app/[...slugs]/_entry-page";
@@ -48,15 +47,7 @@ export default async function FilteredOrCategorizedPage({
           permlink={slugs[1]}
         />
       )}
-      {page === "community" && (
-        <CommunityPage
-          searchParams={searchParams}
-          params={{
-            filterOrCategory: slugs[0],
-            entryOrCommunity: slugs[1]
-          }}
-        />
-      )}
+      <div className="pt-16">still here</div>
     </HydrationBoundary>
   );
 }
