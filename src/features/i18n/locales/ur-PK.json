@@ -745,7 +745,8 @@
   },
   "comment": {
     "body-placeholder": "Write your reply here",
-    "preview": "Preview"
+    "preview": "Preview",
+    "success": "Your reply created successfully!"
   },
   "discussion": {
     "join": "Join the conversation now",
@@ -898,7 +899,7 @@
     "com-mod": "Moderator of these communities"
   },
   "profile-info": {
-    "joined": "Joined: {{n}}",
+    "joined": "Joined",
     "last-active": "Last active: {{n}}",
     "vote-value": "Vote value: {{n}}",
     "vote-value-max": "(out of max {{n}})",
@@ -2456,6 +2457,13 @@
     "finished": "Finished",
     "expired-date": "End date should be in present or future",
     "interpretation": "Interpretation",
-    "creating-in-progress": "Creating in progress..."
+    "creating-in-progress": "Creating in progress...",
+    "invalid-time": "Invalid time format. Use HH:MM",
+    "max-choices-voted": "Max choices voted by user",
+    "max-votes-hint": "You may select {{n}} choices"
+  },
+  "hs-login": {
+    "title": "Logging in to Ecency from HiveSigner",
+    "message": "Please wait a bit, You will be redirected automatically."
   }
 }
