@@ -86,13 +86,13 @@ export function MarketData() {
 
             <div className="text-menu">
               <Link className="menu-item" href="/faq">
-                {i18next.t("entry-feed.faq")}
+                {i18next.t("entry-index.faq")}
               </Link>
               <Link className="menu-item" href="/terms-of-service">
-                {i18next.t("entry-feed.tos")}
+                {i18next.t("entry-index.tos")}
               </Link>
               <Link className="menu-item" href="/privacy-policy">
-                {i18next.t("entry-feed.pp")}
+                {i18next.t("entry-index.pp")}
               </Link>
             </div>
           </div>

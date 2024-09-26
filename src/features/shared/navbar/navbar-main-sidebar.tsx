@@ -115,17 +115,17 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
         <hr className="my-2 border-[--border-color]" />
         <div className="text-xs">
           <NavbarSideMainMenuItem
-            label={i18next.t("entry-feed.faq")}
+            label={i18next.t("entry-index.faq")}
             to="/faq"
             onClick={() => setShow(false)}
           />
           <NavbarSideMainMenuItem
-            label={i18next.t("entry-feed.tos")}
+            label={i18next.t("entry-index.tos")}
             to="/terms-of-service"
             onClick={() => setShow(false)}
           />
           <NavbarSideMainMenuItem
-            label={i18next.t("entry-feed.pp")}
+            label={i18next.t("entry-index.pp")}
             to="/privacy-policy"
             onClick={() => setShow(false)}
           />
