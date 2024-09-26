@@ -80,6 +80,10 @@ const config = {
         destination: "/profile/:author"
       },
       {
+        source: "/:filter/:tag/:sub",
+        destination: "/feed/:filter/:tag/:sub"
+      },
+      {
         source: "/:filter/:tag",
         destination: "/feed/:filter/:tag"
       },

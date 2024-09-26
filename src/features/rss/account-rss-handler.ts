@@ -6,7 +6,7 @@ export class AccountRssHandler extends EntriesRssHandler {
   private filter = "";
   protected pathname = "";
 
-  constructor(pathname: string, author: string, filter: string = "posts") {
+  constructor(pathname: string, author: string, filter = "posts") {
     super();
     this.pathname = pathname;
     this.author = author;
@@ -16,7 +16,8 @@ export class AccountRssHandler extends EntriesRssHandler {
   protected async fetchData() {
     const data = await getAccountPostsQuery(
       this.author.replace("@", ""),
-      this.filter
+      this.filter,
+      100
     ).fetchAndGet();
     return data.pages?.[0] ?? [];
   }
