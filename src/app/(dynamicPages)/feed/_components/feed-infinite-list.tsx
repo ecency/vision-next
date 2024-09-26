@@ -16,8 +16,14 @@ export function FeedInfiniteList({ filter, tag }: Props) {
   const entryList = useMemo(
     () =>
       // Drop first page as it has loaded in a server and shown in RSC
-      data?.pages?.slice(1)?.reduce<Entry[]>((acc, page) => [...acc, ...(page as Entry[])], []) ??
-      [],
+      data?.pages?.slice(1).reduce<Entry[]>((acc, p) => {
+        if (p instanceof Array) {
+          return [...acc, ...(p as Entry[])];
+        }
+
+        // @ts-ignore
+        return [...acc, ...(p as { results: Entry[] }).results];
+      }, []) ?? [],
     [data?.pages]
   );
 

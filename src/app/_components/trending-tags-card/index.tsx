@@ -6,16 +6,14 @@ import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { TagLink } from "@/features/shared/tag";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getTrendingTagsQuery } from "@/api/queries";
 
-interface Props {
-  filter: string;
-  tag: string;
-}
-
-export function TrendingTagsCard({ filter, tag }: Props) {
+export function TrendingTagsCard() {
   const router = useRouter();
+  const {
+    sections: [filter = "hot", tag = ""]
+  } = useParams() as { sections: string[] };
 
   const activeUser = useGlobalStore((s) => s.activeUser);
 

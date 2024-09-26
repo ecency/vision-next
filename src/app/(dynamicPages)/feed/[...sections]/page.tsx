@@ -5,6 +5,8 @@ import { FeedContent } from "../_components";
 import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateFeedMetadata } from "@/app/(dynamicPages)/feed/[...sections]/_helpers";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { getQueryClient } from "@/core/react-query";
 
 interface Props {
   params: { sections: string[] };
@@ -25,5 +27,9 @@ export default async function FeedPage({
   await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
   await getPromotedEntriesQuery().prefetch();
 
-  return <FeedContent tag={tag} filter={filter} observer={observer} />;
+  return (
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
+      <FeedContent tag={tag} filter={filter} observer={observer} />
+    </HydrationBoundary>
+  );
 }

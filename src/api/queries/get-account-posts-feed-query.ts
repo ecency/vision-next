@@ -12,7 +12,7 @@ export async function prefetchGetPostsFeedQuery(
   observer?: string
 ): Promise<InfiniteData<Entry[] | SearchResponse> | undefined> {
   const isControversial = ["rising", "controversial"].includes(what);
-  const isUser = tag.startsWith("@");
+  const isUser = tag.startsWith("@") || tag.startsWith("%40");
 
   const isAccountPosts = isUser && !isControversial;
   const isControversialPosts = !isUser && isControversial;
@@ -23,7 +23,13 @@ export async function prefetchGetPostsFeedQuery(
   }
 
   if (isAccountPosts) {
-    return getAccountPostsQuery(tag.replace("@", ""), what, limit, observer ?? "", true).prefetch();
+    return getAccountPostsQuery(
+      tag.replace("@", "").replace("%40", ""),
+      what,
+      limit,
+      observer ?? "",
+      true
+    ).prefetch();
   }
 
   if (isControversialPosts) {
@@ -35,7 +41,7 @@ export async function prefetchGetPostsFeedQuery(
 
 export function getPostsFeedQueryData(what: string, tag: string, limit = 20, observer?: string) {
   const isControversial = ["rising", "controversial"].includes(what);
-  const isUser = tag.startsWith("@");
+  const isUser = tag.startsWith("@") || tag.startsWith("%40");
 
   const isAccountPosts = isUser && !isControversial;
   const isControversialPosts = !isUser && isControversial;
@@ -46,7 +52,13 @@ export function getPostsFeedQueryData(what: string, tag: string, limit = 20, obs
   }
 
   if (isAccountPosts) {
-    return getAccountPostsQuery(tag.replace("@", ""), what, limit, observer ?? "", true).getData();
+    return getAccountPostsQuery(
+      tag.replace("@", "").replace("%40", ""),
+      what,
+      limit,
+      observer ?? "",
+      true
+    ).getData();
   }
 
   if (isControversialPosts) {
@@ -58,7 +70,7 @@ export function getPostsFeedQueryData(what: string, tag: string, limit = 20, obs
 
 export function usePostsFeedQuery(what: string, tag: string, limit = 20) {
   const isControversial = ["rising", "controversial"].includes(what);
-  const isUser = tag.startsWith("@");
+  const isUser = tag.startsWith("@") || tag.startsWith("%40");
 
   const isAccountPosts = isUser && !isControversial;
   const isControversialPosts = !isUser && isControversial;
@@ -69,7 +81,13 @@ export function usePostsFeedQuery(what: string, tag: string, limit = 20) {
   }
 
   if (isAccountPosts) {
-    return getAccountPostsQuery(tag.replace("@", ""), what, limit, "", true).useClientQuery();
+    return getAccountPostsQuery(
+      tag.replace("@", "").replace("%40", ""),
+      what,
+      limit,
+      "",
+      true
+    ).useClientQuery();
   }
 
   if (isControversialPosts) {

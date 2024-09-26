@@ -17,12 +17,12 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   };
 }
 
-export function EntryEditPage({ params: { author: username, permlink } }: Props) {
+export default function EntryEditPage({ params: { author: username, permlink } }: Props) {
   return (
     <SubmitWithProvidersPage
-      path={`@${username}/${permlink}/edit`}
+      path={`@${username.replace("%40", "")}/${permlink}/edit`}
       permlink={permlink}
-      username={username}
+      username={username.replace("%40", "")}
     />
   );
 }
