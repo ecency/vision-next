@@ -39,14 +39,12 @@ const config = {
       }
     ]
   },
+  // Warn: Rewrites applies in order
   async rewrites() {
     return [
       {
-        source: "/:author(@.+)",
-        destination: "/profile/:author"
-      },
-      {
-        source: "/:author(@.+)/:section",
+        source:
+          "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|wallet|engine|points|spk|settings|feed|referrals|permissions|rss|rss.xml)",
         destination: "/profile/:author/:section"
       },
       {
@@ -56,6 +54,22 @@ const config = {
       {
         source: "/:tag/:community(hive-.+)",
         destination: "/community/:community/:tag"
+      },
+      {
+        source: "/:category/:author/:permlink/:sub",
+        destination: "/entry/:category/:author/:permlink/:sub"
+      },
+      {
+        source: "/:category/:author/:permlink",
+        destination: "/entry/:category/:author/:permlink"
+      },
+      {
+        source: "/:author/:permlink",
+        destination: "/entry/created/:author/:permlink"
+      },
+      {
+        source: "/:author(@.+)",
+        destination: "/profile/:author"
       }
     ];
   }
