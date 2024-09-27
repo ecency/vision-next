@@ -80,15 +80,15 @@ const config = {
         destination: "/profile/:author"
       },
       {
-        source: "/:filter/:tag/:sub",
+        source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag/:sub",
         destination: "/feed/:filter/:tag/:sub"
       },
       {
-        source: "/:filter/:tag",
+        source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag",
         destination: "/feed/:filter/:tag"
       },
       {
-        source: "/:filter",
+        source: "/:filter(hot|created|trending|controversial|rising|promoted)",
         destination: "/feed/:filter"
       }
     ];
