@@ -89,7 +89,8 @@ export enum QueryIdentifiers {
   HIVE_HBD_STATS = "hive-hbd-stats",
   GET_ORDER_BOOK = "get-order-book",
   SIMILAR_ENTRIES = "similar-entries",
-  SEARCH_BY_USERNAME = "search-by-username"
+  SEARCH_BY_USERNAME = "search-by-username",
+  CHAIN_PROPERTIES = "chain-properties"
 }
 
 export function makeQueryClient() {

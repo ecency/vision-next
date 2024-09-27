@@ -128,7 +128,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
   const [flagText, setFlagText] = useState(cleanString(community.flag_text));
   const [isNsfw, setIsNsfw] = useState(community.is_nsfw);
 
-  const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community);
+  const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
 
   const onChange = useCallback((e: React.ChangeEvent<any>): void => {
     const { target: el } = e;
