@@ -5,7 +5,7 @@ import defaults from "@/defaults.json";
 export async function generateFeedMetadata(filter: string, tag: string) {
   const fC = capitalize(filter);
   let title = i18next.t("entry-index.title", { f: fC });
-  let description = i18next.t("Fentry-index.description", { f: fC });
+  let description = i18next.t("entry-index.description", { f: fC });
   let url = `/${filter}`;
   let canonical = `${defaults.base}/${filter}`;
   let rss = "";
