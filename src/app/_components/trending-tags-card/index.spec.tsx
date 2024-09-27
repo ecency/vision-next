@@ -4,7 +4,7 @@ import TrendingTags from "./index";
 import TestRenderer from "react-test-renderer";
 import { createBrowserHistory } from "history";
 
-import { EntryFilter } from "../../store/global/types";
+import { EntryFilter } from "../../store/global/_types";
 
 import { activeUserInstance, globalInstance } from "../../helper/test-helper";
 

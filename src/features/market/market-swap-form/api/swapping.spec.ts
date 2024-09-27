@@ -1,7 +1,7 @@
 import * as api from "../../../api/operations";
 import { swapByHs, swapByKc, swapByKey } from "./swapping";
 import { MarketAsset } from "../market-pair";
-import { ActiveUser } from "../../../store/active-user/types";
+import { ActiveUser } from "../../../store/active-user/_types";
 import { TransactionType } from "../../buy-sell-hive";
 import { OrderIdPrefix } from "../../../api/operations";
 

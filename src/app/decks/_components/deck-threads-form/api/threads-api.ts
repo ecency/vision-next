@@ -51,7 +51,7 @@ export function useThreadsApi() {
     addReply(nReply, entry);
 
     if (entry.children === 0) {
-      // Activate discussion [section] with first comment.
+      // Activate discussion [...sections] with first comment.
       const nEntry: Entry = {
         ...entry,
         children: 1

@@ -16,7 +16,7 @@ import {
   crossEntryInstance
 } from "../../helper/test-helper";
 
-import { ListStyle } from "../../store/global/types";
+import { ListStyle } from "../../store/global/_types";
 
 import EntryListItem from "./index";
 import { withStore } from "../../tests/with-store";

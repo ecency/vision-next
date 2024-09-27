@@ -151,7 +151,7 @@ export const EntryIndexMenuDropdown = ({
                       ? i18next.t("entry-filter.filter-year")
                       : tag === "all"
                         ? i18next.t("entry-filter.filter-alltime")
-                        : tag === `@${activeUser?.username}` || tag.startsWith("@")
+                        : tag === `%40${activeUser?.username}` || tag.startsWith("%40")
                           ? noReblog
                             ? i18next.t("entry-filter.filter-no-reblog")
                             : i18next.t("entry-filter.filter-with-reblog")

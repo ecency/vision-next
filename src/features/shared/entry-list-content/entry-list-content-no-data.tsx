@@ -48,6 +48,17 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
         buttonText={i18next.t("navbar.discover")}
         buttonTo="/communities"
       />
+    ) : username ? (
+      <MessageNoData
+        title={i18next.t("profile-info.no-posts-user")}
+        description={`${i18next.t("g.nothing-found-in")} ${
+          section === "trail"
+            ? i18next.t(`g.trail`) + " " + i18next.t(`g.past-few-days`)
+            : i18next.t(`g.${section}`)
+        }.`}
+        buttonText={isMyProfile ? i18next.t("profile-info.create-posts") : ""}
+        buttonTo="/submit"
+      />
     ) : (
       <MessageNoData
         title={i18next.t("profile-info.no-posts-user")}

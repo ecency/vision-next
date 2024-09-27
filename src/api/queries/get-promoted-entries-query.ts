@@ -17,7 +17,7 @@ export const getPromotedEntriesQuery = () =>
 
 /**
  * Use this query for fetching promotion entries as single list in SSR
- * Because SSR index page requires paginated response
+ * Because SSR feed page requires paginated response
  */
 export const getPromotedEntriesInfiniteQuery = () =>
   EcencyQueriesManager.generateConfiguredClientServerInfiniteQuery(

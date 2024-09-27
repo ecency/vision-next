@@ -46,12 +46,12 @@ describe("Extarct filter tag", () => {
     expect(res).toMatchSnapshot();
   });
 
-  it("60 - user [section]", () => {
+  it("60 - user [...sections]", () => {
     const res = extractFilterTag("/@talhasch/comments");
     expect(res).toMatchSnapshot();
   });
 
-  it("64 - user wallet [section]", () => {
+  it("64 - user wallet [...sections]", () => {
     const res = extractFilterTag("/@talhasch/wallet");
     expect(res).toMatchSnapshot();
   });

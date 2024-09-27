@@ -2,7 +2,7 @@ import React from "react";
 
 import { Transfer, TransferAsset, TransferMode } from "./index";
 
-import { initialState as transactionsInitialState } from "../../store/transactions/index";
+import { initialState as transactionsInitialState } from "../../store/transactions/feed";
 
 import {
   dynamicPropsIntance1,

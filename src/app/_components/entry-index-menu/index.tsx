@@ -17,7 +17,7 @@ import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
 import { apiBase } from "@/api/helper";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, MenuItem } from "@ui/dropdown";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { EntryFilter } from "@/enums";
 import useMount from "react-use/lib/useMount";
 import * as ls from "@/utils/local-storage";
@@ -44,13 +44,11 @@ export const isMyPage = (filter: string, tag: string, activeUser: ActiveUser | n
 
 export const isActiveUser = (activeUser?: ActiveUser | null) => !!activeUser;
 
-interface Props {
-  filter: string;
-  tag: string;
-}
-
-export function EntryIndexMenu({ filter, tag }: Props) {
+export function EntryIndexMenu() {
   const router = useRouter();
+  const {
+    sections: [filter = "hot", tag = ""]
+  } = useParams() as { sections: string[] };
   const pathname = usePathname();
 
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -74,13 +72,13 @@ export function EntryIndexMenu({ filter, tag }: Props) {
   let secondaryMenu = [
     {
       label: i18next.t(`entry-filter.filter-controversial`),
-      href: `/controversial/today`,
+      href: `/controversial/week`,
       selected: filter === "controversial",
       id: "controversial"
     },
     {
       label: i18next.t(`entry-filter.filter-rising`),
-      href: `/rising/today`,
+      href: `/rising/week`,
       selected: filter === "rising",
       id: "rising"
     },
@@ -339,9 +337,7 @@ export function EntryIndexMenu({ filter, tag }: Props) {
       }
     } else if (["controversial", "rising"].includes(filter)) {
       const tagValue =
-        tag && tag !== "my" && ["today", "week", "month", "year", "all"].includes(tag)
-          ? "/" + tag
-          : "/today";
+        tag && tag !== "my" && ["week", "month", "year", "all"].includes(tag) ? "/" + tag : "/week";
       router.push(`/${filter}${tagValue}`);
     }
   }, [activeUser, filter, pathname, prevActiveUser, prevFilter, router, tag]);
@@ -374,7 +370,7 @@ export function EntryIndexMenu({ filter, tag }: Props) {
   return (
     <div>
       <div className={introductionOverlayClass} id="overlay" onClick={onClosePopup} />
-      <div className="entry-index-menu flex items-center justify-center md:justify-between p-[10px] border-b dark:border-dark-200">
+      <div className="entry-index-menu flex items-center justify-center md:justify-between py-3.5 border-b dark:border-dark-200">
         <div className="bg-gray-100 dark:bg-gray-900 rounded-3xl lg:px-4 p-2 text-sm flex flex-col-reverse items-center md:flex-row">
           {isActive && (
             <div className="hidden lg:flex items-center mt-3 md:mt-0 md:mr-4 lg:mr-0">

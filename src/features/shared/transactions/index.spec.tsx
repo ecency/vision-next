@@ -20,7 +20,7 @@ import {
   CancelTransferFromSavings,
   ReturnVestingDelegation,
   ProposalPay
-} from "../../store/transactions/types";
+} from "../../store/transactions/_types";
 
 import {
   dynamicPropsIntance1,

@@ -39,11 +39,57 @@ const config = {
       }
     ]
   },
+  // Warn: Rewrites applies in order
   async rewrites() {
     return [
       {
-        source: "/:author/rss",
-        destination: "/api/:author/posts/rss"
+        source: "/:author(@.+)/feed",
+        destination: "/feed/feed/:author"
+      },
+      {
+        source:
+          "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|wallet|engine|points|spk|settings|referrals|permissions|rss|rss.xml)",
+        destination: "/profile/:author/:section"
+      },
+      {
+        source: "/:tag/:community(hive-.+)/:sub",
+        destination: "/community/:community/:tag/:sub"
+      },
+      {
+        source: "/:tag/:community(hive-.+)",
+        destination: "/community/:community/:tag"
+      },
+      {
+        source: "/:category/:author(@.+)/:permlink/:sub",
+        destination: "/entry/:category/:author/:permlink/:sub"
+      },
+      {
+        source: "/:author(@.+)/:permlink/edit",
+        destination: "/entry/created/:author/:permlink/edit"
+      },
+      {
+        source: "/:category/:author(@.+)/:permlink",
+        destination: "/entry/:category/:author/:permlink"
+      },
+      {
+        source: "/:author(@.+)/:permlink",
+        destination: "/entry/created/:author/:permlink"
+      },
+      {
+        source: "/:author(@.+)",
+        destination: "/profile/:author"
+      },
+      {
+        source: "/:filter/:tag/:sub",
+        destination: "/feed/:filter/:tag/:sub"
+      },
+      {
+        source: "/:filter/:tag",
+        destination: "/feed/:filter/:tag"
+      },
+      {
+        source: "/:filter",
+        destination: "/feed/:filter"
       }
     ];
   }

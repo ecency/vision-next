@@ -1,4 +1,4 @@
-// Web socket notification types
+// Web socket notification _types
 import { NotificationFilter } from "@/enums";
 
 interface BaseWsNotification {
@@ -116,7 +116,7 @@ export type WsNotification =
   | WsReferralNotification
   | WsDelegationsNotification;
 
-// HTTP api notification types
+// HTTP api notification _types
 
 interface BaseAPiNotification {
   id: string;

@@ -6,7 +6,7 @@ import { createBrowserHistory } from "history";
 
 import { globalInstance, communityInstance1 } from "../../helper/test-helper";
 
-import { EntryFilter, AllFilter } from "../../store/global/types";
+import { EntryFilter, AllFilter } from "../../store/global/_types";
 
 jest.mock("../../api/bridge", () => ({
   getCommunity: () =>

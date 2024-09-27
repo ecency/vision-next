@@ -3,9 +3,9 @@
 // import TestRenderer from "react-test-renderer";
 // import { createBrowserHistory, createLocation } from "history";
 //
-// import NavBar from "./index";
+// import NavBar from "./feed";
 //
-// import { Theme } from "../../store/global/types";
+// import { Theme } from "../../store/global/_types";
 //
 // import {
 //   globalInstance,

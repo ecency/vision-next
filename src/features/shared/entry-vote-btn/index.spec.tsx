@@ -12,7 +12,7 @@ import {
   fullAccountInstance
 } from "../../helper/test-helper";
 
-import { Account } from "../../store/accounts/types";
+import { Account } from "../../store/accounts/_types";
 import { withStore } from "../../tests/with-store";
 
 jest.mock("../../api/hive", () => ({
