@@ -67,7 +67,7 @@ export function CommunityCreateSignDialog({
       onHide={() => setShow(false)}
       className="community-key-modal"
     >
-      <ModalHeader thin={true} closeButton={true} />
+      <ModalHeader closeButton={true} />
       <ModalBody>
         <KeyOrHot
           inProgress={false}

@@ -18,7 +18,8 @@ export function ProfileLink({ afterClick, target, className, children, username 
 
   return (
     <Link
-      href={target === "_blank" ? "#" : makePath(username)}
+      href={makePath(username)}
+      target={target}
       className={className}
       onClick={typeof window !== "undefined" ? clicked : undefined}
     >

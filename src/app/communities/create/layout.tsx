@@ -7,7 +7,7 @@ export default function CommunityCreateLayout({ children }: PropsWithChildren) {
       <Theme />
       <Feedback />
       <Navbar />
-      <div className="app-content bg-gray-100 dark:bg-dark-200-010 min-h-[calc(100vh-44px)] m-0">
+      <div className="app-content py-10 bg-gray-100 dark:bg-dark-200-010 min-h-[calc(100vh-44px)] m-0">
         {children}
       </div>
     </>
