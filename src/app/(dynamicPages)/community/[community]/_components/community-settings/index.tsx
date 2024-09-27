@@ -130,15 +130,6 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
 
   const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community);
 
-  const onChange = useCallback((e: React.ChangeEvent<any>): void => {
-    const { target: el } = e;
-    const key = el.name;
-    const val = el.hasOwnProperty("checked") ? el.checked : el.value;
-
-    // @ts-ignore
-    this.stateSet({ [key]: val });
-  }, []);
-
   const submit = useCallback(
     async () =>
       updateCommunity({
@@ -194,7 +185,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
                     autoComplete="off"
                     value={title}
                     name="title"
-                    onChange={onChange}
+                    onChange={(e) => setTitle(e.target.value)}
                     required={true}
                     onInvalid={(e: any) =>
                       handleInvalid(e, "community-settings.", "validation-title")
@@ -214,7 +205,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
                   autoComplete="off"
                   value={about}
                   name="about"
-                  onChange={onChange}
+                  onChange={(e) => setAbout(e.target.value)}
                 />
               </div>
             </div>
@@ -223,7 +214,12 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
                 <label>{i18next.t("community-settings.lang")}</label>
               </div>
               <div className="w-full sm:w-4/12">
-                <FormControl type="select" value={lang} name="lang" onChange={onChange}>
+                <FormControl
+                  type="select"
+                  value={lang}
+                  name="lang"
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setLang(e.target.value)}
+                >
                   {langOpts.map((l, k) => (
                     <option key={k} value={l.id}>
                       {l.name}
@@ -242,7 +238,9 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
                     type="textarea"
                     value={description}
                     name="description"
-                    onChange={onChange}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setDescription(e.target.value)
+                    }
                   />
                 </InputGroup>
               </div>
@@ -257,7 +255,9 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
                     type="textarea"
                     value={flagText}
                     name="flag_text"
-                    onChange={onChange}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setFlagText(e.target.value)
+                    }
                   />
                 </InputGroup>
                 <small>{i18next.t("community-settings.rules-help")}</small>
