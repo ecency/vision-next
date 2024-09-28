@@ -1332,36 +1332,36 @@
     "type-comment_payout_update": "Actualización de pago de contenido",
     "type-comment_reward": "Recompensa de contenido",
     "type-recurrent_transfer": "Transferencia recurrente",
-    "type-recurrent_transfer-detail": "{{executions}} transfers, each every {{recurrence}} hours",
-    "type-fill_recurrent_transfer": "Recurring transfer occurred",
-    "type-fill_recurrent_transfer-detail": "Remaining {{remaining_executions}} transfers",
+    "type-recurrent_transfer-detail": "{{executions}} transferencias, cada {{recurrence}} horas",
+    "type-fill_recurrent_transfer": "Se ha producido una transferencia recurriente",
+    "type-fill_recurrent_transfer-detail": "{{remaining_executions}} Transferencias restantes",
     "type-delegate_vesting_shares": "Delegación",
-    "type-collateralized_convert": "Collateralized convert",
-    "type-collateralized_convert-detail": "Request id: <strong>{{request}}</strong>",
-    "type-update_proposal_vote-detail": "Proposal id: <strong>{{pid}}</strong>",
-    "type-limit_order_create": "New trade created",
-    "type-limit_order_cancel": "Open trade cancelled",
-    "type-effective_comment_vote": "Effective vote",
-    "type-account_witness_proxy": "Governance proxy update"
+    "type-collateralized_convert": "Conversión Collateralizada",
+    "type-collateralized_convert-detail": "Solicitud Id: <strong>{{request}}</strong>",
+    "type-update_proposal_vote-detail": "Propuesta id: <strong>{{pid}}</strong>",
+    "type-limit_order_create": "Nueva operación creada",
+    "type-limit_order_cancel": "Operación abierta cancelada",
+    "type-effective_comment_vote": "Voto efectivo",
+    "type-account_witness_proxy": "Actualización del proxy de gobernanza"
   },
   "key-or-hot": {
-    "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master key",
-    "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "sign": "Firmar",
+    "key-placeholder": "Introduzca la clave activa/propietaria/maestra",
+    "with-hivesigner": "Iniciar Sesión con hivesigner",
+    "with-keychain": "Iniciar sesión con KeyChain"
   },
   "delegated-vesting": {
-    "title": "Delegated Hive Power",
-    "undelegate": "undelegate",
-    "subtitle": " HP Pending delegation returns"
+    "title": "Hive Power delegado",
+    "undelegate": "retirar delegación",
+    "subtitle": " Delegación de HP pendiente de devolución"
   },
   "received-vesting": {
-    "title": "Received Hive Power"
+    "title": "Hive Power recibido"
   },
   "conversion-requests": {
-    "title": "Convert requests",
-    "request-id": "Request id",
-    "amount": "Amount",
+    "title": "Solicitudes de conversión",
+    "request-id": "Id de solicitud",
+    "amount": "Cantidad",
     "pending": "Pendiente"
   },
   "collateralized-conversion-requests": {
@@ -1428,23 +1428,23 @@
     "image-error": "No se pudo cargar la imagen.",
     "image-error-cache": "No se pudo subir la imagen. Parece que has cerrado la sesión. Intenta iniciar sesión de nuevo.",
     "image-error-size": "El tamaño de la imagen es demasiado grande, intente una imagen de tamaño más pequeño.",
-    "image-error-conflict-name": "You have image with this filename already. Select it from gallery instead.",
-    "fragments": "Snippets",
-    "link-image": "Link",
-    "polls": "Polls"
+    "image-error-conflict-name": "Ya tienes una imagen con este nombre de archivo. Selecciónala en la galería.",
+    "fragments": "Fragmentos de código",
+    "link-image": "Enlace",
+    "polls": "Encuestas"
   },
   "emoji-picker": {
-    "filter-placeholder": "Filter",
-    "filter-no-match": "No match",
-    "recently-used": "Recently Used"
+    "filter-placeholder": "Filtro",
+    "filter-no-match": "Sin coincidencia",
+    "recently-used": "Usada recientemente"
   },
   "gif-picker": {
-    "filter-placeholder": "Filter",
-    "credits": "Powered by GIPHY"
+    "filter-placeholder": "Filtro",
+    "credits": "Con tecnología de GIPHY"
   },
   "submit": {
-    "page-title": "Create a post",
-    "page-description": "Publish an article, earn reward, uncensored, immutable, decentralized content!",
+    "page-title": "Crear una publicación",
+    "page-description": "¡Publica un artículo, monetiza, sin censura, inmutable y descentralizado!",
     "title-placeholder": "Title",
     "body-placeholder": "Tell your story...",
     "reward": "Reward",
