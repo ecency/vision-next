@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useMemo, useRef, useState } from "react";
 import numeral from "numeral";
 import defaults from "@/defaults.json";
 import { setProxyBase } from "@ecency/render-helper";
@@ -11,8 +11,9 @@ import { ProposalListItem } from "@/app/proposals/_components";
 import { getAccountFullQuery, getProposalsQuery } from "@/api/queries";
 import { parseAsset } from "@/utils";
 import { Proposal } from "@/entities";
-import { Button } from "@ui/button";
 import { AnimatePresence, motion } from "framer-motion";
+import { useInViewport } from "react-in-viewport";
+import { useDebounce } from "react-use";
 
 setProxyBase(defaults.imageServer);
 
@@ -24,6 +25,8 @@ enum Filter {
 }
 
 export function ProposalsPage() {
+  const infiniteLoadingAnchorRef = useRef<HTMLDivElement>(null);
+
   const { data: proposals, isLoading } = getProposalsQuery().useClientQuery();
   const { data: fund } = getAccountFullQuery("hive.fund").useClientQuery();
   const [page, setPage] = useState(1);
@@ -93,6 +96,18 @@ export function ProposalsPage() {
       thresholdProposalId
     };
   }, [dailyBudget, proposals]);
+
+  const { inViewport } = useInViewport(infiniteLoadingAnchorRef);
+
+  useDebounce(
+    () => {
+      if (inViewport) {
+        setPage((page) => page + 1);
+      }
+    },
+    1000,
+    [inViewport]
+  );
 
   return (
     <>
@@ -172,13 +187,8 @@ export function ProposalsPage() {
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
-        )}
-        {page * 5 < (filteredProposals?.length ?? 0) && (
-          <div className="flex items-center justify-center mb-4">
-            <Button className="capitalize" onClick={() => setPage(page + 1)}>
-              {i18next.t("search-comment.show-more")}
-            </Button>
+
+            <div ref={infiniteLoadingAnchorRef} />
           </div>
         )}
       </div>
