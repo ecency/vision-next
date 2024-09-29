@@ -10,7 +10,7 @@ interface CommentHistoryListItemDiff {
   titleDiff?: string;
   body: string;
   bodyDiff?: string;
-  tags: string | string[];
+  tags: string;
   tagsDiff?: string;
   timestamp: string;
   v: number;
