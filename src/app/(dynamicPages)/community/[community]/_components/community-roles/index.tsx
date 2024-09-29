@@ -42,7 +42,7 @@ export function CommunityRoles({ community }: Props) {
           <Tr>
             <Th style={{ width: "200px" }}>{i18next.t("community.roles-account")}</Th>
             <Th style={{ width: "74px" }}>{i18next.t("community.roles-role")}</Th>
-            <Th className="border p-3">{i18next.t("community.roles-account-title")}</Th>
+            <Th className="p-3">{i18next.t("community.roles-account-title")}</Th>
           </Tr>
         </thead>
         <tbody>
@@ -80,9 +80,11 @@ export function CommunityRoles({ community }: Props) {
           })}
         </tbody>
       </Table>
-      {roles.length > 0 && (
-        <Button onClick={() => showDialog()}>{i18next.t("community.roles-add")}</Button>
-      )}
+      <div className="mt-4">
+        {roles.length > 0 && (
+          <Button onClick={() => showDialog()}>{i18next.t("community.roles-add")}</Button>
+        )}
+      </div>
 
       {dialog && (
         <CommunityRoleEditDialog

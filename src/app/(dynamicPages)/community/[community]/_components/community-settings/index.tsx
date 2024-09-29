@@ -10,6 +10,8 @@ import { cleanString } from "@/utils/clean-string";
 import { handleInvalid, handleOnInput } from "@/utils/input-util";
 import { useUpdateCommunity } from "@/api/mutations";
 import { Community } from "@/entities";
+import { Spinner } from "@ui/spinner";
+import { useRouter } from "next/navigation";
 
 const langOpts = [
   { id: "af", name: "Afrikaans" },
@@ -129,21 +131,22 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
   const [isNsfw, setIsNsfw] = useState(community.is_nsfw);
 
   const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
+  const router = useRouter();
 
-  const submit = useCallback(
-    async () =>
-      updateCommunity({
-        payload: {
-          title: cleanString(title),
-          about: cleanString(about),
-          description: cleanString(description),
-          lang,
-          flag_text: cleanString(flagText),
-          is_nsfw: isNsfw
-        }
-      }),
-    [about, description, flagText, isNsfw, lang, title, updateCommunity]
-  );
+  const submit = useCallback(async () => {
+    await updateCommunity({
+      payload: {
+        title: cleanString(title),
+        about: cleanString(about),
+        description: cleanString(description),
+        lang,
+        flag_text: cleanString(flagText),
+        is_nsfw: isNsfw
+      }
+    });
+    onHide();
+    setTimeout(() => router.refresh(), 3000);
+  }, [about, router, description, flagText, isNsfw, lang, title, updateCommunity]);
 
   return (
     <Modal
@@ -175,7 +178,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
             }}
           >
             <div className="flex mb-4">
-              <div className="w-full sm:w-2/12">
+              <div className="w-full sm:w-2/12 pt-2.5">
                 <label>{i18next.t("community-settings.title")}</label>
               </div>
               <div className="w-full sm:w-10/12">
@@ -196,7 +199,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
               </div>
             </div>
             <div className="flex mb-4">
-              <div className="w-full sm:w-2/12">
+              <div className="w-full sm:w-2/12 pt-2.5">
                 <label>{i18next.t("community-settings.about")}</label>
               </div>
               <div className="w-full sm:w-10/12">
@@ -210,7 +213,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
               </div>
             </div>
             <div className="flex mb-4">
-              <div className="w-full sm:w-2/12">
+              <div className="w-full sm:w-2/12 pt-2.5">
                 <label>{i18next.t("community-settings.lang")}</label>
               </div>
               <div className="w-full sm:w-4/12">
@@ -229,7 +232,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
               </div>
             </div>
             <div className="flex mb-4">
-              <div className="w-full sm:w-2/12">
+              <div className="w-full sm:w-2/12 pt-2.5">
                 <label>{i18next.t("community-settings.description")}</label>
               </div>
               <div className="w-full sm:w-10/12">
@@ -246,7 +249,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
               </div>
             </div>
             <div className="flex mb-4">
-              <div className="w-full sm:w-2/12">
+              <div className="w-full sm:w-2/12 pt-2.5">
                 <label>{i18next.t("community-settings.rules")}</label>
               </div>
               <div className="w-full sm:w-10/12">
@@ -265,7 +268,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
             </div>
             <div className="flex mb-4">
               <div className="w-full sm:w-2/12" />
-              <div className="w-full sm:w-10/12">
+              <div className="w-full flex justify-start sm:w-10/12">
                 <FormControl
                   id="check-nsfw"
                   type="checkbox"
@@ -277,7 +280,11 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
               </div>
             </div>
             <div className="flex justify-end">
-              <Button type="submit" disabled={isPending}>
+              <Button
+                type="submit"
+                disabled={isPending}
+                icon={isPending && <Spinner className="w-3.5 h-3.5 animate-spin" />}
+              >
                 {i18next.t("g.save")}
               </Button>
             </div>

@@ -1,6 +1,8 @@
+"use client";
+
 import React, { HTMLProps } from "react";
 import { classNameObject } from "@/features/ui/util";
-import { checkSvg } from "@/features/ui/svg";
+import { UilCheck } from "@tooni/iconscout-unicons-react";
 
 export interface CheckboxProps extends Omit<HTMLProps<HTMLElement>, "onChange"> {
   type: "checkbox";
@@ -18,13 +20,12 @@ export function Checkbox({ checked, onChange, label, disabled }: CheckboxProps) 
     >
       <div
         className={classNameObject({
-          "border-2 rounded-md w-[1.25rem] h-[1.25rem] flex items-center justify-center duration-300":
-            true,
+          "border-2 rounded-md w-[1.25rem] h-[1.25rem] flex items-center justify-center": true,
           "hover:border-gray-400": !disabled,
           "opacity-50": disabled
         })}
       >
-        {checked ? checkSvg : <></>}
+        {checked ? <UilCheck className="w-3.5 h-3.5" /> : <></>}
       </div>
       {label && <div>{label}</div>}
     </div>

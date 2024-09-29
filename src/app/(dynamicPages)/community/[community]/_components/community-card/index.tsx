@@ -50,7 +50,7 @@ export function CommunityCard({ community, account }: Props) {
 
   return (
     <div className="community-card">
-      <div className="community-avatar flex items-center justify-center md:justify-start">
+      <div className="community-avatar inline-flex items-center justify-center md:justify-start">
         {canUpdatePic && (
           <CommunityCardEditPic
             account={account as FullAccount}
