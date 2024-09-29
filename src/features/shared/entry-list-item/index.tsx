@@ -4,7 +4,7 @@ import "./_index.scss";
 import defaults from "@/defaults.json";
 import { Account, Community, Entry, FullAccount } from "@/entities";
 import { dateToFormatted, dateToRelative } from "@/utils";
-import { commentSvg, pinSvg, repeatSvg } from "@ui/svg";
+import { pinSvg, repeatSvg } from "@ui/svg";
 import { EntryLink } from "../entry-link";
 import {
   EntryMenu,
@@ -51,10 +51,10 @@ export function EntryListItemComponent({
 }: Props) {
   const pageAccount = account as FullAccount;
 
-  const pinned = pageAccount?.profile?.pinned;
-
   const isCrossPost = !!entryProp.original_entry;
   const entry = entryProp.original_entry || entryProp;
+  const pinned = entry?.stats?.is_pinned ?? pageAccount?.profile?.pinned;
+
   const dateRelative = dateToRelative(entry.created);
   const dateFormatted = dateToFormatted(entry.created);
   const reBlogged =
