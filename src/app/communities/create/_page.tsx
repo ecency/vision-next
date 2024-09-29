@@ -79,6 +79,7 @@ export function CreateCommunityPage() {
       setProgress(i18next.t("communities-create.progress-props"));
 
       await updateCommunity({
+        username,
         payload: {
           title,
           about,
