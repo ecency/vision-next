@@ -31,7 +31,7 @@ export function CommunityRoleEditDialog({
   const [role, setRole] = useState(propsRole);
   const [userError, setUserError] = useState("");
 
-  const { mutateAsync: setUserRole, isPending } = useCommunitySetUserRole(community, () =>
+  const { mutateAsync: setUserRole, isPending } = useCommunitySetUserRole(community.name, () =>
     onHide()
   );
 

@@ -64,4 +64,5 @@ export * from "./get-order-book-query";
 export * from "./get-search-by-username-query";
 export * from "./get-rc-operators-stats-query";
 export * from "./get-announcements-query";
+export * from "./get-chain-properties-query";
 export * from "./spk";
