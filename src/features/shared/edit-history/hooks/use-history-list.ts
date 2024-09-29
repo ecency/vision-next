@@ -10,7 +10,7 @@ interface CommentHistoryListItemDiff {
   titleDiff?: string;
   body: string;
   bodyDiff?: string;
-  tags: string;
+  tags: string | string[];
   tagsDiff?: string;
   timestamp: string;
   v: number;
@@ -47,7 +47,7 @@ export function useHistoryList(entry: Entry) {
         title: historyData.list[l].title,
         body: h,
         timestamp: historyData.list[l].timestamp,
-        tags: historyData.list[l].tags.join(", ")
+        tags: (typeof historyData.list[l].tags === 'string' || historyData.list[l].tags instanceof String)?historyData.list[l].tags:historyData.list[l].tags.join(", ")
       });
     }
 
