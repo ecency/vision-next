@@ -43,10 +43,10 @@ export function ProfileReferralsTable({ account, pageSize, page }: Props) {
       <Table>
         <thead>
           <Tr>
-            <Th className="border p-3 col-rank">{i18next.t("referral.created")}</Th>
+            <Th className="p-3 col-rank">{i18next.t("referral.created")}</Th>
             <Th>{i18next.t("referral.list-referral")}</Th>
-            <Th className="border p-3 col-version">{i18next.t("referral.rewarded")}</Th>
-            <Th className="border p-3 col-version" />
+            <Th className="p-3 col-version">{i18next.t("referral.rewarded")}</Th>
+            <Th className="p-3 col-version" />
           </Tr>
         </thead>
         <tbody>

@@ -1,5 +1,5 @@
 import { getCommunityCache } from "@/core/caches";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EntryListContent, LinearProgress } from "@/features/shared";
 import { CommunityContentSearch } from "@/app/(dynamicPages)/community/[community]/_components/community-content-search";
@@ -44,6 +44,7 @@ export default async function CommunityPostsPage({ params: { community, tag } }:
       {/*{(!query || query?.length === 0) && (*/}
       <ProfileEntriesLayout section={tag} username={community}>
         <EntryListContent
+          community={communityData}
           username={community}
           isPromoted={false}
           entries={data.pages.reduce<Entry[]>((acc, page) => [...acc, ...(page as Entry[])], [])}

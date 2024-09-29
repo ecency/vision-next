@@ -1,6 +1,6 @@
 import React from "react";
 import "./_index.scss";
-import { Account, Entry } from "@/entities";
+import { Account, Community, Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
 import { getPromotedEntriesQuery } from "@/api/queries";
 import { EntryListContentNoData } from "@/features/shared/entry-list-content/entry-list-content-no-data";
@@ -13,6 +13,7 @@ interface Props {
   username: string;
   showEmptyPlaceholder?: boolean;
   account?: Account;
+  community?: Community;
 }
 
 export function EntryListContent({
@@ -22,7 +23,8 @@ export function EntryListContent({
   loading,
   username,
   showEmptyPlaceholder = true,
-  account
+  account,
+  community
 }: Props) {
   let dataToRender = [...entries];
   let promotedEntries: Entry[] = [];
@@ -50,6 +52,7 @@ export function EntryListContent({
                       entry={p}
                       promoted={true}
                       order={4}
+                      community={community}
                     />
                   );
                 }
@@ -64,6 +67,7 @@ export function EntryListContent({
                   key={`${e.author}-${e.permlink}`}
                   entry={e}
                   order={i}
+                  community={community}
                 />
               );
             } else {
@@ -73,6 +77,7 @@ export function EntryListContent({
                   key={`${e.author}-${e.permlink}`}
                   entry={e}
                   order={i}
+                  community={community}
                 />
               );
             }

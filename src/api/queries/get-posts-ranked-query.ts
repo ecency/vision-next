@@ -29,7 +29,14 @@ export const getPostsRankedQuery = (
 
       if (response) {
         const data = await Promise.all(response.map((item) => resolvePost(item, observer)));
-        return data.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+        const sorted =
+          sort === "hot"
+            ? data
+            : data.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+        return [
+          sorted.find((s) => s.stats.is_pinned),
+          ...sorted.filter((s) => !s.stats.is_pinned)
+        ].filter((s) => !!s) as Entry[];
       }
 
       return [];
