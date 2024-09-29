@@ -60,59 +60,6 @@
       padding-top: 20px;
     }
   }
-
-  .community-form {
-    max-width: 500px;
-    width: 100%;
-    margin: auto;
-
-    .form-title {
-      font-size: 22px;
-      font-weight: 500;
-      margin: 0 0 26px 0;
-    }
-
-    .form-group {
-      margin-bottom: 30px;
-
-      .form-text {
-        display: flex;
-        align-items: center;
-        svg {
-          height: 14px;
-          margin-right: 4px;
-        }
-      }
-    }
-
-    .fee, .creator {
-      font-weight: 500;
-      @apply text-blue-dark-sky;
-    }
-
-    .password {
-      @apply text-red-030;
-      padding: 0 10px;
-      border-radius: 6px;
-      font-size: 90%;
-
-      span {
-        display: block;
-        margin: 10px 0;
-      }
-
-      @include themify(day) {
-        border: 1px solid;
-        @apply border-light-310;
-        @apply bg-light-300;
-      }
-
-      @include themify(night) {
-        @apply border-dark-600-010;
-        @apply bg-dark-600;
-      }
-    }
-  }
 }
 
 
@@ -196,69 +143,6 @@
 
 }
 
-.community-form {
-
-  input {
-    padding: 1.675rem 0.75rem !important;
-    font-size: 18px !important;
-    @apply bg-blue-light-powder;
-
-    @include themify(night) {
-      @apply bg-transparent;
-      @apply text-gray-warm;
-      @apply border-dark-300;
-    }
-
-    &:hover, &:focus {
-      @include themify(night) {
-        @apply bg-dark-200;
-        @apply border-blue-dark-sky;
-      }
-    }
-  }
-
-  input#copy-to-clipboard {
-    @apply text-red-020;
-  }
-
-  button {
-    font-size: 18px !important;
-    :disabled {
-      @apply bg-blue-pastel;
-    }
-
-    @include themify(night) {
-      @apply bg-blue-dark-grey;
-      @apply border-blue-dark-grey;
-      :disabled {
-        @apply bg-blue-dusky;
-      }
-    }
-  }
-
-  button#black-on-night {
-    @include themify(night) {
-      @apply bg-dark-200;
-      @apply border-dark-200;
-      @apply text-white;
-    }
-  }
-
-  button.btn-primary {
-    @include themify(night) {
-      @apply bg-blue-dark-sky;
-      @apply border-blue-dark-sky;
-    }
-  }
-
-  .form-text {
-    svg {
-      height: 14px;
-      margin-right: 4px;
-    }
-  }
-}
-
 .info-icon {
   width: 17px;
   height: 17px;
@@ -281,12 +165,4 @@
 .label-text {
   font-size: 18px;
   font-weight: 400;
-}
-
-.community-form {
-  margin-top: 1rem;
-
-  @media (max-width: $sm-break) {
-    margin-top: -2rem;
-  }
 }

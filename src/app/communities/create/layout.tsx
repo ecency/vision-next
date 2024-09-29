@@ -1,5 +1,6 @@
 import { Feedback, Navbar, Theme } from "@/features/shared";
 import { PropsWithChildren } from "react";
+import "../page.scss";
 
 export default function CommunityCreateLayout({ children }: PropsWithChildren) {
   return (
