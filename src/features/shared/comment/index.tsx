@@ -6,7 +6,7 @@ import "./_index.scss";
 import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
 import defaults from "@/defaults.json";
-import { LoginRequired } from "@/features/shared";
+import { AvailableCredits, LoginRequired } from "@/features/shared";
 import { CommentPreview } from "@/features/shared/comment/comment-preview";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
@@ -15,9 +15,10 @@ import { Entry } from "@/entities";
 import { useDebounce, useMount } from "react-use";
 import useUnmount from "react-use/lib/useUnmount";
 import { detectEvent, EditorToolbar, toolbarEventListener } from "@/features/shared/editor-toolbar";
-import { AvailableCredits } from "@/features/shared";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
 import usePrevious from "react-use/lib/usePrevious";
+import useLocalStorage from "react-use/lib/useLocalStorage";
+import { PREFIX } from "@/utils/local-storage";
 
 setProxyBase(defaults.imageServer);
 
@@ -51,7 +52,7 @@ export function Comment({
   const commentBodyRef = useRef<HTMLDivElement>(null);
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const [text, setText] = useState("");
+  const [text, setText] = useLocalStorage(PREFIX + "_c_t", "");
   const [inputHeight, setInputHeight] = useState(0);
   const [preview, setPreview] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
@@ -60,11 +61,11 @@ export function Comment({
   const previousDefText = usePrevious(defText);
   const previousIsCommented = usePrevious(isCommented);
 
-  const rows = useMemo(() => text.split(/\r\n|\r|\n|<br>/).length, [text]);
+  const rows = useMemo(() => text!.split(/\r\n|\r|\n|<br>/).length, [text]);
 
   useDebounce(
     () => {
-      setPreview(text);
+      setPreview(text!);
     },
     50,
     [text]
@@ -104,7 +105,7 @@ export function Comment({
   }, []);
 
   const submit = useCallback(async () => {
-    await onSubmit(text);
+    await onSubmit(text!);
     setText("");
   }, [text, onSubmit]);
 
@@ -178,7 +179,7 @@ export function Comment({
         <EditorToolbar comment={true} sm={true} />
         <div className="comment-body" onKeyDown={handleShortcuts} ref={commentBodyRef}>
           <TextareaAutocomplete
-            className={`the-editor accepts-emoji ${text?.length > 20 ? "expanded" : ""}`}
+            className={`the-editor accepts-emoji ${text!.length > 20 ? "expanded" : ""}`}
             as="textarea"
             placeholder={i18next.t("comment.body-placeholder")}
             containerStyle={{ height: !text ? "80px" : inputHeight }}
