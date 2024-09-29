@@ -5,6 +5,7 @@ import { CommunitiesListSearch } from "@/app/communities/_components/communities
 import { CommunitiesListSortSelector } from "@/app/communities/_components/communities-list-sort-selector";
 import { CommunityListItemAnimatedLayout } from "@/app/communities/_components/community-list-item-animated-layout";
 import { SafeAnimatePresence } from "@/features/framer-motion";
+import { getCommunityCache } from "@/core/caches";
 
 interface Props {
   sort: string;
@@ -12,7 +13,14 @@ interface Props {
 }
 
 export async function CommunitiesList({ sort, query }: Props) {
-  const list = getCommunitiesQuery(sort, query).getData();
+  let list = getCommunitiesQuery(sort, query).getData();
+  const ecencyCommunity =
+    list?.find((x) => x.name === "hive-125125") ??
+    (await getCommunityCache("hive-125125").prefetch());
+
+  if (ecencyCommunity) {
+    list = [ecencyCommunity, ...(list?.filter((x) => x.name !== "hive-125125") ?? [])];
+  }
 
   return (
     <>
