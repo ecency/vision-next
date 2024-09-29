@@ -417,13 +417,7 @@ export const transferPointKc = (from: string, to: string, amount: string, memo: 
     memo
   });
 
-  return keychain.customJson(
-    from,
-    "ecency_point_transfer",
-    "Active",
-    json,
-    "Point Transfer"
-  );
+  return keychain.customJson(from, "ecency_point_transfer", "Active", json, "Point Transfer");
 };
 
 export const transferToSavings = (
@@ -501,7 +495,7 @@ export const limitOrderCreate = (
           ? formatNumber(amount_to_sell, 3)
           : formatNumber(mini_to_receive, 3)
       } ${orderType === BuySellHiveTransactionType.Buy ? "HBD" : "HIVE"}`,
-      mini_to_receive: `${
+      min_to_receive: `${
         orderType === BuySellHiveTransactionType.Buy
           ? formatNumber(mini_to_receive, 3)
           : formatNumber(amount_to_sell, 3)
