@@ -47,7 +47,7 @@ export function useHistoryList(entry: Entry) {
         title: historyData.list[l].title,
         body: h,
         timestamp: historyData.list[l].timestamp,
-        tags: historyData.list[l].tags.join(", ")
+        tags: Array.isArray(historyData.list[l].tags)?historyData.list[l].tags.join(", "):""
       });
     }
 

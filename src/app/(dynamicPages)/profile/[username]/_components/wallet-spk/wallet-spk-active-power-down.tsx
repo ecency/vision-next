@@ -30,6 +30,7 @@ export const WalletSpkActivePowerDown = ({ headBlock, powerUpList, onStop }: Pro
     }
     return Math.floor(seconds) + " seconds";
   };
+
   return (
     <>
       {when(powerUpList) ? (

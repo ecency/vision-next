@@ -279,7 +279,7 @@ export function EntryIndexMenu() {
         entryIndexMenuElements &&
           entryIndexMenuElements.length > 1 &&
           entryIndexMenuElements[0] &&
-          entryIndexMenuElements[0].classList.remove("entry-feed-menu");
+          entryIndexMenuElements[0].classList.remove("entry-index-menu");
       }
     }
 

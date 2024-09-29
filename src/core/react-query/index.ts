@@ -90,6 +90,7 @@ export enum QueryIdentifiers {
   GET_ORDER_BOOK = "get-order-book",
   SIMILAR_ENTRIES = "similar-entries",
   SEARCH_BY_USERNAME = "search-by-username",
+  SPK_USER_WALLET = "spk-user-wallet",
   CHAIN_PROPERTIES = "chain-properties"
 }
 
