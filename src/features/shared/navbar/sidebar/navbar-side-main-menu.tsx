@@ -139,13 +139,13 @@ export function NavbarSideMainMenu({ onHide }: Props) {
         <hr className="my-2 border-[--border-color]" />
         <NavbarSideMainMenuItem
           label={i18next.t("market.swap-title")}
-          to="/market#swap"
+          to="/market/swap"
           onClick={onHide}
           icon={<UilMoneyWithdraw size={16} />}
         />
         <NavbarSideMainMenuItem
           label={i18next.t("market.advanced-title")}
-          to="/market#advanced"
+          to="/market/advanced"
           onClick={onHide}
           icon={<UilDashboard size={16} />}
         />
