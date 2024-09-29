@@ -1,20 +1,20 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { WalletSpkSection } from "./wallet-spk-section";
 import { SendSpkDialog } from "./send-spk-dialog";
 import { WalletSpkLarynxPower } from "./wallet-spk-larynx-power";
 import { WalletSpkLarynxLocked } from "./wallet-spk-larynx-locked";
 import { WalletSpkUnclaimedPoints } from "./wallet-spk-unclaimed-points";
 import { WalletSpkDelegatedPowerDialog } from "./wallet-spk-delegated-power-dialog";
-import { getEstimatedBalance } from "./util";
-import { Account, Market } from "@/entities";
+import { Account } from "@/entities";
 import i18next from "i18next";
 import { WalletMenu } from "../wallet-menu";
-import { claimLarynxRewards, getMarkets, getSpkWallet, rewardSpk } from "@/api/spk-api";
+import { claimLarynxRewards } from "@/api/spk-api";
 import { useGlobalStore } from "@/core/global-store";
 import { error, success } from "@/features/shared";
 import { formatError } from "@/api/operations";
-import { usePrevious } from "react-use";
+import { getSpkWalletQuery } from "@/api/queries";
+import useMount from "react-use/lib/useMount";
 
 export interface Props {
   account: Account;
@@ -22,19 +22,38 @@ export interface Props {
 
 export function WalletSpk({ account }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const previousActiveUser = usePrevious(activeUser);
 
-  const [tokenBalance, setTokenBalance] = useState("0");
-  const [larynxAirBalance, setLarynxAirBalance] = useState("0");
-  const [larynxPowerBalance, setLarynxPowerBalance] = useState("0");
-  const [larynxTokenBalance, setLarynxTokenBalance] = useState("0");
-  const [activeUserTokenBalance, setActiveUserTokenBalance] = useState("0");
-  const [activeUserLarynxTokenBalance, setActiveUserLarynxTokenBalance] = useState("0");
-  const [estimatedBalance, setEstimatedBalance] = useState("0");
-  const [larynxPowerRate, setLarynxPowerRate] = useState("0");
-  const [larynxGrantedPower, setLarynxGrantedPower] = useState("");
-  const [larynxGrantingPower, setLarynxGrantingPower] = useState("");
-  const [larynxLockedBalance, setLarynxLockedBalance] = useState("");
+  const [prefilledAmount, setPrefilledAmount] = useState("");
+
+  // should !isActiveUserWallet only, otherwise it should be 0
+  const { data: activeUserSpkWalletData, refetch: refetchActiveUserData } = getSpkWalletQuery(
+    activeUser?.username
+  ).useClientQuery();
+  const { tokenBalance: activeUserTokenBalance, larynxTokenBalance: activeUserLarynxTokenBalance } =
+    activeUserSpkWalletData!;
+
+  const { data: accountSpkData, refetch: refetchAccountData } = getSpkWalletQuery(
+    account.name
+  ).useClientQuery();
+  const {
+    tokenBalance,
+    larynxTokenBalance,
+    larynxLockedBalance,
+    larynxPowerBalance,
+    larynxPowerRate,
+    larynxGrantingBalance,
+    larynxGrantedBalance,
+    estimatedBalance,
+    markets,
+    rateLPow,
+    rateLDel,
+    headBlock,
+    powerDownList,
+    delegatingItems,
+    delegatedItems,
+    isNode
+  } = accountSpkData!;
+
   const [sendSpkShow, setSendSpkShow] = useState(false);
   const [delegatedPowerDialogShow, setDelegatedPowerDialogShow] = useState(false);
   const [delegatingPowerDialogShow, setDelegatingPowerDialogShow] = useState(false);
@@ -44,15 +63,6 @@ export function WalletSpk({ account }: Props) {
   >("transfer");
   const [claim, setClaim] = useState("0");
   const [claiming, setClaiming] = useState(false);
-  const [headBlock, setHeadBlock] = useState(0);
-  const [powerDownList, setPowerDownList] = useState<string[]>([]);
-  const [prefilledAmount, setPrefilledAmount] = useState("");
-  const [markets, setMarkets] = useState<Market[]>([]);
-  const [isNode, setIsNode] = useState(false);
-  const [delegatedItems, setDelegatedItems] = useState<[string, number][]>([]);
-  const [delegatingItems, setDelegatingItems] = useState<[string, number][]>([]);
-  const [rateLPow, setRateLPow] = useState("0.0001");
-  const [rateLDel, setRateLDel] = useState("0.00015");
 
   const isActiveUserWallet = useMemo(
     () => activeUser?.username === account.name,
@@ -80,63 +90,6 @@ export function WalletSpk({ account }: Props) {
       }
   }
 
-  const fetchActiveUserWallet = useCallback(async () => {
-    const format = (value: number) => value.toFixed(3);
-    if (!isActiveUserWallet && activeUser) {
-      const activeUserWallet = await getSpkWallet(activeUser?.username);
-      setActiveUserTokenBalance(format(activeUserWallet.spk / 1000));
-      setActiveUserLarynxTokenBalance(format(activeUserWallet.balance / 1000));
-    }
-  }, [activeUser, isActiveUserWallet]);
-  const fetch = async () => {
-    try {
-      const wallet = await getSpkWallet(account.name);
-      const format = (value: number) => value.toFixed(3);
-
-      setTokenBalance(format(wallet.spk / 1000));
-      setLarynxAirBalance(format(wallet.drop.availible.amount / 1000));
-      setLarynxTokenBalance(format(wallet.balance / 1000));
-      setLarynxPowerBalance(format(wallet.poweredUp / 1000));
-      setLarynxGrantedPower(wallet.granted?.t ? format(wallet.granted.t / 1000) : "");
-      setLarynxGrantingPower(wallet.granting?.t ? format(wallet.granting.t / 1000) : "");
-      setLarynxLockedBalance(wallet.gov > 0 ? format(wallet.gov / 1000) : "");
-      setClaim(format(wallet.claim / 1000));
-      setLarynxPowerRate("0.010");
-      setHeadBlock(wallet.head_block);
-      setPowerDownList(Object.values(wallet.power_downs));
-      setDelegatedItems(
-        Object.entries(wallet.granted).filter(([name]) => name !== "t") as [string, number][]
-      );
-      setDelegatingItems(
-        Object.entries(wallet.granting).filter(([name]) => name !== "t") as [string, number][]
-      );
-
-      fetchActiveUserWallet();
-      setEstimatedBalance(await getEstimatedBalance(wallet));
-
-      const { raw, list } = await getMarkets();
-      setMarkets(list);
-      setIsNode(list.some((market) => market.name === account?.name));
-      setRateLPow(format(parseFloat(raw.stats.spk_rate_lpow) * 100));
-      setRateLDel(format(parseFloat(raw.stats.spk_rate_ldel) * 100));
-      setTokenBalance(
-        format(
-          (wallet.spk +
-            rewardSpk(
-              wallet,
-              raw.stats || {
-                spk_rate_lgov: "0.001",
-                spk_rate_lpow: rateLPow,
-                spk_rate_ldel: rateLDel
-              }
-            )) /
-            1000
-        )
-      );
-    } catch (e) {
-      console.error(e);
-    }
-  };
   const claimRewards = () => {
     if (claiming || !activeUser) {
       return;
@@ -160,11 +113,7 @@ export function WalletSpk({ account }: Props) {
       });
   };
 
-  useEffect(() => {
-    if (activeUser && activeUser?.username !== previousActiveUser?.username) {
-      fetchActiveUserWallet();
-    }
-  }, [activeUser, fetchActiveUserWallet, previousActiveUser?.username]);
+  useMount(() => refetchAccountData());
 
   return (
     <div className="wallet-ecency wallet-spk">
@@ -243,8 +192,8 @@ export function WalletSpk({ account }: Props) {
             isActiveUserWallet={isActiveUserWallet}
             rateLDel={rateLDel}
             rateLPow={rateLPow}
-            larynxGrantedPower={larynxGrantedPower}
-            larynxGrantingPower={larynxGrantingPower}
+            larynxGrantedPower={larynxGrantedBalance}
+            larynxGrantingPower={larynxGrantingBalance}
             headBlock={headBlock}
             powerDownList={powerDownList}
             onStop={() => {
@@ -304,7 +253,10 @@ export function WalletSpk({ account }: Props) {
         show={sendSpkShow}
         setShow={(v) => setSendSpkShow(v)}
         balance={balance}
-        onFinish={() => fetch()}
+        onFinish={() => {
+          refetchAccountData();
+          refetchActiveUserData();
+        }}
       />
 
       <WalletSpkDelegatedPowerDialog
