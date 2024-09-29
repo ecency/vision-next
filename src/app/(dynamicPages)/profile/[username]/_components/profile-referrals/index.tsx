@@ -25,7 +25,7 @@ export function ProfileReferrals({ account }: Props) {
   );
 
   return (
-    <div className="app-content witnesses-page mt-0 mx-0">
+    <div className="flex flex-col">
       <ProfileReferralHeader account={account} />
       {isLoading && <LinearProgress />}
       <div className="w-full overflow-x-auto">
