@@ -1,7 +1,6 @@
-"use client";
 import { catchPostImage, renderPostBody } from "@ecency/render-helper";
 import React from "react";
-import { Feedback, LinearProgress, Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import i18next from "i18next";
 import Link from "next/link";
 import { closeSvg } from "@ui/svg";
@@ -13,8 +12,8 @@ import { getProposalQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
 import "../_page.scss";
-
-export const dynamic = "force-dynamic";
+import { Metadata, ResolvingMetadata } from "next";
+import { PagesMetadataGenerator } from "@/features/metadata";
 
 export interface Props {
   params: {
@@ -22,16 +21,29 @@ export interface Props {
   };
 }
 
-export default function ProposalDetailsPage({ params: { id } }: Props) {
+export async function generateMetadata(
+  { params: { id } }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const proposal = await getProposalQuery(+id).prefetch();
+  const basic = await PagesMetadataGenerator.getForPage("proposals");
+  return {
+    ...basic,
+    title: `${basic.title} | ${proposal?.subject}`,
+    description: proposal?.creator ?? basic.description
+  };
+}
+
+export default async function ProposalDetailsPage({ params: { id } }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
-  const { data: proposal, isLoading, isSuccess, isError } = getProposalQuery(+id).useClientQuery();
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQueryByPath(
+  const proposal = await getProposalQuery(+id).prefetch();
+  const entry = await EcencyEntriesCacheManagement.getEntryQueryByPath(
     proposal?.creator,
     proposal?.permlink
-  ).useClientQuery();
+  ).prefetch();
 
-  if (!proposal && (isSuccess || isError)) {
+  if (!proposal || !entry) {
     return notFound();
   }
 
@@ -66,7 +78,6 @@ export default function ProposalDetailsPage({ params: { id } }: Props) {
       <Theme />
       <Feedback />
       <Navbar />
-      {isLoading && <LinearProgress />}
       <div className="app-content proposals-page proposals-detail-page">
         <div className="page-header mt-5">
           <h1 className="header-title">{i18next.t("proposals.page-title")}</h1>

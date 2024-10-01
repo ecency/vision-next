@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 import numeral from "numeral";
 import "./_index.scss";
