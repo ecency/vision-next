@@ -1,31 +1,10 @@
 @import "src/styles/vars_mixins";
 
 .proposal-list-item {
-  padding: 16px;
-  border-radius: 10px;
-  margin-bottom: 16px;
-  box-shadow: $box-shadow-alt;
-
-  @include themify(day) {
-    @apply text-gray-steel bg-light-300;
-  }
-
-  @include themify(night) {
-    @apply text-white-500;
-  }
-
-  @include themify(night) {
-    @apply bg-dark-600;
-  }
+  @apply text-gray-steel dark:text-white-500 border border-[--border-color] rounded-2xl p-4 lg:p-6 xl:p-8;
 
   &.voted-by-voter {
-    @include themify(day) {
-      @apply bg-blue-faded;
-    }
-
-    @include themify(night) {
-      @apply bg-tundora;
-    }
+    @apply bg-blue-faded dark:bg-tundora;
   }
 
   .item-content {
