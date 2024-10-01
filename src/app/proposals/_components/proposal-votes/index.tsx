@@ -9,12 +9,7 @@ import i18next from "i18next";
 import { Entry, Proposal } from "@/entities";
 import { LinearProgress, ProfileLink, ProfilePopover, UserAvatar } from "@/features/shared";
 import { accountReputation, parseAsset } from "@/utils";
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getAccountsQuery,
-  getDynamicPropsQuery,
-  getProposalVotesQuery
-} from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
 import { Spinner } from "@ui/spinner";
 import { Pagination } from "@/features/ui";
 
@@ -31,19 +26,20 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   const [page, setPage] = useState(1);
 
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { data: votes, isFetching } = getProposalVotesQuery(
-    proposal.proposal_id,
-    "",
-    1000
-  ).useClientQuery();
+  const {
+    data: votesPages,
+    isFetching,
+    fetchNextPage
+  } = getProposalVotesQuery(proposal.proposal_id, "", 1000).useClientQuery();
+  const votes = useMemo(
+    () => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []),
+    [votesPages?.pages]
+  );
 
-  const usernames = useMemo(() => Array.from(new Set(votes?.map((x) => x.voter))), [votes]);
-  const { data: accounts, isFetching: isFetchingAccounts } =
-    getAccountsQuery(usernames).useClientQuery();
   const voters = useMemo(
     () =>
-      accounts
-        ?.map((account) => {
+      votes
+        ?.map(({ voterAccount: account }) => {
           const hp =
             (parseAsset(account.vesting_shares).amount *
               (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests) /
@@ -72,20 +68,23 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
           }
           return b.totalHp > a.totalHp ? 1 : -1;
         }),
-    [accounts, dynamicProps, searchText, sort]
+    [votes, dynamicProps, searchText, sort]
   );
 
   const paginatedVoters = useMemo(() => voters?.slice((page - 1) * 10, page * 10), [page, voters]);
+  console.log(voters?.length);
 
   return (
     <Modal onHide={onHide} show={true} centered={true} size="lg" className="proposal-votes-dialog">
       <ModalHeader closeButton={true} className="items-center">
         <ModalTitle>
           <span className="text-blue-dark-sky mr-2">
-            {isFetchingAccounts || isFetching ? (
+            {isFetching ? (
               <Spinner className="inline-flex w-3.5 h-3.5" />
+            ) : voters && voters.length >= 1000 ? (
+              "1000+"
             ) : (
-              accounts?.length
+              voters?.length
             )}
           </span>
           <span>{i18next.t("proposals.votes-dialog-title", { n: proposal.id })}</span>
@@ -108,7 +107,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
         </FormControl>
       </div>
       <ModalBody>
-        {isFetching && isFetchingAccounts && <LinearProgress />}
+        {isFetching && <LinearProgress />}
 
         <div className="voters-list mb-4">
           <List grid={true} inline={true} defer={true}>
@@ -149,9 +148,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
               })
             ) : (
               <div className="user-info">
-                {isFetching || isFetchingAccounts
-                  ? i18next.t("proposals.searching")
-                  : i18next.t("proposals.no-results")}
+                {isFetching ? i18next.t("proposals.searching") : i18next.t("proposals.no-results")}
               </div>
             )}
           </List>
@@ -160,7 +157,12 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
               <Pagination
                 dataLength={voters?.length ?? 0}
                 pageSize={10}
-                onPageChange={setPage}
+                onPageChange={(p) => {
+                  setPage(p);
+                  if (voters?.length / 10 === p) {
+                    fetchNextPage();
+                  }
+                }}
                 page={page}
               />
             </div>

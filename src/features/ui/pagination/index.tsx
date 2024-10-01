@@ -3,7 +3,7 @@
 import { ButtonHTMLAttributes, DetailedHTMLProps, ReactNode, useEffect, useState } from "react";
 import "./index.css";
 import { useIsMobile } from "@/features/ui/util/use-is-mobile";
-import { classNameObject } from "@/features/ui/util";
+import { classNameObject, useFilteredProps } from "@/features/ui/util";
 import i18next from "i18next";
 import { arrowLeftSvg, arrowRightSvg } from "@/features/ui/svg";
 
@@ -13,9 +13,11 @@ function PageButton(
     children: ReactNode;
   }
 ) {
+  const filteredProps = useFilteredProps(props, ["active"]);
+
   return (
     <button
-      {...props}
+      {...filteredProps}
       className={classNameObject({
         "pagination border-r dark:border-gray-700 border-t border-b first:border-l first:rounded-l-xl last:rounded-r-xl last:border-l-0 disabled:hover:bg-white p-2.5 disabled:text-gray-600":
           true,
@@ -61,6 +63,7 @@ export function Pagination({
     }
   }, [pageFromProps]);
 
+  console.log("data length", dataLength);
   const pages = Math.ceil(dataLength / pageSize);
 
   const records = Array.from(Array(pages).keys());

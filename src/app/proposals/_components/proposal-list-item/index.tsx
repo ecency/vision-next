@@ -22,12 +22,13 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
   const params = useSearchParams();
   const [show, setShow] = useState(false);
 
-  const { data: votes, isLoading } = getProposalVotesQuery(
+  const { data: votesPages, isLoading } = getProposalVotesQuery(
     proposal.proposal_id,
     params.get("voter") ?? "",
     1000
   ).useClientQuery();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const votes = useMemo(() => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []), []);
 
   const votedByVoter = useMemo(
     () => (votes?.length ?? 0) > 0 && votes?.[0].voter === params.get("voter"),
