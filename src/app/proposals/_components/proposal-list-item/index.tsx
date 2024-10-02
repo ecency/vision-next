@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 import moment, { now } from "moment";
 import numeral from "numeral";
@@ -11,6 +13,7 @@ import { parseAsset } from "@/utils";
 import { ProposalVoteBtn, ProposalVotes } from "@/app/proposals/_components";
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
 import { useSearchParams } from "next/navigation";
+import { Badge } from "@ui/badge";
 
 interface Props {
   proposal: Proposal;
@@ -22,12 +25,13 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
   const params = useSearchParams();
   const [show, setShow] = useState(false);
 
-  const { data: votes, isLoading } = getProposalVotesQuery(
+  const { data: votesPages, isLoading } = getProposalVotesQuery(
     proposal.proposal_id,
     params.get("voter") ?? "",
     1000
   ).useClientQuery();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const votes = useMemo(() => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []), []);
 
   const votedByVoter = useMemo(
     () => (votes?.length ?? 0) > 0 && votes?.[0].voter === params.get("voter"),
@@ -57,22 +61,26 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
       <div className="item-content">
         <div className="left-side">
           <div className="proposal-users-card">
-            <UserAvatar username={proposal.creator} size="small" />
-            <span className="users">
+            <div className="flex items-center gap-2">
               {i18next.t("proposals.by")}{" "}
               <ProfileLink username={proposal.creator}>
-                <span> {proposal.creator}</span>
+                <Badge className="!p-1 gap-1 !pr-1.5">
+                  <UserAvatar username={proposal.creator} size="small" />
+                  <span> {proposal.creator}</span>
+                </Badge>
               </ProfileLink>
               {proposal.receiver && proposal.receiver !== proposal.creator && (
                 <>
-                  {" "}
                   {i18next.t("proposals.for")}{" "}
                   <ProfileLink username={proposal.receiver}>
-                    <span> {proposal.receiver}</span>
+                    <Badge className="!p-1 gap-1 !pr-1.5">
+                      <UserAvatar username={proposal.receiver} size="small" />
+                      <span> {proposal.receiver}</span>
+                    </Badge>
                   </ProfileLink>
                 </>
               )}
-            </span>
+            </div>
           </div>
           <div className="proposal-title">
             <Link href={`/proposals/${proposal.id}`}>

@@ -19,8 +19,9 @@ export function ProposalVoteBtn({ proposal }: Props) {
     activeUser?.username ?? "",
     1
   ).useClientQuery();
+  const votes = useMemo(() => data?.pages?.reduce((acc, page) => [...acc, ...page], []), []);
   const voted = useMemo(
-    () => (data?.length ?? 0) > 0 && data?.[0].voter === activeUser?.username,
+    () => (votes?.length ?? 0) > 0 && votes?.[0].voter === activeUser?.username,
     [activeUser?.username, data]
   );
 

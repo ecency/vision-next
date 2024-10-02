@@ -1,10 +1,8 @@
-"use client";
 import { catchPostImage, renderPostBody } from "@ecency/render-helper";
 import React from "react";
-import { Feedback, LinearProgress, Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import i18next from "i18next";
 import Link from "next/link";
-import { closeSvg } from "@ui/svg";
 import { ProposalListItem } from "../_components";
 import { parseDate } from "@/utils";
 import Head from "next/head";
@@ -13,8 +11,10 @@ import { getProposalQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
 import "../_page.scss";
-
-export const dynamic = "force-dynamic";
+import { Metadata, ResolvingMetadata } from "next";
+import { PagesMetadataGenerator } from "@/features/metadata";
+import { Button } from "@ui/button";
+import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 
 export interface Props {
   params: {
@@ -22,16 +22,29 @@ export interface Props {
   };
 }
 
-export default function ProposalDetailsPage({ params: { id } }: Props) {
+export async function generateMetadata(
+  { params: { id } }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const proposal = await getProposalQuery(+id).prefetch();
+  const basic = await PagesMetadataGenerator.getForPage("proposals");
+  return {
+    ...basic,
+    title: `${basic.title} | ${proposal?.subject}`,
+    description: proposal?.creator ?? basic.description
+  };
+}
+
+export default async function ProposalDetailsPage({ params: { id } }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
-  const { data: proposal, isLoading, isSuccess, isError } = getProposalQuery(+id).useClientQuery();
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQueryByPath(
+  const proposal = await getProposalQuery(+id).prefetch();
+  const entry = await EcencyEntriesCacheManagement.getEntryQueryByPath(
     proposal?.creator,
     proposal?.permlink
-  ).useClientQuery();
+  ).prefetch();
 
-  if (!proposal && (isSuccess || isError)) {
+  if (!proposal || !entry) {
     return notFound();
   }
 
@@ -66,18 +79,17 @@ export default function ProposalDetailsPage({ params: { id } }: Props) {
       <Theme />
       <Feedback />
       <Navbar />
-      {isLoading && <LinearProgress />}
-      <div className="app-content proposals-page proposals-detail-page">
-        <div className="page-header mt-5">
-          <h1 className="header-title">{i18next.t("proposals.page-title")}</h1>
-          <p className="see-all">
-            <Link href="/proposals">{i18next.t("proposals.see-all")}</Link>
-          </p>
-        </div>
-        <div className="proposal-list">
-          <Link href="/proposals" className="btn-dismiss">
-            {closeSvg}
-          </Link>
+      <div className="app-content proposals-page pt-16">
+        <Link className="block my-4 lg:my-6 xl:my-8" href="/proposals">
+          <Button
+            icon={<UilArrowLeft className="w-4 h-4" />}
+            iconPlacement="left"
+            appearance="gray-link"
+          >
+            {i18next.t("proposals.page-title")}
+          </Button>
+        </Link>
+        <div className="proposal-list relative">
           {proposal && <ProposalListItem proposal={proposal} />}
         </div>
         <div className="the-entry">
