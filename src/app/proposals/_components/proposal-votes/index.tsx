@@ -74,7 +74,6 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   );
 
   const paginatedVoters = useMemo(() => voters?.slice((page - 1) * 10, page * 10), [page, voters]);
-  console.log(voters?.length);
 
   return (
     <Modal onHide={onHide} show={true} centered={true} size="lg" className="proposal-votes-dialog">

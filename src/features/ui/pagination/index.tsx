@@ -63,7 +63,6 @@ export function Pagination({
     }
   }, [pageFromProps]);
 
-  console.log("data length", dataLength);
   const pages = Math.ceil(dataLength / pageSize);
 
   const records = Array.from(Array(pages).keys());
