@@ -168,7 +168,9 @@ export const deleteImage = (username: string, imageID: string): Promise<any> => 
 
 export const addImage = (username: string, url: string): Promise<any> => {
   const data = { code: getAccessToken(username), url: url };
-  return appAxios.post(apiBase(`/private-api/images-add`), data).then((resp) => resp.data);
+  return appAxios
+    .post(apiBase(`/private-api/images-add`), data, { timeout: Infinity })
+    .then((resp) => resp.data);
 };
 
 export const getDrafts = (username: string): Promise<Draft[]> => {

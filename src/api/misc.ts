@@ -21,7 +21,8 @@ export const uploadImage = async (
     .post(postUrl, fData, {
       headers: {
         "Content-Type": "multipart/form-data"
-      }
+      },
+      timeout: Infinity
     })
     .then((r) => r.data);
 };
