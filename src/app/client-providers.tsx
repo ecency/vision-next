@@ -10,7 +10,6 @@ import { makeQueryClient } from "@/core/react-query";
 import { UserActivityRecorder } from "@/features/user-activity";
 import { Tracker } from "@/features/monitoring";
 import { Announcements } from "@/features/announcement";
-import { FloatingFAQ } from "@/features/faq";
 import { EcencyConfigManager } from "@/config";
 import { PushNotificationsProvider } from "@/features/push-notifications";
 import { EcencyCenter } from "@/features/ecency-center";
@@ -37,7 +36,6 @@ export function ClientProviders(props: PropsWithChildren) {
           </ChatProvider>
         </PushNotificationsProvider>
         <Announcements />
-        <FloatingFAQ />
       </UIManager>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

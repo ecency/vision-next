@@ -20,7 +20,7 @@ export function CenterContentLayout({ show, setShow, children }: PropsWithChildr
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
-          className="fixed bg-white dark:bg-dark-200 bottom-4 rounded-2xl overflow-hidden left-4 origin-bottom-left min-w-[320px] lg:w-[400px]"
+          className="fixed bg-white dark:bg-dark-200 bottom-4 rounded-2xl overflow-hidden left-4 origin-bottom-left w-full max-w-[320px] sm:max-w-[400px]"
         >
           <div className="bg-gradient-primary-day dark:bg-gradient-primary-night text-white p-4 min-h-[100px] w-full rounded-t-2xl">
             <Image

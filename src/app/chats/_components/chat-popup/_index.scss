@@ -115,7 +115,7 @@
 
   @media screen and (max-width: 768px) {
     right: 0;
-    width: 100vw;
+    width: 100%;
     display: grid;
     grid-template-rows: min-content 1fr min-content;
     grid-template-columns: repeat(1, 1fr);

@@ -58,7 +58,7 @@ export function ChatPopupHeader({
       return i18next.t("chat.new-message");
     }
 
-    return i18next.t("chat.page-title");
+    return "";
   }, [directContact, community, showSearchUser, revealPrivateKey, isActiveUser]);
   const isExpanded = useMemo(
     () => directContact || community || showSearchUser || revealPrivateKey,
@@ -68,7 +68,7 @@ export function ChatPopupHeader({
   return (
     <div
       className={classNameObject({
-        "flex items-center justify-between px-2 py-2 gap-2 cursor-pointer": true,
+        "flex items-center relative justify-between px-2 py-2 gap-2 cursor-pointer": true,
         "border-b border-[--border-color]": !!directContact || !!channel
       })}
     >
@@ -103,7 +103,14 @@ export function ChatPopupHeader({
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div
+        className={classNameObject({
+          "flex items-center": true,
+          "absolute right-2 bg-gray-100 dark:bg-gray-900 rounded-full pl-3 pr-1 py-1 top-2 z-10 gap-2":
+            !isExpanded,
+          "gap-4": !!isExpanded
+        })}
+      >
         {canSendMessage && (
           <Tooltip content={i18next.t("chat.new-message")}>
             <Button
