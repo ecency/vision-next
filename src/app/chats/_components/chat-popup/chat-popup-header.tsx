@@ -7,29 +7,25 @@ import { getCommunityCache } from "@/core/caches";
 import i18next from "i18next";
 import { classNameObject } from "@ui/util";
 import { Tooltip } from "@ui/tooltip";
-import { addMessageSvg, arrowBackSvg, expandArrow } from "@/assets/img/svg";
+import { addMessageSvg, arrowBackSvg } from "@/assets/img/svg";
 import { UserAvatar } from "@/features/shared";
 
 interface Props {
   directContact?: DirectContact;
   channel?: Channel;
   showSearchUser: boolean;
-  expanded: boolean;
   canSendMessage: boolean;
   handleBackArrowSvg: () => void;
   handleMessageSvgClick: () => void;
-  setExpanded: (v: boolean) => void;
 }
 
 export function ChatPopupHeader({
   directContact,
   channel,
   showSearchUser,
-  expanded,
   canSendMessage,
   handleBackArrowSvg,
-  handleMessageSvgClick,
-  setExpanded
+  handleMessageSvgClick
 }: Props) {
   const { revealPrivateKey, setRevealPrivateKey } = useContext(ChatContext);
 
@@ -65,8 +61,8 @@ export function ChatPopupHeader({
     return i18next.t("chat.page-title");
   }, [directContact, community, showSearchUser, revealPrivateKey, isActiveUser]);
   const isExpanded = useMemo(
-    () => (directContact || community || showSearchUser || revealPrivateKey) && expanded,
-    [directContact, community, showSearchUser, revealPrivateKey, expanded]
+    () => directContact || community || showSearchUser || revealPrivateKey,
+    [directContact, community, showSearchUser, revealPrivateKey]
   );
 
   return (
@@ -75,7 +71,6 @@ export function ChatPopupHeader({
         "flex items-center justify-between px-2 py-2 gap-2 cursor-pointer": true,
         "border-b border-[--border-color]": !!directContact || !!channel
       })}
-      onClick={() => setExpanded(!expanded)}
     >
       <div className="flex items-center">
         {isExpanded && (
@@ -91,7 +86,7 @@ export function ChatPopupHeader({
             />
           </Tooltip>
         )}
-        <div className="flex items-center" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-center">
           {(directContact || channel) &&
             (isActiveUser ? (
               <ChatSidebarSavedMessagesAvatar width={24} height={24} />
@@ -106,22 +101,6 @@ export function ChatPopupHeader({
           >
             {title}
           </div>
-
-          <Tooltip content={expanded ? i18next.t("chat.collapse") : i18next.t("chat.expand")}>
-            <Button
-              size="sm"
-              appearance="gray-link"
-              className={classNameObject({
-                "duration-300": true,
-                "rotate-180": !expanded
-              })}
-              onClick={(e: { stopPropagation: () => void }) => {
-                e.stopPropagation();
-                setExpanded(!expanded);
-              }}
-              icon={expandArrow}
-            />
-          </Tooltip>
         </div>
       </div>
       <div className="flex items-center gap-4">
@@ -140,13 +119,7 @@ export function ChatPopupHeader({
           </Tooltip>
         )}
         {privateKey && (
-          <div
-            className="flex items-center"
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded(true);
-            }}
-          >
+          <div className="flex items-center">
             <ChatsDropdownMenu
               channel={channel}
               contact={directContact}

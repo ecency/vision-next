@@ -25,7 +25,6 @@ import { NetworkError } from "../network-error";
 import { useGlobalStore } from "@/core/global-store";
 import usePrevious from "react-use/lib/usePrevious";
 import { usePathname } from "next/navigation";
-import { classNameObject } from "@ui/util";
 import { LinearProgress } from "@/features/shared";
 
 export const ChatPopUp = () => {
@@ -44,7 +43,6 @@ export const ChatPopUp = () => {
   const prevActiveUser = usePrevious(activeUser);
   const chatBodyDivRef = useRef<HTMLDivElement | null>(null);
 
-  const [expanded, setExpanded] = useState(false);
   const [showSearchUser, setShowSearchUser] = useState(false);
   const [show, setShow] = useState(false);
   const [communityName, setCommunityName] = useState("");
@@ -94,7 +92,6 @@ export const ChatPopUp = () => {
 
   const handleMessageSvgClick = () => {
     setShowSearchUser(!showSearchUser);
-    setExpanded(true);
     setRevealPrivateKey(false);
     setReceiverPubKey("");
   };
@@ -110,18 +107,11 @@ export const ChatPopUp = () => {
   return (
     <>
       {show && (
-        <div
-          className={classNameObject({
-            "chatbox-container": true,
-            expanded
-          })}
-        >
+        <div className="chatbox-container">
           <ChatPopupHeader
             directContact={currentContact}
             channel={currentChannel}
-            setExpanded={setExpanded}
             canSendMessage={canSendMessage}
-            expanded={expanded}
             handleBackArrowSvg={handleBackArrowSvg}
             handleMessageSvgClick={handleMessageSvgClick}
             showSearchUser={showSearchUser}

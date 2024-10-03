@@ -40,7 +40,9 @@ export function CenterContentLayout({ show, setShow, children }: PropsWithChildr
               icon={closeSvg}
             />
           </div>
-          <div className="border border-[--border-color] rounded-b-2xl">{children}</div>
+          <div className="border border-[--border-color] rounded-b-2xl overflow-hidden">
+            {children}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
