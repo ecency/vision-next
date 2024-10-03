@@ -12,7 +12,6 @@ const CONFIG = {
           enabled: true
         }
       },
-
       polls: {
         creating: {
           enabled: true
@@ -86,6 +85,9 @@ const CONFIG = {
         enabled: true
       },
       editHistory: {
+        enabled: true
+      },
+      center: {
         enabled: true
       }
     },

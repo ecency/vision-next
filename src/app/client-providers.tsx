@@ -13,6 +13,7 @@ import { Announcements } from "@/features/announcement";
 import { FloatingFAQ } from "@/features/faq";
 import { EcencyConfigManager } from "@/config";
 import { PushNotificationsProvider } from "@/features/push-notifications";
+import { EcencyCenter } from "@/features/ecency-center";
 
 export function ClientProviders(props: PropsWithChildren) {
   return (
@@ -26,7 +27,14 @@ export function ClientProviders(props: PropsWithChildren) {
         </EcencyConfigManager.Conditional>
         <Tracker />
         <PushNotificationsProvider>
-          <ChatProvider>{props.children}</ChatProvider>
+          <ChatProvider>
+            {props.children}
+            <EcencyConfigManager.Conditional
+              condition={({ visionFeatures }) => visionFeatures.center.enabled}
+            >
+              <EcencyCenter />
+            </EcencyConfigManager.Conditional>
+          </ChatProvider>
         </PushNotificationsProvider>
         <Announcements />
         <FloatingFAQ />
