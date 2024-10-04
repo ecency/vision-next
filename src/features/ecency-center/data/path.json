@@ -139,16 +139,6 @@
       "suggestions": ["how-dhf-work", "how-vote-proposals"]
     },
     {
-      "path": "/@.+/",
-      "suggestions": [
-        "what-my-blog",
-        "what-information-profile",
-        "what-reputation",
-        "improve-reputation-score",
-        "why-score-going-down"
-      ]
-    },
-    {
       "path": "/@.+/(comments)",
       "suggestions": [
         "how-find-comments",
@@ -170,6 +160,16 @@
     {
       "path": "/market",
       "suggestions": ["how-market-works", "how-to-swap-header"]
+    },
+    {
+      "path": "/.*",
+      "suggestions": [
+        "what-my-blog",
+        "what-information-profile",
+        "what-reputation",
+        "improve-reputation-score",
+        "why-score-going-down"
+      ]
     }
   ]
 }

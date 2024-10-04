@@ -3,7 +3,7 @@ import { articleSvg } from "@/assets/img/svg";
 import { FormControl } from "@ui/input";
 import React, { useEffect, useState } from "react";
 import { faqKeysGeneral } from "@/consts";
-import data from "@/features/faq/floating-faq/path.json";
+import data from "@/features/ecency-center/data/path.json";
 import useMount from "react-use/lib/useMount";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
