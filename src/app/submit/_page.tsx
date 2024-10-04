@@ -15,8 +15,6 @@ import {
 } from "./_hooks";
 import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import useLocalStorage from "react-use/lib/useLocalStorage";
-import useMount from "react-use/lib/useMount";
-import { useUnmount } from "react-use";
 import usePrevious from "react-use/lib/usePrevious";
 import {
   checkSvg,
@@ -46,7 +44,6 @@ import { Button } from "@ui/button";
 import { Spinner } from "@ui/spinner";
 import { FormControl } from "@ui/input";
 import { IntroTour } from "@ui/intro-tour";
-import { IntroStep } from "@ui/core";
 import { PollsContext, PollsManager } from "@/app/submit/_hooks/polls-manager";
 import { FullHeight } from "@/features/ui";
 import {
@@ -70,7 +67,6 @@ import { useEntryPollExtractor } from "@/features/polls";
 import { PREFIX } from "@/utils/local-storage";
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
-import { handleFloatingContainer } from "@/features/faq";
 import { EcencyConfigManager } from "@/config";
 import { SUBMIT_TOUR_ITEMS } from "@/app/submit/_consts";
 
@@ -211,16 +207,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const { mutateAsync: publish, isPending: publishing } = usePublishApi(() => clear());
   const { mutateAsync: update, isPending: updating } = useUpdateApi(() => clear());
 
-  useMount(() => {
-    window.addEventListener("resize", handleResize);
-  });
-
-  useUnmount(() => {
-    if (typeof window !== "undefined") {
-      window.removeEventListener("resize", handleResize);
-    }
-  });
-
   useEffect(() => {
     if (postPoll) {
       setActivePoll(postPoll);
@@ -254,10 +240,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   }, [tags, title, body, setLocalDraft, description]);
 
   useEffect(() => {
-    handleFloatingContainer(showHelp);
-  }, [showHelp]);
-
-  useEffect(() => {
     updatePreview();
   }, [title, body, tags]);
 
@@ -289,13 +271,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
       }
       setIsDraftEmpty(!Boolean(title?.length || tags?.length || body?.length));
     }, 50);
-  };
-
-  const handleResize = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 992) {
-      setShowHelp(false);
-      handleFloatingContainer(false);
-    }
   };
 
   const clear = () => {

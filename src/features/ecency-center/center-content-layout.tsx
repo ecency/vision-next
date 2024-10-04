@@ -30,7 +30,7 @@ export function CenterContentLayout({ show, setShow, children }: PropsWithChildr
               height={48}
               className="w-8 h-8 mb-4"
             />
-            <h3 className="font-bold">{i18next.t("floating-faq.welcome")}</h3>
+            <h3 className="font-bold">{i18next.t("floating-faq.center")}</h3>
             <Button
               className={classNameObject({
                 "absolute top-4 right-4 text-white hover:opacity-50 hover:text-white": true
