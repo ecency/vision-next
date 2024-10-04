@@ -1431,7 +1431,8 @@
     "image-error-conflict-name": "Ya tienes una imagen con este nombre de archivo. Selecciónala en la galería.",
     "fragments": "Fragmentos de código",
     "link-image": "Enlace",
-    "polls": "Encuestas"
+    "polls": "Encuestas",
+    "image-error-network": "Can't upload image due to API error"
   },
   "emoji-picker": {
     "filter-placeholder": "Filtro",
