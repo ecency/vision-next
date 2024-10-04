@@ -1432,7 +1432,7 @@
     "fragments": "Fragmentos de código",
     "link-image": "Enlace",
     "polls": "Encuestas",
-    "image-error-network": "Can't upload image due to API error"
+    "image-error-network": "No se puede subir la imagen debido a un error de API"
   },
   "emoji-picker": {
     "filter-placeholder": "Filtro",
