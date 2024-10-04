@@ -1431,7 +1431,8 @@
     "image-error-conflict-name": "You have image with this filename already. Select it from gallery instead.",
     "fragments": "Snippets",
     "link-image": "Link",
-    "polls": "Polls"
+    "polls": "Polls",
+    "image-error-network": "Can't upload image due to API error"
   },
   "emoji-picker": {
     "filter-placeholder": "Filter",
