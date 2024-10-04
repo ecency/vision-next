@@ -30,7 +30,7 @@ export function ChatPopupMessagesList({ currentContact, currentChannel }: Props)
   const messages = useMessagesQuery(currentContact, currentChannel);
   const { isSuccess: isDirectContactsLoaded } = useDirectContactsQuery();
 
-  const updateDirectContactsLastSeenDate = useUpdateDirectContactsLastSeenDate();
+  const { mutateAsync: updateDirectContactsLastSeenDate } = useUpdateDirectContactsLastSeenDate();
   const updateChannelLastSeenDate = useUpdateChannelLastSeenDate();
 
   const isActiveUser = useMemo(
@@ -41,12 +41,12 @@ export function ChatPopupMessagesList({ currentContact, currentChannel }: Props)
   // Whenever current contact is exists need to turn unread to 0
   useEffect(() => {
     if (currentContact && isDirectContactsLoaded) {
-      updateDirectContactsLastSeenDate.mutateAsync({
+      updateDirectContactsLastSeenDate({
         contact: currentContact,
         lastSeenDate: new Date()
       });
     }
-  }, [currentContact, isDirectContactsLoaded, updateDirectContactsLastSeenDate]);
+  }, [currentContact, isDirectContactsLoaded]);
 
   useEffect(() => {
     if (currentChannel) {

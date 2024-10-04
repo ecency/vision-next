@@ -1,29 +1,9 @@
 @import "src/styles/vars_mixins";
 
 .chatbox-container {
-  position: fixed;
-  z-index: 99;
-  right: 13rem;
-  bottom: 0;
-  height: 50px;
-  width: 410px;
+  height: 530px;
 
-  border-top-right-radius: 16px;
-  border-top-left-radius: 16px;
-
-  transition: height 0.5s ease;
-
-  @include themify(day) {
-    @apply bg-white border-[--border-color] border shadow-2xl;
-  }
-
-  @include themify(night) {
-    @apply bg-dark-200 border-[--border-color] border shadow-2xl;
-  }
-
-  &.expanded {
-    height: 530px;
-  }
+  @apply bg-white dark:bg-dark-200;
 
   .chat-body {
     position: relative;
@@ -135,7 +115,7 @@
 
   @media screen and (max-width: 768px) {
     right: 0;
-    width: 100vw;
+    width: 100%;
     display: grid;
     grid-template-rows: min-content 1fr min-content;
     grid-template-columns: repeat(1, 1fr);

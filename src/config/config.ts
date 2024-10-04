@@ -87,6 +87,9 @@ const CONFIG = {
       },
       editHistory: {
         enabled: true
+      },
+      center: {
+        enabled: true
       }
     },
     service: {
