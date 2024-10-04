@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ecency/ns-query": "^1.2.11-next",
-    "@ecency/render-helper": "^2.2.29",
+    "@ecency/render-helper": "^2.2.35",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@firebase/analytics": "^0.10.0",
