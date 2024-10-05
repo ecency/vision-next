@@ -6,6 +6,7 @@ export function useEntryPollExtractor(entry?: Entry | null) {
   return useMemo(() => {
     if (
       entry &&
+      typeof entry.json_metadata === "object" &&
       "content_type" in entry.json_metadata &&
       (entry.json_metadata as JsonPollMetadata).content_type === "poll"
     ) {
