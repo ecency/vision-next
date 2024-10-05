@@ -107,7 +107,7 @@
     "toggle-icon-info": "Haz clic para ampliar",
     "help": "Ayuda",
     "welcome": "Bienvenido a Ecency",
-    "center": "Ecency center",
+    "center": "Centro de Ecency",
     "need-help": "¿Necesitas ayuda?",
     "search-placeholder": "Buscar",
     "suggestion": "Artículos sugeridos",
@@ -2469,8 +2469,8 @@
     "message": "Por favor espere un poco, serás redirigido automáticamente."
   },
   "center": {
-    "faq": "FAQ",
+    "faq": "Preguntas Frecuentes (FAQ)",
     "chats": "Chats",
-    "news": "News"
+    "news": "Noticias"
   }
 }
