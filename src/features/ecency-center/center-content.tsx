@@ -2,6 +2,7 @@ import { CenterTabs } from "@/features/ecency-center/center-tabs";
 import { useMemo, useState } from "react";
 import { CenterAnnouncements, CenterFaq } from "@/features/ecency-center/sections";
 import { ChatPopUp } from "@/app/chats/_components/chat-popup";
+import i18next from "i18next";
 
 export function CenterContent() {
   const [current, setCurrent] = useState("chats");
@@ -9,15 +10,15 @@ export function CenterContent() {
   const tabs = useMemo(
     () => [
       {
-        title: "Conversations",
+        title: i18next.t("center.chats"),
         key: "chats"
       },
       {
-        title: "FAQ",
+        title: i18next.t("center.faq"),
         key: "faq"
       },
       {
-        title: "News",
+        title: i18next.t("center.news"),
         key: "announcements"
       }
     ],

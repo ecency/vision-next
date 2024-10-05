@@ -7,3 +7,5 @@ export * from "./word-counter";
 export * from "./post-scheduler";
 export * from "./beneficiary-editor";
 export * from "./tag-selector";
+export * from "./editor-panel-actions";
+export * from "./editor-actions";

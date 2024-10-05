@@ -16,52 +16,40 @@ import {
 import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import usePrevious from "react-use/lib/usePrevious";
-import {
-  checkSvg,
-  contentLoadSvg,
-  contentSaveSvg,
-  helpIconSvg,
-  informationSvg
-} from "@/assets/img/svg";
+import { checkSvg, informationSvg } from "@/assets/img/svg";
 import moment from "moment/moment";
 import isEqual from "react-fast-compare";
 import { handleShortcuts } from "./_functions";
-import { usePublishApi, useSaveDraftApi, useScheduleApi } from "./_api";
 import {
   BeneficiaryEditorDialog,
   CommunitySelector,
+  EditorActions,
+  EditorPanelActions,
   PostSchedulerDialog,
   SubmitPreviewContent,
   SubmitVideoAttachments,
   TagSelector,
   WordCount
 } from "@/app/submit/_components";
-import { useUpdateApi } from "@/app/submit/_api/update";
 import "./_index.scss";
 import { useThreeSpeakMigrationAdapter } from "@/app/submit/_hooks/three-speak-migration-adapter";
-import { ModalConfirm } from "@ui/modal-confirm";
 import { Button } from "@ui/button";
-import { Spinner } from "@ui/spinner";
 import { FormControl } from "@ui/input";
 import { IntroTour } from "@ui/intro-tour";
 import { PollsContext, PollsManager } from "@/app/submit/_hooks/polls-manager";
 import { FullHeight } from "@/features/ui";
 import {
   AvailableCredits,
-  ClickAwayListener,
   EditorToolbar,
   error,
   Feedback,
-  LoginRequired,
   Navbar,
   Theme,
   toolbarEventListener
 } from "@/features/shared";
 import i18next from "i18next";
-import { extractMetaData, isCommunity, makeEntryPath } from "@/utils";
+import { extractMetaData, isCommunity } from "@/utils";
 import { Draft, Entry, RewardType } from "@/entities";
-import { DraftsDialog } from "@/features/shared/drafts";
-import { dotsMenuIconSvg } from "@ui/icons";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
 import { useEntryPollExtractor } from "@/features/polls";
 import { PREFIX } from "@/utils/local-storage";
@@ -95,7 +83,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const [selectedThumbnail, setSelectedThumbnail, removeThumbnail] = useLocalStorage<string>(
     PREFIX + "draft_selected_image"
   );
-  const [clearModal, setClearModal] = useState(false);
   const [preview, setPreview] = useState<PostBase>({
     title: "",
     tags: [],
@@ -104,7 +91,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   });
   const [disabled, setDisabled] = useState(true);
   const [drafts, setDrafts] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
   const [isDraftEmpty, setIsDraftEmpty] = useState(false);
   const [forceReactivateTour, setForceReactivateTour] = useState(false);
 
@@ -202,11 +188,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     }
   );
 
-  const { mutateAsync: doSchedule, isPending: posting } = useScheduleApi(() => clear());
-  const { mutateAsync: saveDraft, isPending: saving } = useSaveDraftApi();
-  const { mutateAsync: publish, isPending: publishing } = usePublishApi(() => clear());
-  const { mutateAsync: update, isPending: updating } = useUpdateApi(() => clear());
-
   useEffect(() => {
     if (postPoll) {
       setActivePoll(postPoll);
@@ -284,7 +265,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     setBeneficiaries([]);
     setSchedule(null);
     setReblogSwitch(false);
-    setClearModal(false);
     setIsDraftEmpty(true);
     setDescription("");
 
@@ -326,19 +306,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     setBeneficiaries(joinedBeneficiary);
   };
 
-  const cancelUpdate = () => {
-    if (!editingEntry) {
-      return;
-    }
-
-    const newLoc = makeEntryPath(
-      editingEntry?.category!,
-      editingEntry.author,
-      editingEntry.permlink
-    );
-    router.push(newLoc);
-  };
-
   const focusInput = (parentSelector: string): void => {
     const el = document.querySelector(`${parentSelector} .form-control`) as HTMLInputElement;
     if (el) {
@@ -378,7 +345,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
       <FullHeight />
       <Theme />
       <Feedback />
-      {clearModal && <ModalConfirm onConfirm={clear} onCancel={() => setClearModal(false)} />}
       <Navbar />
 
       <IntroTour
@@ -391,6 +357,14 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
 
       <div className={`app-content submit-page ${editingEntry !== null ? "editing" : ""}`}>
         <div className="editor-panel">
+          <EditorPanelActions
+            onClear={clear}
+            advanced={advanced}
+            getHasAdvanced={getHasAdvanced}
+            setAdvanced={setAdvanced}
+            editingEntry={editingEntry}
+            editingDraft={editingDraft}
+          />
           {editingEntry === null && activeUser && (
             <div className="community-input whitespace-nowrap">
               <CommunitySelector
@@ -481,367 +455,227 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
           ) : (
             <></>
           )}
-          <div className="bottom-toolbar">
-            {editingEntry === null && editingDraft === null && (
-              <Button appearance="info" outline={true} onClick={() => setClearModal(true)}>
-                {i18next.t("submit.clear")}
-              </Button>
-            )}
-            <Button
-              id="editor-advanced"
-              outline={true}
-              onClick={() => setAdvanced(!advanced)}
-              icon={getHasAdvanced && dotsMenuIconSvg}
-            >
-              {advanced ? i18next.t("submit.preview") : i18next.t("submit.advanced")}
-            </Button>
-          </div>
         </div>
         <div className="flex-spacer" />
-        {(() => {
-          const toolBar = schedule ? (
-            <div className="bottom-toolbar">
-              <span />
-              <LoginRequired>
-                <Button
-                  icon={(posting || publishing) && <Spinner className="w-3.5 h-3.5" />}
-                  iconPlacement="left"
-                  onClick={() => {
-                    if (!validate()) {
-                      return;
-                    }
-
-                    doSchedule({
-                      title,
-                      tags,
-                      body,
-                      reward,
-                      reblogSwitch,
-                      beneficiaries,
-                      schedule,
-                      description
-                    });
-                  }}
-                  disabled={posting || publishing}
-                >
-                  {i18next.t("submit.schedule")}
-                </Button>
-              </LoginRequired>
+        {advanced && (
+          <div className="advanced-panel">
+            <EditorActions
+              isDraftEmpty={isDraftEmpty}
+              drafts={drafts}
+              setDrafts={setDrafts}
+              onClear={clear}
+              editingDraft={editingDraft}
+              editingEntry={editingEntry}
+              schedule={schedule}
+              title={title}
+              tags={tags}
+              body={body}
+              reward={reward}
+              reblogSwitch={reblogSwitch}
+              beneficiaries={beneficiaries}
+              description={description}
+              selectedThumbnail={selectedThumbnail}
+              selectionTouched={false}
+              validate={validate}
+              disabled={false}
+            />
+            <div className="panel-header">
+              <h2 className="panel-header-title">{i18next.t("submit.advanced")}</h2>
             </div>
-          ) : (
-            <div className="bottom-toolbar">
-              {editingEntry === null && (
-                <>
-                  <span />
-                  <div className="action-buttons">
-                    <ClickAwayListener onClickAway={() => setShowHelp(false)}>
-                      <Button
-                        id="editor-help"
-                        className="help-button mr-[6px]"
-                        onClick={() => setShowHelp(!showHelp)}
-                        icon={helpIconSvg}
-                        iconPlacement="left"
-                      >
-                        {i18next.t("floating-faq.help")}
-                      </Button>
-                    </ClickAwayListener>
-                    {isDraftEmpty ? (
-                      <EcencyConfigManager.Conditional
-                        condition={({ visionFeatures }) => visionFeatures.drafts.enabled}
-                      >
-                        <LoginRequired>
-                          <Button
-                            outline={true}
-                            className="mr-[6px]"
-                            onClick={() => setDrafts(!drafts)}
-                            icon={contentLoadSvg}
-                            iconPlacement="left"
-                          >
-                            {i18next.t("submit.load-draft")}
-                          </Button>
-                        </LoginRequired>
-                      </EcencyConfigManager.Conditional>
-                    ) : (
-                      <LoginRequired>
-                        <Button
-                          outline={true}
-                          className="mr-[6px]"
-                          icon={contentSaveSvg}
-                          iconPlacement="left"
-                          onClick={() => {
-                            if (!validate()) {
-                              return;
-                            }
-                            saveDraft({
-                              tags,
-                              title,
-                              body,
-                              description,
-                              selectedThumbnail,
-                              selectionTouched,
-                              editingDraft,
-                              beneficiaries,
-                              reward
-                            });
-                          }}
-                          disabled={disabled || saving || posting || publishing}
-                        >
-                          {editingDraft === null
-                            ? i18next.t("submit.save-draft")
-                            : i18next.t("submit.update-draft")}
-                        </Button>
-                      </LoginRequired>
-                    )}
-                    <LoginRequired>
-                      <Button
-                        icon={(posting || publishing) && <Spinner className="w-3.5 h-3.5" />}
-                        iconPlacement="left"
-                        onClick={() => {
-                          if (!validate()) {
-                            return;
-                          }
-
-                          publish({
-                            reblogSwitch,
-                            title,
-                            tags,
-                            body,
-                            description,
-                            reward,
-                            beneficiaries,
-                            selectedThumbnail,
-                            selectionTouched
-                          });
-                        }}
-                        disabled={disabled || posting || saving || publishing}
-                      >
-                        {i18next.t("submit.publish")}
-                      </Button>
-                    </LoginRequired>
-                  </div>
-                </>
-              )}
-              {activeUser && <DraftsDialog show={drafts} setShow={setDrafts} />}
-
-              {editingEntry !== null && (
-                <>
-                  <Button appearance="secondary" outline={true} onClick={cancelUpdate}>
-                    {i18next.t("submit.cancel-update")}
-                  </Button>
-                  <LoginRequired>
-                    <Button
-                      icon={(posting || publishing) && <Spinner className="w-3.5 h-3.5" />}
-                      iconPlacement="left"
-                      onClick={() => {
-                        if (!validate()) {
-                          return;
-                        }
-
-                        update({
-                          editingEntry,
-                          tags,
-                          title,
-                          body,
-                          description,
-                          selectedThumbnail,
-                          selectionTouched
-                        });
-                      }}
-                      disabled={posting || publishing}
-                    >
-                      {i18next.t("submit.update")}
-                    </Button>
-                  </LoginRequired>
-                </>
-              )}
-            </div>
-          );
-
-          if (advanced) {
-            return (
-              <div className="advanced-panel">
-                <div className="panel-header">
-                  <h2 className="panel-header-title">{i18next.t("submit.advanced")}</h2>
-                </div>
-                <div className="panel-body">
-                  <div className="container px-3">
-                    {editingEntry === null && (
-                      <>
-                        <div className="grid grid-cols-12 mb-4">
-                          <div className="col-span-12 sm:col-span-3">
-                            <label>{i18next.t("submit.reward")}</label>
-                          </div>
-                          <div className="col-span-12 sm:col-span-9">
-                            <FormControl
-                              type="select"
-                              value={reward}
-                              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                                setReward(e.target.value as RewardType);
-                              }}
-                            >
-                              <option value="default">{i18next.t("submit.reward-default")}</option>
-                              <option value="sp">{i18next.t("submit.reward-sp")}</option>
-                              <option value="dp">{i18next.t("submit.reward-dp")}</option>
-                            </FormControl>
-                            <small className="text-gray-600 dark:text-gray-400">
-                              {i18next.t("submit.reward-hint")}
-                            </small>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-12 mb-4">
-                          <div className="col-span-12 sm:col-span-3">
-                            <label>{i18next.t("submit.beneficiaries")}</label>
-                          </div>
-                          <div className="col-span-12 sm:col-span-9">
-                            <BeneficiaryEditorDialog
-                              body={body}
-                              author={activeUser?.username}
-                              list={beneficiaries}
-                              onAdd={(item) => {
-                                const b = [...beneficiaries, item].sort((a, b) =>
-                                  a.account < b.account ? -1 : 1
-                                );
-                                setBeneficiaries(b);
-                              }}
-                              onDelete={(username) => {
-                                const b = [
-                                  ...beneficiaries.filter(
-                                    (x: { account: string }) => x.account !== username
-                                  )
-                                ];
-                                setBeneficiaries(b);
-                              }}
-                            />
-                            <small className="text-gray-600 dark:text-gray-400">
-                              {i18next.t("submit.beneficiaries-hint")}
-                            </small>
-                          </div>
-                        </div>
-                      </>
-                    )}
+            <div className="panel-body">
+              <div className="container px-3">
+                {editingEntry === null && (
+                  <>
                     <div className="grid grid-cols-12 mb-4">
                       <div className="col-span-12 sm:col-span-3">
-                        <label>{i18next.t("submit.description")}</label>
+                        <label>{i18next.t("submit.reward")}</label>
                       </div>
                       <div className="col-span-12 sm:col-span-9">
                         <FormControl
-                          type="textarea"
-                          value={description || postBodySummary(body, 200)}
-                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                            setDescription(e.target.value);
+                          type="select"
+                          value={reward}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                            setReward(e.target.value as RewardType);
                           }}
-                          rows={3}
-                          maxLength={200}
-                        />
+                        >
+                          <option value="default">{i18next.t("submit.reward-default")}</option>
+                          <option value="sp">{i18next.t("submit.reward-sp")}</option>
+                          <option value="dp">{i18next.t("submit.reward-dp")}</option>
+                        </FormControl>
                         <small className="text-gray-600 dark:text-gray-400">
-                          {description !== "" ? description : postBodySummary(body, 200)}
+                          {i18next.t("submit.reward-hint")}
                         </small>
                       </div>
                     </div>
-                    {editingEntry === null && (
-                      <EcencyConfigManager.Conditional
-                        condition={({ visionFeatures }) => visionFeatures.schedules.enabled}
-                      >
-                        {!threeSpeakManager.hasUnpublishedVideo && (
-                          <div className="grid grid-cols-12 mb-4">
-                            <div className="col-span-12 sm:col-span-3">
-                              <label>{i18next.t("submit.schedule")}</label>
-                            </div>
-                            <div className="col-span-12 sm:col-span-9">
-                              <PostSchedulerDialog
-                                date={schedule ? moment(schedule) : null}
-                                onChange={(d) => {
-                                  setSchedule(d ? d.toISOString(true) : null);
-                                }}
-                              />
-                              <div className="text-sm text-gray-600 dark:text-gray-400">
-                                {i18next.t("submit.schedule-hint")}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </EcencyConfigManager.Conditional>
-                    )}
-                    {editingEntry === null && tags?.length > 0 && isCommunity(tags[0]) && (
-                      <div className="grid grid-cols-12 mb-4">
-                        <div className="col-span-12 sm:col-span-3" />
-                        <div className="col-span-12 sm:col-span-9">
-                          <FormControl
-                            type="checkbox"
-                            isToggle={true}
-                            id="reblog-switch"
-                            label={i18next.t("submit.reblog")}
-                            checked={reblogSwitch}
-                            onChange={(v) => {
-                              setReblogSwitch(v);
-                            }}
-                          />
-                          <small className="text-gray-600 dark:text-gray-400">
-                            {i18next.t("submit.reblog-hint")}
-                          </small>
-                        </div>
+                    <div className="grid grid-cols-12 mb-4">
+                      <div className="col-span-12 sm:col-span-3">
+                        <label>{i18next.t("submit.beneficiaries")}</label>
                       </div>
-                    )}
-                    {thumbnails?.length > 0 && (
-                      <div className="grid grid-cols-12 mb-4">
-                        <div className="col-span-12 sm:col-span-3">
-                          <label>{i18next.t("submit.thumbnail")}</label>
-                        </div>
-                        <div className="col-span-12 sm:col-span-9 flex flex-wrap selection-container">
-                          {Array.from(new Set(thumbnails)).map((item, i) => {
-                            let selectedItem = selectedThumbnail;
-                            switch (selectedItem) {
-                              case "":
-                                selectedItem = thumbnails[0];
-                                break;
-                            }
-                            if (!thumbnails.includes(selectedThumbnail ?? "")) {
-                              selectedItem = thumbnails[0];
-                            }
-                            return (
-                              <div className="relative" key={item + i}>
-                                <div
-                                  className={`selection-item shadow ${
-                                    selectedItem === item ? "selected" : ""
-                                  } mr-3 mb-2`}
-                                  style={{
-                                    backgroundImage: `url("${proxifyImageSrc(item, 260, 200)}")`
-                                  }}
-                                  onClick={() => {
-                                    setSelectedThumbnail(item);
-                                    setSelectionTouched(true);
-                                  }}
-                                  key={item}
-                                />
-                                {selectedItem === item && (
-                                  <div className="text-green check absolute bg-white rounded-full p-1 flex justify-center items-center">
-                                    {checkSvg}
-                                  </div>
-                                )}
-                              </div>
+                      <div className="col-span-12 sm:col-span-9">
+                        <BeneficiaryEditorDialog
+                          body={body}
+                          author={activeUser?.username}
+                          list={beneficiaries}
+                          onAdd={(item) => {
+                            const b = [...beneficiaries, item].sort((a, b) =>
+                              a.account < b.account ? -1 : 1
                             );
-                          })}
-                        </div>
+                            setBeneficiaries(b);
+                          }}
+                          onDelete={(username) => {
+                            const b = [
+                              ...beneficiaries.filter(
+                                (x: { account: string }) => x.account !== username
+                              )
+                            ];
+                            setBeneficiaries(b);
+                          }}
+                        />
+                        <small className="text-gray-600 dark:text-gray-400">
+                          {i18next.t("submit.beneficiaries-hint")}
+                        </small>
                       </div>
-                    )}
+                    </div>
+                  </>
+                )}
+                <div className="grid grid-cols-12 mb-4">
+                  <div className="col-span-12 sm:col-span-3">
+                    <label>{i18next.t("submit.description")}</label>
+                  </div>
+                  <div className="col-span-12 sm:col-span-9">
+                    <FormControl
+                      type="textarea"
+                      value={description || postBodySummary(body, 200)}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        setDescription(e.target.value);
+                      }}
+                      rows={3}
+                      maxLength={200}
+                    />
+                    <small className="text-gray-600 dark:text-gray-400">
+                      {description !== "" ? description : postBodySummary(body, 200)}
+                    </small>
                   </div>
                 </div>
-                {toolBar}
+                {editingEntry === null && (
+                  <EcencyConfigManager.Conditional
+                    condition={({ visionFeatures }) => visionFeatures.schedules.enabled}
+                  >
+                    {!threeSpeakManager.hasUnpublishedVideo && (
+                      <div className="grid grid-cols-12 mb-4">
+                        <div className="col-span-12 sm:col-span-3">
+                          <label>{i18next.t("submit.schedule")}</label>
+                        </div>
+                        <div className="col-span-12 sm:col-span-9">
+                          <PostSchedulerDialog
+                            date={schedule ? moment(schedule) : null}
+                            onChange={(d) => {
+                              setSchedule(d ? d.toISOString(true) : null);
+                            }}
+                          />
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {i18next.t("submit.schedule-hint")}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </EcencyConfigManager.Conditional>
+                )}
+                {editingEntry === null && tags?.length > 0 && isCommunity(tags[0]) && (
+                  <div className="grid grid-cols-12 mb-4">
+                    <div className="col-span-12 sm:col-span-3" />
+                    <div className="col-span-12 sm:col-span-9">
+                      <FormControl
+                        type="checkbox"
+                        isToggle={true}
+                        id="reblog-switch"
+                        label={i18next.t("submit.reblog")}
+                        checked={reblogSwitch}
+                        onChange={(v) => {
+                          setReblogSwitch(v);
+                        }}
+                      />
+                      <small className="text-gray-600 dark:text-gray-400">
+                        {i18next.t("submit.reblog-hint")}
+                      </small>
+                    </div>
+                  </div>
+                )}
+                {thumbnails?.length > 0 && (
+                  <div className="grid grid-cols-12 mb-4">
+                    <div className="col-span-12 sm:col-span-3">
+                      <label>{i18next.t("submit.thumbnail")}</label>
+                    </div>
+                    <div className="col-span-12 sm:col-span-9 flex flex-wrap selection-container">
+                      {Array.from(new Set(thumbnails)).map((item, i) => {
+                        let selectedItem = selectedThumbnail;
+                        switch (selectedItem) {
+                          case "":
+                            selectedItem = thumbnails[0];
+                            break;
+                        }
+                        if (!thumbnails.includes(selectedThumbnail ?? "")) {
+                          selectedItem = thumbnails[0];
+                        }
+                        return (
+                          <div className="relative" key={item + i}>
+                            <div
+                              className={`selection-item shadow ${
+                                selectedItem === item ? "selected" : ""
+                              } mr-3 mb-2`}
+                              style={{
+                                backgroundImage: `url("${proxifyImageSrc(item, 260, 200)}")`
+                              }}
+                              onClick={() => {
+                                setSelectedThumbnail(item);
+                                setSelectionTouched(true);
+                              }}
+                              key={item}
+                            />
+                            {selectedItem === item && (
+                              <div className="text-green check absolute bg-white rounded-full p-1 flex justify-center items-center">
+                                {checkSvg}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
-            );
-          }
-
-          return (
-            <div className="preview-panel">
-              <div className="panel-header">
-                <h2 className="panel-header-title">{i18next.t("submit.preview")}</h2>
-                <WordCount selector=".preview-body" watch={true} />
-              </div>
-              <SubmitPreviewContent title={preview.title} body={preview.body} tags={preview.tags} />
-              {toolBar}
             </div>
-          );
-        })()}
+          </div>
+        )}
+        {!advanced && (
+          <div className="preview-panel">
+            <EditorActions
+              isDraftEmpty={isDraftEmpty}
+              drafts={drafts}
+              setDrafts={setDrafts}
+              onClear={clear}
+              editingDraft={editingDraft}
+              editingEntry={editingEntry}
+              schedule={schedule}
+              title={title}
+              tags={tags}
+              body={body}
+              reward={reward}
+              reblogSwitch={reblogSwitch}
+              beneficiaries={beneficiaries}
+              description={description}
+              selectedThumbnail={selectedThumbnail}
+              selectionTouched={false}
+              validate={validate}
+              disabled={false}
+            />
+            <div className="panel-header">
+              <h2 className="panel-header-title">{i18next.t("submit.preview")}</h2>
+              <WordCount selector=".preview-body" watch={true} />
+            </div>
+            <SubmitPreviewContent title={preview.title} body={preview.body} tags={preview.tags} />
+          </div>
+        )}
       </div>
     </>
   );
