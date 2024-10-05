@@ -6,7 +6,11 @@ import { SentryIssueReporter } from "@/features/issue-reporter/sentry-issue-repo
 import { Button } from "@ui/button";
 import { useState } from "react";
 
-export function SentryIssueReporterDialog() {
+interface Props {
+  error?: any;
+}
+
+export function SentryIssueReporterDialog({ error }: Props) {
   const [show, setShow] = useState(false);
 
   return (
@@ -17,7 +21,7 @@ export function SentryIssueReporterDialog() {
       <Modal centered={true} show={show} onHide={() => setShow(false)}>
         <ModalHeader closeButton={true}>{i18next.t("issue-reporter.report-issue")}</ModalHeader>
         <ModalBody>
-          <SentryIssueReporter />
+          <SentryIssueReporter error={error} />
         </ModalBody>
       </Modal>
     </>

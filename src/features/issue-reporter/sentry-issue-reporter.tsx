@@ -10,7 +10,11 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { success } from "@/features/shared";
 
-export function SentryIssueReporter() {
+interface Props {
+  error?: any;
+}
+
+export function SentryIssueReporter({ error }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const pathname = usePathname();
@@ -28,7 +32,7 @@ export function SentryIssueReporter() {
       });
     }
 
-    const eventId = Sentry.captureMessage("User Feedback");
+    const eventId = Sentry.captureException(error);
 
     Sentry.captureFeedback({
       message,
@@ -40,7 +44,7 @@ export function SentryIssueReporter() {
 
     setIsLoading(false);
     success(i18next.t("issue-reporter.issue-reported"));
-  }, [activeUser, email, message, name, pathname]);
+  }, [activeUser, email, error, message, name, pathname]);
 
   return (
     <Form className="flex flex-col gap-4">
