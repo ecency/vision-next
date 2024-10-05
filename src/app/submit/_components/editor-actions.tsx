@@ -74,7 +74,7 @@ export function EditorActions({
   }, [editingEntry, router]);
 
   return schedule ? (
-    <div className="flex items-center justify-end border-b border-[--border-color] p-2">
+    <div className="flex items-center justify-end gap-2 p-2">
       <LoginRequired>
         <Button
           size="sm"
@@ -103,7 +103,7 @@ export function EditorActions({
       </LoginRequired>
     </div>
   ) : (
-    <div className="flex items-center justify-end border-b border-[--border-color] p-2">
+    <div className="flex items-center justify-end border-b border-[--border-color] gap-2 p-2">
       {editingEntry === null && (
         <>
           {isDraftEmpty ? (
