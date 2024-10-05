@@ -74,7 +74,7 @@ export function EditorActions({
   }, [editingEntry, router]);
 
   return schedule ? (
-    <div className="flex items-center justify-end border-b border-[--border-color] p-2">
+    <div className="flex items-center justify-end p-2">
       <LoginRequired>
         <Button
           size="sm"
