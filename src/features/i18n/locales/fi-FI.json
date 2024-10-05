@@ -107,6 +107,7 @@
     "toggle-icon-info": "Laajenna napsauttamalla",
     "help": "Ohjeet",
     "welcome": "Tervetuloa Ecencyyn",
+    "center": "Ecency center",
     "need-help": "Tarvitsetko apua?",
     "search-placeholder": "Etsi",
     "suggestion": "Ehdotetut artikkelit",
@@ -2466,5 +2467,10 @@
   "hs-login": {
     "title": "Kirjaudutaan Ecency -palveluun HiveSignerilla",
     "message": "Odota hetki. Sinut uudelleenohjataan automaattisesti."
+  },
+  "center": {
+    "faq": "FAQ",
+    "chats": "Chats",
+    "news": "News"
   }
 }
