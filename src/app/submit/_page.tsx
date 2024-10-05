@@ -355,7 +355,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
         enabled={tourEnabled}
       />
 
-      <div className={`app-content submit-page ${editingEntry !== null ? "editing" : ""}`}>
+      <div className="app-content submit-page">
         <div className="editor-panel">
           {editingEntry === null && activeUser && (
             <div className="community-input whitespace-nowrap">

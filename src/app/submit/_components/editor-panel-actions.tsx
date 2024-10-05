@@ -25,7 +25,7 @@ export function EditorPanelActions({
   const [clearModal, setClearModal] = useState(false);
 
   return (
-    <div className="flex p-2 items-center justify-between">
+    <div className="flex p-2 items-center justify-between gap-2">
       {editingEntry === null && editingDraft === null && (
         <Button appearance="info" outline={true} size="sm" onClick={() => setClearModal(true)}>
           {i18next.t("submit.clear")}

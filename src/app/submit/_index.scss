@@ -207,7 +207,6 @@
     }
   }
 
-  &:not(.editing) {
     .preview-panel, .advanced-panel {
       .panel-header {
         @media (min-width: $lg-break) {
@@ -215,7 +214,6 @@
         }
       }
     }
-  }
 
   .submit-video-attachments {
 
