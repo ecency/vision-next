@@ -4,7 +4,6 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ManageChatKey } from "../manage-chat-key";
 import { ChatInput } from "../chat-input";
 import "./_index.scss";
-import { useMount } from "react-use";
 import { ChatPopupHeader } from "./chat-popup-header";
 import { ChatPopupMessagesList } from "./chat-popup-messages-list";
 import { ChatPopupSearchUser } from "./chat-popup-search-user";
@@ -44,7 +43,6 @@ export const ChatPopUp = () => {
   const chatBodyDivRef = useRef<HTMLDivElement | null>(null);
 
   const [showSearchUser, setShowSearchUser] = useState(false);
-  const [show, setShow] = useState(false);
   const [communityName, setCommunityName] = useState("");
   const [hasMore, setHasMore] = useState(true);
 
@@ -69,20 +67,6 @@ export const ChatPopUp = () => {
     () => originalChannels?.some((c) => c.id === currentChannel?.id) === true,
     [currentChannel, originalChannels]
   );
-  useMount(() => {
-    setShow(!pathname.match("/chats") && !!activeUser);
-  });
-
-  // Show or hide the popup if current pathname was changed or user changed
-  useEffect(() => {
-    setShow(
-      !pathname.match("/chats") &&
-        !pathname.match("/submit") &&
-        !pathname.match("/draft") &&
-        !pathname.match("/edit") &&
-        !!activeUser
-    );
-  }, [pathname, activeUser]);
 
   useEffect(() => {
     if (prevActiveUser?.username !== activeUser?.username) {
@@ -105,79 +89,69 @@ export const ChatPopUp = () => {
   };
 
   return (
-    <>
-      {show && (
-        <div className="chatbox-container">
-          <ChatPopupHeader
-            directContact={currentContact}
-            channel={currentChannel}
-            canSendMessage={canSendMessage}
-            handleBackArrowSvg={handleBackArrowSvg}
-            handleMessageSvgClick={handleMessageSvgClick}
-            showSearchUser={showSearchUser}
-          />
-          {isJoinChatLoading && <LinearProgress />}
-          <NetworkError />
-          <div
-            className={`chat-body h-full ${
-              currentContact ? "current-user" : currentChannel ? "community" : ""
-            } ${
-              !hasUserJoinedChat ? "flex items-center justify-center" : hasMore ? "no-scroll" : ""
-            }`}
-            ref={chatBodyDivRef}
-          >
-            {hasUserJoinedChat && !revealPrivateKey ? (
-              <>
-                {!!currentContact || !!currentChannel ? (
-                  isContactJoined || !!currentChannel ? (
-                    <ChatPopupMessagesList
-                      currentContact={currentContact}
-                      currentChannel={currentChannel}
-                    />
-                  ) : (
-                    currentContact && <ChatInvitation currentContact={currentContact} />
-                  )
-                ) : showSearchUser ? (
-                  <ChatPopupSearchUser
-                    onCommunityClicked={(v) => {
-                      setCommunityName(v);
-                      setReceiverPubKey("");
-                    }}
-                  />
-                ) : (
-                  <ChatPopupContactsAndChannels
-                    communityClicked={(community: string) => {
-                      setCommunityName(community);
-                      setReceiverPubKey("");
-                    }}
-                    setShowSearchUser={setShowSearchUser}
-                    userClicked={(username) => {
-                      setCommunityName("");
-                    }}
-                  />
-                )}
-              </>
-            ) : revealPrivateKey ? (
-              <div className="p-4">
-                <ManageChatKey />
-              </div>
+    <div className="chatbox-container">
+      <ChatPopupHeader
+        directContact={currentContact}
+        channel={currentChannel}
+        canSendMessage={canSendMessage}
+        handleBackArrowSvg={handleBackArrowSvg}
+        handleMessageSvgClick={handleMessageSvgClick}
+        showSearchUser={showSearchUser}
+      />
+      {isJoinChatLoading && <LinearProgress />}
+      <NetworkError />
+      <div
+        className={`chat-body h-full ${
+          currentContact ? "current-user" : currentChannel ? "community" : ""
+        } ${!hasUserJoinedChat ? "flex items-center justify-center" : hasMore ? "no-scroll" : ""}`}
+        ref={chatBodyDivRef}
+      >
+        {hasUserJoinedChat && !revealPrivateKey ? (
+          <>
+            {!!currentContact || !!currentChannel ? (
+              isContactJoined || !!currentChannel ? (
+                <ChatPopupMessagesList
+                  currentContact={currentContact}
+                  currentChannel={currentChannel}
+                />
+              ) : (
+                currentContact && <ChatInvitation currentContact={currentContact} />
+              )
+            ) : showSearchUser ? (
+              <ChatPopupSearchUser
+                onCommunityClicked={(v) => {
+                  setCommunityName(v);
+                  setReceiverPubKey("");
+                }}
+              />
             ) : (
-              <ChatsWelcome />
+              <ChatPopupContactsAndChannels
+                communityClicked={(community: string) => {
+                  setCommunityName(community);
+                  setReceiverPubKey("");
+                }}
+                setShowSearchUser={setShowSearchUser}
+                userClicked={(username) => {
+                  setCommunityName("");
+                }}
+              />
             )}
-            {communityName && !currentChannel && (
-              <ChatsUserNotJoinedSection username={communityName} />
-            )}
+          </>
+        ) : revealPrivateKey ? (
+          <div className="p-4">
+            <ManageChatKey />
           </div>
-          <div className="pl-2">
-            {((currentContact && isContactJoined) || (currentChannel && isJoinedToChannel)) && (
-              <ChatInput currentContact={currentContact} currentChannel={currentChannel} />
-            )}
-            {currentChannel && !isJoinedToChannel && (
-              <ChatChannelNotJoined channel={currentChannel} />
-            )}
-          </div>
-        </div>
-      )}
-    </>
+        ) : (
+          <ChatsWelcome />
+        )}
+        {communityName && !currentChannel && <ChatsUserNotJoinedSection username={communityName} />}
+      </div>
+      <div className="pl-2">
+        {((currentContact && isContactJoined) || (currentChannel && isJoinedToChannel)) && (
+          <ChatInput currentContact={currentContact} currentChannel={currentChannel} />
+        )}
+        {currentChannel && !isJoinedToChannel && <ChatChannelNotJoined channel={currentChannel} />}
+      </div>
+    </div>
   );
 };
