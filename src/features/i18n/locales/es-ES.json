@@ -107,6 +107,7 @@
     "toggle-icon-info": "Haz clic para ampliar",
     "help": "Ayuda",
     "welcome": "Bienvenido a Ecency",
+    "center": "Ecency center",
     "need-help": "¿Necesitas ayuda?",
     "search-placeholder": "Buscar",
     "suggestion": "Artículos sugeridos",
@@ -2466,5 +2467,10 @@
   "hs-login": {
     "title": "Iniciando sesión en Ecency con HiveSigner",
     "message": "Por favor espere un poco, serás redirigido automáticamente."
+  },
+  "center": {
+    "faq": "FAQ",
+    "chats": "Chats",
+    "news": "News"
   }
 }
