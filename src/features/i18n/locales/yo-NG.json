@@ -2475,11 +2475,11 @@
   },
   "not-found": {
     "title": "Not found",
-    "description": "Oops! Got lost in ocean ⛵️🧭",
+    "description": "Oops! It seems there isn`t page related to URL:(",
     "back-home": "Back to home"
   },
   "global-error": {
-    "description": "Please, try again or report an issue 🐡"
+    "description": "Something went wrong. Please, try again or report an issue"
   },
   "issue-reporter": {
     "report": "Report",
