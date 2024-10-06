@@ -2472,5 +2472,21 @@
     "faq": "FAQ",
     "chats": "Chats",
     "news": "Nyheter"
+  },
+  "not-found": {
+    "title": "Not found",
+    "description": "Oops! It seems there isn`t page related to URL:(",
+    "back-home": "Back to home"
+  },
+  "global-error": {
+    "description": "Something went wrong. Please, try again or report an issue"
+  },
+  "issue-reporter": {
+    "report": "Report",
+    "report-issue": "Report an issue",
+    "name-placeholder": "Your username",
+    "email-placeholder": "Your e-mail(optional)",
+    "message-placeholder": "Please, describe your report",
+    "issue-reported": "Issue reported successfully"
   }
 }
