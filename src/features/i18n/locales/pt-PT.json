@@ -1915,7 +1915,7 @@
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
     "start-community-channel": "Start community channel",
-    "view-community-channel": "Community chat",
+    "view-community-channel": "View community channel",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
     "public-key": "Public key",
@@ -2475,11 +2475,11 @@
   },
   "not-found": {
     "title": "Not found",
-    "description": "Oops! Got lost in ocean ⛵️🧭",
+    "description": "Oops! It seems there isn`t page related to URL:(",
     "back-home": "Back to home"
   },
   "global-error": {
-    "description": "Please, try again or report an issue 🐡"
+    "description": "Something went wrong. Please, try again or report an issue"
   },
   "issue-reporter": {
     "report": "Report",
