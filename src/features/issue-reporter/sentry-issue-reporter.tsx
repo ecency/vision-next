@@ -12,9 +12,10 @@ import { success } from "@/features/shared";
 
 interface Props {
   error?: any;
+  onHide: () => void;
 }
 
-export function SentryIssueReporter({ error }: Props) {
+export function SentryIssueReporter({ error, onHide }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const pathname = usePathname();
@@ -44,7 +45,8 @@ export function SentryIssueReporter({ error }: Props) {
 
     setIsLoading(false);
     success(i18next.t("issue-reporter.issue-reported"));
-  }, [activeUser, email, error, message, name, pathname]);
+    onHide();
+  }, [activeUser, email, error, message, name, onHide, pathname]);
 
   return (
     <Form className="flex flex-col gap-4">
