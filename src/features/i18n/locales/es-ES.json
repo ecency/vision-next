@@ -2474,19 +2474,19 @@
     "news": "Noticias"
   },
   "not-found": {
-    "title": "Not found",
-    "description": "Oops! Got lost in ocean ⛵️🧭",
-    "back-home": "Back to home"
+    "title": "No encontrado",
+    "description": "¡Ups! Se ha perdido en el océano ⛵🧭",
+    "back-home": "Regresa al inicio"
   },
   "global-error": {
-    "description": "Please, try again or report an issue 🐡"
+    "description": "Por favor, inténtalo de nuevo o reporta un problema 🐡"
   },
   "issue-reporter": {
-    "report": "Report",
-    "report-issue": "Report an issue",
-    "name-placeholder": "Your username",
-    "email-placeholder": "Your e-mail(optional)",
-    "message-placeholder": "Please, describe your report",
-    "issue-reported": "Issue reported successfully"
+    "report": "Reportar",
+    "report-issue": "Informar de un problema",
+    "name-placeholder": "Tu nombre de usuario",
+    "email-placeholder": "Tu correo electrónico (opcional)",
+    "message-placeholder": "Por favor, describe tu reporte",
+    "issue-reported": "Problema reportado con éxito"
   }
 }
