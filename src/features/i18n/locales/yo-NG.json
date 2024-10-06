@@ -1432,7 +1432,8 @@
     "image-error-conflict-name": "You have image with this filename already. Select it from gallery instead.",
     "fragments": "Snippets",
     "link-image": "Link",
-    "polls": "Polls"
+    "polls": "Polls",
+    "image-error-network": "Can't upload image due to API error"
   },
   "emoji-picker": {
     "filter-placeholder": "Filter",
@@ -2466,5 +2467,26 @@
   "hs-login": {
     "title": "Logging in to Ecency from HiveSigner",
     "message": "Please wait a bit, You will be redirected automatically."
+  },
+  "center": {
+    "faq": "FAQ",
+    "chats": "Chats",
+    "news": "News"
+  },
+  "not-found": {
+    "title": "Not found",
+    "description": "Oops! Got lost in ocean ⛵️🧭",
+    "back-home": "Back to home"
+  },
+  "global-error": {
+    "description": "Please, try again or report an issue 🐡"
+  },
+  "issue-reporter": {
+    "report": "Report",
+    "report-issue": "Report an issue",
+    "name-placeholder": "Your username",
+    "email-placeholder": "Your e-mail(optional)",
+    "message-placeholder": "Please, describe your report",
+    "issue-reported": "Issue reported successfully"
   }
 }

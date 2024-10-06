@@ -107,6 +107,7 @@
     "toggle-icon-info": "Click to expand",
     "help": "Hjälp",
     "welcome": "Välkommen till Ecency",
+    "center": "Ecency center",
     "need-help": "Behöver du hjälp?",
     "search-placeholder": "Sök",
     "suggestion": "Suggested articles",
@@ -1431,7 +1432,8 @@
     "image-error-conflict-name": "You have image with this filename already. Select it from gallery instead.",
     "fragments": "Snippets",
     "link-image": "Länk",
-    "polls": "Polls"
+    "polls": "Polls",
+    "image-error-network": "Can't upload image due to API error"
   },
   "emoji-picker": {
     "filter-placeholder": "Filter",
@@ -1913,7 +1915,7 @@
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
     "start-community-channel": "Start community channel",
-    "view-community-channel": "View community channel",
+    "view-community-channel": "Community chat",
     "submit": "Skicka",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
     "public-key": "Public key",
@@ -2465,5 +2467,26 @@
   "hs-login": {
     "title": "Logging in to Ecency from HiveSigner",
     "message": "Please wait a bit, You will be redirected automatically."
+  },
+  "center": {
+    "faq": "FAQ",
+    "chats": "Chats",
+    "news": "Nyheter"
+  },
+  "not-found": {
+    "title": "Not found",
+    "description": "Oops! Got lost in ocean ⛵️🧭",
+    "back-home": "Back to home"
+  },
+  "global-error": {
+    "description": "Please, try again or report an issue 🐡"
+  },
+  "issue-reporter": {
+    "report": "Report",
+    "report-issue": "Report an issue",
+    "name-placeholder": "Your username",
+    "email-placeholder": "Your e-mail(optional)",
+    "message-placeholder": "Please, describe your report",
+    "issue-reported": "Issue reported successfully"
   }
 }
