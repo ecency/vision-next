@@ -355,16 +355,8 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
         enabled={tourEnabled}
       />
 
-      <div className={`app-content submit-page ${editingEntry !== null ? "editing" : ""}`}>
+      <div className="app-content submit-page">
         <div className="editor-panel">
-          <EditorPanelActions
-            onClear={clear}
-            advanced={advanced}
-            getHasAdvanced={getHasAdvanced}
-            setAdvanced={setAdvanced}
-            editingEntry={editingEntry}
-            editingDraft={editingDraft}
-          />
           {editingEntry === null && activeUser && (
             <div className="community-input whitespace-nowrap">
               <CommunitySelector
@@ -455,30 +447,18 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
           ) : (
             <></>
           )}
+          <EditorPanelActions
+            onClear={clear}
+            advanced={advanced}
+            getHasAdvanced={getHasAdvanced}
+            setAdvanced={setAdvanced}
+            editingEntry={editingEntry}
+            editingDraft={editingDraft}
+          />
         </div>
         <div className="flex-spacer" />
         {advanced && (
           <div className="advanced-panel">
-            <EditorActions
-              isDraftEmpty={isDraftEmpty}
-              drafts={drafts}
-              setDrafts={setDrafts}
-              onClear={clear}
-              editingDraft={editingDraft}
-              editingEntry={editingEntry}
-              schedule={schedule}
-              title={title}
-              tags={tags}
-              body={body}
-              reward={reward}
-              reblogSwitch={reblogSwitch}
-              beneficiaries={beneficiaries}
-              description={description}
-              selectedThumbnail={selectedThumbnail}
-              selectionTouched={false}
-              validate={validate}
-              disabled={false}
-            />
             <div className="panel-header">
               <h2 className="panel-header-title">{i18next.t("submit.advanced")}</h2>
             </div>
@@ -645,10 +625,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                 )}
               </div>
             </div>
-          </div>
-        )}
-        {!advanced && (
-          <div className="preview-panel">
             <EditorActions
               isDraftEmpty={isDraftEmpty}
               drafts={drafts}
@@ -669,11 +645,35 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               validate={validate}
               disabled={false}
             />
+          </div>
+        )}
+        {!advanced && (
+          <div className="preview-panel">
             <div className="panel-header">
               <h2 className="panel-header-title">{i18next.t("submit.preview")}</h2>
               <WordCount selector=".preview-body" watch={true} />
             </div>
             <SubmitPreviewContent title={preview.title} body={preview.body} tags={preview.tags} />
+            <EditorActions
+              isDraftEmpty={isDraftEmpty}
+              drafts={drafts}
+              setDrafts={setDrafts}
+              onClear={clear}
+              editingDraft={editingDraft}
+              editingEntry={editingEntry}
+              schedule={schedule}
+              title={title}
+              tags={tags}
+              body={body}
+              reward={reward}
+              reblogSwitch={reblogSwitch}
+              beneficiaries={beneficiaries}
+              description={description}
+              selectedThumbnail={selectedThumbnail}
+              selectionTouched={false}
+              validate={validate}
+              disabled={false}
+            />
           </div>
         )}
       </div>
