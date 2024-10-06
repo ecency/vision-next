@@ -11,7 +11,7 @@ import {
   ReadTime
 } from "./_components";
 import { getQueryClient } from "@/core/react-query";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateEntryMetadata } from "../../../_helpers";
@@ -38,7 +38,15 @@ export default async function EntryPage({
     if (deletedEntry) {
       return (
         <EntryPageContextProvider>
-          <DeletedPostScreen deletedEntry={deletedEntry} username={author} permlink={permlink} />
+          <div className="app-content entry-page">
+            <div className="the-entry">
+              <DeletedPostScreen
+                deletedEntry={deletedEntry}
+                username={author}
+                permlink={permlink}
+              />
+            </div>
+          </div>
         </EntryPageContextProvider>
       );
     }

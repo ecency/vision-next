@@ -106,6 +106,13 @@ export namespace PagesMetadataGenerator {
     };
   }
 
+  function buildForNotFound(): Metadata {
+    return {
+      title: i18next.t("not-found.title"),
+      description: i18next.t("not-found.description")
+    };
+  }
+
   export async function getForPage(name: string): Promise<Metadata> {
     await initI18next();
     if (name === "about") return buildForAbout();
@@ -125,6 +132,7 @@ export namespace PagesMetadataGenerator {
     if (name === "search") return buildForSearch();
     if (name === "signup") return buildForSignUp();
     if (name === "witnesses") return buildForWitnesses();
+    if (name === "not-found") return buildForNotFound();
     return {};
   }
 }
