@@ -28,7 +28,7 @@ async function populateActiveUserByApi(activeUser: ActiveUser) {
     name: activeUser.username
   };
   try {
-    const response = await getAccountFullQuery(activeUser.username).prefetch();
+    const response = await getAccountFullQuery(activeUser.username).fetchAndGet();
     if (!response) {
       return fallback;
     }
