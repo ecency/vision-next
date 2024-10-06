@@ -26,7 +26,6 @@ export function useEntryVote(entry?: Entry) {
       }
 
       await vote(activeUser?.username, entry.author, entry.permlink, weight);
-      updateActiveUser(); // refresh voting power
 
       return [
         estimated,
@@ -39,6 +38,8 @@ export function useEntryVote(entry?: Entry) {
       ] as const;
     },
     onSuccess: ([estimated, votes]) => {
+      updateActiveUser(); // refresh voting power
+
       if (!entry) {
         throw new Error("No entry provided");
       }

@@ -12,7 +12,7 @@ export const dataLimit = typeof window !== "undefined" && window.screen.width < 
 export const bridgeApiCall = <T>(endpoint: string, params: {}): Promise<T> =>
   bridgeServer.call("bridge", endpoint, params);
 
-export const resolvePost = (post: Entry, observer: string, num?: number): Promise<Entry> => {
+export const resolvePost = async (post: Entry, observer: string, num?: number): Promise<Entry> => {
   const { json_metadata: json } = post;
 
   if (
@@ -21,26 +21,22 @@ export const resolvePost = (post: Entry, observer: string, num?: number): Promis
     json.tags &&
     json.tags[0] === "cross-post"
   ) {
-    return getPost(json.original_author, json.original_permlink, observer, num)
-      .then((resp) => {
-        if (resp) {
-          return {
-            ...post,
-            original_entry: resp,
-            num
-          };
-        }
-
-        return post;
-      })
-      .catch(() => {
-        return post;
-      });
+    try {
+      const resp = await getPost(json.original_author, json.original_permlink, observer, num);
+      if (resp) {
+        return {
+          ...post,
+          original_entry: resp,
+          num
+        };
+      }
+      return post;
+    } catch (e) {
+      return post;
+    }
   }
 
-  return new Promise((resolve) => {
-    resolve({ ...post, num });
-  });
+  return { ...post, num };
 };
 
 const resolvePosts = (posts: Entry[], observer: string): Promise<Entry[]> => {
@@ -110,7 +106,7 @@ export const getPost = async (
   });
 
   if (resp) {
-    return await resolvePost(resp, observer, num);
+    return resolvePost(resp, observer, num);
   }
 
   return undefined;
