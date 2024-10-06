@@ -7,11 +7,13 @@ import { getCommunitiesQuery } from "@/api/queries";
 import i18next from "i18next";
 import { LinearProgress } from "@/features/shared";
 import { CommunityListItem } from "@/app/communities/_components";
+import { getCommunityCache } from "@/core/caches";
 
 export const TopCommunitiesWidget = () => {
+  const { data: ecencyCommunity } = getCommunityCache("hive-125125").useClientQuery();
   const { data, isLoading: loading } = getCommunitiesQuery("rank").useClientQuery();
   const list = useMemo(() => {
-    if (!data) {
+    if (!data || !ecencyCommunity) {
       return [];
     }
 
@@ -22,8 +24,12 @@ export const TopCommunitiesWidget = () => {
         result.push(data[index]);
       }
     }
+    if (ecencyCommunity) {
+      return [ecencyCommunity, ...result.slice(0, result.length - 1)];
+    }
+
     return result;
-  }, [data]);
+  }, [ecencyCommunity, data]);
 
   return (
     <div className="top-communities-widget">
