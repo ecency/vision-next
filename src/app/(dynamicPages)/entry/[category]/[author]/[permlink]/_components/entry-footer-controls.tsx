@@ -46,8 +46,11 @@ export function EntryFooterControls({ entry }: Props) {
   useDistanceDetector(ref, showProfileBox, showWordCount, setShowProfileBox, setShowWordCount);
 
   return (
-    <div className="entry-controls text-sm flex-wrap gap-4" ref={ref}>
-      <div className="flex items-center gap-2">
+    <div
+      className="entry-controls text-sm flex-wrap gap-4 [&_.entry-tip-btn]:mr-0 [&_.entry-reblog-btn]:!mr-0"
+      ref={ref}
+    >
+      <div className="flex items-center gap-4">
         <EntryVoteBtn isPostSlider={true} entry={entry} />
         <EntryPayout entry={entry} />
         <EntryVotes entry={entry} />
