@@ -14,7 +14,7 @@ const getDays = (createdDate: string): number => {
 
 export const getAccountVoteHistoryQuery = <F>(username: string, filters: F[] = [], limit = 20) =>
   EcencyQueriesManager.generateClientServerInfiniteQuery({
-    queryKey: [QueryIdentifiers.ACCOUNT_VOTES_HISTORY],
+    queryKey: [QueryIdentifiers.ACCOUNT_VOTES_HISTORY, username],
     queryFn: async ({ pageParam: { start } }) => {
       const response = await client.call("condenser_api", "get_account_history", [
         username,
@@ -34,9 +34,15 @@ export const getAccountVoteHistoryQuery = <F>(username: string, filters: F[] = [
             filtered.weight != 0 &&
             getDays(filtered.timestamp) <= days
         );
-      const entries = await Promise.all<Entry[]>(
-        result.map((obj: any) => getPostQuery(obj.author, obj.permlink).prefetch())
-      );
+      const entries: Entry[] = [];
+
+      for (const obj of result) {
+        const post = await getPostQuery(obj.author, obj.permlink).fetchAndGet();
+        if (post) {
+          entries.push(post);
+        }
+      }
+
       return {
         lastDate: getDays(response[0][1].timestamp),
         lastItemFetched: response[0][0],
