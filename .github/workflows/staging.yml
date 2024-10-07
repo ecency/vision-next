@@ -40,8 +40,9 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
         with:
           context: ./
+          build-args: |
+            "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}"
           file: ./Dockerfile
-          envs: SENTRY_AUTH_TOKEN
           push: true
           tags: ecency/vision-next:develop
 

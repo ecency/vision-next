@@ -2,6 +2,10 @@ FROM node:18.17.1 as base
 
 WORKDIR /var/app
 
+# The SENTRY_AUTH_TOKEN is used to upload the source maps to Sentry
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN ${SENTRY_AUTH_TOKEN}
+
 COPY package.json yarn.lock ./
 
 RUN yarn install --non-interactive --frozen-lockfile --ignore-optional
