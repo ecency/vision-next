@@ -1,5 +1,5 @@
 import axios from "axios";
 
 export const appAxios = axios.create({
-  timeout: 5000
+  timeout: typeof window !== "undefined" ? Infinity : 30000
 });
