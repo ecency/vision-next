@@ -125,7 +125,7 @@ export function SignUp() {
 
   useDebounce(
     () => {
-      if (username?.length >= 3) {
+      if (username?.length >= 3 && username.length <= 16) {
         getAccounts([username]).then((r) => {
           if (r.length > 0) {
             setUsernameError(i18next.t("sign-up.username-exists"));
@@ -362,7 +362,14 @@ export function SignUp() {
                         <Button
                           className="block"
                           type="submit"
-                          disabled={inProgress || !isVerified || isDisabled}
+                          disabled={
+                            inProgress ||
+                            !isVerified ||
+                            isDisabled ||
+                            !!usernameError ||
+                            !!emailError ||
+                            !!referralError
+                          }
                           icon={inProgress && <Spinner className="w-3.5 h-3.5" />}
                           iconPlacement="left"
                         >
