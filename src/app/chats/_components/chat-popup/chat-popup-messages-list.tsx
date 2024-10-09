@@ -31,7 +31,7 @@ export function ChatPopupMessagesList({ currentContact, currentChannel }: Props)
   const { isSuccess: isDirectContactsLoaded } = useDirectContactsQuery();
 
   const { mutateAsync: updateDirectContactsLastSeenDate } = useUpdateDirectContactsLastSeenDate();
-  const updateChannelLastSeenDate = useUpdateChannelLastSeenDate();
+  const { mutateAsync: updateChannelLastSeenDate } = useUpdateChannelLastSeenDate();
 
   const isActiveUser = useMemo(
     () => currentContact?.pubkey === publicKey,
@@ -50,7 +50,7 @@ export function ChatPopupMessagesList({ currentContact, currentChannel }: Props)
 
   useEffect(() => {
     if (currentChannel) {
-      updateChannelLastSeenDate.mutateAsync({
+      updateChannelLastSeenDate({
         channel: currentChannel,
         lastSeenDate: new Date()
       });

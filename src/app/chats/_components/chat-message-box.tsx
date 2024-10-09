@@ -34,7 +34,7 @@ export function ChatsMessagesBox(props: Props) {
 
   const { isSuccess: isDirectContactsLoaded } = useDirectContactsQuery();
   const { mutateAsync: updateDirectContactsLastSeenDate } = useUpdateDirectContactsLastSeenDate();
-  const updateChannelLastSeenDate = useUpdateChannelLastSeenDate();
+  const { mutateAsync: updateChannelLastSeenDate } = useUpdateChannelLastSeenDate();
 
   useAutoScrollInChatBox(props.currentContact, props.channel);
 
@@ -50,7 +50,7 @@ export function ChatsMessagesBox(props: Props) {
 
   useEffect(() => {
     if (props.channel) {
-      updateChannelLastSeenDate.mutateAsync({
+      updateChannelLastSeenDate({
         channel: props.channel,
         lastSeenDate: new Date()
       });

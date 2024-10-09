@@ -1,7 +1,7 @@
 import React from "react";
 import { Profile } from "@ecency/ns-query";
-import Link from "next/link";
 import { classNameObject } from "@ui/util";
+import { ProfileLink } from "@/features/shared";
 
 interface Props {
   showUsername?: boolean;
@@ -12,18 +12,15 @@ interface Props {
 
 export function ChatMessageUsernameLabel({ showUsername, isEmoji, isGif, profile }: Props) {
   return showUsername ? (
-    <Link
+    <ProfileLink
+      username={profile!.name}
       className={classNameObject({
         "font-semibold text-sm mb-2 text-blue-dark-sky": true,
         "px-2.5": isGif || isEmoji
       })}
-      style={{
-        display: "inherit"
-      }}
-      href={`/@${profile!.name}`}
     >
-      {profile!.name}
-    </Link>
+      <>{profile!.name}</>
+    </ProfileLink>
   ) : (
     <></>
   );

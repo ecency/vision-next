@@ -19,6 +19,7 @@ interface Props {
   currentUser?: string;
   channel?: Channel;
   contact?: DirectContact;
+  isWidget?: boolean;
 }
 
 export const ChatsDropdownMenu = (props: Props) => {
@@ -56,7 +57,9 @@ export const ChatsDropdownMenu = (props: Props) => {
         <Button size="sm" appearance="gray-link">
           {kebabMenuSvg}
         </Button>
-        <DropdownMenu align="right">
+        <DropdownMenu
+          align={props.isWidget && !props.contact && !props.channel ? "rightBottom" : "right"}
+        >
           {props.contact && (
             <DropdownItemWithIcon
               icon={pinSvg}
