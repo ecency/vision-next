@@ -2471,7 +2471,8 @@
   "center": {
     "faq": "Preguntas Frecuentes (FAQ)",
     "chats": "Chats",
-    "news": "Noticias"
+    "news": "Noticias",
+    "chats-page-placeholder": "Chats have opened in extended view"
   },
   "not-found": {
     "title": "No encontrado",
