@@ -2471,7 +2471,8 @@
   "center": {
     "faq": "FAQ",
     "chats": "Chats",
-    "news": "Nyheter"
+    "news": "Nyheter",
+    "chats-page-placeholder": "Chats have opened in extended view"
   },
   "not-found": {
     "title": "Not found",
