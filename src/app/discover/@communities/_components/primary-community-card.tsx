@@ -28,7 +28,9 @@ export function PrimaryCommunityCard({ community }: Props) {
         </h3>
         <p className="capitalize text-sm opacity-75 text-center">{community.about}</p>
       </div>
-      <SubscriptionBtn community={community} buttonProps={{ full: true }} />
+      <div className="flex justify-center">
+        <SubscriptionBtn community={community} />
+      </div>
       <div className="bg-[--border-color] h-[1px]" />
       <div className="grid grid-cols-3 text-center text-sm opacity-75">
         <div>
@@ -49,7 +51,7 @@ export function PrimaryCommunityCard({ community }: Props) {
       </div>
       <div className="bg-[--border-color] h-[1px]" />
       <div className="flex flex-col gap-2">
-        <h4 className="text-sm opacity-75 font-semibold">{i18next.t("communities.team")}</h4>
+        <h4 className="text-sm opacity-75 font-semibold">{i18next.t("discover.team")}</h4>
         <div className="flex flex-wrap gap-2">
           {community.team
             .filter(([_, role]) => role === "admin")

@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { PropsWithChildren } from "react";
 
-export function CommunityCardAnimated(props: PropsWithChildren<{ i: number; className: string }>) {
+export function CommunityCardAnimated(props: PropsWithChildren<{ i: number; className?: string }>) {
   return (
     <motion.article
       initial={{

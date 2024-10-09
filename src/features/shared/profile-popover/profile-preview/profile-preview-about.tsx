@@ -21,7 +21,9 @@ export function ProfilePreviewAbout({ username }: Props) {
           <div className="font-bold text-xs uppercase opacity-50">
             {i18next.t("profile-edit.about")}
           </div>
-          <Link href={`/@${username}`}>{profile.profile.about}</Link>
+          <Link href={`/@${username}`} className="line-clamp-5">
+            {profile.profile.about}
+          </Link>
         </div>
       )}
     </div>

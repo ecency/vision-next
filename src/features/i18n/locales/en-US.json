@@ -1647,7 +1647,8 @@
     "description": "Discover top online users",
     "title-next": "explore Hive efficiently: users, communities, curators etc.",
     "team": "Team",
-    "view-more-communities": "Explore more communities"
+    "view-more-communities": "Explore more communities",
+    "leads-curators": "Explore the most active users"
   },
   "search-page": {
     "title": "Search",

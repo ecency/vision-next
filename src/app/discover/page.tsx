@@ -1,4 +1,3 @@
-import "./page.scss";
 import { Metadata, ResolvingMetadata } from "next";
 import { getContributorsQuery } from "@/api/queries";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
