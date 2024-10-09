@@ -91,7 +91,8 @@
     "restore": "Restore",
     "success": "Success",
     "error": "Error",
-    "reset-form": "Reset form"
+    "reset-form": "Reset form",
+    "community": "Community"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -1643,7 +1644,10 @@
   },
   "discover": {
     "title": "Discover",
-    "description": "Discover top online users"
+    "description": "Discover top online users",
+    "title-next": "explore Hive efficiently: users, communities, curators etc.",
+    "team": "Team",
+    "view-more-communities": "Explore more communities"
   },
   "search-page": {
     "title": "Search",
