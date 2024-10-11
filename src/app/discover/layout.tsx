@@ -18,7 +18,7 @@ export default function Layout(
       <FullHeight />
       <Theme />
       <Navbar />
-      <div className="bg-blue-duck-egg dark:bg-transparent pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
+      <div className="bg-blue-duck-egg dark:bg-black pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
         <div className="absolute hidden lg:block top-16 left-0 right-0 bottom-0">
           <Image
             width={1920}
@@ -47,7 +47,12 @@ export default function Layout(
             {props.leaderboard}
             {props.curation}
           </div>
-          {props.contributors}
+          <div className="relative flex flex-col gap-4 sm:gap-6 lg:gap-8 mt-6 ms:mt-8 lg:mt-10 xl:mt-16">
+            <h3 className="col-span-1 sm:col-span-2 text-2xl font-semibold">
+              {i18next.t("contributors.title")}
+            </h3>
+            {props.contributors}
+          </div>
           <div className="relative">{props.children}</div>
         </div>
       </div>

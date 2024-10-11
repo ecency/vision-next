@@ -31,7 +31,7 @@ export function UsersTableListItem({ username, children, i }: PropsWithChildren<
       transition={{
         delay: 0.1 * i
       }}
-      className="bg-white dark:bg-dark-200 border border-[--border-color] rounded-2xl p-4 flex items-center justify-between gap-4"
+      className="bg-gray-100 dark:bg-dark-200 border border-[--border-color] rounded-2xl p-4 flex items-center justify-between gap-4"
     >
       <div className="flex items-center gap-4">
         <UserAvatar size="medium" username={username} />
