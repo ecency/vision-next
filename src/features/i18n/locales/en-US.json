@@ -148,13 +148,13 @@
   },
   "navbar": {
     "discover": "Discover",
-    "communities": "Communities",
     "decks": "Decks",
     "post": "Create Post",
     "day-theme": "Day Theme",
     "night-theme": "Night Theme",
     "address-placeholder": "enter url or search query",
-    "home": "Home"
+    "home": "Home",
+    "waves": "Waves"
   },
   "search": {
     "placeholder": "Search",

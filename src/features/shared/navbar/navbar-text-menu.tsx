@@ -14,9 +14,9 @@ export function NavbarTextMenu() {
       </Link>
       <Link
         className="menu-item text-gunmetal hover:text-gray-warm dark:text-blue-duck-egg mt-0"
-        href="/communities"
+        href="/waves"
       >
-        {i18next.t("navbar.communities")}
+        {i18next.t("navbar.waves")}
       </Link>
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.decks.enabled}

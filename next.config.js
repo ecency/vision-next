@@ -43,6 +43,10 @@ const config = {
   async rewrites() {
     return [
       {
+        source: "/communities",
+        destination: "/discover/communities"
+      },
+      {
         source: "/:author(@.+)/feed",
         destination: "/feed/feed/:author"
       },
