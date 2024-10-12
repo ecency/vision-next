@@ -40,8 +40,8 @@ export default function Layout(
             </div>
           </div>
           {props.communities}
-          <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-6 ms:mt-8 lg:mt-10 xl:mt-16">
-            <h3 className="col-span-1 sm:col-span-2 text-2xl font-semibold">
+          <div className="relative grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-6 ms:mt-8 lg:mt-10 xl:mt-16">
+            <h3 className="col-span-1 md:col-span-2 text-2xl font-semibold">
               {i18next.t("discover.leads-curators")}
             </h3>
             {props.leaderboard}

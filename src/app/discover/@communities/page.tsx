@@ -25,7 +25,7 @@ export default async function CommunitiesList() {
             <CommunityCard community={community} i={i + 1} key={community.title} />
           ))}
           <CommunityCardAnimated
-            className="col-span-6 lg:col-span-4 h-full"
+            className="col-span-12 sm:col-span-6 lg:col-span-4 h-full"
             i={(communities?.length ?? 0) + 1}
           >
             <Link
