@@ -1,5 +1,3 @@
-import i18next from "i18next";
-import Link from "next/link";
 import "./page.scss";
 import { CommunitiesList } from "./_components";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
@@ -26,17 +24,7 @@ export default async function Communities({ searchParams }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <div className="app-content communities-page">
-        <div className="community-list">
-          <div className="list-header">
-            <h1 className="list-title">{i18next.t("communities.title")}</h1>
-            <Link href="/communities/create" className="create-link">
-              {i18next.t("communities.create")}
-            </Link>
-          </div>
-          <CommunitiesList query={searchParams.q ?? ""} sort={searchParams.sort || "rank"} />
-        </div>
-      </div>
+      <CommunitiesList query={searchParams.q ?? ""} sort={searchParams.sort || "rank"} />
     </HydrationBoundary>
   );
 }

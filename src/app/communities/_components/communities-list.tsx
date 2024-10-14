@@ -1,11 +1,10 @@
 import i18next from "i18next";
-import { CommunityListItem } from "@/app/communities/_components/community-list-item";
 import { getCommunitiesQuery } from "@/api/queries";
 import { CommunitiesListSearch } from "@/app/communities/_components/communities-list-search";
 import { CommunitiesListSortSelector } from "@/app/communities/_components/communities-list-sort-selector";
-import { CommunityListItemAnimatedLayout } from "@/app/communities/_components/community-list-item-animated-layout";
-import { SafeAnimatePresence } from "@/features/framer-motion";
 import { getCommunityCache } from "@/core/caches";
+import { CommunityCardAnimated } from "@/app/discover/@communities/_components/community-card-animated";
+import { CommunityCard } from "@/app/discover/@communities/_components/community-card";
 
 interface Props {
   sort: string;
@@ -24,11 +23,9 @@ export async function CommunitiesList({ sort, query }: Props) {
 
   return (
     <>
-      <div className="list-form">
-        <div className="search">
-          <CommunitiesListSearch sort={sort} query={query} />
-        </div>
-        <div className="sort">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between">
+        <CommunitiesListSearch sort={sort} query={query} />
+        <div>
           <CommunitiesListSortSelector sort={sort} query={query} />
         </div>
       </div>
@@ -36,13 +33,17 @@ export async function CommunitiesList({ sort, query }: Props) {
         {list?.length === 0 && (
           <div className="no-results">{i18next.t("communities.no-results")}</div>
         )}
-        <SafeAnimatePresence mode="popLayout">
+        <div className="grid grid-cols-12 gap-4 mt-4">
           {list?.map((x, i) => (
-            <CommunityListItemAnimatedLayout key={x.name} i={i}>
-              <CommunityListItem community={x} />
-            </CommunityListItemAnimatedLayout>
+            <CommunityCardAnimated
+              className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3"
+              key={x.name}
+              i={i}
+            >
+              <CommunityCard i={i} community={x} />
+            </CommunityCardAnimated>
           ))}
-        </SafeAnimatePresence>
+        </div>
       </div>
     </>
   );

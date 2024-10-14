@@ -10,6 +10,7 @@ export default function Layout(
     leaderboard: ReactNode;
     curation: ReactNode;
     contributors: ReactNode;
+    communitiesDialog: ReactNode;
   }>
 ) {
   return (
@@ -54,6 +55,7 @@ export default function Layout(
             {props.contributors}
           </div>
           <div className="relative">{props.children}</div>
+          {props.communitiesDialog}
         </div>
       </div>
     </>
