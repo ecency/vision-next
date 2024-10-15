@@ -2489,5 +2489,9 @@
     "email-placeholder": "Your e-mail(optional)",
     "message-placeholder": "Please, describe your report",
     "issue-reported": "Issue reported successfully"
+  },
+  "entry-preview": {
+    "title": "Preview",
+    "description": "This post is creating now. You can interact with it when this message will disappear."
   }
 }
