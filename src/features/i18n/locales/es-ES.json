@@ -91,7 +91,8 @@
     "restore": "Restaurar",
     "success": "Éxito",
     "error": "Error",
-    "reset-form": "Reiniciar formulario"
+    "reset-form": "Reiniciar formulario",
+    "community": "Community"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -147,13 +148,13 @@
   },
   "navbar": {
     "discover": "Descubrir",
-    "communities": "Comunidades",
     "decks": "Mazos",
     "post": "Crear publicación",
     "day-theme": "Modo diurno",
     "night-theme": "Modo nocturno",
     "address-placeholder": "introduce url o consulta de búsqueda",
-    "home": "Inicio"
+    "home": "Inicio",
+    "waves": "Waves"
   },
   "search": {
     "placeholder": "Buscar",
@@ -1643,7 +1644,11 @@
   },
   "discover": {
     "title": "Descubrir",
-    "description": "Descubre mejores usuarios en línea"
+    "description": "Descubre mejores usuarios en línea",
+    "title-next": "explore Hive efficiently: users, communities, curators etc.",
+    "team": "Team",
+    "view-more-communities": "Explore more communities",
+    "leads-curators": "Explore the most active users"
   },
   "search-page": {
     "title": "Buscar",
@@ -2489,5 +2494,9 @@
     "email-placeholder": "Tu correo electrónico (opcional)",
     "message-placeholder": "Por favor, describe tu reporte",
     "issue-reported": "Problema reportado con éxito"
+  },
+  "entry-preview": {
+    "title": "Preview",
+    "description": "This post is creating now. You can interact with it when this message will disappear."
   }
 }
