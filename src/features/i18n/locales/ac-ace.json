@@ -91,7 +91,8 @@
     "restore": "Restore",
     "success": "Success",
     "error": "Error",
-    "reset-form": "Reset form"
+    "reset-form": "Reset form",
+    "community": "Community"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -147,13 +148,13 @@
   },
   "navbar": {
     "discover": "Discover",
-    "communities": "Communities",
     "decks": "Decks",
     "post": "Create Post",
     "day-theme": "Day Theme",
     "night-theme": "Night Theme",
     "address-placeholder": "enter url or search query",
-    "home": "Home"
+    "home": "Home",
+    "waves": "Waves"
   },
   "search": {
     "placeholder": "Search",
@@ -1643,7 +1644,11 @@
   },
   "discover": {
     "title": "Discover",
-    "description": "Discover top online users"
+    "description": "Discover top online users",
+    "title-next": "explore Hive efficiently: users, communities, curators etc.",
+    "team": "Team",
+    "view-more-communities": "Explore more communities",
+    "leads-curators": "Explore the most active users"
   },
   "search-page": {
     "title": "Search",
@@ -2471,15 +2476,16 @@
   "center": {
     "faq": "FAQ",
     "chats": "Chats",
-    "news": "News"
+    "news": "News",
+    "chats-page-placeholder": "Chats have opened in extended view"
   },
   "not-found": {
     "title": "Not found",
-    "description": "Oops! Got lost in ocean ⛵️🧭",
+    "description": "Oops! It seems there isn`t page related to URL:(",
     "back-home": "Back to home"
   },
   "global-error": {
-    "description": "Please, try again or report an issue 🐡"
+    "description": "Something went wrong. Please, try again or report an issue"
   },
   "issue-reporter": {
     "report": "Report",
@@ -2488,5 +2494,9 @@
     "email-placeholder": "Your e-mail(optional)",
     "message-placeholder": "Please, describe your report",
     "issue-reported": "Issue reported successfully"
+  },
+  "entry-preview": {
+    "title": "Preview",
+    "description": "This post is creating now. You can interact with it when this message will disappear."
   }
 }

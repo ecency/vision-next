@@ -91,7 +91,8 @@
     "restore": "Restaurar",
     "success": "Éxito",
     "error": "Error",
-    "reset-form": "Reiniciar formulario"
+    "reset-form": "Reiniciar formulario",
+    "community": "Community"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -147,13 +148,13 @@
   },
   "navbar": {
     "discover": "Descubrir",
-    "communities": "Comunidades",
     "decks": "Mazos",
     "post": "Crear publicación",
     "day-theme": "Modo diurno",
     "night-theme": "Modo nocturno",
     "address-placeholder": "introduce url o consulta de búsqueda",
-    "home": "Inicio"
+    "home": "Inicio",
+    "waves": "Waves"
   },
   "search": {
     "placeholder": "Buscar",
@@ -1094,7 +1095,7 @@
         "4": "Requiere un nodo LARYNX operativo",
         "5": "Gana 0.100%"
       },
-      "account-value": "Valor estimado de la cuenta",
+      "account-value": "Valor de cuenta aproximado",
       "account-value-description": "El valor aproximado del dólar estadounidense para todos los activos de SPK en su cuenta",
       "larynx-locked": "LARYNX bloqueado",
       "larynx-locked-description": "Las fichas bloqueadas proporcionan liquidez a la red, ayudan a determinar el consenso y obtienen recompensas para los corredores de nodos"
@@ -1643,7 +1644,11 @@
   },
   "discover": {
     "title": "Descubrir",
-    "description": "Descubre mejores usuarios en línea"
+    "description": "Descubre mejores usuarios en línea",
+    "title-next": "explore Hive efficiently: users, communities, curators etc.",
+    "team": "Team",
+    "view-more-communities": "Explore more communities",
+    "leads-curators": "Explore the most active users"
   },
   "search-page": {
     "title": "Buscar",
@@ -1915,7 +1920,7 @@
     "loading": "Cargando...",
     "blocked-user-message": "Has sido bloqueado de esta comunidad",
     "start-community-channel": "Iniciar canal comunitario",
-    "view-community-channel": "Chat de la comunidad",
+    "view-community-channel": "Ver canal comunitario",
     "submit": "Enviar",
     "chat-priv-key": "Por favor, guarde la clave de chat haciendo clic en el botón de descarga o escaneando el código QR para restaurar sus conversaciones.",
     "public-key": "Clave pública",
@@ -2471,15 +2476,16 @@
   "center": {
     "faq": "Preguntas Frecuentes (FAQ)",
     "chats": "Chats",
-    "news": "Noticias"
+    "news": "Noticias",
+    "chats-page-placeholder": "Los chats se han abierto en vista extendida"
   },
   "not-found": {
     "title": "No encontrado",
-    "description": "¡Ups! Se ha perdido en el océano ⛵🧭",
+    "description": "Oops! It seems there isn`t page related to URL:(",
     "back-home": "Regresa al inicio"
   },
   "global-error": {
-    "description": "Por favor, inténtalo de nuevo o reporta un problema 🐡"
+    "description": "Something went wrong. Please, try again or report an issue"
   },
   "issue-reporter": {
     "report": "Reportar",
@@ -2488,5 +2494,9 @@
     "email-placeholder": "Tu correo electrónico (opcional)",
     "message-placeholder": "Por favor, describe tu reporte",
     "issue-reported": "Problema reportado con éxito"
+  },
+  "entry-preview": {
+    "title": "Preview",
+    "description": "This post is creating now. You can interact with it when this message will disappear."
   }
 }
