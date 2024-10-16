@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useMemo, useRef, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import numeral from "numeral";
 import defaults from "@/defaults.json";
 import { setProxyBase } from "@ecency/render-helper";
@@ -14,6 +14,7 @@ import { Proposal } from "@/entities";
 import { AnimatePresence, motion } from "framer-motion";
 import { useInViewport } from "react-in-viewport";
 import { useDebounce } from "react-use";
+import { useSearchParams } from "next/navigation";
 
 setProxyBase(defaults.imageServer);
 
@@ -26,6 +27,8 @@ enum Filter {
 
 export function ProposalsPage() {
   const infiniteLoadingAnchorRef = useRef<HTMLDivElement>(null);
+
+  const searchParams = useSearchParams();
 
   const { data: proposals, isLoading } = getProposalsQuery().useClientQuery();
   const { data: fund } = getAccountFullQuery("hive.fund").useClientQuery();
@@ -108,6 +111,12 @@ export function ProposalsPage() {
     1000,
     [inViewport]
   );
+
+  useEffect(() => {
+    if (searchParams.has("filter")) {
+      setFilter(searchParams.get("filter") as Filter);
+    }
+  }, [searchParams]);
 
   return (
     <>
