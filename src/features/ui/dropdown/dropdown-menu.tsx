@@ -4,7 +4,7 @@ import { classNameObject, useFilteredProps } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
-  align?: "left" | "right" | "top" | "bottom";
+  align?: "left" | "right" | "top" | "bottom" | "rightBottom";
   size?: "small" | "medium" | "large";
 }
 
@@ -41,6 +41,7 @@ export function DropdownMenu(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Pr
             "z-[1000] ecency-dropdown-menu absolute flex flex-col items-start border border-[--border-color] rounded-xl bg-white":
               true,
             "right-0": props.align === "right",
+            "right-0 bottom-[100%]": props.align === "rightBottom",
             "top-[100%]": (props.align ?? "bottom") === "bottom",
             "bottom-[100%]": props.align === "top",
             "min-w-[200px] py-2 gap-2 pr-3": !props.size || props.size === "medium",

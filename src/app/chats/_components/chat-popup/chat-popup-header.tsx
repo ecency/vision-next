@@ -68,7 +68,7 @@ export function ChatPopupHeader({
   return (
     <div
       className={classNameObject({
-        "flex items-center relative justify-between px-2 py-2 gap-2 cursor-pointer": true,
+        "flex items-center justify-between px-2 py-2 gap-2 cursor-pointer": true,
         "border-b border-[--border-color]": !!directContact || !!channel
       })}
     >
@@ -106,7 +106,7 @@ export function ChatPopupHeader({
       <div
         className={classNameObject({
           "flex items-center": true,
-          "absolute right-2 bg-gray-100 dark:bg-gray-900 rounded-full pl-3 pr-1 py-1 top-2 z-10 gap-2":
+          "absolute right-2 bg-gray-100 dark:bg-gray-900 rounded-full pl-3 pr-1 py-1 bottom-2 z-10 gap-2":
             !isExpanded,
           "gap-4": !!isExpanded
         })}
@@ -128,6 +128,7 @@ export function ChatPopupHeader({
         {privateKey && (
           <div className="flex items-center">
             <ChatsDropdownMenu
+              isWidget={true}
               channel={channel}
               contact={directContact}
               onManageChatKey={() => setRevealPrivateKey(!revealPrivateKey)}

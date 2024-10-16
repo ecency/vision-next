@@ -1,4 +1,3 @@
-import { Feedback, Navbar } from "@/features/shared";
 import { ChatsScreen } from "@/app/chats/_screens";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
@@ -13,11 +12,5 @@ export async function generateMetadata(
 }
 
 export default function Chats() {
-  return (
-    <>
-      <Feedback />
-      <Navbar />
-      <ChatsScreen />
-    </>
-  );
+  return <ChatsScreen />;
 }

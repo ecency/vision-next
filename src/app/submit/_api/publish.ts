@@ -159,7 +159,7 @@ export function usePublishApi(onClear: () => void) {
         onClear();
         clearActivePoll();
         const newLoc = makeEntryPath(parentPermlink, author, permlink);
-        router.push(newLoc);
+        router.push(newLoc + "/preview");
 
         //Mark speak video as published
         if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
