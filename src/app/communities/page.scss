@@ -6,21 +6,6 @@
   .community-list {
     max-width: 680px;
     width: 100%;
-    margin: auto;
-    padding: 20px 10px;
-    border-radius: 12px;
-
-    @include themify(day) {
-      @apply bg-light-200;
-    }
-
-    @include themify(night) {
-      @apply bg-dark-600;
-    }
-
-    @media (min-width: $md-break) {
-      padding: 20px;
-    }
 
     .list-header {
       margin-bottom: 20px;

@@ -1,10 +1,10 @@
-import React, { ReactElement } from "react";
+import React, { ReactNode } from "react";
 import Link from "next/link";
 
 export const makePath = (username: string) => `/@${username}`;
 
 interface Props {
-  children: ReactElement;
+  children: ReactNode;
   username: string;
   afterClick?: () => void;
   target?: string;
