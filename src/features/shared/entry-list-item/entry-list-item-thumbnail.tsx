@@ -40,13 +40,13 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
   return (
     showImage && (
       <div className={"item-image " + (imgRow === noImage ? "noImage" : "")}>
-        <EntryLink entry={isCrossPost ? entryProp : entry}>
-          <div>
+        <EntryLink className="h-full" entry={isCrossPost ? entryProp : entry}>
+          <div className="h-full w-full">
             {listStyle === "grid" ? (
               <Image
                 width={1000}
                 height={1000}
-                className="w-full mx-auto"
+                className="w-full !h-full object-cover mx-auto"
                 src={imgGrid || noImage}
                 alt={isGridLoading ? "" : entry.title}
                 style={{ width: imgGrid === noImage ? "172px" : "100%" }}
