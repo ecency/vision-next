@@ -31,6 +31,7 @@ export function ProfileEntriesInfiniteList({ section, account }: Props) {
         entries={entryList}
         sectionParam={section}
         isPromoted={false}
+        showEmptyPlaceholder={false}
       />
       <DetectBottom onBottom={() => fetchNextPage()} />
     </>
