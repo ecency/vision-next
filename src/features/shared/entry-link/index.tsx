@@ -14,14 +14,15 @@ export interface PartialEntry {
 interface Props {
   entry: Entry | PartialEntry;
   target?: string;
+  className?: string;
 }
 
-export function EntryLink({ children, entry, target }: PropsWithChildren<Props>) {
+export function EntryLink({ children, entry, target, className }: PropsWithChildren<Props>) {
   const path = makePath(entry.category, entry.author, entry.permlink);
 
   return (
     <Link legacyBehavior={true} href={path} target={target}>
-      <a href={path} className="no-style">
+      <a className={className + " no-style"} href={path}>
         {children}
       </a>
     </Link>
