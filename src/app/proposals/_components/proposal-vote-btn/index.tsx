@@ -6,6 +6,7 @@ import { KeyOrHotDialog, LoginRequired } from "@/features/shared";
 import { useProposalVoteByKey, useProposalVoteByKeychain } from "@/api/mutations/proposal-vote";
 import { proposalVoteHot } from "@/api/operations";
 import { getProposalVotesQuery } from "@/api/queries";
+import { UilSpinner } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   proposal: number;
@@ -19,10 +20,13 @@ export function ProposalVoteBtn({ proposal }: Props) {
     activeUser?.username ?? "",
     1
   ).useClientQuery();
-  const votes = useMemo(() => data?.pages?.reduce((acc, page) => [...acc, ...page], []), []);
+  const votes = useMemo(
+    () => data?.pages?.reduce((acc, page) => [...acc, ...page], []),
+    [data?.pages]
+  );
   const voted = useMemo(
     () => (votes?.length ?? 0) > 0 && votes?.[0].voter === activeUser?.username,
-    [activeUser?.username, data]
+    [activeUser?.username, votes]
   );
 
   const { mutateAsync: voteByKey, isPending: isVotingByKey } = useProposalVoteByKey(proposal);
@@ -53,7 +57,9 @@ export function ProposalVoteBtn({ proposal }: Props) {
     >
       <div className="proposal-vote-btn">
         <div className={cls}>
-          <span className="btn-inner">{chevronUpSvg}</span>
+          <span className="btn-inner">
+            {isVotingByKey ? <UilSpinner className="w-4 h-4 animate-spin" /> : chevronUpSvg}
+          </span>
         </div>
       </div>
     </KeyOrHotDialog>
