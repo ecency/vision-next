@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import badActors from "@hiveio/hivescript/bad-actors.json";
 import { FormControl, InputGroup } from "@ui/input";
 import { Button } from "@ui/button";
@@ -59,14 +59,9 @@ export const ResourceCreditsDelegation = (props: any) => {
     const { activeUser } = props;
     const username = activeUser?.username!;
     const max_rc = `${amount}`;
-    delegateRC(username, to, max_rc)
-      .then((res: any) => {
-        return res;
-      })
-      .catch((e: any) => {
-        console.log({ e });
-        return e;
-      });
+    delegateRC(username, to, max_rc).then((res: any) => {
+      return res;
+    });
     hideDelegation();
     return;
   };
@@ -80,8 +75,10 @@ export const ResourceCreditsDelegation = (props: any) => {
     (Number(amount) === 0 || Number(amount) >= 5000000000) &&
     Number(amount) < Number(resourceCredit);
 
-  const handleTo = async (value: string) => {
-    setInProgress(true);
+  const handleTo = useCallback(async (value: string) => {
+    if (!value) {
+      return;
+    }
 
     if (value === "") {
       setToWarning("");
@@ -89,38 +86,38 @@ export const ResourceCreditsDelegation = (props: any) => {
       setToData(null);
       return;
     }
+
     if (badActors.includes(value)) {
       setToWarning(i18next.t("transfer.to-bad-actor"));
     } else {
       setToWarning("");
     }
     setToData(null);
+
     if (value.includes(",")) {
       setToData(value);
       setToError("");
-      setInProgress(false);
-      return true;
+      return;
     } else {
-      return getAccount(value)
-        .then((resp) => {
-          if (resp) {
-            setToError("");
-            setToData(resp);
-          } else {
-            setToError(i18next.t("transfer.to-not-found"));
-          }
-          return resp;
-        })
-        .catch((err) => {
-          error(...formatError(err));
-        })
-        .finally(() => {
-          setInProgress(false);
-        });
-    }
-  };
+      setInProgress(true);
 
-  useDebounce(handleTo, 3000, [to]);
+      try {
+        const resp = await getAccount(value);
+        if (resp) {
+          setToError("");
+          setToData(resp);
+        } else {
+          setToError(i18next.t("transfer.to-not-found"));
+        }
+      } catch (e) {
+        error(...formatError(e));
+      } finally {
+        setInProgress(false);
+      }
+    }
+  }, []);
+
+  useDebounce(() => handleTo(to), 3000, [to]);
 
   const formHeader1 = (
     <div className="transaction-form-header">
