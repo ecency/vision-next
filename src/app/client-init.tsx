@@ -16,6 +16,7 @@ export function ClientInit() {
   const { data } = getAccountFullQuery(activeUser?.username).useClientQuery();
 
   useMount(() => {
+    initKeychain();
     initI18next();
     loadUsers();
 
@@ -23,8 +24,6 @@ export function ClientInit() {
     if (activeUsername) {
       setActiveUser(activeUsername);
     }
-
-    initKeychain();
   });
 
   useEffect(() => {
