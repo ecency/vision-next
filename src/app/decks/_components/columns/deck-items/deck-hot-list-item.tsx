@@ -24,7 +24,7 @@ export const HotListItem = ({ index, entry, onMounted, onClick }: HotListItemPro
         </a>
       </div>
       <div className="hot-item-post-count">
-        {entry.top_posts + entry.comments || 0} {i18next.t("communities.n-posts")}
+        {i18next.t("communities.n-posts", { n: entry.top_posts + entry.comments || 0 })}
       </div>
     </div>
   );
