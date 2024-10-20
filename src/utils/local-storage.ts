@@ -15,8 +15,10 @@ export function set(k: string, v: any): void {
     return;
   }
 
-  const key = `${PREFIX}_${k}`;
-  localStorage.setItem(key, JSON.stringify(v));
+  try {
+    const key = `${PREFIX}_${k}`;
+    localStorage.setItem(key, JSON.stringify(v));
+  } catch (e) {}
 }
 
 export function remove(k: string): void {
@@ -24,8 +26,10 @@ export function remove(k: string): void {
     return;
   }
 
-  const key = `${PREFIX}_${k}`;
-  localStorage.removeItem(key);
+  try {
+    const key = `${PREFIX}_${k}`;
+    localStorage.removeItem(key);
+  } catch (e) {}
 }
 
 export function getByPrefix(prefix: string): any[] {
@@ -35,7 +39,11 @@ export function getByPrefix(prefix: string): any[] {
 
   const prefKey = `${PREFIX}_${prefix}`;
 
-  return Object.keys(localStorage)
-    .filter((key) => key.indexOf(prefKey) === 0)
-    .map((key) => JSON.parse(localStorage[key]));
+  try {
+    return Object.keys(localStorage)
+      .filter((key) => key.indexOf(prefKey) === 0)
+      .map((key) => JSON.parse(localStorage[key]));
+  } catch (e) {
+    return [];
+  }
 }
