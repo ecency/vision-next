@@ -11,8 +11,8 @@ export const ProfilePopover = ({ entry }: { entry: Entry }) => {
 
   return (
     <div>
-      <div className="author btn notranslate items-center relative">
-        <span className="author-name">{author}</span>
+      <div className="notranslate relative hover:bg-gray-200 font-bold dark:hover:bg-gray-800 rounded-2xl px-2 pointer duration-300">
+        {author}
       </div>
       <Popover
         useMobileSheet={true}
