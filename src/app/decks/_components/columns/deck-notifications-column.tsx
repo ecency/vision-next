@@ -141,7 +141,7 @@ export const DeckNotificationsColumn = ({ id, settings, draggable }: Props) => {
             }
           }}
           notification={item}
-          className="notification-list-item"
+          className="px-4 gap-4 notification-list-item"
           onLinkClick={async () => {
             switch (item.type) {
               case "bookmarks":

@@ -482,6 +482,10 @@
       align-items: flex-start;
       gap: 1rem;
 
+      .flex {
+        @apply gap-4;
+      }
+
       .first-line {
         margin-bottom: 0.5rem;
 
