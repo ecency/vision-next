@@ -12,7 +12,7 @@ export const getProposalVotesQuery = (proposalId: number, voter: string, limit: 
         "by_proposal_voter"
       ])) as ProposalVote[];
       const list = response
-        .filter((x: ProposalVote) => x.proposal.proposal_id === proposalId)
+        .filter((x: ProposalVote) => x.proposal?.proposal_id === proposalId)
         .map((x: ProposalVote) => ({ id: x.id, voter: x.voter }));
       const accounts = await getAccounts(list.map((l) => l.voter));
       return list.map((i) => ({
@@ -21,7 +21,7 @@ export const getProposalVotesQuery = (proposalId: number, voter: string, limit: 
       }));
     },
     initialData: { pages: [], pageParams: [] },
-    initialPageParam: "",
+    initialPageParam: voter,
     refetchOnMount: true,
     getNextPageParam: (lastPage) => lastPage?.[lastPage.length - 1]?.voter ?? ""
   });

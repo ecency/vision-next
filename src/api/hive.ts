@@ -289,7 +289,7 @@ export const getProposalVotes = (
 ): Promise<ProposalVote[]> =>
   client
     .call("condenser_api", "list_proposal_votes", [[proposalId, voter], limit, "by_proposal_voter"])
-    .then((r) => r.filter((x: ProposalVote) => x.proposal.proposal_id === proposalId))
+    .then((r) => r.filter((x: ProposalVote) => x.proposal?.proposal_id === proposalId))
     .then((r) => r.map((x: ProposalVote) => ({ id: x.id, voter: x.voter })));
 
 export const getWithdrawRoutes = (account: string): Promise<WithdrawRoute[]> =>
