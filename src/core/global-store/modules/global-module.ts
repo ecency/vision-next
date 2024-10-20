@@ -92,9 +92,17 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       success(i18next.t("preferences.updated"));
     },
     initKeychain() {
-      if (typeof window !== "undefined" && "hive_keychain" in window) {
-        (window as unknown as any).hive_keychain.requestHandshake(() => set({ hasKeyChain: true }));
-      }
+      // Keychain won't be ready immediately after script running
+      // So We have to wait until full window load and then drop our task to macro-queue
+      // It will help us to validate that all sync and async operations have finished
+      // Including browser extensions
+      setTimeout(() => {
+        if (typeof window !== "undefined" && "hive_keychain" in window) {
+          (window as unknown as any).hive_keychain.requestHandshake(() =>
+            set({ hasKeyChain: true })
+          );
+        }
+      }, 50);
     }
   };
 }
