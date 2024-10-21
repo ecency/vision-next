@@ -2500,7 +2500,7 @@
     "description": "Esta publicación se está creando ahora. Puedes interactuar con ella cuando este mensaje desaparezca."
   },
   "banners": {
-    "no-ls-title": "Unable to use local data",
-    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually."
+    "no-ls-title": "No se puede utilizar datos locales",
+    "no-ls-description": "Parece que usted, o su navegador, ha deshabilitado los datos locales de nuestro sitio web. Desafortunadamente, no puedes usar la mayoría de características de Ecency, como borradores, mazos locales, tablero avanzado de operaciones y más. Por favor, utilice las últimas versiones de cualquier navegador moderno, o active los datos locales manualmente."
   }
 }
