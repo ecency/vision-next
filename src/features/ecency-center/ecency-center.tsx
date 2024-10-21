@@ -4,6 +4,7 @@ import { CenterContentLayout } from "@/features/ecency-center/center-content-lay
 import { useMemo, useRef, useState } from "react";
 import useClickAway from "react-use/lib/useClickAway";
 import { usePathname } from "next/navigation";
+import { classNameObject } from "@ui/util";
 
 export function EcencyCenter() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -19,7 +20,14 @@ export function EcencyCenter() {
   return isSubmitPage ? (
     <></>
   ) : (
-    <div ref={rootRef} className="fixed z-30 bottom-4 left-4">
+    <div
+      ref={rootRef}
+      className={classNameObject({
+        "fixed z-[202] bottom-4": true,
+        "left-4": !pathname.includes("decks"),
+        "right-4": pathname.includes("decks")
+      })}
+    >
       <CenterButton onClick={() => setShow(!show)} />
       <CenterContentLayout show={show} setShow={setShow}>
         <CenterContent />
