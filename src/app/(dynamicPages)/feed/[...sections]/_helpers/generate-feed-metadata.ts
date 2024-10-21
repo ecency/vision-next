@@ -11,7 +11,7 @@ export async function generateFeedMetadata(filter: string, tag: string) {
   let rss = "";
 
   if (tag) {
-    title = `latest #${tag} ${filter} topics on internet`;
+    title = `latest #${tag.replace("%40", "@  ")} ${filter} topics on internet`;
     description = i18next.t("entry-index.description-tag", { f: fC, t: tag });
 
     url = `/${filter}/${tag}`;

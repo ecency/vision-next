@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { EntryIndexMenuDropdown } from "../entry-index-menu-dropdown";
 import "./_index.scss";
 import { ActiveUser } from "@/entities";
@@ -17,14 +17,12 @@ import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
 import { apiBase } from "@/api/helper";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, MenuItem } from "@ui/dropdown";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EntryFilter } from "@/enums";
 import useMount from "react-use/lib/useMount";
 import * as ls from "@/utils/local-storage";
-import { PREFIX } from "@/utils/local-storage";
 import usePrevious from "react-use/lib/usePrevious";
 import { Button } from "@ui/button";
-import useLocalStorage from "react-use/lib/useLocalStorage";
 import { classNameObject } from "@ui/util";
 
 export enum IntroductionType {
@@ -50,16 +48,18 @@ export function EntryIndexMenu() {
     sections: [filter = "hot", tag = ""]
   } = useParams() as { sections: string[] };
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const activeUser = useGlobalStore((s) => s.activeUser);
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
-  const [noReblog, setNoReblog] = useLocalStorage(PREFIX + "my_reblog", false);
   const [isGlobal, setIsGlobal] = useState(false);
   const [introduction, setIntroduction] = useState(IntroductionType.NONE);
 
   const prevActiveUser = usePrevious(activeUser);
   const prevFilter = usePrevious(filter);
+
+  const noReblog = useMemo(() => searchParams.get("no-reblog") == "true", [searchParams]);
 
   const isMy = isMyPage(filter, tag, activeUser);
   const dropdownLabel =
@@ -367,6 +367,13 @@ export function EntryIndexMenu() {
     }
   }, [activeUser, prevActiveUser]);
 
+  const handleFilterReblog = useCallback(() => {
+    const params = new URLSearchParams();
+    params.set("no-reblog", String(!noReblog));
+
+    router.push(pathname + "?" + params.toString());
+  }, [noReblog, pathname, router]);
+
   return (
     <div>
       <div className={introductionOverlayClass} id="overlay" onClick={onClosePopup} />
@@ -557,7 +564,7 @@ export function EntryIndexMenu() {
                     filter={filter}
                     tag={tag}
                     noReblog={noReblog!!}
-                    handleFilterReblog={() => setNoReblog((v) => !v)}
+                    handleFilterReblog={handleFilterReblog}
                     isActive={isActive}
                     onChangeGlobal={onChangeGlobal}
                   />
@@ -571,7 +578,7 @@ export function EntryIndexMenu() {
                     filter={filter}
                     tag={tag}
                     noReblog={noReblog!!}
-                    handleFilterReblog={() => setNoReblog((v) => !v)}
+                    handleFilterReblog={handleFilterReblog}
                     isActive={isActive}
                     onChangeGlobal={onChangeGlobal}
                   />
