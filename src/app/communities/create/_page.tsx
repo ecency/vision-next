@@ -14,7 +14,6 @@ import { random } from "@/utils";
 import {
   CommunityCreateDetailsForm,
   CommunityCreateDone,
-  CommunityCreateImage,
   CommunityCreateSignDialog,
   CommunityCreateWifForm
 } from "@/app/communities/create/_components";
@@ -124,8 +123,7 @@ export function CreateCommunityPage() {
 
   return (
     <div className="grid grid-cols-12 gap-4 lg:gap-6 xl:gap-8 items-center justify-center w-full">
-      <CommunityCreateImage />
-      <div className="col-span-12 md:col-span-8 lg:col-span-6 p-4 lg:p-6 xl:p-8 border border-[--border-color] rounded-2xl bg-white dark:bg-gray-900 w-full md:w-[600px] mx-auto">
+      <div className="col-span-12 md:col-start-2 md:col-span-8 lg:col-start-3 lg:col-span-6 p-4 lg:p-6 xl:p-8 border border-[--border-color] rounded-2xl bg-white dark:bg-gray-900 w-full md:w-[600px] mx-auto">
         <h1 className="text-[2.5rem] font-bold community-title mb-4 hidden lg:block">
           {i18next.t("communities-create.page-title")}
         </h1>
