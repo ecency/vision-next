@@ -5,11 +5,12 @@ import { FeedContent } from "../_components";
 import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateFeedMetadata } from "@/app/(dynamicPages)/feed/[...sections]/_helpers";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 
 interface Props {
   params: { sections: string[] };
+  searchParams: Record<string, string>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
@@ -19,7 +20,8 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 export default async function FeedPage({
   params: {
     sections: [filter = "hot", tag = ""]
-  }
+  },
+  searchParams
 }: Props) {
   const cookiesStore = cookies();
 
@@ -29,7 +31,7 @@ export default async function FeedPage({
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <FeedContent tag={tag} filter={filter} observer={observer} />
+      <FeedContent searchParams={searchParams} tag={tag} filter={filter} observer={observer} />
     </HydrationBoundary>
   );
 }
