@@ -92,7 +92,7 @@
     "success": "Éxito",
     "error": "Error",
     "reset-form": "Reiniciar formulario",
-    "community": "Community"
+    "community": "Comunidad"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -154,7 +154,7 @@
     "night-theme": "Modo nocturno",
     "address-placeholder": "introduce url o consulta de búsqueda",
     "home": "Inicio",
-    "waves": "Waves"
+    "waves": "Olas"
   },
   "search": {
     "placeholder": "Buscar",
@@ -1645,10 +1645,10 @@
   "discover": {
     "title": "Descubrir",
     "description": "Descubre mejores usuarios en línea",
-    "title-next": "explore Hive efficiently: users, communities, curators etc.",
-    "team": "Team",
-    "view-more-communities": "Explore more communities",
-    "leads-curators": "Explore the most active users"
+    "title-next": "explora Hive de forma eficiente: usuarios, comunidades, curadores, etc.",
+    "team": "Equipo",
+    "view-more-communities": "Explora más comunidades",
+    "leads-curators": "Explora los usuarios más activos"
   },
   "search-page": {
     "title": "Buscar",
@@ -2496,7 +2496,11 @@
     "issue-reported": "Problema reportado con éxito"
   },
   "entry-preview": {
-    "title": "Preview",
-    "description": "This post is creating now. You can interact with it when this message will disappear."
+    "title": "Previsualización",
+    "description": "Esta publicación se está creando ahora. Puedes interactuar con ella cuando este mensaje desaparezca."
+  },
+  "banners": {
+    "no-ls-title": "No se puede utilizar datos locales",
+    "no-ls-description": "Parece que usted, o su navegador, ha deshabilitado los datos locales de nuestro sitio web. Desafortunadamente, no puedes usar la mayoría de características de Ecency, como borradores, mazos locales, tablero avanzado de operaciones y más. Por favor, utilice las últimas versiones de cualquier navegador moderno, o active los datos locales manualmente."
   }
 }
