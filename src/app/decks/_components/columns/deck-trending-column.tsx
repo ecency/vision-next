@@ -84,7 +84,7 @@ export const DeckTrendingColumn = ({ id, settings, draggable }: Props) => {
           }}
           {...item}
           onEntryView={() => setCurrentViewingEntry(item)}
-        ></SearchListItem>
+        />
       )}
     </GenericDeckWithDataColumn>
   );
