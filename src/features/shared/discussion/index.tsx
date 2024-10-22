@@ -28,6 +28,8 @@ interface Props {
   hideControls: boolean;
 }
 
+const PAGE_SIZE = 50;
+
 export function Discussion({ hideControls, isRawContent, parent, community }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const previousIsRawContent = usePrevious(isRawContent);
@@ -35,6 +37,7 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
   const [visible, setVisible] = useState(false);
   const [order, setOrder] = useState(SortOrder.trending);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+  const [page, setPage] = useState(1);
 
   const { isLoading, data } = getDiscussionsQuery(
     parent,
