@@ -1,6 +1,6 @@
 "use client";
 
-import { DetectBottom, EntryListContent } from "@/features/shared";
+import { DetectBottom, EntryListContent, EntryListContentLoading } from "@/features/shared";
 import React, { useMemo } from "react";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Community, Entry } from "@/entities";
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function CommunityContentInfiniteList({ section, community }: Props) {
-  const { fetchNextPage, data } = usePostsFeedQuery(section, community.name);
+  const { fetchNextPage, data, isFetching } = usePostsFeedQuery(section, community.name);
 
   const entryList = useMemo(
     () =>
@@ -32,6 +32,8 @@ export function CommunityContentInfiniteList({ section, community }: Props) {
         showEmptyPlaceholder={false}
       />
       <DetectBottom onBottom={() => fetchNextPage()} />
+
+      {isFetching && <EntryListContentLoading />}
     </>
   );
 }
