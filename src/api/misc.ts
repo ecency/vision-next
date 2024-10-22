@@ -1,10 +1,9 @@
 import defaults from "@/defaults.json";
-import { apiBase } from "./helper";
 import { InfiniteData, QueryKey, useInfiniteQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
 import { appAxios } from "@/api/axios";
 
-export const getEmojiData = () => fetch(apiBase("/emoji.json")).then((response) => response.json());
+export const getEmojiData = () => fetch("/emoji.json").then((response) => response.json());
 
 export const uploadImage = async (
   file: File,
