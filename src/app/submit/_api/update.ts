@@ -58,8 +58,8 @@ export function useUpdateApi(onClear: () => void) {
       try {
         await comment(
           activeUser?.username!,
-          "",
-          category,
+          editingEntry.parent_author ?? "",
+          editingEntry.parent_permlink ?? "",
           permlink,
           title,
           buildBody(newBody),
@@ -81,7 +81,7 @@ export function useUpdateApi(onClear: () => void) {
         onClear();
         success(i18next.t("submit.updated"));
         const newLoc = makeEntryPath(category, author, permlink);
-        router.push(newLoc);
+        router.push(newLoc + "/preview-edit");
       } catch (e) {
         error(...formatError(e));
       }

@@ -73,7 +73,7 @@ export function EntryFooterControls({ entry }: Props) {
           entry={entry}
           alignBottom={true}
           separatedSharing={true}
-          toggleEdit={() => router.push(`/${entry.url}/edit`)}
+          toggleEdit={() => router.push(`/@${entry.author}/${entry.permlink}/edit`)}
         />
       </div>
     </div>

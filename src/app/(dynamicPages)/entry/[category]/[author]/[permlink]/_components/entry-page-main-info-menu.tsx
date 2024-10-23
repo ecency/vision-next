@@ -31,7 +31,7 @@ export function EntryPageMainInfoMenu({ entry }: Props) {
         ? [
             {
               label: i18next.t("g.edit"),
-              onClick: () => router.push(`/${entry.url}/edit`),
+              onClick: () => router.push(`/@${entry.author}/${entry.permlink}/edit`),
               icon: pencilOutlineSvg
             }
           ]

@@ -2497,7 +2497,8 @@
   },
   "entry-preview": {
     "title": "Preview",
-    "description": "This post is creating now. You can interact with it when this message will disappear."
+    "description": "This post is creating now. You can interact with it when this message will disappear.",
+    "edit-description": "This post is updating now. You can interact with it when this message will disappear."
   },
   "banners": {
     "no-ls-title": "Unable to use local data",
