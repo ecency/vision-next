@@ -10,6 +10,7 @@ import { useState } from "react";
 import { User } from "@/entities";
 import { hsTokenRenew } from "@/api/auth-api";
 import { formatError, setUserRole, updateCommunity } from "@/api/operations";
+import useMount from "react-use/lib/useMount";
 
 export function CommunityCreateHsPage() {
   const router = useRouter();
@@ -104,6 +105,8 @@ export function CommunityCreateHsPage() {
     // redirect to community page
     router.push(`/created/${user.username}`);
   };
+
+  useMount(handle);
 
   return (
     <>
