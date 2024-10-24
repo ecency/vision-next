@@ -1481,7 +1481,15 @@
     "empty-tags-alert": "Enter post tags",
     "empty-body-alert": "Enter post body",
     "description": "Short description",
-    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones."
+    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones.",
+    "post-creating": {
+      "title": "Post creating",
+      "creating-process": "Creating post and signing transaction...",
+      "validating-process": "Making sure that post has created...",
+      "success": "Your post created successfully!",
+      "see": "See post",
+      "publish-failed": "Oops! You can't create a post right now. Please, see an error message below."
+    }
   },
   "video-upload": {
     "choose-video": "Select a video",

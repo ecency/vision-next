@@ -5,12 +5,13 @@ import i18next from "i18next";
 import { contentLoadSvg, contentSaveSvg } from "@/assets/img/svg";
 import { EcencyConfigManager } from "@/config";
 import { DraftsDialog } from "@/features/shared/drafts";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { usePublishApi, useSaveDraftApi, useScheduleApi, useUpdateApi } from "@/app/submit/_api";
 import { makeEntryPath } from "@/utils";
 import { BeneficiaryRoute, Draft, Entry, RewardType } from "@/entities";
 import { useRouter } from "next/navigation";
 import { useGlobalStore } from "@/core/global-store";
+import { EditorPublishValidating } from "@/app/submit/_components/editor-publish-validating";
 
 interface Props {
   editingEntry: Entry | null;
@@ -56,9 +57,17 @@ export function EditorActions({
   const activeUser = useGlobalStore((s) => s.activeUser);
   const router = useRouter();
 
+  const [publishInitiated, setPublishInitiated] = useState(false);
+  const [showValidating, setShowValidating] = useState(false);
+  const [publsihedEntry, setPublsihedEntry] = useState<Entry>();
+
   const { mutateAsync: doSchedule, isPending: posting } = useScheduleApi(onClear);
   const { mutateAsync: saveDraft, isPending: saving } = useSaveDraftApi();
-  const { mutateAsync: publish, isPending: publishing } = usePublishApi(onClear);
+  const {
+    mutateAsync: publish,
+    isPending: publishing,
+    isError: isPublishFailed
+  } = usePublishApi(onClear);
   const { mutateAsync: update, isPending: updating } = useUpdateApi(onClear);
   const cancelUpdate = useCallback(() => {
     if (!editingEntry) {
@@ -160,12 +169,14 @@ export function EditorActions({
               size="sm"
               icon={(posting || publishing) && <Spinner className="w-3.5 h-3.5" />}
               iconPlacement="left"
-              onClick={() => {
+              onClick={async () => {
                 if (!validate()) {
                   return;
                 }
 
-                publish({
+                setPublishInitiated(true);
+                setShowValidating(true);
+                const [entry] = await publish({
                   reblogSwitch,
                   title,
                   tags,
@@ -176,6 +187,7 @@ export function EditorActions({
                   selectedThumbnail,
                   selectionTouched
                 });
+                setPublsihedEntry(entry);
               }}
               disabled={disabled || posting || saving || publishing}
             >
@@ -217,6 +229,16 @@ export function EditorActions({
             </Button>
           </LoginRequired>
         </>
+      )}
+
+      {publishInitiated && (
+        <EditorPublishValidating
+          show={showValidating}
+          isPublishFailed={isPublishFailed}
+          setShow={setShowValidating}
+          isCreating={publishing}
+          entry={publsihedEntry}
+        />
       )}
     </div>
   );

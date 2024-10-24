@@ -10,20 +10,12 @@ import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { usePollsCreationManagement } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";
 import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
-import {
-  createPermlink,
-  isCommunity,
-  makeApp,
-  makeCommentOptions,
-  makeEntryPath,
-  tempEntry
-} from "@/utils";
+import { createPermlink, isCommunity, makeApp, makeCommentOptions, tempEntry } from "@/utils";
 import appPackage from "../../../../package.json";
 import i18next from "i18next";
 import { error, success } from "@/features/shared";
 import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
-import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
@@ -34,7 +26,6 @@ export function usePublishApi(onClear: () => void) {
   const { videos, isNsfw, buildBody } = useThreeSpeakManager();
 
   const { clearAll } = usePollsCreationManagement();
-  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   return useMutation({
     mutationKey: ["publish"],
@@ -123,60 +114,57 @@ export function usePublishApi(onClear: () => void) {
 
       const options = makeCommentOptions(author, permlink, reward, beneficiaries);
 
-      try {
-        await comment(
-          author,
-          "",
-          parentPermlink,
+      await comment(
+        author,
+        "",
+        parentPermlink,
+        permlink,
+        title,
+        buildBody(cbody),
+        jsonMeta,
+        options,
+        true
+      );
+
+      // Create entry object in store and cache
+      const entry = {
+        ...tempEntry({
+          author: authorData!,
           permlink,
+          parentAuthor: "",
+          parentPermlink,
           title,
-          buildBody(cbody),
-          jsonMeta,
-          options,
-          true
-        );
+          body: buildBody(body),
 
-        // Create entry object in store and cache
-        const entry = {
-          ...tempEntry({
-            author: authorData!,
-            permlink,
-            parentAuthor: "",
-            parentPermlink,
-            title,
-            body: buildBody(body),
+          tags,
+          description,
+          jsonMeta
+        }),
+        max_accepted_payout: options.max_accepted_payout,
+        percent_hbd: options.percent_hbd
+      };
+      // No need to update entry cache here because We will validate it in next component
+      // @see editor-publish-validating.tsx
+      // updateEntryQueryData([entry]);
 
-            tags,
-            description,
-            jsonMeta
-          }),
-          max_accepted_payout: options.max_accepted_payout,
-          percent_hbd: options.percent_hbd
-        };
-        updateEntryQueryData([entry]);
+      onClear();
+      clearActivePoll();
 
-        success(i18next.t("submit.published"));
-        onClear();
-        clearActivePoll();
-        const newLoc = makeEntryPath(parentPermlink, author, permlink);
-        router.push(newLoc + "/preview");
-
-        //Mark speak video as published
-        if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
-          success(i18next.t("video-upload.publishing"));
-          setTimeout(() => {
-            markAsPublished(activeUser!.username, unpublished3SpeakVideo._id);
-          }, 10000);
-        }
-        if (isCommunity(tags[0]) && reblogSwitch) {
-          await reblog(author, author, permlink);
-        }
-
-        return [entry as Entry, activePoll] as const;
-      } catch (e) {
-        error(...formatError(e));
-        throw e;
+      //Mark speak video as published
+      if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
+        success(i18next.t("video-upload.publishing"));
+        setTimeout(() => {
+          markAsPublished(activeUser!.username, unpublished3SpeakVideo._id);
+        }, 10000);
       }
+      if (isCommunity(tags[0]) && reblogSwitch) {
+        await reblog(author, author, permlink);
+      }
+
+      return [entry as Entry, activePoll] as const;
+    },
+    onError: (e) => {
+      error(...formatError(e));
     },
     onSuccess([entry, poll]) {
       clearAll();
