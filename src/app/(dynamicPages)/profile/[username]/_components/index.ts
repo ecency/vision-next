@@ -15,4 +15,3 @@ export * from "./recovery-account";
 export * from "./wallet-spk";
 export * from "./profile-search";
 export * from "./profile-search-content";
-export * from "./wallet-hive-engine";

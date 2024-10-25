@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { proxifyImageSrc } from "@ecency/render-helper";
 import "./_index.scss";
 
 import {
@@ -10,17 +9,7 @@ import {
   getUnclaimedRewards
 } from "@/api/hive-engine";
 
-import {
-  delegateOutlineSvg,
-  informationVariantSvg,
-  lockOutlineSvg,
-  plusCircle,
-  priceDownSvg,
-  priceUpSvg,
-  transferOutlineSvg,
-  undelegateOutlineSvg,
-  unlockOutlineSvg
-} from "@/assets/img/svg";
+import { plusCircle } from "@/assets/img/svg";
 import { Popover, PopoverContent } from "@ui/popover";
 import {
   error,
@@ -30,10 +19,8 @@ import {
   TransferAsset,
   TransferMode
 } from "@/features/shared";
-import { Tooltip } from "@ui/index";
 import i18next from "i18next";
 import { formattedNumber, HiveEngineToken } from "@/utils";
-import { HiveEngineChart } from "./hive-engine-chart";
 import { SortEngineTokens } from "./sort-hive-engine-tokens";
 import { EngineTokensEstimated } from "./engine-tokens-estimated";
 import { Account, TokenStatus } from "@/entities";
@@ -41,8 +28,8 @@ import { useGlobalStore } from "@/core/global-store";
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { formatError } from "@/api/operations";
 import useMount from "react-use/lib/useMount";
-import Image from "next/image";
 import { WalletMenu } from "../../_components/wallet-menu";
+import { WalletEngineTokenItem } from "@/app/(dynamicPages)/profile/[username]/engine/_components/wallet-engine-token-item";
 
 interface Props {
   account: Account;
@@ -333,177 +320,16 @@ export function WalletHiveEngine({ account }: Props) {
             ) : tokens.length === 0 ? (
               <div className="no-results">{i18next.t("wallet-engine.no-results")}</div>
             ) : (
-              <div className="entry-list-body">
-                {tokens.map((b, i) => {
-                  const imageSrc = proxifyImageSrc(b.icon, 0, 0, canUseWebp ? "webp" : "match");
-                  return (
-                    <div className="entry-list-item" key={i}>
-                      <div className="entry-header">
-                        <Image
-                          width={1000}
-                          height={1000}
-                          alt={b.symbol}
-                          src={imageSrc ?? "/assets/noimage.svg"}
-                          className="item-image"
-                        />
-                        {b.symbol}
-                      </div>
-
-                      {!isMobile && (
-                        <div className="flex">
-                          <HiveEngineChart items={b} />
-                        </div>
-                      )}
-
-                      <div className="ml-auto flex flex-col justify-between">
-                        <div className="flex mb-1 align-self-end">
-                          <div className="entry-body mr-md-2">
-                            <span className="item-balance">{b.balanced()}</span>
-                          </div>
-
-                          <div className="ml-1">
-                            <Popover anchorParent={true}>
-                              <div className="tooltip-inner">
-                                <div className="profile-info-tooltip-content">
-                                  <p>
-                                    {i18next.t("wallet-engine.token")}: {b.name}
-                                  </p>
-                                  <p>
-                                    {i18next.t("wallet-engine.balance")}: {b.balanced()}
-                                  </p>
-                                  <p>
-                                    {i18next.t("wallet-engine.staked")}: {b.staked()}
-                                  </p>
-                                  {b.delegationEnabled && (
-                                    <>
-                                      <p>In: {b.delegationsIn}</p>
-                                      <p>Out: {b.delegationsOut}</p>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </Popover>
-                            <div className="flex items-center">
-                              <span className="info-icon mr-0 mr-md-2">
-                                {informationVariantSvg}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mr-3">
-                          {allTokens?.map((x: any, i: any) => {
-                            const changeValue = parseFloat(x?.priceChangePercent);
-                            return (
-                              <span
-                                key={i}
-                                className={`flex justify-end ${
-                                  changeValue < 0 ? "text-red" : "text-green"
-                                }`}
-                              >
-                                {x?.symbol === b.symbol && (
-                                  <span className="mr-1">
-                                    {changeValue < 0 ? priceDownSvg : priceUpSvg}
-                                  </span>
-                                )}
-                                {x?.symbol === b.symbol ? x?.priceChangePercent : null}
-                              </span>
-                            );
-                          })}
-                        </div>
-
-                        {isMyPage && (
-                          <div className="flex justify-between ml-auto">
-                            <div className="mr-1">
-                              <Tooltip content="Transfer">
-                                <div className="flex items-center flex-justify-center">
-                                  <span
-                                    onClick={() =>
-                                      openTransferDialog("transfer", b.symbol, b.balance)
-                                    }
-                                    className="he-icon mr-0 mr-md-2"
-                                  >
-                                    {transferOutlineSvg}
-                                  </span>
-                                </div>
-                              </Tooltip>
-                            </div>
-
-                            {b.delegationEnabled && b.delegationsOut !== b.balance && (
-                              <div className="mr-1">
-                                <Tooltip content="Delegate">
-                                  <div className="flex items-center flex-justify-center">
-                                    <span
-                                      onClick={() =>
-                                        openTransferDialog(
-                                          "delegate",
-                                          b.symbol,
-                                          b.balance - b.delegationsOut
-                                        )
-                                      }
-                                      className="he-icon mr-0 mr-md-2"
-                                    >
-                                      {delegateOutlineSvg}
-                                    </span>
-                                  </div>
-                                </Tooltip>
-                              </div>
-                            )}
-                            {b.delegationEnabled && b.delegationsOut > 0 && (
-                              <div className="mr-1">
-                                <Tooltip content="Undelegate">
-                                  <div className="flex items-center flex-justify-center">
-                                    <span
-                                      onClick={() =>
-                                        openTransferDialog("undelegate", b.symbol, b.delegationsOut)
-                                      }
-                                      className="he-icon mr-0 mr-md-2"
-                                    >
-                                      {undelegateOutlineSvg}
-                                    </span>
-                                  </div>
-                                </Tooltip>
-                              </div>
-                            )}
-
-                            {b.stakingEnabled && (
-                              <div className="mr-1">
-                                <Tooltip content="Stake">
-                                  <div className="flex items-center flex-justify-center items-center">
-                                    <span
-                                      onClick={() =>
-                                        openTransferDialog("stake", b.symbol, b.balance)
-                                      }
-                                      className="he-icon mr-0 mr-md-2"
-                                    >
-                                      {lockOutlineSvg}
-                                    </span>
-                                  </div>
-                                </Tooltip>
-                              </div>
-                            )}
-                            {b.stake > 0 && (
-                              <div className="mr-1">
-                                <Tooltip content="Unstake">
-                                  <div className="flex items-center flex-justify-center items-center">
-                                    <span
-                                      onClick={() =>
-                                        openTransferDialog("unstake", b.symbol, b.stakedBalance)
-                                      }
-                                      className="he-icon mr-0 mr-md-2"
-                                    >
-                                      {unlockOutlineSvg}
-                                    </span>
-                                  </div>
-                                </Tooltip>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="flex flex-col gap-4 xl:gap-6">
+                {tokens.map((token, i) => (
+                  <WalletEngineTokenItem
+                    i={i}
+                    account={account}
+                    openTransferDialog={openTransferDialog}
+                    token={token}
+                    key={i}
+                  />
+                ))}
               </div>
             )}
           </div>
