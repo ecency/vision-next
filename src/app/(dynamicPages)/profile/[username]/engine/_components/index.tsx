@@ -30,7 +30,6 @@ import {
   TransferAsset,
   TransferMode
 } from "@/features/shared";
-import { WalletMenu } from "../wallet-menu";
 import { Tooltip } from "@ui/index";
 import i18next from "i18next";
 import { formattedNumber, HiveEngineToken } from "@/utils";
@@ -43,6 +42,7 @@ import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { formatError } from "@/api/operations";
 import useMount from "react-use/lib/useMount";
 import Image from "next/image";
+import { WalletMenu } from "../../_components/wallet-menu";
 
 interface Props {
   account: Account;
@@ -207,7 +207,6 @@ export function WalletHiveEngine({ account }: Props) {
       items = sort(items);
       setTokens(items);
     } catch (e) {
-      console.log("engine tokens", e);
     } finally {
       setLoading(false);
     }
@@ -216,9 +215,7 @@ export function WalletHiveEngine({ account }: Props) {
     try {
       const rewards = await getUnclaimedRewards(account.name);
       setRewards(rewards);
-    } catch (e) {
-      console.log("fetchUnclaimedRewards", e);
-    }
+    } catch (e) {}
   };
   const sort = (items: HiveEngineToken[]) =>
     items.sort((a: HiveEngineToken, b: HiveEngineToken) => {
