@@ -3,7 +3,7 @@ import i18next from "i18next";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { Entry } from "@/entities";
 import useInterval from "react-use/lib/useInterval";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@ui/button";
 import Link from "next/link";
 import { makeEntryPath } from "@/utils";
@@ -43,12 +43,16 @@ export function EditorPublishValidating({
     attempts < MAX_ATTEMPTS && !data ? 3000 : null
   );
 
+  useEffect(() => {
+    setAttempts(0);
+  }, [isPublishFailed]);
+
   return (
     <Modal centered={true} show={show} onHide={() => setShow(false)}>
       <ModalHeader closeButton={true}>{i18next.t("submit.post-creating.title")}</ModalHeader>
       <ModalBody className="text-center text-lg p-6">
         <div className="flex flex-col items-center gap-4">
-          {(isPublishFailed || attempts === MAX_ATTEMPTS) && (
+          {!isCreating && !isSuccess && (isPublishFailed || attempts === MAX_ATTEMPTS) && (
             <>
               <UilMultiply className="w-12 h-12 text-red" />
               <div className="text-red">{i18next.t("submit.post-creating.publish-failed")}</div>
