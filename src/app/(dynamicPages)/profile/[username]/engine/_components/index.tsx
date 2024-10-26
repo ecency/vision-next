@@ -37,8 +37,6 @@ interface Props {
 
 export function WalletHiveEngine({ account }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-  const isMobile = useGlobalStore((s) => s.isMobile);
 
   const [tokens, setTokens] = useState<HiveEngineToken[]>([]);
   const [utokens, setUtokens] = useState<HiveEngineToken[]>([]);

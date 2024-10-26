@@ -36,7 +36,10 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
 
   const { data: allTokens } = getAllHiveEngineTokensQuery().useClientQuery();
 
-  const isMyPage = useMemo(() => activeUser?.username === account.name, []);
+  const isMyPage = useMemo(
+    () => activeUser?.username === account.name,
+    [account.name, activeUser?.username]
+  );
   const imageSrc = proxifyImageSrc(token.icon, 0, 0, canUseWebp ? "webp" : "match");
 
   return (
@@ -119,6 +122,7 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
                     onClick={() => openTransferDialog("transfer", token.symbol, token.balance)}
                     className="he-icon mr-0 mr-md-2"
                   >
+                    {/*TODO these all SVGs has zero size, found smthing in Uil*/}
                     {transferOutlineSvg}
                   </span>
                 </div>
