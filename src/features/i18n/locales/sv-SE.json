@@ -2496,6 +2496,8 @@
     "issue-reported": "Issue reported successfully"
   },
   "entry-preview": {
+    "searching-title": "Searching post",
+    "searching-description": "We are trying to find out this post...",
     "title": "Preview",
     "description": "This post is creating now. You can interact with it when this message will disappear."
   },
