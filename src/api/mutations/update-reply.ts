@@ -7,7 +7,7 @@ import { error } from "@/features/shared";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 
-export function useUpdateReply(entry?: Entry | null, onSuccess?: () => void) {
+export function useUpdateReply(entry?: Entry | null, onSuccess?: () => Promise<void>) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
@@ -43,7 +43,9 @@ export function useUpdateReply(entry?: Entry | null, onSuccess?: () => void) {
       );
       try {
         await validatePostUpdating({ entry, text });
+        await onSuccess?.();
       } catch (e) {}
+
       return {
         ...entry,
         json_metadata: jsonMeta,
@@ -59,7 +61,6 @@ export function useUpdateReply(entry?: Entry | null, onSuccess?: () => void) {
 
       // remove reply draft
       ss.remove(`reply_draft_${entry.author}_${entry.permlink}`);
-      onSuccess?.();
     },
     onError: (e) => error(...formatError(e))
   });

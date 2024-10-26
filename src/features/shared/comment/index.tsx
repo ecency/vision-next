@@ -3,7 +3,6 @@
 import React, { Ref, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
-import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
 import defaults from "@/defaults.json";
 import { AvailableCredits, LoginRequired } from "@/features/shared";
@@ -34,6 +33,7 @@ interface Props {
   resetSelection?: () => void;
   onCancel?: () => void;
   inputRef?: Ref<any>;
+  clearOnSubmit?: boolean;
 }
 
 export function Comment({
@@ -47,7 +47,8 @@ export function Comment({
   resetSelection,
   inputRef,
   inProgress,
-  autoFocus
+  autoFocus,
+  clearOnSubmit = true
 }: Props) {
   const commentBodyRef = useRef<HTMLDivElement>(null);
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -106,8 +107,10 @@ export function Comment({
 
   const submit = useCallback(async () => {
     await onSubmit(text!);
-    setText("");
-  }, [text, onSubmit]);
+    if (clearOnSubmit) {
+      setText("");
+    }
+  }, [onSubmit, text, clearOnSubmit]);
 
   const cancel = useCallback(() => {
     if (onCancel) onCancel();
@@ -144,7 +147,7 @@ export function Comment({
 
   useEffect(() => {
     if (defText !== previousDefText && !previousDefText) {
-      let commentText = text ? text + "\n" + defText : defText;
+      let commentText = defText;
       setText(commentText || "");
       setPreview(commentText || "");
       if (resetSelection) resetSelection();
@@ -221,13 +224,7 @@ export function Comment({
             </Button>
           )}
           <LoginRequired>
-            <Button
-              size="sm"
-              disabled={inProgress}
-              onClick={submit}
-              icon={inProgress && <Spinner className="w-3.5 h-3.5" />}
-              iconPlacement="left"
-            >
+            <Button size="sm" onClick={submit} isLoading={inProgress} iconPlacement="left">
               {submitText}
             </Button>
           </LoginRequired>

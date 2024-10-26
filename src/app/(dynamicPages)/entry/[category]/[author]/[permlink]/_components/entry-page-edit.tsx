@@ -6,25 +6,31 @@ import { Entry } from "@/entities";
 import { useRouter } from "next/navigation";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 import { useUpdateReply } from "@/api/mutations";
-import { makeJsonMetaDataReply } from "@/utils";
+import { delay, makeJsonMetaDataReply } from "@/utils";
 import appPackage from "../../../../../../../../package.json";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
+import useLocalStorage from "react-use/lib/useLocalStorage";
+import { PREFIX } from "@/utils/local-storage";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 export interface Props {
   entry: Entry;
+  isEdit: boolean;
 }
 
-export function EntryPageEdit({ entry }: Props) {
+export function EntryPageEdit({ entry: initialEntry, isEdit }: Props) {
   const router = useRouter();
+  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
 
+  const [_, __, clearText] = useLocalStorage(PREFIX + "_c_t", "");
   const { commentsInputRef } = useContext(EntryPageContext);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { mutateAsync: updateReplyApi, isPending: isUpdateReplyLoading } = useUpdateReply(
-    entry,
-    () => {
-      router.push(`/${entry.category}/@${entry.author}/${entry.permlink}`);
-    }
-  );
+  const { mutateAsync: updateReplyApi, isPending } = useUpdateReply(entry, async () => {
+    setIsLoading(true);
+    await delay(2000);
+    router.push(`/${entry?.category}/@${entry?.author}/${entry?.permlink}`);
+  });
   const updateReply = async (text: string) => {
     if (entry) {
       return updateReplyApi({
@@ -36,17 +42,29 @@ export function EntryPageEdit({ entry }: Props) {
     return;
   };
 
+  useEffect(() => {
+    if (!isEdit) {
+      setIsLoading(false);
+      clearText();
+    }
+  }, [entry?.author, entry?.permlink, isEdit, clearText]);
+
   return (
-    <Comment
-      defText={entry.body}
-      submitText={i18next.t("g.update")}
-      entry={entry}
-      onSubmit={updateReply}
-      cancellable={true}
-      onCancel={() => router.back()}
-      inProgress={isUpdateReplyLoading}
-      autoFocus={true}
-      inputRef={commentsInputRef}
-    />
+    isEdit && (
+      <div className="relative">
+        <Comment
+          defText={entry!.body}
+          submitText={i18next.t("g.update")}
+          entry={entry!!}
+          onSubmit={updateReply}
+          clearOnSubmit={false}
+          cancellable={true}
+          onCancel={() => router.back()}
+          inProgress={isLoading || isPending}
+          autoFocus={true}
+          inputRef={commentsInputRef}
+        />
+      </div>
+    )
   );
 }
