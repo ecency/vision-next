@@ -2496,6 +2496,8 @@
     "issue-reported": "Problema reportado con éxito"
   },
   "entry-preview": {
+    "searching-title": "Searching post",
+    "searching-description": "We are trying to find out this post...",
     "title": "Previsualización",
     "description": "Esta publicación se está creando ahora. Puedes interactuar con ella cuando este mensaje desaparezca."
   },
