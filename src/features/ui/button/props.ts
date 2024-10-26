@@ -23,6 +23,8 @@ interface RegularButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   iconPlacement?: "left" | "right";
   iconClassName?: string;
   noPadding?: boolean;
+  isLoading?: boolean;
+  loadingText?: string;
 }
 
 interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -37,6 +39,8 @@ interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   iconPlacement?: "left" | "right";
   iconClassName?: string;
   noPadding?: boolean;
+  isLoading?: boolean;
+  loadingText?: string;
 }
 
 export type ButtonProps = RegularButtonProps | LinkButtonProps;

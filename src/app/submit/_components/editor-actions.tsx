@@ -194,8 +194,8 @@ export function EditorActions({
           <LoginRequired>
             <Button
               size="sm"
-              icon={(posting || publishing) && <Spinner className="w-3.5 h-3.5" />}
-              iconPlacement="left"
+              isLoading={updating}
+              loadingText={i18next.t("submit.updating")}
               onClick={() => {
                 if (!validate()) {
                   return;
@@ -211,7 +211,6 @@ export function EditorActions({
                   selectionTouched
                 });
               }}
-              disabled={posting || publishing}
             >
               {i18next.t("submit.update")}
             </Button>

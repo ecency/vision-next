@@ -1482,7 +1482,8 @@
     "empty-tags-alert": "Enter post tags",
     "empty-body-alert": "Enter post body",
     "description": "Short description",
-    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones."
+    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones.",
+    "updating": "Updating"
   },
   "video-upload": {
     "choose-video": "Select a video",
