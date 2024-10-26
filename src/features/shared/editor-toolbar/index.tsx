@@ -32,7 +32,7 @@ import { EmojiPicker } from "@/features/ui";
 import { GifPicker } from "@ui/gif-picker";
 import { classNameObject } from "@ui/util";
 import { GalleryDialog } from "@/features/shared/gallery";
-import { Fragments } from "@/features/shared/fragments/fragments-list";
+import { FragmentsDialog } from "@/features/shared/fragments";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { VideoGallery } from "@/features/shared/video-gallery";
 import { AddImage } from "@/features/shared/editor-toolbar/add-image";
@@ -519,8 +519,9 @@ export function EditorToolbar({
         condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
       >
         {fragments && activeUser && (
-          <Fragments
-            onHide={() => setFragments(false)}
+          <FragmentsDialog
+            show={fragments}
+            setShow={setFragments}
             onPick={(body: string) => {
               insertText(body);
               setFragments(false);

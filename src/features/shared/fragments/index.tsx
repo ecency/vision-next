@@ -7,9 +7,10 @@ import i18next from "i18next";
 interface Props {
   show: boolean;
   setShow: (v: boolean) => void;
+  onPick?: (v: string) => void;
 }
 
-export function FragmentsDialog({ show, setShow }: Props) {
+export function FragmentsDialog({ show, setShow, onPick }: Props) {
   return (
     <Modal
       show={show}
@@ -22,7 +23,7 @@ export function FragmentsDialog({ show, setShow }: Props) {
         <ModalTitle>{i18next.t("fragments.title")}</ModalTitle>
       </ModalHeader>
       <ModalBody>
-        <Fragments onHide={() => setShow(false)} />
+        <Fragments onHide={() => setShow(false)} onPick={onPick} />
       </ModalBody>
     </Modal>
   );
