@@ -6,6 +6,24 @@ import { makeEntryPath } from "@/utils";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
 export namespace EcencyEntriesCacheManagement {
+  export const TEMP_ENTRY_COOKIE_NAME = "temp-entry-after-pub";
+
+  export function getCookieRepresentation(entry: Entry) {
+    return btoa(JSON.stringify(entry));
+  }
+
+  export function extractFromCookie(value: string, author: string, permlink: string) {
+    try {
+      const entry: Entry = JSON.parse(atob(value));
+      if (entry.author === author && entry.permlink === permlink) {
+        updateEntryQueryData([entry]);
+        return entry;
+      }
+    } catch (e) {}
+
+    return undefined;
+  }
+
   export function getEntryQueryByPath(author?: string, permlink?: string) {
     return EcencyQueriesManager.generateClientServerQuery({
       queryKey: [

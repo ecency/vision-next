@@ -24,10 +24,14 @@ import { error, success } from "@/features/shared";
 import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useCookie } from "react-use";
+import { addMinutes } from "date-fns";
+import TEMP_ENTRY_COOKIE_NAME = EcencyEntriesCacheManagement.TEMP_ENTRY_COOKIE_NAME;
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const [_, setTemporaryEntryToCookie] = useCookie(TEMP_ENTRY_COOKIE_NAME);
 
   const activeUser = useGlobalStore((s) => s.activeUser);
   const { activePoll, clearActivePoll } = useContext(PollsContext);
@@ -153,13 +157,16 @@ export function usePublishApi(onClear: () => void) {
           max_accepted_payout: options.max_accepted_payout,
           percent_hbd: options.percent_hbd
         };
+        setTemporaryEntryToCookie(EcencyEntriesCacheManagement.getCookieRepresentation(entry), {
+          expires: addMinutes(new Date(), 3)
+        });
         updateEntryQueryData([entry]);
 
         success(i18next.t("submit.published"));
         onClear();
         clearActivePoll();
         const newLoc = makeEntryPath(parentPermlink, author, permlink);
-        router.push(newLoc + "/preview");
+        router.push(newLoc);
 
         //Mark speak video as published
         if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {

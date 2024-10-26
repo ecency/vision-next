@@ -15,6 +15,9 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateEntryMetadata } from "../../../_helpers";
+import { cookies } from "next/headers";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { Entry } from "@/entities";
 
 interface Props {
   params: { author: string; permlink: string; category: string };
@@ -30,7 +33,19 @@ export default async function EntryPage({
   searchParams
 }: Props) {
   const author = username.replace("%40", "");
-  const entry = await getPostQuery(author, permlink).prefetch();
+  let entry: Entry | undefined;
+
+  // Attempting to search temporary entry after creation
+  const persistedEntry = cookies().get(EcencyEntriesCacheManagement.TEMP_ENTRY_COOKIE_NAME);
+  if (persistedEntry?.value) {
+    entry = EcencyEntriesCacheManagement.extractFromCookie(persistedEntry.value, author, permlink);
+  }
+
+  // In case of temporary entry is empty then fetch from API
+  if (!entry) {
+    entry = await getPostQuery(author, permlink).prefetch();
+  }
+
   await getAccountFullQuery(entry?.author).prefetch();
 
   if (!entry) {
