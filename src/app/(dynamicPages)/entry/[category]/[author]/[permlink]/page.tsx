@@ -68,7 +68,7 @@ export default async function EntryPage({
             <span itemScope={true} itemType="http://schema.org/Article">
               <EntryPageContent
                 category={category}
-                isEdit={false}
+                isEdit={searchParams["edit"] === "true" ?? false}
                 entry={entry}
                 rawParam={searchParams["raw"] ?? ""}
               />

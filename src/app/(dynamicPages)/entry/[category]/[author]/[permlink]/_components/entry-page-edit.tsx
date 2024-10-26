@@ -22,8 +22,7 @@ export function EntryPageEdit({ entry }: Props) {
   const { mutateAsync: updateReplyApi, isPending: isUpdateReplyLoading } = useUpdateReply(
     entry,
     () => {
-      router.push(entry.url);
-      // reload(); TODO
+      router.push(`/${entry.category}/@${entry.author}/${entry.permlink}`);
     }
   );
   const updateReply = async (text: string) => {
