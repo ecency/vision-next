@@ -49,11 +49,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
             [props.iconClassName ?? ""]: true
           })}
         >
-          {props.icon || props.isLoading ? (
-            <UilSpinner className="w-5 h-5 animate-spin" />
-          ) : (
-            props.icon
-          )}
+          {props.isLoading ? <UilSpinner className="w-5 h-5 animate-spin" /> : props.icon}
         </div>
       ) : (
         <></>
@@ -62,7 +58,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
 
     return "href" in props ? (
       <Link {...nativeProps} className={className} ref={ref as any}>
-        {children}
+        {props.isLoading && props.loadingText ? props.loadingText : children}
         {icon}
       </Link>
     ) : (

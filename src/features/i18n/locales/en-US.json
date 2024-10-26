@@ -1483,7 +1483,10 @@
     "empty-body-alert": "Enter post body",
     "description": "Short description",
     "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones.",
-    "updating": "Updating"
+    "updating": "Updating..",
+    "publishing": "Publishing..",
+    "saving": "Saving..",
+    "scheduling": "Scheduling.."
   },
   "video-upload": {
     "choose-video": "Select a video",

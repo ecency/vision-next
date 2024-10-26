@@ -1,6 +1,5 @@
 import { LoginRequired } from "@/features/shared";
 import { Button } from "@ui/button";
-import { Spinner } from "@ui/spinner";
 import i18next from "i18next";
 import { contentLoadSvg, contentSaveSvg } from "@/assets/img/svg";
 import { EcencyConfigManager } from "@/config";
@@ -30,7 +29,6 @@ interface Props {
   selectedThumbnail: string | undefined;
   selectionTouched: boolean;
   validate: () => boolean;
-  disabled: boolean;
 }
 
 export function EditorActions({
@@ -50,14 +48,13 @@ export function EditorActions({
   description,
   selectedThumbnail,
   selectionTouched,
-  validate,
-  disabled
+  validate
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const router = useRouter();
 
-  const { mutateAsync: doSchedule, isPending: posting } = useScheduleApi(onClear);
-  const { mutateAsync: saveDraft, isPending: saving } = useSaveDraftApi();
+  const { mutateAsync: doSchedule, isPending: scheduling } = useScheduleApi(onClear);
+  const { mutateAsync: saveDraft, isPending: savingDraft } = useSaveDraftApi();
   const { mutateAsync: publish, isPending: publishing } = usePublishApi(onClear);
   const { mutateAsync: update, isPending: updating } = useUpdateApi(onClear);
   const cancelUpdate = useCallback(() => {
@@ -78,7 +75,8 @@ export function EditorActions({
       <LoginRequired>
         <Button
           size="sm"
-          icon={(posting || publishing) && <Spinner className="w-3.5 h-3.5" />}
+          isLoading={scheduling}
+          loadingText={i18next.t("submit.scheduling")}
           iconPlacement="left"
           onClick={() => {
             if (!validate()) {
@@ -96,7 +94,6 @@ export function EditorActions({
               description
             });
           }}
-          disabled={posting || publishing}
         >
           {i18next.t("submit.schedule")}
         </Button>
@@ -118,6 +115,8 @@ export function EditorActions({
                   onClick={() => setDrafts(!drafts)}
                   icon={contentLoadSvg}
                   iconPlacement="left"
+                  isLoading={savingDraft}
+                  loadingText={i18next.t("submit.saving")}
                 >
                   {i18next.t("submit.load-draft")}
                 </Button>
@@ -131,6 +130,8 @@ export function EditorActions({
                 className="mr-[6px]"
                 icon={contentSaveSvg}
                 iconPlacement="left"
+                isLoading={savingDraft}
+                loadingText={i18next.t("submit.saving")}
                 onClick={() => {
                   if (!validate()) {
                     return;
@@ -147,7 +148,6 @@ export function EditorActions({
                     reward
                   });
                 }}
-                disabled={disabled || saving || posting || publishing}
               >
                 {editingDraft === null
                   ? i18next.t("submit.save-draft")
@@ -158,7 +158,8 @@ export function EditorActions({
           <LoginRequired>
             <Button
               size="sm"
-              icon={(posting || publishing) && <Spinner className="w-3.5 h-3.5" />}
+              isLoading={publishing}
+              loadingText={i18next.t("submit.publishing")}
               iconPlacement="left"
               onClick={() => {
                 if (!validate()) {
@@ -177,7 +178,6 @@ export function EditorActions({
                   selectionTouched
                 });
               }}
-              disabled={disabled || posting || saving || publishing}
             >
               {i18next.t("submit.publish")}
             </Button>
