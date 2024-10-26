@@ -155,7 +155,7 @@
     "address-placeholder": "introduce url o consulta de búsqueda",
     "home": "Inicio",
     "waves": "Olas",
-    "communities": "Communities"
+    "communities": "Comunidades"
   },
   "search": {
     "placeholder": "Buscar",
@@ -2497,8 +2497,8 @@
     "issue-reported": "Problema reportado con éxito"
   },
   "entry-preview": {
-    "searching-title": "Searching post",
-    "searching-description": "We are trying to find out this post...",
+    "searching-title": "Buscando publicación",
+    "searching-description": "Estamos tratando de encontrar esta publicación...",
     "title": "Previsualización",
     "description": "Esta publicación se está creando ahora. Puedes interactuar con ella cuando este mensaje desaparezca."
   },
