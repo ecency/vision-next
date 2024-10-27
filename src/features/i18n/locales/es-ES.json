@@ -1482,7 +1482,11 @@
     "empty-tags-alert": "Introducir etiquetas de la publicación",
     "empty-body-alert": "Introducir cuerpo de la publicación",
     "description": "Descripción breve",
-    "should-be-only-one-unpublished": "El post debe contener solamente un vídeo sin publicar. Por favor, elimine cualquier otro contenido."
+    "should-be-only-one-unpublished": "El post debe contener solamente un vídeo sin publicar. Por favor, elimine cualquier otro contenido.",
+    "updating": "Updating..",
+    "publishing": "Publishing..",
+    "saving": "Saving..",
+    "scheduling": "Scheduling.."
   },
   "video-upload": {
     "choose-video": "Selecciona un vídeo",
