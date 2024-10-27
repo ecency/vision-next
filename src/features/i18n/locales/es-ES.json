@@ -2486,11 +2486,11 @@
   },
   "not-found": {
     "title": "No encontrado",
-    "description": "Oops! Lost in ocean...",
+    "description": "¡Vaya! Perdido en océano...",
     "back-home": "Regresa al inicio"
   },
   "global-error": {
-    "description": "Please, try again or report an issue..."
+    "description": "Por favor, inténtalo de nuevo o reporta un problema..."
   },
   "issue-reporter": {
     "report": "Reportar",
