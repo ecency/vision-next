@@ -1483,10 +1483,10 @@
     "empty-body-alert": "Introducir cuerpo de la publicación",
     "description": "Descripción breve",
     "should-be-only-one-unpublished": "El post debe contener solamente un vídeo sin publicar. Por favor, elimine cualquier otro contenido.",
-    "updating": "Updating..",
-    "publishing": "Publishing..",
-    "saving": "Saving..",
-    "scheduling": "Scheduling.."
+    "updating": "Actualizando..",
+    "publishing": "Publicando...",
+    "saving": "Guardando..",
+    "scheduling": "Programando.."
   },
   "video-upload": {
     "choose-video": "Selecciona un vídeo",
@@ -2486,11 +2486,11 @@
   },
   "not-found": {
     "title": "No encontrado",
-    "description": "Oops! It seems there isn`t page related to URL:(",
+    "description": "Oops! Lost in ocean...",
     "back-home": "Regresa al inicio"
   },
   "global-error": {
-    "description": "Something went wrong. Please, try again or report an issue"
+    "description": "Please, try again or report an issue..."
   },
   "issue-reporter": {
     "report": "Reportar",
