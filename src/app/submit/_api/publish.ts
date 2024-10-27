@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as bridgeApi from "../../../api/bridge";
+import { getPost } from "../../../api/bridge";
 import { markAsPublished, updateSpeakVideoInfo } from "@/api/threespeak";
 import { comment, formatError, reblog } from "@/api/operations";
 import { useThreeSpeakManager } from "../_hooks";
@@ -12,6 +13,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
 import {
   createPermlink,
+  delay,
   isCommunity,
   makeApp,
   makeCommentOptions,
@@ -24,6 +26,27 @@ import { error, success } from "@/features/shared";
 import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+
+/**
+ * Helps to validate if post was really created on Blockchain
+ */
+async function validatePostCreating(author: string, permlink: string, attempts = 0) {
+  if (attempts === 3) {
+    return;
+  }
+
+  let response: Entry | undefined;
+  try {
+    response = await getPost(author, permlink);
+  } catch (e) {
+    response = undefined;
+  }
+  if (!response) {
+    await delay(3000);
+    attempts += 1;
+    return validatePostCreating(author, permlink, attempts);
+  }
+}
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
@@ -155,11 +178,13 @@ export function usePublishApi(onClear: () => void) {
         };
         updateEntryQueryData([entry]);
 
+        await validatePostCreating(entry.author, entry.permlink);
+
         success(i18next.t("submit.published"));
         onClear();
         clearActivePoll();
         const newLoc = makeEntryPath(parentPermlink, author, permlink);
-        router.push(newLoc + "/preview");
+        router.push(newLoc);
 
         //Mark speak video as published
         if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {

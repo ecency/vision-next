@@ -75,6 +75,15 @@ const config = {
         source: "/:author(@.+)/:permlink/edit",
         destination: "/entry/created/:author/:permlink/edit"
       },
+      // As We added preview once
+      {
+        source: "/:category/:author(@.+)/:permlink/preview",
+        destination: "/entry/:category/:author/:permlink"
+      },
+      {
+        source: "/:author(@.+)/:permlink/preview",
+        destination: "/entry/created/:author/:permlink"
+      },
       {
         source: "/:category/:author(@.+)/:permlink",
         destination: "/entry/:category/:author/:permlink"

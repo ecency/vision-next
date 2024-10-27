@@ -3,7 +3,6 @@
 import React, { PropsWithChildren } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { UIManager } from "@ui/core";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ChatProvider } from "@/app/chat-provider";
 import { ClientInit } from "@/app/client-init";
 import { makeQueryClient } from "@/core/react-query";
@@ -37,7 +36,7 @@ export function ClientProviders(props: PropsWithChildren) {
         </PushNotificationsProvider>
         <Announcements />
       </UIManager>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/*<ReactQueryDevtools initialIsOpen={false} />*/}
     </QueryClientProvider>
   );
 }
