@@ -2,15 +2,16 @@
 
 import { ProfilePopover, UserAvatar } from "@/features/shared";
 import { Entry } from "@/entities";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, ReactNode } from "react";
 import { motion } from "framer-motion";
 
 interface Props {
   username: string;
   i: number;
+  prefix?: ReactNode;
 }
 
-export function UsersTableListItem({ username, children, i }: PropsWithChildren<Props>) {
+export function UsersTableListItem({ username, children, i, prefix }: PropsWithChildren<Props>) {
   return (
     <motion.div
       initial={{
@@ -31,9 +32,10 @@ export function UsersTableListItem({ username, children, i }: PropsWithChildren<
       transition={{
         delay: 0.1 * i
       }}
-      className="bg-gray-100 dark:bg-dark-200 border border-[--border-color] rounded-2xl p-4 flex items-center justify-between gap-4"
+      className="relative bg-gray-100 dark:bg-dark-200 border border-[--border-color] rounded-2xl p-4 flex items-center justify-between gap-4"
     >
       <div className="flex items-center gap-4">
+        {prefix}
         <UserAvatar size="medium" username={username} />
         <ProfilePopover entry={{ author: username } as Entry} />
       </div>
