@@ -14,6 +14,8 @@ import {
 } from "@/app/discover/_components";
 import { Badge } from "@ui/badge";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import { medalSvg } from "@ui/svg";
+import { classNameObject } from "@ui/util";
 
 interface Props {
   searchParams: Record<string, string | undefined>;
@@ -47,7 +49,28 @@ export default async function LeaderboardPage({ searchParams }: Props) {
           {data && data.length > 0 && (
             <div className="flex flex-col gap-4">
               {data.map((r, i) => (
-                <UsersTableListItem username={r._id} i={i} key={i}>
+                <UsersTableListItem
+                  prefix={
+                    <div className="flex items-center">
+                      <span className="font-semibold opacity-50 text-sm">{i + 1}</span>
+                      {i <= 2 && (
+                        <div
+                          className={classNameObject({
+                            "absolute -top-3 -left-3": true,
+                            "text-warning-default": i === 0,
+                            "text-silver": i === 1,
+                            "text-orange": i === 2
+                          })}
+                        >
+                          {medalSvg}
+                        </div>
+                      )}
+                    </div>
+                  }
+                  username={r._id}
+                  i={i}
+                  key={i}
+                >
                   <div className="text-blue-dark-sky text-sm font-semibold">
                     {r.points !== "0.000" && `${r.points} POINTS`}
                   </div>
