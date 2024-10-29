@@ -92,7 +92,8 @@ export enum QueryIdentifiers {
   SEARCH_BY_USERNAME = "search-by-username",
   SPK_USER_WALLET = "spk-user-wallet",
   CHAIN_PROPERTIES = "chain-properties",
-  HIVE_ENGINE_ALL_TOKENS = "hive-engine-all-tokens"
+  HIVE_ENGINE_ALL_TOKENS = "hive-engine-all-tokens",
+  GET_HIVE_ENGINE_MARKET_DATA = "get-hive-engine-market-data"
 }
 
 export function makeQueryClient() {

@@ -1,33 +1,27 @@
-import React, { useMemo, useState } from "react";
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
-import moment from "moment";
+import React, { useMemo } from "react";
+import * as Highcharts from "highcharts";
+import { HighchartsReact } from "highcharts-react-official";
 import "./_index.scss";
-import { getMarketData } from "@/api/hive-engine";
+import { useGlobalStore } from "@/core/global-store";
+import { getHiveEngineMarketDataQuery } from "@/api/queries";
 import { Theme } from "@/enums";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
-import useMount from "react-use/lib/useMount";
+import { format } from "date-fns";
 
-export const HiveEngineChart = ({ items }: any) => {
+interface Props {
+  symbol: string;
+}
+
+export const HiveEngineChart = ({ symbol }: Props) => {
   const theme = useGlobalStore((s) => s.theme);
-  const [prices, setPrices]: any = useState([]);
 
-  useMount(() => {
-    getHistory();
-  });
+  const { data } = getHiveEngineMarketDataQuery(symbol).useClientQuery();
+  const prices = useMemo(() => data?.map((token: any) => +token.close) ?? [], [data]);
 
-  const getHistory = async () => {
-    const history = await getMarketData(items.symbol);
-    const close = history.map((token: any) => token.close);
-    const closePrice = close.map((a: any) => Number(a));
-    setPrices(closePrice);
-  };
-
-  const config: any = useMemo(
+  const config: any = useMemo<Highcharts.Options>(
     () => ({
       title: {
-        text: null
+        text: ""
       },
       credits: { enabled: false },
       legend: {
@@ -35,7 +29,7 @@ export const HiveEngineChart = ({ items }: any) => {
       },
       chart: {
         height: "70",
-        width: "600",
+        width: "400",
         zoomType: "x",
         backgroundColor: "transparent",
         border: "none",
@@ -76,13 +70,22 @@ export const HiveEngineChart = ({ items }: any) => {
         valueDecimals: 2,
         useHTML: true,
         shadow: false,
-        formatter: (({ chart }: any) => {
-          let date = moment(chart.hoverPoint.options.x).calendar();
-          let rate = chart.hoverPoint.options.y;
-          return `<div><div>${i18next.t("g.when")}: <b>${date}</b></div><div>${i18next.t(
-            "g.price"
-          )}:<b>${rate.toFixed(3)}</b></div></div>`;
-        }) as any,
+        formatter: ({ chart }: any) => {
+          const time = format(
+            new Date((data?.[chart.hoverPoint.index].timestamp ?? 0) * 1000),
+            "dd/MM/yyyy HH:mm"
+          );
+          return `
+            <div>
+              <div>
+                ${i18next.t("g.when")}: <b>${time}</b>
+              </div>
+              <div>
+                ${i18next.t("g.price")}:<b>${chart.hoverPoint.options.y?.toFixed(6)}</b>
+              </div>
+            </div>
+        `;
+        },
         enabled: true
       },
       xAxis: {
@@ -131,11 +134,10 @@ export const HiveEngineChart = ({ items }: any) => {
     }),
     [prices, theme]
   );
+
   return (
     <div className="market-graph flex justify-center ml-5">
-      <div className="graph">
-        <HighchartsReact highcharts={Highcharts} config={config} />
-      </div>
+      <HighchartsReact highcharts={Highcharts} options={config} />
     </div>
   );
 };

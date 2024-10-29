@@ -61,11 +61,7 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
         {token.symbol}
       </div>
 
-      {!isMobile && (
-        <div className="flex">
-          <HiveEngineChart items={token} />
-        </div>
-      )}
+      {!isMobile && <HiveEngineChart symbol={token.symbol} />}
 
       <div className="ml-auto flex flex-col justify-between">
         <div className="flex items-center gap-1 mb-1 justify-end align-self-end">
