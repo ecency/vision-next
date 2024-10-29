@@ -93,7 +93,8 @@ export enum QueryIdentifiers {
   SPK_USER_WALLET = "spk-user-wallet",
   CHAIN_PROPERTIES = "chain-properties",
   HIVE_ENGINE_ALL_TOKENS = "hive-engine-all-tokens",
-  GET_HIVE_ENGINE_MARKET_DATA = "get-hive-engine-market-data"
+  GET_HIVE_ENGINE_MARKET_DATA = "get-hive-engine-market-data",
+  HIVE_ENGINE_TOKEN_BALANCES = "hive-engine-token-balances"
 }
 
 export function makeQueryClient() {

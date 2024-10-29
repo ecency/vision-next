@@ -11,14 +11,7 @@ import {
 
 import { plusCircle } from "@/assets/img/svg";
 import { Popover, PopoverContent } from "@ui/popover";
-import {
-  error,
-  LinearProgress,
-  success,
-  Transfer,
-  TransferAsset,
-  TransferMode
-} from "@/features/shared";
+import { error, LinearProgress, success, TransferAsset, TransferMode } from "@/features/shared";
 import i18next from "i18next";
 import { formattedNumber, HiveEngineToken } from "@/utils";
 import { SortEngineTokens } from "./sort-hive-engine-tokens";
@@ -30,6 +23,7 @@ import { formatError } from "@/api/operations";
 import useMount from "react-use/lib/useMount";
 import { WalletMenu } from "../../_components/wallet-menu";
 import { WalletEngineTokenItem } from "@/app/(dynamicPages)/profile/[username]/engine/_components/wallet-engine-token-item";
+import { EngineTransfer } from "@/app/(dynamicPages)/profile/[username]/engine/_components/engine-transfer";
 
 interface Props {
   account: Account;
@@ -335,7 +329,7 @@ export function WalletHiveEngine({ account }: Props) {
         <WalletMenu username={account.name} active="engine" />
       </div>
       {transfer && (
-        <Transfer
+        <EngineTransfer
           to={isMyPage ? undefined : account.name}
           mode={transferMode!}
           asset={transferAsset!}
