@@ -10,10 +10,13 @@ export async function generateEntryMetadata(username: string, permlink: string) 
         ? entry.json_metadata?.description
         : truncate(postBodySummary(entry.body, 210), 140)
     } by @${entry.author}`;
-    const tags =
-      (entry.json_metadata.tags && Array.from(new Set(entry.json_metadata.tags)))?.filter(
-        (t) => !!t
-      ) ?? [];
+    const tags = entry.json_metadata.tags instanceof Array ? Array.from(new Set(entry.json_metadata.tags))?.filter(
+      (t) => !!t
+    ) : ['ecency'];
+    //const tags =
+    //  (entry.json_metadata.tags && Array.from(new Set(entry.json_metadata.tags)))?.filter(
+    //    (t) => !!t
+    //  ) ?? [];
     return {
       title: truncate(entry.title, 67),
       description,
