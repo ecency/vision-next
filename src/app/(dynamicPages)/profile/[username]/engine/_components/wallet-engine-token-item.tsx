@@ -2,15 +2,7 @@ import Image from "next/image";
 import { HiveEngineChart } from "@/app/(dynamicPages)/profile/[username]/engine/_components/hive-engine-chart";
 import { Popover } from "@ui/popover";
 import i18next from "i18next";
-import {
-  delegateOutlineSvg,
-  lockOutlineSvg,
-  priceDownSvg,
-  priceUpSvg,
-  transferOutlineSvg,
-  undelegateOutlineSvg,
-  unlockOutlineSvg
-} from "@/assets/img/svg";
+import { priceDownSvg, priceUpSvg } from "@/assets/img/svg";
 import { Tooltip } from "@ui/tooltip";
 import React, { useMemo } from "react";
 import { proxifyImageSrc } from "@ecency/render-helper";
@@ -20,7 +12,15 @@ import { getAllHiveEngineTokensQuery } from "@/api/queries";
 import { TransferMode } from "@/features/shared";
 import { Account } from "@/entities";
 import { motion } from "framer-motion";
-import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import {
+  UilArrowCircleDown,
+  UilArrowCircleUp,
+  UilInfoCircle,
+  UilLock,
+  UilMessage,
+  UilUnlock
+} from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
 
 interface Props {
   i: number;
@@ -68,7 +68,7 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
       )}
 
       <div className="ml-auto flex flex-col justify-between">
-        <div className="flex items-center gap-1 mb-1 align-self-end">
+        <div className="flex items-center gap-1 mb-1 justify-end align-self-end">
           <div className="text-blue-dark-sky font-semibold">{token.balanced()}</div>
 
           <Popover anchorParent={true}>
@@ -114,54 +114,43 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
         </div>
 
         {isMyPage && (
-          <div className="flex justify-between ml-auto">
-            <div className="mr-1">
-              <Tooltip content="Transfer">
-                <div className="flex items-center flex-justify-center">
-                  <span
-                    onClick={() => openTransferDialog("transfer", token.symbol, token.balance)}
-                    className="he-icon mr-0 mr-md-2"
-                  >
-                    {/*TODO these all SVGs has zero size, found smthing in Uil*/}
-                    {transferOutlineSvg}
-                  </span>
-                </div>
-              </Tooltip>
-            </div>
+          <div className="flex justify-end gap-1 ml-auto">
+            <Tooltip content="Transfer">
+              <Button
+                noPadding={true}
+                icon={<UilMessage className="w-4 h-4" />}
+                appearance="gray-link"
+                onClick={() => openTransferDialog("transfer", token.symbol, token.balance)}
+              />
+            </Tooltip>
 
             {token.delegationEnabled && token.delegationsOut !== token.balance && (
-              <div className="mr-1">
-                <Tooltip content="Delegate">
-                  <div className="flex items-center flex-justify-center">
-                    <span
-                      onClick={() =>
-                        openTransferDialog(
-                          "delegate",
-                          token.symbol,
-                          token.balance - token.delegationsOut
-                        )
-                      }
-                      className="he-icon mr-0 mr-md-2"
-                    >
-                      {delegateOutlineSvg}
-                    </span>
-                  </div>
-                </Tooltip>
-              </div>
+              <Tooltip content="Delegate">
+                <Button
+                  noPadding={true}
+                  icon={<UilArrowCircleUp className="w-4 h-4" />}
+                  appearance="gray-link"
+                  onClick={() =>
+                    openTransferDialog(
+                      "delegate",
+                      token.symbol,
+                      token.balance - token.delegationsOut
+                    )
+                  }
+                />
+              </Tooltip>
             )}
             {token.delegationEnabled && token.delegationsOut > 0 && (
               <div className="mr-1">
                 <Tooltip content="Undelegate">
-                  <div className="flex items-center flex-justify-center">
-                    <span
-                      onClick={() =>
-                        openTransferDialog("undelegate", token.symbol, token.delegationsOut)
-                      }
-                      className="he-icon mr-0 mr-md-2"
-                    >
-                      {undelegateOutlineSvg}
-                    </span>
-                  </div>
+                  <Button
+                    icon={<UilArrowCircleDown className="w-4 h-4" />}
+                    appearance="gray-link"
+                    noPadding={true}
+                    onClick={() =>
+                      openTransferDialog("undelegate", token.symbol, token.delegationsOut)
+                    }
+                  />
                 </Tooltip>
               </div>
             )}
@@ -169,30 +158,24 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
             {token.stakingEnabled && (
               <div className="mr-1">
                 <Tooltip content="Stake">
-                  <div className="flex items-center flex-justify-center items-center">
-                    <span
-                      onClick={() => openTransferDialog("stake", token.symbol, token.balance)}
-                      className="he-icon mr-0 mr-md-2"
-                    >
-                      {lockOutlineSvg}
-                    </span>
-                  </div>
+                  <Button
+                    icon={<UilLock className="w-4 h-4" />}
+                    appearance="gray-link"
+                    noPadding={true}
+                    onClick={() => openTransferDialog("stake", token.symbol, token.balance)}
+                  />
                 </Tooltip>
               </div>
             )}
             {token.stake > 0 && (
               <div className="mr-1">
                 <Tooltip content="Unstake">
-                  <div className="flex items-center flex-justify-center items-center">
-                    <span
-                      onClick={() =>
-                        openTransferDialog("unstake", token.symbol, token.stakedBalance)
-                      }
-                      className="he-icon mr-0 mr-md-2"
-                    >
-                      {unlockOutlineSvg}
-                    </span>
-                  </div>
+                  <Button
+                    icon={<UilUnlock className="w-4 h-4" />}
+                    appearance="gray-link"
+                    noPadding={true}
+                    onClick={() => openTransferDialog("unstake", token.symbol, token.stakedBalance)}
+                  />
                 </Tooltip>
               </div>
             )}
