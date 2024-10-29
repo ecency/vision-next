@@ -48,7 +48,7 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 16 }}
       transition={{ delay: i * 0.1 }}
-      className="bg-light-200 dark:bg-dark-200 flex justify-between items-start rounded-2xl p-4 xl:p-6"
+      className="bg-light-200 border border-[--border-color] dark:bg-dark-200 flex justify-between items-start rounded-2xl p-4 xl:p-6"
     >
       <div className="flex flex-col gap-4 font-semibold">
         <Image
@@ -137,43 +137,37 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
               </Tooltip>
             )}
             {token.delegationEnabled && token.delegationsOut > 0 && (
-              <div className="mr-1">
-                <Tooltip content="Undelegate">
-                  <Button
-                    icon={<UilArrowCircleDown className="w-4 h-4" />}
-                    appearance="gray-link"
-                    noPadding={true}
-                    onClick={() =>
-                      openTransferDialog("undelegate", token.symbol, token.delegationsOut)
-                    }
-                  />
-                </Tooltip>
-              </div>
+              <Tooltip content="Undelegate">
+                <Button
+                  icon={<UilArrowCircleDown className="w-4 h-4" />}
+                  appearance="gray-link"
+                  noPadding={true}
+                  onClick={() =>
+                    openTransferDialog("undelegate", token.symbol, token.delegationsOut)
+                  }
+                />
+              </Tooltip>
             )}
 
             {token.stakingEnabled && (
-              <div className="mr-1">
-                <Tooltip content="Stake">
-                  <Button
-                    icon={<UilLock className="w-4 h-4" />}
-                    appearance="gray-link"
-                    noPadding={true}
-                    onClick={() => openTransferDialog("stake", token.symbol, token.balance)}
-                  />
-                </Tooltip>
-              </div>
+              <Tooltip content="Stake">
+                <Button
+                  icon={<UilLock className="w-4 h-4" />}
+                  appearance="gray-link"
+                  noPadding={true}
+                  onClick={() => openTransferDialog("stake", token.symbol, token.balance)}
+                />
+              </Tooltip>
             )}
             {token.stake > 0 && (
-              <div className="mr-1">
-                <Tooltip content="Unstake">
-                  <Button
-                    icon={<UilUnlock className="w-4 h-4" />}
-                    appearance="gray-link"
-                    noPadding={true}
-                    onClick={() => openTransferDialog("unstake", token.symbol, token.stakedBalance)}
-                  />
-                </Tooltip>
-              </div>
+              <Tooltip content="Unstake">
+                <Button
+                  icon={<UilUnlock className="w-4 h-4" />}
+                  appearance="gray-link"
+                  noPadding={true}
+                  onClick={() => openTransferDialog("unstake", token.symbol, token.stakedBalance)}
+                />
+              </Tooltip>
             )}
           </div>
         )}
