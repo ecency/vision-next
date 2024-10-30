@@ -1,3 +1,3 @@
-export function isCommunity(s: string) {
-  return s.match(/^hive-\d+/) !== null;
+export function isCommunity(s: any) {
+  return typeof s === "string" ? s.match(/^hive-\d+/) !== null : false;
 }
