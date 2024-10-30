@@ -12,6 +12,7 @@ import { Announcements } from "@/features/announcement";
 import { EcencyConfigManager } from "@/config";
 import { PushNotificationsProvider } from "@/features/push-notifications";
 import { EcencyCenter } from "@/features/ecency-center";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export function ClientProviders(props: PropsWithChildren) {
   return (
@@ -36,7 +37,7 @@ export function ClientProviders(props: PropsWithChildren) {
         </PushNotificationsProvider>
         <Announcements />
       </UIManager>
-      {/*<ReactQueryDevtools initialIsOpen={false} />*/}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

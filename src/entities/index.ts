@@ -4,6 +4,7 @@ export * from "./operations";
 export * from "./private-api";
 export * from "./search-api";
 export * from "./spk-api";
+export * from "./giphy";
 
 export * from "./accounts";
 export * from "./communities";
