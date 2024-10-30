@@ -1,9 +1,5 @@
 import defaults from "@/defaults.json";
-import { InfiniteData, QueryKey, useInfiniteQuery } from "@tanstack/react-query";
-import { QueryIdentifiers } from "@/core/react-query";
 import { appAxios } from "@/api/axios";
-
-export const getEmojiData = () => fetch("/emoji.json").then((response) => response.json());
 
 export const uploadImage = async (
   file: File,
@@ -47,25 +43,3 @@ export const getCurrencyRate = (cur: string): Promise<number> => {
     .then((r) => r.data)
     .then((r) => r.hive_dollar[cur]);
 };
-
-export const GIPHY_API_KEY = "DQ7mV4VsZ749GcCBZEunztICJ5nA4Vef";
-export const GIPHY_API = `https://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}&limit=10&offset=0`;
-export const GIPHY_SEARCH_API = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&limit=40&offset=0&q=`;
-
-export function useFetchGifQuery(query: string, limit: number) {
-  return useInfiniteQuery<any[], Error, InfiniteData<any[]>, QueryKey, number>({
-    queryKey: [QueryIdentifiers.GIFS, query],
-    queryFn: ({ pageParam }) => {
-      const params = new URLSearchParams();
-      params.set("q", query);
-      params.set("api_key", GIPHY_API_KEY);
-      params.set("limit", limit.toString());
-      params.set("offset", pageParam.toString());
-
-      return appAxios(`https://api.giphy.com/v1/gifs/search?${params.toString()}`);
-    },
-    initialPageParam: 0,
-    initialData: { pages: [], pageParams: [] },
-    getNextPageParam: (_, __, lastPageParam) => (lastPageParam ?? 0) + 50
-  });
-}
