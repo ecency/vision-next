@@ -2,10 +2,11 @@ import { NextRequest } from "next/server";
 import { FeedRssHandler } from "@/features/rss";
 
 interface Props {
-  params: { filter: string; tag: string };
+  params: Promise<{ filter: string; tag: string }>;
 }
 
-export async function GET(request: NextRequest, { params: { filter, tag } }: Props) {
+export async function GET(request: NextRequest, { params }: Props) {
+  const { filter, tag } = await params;
   return new Response(
     (await new FeedRssHandler(request.nextUrl.pathname, filter, tag).getFeed()).xml(),
     { headers: { "Content-Type": "text/xml" } }
