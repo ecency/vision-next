@@ -8,7 +8,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 
 interface Props {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
@@ -18,7 +18,8 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   );
 }
 
-export default async function PermissionsPage({ params: { username } }: Props) {
+export default async function PermissionsPage({ params }: Props) {
+  const { username } = await params;
   const isAuthenticated = (await cookies()).has(ACTIVE_USER_COOKIE_NAME);
 
   if (!isAuthenticated) {
