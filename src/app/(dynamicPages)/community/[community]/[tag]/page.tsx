@@ -12,14 +12,16 @@ import { Metadata, ResolvingMetadata } from "next";
 import { generateCommunityMetadata } from "@/app/(dynamicPages)/community/[community]/_helpers";
 
 interface Props {
-  params: { tag: string; community: string };
+  params: Promise<{ tag: string; community: string }>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateCommunityMetadata(props.params.community, props.params.tag);
+  const { community, tag } = await props.params;
+  return generateCommunityMetadata(community, tag);
 }
 
-export default async function CommunityPostsPage({ params: { community, tag } }: Props) {
+export default async function CommunityPostsPage({ params }: Props) {
+  const { community, tag } = await params;
   const communityData = await getCommunityCache(community).prefetch();
   if (!communityData) {
     return notFound();

@@ -16,15 +16,14 @@ import { Badge } from "@ui/badge";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
 
 interface Props {
-  searchParams: Record<string, string | undefined>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export default async function CurationPage({ searchParams }: Props) {
+  const period = (await searchParams)["period"] as LeaderBoardDuration;
+
   const dynamicProps = await getDynamicPropsQuery().prefetch();
-  const data = await getDiscoverCurationQuery(
-    (searchParams["period"] as LeaderBoardDuration) ?? "day"
-  ).prefetch();
-  const period = searchParams["period"] as LeaderBoardDuration;
+  const data = await getDiscoverCurationQuery((period as LeaderBoardDuration) ?? "day").prefetch();
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

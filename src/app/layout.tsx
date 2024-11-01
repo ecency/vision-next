@@ -5,8 +5,8 @@ import { cookies } from "next/headers";
 import { Theme } from "@/enums";
 import { BannerManager } from "@/features/banners";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const theme = cookies().get("theme")?.value;
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const theme = (await cookies()).get("theme")?.value;
 
   return (
     <html lang="en">

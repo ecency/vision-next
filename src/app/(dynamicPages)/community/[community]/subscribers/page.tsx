@@ -1,20 +1,22 @@
 import { CommunitySubscribers } from "../_components";
 import { getCommunityCache } from "@/core/caches";
 import { notFound } from "next/navigation";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateCommunityMetadata } from "@/app/(dynamicPages)/community/[community]/_helpers";
 
 interface Props {
-  params: { community: string };
+  params: Promise<{ community: string }>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateCommunityMetadata(props.params.community, "subscribers");
+  const { community } = await props.params;
+  return generateCommunityMetadata(community, "subscribers");
 }
 
-export default async function SubscribersPage({ params: { community } }: Props) {
+export default async function SubscribersPage({ params }: Props) {
+  const { community } = await params;
   const communityData = await getCommunityCache(community).prefetch();
   if (!communityData) {
     return notFound();

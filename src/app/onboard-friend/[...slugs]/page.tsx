@@ -3,7 +3,7 @@ import { PagesMetadataGenerator } from "@/features/metadata";
 import { OnboardFriend } from "@/app/onboard-friend/[...slugs]/_page";
 
 interface Props {
-  params: { slugs: string[] };
+  params: Promise<{ slugs: string[] }>;
 }
 
 export const dynamic = "force-dynamic";
@@ -15,6 +15,7 @@ export async function generateMetadata(
   return PagesMetadataGenerator.getForPage("onboard-friend");
 }
 
-export default function Page(props: Props) {
-  return <OnboardFriend {...props} />;
+export default async function Page(props: Props) {
+  const params = await props.params;
+  return <OnboardFriend params={params} />;
 }
