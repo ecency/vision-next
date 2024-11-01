@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import React, { createContext, HTMLProps, useEffect, useMemo, useState } from "react";
 import { classNameObject, useFilteredProps } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
-import { useLockBodyScroll, useMount, useUnmount } from "react-use";
+import { useMount, useUnmount } from "react-use";
 import useMountedState from "react-use/lib/useMountedState";
 
 interface Props {
@@ -39,7 +39,6 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   const isAnimated = useMemo(() => props.animation ?? true, [props.animation]);
 
   const isMounted = useMountedState();
-  useLockBodyScroll(show);
 
   useMount(() => document.addEventListener("keyup", onKeyUp));
   useUnmount(() => document.removeEventListener("keyup", onKeyUp));
@@ -54,6 +53,12 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
         props.onHide();
       }
     }
+  }, [show]);
+
+  useEffect(() => {
+    show
+      ? document.body.classList.add("overflow-hidden")
+      : document.body.classList.remove("overflow-hidden");
   }, [show]);
 
   const onKeyUp = (e: KeyboardEvent) => {
