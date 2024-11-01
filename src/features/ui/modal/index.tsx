@@ -94,9 +94,10 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
           <div
             {...nativeProps}
             className={classNameObject({
-              "z-[1040] fixed top-0 py-8 left-0 right-0 bottom-0 overflow-y-auto h-full": true,
+              "z-[1040] fixed top-0 py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full":
+                true,
               [props.className ?? ""]: true,
-              "flex justify-center items-center": props.centered
+              "flex justify-center items-start": props.centered
             })}
             onClick={() => setShow(false)}
           >
@@ -126,7 +127,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
               }
               onClick={(e) => e.stopPropagation()}
               className={classNameObject({
-                "bg-white rounded-xl w-[calc(100%-2rem)] ecency-modal-content overflow-x-hidden overflow-y-auto max-h-[calc(100vh-3rem)] my-[3rem] mx-3":
+                "bg-white rounded-xl w-[calc(100%-2rem)] ecency-modal-content overflow-x-hidden md:my-[3rem] mx-3":
                   true,
                 "max-w-[500px]": !props.size || props.size === "md",
                 "max-w-[800px]": props.size === "lg",
