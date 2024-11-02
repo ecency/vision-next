@@ -10,12 +10,14 @@ import { error, success } from "@/features/shared";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 
 export function useUpdateApi(onClear: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const { buildBody } = useThreeSpeakManager();
   const router = useRouter();
 
+  const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   return useMutation({
@@ -66,6 +68,10 @@ export function useUpdateApi(onClear: () => void) {
           jsonMeta,
           null
         );
+
+        try {
+          await validatePostUpdating({ entry: editingEntry, title, text: buildBody(newBody) });
+        } catch (e) {}
 
         // Update the entry object in store
         const entry: Entry = {

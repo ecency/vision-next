@@ -154,7 +154,8 @@
     "night-theme": "Night Theme",
     "address-placeholder": "enter url or search query",
     "home": "Home",
-    "waves": "Waves"
+    "waves": "Waves",
+    "communities": "Communities"
   },
   "search": {
     "placeholder": "Search",
@@ -1481,7 +1482,11 @@
     "empty-tags-alert": "Enter post tags",
     "empty-body-alert": "Enter post body",
     "description": "Short description",
-    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones."
+    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones.",
+    "updating": "Updating..",
+    "publishing": "Publishing..",
+    "saving": "Saving..",
+    "scheduling": "Scheduling.."
   },
   "video-upload": {
     "choose-video": "Select a video",
@@ -2481,11 +2486,11 @@
   },
   "not-found": {
     "title": "Not found",
-    "description": "Oops! Got lost in ocean ⛵️🧭",
+    "description": "Oops! Lost in ocean...",
     "back-home": "Back to home"
   },
   "global-error": {
-    "description": "Please, try again or report an issue 🐡"
+    "description": "Please, try again or report an issue..."
   },
   "issue-reporter": {
     "report": "Report",
@@ -2496,6 +2501,8 @@
     "issue-reported": "Issue reported successfully"
   },
   "entry-preview": {
+    "searching-title": "Searching post",
+    "searching-description": "We are trying to find out this post...",
     "title": "Preview",
     "description": "This post is creating now. You can interact with it when this message will disappear."
   },

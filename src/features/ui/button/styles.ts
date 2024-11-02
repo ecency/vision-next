@@ -18,7 +18,7 @@ export const BUTTON_OUTLINE_STYLES: Record<ButtonAppearance, string> = {
   primary:
     "border-blue-dark-sky hover:border-blue-dark-sky-hover focus:border-blue-dark-sky-active text-blue-dark-sky hover:text-blue-dark-sky-hover focus:text-blue-dark-sky-active disabled:opacity-50",
   secondary:
-    "border-gray-400 hover:border-gray-700 focus:border-gray-800 text-gray-600 hover:text-gray-700 focus:gray-800",
+    "border-gray-400 hover:border-gray-700 focus:border-gray-800 text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-500",
   link: "",
   danger:
     "border-red hover:border-red-020 focus:border-red-030 text-red hover:text-red-020 focus:text-red-030",

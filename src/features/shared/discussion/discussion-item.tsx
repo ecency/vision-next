@@ -153,8 +153,9 @@ export function DiscussionItem({
   const { mutateAsync: createReply, isPending: isCreateLoading } = useCreateReply(entry, root, () =>
     toggleReply()
   );
-  const { mutateAsync: updateReply, isPending: isUpdateReplyLoading } = useUpdateReply(entry, () =>
-    toggleEdit()
+  const { mutateAsync: updateReply, isPending: isUpdateReplyLoading } = useUpdateReply(
+    entry,
+    async () => toggleEdit()
   );
   const { mutateAsync: pinReply } = usePinReply(entry, root);
 

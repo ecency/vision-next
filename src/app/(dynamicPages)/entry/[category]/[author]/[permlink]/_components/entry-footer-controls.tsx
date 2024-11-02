@@ -73,7 +73,14 @@ export function EntryFooterControls({ entry }: Props) {
           entry={entry}
           alignBottom={true}
           separatedSharing={true}
-          toggleEdit={() => router.push(`/${entry.url}/edit`)}
+          toggleEdit={() => {
+            if (typeof entry.parent_author === "string") {
+              // It will trigger in-place editor
+              router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`);
+            } else {
+              router.push(`/${entry.url}/edit`);
+            }
+          }}
         />
       </div>
     </div>

@@ -94,7 +94,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
       )}
       <div className="item-summary overflow-x-hidden">
         <EntryLink entry={isCrossPost ? entryProp : entry}>
-          <div className="item-title !truncate">{entry.title}</div>
+          <div className="item-title">{entry.title}</div>
         </EntryLink>
         <EntryLink entry={isCrossPost ? entryProp : entry}>
           <div className="item-body">

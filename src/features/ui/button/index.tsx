@@ -3,6 +3,7 @@ import { ButtonProps } from "./props";
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
 import { BUTTON_OUTLINE_STYLES, BUTTON_SIZES, BUTTON_STYLES } from "@/features/ui/button/styles";
 import Link from "next/link";
+import { UilSpinner } from "@tooni/iconscout-unicons-react";
 
 export * from "./props";
 
@@ -15,7 +16,9 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       "iconPlacement",
       "iconClassName",
       "noPadding",
-      "full"
+      "full",
+      "isLoading",
+      "loadingText"
     ]);
 
     const className = classNameObject({
@@ -24,7 +27,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       // Outline basics
       "border-[1.25px] border-solid": props.outline ?? false,
       // With icon
-      "flex items-center justify-center gap-2": !!props.icon,
+      "flex items-center justify-center gap-2": !!props.icon || props.isLoading,
       "flex-row-reverse": props.iconPlacement === "left",
 
       // Styles
@@ -38,28 +41,30 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       "w-full": props.full ?? false
     });
 
-    const icon = props.icon ? (
-      <div
-        className={classNameObject({
-          "flex justify-center items-center w-5 h-5 [&>svg]:w-5 [&>svg]:h-5": true,
-          [props.iconClassName ?? ""]: true
-        })}
-      >
-        {props.icon}
-      </div>
-    ) : (
-      <></>
-    );
+    const icon =
+      props.icon || props.isLoading ? (
+        <div
+          className={classNameObject({
+            "flex justify-center items-center w-5 h-5 [&>svg]:w-5 [&>svg]:h-5": true,
+            [props.iconClassName ?? ""]: true
+          })}
+        >
+          {props.isLoading ? <UilSpinner className="w-5 h-5 animate-spin" /> : props.icon}
+        </div>
+      ) : (
+        <></>
+      );
     const children = props.children ? <div>{props.children}</div> : <></>;
 
     return "href" in props ? (
       <Link {...nativeProps} className={className} ref={ref as any}>
-        {children}
+        {props.isLoading && props.loadingText ? props.loadingText : children}
         {icon}
       </Link>
     ) : (
       <button
         {...nativeProps}
+        disabled={nativeProps.disabled || props.isLoading}
         style={{
           ...props.style,
           outline: "none"
@@ -68,7 +73,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
         className={className}
         ref={ref as any}
       >
-        {children}
+        {props.isLoading && props.loadingText ? props.loadingText : children}
         {icon}
       </button>
     );

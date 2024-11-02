@@ -643,7 +643,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               selectedThumbnail={selectedThumbnail}
               selectionTouched={false}
               validate={validate}
-              disabled={false}
             />
           </div>
         )}
@@ -672,7 +671,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               selectedThumbnail={selectedThumbnail}
               selectionTouched={false}
               validate={validate}
-              disabled={false}
             />
           </div>
         )}

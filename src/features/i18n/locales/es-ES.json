@@ -154,7 +154,8 @@
     "night-theme": "Modo nocturno",
     "address-placeholder": "introduce url o consulta de búsqueda",
     "home": "Inicio",
-    "waves": "Olas"
+    "waves": "Olas",
+    "communities": "Comunidades"
   },
   "search": {
     "placeholder": "Buscar",
@@ -1481,7 +1482,11 @@
     "empty-tags-alert": "Introducir etiquetas de la publicación",
     "empty-body-alert": "Introducir cuerpo de la publicación",
     "description": "Descripción breve",
-    "should-be-only-one-unpublished": "El post debe contener solamente un vídeo sin publicar. Por favor, elimine cualquier otro contenido."
+    "should-be-only-one-unpublished": "El post debe contener solamente un vídeo sin publicar. Por favor, elimine cualquier otro contenido.",
+    "updating": "Actualizando..",
+    "publishing": "Publicando...",
+    "saving": "Guardando..",
+    "scheduling": "Programando.."
   },
   "video-upload": {
     "choose-video": "Selecciona un vídeo",
@@ -2481,11 +2486,11 @@
   },
   "not-found": {
     "title": "No encontrado",
-    "description": "Oops! It seems there isn`t page related to URL:(",
+    "description": "¡Vaya! Perdido en océano...",
     "back-home": "Regresa al inicio"
   },
   "global-error": {
-    "description": "Something went wrong. Please, try again or report an issue"
+    "description": "Por favor, inténtalo de nuevo o reporta un problema..."
   },
   "issue-reporter": {
     "report": "Reportar",
@@ -2496,6 +2501,8 @@
     "issue-reported": "Problema reportado con éxito"
   },
   "entry-preview": {
+    "searching-title": "Buscando publicación",
+    "searching-description": "Estamos tratando de encontrar esta publicación...",
     "title": "Previsualización",
     "description": "Esta publicación se está creando ahora. Puedes interactuar con ella cuando este mensaje desaparezca."
   },

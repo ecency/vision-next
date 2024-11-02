@@ -1,11 +1,14 @@
-import React, { Fragment, MutableRefObject, useMemo, useRef, useState } from "react";
+import React, { MutableRefObject, useCallback, useRef, useState } from "react";
 import "./_index.scss";
-import { useFetchGifQuery } from "@/api/misc";
 import { SearchBox } from "@/features/shared";
 import Image from "next/image";
 import { insertOrReplace } from "@/utils/input-util";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
+import { getGifsQuery } from "@/api/queries";
+import { useInfiniteDataFlow } from "@/utils";
+import useMount from "react-use/lib/useMount";
+import { GifPickerBottom } from "./gif-picker-bottom";
 
 interface Props {
   fallback?: (e: string) => void;
@@ -32,26 +35,31 @@ export function GifPicker(props: Props) {
   const targetRef = useRef<HTMLInputElement | null>(null);
 
   const [filter, setFilter] = useState("");
-  const [limit, setLimit] = useState(50);
 
-  const gifsQuery = useFetchGifQuery(filter, limit);
-  const allPagesData = useMemo(
-    () => gifsQuery.data?.pages.reduce((acc, p) => [...acc, ...p], []) ?? [],
-    [gifsQuery.data?.pages]
-  );
+  const { data, refetch, fetchNextPage, hasNextPage } = getGifsQuery(filter).useClientQuery();
+  const dataFlow = useInfiniteDataFlow(data);
 
-  const itemClicked = async (url: string, _filter?: string | any) => {
-    const gifTitles: string[] = allPagesData.map((i) => i.title);
-    const selectedGifTitle = gifTitles[0];
-    let _url = url.split(".gif");
-    let gifUrl = `![${selectedGifTitle}](${_url[0]}.gif)`;
-    if (targetRef.current) {
-      insertOrReplace(targetRef.current, gifUrl);
-    } else {
-      props.fallback?.(gifUrl);
+  useMount(() => {
+    if (dataFlow.length === 0) {
+      refetch();
     }
-    props.changeState(!props.shGif);
-  };
+  });
+
+  const itemClicked = useCallback(
+    async (url: string, _filter?: string | any) => {
+      const gifTitles: string[] = dataFlow.map((i) => i.title);
+      const selectedGifTitle = gifTitles[0];
+      let _url = url.split(".gif");
+      let gifUrl = `![${selectedGifTitle}](${_url[0]}.gif)`;
+      if (targetRef.current) {
+        insertOrReplace(targetRef.current, gifUrl);
+      } else {
+        props.fallback?.(gifUrl);
+      }
+      props.changeState(!props.shGif);
+    },
+    [dataFlow, props]
+  );
 
   return (
     <div
@@ -75,24 +83,23 @@ export function GifPicker(props: Props) {
       <div className="gif-cat-list gif-cat-list" id="gif-wrapper">
         <div className="gif-cat gif-cat">
           <div className="gif-list gif-list">
-            {gifsQuery.data?.pages.map((page, pageParam) => (
-              <Fragment key={pageParam}>
-                {page.map((gif, i) => (
-                  <div className="emoji gifs" key={gif?.id || i}>
-                    <Image
-                      style={{
-                        width: "200px",
-                        ...(props.gifImagesStyle && props.gifImagesStyle)
-                      }}
-                      loading="lazy"
-                      src={gif?.images?.fixed_height?.url}
-                      alt="can't fetch :("
-                      onClick={() => itemClicked(gif?.images?.fixed_height?.url)}
-                    />
-                  </div>
-                ))}
-              </Fragment>
+            {dataFlow.map((gif, i) => (
+              <div className="emoji gifs" key={gif?.id || i}>
+                <Image
+                  style={{
+                    width: "200px",
+                    ...(props.gifImagesStyle && props.gifImagesStyle)
+                  }}
+                  width={200}
+                  height={200}
+                  loading="lazy"
+                  src={gif?.images?.fixed_height?.url}
+                  alt="can't fetch :("
+                  onClick={() => itemClicked(gif?.images?.fixed_height?.url)}
+                />
+              </div>
             ))}
+            <GifPickerBottom onVisible={() => hasNextPage && fetchNextPage()} />
           </div>
         </div>
       </div>

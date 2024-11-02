@@ -40,7 +40,7 @@ export function EntryPageBodyViewer({ entry, rawParam, isEdit }: Props) {
           </SelectionPopover>
         </>
       )}
-      {isEdit && <EntryPageEdit entry={entry} />}
+      <EntryPageEdit entry={entry} isEdit={isEdit} />
     </EntryPageViewerManager>
   );
 }
