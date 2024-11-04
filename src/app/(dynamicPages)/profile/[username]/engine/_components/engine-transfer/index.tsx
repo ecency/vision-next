@@ -50,6 +50,7 @@ export function EngineTransfer({ onHide, mode, asset, to: preTo }: Props) {
             setAmount={setAmount}
             memo={memo}
             setMemo={setMemo}
+            onNext={() => setStep(2)}
           />
         )}
       </ModalBody>
