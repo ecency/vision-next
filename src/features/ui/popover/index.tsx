@@ -84,8 +84,8 @@ export function Popover(props: (ShowProps | Props) & HTMLAttributes<HTMLDivEleme
   );
 }
 
-export function PopoverTitle({ children }: { children: ReactNode }) {
-  return <div className="p-2 border-b">{children}</div>;
+export function PopoverTitle({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={className + " p-2 border-b border-[--border-color]"}>{children}</div>;
 }
 
 export function PopoverContent({ children }: { children: ReactNode }) {
