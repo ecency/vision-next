@@ -33,7 +33,6 @@ export function useSaveDraftApi() {
       reward,
       description,
       selectedThumbnail,
-      selectionTouched,
       videoMetadata
     }: {
       title: string;
@@ -44,7 +43,6 @@ export function useSaveDraftApi() {
       reward: RewardType;
       description: string | null;
       selectedThumbnail?: string;
-      selectionTouched: boolean;
       videoMetadata?: ThreeSpeakVideo;
     }) => {
       const tagJ = tags.join(" ");
@@ -56,7 +54,7 @@ export function useSaveDraftApi() {
         .withTags(tags)
         // It should select filled description or if its empty or null/undefined then get auto summary
         .withSummary(description || postBodySummary(body))
-        .withImages(selectedThumbnail, selectionTouched);
+        .withSelectedThumbnail(selectedThumbnail);
 
       const meta = metaBuilder.build();
       const draftMeta: DraftMetadata = {

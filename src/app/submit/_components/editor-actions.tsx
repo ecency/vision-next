@@ -27,7 +27,6 @@ interface Props {
   beneficiaries: BeneficiaryRoute[];
   description: string | null;
   selectedThumbnail: string | undefined;
-  selectionTouched: boolean;
   validate: () => boolean;
 }
 
@@ -47,7 +46,6 @@ export function EditorActions({
   beneficiaries,
   description,
   selectedThumbnail,
-  selectionTouched,
   validate
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -91,7 +89,8 @@ export function EditorActions({
               reblogSwitch,
               beneficiaries,
               schedule,
-              description
+              description,
+              selectedThumbnail
             });
           }}
         >
@@ -142,7 +141,6 @@ export function EditorActions({
                     body,
                     description,
                     selectedThumbnail,
-                    selectionTouched,
                     editingDraft,
                     beneficiaries,
                     reward
@@ -174,8 +172,7 @@ export function EditorActions({
                   description,
                   reward,
                   beneficiaries,
-                  selectedThumbnail,
-                  selectionTouched
+                  selectedThumbnail
                 });
               }}
             >
@@ -207,8 +204,7 @@ export function EditorActions({
                   title,
                   body,
                   description,
-                  selectedThumbnail,
-                  selectionTouched
+                  selectedThumbnail
                 });
               }}
             >

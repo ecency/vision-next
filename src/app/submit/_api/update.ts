@@ -29,7 +29,6 @@ export function useUpdateApi(onClear: () => void) {
       body,
       description,
       editingEntry,
-      selectionTouched,
       selectedThumbnail
     }: {
       title: string;
@@ -37,7 +36,6 @@ export function useUpdateApi(onClear: () => void) {
       body: string;
       description: string | null;
       editingEntry: Entry;
-      selectionTouched: boolean;
       selectedThumbnail?: string;
     }) => {
       if (!editingEntry) {
@@ -55,7 +53,7 @@ export function useUpdateApi(onClear: () => void) {
         .withSummary(description || postBodySummary(body))
         .withTags(tags)
         .withPoll()
-        .withImages(selectedThumbnail, selectionTouched, json_metadata.image);
+        .withSelectedThumbnail(selectedThumbnail);
 
       const jsonMeta = metaBuilder.build();
 

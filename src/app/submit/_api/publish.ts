@@ -70,8 +70,7 @@ export function usePublishApi(onClear: () => void) {
       reward,
       reblogSwitch,
       beneficiaries,
-      selectedThumbnail,
-      selectionTouched
+      selectedThumbnail
     }: {
       title: string;
       tags: string[];
@@ -81,7 +80,6 @@ export function usePublishApi(onClear: () => void) {
       reblogSwitch: boolean;
       beneficiaries: BeneficiaryRoute[];
       selectedThumbnail?: string;
-      selectionTouched: boolean;
     }) => {
       const unpublished3SpeakVideo = Object.values(videos).find(
         (v) => v.status === "publish_manual"
@@ -117,7 +115,7 @@ export function usePublishApi(onClear: () => void) {
         // It should select filled description or if its empty or null/undefined then get auto summary
         .withSummary(description || postBodySummary(body))
         .withTags(tags)
-        .withImages(selectedThumbnail, selectionTouched);
+        .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
         .withVideo(title, description, unpublished3SpeakVideo)
         .withPoll(activePoll)

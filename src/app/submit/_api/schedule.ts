@@ -30,7 +30,8 @@ export function useScheduleApi(onClear: () => void) {
       reblogSwitch,
       beneficiaries,
       schedule,
-      description
+      description,
+      selectedThumbnail
     }: Record<string, any>) => {
       // make sure active user and schedule date has set
       if (!activeUser || !schedule) {
@@ -51,7 +52,7 @@ export function useScheduleApi(onClear: () => void) {
         permlink = createPermlink(title, true);
       }
 
-      const jsonMeta = EntryMetadataManagement.EntryMetadataManager.shared
+      const jsonMetaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
         .extractFromBody(body)
@@ -59,7 +60,8 @@ export function useScheduleApi(onClear: () => void) {
         // It should select filled description or if its empty or null/undefined then get auto summary
         .withSummary(description || postBodySummary(body))
         .withPoll(activePoll)
-        .build();
+        .withSelectedThumbnail(selectedThumbnail);
+      const jsonMeta = jsonMetaBuilder.build();
       const options = makeCommentOptions(author, permlink, reward, beneficiaries);
 
       const reblog = isCommunity(tags[0]) && reblogSwitch;
