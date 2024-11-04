@@ -11,6 +11,7 @@ import { createPermlink, isCommunity, makeCommentOptions } from "@/utils";
 import { error } from "highcharts";
 import { AxiosError } from "axios";
 import i18next from "i18next";
+import { postBodySummary } from "@ecency/render-helper";
 
 export function useScheduleApi(onClear: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -55,7 +56,8 @@ export function useScheduleApi(onClear: () => void) {
         .default()
         .extractFromBody(body)
         .withTags(tags)
-        .withSummary(description ?? body)
+        // It should select filled description or if its empty or null/undefined then get auto summary
+        .withSummary(description || postBodySummary(body))
         .withPoll(activePoll)
         .build();
       const options = makeCommentOptions(author, permlink, reward, beneficiaries);

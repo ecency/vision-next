@@ -525,7 +525,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                   <div className="col-span-12 sm:col-span-9">
                     <FormControl
                       type="textarea"
-                      value={description || postBodySummary(body, 200)}
+                      value={description ?? ""}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                         setDescription(e.target.value);
                       }}

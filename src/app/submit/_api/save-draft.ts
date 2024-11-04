@@ -12,6 +12,7 @@ import { success } from "@/features/shared";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "highcharts";
 import { useRouter } from "next/navigation";
+import { postBodySummary } from "@ecency/render-helper";
 
 export function useSaveDraftApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -53,7 +54,8 @@ export function useSaveDraftApi() {
         .default()
         .extractFromBody(body)
         .withTags(tags)
-        .withSummary(description ?? body)
+        // It should select filled description or if its empty or null/undefined then get auto summary
+        .withSummary(description || postBodySummary(body))
         .withImages(selectedThumbnail, selectionTouched);
 
       const meta = metaBuilder.build();
