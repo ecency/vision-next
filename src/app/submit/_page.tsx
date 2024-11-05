@@ -271,6 +271,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     threeSpeakManager.clear();
     clearAdvanced();
     removeThumbnail();
+    clearActivePoll();
   };
 
   const tagsChanged = (nextTags: string[]): void => {
