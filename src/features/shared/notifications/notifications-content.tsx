@@ -1,12 +1,14 @@
 import { NotificationsActions } from "@/features/shared/notifications/notifications-actions";
 import { NotificationsStatusButtons } from "@/features/shared/notifications/notifications-status-buttons";
 import { NotificationList } from "@/features/shared/notifications/notification-list";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { NotificationFilter, NotificationViewType } from "@/enums";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import i18next from "i18next";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { PREFIX } from "@/utils/local-storage";
+import { useSet } from "react-use";
+import { useMarkNotificationsList } from "@/features/shared/notifications/hooks";
 
 interface Props {
   openLinksInNewTab: boolean;
@@ -14,14 +16,23 @@ interface Props {
 
 export function NotificationsContent({ openLinksInNewTab }: Props) {
   const [filter, setFilter] = useLocalStorage<NotificationFilter | null>(PREFIX + "_ntf_f", null);
-  // TODO: SHOULD BE AN ARRAY??
-  const [selectedNotifications, setSelectedNotifications] = useState<string>();
   const [status, setStatus] = useLocalStorage<NotificationViewType>(
     PREFIX + "_ntf_s",
     NotificationViewType.ALL
   );
+
+  const [selectedNotifications, { add, remove, has, reset }] = useSet<string>(new Set());
   const [select, setSelect] = useState(false);
-  const [isSelectIcon, setIsSelectIcon] = useState(false);
+
+  const selectNotification = useCallback(
+    (v: string) => (has(v) ? remove(v) : add(v)),
+    [add, has, remove]
+  );
+
+  const { mutateAsync: markAsRead, isPending: isMarkingAsRead } = useMarkNotificationsList(() => {
+    reset();
+    setSelect(false);
+  });
 
   return (
     <div className="notification-list">
@@ -49,19 +60,20 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
       <NotificationsStatusButtons
         currentStatus={status!}
         select={select}
-        isSelectIcon={isSelectIcon}
+        isMarkingAsRead={isMarkingAsRead}
+        isSelectIcon={selectedNotifications.size > 0}
         onStatusClick={(v) => {
           setStatus(v as NotificationViewType);
-          setSelectedNotifications(undefined);
         }}
         onSelectClick={() => {
           setSelect((v) => {
             if (!v) {
-              setIsSelectIcon(false);
+              reset();
             }
             return !v;
           });
         }}
+        onMarkAsRead={() => markAsRead({ set: selectedNotifications })}
       />
 
       <NotificationList
@@ -69,7 +81,7 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
         select={select}
         filter={filter ?? null}
         currentStatus={status!}
-        setSelectedNotifications={setSelectedNotifications}
+        selectNotification={selectNotification}
       />
     </div>
   );
