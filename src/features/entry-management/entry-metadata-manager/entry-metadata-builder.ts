@@ -1,7 +1,6 @@
 import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import { PollSnapshot } from "../../polls";
 import appPackage from "../../../../package.json";
-import * as ls from "@/utils/local-storage";
 import { getDimensionsFromDataUrl } from "./get-dimensions-from-data-url";
 import { extractMetaData, makeApp } from "@/utils";
 import { Entry, MetaData } from "@/entities";
@@ -53,33 +52,21 @@ export class EntryMetadataBuilder {
     return this.withField("tags", tags?.concat(DEFAULT_TAGS) ?? DEFAULT_TAGS);
   }
 
-  public async withImages(
+  public async withSelectedThumbnail(
     selectedThumbnail: string | undefined,
-    selectionTouched: boolean,
     images?: string[]
   ): Promise<this> {
-    const localThumbnail = ls.get("draft_selected_image");
-    const { image, thumbnails } = this.temporaryMetadata;
-    let nextImages: string[] = [];
+    const { image } = this.temporaryMetadata;
 
-    if (images?.length) {
-      nextImages = [...images, ...(image || [])];
+    let nextImages = [...(images ?? []), ...(image ?? [])];
+
+    if (selectedThumbnail) {
+      nextImages.unshift(selectedThumbnail);
+      this.withField("thumbnails", [selectedThumbnail]);
     }
 
-    if (nextImages) {
-      if (selectionTouched && selectedThumbnail) {
-        nextImages = [selectedThumbnail, ...(image?.splice(0, 9) ?? [])];
-      } else {
-        nextImages = [...(image?.splice(0, 9) ?? [])];
-      }
-    } else if (selectedThumbnail === localThumbnail) {
-      ls.remove("draft_selected_image");
-    } else {
-      nextImages = selectedThumbnail ? [selectedThumbnail] : [];
-    }
-    if (nextImages) {
-      nextImages = Array.from(new Set(nextImages));
-    }
+    nextImages = Array.from(new Set(nextImages)).splice(0, 9);
+
     this.withField("image", nextImages);
     this.withField(
       "image_ratios",

@@ -11,6 +11,7 @@ import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
+import { postBodySummary } from "@ecency/render-helper";
 
 export function useUpdateApi(onClear: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -28,7 +29,6 @@ export function useUpdateApi(onClear: () => void) {
       body,
       description,
       editingEntry,
-      selectionTouched,
       selectedThumbnail
     }: {
       title: string;
@@ -36,7 +36,6 @@ export function useUpdateApi(onClear: () => void) {
       body: string;
       description: string | null;
       editingEntry: Entry;
-      selectionTouched: boolean;
       selectedThumbnail?: string;
     }) => {
       if (!editingEntry) {
@@ -50,10 +49,11 @@ export function useUpdateApi(onClear: () => void) {
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .extend(editingEntry)
-        .withSummary(description ?? newBody)
+        // It should select filled description or if its empty or null/undefined then get auto summary
+        .withSummary(description || postBodySummary(body))
         .withTags(tags)
         .withPoll()
-        .withImages(selectedThumbnail, selectionTouched, json_metadata.image);
+        .withSelectedThumbnail(selectedThumbnail);
 
       const jsonMeta = metaBuilder.build();
 

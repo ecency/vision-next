@@ -70,9 +70,11 @@ export function PopoverConfirm({
         e.stopPropagation();
       }}
     >
-      <PopoverTitle>{titleText || i18next.t("confirm.title")}</PopoverTitle>
+      <PopoverTitle className="!p-4 whitespace-nowrap">
+        {titleText || i18next.t("confirm.title")}
+      </PopoverTitle>
       <PopoverContent>
-        <div style={{ textAlign: "center" }}>
+        <div className="flex gap-2">
           <Button
             size="sm"
             appearance={okVariant || "primary"}
@@ -81,7 +83,7 @@ export function PopoverConfirm({
           >
             {okText || i18next.t("confirm.ok")}
           </Button>
-          <Button size="sm" appearance="secondary" onClick={cancel}>
+          <Button size="sm" appearance="gray-link" onClick={cancel}>
             {cancelText || i18next.t("confirm.cancel")}
           </Button>
         </div>

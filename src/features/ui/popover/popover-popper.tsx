@@ -42,7 +42,7 @@ export function PopoverPopper({
         {show && (
           <motion.div
             ref={popoverContentRef}
-            className={customClassName ?? "bg-white border rounded-xl"}
+            className={customClassName ?? "bg-white border border-[--border-color] rounded-xl"}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
