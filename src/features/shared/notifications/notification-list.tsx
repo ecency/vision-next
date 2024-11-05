@@ -12,7 +12,7 @@ interface Props {
   currentStatus: NotificationViewType;
   openLinksInNewTab?: boolean;
   select?: boolean;
-  setSelectedNotifications: (d: string) => void;
+  selectNotification: (d: string) => void;
 }
 
 export function NotificationList({
@@ -20,7 +20,7 @@ export function NotificationList({
   currentStatus,
   openLinksInNewTab,
   select,
-  setSelectedNotifications
+  selectNotification
 }: Props) {
   const { data, isFetching, fetchNextPage } = useNotificationsQuery(filter);
 
@@ -40,12 +40,12 @@ export function NotificationList({
           {dataFlow.map((n, i) => (
             <Fragment key={n.id}>
               {currentStatus === NotificationViewType.ALL && (
-                <AnimatedNotificationListItemLayout key={n.id} index={i}>
+                <AnimatedNotificationListItemLayout index={i}>
                   {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
                   <NotificationListItem
                     notification={n}
                     isSelect={select}
-                    setSelectedNotifications={setSelectedNotifications}
+                    setSelectedNotifications={selectNotification}
                     openLinksInNewTab={openLinksInNewTab}
                     onInViewport={(inViewport) => {
                       if (inViewport && i === dataFlow.length - 1) {
@@ -61,7 +61,7 @@ export function NotificationList({
                   <NotificationListItem
                     notification={n}
                     isSelect={select}
-                    setSelectedNotifications={setSelectedNotifications}
+                    setSelectedNotifications={selectNotification}
                     openLinksInNewTab={openLinksInNewTab}
                     onInViewport={(inViewport) => {
                       if (inViewport && i === dataFlow.length - 1) {
@@ -77,7 +77,7 @@ export function NotificationList({
                   <NotificationListItem
                     notification={n}
                     isSelect={select}
-                    setSelectedNotifications={setSelectedNotifications}
+                    setSelectedNotifications={selectNotification}
                     openLinksInNewTab={openLinksInNewTab}
                     onInViewport={(inViewport) => {
                       if (inViewport && i === dataFlow.length - 1) {

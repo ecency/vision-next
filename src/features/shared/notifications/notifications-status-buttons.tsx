@@ -3,8 +3,8 @@ import React from "react";
 import { NotificationViewType } from "@/enums";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { checkSvg, playListAddCheck } from "@ui/svg";
-import { useMarkNotifications } from "@/api/mutations";
+import { playListAddCheck } from "@ui/svg";
+import { UilCheckSquare, UilMinusSquare } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   currentStatus: NotificationViewType;
@@ -12,6 +12,8 @@ interface Props {
   isSelectIcon: boolean;
   select: boolean;
   onSelectClick?: () => void;
+  isMarkingAsRead: boolean;
+  onMarkAsRead: () => void;
 }
 
 export function NotificationsStatusButtons({
@@ -19,10 +21,10 @@ export function NotificationsStatusButtons({
   onStatusClick,
   onSelectClick,
   isSelectIcon,
-  select
+  isMarkingAsRead,
+  select,
+  onMarkAsRead
 }: Props) {
-  const markNotifications = useMarkNotifications();
-
   return (
     <div className="status-button-container">
       <div className="flex gap-2 px-3">
@@ -44,24 +46,31 @@ export function NotificationsStatusButtons({
       <div className="select-buttons">
         {isSelectIcon && (
           <Tooltip content={i18next.t("notifications.mark-selected-read")}>
-            <span
-              className="mark-svg"
-              onClick={() => markNotifications.mutateAsync({ id: undefined })}
-            >
-              {playListAddCheck}
-            </span>
+            <Button
+              size="sm"
+              isLoading={isMarkingAsRead}
+              icon={playListAddCheck}
+              appearance="gray-link"
+              onClick={onMarkAsRead}
+            />
           </Tooltip>
         )}
 
         <Tooltip
           content={select ? i18next.t("notifications.unselect") : i18next.t("notifications.select")}
         >
-          <span
-            className={`select-svg ${select ? "active" : ""} shadow-none`}
+          <Button
+            size="sm"
+            appearance="gray-link"
             onClick={onSelectClick}
-          >
-            {checkSvg}
-          </span>
+            icon={
+              select ? (
+                <UilMinusSquare className="w-4 h-4" />
+              ) : (
+                <UilCheckSquare className="w-4 h-4" />
+              )
+            }
+          />
         </Tooltip>
       </div>
     </div>
