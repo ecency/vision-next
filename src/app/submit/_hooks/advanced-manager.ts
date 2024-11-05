@@ -13,14 +13,23 @@ export function useAdvancedManager() {
   );
 
   const [advanced, setAdvanced] = useState(false);
-  const [reward, setReward] = useLocalStorage<RewardType>(PREFIX + "_sa_r", "default");
-  const [beneficiaries, setBeneficiaries] = useLocalStorage<BeneficiaryRoute[]>(
+  const [reward, setReward, clearReward] = useLocalStorage<RewardType>(PREFIX + "_sa_r", "default");
+  const [beneficiaries, setBeneficiaries, clearBeneficiaries] = useLocalStorage<BeneficiaryRoute[]>(
     PREFIX + "_sa_b",
     []
   );
-  const [description, setDescription] = useLocalStorage<string | null>(PREFIX + "_sa_d", null);
-  const [schedule, setSchedule] = useLocalStorage<string | null>(PREFIX + "_sa_s", null);
-  const [reblogSwitch, setReblogSwitch] = useLocalStorage(PREFIX + "_sa_rb", false);
+  const [description, setDescription, clearDescription] = useLocalStorage<string | null>(
+    PREFIX + "_sa_d",
+    null
+  );
+  const [schedule, setSchedule, clearSchedule] = useLocalStorage<string | null>(
+    PREFIX + "_sa_s",
+    null
+  );
+  const [reblogSwitch, setReblogSwitch, clearSetReblogSwitch] = useLocalStorage(
+    PREFIX + "_sa_rb",
+    false
+  );
 
   const threeSpeakManager = useThreeSpeakManager();
 
@@ -68,11 +77,12 @@ export function useAdvancedManager() {
 
     clearAdvanced: () => {
       setAdvanced(false);
-      setReward("default");
-      setBeneficiaries([]);
-      setDescription(null);
-      setSchedule(null);
-      setReblogSwitch(false);
+      clearReward();
+      clearBeneficiaries();
+      clearDescription();
+      clearDescription();
+      clearSetReblogSwitch();
+      clearSchedule();
     }
   };
 }

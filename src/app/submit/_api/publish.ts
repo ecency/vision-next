@@ -26,6 +26,7 @@ import { error, success } from "@/features/shared";
 import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { postBodySummary } from "@ecency/render-helper";
 
 /**
  * Helps to validate if post was really created on Blockchain
@@ -69,8 +70,7 @@ export function usePublishApi(onClear: () => void) {
       reward,
       reblogSwitch,
       beneficiaries,
-      selectedThumbnail,
-      selectionTouched
+      selectedThumbnail
     }: {
       title: string;
       tags: string[];
@@ -80,7 +80,6 @@ export function usePublishApi(onClear: () => void) {
       reblogSwitch: boolean;
       beneficiaries: BeneficiaryRoute[];
       selectedThumbnail?: string;
-      selectionTouched: boolean;
     }) => {
       const unpublished3SpeakVideo = Object.values(videos).find(
         (v) => v.status === "publish_manual"
@@ -113,9 +112,10 @@ export function usePublishApi(onClear: () => void) {
         .builder()
         .default()
         .extractFromBody(body)
-        .withSummary(description ?? body)
+        // It should select filled description or if its empty or null/undefined then get auto summary
+        .withSummary(description || postBodySummary(body))
         .withTags(tags)
-        .withImages(selectedThumbnail, selectionTouched);
+        .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
         .withVideo(title, description, unpublished3SpeakVideo)
         .withPoll(activePoll)
