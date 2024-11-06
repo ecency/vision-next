@@ -17,18 +17,19 @@ import { Metadata, ResolvingMetadata } from "next";
 import { generateEntryMetadata } from "../../../_helpers";
 
 interface Props {
-  params: { author: string; permlink: string; category: string };
-  searchParams: Record<string, string | undefined>;
+  params: Promise<{ author: string; permlink: string; category: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateEntryMetadata(props.params.author.replace("%40", ""), props.params.permlink);
+  const { author, permlink } = await props.params;
+  return generateEntryMetadata(author.replace("%40", ""), permlink);
 }
 
-export default async function EntryPage({
-  params: { author: username, permlink, category },
-  searchParams
-}: Props) {
+export default async function EntryPage({ params, searchParams }: Props) {
+  const { author: username, permlink, category } = await params;
+  const isEdit = (await searchParams)["edit"];
+
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
   await getAccountFullQuery(entry?.author).prefetch();
@@ -68,9 +69,9 @@ export default async function EntryPage({
             <span itemScope={true} itemType="http://schema.org/Article">
               <EntryPageContent
                 category={category}
-                isEdit={searchParams["edit"] === "true" ?? false}
+                isEdit={isEdit === "true" ?? false}
                 entry={entry}
-                rawParam={searchParams["raw"] ?? ""}
+                rawParam={isEdit ?? ""}
               />
             </span>
           </div>

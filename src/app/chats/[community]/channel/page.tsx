@@ -3,11 +3,12 @@ import { ChatsScreen } from "@/app/chats/_screens";
 export const dynamic = "force-dynamic";
 
 interface Props {
-  params: {
+  params: Promise<{
     community: string;
-  };
+  }>;
 }
 
-export default function Chats({ params }: Props) {
-  return <ChatsScreen params={[params.community, "channel"]} />;
+export default async function Chats({ params }: Props) {
+  const { community } = await params;
+  return <ChatsScreen params={[community, "channel"]} />;
 }

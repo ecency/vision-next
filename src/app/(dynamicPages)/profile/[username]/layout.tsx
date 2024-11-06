@@ -5,13 +5,12 @@ import "./profile.scss";
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 
 interface Props {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }
 
-export default async function ProfileLayout({
-  params: { username },
-  children
-}: PropsWithChildren<Props>) {
+export default async function ProfileLayout({ params, children }: PropsWithChildren<Props>) {
+  const { username } = await params;
+
   const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
 
   return (

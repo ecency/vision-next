@@ -1,5 +1,5 @@
 import { getCommunityCache } from "@/core/caches";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EntryListContent, LinearProgress } from "@/features/shared";
 import { CommunityContentSearch } from "@/app/(dynamicPages)/community/[community]/_components/community-content-search";
@@ -12,14 +12,16 @@ import { Metadata, ResolvingMetadata } from "next";
 import { generateCommunityMetadata } from "@/app/(dynamicPages)/community/[community]/_helpers";
 
 interface Props {
-  params: { community: string };
+  params: Promise<{ community: string }>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateCommunityMetadata(props.params.community, "created");
+  const params = await props.params;
+  return generateCommunityMetadata(params.community, "created");
 }
 
-export default async function CommunityPostsPage({ params: { community } }: Props) {
+export default async function CommunityPostsPage({ params }: Props) {
+  const { community } = await params;
   const communityData = await getCommunityCache(community).prefetch();
   if (!communityData) {
     return notFound();

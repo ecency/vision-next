@@ -9,21 +9,20 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 
 interface Props {
-  params: { sections: string[] };
-  searchParams: Record<string, string>;
+  params: Promise<{ sections: string[] }>;
+  searchParams: Promise<Record<string, string>>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateFeedMetadata(props.params.sections[0], props.params.sections[1]);
+  const { sections } = await props.params;
+  return generateFeedMetadata(sections[0], sections[1]);
 }
 
-export default async function FeedPage({
-  params: {
-    sections: [filter = "hot", tag = ""]
-  },
-  searchParams
-}: Props) {
-  const cookiesStore = cookies();
+export default async function FeedPage({ params, searchParams }: Props) {
+  const [filter = "hot", tag = ""] = (await params).sections;
+  const sParams = await searchParams;
+
+  const cookiesStore = await cookies();
 
   const observer = cookiesStore.get(ACTIVE_USER_COOKIE_NAME)?.value;
   await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
@@ -31,7 +30,7 @@ export default async function FeedPage({
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <FeedContent searchParams={searchParams} tag={tag} filter={filter} observer={observer} />
+      <FeedContent searchParams={sParams} tag={tag} filter={filter} observer={observer} />
     </HydrationBoundary>
   );
 }

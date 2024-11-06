@@ -16,15 +16,16 @@ export async function generateMetadata(
 }
 
 interface Props {
-  searchParams: Record<string, string | undefined>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export default async function Communities({ searchParams }: Props) {
-  await getCommunitiesQuery(searchParams.sort ?? "rank", searchParams.q ?? "").prefetch();
+  const { sort, q } = await searchParams;
+  await getCommunitiesQuery(sort ?? "rank", q ?? "").prefetch();
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <CommunitiesList query={searchParams.q ?? ""} sort={searchParams.sort || "rank"} />
+      <CommunitiesList query={q ?? ""} sort={sort || "rank"} />
     </HydrationBoundary>
   );
 }

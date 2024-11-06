@@ -5,9 +5,9 @@ import { PagesMetadataGenerator } from "@/features/metadata";
 export const dynamic = "force-dynamic";
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(
@@ -16,6 +16,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   return PagesMetadataGenerator.getForPage("submit");
 }
-export default function DraftEditPage({ params: { id } }: Props) {
+export default async function DraftEditPage({ params }: Props) {
+  const { id } = await params;
   return <SubmitWithProvidersPage path={`/draft/${id}`} draftId={id} />;
 }
