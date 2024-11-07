@@ -18,10 +18,8 @@ export function EntryListItemCrossPost({ entry }: Props) {
         <span className="cross-item-author notranslate">{`@${entry.author}`}</span>
       </ProfileLink>{" "}
       {i18next.t("entry-list-item.cross-posted")}{" "}
-      <EntryLink entry={entry.original_entry!}>
-        <a className="cross-item-link">
-          {truncate(`@${entry.original_entry!.author}/${entry.original_entry!.permlink}`, 40)}
-        </a>
+      <EntryLink className="cross-item-link" entry={entry.original_entry!}>
+        {truncate(`@${entry.original_entry!.author}/${entry.original_entry!.permlink}`, 40)}
       </EntryLink>{" "}
       {i18next.t("entry-list-item.cross-posted-to")}{" "}
       <TagLink

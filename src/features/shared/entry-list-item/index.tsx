@@ -3,9 +3,8 @@ import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 import defaults from "@/defaults.json";
 import { Account, Community, Entry, FullAccount } from "@/entities";
-import { dateToFormatted, dateToRelative } from "@/utils";
+import { dateToFormatted, dateToRelative, makeEntryPath } from "@/utils";
 import { pinSvg, repeatSvg } from "@ui/svg";
-import { EntryLink } from "../entry-link";
 import {
   EntryMenu,
   EntryPayout,
@@ -137,21 +136,19 @@ export function EntryListItemComponent({
           <div className="border-r border-[--border-color] w-[1px] h-4" />
           <EntryVotes entry={entry} />
           {(entry.children > 0 || entryProp.children > 0) && (
-            <EntryLink entry={isCrossPost ? entryProp : entry}>
-              <Tooltip
-                content={
-                  entry.children > 0
-                    ? entry.children === 1
-                      ? i18next.t("entry-list-item.replies")
-                      : i18next.t("entry-list-item.replies-n", { n: entry.children })
-                    : i18next.t("entry-list-item.no-replies")
-                }
-              >
-                <span className="flex items-center gap-1 text-gray-steel hover:text-blue-dark-sky">
-                  <UilComment className="w-3.5 h-3.5" /> {entry.children}
-                </span>
-              </Tooltip>
-            </EntryLink>
+            <a
+              title={
+                entry.children > 0
+                  ? entry.children === 1
+                    ? i18next.t("entry-list-item.replies")
+                    : i18next.t("entry-list-item.replies-n", { n: entry.children })
+                  : i18next.t("entry-list-item.no-replies")
+              }
+              className="flex items-center gap-1 text-gray-steel hover:text-blue-dark-sky"
+              href={makeEntryPath(entry.category, entry.author, entry.permlink)}
+            >
+              <UilComment className="w-3.5 h-3.5" /> {entry.children}
+            </a>
           )}
           <EntryReblogBtn entry={entry} />
           <div className="border-r border-[--border-color] w-[1px] h-4" />
