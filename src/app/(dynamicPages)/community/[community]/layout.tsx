@@ -7,13 +7,11 @@ import { getAccountFullQuery } from "@/api/queries";
 import "./community.scss";
 
 interface Props {
-  params: { tag: string; community: string };
+  params: Promise<{ tag: string; community: string }>;
 }
 
-export default async function CommunityPageLayout({
-  children,
-  params: { community, tag }
-}: PropsWithChildren<Props>) {
+export default async function CommunityPageLayout({ children, params }: PropsWithChildren<Props>) {
+  const { community, tag } = await params;
   const communityData = await getCommunityCache(community).prefetch();
   const account = await getAccountFullQuery(community).prefetch();
   const metaUrl = `/${tag}/${community}`;

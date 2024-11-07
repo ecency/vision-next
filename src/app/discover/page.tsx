@@ -13,11 +13,7 @@ export async function generateMetadata(
   return PagesMetadataGenerator.getForPage("discover");
 }
 
-interface Props {
-  searchParams: Record<string, string | undefined>;
-}
-
-export default async function Discover({ searchParams }: Props) {
+export default async function Discover() {
   await getContributorsQuery().prefetch();
 
   return (

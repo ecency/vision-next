@@ -5,21 +5,22 @@ import { PagesMetadataGenerator } from "@/features/metadata";
 export const dynamic = "force-dynamic";
 
 interface Props {
-  searchParams: Record<string, string | undefined>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   return PagesMetadataGenerator.getForPage("submit");
 }
 
-export default function SubmitPage(props: Props) {
+export default async function SubmitPage(props: Props) {
+  const searchParams = await props.searchParams;
   return (
     <SubmitWithProvidersPage
       permlink={undefined}
       username={undefined}
       draftId={undefined}
       path="/submit"
-      searchParams={props.searchParams}
+      searchParams={searchParams}
     />
   );
 }

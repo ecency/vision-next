@@ -20,12 +20,13 @@ export function Checkbox({ checked, onChange, label, disabled }: CheckboxProps) 
     >
       <div
         className={classNameObject({
-          "border-2 rounded-md w-[1.25rem] h-[1.25rem] flex items-center justify-center": true,
+          "border-2 dark:border-gray-600 rounded-md w-[1.25rem] h-[1.25rem] flex items-center justify-center":
+            true,
           "hover:border-gray-400": !disabled,
           "opacity-50": disabled
         })}
       >
-        {checked ? <UilCheck className="w-3.5 h-3.5" /> : <></>}
+        {checked ? <UilCheck className="w-3.5 h-3.5 dark:text-gray-400" /> : <></>}
       </div>
       {label && <div>{label}</div>}
     </div>

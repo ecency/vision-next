@@ -2,26 +2,27 @@ import { ProfileEntriesList, ProfileSearchContent } from "./_components";
 import { getAccountFullQuery, getSearchApiQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { SearchResult } from "@/entities";
 
 interface Props {
-  params: { username: string };
-  searchParams: Record<string, string | undefined>;
+  params: Promise<{ username: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateProfileMetadata(props.params.username.replace("%40", ""));
+  const { username } = await props.params;
+  return generateProfileMetadata(username.replace("%40", ""));
 }
 
-export default async function Page({
-  params: { username: usernameParam },
-  searchParams: { query: searchParam }
-}: Props) {
+export default async function Page({ params, searchParams }: Props) {
+  const { username: usernameParam } = await params;
   const username = usernameParam.replace("%40", "");
+  const { query: searchParam } = await searchParams;
+
   const account = await getAccountFullQuery(username).prefetch();
 
   await EcencyEntriesCacheManagement.getEntryQueryByPath(

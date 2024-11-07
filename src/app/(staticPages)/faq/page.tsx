@@ -25,14 +25,15 @@ export async function generateMetadata(
 }
 
 interface Props {
-  searchParams: Record<string, string | undefined>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
-export default function FAQ({ searchParams }: Props) {
+export default async function FAQ({ searchParams }: Props) {
+  const params = await searchParams;
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const faqImage = apiBase(`/assets/ecency-faq.${canUseWebp ? "webp" : "jpg"}`);
 
-  const searchResult = searchWithinFaq(searchParams["q"] ?? "");
+  const searchResult = searchWithinFaq(params["q"] ?? "");
 
   return (
     <>
@@ -41,7 +42,7 @@ export default function FAQ({ searchParams }: Props) {
       <Theme />
       <Navbar />
       <FaqSearchListener searchResult={searchResult} />
-      <NavigationLocaleWatcher searchParams={searchParams} />
+      <NavigationLocaleWatcher searchParams={params} />
 
       <div
         className="app-content static-page faq-page"

@@ -7,14 +7,16 @@ import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]
 import { WalletHiveEngine } from "@/app/(dynamicPages)/profile/[username]/engine/_components";
 
 interface Props {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateProfileMetadata(props.params.username.replace("%40", ""), "engine");
+  const { username } = await props.params;
+  return generateProfileMetadata(username.replace("%40", ""), "engine");
 }
 
-export default async function EnginePage({ params: { username } }: Props) {
+export default async function EnginePage({ params }: Props) {
+  const { username } = await params;
   const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
 
   if (!account) {

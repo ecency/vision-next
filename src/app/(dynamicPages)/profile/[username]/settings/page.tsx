@@ -7,14 +7,16 @@ import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 
 interface Props {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-  return generateProfileMetadata(props.params.username.replace("%40", ""), "settings");
+  const { username } = await props.params;
+  return generateProfileMetadata(username.replace("%40", ""), "settings");
 }
 
-export default async function SettingsPage({ params: { username } }: Props) {
+export default async function SettingsPage({ params }: Props) {
+  const { username } = await params;
   const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
 
   if (!account) {

@@ -140,15 +140,6 @@ export const getUnreadNotificationCount = (username: string): Promise<number> =>
     : Promise.resolve(0);
 };
 
-export const markNotifications = (username: string, id: string | null = null) => {
-  const data: { code: string | undefined; id?: string } = { code: getAccessToken(username) };
-  if (id) {
-    data.id = id;
-  }
-
-  return appAxios.post(apiBase(`/private-api/notifications/mark`), data);
-};
-
 export interface UserImage {
   created: string;
   timestamp: number;

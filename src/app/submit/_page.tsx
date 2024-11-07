@@ -78,7 +78,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
 
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [selectionTouched, setSelectionTouched] = useState(false);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
   const [selectedThumbnail, setSelectedThumbnail, removeThumbnail] = useLocalStorage<string>(
     PREFIX + "draft_selected_image"
@@ -271,6 +270,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     threeSpeakManager.clear();
     clearAdvanced();
     removeThumbnail();
+    clearActivePoll();
   };
 
   const tagsChanged = (nextTags: string[]): void => {
@@ -525,7 +525,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                   <div className="col-span-12 sm:col-span-9">
                     <FormControl
                       type="textarea"
-                      value={description || postBodySummary(body, 200)}
+                      value={description ?? ""}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                         setDescription(e.target.value);
                       }}
@@ -606,10 +606,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                               style={{
                                 backgroundImage: `url("${proxifyImageSrc(item, 260, 200)}")`
                               }}
-                              onClick={() => {
-                                setSelectedThumbnail(item);
-                                setSelectionTouched(true);
-                              }}
+                              onClick={() => setSelectedThumbnail(item)}
                               key={item}
                             />
                             {selectedItem === item && (
@@ -641,7 +638,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               beneficiaries={beneficiaries}
               description={description}
               selectedThumbnail={selectedThumbnail}
-              selectionTouched={false}
               validate={validate}
             />
           </div>
@@ -669,7 +665,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               beneficiaries={beneficiaries}
               description={description}
               selectedThumbnail={selectedThumbnail}
-              selectionTouched={false}
               validate={validate}
             />
           </div>

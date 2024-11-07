@@ -1,6 +1,13 @@
 {
   "name": "Ecency",
+  "theme_color": "#0900ff",
+  "background_color": "#ffffff",
   "short_name": "Ecency",
+  "id": "com.ecency",
+  "description": "Ecency - decentralized, rewarding communities",
+  "categories": [
+    "social"
+  ],
   "icons": [
     {
       "src": "/assets/logo-192x192.svg",
@@ -19,9 +26,7 @@
       "type": "image/svg"
     }
   ],
-  "theme_color": "#FFFFFF",
-  "background_color": "#FFFFFF",
-  "start_url": "/",
+  "start_url": "https://ecency.com/ ",
   "display": "standalone",
   "orientation": "portrait"
 }

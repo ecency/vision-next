@@ -17,15 +17,16 @@ import { Button } from "@ui/button";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 
 export interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function generateMetadata(
-  { params: { id } }: Props,
+  { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const { id } = await params;
   const proposal = await getProposalQuery(+id).prefetch();
   const basic = await PagesMetadataGenerator.getForPage("proposals");
   return {
@@ -35,7 +36,8 @@ export async function generateMetadata(
   };
 }
 
-export default async function ProposalDetailsPage({ params: { id } }: Props) {
+export default async function ProposalDetailsPage({ params }: Props) {
+  const { id } = await params;
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
   const proposal = await getProposalQuery(+id).prefetch();

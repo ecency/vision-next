@@ -18,14 +18,13 @@ import { medalSvg } from "@ui/svg";
 import { classNameObject } from "@ui/util";
 
 interface Props {
-  searchParams: Record<string, string | undefined>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
 export default async function LeaderboardPage({ searchParams }: Props) {
-  const data = await getDiscoverLeaderboardQuery(
-    (searchParams["period"] as LeaderBoardDuration) ?? "day"
-  ).prefetch();
-  const period = searchParams["period"] as LeaderBoardDuration;
+  const period = (await searchParams)["period"] as LeaderBoardDuration;
+
+  const data = await getDiscoverLeaderboardQuery(period ?? "day").prefetch();
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

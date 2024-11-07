@@ -3,14 +3,14 @@ import { proxifyImageSrc } from "@ecency/render-helper";
 import React, { useMemo } from "react";
 import { LinearProgress, success } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
-import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { deleteForeverSvg } from "@ui/svg";
 import { UserImage } from "@/api/private-api";
 import { clipboard } from "@/utils/clipboard";
 import { useDeleteGalleryImage } from "@/api/mutations";
 import useMount from "react-use/lib/useMount";
 import { PopoverConfirm } from "@ui/popover-confirm";
+import { UilTrash } from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
 
 interface Props {
   onPick?: (image: string) => void;
@@ -61,9 +61,11 @@ export function GalleryList({ onPick }: Props) {
                   <div className="item-inner" onClick={() => itemClicked(item)} />
                   <div className="item-controls">
                     <PopoverConfirm onConfirm={() => deleteImage({ id: item._id })}>
-                      <span className="btn-delete">
-                        <Tooltip content={i18next.t("g.delete")}>{deleteForeverSvg}</Tooltip>
-                      </span>
+                      <Button
+                        icon={<UilTrash className="w-3 h-3" />}
+                        size="xs"
+                        appearance="danger"
+                      />
                     </PopoverConfirm>
                   </div>
                 </div>
