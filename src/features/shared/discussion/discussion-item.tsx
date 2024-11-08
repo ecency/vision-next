@@ -315,9 +315,7 @@ export function DiscussionItem({
           )}
           {readMore && (
             <div className="read-more">
-              <EntryLink entry={entry}>
-                <a>{i18next.t("discussion.read-more")}</a>
-              </EntryLink>
+              <EntryLink entry={entry}>{i18next.t("discussion.read-more")}</EntryLink>
             </div>
           )}
         </div>
