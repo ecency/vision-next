@@ -24,6 +24,8 @@ FROM node:18.18 as production
 
 # Add Tini
 ENV TINI_VERSION v0.18.0
+ENV NEXT_SHARP_PATH=/app/node_modules/sharp
+
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static /tini
 RUN chmod +x /tini
 
