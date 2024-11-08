@@ -3,7 +3,7 @@ import "./_index.scss";
 import { Account, Community, Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
 import { getPromotedEntriesQuery } from "@/api/queries";
-import { EntryListContentNoData } from "@/features/shared/entry-list-content/entry-list-content-no-data";
+import { EntryListContentNoData } from "./entry-list-content-no-data";
 
 interface Props {
   loading: boolean;
