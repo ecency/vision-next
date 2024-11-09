@@ -1,24 +1,19 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import "./_index.scss";
 
-import {
-  claimRewards,
-  getHiveEngineTokenBalances,
-  getMetrics,
-  getUnclaimedRewards
-} from "@/api/hive-engine";
+import { claimRewards, getUnclaimedRewards } from "@/api/hive-engine";
 
 import { plusCircle } from "@/assets/img/svg";
 import { Popover, PopoverContent } from "@ui/popover";
 import { error, LinearProgress, success, TransferAsset, TransferMode } from "@/features/shared";
 import i18next from "i18next";
-import { formattedNumber, HiveEngineToken } from "@/utils";
+import { formattedNumber } from "@/utils";
 import { SortEngineTokens } from "./sort-hive-engine-tokens";
 import { EngineTokensEstimated } from "./engine-tokens-estimated";
 import { Account, TokenStatus } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { getHiveEngineBalancesQuery } from "@/api/queries";
 import { formatError } from "@/api/operations";
 import useMount from "react-use/lib/useMount";
 import { WalletMenu } from "../../_components/wallet-menu";
@@ -32,126 +27,75 @@ interface Props {
 export function WalletHiveEngine({ account }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const [tokens, setTokens] = useState<HiveEngineToken[]>([]);
-  const [utokens, setUtokens] = useState<HiveEngineToken[]>([]);
   const [rewards, setRewards] = useState<TokenStatus[]>([]);
-  const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);
-  const [claimed, setClaimed] = useState(false);
   const [transfer, setTransfer] = useState(false);
   const [transferMode, setTransferMode] = useState<TransferMode>();
   const [transferAsset, setTransferAsset] = useState<TransferAsset>();
-  const [assetBalance, setAssetBalance] = useState(0);
-  const [allTokens, setAllTokens] = useState<any>();
+  const [currentSort, setCurrentSort] = useState<
+    "delegationIn" | "asc" | "desc" | "balance" | "stake" | "delegationOut" | "usdValue"
+  >();
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: balancesData, isFetching } = getHiveEngineBalancesQuery(
+    account.name
+  ).useClientQuery();
+
+  const tokens = useMemo(
+    () =>
+      (balancesData ?? [])
+        .sort((a, b) => {
+          if (a.balance !== b.balance) {
+            return a.balance < b.balance ? 1 : -1;
+          }
+
+          if (a.stake !== b.stake) {
+            return a.stake < b.stake ? 1 : -1;
+          }
+
+          return a.symbol > b.symbol ? 1 : -1;
+        })
+        .sort((a, b) => {
+          if (currentSort === "delegationIn") {
+            if (b.delegationsIn < a.delegationsIn) return -1;
+            if (b.delegationsIn > a.delegationsIn) return 1;
+            return 0;
+          } else if (currentSort === "asc") {
+            if (a.symbol > b.symbol) return 1;
+            if (a.symbol < b.symbol) return -1;
+            return 0;
+          } else if (currentSort === "desc") {
+            if (b.symbol < a.symbol) return -1;
+            if (b.symbol > a.symbol) return 1;
+            return 0;
+          } else if (currentSort === "balance") {
+            if (b.balance < a.balance) return -1;
+            if (b.balance > a.balance) return 1;
+            return 0;
+          } else if (currentSort === "stake") {
+            if (b.stake < a.stake) return -1;
+            if (b.stake > a.stake) return 1;
+            return 0;
+          } else if (currentSort === "delegationOut") {
+            if (b.delegationsOut < a.delegationsOut) return -1;
+            if (b.delegationsOut > a.delegationsOut) return 1;
+            return 0;
+          } else if (currentSort === "usdValue") {
+            if (b.usdValue < a.usdValue) return -1;
+            if (b.usdValue > a.usdValue) return 1;
+            return 0;
+          }
+          return 0;
+        }),
+    [balancesData, currentSort]
+  );
 
   useMount(() => {
-    fetch();
     fetchUnclaimedRewards();
-    priceChangePercent();
   });
-
-  const sortByDelegationIn = () => {
-    const byDelegationsIn = tokens.sort((a: any, b: any) => {
-      if (b.delegationsIn < a.delegationsIn) return -1;
-      if (b.delegationsIn > a.delegationsIn) return 1;
-      return 0;
-    });
-
-    setTokens(byDelegationsIn);
-  };
-  const sortTokensInAscending: any = () => {
-    const inAscending = tokens.sort((a: any, b: any) => {
-      if (a.symbol > b.symbol) return 1;
-      if (a.symbol < b.symbol) return -1;
-      return 0;
-    });
-
-    setTokens(inAscending);
-  };
-  const sortTokensInDescending: any = () => {
-    const inDescending = tokens.sort((a: any, b: any) => {
-      if (b.symbol < a.symbol) return -1;
-      if (b.symbol > a.symbol) return 1;
-      return 0;
-    });
-
-    setTokens(inDescending);
-  };
-  const sortTokensbyValue = async () => {
-    const allUserTokens = await tokenUsdValue();
-    const tokensInWallet = allUserTokens.filter(
-      (a: any) => a.balance !== 0 || a.stakedBalance !== 0
-    );
-    const byValue = tokensInWallet.sort((a: any, b: any) => {
-      if (b.usd_value < a.usd_value) return -1;
-      if (b.usd_value > a.usd_value) return 1;
-      return 0;
-    });
-    setTokens(byValue);
-  };
-  const sortTokensbyBalance = () => {
-    const byBalance = tokens.sort((a: any, b: any) => {
-      if (b.balance < a.balance) return -1;
-      if (b.balance > a.balance) return 1;
-      return 0;
-    });
-
-    setTokens(byBalance);
-  };
-  const sortTokensbyStake = () => {
-    const byStake = tokens.sort((a: any, b: any) => {
-      if (b.stake < a.stake) return -1;
-      if (b.stake > a.stake) return 1;
-      return 0;
-    });
-
-    setTokens(byStake);
-  };
-  const sortByDelegationOut = () => {
-    const byDelegationsOut = tokens.sort((a: any, b: any) => {
-      if (b.delegationsOut < a.delegationsOut) return -1;
-      if (b.delegationsOut > a.delegationsOut) return 1;
-      return 0;
-    });
-
-    setTokens(byDelegationsOut);
-  };
-  const tokenUsdValue = async () => {
-    const userTokens: any = await getHiveEngineTokenBalances(account.name);
-    const pricePerHive =
-      (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base / (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).quote;
-
-    let balanceMetrics: any = userTokens.map((item: any) => {
-      let eachMetric = allTokens.find((m: any) => m.symbol === item.symbol);
-      return {
-        ...item,
-        ...eachMetric
-      };
-    });
-    return balanceMetrics.map((w: any) => {
-      const usd_value =
-        w.symbol === "SWAP.HIVE"
-          ? Number(pricePerHive * w.balance)
-          : w.lastPrice === 0
-            ? 0
-            : Number(w.lastPrice * pricePerHive * w.balance).toFixed(10);
-      return {
-        ...w,
-        usd_value
-      };
-    });
-  };
-  const priceChangePercent = async () => {
-    const allMarketTokens = await getMetrics();
-    setAllTokens(allMarketTokens);
-  };
   const openTransferDialog = (mode: TransferMode, asset: string, balance: number) => {
     setTransfer(true);
     setTransferMode(mode);
     setTransferAsset(asset as TransferAsset);
-    setAssetBalance(balance);
   };
   const closeTransferDialog = () => {
     setTransfer(false);
@@ -176,38 +120,12 @@ export function WalletHiveEngine({ account }: Props) {
       .catch((err) => error(...formatError(err)))
       .finally(() => setClaiming(false));
   };
-  const fetch = async () => {
-    setLoading(true);
-    let items;
-    try {
-      items = await getHiveEngineTokenBalances(account.name);
-      setUtokens(items);
-      items = items.filter((token) => token.balance !== 0 || token.stakedBalance !== 0);
-      items = sort(items);
-      setTokens(items);
-    } catch (e) {
-    } finally {
-      setLoading(false);
-    }
-  };
   const fetchUnclaimedRewards = async () => {
     try {
       const rewards = await getUnclaimedRewards(account.name);
       setRewards(rewards);
     } catch (e) {}
   };
-  const sort = (items: HiveEngineToken[]) =>
-    items.sort((a: HiveEngineToken, b: HiveEngineToken) => {
-      if (a.balance !== b.balance) {
-        return a.balance < b.balance ? 1 : -1;
-      }
-
-      if (a.stake !== b.stake) {
-        return a.stake < b.stake ? 1 : -1;
-      }
-
-      return a.symbol > b.symbol ? 1 : -1;
-    });
 
   const hasUnclaimedRewards = rewards.length > 0;
   const hasMultipleUnclaimedRewards = rewards.length > 1;
@@ -288,24 +206,24 @@ export function WalletHiveEngine({ account }: Props) {
             </div>
           </div>
 
-          <EngineTokensEstimated tokens={utokens} />
+          <EngineTokensEstimated tokens={balancesData} />
 
           {tokens.length >= 3 && (
             <div className="wallet-info">
               <SortEngineTokens
-                sortTokensInAscending={sortTokensInAscending}
-                sortTokensInDescending={sortTokensInDescending}
-                sortTokensbyValue={sortTokensbyValue}
-                sortTokensbyStake={sortTokensbyStake}
-                sortTokensbyBalance={sortTokensbyBalance}
-                sortByDelegationIn={sortByDelegationIn}
-                sortByDelegationOut={sortByDelegationOut}
+                sortTokensInAscending={() => setCurrentSort("asc")}
+                sortTokensInDescending={() => setCurrentSort("desc")}
+                sortTokensbyValue={() => setCurrentSort("usdValue")}
+                sortTokensbyStake={() => setCurrentSort("stake")}
+                sortTokensbyBalance={() => setCurrentSort("balance")}
+                sortByDelegationIn={() => setCurrentSort("delegationIn")}
+                sortByDelegationOut={() => setCurrentSort("delegationOut")}
               />
             </div>
           )}
 
           <div className="entry-list">
-            {loading ? (
+            {isFetching ? (
               <div className="dialog-placeholder">
                 <LinearProgress />
               </div>
