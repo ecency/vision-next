@@ -8,10 +8,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import numeral from "numeral";
 import { cryptoUtils } from "@hiveio/dhive";
 import { useDebounce } from "react-use";
-import { getAccountFullQuery, getDynamicPropsQuery, useHiveEngineAssetWallet } from "@/api/queries";
+import { getAccountFullQuery, useHiveEngineAssetWallet } from "@/api/queries";
 import badActors from "@hiveio/hivescript/bad-actors.json";
 import { amountFormatCheck } from "@/utils/amount-format-check";
-import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 import { EngineTransferFormHeader } from "@/app/(dynamicPages)/profile/[username]/engine/_components/engine-transfer/engine-transfer-form-header";
 
 interface Props {
@@ -26,6 +25,7 @@ interface Props {
   setMemo: (memo: string) => void;
   asset: string;
   onNext: () => void;
+  precision: number;
 }
 
 export function EngineTransferStep1({
@@ -39,9 +39,11 @@ export function EngineTransferStep1({
   setAmount,
   memo,
   setMemo,
-  onNext
+  onNext,
+  precision
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const assetWallet = useHiveEngineAssetWallet(asset);
 
   const [toInput, setToInput] = useState("");
   const [toDebouncedInput, setToDebouncedInput] = useState("");
@@ -49,10 +51,9 @@ export function EngineTransferStep1({
   const [toWarning, setToWarning] = useState<string>();
   const [toError, setToError] = useState<string>();
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { data: toData, isPending } = getAccountFullQuery(toDebouncedInput).useClientQuery();
+  const { data: toData, isFetching } = getAccountFullQuery(toDebouncedInput).useClientQuery();
 
-  const assetWallet = useHiveEngineAssetWallet(asset);
+  const assetBalance = useMemo(() => assetWallet?.balance ?? 0, [assetWallet]);
   const hive = useMemo(() => Math.round((Number(amount) / 13) * 1000) / 1000, [amount]);
   const showTo = useMemo(
     () => ["transfer", "delegate", "undelegate", "stake"].includes(mode),
@@ -81,30 +82,13 @@ export function EngineTransferStep1({
     }
 
     return "";
-  }, [amount, assetWallet?.balance]);
+  }, [amount, assetWallet?.balance, precision]);
   const canSubmit = useMemo(() => {
     if (mode === "unstake") return parseFloat(amount) > 0;
-    return toData && !toError && !amountError && !memoError && !isPending && parseFloat(amount) > 0;
-  }, [amount, amountError, isPending, memoError, mode, toData, toError]);
-
-  const delegateAccount =
-    delegationList &&
-    delegationList.length > 0 &&
-    delegationList!.find(
-      (item) =>
-        (item as DelegateVestingShares).delegatee === to &&
-        (item as DelegateVestingShares).delegator === activeUser?.username
+    return (
+      toData && !toError && !amountError && !memoError && !isFetching && parseFloat(amount) > 0
     );
-  const previousAmount = delegateAccount
-    ? Number(
-        formattedNumber(
-          vestsToHp(
-            Number(parseAsset(delegateAccount!.vesting_shares).amount),
-            dynamicProps?.hivePerMVests ?? 0
-          )
-        )
-      )
-    : "";
+  }, [amount, amountError, isFetching, memoError, mode, toData, toError]);
 
   useDebounce(
     () => {
@@ -146,18 +130,14 @@ export function EngineTransferStep1({
     [setMemo]
   );
 
-  const handleTo = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (to === "") {
-        setToWarning(undefined);
-        setToError(undefined);
-        return;
-      }
+  const handleTo = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === "") {
+      setToWarning(undefined);
+      setToError(undefined);
+    }
 
-      setToInput(e.target.value);
-    },
-    [to]
-  );
+    setToInput(e.target.value);
+  }, []);
 
   const copyBalance = useCallback(() => {
     const amount = formatNumber(assetWallet?.balance ?? 0, precision);
@@ -165,9 +145,13 @@ export function EngineTransferStep1({
   }, [assetWallet?.balance, formatNumber, setAmount]);
 
   return (
-    <div className={`transaction-form ${isPending ? "in-progress" : ""}`}>
-      <EngineTransferFormHeader titleLngKey={titleLngKey} subTitleLngKey={subTitleLngKey} />
-      {isPending && <LinearProgress />}
+    <div className={`transaction-form ${isFetching ? "in-progress" : ""}`}>
+      <EngineTransferFormHeader
+        step={1}
+        titleLngKey={titleLngKey}
+        subTitleLngKey={subTitleLngKey}
+      />
+      {isFetching && <LinearProgress />}
       <Form className="transaction-form-body">
         {mode !== "undelegate" && (
           <div className="grid items-center grid-cols-12 mb-4">
@@ -221,14 +205,14 @@ export function EngineTransferStep1({
                 placeholder={i18next.t("transfer.amount-placeholder")}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className={amount > balance && amountError ? "is-invalid" : ""}
+                className={+amount > assetBalance && amountError ? "is-invalid" : ""}
                 autoFocus={mode !== "transfer"}
               />
             </InputGroup>
           </div>
         </div>
 
-        {amountError && amount > balance && (
+        {amountError && +amount > assetBalance && (
           <div className="text-sm opacity-50 text-red">{amountError}</div>
         )}
 
@@ -249,15 +233,6 @@ export function EngineTransferStep1({
             {to.length > 0 && Number(amount) > 0 && toData?.__loaded && mode === "delegate" && (
               <div className="text-gray-600 mt-1 override-warning">
                 {i18next.t("transfer.override-warning-1")}
-                {delegateAccount && (
-                  <>
-                    <br />
-                    {i18next.t("transfer.override-warning-2", {
-                      account: to,
-                      previousAmount: previousAmount
-                    })}
-                  </>
-                )}
               </div>
             )}
             {mode === "unstake" && !isNaN(hive) && hive > 0 && (
@@ -292,8 +267,7 @@ export function EngineTransferStep1({
 
         <div className="grid items-center grid-cols-12 mb-4">
           <div className="col-span-12 sm:col-span-10 sm:col-start-3">
-            {/* Changed && to || since it just allows the form to submit anyway initially */}
-            <Button onClick={onNext} disabled={!canSubmit || amount > balance || !!toError}>
+            <Button onClick={onNext} disabled={!canSubmit || +amount > assetBalance || !!toError}>
               {i18next.t("g.next")}
             </Button>
           </div>

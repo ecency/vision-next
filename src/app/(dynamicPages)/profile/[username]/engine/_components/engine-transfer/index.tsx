@@ -1,7 +1,11 @@
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { EngineTransferStep1 } from "@/app/(dynamicPages)/profile/[username]/engine/_components/engine-transfer/engine-transfer-step-1";
 import { useHiveEngineAssetWallet } from "@/api/queries";
+import { EngineTransferPowerDown } from "@/app/(dynamicPages)/profile/[username]/engine/_components/engine-transfer/engine-transfer-power-down";
+import { EngineTransferConfirmation } from "@/app/(dynamicPages)/profile/[username]/engine/_components/engine-transfer/engine-transfer-confirmation";
+import { EngineTransferSign } from "@/app/(dynamicPages)/profile/[username]/engine/_components/engine-transfer/engine-transfer-sign";
+import { EngineTransferSuccess } from "@/app/(dynamicPages)/profile/[username]/engine/_components/engine-transfer/engine-transfer-success";
 
 interface Props {
   onHide: () => void;
@@ -27,6 +31,13 @@ export function EngineTransfer({ onHide, mode, asset, to: preTo }: Props) {
     [mode]
   );
 
+  const reset = useCallback(() => {
+    setStep(1);
+    setTo(preTo ?? "");
+    setAmount("");
+    setMemo("");
+  }, [preTo]);
+
   return (
     <Modal
       animation={false}
@@ -38,7 +49,7 @@ export function EngineTransfer({ onHide, mode, asset, to: preTo }: Props) {
     >
       <ModalHeader thin={true} closeButton={true} />
       <ModalBody>
-        {step === 1 && (
+        {step === 1 && mode !== "unstake" && (
           <EngineTransferStep1
             asset={asset}
             subTitleLngKey={subTitleLngKey}
@@ -51,6 +62,49 @@ export function EngineTransfer({ onHide, mode, asset, to: preTo }: Props) {
             memo={memo}
             setMemo={setMemo}
             onNext={() => setStep(2)}
+            precision={precision}
+          />
+        )}
+        {step === 1 && mode === "unstake" && (
+          <EngineTransferPowerDown
+            precision={precision}
+            titleLngKey={titleLngKey}
+            subTitleLngKey={subTitleLngKey}
+            onNext={() => setStep(2)}
+            asset={asset}
+          />
+        )}
+        {step === 2 && (
+          <EngineTransferConfirmation
+            titleLngKey={titleLngKey}
+            onBack={() => setStep(1)}
+            onConfirm={() => setStep(3)}
+            to={to}
+            amount={amount}
+            asset={asset}
+            memo={memo}
+            mode={mode}
+          />
+        )}
+        {step === 3 && (
+          <EngineTransferSign
+            asset={asset}
+            memo={memo}
+            mode={mode}
+            amount={amount}
+            onBack={() => setStep(2)}
+            onNext={() => setStep(4)}
+            to={to}
+          />
+        )}
+        {step === 4 && (
+          <EngineTransferSuccess
+            to={to}
+            amount={amount}
+            asset={asset}
+            mode={mode}
+            onFinish={onHide}
+            onReset={reset}
           />
         )}
       </ModalBody>

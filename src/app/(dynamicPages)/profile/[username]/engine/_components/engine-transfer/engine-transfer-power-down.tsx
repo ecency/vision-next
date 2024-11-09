@@ -8,9 +8,16 @@ interface Props {
   subTitleLngKey: string;
   onNext: () => void;
   asset: string;
+  precision: number;
 }
 
-export function EngineTransferPowerDown({ titleLngKey, subTitleLngKey, onNext, asset }: Props) {
+export function EngineTransferPowerDown({
+  titleLngKey,
+  subTitleLngKey,
+  onNext,
+  asset,
+  precision
+}: Props) {
   const activeUserWallet = useActiveUserWallet();
 
   return (
