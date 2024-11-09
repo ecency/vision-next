@@ -1,4 +1,4 @@
-import { getAccountFullQuery } from "@/api/queries";
+import { getAccountFullQuery, getDynamicPropsQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
@@ -18,6 +18,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 export default async function EnginePage({ params }: Props) {
   const { username } = await params;
   const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
+  await getDynamicPropsQuery().prefetch();
 
   if (!account) {
     return notFound();

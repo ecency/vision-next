@@ -1,4 +1,4 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 import { TokenMetadata } from "@/entities";
 import { HiveEngineToken } from "@/utils";
 import { getTokenBalances, getTokens } from "@/api/hive-engine";
@@ -9,10 +9,14 @@ import {
   getAllHiveEngineTokensQuery,
   getDynamicPropsQuery
 } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
 
-export const getHiveEngineBalancesQuery = (account?: string) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.HIVE_ENGINE_TOKEN_BALANCES],
+export function useGetHiveEngineBalancesQuery(account?: string) {
+  const { data: dynamicProps = DEFAULT_DYNAMIC_PROPS } = getDynamicPropsQuery().useClientQuery();
+  const { data: allTokens } = getAllHiveEngineTokensQuery().useClientQuery();
+
+  return useQuery({
+    queryKey: [QueryIdentifiers.HIVE_ENGINE_TOKEN_BALANCES, account, dynamicProps, allTokens],
     queryFn: async () => {
       if (!account) {
         throw new Error("[HiveEngine] No account in a balances query");
@@ -20,8 +24,6 @@ export const getHiveEngineBalancesQuery = (account?: string) =>
 
       const balances = await getTokenBalances(account);
       const tokens = await getTokens(balances.map((t) => t.symbol));
-      const dynamicProps = (await getDynamicPropsQuery().prefetch()) ?? DEFAULT_DYNAMIC_PROPS;
-      const allTokens = (await getAllHiveEngineTokensQuery(account).prefetch()) ?? [];
 
       return balances.map((balance) => {
         const token = tokens.find((t) => t.symbol == balance.symbol);
@@ -48,10 +50,11 @@ export const getHiveEngineBalancesQuery = (account?: string) =>
     },
     enabled: !!account
   });
+}
 
 export function useHiveEngineAssetWallet(asset: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const { data: wallets } = getHiveEngineBalancesQuery(activeUser?.username).useClientQuery();
+  const { data: wallets } = useGetHiveEngineBalancesQuery(activeUser?.username);
 
   return useMemo(() => wallets?.find((w) => w.symbol === asset), [wallets, asset]);
 }

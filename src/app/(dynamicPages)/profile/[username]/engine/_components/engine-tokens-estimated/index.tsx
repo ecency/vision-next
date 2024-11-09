@@ -1,52 +1,26 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { getMetrics } from "@/api/hive-engine";
+import React, { useMemo } from "react";
 import i18next from "i18next";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { HiveEngineToken } from "@/utils";
 
-export const EngineTokensEstimated = (props: any) => {
-  const { tokens: userTokens } = props;
+interface Props {
+  tokens: HiveEngineToken[];
+}
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const [estimated, setEstimated] = useState(`${i18next.t("wallet.calculating")}...`);
+export const EngineTokensEstimated = ({ tokens }: Props) => {
+  const estimated = useMemo(() => {
+    if (tokens.length > 0) {
+      const totalWalletUsdValue = +tokens
+        .map((item) => +item.usdValue)
+        .reduce((acc, item) => +(acc + item), 0)
+        .toFixed(3);
+      return totalWalletUsdValue.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD"
+      });
+    }
 
-  const getEstimatedUsdValue = useCallback(async () => {
-    const AllMarketTokens = await getMetrics();
-
-    const pricePerHive =
-      (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base / (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).quote;
-
-    let mappedBalanceMetrics = userTokens.map((item: any) => {
-      let eachMetric = AllMarketTokens.find((m: any) => m.symbol === item.symbol);
-      return {
-        ...item,
-        ...eachMetric
-      };
-    });
-
-    //  const walletTokens = mappedBalanceMetrics.filter((w: any) => w.balance !== 0 || w.stakedBalance !== 0)
-
-    const tokens_usd_prices = mappedBalanceMetrics.map((w: any) => {
-      return w.symbol === "SWAP.HIVE"
-        ? Number(pricePerHive * w.balance)
-        : w.lastPrice === 0
-          ? 0
-          : Number((w.lastPrice ?? 0) * pricePerHive * w.balance);
-    });
-
-    const totalWalletUsdValue = tokens_usd_prices.reduce(
-      (x: any, y: any) => +(x + y).toFixed(3),
-      0
-    );
-    const usd_total_value = totalWalletUsdValue.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD"
-    });
-    setEstimated(usd_total_value);
-  }, [dynamicProps, userTokens]);
-
-  useEffect(() => {
-    getEstimatedUsdValue();
-  }, [getEstimatedUsdValue, userTokens]);
+    return `${i18next.t("wallet.calculating")}...`;
+  }, [tokens]);
 
   return (
     <div className="balance-row estimated alternative">

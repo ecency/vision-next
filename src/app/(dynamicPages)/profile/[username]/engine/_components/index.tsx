@@ -13,7 +13,7 @@ import { SortEngineTokens } from "./sort-hive-engine-tokens";
 import { EngineTokensEstimated } from "./engine-tokens-estimated";
 import { Account, TokenStatus } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { getHiveEngineBalancesQuery } from "@/api/queries";
+import { useGetHiveEngineBalancesQuery } from "@/api/queries";
 import { formatError } from "@/api/operations";
 import useMount from "react-use/lib/useMount";
 import { WalletMenu } from "../../_components/wallet-menu";
@@ -36,9 +36,7 @@ export function WalletHiveEngine({ account }: Props) {
     "delegationIn" | "asc" | "desc" | "balance" | "stake" | "delegationOut" | "usdValue"
   >();
 
-  const { data: balancesData, isFetching } = getHiveEngineBalancesQuery(
-    account.name
-  ).useClientQuery();
+  const { data: balancesData, isFetching } = useGetHiveEngineBalancesQuery(account.name);
 
   const tokens = useMemo(
     () =>
@@ -206,7 +204,7 @@ export function WalletHiveEngine({ account }: Props) {
             </div>
           </div>
 
-          <EngineTokensEstimated tokens={balancesData} />
+          <EngineTokensEstimated tokens={balancesData ?? []} />
 
           {tokens.length >= 3 && (
             <div className="wallet-info">
