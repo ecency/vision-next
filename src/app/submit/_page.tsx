@@ -337,6 +337,11 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
       return false;
     }
 
+    if (tags.length > 10) {
+      error(i18next.t("tag-selector.error-max", { n: 10 }));
+      return false;
+    }
+
     return true;
   };
 
