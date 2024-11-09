@@ -1295,8 +1295,8 @@
     "unlock-title": "Desbloquear liquidez",
     "lock-summary": "Bloqueo completado de <span class=\"amount\">{{amount}}</span>",
     "unlock-summary": "Desbloqueo completado de <span class=\"amount\">{{amount}}</span>",
-    "success-title": "Success",
-    "success-sub-title": "Transaction completed"
+    "success-title": "Completado",
+    "success-sub-title": "Transacción completada"
   },
   "trx-common": {
     "insufficient-funds": "Fondos insuficientes",
