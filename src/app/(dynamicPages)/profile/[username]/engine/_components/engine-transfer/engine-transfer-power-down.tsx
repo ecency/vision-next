@@ -23,7 +23,11 @@ export function EngineTransferPowerDown({
   return (
     <div className="transfer-dialog-content">
       <div className="transaction-form">
-        <EngineTransferFormHeader titleLngKey={titleLngKey} subTitleLngKey={subTitleLngKey} />
+        <EngineTransferFormHeader
+          step={1}
+          titleLngKey={titleLngKey}
+          subTitleLngKey={subTitleLngKey}
+        />
         <div className="transaction-form-body powering-down">
           <p>{i18next.t("transfer.powering-down")}</p>
           <p>
