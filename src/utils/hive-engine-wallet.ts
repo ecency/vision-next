@@ -11,6 +11,7 @@ interface Props {
   stake: string;
   delegationsIn: string;
   delegationsOut: string;
+  usdValue: number;
 }
 
 export class HiveEngineToken {
@@ -26,6 +27,7 @@ export class HiveEngineToken {
   stakedBalance: number;
   delegationsIn: number;
   delegationsOut: number;
+  usdValue: number;
 
   constructor(props: Props) {
     this.symbol = props.symbol;
@@ -40,6 +42,7 @@ export class HiveEngineToken {
     this.delegationsIn = parseFloat(props.delegationsIn) || 0;
     this.delegationsOut = parseFloat(props.delegationsOut) || 0;
     this.stakedBalance = this.stake + this.delegationsIn - this.delegationsOut;
+    this.usdValue = props.usdValue;
   }
 
   hasDelegations = (): boolean => {

@@ -29,7 +29,6 @@ export function useDebounceTransferAccountData() {
     error: toError,
     isLoading: toLoading
   } = getAccountFullQuery(toDebounce).useClientQuery();
-  console.log(toData, toDebounce);
   const {
     data: vestingDelegations,
     error: vestingDelegationsError,

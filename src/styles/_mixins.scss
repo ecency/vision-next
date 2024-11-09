@@ -762,6 +762,8 @@
         }
 
         &.alternative {
+          @apply border border-[--border-color];
+
           @include themify(day) {
             @apply bg-light-200;
           }
