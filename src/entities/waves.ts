@@ -1,0 +1,10 @@
+import { Entry } from "@/entities";
+
+export interface ThreadItemEntry extends Entry {
+  host: string;
+  container: WaveEntry;
+  // Is this entry had been replied to another one
+  parent?: Entry;
+}
+
+export type WaveEntry = ThreadItemEntry & Required<Pick<Entry, "id">>;
