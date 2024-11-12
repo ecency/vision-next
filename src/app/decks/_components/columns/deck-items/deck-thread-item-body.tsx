@@ -2,16 +2,7 @@ import { createPortal } from "react-dom";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { renderPostBody } from "@ecency/render-helper";
 import { IdentifiableEntry } from "../deck-threads-manager";
-import {
-  renderAuthors,
-  renderCurrencies,
-  renderExternalLinks,
-  renderImages,
-  renderPostLinks,
-  renderTags,
-  renderTweets,
-  renderVideos
-} from "./deck-thread-item-body-render-helper";
+import { useRenderWaveBody } from "@/features/waves";
 import { renderLiketu } from "../helpers";
 import { useGlobalStore } from "@/core/global-store";
 import { classNameObject } from "@ui/util";
@@ -39,28 +30,11 @@ export const DeckThreadItemBody = ({
   const [currentViewingImageRect, setCurrentViewingImageRect] = useState<DOMRect | null>(null);
   const [isCurrentViewingImageShowed, setIsCurrentViewingImageShowed] = useState(false);
 
-  const renderBody = useCallback(async () => {
-    setRenderInitiated(true);
-
-    if (renderAreaRef.current) {
-      renderAreaRef.current.innerHTML = await renderCurrencies(renderAreaRef?.current?.innerHTML);
-    }
-
-    if (entry.parent_author === "liketu.moments") {
-      return;
-    }
-
-    renderTags(renderAreaRef);
-    renderAuthors(renderAreaRef);
-    renderPostLinks(renderAreaRef);
-    renderExternalLinks(renderAreaRef);
-    renderImages(renderAreaRef, {
-      setCurrentViewingImageRect,
-      setCurrentViewingImage
-    });
-    renderVideos(renderAreaRef);
-    renderTweets(renderAreaRef);
-  }, [entry.parent_author]);
+  const renderBody = useRenderWaveBody(renderAreaRef, entry, {
+    setRenderInitiated,
+    setCurrentViewingImage,
+    setCurrentViewingImageRect
+  });
 
   const renderContentBody = useCallback(() => {
     if (entry.parent_author === "liketu.moments") {

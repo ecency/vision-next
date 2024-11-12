@@ -1,11 +1,16 @@
 import { getWavesByHostQuery } from "@/api/queries";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
+import { useInfiniteDataFlow } from "@/utils";
 
-export async function WavesList() {
-  const data = await getWavesByHostQuery("ecency.waves").prefetch();
+export function WavesList() {
+  const { data } = getWavesByHostQuery("ecency.waves").useClientQuery();
+  const dataFlow = useInfiniteDataFlow(data);
+
   return (
     <div className="max-w-[400px]">
-      {data?.pages[0].map((item) => <WavesListItem key={item.id} item={item} />)}
+      {dataFlow.map((item) => (
+        <WavesListItem key={item.id} item={item} />
+      ))}
     </div>
   );
 }
