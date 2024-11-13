@@ -26,11 +26,11 @@ export function DropdownItem(props: HTMLProps<HTMLDivElement> & Props) {
     <div
       {...props}
       className={classNameObject({
-        "min-w-[80%] cursor-pointer [&>a]:text-dark-default dark:text-white dark:[&>a]:text-white rounded-tr-2xl rounded-br-2xl":
+        "min-w-[80%] cursor-pointer [&>a]:text-dark-default dark:text-white dark:[&>a]:text-white rounded-tr-2xl rounded-br-2xl duration-200":
           true,
         "bg-blue-dark-sky-040 text-blue-dark-sky dark:bg-gray-900 hover:bg-blue-dark-sky-030 dark:hover:bg-gray-800":
           props.selected ?? false,
-        "hover:bg-blue-dark-sky-040 text-dark-default hover:text-blue-dark-sky dark:hover:bg-gray-900 ":
+        "hover:bg-blue-dark-sky-040 text-dark-default hover:text-blue-dark-sky dark:hover:bg-dark-default":
           !(props.selected ?? false),
         "px-4 py-2": !props.size || props.size === "medium",
         "px-2 py-1 text-sm": !props.size || props.size === "small",
