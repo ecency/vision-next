@@ -7,9 +7,9 @@ export function WavesList() {
   const dataFlow = useInfiniteDataFlow(data);
 
   return (
-    <div className="max-w-[400px]">
-      {dataFlow.map((item) => (
-        <WavesListItem key={item.id} item={item} />
+    <div className="flex flex-col gap-4 lg:gap-6 xl:gap-8">
+      {dataFlow.map((item, i) => (
+        <WavesListItem i={i} key={item.id} item={item} />
       ))}
     </div>
   );

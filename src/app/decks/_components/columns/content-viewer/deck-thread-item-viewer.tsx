@@ -14,9 +14,10 @@ import {
 } from "@/api/queries/get-discussions-query";
 import { useMounted } from "@/utils/use-mounted";
 import { useQueryClient } from "@tanstack/react-query";
+import { WaveEntry } from "@/entities";
 
 interface Props {
-  entry: IdentifiableEntry;
+  entry: WaveEntry;
   backTitle?: string;
   onClose: () => void;
   highlightedEntry?: string;
