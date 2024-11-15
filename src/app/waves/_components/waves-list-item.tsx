@@ -6,6 +6,7 @@ import useMount from "react-use/lib/useMount";
 import { renderPostBody } from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { motion } from "framer-motion";
+import "./waves-list-item.scss";
 
 interface Props {
   item: WaveEntry;
@@ -31,7 +32,7 @@ export function WavesListItem({ item, i }: Props) {
     >
       <WavesListItemHeader entry={entry!} hasParent={false} pure={false} status={status} />
       <div
-        className="p-4"
+        className="p-4 thread-render"
         ref={renderAreaRef}
         dangerouslySetInnerHTML={{ __html: renderPostBody(entry!) }}
       />
