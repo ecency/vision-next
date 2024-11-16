@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { useDeckThreadLinkItemCache } from "./deck-thread-link-item-cache";
+import React, { useCallback, useState } from "react";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
+import { useDeckThreadLinkItemCache } from "@/features/waves";
 
 interface Props {
   link: string;
 }
 
-export const DeckThreadLinkItem = ({ link }: Props) => {
+export const WaveLinkRender = ({ link }: Props) => {
   const { addToCache, getFromCache } = useDeckThreadLinkItemCache();
 
   const [title, setTitle] = useState<string | null>(null);
@@ -17,10 +17,24 @@ export const DeckThreadLinkItem = ({ link }: Props) => {
   const [loadedSuccess, setLoadedSuccess] = useState(false);
 
   useMount(() => {
-    requestData();
+    setTimeout(() => requestData(), 100);
   });
 
-  const requestData = async () => {
+  const attemptToLoadCache = useCallback(async () => {
+    const cached = await getFromCache(link);
+    if (cached) {
+      setTitle(cached.title);
+      setImage(cached.image);
+      setDescription(cached.description);
+      setIsLoading(false);
+      setLoadedSuccess(true);
+      return true;
+    }
+
+    return false;
+  }, [getFromCache, link]);
+
+  const requestData = useCallback(async () => {
     if (await attemptToLoadCache()) {
       return;
     }
@@ -55,24 +69,10 @@ export const DeckThreadLinkItem = ({ link }: Props) => {
     } catch (e) {
       console.error(`Failed to fetch post preview in thread: ${link}`);
     }
-  };
-
-  const attemptToLoadCache = async () => {
-    const cached = await getFromCache(link);
-    if (cached) {
-      setTitle(cached.title);
-      setImage(cached.image);
-      setDescription(cached.description);
-      setIsLoading(false);
-      setLoadedSuccess(true);
-      return true;
-    }
-
-    return false;
-  };
+  }, [addToCache, attemptToLoadCache, link]);
 
   return isLoading || loadedSuccess ? (
-    <div className="deck-thread-post-item">
+    <div className="wave-post-link-item">
       {isLoading ? (
         <div className="image mb-3" />
       ) : (

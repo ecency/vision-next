@@ -1,5 +1,9 @@
-import { WavesForm } from "@/app/waves/_components/waves-form";
+import { WaveForm } from "@/features/waves";
 
 export function WavesCreateForm() {
-  return <WavesForm />;
+  return (
+    <>
+      <WaveForm entry={undefined} />
+    </>
+  );
 }

@@ -1,4 +1,3 @@
-export * from "./waves-form";
 export * from "./waves-detect-bottom";
 export * from "./waves-list";
 export * from "./waves-list-item";

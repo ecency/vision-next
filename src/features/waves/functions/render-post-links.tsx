@@ -1,6 +1,6 @@
 import React, { MutableRefObject } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { DeckThreadLinkItem } from "@/app/decks/_components/columns/deck-items";
+import { WaveLinkRender } from "@/features/waves";
 
 export function renderPostLinks(renderAreaRef: MutableRefObject<HTMLElement | null>) {
   return renderAreaRef.current
@@ -11,7 +11,7 @@ export function renderPostLinks(renderAreaRef: MutableRefObject<HTMLElement | nu
       if (author && permlink) {
         element.href = `/@${author}/${permlink}`;
         element.target = "_blank";
-        hydrateRoot(element, <DeckThreadLinkItem link={`/@${author}/${permlink}`} />);
+        hydrateRoot(element, <WaveLinkRender link={`/@${author}/${permlink}`} />);
       }
     });
 }
