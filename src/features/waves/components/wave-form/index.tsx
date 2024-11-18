@@ -188,7 +188,8 @@ export const WaveForm = ({
           submit={
             <Button
               onClick={submit}
-              disabled={disabled || loading}
+              disabled={disabled}
+              isLoading={loading}
               className="justify-self-end"
               size="sm"
             >

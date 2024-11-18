@@ -4,7 +4,6 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import { UserAvatar } from "@/features/shared";
 import { AVAILABLE_THREAD_HOSTS } from "@/features/waves";
-import { UilArrowDown } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   host: string | undefined;
@@ -17,7 +16,7 @@ export const WaveFormThreadSelection = ({ host, setHost }: Props) => {
       <div className="text-sm opacity-50">{i18next.t("decks.threads-form.thread-host")}</div>
       <Dropdown>
         <DropdownToggle>
-          <Button size="sm" outline={true} icon={<UilArrowDown className="w-3 h-3" />}>
+          <Button size="sm" appearance="link" noPadding={true}>
             @{host ? host : i18next.t("decks.threads-form.select-thread-host")}
           </Button>
         </DropdownToggle>

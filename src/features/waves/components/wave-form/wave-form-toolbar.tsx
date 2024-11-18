@@ -17,7 +17,7 @@ export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit }: Props) => {
   const [show, setShow] = useState(false);
 
   return (
-    <div className="flex items-center justify-between p-4">
+    <div className="flex items-center justify-between py-4">
       <div className="flex items-center">
         <WaveFormToolbarImagePicker onAddImage={onAddImage} />
         <WaveFormEmojiPicker onPick={onEmojiPick} />

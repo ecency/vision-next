@@ -28,7 +28,7 @@ export const WaveFormControl = ({
   return (
     <div className="pt-4">
       <TextareaAutosize
-        className="w-full min-h-[8rem] outline-none border-0 resize-none bg-transparent"
+        className="w-full min-h-[8rem] rounded-xl p-2 lg:p-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none"
         placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}
         value={text}
         onChange={(e) => setText(e.target.value)}
