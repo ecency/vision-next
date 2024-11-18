@@ -2,8 +2,12 @@ import { getWavesByHostQuery } from "@/api/queries";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { useInfiniteDataFlow } from "@/utils";
 
-export function WavesList() {
-  const { data } = getWavesByHostQuery("ecency.waves").useClientQuery();
+interface Props {
+  host: string;
+}
+
+export function WavesList({ host }: Props) {
+  const { data } = getWavesByHostQuery(host).useClientQuery();
   const dataFlow = useInfiniteDataFlow(data);
 
   return (

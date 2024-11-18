@@ -9,8 +9,8 @@ export default function WavesPage() {
 
   return (
     <>
-      <WavesCreateCard />
-      <WavesList />
+      <WavesCreateCard host={host!} setHost={setHost} />
+      <WavesList host={host!} />
     </>
   );
 }
