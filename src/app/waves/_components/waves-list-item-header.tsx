@@ -7,6 +7,7 @@ import React from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { WaveEntry } from "@/entities";
 import { Button } from "@ui/button";
+import { Badge } from "@ui/badge";
 
 interface Props {
   entry: WaveEntry;
@@ -23,12 +24,14 @@ export function WavesListItemHeader({ entry, status, hasParent, pure }: Props) {
       <div className="flex items-center gap-4">
         <UserAvatar size="deck-item" username={entry.author} />
         <div className="flex flex-col truncate">
-          <Link className="font-semibold" href={`/@${entry.author}`}>
-            {entry.author}
-          </Link>
-          {activeUser?.username === entry.author && (
-            <span className="you">{`(${i18next.t("g.you")})`}</span>
-          )}
+          <div className="flex items-center gap-2">
+            <Link className="font-semibold" href={`/@${entry.author}`}>
+              {entry.author}
+            </Link>
+            {activeUser?.username === entry.author && (
+              <Badge className="!py-0 !text-[0.675rem]">{i18next.t("g.you")}</Badge>
+            )}
+          </div>
           {hasParent && !pure && (
             <>
               <span>{i18next.t("decks.columns.replied-to")}</span>
