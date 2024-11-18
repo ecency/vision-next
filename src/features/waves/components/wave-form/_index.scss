@@ -355,13 +355,6 @@
 
     @include margin-left(1rem);
   }
-
-  .length-prompt {
-    opacity: 0.5;
-
-    @include margin-top(0.5rem);
-    @include font-size(0.675rem);
-  }
 }
 
 .deck-threads-form-emoji-picker {

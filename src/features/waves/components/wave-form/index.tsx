@@ -7,11 +7,12 @@ import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
 import { useWaveCreate } from "@/features/waves/components/wave-form/api";
 import { useWaveCreateReply } from "@/features/waves/components/wave-form/api/use-wave-create-reply";
-import i18next from "i18next";
-import { Button } from "@/features/ui";
 import { AvailableCredits, UserAvatar } from "@/features/shared";
 import { WaveFormThreadSelection } from "./wave-form-thread-selection";
 import { WaveFormControl } from "./wave-form-control";
+import i18next from "i18next";
+import { Button } from "@ui/button";
+import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form-toolbar";
 
 interface Props {
   className?: string;
@@ -46,7 +47,6 @@ export const WaveForm = ({
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_dtf_v", "");
 
   const [loading, setLoading] = useState(false);
-  const [focused, setFocused] = useState(false);
 
   const { mutateAsync: create } = useWaveCreate();
   const { mutateAsync: createReply } = useWaveCreateReply();
@@ -162,54 +162,53 @@ export const WaveForm = ({
   ]);
 
   return (
-    <div className="" onClick={() => setFocused(true)}>
-      <div className="deck-toolbar-threads-form-body p-3">
-        {!hideAvatar && <UserAvatar username={activeUser?.username ?? ""} size="medium" />}
-        <div>
-          {!inline && <WaveFormThreadSelection host={threadHost} setHost={setThreadHost} />}
-          <WaveFormControl
-            video={video}
-            text={text!!}
-            setText={setText}
-            selectedImage={image!!}
-            onAddImage={(url, name) => {
-              setImage(url);
-              setImageName(name);
-            }}
-            onAddVideo={setVideo}
-            setSelectedImage={setImage}
-            placeholder={placeholder}
-            onTextareaFocus={() => setFocused(true)}
-          />
-          {inline && (
-            <div className="flex items-center">
-              {activeUser && (
-                <AvailableCredits username={activeUser.username} operation="comment_operation" />
-              )}
-              <Button
-                onClick={submit}
-                disabled={disabled || loading}
-                className="deck-toolbar-threads-form-submit"
-                size="sm"
-              >
-                {!activeUser &&
-                  !entry &&
-                  (text?.length ?? 0) <= 255 &&
-                  i18next.t("decks.threads-form.login-and-publish")}
-                {activeUser &&
-                  !entry &&
-                  (text?.length ?? 0) <= 255 &&
-                  (loading
-                    ? i18next.t("decks.threads-form.publishing")
-                    : i18next.t("decks.threads-form.publish"))}
-                {(text?.length ?? 0) > 255 &&
-                  !entry &&
-                  i18next.t("decks.threads-form.create-regular-post")}
-                {entry && i18next.t("decks.threads-form.save")}
-              </Button>
-            </div>
-          )}
-        </div>
+    <div className="flex items-start px-4 pt-4 w-full">
+      {!hideAvatar && <UserAvatar username={activeUser?.username ?? ""} size="medium" />}
+      <div className="pl-4 w-full">
+        {!inline && <WaveFormThreadSelection host={threadHost} setHost={setThreadHost} />}
+        <WaveFormControl
+          video={video}
+          text={text!!}
+          setText={setText}
+          selectedImage={image!!}
+          setSelectedImage={setImage}
+          placeholder={placeholder}
+          onTextareaFocus={() => {}}
+        />
+        {activeUser && (
+          <AvailableCredits username={activeUser.username} operation="comment_operation" />
+        )}
+        <WaveFormToolbar
+          onAddImage={(url, name) => {
+            setImage(url);
+            setImageName(name);
+          }}
+          onEmojiPick={(v) => setText(`${text}${v}`)}
+          onAddVideo={setVideo}
+          submit={
+            <Button
+              onClick={submit}
+              disabled={disabled || loading}
+              className="justify-self-end"
+              size="sm"
+            >
+              {!activeUser &&
+                !entry &&
+                (text?.length ?? 0) <= 255 &&
+                i18next.t("decks.threads-form.login-and-publish")}
+              {activeUser &&
+                !entry &&
+                (text?.length ?? 0) <= 255 &&
+                (loading
+                  ? i18next.t("decks.threads-form.publishing")
+                  : i18next.t("decks.threads-form.publish"))}
+              {(text?.length ?? 0) > 255 &&
+                !entry &&
+                i18next.t("decks.threads-form.create-regular-post")}
+              {entry && i18next.t("decks.threads-form.save")}
+            </Button>
+          }
+        />
       </div>
     </div>
   );
