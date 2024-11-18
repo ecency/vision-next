@@ -3,7 +3,7 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { UserAvatar } from "@/features/shared";
-import { AVAILABLE_THREAD_HOSTS } from "@/app/decks/_components/consts";
+import { AVAILABLE_THREAD_HOSTS } from "@/features/waves";
 import { UilArrowDown } from "@tooni/iconscout-unicons-react";
 
 interface Props {

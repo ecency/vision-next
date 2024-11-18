@@ -61,7 +61,8 @@ export const getWavesByHostQuery = (host: string) =>
               )
             }) as WaveEntry
         )
-        .filter((i) => i.container.post_id !== i.post_id);
+        .filter((i) => i.container.post_id !== i.post_id)
+        .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
     },
     initialPageParam: undefined as WaveEntry | undefined,
     getNextPageParam: (lastPage) => lastPage[lastPage.length - 1]
