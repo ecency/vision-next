@@ -8,6 +8,7 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation } from "@tanstack/react-query";
+import { validatePostCreating } from "@/api/hive";
 
 export function useThreadsApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -44,6 +45,7 @@ export function useThreadsApi() {
         .build();
 
       await comment(author, parentAuthor, parentPermlink, permlink, "", raw, jsonMeta, null, true);
+      await validatePostCreating(activeUser?.username, permlink);
 
       const nReply = tempEntry({
         author: activeUser.data as FullAccount,
