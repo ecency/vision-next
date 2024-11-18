@@ -13,7 +13,7 @@ export function TabItem({ isSelected = false, name, onSelect, title, i }: Props)
   return (
     <motion.div
       className={classNameObject({
-        "p-2 lg:p-3 xl:p-4 flex flex-col items-center relative cursor-pointer": true,
+        " py-4 px-2 lg:px-3 xl:px-4 flex flex-col items-center relative cursor-pointer": true,
         "text-blue-dark-sky": isSelected
       })}
       initial={{ opacity: 0, x: -16 }}

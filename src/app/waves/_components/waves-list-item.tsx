@@ -1,3 +1,5 @@
+"use client";
+
 import { WaveEntry } from "@/entities";
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
 import { useRef } from "react";

@@ -9,7 +9,7 @@ export default function WavesLayout(props: PropsWithChildren) {
       <Navbar />
       <div className="container mx-auto grid grid-cols-12">
         <div className="col-span-3"></div>
-        <div className="col-span-12 lg:col-span-8 xl:col-span-7 mt-[96px]">{props.children}</div>
+        <div className="col-span-12 lg:col-span-8 xl:col-span-7 mt-[156px]">{props.children}</div>
       </div>
     </div>
   );
