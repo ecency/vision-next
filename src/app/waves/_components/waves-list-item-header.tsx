@@ -25,7 +25,7 @@ export function WavesListItemHeader({ entry, status, hasParent, pure }: Props) {
         <UserAvatar size="deck-item" username={entry.author} />
         <div className="flex flex-col truncate">
           <div className="flex items-center gap-2">
-            <Link className="font-semibold" href={`/@${entry.author}`}>
+            <Link className="font-semibold text-sm" href={`/@${entry.author}`}>
               {entry.author}
             </Link>
             {activeUser?.username === entry.author && (
@@ -49,18 +49,18 @@ export function WavesListItemHeader({ entry, status, hasParent, pure }: Props) {
         </div>
       </div>
 
-      <div className="date">
-        {status === "default" && (
-          <Link
-            target="_blank"
-            className="after:!content-none text-gray-600 dark:text-gray-400 hover:underline text-sm font-semibold"
-            href={`/@${entry.author}/${entry.permlink}`}
-          >
-            <Button appearance="gray-link">{`${dateToRelative(entry.created)}`}</Button>
-          </Link>
-        )}
-        {status === "pending" && <Spinner className="w-4 h-4" />}
-      </div>
+      {status === "default" && (
+        <Link
+          target="_blank"
+          className="after:!content-none text-gray-600 dark:text-gray-400 hover:underline text-sm font-semibold pr-1"
+          href={`/@${entry.author}/${entry.permlink}`}
+        >
+          <Button noPadding={true} appearance="gray-link">{`${dateToRelative(
+            entry.created
+          )}`}</Button>
+        </Link>
+      )}
+      {status === "pending" && <Spinner className="w-4 h-4" />}
     </div>
   );
 }
