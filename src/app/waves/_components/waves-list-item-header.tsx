@@ -52,7 +52,7 @@ export function WavesListItemHeader({ entry, status, hasParent, pure }: Props) {
       {status === "default" && (
         <Link
           target="_blank"
-          className="after:!content-none text-gray-600 dark:text-gray-400 hover:underline text-sm font-semibold pr-1"
+          className="after:!content-none text-gray-600 dark:text-gray-400 hover:underline text-xs font-semibold pr-1"
           href={`/@${entry.author}/${entry.permlink}`}
         >
           <Button noPadding={true} appearance="gray-link">{`${dateToRelative(

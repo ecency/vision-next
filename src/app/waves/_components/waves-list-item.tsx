@@ -27,10 +27,10 @@ export function WavesListItem({ item, i }: Props) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 48 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: i * 0.1 }}
-      className="rounded-2xl bg-white dark:bg-dark-200"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: i * 0.2 }}
+      className="first:rounded-t-2xl bg-white dark:bg-dark-200 border-b border-[--border-color] cursor-pointer"
     >
       <WavesListItemHeader entry={entry!} hasParent={false} pure={false} status={status} />
       <div

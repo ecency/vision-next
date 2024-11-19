@@ -1,11 +1,15 @@
 "use client";
 
 import { Feedback, Navbar, ScrollToTop } from "@/features/shared";
-import { PropsWithChildren, useCallback, useState } from "react";
+import { PropsWithChildren, ReactNode, useCallback, useState } from "react";
 import { classNameObject } from "@ui/util";
 import { useMount, useUnmount } from "react-use";
 
-export default function WavesLayout(props: PropsWithChildren) {
+interface Props {
+  view: ReactNode;
+}
+
+export default function WavesLayout(props: PropsWithChildren<Props>) {
   const [scroll, setScroll] = useState(0);
 
   const handleScroll = useCallback((event: Event) => setScroll(window.scrollY), []);

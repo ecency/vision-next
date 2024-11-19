@@ -14,7 +14,7 @@ export function WavesList({ host }: Props) {
   const dataFlow = useInfiniteDataFlow(data);
 
   return (
-    <div className="flex flex-col gap-4 lg:gap-6 xl:gap-8 pb-8">
+    <div className="flex flex-col pb-8">
       {data?.pages?.map((page, i) => (
         <Fragment key={i}>
           {page.map((item, j) => (
