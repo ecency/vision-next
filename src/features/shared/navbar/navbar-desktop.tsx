@@ -22,6 +22,7 @@ interface Props {
   setSmVisible: (v: boolean) => void;
   mainBarExpanded: boolean;
   setMainBarExpanded: (v: boolean) => void;
+  experimental?: boolean; // Use this flag for testing something
 }
 
 export function NavbarDesktop({
@@ -29,7 +30,8 @@ export function NavbarDesktop({
   transparentVerify,
   setStepOne,
   mainBarExpanded,
-  setMainBarExpanded
+  setMainBarExpanded,
+  experimental = false
 }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -45,9 +47,10 @@ export function NavbarDesktop({
     >
       <div
         className={classNameObject({
-          "max-w-[1600px] w-full mx-auto flex items-center justify-between px-4 py-3 border-b dark:border-gray-800":
+          "ecency-navbar-desktop max-w-[1600px] w-full mx-auto flex items-center justify-between px-4 py-3 border-b dark:border-gray-800":
             true,
           "bg-white dark:bg-dark-700": true,
+          "rounded-2xl": experimental,
           transparent: !transparentVerify && step === 1
         })}
       >
