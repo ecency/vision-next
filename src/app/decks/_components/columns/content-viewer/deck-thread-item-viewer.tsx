@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useRef } from "react";
 import { DeckThreadItemSkeleton, ThreadItem } from "../deck-items";
 import { IdentifiableEntry } from "../deck-threads-manager";
 import { DeckThreadsForm } from "../../deck-threads-form";
@@ -8,13 +8,11 @@ import { Button } from "@ui/button";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import i18next from "i18next";
 import { arrowLeftSvg } from "@ui/svg";
-import {
-  addReplyToDiscussionsList,
-  getDiscussionsMapQuery
-} from "@/api/queries/get-discussions-query";
+import { addReplyToDiscussionsList } from "@/api/queries/get-discussions-query";
 import { useMounted } from "@/utils/use-mounted";
 import { useQueryClient } from "@tanstack/react-query";
 import { WaveEntry } from "@/entities";
+import { useWaveDiscussionsList } from "@/features/waves";
 
 interface Props {
   entry: WaveEntry;
@@ -33,59 +31,13 @@ export const DeckThreadItemViewer = ({
   const queryClient = useQueryClient();
 
   const { data: entry } =
-    EcencyEntriesCacheManagement.getEntryQuery<IdentifiableEntry>(initialEntry).useClientQuery();
+    EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(initialEntry).useClientQuery();
   const isMounted = useMounted();
 
-  const { data: discussions } = getDiscussionsMapQuery(entry).useClientQuery();
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);
   const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(entry);
-  const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
-  const build = useCallback(
-    (dataset: Record<string, IdentifiableEntry>) => {
-      const result: IdentifiableEntry[] = [];
-      const values = [...Object.values(dataset).filter((v) => v.permlink !== entry?.permlink)];
-      Object.entries(dataset)
-        .filter(([_, v]) => v.permlink !== entry?.permlink)
-        .forEach(([key, value]) => {
-          const parent = values.find((v) => v.replies.includes(key));
-          if (parent) {
-            const existingTempIndex = result.findIndex(
-              (v) => v.author === parent.author && v.permlink === parent.permlink
-            );
-            if (existingTempIndex > -1) {
-              result[existingTempIndex].replies.push(value);
-              result[existingTempIndex].replies = result[existingTempIndex].replies.filter(
-                (r) => r !== key
-              );
-            } else {
-              parent.replies.push(value);
-              parent.replies = parent.replies.filter((r) => r !== key);
-              result.push(parent);
-            }
-          } else if (
-            result.every((r) => r.author !== value.author && r.permlink !== value.permlink)
-          ) {
-            result.push(value);
-          }
-        });
-      return result;
-    },
-    [entry?.permlink]
-  );
-
-  const data = useMemo(() => {
-    const tempResponse = { ...discussions };
-    Object.values(tempResponse).forEach((i) => {
-      i.host = entry?.host ?? "";
-    });
-
-    return build(tempResponse);
-  }, [build, discussions, entry?.host]);
-
-  useEffect(() => {
-    updateEntryQueryData(Array.from(Object.values(discussions ?? {})));
-  }, [discussions]);
+  const data = useWaveDiscussionsList(entry!);
 
   return (
     <div

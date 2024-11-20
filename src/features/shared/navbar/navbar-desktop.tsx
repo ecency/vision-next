@@ -47,10 +47,10 @@ export function NavbarDesktop({
     >
       <div
         className={classNameObject({
-          "ecency-navbar-desktop max-w-[1600px] w-full mx-auto flex items-center justify-between px-4 py-3 border-b dark:border-gray-800":
+          "ecency-navbar-desktop max-w-[1600px] w-full mx-auto flex items-center justify-between px-4 py-3 border-b border-[--border-color]":
             true,
-          "bg-white dark:bg-dark-700": true,
-          "rounded-2xl": experimental,
+          "bg-white dark:bg-dark-700": !experimental,
+          "rounded-2xl bg-white dark:bg-dark-200": experimental,
           transparent: !transparentVerify && step === 1
         })}
       >

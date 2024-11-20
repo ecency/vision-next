@@ -3,7 +3,6 @@ import { Entry } from "@/entities";
 import { bridgeApiCall } from "@/api/bridge";
 import { parseAsset } from "@/utils";
 import { SortOrder } from "@/enums";
-import { IdentifiableEntry } from "@/app/decks/_components/columns/deck-threads-manager";
 import { QueryClient } from "@tanstack/react-query";
 
 export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOrder) {
@@ -102,13 +101,10 @@ export const getDiscussionsMapQuery = (entry: Entry | undefined, enabled: boolea
   EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink],
     queryFn: async () => {
-      const response = await bridgeApiCall<Record<string, IdentifiableEntry> | null>(
-        "get_discussion",
-        {
-          author: entry!!.author,
-          permlink: entry!!.permlink
-        }
-      );
+      const response = await bridgeApiCall<Record<string, Entry> | null>("get_discussion", {
+        author: entry!!.author,
+        permlink: entry!!.permlink
+      });
       if (response) {
         return response;
       }
@@ -118,11 +114,7 @@ export const getDiscussionsMapQuery = (entry: Entry | undefined, enabled: boolea
     refetchOnMount: true
   });
 
-export function addReplyToDiscussionsList(
-  entry: IdentifiableEntry,
-  reply: Entry,
-  queryClient: QueryClient
-) {
+export function addReplyToDiscussionsList(entry: Entry, reply: Entry, queryClient: QueryClient) {
   queryClient.setQueryData<Record<string, Entry | null>>(
     [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink],
     (data) => {

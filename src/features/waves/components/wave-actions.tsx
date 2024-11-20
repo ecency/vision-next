@@ -11,7 +11,7 @@ interface Props {
   status: string;
   entry: WaveEntry;
   onEntryView: () => void;
-  commentsSlot: ReactNode;
+  commentsSlot?: ReactNode;
   hasParent: boolean;
   pure: boolean;
   onEdit: (entry: WaveEntry) => void;

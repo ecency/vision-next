@@ -14,7 +14,7 @@ export function WavesHostSelection({ host, setHost }: Props) {
 
   return (
     <div className="absolute top-[64px] md:top-[69px] z-10 left-0 w-full md:p-2">
-      <div className="max-w-[1600px] mx-auto border-b border-[--border-color] text-sm font-semibold px-4 overflow-x-auto flex items-center justify-around bg-white dark:bg-dark-700 w-full gap-4 rounded-b-2xl">
+      <div className="max-w-[1600px] mx-auto text-sm font-semibold px-4 overflow-x-auto flex items-center justify-around bg-white dark:bg-dark-200 w-full gap-4 rounded-b-2xl">
         {availableHosts.map((item, i) => (
           <TabItem
             name={item}

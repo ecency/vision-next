@@ -7,10 +7,12 @@ import { createReplyPermlink, tempEntry } from "@/utils";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { validatePostCreating } from "@/api/hive";
+import { addReplyToDiscussionsList } from "@/api/queries";
 
 export function useThreadsApi() {
+  const queryClient = useQueryClient();
   const activeUser = useGlobalStore((s) => s.activeUser);
   const { activePoll } = useContext(PollsContext);
 
@@ -59,15 +61,11 @@ export function useThreadsApi() {
         post_id: v4()
       });
 
-      // add new reply to store
+      // add new reply to cache
       addReply(nReply, entry);
+      addReplyToDiscussionsList(entry, nReply, queryClient);
 
       if (entry.children === 0) {
-        // Activate discussion [...sections] with first comment.
-        const nEntry: Entry = {
-          ...entry,
-          children: 1
-        };
         updateRepliesCount(1, entry);
       }
 

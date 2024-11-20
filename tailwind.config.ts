@@ -220,7 +220,7 @@ const config: Config = {
         "dark-sky-030": "#bdd4f7",
         "dark-sky-040": "#ebf2fc",
         "dark-sky-075": "rgba(53, 124, 230, 0.75)",
-        "duck-egg": "#eaf2fc",
+        "duck-egg": "#eff5fd",
         "duck-egg-200": "#91bbef",
         faded: "#e8f0fb",
         metallic: "#526d91",

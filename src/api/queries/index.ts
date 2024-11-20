@@ -68,3 +68,4 @@ export * from "./get-chain-properties-query";
 export * from "./get-gifs-query";
 export * from "./spk";
 export * from "./waves";
+export * from "./get-discussions-query";
