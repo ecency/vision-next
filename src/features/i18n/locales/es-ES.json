@@ -1297,8 +1297,8 @@
     "unlock-summary": "Desbloqueo completado de <span class=\"amount\">{{amount}}</span>",
     "success-title": "Completado",
     "success-sub-title": "Transacción completada",
-    "sign-title": "Sign transaction",
-    "sign-sub-title": "Sign your transaction"
+    "sign-title": "Firmar transacción",
+    "sign-sub-title": "Firmar tu transacción"
   },
   "trx-common": {
     "insufficient-funds": "Fondos insuficientes",
