@@ -182,7 +182,7 @@ export function usePublishApi(onClear: () => void) {
         success(i18next.t("submit.published"));
         onClear();
         clearActivePoll();
-        router.push(`@${activeUser.username}/posts`);
+        router.push(`/@${activeUser.username}/posts`);
 
         //Mark speak video as published
         if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
