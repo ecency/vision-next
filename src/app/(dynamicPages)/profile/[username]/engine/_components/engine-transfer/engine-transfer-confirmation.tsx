@@ -56,7 +56,7 @@ export function EngineTransferConfirmation({
             <span className="text-blue-dark-sky mr-2">{amount}</span>
             {asset}
           </div>
-          {memo && <div className="memo">{memo}</div>}
+          {memo && <div className="text-center p-4 opacity-50">{memo}</div>}
         </div>
         <div className="flex justify-center gap-4 p-4">
           <Button size="lg" appearance="secondary" outline={true} onClick={onBack}>
