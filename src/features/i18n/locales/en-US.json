@@ -1296,7 +1296,9 @@
     "lock-summary": "Locking completed as <span class=\"amount\">{{amount}}</span>",
     "unlock-summary": "Unlocking completed as <span class=\"amount\">{{amount}}</span>",
     "success-title": "Success",
-    "success-sub-title": "Transaction completed"
+    "success-sub-title": "Transaction completed",
+    "sign-title": "Sign transaction",
+    "sign-sub-title": "Sign your transaction"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",
