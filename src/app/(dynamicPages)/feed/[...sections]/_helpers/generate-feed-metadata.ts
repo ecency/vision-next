@@ -10,7 +10,7 @@ export async function generateFeedMetadata(filter: string, tag: string) {
   let canonical = `${defaults.base}/${filter}`;
   let rss = "";
 
-  if (tag.startsWith("%40")) {
+  if (tag?.startsWith("%40")) {
     title = `${tag.replace("%40", "@")} ${filter} on decentralized web – Ecency`;
     description = i18next.t("entry-index.description-user-feed", { u: tag });
   } else if (tag) {
