@@ -5,9 +5,13 @@ export function get(k: string, def: any = null): any {
     return null;
   }
 
-  const key = `${PREFIX}_${k}`;
-  const val = localStorage.getItem(key);
-  return val ? JSON.parse(val) : def;
+  try {
+    const key = `${PREFIX}_${k}`;
+    const val = localStorage.getItem(key);
+    return val ? JSON.parse(val) : def;
+  } catch (e) {
+    return def;
+  }
 }
 
 export function set(k: string, v: any): void {
