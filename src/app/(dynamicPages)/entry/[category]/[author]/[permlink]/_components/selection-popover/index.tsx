@@ -5,10 +5,10 @@ import { Manager, Popper } from "react-popper";
 
 import SelectionReference from "./selection-reference";
 import "./index.scss";
-import { ClickAwayListener, success } from "@/features/shared";
-import i18next from "i18next";
-import { copyContent, quotes, twitterSvg } from "@ui/svg";
+import { ClickAwayListener } from "@/features/shared";
 import { EntryPageContext } from "../context";
+import { useCopyToClipboard, useMountedState } from "react-use";
+import { copyContent, quotes, twitterSvg } from "@ui/svg";
 
 let tooltipStyle = {
   background: "rgb(0 0 0 / 78%)",
@@ -19,18 +19,10 @@ let tooltipStyle = {
 export const SelectionPopover = ({ children, postUrl }: any) => {
   const { setSelection, commentsInputRef } = useContext(EntryPageContext);
 
-  let [selectedText, setSelectedText] = useState("");
+  const [_, copyToClipboard] = useCopyToClipboard();
+  const isMounted = useMountedState();
 
-  const copyToClipboard = (text: string) => {
-    const textField = document.createElement("textarea");
-    textField.innerText = text;
-    document.body.appendChild(textField);
-    textField.select();
-    document.execCommand("copy");
-    textField.remove();
-    success(i18next.t("entry.content-copied"));
-    setSelectedText("");
-  };
+  let [selectedText, setSelectedText] = useState("");
 
   const onQuotesClick = (text: string) => {
     setSelection(`>${text}\n\n`);
@@ -58,9 +50,9 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
           )}
         </SelectionReference>
 
-        <Popper placement="top">
-          {({ ref, style, placement, arrowProps }) => {
-            return (
+        {isMounted() && (
+          <Popper placement="top">
+            {({ ref, style, placement, arrowProps }) =>
               selectedText.length !== 0 && (
                 <ClickAwayListener
                   onClickAway={() => {
@@ -98,9 +90,9 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
                   </div>
                 </ClickAwayListener>
               )
-            );
-          }}
-        </Popper>
+            }
+          </Popper>
+        )}
       </Manager>
     </div>
   );
