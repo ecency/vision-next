@@ -16,7 +16,7 @@ export function EntryPageNsfwRevealing({ entry, children }: PropsWithChildren<Pr
   const { showIfNsfw } = useContext(EntryPageContext);
 
   const showNsfwWarning =
-    (entry.json_metadata.tags?.includes("nsfw") ?? false) && !showIfNsfw && !globalNsfw;
+    (entry.json_metadata?.tags?.includes("nsfw") ?? false) && !showIfNsfw && !globalNsfw;
 
   return showNsfwWarning ? <EntryPageNsfwWarning /> : children;
 }
