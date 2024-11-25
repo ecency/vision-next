@@ -4,6 +4,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
+import appPackage from "./package.json";
 
 Sentry.init({
   dsn: "https://8a5c1659d1c2ba3385be28dc7235ce56@o4507985141956608.ingest.de.sentry.io/4507985146609744",
@@ -13,5 +14,6 @@ Sentry.init({
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
+  release: appPackage.version,
   integrations: [nodeProfilingIntegration()]
 });

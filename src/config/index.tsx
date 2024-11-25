@@ -70,7 +70,7 @@ export namespace EcencyConfigManager {
 
   export const Conditional = memo<ConditionalProps>((props) => {
     if (props.condition(CONFIG)) {
-      return props.children;
+      return props.children ?? <></>;
     }
 
     return props.fallback ?? <></>;
