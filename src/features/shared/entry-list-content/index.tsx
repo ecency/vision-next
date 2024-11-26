@@ -35,9 +35,8 @@ export function EntryListContent({
 
   return (
     <>
-      {dataToRender.length > 0 ? (
-        <>
-          {dataToRender.map((e, i) => {
+      {dataToRender.length > 0
+        ? dataToRender.map((e, i) => {
             const l = [];
 
             if (i % 4 === 0 && i > 0) {
@@ -82,13 +81,10 @@ export function EntryListContent({
               );
             }
             return [...l];
-          })}
-        </>
-      ) : (
-        showEmptyPlaceholder && (
-          <EntryListContentNoData username={username} loading={loading} section={section} />
-        )
-      )}
+          })
+        : showEmptyPlaceholder && (
+            <EntryListContentNoData username={username} loading={loading} section={section} />
+          )}
     </>
   );
 }
