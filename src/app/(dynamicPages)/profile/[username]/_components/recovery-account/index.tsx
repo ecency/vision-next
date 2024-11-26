@@ -44,7 +44,9 @@ export function AccountRecovery() {
 
   const fetchEmail = async () => {
     let response = await getRecoveries(activeUser?.username!);
-    setRecoveryEmail(response[0].email);
+    if (response[0]) {
+      setRecoveryEmail(response[0].email);
+    }
   };
 
   useMount(() => {
