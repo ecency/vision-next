@@ -4,12 +4,12 @@ import { ProfileFilter } from "@/enums";
 import i18next from "i18next";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
-import { useThreadsApi } from "./use-threads-api";
+import { useWavesApi } from "./use-waves-api";
 import { useCommunityApi } from "./use-community-api";
 import { WaveEntry } from "@/entities";
 
 export function useWaveCreate() {
-  const { mutateAsync: generalApiRequest } = useThreadsApi();
+  const { mutateAsync: generalApiRequest } = useWavesApi();
   const { mutateAsync: communityBasedApiRequest } = useCommunityApi();
 
   return useMutation({

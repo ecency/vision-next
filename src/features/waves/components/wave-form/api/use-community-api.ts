@@ -7,6 +7,14 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation } from "@tanstack/react-query";
+import { WaveHosts } from "@/features/waves/enums";
+import { DBUZZ_COMMUNITY } from "@/features/waves";
+
+interface Body {
+  host: string;
+  raw: string;
+  editingEntry?: Entry;
+}
 
 export function useCommunityApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -16,23 +24,15 @@ export function useCommunityApi() {
 
   return useMutation({
     mutationKey: ["wave-community-api"],
-    mutationFn: async ({
-      host,
-      raw,
-      editingEntry
-    }: {
-      host: string;
-      raw: string;
-      editingEntry?: Entry;
-    }) => {
+    mutationFn: async ({ host, raw, editingEntry }: Body) => {
       if (!activeUser || !activeUser.data.__loaded) {
         throw new Error("No user");
       }
 
       let hostTag = "";
 
-      if (host === "dbuzz") {
-        hostTag = "hive-193084";
+      if (host === WaveHosts.Dbuzz) {
+        hostTag = DBUZZ_COMMUNITY;
       }
 
       // clean body

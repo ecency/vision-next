@@ -11,12 +11,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { validatePostCreating } from "@/api/hive";
 import { addReplyToDiscussionsList } from "@/api/queries";
 
-export function useThreadsApi() {
+export function useWavesApi() {
   const queryClient = useQueryClient();
   const activeUser = useGlobalStore((s) => s.activeUser);
+
   const { activePoll } = useContext(PollsContext);
 
-  const { addReply } = EcencyEntriesCacheManagement.useAddReply();
   const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount();
 
   return useMutation({
@@ -31,7 +31,7 @@ export function useThreadsApi() {
       editingEntry?: WaveEntry;
     }) => {
       if (!activeUser || !activeUser.data.__loaded) {
-        throw new Error("No user");
+        throw new Error("[Wave][Thread-base][API] – No active user");
       }
 
       const { author: parentAuthor, permlink: parentPermlink } = editingEntry?.container ?? entry;
@@ -49,7 +49,7 @@ export function useThreadsApi() {
       await comment(author, parentAuthor, parentPermlink, permlink, "", raw, jsonMeta, null, true);
       await validatePostCreating(activeUser?.username, permlink);
 
-      const nReply = tempEntry({
+      const tempReply = tempEntry({
         author: activeUser.data as FullAccount,
         permlink,
         parentAuthor,
@@ -61,15 +61,10 @@ export function useThreadsApi() {
         post_id: v4()
       });
 
-      // add new reply to cache
-      addReply(nReply, entry);
-      addReplyToDiscussionsList(entry, nReply, queryClient);
+      addReplyToDiscussionsList(entry, tempReply, queryClient);
+      updateRepliesCount(entry.children + 1, entry);
 
-      if (entry.children === 0) {
-        updateRepliesCount(1, entry);
-      }
-
-      return nReply;
+      return tempReply;
     }
   });
 }

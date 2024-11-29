@@ -16,7 +16,11 @@ export function WaveViewDiscussion({ entry }: Props) {
       <div className="p-4 text-sm font-semibold opacity-50">Replies</div>
       <div>
         {data.map((item, i) => (
-          <WaveViewDiscussionItem key={i} item={item as WaveEntry} i={i} />
+          <WaveViewDiscussionItem
+            key={item.author + item.permlink}
+            item={item as WaveEntry}
+            i={i}
+          />
         ))}
       </div>
     </div>

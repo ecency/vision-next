@@ -1,9 +1,9 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
+import { EcencyQueriesManager, getQueryClient, QueryIdentifiers } from "@/core/react-query";
 import { Entry } from "@/entities";
 import { bridgeApiCall } from "@/api/bridge";
 import { parseAsset } from "@/utils";
 import { SortOrder } from "@/enums";
-import { QueryClient } from "@tanstack/react-query";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOrder) {
   const allPayout = (c: Entry) =>
@@ -91,44 +91,22 @@ export const getDiscussionsQuery = (
         author: entry.author,
         permlink: entry.permlink
       });
-      if (response) {
-        return Array.from(Object.values(response));
-      }
-      return [];
+
+      let results = response ? Array.from(Object.values(response)) : [];
+      EcencyEntriesCacheManagement.updateEntryQueryData(results);
+      return results;
     },
     enabled,
     select: (data) => sortDiscussions(entry, data, order)
   });
 
-export const getDiscussionsMapQuery = (entry: Entry | undefined, enabled: boolean = true) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink],
-    queryFn: async () => {
-      const response = await bridgeApiCall<Record<string, Entry> | null>("get_discussion", {
-        author: entry!!.author,
-        permlink: entry!!.permlink
-      });
-      if (response) {
-        return response;
-      }
-      return {};
-    },
-    enabled: enabled && !!entry,
-    refetchOnMount: true
-  });
-
-export function addReplyToDiscussionsList(entry: Entry, reply: Entry, queryClient: QueryClient) {
-  queryClient.setQueryData<Record<string, Entry | null>>(
-    [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink],
-    (data) => {
-      if (!data) {
-        return data;
-      }
-
-      return {
-        ...data,
-        [`${reply.author}/${reply.permlink}`]: reply
-      };
-    }
+export function addReplyToDiscussionsList(
+  entry: Entry,
+  reply: Entry,
+  queryClient = getQueryClient()
+) {
+  queryClient.setQueryData<Entry[]>(
+    [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink],
+    (data) => [...(data ?? []), reply]
   );
 }

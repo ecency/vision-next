@@ -1,18 +1,17 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import "./_index.scss";
 import { Entry, WaveEntry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { PollsContext } from "@/features/polls";
 import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
-import { useWaveCreate } from "@/features/waves/components/wave-form/api";
-import { useWaveCreateReply } from "@/features/waves/components/wave-form/api/use-wave-create-reply";
 import { AvailableCredits, ProfileLink, UserAvatar } from "@/features/shared";
 import { WaveFormThreadSelection } from "./wave-form-thread-selection";
 import { WaveFormControl } from "./wave-form-control";
 import i18next from "i18next";
 import { Button } from "@ui/button";
 import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form-toolbar";
+import { useWaveSubmit } from "@/features/waves";
 
 interface Props {
   className?: string;
@@ -31,23 +30,13 @@ export const WaveForm = ({
   entry
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const { clearActivePoll } = useContext(PollsContext);
 
-  const [localDraft, setLocalDraft] = useLocalStorage<Record<string, any>>(
-    PREFIX + "_local_draft",
-    {}
-  );
   const [threadHost, setThreadHost] = useLocalStorage(PREFIX + "_dtf_th", "ecency.waves");
   const [text, setText, clearText] = useLocalStorage(PREFIX + "_dtf_t", "");
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_dtf_i", "");
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_dtf_in", "");
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_dtf_v", "");
-
-  const [loading, setLoading] = useState(false);
-
-  const { mutateAsync: create } = useWaveCreate();
-  const { mutateAsync: createReply } = useWaveCreateReply();
 
   const disabled = useMemo(() => !text || !threadHost, [text, threadHost]);
 
@@ -76,88 +65,10 @@ export const WaveForm = ({
     clearVideo();
   }, [clearActivePoll, clearImage, clearImageName, clearText, clearVideo]);
 
-  const submit = useCallback(async () => {
-    if (!activeUser) {
-      toggleUIProp("login");
-      return;
-    }
-
-    if (disabled) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      let content = text!!;
-
-      if (image) {
-        content = `${content}<br>![${imageName ?? ""}](${image})`;
-      }
-
-      if (video) {
-        content = `${content}<br>${video}`;
-      }
-
-      // Push to draft built content with attachments
-      if (text!!.length > 255) {
-        setLocalDraft({
-          ...localDraft,
-          body: content
-        });
-        window.open("/submit", "_blank");
-        return;
-      }
-
-      let threadItem: WaveEntry;
-
-      if (content === entry?.body) {
-        return;
-      }
-
-      if (replySource) {
-        threadItem = (await createReply({
-          parent: replySource,
-          raw: content,
-          editingEntry: entry
-        })) as WaveEntry;
-      } else {
-        threadItem = (await create({
-          host: threadHost!!,
-          raw: content,
-          editingEntry: entry
-        })) as WaveEntry;
-      }
-
-      if (threadHost) {
-        threadItem.host = threadHost;
-      }
-      threadItem.id = threadItem.post_id;
-
-      onSuccess?.(threadItem);
-      clear();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    activeUser,
-    clear,
-    create,
-    createReply,
-    disabled,
-    entry,
-    image,
-    imageName,
-    localDraft,
-    onSuccess,
-    replySource,
-    setLocalDraft,
-    text,
-    threadHost,
-    toggleUIProp,
-    video
-  ]);
+  const { mutateAsync: submit, isPending } = useWaveSubmit(entry, replySource, (item) => {
+    clear();
+    onSuccess?.(item);
+  });
 
   return (
     <div className="wave-form relative flex items-start px-4 pt-4 w-full">
@@ -199,9 +110,18 @@ export const WaveForm = ({
           onAddVideo={setVideo}
           submit={
             <Button
-              onClick={submit}
+              onClick={() =>
+                !disabled &&
+                submit({
+                  text: text!!,
+                  imageName: imageName!!,
+                  image: image!!,
+                  host: threadHost!!,
+                  video: video!!
+                })
+              }
               disabled={disabled}
-              isLoading={loading}
+              isLoading={isPending}
               className="justify-self-end"
               size="sm"
             >
@@ -212,7 +132,7 @@ export const WaveForm = ({
               {activeUser &&
                 !entry &&
                 (text?.length ?? 0) <= 255 &&
-                (loading
+                (isPending
                   ? i18next.t("decks.threads-form.publishing")
                   : i18next.t("decks.threads-form.publish"))}
               {(text?.length ?? 0) > 255 &&
