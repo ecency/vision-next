@@ -33,7 +33,7 @@ export function WaveActions({
   return (
     <>
       {status === "default" && (
-        <div className="thread-item-actions">
+        <div className="thread-item-actions" onClick={(e) => e.stopPropagation()}>
           <div>
             <EntryVoteBtn entry={entry!} isPostSlider={false} />
             <EntryVotes entry={entry!} icon={voteSvg} />

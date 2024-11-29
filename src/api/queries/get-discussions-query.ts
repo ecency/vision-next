@@ -79,7 +79,11 @@ export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOr
   return sorted;
 }
 
-export const getDiscussionsQuery = (entry: Entry, order: SortOrder, enabled: boolean = true) =>
+export const getDiscussionsQuery = (
+  entry: Entry,
+  order: SortOrder = SortOrder.created,
+  enabled: boolean = true
+) =>
   EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink],
     queryFn: async () => {
@@ -93,7 +97,6 @@ export const getDiscussionsQuery = (entry: Entry, order: SortOrder, enabled: boo
       return [];
     },
     enabled,
-    initialData: [],
     select: (data) => sortDiscussions(entry, data, order)
   });
 

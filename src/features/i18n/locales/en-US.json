@@ -2511,6 +2511,10 @@
     "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually."
   },
   "waves": {
-    "sources": "Sources"
+    "sources": "Sources",
+    "reply-form-title": "Replying to",
+    "hide-replies": "Hide replies",
+    "no-replies": "There aren't replies yet. Be first!",
+    "add-reply": "Add reply"
   }
 }

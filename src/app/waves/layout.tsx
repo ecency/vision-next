@@ -36,9 +36,9 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
           "pt-[96px]": pathname !== "/waves"
         })}
       >
-        <div className="col-span-2"></div>
-        <div className="col-span-8">{props.children}</div>
-        <div className="col-span-2"></div>
+        <div className="col-span-3"></div>
+        <div className="col-span-6">{props.children}</div>
+        <div className="col-span-3"></div>
       </div>
     </div>
   );

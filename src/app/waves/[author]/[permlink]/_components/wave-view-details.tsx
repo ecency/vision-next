@@ -23,7 +23,7 @@ export function WaveViewDetails({ entry }: Props) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="relative rounded-2xl bg-white dark:bg-dark-200 cursor-pointer"
+      className="relative z-10 rounded-2xl bg-white dark:bg-dark-200 cursor-pointer"
     >
       <WavesListItemHeader entry={entry} hasParent={false} pure={false} status={status} />
       <div

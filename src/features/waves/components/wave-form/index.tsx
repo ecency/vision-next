@@ -7,7 +7,7 @@ import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
 import { useWaveCreate } from "@/features/waves/components/wave-form/api";
 import { useWaveCreateReply } from "@/features/waves/components/wave-form/api/use-wave-create-reply";
-import { AvailableCredits, UserAvatar } from "@/features/shared";
+import { AvailableCredits, ProfileLink, UserAvatar } from "@/features/shared";
 import { WaveFormThreadSelection } from "./wave-form-thread-selection";
 import { WaveFormControl } from "./wave-form-control";
 import i18next from "i18next";
@@ -16,7 +16,6 @@ import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form
 
 interface Props {
   className?: string;
-  inline?: boolean;
   placeholder?: string;
   replySource?: Entry;
   onSuccess?: (reply: Entry) => void;
@@ -25,7 +24,6 @@ interface Props {
 }
 
 export const WaveForm = ({
-  inline,
   placeholder,
   replySource,
   onSuccess,
@@ -162,10 +160,24 @@ export const WaveForm = ({
   ]);
 
   return (
-    <div className="flex items-start px-4 pt-4 w-full">
-      {!hideAvatar && <UserAvatar username={activeUser?.username ?? ""} size="medium" />}
+    <div className="wave-form relative flex items-start px-4 pt-4 w-full">
+      {!hideAvatar && (
+        <UserAvatar
+          username={activeUser?.username ?? ""}
+          size={replySource ? "deck-item" : "medium"}
+        />
+      )}
       <div className="pl-4 w-full">
-        {!inline && <WaveFormThreadSelection host={threadHost} setHost={setThreadHost} />}
+        {replySource ? (
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {i18next.t("waves.reply-form-title")}
+            <ProfileLink className="text-blue-dark-sky pl-0.5" username={replySource.author}>
+              @{replySource.author}
+            </ProfileLink>
+          </div>
+        ) : (
+          <WaveFormThreadSelection host={threadHost} setHost={setThreadHost} />
+        )}
         <WaveFormControl
           video={video}
           text={text!!}
