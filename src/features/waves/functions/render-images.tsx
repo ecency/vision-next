@@ -1,3 +1,5 @@
+"use client";
+
 import { MutableRefObject } from "react";
 
 export function renderImages(

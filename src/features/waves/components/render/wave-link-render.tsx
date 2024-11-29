@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useState } from "react";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";

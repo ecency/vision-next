@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import "./_index.scss";
 import { Entry, WaveEntry } from "@/entities";

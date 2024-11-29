@@ -1,3 +1,5 @@
+"use client";
+
 import React, { MutableRefObject } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { TwitterTweetEmbed } from "react-twitter-embed";

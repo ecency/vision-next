@@ -1,3 +1,5 @@
+"use client";
+
 import { getCGMarketApi } from "@/api/coingecko-api";
 import { renderToString } from "react-dom/server";
 import i18next from "i18next";
