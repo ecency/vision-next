@@ -1294,7 +1294,11 @@
     "lock-title": "Bloquear liquidez",
     "unlock-title": "Desbloquear liquidez",
     "lock-summary": "Bloqueo completado de <span class=\"amount\">{{amount}}</span>",
-    "unlock-summary": "Desbloqueo completado de <span class=\"amount\">{{amount}}</span>"
+    "unlock-summary": "Desbloqueo completado de <span class=\"amount\">{{amount}}</span>",
+    "success-title": "Completado",
+    "success-sub-title": "Transacción completada",
+    "sign-title": "Firmar transacción",
+    "sign-sub-title": "Firmar tu transacción"
   },
   "trx-common": {
     "insufficient-funds": "Fondos insuficientes",
@@ -2486,11 +2490,11 @@
   },
   "not-found": {
     "title": "No encontrado",
-    "description": "¡Vaya! Perdido en océano...",
+    "description": "Oops! It seems there isn`t page related to URL:(",
     "back-home": "Regresa al inicio"
   },
   "global-error": {
-    "description": "Por favor, inténtalo de nuevo o reporta un problema..."
+    "description": "Something went wrong. Please, try again or report an issue"
   },
   "issue-reporter": {
     "report": "Reportar",

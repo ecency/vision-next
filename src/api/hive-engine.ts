@@ -30,7 +30,7 @@ export const getTokenBalances = (account: string): Promise<TokenBalance[]> => {
     });
 };
 
-const getTokens = (tokens: string[]): Promise<Token[]> => {
+export const getTokens = (tokens: string[]): Promise<Token[]> => {
   const data = {
     jsonrpc: "2.0",
     method: "find",
@@ -139,11 +139,4 @@ export const getMetrics: any = async (symbol?: any, account?: any) => {
     .catch((e) => {
       return [];
     });
-};
-
-export const getMarketData = async (symbol: any) => {
-  const { data: history } = await appAxios.get(apiBase(`${engine.chartAPI}`), {
-    params: { symbol, interval: "daily" }
-  });
-  return history;
 };

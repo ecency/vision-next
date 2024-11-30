@@ -66,7 +66,6 @@ export function Preferences() {
     [setCurrency]
   );
 
-  // @ts-ignore
   return (
     <>
       <div className="preferences">

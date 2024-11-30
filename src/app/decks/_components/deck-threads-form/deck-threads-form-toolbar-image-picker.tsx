@@ -1,17 +1,17 @@
 import React, { useRef, useState } from "react";
 import axios from "axios";
 import { Button } from "@ui/button";
-import { UilImage } from "@tooni/iconscout-unicons-react";
+import { UilImage, UilLink, UilUpload } from "@tooni/iconscout-unicons-react";
 import { useGlobalStore } from "@/core/global-store";
 import { getAccessToken } from "@/utils";
 import { uploadImage } from "@/api/misc";
 import { error } from "@/features/shared";
 import i18next from "i18next";
 import { Tooltip } from "@ui/tooltip";
-import { PopperDropdown } from "@/features/ui";
 import { AddImage } from "@/features/shared/editor-toolbar/add-image";
 import { GalleryDialog } from "@/features/shared/gallery";
 import { EcencyConfigManager } from "@/config";
+import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 
 interface Props {
   onAddImage: (link: string, name: string) => void;
@@ -76,43 +76,39 @@ export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
     <div className="deck-threads-form-toolbar-image-picker">
       {activeUser && (
         <Tooltip content={i18next.t("editor-toolbar.image")}>
-          <PopperDropdown
-            toggle={<Button icon={<UilImage />} appearance="gray-link" noPadding={true} />}
-          >
-            <div className="dropdown-menu">
-              <div
-                className="dropdown-item"
-                onClick={() => {
-                  setImagePickInitiated(true);
-                }}
-              >
-                {i18next.t("editor-toolbar.link-image")}
-              </div>
-              <div
-                className="dropdown-item"
-                onClick={(e: React.MouseEvent<HTMLElement>) => {
+          <Dropdown>
+            <DropdownToggle>
+              <Button icon={<UilImage />} appearance="gray-link" noPadding={true} />
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItemWithIcon
+                onClick={() => setImagePickInitiated(true)}
+                icon={<UilLink />}
+                label={i18next.t("editor-toolbar.link-image")}
+              />
+              <DropdownItemWithIcon
+                onClick={(e) => {
                   e.stopPropagation();
                   const el = fileInputRef.current;
                   if (el) el.click();
                 }}
-              >
-                {i18next.t("editor-toolbar.upload")}
-              </div>
+                icon={<UilUpload />}
+                label={i18next.t("editor-toolbar.upload")}
+              />
               <EcencyConfigManager.Conditional
                 condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
               >
-                <div
-                  className="dropdown-item"
-                  onClick={(e: React.MouseEvent<HTMLElement>) => {
+                <DropdownItemWithIcon
+                  onClick={(e) => {
                     e.stopPropagation();
                     setGalleryPickInitiated(true);
                   }}
-                >
-                  {i18next.t("editor-toolbar.gallery")}
-                </div>
+                  icon={<UilImage />}
+                  label={i18next.t("editor-toolbar.gallery")}
+                />
               </EcencyConfigManager.Conditional>
-            </div>
-          </PopperDropdown>
+            </DropdownMenu>
+          </Dropdown>
         </Tooltip>
       )}
       {imagePickInitiated && (

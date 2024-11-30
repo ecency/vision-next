@@ -11,7 +11,7 @@ export function useRecordUserActivity() {
     ({ visionFeatures }) => visionFeatures.userActivityTracking.enabled,
     {
       mutationKey: ["recordUserActivity", activeUser?.username],
-      mutationFn: ({
+      mutationFn: async ({
         ty,
         bl = "",
         tx = ""
@@ -20,8 +20,12 @@ export function useRecordUserActivity() {
         bl?: string | number;
         tx?: string | number;
       }) => {
+        if (!activeUser) {
+          return;
+        }
+
         const params: Record<string, string | number | undefined> = {
-          code: getAccessToken(activeUser!.username),
+          code: getAccessToken(activeUser.username),
           ty
         };
 

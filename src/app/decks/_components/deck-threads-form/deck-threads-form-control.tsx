@@ -9,11 +9,11 @@ import Image from "next/image";
 interface Props {
   text: string;
   setText: (v: string) => void;
-  video: string | null;
-  selectedImage: string | null;
-  setSelectedImage: (url: string | null) => void;
+  video: string | undefined;
+  selectedImage: string | undefined;
+  onClearImage: () => void;
   onAddImage: (url: string, name: string) => void;
-  onAddVideo: (value: string | null) => void;
+  onAddVideo: (value: string | undefined) => void;
   placeholder?: string;
   onTextareaFocus: () => void;
 }
@@ -23,7 +23,7 @@ export const DeckThreadsFormControl = ({
   setText,
   onAddImage,
   selectedImage,
-  setSelectedImage,
+  onClearImage,
   placeholder,
   onTextareaFocus,
   onAddVideo,
@@ -45,16 +45,16 @@ export const DeckThreadsFormControl = ({
           <div className="length-prompt">{text.length}/255</div>
         </div>
         {selectedImage && (
-          <div className="deck-threads-form-selected-image border mb-3">
+          <div className="deck-threads-form-selected-image border border-[--border-color] my-3">
             <div className="type">image</div>
             <Image width={1000} height={1000} src={selectedImage} alt="" />
-            <div className="remove" onClick={() => setSelectedImage(null)}>
+            <div className="remove" onClick={() => onClearImage()}>
               {closeSvg}
             </div>
           </div>
         )}
         {video && (
-          <div className="deck-threads-form-selected-image border mb-3">
+          <div className="deck-threads-form-selected-image border border-[--border-color] my-3">
             <div className="type">video</div>
             <Image
               width={1000}
@@ -66,7 +66,7 @@ export const DeckThreadsFormControl = ({
                 .replace(")", "")}
               alt=""
             />
-            <div className="remove" onClick={() => onAddVideo(null)}>
+            <div className="remove" onClick={() => onAddVideo(undefined)}>
               {closeSvg}
             </div>
           </div>

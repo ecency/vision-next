@@ -4,7 +4,7 @@ import * as ls from "@/utils/local-storage";
 import { success } from "@/features/shared";
 import i18next from "i18next";
 import { getCurrencyRate } from "@/api/misc";
-import { currencySymbol } from "@/utils";
+import { currencySymbol, runWithRetries } from "@/utils";
 
 export function createGlobalState() {
   return {
@@ -96,13 +96,15 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       // So We have to wait until full window load and then drop our task to macro-queue
       // It will help us to validate that all sync and async operations have finished
       // Including browser extensions
-      setTimeout(() => {
+      runWithRetries(() => {
         if (typeof window !== "undefined" && "hive_keychain" in window) {
           (window as unknown as any).hive_keychain.requestHandshake(() =>
             set({ hasKeyChain: true })
           );
+          return true;
         }
-      }, 50);
+        return false;
+      });
     }
   };
 }

@@ -10,8 +10,11 @@ export async function generateFeedMetadata(filter: string, tag: string) {
   let canonical = `${defaults.base}/${filter}`;
   let rss = "";
 
-  if (tag) {
-    title = `latest #${tag.replace("%40", "@  ")} ${filter} topics on internet`;
+  if (tag?.startsWith("%40")) {
+    title = `${tag.replace("%40", "@")} ${filter} on decentralized web – Ecency`;
+    description = i18next.t("entry-index.description-user-feed", { u: tag });
+  } else if (tag) {
+    title = `latest #${tag} ${filter} topics on internet`;
     description = i18next.t("entry-index.description-tag", { f: fC, t: tag });
 
     url = `/${filter}/${tag}`;

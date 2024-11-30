@@ -7,13 +7,11 @@ import useLocalStorage from "react-use/lib/useLocalStorage";
 import { DeckThreadsCreatedRecently } from "./deck-threads-created-recently";
 import { IdentifiableEntry, ThreadItemEntry } from "../columns/deck-threads-manager";
 import useClickAway from "react-use/lib/useClickAway";
-import usePrevious from "react-use/lib/usePrevious";
 import { Button } from "@ui/button";
 import { Alert } from "@ui/alert";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { PollsContext } from "@/features/polls";
-import { useLocation } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
 import i18next from "i18next";
 import { AvailableCredits, UserAvatar } from "@/features/shared";
@@ -51,20 +49,15 @@ export const DeckThreadsForm = ({
   const { setShow, create, createReply } = useContext(DeckThreadsFormContext);
   const { clearActivePoll } = useContext(PollsContext);
 
-  const location = useLocation();
-
   const [localDraft, setLocalDraft] = useLocalStorage<Record<string, any>>(
     PREFIX + "_local_draft",
     {}
   );
-  const [persistedForm, setPersistedForm] = useLocalStorage<Record<string, any>>(PREFIX + "_dtf_f");
-  const previousPersistedForm = usePrevious(persistedForm);
-
-  const [threadHost, setThreadHost] = useState("ecency.waves");
-  const [text, setText] = useState("");
-  const [image, setImage] = useState<string | null>(null);
-  const [imageName, setImageName] = useState<string | null>(null);
-  const [video, setVideo] = useState<string | null>(null);
+  const [threadHost, setThreadHost] = useLocalStorage(PREFIX + "_dtf_th", "ecency.waves");
+  const [text, setText, clearText] = useLocalStorage(PREFIX + "_dtf_t", "");
+  const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_dtf_i");
+  const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_dtf_in");
+  const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_dtf_v");
 
   const [disabled, setDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -91,63 +84,7 @@ export const DeckThreadsForm = ({
       }
       setText(nextText);
     }
-  }, [entry]);
-
-  useEffect(() => {
-    if (persistable) {
-      if (!threadHost && persistedForm?.threadHost) {
-        setThreadHost(persistedForm.threadHost);
-      }
-
-      if (!text && persistedForm?.text) {
-        setText(persistedForm.text);
-      }
-
-      if (!image && persistedForm?.image) {
-        setImage(persistedForm.image);
-      }
-
-      if (!imageName && persistedForm?.imageName) {
-        setImageName(persistedForm.imageName);
-      }
-
-      if (!video && persistedForm?.video) {
-        setVideo(persistedForm.video);
-      }
-    }
-  }, [image, imageName, persistable, persistedForm, text, threadHost, video]);
-
-  useEffect(() => {
-    if (
-      persistable &&
-      (persistedForm?.threadHost !== threadHost ||
-        persistedForm?.text !== text ||
-        persistedForm?.image !== image ||
-        persistedForm?.imageName !== imageName ||
-        persistedForm?.video !== video)
-    ) {
-      setPersistedForm({
-        threadHost,
-        text,
-        image,
-        imageName,
-        video
-      });
-    }
-  }, [
-    threadHost,
-    text,
-    image,
-    imageName,
-    persistable,
-    persistedForm?.threadHost,
-    persistedForm?.text,
-    persistedForm?.image,
-    persistedForm?.imageName,
-    persistedForm?.video,
-    video,
-    setPersistedForm
-  ]);
+  }, [entry, setImage, setText]);
 
   const submit = async () => {
     if (!activeUser) {
@@ -203,9 +140,9 @@ export const DeckThreadsForm = ({
       if (onSuccess) {
         onSuccess(threadItem);
       }
-      setText("");
-      setImage(null);
-      setImageName(null);
+      clearText();
+      clearImage();
+      clearImageName();
       clearActivePoll();
       i18next.t("decks.threads-form.successfully-created");
     } catch (e) {
@@ -224,15 +161,15 @@ export const DeckThreadsForm = ({
     >
       {!activeUser &&
         !entry &&
-        text?.length <= 255 &&
+        (text?.length ?? 0) <= 255 &&
         i18next.t("decks.threads-form.login-and-publish")}
       {activeUser &&
         !entry &&
-        text?.length <= 255 &&
+        (text?.length ?? 0) <= 255 &&
         (loading
           ? i18next.t("decks.threads-form.publishing")
           : i18next.t("decks.threads-form.publish"))}
-      {text?.length > 255 && !entry && i18next.t("decks.threads-form.create-regular-post")}
+      {(text?.length ?? 0) > 255 && !entry && i18next.t("decks.threads-form.create-regular-post")}
       {entry && i18next.t("decks.threads-form.save")}
     </Button>
   );
@@ -273,7 +210,10 @@ export const DeckThreadsForm = ({
                 setImageName(name);
               }}
               onAddVideo={setVideo}
-              setSelectedImage={setImage}
+              onClearImage={() => {
+                clearImage();
+                clearImageName();
+              }}
               placeholder={placeholder}
               onTextareaFocus={() => setFocused(true)}
             />
@@ -287,12 +227,12 @@ export const DeckThreadsForm = ({
             )}
           </div>
         </div>
-        {inline && text?.length > 255 && (
+        {inline && (text?.length ?? 0) > 255 && (
           <Alert appearance="warning">{i18next.t("decks.threads-form.max-length")}</Alert>
         )}
         {!inline && (
           <div className="deck-toolbar-threads-form-bottom">
-            {text?.length > 255 && (
+            {(text?.length ?? 0) > 255 && (
               <Alert appearance="warning">{i18next.t("decks.threads-form.max-length")}</Alert>
             )}
             <DeckThreadsCreatedRecently

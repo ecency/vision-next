@@ -80,7 +80,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const [tags, setTags] = useState<string[]>([]);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
   const [selectedThumbnail, setSelectedThumbnail, removeThumbnail] = useLocalStorage<string>(
-    PREFIX + "draft_selected_image"
+    PREFIX + "_s_st"
   );
   const [preview, setPreview] = useState<PostBase>({
     title: "",
@@ -215,25 +215,14 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     }
   }, [activeUser, beneficiaries, previousActiveUser, setBeneficiaries, threeSpeakManager]);
 
+  // In case of creating new post then should save to local draft
   useEffect(() => {
-    setLocalDraft({ tags, title, body, description });
-  }, [tags, title, body, setLocalDraft, description]);
-
-  useEffect(() => {
-    updatePreview();
-  }, [title, body, tags]);
-
-  useEffect(() => {
-    threeSpeakManager.checkBodyForVideos(body);
-  }, [body]);
-
-  useEffect(() => {
-    if (searchParams && typeof searchParams?.cat === "string" && searchParams.cat.length > 0) {
-      setTags((value) => Array.from(new Set(value).add(searchParams.cat!)));
+    if (editingEntry === null) {
+      setLocalDraft({ tags, title, body, description });
     }
-  }, [searchParams]);
+  }, [tags, title, body, setLocalDraft, description, editingEntry]);
 
-  const updatePreview = (): void => {
+  useEffect(() => {
     if (_updateTimer) {
       clearTimeout(_updateTimer);
       _updateTimer = null;
@@ -241,17 +230,32 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
 
     // Not sure why we are using setTimeOut(), but it causes some odd behavior and sets input value to preview.body when you try to delete/cancel text
     _updateTimer = setTimeout(() => {
-      const { thumbnails } = extractMetaData(body);
       setPreview({ title, tags, body, description });
-      const existingImages = editingEntry?.json_metadata.image ?? [];
-      const newThumbnails = thumbnails ? [...existingImages, ...thumbnails] : existingImages;
-      setThumbnails(Array.from(new Set(newThumbnails)));
-      if (editingEntry === null) {
-        setLocalDraft({ title, tags, body, description });
-      }
-      setIsDraftEmpty(!Boolean(title?.length || tags?.length || body?.length));
     }, 50);
-  };
+  }, [title, body, tags]);
+
+  useEffect(() => {
+    threeSpeakManager.checkBodyForVideos(body);
+
+    // Whenever body changed then need to re-validate thumbnails
+    const { thumbnails } = extractMetaData(body);
+    const existingImages = editingEntry?.json_metadata.image ?? [];
+    const newThumbnails = thumbnails ? [...existingImages, ...thumbnails] : existingImages;
+    setThumbnails(Array.from(new Set(newThumbnails)));
+
+    // In case of thumbnail isn't part of the thumbnails then should be reset to first one
+    if (!selectedThumbnail || !thumbnails?.includes(selectedThumbnail)) {
+      setSelectedThumbnail(newThumbnails[0]);
+    }
+
+    setIsDraftEmpty(!Boolean(title?.length || tags?.length || body?.length));
+  }, [body, selectedThumbnail]);
+
+  useEffect(() => {
+    if (searchParams && typeof searchParams?.cat === "string" && searchParams.cat.length > 0) {
+      setTags((value) => Array.from(new Set(value).add(searchParams.cat!)));
+    }
+  }, [searchParams]);
 
   const clear = () => {
     setTitle("");
@@ -334,6 +338,11 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
 
     if (threeSpeakManager.hasMultipleUnpublishedVideo) {
       error(i18next.t("submit.should-be-only-one-unpublished"));
+      return false;
+    }
+
+    if (tags.length > 10) {
+      error(i18next.t("tag-selector.error-max", { n: 10 }));
       return false;
     }
 

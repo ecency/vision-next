@@ -15,7 +15,6 @@ import {
   isCommunity,
   makeApp,
   makeCommentOptions,
-  makeEntryPath,
   tempEntry
 } from "@/utils";
 import appPackage from "../../../../package.json";
@@ -156,13 +155,12 @@ export function usePublishApi(onClear: () => void) {
         };
         updateEntryQueryData([entry]);
 
-        await validatePostCreating(entry.author, entry.permlink);
+        await validatePostCreating(entry.author, entry.permlink, 3);
 
         success(i18next.t("submit.published"));
         onClear();
         clearActivePoll();
-        const newLoc = makeEntryPath(parentPermlink, author, permlink);
-        router.push(newLoc);
+        router.push(`/@${activeUser.username}/posts`);
 
         //Mark speak video as published
         if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {

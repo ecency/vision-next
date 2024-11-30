@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
 import i18next from "i18next";
-import { sortSvg } from "@ui/svg";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import { Button } from "@ui/button";
+import { sortSvg } from "@ui/svg";
 
 export const SortEngineTokens = (props: any) => {
   const {
@@ -86,22 +87,19 @@ export const SortEngineTokens = (props: any) => {
   );
 
   return (
-    <div className="balance-values">
-      <div className="amount">
-        <div className="amount-actions">
-          <span className="sort-svg">{sortSvg}</span>
-          <Dropdown>
-            <DropdownToggle>{sortLabel}</DropdownToggle>
-            <DropdownMenu align="top">
-              {items.map((item, i) => (
-                <DropdownItem key={i} onClick={item.onClick}>
-                  {item.label}
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-        </div>
-      </div>
-    </div>
+    <Dropdown className="py-6">
+      <DropdownToggle>
+        <Button appearance="gray-link" icon={sortSvg}>
+          {sortLabel}
+        </Button>
+      </DropdownToggle>
+      <DropdownMenu align="top">
+        {items.map((item, i) => (
+          <DropdownItem key={i} onClick={item.onClick}>
+            {item.label}
+          </DropdownItem>
+        ))}
+      </DropdownMenu>
+    </Dropdown>
   );
 };
