@@ -130,16 +130,6 @@ export const getCurrencyRates = (): Promise<{
   };
 }> => appAxios.get(apiBase("/private-api/market-data/latest")).then((resp: any) => resp.data);
 
-export const getUnreadNotificationCount = (username: string): Promise<number> => {
-  const data = { code: getAccessToken(username) };
-
-  return data.code
-    ? appAxios
-        .post(apiBase(`/private-api/notifications/unread`), data)
-        .then((resp) => resp.data.count)
-    : Promise.resolve(0);
-};
-
 export interface UserImage {
   created: string;
   timestamp: number;
