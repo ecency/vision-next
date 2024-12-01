@@ -6,12 +6,15 @@ import { classNameObject } from "@ui/util";
 import { useMount, useUnmount } from "react-use";
 import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
 import { WaveFollowsCard, WavePromoteCard, WavesProfileCard } from "@/app/waves/_components";
+import { useGlobalStore } from "@/core/global-store";
 
 interface Props {
   view: ReactNode;
 }
 
 export default function WavesLayout(props: PropsWithChildren<Props>) {
+  const activeUser = useGlobalStore((s) => s.activeUser);
+
   const [scroll, setScroll] = useState(0);
 
   const handleScroll = useCallback(() => setScroll(window.scrollY), []);
@@ -31,7 +34,7 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
       <Navbar experimental={true} />
       <div className="pt-[156px] max-w-[1600px] px-4 md:px-6 lg:px-8 mx-auto grid grid-cols-12 gap-4 md:gap-6 xl:gap-8">
         <div className="col-span-3 flex flex-col gap-4 md:gap-6 xl:gap-8">
-          <WavesProfileCard />
+          {activeUser && <WavesProfileCard />}
           <WavePromoteCard />
         </div>
         <div className="col-span-6">{props.children}</div>
