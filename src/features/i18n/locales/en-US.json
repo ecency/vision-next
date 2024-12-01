@@ -2519,6 +2519,11 @@
     "reply-form-title": "Replying to",
     "hide-replies": "Hide replies",
     "no-replies": "There aren't replies yet. Be first!",
-    "add-reply": "Add reply"
+    "add-reply": "Add reply",
+    "promote": {
+      "title": "Want more views and likes?",
+      "subtitle": "Promote your wave in a few clicks and be on top for days. Get up to 4x views!",
+      "button": "Promote now 🔥"
+    }
   }
 }

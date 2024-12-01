@@ -9,7 +9,8 @@ export type ButtonAppearance =
   | "success"
   | "warning"
   | "info"
-  | "white-link";
+  | "white-link"
+  | "white";
 export type ButtonSize = "xxs" | "xs" | "sm" | "md" | "lg" | "display";
 
 interface RegularButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
