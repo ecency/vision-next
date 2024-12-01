@@ -5,7 +5,7 @@ import { PropsWithChildren, ReactNode, useCallback, useState } from "react";
 import { classNameObject } from "@ui/util";
 import { useMount, useUnmount } from "react-use";
 import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
-import { WavePromoteCard } from "@/app/waves/_components";
+import { WaveFollowsCard, WavePromoteCard } from "@/app/waves/_components";
 
 interface Props {
   view: ReactNode;
@@ -34,10 +34,11 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
           <WavePromoteCard />
         </div>
         <div className="col-span-6">{props.children}</div>
-        <div className="col-span-3">
+        <div className="col-span-3 flex flex-col gap-4 md:gap-6 xl:gap-8">
           <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 [&_.item-content]:!mr-0 [&_.top-communities-widget]:p-0 [&_.top-communities-widget]:m-0">
             <TopCommunitiesWidget />
           </div>
+          <WaveFollowsCard />
         </div>
       </div>
     </div>
