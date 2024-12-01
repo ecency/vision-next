@@ -4,6 +4,7 @@ import { Feedback, Navbar, ScrollToTop } from "@/features/shared";
 import { PropsWithChildren, ReactNode, useCallback, useState } from "react";
 import { classNameObject } from "@ui/util";
 import { useMount, useUnmount } from "react-use";
+import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
 
 interface Props {
   view: ReactNode;
@@ -27,10 +28,14 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
       <Feedback />
       <ScrollToTop />
       <Navbar experimental={true} />
-      <div className="pt-[156px] container mx-auto grid grid-cols-12">
+      <div className="pt-[156px] max-w-[1600px] px-4 md:px-6 lg:px-8 mx-auto grid grid-cols-12 gap-4 md:gap-6 xl:gap-8">
         <div className="col-span-3"></div>
         <div className="col-span-6">{props.children}</div>
-        <div className="col-span-3"></div>
+        <div className="col-span-3">
+          <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 [&_.item-content]:!mr-0 [&_.top-communities-widget]:p-0 [&_.top-communities-widget]:m-0">
+            <TopCommunitiesWidget />
+          </div>
+        </div>
       </div>
     </div>
   );
