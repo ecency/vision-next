@@ -4,6 +4,7 @@ import { WaveEntry } from "@/entities";
 import { WaveForm } from "@/features/waves";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 interface Props {
   show: boolean;
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export function WavesFastReplyDialog({ show, onHide, entry }: Props) {
+  const router = useRouter();
+
   return (
     <Modal size="lg" centered={true} show={show} onHide={onHide}>
       <ModalHeader closeButton={true}>
@@ -23,7 +26,11 @@ export function WavesFastReplyDialog({ show, onHide, entry }: Props) {
       <AnimatePresence>
         {entry && <WavesListItem interactable={false} item={entry} i={0} />}
       </AnimatePresence>
-      <WaveForm entry={undefined} replySource={entry} />
+      <WaveForm
+        entry={undefined}
+        replySource={entry}
+        onSuccess={() => router.push(`/waves/${entry?.author}/${entry?.permlink}`)}
+      />
     </Modal>
   );
 }
