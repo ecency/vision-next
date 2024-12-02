@@ -61,6 +61,7 @@ export function WavesListItem({ item, i, commentSlot, onExpandReplies }: Props) 
         className="p-4 thread-render"
         ref={renderAreaRef}
         dangerouslySetInnerHTML={{ __html: renderPostBody(entry!) }}
+        onClick={(e) => e.stopPropagation()}
       />
       <WaveActions
         status={status}

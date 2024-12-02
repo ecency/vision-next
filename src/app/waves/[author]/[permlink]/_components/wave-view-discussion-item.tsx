@@ -7,6 +7,7 @@ import { WaveForm } from "@/features/waves";
 import { useEntryDiscussionsList } from "@/features/entry-management";
 import { UilCommentAdd } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 interface Props {
   item: WaveEntry;
@@ -17,6 +18,7 @@ export function WaveViewDiscussionItem({ item, i }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   const data = useEntryDiscussionsList(item);
+  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(item).useClientQuery();
 
   return (
     <div
@@ -28,8 +30,8 @@ export function WaveViewDiscussionItem({ item, i }: Props) {
       })}
     >
       <WavesListItem
-        key={item.post_id}
-        item={item as WaveEntry}
+        key={entry!.post_id}
+        item={entry as WaveEntry}
         i={i}
         commentSlot={expanded ? i18next.t("waves.hide-replies") : undefined}
         onExpandReplies={() => setExpanded(!expanded)}
@@ -42,7 +44,7 @@ export function WaveViewDiscussionItem({ item, i }: Props) {
             exit={{ height: 0 }}
             className="relative bg-white dark:bg-dark-200 [&_.wave-form]:border-b [&_.wave-form]:border-[--border-color]"
           >
-            <WaveForm entry={undefined} replySource={item} />
+            <WaveForm entry={undefined} replySource={entry} />
             {data?.map((reply, j) => (
               <WaveViewDiscussionItem item={reply as WaveEntry} i={j} key={j} />
             ))}
