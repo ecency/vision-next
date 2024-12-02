@@ -6,3 +6,4 @@ export * from "./wave-promote-card";
 export * from "./wave-follows-card";
 export * from "./waves-profile-card";
 export * from "./waves-profile-card-loading";
+export * from "./wave-list-item-header-loading";

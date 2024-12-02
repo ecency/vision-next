@@ -1,3 +1,5 @@
+"use client";
+
 import { getDiscoverLeaderboardQuery } from "@/api/queries";
 import i18next from "i18next";
 import { motion } from "framer-motion";

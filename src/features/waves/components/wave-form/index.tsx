@@ -148,3 +148,5 @@ export const WaveForm = ({
     </div>
   );
 };
+
+export * from "./wave-form-loading";

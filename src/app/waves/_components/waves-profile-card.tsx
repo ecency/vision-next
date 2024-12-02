@@ -1,3 +1,5 @@
+"use client";
+
 import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { AvailableCredits, UserAvatar } from "@/features/shared";
