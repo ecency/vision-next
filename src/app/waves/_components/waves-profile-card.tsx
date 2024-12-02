@@ -5,14 +5,19 @@ import Image from "next/image";
 import i18next from "i18next";
 import { Followers, Following } from "@/app/(dynamicPages)/profile/[username]/_components/friends";
 import React, { useState } from "react";
+import { WavesProfileCardLoading } from "@/app/waves/_components/waves-profile-card-loading";
 
 export function WavesProfileCard() {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const { data } = getAccountFullQuery(activeUser?.username).useClientQuery();
+  const { data, isLoading } = getAccountFullQuery(activeUser?.username).useClientQuery();
 
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+
+  if (isLoading || !activeUser) {
+    return <WavesProfileCardLoading />;
+  }
 
   return (
     <div className="rounded-2xl overflow-hidden relative bg-white dark:bg-dark-200 p-4">
