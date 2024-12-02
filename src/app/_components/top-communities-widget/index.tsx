@@ -5,9 +5,8 @@ import "./_index.scss";
 import { Community } from "@/entities";
 import { getCommunitiesQuery } from "@/api/queries";
 import i18next from "i18next";
-import { LinearProgress } from "@/features/shared";
-import { CommunityListItem } from "@/app/communities/_components";
 import { getCommunityCache } from "@/core/caches";
+import { CommunityListItem, CommunityListItemLoading } from "@/app/_components";
 
 export const TopCommunitiesWidget = () => {
   const { data: ecencyCommunity } = getCommunityCache("hive-125125").useClientQuery();
@@ -35,7 +34,6 @@ export const TopCommunitiesWidget = () => {
     <div className="top-communities-widget">
       <div className="top-communities-widget-header">
         <div className="title flex items-center">{i18next.t("top-communities.title")}</div>
-        {loading && <LinearProgress />}
         <div className="list-items">
           {list.length === 0 && !loading && (
             <div className="no-results">{i18next.t("communities.no-results")}</div>
@@ -45,6 +43,8 @@ export const TopCommunitiesWidget = () => {
               <CommunityListItem community={x} small={true} />
             </Fragment>
           ))}
+          {loading &&
+            new Array(5).fill(1).map((_, i) => <CommunityListItemLoading small={true} key={i} />)}
         </div>
       </div>
     </div>
