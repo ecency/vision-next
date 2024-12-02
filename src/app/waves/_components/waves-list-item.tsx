@@ -10,15 +10,23 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { motion } from "framer-motion";
 import "./waves-list-item.scss";
 import { useRouter } from "next/navigation";
+import { classNameObject } from "@ui/util";
 
 interface Props {
   item: WaveEntry;
   i: number;
   commentSlot?: ReactNode;
   onExpandReplies?: () => void;
+  interactable?: boolean;
 }
 
-export function WavesListItem({ item, i, commentSlot, onExpandReplies }: Props) {
+export function WavesListItem({
+  item,
+  i,
+  commentSlot,
+  onExpandReplies,
+  interactable = true
+}: Props) {
   const renderAreaRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -32,6 +40,10 @@ export function WavesListItem({ item, i, commentSlot, onExpandReplies }: Props) 
 
   const onClick = useCallback(
     (e: React.MouseEvent) => {
+      if (!interactable) {
+        return;
+      }
+
       const path = `/waves/${item.author}/${item.permlink}`;
 
       switch (e.button) {
@@ -53,7 +65,11 @@ export function WavesListItem({ item, i, commentSlot, onExpandReplies }: Props) 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: i * 0.2 }}
-      className="waves-list-item first:rounded-t-2xl last:rounded-b-2xl bg-white dark:bg-dark-200 border-b border-[--border-color] last:border-b-0 hover:bg-gray-100 dark:hover:bg-dark-600-010 cursor-pointer"
+      className={classNameObject({
+        "waves-list-item first:rounded-t-2xl last:rounded-b-2xl bg-white dark:bg-dark-200 border-b border-[--border-color] last:border-b-0":
+          true,
+        "hover:bg-gray-100 dark:hover:bg-dark-600-010 cursor-pointer": interactable
+      })}
       onClick={onClick}
     >
       <WavesListItemHeader entry={entry!} hasParent={false} pure={false} status={status} />

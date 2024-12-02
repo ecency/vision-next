@@ -8,9 +8,12 @@ import i18next from "i18next";
 import { Followers, Following } from "@/app/(dynamicPages)/profile/[username]/_components/friends";
 import React, { useState } from "react";
 import { WavesProfileCardLoading } from "@/app/waves/_components/waves-profile-card-loading";
+import { Button } from "@ui/button";
+import Link from "next/link";
 
 export function WavesProfileCard() {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
 
   const { data, isLoading } = getAccountFullQuery(activeUser?.username).useClientQuery();
 
@@ -18,7 +21,23 @@ export function WavesProfileCard() {
   const [showFollowing, setShowFollowing] = useState(false);
 
   if (isLoading || !activeUser) {
-    return <WavesProfileCardLoading />;
+    return (
+      <div className="relative">
+        <WavesProfileCardLoading />
+        {!activeUser && (
+          <div className="absolute top-0 left-0 flex gap-4 w-full h-[156px] items-center justify-center">
+            <Button onClick={() => toggleUiProp("login")} appearance="white">
+              {i18next.t("g.login")}
+            </Button>
+            <Link href="/signup">
+              <Button appearance="white" outline={true}>
+                {i18next.t("g.signup")}
+              </Button>
+            </Link>
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (

@@ -29,7 +29,8 @@ export const BUTTON_OUTLINE_STYLES: Record<ButtonAppearance, string> = {
   info: "border-info-default hover:border-info-hover focus:border-info-focus text-info-default hover:text-info-hover focus:text-info-focus",
   "gray-link": "",
   "white-link": "",
-  white: ""
+  white:
+    "text-white border-white hover:border-gray-100 focus:border-gray-200 dark:border-dark-default dark:hover:border-dark-200 dark:focus:border-gray-900 dark:text-dark-default"
 };
 
 export const BUTTON_SIZES: Record<ButtonSize, string> = {
