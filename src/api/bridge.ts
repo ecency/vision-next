@@ -3,8 +3,8 @@ import SERVERS from "@/servers.json";
 import { Community, Entry, Subscription } from "@/entities";
 
 export const bridgeServer = new Client(SERVERS, {
-  timeout: 1000,
-  failoverThreshold: 1,
+  timeout: 2000,
+  failoverThreshold: 2,
   consoleOnFailover: true
 });
 export const dataLimit = typeof window !== "undefined" && window.screen.width < 540 ? 5 : 20 || 20;

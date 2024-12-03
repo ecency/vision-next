@@ -35,8 +35,8 @@ import { isCommunity, parseAsset, vestsToRshares } from "@/utils";
 import { OrdersDataItem } from "@/entities/hive/orders-data-item";
 
 export const client = new Client(SERVERS, {
-  timeout: 1000,
-  failoverThreshold: 1,
+  timeout: 2000,
+  failoverThreshold: 2,
   consoleOnFailover: true
 });
 
