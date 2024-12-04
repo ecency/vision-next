@@ -1,6 +1,7 @@
 import { Client } from "@hiveio/dhive";
 import SERVERS from "@/servers.json";
 import { Community, Entry, Subscription } from "@/entities";
+import dmca from "@/dmca.json";
 
 export const bridgeServer = new Client(SERVERS, {
   timeout: 2000,
@@ -106,7 +107,13 @@ export const getPost = async (
   });
 
   if (resp) {
-    return resolvePost(resp, observer, num);
+    const post = await resolvePost(resp, observer, num);
+    if (dmca.some((rx) => new RegExp(rx).test(`@${post.author}/${post.permlink}`))) {
+      post.body = "This post is not available due to a copyright/fraudulent claim.";
+      post.title = "";
+    }
+
+    return post;
   }
 
   return undefined;
