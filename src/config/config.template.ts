@@ -89,6 +89,9 @@ const CONFIG = {
       },
       center: {
         enabled: true
+      },
+      waves: {
+        enabled: true
       }
     },
     service: {

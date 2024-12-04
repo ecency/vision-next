@@ -1,3 +1,5 @@
+"use client";
+
 import { classNameObject } from "@ui/util";
 import { motion } from "framer-motion";
 

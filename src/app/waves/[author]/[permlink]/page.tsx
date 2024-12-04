@@ -4,6 +4,7 @@ import { WaveViewDetails, WaveViewDiscussion } from "@/app/waves/[author]/[perml
 import { WaveEntry } from "@/entities";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   params: Promise<{
@@ -13,6 +14,14 @@ interface Props {
 }
 
 export default async function WaveViewPage({ params }: Props) {
+  const isWavesEnabled = EcencyConfigManager.useConfig(
+    ({ visionFeatures }) => visionFeatures.waves.enabled
+  );
+
+  if (!isWavesEnabled) {
+    return notFound();
+  }
+
   const { author, permlink } = await params;
 
   const data = (await EcencyEntriesCacheManagement.getEntryQueryByPath(
