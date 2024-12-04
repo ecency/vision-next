@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { usePopper } from "react-popper";
 import { useMountedState } from "react-use";
 import { classNameObject } from "@ui/util";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
   content: string | JSX.Element;
@@ -53,17 +54,21 @@ export function StyledTooltip({ children, content, className }: StyledProps) {
     >
       {children}
       {createPortal(
-        <div
-          className={
-            "bg-blue-powder dark:bg-dark-200 z-10 p-3 rounded-lg duration-300 text-sm " +
-            (show ? "opacity-100" : "opacity-0")
-          }
-          ref={setPopperElement}
-          style={{ ...popper.styles.popper, visibility: show ? "visible" : "hidden" }}
-          {...popper.attributes.popper}
-        >
-          {content}
-        </div>,
+        <AnimatePresence>
+          {show && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="bg-blue-powder dark:bg-dark-default max-w-[320px] z-10 p-3 rounded-lg text-sm"
+              ref={setPopperElement}
+              style={{ ...popper.styles.popper, visibility: show ? "visible" : "hidden" }}
+              {...popper.attributes.popper}
+            >
+              {content}
+            </motion.div>
+          )}
+        </AnimatePresence>,
         document.querySelector("#popper-container") ?? document.createElement("div")
       )}
     </div>
