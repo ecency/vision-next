@@ -1,9 +1,7 @@
 "use client";
 
 import { Feedback, Navbar, ScrollToTop } from "@/features/shared";
-import { PropsWithChildren, ReactNode, useCallback, useState } from "react";
-import { classNameObject } from "@ui/util";
-import { useMount, useUnmount } from "react-use";
+import { PropsWithChildren, ReactNode } from "react";
 import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
 import { WaveFollowsCard, WavePromoteCard, WavesProfileCard } from "@/app/waves/_components";
 
@@ -12,20 +10,8 @@ interface Props {
 }
 
 export default function WavesLayout(props: PropsWithChildren<Props>) {
-  const [scroll, setScroll] = useState(0);
-
-  const handleScroll = useCallback(() => setScroll(window.scrollY), []);
-
-  useMount(() => window.addEventListener("scroll", handleScroll));
-  useUnmount(() => window.removeEventListener("scroll", handleScroll));
-
   return (
-    <div
-      className={classNameObject({
-        "bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh]": true,
-        "[&_.ecency-navbar-desktop]:rounded-b-none": scroll <= 32
-      })}
-    >
+    <div className="bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh]">
       <Feedback />
       <ScrollToTop />
       <Navbar experimental={true} />
