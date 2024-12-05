@@ -128,9 +128,8 @@ export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
         <GalleryDialog
           show={galleryPickInitiated}
           setShow={setGalleryPickInitiated}
-          onPick={(url: string) => {
-            const fileName = "";
-            onAddImage?.(fileName, url);
+          onPick={(url) => {
+            onAddImage?.(url, url);
             setGalleryPickInitiated(false);
           }}
         />

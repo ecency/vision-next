@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import "./_index.scss";
 import { Entry, WaveEntry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { PollsContext } from "@/features/polls";
+import { PollsContext, PollsManager } from "@/features/polls";
 import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
 import { AvailableCredits, ProfileLink, UserAvatar } from "@/features/shared";
@@ -24,7 +24,7 @@ interface Props {
   entry: WaveEntry | undefined;
 }
 
-export const WaveForm = ({
+const WaveFormComponent = ({
   placeholder,
   replySource,
   onSuccess,
@@ -34,11 +34,11 @@ export const WaveForm = ({
   const activeUser = useGlobalStore((s) => s.activeUser);
   const { clearActivePoll } = useContext(PollsContext);
 
-  const [threadHost, setThreadHost] = useLocalStorage(PREFIX + "_dtf_th", "ecency.waves");
-  const [text, setText, clearText] = useLocalStorage(PREFIX + "_dtf_t", "");
-  const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_dtf_i", "");
-  const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_dtf_in", "");
-  const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_dtf_v", "");
+  const [threadHost, setThreadHost] = useLocalStorage(PREFIX + "_wf_th", "ecency.waves");
+  const [text, setText, clearText] = useLocalStorage(PREFIX + "_wf_t", "");
+  const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
+  const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
+  const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
 
   const disabled = useMemo(() => !text || !threadHost, [text, threadHost]);
 
@@ -95,8 +95,8 @@ export const WaveForm = ({
           video={video}
           text={text!!}
           setText={setText}
-          selectedImage={image!!}
-          setSelectedImage={setImage}
+          selectedImage={image}
+          clearSelectedImage={clearImage}
           placeholder={placeholder}
           onTextareaFocus={() => {}}
         />
@@ -148,5 +148,13 @@ export const WaveForm = ({
     </div>
   );
 };
+
+export function WaveForm(props: Props) {
+  return (
+    <PollsManager>
+      <WaveFormComponent {...props} />
+    </PollsManager>
+  );
+}
 
 export * from "./wave-form-loading";

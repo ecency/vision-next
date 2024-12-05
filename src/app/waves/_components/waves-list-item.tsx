@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import "./waves-list-item.scss";
 import { useRouter } from "next/navigation";
 import { classNameObject } from "@ui/util";
+import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 
 interface Props {
   item: WaveEntry;
@@ -33,6 +34,7 @@ export function WavesListItem({
   const { data: entry } =
     EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(item).useClientQuery();
 
+  const poll = useEntryPollExtractor(entry);
   const renderBody = useRenderWaveBody(renderAreaRef, item, {});
 
   useMount(() => renderBody());
@@ -79,6 +81,11 @@ export function WavesListItem({
         dangerouslySetInnerHTML={{ __html: renderPostBody(entry!) }}
         onClick={(e) => e.stopPropagation()}
       />
+      {poll && (
+        <div onClick={(e) => e.stopPropagation()} className="p-4">
+          <PollWidget entry={entry} compact={true} poll={poll} isReadOnly={false} />
+        </div>
+      )}
       <WaveActions
         status={status}
         entry={item}
