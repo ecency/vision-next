@@ -83,8 +83,8 @@ const WaveFormComponent = ({
       <div className="pl-4 w-full">
         {replySource ? (
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            {i18next.t("waves.reply-form-title")}
-            <ProfileLink className="text-blue-dark-sky pl-0.5" username={replySource.author}>
+            {i18next.t("waves.reply-form-title")}{" "}
+            <ProfileLink className="text-blue-dark-sky" username={replySource.author}>
               @{replySource.author}
             </ProfileLink>
           </div>

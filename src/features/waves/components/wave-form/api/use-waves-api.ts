@@ -33,9 +33,9 @@ export function useWavesApi() {
       if (!activeUser || !activeUser.data.__loaded) {
         throw new Error("[Wave][Thread-base][API] – No active user");
       }
+      const parentAuthor = editingEntry?.parent_author ?? entry.author;
+      const parentPermlink = editingEntry?.parent_permlink ?? entry.permlink;
 
-      const { author: parentAuthor, permlink: parentPermlink } = editingEntry?.container ?? entry;
-      const author = activeUser.username;
       const permlink = editingEntry?.permlink ?? createReplyPermlink(entry.author);
       const tags = raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? ["ecency"];
 
@@ -46,23 +46,42 @@ export function useWavesApi() {
         .withPoll(activePoll)
         .build();
 
-      await comment(author, parentAuthor, parentPermlink, permlink, "", raw, jsonMeta, null, true);
-      await validatePostCreating(activeUser?.username, permlink);
-
-      const tempReply = tempEntry({
-        author: activeUser.data as FullAccount,
-        permlink,
+      await comment(
+        activeUser.username,
         parentAuthor,
         parentPermlink,
-        title: "",
-        body: raw,
-        tags,
-        description: null,
-        post_id: v4()
-      });
+        permlink,
+        "",
+        raw,
+        jsonMeta,
+        null,
+        true
+      );
+      await validatePostCreating(activeUser?.username, permlink);
 
-      addReplyToDiscussionsList(entry, tempReply, queryClient);
-      updateRepliesCount(entry.children + 1, entry);
+      const tempReply = editingEntry
+        ? {
+            ...editingEntry,
+            body: raw
+          }
+        : tempEntry({
+            author: activeUser.data as FullAccount,
+            permlink,
+            parentAuthor,
+            parentPermlink,
+            title: "",
+            body: raw,
+            tags,
+            description: null,
+            post_id: v4()
+          });
+
+      if (!editingEntry) {
+        addReplyToDiscussionsList(entry, tempReply, queryClient);
+        updateRepliesCount(entry.children + 1, entry);
+      }
+
+      EcencyEntriesCacheManagement.updateEntryQueryData([tempReply], queryClient);
 
       return tempReply;
     }

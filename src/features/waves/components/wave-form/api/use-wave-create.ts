@@ -45,10 +45,15 @@ export function useWaveCreate() {
       const entry = hostEntries[0];
       return {
         host,
-        entry: (await generalApiRequest({ entry, raw, editingEntry })) as WaveEntry
+        entry: (await generalApiRequest({ entry, raw, editingEntry })) as WaveEntry,
+        isEditing: !!editingEntry
       };
     },
-    onSuccess: ({ host, entry }) => {
+    onSuccess: ({ host, entry, isEditing }) => {
+      if (isEditing) {
+        return;
+      }
+
       queryClient.setQueryData<InfiniteData<WaveEntry[]>>(
         [QueryIdentifiers.THREADS, host],
         (data) =>

@@ -71,11 +71,12 @@ export function useWaveSubmit(
           editingEntry: editingEntry
         })) as WaveEntry;
       } else {
-        threadItem = (await create({
+        const { entry } = await create({
           host,
           raw: content,
-          editingEntry: editingEntry
-        })) as WaveEntry;
+          editingEntry
+        });
+        threadItem = entry;
       }
 
       if (host) {

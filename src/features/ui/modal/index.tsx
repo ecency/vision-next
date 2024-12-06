@@ -132,7 +132,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
               }
               onClick={(e) => e.stopPropagation()}
               className={classNameObject({
-                "bg-white rounded-xl w-[calc(100%-2rem)] ecency-modal-content overflow-x-hidden md:my-[3rem] mx-3":
+                "bg-white border border-[--border-color] rounded-xl w-[calc(100%-2rem)] ecency-modal-content overflow-x-hidden md:my-[3rem] mx-3":
                   true,
                 "max-w-[500px]": !props.size || props.size === "md",
                 "max-w-[800px]": props.size === "lg",
