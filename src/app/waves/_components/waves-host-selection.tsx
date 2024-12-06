@@ -22,7 +22,7 @@ export function WavesHostSelection({ host, setHost }: Props) {
             {host}
           </Button>
         </DropdownToggle>
-        <DropdownMenu>
+        <DropdownMenu align="right">
           {availableHosts.map((item, i) => (
             <DropdownItem name={item} onClick={() => setHost(item)} title={item} key={item}>
               {item}
