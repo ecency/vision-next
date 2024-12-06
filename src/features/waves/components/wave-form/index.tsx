@@ -104,6 +104,7 @@ const WaveFormComponent = ({
           <AvailableCredits username={activeUser.username} operation="comment_operation" />
         )}
         <WaveFormToolbar
+          isEdit={!!entry}
           onAddImage={(url, name) => {
             setImage(url);
             setImageName(name);
