@@ -5,6 +5,7 @@ import { WaveEntry } from "@/entities";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { EcencyConfigManager } from "@/config";
+import { Metadata } from "next";
 
 interface Props {
   params: Promise<{
@@ -12,6 +13,11 @@ interface Props {
     permlink: string;
   }>;
 }
+
+export const metadata: Metadata = {
+  title: "Waves | Ecency",
+  description: "Micro-blogging in decentralized system of Web 3.0"
+};
 
 export default async function WaveViewPage({ params }: Props) {
   const isWavesEnabled = EcencyConfigManager.useConfig(

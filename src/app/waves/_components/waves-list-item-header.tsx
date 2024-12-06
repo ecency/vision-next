@@ -39,13 +39,15 @@ export function WavesListItemHeader({ entry, status, hasParent, pure }: Props) {
             </>
           )}
 
-          <Link
-            target="_blank"
-            className="text-sm text-gray-600 dark:text-gray-400 after:!content-none hover:underline"
-            href={`/created/${entry.category}`}
-          >
-            #{entry.host}
-          </Link>
+          {entry.host && (
+            <Link
+              target="_blank"
+              className="text-sm text-gray-600 dark:text-gray-400 after:!content-none hover:underline"
+              href={`/created/${entry.category}`}
+            >
+              #{entry.host}
+            </Link>
+          )}
         </div>
       </div>
 

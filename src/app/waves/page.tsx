@@ -1,14 +1,16 @@
-"use client";
-
-import { WavesCreateCard, WavesList } from "@/app/waves/_components";
-import { WavesHostSelection } from "@/app/waves/_components/waves-host-selection";
-import useLocalStorage from "react-use/lib/useLocalStorage";
-import { PREFIX } from "@/utils/local-storage";
+import { WavesPage } from "@/app/waves/_page";
+import { Metadata } from "next";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getQueryClient } from "@/core/react-query";
 import { EcencyConfigManager } from "@/config";
 import { notFound } from "next/navigation";
 
-export default function WavesPage() {
-  const [host, setHost] = useLocalStorage(PREFIX + "_wh", "ecency.waves");
+export const metadata: Metadata = {
+  title: "Waves | Ecency",
+  description: "Micro-blogging in decentralized system of Web 3.0"
+};
+
+export default function WavesServerPage() {
   const isWavesEnabled = EcencyConfigManager.useConfig(
     ({ visionFeatures }) => visionFeatures.waves.enabled
   );
@@ -18,10 +20,8 @@ export default function WavesPage() {
   }
 
   return (
-    <>
-      <WavesHostSelection host={host!} setHost={setHost} />
-      <WavesCreateCard />
-      <WavesList host={host!} />
-    </>
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
+      <WavesPage />
+    </HydrationBoundary>
   );
 }
