@@ -13,7 +13,8 @@ export const BUTTON_STYLES: Record<ButtonAppearance, string> = {
   "gray-link": "text-gray-600 hover:text-blue-dark-sky focus:text-blue-dark-sky-active",
   "white-link": "text-white hover:opacity-50 focus:opacity-75",
   white:
-    "text-blue-dark-sky bg-white hover:bg-gray-100 focus:bg-gray-200 dark:bg-dark-default dark:hover:bg-dark-200 dark:focus:bg-gray-900 dark:text-white disabled:opacity-75"
+    "text-blue-dark-sky bg-white hover:bg-gray-100 focus:bg-gray-200 dark:bg-dark-default dark:hover:bg-dark-200 dark:focus:bg-gray-900 dark:text-white disabled:opacity-75",
+  gray: "bg-gray-200 text-gray-600 dark:text-gray-400 dark:bg-gray-800 hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200"
 };
 
 export const BUTTON_OUTLINE_STYLES: Record<ButtonAppearance, string> = {
@@ -30,7 +31,8 @@ export const BUTTON_OUTLINE_STYLES: Record<ButtonAppearance, string> = {
   "gray-link": "",
   "white-link": "",
   white:
-    "text-white border-white hover:border-gray-100 focus:border-gray-200 dark:border-dark-default dark:hover:border-dark-200 dark:focus:border-gray-900 dark:text-dark-default"
+    "text-white border-white hover:border-gray-100 focus:border-gray-200 dark:border-dark-default dark:hover:border-dark-200 dark:focus:border-gray-900 dark:text-dark-default",
+  gray: ""
 };
 
 export const BUTTON_SIZES: Record<ButtonSize, string> = {
