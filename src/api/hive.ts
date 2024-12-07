@@ -31,7 +31,7 @@ import {
   WithdrawRoute,
   Witness
 } from "@/entities";
-import { isCommunity, parseAsset, vestsToRshares } from "@/utils";
+import { delay, isCommunity, parseAsset, vestsToRshares } from "@/utils";
 import { OrdersDataItem } from "@/entities/hive/orders-data-item";
 
 export const client = new Client(SERVERS, {
@@ -383,3 +383,24 @@ export const getRcOperationStats = (): Promise<any> => client.call("rc_api", "ge
 
 export const getContentReplies = (author: string, permlink: string): Promise<Entry[] | null> =>
   client.call("condenser_api", "get_content_replies", { author, permlink });
+
+/**
+ * Helps to validate if post was really created on Blockchain
+ */
+export async function validatePostCreating(author: string, permlink: string, attempts = 0) {
+  if (attempts === 3) {
+    return;
+  }
+
+  let response: Entry | undefined;
+  try {
+    response = await getPost(author, permlink);
+  } catch (e) {
+    response = undefined;
+  }
+  if (!response) {
+    await delay(3000);
+    attempts += 1;
+    return validatePostCreating(author, permlink, attempts);
+  }
+}

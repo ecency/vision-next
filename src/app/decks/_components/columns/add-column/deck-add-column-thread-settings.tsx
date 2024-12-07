@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { SettingsProps } from "./common";
 import { DeckGridContext } from "../../deck-manager";
-import { AVAILABLE_THREAD_HOSTS } from "../../consts";
+import { AVAILABLE_THREAD_HOSTS } from "@/features/waves";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { PREFIX } from "@/utils/local-storage";

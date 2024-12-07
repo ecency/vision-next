@@ -1,7 +1,8 @@
 import React, { HTMLProps, useContext } from "react";
 import { ModalContext } from "./index";
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
-import { closeSvg } from "@/features/ui/svg";
+import { Button } from "@ui/button";
+import { UilMultiply } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   closeButton: boolean;
@@ -26,13 +27,15 @@ export function ModalHeader(props: HTMLProps<HTMLDivElement> & Props) {
     >
       {props.children}
       {props.closeButton && (
-        <button
+        <Button
+          appearance="gray"
           aria-label="Close"
-          className="w-5 h-5 opacity-50 absolute top-3 right-3 hover:opacity-100"
+          noPadding={true}
+          size="sm"
+          className="absolute top-3 right-3 w-8"
           onClick={() => context.setShow(false)}
-        >
-          {closeSvg}
-        </button>
+          icon={<UilMultiply className="!w-4 !h-4" />}
+        />
       )}
     </div>
   );

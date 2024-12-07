@@ -11,14 +11,16 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Theme } from "@/enums";
 import { useGlobalStore } from "@/core/global-store";
 import { LoginDialog, NotificationsDialog } from "@/features/shared";
+import { classNameObject } from "@ui/util";
 
 interface Props {
   step?: number;
   setStepOne?: () => void;
   setStepTwo?: () => void;
+  experimental?: boolean; // Use this flag for testing something
 }
 
-export function Navbar({ setStepOne, setStepTwo, step }: Props) {
+export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const toggleTheme = useGlobalStore((state) => state.toggleTheme);
   const uiLogin = useGlobalStore((state) => state.login);
@@ -90,7 +92,10 @@ export function Navbar({ setStepOne, setStepTwo, step }: Props) {
 
   return (
     <div
-      className="fixed z-20 top-0 left-0 right-0 flex flex-col justify-start"
+      className={classNameObject({
+        "fixed z-20 top-0 left-0 right-0 flex flex-col justify-start": true,
+        "md:p-2": experimental
+      })}
       id="sticky-container"
     >
       <NavbarMobile
@@ -107,6 +112,7 @@ export function Navbar({ setStepOne, setStepTwo, step }: Props) {
         step={step}
         setStepOne={setStepOne}
         setSmVisible={setSmVisible}
+        experimental={experimental}
       />
       {uiLogin && <LoginDialog />}
       {/*Do not remove from here because it`s controlling by global store*/}

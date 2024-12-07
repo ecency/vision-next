@@ -6,7 +6,6 @@ export function renderLiketu(entry: Entry) {
   const shadow = postTree.attachShadow({ mode: "open" });
 
   shadow.innerHTML = renderPostBody(entry, true, true);
-  console.log(shadow.innerHTML);
   const images = Array.from(shadow.querySelectorAll("img"));
   const content = Array.from(shadow.querySelectorAll("p"));
   const text = content[content.length - 1].innerText;

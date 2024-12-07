@@ -182,51 +182,6 @@
     }
   }
 
-  .deck-threads-form-toolbar {
-    display: flex;
-    align-items: center;
-    border-top: 1px solid $border-color;
-
-    @include margin-top(1rem);
-    @include padding-top(0.5rem);
-    @include padding-bottom(0.5rem);
-
-    .btn.btn-link {
-      width: 2.5rem;
-      height: 2.5rem;
-      @apply text-gray-400;
-      box-shadow: none;
-
-      @include padding(0);
-
-      &:hover {
-        color: $primary;
-        background-color: rgba($primary, 0.15);
-      }
-    }
-
-    &-video-picker {
-      position: relative;
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0.5rem;
-        right: 1rem;
-        width: 0.25rem;
-        height: 0.25rem;
-        opacity: 0;
-        background-color: $danger;
-        border-radius: 50%;
-        transition: 0.3s;
-      }
-
-      &:hover::before {
-        opacity: 1;
-      }
-    }
-  }
-
   .deck-threads-form-selected-image {
     position: relative;
     overflow: hidden;

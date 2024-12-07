@@ -3,7 +3,7 @@ import "./index.scss";
 import Link from "next/link";
 import { Community } from "@/entities";
 import { ProfileLink, UserAvatar } from "@/features/shared";
-import { SubscriptionBtn } from "../subscription-btn";
+import { SubscriptionBtn } from "../../communities/_components/subscription-btn";
 import { AllFilter } from "@/enums";
 import { formattedNumber, makePath } from "@/utils";
 import i18next from "i18next";
@@ -73,3 +73,5 @@ export function CommunityListItem({ community, small, vertical }: Props) {
     </div>
   );
 }
+
+export * from "./community-list-item-loading";

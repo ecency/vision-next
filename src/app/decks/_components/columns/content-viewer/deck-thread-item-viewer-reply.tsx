@@ -1,16 +1,16 @@
 import { ThreadItem } from "../deck-items";
 import { DeckThreadsForm } from "../../deck-threads-form";
 import React, { useState } from "react";
-import { IdentifiableEntry } from "../deck-threads-manager";
 import "./_deck-thread-item-viewer-reply.scss";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
+import { WaveEntry } from "@/entities";
 
 interface Props {
-  entry: IdentifiableEntry;
+  entry: WaveEntry;
   isHighlighted?: boolean;
-  parentEntry: IdentifiableEntry;
+  parentEntry: WaveEntry;
   incrementParentEntryCount: () => void;
 }
 

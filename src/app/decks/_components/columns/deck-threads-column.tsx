@@ -1,4 +1,4 @@
-import { AVAILABLE_THREAD_HOSTS } from "../consts";
+import { AVAILABLE_THREAD_HOSTS } from "@/features/waves";
 import { DeckThreadEditItem, DeckThreadItemSkeleton, ThreadItem } from "./deck-items";
 import { DeckThreadItemViewer } from "./content-viewer";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";

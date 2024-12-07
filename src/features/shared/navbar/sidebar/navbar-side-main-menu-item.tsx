@@ -1,14 +1,16 @@
 import React, { ReactNode } from "react";
 import Link from "next/link";
+import { Badge } from "@ui/badge";
 
 interface Props {
   label: string;
   icon?: ReactNode;
   onClick?: () => unknown;
   to?: string;
+  isNew?: boolean;
 }
 
-export function NavbarSideMainMenuItem({ label, onClick, icon, to }: Props) {
+export function NavbarSideMainMenuItem({ label, onClick, icon, to, isNew }: Props) {
   return to ? (
     <Link
       href={to}
@@ -18,6 +20,7 @@ export function NavbarSideMainMenuItem({ label, onClick, icon, to }: Props) {
     >
       {icon}
       {label}
+      {isNew && <Badge className="text-xs">New 🔥</Badge>}
     </Link>
   ) : (
     <div

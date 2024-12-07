@@ -23,7 +23,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
 
     const className = classNameObject({
       // Basic
-      "cursor-pointer rounded-full duration-300 no-wrap": true,
+      "cursor-pointer rounded-full duration-300 no-wrap active:scale-95": true,
       // Outline basics
       "border-[1.25px] border-solid": props.outline ?? false,
       // With icon
@@ -83,3 +83,4 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
 ForwardedButton.displayName = "Button";
 
 export const Button = ForwardedButton;
+export * from "./button-loading";

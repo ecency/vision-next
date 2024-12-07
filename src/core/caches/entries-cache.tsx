@@ -133,7 +133,7 @@ export namespace EcencyEntriesCacheManagement {
     };
   }
 
-  function updateEntryQueryData(entries: Entry[], qc: QueryClient = getQueryClient()) {
+  export function updateEntryQueryData(entries: Entry[], qc: QueryClient = getQueryClient()) {
     entries.forEach((entry) => {
       qc.setQueryData<Entry>(
         [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],

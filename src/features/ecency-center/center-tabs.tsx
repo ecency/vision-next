@@ -1,6 +1,5 @@
-import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { classNameObject } from "@ui/util";
+import { TabItem } from "@ui/tabs";
 
 interface Props {
   tabs: {
@@ -25,26 +24,14 @@ export function CenterTabs({ tabs, onSelect }: Props) {
       className="border-b border-[--border-color] grid grid-cols-3 items-center text-center text-sm font-semibold"
     >
       {tabs.map((tab, i) => (
-        <motion.div
-          className={classNameObject({
-            "p-2 lg:p-3 xl:p-4 flex flex-col items-center relative cursor-pointer": true,
-            "text-blue-dark-sky": current === tab.key
-          })}
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.2 }}
+        <TabItem
+          isSelected={tab.key === current}
           key={tab.key}
-          onClick={() => setCurrent(tab.key)}
-        >
-          {tab.title}
-          {tab.key === current && (
-            <motion.span
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="rounded-full absolute w-1 h-1 bottom-2 bg-blue-dark-sky"
-            />
-          )}
-        </motion.div>
+          name={tab.key}
+          onSelect={() => setCurrent(tab.key)}
+          title={tab.title}
+          i={i}
+        />
       ))}
     </div>
   );

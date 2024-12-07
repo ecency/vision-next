@@ -1,24 +1,21 @@
 import { useResizeDetector } from "react-resize-detector";
 import React, { useEffect, useState } from "react";
 import { IdentifiableEntry } from "../deck-threads-manager";
-import { commentSvg, voteSvg } from "../../icons";
 import { DeckThreadItemBody } from "./deck-thread-item-body";
 import { useInViewport } from "react-in-viewport";
 import { useEntryChecking } from "../../utils";
 import { DeckThreadItemHeader } from "./deck-thread-item-header";
-import { Button } from "@ui/button";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
-import { Entry } from "@/entities";
+import { Entry, WaveEntry } from "@/entities";
 import { classNameObject } from "@ui/util";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 import i18next from "i18next";
 import { dateToRelative } from "@/utils";
-import { EntryMenu, EntryVoteBtn, EntryVotes, UserAvatar } from "@/features/shared";
 import useMount from "react-use/lib/useMount";
+import { WaveActions } from "@/features/waves";
 
 export interface ThreadItemProps {
-  initialEntry: IdentifiableEntry;
+  initialEntry: WaveEntry;
   onMounted: () => void;
   onEntryView: () => void;
   onResize: () => void;
@@ -47,11 +44,10 @@ export const ThreadItem = ({
   visible = true,
   triggerPendingStatus = false
 }: ThreadItemProps) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
   const { height, ref } = useResizeDetector();
   const { inViewport } = useInViewport(ref);
   const { data: entry } =
-    EcencyEntriesCacheManagement.getEntryQuery<IdentifiableEntry>(initialEntry).useClientQuery();
+    EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(initialEntry).useClientQuery();
 
   const [renderInitiated, setRenderInitiated] = useState(false);
   const [hasParent, setHasParent] = useState(false);
@@ -137,36 +133,16 @@ export const ThreadItem = ({
           {i18next.t("decks.columns.updated", { n: dateToRelative(entry!.updated) })}
         </div>
       )}
-      {status === "default" && (
-        <div className="thread-item-actions">
-          <div>
-            <EntryVoteBtn entry={entry!} isPostSlider={false} />
-            <EntryVotes entry={entry!} icon={voteSvg} />
-            <Button appearance="link" onClick={() => onEntryView()}>
-              <div className="flex items-center comments">
-                <div style={{ paddingRight: 4 }}>{commentSvg}</div>
-                <div>{commentsSlot ?? entry?.children}</div>
-              </div>
-            </Button>
-          </div>
-          <div>
-            <EntryMenu entry={entry!} />
-            {activeUser?.username === entry?.author && (
-              <Button className="edit-btn" appearance="link" onClick={() => onEdit(entry!)}>
-                {i18next.t("decks.columns.edit-wave")}
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-      {hasParent && !pure && (
-        <div className="thread-item-parent">
-          <UserAvatar size="small" username={entry?.parent_author!!} />
-          <Button appearance="link" className="host" onClick={onSeeFullThread}>
-            {i18next.t("decks.columns.see-full-thread")}
-          </Button>
-        </div>
-      )}
+      <WaveActions
+        entry={entry!}
+        status={status}
+        pure={pure}
+        onEntryView={onEntryView}
+        hasParent={hasParent}
+        commentsSlot={commentsSlot}
+        onEdit={onEdit}
+        onSeeFullThread={onSeeFullThread}
+      />
     </div>
   );
 };

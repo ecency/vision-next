@@ -37,3 +37,5 @@ export function UserAvatar({ username, size, src, onClick, className }: Props) {
     />
   );
 }
+
+export * from "./user-avatar-loading";

@@ -13,7 +13,7 @@ import {
   renderTags,
   renderTweets,
   renderVideos
-} from "../deck-items/deck-thread-item-body-render-helper";
+} from "@/features/waves";
 import { Button } from "@ui/button";
 import { Entry } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";

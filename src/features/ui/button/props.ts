@@ -3,13 +3,15 @@ import { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 export type ButtonAppearance =
   | "primary"
   | "secondary"
+  | "gray"
   | "gray-link"
   | "link"
   | "danger"
   | "success"
   | "warning"
   | "info"
-  | "white-link";
+  | "white-link"
+  | "white";
 export type ButtonSize = "xxs" | "xs" | "sm" | "md" | "lg" | "display";
 
 interface RegularButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

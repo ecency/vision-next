@@ -1,13 +1,5 @@
 @import "../../../styles/vars_mixins";
 
-.text-menu {
-  > .menu-item:not(:first-child)::before {
-    content: "/";
-
-    @apply px-3;
-  }
-}
-
 .navbar-toggle {
   > span {
     height: 0.125rem;

@@ -14,3 +14,4 @@ export * from "./full-height";
 export * from "./modal-confirm";
 export * from "./popper-dropdown";
 export * from "./page-menu";
+export * from "./tabs";
