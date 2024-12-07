@@ -78,6 +78,7 @@ jobs:
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           cd ~/vision-next
           git pull origin main
+          docker system prune -f
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
@@ -111,6 +112,7 @@ jobs:
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           cd ~/vision-next
           git pull origin main
+          docker system prune -f
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
@@ -144,6 +146,7 @@ jobs:
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           cd ~/vision-next
           git pull origin main
+          docker system prune -f
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
