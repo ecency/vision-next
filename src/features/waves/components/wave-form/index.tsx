@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import "./_index.scss";
 import { Entry, WaveEntry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { PollsContext, PollsManager } from "@/features/polls";
+import { PollsContext, PollsManager, useEntryPollExtractor } from "@/features/polls";
 import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
 import { AvailableCredits, ProfileLink, UserAvatar } from "@/features/shared";
@@ -32,7 +32,7 @@ const WaveFormComponent = ({
   entry
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const { clearActivePoll } = useContext(PollsContext);
+  const { clearActivePoll, setActivePoll } = useContext(PollsContext);
 
   const [threadHost, setThreadHost] = useLocalStorage(PREFIX + "_wf_th", "ecency.waves");
   const [text, setText, clearText] = useLocalStorage(PREFIX + "_wf_t", "");
@@ -41,6 +41,13 @@ const WaveFormComponent = ({
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
 
   const disabled = useMemo(() => !text || !threadHost, [text, threadHost]);
+  const poll = useEntryPollExtractor(entry);
+
+  useEffect(() => {
+    if (poll) {
+      setActivePoll(poll);
+    }
+  }, [poll, setActivePoll]);
 
   useEffect(() => {
     if (entry) {
