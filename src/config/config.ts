@@ -27,6 +27,11 @@ const CONFIG = {
       }
     },
     visionFeatures: {
+      analytics: {
+        plausible: {
+          domain: "https://ecency.com"
+        }
+      },
       perks: {
         enabled: true
       },

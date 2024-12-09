@@ -6,6 +6,7 @@ const withPWA = require("next-pwa")({
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
+const { withPlausibleProxy } = require("next-plausible");
 
 const config = {
   productionBrowserSourceMaps: true,
@@ -149,5 +150,5 @@ const withSentry = withSentryConfig(config, {
 });
 
 /** @type {import('next').NextConfig} */
-const nextWithPWA = withPWA(withSentry);
-module.exports = process.env.NODE_ENV === "production" ? nextWithPWA : withSentry;
+const prod = withPlausibleProxy()(withPWA(withSentry));
+module.exports = process.env.NODE_ENV === "production" ? prod : withSentry;
