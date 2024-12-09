@@ -231,7 +231,7 @@ export function SuggestionList({
               </div>
             </motion.div>
           )}
-          {showList && !modeItems && items.length > 0 && (
+          {showList && !modeItems && items?.length > 0 && (
             <motion.div
               initial={{
                 opacity: 0,
