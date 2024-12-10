@@ -29,8 +29,7 @@ const CONFIG = {
     visionFeatures: {
       analytics: {
         plausible: {
-          domain: "https://ecency.com",
-          customDomain: "https://pl.ecency.com"
+          domain: "https://ecency.com"
         }
       },
       perks: {

@@ -44,10 +44,6 @@ const config = {
   async rewrites() {
     return [
       {
-        source: '/proxy/api/event',
-        destination: 'https://pl.ecency.com/api/event'
-      },
-      {
         source: "/communities",
         destination: "/discover/communities"
       },
@@ -154,5 +150,5 @@ const withSentry = withSentryConfig(config, {
 });
 
 /** @type {import('next').NextConfig} */
-const prod = withPlausibleProxy()(withPWA(withSentry));
+const prod = withPlausibleProxy({customDomain: 'https://pl.ecency.com', selfHosted: true})(withPWA(withSentry));
 module.exports = process.env.NODE_ENV === "production" ? prod : withSentry;

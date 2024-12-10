@@ -9,10 +9,6 @@ export default function Providers({ children }: PropsWithChildren) {
       domain={EcencyConfigManager.getConfigValue(
         (config) => config.visionFeatures.analytics.plausible.domain
       )}
-      customDomain={EcencyConfigManager.getConfigValue(
-        (config) => config.visionFeatures.analytics.plausible.customDomain
-      )}
-      selfHosted={true}
     >
       <ClientProviders>{children}</ClientProviders>
     </PlausibleProvider>
