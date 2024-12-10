@@ -44,8 +44,8 @@ const config = {
   async rewrites() {
     return [
       {
-        source: '/api/event',
-        destination: '/proxy/api/event'
+        source: '/proxy/api/event',
+        destination: 'https://pl.ecency.com/api/event'
       },
       {
         source: "/communities",
