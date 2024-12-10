@@ -2486,7 +2486,8 @@
     "faq": "FAQ",
     "chats": "Chats",
     "news": "News",
-    "chats-page-placeholder": "Chats have opened in extended view"
+    "chats-page-placeholder": "Chats have opened in extended view",
+    "audio-rooms": "Live"
   },
   "not-found": {
     "title": "Not found",

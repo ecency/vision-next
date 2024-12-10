@@ -4,6 +4,7 @@ import { CenterAnnouncements, CenterFaq } from "@/features/ecency-center/section
 import { ChatPopUp } from "@/app/chats/_components/chat-popup";
 import i18next from "i18next";
 import { usePathname } from "next/navigation";
+import { CenterLive } from "@/features/ecency-center/center-live";
 
 export function CenterContent() {
   const [current, setCurrent] = useState("chats");
@@ -11,6 +12,10 @@ export function CenterContent() {
 
   const tabs = useMemo(
     () => [
+      {
+        title: i18next.t("center.audio-rooms"),
+        key: "live"
+      },
       {
         title: i18next.t("center.chats"),
         key: "chats"
@@ -40,6 +45,7 @@ export function CenterContent() {
         ) : (
           <ChatPopUp />
         ))}
+      {current === "live" && <CenterLive />}
     </div>
   );
 }

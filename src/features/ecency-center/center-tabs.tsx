@@ -22,7 +22,7 @@ export function CenterTabs({ tabs, onSelect }: Props) {
   return (
     <div
       ref={ref}
-      className="border-b border-[--border-color] grid grid-cols-3 items-center text-center text-sm font-semibold"
+      className="border-b border-[--border-color] grid grid-cols-4 items-center text-center text-sm font-semibold"
     >
       {tabs.map((tab, i) => (
         <motion.div

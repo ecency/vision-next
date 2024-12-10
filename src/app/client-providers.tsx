@@ -13,29 +13,32 @@ import { EcencyConfigManager } from "@/config";
 import { PushNotificationsProvider } from "@/features/push-notifications";
 import { EcencyCenter } from "@/features/ecency-center";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { EcencyLiveManager } from "@/features/ecency-live";
 
 export function ClientProviders(props: PropsWithChildren) {
   return (
     <QueryClientProvider client={makeQueryClient()}>
       <UIManager>
-        <ClientInit />
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.userActivityTracking.enabled}
-        >
-          <UserActivityRecorder />
-        </EcencyConfigManager.Conditional>
-        <Tracker />
-        <PushNotificationsProvider>
-          <ChatProvider>
-            {props.children}
-            <EcencyConfigManager.Conditional
-              condition={({ visionFeatures }) => visionFeatures.center.enabled}
-            >
-              <EcencyCenter />
-            </EcencyConfigManager.Conditional>
-          </ChatProvider>
-        </PushNotificationsProvider>
-        <Announcements />
+        <EcencyLiveManager>
+          <ClientInit />
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.userActivityTracking.enabled}
+          >
+            <UserActivityRecorder />
+          </EcencyConfigManager.Conditional>
+          <Tracker />
+          <PushNotificationsProvider>
+            <ChatProvider>
+              {props.children}
+              <EcencyConfigManager.Conditional
+                condition={({ visionFeatures }) => visionFeatures.center.enabled}
+              >
+                <EcencyCenter />
+              </EcencyConfigManager.Conditional>
+            </ChatProvider>
+          </PushNotificationsProvider>
+          <Announcements />
+        </EcencyLiveManager>
       </UIManager>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

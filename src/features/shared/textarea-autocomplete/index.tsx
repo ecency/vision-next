@@ -113,7 +113,6 @@ export const TextareaAutocomplete = forwardRef<any, any>((props, ref) => {
               ? props.entity.split("/")[1]
               : props.entity;
             let charLimit = isMobile ? 16 : 30;
-            console.log(props.entity)
             if (textToShow.length > charLimit && props.entity.includes("/")) {
               textToShow =
                 textToShow.substring(0, charLimit - 5) +

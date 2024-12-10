@@ -26,6 +26,10 @@ const CONFIG = {
       }
     },
     visionFeatures: {
+      jam: {
+        enabled: true,
+        domain: "jam.ecency.com"
+      },
       perks: {
         enabled: true
       },
