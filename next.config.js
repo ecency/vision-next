@@ -43,11 +43,11 @@ const config = {
   async rewrites() {
     return [
       {
-        source: '/js/script.js',
+        source: '/pl/js/script.js',
         destination: 'https://pl.ecency.com/js/script.js'
       },
       {
-        source: '/api/event', // Or '/api/event/' if you have `trailingSlash: true` in this config
+        source: '/pl/api/event',
         destination: 'https://pl.ecency.com/api/event'
       },
       {
