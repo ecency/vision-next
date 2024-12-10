@@ -150,5 +150,5 @@ const withSentry = withSentryConfig(config, {
 });
 
 /** @type {import('next').NextConfig} */
-const prod = withPlausibleProxy({customDomain: 'https://pl.ecency.com', selfHosted: true})(withPWA(withSentry));
-module.exports = process.env.NODE_ENV === "production" ? prod : withSentry;
+const prod = withPWA(withSentry);
+module.exports = process.env.NODE_ENV === "production" ? withPlausibleProxy({customDomain: 'https://pl.ecency.com', selfHosted: true})(prod) : withPlausibleProxy({customDomain: 'https://pl.ecency.com', selfHosted: true})(withSentry);

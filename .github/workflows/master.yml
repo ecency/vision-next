@@ -76,7 +76,6 @@ jobs:
           export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
-          export NODE_ENV='production'
           cd ~/vision-next
           git pull origin main
           docker system prune -f
@@ -111,7 +110,6 @@ jobs:
           export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
-          export NODE_ENV='production'
           cd ~/vision-next
           git pull origin main
           docker system prune -f
@@ -146,7 +144,6 @@ jobs:
           export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
-          export NODE_ENV='production'
           cd ~/vision-next
           git pull origin main
           docker system prune -f
