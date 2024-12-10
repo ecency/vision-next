@@ -6,7 +6,6 @@ const withPWA = require("next-pwa")({
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
-const { withPlausibleProxy } = require("next-plausible");
 
 const config = {
   productionBrowserSourceMaps: true,
@@ -43,6 +42,14 @@ const config = {
   // Warn: Rewrites applies in order
   async rewrites() {
     return [
+      {
+        source: '/js/script.js',
+        destination: 'https://pl.ecency.com/js/script.js'
+      },
+      {
+        source: '/api/event', // Or '/api/event/' if you have `trailingSlash: true` in this config
+        destination: 'https://pl.ecency.com/api/event'
+      },
       {
         source: "/communities",
         destination: "/discover/communities"
@@ -151,4 +158,4 @@ const withSentry = withSentryConfig(config, {
 
 /** @type {import('next').NextConfig} */
 const prod = withPWA(withSentry);
-module.exports = process.env.NODE_ENV === "production" ? withPlausibleProxy({customDomain: 'https://pl.ecency.com', selfHosted: true})(prod) : withPlausibleProxy({customDomain: 'https://pl.ecency.com', selfHosted: true})(withSentry);
+module.exports = process.env.NODE_ENV === "production" ? prod : withSentry;
