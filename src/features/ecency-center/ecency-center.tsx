@@ -1,3 +1,5 @@
+"use client";
+
 import { CenterButton } from "@/features/ecency-center/center-button";
 import { CenterContent } from "@/features/ecency-center/center-content";
 import { CenterContentLayout } from "@/features/ecency-center/center-content-layout";

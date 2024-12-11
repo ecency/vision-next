@@ -1,20 +1,28 @@
 import { RoomType } from "jam-core";
 import Image from "next/image";
 import { UserAvatar } from "@/features/shared";
-import useMount from "react-use/lib/useMount";
-import { useEcencyLive } from "@/features/ecency-live/ecency-live-context";
+import { classNameObject } from "@ui/util";
+import { motion } from "framer-motion";
 
 interface Props {
   room: RoomType;
+  onClick?: () => void;
 }
 
-export function EcencyLiveItem({ room }: Props) {
-  const [_, api] = useEcencyLive();
-
-  useMount(() => api.onState("peers", (peers) => console.log(peers)));
-
+export function EcencyLiveItem({ room, onClick }: Props) {
   return (
-    <div className="flex items-start p-3 border-b border-[--border-color] last:border-0 hover:bg-gray-200 dark:hover:bg-dark-default duration-300 cursor-pointer gap-3">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.875, position: "absolute" }}
+      animate={{ opacity: 1, scale: 1, position: "static" }}
+      exit={{ opacity: 0, scale: 0.875, position: "absolute" }}
+      key={room.name}
+      className={classNameObject({
+        "flex items-start p-3 cursor-pointer gap-3": true,
+        "hover:bg-gray-200 dark:hover:bg-dark-default border-b border-[--border-color] last:border-0":
+          !!onClick
+      })}
+      onClick={onClick}
+    >
       <Image
         src={room.logoURI ?? ""}
         alt=""
@@ -31,6 +39,6 @@ export function EcencyLiveItem({ room }: Props) {
           <UserAvatar username={speaker} key={speaker} />
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
