@@ -20,7 +20,7 @@ export function EntryPageMainInfo({ entry }: Props) {
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
-    <div className="flex flex-col gap-4 mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
+    <div className="p-2 md:p-4 md:pb-3 border border-[--border-color] rounded-2xl flex flex-col gap-4 mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
       <div className="flex items-center gap-4">
         <ProfileLink username={entry.author}>
           <UserAvatar username={entry.author} size="sLarge" />
@@ -45,18 +45,20 @@ export function EntryPageMainInfo({ entry }: Props) {
             <TagLink tag={entry.category} type="link">
               {entry.community ? entry.community_title : `#${entry.category}`}
             </TagLink>
-            <span className="separator circle-separator mx-1" />
-            <div className="date" title={published.format("LLLL")}>
-              {published.fromNow()}
-            </div>
           </div>
         </div>
       </div>
 
       <ReadTime entry={entry} toolTip={true} />
 
-      <div className="p-2 md:px-4 border border-[--border-color] rounded-2xl flex items-center justify-between">
-        <EntryPageStats />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center text-sm">
+          <EntryPageStats />
+          <span className="separator circle-separator mx-1" />
+          <div className="date" title={published.format("LLLL")}>
+            {published.fromNow()}
+          </div>
+        </div>
         <div className="flex items-center justify-end">
           {!isComment && (
             <EcencyConfigManager.Conditional
