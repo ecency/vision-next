@@ -53,7 +53,7 @@ export function EntryPageMainInfo({ entry }: Props) {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center text-sm">
-          <EntryPageStats />
+          <EntryPageStats entry={entry} />
           <span className="separator circle-separator mx-1" />
           <div className="date" title={published.format("LLLL")}>
             {published.fromNow()}

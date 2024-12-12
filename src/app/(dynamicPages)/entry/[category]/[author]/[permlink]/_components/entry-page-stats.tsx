@@ -3,10 +3,21 @@
 import { usePathname } from "next/navigation";
 import { useGetStatsQuery } from "@/api/queries";
 import { UilEye } from "@tooni/iconscout-unicons-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Button } from "@ui/button";
+import { Modal, ModalBody, ModalHeader } from "@ui/modal";
+import i18next from "i18next";
+import { Entry } from "@/entities";
+import { format, parseISO } from "date-fns";
+import { EntryPageStatsItem } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-item";
 
-export function EntryPageStats() {
+interface Props {
+  entry: Entry;
+}
+
+export function EntryPageStats({ entry }: Props) {
   const pathname = usePathname();
+  const [showStats, setShowStats] = useState(false);
 
   /**
    * We have to clean pathname to get all available page-views of entry
@@ -20,13 +31,60 @@ export function EntryPageStats() {
 
     return `${sections[0]}/${sections[1]}`;
   }, [pathname]);
+  const createdDate = useMemo(
+    () => format(parseISO(entry.created), "dd MMM yyyy"),
+    [entry.created]
+  );
 
   const { data: stats } = useGetStatsQuery(cleanedPathname).useClientQuery();
 
+  const totalViews = useMemo(
+    () => stats?.results?.reduce((acc, result) => acc + result.metrics[1], 0) ?? 1,
+    [stats?.results]
+  );
+  const totalVisitors = useMemo(
+    () => stats?.results?.reduce((acc, result) => acc + result.metrics[0], 0) ?? 0,
+    [stats?.results]
+  );
+  const averageReadTime = useMemo(
+    () =>
+      (
+        (stats?.results?.reduce((acc, result) => acc + result.metrics[2], 0) ?? 0 ?? 0) / totalViews
+      ).toFixed(1),
+    [stats?.results, totalViews]
+  );
+
   return (
-    <div className="flex items-center gap-2 opacity-50">
-      <UilEye className="w-4 h-4" />
-      <div>{stats?.results[0]?.metrics[1] ?? 0}</div>
-    </div>
+    <>
+      <Button
+        icon={<UilEye />}
+        iconPlacement="left"
+        size="sm"
+        appearance="gray-link"
+        onClick={() => setShowStats(true)}
+      >
+        {totalViews}
+      </Button>
+      <Modal centered={true} show={showStats} onHide={() => setShowStats(false)}>
+        <ModalHeader closeButton={true}>{i18next.t("entry.stats.stats-details")}</ModalHeader>
+        <ModalBody className="flex flex-col gap-4 lg:gap-6">
+          <div className="text-sm opacity-50 flex items-center flex-wrap gap-1.5">
+            <span>
+              {createdDate} – {i18next.t("g.today")}
+            </span>
+            <span className="w-1 h-1 bg-gray-600 dark:bg-gray-400 inline-flex rounded-full" />
+            <span>{i18next.t("entry.stats.update-info")}</span>
+          </div>
+          <div className="grid grid-cols-3">
+            <EntryPageStatsItem count={totalViews} label={i18next.t("entry.stats.views")} />
+            <EntryPageStatsItem count={totalVisitors} label={i18next.t("entry.stats.visitors")} />
+            <EntryPageStatsItem
+              count={`${averageReadTime}s`}
+              label={i18next.t("entry.stats.reads")}
+            />
+          </div>
+        </ModalBody>
+      </Modal>
+    </>
   );
 }

@@ -4,7 +4,8 @@ import { appAxios } from "@/api/axios";
 interface StatsResponse {
   results: [
     {
-      metrics: [visitors: number, pageviews: number];
+      metrics: [visitors: number, pageviews: number, visit_duration: number];
+      dimensions: [country: string, device: string];
     }
   ];
   query: {

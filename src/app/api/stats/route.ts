@@ -32,8 +32,9 @@ export async function GET(request: NextRequest) {
       site_id: EcencyConfigManager.getConfigValue(
         ({ visionFeatures }) => visionFeatures.plausible.siteId
       ),
-      metrics: ["visitors", "pageviews"],
+      metrics: ["visitors", "pageviews", "visit_duration"],
       filters: [["contains", "event:page", [decodeURIComponent(url)]]],
+      dimensions: ["visit:country_name", "visit:device"],
       date_range: dateRange
     }),
     cache: "default"
