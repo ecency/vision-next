@@ -97,7 +97,7 @@ const CONFIG = {
       },
       plausible: {
         enabled: true,
-        host: "pl.ecency.com",
+        host: "https://pl.ecency.com",
         siteId: "ecency.com",
         apiKey: process.env.PLAUSIBLE_API_KEY
       }

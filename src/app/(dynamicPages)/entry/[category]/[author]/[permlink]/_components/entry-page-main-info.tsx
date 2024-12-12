@@ -7,6 +7,7 @@ import { accountReputation, parseDate } from "@/utils";
 import { TagLink } from "@/features/shared/tag";
 import { EntryPageMainInfoMenu } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-main-info-menu";
 import { EcencyConfigManager } from "@/config";
+import { EntryPageStats } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats";
 
 interface Props {
   entry: Entry;
@@ -19,7 +20,7 @@ export function EntryPageMainInfo({ entry }: Props) {
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
       <div className="flex items-center gap-4">
         <ProfileLink username={entry.author}>
           <UserAvatar username={entry.author} size="sLarge" />
@@ -54,8 +55,8 @@ export function EntryPageMainInfo({ entry }: Props) {
 
       <ReadTime entry={entry} toolTip={true} />
 
-      <div className="p-2 md:p-4 border border-[--border-color] rounded-2xl flex items-center justify-between">
-        <div></div>
+      <div className="p-2 md:px-4 border border-[--border-color] rounded-2xl flex items-center justify-between">
+        <EntryPageStats />
         <div className="flex items-center justify-end">
           {!isComment && (
             <EcencyConfigManager.Conditional

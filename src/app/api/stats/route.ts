@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { EcencyConfigManager } from "@/config";
 
 export async function GET(request: NextRequest) {
@@ -20,21 +20,24 @@ export async function GET(request: NextRequest) {
     ({ visionFeatures }) => visionFeatures.plausible.host
   );
 
-  return fetch(`${statsHost}/api/v2/query`, {
+  const response = await fetch(`${statsHost}/api/v2/query`, {
     method: "POST",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${EcencyConfigManager.getConfigValue(
         ({ visionFeatures }) => visionFeatures.plausible.apiKey
-      )}))}`
+      )}`
     },
     body: JSON.stringify({
       site_id: EcencyConfigManager.getConfigValue(
         ({ visionFeatures }) => visionFeatures.plausible.siteId
       ),
       metrics: ["visitors", "pageviews"],
-      filters: [["contains", "event:page", [url]]],
+      filters: [["contains", "event:page", [decodeURIComponent(url)]]],
       date_range: dateRange
     }),
     cache: "default"
   });
+
+  return NextResponse.json(await response.json());
 }

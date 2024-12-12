@@ -19,7 +19,9 @@ export function useGetStatsQuery(url: string) {
   return EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.PAGE_STATS, url],
     queryFn: async () => {
-      const response = await appAxios.get<StatsResponse>(`/stats?url=${encodeURIComponent(url)}`);
+      const response = await appAxios.get<StatsResponse>(
+        `/api/stats?url=${encodeURIComponent(url)}`
+      );
       return response.data;
     },
     enabled: !!url
