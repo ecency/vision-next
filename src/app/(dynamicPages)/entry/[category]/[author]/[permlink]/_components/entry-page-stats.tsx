@@ -10,6 +10,7 @@ import i18next from "i18next";
 import { Entry } from "@/entities";
 import { format, parseISO } from "date-fns";
 import { EntryPageStatsItem } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-item";
+import { EntryPageStatsByCountries } from "./entry-page-stats-by-countries";
 
 interface Props {
   entry: Entry;
@@ -38,19 +39,10 @@ export function EntryPageStats({ entry }: Props) {
 
   const { data: stats } = useGetStatsQuery(cleanedPathname).useClientQuery();
 
-  const totalViews = useMemo(
-    () => stats?.results?.reduce((acc, result) => acc + result.metrics[1], 0) ?? 1,
-    [stats?.results]
-  );
-  const totalVisitors = useMemo(
-    () => stats?.results?.reduce((acc, result) => acc + result.metrics[0], 0) ?? 0,
-    [stats?.results]
-  );
+  const totalViews = useMemo(() => stats?.results?.[0].metrics[1] ?? 1, [stats?.results]);
+  const totalVisitors = useMemo(() => stats?.results?.[0].metrics[0] ?? 0, [stats?.results]);
   const averageReadTime = useMemo(
-    () =>
-      (
-        (stats?.results?.reduce((acc, result) => acc + result.metrics[2], 0) ?? 0 ?? 0) / totalViews
-      ).toFixed(1),
+    () => ((stats?.results?.[0].metrics[2] ?? 0) / totalViews).toFixed(1),
     [stats?.results, totalViews]
   );
 
@@ -65,7 +57,7 @@ export function EntryPageStats({ entry }: Props) {
       >
         {totalViews}
       </Button>
-      <Modal centered={true} show={showStats} onHide={() => setShowStats(false)}>
+      <Modal size="lg" centered={true} show={showStats} onHide={() => setShowStats(false)}>
         <ModalHeader closeButton={true}>{i18next.t("entry.stats.stats-details")}</ModalHeader>
         <ModalBody className="flex flex-col gap-4 lg:gap-6">
           <div className="text-sm opacity-50 flex items-center flex-wrap gap-1.5">
@@ -82,6 +74,10 @@ export function EntryPageStats({ entry }: Props) {
               count={`${averageReadTime}s`}
               label={i18next.t("entry.stats.reads")}
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <EntryPageStatsByCountries cleanedPathname={cleanedPathname} totalViews={totalViews} />
           </div>
         </ModalBody>
       </Modal>

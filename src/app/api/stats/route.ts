@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EcencyConfigManager } from "@/config";
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   const isEnabled = EcencyConfigManager.getConfigValue(
     ({ visionFeatures }) => visionFeatures.plausible.enabled
   );
@@ -9,8 +9,7 @@ export async function GET(request: NextRequest) {
     return Response.json({ status: 404 });
   }
 
-  const url = request.nextUrl.searchParams.get("url");
-  const dateRange = request.nextUrl.searchParams.get("dateRange") ?? "all";
+  const { url, dateRange = "all", metrics, dimensions } = await request.json();
 
   if (!url) {
     return Response.json({ status: 400 });
@@ -32,9 +31,9 @@ export async function GET(request: NextRequest) {
       site_id: EcencyConfigManager.getConfigValue(
         ({ visionFeatures }) => visionFeatures.plausible.siteId
       ),
-      metrics: ["visitors", "pageviews", "visit_duration"],
+      metrics,
       filters: [["contains", "event:page", [decodeURIComponent(url)]]],
-      dimensions: ["visit:country_name", "visit:device"],
+      dimensions,
       date_range: dateRange
     }),
     cache: "default"

@@ -743,7 +743,8 @@
       "update-info": "Updating every minute",
       "visitors": "Visitors",
       "views": "Views",
-      "reads": "Read time"
+      "reads": "Read time",
+      "countries": "Countries"
     }
   },
   "edit-history": {

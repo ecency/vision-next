@@ -1,11 +1,11 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { appAxios } from "@/api/axios";
 
-interface StatsResponse {
+export interface StatsResponse {
   results: [
     {
-      metrics: [visitors: number, pageviews: number, visit_duration: number];
-      dimensions: [country: string, device: string];
+      metrics: number[];
+      dimensions: string[];
     }
   ];
   query: {
@@ -16,13 +16,19 @@ interface StatsResponse {
   };
 }
 
-export function useGetStatsQuery(url: string) {
+export function useGetStatsQuery(
+  url: string,
+  dimensions: string[] = [],
+  metrics = ["visitors", "pageviews", "visit_duration"]
+) {
   return EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.PAGE_STATS, url],
+    queryKey: [QueryIdentifiers.PAGE_STATS, url, dimensions, metrics],
     queryFn: async () => {
-      const response = await appAxios.get<StatsResponse>(
-        `/api/stats?url=${encodeURIComponent(url)}`
-      );
+      const response = await appAxios.post<StatsResponse>(`/api/stats`, {
+        metrics,
+        url: encodeURIComponent(url),
+        dimensions
+      });
       return response.data;
     },
     enabled: !!url
