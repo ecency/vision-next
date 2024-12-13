@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useGetStatsQuery } from "@/api/queries";
-import { UilEye } from "@tooni/iconscout-unicons-react";
+import { UilEye, UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { useMemo, useState } from "react";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
@@ -12,6 +12,7 @@ import { format, parseISO } from "date-fns";
 import { EntryPageStatsItem } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-item";
 import { EntryPageStatsByCountries } from "./entry-page-stats-by-countries";
 import { EntryPageStatsByDevices } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-by-devices";
+import { Alert } from "@ui/alert";
 
 interface Props {
   entry: Entry;
@@ -81,6 +82,11 @@ export function EntryPageStats({ entry }: Props) {
             <EntryPageStatsByCountries cleanedPathname={cleanedPathname} totalViews={totalViews} />
             <EntryPageStatsByDevices cleanedPathname={cleanedPathname} totalViews={totalViews} />
           </div>
+
+          <Alert className="flex items-center gap-2 text-sm">
+            <UilInfoCircle className="w-5 h-5" />
+            <div>{i18next.t("entry.stats.warn")}</div>
+          </Alert>
         </ModalBody>
       </Modal>
     </>

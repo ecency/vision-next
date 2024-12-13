@@ -11,7 +11,7 @@ interface Props {
 export function EntryPageStatsByDevices({ totalViews, cleanedPathname }: Props) {
   const { data: stats } = useGetStatsQuery(cleanedPathname, ["visit:device"]).useClientQuery();
 
-  const countries = useMemo(
+  const devices = useMemo(
     () =>
       stats?.results?.reduce<Record<string, number>>((acc, result) => {
         const country = result.dimensions[0];
@@ -20,16 +20,13 @@ export function EntryPageStatsByDevices({ totalViews, cleanedPathname }: Props) 
       }, {}) ?? {},
     [stats?.results]
   );
-  const countriesList = useMemo(
-    () => Object.entries(countries).sort((a, b) => b[1] - a[1]),
-    [countries]
-  );
+  const devicesList = useMemo(() => Object.entries(devices).sort((a, b) => b[1] - a[1]), [devices]);
 
-  return (
+  return devicesList.length > 0 ? (
     <div className="flex flex-col w-full gap-2 text-sm">
       <div className="text-sm opacity-50 pb-2">{i18next.t("entry.stats.devices")}</div>
       <AnimatePresence mode="popLayout">
-        {countriesList.map(([country, views]) => (
+        {devicesList.map(([country, views]) => (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -49,5 +46,7 @@ export function EntryPageStatsByDevices({ totalViews, cleanedPathname }: Props) 
         ))}
       </AnimatePresence>
     </div>
+  ) : (
+    <></>
   );
 }

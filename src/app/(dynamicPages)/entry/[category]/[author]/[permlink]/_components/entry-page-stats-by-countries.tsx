@@ -27,7 +27,7 @@ export function EntryPageStatsByCountries({ totalViews, cleanedPathname }: Props
     [countries]
   );
 
-  return (
+  return countriesList.length > 0 ? (
     <div className="flex flex-col w-full gap-2 text-sm">
       <div className="text-sm opacity-50 pb-2">{i18next.t("entry.stats.countries")}</div>
       <AnimatePresence mode="popLayout">
@@ -51,5 +51,7 @@ export function EntryPageStatsByCountries({ totalViews, cleanedPathname }: Props
         ))}
       </AnimatePresence>
     </div>
+  ) : (
+    <></>
   );
 }

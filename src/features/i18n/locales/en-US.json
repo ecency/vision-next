@@ -745,7 +745,8 @@
       "views": "Views",
       "reads": "Read time",
       "countries": "Countries",
-      "devices": "Devices"
+      "devices": "Devices",
+      "warn": "Stats are collecting only in Ecency's applications"
     }
   },
   "edit-history": {
