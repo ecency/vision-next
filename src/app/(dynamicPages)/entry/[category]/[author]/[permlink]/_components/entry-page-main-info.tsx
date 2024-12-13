@@ -49,10 +49,10 @@ export function EntryPageMainInfo({ entry }: Props) {
         </div>
       </div>
 
-      <ReadTime entry={entry} toolTip={true} />
-
       <div className="flex items-center justify-between">
         <div className="flex items-center text-sm">
+          <ReadTime entry={entry} toolTip={true} />
+          <span className="separator circle-separator mx-1 lg:hidden" />
           <EntryPageStats entry={entry} />
           <span className="separator circle-separator mx-1" />
           <div className="date" title={published.format("LLLL")}>

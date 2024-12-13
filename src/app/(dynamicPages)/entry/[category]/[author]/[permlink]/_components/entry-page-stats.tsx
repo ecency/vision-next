@@ -28,11 +28,12 @@ export function EntryPageStats({ entry }: Props) {
    */
   const cleanedPathname = useMemo(() => {
     const sections = pathname.split("/");
-    if (sections.length === 3) {
-      return `${sections[1]}/${sections[2]}`;
+    console.log(sections);
+    if (sections.length === 4) {
+      return `${sections[2]}/${sections[3]}`;
     }
 
-    return `${sections[0]}/${sections[1]}`;
+    return `${sections[1]}/${sections[2]}`;
   }, [pathname]);
   const createdDate = useMemo(
     () => format(parseISO(entry.created), "dd MMM yyyy"),
@@ -51,6 +52,7 @@ export function EntryPageStats({ entry }: Props) {
   return (
     <>
       <Button
+        noPadding={true}
         icon={<UilEye />}
         iconPlacement="left"
         size="sm"
