@@ -11,6 +11,7 @@ import { Entry } from "@/entities";
 import { format, parseISO } from "date-fns";
 import { EntryPageStatsItem } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-item";
 import { EntryPageStatsByCountries } from "./entry-page-stats-by-countries";
+import { EntryPageStatsByDevices } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-by-devices";
 
 interface Props {
   entry: Entry;
@@ -78,6 +79,7 @@ export function EntryPageStats({ entry }: Props) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <EntryPageStatsByCountries cleanedPathname={cleanedPathname} totalViews={totalViews} />
+            <EntryPageStatsByDevices cleanedPathname={cleanedPathname} totalViews={totalViews} />
           </div>
         </ModalBody>
       </Modal>

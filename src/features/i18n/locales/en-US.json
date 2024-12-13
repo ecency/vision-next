@@ -744,7 +744,8 @@
       "visitors": "Visitors",
       "views": "Views",
       "reads": "Read time",
-      "countries": "Countries"
+      "countries": "Countries",
+      "devices": "Devices"
     }
   },
   "edit-history": {
