@@ -7,6 +7,7 @@ import { accountReputation, parseDate } from "@/utils";
 import { TagLink } from "@/features/shared/tag";
 import { EntryPageMainInfoMenu } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-main-info-menu";
 import { EcencyConfigManager } from "@/config";
+import { EntryPageStats } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats";
 
 interface Props {
   entry: Entry;
@@ -19,56 +20,56 @@ export function EntryPageMainInfo({ entry }: Props) {
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
-    <div className="entry-info">
-      <ProfileLink username={entry.author}>
-        <div className="author-avatar">
-          <UserAvatar username={entry.author} size="medium" />
-        </div>
-      </ProfileLink>
-
-      <div className="entry-info-inner">
-        <div className="info-line-1">
+    <div className="flex flex-col gap-4 mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
+      <div className="flex items-center gap-4">
+        <ProfileLink username={entry.author}>
+          <UserAvatar username={entry.author} size="sLarge" />
+        </ProfileLink>
+        <div className="flex flex-col gap-1">
           <ProfileLink username={entry.author}>
-            <div className="author notranslate">
-              <span className="author-name">
-                <span itemProp="author" itemScope={true} itemType="http://schema.org/Person">
-                  <span itemProp="name">{entry.author}</span>
-                </span>
-              </span>
+            <div
+              className="text-lg notranslate"
+              itemProp="author"
+              itemScope={true}
+              itemType="http://schema.org/Person"
+            >
+              <span itemProp="name">{entry.author}</span>
               <span className="author-reputation" title={i18next.t("entry.author-reputation")}>
                 {reputation}
               </span>
             </div>
           </ProfileLink>
-        </div>
 
-        <div className="info-line-2 gap-1">
-          <span className="date" title={published.format("LLLL")}>
-            {published.fromNow()}
-          </span>
-          <span className="separator circle-separator" />
-          <div className="entry-tag">
-            <span className="in-tag mr-2">{i18next.t("entry.community-in")}</span>
+          <div className="flex text-sm items-center">
+            <div className="in-tag mr-2 opacity-50">{i18next.t("entry.published")}</div>
             <TagLink tag={entry.category} type="link">
-              <div className="tag-name">
-                {entry.community ? entry.community_title : `#${entry.category}`}
-              </div>
+              {entry.community ? entry.community_title : `#${entry.category}`}
             </TagLink>
           </div>
         </div>
       </div>
-      <span className="flex-spacer" />
 
-      <ReadTime entry={entry} toolTip={true} />
-
-      {!isComment && (
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.bookmarks.enabled}
-        >
-          <BookmarkBtn entry={entry} />
-        </EcencyConfigManager.Conditional>
-      )}
-      {!isComment && <EntryPageMainInfoMenu entry={entry} />}
+      <div className="py-2 border-y border-[--border-color] flex items-center justify-between">
+        <div className="flex items-center text-sm">
+          <ReadTime entry={entry} toolTip={true} />
+          <span className="separator circle-separator mx-1 lg:hidden" />
+          <EntryPageStats entry={entry} />
+          <span className="separator circle-separator mx-1" />
+          <div className="date" title={published.format("LLLL")}>
+            {published.fromNow()}
+          </div>
+        </div>
+        <div className="flex items-center justify-end">
+          {!isComment && (
+            <EcencyConfigManager.Conditional
+              condition={({ visionFeatures }) => visionFeatures.bookmarks.enabled}
+            >
+              <BookmarkBtn entry={entry} />
+            </EcencyConfigManager.Conditional>
+          )}
+          {!isComment && <EntryPageMainInfoMenu entry={entry} />}
+        </div>
+      </div>
     </div>
   );
 }

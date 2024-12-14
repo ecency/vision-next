@@ -9,13 +9,8 @@ import { getCommunityCache, useCommunityPin } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
 import { useDeleteComment, usePinToBlog } from "@/api/mutations";
 import { useRouter } from "next/navigation";
-import { dotsHorizontal, shareVariantSvg } from "@ui/svg";
-import {
-  EntryShare,
-  shareFacebook,
-  shareReddit,
-  shareTwitter
-} from "@/features/shared/entry-share";
+import { dotsHorizontal } from "@ui/svg";
+import { EntryShare } from "@/features/shared/entry-share";
 import i18next from "i18next";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { CrossPost } from "@/features/shared/entry-menu/cross-post";
@@ -23,7 +18,7 @@ import { EditHistory } from "@/features/shared/edit-history";
 import { Button, ModalConfirm } from "@/features/ui";
 import { MuteBtn } from "@/features/shared/mute-btn";
 import { Promote } from "@/features/shared/promote";
-import { UilFacebook, UilRedditAlienAlt, UilTwitter } from "@tooni/iconscout-unicons-react";
+import { UilShareAlt } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   entry: Entry;
@@ -74,34 +69,7 @@ export const EntryMenu = ({
 
   return (
     <div className="entry-menu">
-      {separatedSharing && (
-        <div className="separated-share">
-          <div className="share-button single-button" onClick={() => setShare(false)}>
-            {shareVariantSvg}
-          </div>
-          <div className="all-buttons">
-            <Button
-              size="sm"
-              appearance="gray-link"
-              onClick={() => shareReddit(entry)}
-              icon={<UilRedditAlienAlt />}
-            />
-            <Button
-              size="sm"
-              appearance="gray-link"
-              onClick={() => shareTwitter(entry)}
-              icon={<UilTwitter />}
-            />
-
-            <Button
-              size="sm"
-              appearance="gray-link"
-              onClick={() => shareFacebook(entry)}
-              icon={<UilFacebook />}
-            />
-          </div>
-        </div>
-      )}
+      <Button icon={<UilShareAlt />} appearance="gray-link" onClick={() => setShare(true)} />
       <Dropdown>
         <DropdownToggle>
           <Button appearance="gray-link" size="sm" icon={dotsHorizontal} />

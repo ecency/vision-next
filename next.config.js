@@ -43,6 +43,14 @@ const config = {
   async rewrites() {
     return [
       {
+        source: '/pl/js/script.js',
+        destination: 'https://pl.ecency.com/js/script.js'
+      },
+      {
+        source: '/pl/api/event',
+        destination: 'https://pl.ecency.com/api/event'
+      },
+      {
         source: "/communities",
         destination: "/discover/communities"
       },
@@ -149,5 +157,5 @@ const withSentry = withSentryConfig(config, {
 });
 
 /** @type {import('next').NextConfig} */
-const nextWithPWA = withPWA(withSentry);
-module.exports = process.env.NODE_ENV === "production" ? nextWithPWA : withSentry;
+const prod = withPWA(withSentry);
+module.exports = process.env.NODE_ENV === "production" ? prod : withSentry;
