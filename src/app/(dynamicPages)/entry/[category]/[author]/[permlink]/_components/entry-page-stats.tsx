@@ -12,7 +12,6 @@ import { format, parseISO } from "date-fns";
 import { EntryPageStatsItem } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-item";
 import { EntryPageStatsByCountries } from "./entry-page-stats-by-countries";
 import { EntryPageStatsByDevices } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-by-devices";
-import { Alert } from "@ui/alert";
 
 interface Props {
   entry: Entry;
@@ -85,10 +84,22 @@ export function EntryPageStats({ entry }: Props) {
             <EntryPageStatsByDevices cleanedPathname={cleanedPathname} totalViews={totalViews} />
           </div>
 
-          <Alert className="flex items-center gap-2 text-sm">
+          <div className="flex flex-col sm:flex-row items-center gap-4 justify-between p-4 rounded-2xl border border-[--border-color]">
+            <div className="flex flex-col">
+              <div className="text-xl">{i18next.t("entry.stats.promotion-title")}</div>
+              <div className="text-sm opacity-50">
+                {i18next.t("entry.stats.promotion-subtitle")}
+              </div>
+            </div>
+            <Button href="/perks" icon="🔥" size="lg">
+              {i18next.t("entry.stats.try-now")}
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm opacity-50">
             <UilInfoCircle className="w-5 h-5" />
             <div>{i18next.t("entry.stats.warn")}</div>
-          </Alert>
+          </div>
         </ModalBody>
       </Modal>
     </>

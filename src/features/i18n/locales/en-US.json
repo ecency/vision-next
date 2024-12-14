@@ -746,7 +746,10 @@
       "reads": "Read time",
       "countries": "Countries",
       "devices": "Devices",
-      "warn": "Stats are collecting only in Ecency's applications since Dec, 2024"
+      "warn": "Stats are collecting only in Ecency's applications since Dec, 2024",
+      "promotion-title": "Want more views and reads?",
+      "promotion-subtitle": "Use Ecency Perks to promote your post and gain more views and reads",
+      "try-now": "Try now"
     }
   },
   "edit-history": {
