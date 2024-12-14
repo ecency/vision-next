@@ -93,7 +93,7 @@
     "error": "Error",
     "reset-form": "Reiniciar formulario",
     "community": "Comunidad",
-    "today": "Today"
+    "today": "Hoy"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -732,24 +732,24 @@
     "browse-original": "Abrir publicación original",
     "cross-post-by": "Publicación cruzada por",
     "cross-post-community": "comunidad",
-    "published": "Published in",
+    "published": "Publicado en",
     "post-word-count": "Palabras:",
     "post-read-time": "Leyendo:",
     "post-read-minuites": "min",
     "raw": "Ver formato RAW",
     "post-top-curator": "Top Curador:",
     "stats": {
-      "stats-details": "Lifetime statistics",
-      "update-info": "Updating every minute",
-      "visitors": "Visitors",
-      "views": "Views",
-      "reads": "Read time",
-      "countries": "Countries",
-      "devices": "Devices",
-      "warn": "Stats are collecting only in Ecency's applications since Dec, 2024",
-      "promotion-title": "Want more views and reads?",
-      "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
-      "try-now": "Try now"
+      "stats-details": "Estadísticas de por vida",
+      "update-info": "Actualizando cada minuto",
+      "visitors": "Visitas",
+      "views": "Vistas",
+      "reads": "Tiempo de lectura",
+      "countries": "Países",
+      "devices": "Dispositivos",
+      "warn": "Las estadísticas se están recopilando solamente en las aplicaciones de Ecency, desde Diciembre de 2024",
+      "promotion-title": "¿Quieres más vistas y lecturas?",
+      "promotion-subtitle": "Utilice las ventajas de Ecency (Ecency Perks) para promocionar su publicación y obtener una exposición más amplia.",
+      "try-now": "Prueba ahora"
     }
   },
   "edit-history": {
