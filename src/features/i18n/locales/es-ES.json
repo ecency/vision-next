@@ -92,7 +92,8 @@
     "success": "Éxito",
     "error": "Error",
     "reset-form": "Reiniciar formulario",
-    "community": "Comunidad"
+    "community": "Comunidad",
+    "today": "Today"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -731,12 +732,22 @@
     "browse-original": "Abrir publicación original",
     "cross-post-by": "Publicación cruzada por",
     "cross-post-community": "comunidad",
-    "community-in": "en",
+    "published": "Published in",
     "post-word-count": "Palabras:",
     "post-read-time": "Leyendo:",
     "post-read-minuites": "min",
     "raw": "Ver formato RAW",
-    "post-top-curator": "Top Curador:"
+    "post-top-curator": "Top Curador:",
+    "stats": {
+      "stats-details": "Lifetime statistics",
+      "update-info": "Updating every minute",
+      "visitors": "Visitors",
+      "views": "Views",
+      "reads": "Read time",
+      "countries": "Countries",
+      "devices": "Devices",
+      "warn": "Stats are collecting only in Ecency's applications"
+    }
   },
   "edit-history": {
     "title": "Editar historial",
