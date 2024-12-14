@@ -14,7 +14,6 @@ export function EcencyLiveItem({ room, onClick }: Props) {
     <motion.div
       initial={{ opacity: 0, scale: 0.875, position: "absolute" }}
       animate={{ opacity: 1, scale: 1, position: "static" }}
-      exit={{ opacity: 0, scale: 0.875, position: "absolute" }}
       key={room.name}
       className={classNameObject({
         "flex items-start p-3 cursor-pointer gap-3": true,

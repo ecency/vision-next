@@ -19,7 +19,7 @@ export function CenterLive() {
   const { data: prebuiltRooms } = useGetPrebuiltRoomsQuery();
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-h-[400px] relative">
       <AnimatePresence>
         {!activeRoom &&
           prebuiltRooms?.map(([id, room]) => (
@@ -39,7 +39,6 @@ export function CenterLive() {
           <motion.div
             initial={{ opacity: 0, position: "absolute" }}
             animate={{ opacity: 1, position: "static" }}
-            exit={{ opacity: 0, position: "absolute" }}
             key="live-room"
           >
             <EcencyLiveItem room={activeRoom} />
