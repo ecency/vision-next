@@ -13,7 +13,7 @@ interface Props {
 export function EcencyLiveRoomActions({ onLeave }: Props) {
   const live = useEcencyLive();
 
-  const prebuiltReactionsList = useMemo(() => ["🔥", "💯", "😀", "🤔", "🤔", "🤘"], []);
+  const prebuiltReactionsList = useMemo(() => ["🔥", "💯", "😀", "🤣", "🤔", "🤘"], []);
 
   const sendReaction = useCallback((reaction: string) => live?.[1].sendReaction(reaction), [live]);
 
