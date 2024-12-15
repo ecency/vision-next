@@ -2531,6 +2531,7 @@
   },
   "live": {
     "leave-room": "Leave room",
-    "audience": "Audience"
+    "audience": "Audience",
+    "speakers": "Speakers"
   }
 }

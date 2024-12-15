@@ -20,7 +20,7 @@ export function CenterLive() {
 
   return (
     <div className="flex flex-col min-h-[400px] relative">
-      <AnimatePresence>
+      <AnimatePresence mode="popLayout">
         {!activeRoom &&
           prebuiltRooms?.map(([id, room]) => (
             <EcencyLiveItem
@@ -39,6 +39,7 @@ export function CenterLive() {
           <motion.div
             initial={{ opacity: 0, position: "absolute" }}
             animate={{ opacity: 1, position: "static" }}
+            exit={{ opacity: 0, position: "absolute" }}
             key="live-room"
           >
             <EcencyLiveItem room={activeRoom} />
