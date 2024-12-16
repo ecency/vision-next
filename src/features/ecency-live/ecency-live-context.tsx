@@ -1,27 +1,36 @@
 "use client";
 
-import { createContext, PropsWithChildren, useContext, useEffect, useState } from "react";
-import { createJam, importDefaultIdentity } from "jam-core";
+import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { createJam, importDefaultIdentity, RoomType } from "jam-core";
 import { EcencyConfigManager } from "@/config";
 import { useGlobalStore } from "@/core/global-store";
 import { useAsync } from "react-use";
+import { PeerState } from "./types";
 
 export const EcencyLiveContext = createContext<{
-  jamInstance: ReturnType<typeof createJam> | undefined;
+  live: ReturnType<typeof createJam> | undefined;
+  room: RoomType | undefined;
+  activeUserState: PeerState | undefined;
+  activeUserId: string | undefined;
 }>({
-  jamInstance: [] as any
+  live: [] as any,
+  room: undefined,
+  activeUserState: undefined,
+  activeUserId: undefined
 });
 
 export function useEcencyLive() {
-  const { jamInstance } = useContext(EcencyLiveContext);
-
-  return jamInstance;
+  return useContext(EcencyLiveContext);
 }
 
 export function EcencyLiveManager(props: PropsWithChildren) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
   const [jamInstance, setJamInstance] = useState<ReturnType<typeof createJam>>();
+  const [room, setRoom] = useState<RoomType>();
+
+  const [activeUserId, setActiveUserId] = useState<string>();
+  const [activeUserState, setActiveUserState] = useState<PeerState>();
 
   useAsync(async () => {
     if (!activeUser) {
@@ -32,23 +41,31 @@ export function EcencyLiveManager(props: PropsWithChildren) {
       seed: "Ecency like",
       info: { name: activeUser.username }
     });
-    const jam = createJam({
+    const live = createJam({
       debug: false,
       jamConfig: {
         domain: EcencyConfigManager.getConfigValue((config) => config.visionFeatures.jam.domain)
       }
     });
-    setJamInstance(jam);
+    setJamInstance(live);
+
+    // Fill props
+    await live[1].setProps("userInteracted", true);
+
+    // Fill the state
+    setRoom(live[0].room.name !== "" ? live[0].room : undefined);
+    setActiveUserId(live[0].myId ?? undefined);
+    setActiveUserState(live[0].myPeerState as PeerState);
+
+    // Register listeners
+    live[1].onState("inRoom", (value) => !value && setRoom(undefined));
+    live[1].onState("room", (value: any) => setRoom(value.name !== "" ? value : undefined));
+    live[1].onState("myId", (value) => setActiveUserId(value as string));
+    live[1].onState("myPeerState", (state) => setActiveUserState(state as PeerState));
   }, [activeUser]);
 
-  useEffect(() => {
-    if (jamInstance) {
-      jamInstance[1].setProps({ userInteracted: true });
-    }
-  }, [jamInstance]);
-
   return (
-    <EcencyLiveContext.Provider value={{ jamInstance }}>
+    <EcencyLiveContext.Provider value={{ live: jamInstance, room, activeUserState, activeUserId }}>
       {props.children}
     </EcencyLiveContext.Provider>
   );

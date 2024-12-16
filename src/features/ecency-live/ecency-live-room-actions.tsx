@@ -8,43 +8,26 @@ import {
 import i18next from "i18next";
 import { useEcencyLive } from "@/features/ecency-live/ecency-live-context";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { useMount } from "react-use";
-import { StateType } from "jam-core";
-
-type PeerState = StateType["peerState"][1];
 
 interface Props {
   onLeave: () => void;
 }
 
 export function EcencyLiveRoomActions({ onLeave }: Props) {
-  const live = useEcencyLive();
+  const { live, room, activeUserState, activeUserId } = useEcencyLive();
 
-  const [currentUser, setCurrentUser] = useState<string>();
-  const [room, setRoom] = useState<StateType["room"]>();
-  const [state, setState] = useState<PeerState>();
   const prebuiltReactionsList = useMemo(() => ["🔥", "💯", "😀", "🤣", "🤔", "🤘"], []);
 
   const sendReaction = useCallback((reaction: string) => live?.[1].sendReaction(reaction), [live]);
   const toggleMic = useCallback(() => {
     if (live?.[0].myAudio?.active) {
-      live?.[1].setProps("micMuted", !state?.micMuted);
+      live?.[1].setProps("micMuted", !activeUserState?.micMuted);
     } else {
       live?.[1].retryMic();
     }
-  }, [live, state?.micMuted]);
-
-  useMount(() => {
-    setCurrentUser(live?.[0].myId ?? undefined);
-    setRoom(live?.[0].room);
-    setState(live?.[0].myPeerState as PeerState);
-
-    live?.[1].onState("myPeerState", (state) => setState(state as PeerState));
-    live?.[1].onState("room", (value) => setRoom(value as StateType["room"]));
-    live?.[1].onState("myId", (value) => setCurrentUser(value as string));
-  });
+  }, [live, activeUserState?.micMuted]);
 
   return (
     <motion.div
@@ -55,7 +38,7 @@ export function EcencyLiveRoomActions({ onLeave }: Props) {
       className="flex items-center gap-2 p-4 justify-center absolute bottom-0 left-0 w-full"
     >
       <AnimatePresence>
-        {room?.speakers.includes(currentUser ?? "") && (
+        {room?.speakers.includes(activeUserId ?? "") && (
           <motion.div
             key="mic"
             initial={{ opacity: 0, scale: 0.875 }}
@@ -63,7 +46,7 @@ export function EcencyLiveRoomActions({ onLeave }: Props) {
             exit={{ opacity: 0, scale: 0.875 }}
           >
             <Button
-              icon={state?.micMuted ? <UilMicrophoneSlash /> : <UilMicrophone />}
+              icon={activeUserState?.micMuted ? <UilMicrophoneSlash /> : <UilMicrophone />}
               size="sm"
               className="w-[34px]"
               noPadding={true}

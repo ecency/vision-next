@@ -7,44 +7,42 @@ import {
   EcencyLiveRoomActions,
   useEcencyLive
 } from "@/features/ecency-live";
-import { useState } from "react";
-import { RoomType } from "jam-core";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function CenterLive() {
-  const live = useEcencyLive();
-
-  const [activeRoom, setActiveRoom] = useState<RoomType>();
+  const { live, room } = useEcencyLive();
 
   const { data: prebuiltRooms } = useGetPrebuiltRoomsQuery();
 
   return (
     <div className="flex flex-col min-h-[400px] relative">
       <AnimatePresence mode="popLayout">
-        {!activeRoom &&
+        {!room &&
           prebuiltRooms?.map(([id, room]) => (
             <EcencyLiveItem
               key={id}
               room={room!}
               onClick={async () => {
-                await live?.[1].setProps({
-                  roomId: id
-                });
+                await live?.[1].setProps("roomId", id);
                 await live?.[1].enterRoom(id);
-                setActiveRoom(room);
               }}
             />
           ))}
-        {activeRoom && (
+        {room && (
           <motion.div
             initial={{ opacity: 0, position: "absolute" }}
             animate={{ opacity: 1, position: "static" }}
             exit={{ opacity: 0, position: "absolute" }}
             key="live-room"
           >
-            <EcencyLiveItem room={activeRoom} />
+            <EcencyLiveItem room={room} />
             <EcencyLiveAudienceList />
-            <EcencyLiveRoomActions onLeave={() => setActiveRoom(undefined)} />
+            <EcencyLiveRoomActions
+              onLeave={async () => {
+                await live?.[1].setProps("roomId", null);
+                live?.[1].leaveRoom();
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

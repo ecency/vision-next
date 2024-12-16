@@ -10,9 +10,8 @@ type PeerState = StateType["peerState"][1] & { displayName: string | undefined }
 type Reactions = Record<string, [reaction: string, time: number][]>;
 
 export function EcencyLiveAudienceList() {
-  const live = useEcencyLive();
+  const { live, room } = useEcencyLive();
 
-  const [room, setRoom] = useState<StateType["room"]>();
   const [peers, setPeers] = useState<[string, PeerState][]>([]);
   const [identities, setIdentities] = useState<StateType["identities"]>({});
   const [reactions, setReactions] = useState<Reactions>({});
@@ -27,9 +26,6 @@ export function EcencyLiveAudienceList() {
   );
 
   useMount(() => {
-    setRoom(live?.[0].room);
-
-    live?.[1].onState("room", (value) => setRoom(value as StateType["room"]));
     live?.[1].onState("peerState", (peerState) =>
       setPeers(Object.entries(peerState as Record<string, PeerState>))
     );

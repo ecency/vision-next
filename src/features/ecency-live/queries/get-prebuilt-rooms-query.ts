@@ -4,7 +4,7 @@ import { EcencyLiveQueryIdentifiers } from "@/features/ecency-live/enums";
 import { PREBUILT_LIVE_CHANNELS } from "@/features/ecency-live/consts";
 
 export function useGetPrebuiltRoomsQuery() {
-  const live = useEcencyLive();
+  const { live } = useEcencyLive();
 
   return useQuery({
     queryKey: [EcencyLiveQueryIdentifiers.PrebuiltRooms],
