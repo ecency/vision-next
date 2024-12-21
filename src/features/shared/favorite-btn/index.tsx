@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { Button } from "@ui/button";
 import { useGlobalStore } from "@/core/global-store";
 import { LoginRequired } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
-import { personFavoriteOutlineSvg, personFavoriteSvg } from "@ui/svg";
 import i18next from "i18next";
-import { useAddFavourite, useCheckFavourite, useDeleteFavourite } from "@/api/mutations";
+import { useAddFavourite, useDeleteFavourite } from "@/api/mutations";
+import { useFavouritesQuery } from "@/api/queries";
+import { UilHeart } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   targetUsername: string;
@@ -14,24 +15,20 @@ interface Props {
 export function FavouriteBtn({ targetUsername }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const [favourited, setFavourited] = useState(false);
+  const { data, isPending } = useFavouritesQuery();
 
-  const { mutateAsync: detect, isPending: isCheckPending } = useCheckFavourite();
-  const { mutateAsync: add, isPending: isAddPending } = useAddFavourite(() => {
-    detect({ account: targetUsername }).then((r) => setFavourited(r));
-  });
-  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useDeleteFavourite(() => {
-    detect({ account: targetUsername }).then((r) => setFavourited(r));
-  });
+  const { mutateAsync: add, isPending: isAddPending } = useAddFavourite(() => {});
+  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useDeleteFavourite(() => {});
 
-  const inProgress = useMemo(
-    () => isAddPending || isDeletePending || isCheckPending,
-    [isAddPending, isDeletePending, isCheckPending]
+  const favourited = useMemo(
+    () => data?.some((item) => item.account === targetUsername),
+    [data, targetUsername]
   );
 
-  useEffect(() => {
-    detect({ account: targetUsername });
-  }, [activeUser, detect, targetUsername]);
+  const inProgress = useMemo(
+    () => isAddPending || isDeletePending || isPending,
+    [isAddPending, isDeletePending, isPending]
+  );
 
   return (
     <>
@@ -41,37 +38,30 @@ export function FavouriteBtn({ targetUsername }: Props) {
             <Tooltip content={i18next.t("favorite-btn.add")}>
               <Button
                 size="sm"
-                disabled={inProgress}
+                isLoading={inProgress}
                 onClick={() => deleteFrom({ account: targetUsername })}
-                icon={personFavoriteOutlineSvg}
+                icon={<UilHeart />}
               />
             </Tooltip>
           </span>
         </LoginRequired>
       )}
-      {activeUser && favourited && (
-        <span className="favorite-btn">
-          <Tooltip content={i18next.t("favorite-btn.delete")}>
-            <Button
-              size="sm"
-              disabled={inProgress}
-              onClick={() => deleteFrom({ account: targetUsername })}
-              icon={personFavoriteSvg}
-            />
-          </Tooltip>
-        </span>
-      )}
-      {activeUser && !favourited && (
-        <span className="favorite-btn">
-          <Tooltip content={i18next.t("favorite-btn.add")}>
-            <Button
-              size="sm"
-              disabled={inProgress}
-              onClick={() => add({ account: targetUsername })}
-              icon={personFavoriteOutlineSvg}
-            />
-          </Tooltip>
-        </span>
+      {activeUser && (
+        <Tooltip content={i18next.t(favourited ? "favorite-btn.delete" : "favorite-btn.add")}>
+          <Button
+            appearance={favourited ? "pressed" : "primary"}
+            size="sm"
+            noPadding={true}
+            className="w-8"
+            isLoading={inProgress}
+            onClick={() =>
+              favourited
+                ? deleteFrom({ account: targetUsername })
+                : add({ account: targetUsername })
+            }
+            icon={<UilHeart />}
+          />
+        </Tooltip>
       )}
     </>
   );

@@ -1,13 +1,16 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAccessToken } from "@/utils";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 import { useGlobalStore } from "@/core/global-store";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
+import { Favorite } from "@/entities";
+import { QueryIdentifiers } from "@/core/react-query";
 
 export function useAddFavourite(onSuccess: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["favourites-add"],
@@ -16,10 +19,15 @@ export function useAddFavourite(onSuccess: () => void) {
         throw new Error("Cannot add to favourite. Active user missed");
       }
       const data = { code: getAccessToken(activeUser.username), account };
-      const response = await appAxios.post(apiBase(`/private-api/favorites-add`), data);
+      const response = await appAxios.post<Favorite[]>(apiBase(`/private-api/favorites-add`), data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (next: Favorite[]) => {
+      queryClient.setQueryData<Favorite[]>(
+        [QueryIdentifiers.FAVOURITES, activeUser?.username],
+        () => [...next]
+      );
+
       success(i18next.t("favorite-btn.added"));
       onSuccess();
     },
@@ -45,6 +53,7 @@ export function useCheckFavourite() {
 
 export function useDeleteFavourite(onSuccess: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["favourites-delete"],
@@ -53,10 +62,14 @@ export function useDeleteFavourite(onSuccess: () => void) {
         throw new Error("Cannot delete favourite. Active user missed");
       }
       const data = { code: getAccessToken(activeUser.username), account };
-      const response = await appAxios.post(apiBase(`/private-api/favorites-delete`), data);
-      return response.data;
+      await appAxios.post(apiBase(`/private-api/favorites-delete`), data);
+      return account;
     },
-    onSuccess: () => {
+    onSuccess: (account) => {
+      queryClient.setQueryData<Favorite[]>(
+        [QueryIdentifiers.FAVOURITES, activeUser?.username],
+        (data) => data?.filter((item) => item.account !== account) ?? []
+      );
       success(i18next.t("favorite-btn.deleted"));
       onSuccess();
     },

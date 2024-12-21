@@ -30,25 +30,8 @@
           cursor: pointer;
           display: flex;
           margin-bottom: 10px;
-          padding: 3px;
 
-          @include themify(day) {
-            @apply text-blue-dark-sky;
-          }
-
-          @include themify(night) {
-            @apply text-blue-powder;
-          }
-
-          &:hover {
-            @include themify(day) {
-              @apply bg-blue-duck-egg;
-            }
-
-            @include themify(night) {
-              @apply bg-blue-metallic;
-            }
-          }
+          @apply duration-300 p-1 text-blue-dark-sky dark:text-white hover:bg-blue-duck-egg dark:hover:bg-dark-default;
 
           .user-avatar {
             flex-shrink: 0;
