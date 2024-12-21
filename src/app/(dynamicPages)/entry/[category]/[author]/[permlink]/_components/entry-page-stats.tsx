@@ -79,8 +79,7 @@ export function EntryPageStats({ entry }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <EntryPageStatsByCountries cleanedPathname={cleanedPathname} totalViews={totalViews} />
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <EntryPageStatsByDevices cleanedPathname={cleanedPathname} totalViews={totalViews} />
           </div>
 
