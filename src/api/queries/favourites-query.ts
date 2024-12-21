@@ -20,7 +20,6 @@ export function useFavouritesQuery() {
       const resp = await appAxios.post<Favorite[]>(apiBase(`/private-api/favorites`), data);
       return resp.data;
     },
-    enabled: !!activeUser,
-    initialData: []
+    enabled: !!activeUser
   });
 }

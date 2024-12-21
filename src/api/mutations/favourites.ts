@@ -19,13 +19,13 @@ export function useAddFavourite(onSuccess: () => void) {
         throw new Error("Cannot add to favourite. Active user missed");
       }
       const data = { code: getAccessToken(activeUser.username), account };
-      const response = await appAxios.post<Favorite>(apiBase(`/private-api/favorites-add`), data);
+      const response = await appAxios.post<Favorite[]>(apiBase(`/private-api/favorites-add`), data);
       return response.data;
     },
-    onSuccess: (created: Favorite) => {
+    onSuccess: (next: Favorite[]) => {
       queryClient.setQueryData<Favorite[]>(
         [QueryIdentifiers.FAVOURITES, activeUser?.username],
-        (data) => [...(data ?? []), created]
+        () => [...next]
       );
 
       success(i18next.t("favorite-btn.added"));
