@@ -11,7 +11,10 @@ interface Props {
 
 export function FavouritesList({ onHide }: Props) {
   const { data, isLoading } = useFavouritesQuery();
-  const items = useMemo(() => data.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)), [data]);
+  const items = useMemo(
+    () => data?.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)) ?? [],
+    [data]
+  );
 
   return (
     <div className="dialog-content">
