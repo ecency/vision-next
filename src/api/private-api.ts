@@ -8,7 +8,6 @@ import {
   CommentHistory,
   Draft,
   DraftMetadata,
-  Favorite,
   Fragment,
   GetRecoveriesEmailResponse,
   PointTransaction,
@@ -242,11 +241,6 @@ export const addBookmark = (
 export const deleteBookmark = (username: string, bookmarkId: string): Promise<any> => {
   const data = { code: getAccessToken(username), id: bookmarkId };
   return appAxios.post(apiBase(`/private-api/bookmarks-delete`), data).then((resp) => resp.data);
-};
-
-export const getFavorites = (username: string): Promise<Favorite[]> => {
-  const data = { code: getAccessToken(username) };
-  return appAxios.post(apiBase(`/private-api/favorites`), data).then((resp) => resp.data);
 };
 
 export const getFragments = (username: string): Promise<Fragment[]> => {
