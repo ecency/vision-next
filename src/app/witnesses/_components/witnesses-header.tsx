@@ -17,7 +17,7 @@ export function WitnessesHeader() {
         <div className="header-description" />
       </Tsx>
       {activeUser && (
-        <Tsx k="witnesses.remaining" args={{ n: 30 - witnessVotes.length, max: 30 }}>
+        <Tsx k="witnesses.remaining" args={{ n: 30 - (witnessVotes?.length ?? 0), max: 30 }}>
           <div className="remaining" />
         </Tsx>
       )}

@@ -1,44 +1,37 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import "./_index.scss";
 import { KeyOrHotDialog, LoginRequired } from "@/features/shared";
-import { useGlobalStore } from "@/core/global-store";
 import { chevronUpSvg } from "@ui/svg";
-import { classNameObject } from "@ui/util";
 import { useVoteWitness } from "@/api/mutations";
+import { Button } from "@ui/button";
+import { useWitnessVotesQuery } from "@/app/witnesses/_queries";
+import { useGlobalStore } from "@/core/global-store";
 
 interface Props {
-  voted: boolean;
   witness: string;
-  onStart?: () => void;
-  onEnd?: () => void;
-  onSuccess?: (approve: boolean) => void;
 }
 
-export function WitnessVoteBtn({ witness, onStart, onEnd, onSuccess, voted }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+export function WitnessVoteBtn({ witness }: Props) {
+  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { data: witnessVotes } = useWitnessVotesQuery();
 
-  const { mutateAsync: vote, isPending } = useVoteWitness(
-    witness,
-    onStart,
-    () => onSuccess?.(!voted),
-    onEnd
-  );
+  const { mutateAsync: vote, isPending } = useVoteWitness(witness);
+
+  const voted = useMemo(() => witnessVotes?.includes(witness) === true, [witness, witnessVotes]);
 
   const btn = (
-    <div className="witness-vote-btn">
-      <div
-        className={classNameObject({
-          "btn-witness-vote btn-up-vote": true,
-          "in-progress": isPending,
-          voted,
-          disabled: witness === ""
-        })}
-      >
-        <span className="btn-inner">{chevronUpSvg}</span>
-      </div>
-    </div>
+    <Button
+      size="sm"
+      noPadding={true}
+      className="w-8"
+      icon={chevronUpSvg}
+      appearance={voted ? "pressed" : "primary"}
+      outline={!voted}
+      disabled={witness === ""}
+      isLoading={isPending}
+    />
   );
 
   return activeUser ? (
