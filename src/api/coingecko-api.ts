@@ -1,5 +1,25 @@
 import axios from "axios";
 import { MarketAsset } from "./market-pair";
+import { LRUCache } from 'lru-cache'
+
+const options = {
+  max: 500,
+  // how long to live in ms
+  ttl: 1000 * 60 * 5,
+  // return stale items before removing from cache?
+  allowStale: false,
+  updateAgeOnGet: false,
+  updateAgeOnHas: false
+}
+
+const cache = new LRUCache(options)
+const undefinedValue = Symbol('undefined')
+const cacheSet = (key: string, value: any) =>
+  cache.set(key, value === undefined ? undefinedValue : value)
+const cacheGet = (key: string) => {
+  const v = cache.get(key)
+  return v === undefinedValue ? undefined : v
+}
 
 interface CoinGeckoApiResponse {
   [key: string]: {
@@ -8,17 +28,23 @@ interface CoinGeckoApiResponse {
 }
 
 export const getCGMarketApi = async (ids: string, vs: string): Promise<CoinGeckoApiResponse> => {
-  const resp = await axios.get<CoinGeckoApiResponse>(
-    "https://api.coingecko.com/api/v3/simple/price",
-    {
-      params: {
-        ids,
-        vs_currencies: vs
-      }
-    }
-  );
+  let rate = cacheGet('gecko');
 
-  return resp.data;
+  if (rate) {
+    return rate;
+  } else {
+    const resp = await axios.get<CoinGeckoApiResponse>(
+      "https://api.coingecko.com/api/v3/simple/price",
+      {
+        params: {
+          ids,
+          vs_currencies: vs
+        }
+      }
+    );
+    cacheSet('gecko', resp.data === undefined ? undefinedValue : resp.data);
+    return resp.data;
+  }
 };
 
 const getId = (asset: MarketAsset) => {
