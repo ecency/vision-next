@@ -6,13 +6,10 @@ import i18next from "i18next";
 
 interface Props {
   list: string[];
-  onAdd: (name: string) => void;
-  onDelete: (name: string) => void;
 }
 
 export function WitnessesExtra(props: Props) {
   const [username, setUsername] = useState("");
-  const [inProgress, setInProgress] = useState(false);
 
   return (
     <div className="extra-witnesses">
@@ -25,20 +22,10 @@ export function WitnessesExtra(props: Props) {
             value={username}
             maxLength={20}
             onChange={(e) => setUsername(e.target.value.trim())}
-            disabled={inProgress}
           />
         </div>
         <div>
-          <WitnessVoteBtn
-            voted={false}
-            witness={username}
-            onStart={() => setInProgress(true)}
-            onEnd={() => setInProgress(false)}
-            onSuccess={() => {
-              props.onAdd(username);
-              setUsername("");
-            }}
-          />
+          <WitnessVoteBtn witness={username} />
         </div>
       </div>
       {props.list.length > 0 && (
@@ -47,7 +34,7 @@ export function WitnessesExtra(props: Props) {
             <div className="item" key={i}>
               <span className="username">{i}</span>
               <div>
-                <WitnessVoteBtn witness={i} voted={true} onSuccess={() => props.onDelete(i)} />
+                <WitnessVoteBtn witness={i} />
               </div>
             </div>
           ))}

@@ -9,13 +9,11 @@ import { useGlobalStore } from "@/core/global-store";
 import Image from "next/image";
 
 interface Props {
-  voted: boolean;
   row: WitnessTransformed;
   witness: string;
-  onSuccess: (approve: boolean) => void;
 }
 
-export const WitnessCard = ({ voted, row, witness, onSuccess }: Props) => {
+export const WitnessCard = ({ row, witness }: Props) => {
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
 
   return (
@@ -54,7 +52,7 @@ export const WitnessCard = ({ voted, row, witness, onSuccess }: Props) => {
         </div>
 
         <div>
-          <WitnessVoteBtn voted={voted} witness={witness} onSuccess={onSuccess} />
+          <WitnessVoteBtn witness={witness} />
         </div>
       </div>
       <div className="flex items-center">

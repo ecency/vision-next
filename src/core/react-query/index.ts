@@ -54,6 +54,7 @@ export enum QueryIdentifiers {
   GET_RELATIONSHIP_BETWEEN_ACCOUNTS = "get-relationship-between-accounts",
   COMMUNITIES = "communities",
   WITNESSES = "witnesses",
+  WITNESSES_VOTES = "witnesses-votes",
   GALLERY_IMAGES = "gallery-images",
   NOTIFICATIONS_UNREAD_COUNT = "notifications-unread-count",
   NOTIFICATIONS_SETTINGS = "notifications-settings",
