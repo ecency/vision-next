@@ -1,7 +1,9 @@
-import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
+import { LinearProgress } from "@/features/shared";
 import React, { useMemo } from "react";
 import { useFavouritesQuery } from "@/api/queries";
 import i18next from "i18next";
+import { FavouriteItem } from "@/features/shared/bookmarks/favourite-item";
+import { AnimatePresence } from "framer-motion";
 
 interface Props {
   onHide: () => void;
@@ -9,7 +11,10 @@ interface Props {
 
 export function FavouritesList({ onHide }: Props) {
   const { data, isLoading } = useFavouritesQuery();
-  const items = useMemo(() => data.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)), [data]);
+  const items = useMemo(
+    () => data?.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)) ?? [],
+    [data]
+  );
 
   return (
     <div className="dialog-content">
@@ -17,20 +22,11 @@ export function FavouritesList({ onHide }: Props) {
       {items.length > 0 && (
         <div className="dialog-list">
           <div className="dialog-list-body">
-            {items.map((item) => {
-              return (
-                <div key={item._id}>
-                  <ProfileLink username={item.account} afterClick={onHide}>
-                    <div className="dialog-list-item">
-                      <UserAvatar username={item.account} size="medium" />
-                      <div className="item-body">
-                        <span className="author notranslate">{item.account}</span>
-                      </div>
-                    </div>
-                  </ProfileLink>
-                </div>
-              );
-            })}
+            <AnimatePresence mode="popLayout">
+              {items.map((item, i) => (
+                <FavouriteItem i={i} key={item._id} item={item} onHide={onHide} />
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       )}
