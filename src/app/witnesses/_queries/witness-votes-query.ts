@@ -1,13 +1,11 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
 import { useSearchParams } from "next/navigation";
 import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import { useEffect } from "react";
 
 export function useWitnessVotesQuery() {
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
 
   const activeUser = useGlobalStore((state) => state.activeUser);
   const { data: activeUserAccount } = getAccountFullQuery(activeUser?.username).useClientQuery();
@@ -15,13 +13,12 @@ export function useWitnessVotesQuery() {
     searchParams.get("username") ?? searchParams.get("account") ?? ""
   ).useClientQuery();
 
-  useEffect(() => {
-    queryClient.refetchQueries({ queryKey: [QueryIdentifiers.WITNESSES, "votes"] });
-  }, [urlParamAccount, activeUserAccount, queryClient]);
-
   return useQuery({
-    queryKey: [QueryIdentifiers.WITNESSES, "votes"],
-    queryFn: () => urlParamAccount?.witness_votes ?? activeUserAccount?.witness_votes ?? [],
-    initialData: []
+    queryKey: [
+      QueryIdentifiers.WITNESSES_VOTES,
+      urlParamAccount?.name ?? activeUserAccount?.name,
+      "votes"
+    ],
+    queryFn: () => urlParamAccount?.witness_votes ?? activeUserAccount?.witness_votes ?? []
   });
 }
