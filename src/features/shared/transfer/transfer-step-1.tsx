@@ -1,7 +1,7 @@
 import { TransferFormHeader } from "@/features/shared/transfer/transfer-form-header";
 import i18next from "i18next";
 import { Button } from "@ui/button";
-import { LinearProgress, SuggestionList, TransferAsset, UserAvatar } from "@/features/shared";
+import { TransferAsset } from "@/features/shared";
 import { Form } from "@ui/form";
 import { FormControl, InputGroup } from "@ui/input";
 import React, { useCallback, useEffect, useMemo } from "react";
@@ -14,12 +14,7 @@ import {
   vestsToHp
 } from "@/utils";
 import { useGlobalStore } from "@/core/global-store";
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getDynamicPropsQuery,
-  getPointsQuery,
-  getTransactionsQuery
-} from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getPointsQuery } from "@/api/queries";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
 import { EXCHANGE_ACCOUNTS } from "@/consts";
@@ -28,6 +23,7 @@ import { useDebounceTransferAccountData } from "./use-debounce-transfer-account-
 import { amountFormatCheck } from "@/utils/amount-format-check";
 import { cryptoUtils } from "@hiveio/dhive";
 import { EcencyConfigManager } from "@/config";
+import { TransferStep1To } from "@/features/shared/transfer/transfer-step-1-to";
 
 interface Props {
   titleLngKey: string;
@@ -44,7 +40,6 @@ export function TransferStep1({ titleLngKey }: Props) {
     to,
     mode,
     setExchangeWarning,
-    setTo,
     setStep,
     setAmount,
     amount,
@@ -58,57 +53,29 @@ export function TransferStep1({ titleLngKey }: Props) {
 
   const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { data: transactions, isLoading: inProgress } = getTransactionsQuery(
-    activeUser?.username
-  ).useClientQuery();
   const { toWarning, toData, delegatedAmount, toError, delegateAccount } =
     useDebounceTransferAccountData();
 
-  const transactionsFlow = useMemo(
-    () => transactions?.pages.reduce((acc, page) => [...acc, ...page], []) ?? [],
-    [transactions]
-  );
   const w = useMemo(
     () => new HiveWallet(activeUser!.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS),
     [activeUser, dynamicProps]
   );
   const subTitleLngKey = useMemo(() => `${mode}-sub-title`, [mode]);
-  const recent = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          transactionsFlow
-            .filter(
-              (x) =>
-                (x.type === "transfer" && x.from === activeUser?.username) ||
-                (x.type === "delegate_vesting_shares" && x.delegator === activeUser?.username)
-            )
-            .map((x) =>
-              x.type === "transfer" ? x.to : x.type === "delegate_vesting_shares" ? x.delegatee : ""
-            )
-            .filter((x) => {
-              if (to!.trim() === "") {
-                return true;
-              }
 
-              return x.indexOf(to!) !== -1;
-            })
-            .reverse()
-            .slice(0, 5)
-        ) ?? []
-      ),
-    [activeUser?.username, to, transactionsFlow]
+  const showTo = useMemo(
+    () => ["transfer", "transfer-saving", "withdraw-saving", "power-up", "delegate"].includes(mode),
+    [mode]
   );
   const canSubmit = useMemo(
     () =>
       toData &&
       !toError &&
+      (!showTo || to) &&
       !amountError &&
       !memoError &&
-      !inProgress &&
       !exchangeWarning &&
       parseFloat(amount) > 0,
-    [amount, amountError, exchangeWarning, inProgress, memoError, toData, toError]
+    [amount, amountError, exchangeWarning, memoError, showTo, to, toData, toError]
   );
   const assets = useMemo(() => {
     let assets: TransferAsset[] = [];
@@ -141,10 +108,6 @@ export function TransferStep1({ titleLngKey }: Props) {
 
     return assets;
   }, [mode]);
-  const showTo = useMemo(
-    () => ["transfer", "transfer-saving", "withdraw-saving", "power-up", "delegate"].includes(mode),
-    [mode]
-  );
   const showMemo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving"].includes(mode),
     [mode]
@@ -217,26 +180,15 @@ export function TransferStep1({ titleLngKey }: Props) {
     return balance;
   }, [delegatedAmount, getBalance]);
 
-  const exchangeHandler = useCallback(
-    (to: string, memo: string) => {
-      if (EXCHANGE_ACCOUNTS.includes(to)) {
-        if ((asset === "HIVE" || asset === "HBD") && !memo) {
-          setExchangeWarning(i18next.t("transfer.memo-required"));
-        } else {
-          setExchangeWarning("");
-        }
+  useEffect(() => {
+    if (EXCHANGE_ACCOUNTS.includes(to)) {
+      if ((asset === "HIVE" || asset === "HBD") && !memo) {
+        setExchangeWarning(i18next.t("transfer.memo-required"));
+      } else {
+        setExchangeWarning("");
       }
-    },
-    [asset, setExchangeWarning]
-  );
-
-  const toChanged = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTo(e.target.value);
-      exchangeHandler(e.target.value, memo);
-    },
-    [exchangeHandler, memo, setTo]
-  );
+    }
+  }, [to, memo, asset, setExchangeWarning]);
 
   const nextPowerDown = useCallback(() => {
     setStep(2);
@@ -256,9 +208,8 @@ export function TransferStep1({ titleLngKey }: Props) {
       const mError = cryptoUtils.isWif(memo.trim());
       if (mError) setMemoError(i18next.t("transfer.memo-error").toUpperCase());
       setMemo(memo);
-      exchangeHandler(to, memo);
     },
-    [exchangeHandler, setMemo, setMemoError, to]
+    [setMemo, setMemoError]
   );
 
   return (
@@ -290,9 +241,8 @@ export function TransferStep1({ titleLngKey }: Props) {
         </div>
       )}
       {step === 1 && (mode !== "power-down" || !w.isPoweringDown) && (
-        <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
+        <div className="transaction-form">
           <TransferFormHeader title={titleLngKey} step={step} subtitle={subTitleLngKey} />
-          {inProgress && <LinearProgress />}
           <Form className="transaction-form-body">
             <div className="grid items-center grid-cols-12 mb-4">
               <div className="col-span-12 sm:col-span-2">
@@ -305,47 +255,7 @@ export function TransferStep1({ titleLngKey }: Props) {
               </div>
             </div>
 
-            {showTo && (
-              <>
-                <div className="grid items-center grid-cols-12 mb-4">
-                  <div className="col-span-12 sm:col-span-2">
-                    <label>{i18next.t("transfer.to")}</label>
-                  </div>
-                  <div className="col-span-12 sm:col-span-10">
-                    <SuggestionList
-                      onSelect={(to: string) => {
-                        setTo(to);
-                        exchangeHandler(to, memo);
-                      }}
-                      items={recent}
-                      renderer={(i) => (
-                        <>
-                          <UserAvatar username={i} size="medium" />
-                          <span style={{ marginLeft: "4px" }}>{i}</span>
-                        </>
-                      )}
-                      header={i18next.t("transfer.recent-transfers")}
-                    >
-                      <InputGroup prepend="@">
-                        <FormControl
-                          type="text"
-                          autoFocus={to === ""}
-                          placeholder={i18next.t("transfer.to-placeholder")}
-                          value={to}
-                          onChange={toChanged}
-                          className={toError ? "is-invalid" : ""}
-                        />
-                      </InputGroup>
-                    </SuggestionList>
-                  </div>
-                </div>
-                {toWarning && <TransferFormText msg={toWarning} type="danger" />}
-                {toError && (
-                  <TransferFormText msg={i18next.t("transfer.to-not-found")} type="danger" />
-                )}
-                {exchangeWarning && <TransferFormText msg={exchangeWarning} type="danger" />}
-              </>
-            )}
+            {showTo && <TransferStep1To toError={toError} toWarning={toWarning} />}
 
             <div className="grid items-center grid-cols-12">
               <div className="col-span-12 sm:col-span-2">
@@ -369,10 +279,7 @@ export function TransferStep1({ titleLngKey }: Props) {
                   <TransferAssetSwitch
                     options={assets}
                     selected={asset}
-                    onChange={(e) => {
-                      setAsset(e);
-                      exchangeHandler(to, memo);
-                    }}
+                    onChange={(e) => setAsset(e)}
                   />
                 )}
               </div>

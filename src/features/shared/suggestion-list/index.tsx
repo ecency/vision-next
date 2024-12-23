@@ -185,12 +185,11 @@ export function SuggestionList({
                 opacity: 0,
                 scaleY: 0.85
               }}
-              className="suggestion-list-parent origin-top"
+              className="absolute border border-[--border-color] left-0 top-[calc(100%+0.5rem)] w-full z-[100] rounded-2xl overflow-hidden min-w-[200px] bg-white mb-4 origin-top"
             >
-              {modeItems.map((modeItem, modeKey) => {
-                const _items = modeItem.items;
-                return (
-                  _items.length > 0 && (
+              {modeItems.map(
+                (modeItem, modeKey) =>
+                  modeItem.items.length > 0 && (
                     <div className="search-suggestion-list" key={modeKey}>
                       {modeItem.header && (
                         <div className="bg-gray-100 dark:bg-gray-900 text-sm font-semibold text-gray-600 dark:text-gray-400 p-2">
@@ -198,7 +197,7 @@ export function SuggestionList({
                         </div>
                       )}
                       <div className="list-body">
-                        {_items.map((x: any, i: number) => (
+                        {modeItem.items.map((x: any, i: number) => (
                           <a
                             href="#"
                             key={i}
@@ -215,8 +214,7 @@ export function SuggestionList({
                       </div>
                     </div>
                   )
-                );
-              })}
+              )}
               <div className="search-suggestion-list more-result">
                 <div className="list-body">
                   <a
@@ -249,7 +247,7 @@ export function SuggestionList({
               style={listStyle}
             >
               {header && (
-                <div className="bg-gray-100 dark:bg-gray-700 text-sm font-semibold text-gray-600 px-2 pb-2 pt-12">
+                <div className="bg-gray-100 dark:bg-dark-200 text-xs font-semibold text-gray-600 dark:text-white p-4">
                   {header}
                 </div>
               )}
@@ -258,7 +256,7 @@ export function SuggestionList({
                   <a
                     href="#"
                     key={i}
-                    className="flex pointer items-center px-4 py-3 text-gray-warm hover:bg-blue-dark-sky-040 dark:text-silver dark:hover:text-white dark:bg-dark-200 dark:hover:bg-dark-default duration-300 border-b border-[--border-color] last:border-0"
+                    className="flex gap-2 pointer items-center px-4 py-3 text-gray-warm hover:bg-blue-dark-sky-040 dark:text-silver dark:hover:text-white dark:bg-dark-200 dark:hover:bg-dark-default duration-300 border-b border-[--border-color] last:border-0"
                     onClick={(e: React.MouseEvent) => {
                       e.preventDefault();
                       onSelect?.(x);
