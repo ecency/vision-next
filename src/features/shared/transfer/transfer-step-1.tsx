@@ -62,15 +62,20 @@ export function TransferStep1({ titleLngKey }: Props) {
   );
   const subTitleLngKey = useMemo(() => `${mode}-sub-title`, [mode]);
 
+  const showTo = useMemo(
+    () => ["transfer", "transfer-saving", "withdraw-saving", "power-up", "delegate"].includes(mode),
+    [mode]
+  );
   const canSubmit = useMemo(
     () =>
       toData &&
       !toError &&
+      (!showTo || to) &&
       !amountError &&
       !memoError &&
       !exchangeWarning &&
       parseFloat(amount) > 0,
-    [amount, amountError, exchangeWarning, memoError, toData, toError]
+    [amount, amountError, exchangeWarning, memoError, showTo, to, toData, toError]
   );
   const assets = useMemo(() => {
     let assets: TransferAsset[] = [];
@@ -103,10 +108,6 @@ export function TransferStep1({ titleLngKey }: Props) {
 
     return assets;
   }, [mode]);
-  const showTo = useMemo(
-    () => ["transfer", "transfer-saving", "withdraw-saving", "power-up", "delegate"].includes(mode),
-    [mode]
-  );
   const showMemo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving"].includes(mode),
     [mode]
