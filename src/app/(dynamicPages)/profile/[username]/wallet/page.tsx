@@ -1,4 +1,4 @@
-import { getAccountFullQuery } from "@/api/queries";
+import { getAccountFullQuery, getTransactionsQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
 import { WalletHive } from "../_components";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
@@ -18,6 +18,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 export default async function EnginePage({ params }: Props) {
   const { username } = await params;
   const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
+  await getTransactionsQuery(username, 20).prefetch();
 
   if (!account) {
     return notFound();
