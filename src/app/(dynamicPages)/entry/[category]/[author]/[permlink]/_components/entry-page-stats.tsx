@@ -10,7 +10,6 @@ import i18next from "i18next";
 import { Entry } from "@/entities";
 import { format, parseISO } from "date-fns";
 import { EntryPageStatsItem } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-item";
-import { EntryPageStatsByCountries } from "./entry-page-stats-by-countries";
 import { EntryPageStatsByDevices } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats-by-devices";
 
 interface Props {
@@ -27,7 +26,6 @@ export function EntryPageStats({ entry }: Props) {
    */
   const cleanedPathname = useMemo(() => {
     const sections = pathname.split("/");
-    console.log(sections);
     if (sections.length === 4) {
       return `${sections[2]}/${sections[3]}`;
     }

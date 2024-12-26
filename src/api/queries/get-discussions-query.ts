@@ -80,13 +80,14 @@ export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOr
   return sorted;
 }
 
-export const getDiscussionsQuery = (entry: Entry, order: SortOrder, enabled: boolean = true) =>
+export const getDiscussionsQuery = (entry: Entry, order: SortOrder, enabled: boolean = true, observer?: string) =>
   EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink],
+    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink, observer||entry?.author],
     queryFn: async () => {
       const response = await bridgeApiCall<Record<string, Entry> | null>("get_discussion", {
         author: entry.author,
-        permlink: entry.permlink
+        permlink: entry.permlink,
+        observer: observer || entry.author
       });
       if (response) {
         return Array.from(Object.values(response));
@@ -98,15 +99,16 @@ export const getDiscussionsQuery = (entry: Entry, order: SortOrder, enabled: boo
     select: (data) => sortDiscussions(entry, data, order)
   });
 
-export const getDiscussionsMapQuery = (entry: Entry | undefined, enabled: boolean = true) =>
+export const getDiscussionsMapQuery = (entry: Entry | undefined, observer?: string, enabled: boolean = true) =>
   EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink],
+    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink, observer||entry?.author],
     queryFn: async () => {
       const response = await bridgeApiCall<Record<string, IdentifiableEntry> | null>(
         "get_discussion",
         {
           author: entry!!.author,
-          permlink: entry!!.permlink
+          permlink: entry!!.permlink,
+          observer: observer || entry!!.author
         }
       );
       if (response) {
