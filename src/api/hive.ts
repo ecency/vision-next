@@ -64,9 +64,6 @@ export const getTradeHistory = (limit: number = 1000): Promise<OrdersDataItem[]>
     limit
   ]);
 
-export const getMarketBucketSizes = (): Promise<number[]> =>
-  client.call("condenser_api", "get_market_history_buckets", []);
-
 export const getMarketHistory = (
   seconds: number,
   startDate: Date,

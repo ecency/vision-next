@@ -1,159 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarketAdvancedModeWidget } from "./market-advanced-mode-widget";
-import { getMarketBucketSizes } from "@/api/hive";
-import moment, { Moment } from "moment";
-import { IChartApi, ISeriesApi, TimeRange } from "lightweight-charts";
 import useLocalStorage from "react-use/lib/useLocalStorage";
-import useDebounce from "react-use/lib/useDebounce";
-import { useResizeDetector } from "react-resize-detector";
-import { useTradingViewApi } from "./api";
+import { TradingViewQueryDataItem, useMarketBucketSizeQuery, useTradingViewQuery } from "./api";
 import { Widget } from "@/app/market/advanced/_advanced-mode/types/layout.type";
 import { PREFIX } from "@/utils/local-storage";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { Button } from "@ui/button";
+import { useInfiniteDataFlow } from "@/utils";
+import { useDebounce, useMount } from "react-use";
+import { createChart, IChartApi, ISeriesApi, Time, TimeRange } from "lightweight-charts";
+import { useResizeDetector } from "react-resize-detector";
 
 interface Props {
   widgetTypeChanged: (type: Widget) => void;
 }
 
-interface TriggerFetch {
-  fetch: boolean;
-  loadMore: boolean;
-}
-
-const TRIGGER_FETCH_DEFAULT: TriggerFetch = { fetch: false, loadMore: false };
-const HISTOGRAM_OPTIONS: any = {
-  color: "#26a69a",
-  priceFormat: {
-    type: "volume"
-  },
-  priceScaleId: "",
-  scaleMargins: {
-    top: 0.8,
-    bottom: 0
-  }
-};
-
 export const TradingViewWidget = ({ widgetTypeChanged }: Props) => {
   const theme = useGlobalStore((s) => s.theme);
 
-  const { width, height, ref: chartRef } = useResizeDetector();
+  const { ref: chartContainerRef, width, height } = useResizeDetector();
+  const chartRef = useRef<IChartApi>();
 
-  const [storedBucketSeconds, setStoredBucketSeconds] = useLocalStorage<number>(
-    PREFIX + "_amml_tv_bs",
-    300
+  const [bucketSeconds, setBucketSeconds] = useLocalStorage<number>(PREFIX + "_amml_tv_bs", 300);
+  const [candleStickSeries, setCandleStickSeries] = useState<ISeriesApi<"Candlestick">>();
+  const [lastTimeRange, setLastTimeRange] = useState<TimeRange>();
+
+  const { data: bucketSecondsList } = useMarketBucketSizeQuery();
+  const {
+    data: dataPages,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useTradingViewQuery(bucketSeconds ?? 300);
+
+  const data = useInfiniteDataFlow(dataPages);
+  const uniqueData = useMemo(
+    () =>
+      Array.from(
+        data
+          .reduce(
+            (acc, item) => acc.set(item.time, item),
+            new Map<Time, TradingViewQueryDataItem>()
+          )
+          .values()
+      ).sort((a, b) => Number(a.time) - Number(b.time)),
+    [data]
   );
 
-  const [data, setData] = useState<any[]>([]);
-  const [startDate, setStartDate] = useState<Moment>(moment().subtract(8, "hours"));
-  const [endDate, setEndDate] = useState<Moment>(moment());
-  const [bucketSeconds, setBucketSeconds] = useState(storedBucketSeconds ?? 300);
-  const [chart, setChart] = useState<IChartApi | null>(null);
-  const [chartSeries, setChartSeries] = useState<ISeriesApi<any> | null>(null);
-  const [histoSeries, setHistoSeries] = useState<ISeriesApi<any> | null>(null);
-  const [bucketSecondsList, setBucketSecondsList] = useState<number[]>([]);
-  const [triggerFetch, setTriggerFetch] = useState<TriggerFetch>(TRIGGER_FETCH_DEFAULT);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [lastTimeRange, setLastTimeRange] = useState<TimeRange | null>(null);
-
-  const { fetchData } = useTradingViewApi(setData);
-
-  useDebounce(
-    () => {
-      if (!triggerFetch.fetch) return;
-
-      setEndDate(startDate.clone().subtract(bucketSeconds, "seconds"));
-      setStartDate(
-        getNewStartDate(startDate.clone().subtract(bucketSeconds, "seconds"), "subtract")
-      );
-      fetchData(bucketSeconds, startDate, endDate, triggerFetch.loadMore);
-      setTriggerFetch(TRIGGER_FETCH_DEFAULT);
-    },
-    300,
-    [triggerFetch]
-  );
-
-  useEffect(() => {
-    getMarketBucketSizes().then((sizes) => setBucketSecondsList(sizes));
-    buildChart().then(() => fetchData(bucketSeconds, startDate, endDate));
-  }, []);
-
-  useEffect(() => {
-    if (width && height) {
-      chart?.resize(width, height);
-    }
-  }, [width, height]);
-
-  useEffect(() => {
-    const fromDate = lastTimeRange ? new Date(Number(lastTimeRange.from) * 1000) : null;
-    if (fromDate) {
-      if (lastTimeRange?.from === data[0]?.time) setTriggerFetch({ fetch: true, loadMore: true });
-    }
-  }, [lastTimeRange]);
-
-  useEffect(() => {
-    if (chartSeries) {
-      chart?.removeSeries(chartSeries);
-      setChartSeries(null);
-    }
-
-    if (histoSeries) {
-      chart?.removeSeries(histoSeries);
-      setHistoSeries(null);
-    }
-
-    setData([]);
-    setEndDate(moment());
-    setStartDate(getNewStartDate(moment(), "subtract"));
-    setTriggerFetch({ fetch: true, loadMore: false });
-
-    setStoredBucketSeconds(bucketSeconds);
-  }, [bucketSeconds]);
-
-  useEffect(() => {
-    if (!chart) {
+  useMount(() => {
+    if (!chartContainerRef.current) {
       return;
     }
-    const candleStickSeries =
-      chartSeries ??
-      chart.addCandlestickSeries({
-        priceFormat: {
-          type: "price",
-          precision: 5,
-          minMove: 0.00001
-        }
-      });
-    candleStickSeries.setData(data);
 
-    const volumeSeries = histoSeries ?? chart.addHistogramSeries(HISTOGRAM_OPTIONS);
-    volumeSeries.setData(
-      data.map(({ time, volume, open, close }) => ({
-        time,
-        value: volume / 1000,
-        color: open < close ? "rgba(0, 150, 136, 0.8)" : "rgba(255,82,82, 0.8)"
-      }))
-    );
-
-    if (!isZoomed && data.length > 0) {
-      chart?.timeScale().fitContent();
-      setIsZoomed(true);
-    }
-
-    setChartSeries(candleStickSeries);
-    setHistoSeries(volumeSeries);
-  }, [data, chart]);
-
-  useEffect(() => {
-    if (chart) {
-      chart.options().layout.textColor = theme == "night" ? "#fff" : "#000";
-    }
-  }, [theme]);
-
-  const buildChart = async () => {
-    const tradingView = await import("lightweight-charts");
-    const chartInstance = tradingView.createChart(chartRef.current, {
+    const chartOptions = {
       rightPriceScale: {
         scaleMargins: {
           top: 0.3,
@@ -169,38 +69,80 @@ export const TradingViewWidget = ({ widgetTypeChanged }: Props) => {
           color: "transparent"
         },
         textColor: theme == "night" ? "#fff" : "#000"
+      },
+      grid: {
+        horzLines: {
+          visible: true,
+          color: "rgba(100, 100, 100, 0.5)",
+          style: 1,
+          width: 1
+        },
+        vertLines: {
+          visible: true,
+          color: "rgba(100, 100, 100, 0.5)",
+          style: 1,
+          width: 1
+        }
       }
-    });
+    };
+    const chart = createChart(chartContainerRef.current, chartOptions);
+    chartRef.current = chart;
 
-    chartInstance
+    chart
       .timeScale()
-      .subscribeVisibleTimeRangeChange((timeRange) => setLastTimeRange(timeRange));
-    setChart(chartInstance);
-  };
+      .subscribeVisibleTimeRangeChange((timeRange) => setLastTimeRange(timeRange ?? undefined));
 
-  const getNewStartDate = (date: Moment, operation: "add" | "subtract") => {
-    let newStartDate = date.clone();
-    let value = 0;
-    let unit: "hours" | "days" = "hours";
-    if (bucketSeconds === 15) value = 4;
-    if (bucketSeconds === 60) value = 8;
-    if (bucketSeconds === 300) value = 8;
-    if (bucketSeconds === 3600) {
-      value = 1;
-      unit = "days";
+    setCandleStickSeries(
+      chart.addCandlestickSeries({
+        upColor: "#26a69a",
+        downColor: "#ef5350",
+        borderVisible: false,
+        wickUpColor: "#26a69a",
+        wickDownColor: "#ef5350",
+        priceFormat: {
+          type: "price",
+          precision: 5,
+          minMove: 0.00001
+        }
+      })
+    );
+
+    setTimeout(() => fetchNextPage(), 10000);
+  });
+
+  useDebounce(
+    () => {
+      if (lastTimeRange?.from === uniqueData[0]?.time) {
+        fetchNextPage();
+      }
+    },
+    300,
+    [lastTimeRange, uniqueData, fetchNextPage]
+  );
+
+  useEffect(() => {
+    chartRef.current?.resize(width ?? 0, height ?? 0);
+  }, [width, height]);
+
+  useEffect(() => {
+    if (candleStickSeries) {
+      candleStickSeries.setData([]);
+      candleStickSeries.setData(
+        uniqueData.map((item) => ({
+          ...item,
+          value: item.volume / 1000
+        }))
+      );
     }
-    if (bucketSeconds === 86400) {
-      value = 20;
-      unit = "days";
+  }, [candleStickSeries, uniqueData]);
+
+  useEffect(() => {
+    if (chartRef.current) {
+      chartRef.current.options().layout.textColor = theme == "night" ? "#fff" : "#161d26";
     }
+  }, [theme]);
 
-    if (operation === "add") newStartDate = newStartDate.add(value, unit);
-    if (operation === "subtract") newStartDate = newStartDate.subtract(value, unit);
-
-    return newStartDate;
-  };
-
-  const getBucketSecondsLabel = () => {
+  const getBucketSecondsLabel = useCallback((bucketSeconds: number) => {
     switch (bucketSeconds) {
       case 15:
         return "15s";
@@ -215,7 +157,7 @@ export const TradingViewWidget = ({ widgetTypeChanged }: Props) => {
       default:
         return "";
     }
-  };
+  }, []);
 
   return (
     <MarketAdvancedModeWidget
@@ -224,7 +166,7 @@ export const TradingViewWidget = ({ widgetTypeChanged }: Props) => {
       title={
         <>
           <b>{i18next.t("market.advanced.chart")}</b>
-          <small className="pl-1">({getBucketSecondsLabel()})</small>
+          <small className="pl-1">({getBucketSecondsLabel(bucketSeconds ?? 300)})</small>
         </>
       }
       widgetTypeChanged={widgetTypeChanged}
@@ -236,8 +178,8 @@ export const TradingViewWidget = ({ widgetTypeChanged }: Props) => {
           </DropdownToggle>
           <DropdownMenu>
             {bucketSecondsList
-              .map((size) => ({
-                label: `${size}`,
+              ?.map((size) => ({
+                label: `${getBucketSecondsLabel(size)}`,
                 selected: bucketSeconds === size,
                 onClick: () => setBucketSeconds(size)
               }))
@@ -250,7 +192,7 @@ export const TradingViewWidget = ({ widgetTypeChanged }: Props) => {
         </Dropdown>
       }
     >
-      <div className="market-advanced-mode-trading-view-widget" ref={chartRef} />
+      <div className="market-advanced-mode-trading-view-widget" ref={chartContainerRef} />
     </MarketAdvancedModeWidget>
   );
 };
