@@ -74,19 +74,22 @@ export function EntryIndexMenu() {
       label: i18next.t(`entry-filter.filter-controversial`),
       href: `/controversial/week`,
       selected: filter === "controversial",
-      id: "controversial"
+      id: "controversial",
+      onClick: () => router.push("/controversial/week")
     },
     {
       label: i18next.t(`entry-filter.filter-rising`),
       href: `/rising/week`,
       selected: filter === "rising",
-      id: "rising"
+      id: "rising",
+      onClick: () => router.push("/rising/week")
     },
     {
       label: i18next.t(`entry-filter.filter-promoted`),
       href: `/promoted`,
       selected: filter === "promoted",
-      id: "promoted"
+      id: "promoted",
+      onClick: () => router.push("/promoted")
     }
   ];
 
@@ -95,6 +98,7 @@ export function EntryIndexMenu() {
   const menuItems: MenuItem[] = [
     ...[EntryFilter.trending, EntryFilter.hot, EntryFilter.created].map((x) => {
       return {
+        onClick: () => router.push(`/${x}`),
         label: i18next.t(`entry-filter.filter-${x}`),
         href: isActive
           ? filter === "feed" && !isGlobal
@@ -120,7 +124,8 @@ export function EntryIndexMenu() {
       label: i18next.t(`entry-filter.filter-feed-friends`),
       href: `/@${activeUser?.username}/feed`,
       selected: filter === "feed",
-      id: "feed"
+      id: "feed",
+      onClick: () => router.push(`/@${activeUser?.username}/feed`)
     },
     ...menuItems,
     ...secondaryMenu
