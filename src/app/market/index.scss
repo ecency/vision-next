@@ -323,10 +323,6 @@ thead, .pagination {
         .market-advanced-mode-tv-widget {
             .market-advanced-mode-trading-view-widget {
                 height: calc(100% - 44px);
-
-                .tv-lightweight-charts:first-child {
-                    display: none;
-                }
             }
 
             &.expanded-header {

@@ -35,7 +35,7 @@
     "diff-match-patch": "^1.0.5",
     "emoji-mart": "^5.5.2",
     "framer-motion": "^11.3.24",
-    "highcharts": "^11.4.5",
+    "highcharts": "^12.1.2",
     "highcharts-react-official": "^3.2.1",
     "hive-uri": "^0.2.5",
     "hivesigner": "^3.3.4",
