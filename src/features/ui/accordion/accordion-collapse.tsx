@@ -3,7 +3,7 @@ import { AccordionContext } from "@/features/ui/accordion/accordion-context";
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
 
 export function AccordionCollapse(
-  props: HTMLProps<HTMLDivElement> & { eventKey: string; overflowHidden: boolean }
+  props: HTMLProps<HTMLDivElement> & { eventKey: string; overflowHidden?: boolean }
 ) {
   const { show } = useContext(AccordionContext);
   const collapseRef = useRef<HTMLDivElement | null>(null);
