@@ -39,8 +39,8 @@ export function DelegatedVesting({ onHide, account, totalDelegated }: Props) {
     1000
   ).useClientQuery();
 
-  const { mutateAsync: delegateByKey } = useDelegateVestingSharesByKey(account.name);
-  const { mutateAsync: delegateByKeychain } = useDelegateVestingSharesByKeychain(account.name);
+  const { mutateAsync: delegateByKey } = useDelegateVestingSharesByKey();
+  const { mutateAsync: delegateByKeychain } = useDelegateVestingSharesByKeychain();
 
   const data = useMemo(
     () =>
@@ -135,7 +135,13 @@ export function DelegatedVesting({ onHide, account, totalDelegated }: Props) {
                           <KeyOrHotDialog
                             popOver={true}
                             onToggle={() => setHideList(!hideList)}
-                            onKey={(key) => delegateByKey({ key, value: "0.000000 VESTS" })}
+                            onKey={(key) =>
+                              delegateByKey({
+                                key,
+                                value: "0.000000 VESTS",
+                                delegatee: x.delegatee
+                              })
+                            }
                             onHot={() =>
                               delegateVestingSharesHot(
                                 activeUser.username,
@@ -143,7 +149,12 @@ export function DelegatedVesting({ onHide, account, totalDelegated }: Props) {
                                 "0.000000 VESTS"
                               )
                             }
-                            onKc={() => delegateByKeychain({ value: "0.000000 VESTS" })}
+                            onKc={() =>
+                              delegateByKeychain({
+                                value: "0.000000 VESTS",
+                                delegatee: x.delegatee
+                              })
+                            }
                           >
                             <a href="#" className="undelegate">
                               {i18next.t("delegated-vesting.undelegate")}
