@@ -68,5 +68,5 @@ export const getTransactionsQuery = (
     initialData: { pages: [], pageParams: [] },
     initialPageParam: -1,
     getNextPageParam: (lastPage, __) =>
-      lastPage ? (lastPage[lastPage.length - 1].num ?? 0) - 1 : -1
+      lastPage ? (lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1
   });
