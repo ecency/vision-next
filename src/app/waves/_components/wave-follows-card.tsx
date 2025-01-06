@@ -8,15 +8,23 @@ import { useMemo } from "react";
 import { StyledTooltip } from "@ui/tooltip";
 import { Button } from "@ui/button";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import { LeaderBoardItem } from "@/entities";
 
 export function WaveFollowsCard() {
   const { data } = getDiscoverLeaderboardQuery("day").useClientQuery();
 
-  const items = useMemo(
-    () =>
-      data ? new Array(5).fill(1).map(() => data[Math.floor(Math.random() * data.length)]) : [],
-    [data]
-  );
+  const items = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+
+    const uniqueUsernames: LeaderBoardItem[] = [];
+    while (uniqueUsernames.length < 5) {
+      uniqueUsernames.push(data[Math.floor(Math.random() * data.length)]);
+    }
+
+    return uniqueUsernames;
+  }, [data]);
 
   return (
     <div className="rounded-2xl bg-white dark:bg-dark-200 p-4">
