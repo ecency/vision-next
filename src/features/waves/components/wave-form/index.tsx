@@ -140,11 +140,17 @@ const WaveFormComponent = ({
                 (text?.length ?? 0) <= 255 &&
                 i18next.t("decks.threads-form.login-and-publish")}
               {activeUser &&
+                !replySource &&
                 !entry &&
                 (text?.length ?? 0) <= 255 &&
                 (isPending
                   ? i18next.t("decks.threads-form.publishing")
                   : i18next.t("decks.threads-form.publish"))}
+              {activeUser &&
+                replySource &&
+                !entry &&
+                (text?.length ?? 0) <= 255 &&
+                (isPending ? i18next.t("waves.replying") : i18next.t("waves.reply"))}
               {(text?.length ?? 0) > 255 &&
                 !entry &&
                 i18next.t("decks.threads-form.create-regular-post")}
