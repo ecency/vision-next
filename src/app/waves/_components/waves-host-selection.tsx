@@ -5,6 +5,7 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 import { Button } from "@ui/button";
 import { UilApps } from "@tooni/iconscout-unicons-react";
 import { UserAvatar } from "@/features/shared";
+import { WaveHosts } from "@/features/waves/enums";
 
 interface Props {
   host: string;
@@ -13,6 +14,16 @@ interface Props {
 
 export function WavesHostSelection({ host, setHost }: Props) {
   const availableHosts = useMemo(() => ["All", ...AVAILABLE_THREAD_HOSTS], []);
+  const labels = useMemo(
+    () =>
+      ({
+        [WaveHosts.Waves]: "Waves",
+        [WaveHosts.Leo]: "Threads",
+        [WaveHosts.Dbuzz]: "Buzz",
+        [WaveHosts.Liketu]: "Moments"
+      }) as Record<string, string>,
+    []
+  );
 
   return (
     <WavesNavigationLayout>
@@ -20,7 +31,7 @@ export function WavesHostSelection({ host, setHost }: Props) {
       <Dropdown>
         <DropdownToggle>
           <Button icon={<UilApps />} appearance="gray-link">
-            {host}
+            {labels[host] ?? host}
           </Button>
         </DropdownToggle>
         <DropdownMenu align="right">
@@ -31,7 +42,7 @@ export function WavesHostSelection({ host, setHost }: Props) {
               onClick={() => setHost(item)}
               title={item}
               key={item}
-              label={item}
+              label={labels[item] ?? item}
             />
           ))}
         </DropdownMenu>
