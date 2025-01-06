@@ -26,6 +26,11 @@ const CONFIG = {
       }
     },
     visionFeatures: {
+      analytics: {
+        plausible: {
+          domain: "https://pl.ecency.com"
+        }
+      },
       perks: {
         enabled: true
       },
@@ -92,6 +97,12 @@ const CONFIG = {
       },
       waves: {
         enabled: true
+      },
+      plausible: {
+        enabled: true,
+        host: "https://pl.ecency.com",
+        siteId: "ecency.com",
+        apiKey: process.env.PLAUSIBLE_API_KEY
       }
     },
     service: {

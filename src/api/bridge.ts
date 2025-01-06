@@ -159,11 +159,13 @@ export const getAccountNotifications = (
 
 export const getDiscussion = (
   author: string,
-  permlink: string
+  permlink: string,
+  observer?: string
 ): Promise<Record<string, Entry> | null> =>
   bridgeApiCall<Record<string, Entry> | null>("get_discussion", {
-    author,
-    permlink
+    author: author,
+    permlink: permlink,
+    observer: observer || author
   });
 
 export const getCommunity = (

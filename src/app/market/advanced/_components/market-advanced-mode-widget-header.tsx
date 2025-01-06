@@ -57,7 +57,7 @@ export const MarketAdvancedModeWidgetHeader = ({
         </div>
       </div>
       {settings ? (
-        <AccordionCollapse eventKey="0">
+        <AccordionCollapse overflowHidden={false} eventKey="0">
           <div className="p-0 market-advanced-mode-widget-settings">{settings}</div>
         </AccordionCollapse>
       ) : (

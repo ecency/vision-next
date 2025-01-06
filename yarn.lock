@@ -5802,13 +5802,18 @@ he@^1.2.0:
 
 highcharts-react-official@^3.2.1:
   version "3.2.1"
-  resolved "https://registry.npmjs.org/highcharts-react-official/-/highcharts-react-official-3.2.1.tgz"
+  resolved "https://registry.yarnpkg.com/highcharts-react-official/-/highcharts-react-official-3.2.1.tgz#4b62a7af2969bdebde6b338d36f6b9bf1f1029bc"
   integrity sha512-hyQTX7ezCxl7JqumaWiGsroGWalzh24GedQIgO3vJbkGOZ6ySRAltIYjfxhrq4HszJOySZegotEF7v+haQ75UA==
 
-highcharts@*, highcharts@^11.4.5:
+highcharts@*:
   version "11.4.5"
   resolved "https://registry.npmjs.org/highcharts/-/highcharts-11.4.5.tgz"
   integrity sha512-jUkojddxLFhyfZ+naLsRtYv/NjXEptcZ0/8bqSSS2aoz9sU80rb4LBJlYfyRFHBGw5sMkUqeaXsv66J49O8n7A==
+
+highcharts@^12.1.2:
+  version "12.1.2"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-12.1.2.tgz#826114935b3ffb6b99dc906da00f137667a67fbb"
+  integrity sha512-paZ72q1um0zZT1sS+O/3JfXVSOLPmZ0zlo8SgRc0rEplPFPQUPc4VpkgQS8IUTueeOBgIWwVpAWyC9tBYbQ0kg==
 
 highcharts@^6.0.4:
   version "6.2.0"
@@ -7110,6 +7115,11 @@ lru-cache@^10.2.0:
   version "10.4.3"
   resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-10.4.3.tgz"
   integrity sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==
+
+lru-cache@^11.0.2:
+  version "11.0.2"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-11.0.2.tgz#fbd8e7cf8211f5e7e5d91905c415a3f55755ca39"
+  integrity sha512-123qHRfJBmo2jXDbo/a5YOQrJoHF/GNQTLzQ5+IdK5pWpceK17yRc6ozlWd25FxvGKQbIUs91fDFkXmDHTKcyA==
 
 lru-cache@^5.1.1:
   version "5.1.1"

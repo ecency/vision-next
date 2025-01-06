@@ -3,11 +3,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StyledTooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { informationVariantSvg } from "@ui/svg";
 import Link from "next/link";
 import { UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { EntryPageContext } from "../context";
+import { Button } from "@/features/ui";
+import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
 
 export interface ActiveVotes {
   rshares: number;
@@ -72,9 +73,7 @@ export const ReadTime = (props: any) => {
           i18next.t("entry.post-read-minuites")
         }
       >
-        <span className="flex items-center">
-          <span className="info-icon w-[24px] mr-0 mr-md-2">{informationVariantSvg}</span>
-        </span>
+        <Button appearance="gray-link" size="sm" noPadding={true} icon={<UilInfoCircle />} />
       </StyledTooltip>
     </div>
   ) : (

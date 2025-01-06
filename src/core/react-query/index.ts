@@ -53,6 +53,7 @@ export enum QueryIdentifiers {
   GET_RELATIONSHIP_BETWEEN_ACCOUNTS = "get-relationship-between-accounts",
   COMMUNITIES = "communities",
   WITNESSES = "witnesses",
+  WITNESSES_VOTES = "witnesses-votes",
   GALLERY_IMAGES = "gallery-images",
   NOTIFICATIONS_UNREAD_COUNT = "notifications-unread-count",
   NOTIFICATIONS_SETTINGS = "notifications-settings",
@@ -94,7 +95,10 @@ export enum QueryIdentifiers {
   HIVE_ENGINE_ALL_TOKENS = "hive-engine-all-tokens",
   GET_HIVE_ENGINE_MARKET_DATA = "get-hive-engine-market-data",
   HIVE_ENGINE_TOKEN_BALANCES = "hive-engine-token-balances",
-  HIVE_ENGINE_TOKEN_BALANCES_USD = "hive-engine-token-balances-usd"
+  HIVE_ENGINE_TOKEN_BALANCES_USD = "hive-engine-token-balances-usd",
+  PAGE_STATS = "page-stats",
+  MARKET_TRADING_VIEW = "market-trading-view",
+  MARKET_BUCKET_SIZE = "market-bucket-size"
 }
 
 export function makeQueryClient() {

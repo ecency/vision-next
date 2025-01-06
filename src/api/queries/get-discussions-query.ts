@@ -83,13 +83,14 @@ export const getDiscussionsQuery = (
   entry: Entry,
   order: SortOrder = SortOrder.created,
   enabled: boolean = true
-) =>
+, observer?: string) =>
   EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink],
+    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink, observer||entry?.author],
     queryFn: async () => {
       const response = await bridgeApiCall<Record<string, Entry> | null>("get_discussion", {
         author: entry.author,
-        permlink: entry.permlink
+        permlink: entry.permlink,
+        observer: observer || entry.author
       });
 
       let results = response ? Array.from(Object.values(response)) : [];

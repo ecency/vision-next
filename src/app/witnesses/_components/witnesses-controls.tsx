@@ -17,23 +17,15 @@ export function WitnessesControls({ witnesses }: Props) {
   const { data: proxy } = useWitnessProxyQuery();
 
   const extraWitnesses = useMemo(
-    () => witnessVotes.filter((w) => !witnesses.find((y) => y.name === w)),
+    () => witnessVotes?.filter((w) => !witnesses.find((y) => y.name === w)) ?? [],
     [witnesses, witnessVotes]
   );
-
-  const addWitness = (name: string) =>
-    queryClient.setQueryData([QueryIdentifiers.WITNESSES, "votes"], [...witnessVotes, name]);
-  const deleteWitness = (name: string) =>
-    queryClient.setQueryData(
-      [QueryIdentifiers.WITNESSES, "votes"],
-      witnessVotes.filter((wv) => wv !== name)
-    );
 
   return proxy ? (
     <></>
   ) : (
     <div className="witnesses-controls">
-      <WitnessesExtra list={extraWitnesses} onAdd={addWitness} onDelete={deleteWitness} />
+      <WitnessesExtra list={extraWitnesses} />
       <div className="flex-spacer" />
 
       <WitnessesProxy

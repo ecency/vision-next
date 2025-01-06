@@ -41,6 +41,7 @@
 
 .bookmark-btn {
   margin-right: 0px !important;
+  margin-top: 0 !important;
 }
 
 .entry-page {
@@ -197,16 +198,6 @@
     .entry-header {
       margin-bottom: 15px;
 
-      @include themify(day) {
-        border-bottom: 1px solid;
-        @apply border-light-400;
-      }
-
-      @include themify(night) {
-        border-bottom: 1px solid;
-        @apply border-dark-200;
-      }
-
       h1.entry-title {
         font-size: 42px;
         margin: 16px 0 22px 0;
@@ -223,6 +214,18 @@
 
         @include themify(night) {
           @apply text-gray-pinkish;
+        }
+      }
+      .author-reputation {
+        @apply text-gray-steel;
+        font-weight: 400;
+
+        &::before {
+          content: "(";
+        }
+
+        &::after {
+          content: ")";
         }
       }
     }
@@ -260,86 +263,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
-      }
-
-      .entry-info {
-        @include clearfix();
-        @apply text-gray-steel;
-        align-items: center;
-        display: flex;
-        flex-grow: 1;
-        flex-shrink: 0;
-
-        @media (min-width: $md-break) {
-          flex-direction: row;
-        }
-
-        @include themify(day) {
-          @apply text-gray-steel;
-        }
-
-        @include themify(night) {
-          @apply text-gray-pinkish;
-        }
-
-        .separator {
-          &:first-of-type {
-            display: none;
-
-            @media (min-width: $sm-break) {
-              display: block;
-            }
-          }
-        }
-
-        .author {
-          align-items: center;
-          cursor: pointer;
-          display: none;
-
-          @media (min-width: $sm-break) {
-            display: inline-flex;
-          }
-
-          .author-name {
-            font-weight: 700;
-            margin-right: 2px;
-          }
-
-          @include themify(day) {
-            @apply text-gray-charcoal;
-          }
-
-          @include themify(night) {
-            @apply text-gray-pinkish;
-          }
-
-          .author-reputation {
-            @apply text-gray-steel;
-            font-weight: 500;
-
-            &::before {
-              content: "(";
-            }
-
-            &::after {
-              content: ")";
-            }
-          }
-        }
-
-        .app {
-          font-weight: 700;
-
-          a {
-            text-decoration: none;
-            @apply text-gray-steel;
-          }
-
-          .app-name {
-            font-weight: 400;
-          }
-        }
       }
 
       .entry-controls {
@@ -487,10 +410,6 @@
   div.post-info {
     display: none;
   }
-}
-
-.post-info {
-  margin-right: 10px;
 }
 
 .top-curator {

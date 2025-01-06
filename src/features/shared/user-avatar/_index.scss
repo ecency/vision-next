@@ -24,6 +24,10 @@
     @include strict_size(40px, 40px);
   }
 
+  &.sLarge {
+    @include strict_size(54px, 54px);
+  }
+
   &.large {
     @include strict_size(80px, 80px);
   }

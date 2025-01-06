@@ -110,12 +110,11 @@ export function useDebounceTransferAccountData() {
           "claim-interest"
         ].includes(mode)
       ) {
-        setTo(activeUser?.username ?? "");
         return activeUser?.data;
       }
 
       return toData;
-    }, [activeUser?.data, activeUser?.username, mode, setTo, toData]),
+    }, [activeUser?.data, mode, toData]),
     toError,
     delegateAccount,
     isLoading: useMemo(() => toLoading || vestingLoading, [toLoading, vestingLoading])

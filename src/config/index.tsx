@@ -6,7 +6,11 @@ import type { DefaultError } from "@tanstack/query-core";
 export namespace EcencyConfigManager {
   export const CONFIG = { ...config.visionConfig } as const;
 
-  export type ConfigBasedCondition = (config: typeof CONFIG) => boolean;
+  export type ConfigBasedCondition<T = boolean> = (config: typeof CONFIG) => T;
+
+  export function getConfigValue<T>(condition: ConfigBasedCondition<T>): T {
+    return condition(CONFIG);
+  }
 
   export function selector(condition: ConfigBasedCondition) {
     return condition(CONFIG);

@@ -42,7 +42,8 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
   const { isLoading, data } = getDiscussionsQuery(
     parent,
     order,
-    visible && !!parent
+    visible && !!parent,
+    activeUser?.username
   ).useClientQuery();
   const { data: botsList } = getBotsQuery().useClientQuery();
 

@@ -70,3 +70,4 @@ export * from "./spk";
 export * from "./engine";
 export * from "./waves";
 export * from "./get-discussions-query";
+export * from "./stats";

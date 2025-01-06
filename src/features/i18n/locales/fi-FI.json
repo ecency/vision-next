@@ -92,7 +92,8 @@
     "success": "Onnistui",
     "error": "Virhe",
     "reset-form": "Tyhjennä lomake",
-    "community": "Community"
+    "community": "Community",
+    "today": "Today"
   },
   "confirm": {
     "title": "Oletko varma?",
@@ -731,12 +732,25 @@
     "browse-original": "Open original post",
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
-    "community-in": "in",
+    "published": "Published in",
     "post-word-count": "Words:",
     "post-read-time": "Reading:",
     "post-read-minuites": "min",
     "raw": "View RAW format",
-    "post-top-curator": "Top Curator:"
+    "post-top-curator": "Top Curator:",
+    "stats": {
+      "stats-details": "Lifetime statistics",
+      "update-info": "Updating every minute",
+      "visitors": "Visitors",
+      "views": "Views",
+      "reads": "Read time",
+      "countries": "Countries",
+      "devices": "Devices",
+      "warn": "Stats are collecting only in Ecency's applications",
+      "promotion-title": "Want more views and reads?",
+      "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
+      "try-now": "Try now"
+    }
   },
   "edit-history": {
     "title": "Edit History",
