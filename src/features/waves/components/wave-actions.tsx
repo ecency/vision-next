@@ -16,6 +16,7 @@ interface Props {
   pure: boolean;
   onEdit: (entry: WaveEntry) => void;
   onSeeFullThread?: () => void;
+  showStats?: boolean;
 }
 
 export function WaveActions({
@@ -26,7 +27,8 @@ export function WaveActions({
   onSeeFullThread,
   pure,
   hasParent,
-  onEdit
+  onEdit,
+  showStats = false
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
@@ -36,7 +38,7 @@ export function WaveActions({
         <div className="thread-item-actions" onClick={(e) => e.stopPropagation()}>
           <div>
             <EntryVoteBtn entry={entry!} isPostSlider={false} />
-            <EntryStats entry={entry!} />
+            {showStats && <EntryStats entry={entry!} />}
             <EntryVotes entry={entry!} icon={voteSvg} />
             <Button
               iconPlacement="left"

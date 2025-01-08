@@ -39,6 +39,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
       <WavesListItemHeader entry={entry!} hasParent={false} pure={false} status={status} />
       <div className="p-4 thread-render" ref={renderAreaRef} />
       <WaveActions
+        showStats={true}
         status={status}
         entry={entry!}
         onEntryView={() => {}}
