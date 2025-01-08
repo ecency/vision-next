@@ -1,4 +1,4 @@
-import { EntryMenu, EntryVoteBtn, EntryVotes, UserAvatar } from "@/features/shared";
+import { EntryMenu, EntryStats, EntryVoteBtn, EntryVotes, UserAvatar } from "@/features/shared";
 import { commentSvg, voteSvg } from "@/app/decks/_components/icons";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -36,12 +36,16 @@ export function WaveActions({
         <div className="thread-item-actions" onClick={(e) => e.stopPropagation()}>
           <div>
             <EntryVoteBtn entry={entry!} isPostSlider={false} />
+            <EntryStats entry={entry!} />
             <EntryVotes entry={entry!} icon={voteSvg} />
-            <Button appearance="link" onClick={() => onEntryView()}>
-              <div className="flex items-center comments">
-                <div style={{ paddingRight: 4 }}>{commentSvg}</div>
-                <div>{commentsSlot ?? entry?.children}</div>
-              </div>
+            <Button
+              iconPlacement="left"
+              size="sm"
+              appearance="gray-link"
+              icon={commentSvg}
+              onClick={() => onEntryView()}
+            >
+              <div>{commentsSlot ?? entry?.children}</div>
             </Button>
           </div>
           <div>

@@ -178,4 +178,9 @@
       }
     }
   }
+
+  hr {
+    margin: 1rem 0;
+    @apply border-[--border-color];
+  }
 }
