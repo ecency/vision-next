@@ -3,8 +3,7 @@
 import { WaveEntry } from "@/entities";
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import { useRenderWaveBody, WaveActions, WaveForm } from "@/features/waves";
-import { renderPostBody } from "@ecency/render-helper";
+import { WaveActions, WaveForm } from "@/features/waves";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { motion } from "framer-motion";
 import "./waves-list-item.scss";
@@ -13,9 +12,9 @@ import { classNameObject } from "@ui/util";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
-import uuid from "tus-js-client/lib.esm/uuid";
 import { useInViewport } from "react-in-viewport";
 import { useCollectPageViewEvent } from "@/api/mutations";
+import { EcencyRenderer } from "@ecency/renderer";
 
 interface Props {
   item: WaveEntry;
@@ -42,7 +41,6 @@ export function WavesListItem({
     EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(item).useClientQuery();
 
   const poll = useEntryPollExtractor(entry);
-  const renderBody = useRenderWaveBody(renderAreaRef, entry as WaveEntry, {});
   const { mutateAsync: collectPageView } = useCollectPageViewEvent(
     `@${item.author}/${item.permlink}`
   );
@@ -52,16 +50,6 @@ export function WavesListItem({
       collectPageView();
     }
   }, [collectPageView, inViewport]);
-
-  useEffect(() => {
-    if (renderAreaRef.current && entry) {
-      renderAreaRef.current.innerHTML = renderPostBody({
-        ...entry,
-        permlink: entry.permlink + uuid() // Trigger cache resetting
-      });
-      renderBody();
-    }
-  }, [entry, renderBody]);
 
   const status = "default";
 
@@ -100,7 +88,9 @@ export function WavesListItem({
       onClick={onClick}
     >
       <WavesListItemHeader entry={entry!} hasParent={false} pure={false} status={status} />
-      <div className="p-4 thread-render" ref={renderAreaRef} onClick={(e) => e.stopPropagation()} />
+      <div className="p-4" onClick={(e) => e.stopPropagation()}>
+        <EcencyRenderer value={entry?.body ?? ""} />
+      </div>
       {poll && (
         <div onClick={(e) => e.stopPropagation()} className="p-4">
           <PollWidget entry={entry} compact={true} poll={poll} isReadOnly={false} />

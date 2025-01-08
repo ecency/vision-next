@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { PollsContext } from "@/features/polls";
 import { Entry, FullAccount, WaveEntry } from "@/entities";
-import { createReplyPermlink, tempEntry } from "@/utils";
+import { createReplyPermlink, createWavePermlink, tempEntry } from "@/utils";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -24,11 +24,13 @@ export function useWavesApi() {
     mutationFn: async ({
       entry,
       raw,
-      editingEntry
+      editingEntry,
+      host
     }: {
       entry: Entry;
       raw: string;
       editingEntry?: WaveEntry;
+      host?: string;
     }) => {
       if (!activeUser || !activeUser.data.__loaded) {
         throw new Error("[Wave][Thread-base][API] – No active user");
@@ -36,7 +38,11 @@ export function useWavesApi() {
       const parentAuthor = editingEntry?.parent_author ?? entry.author;
       const parentPermlink = editingEntry?.parent_permlink ?? entry.permlink;
 
-      const permlink = editingEntry?.permlink ?? createReplyPermlink(entry.author);
+      let permlink = editingEntry?.permlink ?? createReplyPermlink(entry.author);
+
+      if (host === "ecency.waves" && !editingEntry) {
+        permlink = createWavePermlink();
+      }
       const tags = raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? ["ecency"];
 
       const jsonMeta = EntryMetadataManagement.EntryMetadataManager.shared

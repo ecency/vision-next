@@ -131,6 +131,18 @@ export const createReplyPermlink = (toAuthor?: string) => {
   return `re-${toAuthor?.replace(/\./g, "")}-${timeFormat}`;
 };
 
+export function createWavePermlink() {
+  const t = new Date(Date.now());
+
+  const timeFormat = `${t.getFullYear().toString()}${(t.getMonth() + 1).toString()}${t
+    .getDate()
+    .toString()}t${t.getHours().toString()}${t.getMinutes().toString()}${t
+    .getSeconds()
+    .toString()}${t.getMilliseconds().toString()}z`;
+
+  return `wave-${timeFormat}`;
+}
+
 export const createPatch = (text1: string, text2: string): string | undefined => {
   const dmp = new diff_match_patch();
   if (text1 === "") return undefined;
