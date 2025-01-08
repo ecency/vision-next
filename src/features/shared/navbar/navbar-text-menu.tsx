@@ -48,7 +48,10 @@ export function NavbarTextMenu() {
             {item.label}
           </Link>
           {i !== ITEMS.length - 1 && (
-            <i key={i} className="w-2 h-2 bg-gray-200 dark:bg-dark-default rounded-full" />
+            <i
+              key={"circle" + i}
+              className="w-2 h-2 bg-gray-200 dark:bg-dark-default rounded-full"
+            />
           )}
         </>
       ))}

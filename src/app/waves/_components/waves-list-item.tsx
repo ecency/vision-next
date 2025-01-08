@@ -14,6 +14,8 @@ import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import uuid from "tus-js-client/lib.esm/uuid";
+import { useInViewport } from "react-in-viewport";
+import { useCollectPageViewEvent } from "@/api/mutations";
 
 interface Props {
   item: WaveEntry;
@@ -32,6 +34,7 @@ export function WavesListItem({
 }: Props) {
   const renderAreaRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { inViewport } = useInViewport(renderAreaRef);
 
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -40,6 +43,15 @@ export function WavesListItem({
 
   const poll = useEntryPollExtractor(entry);
   const renderBody = useRenderWaveBody(renderAreaRef, entry as WaveEntry, {});
+  const { mutateAsync: collectPageView } = useCollectPageViewEvent(
+    `@${item.author}/${item.permlink}`
+  );
+
+  useEffect(() => {
+    if (inViewport) {
+      collectPageView();
+    }
+  }, [collectPageView, inViewport]);
 
   useEffect(() => {
     if (renderAreaRef.current && entry) {
@@ -72,7 +84,7 @@ export function WavesListItem({
           null;
       }
     },
-    [item.author, item.permlink, router]
+    [interactable, item.author, item.permlink, router]
   );
 
   return (
