@@ -45,7 +45,7 @@ export function useWaveCreate() {
       const entry = hostEntries[0];
       return {
         host,
-        entry: (await generalApiRequest({ entry, raw, editingEntry })) as WaveEntry,
+        entry: (await generalApiRequest({ entry, raw, editingEntry, host })) as WaveEntry,
         isEditing: !!editingEntry
       };
     },
