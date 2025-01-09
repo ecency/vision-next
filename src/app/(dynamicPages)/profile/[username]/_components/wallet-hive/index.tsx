@@ -655,7 +655,7 @@ export function WalletHive({ account }: Props) {
                 </div>
               )}
               {isMyPage && estimatedUIn >= 0.001 && (
-                <div className="unclaimed-rewards" style={{ marginBottom: "0" }}>
+                <div className="unclaimed-rewards mt-4" style={{ marginBottom: "0" }}>
                   <div className="rewards" style={{ height: "40px" }}>
                     <a
                       className={`claim-btn ${remainingHours > 0 ? "disabled" : ""}`}
@@ -780,7 +780,7 @@ export function WalletHive({ account }: Props) {
 
       {transfer && (
         <Transfer
-          to={isMyPage ? undefined : account.name}
+          to={isMyPage && transferMode !== "claim-interest" ? undefined : account.name}
           mode={transferMode!}
           asset={transferAsset!}
           onHide={() => {
