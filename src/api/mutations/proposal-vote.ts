@@ -1,5 +1,5 @@
 import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
-import { formatError, proposalVote } from "@/api/operations";
+import { formatError } from "@/api/operations";
 import { Operation, PrivateKey } from "@hiveio/dhive";
 import { client as hiveClient } from "@/api/hive";
 import { useGlobalStore } from "@/core/global-store";
@@ -14,7 +14,7 @@ export function useProposalVoteByKey(proposalId: number) {
 
   return useMutation({
     mutationKey: ["proposalVote", proposalId],
-    mutationFn: ({ key, approve }: { key: PrivateKey; approve?: boolean }) => {
+    mutationFn: async ({ key, approve }: { key: PrivateKey; approve?: boolean }) => {
       const op: Operation = [
         "update_proposal_votes",
         {
@@ -25,9 +25,9 @@ export function useProposalVoteByKey(proposalId: number) {
         }
       ];
 
-      return hiveClient.broadcast.sendOperations([op], key);
+      return [approve ?? false, await hiveClient.broadcast.sendOperations([op], key)] as const;
     },
-    onSuccess: () => {
+    onSuccess: ([approve]) => {
       queryClient.setQueryData<InfiniteData<ProposalVote[]>>(
         [QueryIdentifiers.PROPOSAL_VOTES, proposalId, activeUser?.username, 1],
         (data) => {
@@ -38,10 +38,14 @@ export function useProposalVoteByKey(proposalId: number) {
           return {
             pages: [
               [
-                {
-                  id: 1,
-                  voter: activeUser?.username ?? ""
-                }
+                ...(approve
+                  ? [
+                      {
+                        id: 1,
+                        voter: activeUser?.username ?? ""
+                      }
+                    ]
+                  : [])
               ]
             ],
             pageParams: [""]
@@ -55,10 +59,11 @@ export function useProposalVoteByKey(proposalId: number) {
 
 export function useProposalVoteByKeychain(proposalId: number) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["proposalVoteByKeychain", proposalId],
-    mutationFn: ({ approve }: { approve?: boolean }) => {
+    mutationFn: async ({ approve }: { approve?: boolean }) => {
       if (!activeUser) {
         throw new Error("Active user not found");
       }
@@ -73,7 +78,36 @@ export function useProposalVoteByKeychain(proposalId: number) {
         }
       ];
 
-      return keychain.broadcast(activeUser.username, [op], "Active");
+      return [
+        approve ?? false,
+        await keychain.broadcast(activeUser.username, [op], "Active")
+      ] as const;
+    },
+    onSuccess: ([approve]) => {
+      queryClient.setQueryData<InfiniteData<ProposalVote[]>>(
+        [QueryIdentifiers.PROPOSAL_VOTES, proposalId, activeUser?.username, 1],
+        (data) => {
+          if (!data) {
+            return data;
+          }
+
+          return {
+            pages: [
+              [
+                ...(approve
+                  ? [
+                      {
+                        id: 1,
+                        voter: activeUser?.username ?? ""
+                      }
+                    ]
+                  : [])
+              ]
+            ],
+            pageParams: [""]
+          };
+        }
+      );
     },
     onError: (e) => error(...formatError(e))
   });
