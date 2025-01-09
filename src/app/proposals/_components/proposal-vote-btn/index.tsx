@@ -1,12 +1,12 @@
 import React, { useMemo } from "react";
 import "./_index.scss";
 import { useGlobalStore } from "@/core/global-store";
-import { chevronUpSvg } from "@ui/svg";
 import { KeyOrHotDialog, LoginRequired } from "@/features/shared";
 import { useProposalVoteByKey, useProposalVoteByKeychain } from "@/api/mutations/proposal-vote";
 import { proposalVoteHot } from "@/api/operations";
 import { getProposalVotesQuery } from "@/api/queries";
-import { UilSpinner } from "@tooni/iconscout-unicons-react";
+import { UilArrowUp } from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
 
 interface Props {
   proposal: number;
@@ -40,11 +40,7 @@ export function ProposalVoteBtn({ proposal }: Props) {
   if (!activeUser) {
     return (
       <LoginRequired>
-        <div className="proposal-vote-btn">
-          <div className={cls}>
-            <span className="btn-inner">{chevronUpSvg}</span>
-          </div>
-        </div>
+        <Button icon={<UilArrowUp />} outline={true} noPadding={true} className="w-[34px]" />
       </LoginRequired>
     );
   }
@@ -55,13 +51,14 @@ export function ProposalVoteBtn({ proposal }: Props) {
       onKc={() => voteByKeychain({})}
       onHot={() => proposalVoteHot(activeUser?.username, proposal, false)}
     >
-      <div className="proposal-vote-btn">
-        <div className={cls}>
-          <span className="btn-inner">
-            {isVotingByKey ? <UilSpinner className="w-4 h-4 animate-spin" /> : chevronUpSvg}
-          </span>
-        </div>
-      </div>
+      <Button
+        disabled={isVotingByKey || isVotingByKeychain || isLoading}
+        icon={<UilArrowUp />}
+        outline={!voted}
+        noPadding={true}
+        className="w-[34px]"
+        isLoading={isVotingByKey}
+      />
     </KeyOrHotDialog>
   );
 }
