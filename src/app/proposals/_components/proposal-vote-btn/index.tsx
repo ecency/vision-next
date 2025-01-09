@@ -51,9 +51,9 @@ export function ProposalVoteBtn({ proposal }: Props) {
 
   return (
     <KeyOrHotDialog
-      onKey={(key) => voteByKey({ key })}
-      onKc={() => voteByKeychain({})}
-      onHot={() => proposalVoteHot(activeUser?.username, proposal, false)}
+      onKey={(key) => voteByKey({ key, approve: !voted })}
+      onKc={() => voteByKeychain({approve: !voted})}
+      onHot={() => proposalVoteHot(activeUser?.username, proposal, !voted)}
     >
       <div className="proposal-vote-btn">
         <div className={cls}>
