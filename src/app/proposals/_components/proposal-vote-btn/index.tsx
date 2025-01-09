@@ -33,10 +33,6 @@ export function ProposalVoteBtn({ proposal }: Props) {
   const { mutateAsync: voteByKeychain, isPending: isVotingByKeychain } =
     useProposalVoteByKeychain(proposal);
 
-  const cls = `btn-proposal-vote btn-up-vote vote-btn-lg ${
-    isVotingByKey || isVotingByKeychain || isLoading ? "in-progress" : ""
-  } ${voted ? "voted" : ""}`;
-
   if (!activeUser) {
     return (
       <LoginRequired>
@@ -47,9 +43,9 @@ export function ProposalVoteBtn({ proposal }: Props) {
 
   return (
     <KeyOrHotDialog
-      onKey={(key) => voteByKey({ key })}
-      onKc={() => voteByKeychain({})}
-      onHot={() => proposalVoteHot(activeUser?.username, proposal, false)}
+      onKey={(key) => voteByKey({ key, approve: !voted })}
+      onKc={() => voteByKeychain({ approve: !voted })}
+      onHot={() => proposalVoteHot(activeUser?.username, proposal, !voted)}
     >
       <Button
         disabled={isVotingByKey || isVotingByKeychain || isLoading}
