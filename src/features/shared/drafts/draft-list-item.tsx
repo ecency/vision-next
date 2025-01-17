@@ -113,7 +113,7 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
               appearance="link"
               onClick={() => deleteFn(draft)}
               icon={deleteForeverSvg}
-              title={i18next.t("g.edit")}
+              title={i18next.t("g.delete")}
             />
           </PopoverConfirm>
         </div>
