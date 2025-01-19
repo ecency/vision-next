@@ -1197,12 +1197,15 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@../ecency-renderer":
-  version "1.0.0"
+"@ecency/renderer@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.1.tgz#7377f7a95632c041d58ec7dea2ecb4bec48ddd62"
+  integrity sha512-FdmhqUPf7aQobzAT//ouy+1tKGwoTpJFMOZ0d9TknaDJPvKDbowV2KPDIJ7BXhpXV6uV+9AIgmB0fnlwEVgPrg==
   dependencies:
     "@ecency/render-helper" "^2.2.36"
     clsx "^2.1.1"
     medium-zoom "^1.1.0"
+    react-twitter-embed "^4.0.4"
 
 "@emnapi/runtime@^1.2.0":
   version "1.3.1"

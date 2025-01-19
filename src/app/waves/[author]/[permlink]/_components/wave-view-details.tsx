@@ -3,7 +3,7 @@
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
 import { WaveActions, WaveForm } from "@/features/waves";
 import { WaveEntry } from "@/entities";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -14,8 +14,6 @@ interface Props {
 }
 
 export function WaveViewDetails({ entry: initialEntry }: Props) {
-  const renderAreaRef = useRef<HTMLDivElement>(null);
-
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
 
   const [showEditModal, setShowEditModal] = useState(false);
