@@ -32,7 +32,7 @@ export const WaveFormControl = ({
     <div className="flex items-start gap-4 flex-wrap py-4">
       <div className="w-full">
         <TextareaAutosize
-          className="w-full min-h-[8rem] rounded-xl p-2 lg:p-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none"
+          className="w-full focus:min-h-[8rem] rounded-xl p-2 lg:p-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none"
           placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}
           value={text}
           onChange={(e) => setText(e.target.value)}
