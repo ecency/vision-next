@@ -1,26 +1,15 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./_deck-post-viewer.scss";
 import useMount from "react-use/lib/useMount";
-import { renderPostBody } from "@ecency/render-helper";
 import { DeckPostViewerCommentBox } from "./deck-post-viewer-comment-box";
 import { commentSvg, voteSvg } from "../../icons";
-import { useResizeDetector } from "react-resize-detector";
-import {
-  renderAuthors,
-  renderCurrencies,
-  renderExternalLinks,
-  renderPostLinks,
-  renderTags,
-  renderTweets,
-  renderVideos
-} from "@/features/waves";
 import { Button } from "@ui/button";
 import { Entry } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { arrowLeftSvg } from "@ui/svg";
 import i18next from "i18next";
 import { Discussion, EntryInfo, EntryVoteBtn, EntryVotes } from "@/features/shared";
-import { useGlobalStore } from "@/core/global-store";
+import { EcencyRenderer } from "@ecency/renderer";
 
 interface Props {
   entry: Entry;
@@ -29,37 +18,11 @@ interface Props {
 }
 
 export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Props) => {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-
   const [isMounted, setIsMounted] = useState(false);
-  const [renderInitiated, setRenderInitiated] = useState(false);
 
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
 
-  const { height, ref } = useResizeDetector();
-
   useMount(() => setIsMounted(true));
-
-  const extendedRenderBody = useCallback(async () => {
-    setRenderInitiated(true);
-
-    if (ref.current) {
-      ref.current.innerHTML = await renderCurrencies(ref?.current?.innerHTML);
-    }
-
-    renderTags(ref);
-    renderAuthors(ref);
-    renderPostLinks(ref);
-    renderExternalLinks(ref);
-    renderVideos(ref);
-    renderTweets(ref);
-  }, [ref]);
-
-  useEffect(() => {
-    if (!renderInitiated) {
-      extendedRenderBody();
-    }
-  }, [height, extendedRenderBody, renderInitiated]);
 
   return entry ? (
     <div className={"deck-post-viewer " + (isMounted ? "visible" : "")}>
@@ -93,11 +56,9 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
       <div className="px-3">
         <EntryInfo entry={entry} />
       </div>
-      <div
-        ref={ref}
-        className="px-3 pb-4 markdown-view"
-        dangerouslySetInnerHTML={{ __html: renderPostBody(entry, true, canUseWebp) }}
-      />
+      <div className="px-3 pb-4">
+        <EcencyRenderer value={entry.body} />
+      </div>
       <div className="bottom-actions p-3">
         <EntryVoteBtn entry={entry} isPostSlider={false} />
         <EntryVotes entry={entry} icon={voteSvg} />
