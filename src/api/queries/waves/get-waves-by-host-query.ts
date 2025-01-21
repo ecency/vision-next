@@ -65,5 +65,5 @@ export const getWavesByHostQuery = (host: string) =>
         .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
     },
     initialPageParam: undefined as WaveEntry | undefined,
-    getNextPageParam: (lastPage) => lastPage[lastPage.length - 1]
+    getNextPageParam: (lastPage) => lastPage[0].container
   });
