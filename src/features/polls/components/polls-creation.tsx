@@ -197,7 +197,7 @@ export function PollsCreation({
                 if (value >= 0 && value <= (choices?.length ?? 1)) {
                   setMaxChoicesVoted(+e.target.value);
                 } else if (value < 0) {
-                  setMaxChoicesVoted(0);
+                  setMaxChoicesVoted(1);
                 } else {
                   setMaxChoicesVoted(choices?.length ?? 1);
                 }
