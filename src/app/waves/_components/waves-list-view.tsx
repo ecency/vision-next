@@ -13,7 +13,7 @@ interface Props {
   host: string;
 }
 
-export function WavesList({ host }: Props) {
+export function WavesListView({ host }: Props) {
   const { data, fetchNextPage, isError, hasNextPage } = getWavesByHostQuery(host).useClientQuery();
   const dataFlow = useInfiniteDataFlow(data);
 

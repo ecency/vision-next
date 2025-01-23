@@ -6,12 +6,16 @@ import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
 import { WaveFollowsCard, WavePromoteCard, WavesProfileCard } from "@/app/waves/_components";
 import { useWindowSize } from "react-use";
 import { getTailwindBreakpoint } from "@/core/tailwind";
+import { clsx } from "clsx";
+import { useWavesGrid } from "@/app/waves/_hooks";
 
 interface Props {
   view: ReactNode;
 }
 
 export default function WavesLayout(props: PropsWithChildren<Props>) {
+  const [grid] = useWavesGrid();
+
   const { width } = useWindowSize();
 
   return (
@@ -20,17 +24,29 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
       <ScrollToTop />
       <Navbar experimental={true} />
       <div className="pt-[156px] max-w-[1600px] px-4 md:px-6 lg:px-8 mx-auto grid md:grid-cols-12 gap-4 md:gap-6 xl:gap-8">
-        <div className="hidden xl:col-span-3 xl:flex flex-col gap-4 xl:gap-8">
-          {width >= getTailwindBreakpoint("xl") && (
+        <div
+          className={clsx(
+            grid === "masonry" && "hidden",
+            grid === "feed" && "hidden xl:col-span-3 xl:flex flex-col gap-4 xl:gap-8"
+          )}
+        >
+          {width >= getTailwindBreakpoint("xl") && grid !== "masonry" && (
             <>
               <WavesProfileCard />
               <WavePromoteCard />
             </>
           )}
         </div>
-        <div className="md:col-span-7 lg:col-span-8 xl:col-span-6">{props.children}</div>
+        <div
+          className={clsx(
+            grid === "masonry" && "md:col-span-7 lg:col-span-8 xl:col-span-9",
+            grid === "feed" && "md:col-span-7 lg:col-span-8 xl:col-span-6"
+          )}
+        >
+          {props.children}
+        </div>
         <div className="hidden md:col-span-5 lg:col-span-4 xl:col-span-3 md:flex flex-col gap-4 md:gap-6 xl:gap-8">
-          {width < getTailwindBreakpoint("xl") && (
+          {(width < getTailwindBreakpoint("xl") || grid === "masonry") && (
             <>
               <WavesProfileCard />
               <WavePromoteCard />

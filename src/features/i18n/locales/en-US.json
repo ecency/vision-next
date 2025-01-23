@@ -93,7 +93,8 @@
     "error": "Error",
     "reset-form": "Reset form",
     "community": "Community",
-    "today": "Today"
+    "today": "Today",
+    "view": "View"
   },
   "confirm": {
     "title": "Are you sure?",

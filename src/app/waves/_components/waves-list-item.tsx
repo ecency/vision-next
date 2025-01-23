@@ -15,6 +15,7 @@ import i18next from "i18next";
 import { useInViewport } from "react-in-viewport";
 import { useCollectPageViewEvent } from "@/api/mutations";
 import { EcencyRenderer } from "@ecency/renderer";
+import { useWavesGrid } from "@/app/waves/_hooks";
 
 interface Props {
   item: WaveEntry;
@@ -31,6 +32,8 @@ export function WavesListItem({
   onExpandReplies,
   interactable = true
 }: Props) {
+  const [grid] = useWavesGrid();
+
   const renderAreaRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { inViewport } = useInViewport(renderAreaRef);
@@ -81,9 +84,11 @@ export function WavesListItem({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: i * 0.2 }}
       className={classNameObject({
-        "waves-list-item first:rounded-t-2xl last:rounded-b-2xl bg-white dark:bg-dark-200 border-b border-[--border-color] last:border-b-0":
-          true,
-        "hover:bg-gray-100 dark:hover:bg-dark-600-010 cursor-pointer": interactable
+        "waves-list-item bg-white dark:bg-dark-200": true,
+        "first:rounded-t-2xl last:rounded-b-2xl border-b border-[--border-color] last:border-b-0":
+          grid === "feed",
+        "rounded-2xl": grid === "masonry"
+        // "hover:bg-gray-100 dark:hover:bg-dark-600-010 cursor-pointer": interactable
       })}
     >
       <WavesListItemHeader

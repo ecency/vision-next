@@ -69,15 +69,13 @@ export function WavesListItemHeader({
 
       {status === "default" && interactable && (
         <Button
+          noPadding={true}
           appearance="gray-link"
-          className="[&_span]:w-0 [&_span]:opacity-0 [&:hover_span]:w-auto [&:hover_span]:opacity-100"
           icon={<UilArrowRight />}
           iconPlacement="right"
           size="sm"
           onClick={onViewFullThread}
-        >
-          <span className="flex">{i18next.t("decks.columns.see-full-thread")}</span>
-        </Button>
+        />
       )}
       {status === "pending" && <Spinner className="w-4 h-4" />}
     </div>

@@ -1,5 +1,5 @@
-import useLocalStorage from "react-use/lib/useLocalStorage";
-import useMount from "react-use/lib/useMount";
+import { useLocalStorage, useMount, useUnmount } from "react-use";
+import { useCallback } from "react";
 
 type useLocalStorageType = typeof useLocalStorage;
 
@@ -31,17 +31,23 @@ export function useSynchronizedLocalStorage<T>(
 
   const [value, setValue, clearValue] = useLocalStorage<T>(key, initialValue, options as any);
 
-  useMount(() => {
-    window.addEventListener(SYNCHRONIZED_LOCAL_STORAGE_EVENT, (e) => {
-      const typedEvent = e as unknown as CustomEvent<SynchronizedLocalStorageEvent<T>>;
-      if (typedEvent.detail.key === key) {
-        if (typeof typedEvent.detail.value !== "undefined") {
-          setValue(typedEvent.detail.value);
-        } else {
-          clearValue();
-        }
+  const handler = useCallback((e: Event) => {
+    const typedEvent = e as unknown as CustomEvent<SynchronizedLocalStorageEvent<T>>;
+    if (typedEvent.detail.key === key) {
+      if (typeof typedEvent.detail.value !== "undefined") {
+        setValue(typedEvent.detail.value);
+      } else {
+        clearValue();
       }
-    });
+    }
+  }, []);
+
+  useMount(() => {
+    window.addEventListener(SYNCHRONIZED_LOCAL_STORAGE_EVENT, handler);
+  });
+
+  useUnmount(() => {
+    window.removeEventListener(SYNCHRONIZED_LOCAL_STORAGE_EVENT, handler);
   });
 
   return [

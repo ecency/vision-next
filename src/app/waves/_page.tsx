@@ -3,16 +3,32 @@
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { PREFIX } from "@/utils/local-storage";
 import { WavesHostSelection } from "@/app/waves/_components/waves-host-selection";
-import { WavesCreateCard, WavesList } from "@/app/waves/_components";
+import {
+  WavesCreateCard,
+  WavesListView,
+  WavesMasonryView,
+  WavesNavigationLayout
+} from "@/app/waves/_components";
+import { WavesGridSelection } from "@/app/waves/_components/waves-grid-selection";
+import { useWavesGrid } from "@/app/waves/_hooks";
 
 export function WavesPage() {
   const [host, setHost] = useLocalStorage(PREFIX + "_wh", "ecency.waves");
+  const [grid] = useWavesGrid();
 
   return (
     <>
-      <WavesHostSelection host={host!} setHost={setHost} />
+      <WavesNavigationLayout>
+        <div />
+        <div className="flex items-center gap-2">
+          <WavesHostSelection host={host!} setHost={setHost} />
+          <span className="w-[1px] bg-[--border-color] h-6" />
+          <WavesGridSelection />
+        </div>
+      </WavesNavigationLayout>
       <WavesCreateCard />
-      <WavesList host={host!} />
+      {grid === "feed" && <WavesListView host={host!} />}
+      {grid === "masonry" && <WavesMasonryView host={host!} />}
     </>
   );
 }
