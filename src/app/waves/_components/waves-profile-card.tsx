@@ -2,7 +2,7 @@
 
 import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import { AvailableCredits, UserAvatar } from "@/features/shared";
+import { UserAvatar } from "@/features/shared";
 import Image from "next/image";
 import i18next from "i18next";
 import { Followers, Following } from "@/app/(dynamicPages)/profile/[username]/_components/friends";
@@ -69,7 +69,6 @@ export function WavesProfileCard() {
             <div className="font-semibold">{data?.follow_stats?.following_count ?? 0}</div>
           </div>
         </div>
-        <AvailableCredits username={activeUser?.username ?? ""} operation="comment_operation" />
       </div>
 
       {showFollowers && data && <Followers account={data} onHide={() => setShowFollowers(false)} />}
