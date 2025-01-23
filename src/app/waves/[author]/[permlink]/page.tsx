@@ -6,6 +6,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { EcencyConfigManager } from "@/config";
 import { Metadata } from "next";
+import { ScrollToTop } from "@/features/shared";
 
 interface Props {
   params: Promise<{
@@ -42,6 +43,7 @@ export default async function WaveViewPage({ params }: Props) {
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       <div className="flex flex-col gap-4 lg:gap-6 xl:gap-8">
+        <ScrollToTop />
         <WaveViewDetails entry={data} />
         <WaveViewDiscussion entry={data} />
       </div>

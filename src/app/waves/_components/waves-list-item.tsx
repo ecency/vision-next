@@ -85,9 +85,15 @@ export function WavesListItem({
           true,
         "hover:bg-gray-100 dark:hover:bg-dark-600-010 cursor-pointer": interactable
       })}
-      onClick={onClick}
     >
-      <WavesListItemHeader entry={entry!} hasParent={false} pure={false} status={status} />
+      <WavesListItemHeader
+        entry={entry!}
+        hasParent={false}
+        pure={false}
+        status={status}
+        interactable={interactable}
+        onViewFullThread={onClick}
+      />
       <div className="p-4" onClick={(e) => e.stopPropagation()}>
         <EcencyRenderer value={entry?.body ?? ""} />
       </div>

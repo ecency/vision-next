@@ -8,6 +8,7 @@ import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EcencyRenderer } from "@ecency/renderer";
+import useMount from "react-use/lib/useMount";
 
 interface Props {
   entry: WaveEntry;
@@ -19,6 +20,8 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
   const [showEditModal, setShowEditModal] = useState(false);
 
   const status = "default";
+
+  useMount(() => window.scrollTo(0, 0));
 
   return (
     <div className="relative z-10 rounded-2xl bg-white dark:bg-dark-200 cursor-pointer">
