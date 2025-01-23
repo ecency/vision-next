@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import "./_index.scss";
 import { Entry, WaveEntry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
@@ -39,6 +39,7 @@ const WaveFormComponent = ({
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
+  const [hasFocused, setHasFocused] = useState(false);
 
   const disabled = useMemo(() => !text || !threadHost, [text, threadHost]);
   const poll = useEntryPollExtractor(entry);
@@ -105,59 +106,63 @@ const WaveFormComponent = ({
           selectedImage={image}
           clearSelectedImage={clearImage}
           placeholder={placeholder}
-          onTextareaFocus={() => {}}
+          showCounter={hasFocused}
+          onTextareaFocus={() => setHasFocused(true)}
+          onTextareaBlur={() => setHasFocused(false)}
         />
-        {activeUser && (
+        {activeUser && hasFocused && (
           <AvailableCredits username={activeUser.username} operation="comment_operation" />
         )}
-        <WaveFormToolbar
-          isEdit={!!entry}
-          onAddImage={(url, name) => {
-            setImage(url);
-            setImageName(name);
-          }}
-          onEmojiPick={(v) => setText(`${text}${v}`)}
-          onAddVideo={setVideo}
-          submit={
-            <Button
-              onClick={() =>
-                !disabled &&
-                submit({
-                  text: text!!,
-                  imageName: imageName!!,
-                  image: image!!,
-                  host: threadHost!!,
-                  video: video!!
-                })
-              }
-              disabled={disabled}
-              isLoading={isPending}
-              className="justify-self-end"
-              size="sm"
-            >
-              {!activeUser &&
-                !entry &&
-                (text?.length ?? 0) <= 255 &&
-                i18next.t("decks.threads-form.login-and-publish")}
-              {activeUser &&
-                !replySource &&
-                !entry &&
-                (text?.length ?? 0) <= 255 &&
-                (isPending
-                  ? i18next.t("decks.threads-form.publishing")
-                  : i18next.t("decks.threads-form.publish"))}
-              {activeUser &&
-                replySource &&
-                !entry &&
-                (text?.length ?? 0) <= 255 &&
-                (isPending ? i18next.t("waves.replying") : i18next.t("waves.reply"))}
-              {(text?.length ?? 0) > 255 &&
-                !entry &&
-                i18next.t("decks.threads-form.create-regular-post")}
-              {entry && i18next.t("decks.threads-form.save")}
-            </Button>
-          }
-        />
+        {hasFocused && (
+          <WaveFormToolbar
+            isEdit={!!entry}
+            onAddImage={(url, name) => {
+              setImage(url);
+              setImageName(name);
+            }}
+            onEmojiPick={(v) => setText(`${text}${v}`)}
+            onAddVideo={setVideo}
+            submit={
+              <Button
+                onClick={() =>
+                  !disabled &&
+                  submit({
+                    text: text!!,
+                    imageName: imageName!!,
+                    image: image!!,
+                    host: threadHost!!,
+                    video: video!!
+                  })
+                }
+                disabled={disabled}
+                isLoading={isPending}
+                className="justify-self-end"
+                size="sm"
+              >
+                {!activeUser &&
+                  !entry &&
+                  (text?.length ?? 0) <= 255 &&
+                  i18next.t("decks.threads-form.login-and-publish")}
+                {activeUser &&
+                  !replySource &&
+                  !entry &&
+                  (text?.length ?? 0) <= 255 &&
+                  (isPending
+                    ? i18next.t("decks.threads-form.publishing")
+                    : i18next.t("decks.threads-form.publish"))}
+                {activeUser &&
+                  replySource &&
+                  !entry &&
+                  (text?.length ?? 0) <= 255 &&
+                  (isPending ? i18next.t("waves.replying") : i18next.t("waves.reply"))}
+                {(text?.length ?? 0) > 255 &&
+                  !entry &&
+                  i18next.t("decks.threads-form.create-regular-post")}
+                {entry && i18next.t("decks.threads-form.save")}
+              </Button>
+            }
+          />
+        )}
       </div>
     </div>
   );

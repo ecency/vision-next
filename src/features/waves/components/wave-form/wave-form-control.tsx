@@ -16,6 +16,8 @@ interface Props {
   clearSelectedImage: () => void;
   placeholder?: string;
   onTextareaFocus: () => void;
+  onTextareaBlur?: () => void;
+  showCounter?: boolean;
 }
 
 export const WaveFormControl = ({
@@ -24,7 +26,9 @@ export const WaveFormControl = ({
   selectedImage,
   clearSelectedImage,
   placeholder,
-  onTextareaFocus
+  onTextareaFocus,
+  onTextareaBlur,
+  showCounter
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
 
@@ -37,8 +41,9 @@ export const WaveFormControl = ({
           value={text}
           onChange={(e) => setText(e.target.value)}
           onFocus={onTextareaFocus}
+          onBlur={onTextareaBlur}
         />
-        <div className="text-xs opacity-50 pb-2">{text?.length ?? 0}/255</div>
+        {showCounter && <div className="text-xs opacity-50 pb-2">{text?.length ?? 0}/255</div>}
       </div>
       <AnimatePresence>
         {selectedImage && (
