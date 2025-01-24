@@ -25,7 +25,7 @@ export function EntryFooterInfo({ entry }: Props) {
         <div className="author notranslate">
           <span className="author-name">{entry.author}</span>
           <span className="author-reputation" title={i18next.t("entry.author-reputation")}>
-            {reputation}
+            ({reputation})
           </span>
         </div>
       </ProfileLink>

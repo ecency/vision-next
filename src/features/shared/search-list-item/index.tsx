@@ -55,7 +55,7 @@ export function SearchListItem({ res }: Props) {
             <ProfileLink username={res.author}>
               <div className="author">
                 {res.author}
-                <span className="author-reputation">{reputation}</span>
+                <span className="author-reputation">({reputation})</span>
               </div>
             </ProfileLink>
           </div>

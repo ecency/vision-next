@@ -35,7 +35,7 @@ export function EntryPageMainInfo({ entry }: Props) {
             >
               <span itemProp="name">{entry.author}</span>
               <span className="author-reputation" title={i18next.t("entry.author-reputation")}>
-                {reputation}
+                ({reputation})
               </span>
             </div>
           </ProfileLink>
