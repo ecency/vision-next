@@ -19,7 +19,8 @@ export function WavesHostSelection({ host, setHost }: Props) {
         [WaveHosts.Waves]: "Waves",
         [WaveHosts.Leo]: "Threads",
         [WaveHosts.Dbuzz]: "Buzz",
-        [WaveHosts.Liketu]: "Moments"
+        [WaveHosts.Liketu]: "Moments",
+        [WaveHosts.PeakSnaps]: "Snaps"
       }) as Record<string, string>,
     []
   );

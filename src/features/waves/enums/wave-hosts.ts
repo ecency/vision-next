@@ -3,5 +3,6 @@ export enum WaveHosts {
   Waves = "ecency.waves",
   Leo = "leothreads",
   Dbuzz = "dbuzz",
-  Liketu = "liketu.moments"
+  Liketu = "liketu.moments",
+  PeakSnaps = "peak.snaps"
 }
