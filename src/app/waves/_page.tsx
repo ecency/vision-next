@@ -22,7 +22,7 @@ export function WavesPage() {
         <div />
         <div className="flex items-center gap-2">
           <WavesHostSelection host={host!} setHost={setHost} />
-          <span className="w-[1px] bg-[--border-color] h-6" />
+          <span className="hidden lg:block w-[1px] bg-[--border-color] h-6" />
           <WavesGridSelection />
         </div>
       </WavesNavigationLayout>

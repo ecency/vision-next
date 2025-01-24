@@ -30,7 +30,7 @@ export function WavesListItemHeader({
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   return (
-    <div className="flex justify-between px-4 pt-4">
+    <div className="flex justify-between px-4 pt-4 pointer" onClick={onViewFullThread}>
       <div className="flex items-center gap-4">
         <UserAvatar size="deck-item" username={entry.author} />
         <div className="flex flex-col truncate">
@@ -74,7 +74,6 @@ export function WavesListItemHeader({
           icon={<UilArrowRight />}
           iconPlacement="right"
           size="sm"
-          onClick={onViewFullThread}
         />
       )}
       {status === "pending" && <Spinner className="w-4 h-4" />}

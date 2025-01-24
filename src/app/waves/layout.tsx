@@ -8,6 +8,7 @@ import { useWindowSize } from "react-use";
 import { getTailwindBreakpoint } from "@/core/tailwind";
 import { clsx } from "clsx";
 import { useWavesGrid } from "@/app/waves/_hooks";
+import "./common.scss";
 
 interface Props {
   view: ReactNode;
@@ -19,7 +20,7 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
   const { width } = useWindowSize();
 
   return (
-    <div className="bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh]">
+    <div className="waves-page-layout bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh]">
       <Feedback />
       <ScrollToTop />
       <Navbar experimental={true} />

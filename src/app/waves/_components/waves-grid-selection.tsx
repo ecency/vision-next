@@ -8,7 +8,7 @@ export function WavesGridSelection() {
   const [grid, setGrid] = useWavesGrid();
 
   return (
-    <Dropdown>
+    <Dropdown className="hidden lg:block">
       <DropdownToggle>
         <Button icon={grid === "masonry" ? <UilGrid /> : <UilListUiAlt />} appearance="gray-link">
           {i18next.t("g.view")}
@@ -17,7 +17,7 @@ export function WavesGridSelection() {
       <DropdownMenu align="right">
         <DropdownItemWithIcon
           icon={<UilGrid />}
-          label="Masonry grid"
+          label="Masonry"
           onClick={() => setGrid("masonry")}
         />
         <DropdownItemWithIcon
