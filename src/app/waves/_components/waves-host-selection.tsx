@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function WavesHostSelection({ host, setHost }: Props) {
-  const availableHosts = useMemo(() => ["All", ...AVAILABLE_THREAD_HOSTS], []);
+  const availableHosts = useMemo(() => [...AVAILABLE_THREAD_HOSTS], []);
   const labels = useMemo(
     () =>
       ({
