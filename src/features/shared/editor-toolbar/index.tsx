@@ -518,7 +518,7 @@ export function EditorToolbar({
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
       >
-        {fragments && activeUser && (
+        {activeUser && (
           <FragmentsDialog
             show={fragments}
             setShow={setFragments}
