@@ -86,10 +86,10 @@ See `src/config/vision-config.template.yml`.
 ***
 ## Docker
 
-You can use official `ecency/vision:latest` image to run Vision locally, deploy it to staging or even production environment. The simplest way is to run it with following command:
+You can use official `ecency/vision-next:latest` image to run Vision locally, deploy it to staging or even production environment. The simplest way is to run it with following command:
 
 ```bash
-docker run -it --rm -p 3000:3000 ecency/vision:latest
+docker run -it --rm -p 3000:3000 ecency/vision-next:latest
 ```
 
 Configure the instance using following environment variables:
@@ -97,7 +97,7 @@ Configure the instance using following environment variables:
 - ~~`USE_PRIVATE`~~ See extended configuration above.
 
 ```bash
-docker run -it --rm -p 3000:3000 -e USE_PRIVATE=1 ecency/vision:latest
+docker run -it --rm -p 3000:3000 -e USE_PRIVATE=1 ecency/vision-next:latest
 ```
 
 ### Swarm
