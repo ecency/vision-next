@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { EntryIndexMenuDropdown } from "../entry-index-menu-dropdown";
 import "./_index.scss";
-import { ActiveUser } from "@/entities";
 import { ListStyleToggle } from "@/features/shared";
 import { chevronDownSvgForSlider, kebabMenuHorizontalSvg, menuDownSvg } from "@ui/svg";
 import Link from "next/link";
@@ -13,13 +12,13 @@ import { useGlobalStore } from "@/core/global-store";
 import { apiBase } from "@/api/helper";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, MenuItem } from "@ui/dropdown";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
-import { EntryFilter } from "@/enums";
 import useMount from "react-use/lib/useMount";
 import * as ls from "@/utils/local-storage";
 import usePrevious from "react-use/lib/usePrevious";
 import { Button } from "@ui/button";
 import { classNameObject } from "@ui/util";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import { useFeedMenu } from "@/app/_components/entry-index-menu/use-feed-menu";
 
 export enum IntroductionType {
   FRIENDS = "FRIENDS",
@@ -28,13 +27,6 @@ export enum IntroductionType {
   NEW = "NEW",
   NONE = "NONE"
 }
-
-export const isMyPage = (filter: string, tag: string, activeUser: ActiveUser | null) => {
-  return (
-    activeUser &&
-    ((activeUser.username === tag.replace("@", "") && filter === "feed") || tag === "my")
-  );
-};
 
 export function EntryIndexMenu() {
   const router = useRouter();
@@ -53,67 +45,17 @@ export function EntryIndexMenu() {
   const prevActiveUser = usePrevious(activeUser);
   const prevFilter = usePrevious(filter);
 
+  const [menuItems, secondaryMenu, isMy] = useFeedMenu();
+
   const noReblog = useMemo(() => searchParams.get("no-reblog") == "true", [searchParams]);
 
-  const isMy = isMyPage(filter, tag, activeUser);
-  const dropdownLabel =
-    isMy && filter === "feed"
-      ? i18next.t("entry-filter.filter-feed-friends")
-      : i18next.t(`entry-filter.filter-${filter}`);
-  const OurVision = apiBase(`/assets/our-vision.${canUseWebp ? "webp" : "png"}`);
-
-  let secondaryMenu = [
-    {
-      label: i18next.t(`entry-filter.filter-controversial`),
-      href: `/controversial/week`,
-      selected: filter === "controversial",
-      id: "controversial",
-      onClick: () => router.push("/controversial/week")
-    },
-    {
-      label: i18next.t(`entry-filter.filter-rising`),
-      href: `/rising/week`,
-      selected: filter === "rising",
-      id: "rising",
-      onClick: () => router.push("/rising/week")
-    },
-    {
-      label: i18next.t(`entry-filter.filter-promoted`),
-      href: `/promoted`,
-      selected: filter === "promoted",
-      id: "promoted",
-      onClick: () => router.push("/promoted")
-    }
-  ];
-
-  let menuTagValue = tag ? `/${tag}` : "";
-
-  const menuItems: MenuItem[] = [
-    ...(activeUser
-      ? [
-          {
-            label: i18next.t(`entry-filter.filter-feed-friends`),
-            href: `/@${activeUser?.username}/feed`,
-            selected: filter === "feed",
-            id: "feed",
-            onClick: () => router.push(`/@${activeUser?.username}/feed`)
-          }
-        ]
-      : []),
-    ...[EntryFilter.trending, EntryFilter.hot, EntryFilter.created].map((x) => ({
-      onClick: () => router.push(`/${x}`),
-      label: i18next.t(`entry-filter.filter-${x}`),
-      href: activeUser
-        ? filter === "feed" && !isGlobal
-          ? `/${x}/my`
-          : `/${x}`
-        : tag[0] === "@"
-          ? `/${x}`
-          : `/${x}${menuTagValue}`,
-      selected: (filter as unknown as EntryFilter) === x || filter === x + "/my",
-      id: x
-    }))
-  ];
+  const dropdownLabel = useMemo(
+    () =>
+      isMy && filter === "feed"
+        ? i18next.t("entry-filter.filter-feed-friends")
+        : i18next.t(`entry-filter.filter-${filter}`),
+    [filter, isMy]
+  );
 
   const introductionOverlayClass =
     introduction === IntroductionType.NONE ? "hidden" : "overlay-for-introduction";
@@ -386,7 +328,7 @@ export function EntryIndexMenu() {
                     introduction === IntroductionType.NEW) ? (
                     <Introduction
                       title={getPopupTitle()}
-                      media={OurVision}
+                      media={apiBase(`/assets/our-vision.${canUseWebp ? "webp" : "png"}`)}
                       placement={
                         introduction === IntroductionType.TRENDING
                           ? "20%"
@@ -438,7 +380,7 @@ export function EntryIndexMenu() {
                 {introduction !== IntroductionType.NONE ? (
                   <Introduction
                     title={getPopupTitle()}
-                    media={OurVision}
+                    media={apiBase(`/assets/our-vision.${canUseWebp ? "webp" : "png"}`)}
                     onNext={onNextMobile}
                     onPrevious={onPreviousMobile}
                     onClose={onClosePopup}
