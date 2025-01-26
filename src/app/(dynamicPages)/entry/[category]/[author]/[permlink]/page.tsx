@@ -6,7 +6,6 @@ import {
   EntryPageContextProvider,
   EntryPageCrossPostHeader,
   EntryPageEditHistory,
-  EntryPageLoadingScreen,
   MdHandler,
   ReadTime
 } from "./_components";
@@ -61,7 +60,6 @@ export default async function EntryPage({ params, searchParams }: Props) {
         <MdHandler />
 
         <div className="app-content entry-page">
-          <EntryPageLoadingScreen />
           <ReadTime entry={entry} />
 
           <div className="the-entry">
