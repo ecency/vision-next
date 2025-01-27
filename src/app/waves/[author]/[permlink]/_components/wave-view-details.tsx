@@ -25,7 +25,13 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
 
   return (
     <div className="relative z-10 rounded-2xl bg-white dark:bg-dark-200 cursor-pointer">
-      <WavesListItemHeader entry={entry!} hasParent={false} pure={false} status={status} />
+      <WavesListItemHeader
+        interactable={false}
+        entry={entry!}
+        hasParent={false}
+        pure={false}
+        status={status}
+      />
       <div className="p-4">
         <EcencyRenderer value={entry?.body ?? ""} />
       </div>
