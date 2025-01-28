@@ -1,6 +1,6 @@
 .waves-page-layout {
   .entry-body {
-    .medium-zoom-image, img {
+    .medium-zoom-image, img:not(.ecency-renderer-wave-like-post-extension-renderer--author-avatar) {
       margin: 0 auto;
       max-height: 320px;
     }
