@@ -53,10 +53,10 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
               <WavePromoteCard />
             </>
           )}
+          <WaveFollowsCard />
           <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 [&_.item-content]:!mr-0 [&_.top-communities-widget]:p-0 [&_.top-communities-widget]:m-0">
             <TopCommunitiesWidget />
           </div>
-          <WaveFollowsCard />
         </div>
       </div>
     </div>
