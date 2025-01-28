@@ -93,7 +93,8 @@
     "error": "Error",
     "reset-form": "Reset form",
     "community": "Community",
-    "today": "Today"
+    "today": "Today",
+    "view": "View"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -2527,5 +2528,24 @@
   "banners": {
     "no-ls-title": "Unable to use local data",
     "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually."
+  },
+  "waves": {
+    "sources": "Sources",
+    "reply-form-title": "Replying to",
+    "hide-replies": "Hide replies",
+    "no-replies": "There aren't replies yet. Be first!",
+    "add-reply": "Add reply",
+    "promote": {
+      "title": "Want more views and likes?",
+      "subtitle": "Promote your wave in a few clicks and be on top for days. Get up to 4x views!",
+      "button": "Promote now 🔥",
+      "coming-soon": "Coming soon 🔥"
+    },
+    "who-to-follow": "Who to follow",
+    "who-to-follow-hint": "Want to be here too? Be active and track yourself in Discover/Leaderboards.",
+    "reply-to": "Replying to",
+    "edit-wave": "Edit wave",
+    "reply": "Reply",
+    "replying": "Replying..."
   }
 }
