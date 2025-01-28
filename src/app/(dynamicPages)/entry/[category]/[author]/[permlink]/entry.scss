@@ -219,14 +219,6 @@
       .author-reputation {
         @apply text-gray-steel;
         font-weight: 400;
-
-        &::before {
-          content: "(";
-        }
-
-        &::after {
-          content: ")";
-        }
       }
     }
 
