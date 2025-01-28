@@ -3,6 +3,7 @@ import { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 export type ButtonAppearance =
   | "primary"
   | "secondary"
+  | "gray"
   | "gray-link"
   | "link"
   | "danger"
@@ -10,6 +11,7 @@ export type ButtonAppearance =
   | "warning"
   | "info"
   | "white-link"
+  | "white"
   // User pressed style for buttons with pressed(not) statements like favourite like button
   | "pressed";
 export type ButtonSize = "xxs" | "xs" | "sm" | "md" | "lg" | "display";

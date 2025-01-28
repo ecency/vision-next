@@ -1,7 +1,6 @@
 import { getAccountFullQuery, getDeletedEntryQuery, getPostQuery } from "@/api/queries";
 import {
   DeletedPostScreen,
-  EntryBodyExtra,
   EntryPageContent,
   EntryPageContextProvider,
   EntryPageCrossPostHeader,
@@ -75,7 +74,6 @@ export default async function EntryPage({ params, searchParams }: Props) {
           </div>
         </div>
         <EntryPageEditHistory entry={entry} />
-        <EntryBodyExtra entry={entry} />
       </EntryPageContextProvider>
     </HydrationBoundary>
   );

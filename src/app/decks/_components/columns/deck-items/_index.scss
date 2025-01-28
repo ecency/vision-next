@@ -1,5 +1,6 @@
 @import "src/styles/vars_mixins";
 @import "../helpers/helpers";
+@import "src/features/waves/styles/thread-render";
 
 .deck {
 
@@ -99,51 +100,6 @@
       .user-avatar {
         justify-self: center;
       }
-    }
-
-    &-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-
-      > div {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-      }
-
-      @include padding-left(1rem);
-      @include padding-right(1rem);
-      @include padding-bottom(1rem);
-
-      button, .entry-votes, .entry-vote-btn {
-        color: $secondary;
-
-        @include padding(0);
-        @include font-size(0.75rem);
-        @include margin(0);
-
-        &:hover, &:active {
-          color: $primary;
-        }
-      }
-
-      .entry-votes svg {
-        opacity: 1;
-
-        @include margin(0);
-        @include margin-right(0.25rem);
-      }
-
-      svg {
-        width: 1rem;
-        height: 1rem;
-      }
-
-      @include compact_vote_slider();
     }
 
     &-body {

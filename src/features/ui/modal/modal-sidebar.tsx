@@ -18,7 +18,13 @@ export function ModalSidebar({
   className
 }: PropsWithChildren<Props>) {
   return (
-    <Modal animation={false} show={show} onHide={() => setShow(false)} className={className}>
+    <Modal
+      raw={true}
+      animation={false}
+      show={show}
+      onHide={() => setShow(false)}
+      className={className}
+    >
       <motion.div
         initial={{
           x: (placement === "right" ? 1 : -1) * 320

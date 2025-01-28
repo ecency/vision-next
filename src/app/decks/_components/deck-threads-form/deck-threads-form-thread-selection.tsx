@@ -1,5 +1,5 @@
 import React from "react";
-import { AVAILABLE_THREAD_HOSTS } from "../consts";
+import { AVAILABLE_THREAD_HOSTS } from "@/features/waves";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { Button } from "@ui/button";
 import { downArrowSvg } from "@ui/svg";

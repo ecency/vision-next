@@ -1,0 +1,35 @@
+@import "../../../styles/vars_mixins";
+
+.thread-item-actions {
+  @apply flex items-center justify-between gap-4 flex-wrap px-4 pb-3;
+
+  > div {
+    @apply flex items-center gap-4 flex-wrap;
+  }
+
+  .entry-menu {
+    @apply gap-4;
+  }
+
+  button, .entry-votes, .entry-vote-btn {
+    color: $secondary;
+
+    @include padding(0);
+    @include font-size(0.75rem);
+    @include margin(0);
+
+    &:hover, &:active {
+      color: $primary;
+    }
+  }
+
+  .entry-votes svg {
+    @apply opacity-100 m-0 mr-2;
+  }
+
+  svg {
+    @apply w-4 h-4;
+  }
+
+  @include compact_vote_slider();
+}

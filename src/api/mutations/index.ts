@@ -32,3 +32,4 @@ export * from "./claim-reward-balance";
 export * from "./subscribe-to-community";
 export * from "./hs-login-refresh";
 export * from "./create-community";
+export * from "./analytics";

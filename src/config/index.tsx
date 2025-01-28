@@ -1,5 +1,5 @@
 import config from "./config";
-import { ComponentType, memo, PropsWithChildren, ReactNode } from "react";
+import { ComponentType, memo, PropsWithChildren, ReactNode, useMemo } from "react";
 import { QueryClient, useMutation, UseMutationOptions } from "@tanstack/react-query";
 import type { DefaultError } from "@tanstack/query-core";
 
@@ -12,10 +12,18 @@ export namespace EcencyConfigManager {
     return condition(CONFIG);
   }
 
+  export function selector(condition: ConfigBasedCondition) {
+    return condition(CONFIG);
+  }
+
   export function withConditional<T>(condition: ConfigBasedCondition, callback: () => T) {
     if (condition(CONFIG)) {
       return callback();
     }
+  }
+
+  export function useConfig(condition: ConfigBasedCondition) {
+    return useMemo(() => condition(CONFIG), [condition]);
   }
 
   /**

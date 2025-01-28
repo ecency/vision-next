@@ -57,3 +57,4 @@ export * from "./static-navbar";
 export * from "./edit-history";
 export * from "./editor-toolbar";
 export * from "./redirect";
+export * from "./entry-stats";

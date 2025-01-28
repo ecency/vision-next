@@ -162,7 +162,7 @@ const config: Config = {
         "periwinkle-100": "#eef3fc"
       },
       dark: {
-        200: "#161d26",
+        200: "#131a22",
         "200-075": "rgba(22, 29, 38, 0.75)",
         "200-010-light": "#161d26",
         "200-010": "#030406",
@@ -220,7 +220,7 @@ const config: Config = {
         "dark-sky-030": "#bdd4f7",
         "dark-sky-040": "#ebf2fc",
         "dark-sky-075": "rgba(53, 124, 230, 0.75)",
-        "duck-egg": "#eaf2fc",
+        "duck-egg": "#eff5fd",
         "duck-egg-200": "#91bbef",
         faded: "#e8f0fb",
         metallic: "#526d91",
@@ -586,6 +586,7 @@ const config: Config = {
       10: "repeat(10, minmax(0, 1fr))",
       11: "repeat(11, minmax(0, 1fr))",
       12: "repeat(12, minmax(0, 1fr))",
+      13: "repeat(13, minmax(0, 1fr))",
       deck: "72px 0 1fr"
     },
     gridTemplateRows: {

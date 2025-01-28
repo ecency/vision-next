@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { initI18next } from "@/features/i18n";
 import { getAccountFullQuery } from "@/api/queries";
 import { useEffect } from "react";
+import { client } from "@/api/hive";
 
 export function ClientInit() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -19,6 +20,8 @@ export function ClientInit() {
     initKeychain();
     initI18next();
     loadUsers();
+
+    (window as any).dHiveClient = client;
 
     const activeUsername = ls.get("active_user") ?? Cookies.get("active_user");
     if (activeUsername) {

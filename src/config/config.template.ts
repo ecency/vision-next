@@ -95,6 +95,9 @@ const CONFIG = {
       center: {
         enabled: true
       },
+      waves: {
+        enabled: true
+      },
       plausible: {
         enabled: true,
         host: "https://pl.ecency.com",

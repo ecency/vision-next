@@ -11,6 +11,9 @@ export const BUTTON_STYLES: Record<ButtonAppearance, string> = {
   warning: "",
   info: "bg-info-default hover:info-hover focus:bg-info-focus text-white disabled:opacity-50 disabled:hover:bg-info-default disabled:focus:bg-info-default",
   "gray-link": "text-gray-600 hover:text-blue-dark-sky focus:text-blue-dark-sky-active",
+  white:
+    "text-blue-dark-sky bg-white hover:bg-gray-100 focus:bg-gray-200 dark:bg-dark-default dark:hover:bg-dark-200 dark:focus:bg-gray-900 dark:text-white disabled:opacity-75",
+  gray: "bg-gray-200 text-gray-600 dark:text-gray-400 dark:bg-gray-800 hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200",
   "white-link": "text-white hover:opacity-50 focus:opacity-75",
   pressed: "text-red hover:text-red-040 bg:blue-duck-egg dark:bg-dark-default"
 };
@@ -28,7 +31,10 @@ export const BUTTON_OUTLINE_STYLES: Record<ButtonAppearance, string> = {
   info: "border-info-default hover:border-info-hover focus:border-info-focus text-info-default hover:text-info-hover focus:text-info-focus",
   "gray-link": "",
   "white-link": "",
-  pressed: ""
+  pressed: "",
+  white:
+    "text-white border-white hover:border-gray-100 focus:border-gray-200 dark:border-dark-default dark:hover:border-dark-200 dark:focus:border-gray-900 dark:text-dark-default",
+  gray: ""
 };
 
 export const BUTTON_SIZES: Record<ButtonSize, string> = {

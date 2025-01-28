@@ -1,5 +1,6 @@
 @import "animations";
 
+@import "./renderer.css";
 @import "react-grid-layout/css/styles.css";
 @import "react-resizable/css/styles.css";
 
@@ -20,3 +21,11 @@
   margin-top: 1px;
 }
 
+.medium-zoom--opened .medium-zoom-overlay {
+  z-index: 20;
+  opacity: 0.75 !important;
+}
+
+.medium-zoom-image--opened {
+  z-index: 20;
+}

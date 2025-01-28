@@ -7,12 +7,12 @@ import { SortCommunities } from "../sort-profile-communities";
 import { useGetSubscriptionsQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { Account } from "@/entities";
-import { CommunityListItem } from "@/app/communities/_components";
 import { useCommunitiesCache } from "@/core/caches";
 import { AnimatePresence, motion } from "framer-motion";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
 import { UilUser } from "@tooni/iconscout-unicons-react";
+import { CommunityListItem } from "@/app/_components";
 
 interface Props {
   account: Account;

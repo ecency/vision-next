@@ -1,4 +1,4 @@
-import { BookmarkBtn, ProfileLink, UserAvatar } from "@/features/shared";
+import { BookmarkBtn, EntryStats, ProfileLink, UserAvatar } from "@/features/shared";
 import i18next from "i18next";
 import { Entry } from "@/entities";
 import ReadTime from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-read-time";
@@ -7,7 +7,6 @@ import { accountReputation, parseDate } from "@/utils";
 import { TagLink } from "@/features/shared/tag";
 import { EntryPageMainInfoMenu } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-main-info-menu";
 import { EcencyConfigManager } from "@/config";
-import { EntryPageStats } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-stats";
 
 interface Props {
   entry: Entry;
@@ -53,7 +52,7 @@ export function EntryPageMainInfo({ entry }: Props) {
         <div className="flex items-center text-sm">
           <ReadTime entry={entry} toolTip={true} />
           <span className="separator circle-separator mx-1 lg:hidden" />
-          <EntryPageStats entry={entry} />
+          <EntryStats entry={entry} />
           <span className="separator circle-separator mx-1" />
           <div className="date" title={published.format("LLLL")}>
             {published.fromNow()}

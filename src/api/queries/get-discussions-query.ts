@@ -1,10 +1,9 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
+import { EcencyQueriesManager, getQueryClient, QueryIdentifiers } from "@/core/react-query";
 import { Entry } from "@/entities";
 import { bridgeApiCall } from "@/api/bridge";
 import { parseAsset } from "@/utils";
 import { SortOrder } from "@/enums";
-import { IdentifiableEntry } from "@/app/decks/_components/columns/deck-threads-manager";
-import { QueryClient } from "@tanstack/react-query";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOrder) {
   const allPayout = (c: Entry) =>
@@ -80,7 +79,11 @@ export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOr
   return sorted;
 }
 
-export const getDiscussionsQuery = (entry: Entry, order: SortOrder, enabled: boolean = true, observer?: string) =>
+export const getDiscussionsQuery = (
+  entry: Entry,
+  order: SortOrder = SortOrder.created,
+  enabled: boolean = true
+, observer?: string) =>
   EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink, observer||entry?.author],
     queryFn: async () => {
@@ -89,53 +92,22 @@ export const getDiscussionsQuery = (entry: Entry, order: SortOrder, enabled: boo
         permlink: entry.permlink,
         observer: observer || entry.author
       });
-      if (response) {
-        return Array.from(Object.values(response));
-      }
-      return [];
+
+      let results = response ? Array.from(Object.values(response)) : [];
+      EcencyEntriesCacheManagement.updateEntryQueryData(results);
+      return results;
     },
     enabled,
-    initialData: [],
     select: (data) => sortDiscussions(entry, data, order)
   });
 
-export const getDiscussionsMapQuery = (entry: Entry | undefined, observer?: string, enabled: boolean = true) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink, observer||entry?.author],
-    queryFn: async () => {
-      const response = await bridgeApiCall<Record<string, IdentifiableEntry> | null>(
-        "get_discussion",
-        {
-          author: entry!!.author,
-          permlink: entry!!.permlink,
-          observer: observer || entry!!.author
-        }
-      );
-      if (response) {
-        return response;
-      }
-      return {};
-    },
-    enabled: enabled && !!entry,
-    refetchOnMount: true
-  });
-
 export function addReplyToDiscussionsList(
-  entry: IdentifiableEntry,
+  entry: Entry,
   reply: Entry,
-  queryClient: QueryClient
+  queryClient = getQueryClient()
 ) {
-  queryClient.setQueryData<Record<string, Entry | null>>(
-    [QueryIdentifiers.FETCH_DISCUSSIONS_MAP, entry?.author, entry?.permlink],
-    (data) => {
-      if (!data) {
-        return data;
-      }
-
-      return {
-        ...data,
-        [`${reply.author}/${reply.permlink}`]: reply
-      };
-    }
+  queryClient.setQueryData<Entry[]>(
+    [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink],
+    (data) => [...(data ?? []), reply]
   );
 }

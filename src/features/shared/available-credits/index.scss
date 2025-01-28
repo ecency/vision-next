@@ -6,7 +6,7 @@
     overflow: hidden;
 
     .available-credits-progress {
-      @apply bg-gray-200;
+      @apply bg-gray-200 dark:bg-gray-900;
       height: 8px;
       width: 100%;
       border-radius: 4px;

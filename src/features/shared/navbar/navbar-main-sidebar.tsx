@@ -5,7 +5,8 @@ import {
   UilHome,
   UilListUl,
   UilUsersAlt,
-  UilUserSquare
+  UilUserSquare,
+  UilWater
 } from "@tooni/iconscout-unicons-react";
 import { NavbarSideMainMenuItem } from "./sidebar/navbar-side-main-menu-item";
 import pack from "../../../../package.json";
@@ -70,6 +71,19 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           }}
           icon={<UilHome size={16} />}
         />
+
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.decks.enabled}
+        >
+          <NavbarSideMainMenuItem
+            label={i18next.t("navbar.waves")}
+            to="/waves"
+            onClick={() => setShow(false)}
+            icon={<UilWater size={16} />}
+            isNew={true}
+          />
+        </EcencyConfigManager.Conditional>
+
         <NavbarSideMainMenuItem
           label={i18next.t("navbar.discover")}
           to="/discover"

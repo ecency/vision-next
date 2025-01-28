@@ -1,7 +1,7 @@
-import React, { useMemo } from "react";
-import { renderPostBody } from "@ecency/render-helper";
+import React from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
+import { EcencyRenderer } from "@ecency/renderer";
 
 interface Props {
   entry: Entry;
@@ -10,18 +10,11 @@ interface Props {
 
 export function DiscussionItemBody({ entry, isRawContent }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-  const renderedBody = useMemo(
-    () => ({ __html: renderPostBody(entry.body, false, canUseWebp) }),
-    [canUseWebp, entry]
-  );
 
   return (
     <>
       {!isRawContent ? (
-        <div
-          className="item-body markdown-view mini-markdown"
-          dangerouslySetInnerHTML={renderedBody}
-        />
+        <EcencyRenderer value={entry.body} className="!text-base" />
       ) : (
         <pre className="item-body markdown-view mini-markdown">{entry.body}</pre>
       )}
