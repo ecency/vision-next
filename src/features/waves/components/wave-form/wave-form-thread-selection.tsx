@@ -29,7 +29,7 @@ export const WaveFormThreadSelection = ({ host, setHost }: Props) => {
       <Dropdown>
         <DropdownToggle>
           <Button size="sm" appearance="link" noPadding={true}>
-            @{host ? labels[host] ?? host : i18next.t("decks.threads-form.select-thread-host")}
+            {host ? labels[host] ?? host : i18next.t("decks.threads-form.select-thread-host")}
           </Button>
         </DropdownToggle>
         <DropdownMenu>
