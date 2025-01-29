@@ -36,35 +36,6 @@
   }
 }
 
-.info-icon {
-  height: 15px;
-  width: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.8;
-  border-radius: 50%;
-  border-width: 1px;
-  border-style: solid;
-  cursor: pointer;
-  &:hover {
-    opacity: 1;
-  }
-  @include themify(day) {
-    svg {
-      @apply text-dark-600;
-      @apply border-dark-600;
-      height: 100%;
-    }
-  }
-  @include themify(night) {
-    svg {
-      height: 100%;
-      @apply text-blue-duck-egg;
-      @apply border-blue-duck-egg;
-    }
-  }
-}
 .he-icon {
   height: 15px;
   width: 15px;

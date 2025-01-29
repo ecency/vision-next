@@ -93,7 +93,8 @@
     "error": "Error",
     "reset-form": "Reiniciar formulario",
     "community": "Comunidad",
-    "today": "Hoy"
+    "today": "Hoy",
+    "view": "View"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -2527,5 +2528,24 @@
   "banners": {
     "no-ls-title": "No se puede utilizar datos locales",
     "no-ls-description": "Parece que usted, o su navegador, ha deshabilitado los datos locales de nuestro sitio web. Desafortunadamente, no puedes usar la mayoría de características de Ecency, como borradores, mazos locales, tablero avanzado de operaciones y más. Por favor, utilice las últimas versiones de cualquier navegador moderno, o active los datos locales manualmente."
+  },
+  "waves": {
+    "sources": "Sources",
+    "reply-form-title": "Replying to",
+    "hide-replies": "Hide replies",
+    "no-replies": "There aren't replies yet. Be first!",
+    "add-reply": "Add reply",
+    "promote": {
+      "title": "Want more views and likes?",
+      "subtitle": "Promote your wave in a few clicks and be on top for days. Get up to 4x views!",
+      "button": "Promote now 🔥",
+      "coming-soon": "Coming soon 🔥"
+    },
+    "who-to-follow": "Who to follow",
+    "who-to-follow-hint": "Want to be here too? Be active and track yourself in Discover/Leaderboards.",
+    "reply-to": "Replying to",
+    "edit-wave": "Edit wave",
+    "reply": "Reply",
+    "replying": "Replying..."
   }
 }

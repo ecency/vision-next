@@ -3,14 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { EntryIndexMenuDropdown } from "../entry-index-menu-dropdown";
 import "./_index.scss";
-import { ActiveUser } from "@/entities";
 import { ListStyleToggle } from "@/features/shared";
-import {
-  chevronDownSvgForSlider,
-  informationVariantSvg,
-  kebabMenuHorizontalSvg,
-  menuDownSvg
-} from "@ui/svg";
+import { chevronDownSvgForSlider, kebabMenuHorizontalSvg, menuDownSvg } from "@ui/svg";
 import Link from "next/link";
 import { Introduction } from "@/app/_components/introduction";
 import i18next from "i18next";
@@ -18,12 +12,13 @@ import { useGlobalStore } from "@/core/global-store";
 import { apiBase } from "@/api/helper";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, MenuItem } from "@ui/dropdown";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
-import { EntryFilter } from "@/enums";
 import useMount from "react-use/lib/useMount";
 import * as ls from "@/utils/local-storage";
 import usePrevious from "react-use/lib/usePrevious";
 import { Button } from "@ui/button";
 import { classNameObject } from "@ui/util";
+import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import { useFeedMenu } from "@/app/_components/entry-index-menu/use-feed-menu";
 
 export enum IntroductionType {
   FRIENDS = "FRIENDS",
@@ -32,15 +27,6 @@ export enum IntroductionType {
   NEW = "NEW",
   NONE = "NONE"
 }
-
-export const isMyPage = (filter: string, tag: string, activeUser: ActiveUser | null) => {
-  return (
-    activeUser &&
-    ((activeUser.username === tag.replace("@", "") && filter === "feed") || tag === "my")
-  );
-};
-
-export const isActiveUser = (activeUser?: ActiveUser | null) => !!activeUser;
 
 export function EntryIndexMenu() {
   const router = useRouter();
@@ -59,77 +45,21 @@ export function EntryIndexMenu() {
   const prevActiveUser = usePrevious(activeUser);
   const prevFilter = usePrevious(filter);
 
+  const [menuItems, secondaryMenu, isMy] = useFeedMenu();
+
   const noReblog = useMemo(() => searchParams.get("no-reblog") == "true", [searchParams]);
 
-  const isMy = isMyPage(filter, tag, activeUser);
-  const dropdownLabel =
-    isMy && filter === "feed"
-      ? i18next.t("entry-filter.filter-feed-friends")
-      : i18next.t(`entry-filter.filter-${filter}`);
-  const isActive = isActiveUser(activeUser);
-  const OurVision = apiBase(`/assets/our-vision.${canUseWebp ? "webp" : "png"}`);
-
-  let secondaryMenu = [
-    {
-      label: i18next.t(`entry-filter.filter-controversial`),
-      href: `/controversial/week`,
-      selected: filter === "controversial",
-      id: "controversial",
-      onClick: () => router.push("/controversial/week")
-    },
-    {
-      label: i18next.t(`entry-filter.filter-rising`),
-      href: `/rising/week`,
-      selected: filter === "rising",
-      id: "rising",
-      onClick: () => router.push("/rising/week")
-    },
-    {
-      label: i18next.t(`entry-filter.filter-promoted`),
-      href: `/promoted`,
-      selected: filter === "promoted",
-      id: "promoted",
-      onClick: () => router.push("/promoted")
-    }
-  ];
-
-  let menuTagValue = tag ? `/${tag}` : "";
-
-  const menuItems: MenuItem[] = [
-    ...[EntryFilter.trending, EntryFilter.hot, EntryFilter.created].map((x) => {
-      return {
-        onClick: () => router.push(`/${x}`),
-        label: i18next.t(`entry-filter.filter-${x}`),
-        href: isActive
-          ? filter === "feed" && !isGlobal
-            ? `/${x}/my`
-            : `/${x}`
-          : tag[0] === "@"
-            ? `/${x}`
-            : `/${x}${menuTagValue}`,
-        selected: (filter as unknown as EntryFilter) === x || filter === x + "/my",
-        id: x,
-        flash:
-          (x === "trending" && introduction === IntroductionType.TRENDING) ||
-          (x === "hot" && introduction === IntroductionType.HOT) ||
-          (x === "created" && introduction === IntroductionType.NEW)
-      };
-    })
-  ];
+  const dropdownLabel = useMemo(
+    () =>
+      isMy && filter === "feed"
+        ? i18next.t("entry-filter.filter-feed-friends")
+        : i18next.t(`entry-filter.filter-${filter}`),
+    [filter, isMy]
+  );
 
   const introductionOverlayClass =
     introduction === IntroductionType.NONE ? "hidden" : "overlay-for-introduction";
-  const mobileItems: MenuItem[] = [
-    {
-      label: i18next.t(`entry-filter.filter-feed-friends`),
-      href: `/@${activeUser?.username}/feed`,
-      selected: filter === "feed",
-      id: "feed",
-      onClick: () => router.push(`/@${activeUser?.username}/feed`)
-    },
-    ...menuItems,
-    ...secondaryMenu
-  ];
+  const mobileItems: MenuItem[] = [...menuItems, ...secondaryMenu];
 
   const onChangeGlobal = (value: string) => {
     setIsGlobal(!value);
@@ -171,8 +101,7 @@ export function EntryIndexMenu() {
         value = IntroductionType.TRENDING;
         break;
       case IntroductionType.TRENDING:
-        value =
-          activeUser && isActiveUser(activeUser) ? IntroductionType.FRIENDS : IntroductionType.NONE;
+        value = !!activeUser ? IntroductionType.FRIENDS : IntroductionType.NONE;
         break;
       default:
         break;
@@ -231,8 +160,7 @@ export function EntryIndexMenu() {
         value = IntroductionType.TRENDING;
         break;
       case IntroductionType.TRENDING:
-        value =
-          activeUser && isActiveUser(activeUser) ? IntroductionType.FRIENDS : IntroductionType.NONE;
+        value = !!activeUser ? IntroductionType.FRIENDS : IntroductionType.NONE;
         break;
       case IntroductionType.FRIENDS:
         value = IntroductionType.NONE;
@@ -270,33 +198,14 @@ export function EntryIndexMenu() {
   );
 
   useMount(() => {
-    if (introduction === IntroductionType.NONE) {
-      if (typeof window !== "undefined") {
-        document.getElementById("overlay") &&
-          document.getElementById("overlay")!.classList.remove("overlay-for-introduction");
-        document.getElementById("feed") &&
-          document.getElementById("feed")!.classList.remove("active");
-        document.getElementById(filter) && document.getElementById(filter)!.classList.add("active");
-        document.getElementsByTagName("ul") &&
-          document.getElementsByTagName("ul")[0] &&
-          document.getElementsByTagName("ul")[0]!.classList.remove("flash");
-        let entryIndexMenuElements = document.getElementsByClassName("entry-index-menu");
-        entryIndexMenuElements &&
-          entryIndexMenuElements.length > 1 &&
-          entryIndexMenuElements[0] &&
-          entryIndexMenuElements[0].classList.remove("entry-index-menu");
-      }
-    }
-
     let isGlobal = !pathname.includes("/my");
-    if (activeUser && isActiveUser(activeUser) && pathname.includes(activeUser.username)) {
+    if (!!activeUser && pathname.includes(activeUser.username)) {
       isGlobal = false;
     }
     let showInitialIntroductionJourney =
-      activeUser && isActiveUser(activeUser) && ls.get(`${activeUser.username}HadTutorial`);
+      !!activeUser && ls.get(`${activeUser.username}HadTutorial`);
     if (
-      activeUser &&
-      isActiveUser(activeUser) &&
+      !!activeUser &&
       (showInitialIntroductionJourney === "false" || showInitialIntroductionJourney === null)
     ) {
       showInitialIntroductionJourney = true;
@@ -312,16 +221,9 @@ export function EntryIndexMenu() {
   });
 
   useEffect(() => {
-    if (pathname.includes("/my") && !isActiveUser(activeUser)) {
+    if (pathname.includes("/my") && !activeUser) {
       router.push(pathname.replace("/my", ""));
-    }
-    // else if (!isActiveUser(activeUser) && (filter === 'feed')) {
-    //     history.push('/trending')
-    // }
-    // else if (!isActiveUser(activeUser) && (prevProps.global.filter === 'feed') && (filter === 'trending' || filter === 'hot' || filter === 'created') && (tag.includes('@'))) {
-    //     history.push(`/${filter}`)
-    // }
-    else if (!isActiveUser(prevActiveUser) !== !isActiveUser(activeUser) && filter !== "feed") {
+    } else if (!prevActiveUser && activeUser && filter !== "feed") {
       let isGlobalValue = !(tag.length > 0 && tag === "my");
       setIsGlobal(isGlobalValue);
     } else if (
@@ -349,11 +251,10 @@ export function EntryIndexMenu() {
 
   useEffect(() => {
     let showInitialIntroductionJourney =
-      activeUser && isActiveUser(activeUser) && ls.get(`${activeUser.username}HadTutorial`);
+      !!activeUser && ls.get(`${activeUser.username}HadTutorial`);
     if (
       prevActiveUser !== activeUser &&
-      activeUser &&
-      isActiveUser(activeUser) &&
+      !!activeUser &&
       (showInitialIntroductionJourney === "false" || showInitialIntroductionJourney === null)
     ) {
       showInitialIntroductionJourney = true;
@@ -365,7 +266,6 @@ export function EntryIndexMenu() {
     if (
       prevActiveUser !== activeUser &&
       !activeUser &&
-      !isActiveUser(activeUser) &&
       ls.get(`${prevActiveUser?.username}HadTutorial`)
     ) {
       setIntroduction(IntroductionType.NONE);
@@ -384,53 +284,6 @@ export function EntryIndexMenu() {
       <div className={introductionOverlayClass} id="overlay" onClick={onClosePopup} />
       <div className="entry-index-menu flex items-center justify-center md:justify-between py-3.5 border-b dark:border-dark-200">
         <div className="bg-gray-100 dark:bg-gray-900 rounded-3xl lg:px-4 p-2 text-sm flex flex-col-reverse items-center md:flex-row">
-          {isActive && (
-            <div className="hidden lg:flex items-center mt-3 md:mt-0 md:mr-4 lg:mr-0">
-              <ul
-                className={`flex flex-wrap relative mb-0 ${
-                  introduction === IntroductionType.NONE
-                    ? ""
-                    : introduction === IntroductionType.FRIENDS
-                      ? "flash"
-                      : ""
-                }`}
-              >
-                <li>
-                  <Link
-                    href={`/@${activeUser?.username}/feed`}
-                    className={classNameObject({
-                      "text-gray-steel hover:text-blue-dark-sky rounded-full flex items-center px-3 py-1.5":
-                        true,
-                      "bg-blue-dark-sky text-white hover:text-white":
-                        filter === "feed" &&
-                        (introduction === IntroductionType.NONE ||
-                          introduction === IntroductionType.FRIENDS)
-                    })}
-                    id="feed"
-                  >
-                    {i18next.t("entry-filter.filter-feed-friends")}
-                  </Link>
-                </li>
-                {introduction !== IntroductionType.NONE &&
-                introduction === IntroductionType.FRIENDS ? (
-                  <Introduction
-                    title={i18next.t("entry-filter.filter-feed-friends")}
-                    media={OurVision}
-                    onNext={() => {
-                      let value = IntroductionType.TRENDING;
-                      setIntroduction(value);
-                    }}
-                    onPrevious={() => {
-                      let value = IntroductionType.NONE;
-                      setIntroduction(value);
-                    }}
-                    onClose={onClosePopup}
-                    description={introductionDescription}
-                  />
-                ) : null}
-              </ul>
-            </div>
-          )}
           <div className="flex items-center">
             <div className="main-menu justify-center hidden lg:flex md:mb-0 md:items-center">
               <div className="block md:hidden relative">
@@ -452,17 +305,14 @@ export function EntryIndexMenu() {
               <div className="hidden lg:block">
                 <ul className="flex flex-wrap mb-0">
                   {menuItems.map((i, k) => (
-                    <li key={k} className={`${i.flash ? "flash" : ""}`}>
+                    <li key={k}>
                       <Link
                         href={i.href!}
                         className={classNameObject({
                           "text-gray-steel hover:text-blue-dark-sky rounded-full flex items-center px-3 py-1.5":
                             true,
                           "bg-blue-dark-sky text-white hover:text-white":
-                            i.selected &&
-                            introduction === IntroductionType.NONE &&
-                            !i.flash &&
-                            i.selected,
+                            i.selected && introduction === IntroductionType.NONE && i.selected,
                           [`link-${i.id}`]: true
                         })}
                         id={i.id}
@@ -478,7 +328,7 @@ export function EntryIndexMenu() {
                     introduction === IntroductionType.NEW) ? (
                     <Introduction
                       title={getPopupTitle()}
-                      media={OurVision}
+                      media={apiBase(`/assets/our-vision.${canUseWebp ? "webp" : "png"}`)}
                       placement={
                         introduction === IntroductionType.TRENDING
                           ? "20%"
@@ -530,7 +380,7 @@ export function EntryIndexMenu() {
                 {introduction !== IntroductionType.NONE ? (
                   <Introduction
                     title={getPopupTitle()}
-                    media={OurVision}
+                    media={apiBase(`/assets/our-vision.${canUseWebp ? "webp" : "png"}`)}
                     onNext={onNextMobile}
                     onPrevious={onPreviousMobile}
                     onClose={onClosePopup}
@@ -570,7 +420,6 @@ export function EntryIndexMenu() {
                     tag={tag}
                     noReblog={noReblog!!}
                     handleFilterReblog={handleFilterReblog}
-                    isActive={isActive}
                     onChangeGlobal={onChangeGlobal}
                   />
                 </span>
@@ -584,7 +433,6 @@ export function EntryIndexMenu() {
                     tag={tag}
                     noReblog={noReblog!!}
                     handleFilterReblog={handleFilterReblog}
-                    isActive={isActive}
                     onChangeGlobal={onChangeGlobal}
                   />
                 </span>
@@ -593,8 +441,10 @@ export function EntryIndexMenu() {
           </div>
         </div>
         <div className="flex items-center ml-auto md:ml-0 pl-3">
-          <span
-            className="info-icon mr-0 md:mr-2"
+          <Button
+            size="sm"
+            appearance="gray-link"
+            icon={<UilInfoCircle />}
             onClick={() =>
               setIntroduction(
                 filter === "feed"
@@ -608,9 +458,7 @@ export function EntryIndexMenu() {
                         : IntroductionType.NONE
               )
             }
-          >
-            {informationVariantSvg}
-          </span>
+          />
           <ListStyleToggle />
         </div>
       </div>

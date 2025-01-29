@@ -70,12 +70,6 @@
     h1 {
       @include font-size(1.25rem);
     }
-
-    .markdown-video-link {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16/9;
-    }
   }
 
   .deck-post-viewer-header {

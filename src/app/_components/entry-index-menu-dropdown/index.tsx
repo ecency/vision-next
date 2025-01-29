@@ -6,7 +6,6 @@ import { menuDownSvg } from "@ui/svg";
 import { Button } from "@ui/button";
 
 interface Props {
-  isActive: boolean;
   onChangeGlobal: (v: string) => void;
   noReblog: boolean;
   handleFilterReblog: () => void;
@@ -14,11 +13,7 @@ interface Props {
   tag: string;
 }
 
-// const feedUrlParams : string = window.location.pathname;
-// const feedByUsername : string = feedUrlParams.substring(1, (feedUrlParams.length - 5));
-
 export const EntryIndexMenuDropdown = ({
-  isActive,
   noReblog,
   handleFilterReblog,
   onChangeGlobal,
@@ -124,7 +119,7 @@ export const EntryIndexMenuDropdown = ({
   }
 
   const onTagValueClick = (key: string) => {
-    if (key === "my" && !isActive) {
+    if (key === "my" && !activeUser) {
       toggleUIProp("login");
     } else if (key === "no_reblog") {
       handleFilterReblog();
