@@ -34,9 +34,9 @@ export function WavesListItem({
 }: Props) {
   const [grid] = useWavesGrid();
 
-  const renderAreaRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { inViewport } = useInViewport(renderAreaRef);
+  const { inViewport } = useInViewport(rootRef);
 
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -80,6 +80,7 @@ export function WavesListItem({
 
   return (
     <motion.div
+      ref={rootRef}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: i * 0.2 }}
