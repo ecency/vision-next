@@ -82,10 +82,17 @@ export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOr
 export const getDiscussionsQuery = (
   entry: Entry,
   order: SortOrder = SortOrder.created,
-  enabled: boolean = true
-, observer?: string) =>
+  enabled: boolean = true,
+  observer?: string
+) =>
   EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink, observer||entry?.author],
+    queryKey: [
+      QueryIdentifiers.FETCH_DISCUSSIONS,
+      entry?.author,
+      entry?.permlink,
+      order,
+      observer || entry?.author
+    ],
     queryFn: async () => {
       const response = await bridgeApiCall<Record<string, Entry> | null>("get_discussion", {
         author: entry.author,
