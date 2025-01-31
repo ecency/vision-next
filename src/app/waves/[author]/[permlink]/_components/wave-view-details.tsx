@@ -3,12 +3,14 @@
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
 import { WaveActions, WaveForm } from "@/features/waves";
 import { WaveEntry } from "@/entities";
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EcencyRenderer } from "@ecency/renderer";
 import useMount from "react-use/lib/useMount";
+
+const EcencyRendererMemo = memo(EcencyRenderer);
 
 interface Props {
   entry: WaveEntry;
@@ -33,7 +35,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
         status={status}
       />
       <div className="p-4">
-        <EcencyRenderer value={entry?.body ?? ""} />
+        <EcencyRendererMemo value={entry?.body ?? ""} />
       </div>
       <WaveActions
         showStats={true}

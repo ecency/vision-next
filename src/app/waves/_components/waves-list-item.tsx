@@ -2,7 +2,7 @@
 
 import { WaveEntry } from "@/entities";
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { WaveActions, WaveForm } from "@/features/waves";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { motion } from "framer-motion";
@@ -16,6 +16,8 @@ import { useInViewport } from "react-in-viewport";
 import { useCollectPageViewEvent } from "@/api/mutations";
 import { EcencyRenderer } from "@ecency/renderer";
 import { useWavesGrid } from "@/app/waves/_hooks";
+
+const EcencyRendererMemo = memo(EcencyRenderer);
 
 interface Props {
   item: WaveEntry;
@@ -101,7 +103,7 @@ export function WavesListItem({
         onViewFullThread={onClick}
       />
       <div className="p-4" onClick={(e) => e.stopPropagation()}>
-        <EcencyRenderer value={entry?.body ?? ""} />
+        <EcencyRendererMemo value={entry?.body ?? ""} />
       </div>
       {poll && (
         <div onClick={(e) => e.stopPropagation()} className="p-4">
