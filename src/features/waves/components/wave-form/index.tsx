@@ -88,7 +88,7 @@ const WaveFormComponent = ({
 
   return (
     <div ref={rootRef} className="wave-form relative flex items-start px-4 pt-4 w-full">
-      {!hideAvatar && (
+      {!hideAvatar && activeUser?.username && (
         <UserAvatar
           username={activeUser?.username ?? ""}
           size={replySource ? "deck-item" : "medium"}

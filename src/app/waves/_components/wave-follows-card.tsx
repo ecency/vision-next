@@ -50,7 +50,7 @@ export function WaveFollowsCard() {
               <UserAvatar size="medium" username={item._id} />
               <div>@{item._id}</div>
             </ProfileLink>
-            <FollowControls targetUsername={item._id} where="chat-box" />
+            <FollowControls targetUsername={item._id} where="chat-box"/>
           </motion.div>
         ))}
       </div>
