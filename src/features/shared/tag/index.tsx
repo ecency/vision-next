@@ -80,6 +80,6 @@ export function TagLink({ tag, type, children }: Props) {
 
     return createElement("span", props);
   } else {
-    return null;
+    return <></>;
   }
 }

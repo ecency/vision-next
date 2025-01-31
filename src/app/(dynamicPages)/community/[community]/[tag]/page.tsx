@@ -2,14 +2,14 @@ import { getCommunityCache } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EntryListContent, LinearProgress } from "@/features/shared";
-import { CommunityContentSearch } from "@/app/(dynamicPages)/community/[community]/_components/community-content-search";
-import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
-import { Entry } from "@/entities";
-import { CommunityContentInfiniteList } from "@/app/(dynamicPages)/community/[community]/_components/community-content-infinite-list";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateCommunityMetadata } from "@/app/(dynamicPages)/community/[community]/_helpers";
+import { CommunityContentSearch } from "../_components/community-content-search";
+import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
+import { CommunityContentInfiniteList } from "../_components/community-content-infinite-list";
+import { Entry } from "@/entities";
 
 interface Props {
   params: Promise<{ tag: string; community: string }>;

@@ -43,12 +43,12 @@ const config = {
   async rewrites() {
     return [
       {
-        source: '/pl/js/script.js',
-        destination: 'https://pl.ecency.com/js/script.js'
+        source: "/pl/js/script.js",
+        destination: "https://pl.ecency.com/js/script.js"
       },
       {
-        source: '/pl/api/event',
-        destination: 'https://pl.ecency.com/api/event'
+        source: "/pl/api/event",
+        destination: "https://pl.ecency.com/api/event"
       },
       {
         source: "/communities",
@@ -68,11 +68,11 @@ const config = {
         destination: "/profile/:author/:section"
       },
       {
-        source: "/:tag/:community(hive-.+)/:sub",
+        source: "/:tag([^@].+)/:community(hive-.+)/:sub",
         destination: "/community/:community/:tag/:sub"
       },
       {
-        source: "/:tag/:community(hive-.+)",
+        source: "/:tag([^@].+)/:community(hive-.+)",
         destination: "/community/:community/:tag"
       },
       {
