@@ -68,11 +68,14 @@ export function FollowControls({ where, targetUsername }: Props) {
   const { data, isLoading } = useGetRelationshipBtwAccounts(activeUser?.username, targetUsername);
 
   const showFollow = useMemo(
-    () => data?.follows === false || isLoading,
+    () => data?.follows === false && !isLoading,
     [data?.follows, isLoading]
   );
-  const showUnFollow = useMemo(() => data?.follows === true, [data]);
-  const showMute = useMemo(() => isLoading || where !== "chat-box", [isLoading, where]);
+  const showUnFollow = useMemo(
+    () => data?.follows === true && !isLoading,
+    [data?.follows, isLoading]
+  );
+  const showMute = useMemo(() => !isLoading && where !== "chat-box", [isLoading, where]);
 
   return (
     <>
