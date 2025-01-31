@@ -10,7 +10,7 @@ import { parseAsset } from "@/utils";
 
 export const DEFAULT_DYNAMIC_PROPS = {
   hivePerMVests: 1,
-  base: 1,
+  base: 0,
   quote: 1,
   fundRecentClaims: 1,
   fundRewardBalance: 1,
