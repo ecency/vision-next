@@ -19,6 +19,7 @@ export function WavesProfileCard() {
 
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string>();
 
   if (isLoading || !activeUser) {
     return (
@@ -44,7 +45,8 @@ export function WavesProfileCard() {
     <div className="rounded-2xl overflow-hidden relative bg-white dark:bg-dark-200 p-4">
       <Image
         className="absolute top-0 left-0 w-full h-[156px]"
-        src={data?.profile.cover_image ?? "/assets/promote-wave-bg.jpg"}
+        src={imageSrc ?? data?.profile.cover_image ?? ""}
+        onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
         alt=""
         width={300}
         height={200}
