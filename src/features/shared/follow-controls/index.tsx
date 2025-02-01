@@ -7,6 +7,8 @@ import { useGlobalStore } from "@/core/global-store";
 import { useFollow, useIgnore } from "@/api/mutations";
 import i18next from "i18next";
 import { LoginRequired } from "@/features/shared";
+import { UilBell, UilBellSlash } from "@tooni/iconscout-unicons-react";
+import { StyledTooltip } from "@ui/tooltip";
 
 interface Props {
   targetUsername: string;
@@ -20,13 +22,28 @@ interface ButtonProps {
 
 function MuteButton({ disabled, following }: ButtonProps) {
   const activeUser = useGlobalStore((state) => state.activeUser);
-  const { mutateAsync: ignore } = useIgnore(activeUser?.username, following);
+
+  const { data } = useGetRelationshipBtwAccounts(activeUser?.username, following);
+  const { mutateAsync: ignore, isPending } = useIgnore(activeUser?.username, following);
 
   return activeUser?.username !== following ? (
     <LoginRequired>
-      <Button size="sm" style={{ marginRight: "5px" }} disabled={disabled} onClick={() => ignore()}>
-        {i18next.t("follow-controls.mute")}
-      </Button>
+      <StyledTooltip
+        content={
+          data?.ignores === true ? i18next.t("entry-menu.unmute") : i18next.t("entry-menu.mute")
+        }
+      >
+        <Button
+          isLoading={isPending}
+          size="sm"
+          noPadding={true}
+          className="w-[32px] mr-1"
+          disabled={disabled}
+          onClick={() => ignore()}
+          appearance={data?.ignores === true ? "secondary" : "primary"}
+          icon={data?.ignores === true ? <UilBell /> : <UilBellSlash />}
+        />
+      </StyledTooltip>
     </LoginRequired>
   ) : (
     <></>
