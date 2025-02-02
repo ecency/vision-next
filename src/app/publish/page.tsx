@@ -25,7 +25,7 @@ export default function PublishPage() {
   }, [editor]);
 
   return (
-    <div className="publish-page rounded-2xl bg-white container mx-auto">
+    <div className="publish-page max-w-[800px] rounded-2xl bg-white container mx-auto">
       <div className="border-b border-[--border-color] p-2 md:p-4 xl:p-6">
         <PublishTitleControl />
       </div>
