@@ -2547,5 +2547,9 @@
     "edit-wave": "Editar onda",
     "reply": "Responder",
     "replying": "Respondiendo..."
+  },
+  "events": {
+    "muted": "User has muted",
+    "unmuted": "User has unmuted"
   }
 }
