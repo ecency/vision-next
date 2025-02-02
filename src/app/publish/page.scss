@@ -1,0 +1,16 @@
+.publish-page {
+  width: 100%;
+  max-width: 800px;
+
+  > div {
+    width: 100%;
+    margin: 0 auto;
+    height: 100%;
+
+    .tiptap {
+      width: 100%;
+      min-height: 500px;
+      outline: none;
+    }
+  }
+}
