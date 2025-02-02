@@ -105,6 +105,10 @@ const config = {
         destination: "/profile/:author"
       },
       {
+        source: "/tags/:tag",
+        destination: "/feed/created/:tag"
+      },
+      {
         source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag/:sub",
         destination: "/feed/:filter/:tag/:sub"
       },
