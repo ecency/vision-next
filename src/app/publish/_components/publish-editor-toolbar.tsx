@@ -7,7 +7,9 @@ import {
   UilBold,
   UilBorderHorizontal,
   UilDocumentLayoutRight,
+  UilImage,
   UilItalic,
+  UilLink,
   UilListOl,
   UilListUl,
   UilParagraph,
@@ -19,7 +21,9 @@ import {
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { EcencyConfigManager } from "@/config";
-import { useState } from "react";
+import React, { useState } from "react";
+import { GalleryDialog } from "@/features/shared";
+import { PublishEditorToolbarAddLinkDialog } from "@/app/publish/_components/publish-editor-toolbar-add-link-dialog";
 
 interface Props {
   editor: Editor;
@@ -29,6 +33,8 @@ const headings = [1, 2, 3, 4, 5, 6];
 
 export function PublishEditorToolbar({ editor }: Props) {
   const [showFragments, setShowFragments] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
+  const [showAddLink, setShowAddLink] = useState(false);
 
   return (
     <div className="w-full items-center px-2 flex flex-wrap">
@@ -124,13 +130,34 @@ export function PublishEditorToolbar({ editor }: Props) {
         onClick={() => editor.chain().focus().setHorizontalRule().run()}
       />
       <div className="border-r border-[--border-color] h-10 w-[1px]" />
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
+      >
+        <Button
+          appearance="gray-link"
+          size="sm"
+          onClick={() => setShowFragments(true)}
+          icon={<UilSubject />}
+        />
+      </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
+      >
+        <Button
+          appearance="gray-link"
+          size="sm"
+          onClick={() => setShowGallery(true)}
+          icon={<UilImage />}
+        />
+      </EcencyConfigManager.Conditional>
       <Button
         appearance="gray-link"
         size="sm"
-        onClick={() => setShowFragments(true)}
-        icon={<UilSubject />}
+        onClick={() => setShowAddLink(true)}
+        icon={<UilLink />}
       />
 
+      {/*Dialogs*/}
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
       >
@@ -143,6 +170,26 @@ export function PublishEditorToolbar({ editor }: Props) {
           }}
         />
       </EcencyConfigManager.Conditional>
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
+      >
+        <GalleryDialog
+          show={showGallery}
+          setShow={setShowGallery}
+          onPick={(e) => {
+            editor.chain().focus().insertContent(`![](${e})`).run();
+            setShowGallery(false);
+          }}
+        />
+      </EcencyConfigManager.Conditional>
+      <PublishEditorToolbarAddLinkDialog
+        show={showAddLink}
+        setShow={setShowAddLink}
+        onSubmit={(text, link) => {
+          editor.chain().focus().insertContent(`[${text}](${link})`).run();
+          setShowAddLink(false);
+        }}
+      />
       {/*<Button*/}
       {/*  appearance="gray-link"*/}
       {/*  size="sm"*/}

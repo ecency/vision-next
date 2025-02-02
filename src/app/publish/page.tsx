@@ -9,6 +9,9 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+
 import { usePublishState } from "@/app/publish/_hooks";
 import { useEffect } from "react";
 import { markdown2Html } from "@ecency/render-helper/lib/markdown-2-html";
@@ -42,7 +45,12 @@ export default function PublishPage() {
       Table,
       TableRow,
       TableCell,
-      TableHeader
+      TableHeader,
+      // TODO edit ALT text https://angelika.me/2023/02/26/how-to-add-editing-image-alt-text-tiptap/
+      Image,
+      Link.configure({
+        openOnClick: false
+      })
     ]
   });
 
