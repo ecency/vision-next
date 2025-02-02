@@ -12,6 +12,7 @@ import {
   UilListUl,
   UilParagraph,
   UilSubject,
+  UilTable,
   UilTextSize,
   UilTextStrikeThrough
 } from "@tooni/iconscout-unicons-react";
@@ -19,7 +20,6 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdo
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { EcencyConfigManager } from "@/config";
 import { useState } from "react";
-import { markdown2Html } from "@ecency/render-helper/lib/markdown-2-html";
 
 interface Props {
   editor: Editor;
@@ -31,7 +31,7 @@ export function PublishEditorToolbar({ editor }: Props) {
   const [showFragments, setShowFragments] = useState(false);
 
   return (
-    <div className="w-full items-center px-2 md:px-4 flex flex-wrap">
+    <div className="w-full items-center px-2 flex flex-wrap">
       <Button
         appearance={editor.isActive("bold") ? "link" : "gray-link"}
         size="sm"
@@ -110,6 +110,14 @@ export function PublishEditorToolbar({ editor }: Props) {
         icon={<UilDocumentLayoutRight />}
       />
       <Button
+        appearance={editor.isActive("blockquote") ? "link" : "gray-link"}
+        size="sm"
+        onClick={() =>
+          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+        }
+        icon={<UilTable />}
+      />
+      <Button
         appearance="gray-link"
         size="sm"
         icon={<UilBorderHorizontal />}
@@ -130,11 +138,7 @@ export function PublishEditorToolbar({ editor }: Props) {
           show={showFragments}
           setShow={setShowFragments}
           onPick={(e) => {
-            editor.commands.insertContent(markdown2Html(e), {
-              parseOptions: {
-                preserveWhitespace: true
-              }
-            });
+            editor.chain().focus().insertContent(e).run();
             setShowFragments(false);
           }}
         />

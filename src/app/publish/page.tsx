@@ -3,14 +3,17 @@
 import { AnyExtension, EditorContent, useEditor } from "@tiptap/react";
 import "./page.scss";
 import { StarterKit } from "@tiptap/starter-kit";
-import Highlight from "@tiptap/extension-highlight";
-import Typography from "@tiptap/extension-typography";
 import Document from "@tiptap/extension-document";
 import Placeholder from "@tiptap/extension-placeholder";
+import Table from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
 import { usePublishState } from "@/app/publish/_hooks";
 import { useEffect } from "react";
 import { markdown2Html } from "@ecency/render-helper/lib/markdown-2-html";
 import { PublishEditorToolbar } from "@/app/publish/_components";
+import { Markdown } from "tiptap-markdown";
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -28,13 +31,18 @@ export default function PublishPage() {
         placeholder: ({ node }) => {
           if (node.type.name === "heading") {
             return "What’s the title?";
+          } else if (node.type.name === "paragraph") {
+            return "Tell your story...";
           }
 
-          return "Tell your story...";
+          return "";
         }
       }),
-      Highlight,
-      Typography
+      Markdown,
+      Table,
+      TableRow,
+      TableCell,
+      TableHeader
     ]
   });
 
