@@ -1,15 +1,17 @@
 .publish-page {
-  width: 100%;
+  @apply w-full;
 
   > div {
-    width: 100%;
-    margin: 0 auto;
-    height: 100%;
+    @apply w-full h-full mx-auto;
 
     .tiptap {
-      width: 100%;
-      min-height: 500px;
-      outline: none;
+      @apply w-full min-h-[500px] outline-none;
+
+      .is-empty::before {
+        content: attr(data-placeholder);
+
+        @apply float-left h-0 pointer-events-none text-gray-400 dark:text-gray-600;
+      }
     }
   }
 }
