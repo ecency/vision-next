@@ -72,7 +72,7 @@ const config = {
         destination: "/community/:community/:tag/:sub"
       },
       {
-        source: "/:tag([^@].+)/:community(hive-.+)",
+        source: "/:tag([^@|\\(hive\\-\\)].+)/:community(hive-.+)",
         destination: "/community/:community/:tag"
       },
       {

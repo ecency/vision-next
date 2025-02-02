@@ -79,9 +79,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [thumbnails, setThumbnails] = useState<string[]>([]);
-  const [selectedThumbnail, setSelectedThumbnail, removeThumbnail] = useLocalStorage<string>(
-    PREFIX + "_s_st"
-  );
+  const [selectedThumbnail, setSelectedThumbnail] = useState<string>();
   const [preview, setPreview] = useState<PostBase>({
     title: "",
     tags: [],
@@ -273,7 +271,8 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
 
     threeSpeakManager.clear();
     clearAdvanced();
-    removeThumbnail();
+    setSelectedThumbnail(undefined);
+    setThumbnails([]);
     clearActivePoll();
   };
 
