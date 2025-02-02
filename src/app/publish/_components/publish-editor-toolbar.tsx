@@ -1,20 +1,25 @@
+"use client";
+
 import { Editor } from "@tiptap/core";
 import { Button } from "@ui/button";
 import {
   UilArrow,
   UilBold,
   UilBorderHorizontal,
-  UilCornerUpLeftAlt,
-  UilCornerUpRightAlt,
   UilDocumentLayoutRight,
   UilItalic,
   UilListOl,
   UilListUl,
   UilParagraph,
+  UilSubject,
   UilTextSize,
   UilTextStrikeThrough
 } from "@tooni/iconscout-unicons-react";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import { FragmentsDialog } from "@/features/shared/fragments";
+import { EcencyConfigManager } from "@/config";
+import { useState } from "react";
+import { markdown2Html } from "@ecency/render-helper/lib/markdown-2-html";
 
 interface Props {
   editor: Editor;
@@ -23,6 +28,8 @@ interface Props {
 const headings = [1, 2, 3, 4, 5, 6];
 
 export function PublishEditorToolbar({ editor }: Props) {
+  const [showFragments, setShowFragments] = useState(false);
+
   return (
     <div className="w-full items-center px-2 md:px-4 flex flex-wrap">
       <Button
@@ -112,17 +119,40 @@ export function PublishEditorToolbar({ editor }: Props) {
       <Button
         appearance="gray-link"
         size="sm"
-        onClick={() => editor.chain().focus().undo().run()}
-        disabled={!editor.can().chain().focus().undo().run()}
-        icon={<UilCornerUpLeftAlt />}
+        onClick={() => setShowFragments(true)}
+        icon={<UilSubject />}
       />
-      <Button
-        appearance="gray-link"
-        size="sm"
-        onClick={() => editor.chain().focus().redo().run()}
-        disabled={!editor.can().chain().focus().redo().run()}
-        icon={<UilCornerUpRightAlt />}
-      />
+
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
+      >
+        <FragmentsDialog
+          show={showFragments}
+          setShow={setShowFragments}
+          onPick={(e) => {
+            editor.commands.insertContent(markdown2Html(e), {
+              parseOptions: {
+                preserveWhitespace: true
+              }
+            });
+            setShowFragments(false);
+          }}
+        />
+      </EcencyConfigManager.Conditional>
+      {/*<Button*/}
+      {/*  appearance="gray-link"*/}
+      {/*  size="sm"*/}
+      {/*  onClick={() => editor.chain().focus().undo().run()}*/}
+      {/*  disabled={!editor.can().chain().focus().undo().run()}*/}
+      {/*  icon={<UilCornerUpLeftAlt />}*/}
+      {/*/>*/}
+      {/*<Button*/}
+      {/*  appearance="gray-link"*/}
+      {/*  size="sm"*/}
+      {/*  onClick={() => editor.chain().focus().redo().run()}*/}
+      {/*  disabled={!editor.can().chain().focus().redo().run()}*/}
+      {/*  icon={<UilCornerUpRightAlt />}*/}
+      {/*/>*/}
     </div>
   );
 }
