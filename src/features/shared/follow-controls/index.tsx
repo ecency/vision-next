@@ -82,23 +82,23 @@ function UnFollowButton({ disabled, following }: ButtonProps) {
 
 export function FollowControls({ where, targetUsername }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
-  const { data, isLoading } = useGetRelationshipBtwAccounts(activeUser?.username, targetUsername);
+  const { data, isPending } = useGetRelationshipBtwAccounts(activeUser?.username, targetUsername);
 
   const showFollow = useMemo(
-    () => data?.follows === false && !isLoading,
-    [data?.follows, isLoading]
+    () => data?.follows === false && !isPending,
+    [data?.follows, isPending]
   );
   const showUnFollow = useMemo(
-    () => data?.follows === true && !isLoading,
-    [data?.follows, isLoading]
+    () => data?.follows === true && !isPending,
+    [data?.follows, isPending]
   );
-  const showMute = useMemo(() => !isLoading && where !== "chat-box", [isLoading, where]);
+  const showMute = useMemo(() => !isPending && where !== "chat-box", [isPending, where]);
 
   return (
     <>
-      {showUnFollow && <UnFollowButton disabled={isLoading} following={targetUsername} />}
-      {showFollow && <FollowButton disabled={isLoading} following={targetUsername} />}
-      {showMute && <MuteButton disabled={isLoading} following={targetUsername} />}
+      {showUnFollow && <UnFollowButton disabled={isPending} following={targetUsername} />}
+      {showFollow && <FollowButton disabled={isPending} following={targetUsername} />}
+      {showMute && <MuteButton disabled={isPending} following={targetUsername} />}
     </>
   );
 }
