@@ -14,6 +14,7 @@ import {
   UilListOl,
   UilListUl,
   UilParagraph,
+  UilSmile,
   UilSubject,
   UilTable,
   UilTextSize,
@@ -29,9 +30,10 @@ import {
 } from "@ui/dropdown";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { EcencyConfigManager } from "@/config";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { GalleryDialog } from "@/features/shared";
 import { PublishEditorToolbarAddLinkDialog } from "@/app/publish/_components/publish-editor-toolbar-add-link-dialog";
+import { EmojiPicker } from "@/features/ui";
 
 interface Props {
   editor: Editor;
@@ -40,6 +42,8 @@ interface Props {
 const headings = [1, 2, 3, 4, 5, 6];
 
 export function PublishEditorToolbar({ editor }: Props) {
+  const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
+
   const [showFragments, setShowFragments] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [showAddLink, setShowAddLink] = useState(false);
@@ -171,6 +175,13 @@ export function PublishEditorToolbar({ editor }: Props) {
         onClick={() => setShowAddLink(true)}
         icon={<UilLink />}
       />
+      <div className="relative" ref={emojiPickerAnchorRef}>
+        <Button appearance="gray-link" size="sm" icon={<UilSmile />} />
+        <EmojiPicker
+          anchor={emojiPickerAnchorRef.current}
+          onSelect={(e) => editor.chain().focus().insertContent(e).run()}
+        />
+      </div>
 
       {/*Dialogs*/}
       <EcencyConfigManager.Conditional

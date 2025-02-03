@@ -47,7 +47,6 @@ export default function PublishPage() {
       TableHeader,
       // TODO edit ALT text https://angelika.me/2023/02/26/how-to-add-editing-image-alt-text-tiptap/
       Image,
-      // TODO Add link in place text and link editing
       Link.configure({
         openOnClick: false
       })
