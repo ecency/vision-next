@@ -32,7 +32,7 @@ export default async function WaveViewPage({ params }: Props) {
   const { author, permlink } = await params;
 
   const data = (await EcencyEntriesCacheManagement.getEntryQueryByPath(
-    author,
+    author.replace("%40", ""),
     permlink
   ).prefetch()) as WaveEntry;
 

@@ -75,6 +75,9 @@ const config = {
         source: "/:tag([^@|\\(hive\\-\\)].+)/:community(hive-.+)",
         destination: "/community/:community/:tag"
       },
+
+      // POSTS
+      // Handle waves comment-like post in a wave page
       {
         source: "/:category/:author(@.+)/:permlink/:sub",
         destination: "/entry/:category/:author/:permlink/:sub"
@@ -83,19 +86,12 @@ const config = {
         source: "/:author(@.+)/:permlink/edit",
         destination: "/entry/created/:author/:permlink/edit"
       },
-      // As We added preview once
-      {
-        source: "/:category/:author(@.+)/:permlink/preview",
-        destination: "/entry/:category/:author/:permlink"
-      },
-      {
-        source: "/:author(@.+)/:permlink/preview",
-        destination: "/entry/created/:author/:permlink"
-      },
       {
         source: "/:category/:author(@.+)/:permlink",
         destination: "/entry/:category/:author/:permlink"
       },
+
+      // PROFILE
       {
         source: "/:author(@.+)/:permlink",
         destination: "/entry/created/:author/:permlink"
@@ -104,6 +100,8 @@ const config = {
         source: "/:author(@.+)",
         destination: "/profile/:author"
       },
+
+      // FEEDS
       {
         source: "/tags/:tag",
         destination: "/feed/created/:tag"

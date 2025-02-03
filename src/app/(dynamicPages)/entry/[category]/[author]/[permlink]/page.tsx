@@ -10,7 +10,7 @@ import {
 } from "./_components";
 import { getQueryClient } from "@/core/react-query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateEntryMetadata } from "../../../_helpers";
 
@@ -30,6 +30,20 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
+
+  /**
+   * In case of when user attempts to open comment-like wave post
+   *    then better to replace page with wave details page
+   *    @note User will be unable to open wave posts like regular posts
+   *          keep in mind when create any new action related to posts in a regular page
+   */
+  if (
+    permlink.startsWith("wave-") ||
+    (permlink.startsWith("re-ecencywaves-") && entry?.parent_author === "ecency.waves")
+  ) {
+    return redirect(`/waves/${author}/${permlink}`);
+  }
+
   await getAccountFullQuery(entry?.author).prefetch();
 
   if (!entry) {
