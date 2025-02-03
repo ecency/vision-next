@@ -2547,5 +2547,8 @@
     "edit-wave": "Edit wave",
     "reply": "Reply",
     "replying": "Replying..."
+  },
+  "publish": {
+    "gif-picker": "Pick GIF image"
   }
 }

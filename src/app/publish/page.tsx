@@ -75,7 +75,7 @@ export default function PublishPage() {
 
   return (
     <div className="publish-page max-w-[800px] rounded-2xl bg-white container mx-auto">
-      <div className="border-b border-[--border-color]">
+      <div className="border-b border-[--border-color] sticky top-[76px] rounded-t-2xl z-10 bg-white">
         {editor && <PublishEditorToolbar editor={editor} />}
       </div>
       <EditorContent editor={editor} className="markdown-view p-2 md:p-4 xl:p-6 font-serif" />

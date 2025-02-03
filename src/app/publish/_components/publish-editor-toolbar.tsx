@@ -7,11 +7,13 @@ import {
   UilBold,
   UilBorderHorizontal,
   UilDocumentLayoutRight,
+  UilEllipsisH,
   UilImage,
   UilImages,
   UilItalic,
   UilLink,
   UilListOl,
+  UilListUiAlt,
   UilListUl,
   UilParagraph,
   UilSmile,
@@ -34,6 +36,7 @@ import React, { useRef, useState } from "react";
 import { GalleryDialog } from "@/features/shared";
 import { PublishEditorToolbarAddLinkDialog } from "@/app/publish/_components/publish-editor-toolbar-add-link-dialog";
 import { EmojiPicker } from "@/features/ui";
+import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
 
 interface Props {
   editor: Editor;
@@ -47,6 +50,7 @@ export function PublishEditorToolbar({ editor }: Props) {
   const [showFragments, setShowFragments] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [showAddLink, setShowAddLink] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
 
   return (
     <div className="w-full items-center px-2 flex flex-wrap">
@@ -79,8 +83,6 @@ export function PublishEditorToolbar({ editor }: Props) {
         icon={<UilArrow />}
       />
       <div className="border-r border-[--border-color] h-10 w-[1px]" />
-      {/*<button onClick={() => editor.chain().focus().unsetAllMarks().run()}>Clear marks</button>*/}
-      {/*<button onClick={() => editor.chain().focus().clearNodes().run()}>Clear nodes</button>*/}
       <Button
         appearance={editor.isActive("paragraph") ? "link" : "gray-link"}
         size="sm"
@@ -103,44 +105,56 @@ export function PublishEditorToolbar({ editor }: Props) {
           </DropdownMenu>
         </DropdownToggle>
       </Dropdown>
-      <Button
-        appearance={editor.isActive("bulletList") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        icon={<UilListUl />}
-      />
-      <Button
-        appearance={editor.isActive("orderedList") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        icon={<UilListOl />}
-      />
-      <Button
-        appearance={editor.isActive("codeBlock") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        icon={<UilArrow />}
-      />
-      <Button
-        appearance={editor.isActive("blockquote") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        icon={<UilDocumentLayoutRight />}
-      />
-      <Button
-        appearance={editor.isActive("blockquote") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() =>
-          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-        }
-        icon={<UilTable />}
-      />
-      <Button
-        appearance="gray-link"
-        size="sm"
-        icon={<UilBorderHorizontal />}
-        onClick={() => editor.chain().focus().setHorizontalRule().run()}
-      />
+      <Dropdown>
+        <DropdownToggle>
+          <Button appearance="gray-link" size="sm" icon={<UilListUiAlt />} />
+        </DropdownToggle>
+        <DropdownMenu>
+          <DropdownItemWithIcon
+            selected={editor.isActive("bulletList")}
+            icon={<UilListUl />}
+            label="Bullet list"
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+          />
+          <DropdownItemWithIcon
+            selected={editor.isActive("orderedList")}
+            icon={<UilListOl />}
+            label="Ordered list"
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          />
+        </DropdownMenu>
+      </Dropdown>
+      <Dropdown>
+        <DropdownToggle>
+          <Button icon={<UilEllipsisH />} size="sm" appearance="gray-link" />
+        </DropdownToggle>
+        <DropdownMenu>
+          <DropdownItemWithIcon
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            selected={editor.isActive("codeBlock")}
+            icon={<UilArrow />}
+            label="Code block"
+          />
+          <DropdownItemWithIcon
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            selected={editor.isActive("blockquote")}
+            icon={<UilDocumentLayoutRight />}
+            label="Quote"
+          />
+          <DropdownItemWithIcon
+            onClick={() =>
+              editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+            }
+            icon={<UilTable />}
+            label="Table"
+          />
+          <DropdownItemWithIcon
+            icon={<UilBorderHorizontal />}
+            label="Horizontal line"
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          />
+        </DropdownMenu>
+      </Dropdown>
       <div className="border-r border-[--border-color] h-10 w-[1px]" />
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
@@ -182,6 +196,9 @@ export function PublishEditorToolbar({ editor }: Props) {
           onSelect={(e) => editor.chain().focus().insertContent(e).run()}
         />
       </div>
+      <Button appearance="gray-link" size="sm" onClick={() => setShowGifPicker(true)}>
+        GIF
+      </Button>
 
       {/*Dialogs*/}
       <EcencyConfigManager.Conditional
@@ -214,6 +231,14 @@ export function PublishEditorToolbar({ editor }: Props) {
         onSubmit={(text, link) => {
           editor.chain().focus().insertContent(`[${text}](${link})`).run();
           setShowAddLink(false);
+        }}
+      />
+      <PublishGifPickerDialog
+        show={showGifPicker}
+        setShow={setShowGifPicker}
+        onPick={(url, alt) => {
+          editor.chain().focus().insertContent(`![${alt}](${url})`).run();
+          setShowGifPicker(false);
         }}
       />
     </div>
