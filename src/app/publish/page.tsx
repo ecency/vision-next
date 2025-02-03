@@ -14,7 +14,6 @@ import Link from "@tiptap/extension-link";
 
 import { usePublishState } from "@/app/publish/_hooks";
 import { useEffect } from "react";
-import { markdown2Html } from "@ecency/render-helper/lib/markdown-2-html";
 import { PublishEditorToolbar } from "@/app/publish/_components";
 import { Markdown } from "tiptap-markdown";
 
@@ -48,19 +47,31 @@ export default function PublishPage() {
       TableHeader,
       // TODO edit ALT text https://angelika.me/2023/02/26/how-to-add-editing-image-alt-text-tiptap/
       Image,
+      // TODO Add link in place text and link editing
       Link.configure({
         openOnClick: false
       })
-    ]
+    ],
+    onUpdate({ editor }) {
+      const markdown = editor.storage.markdown.getMarkdown();
+      const title = markdown.substring(0, markdown.indexOf("\n"));
+      const content = markdown.substring(markdown.indexOf("\n"));
+      publishState.setTitle(title);
+      publishState.setContent(content);
+    }
   });
 
   const publishState = usePublishState();
 
   useEffect(() => {
-    editor?.commands.setContent(
-      markdown2Html("# Hello **eccencial**,\n\nWrite your story..."),
-      true
-    );
+    editor
+      ?.chain()
+      .setContent(
+        `${publishState.title ?? "# Hello Ecency member,"}\n\n ${
+          publishState.content ?? "Tell your story..."
+        }`
+      )
+      .run();
   }, [editor]);
 
   return (

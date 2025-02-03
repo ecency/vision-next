@@ -8,6 +8,7 @@ import {
   UilBorderHorizontal,
   UilDocumentLayoutRight,
   UilImage,
+  UilImages,
   UilItalic,
   UilLink,
   UilListOl,
@@ -16,9 +17,16 @@ import {
   UilSubject,
   UilTable,
   UilTextSize,
-  UilTextStrikeThrough
+  UilTextStrikeThrough,
+  UilUpload
 } from "@tooni/iconscout-unicons-react";
-import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownItemWithIcon,
+  DropdownMenu,
+  DropdownToggle
+} from "@ui/dropdown";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { EcencyConfigManager } from "@/config";
 import React, { useState } from "react";
@@ -143,12 +151,19 @@ export function PublishEditorToolbar({ editor }: Props) {
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
       >
-        <Button
-          appearance="gray-link"
-          size="sm"
-          onClick={() => setShowGallery(true)}
-          icon={<UilImage />}
-        />
+        <Dropdown>
+          <DropdownToggle>
+            <Button appearance="gray-link" size="sm" icon={<UilImage />} />
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItemWithIcon icon={<UilUpload />} label="Upload and paste" />
+            <DropdownItemWithIcon
+              icon={<UilImages />}
+              label="From gallery"
+              onClick={() => setShowGallery(true)}
+            />
+          </DropdownMenu>
+        </Dropdown>
       </EcencyConfigManager.Conditional>
       <Button
         appearance="gray-link"
@@ -190,20 +205,6 @@ export function PublishEditorToolbar({ editor }: Props) {
           setShowAddLink(false);
         }}
       />
-      {/*<Button*/}
-      {/*  appearance="gray-link"*/}
-      {/*  size="sm"*/}
-      {/*  onClick={() => editor.chain().focus().undo().run()}*/}
-      {/*  disabled={!editor.can().chain().focus().undo().run()}*/}
-      {/*  icon={<UilCornerUpLeftAlt />}*/}
-      {/*/>*/}
-      {/*<Button*/}
-      {/*  appearance="gray-link"*/}
-      {/*  size="sm"*/}
-      {/*  onClick={() => editor.chain().focus().redo().run()}*/}
-      {/*  disabled={!editor.can().chain().focus().redo().run()}*/}
-      {/*  icon={<UilCornerUpRightAlt />}*/}
-      {/*/>*/}
     </div>
   );
 }
