@@ -88,14 +88,6 @@
             @apply text-gray-steel;
             font-weight: 500;
             margin-left: 4px;
-
-            &::before {
-              content: "(";
-            }
-
-            &::after {
-              content: ")";
-            }
           }
 
           &:hover {

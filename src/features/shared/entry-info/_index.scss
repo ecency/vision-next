@@ -54,14 +54,6 @@
           @apply text-gray-steel;
           font-size: 14px;
           font-weight: 500;
-
-          &::before {
-            content: "(";
-          }
-
-          &::after {
-            content: ")";
-          }
         }
       }
     }
