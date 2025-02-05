@@ -18,7 +18,7 @@ import { useDistanceDetector } from "@/app/(dynamicPages)/entry/[category]/[auth
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 import { useRouter } from "next/navigation";
 import { Button } from "@ui/button";
-import { UiAlignAlt } from "@tooni/iconscout-unicons-react";
+import { UilAlignAlt } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   entry: Entry;
@@ -64,7 +64,7 @@ export function EntryFooterControls({ entry }: Props) {
             size="sm"
             appearance="gray-link"
             onClick={() => setIsRawContent(!isRawContent)}
-            icon={<UiAlignAlt />}
+            icon={<UilAlignAlt />}
           />
         </Tooltip>
         <BookmarkBtn entry={entry} />
