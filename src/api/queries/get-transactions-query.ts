@@ -62,7 +62,6 @@ export const getTransactionsQuery = (
 
       return mapped.filter((x) => x !== null).sort((a: any, b: any) => b.num - a.num);
     },
-    staleTime: 60000,
     initialData: { pages: [], pageParams: [] },
     initialPageParam: -1,
     getNextPageParam: (lastPage, __) =>
