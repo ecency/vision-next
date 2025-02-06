@@ -4,14 +4,23 @@ import { BeneficiaryRoute } from "@/entities";
 
 export function usePublishState() {
   const [title, setTitle] = useSynchronizedLocalStorage<string>(PREFIX + "_pub_title");
-  const [content, setContent] = useSynchronizedLocalStorage<string>(PREFIX + "pub_content");
-  const [reward, setReward] = useSynchronizedLocalStorage<string>(PREFIX + "pub_reward");
+  const [content, setContent] = useSynchronizedLocalStorage<string>(PREFIX + "_pub_content");
+  const [reward, setReward] = useSynchronizedLocalStorage<string>(PREFIX + "_pub_reward");
   const [beneficiaries, setBeneficiaries] = useSynchronizedLocalStorage<BeneficiaryRoute[]>(
-    PREFIX + "pub_beneficiaries",
+    PREFIX + "_pub_beneficiaries",
     []
   );
   const [metaDescription, setMetaDescription] = useSynchronizedLocalStorage<string>(
-    PREFIX + "pub_meta_desc"
+    PREFIX + "_pub_meta_desc"
+  );
+  const [schedule, setSchedule, clearSchedule] = useSynchronizedLocalStorage<Date>(
+    PREFIX + "_pub_schedule",
+    undefined,
+    {
+      raw: false,
+      serializer: (value) => value.toISOString(),
+      deserializer: (value) => new Date(value)
+    }
   );
 
   return {
@@ -24,6 +33,9 @@ export function usePublishState() {
     beneficiaries,
     setBeneficiaries,
     metaDescription,
-    setMetaDescription
+    setMetaDescription,
+    schedule,
+    setSchedule,
+    clearSchedule
   };
 }

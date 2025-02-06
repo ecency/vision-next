@@ -94,7 +94,8 @@
     "reset-form": "Reset form",
     "community": "Community",
     "today": "Today",
-    "view": "View"
+    "view": "View",
+    "tomorrow": "Tomorrow"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -2550,6 +2551,7 @@
   },
   "publish": {
     "gif-picker": "Pick GIF image",
-    "description-hint": "Helps to search engine systems to find out this post"
+    "description-hint": "Helps to search engine systems to find out this post",
+    "schedule-hint": "Scheduling is available for 1 hour forward"
   }
 }

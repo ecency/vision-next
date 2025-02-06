@@ -1,7 +1,7 @@
 import { useLocalStorage, useMount, useUnmount } from "react-use";
 import { useCallback } from "react";
 
-type useLocalStorageType = typeof useLocalStorage;
+type useLocalStorageType<T> = typeof useLocalStorage<T>;
 
 interface SynchronizedLocalStorageEvent<T> {
   value?: T;
@@ -24,12 +24,12 @@ const SYNCHRONIZED_LOCAL_STORAGE_EVENT = "useSynchronizedLocalStorageUpdate";
 export function useSynchronizedLocalStorage<T>(
   key: string,
   initialValue?: T,
-  options?: Parameters<useLocalStorageType>[2]
+  options?: Parameters<useLocalStorageType<T>>[2]
 ) {
   // As TS 4.8+ only supports passing generic to function type
   // Replace it with: type useLocalStorageType<T> = typeof useLocalStorage<T>;
 
-  const [value, setValue, clearValue] = useLocalStorage<T>(key, initialValue, options as any);
+  const [value, setValue, clearValue] = useLocalStorage<T>(key, initialValue, options);
 
   const handler = useCallback((e: Event) => {
     const typedEvent = e as unknown as CustomEvent<SynchronizedLocalStorageEvent<T>>;
