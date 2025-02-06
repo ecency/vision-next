@@ -502,7 +502,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                       </div>
                       <div className="col-span-12 sm:col-span-9">
                         <BeneficiaryEditorDialog
-                          body={body}
                           author={activeUser?.username}
                           list={beneficiaries}
                           onAdd={(item) => {

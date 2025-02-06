@@ -92,7 +92,7 @@ export function Fragments(props: Props) {
             <div className="flex flex-col gap-3 my-4">
               {items.map((item) => (
                 <div
-                  className="flex flex-col border dark:border-dark-400 rounded-3xl overflow-hidden cursor-pointer hover:opacity-75 duration-300"
+                  className="flex flex-col border dark:border-dark-400 rounded-xl overflow-hidden cursor-pointer hover:opacity-75 duration-300"
                   key={item.id}
                   onClick={() => {
                     if (props.onPick) {
