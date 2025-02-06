@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { Entry, WaveEntry } from "@/entities";
-import { error } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { useWavesApi } from "./use-waves-api";
+import i18next from "i18next";
 
 export function useWaveCreateReply() {
   const { mutateAsync: generalApiRequest } = useWavesApi();
@@ -18,6 +19,7 @@ export function useWaveCreateReply() {
       raw: string;
       editingEntry?: WaveEntry;
     }) => generalApiRequest({ entry: parent, raw, editingEntry }),
+    onSuccess: () => success(i18next.t("waves.success-reply")),
     onError: (e) => error(...formatError(e))
   });
 }
