@@ -2549,7 +2549,7 @@
     "replying": "Respondiendo..."
   },
   "events": {
-    "muted": "User has muted",
-    "unmuted": "User has unmuted"
+    "muted": "Usuario ha silenciado",
+    "unmuted": "Usuario ha dejado de silenciar"
   }
 }
