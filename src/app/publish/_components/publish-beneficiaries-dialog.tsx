@@ -12,6 +12,7 @@ import { deleteForeverSvg, plusSvg } from "@ui/svg";
 import { Form } from "@ui/form";
 import { useGlobalStore } from "@/core/global-store";
 import { useThreeSpeakManager } from "@/features/3speak";
+import { Alert } from "@ui/alert";
 
 interface Props {
   show: boolean;
@@ -77,6 +78,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
     <Modal show={show} onHide={() => setShow(false)} centered={true}>
       <ModalHeader closeButton={true}>{i18next.t("submit.beneficiaries")}</ModalHeader>
       <ModalBody>
+        <Alert className="mb-4">{i18next.t("submit.beneficiaries-hint")}</Alert>
         <Form ref={formRef} onSubmit={submit}>
           <div className="beneficiary-list">
             <Table full={true}>

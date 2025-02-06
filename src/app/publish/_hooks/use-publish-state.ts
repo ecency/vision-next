@@ -10,6 +10,9 @@ export function usePublishState() {
     PREFIX + "pub_beneficiaries",
     []
   );
+  const [metaDescription, setMetaDescription] = useSynchronizedLocalStorage<string>(
+    PREFIX + "pub_meta_desc"
+  );
 
   return {
     title,
@@ -19,6 +22,8 @@ export function usePublishState() {
     reward,
     setReward,
     beneficiaries,
-    setBeneficiaries
+    setBeneficiaries,
+    metaDescription,
+    setMetaDescription
   };
 }

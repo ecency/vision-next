@@ -2549,6 +2549,7 @@
     "replying": "Replying..."
   },
   "publish": {
-    "gif-picker": "Pick GIF image"
+    "gif-picker": "Pick GIF image",
+    "description-hint": "Helps to search engine systems to find out this post"
   }
 }

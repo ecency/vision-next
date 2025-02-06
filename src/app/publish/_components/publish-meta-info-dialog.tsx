@@ -1,0 +1,35 @@
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
+import i18next from "i18next";
+import React from "react";
+import { usePublishState } from "@/app/publish/_hooks";
+import { Button } from "@ui/button";
+import { FormControl } from "@ui/input";
+import { Alert } from "@ui/alert";
+
+interface Props {
+  show: boolean;
+  setShow: (show: boolean) => void;
+}
+
+export function PublishMetaInfoDialog({ show, setShow }: Props) {
+  const { metaDescription, setMetaDescription } = usePublishState();
+
+  return (
+    <Modal show={show} onHide={() => setShow(false)} centered={true}>
+      <ModalHeader closeButton={true}>{i18next.t("submit.description")}</ModalHeader>
+      <ModalBody>
+        <Alert className="mb-4">{i18next.t("publish.description-hint")}</Alert>
+        <FormControl
+          type="textarea"
+          value={metaDescription}
+          onChange={(e) => setMetaDescription(e.target.value)}
+        />
+      </ModalBody>
+      <ModalFooter className="justify-end flex">
+        <Button onClick={() => setShow(false)} size="sm">
+          {i18next.t("g.close")}
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
+}

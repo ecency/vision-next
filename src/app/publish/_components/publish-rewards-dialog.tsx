@@ -5,6 +5,7 @@ import React from "react";
 import { RewardType } from "@/entities";
 import { usePublishState } from "@/app/publish/_hooks";
 import { Button } from "@ui/button";
+import { Alert } from "@ui/alert";
 
 interface Props {
   show: boolean;
@@ -18,6 +19,7 @@ export function PublishRewardsDialog({ show, setShow }: Props) {
     <Modal show={show} onHide={() => setShow(false)} centered={true}>
       <ModalHeader closeButton={true}>{i18next.t("submit.reward")}</ModalHeader>
       <ModalBody>
+        <Alert className="mb-4">{i18next.t("submit.reward-hint")}</Alert>
         <div>
           <FormControl
             type="select"

@@ -14,10 +14,12 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 import React, { useState } from "react";
 import { PublishRewardsDialog } from "@/app/publish/_components/publish-rewards-dialog";
 import { PublishBeneficiariesDialog } from "@/app/publish/_components/publish-beneficiaries-dialog";
+import { PublishMetaInfoDialog } from "@/app/publish/_components/publish-meta-info-dialog";
 
 export function PublishActionBar() {
   const [showReward, setShowReward] = useState(false);
   const [showBeneficiaries, setShowBeneficiaries] = useState(false);
+  const [showMetaInfo, setShowMetaInfo] = useState(false);
 
   return (
     <div className="container justify-end gap-4 flex max-w-[800px] py-4 mx-auto publish-action-bar">
@@ -37,7 +39,11 @@ export function PublishActionBar() {
             icon={<UilUsersAlt />}
             label="Beneficiaries"
           />
-          <DropdownItemWithIcon icon={<UilDocumentInfo />} label="Meta information" />
+          <DropdownItemWithIcon
+            onClick={() => setShowMetaInfo(true)}
+            icon={<UilDocumentInfo />}
+            label="Meta information"
+          />
           <div className="border-b border-[--border-color] h-[1px] w-full" />
           <DropdownItemWithIcon icon={<UilFileEditAlt />} label="Save to draft" />
           <DropdownItemWithIcon icon={<UilClock />} label="Schedule" />
@@ -47,6 +53,7 @@ export function PublishActionBar() {
 
       <PublishRewardsDialog show={showReward} setShow={setShowReward} />
       <PublishBeneficiariesDialog show={showBeneficiaries} setShow={setShowBeneficiaries} />
+      <PublishMetaInfoDialog show={showMetaInfo} setShow={setShowMetaInfo} />
     </div>
   );
 }
