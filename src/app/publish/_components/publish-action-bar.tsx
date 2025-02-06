@@ -13,9 +13,11 @@ import {
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import React, { useState } from "react";
 import { PublishRewardsDialog } from "@/app/publish/_components/publish-rewards-dialog";
+import { PublishBeneficiariesDialog } from "@/app/publish/_components/publish-beneficiaries-dialog";
 
 export function PublishActionBar() {
   const [showReward, setShowReward] = useState(false);
+  const [showBeneficiaries, setShowBeneficiaries] = useState(false);
 
   return (
     <div className="container justify-end gap-4 flex max-w-[800px] py-4 mx-auto publish-action-bar">
@@ -30,7 +32,11 @@ export function PublishActionBar() {
             icon={<UilMoneybag />}
             label="Reward settings"
           />
-          <DropdownItemWithIcon icon={<UilUsersAlt />} label="Beneficiaries" />
+          <DropdownItemWithIcon
+            onClick={() => setShowBeneficiaries(true)}
+            icon={<UilUsersAlt />}
+            label="Beneficiaries"
+          />
           <DropdownItemWithIcon icon={<UilDocumentInfo />} label="Meta information" />
           <div className="border-b border-[--border-color] h-[1px] w-full" />
           <DropdownItemWithIcon icon={<UilFileEditAlt />} label="Save to draft" />
@@ -40,6 +46,7 @@ export function PublishActionBar() {
       </Dropdown>
 
       <PublishRewardsDialog show={showReward} setShow={setShowReward} />
+      <PublishBeneficiariesDialog show={showBeneficiaries} setShow={setShowBeneficiaries} />
     </div>
   );
 }
