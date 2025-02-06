@@ -2547,7 +2547,8 @@
     "edit-wave": "Edit wave",
     "reply": "Reply",
     "replying": "Replying...",
-    "success-reply": "You have replied successfully"
+    "success-reply": "You have replied successfully",
+    "success-reply-edit": "You have edited successfully"
   },
   "events": {
     "muted": "User has muted",
