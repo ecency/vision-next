@@ -20,7 +20,6 @@ export const getTransactionsQuery = (
       if (!username) {
         return [];
       }
-
       let filters: any[];
       switch (group) {
         case "transfers":
@@ -41,7 +40,6 @@ export const getTransactionsQuery = (
         default:
           filters = utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS); // all
       }
-
       const response = (await (filters
         ? client.call("condenser_api", "get_account_history", [
             username,
