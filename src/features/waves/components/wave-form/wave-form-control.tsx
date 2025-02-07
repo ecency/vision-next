@@ -7,6 +7,7 @@ import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { clsx } from "clsx";
 
 interface Props {
   text: string;
@@ -16,8 +17,8 @@ interface Props {
   clearSelectedImage: () => void;
   placeholder?: string;
   onTextareaFocus: () => void;
-  onTextareaBlur?: () => void;
   showCounter?: boolean;
+  hasFocused?: boolean;
 }
 
 export const WaveFormControl = ({
@@ -27,8 +28,8 @@ export const WaveFormControl = ({
   clearSelectedImage,
   placeholder,
   onTextareaFocus,
-  onTextareaBlur,
-  showCounter
+  showCounter,
+  hasFocused = false
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
 
@@ -36,12 +37,14 @@ export const WaveFormControl = ({
     <div className="flex items-start gap-4 flex-wrap py-4">
       <div className="w-full">
         <TextareaAutosize
-          className="w-full focus:min-h-[8rem] rounded-xl p-2 lg:p-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none"
+          className={clsx(
+            "w-full rounded-xl p-2 lg:p-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none",
+            hasFocused && "min-h-[8rem]"
+          )}
           placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onFocus={onTextareaFocus}
-          onBlur={onTextareaBlur}
         />
         {showCounter && <div className="text-xs opacity-50 pb-2">{text?.length ?? 0}/255</div>}
       </div>

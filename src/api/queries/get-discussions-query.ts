@@ -114,7 +114,13 @@ export function addReplyToDiscussionsList(
   queryClient = getQueryClient()
 ) {
   queryClient.setQueryData<Entry[]>(
-    [QueryIdentifiers.FETCH_DISCUSSIONS, entry?.author, entry?.permlink],
+    [
+      QueryIdentifiers.FETCH_DISCUSSIONS,
+      entry?.author,
+      entry?.permlink,
+      SortOrder.created,
+      reply.author
+    ],
     (data) => [...(data ?? []), reply]
   );
 }
