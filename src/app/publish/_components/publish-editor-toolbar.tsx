@@ -254,9 +254,12 @@ export function PublishEditorToolbar({ editor }: Props) {
       />
       <PublishImageByLinkDialog show={showImageByLink} setShow={setShowImageByLink} onPick={(link, alt) => {
         editor?.chain().focus().insertContent(`![${alt}](${link})`).run();
-        setShowGallery(false);
+        setShowImageByLink(false);
       }} />
-      <EcencyImagesUploadDialog show={showImageUpload} setShow={setShowImageUpload} />
+      <EcencyImagesUploadDialog show={showImageUpload} setShow={setShowImageUpload} onPick={(e) => {
+        editor?.chain().focus().insertContent(`![](${e})`).run();
+        setShowImageUpload(false);
+      }} />
     </div>
   );
 }
