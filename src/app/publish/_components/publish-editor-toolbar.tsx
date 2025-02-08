@@ -40,6 +40,7 @@ import { EmojiPicker } from "@/features/ui";
 import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
 import i18next from "i18next";
 import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
+import { EcencyImagesUploadDialog } from "@/features/ecency-images";
 
 interface Props {
   editor: Editor | null;
@@ -55,6 +56,7 @@ export function PublishEditorToolbar({ editor }: Props) {
   const [showAddLink, setShowAddLink] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [showImageByLink, setShowImageByLink] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   return (
     <div className="w-full items-center px-2 flex flex-wrap">
@@ -178,7 +180,7 @@ export function PublishEditorToolbar({ editor }: Props) {
             <Button appearance="gray-link" size="sm" icon={<UilImage />} />
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItemWithIcon icon={<UilUpload />} label={i18next.t('publish.upload')} />
+            <DropdownItemWithIcon icon={<UilUpload />} label={i18next.t('publish.upload')} onClick={() => setShowImageUpload(true)} />
             <DropdownItemWithIcon
               icon={<UilImages />}
               label={i18next.t('publish.from-gallery')}
@@ -254,6 +256,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         editor?.chain().focus().insertContent(`![${alt}](${link})`).run();
         setShowGallery(false);
       }} />
+      <EcencyImagesUploadDialog show={showImageUpload} setShow={setShowImageUpload} />
     </div>
   );
 }

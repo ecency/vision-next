@@ -2565,5 +2565,11 @@
     "from-link": "From link",
     "add-image-by-link": "Add image by link",
     "add-image-by-link-title-hint": "Title of the image"
+  },
+  "ecency-images": {
+    "upload-image": "Upload image",
+    "dropzone-title": "Drop files here or click to upload",
+    "dropzone-hint": "Maximum file size is 10MB",
+    "dropzone-realize": "Drop file here"
   }
 }
