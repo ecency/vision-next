@@ -26,7 +26,7 @@ export function PublishMetaInfoDialog({ show, setShow }: Props) {
         />
       </ModalBody>
       <ModalFooter className="justify-end flex">
-        <Button onClick={() => setShow(false)} size="sm">
+        <Button appearance="gray" onClick={() => setShow(false)} size="sm">
           {i18next.t("g.close")}
         </Button>
       </ModalFooter>

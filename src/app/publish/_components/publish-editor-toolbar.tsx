@@ -10,6 +10,7 @@ import {
   UilEllipsisH,
   UilImage,
   UilImages,
+  UilImageShare,
   UilItalic,
   UilLink,
   UilListOl,
@@ -37,6 +38,8 @@ import { GalleryDialog } from "@/features/shared";
 import { PublishEditorToolbarAddLinkDialog } from "@/app/publish/_components/publish-editor-toolbar-add-link-dialog";
 import { EmojiPicker } from "@/features/ui";
 import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
+import i18next from "i18next";
+import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
 
 interface Props {
   editor: Editor | null;
@@ -51,6 +54,7 @@ export function PublishEditorToolbar({ editor }: Props) {
   const [showGallery, setShowGallery] = useState(false);
   const [showAddLink, setShowAddLink] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const [showImageByLink, setShowImageByLink] = useState(false);
 
   return (
     <div className="w-full items-center px-2 flex flex-wrap">
@@ -99,7 +103,7 @@ export function PublishEditorToolbar({ editor }: Props) {
                 selected={editor?.isActive("heading", { level: heading })}
                 onClick={() => editor?.chain().focus().toggleHeading({ level: heading }).run()}
               >
-                Heading {heading}
+                {i18next.t('publish.heading')} {heading}
               </DropdownItem>
             ))}
           </DropdownMenu>
@@ -113,13 +117,13 @@ export function PublishEditorToolbar({ editor }: Props) {
           <DropdownItemWithIcon
             selected={editor?.isActive("bulletList")}
             icon={<UilListUl />}
-            label="Bullet list"
+            label={i18next.t('publish.bullet-list')}
             onClick={() => editor?.chain().focus().toggleBulletList().run()}
           />
           <DropdownItemWithIcon
             selected={editor?.isActive("orderedList")}
             icon={<UilListOl />}
-            label="Ordered list"
+            label={i18next.t('publish.ordered-list')}
             onClick={() => editor?.chain().focus().toggleOrderedList().run()}
           />
         </DropdownMenu>
@@ -133,24 +137,24 @@ export function PublishEditorToolbar({ editor }: Props) {
             onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
             selected={editor?.isActive("codeBlock")}
             icon={<UilArrow />}
-            label="Code block"
+            label={i18next.t('publish.code-block')}
           />
           <DropdownItemWithIcon
             onClick={() => editor?.chain().focus().toggleBlockquote().run()}
             selected={editor?.isActive("blockquote")}
             icon={<UilDocumentLayoutRight />}
-            label="Quote"
+            label={i18next.t('publish.quote')}
           />
           <DropdownItemWithIcon
             onClick={() =>
               editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
             }
             icon={<UilTable />}
-            label="Table"
+            label={i18next.t('publish.table')}
           />
           <DropdownItemWithIcon
             icon={<UilBorderHorizontal />}
-            label="Horizontal line"
+            label={i18next.t('publish.horizontal-rule')}
             onClick={() => editor?.chain().focus().setHorizontalRule().run()}
           />
         </DropdownMenu>
@@ -174,11 +178,16 @@ export function PublishEditorToolbar({ editor }: Props) {
             <Button appearance="gray-link" size="sm" icon={<UilImage />} />
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItemWithIcon icon={<UilUpload />} label="Upload and paste" />
+            <DropdownItemWithIcon icon={<UilUpload />} label={i18next.t('publish.upload')} />
             <DropdownItemWithIcon
               icon={<UilImages />}
-              label="From gallery"
+              label={i18next.t('publish.from-gallery')}
               onClick={() => setShowGallery(true)}
+            />
+            <DropdownItemWithIcon
+              icon={<UilImageShare />}
+              label={i18next.t('publish.from-link')}
+              onClick={() => setShowImageByLink(true)}
             />
           </DropdownMenu>
         </Dropdown>
@@ -241,6 +250,10 @@ export function PublishEditorToolbar({ editor }: Props) {
           setShowGifPicker(false);
         }}
       />
+      <PublishImageByLinkDialog show={showImageByLink} setShow={setShowImageByLink} onPick={(link, alt) => {
+        editor?.chain().focus().insertContent(`![${alt}](${link})`).run();
+        setShowGallery(false);
+      }} />
     </div>
   );
 }
