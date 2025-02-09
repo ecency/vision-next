@@ -2564,7 +2564,18 @@
     "upload": "Upload and paste",
     "from-link": "From link",
     "add-image-by-link": "Add image by link",
-    "add-image-by-link-title-hint": "Title of the image"
+    "add-image-by-link-title-hint": "Title of the image",
+    "story-preview": "Story preview",
+    "change-thumb": "Change preview image",
+    "tags-hint": "Add or change topics (up to 10) so readers know what your story is about",
+    "tags-min-message": "At least one tag should be set",
+    "publish-now": "Publish now",
+    "schedule-later": "Schedule for later",
+    "schedule-now": "Schedule now",
+    "update-schedule": "Update schedule settings",
+    "public-info-hint": "Note: Changes here will affect how your story appears in public places like Ecency (and other Hive clients) homepage and in a search engine systems — not the contents of the story itself.",
+    "preview-subtitle": "Preview subtitle..",
+    "thumb-selection": "Set preview images"
   },
   "ecency-images": {
     "upload-image": "Upload image",

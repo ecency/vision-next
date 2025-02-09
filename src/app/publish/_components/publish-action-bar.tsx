@@ -19,8 +19,13 @@ import { PublishScheduleDialog } from "@/app/publish/_components/publish-schedul
 import { usePublishState } from "../_hooks";
 import i18next from "i18next";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
+import { motion } from "framer-motion";
 
-export function PublishActionBar() {
+interface Props {
+  onPublish: () => void;
+}
+
+export function PublishActionBar({ onPublish }: Props) {
   const { schedule: scheduleDate } = usePublishState();
 
   const [showReward, setShowReward] = useState(false);
@@ -29,10 +34,16 @@ export function PublishActionBar() {
   const [schedule, setSchedule] = useState(false);
 
   return (
-    <div className="container justify-between gap-4 pl-2 md:pl-4 flex items-center max-w-[800px] py-4 mx-auto publish-action-bar">
+    <motion.div
+      initial={{ opacity: 0, y: -32 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -32 }}
+      transition={{ delay: 0.4 }}
+      className="container relative z-20 justify-between gap-4 pl-2 md:pl-4 flex items-center max-w-[800px] py-4 mx-auto publish-action-bar"
+    >
       <PublishActionBarCommunity />
       <div className="flex items-center gap-4">
-        <Button appearance={scheduleDate ? "primary" : "success"}>
+        <Button appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
           {i18next.t(scheduleDate ? "submit.schedule" : "submit.publish")}
         </Button>
         <Dropdown>
@@ -72,6 +83,6 @@ export function PublishActionBar() {
       <PublishBeneficiariesDialog show={showBeneficiaries} setShow={setShowBeneficiaries} />
       <PublishMetaInfoDialog show={showMetaInfo} setShow={setShowMetaInfo} />
       <PublishScheduleDialog show={schedule} setShow={setSchedule} />
-    </div>
+    </motion.div>
   );
 }

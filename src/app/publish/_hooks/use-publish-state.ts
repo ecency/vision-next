@@ -1,6 +1,7 @@
-import { useSynchronizedLocalStorage } from "@/utils";
+import { extractMetaData, useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { BeneficiaryRoute } from "@/entities";
+import { useEffect, useMemo } from "react";
 
 export function usePublishState() {
   const [title, setTitle] = useSynchronizedLocalStorage<string>(PREFIX + "_pub_title");
@@ -23,6 +24,19 @@ export function usePublishState() {
     }
   );
   const [tags, setTags] = useSynchronizedLocalStorage<string[]>(PREFIX + "_pub_tags", []);
+  const [selectedThumbnail, setSelectedThumbnail] = useSynchronizedLocalStorage<string>(
+    PREFIX + "_pub_sel_thumb",
+    ""
+  );
+
+  const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
+  const thumbnails = useMemo(() => metadata.thumbnails ?? [], [metadata.thumbnails]);
+
+  useEffect(() => {
+    if (!selectedThumbnail) {
+      setSelectedThumbnail(thumbnails[0]);
+    }
+  }, [thumbnails]);
 
   return {
     title,
@@ -39,6 +53,9 @@ export function usePublishState() {
     setSchedule,
     clearSchedule,
     tags,
-    setTags
+    setTags,
+    thumbnails,
+    selectedThumbnail,
+    setSelectedThumbnail
   };
 }

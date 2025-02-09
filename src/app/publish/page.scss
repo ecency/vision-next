@@ -30,4 +30,12 @@
       }
     }
   }
+
+  .tag-selector {
+    @apply bg-gray-100 dark:bg-dark-default p-2 rounded-xl;
+
+    input {
+      background-color: transparent;
+    }
+  }
 }
