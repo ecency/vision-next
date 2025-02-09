@@ -12,6 +12,7 @@ export default function Layout({ children }: PropsWithChildren) {
         <div className="pt-24 min-h-[100vh]">
           <PublishActionBar />
           {children}
+          <PublishActionBar />
         </div>
       </div>
     </>
