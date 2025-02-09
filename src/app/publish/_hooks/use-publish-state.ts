@@ -22,6 +22,7 @@ export function usePublishState() {
       deserializer: (value) => new Date(value)
     }
   );
+  const [tags, setTags] = useSynchronizedLocalStorage<string[]>(PREFIX + "_pub_tags", []);
 
   return {
     title,
@@ -36,6 +37,8 @@ export function usePublishState() {
     setMetaDescription,
     schedule,
     setSchedule,
-    clearSchedule
+    clearSchedule,
+    tags,
+    setTags
   };
 }

@@ -5,7 +5,7 @@
     @apply outline-none;
   }
 
-  > div {
+  > div:not(.publish-page-editor-toolbar-container) {
     @apply w-full h-full mx-auto;
 
     > .tiptap {
