@@ -2570,6 +2570,8 @@
     "upload-image": "Upload image",
     "dropzone-title": "Drop files here or click to upload",
     "dropzone-hint": "Maximum file size is 10MB",
-    "dropzone-realize": "Drop file here"
+    "dropzone-realize": "Drop file here",
+    "success-upload": "Image has uploaded successfully",
+    "uploading": "Uploading..."
   }
 }

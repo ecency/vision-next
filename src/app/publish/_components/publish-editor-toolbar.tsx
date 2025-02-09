@@ -105,7 +105,7 @@ export function PublishEditorToolbar({ editor }: Props) {
                 selected={editor?.isActive("heading", { level: heading })}
                 onClick={() => editor?.chain().focus().toggleHeading({ level: heading }).run()}
               >
-                {i18next.t('publish.heading')} {heading}
+                {i18next.t("publish.heading")} {heading}
               </DropdownItem>
             ))}
           </DropdownMenu>
@@ -119,13 +119,13 @@ export function PublishEditorToolbar({ editor }: Props) {
           <DropdownItemWithIcon
             selected={editor?.isActive("bulletList")}
             icon={<UilListUl />}
-            label={i18next.t('publish.bullet-list')}
+            label={i18next.t("publish.bullet-list")}
             onClick={() => editor?.chain().focus().toggleBulletList().run()}
           />
           <DropdownItemWithIcon
             selected={editor?.isActive("orderedList")}
             icon={<UilListOl />}
-            label={i18next.t('publish.ordered-list')}
+            label={i18next.t("publish.ordered-list")}
             onClick={() => editor?.chain().focus().toggleOrderedList().run()}
           />
         </DropdownMenu>
@@ -139,24 +139,24 @@ export function PublishEditorToolbar({ editor }: Props) {
             onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
             selected={editor?.isActive("codeBlock")}
             icon={<UilArrow />}
-            label={i18next.t('publish.code-block')}
+            label={i18next.t("publish.code-block")}
           />
           <DropdownItemWithIcon
             onClick={() => editor?.chain().focus().toggleBlockquote().run()}
             selected={editor?.isActive("blockquote")}
             icon={<UilDocumentLayoutRight />}
-            label={i18next.t('publish.quote')}
+            label={i18next.t("publish.quote")}
           />
           <DropdownItemWithIcon
             onClick={() =>
               editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
             }
             icon={<UilTable />}
-            label={i18next.t('publish.table')}
+            label={i18next.t("publish.table")}
           />
           <DropdownItemWithIcon
             icon={<UilBorderHorizontal />}
-            label={i18next.t('publish.horizontal-rule')}
+            label={i18next.t("publish.horizontal-rule")}
             onClick={() => editor?.chain().focus().setHorizontalRule().run()}
           />
         </DropdownMenu>
@@ -180,15 +180,19 @@ export function PublishEditorToolbar({ editor }: Props) {
             <Button appearance="gray-link" size="sm" icon={<UilImage />} />
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItemWithIcon icon={<UilUpload />} label={i18next.t('publish.upload')} onClick={() => setShowImageUpload(true)} />
+            <DropdownItemWithIcon
+              icon={<UilUpload />}
+              label={i18next.t("publish.upload")}
+              onClick={() => setShowImageUpload(true)}
+            />
             <DropdownItemWithIcon
               icon={<UilImages />}
-              label={i18next.t('publish.from-gallery')}
+              label={i18next.t("publish.from-gallery")}
               onClick={() => setShowGallery(true)}
             />
             <DropdownItemWithIcon
               icon={<UilImageShare />}
-              label={i18next.t('publish.from-link')}
+              label={i18next.t("publish.from-link")}
               onClick={() => setShowImageByLink(true)}
             />
           </DropdownMenu>
@@ -252,14 +256,22 @@ export function PublishEditorToolbar({ editor }: Props) {
           setShowGifPicker(false);
         }}
       />
-      <PublishImageByLinkDialog show={showImageByLink} setShow={setShowImageByLink} onPick={(link, alt) => {
-        editor?.chain().focus().insertContent(`![${alt}](${link})`).run();
-        setShowImageByLink(false);
-      }} />
-      <EcencyImagesUploadDialog show={showImageUpload} setShow={setShowImageUpload} onPick={(e) => {
-        editor?.chain().focus().insertContent(`![](${e})`).run();
-        setShowImageUpload(false);
-      }} />
+      <PublishImageByLinkDialog
+        show={showImageByLink}
+        setShow={setShowImageByLink}
+        onPick={(link, alt) => {
+          editor?.chain().focus().insertContent(`![${alt}](${link})`).run();
+          setShowImageByLink(false);
+        }}
+      />
+      <EcencyImagesUploadDialog
+        show={showImageUpload}
+        setShow={setShowImageUpload}
+        onPick={(e) => {
+          editor?.chain().focus().insertContent(`![](${e})`).run();
+          setShowImageUpload(false);
+        }}
+      />
     </div>
   );
 }

@@ -29,7 +29,9 @@ export function PublishActionBar() {
 
   return (
     <div className="container justify-end gap-4 flex max-w-[800px] py-4 mx-auto publish-action-bar">
-      <Button appearance={scheduleDate ? 'primary' : 'success'}>{i18next.t(scheduleDate ? 'submit.schedule' : 'submit.publish')}</Button>
+      <Button appearance={scheduleDate ? "primary" : "success"}>
+        {i18next.t(scheduleDate ? "submit.schedule" : "submit.publish")}
+      </Button>
       <Dropdown>
         <DropdownToggle>
           <Button icon={<UilEllipsisV />} appearance="gray-link" />
