@@ -39,7 +39,7 @@ export function PublishActionBar({ onPublish }: Props) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -32 }}
       transition={{ delay: 0.4 }}
-      className="container relative z-20 justify-between gap-4 pl-2 md:pl-4 flex items-center max-w-[800px] py-4 mx-auto publish-action-bar"
+      className="container relative z-[11] justify-between gap-4 pl-2 md:pl-4 flex items-center max-w-[800px] py-4 mx-auto publish-action-bar"
     >
       <PublishActionBarCommunity />
       <div className="flex items-center gap-4">

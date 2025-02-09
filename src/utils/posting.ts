@@ -35,6 +35,7 @@ export const createPermlink = (title: string, random: boolean = false): string =
 };
 
 export const extractMetaData = (body: string): MetaData => {
+  console.log(body);
   const urlReg = /(\b(https?|ftp):\/\/[A-Z0-9+&@#/%?=~_|!:,.;-]*[-A-Z0-9+&@#/%=~_|])/gim;
   const imgReg = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp))/gim;
 
