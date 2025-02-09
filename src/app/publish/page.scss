@@ -1,11 +1,15 @@
 .publish-page {
   @apply w-full;
 
+  .tiptap {
+    @apply outline-none;
+  }
+
   > div {
     @apply w-full h-full mx-auto;
 
-    .tiptap {
-      @apply w-full min-h-[500px] outline-none;
+    > .tiptap {
+      @apply w-full min-h-[500px];
 
       .is-empty::before {
         content: attr(data-placeholder);
@@ -13,9 +17,12 @@
         @apply float-left h-0 pointer-events-none text-gray-400 dark:text-gray-600;
       }
 
-      img {
-        cursor: grab;
+      .publish-editor-image-viewer {
         margin: 1rem 0;
+
+        img {
+          cursor: grab;
+        }
       }
 
       a {

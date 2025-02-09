@@ -1,6 +1,6 @@
 "use client";
 
-import { AnyExtension, EditorContent, useEditor } from "@tiptap/react";
+import { AnyExtension, EditorContent, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import "./page.scss";
 import { StarterKit } from "@tiptap/starter-kit";
 import Document from "@tiptap/extension-document";
@@ -16,6 +16,7 @@ import { usePublishState } from "@/app/publish/_hooks";
 import { useEffect } from "react";
 import { PublishEditorToolbar } from "@/app/publish/_components";
 import { Markdown } from "tiptap-markdown";
+import { PublishEditorImageViewer } from "./_editor-extensions";
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -45,8 +46,11 @@ export default function PublishPage() {
       TableRow,
       TableCell,
       TableHeader,
-      // TODO edit ALT text https://angelika.me/2023/02/26/how-to-add-editing-image-alt-text-tiptap/
-      Image,
+      Image.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(PublishEditorImageViewer);
+        }
+      }),
       Link.configure({
         openOnClick: false
       })
