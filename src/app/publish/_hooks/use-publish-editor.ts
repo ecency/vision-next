@@ -12,6 +12,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import { usePublishState } from "./use-publish-state";
 import { useEffect } from "react";
+import { error } from "@/features/shared";
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -54,7 +55,7 @@ export function usePublishEditor() {
       const markdown = editor.storage.markdown.getMarkdown();
       const title = markdown.substring(0, markdown.indexOf("\n"));
       const content = markdown.substring(markdown.indexOf("\n"));
-      publishState.setTitle(title);
+      publishState.setTitle(title.replace("# ", ""));
       publishState.setContent(content);
     }
   });
@@ -62,14 +63,19 @@ export function usePublishEditor() {
   const publishState = usePublishState();
 
   useEffect(() => {
-    editor
-      ?.chain()
-      .setContent(
-        `${publishState.title ?? "# Hello Ecency member,"}\n\n ${
-          publishState.content ?? "Tell your story..."
-        }`
-      )
-      .run();
+    try {
+      editor
+        ?.chain()
+        .setContent(
+          `${publishState.title ?? "# Hello Ecency member,"}\n\n ${
+            publishState.content ?? "Tell your story..."
+          }`
+        )
+        .run();
+    } catch (e) {
+      error("Failed to laod local draft. We are working on it");
+      throw e;
+    }
   }, [editor]);
 
   return editor;

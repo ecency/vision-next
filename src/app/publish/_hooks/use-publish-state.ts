@@ -1,7 +1,7 @@
 import { extractMetaData, useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { BeneficiaryRoute } from "@/entities";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 export function usePublishState() {
   const [title, setTitle] = useSynchronizedLocalStorage<string>(PREFIX + "_pub_title");
@@ -28,6 +28,10 @@ export function usePublishState() {
     PREFIX + "_pub_sel_thumb",
     ""
   );
+  const [isReblogToCommunity, setIsReblogToCommunity] = useSynchronizedLocalStorage<boolean>(
+    PREFIX + "_pub_reblog_to_community",
+    false
+  );
 
   const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
   const thumbnails = useMemo(() => metadata.thumbnails ?? [], [metadata.thumbnails]);
@@ -37,6 +41,26 @@ export function usePublishState() {
       setSelectedThumbnail(thumbnails[0]);
     }
   }, [thumbnails]);
+
+  const clearAll = useCallback(() => {
+    setTitle("");
+    setContent("");
+    setReward("default");
+    setBeneficiaries([]);
+    setMetaDescription("");
+    setSchedule(undefined);
+    setTags([]);
+    setSelectedThumbnail("");
+  }, [
+    setBeneficiaries,
+    setContent,
+    setMetaDescription,
+    setReward,
+    setSchedule,
+    setSelectedThumbnail,
+    setTags,
+    setTitle
+  ]);
 
   return {
     title,
@@ -56,6 +80,9 @@ export function usePublishState() {
     setTags,
     thumbnails,
     selectedThumbnail,
-    setSelectedThumbnail
+    setSelectedThumbnail,
+    clearAll,
+    isReblogToCommunity,
+    setIsReblogToCommunity
   };
 }

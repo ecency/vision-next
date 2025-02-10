@@ -6,11 +6,12 @@ import { isCommunity } from "@/utils";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { usePublishState } from "../_hooks";
 import { PublishValidatePostThumbnailPicker } from "./publish-validate-post-thumbnail-picker";
 import { PublishScheduleDialog } from "./publish-schedule-dialog";
 import { PublishValidatePostMeta } from "./publish-validate-post-meta";
+import { usePublishApi } from "../_api";
 
 interface Props {
   onClose: () => void;
@@ -23,6 +24,15 @@ export function PublishValidatePost({ onClose }: Props) {
 
   const communityTag = useMemo(() => tags?.find((t) => isCommunity(t)), [tags]);
   const { data: community } = getCommunityCache(communityTag).useClientQuery();
+
+  const { mutateAsync: publishNow, isPending: isPublishPending } = usePublishApi();
+
+  const submit = useCallback(async () => {
+    if (schedule) {
+    } else {
+      await publishNow();
+    }
+  }, [publishNow, schedule]);
 
   return (
     <motion.div
@@ -72,8 +82,11 @@ export function PublishValidatePost({ onClose }: Props) {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button size="lg" disabled={!tags?.length}>
-              {schedule ? i18next.t("publish.schedule-now") : i18next.t("publish.publish-now")}
+            <Button size="lg" disabled={!tags?.length} onClick={submit}>
+              {schedule && !isPublishPending
+                ? i18next.t("publish.schedule-now")
+                : i18next.t("publish.publish-now")}
+              {isPublishPending && i18next.t("submit.publishing")}
             </Button>
             <Button
               size="sm"
