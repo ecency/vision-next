@@ -2575,7 +2575,13 @@
     "update-schedule": "Update schedule settings",
     "public-info-hint": "Note: Changes here will affect how your story appears in public places like Ecency (and other Hive clients) homepage and in a search engine systems — not the contents of the story itself.",
     "preview-subtitle": "Preview subtitle..",
-    "thumb-selection": "Set preview images"
+    "thumb-selection": "Set preview images",
+    "published-title": "Your post has published",
+    "published-hint": "Your post has been published successfully. You can view it on your blog or in the feed.",
+    "scheduled-title": "Your post has scheduled",
+    "scheduled-hint": "Your post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
+    "back-to-editor": "Back to editor",
+    "go-to-posts": "Go to my posts"
   },
   "ecency-images": {
     "upload-image": "Upload image",

@@ -18,7 +18,6 @@ import { useRouter } from "next/navigation";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const activeUser = useGlobalStore((s) => s.activeUser);
   const {
@@ -29,8 +28,7 @@ export function usePublishApi() {
     selectedThumbnail,
     reward,
     beneficiaries,
-    isReblogToCommunity,
-    clearAll
+    isReblogToCommunity
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -143,7 +141,6 @@ export function usePublishApi() {
 
         success(i18next.t("submit.published"));
         // clearActivePoll();
-        router.push(`/@${activeUser.username}/posts`);
 
         //Mark speak video as published
         // if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
@@ -164,8 +161,6 @@ export function usePublishApi() {
       }
     },
     onSuccess([entry, poll]) {
-      clearAll();
-
       queryClient.setQueryData<GetPollDetailsQueryResponse | undefined>(
         [QueryIdentifiers.POLL_DETAILS, entry?.author, entry?.permlink],
         (data) => {

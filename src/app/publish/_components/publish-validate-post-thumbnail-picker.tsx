@@ -8,7 +8,7 @@ export function PublishValidatePostThumbnailPicker() {
 
   const [showPicker, setShowPicker] = useState(false);
 
-  return (
+  return thumbnails?.length > 0 ? (
     <div>
       {selectedThumbnail && (
         <div
@@ -40,5 +40,7 @@ export function PublishValidatePostThumbnailPicker() {
         </ModalBody>
       </Modal>
     </div>
+  ) : (
+    <></>
   );
 }

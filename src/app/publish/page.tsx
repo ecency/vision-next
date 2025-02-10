@@ -1,6 +1,5 @@
 "use client";
 
-import Document from "@tiptap/extension-document";
 import { EditorContent } from "@tiptap/react";
 import "./page.scss";
 
@@ -10,16 +9,20 @@ import {
   PublishValidatePost
 } from "@/app/publish/_components";
 import { usePublishEditor } from "@/app/publish/_hooks";
-import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-
-const CustomDocument = Document.extend({
-  content: "heading block*"
-});
+import { useState } from "react";
+import { PublishSuccessState } from "./_components/publish-success-state";
 
 export default function PublishPage() {
   const editor = usePublishEditor();
-  const [step, setStep] = useState<"edit" | "validation">("edit");
+
+  const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
+  const [finalPostData, setFinalPostData] = useState<{
+    title: string;
+    description: string;
+    tags: string[];
+    thumbnail: string;
+  }>();
 
   return (
     <AnimatePresence>
@@ -40,7 +43,21 @@ export default function PublishPage() {
           <PublishActionBar onPublish={() => setStep("validation")} />
         </>
       )}
-      {step === "validation" && <PublishValidatePost onClose={() => setStep("edit")} />}
+      {step === "validation" && (
+        <PublishValidatePost
+          onClose={() => setStep("edit")}
+          onSuccess={(step) => {
+            setStep(step);
+          }}
+        />
+      )}
+      {["scheduled", "published"].includes(step) && (
+        <PublishSuccessState
+          finalPostData={finalPostData}
+          step={step as "published" | "scheduled"}
+          setEditStep={() => setStep("edit")}
+        />
+      )}
     </AnimatePresence>
   );
 }
