@@ -2581,7 +2581,10 @@
     "scheduled-title": "Your post has scheduled",
     "scheduled-hint": "Your post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
     "back-to-editor": "Back to editor",
-    "go-to-posts": "Go to my posts"
+    "go-to-posts": "Go to my posts",
+    "no-draft-title": "No draft found",
+    "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
+    "draft-mode": "You are in a draft editing mode"
   },
   "ecency-images": {
     "upload-image": "Upload image",

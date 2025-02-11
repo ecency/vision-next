@@ -52,8 +52,6 @@ export const extractMetaData = (body: string): MetaData => {
     }
   }
 
-  console.log(matchedImages);
-
   if (matchedImages.length) {
     out.image = matchedImages.slice(0, 10);
     out.thumbnails = matchedImages;

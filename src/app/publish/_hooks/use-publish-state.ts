@@ -2,17 +2,44 @@ import { extractMetaData, useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { BeneficiaryRoute } from "@/entities";
 import { useCallback, useEffect, useMemo } from "react";
+import { useParams } from "next/navigation";
 
 export function usePublishState() {
-  const [title, setTitle] = useSynchronizedLocalStorage<string>(PREFIX + "_pub_title");
-  const [content, setContent] = useSynchronizedLocalStorage<string>(PREFIX + "_pub_content");
-  const [reward, setReward] = useSynchronizedLocalStorage<string>(PREFIX + "_pub_reward");
+  const params = useParams();
+
+  // If there is any ID parameter which means we are in edit mode
+  // then need to disable the persistent storage
+  const persistent = useMemo(() => !params.id, [params.id]);
+
+  const [title, setTitle] = useSynchronizedLocalStorage<string>(
+    PREFIX + "_pub_title",
+    undefined,
+    undefined,
+    persistent
+  );
+  const [content, setContent] = useSynchronizedLocalStorage<string>(
+    PREFIX + "_pub_content",
+    undefined,
+    undefined,
+    persistent
+  );
+  const [reward, setReward] = useSynchronizedLocalStorage<string>(
+    PREFIX + "_pub_reward",
+    undefined,
+    undefined,
+    persistent
+  );
   const [beneficiaries, setBeneficiaries] = useSynchronizedLocalStorage<BeneficiaryRoute[]>(
     PREFIX + "_pub_beneficiaries",
-    []
+    [],
+    undefined,
+    persistent
   );
   const [metaDescription, setMetaDescription] = useSynchronizedLocalStorage<string>(
-    PREFIX + "_pub_meta_desc"
+    PREFIX + "_pub_meta_desc",
+    undefined,
+    undefined,
+    persistent
   );
   const [schedule, setSchedule, clearSchedule] = useSynchronizedLocalStorage<Date>(
     PREFIX + "_pub_schedule",
@@ -21,16 +48,26 @@ export function usePublishState() {
       raw: false,
       serializer: (value) => value.toISOString(),
       deserializer: (value) => new Date(value)
-    }
+    },
+    persistent
   );
-  const [tags, setTags] = useSynchronizedLocalStorage<string[]>(PREFIX + "_pub_tags", []);
+  const [tags, setTags] = useSynchronizedLocalStorage<string[]>(
+    PREFIX + "_pub_tags",
+    [],
+    undefined,
+    persistent
+  );
   const [selectedThumbnail, setSelectedThumbnail] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_sel_thumb",
-    ""
+    "",
+    undefined,
+    persistent
   );
   const [isReblogToCommunity, setIsReblogToCommunity] = useSynchronizedLocalStorage<boolean>(
     PREFIX + "_pub_reblog_to_community",
-    false
+    false,
+    undefined,
+    persistent
   );
 
   const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);

@@ -1,16 +1,14 @@
 import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
-import { UilCheckCircle, UilClock } from "@tooni/iconscout-unicons-react";
+import { UilMinusCircle, UilNoEntry, UilStopCircle } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-interface Props {
-  step: "published" | "scheduled";
-  setEditStep: () => void;
-}
+export function PublishDraftsNoDraft() {
+  const router = useRouter();
 
-export function PublishSuccessState({ step, setEditStep }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   return (
@@ -22,21 +20,16 @@ export function PublishSuccessState({ step, setEditStep }: Props) {
     >
       <div className="px-2 py-4 sm:px-4 md:p-6 lg:p-12 bg-white rounded-2xl flex flex-col gap-4 md:gap-8 lg:gap-12 xl:gap-16 items-center">
         <div className="flex flex-col items-center justify-center gap-2">
-          {step === "published" && <UilCheckCircle className="text-green w-12 h-12" />}
-          {step === "scheduled" && <UilClock className="text-blue-dark-sky w-12 h-12" />}
-          <div className="text-xl font-bold">
-            {step === "published" && i18next.t("publish.published-title")}
-            {step === "scheduled" && i18next.t("publish.scheduled-title")}
-          </div>
+          <UilMinusCircle className="text-red w-12 h-12" />
+          <div className="text-xl font-bold">{i18next.t("publish.no-draft-title")}</div>
           <div className="text-gray-400 dark:text-gray-600 text-center max-w-[500px]">
-            {step === "published" && i18next.t("publish.published-hint")}
-            {step === "scheduled" && i18next.t("publish.scheduled-hint")}
+            {i18next.t("publish.no-draft-hint")}
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           <Link href="/publish">
-            <Button appearance="gray" size="sm" onClick={() => setEditStep()}>
+            <Button appearance="gray" size="sm" onClick={() => router.push("/publish")}>
               {i18next.t("publish.back-to-editor")}
             </Button>
           </Link>

@@ -1,27 +1,65 @@
 "use client";
 
 import { EditorContent } from "@tiptap/react";
-import "./page.scss";
+import "../../page.scss";
 
 import {
   PublishActionBar,
   PublishEditorToolbar,
   PublishValidatePost
 } from "@/app/publish/_components";
-import { usePublishEditor } from "@/app/publish/_hooks";
+import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { PublishSuccessState } from "./_components/publish-success-state";
+import { PublishSuccessState } from "../../_components/publish-success-state";
+import { useApiDraftDetector } from "@/app/submit/_hooks";
+import { useParams } from "next/navigation";
+import { PublishDraftsNoDraft } from "./_components";
+import { error } from "@/features/shared";
+import i18next from "i18next";
 
 export default function PublishPage() {
   const editor = usePublishEditor();
 
-  const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
+  const params = useParams();
+
+  const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published" | "no-draft">(
+    "edit"
+  );
+  const [draftId, setDraftId] = useState<string>();
+
+  const { setTitle, setContent, setTags } = usePublishState();
+
+  useApiDraftDetector(
+    params.id as string,
+    (draft) => {
+      setTitle(draft.title);
+      setContent(draft.body);
+      setTags(draft.tags_arr);
+      setDraftId(draft._id);
+
+      try {
+        editor
+          ?.chain()
+          .setContent(
+            `${draft.title ?? "# Hello Ecency member,"}\n\n ${draft.body ?? "Tell your story..."}`
+          )
+          .run();
+      } catch (e) {
+        error("Failed to laod local draft. We are working on it");
+        throw e;
+      }
+    },
+    () => setStep("no-draft")
+  );
 
   return (
     <AnimatePresence>
       {step === "edit" && (
         <>
+          <div className="container text-right max-w-[800px] mx-auto text-gray-400 dark:text-gray-600 text-xs">
+            {i18next.t("publish.draft-mode")}
+          </div>
           <PublishActionBar onPublish={() => setStep("validation")} />
           <motion.div
             initial={{ opacity: 0 }}
@@ -51,6 +89,7 @@ export default function PublishPage() {
           setEditStep={() => setStep("edit")}
         />
       )}
+      {step === "no-draft" && <PublishDraftsNoDraft />}
     </AnimatePresence>
   );
 }
