@@ -1,7 +1,7 @@
 "use client";
 
-import { useLocalStorage, useMount, useUnmount } from "react-use";
-import { useCallback, useState } from "react";
+import { useLocalStorage, useMount, useSessionStorage, useUnmount } from "react-use";
+import { useCallback } from "react";
 
 type useLocalStorageType<T> = typeof useLocalStorage<T>;
 
@@ -30,10 +30,11 @@ export function useSynchronizedLocalStorage<T>(
   options?: Parameters<useLocalStorageType<T>>[2],
   persistent = true
 ) {
-  // As TS 4.8+ only supports passing generic to function type
-  // Replace it with: type useLocalStorageType<T> = typeof useLocalStorage<T>;
-
-  const [logicalValue, setLogicalValue] = useState<T | undefined>(initialValue);
+  const [logicalValue, setLogicalValue] = useSessionStorage<T | undefined>(
+    key,
+    initialValue,
+    options as Parameters<typeof useSessionStorage<T>>[2]
+  );
   const [value, setValue, clearValue] = useLocalStorage<T>(key, initialValue, options);
 
   const handler = useCallback(
@@ -41,13 +42,21 @@ export function useSynchronizedLocalStorage<T>(
       const typedEvent = e as unknown as CustomEvent<SynchronizedLocalStorageEvent<T>>;
       if (typedEvent.detail.key === key) {
         if (typeof typedEvent.detail.value !== "undefined") {
-          setValue(typedEvent.detail.value);
+          if (persistent) {
+            setValue(typedEvent.detail.value);
+          } else {
+            setLogicalValue(typedEvent.detail.value);
+          }
         } else {
-          clearValue();
+          if (persistent) {
+            clearValue();
+          } else {
+            setLogicalValue(undefined);
+          }
         }
       }
     },
-    [clearValue, key, setValue]
+    [clearValue, key, persistent, setLogicalValue, setValue]
   );
 
   useMount(() => {
@@ -60,35 +69,33 @@ export function useSynchronizedLocalStorage<T>(
 
   const setValueFn = useCallback(
     (v?: T) => {
-      console.log(persistent, v);
       if (persistent) {
         setValue(v);
-
-        const event = new CustomEvent<SynchronizedLocalStorageEvent<T>>(
-          SYNCHRONIZED_LOCAL_STORAGE_EVENT,
-          { detail: { key, value: v } }
-        );
-        window.dispatchEvent(event);
       } else {
         setLogicalValue(v);
       }
+
+      const event = new CustomEvent<SynchronizedLocalStorageEvent<T>>(
+        SYNCHRONIZED_LOCAL_STORAGE_EVENT,
+        { detail: { key, value: v } }
+      );
+      window.dispatchEvent(event);
     },
-    [key, persistent, setValue]
+    [key, persistent, setLogicalValue, setValue]
   );
 
   const clearValueFn = useCallback(() => {
     if (persistent) {
-      const event = new CustomEvent<SynchronizedLocalStorageEvent<T>>(
-        SYNCHRONIZED_LOCAL_STORAGE_EVENT,
-        { detail: { key } }
-      );
-      window.dispatchEvent(event);
-
       clearValue();
     } else {
       setLogicalValue(undefined);
     }
-  }, [clearValue, key, persistent]);
+    const event = new CustomEvent<SynchronizedLocalStorageEvent<T>>(
+      SYNCHRONIZED_LOCAL_STORAGE_EVENT,
+      { detail: { key } }
+    );
+    window.dispatchEvent(event);
+  }, [clearValue, key, persistent, setLogicalValue]);
 
   return [persistent ? value : logicalValue, setValueFn, clearValueFn] as const;
 }

@@ -1,6 +1,9 @@
 "use client";
 
-import { Button } from "@ui/button";
+import { PublishBeneficiariesDialog } from "@/app/publish/_components/publish-beneficiaries-dialog";
+import { PublishMetaInfoDialog } from "@/app/publish/_components/publish-meta-info-dialog";
+import { PublishRewardsDialog } from "@/app/publish/_components/publish-rewards-dialog";
+import { PublishScheduleDialog } from "@/app/publish/_components/publish-schedule-dialog";
 import {
   UilClock,
   UilDocumentInfo,
@@ -10,16 +13,15 @@ import {
   UilTrash,
   UilUsersAlt
 } from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import React, { useState } from "react";
-import { PublishRewardsDialog } from "@/app/publish/_components/publish-rewards-dialog";
-import { PublishBeneficiariesDialog } from "@/app/publish/_components/publish-beneficiaries-dialog";
-import { PublishMetaInfoDialog } from "@/app/publish/_components/publish-meta-info-dialog";
-import { PublishScheduleDialog } from "@/app/publish/_components/publish-schedule-dialog";
-import { usePublishState } from "../_hooks";
-import i18next from "i18next";
-import { PublishActionBarCommunity } from "./publish-action-bar-community";
 import { motion } from "framer-motion";
+import i18next from "i18next";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { useSaveDraftApi } from "../_api";
+import { usePublishState } from "../_hooks";
+import { PublishActionBarCommunity } from "./publish-action-bar-community";
 
 interface Props {
   onPublish: () => void;
@@ -32,6 +34,9 @@ export function PublishActionBar({ onPublish }: Props) {
   const [showBeneficiaries, setShowBeneficiaries] = useState(false);
   const [showMetaInfo, setShowMetaInfo] = useState(false);
   const [schedule, setSchedule] = useState(false);
+
+  const pathname = usePathname();
+  const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi();
 
   return (
     <motion.div
@@ -67,7 +72,16 @@ export function PublishActionBar({ onPublish }: Props) {
               label="Meta information"
             />
             <div className="border-b border-[--border-color] h-[1px] w-full" />
-            <DropdownItemWithIcon icon={<UilFileEditAlt />} label="Save to draft" />
+            <DropdownItemWithIcon
+              disabled={isDraftPending}
+              icon={<UilFileEditAlt />}
+              label={
+                pathname.includes("drafts")
+                  ? i18next.t("publish.update-draft")
+                  : i18next.t("publish.save-draft")
+              }
+              onClick={() => saveToDraft({})}
+            />
             <DropdownItemWithIcon
               selected={!!scheduleDate}
               onClick={() => setSchedule(true)}

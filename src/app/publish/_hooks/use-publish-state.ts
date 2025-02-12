@@ -3,6 +3,7 @@ import { PREFIX } from "@/utils/local-storage";
 import { BeneficiaryRoute } from "@/entities";
 import { useCallback, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
+import { postBodySummary } from "@ecency/render-helper";
 
 export function usePublishState() {
   const params = useParams();
@@ -72,6 +73,12 @@ export function usePublishState() {
 
   const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
   const thumbnails = useMemo(() => metadata.thumbnails ?? [], [metadata.thumbnails]);
+
+  useEffect(() => {
+    if (!metaDescription) {
+      setMetaDescription(postBodySummary(content!));
+    }
+  }, [content, metaDescription, setMetaDescription]);
 
   useEffect(() => {
     if (!selectedThumbnail) {

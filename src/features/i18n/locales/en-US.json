@@ -2584,7 +2584,9 @@
     "go-to-posts": "Go to my posts",
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
-    "draft-mode": "You are in a draft editing mode"
+    "draft-mode": "You are in a draft editing mode",
+    "save-draft": "Save to draft",
+    "update-draft": "Update draft"
   },
   "ecency-images": {
     "upload-image": "Upload image",
