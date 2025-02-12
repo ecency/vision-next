@@ -68,11 +68,11 @@ const config = {
         destination: "/profile/:author/:section"
       },
       {
-        source: "/:tag([^@].+)/:community(hive-.+)/:sub",
+        source: "/:tag([^@].+)/:community(hive-\\d{5,6})/:sub",
         destination: "/community/:community/:tag/:sub"
       },
       {
-        source: "/:tag([^@|\\(hive\\-\\)].+)/:community(hive-.+)",
+        source: "/:tag([^@|\\(hive\\-\\)].+)/:community(hive-\\d{5,6})",
         destination: "/community/:community/:tag"
       },
 
