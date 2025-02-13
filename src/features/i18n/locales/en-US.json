@@ -2586,7 +2586,9 @@
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
     "draft-mode": "You are in a draft editing mode",
     "save-draft": "Save to draft",
-    "update-draft": "Update draft"
+    "update-draft": "Update draft",
+    "three-speak-upload": "Upload and paste",
+    "three-speak-gallery": "From 3Speak"
   },
   "ecency-images": {
     "upload-image": "Upload image",

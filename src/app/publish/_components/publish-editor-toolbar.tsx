@@ -1,7 +1,15 @@
 "use client";
 
+import { PublishEditorToolbarAddLinkDialog } from "@/app/publish/_components/publish-editor-toolbar-add-link-dialog";
+import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
+import { EcencyConfigManager } from "@/config";
+import { EcencyImagesUploadDialog } from "@/features/ecency-images";
+import { GalleryDialog } from "@/features/shared";
+import { FragmentsDialog } from "@/features/shared/fragments";
+import { VideoGallery } from "@/features/shared/video-gallery";
+import { VideoUpload } from "@/features/shared/video-upload-threespeak";
+import { EmojiPicker } from "@/features/ui";
 import { Editor } from "@tiptap/core";
-import { Button } from "@ui/button";
 import {
   UilArrow,
   UilBold,
@@ -22,8 +30,10 @@ import {
   UilTable,
   UilTextSize,
   UilTextStrikeThrough,
-  UilUpload
+  UilUpload,
+  UilVideo
 } from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
 import {
   Dropdown,
   DropdownItem,
@@ -31,16 +41,9 @@ import {
   DropdownMenu,
   DropdownToggle
 } from "@ui/dropdown";
-import { FragmentsDialog } from "@/features/shared/fragments";
-import { EcencyConfigManager } from "@/config";
-import React, { useRef, useState } from "react";
-import { GalleryDialog } from "@/features/shared";
-import { PublishEditorToolbarAddLinkDialog } from "@/app/publish/_components/publish-editor-toolbar-add-link-dialog";
-import { EmojiPicker } from "@/features/ui";
-import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
 import i18next from "i18next";
+import { useRef, useState } from "react";
 import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
-import { EcencyImagesUploadDialog } from "@/features/ecency-images";
 
 interface Props {
   editor: Editor | null;
@@ -57,6 +60,8 @@ export function PublishEditorToolbar({ editor }: Props) {
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [showImageByLink, setShowImageByLink] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [showVideoGallery, setShowVideoGallery] = useState(false);
+  const [showVideoUpload, setShowVideoUpload] = useState(false);
 
   return (
     <div className="w-full items-center px-2 flex flex-wrap">
@@ -214,6 +219,24 @@ export function PublishEditorToolbar({ editor }: Props) {
       <Button appearance="gray-link" size="sm" onClick={() => setShowGifPicker(true)}>
         GIF
       </Button>
+      <Dropdown>
+        <DropdownToggle>
+          <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
+        </DropdownToggle>
+        <DropdownMenu>
+          <DropdownItemWithIcon
+            icon={<UilUpload />}
+            label={i18next.t("publish.three-speak-upload")}
+            onClick={() => setShowVideoUpload(true)}
+          />
+          <DropdownItemWithIcon
+            icon={<UilVideo />}
+            label={i18next.t("publish.three-speak-gallery")}
+            onClick={() => setShowVideoGallery(true)}
+          />
+          <DropdownItemWithIcon icon={<UilLink />} label={i18next.t("publish.from-link")} />
+        </DropdownMenu>
+      </Dropdown>
 
       {/*Dialogs*/}
       <EcencyConfigManager.Conditional
@@ -271,6 +294,25 @@ export function PublishEditorToolbar({ editor }: Props) {
           editor?.chain().focus().insertContent(`![](${e})`).run();
           setShowImageUpload(false);
         }}
+      />
+
+      <VideoGallery
+        showGallery={showVideoGallery}
+        setShowGallery={(v) => setShowVideoGallery(v)}
+        insertText={(t) => {}}
+        setVideoEncoderBeneficiary={(e) => {
+          console.log("ben", e);
+        }}
+        toggleNsfwC={() => {
+          console.log("nsfw");
+        }}
+        setVideoMetadata={(e) => console.log("meta", e)}
+      />
+
+      <VideoUpload
+        show={showVideoUpload}
+        setShow={setShowVideoUpload}
+        setShowGallery={setShowVideoGallery}
       />
     </div>
   );
