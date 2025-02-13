@@ -14,19 +14,19 @@ export function usePublishState() {
 
   const [title, setTitle] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_title",
-    undefined,
+    "",
     undefined,
     persistent
   );
   const [content, setContent] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_content",
-    undefined,
+    "",
     undefined,
     persistent
   );
   const [reward, setReward] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_reward",
-    undefined,
+    "default",
     undefined,
     persistent
   );
@@ -38,7 +38,7 @@ export function usePublishState() {
   );
   const [metaDescription, setMetaDescription] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_meta_desc",
-    undefined,
+    "",
     undefined,
     persistent
   );
