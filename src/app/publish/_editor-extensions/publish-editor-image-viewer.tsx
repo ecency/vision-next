@@ -3,6 +3,10 @@ import clsx from "clsx";
 import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
+import { EcencyRenderer as PureEcencyRenderer } from "@ecency/renderer";
+import { memo } from "react";
+
+const EcencyRenderer = memo(PureEcencyRenderer);
 
 export function PublishEditorImageViewer({
   node: {
@@ -23,7 +27,7 @@ export function PublishEditorImageViewer({
       Paragraph,
       Placeholder.configure({
         placeholder: ({ node }) => {
-          return "Image caption";
+          return "Caption";
         }
       }),
       Text
@@ -41,8 +45,8 @@ export function PublishEditorImageViewer({
       className={clsx("publish-editor-image-viewer", selected && "ProseMirror-selectednode")}
       data-drag-handle
     >
-      <img src={src} alt={alt} />
-      <div className="flex items-center justify-center text-sm font-sans text-center mt-2 leading-relaxed">
+      <EcencyRenderer value={src} />
+      <div className="flex items-center justify-center text-sm font-sans text-center leading-relaxed">
         <EditorContent editor={editor} />
       </div>
     </NodeViewWrapper>

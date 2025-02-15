@@ -2588,7 +2588,10 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Upload and paste",
-    "three-speak-gallery": "From 3Speak"
+    "three-speak-gallery": "From 3Speak",
+    "video-by-link": "Add video by link",
+    "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
+    "video-link-label": "Video link"
   },
   "ecency-images": {
     "upload-image": "Upload image",

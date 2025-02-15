@@ -9,7 +9,6 @@ import { FragmentsDialog } from "@/features/shared/fragments";
 import { VideoGallery } from "@/features/shared/video-gallery";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker } from "@/features/ui";
-import { Editor } from "@tiptap/core";
 import {
   UilArrow,
   UilBold,
@@ -44,9 +43,10 @@ import {
 import i18next from "i18next";
 import { useRef, useState } from "react";
 import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
+import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
 
 interface Props {
-  editor: Editor | null;
+  editor: any | null;
 }
 
 const headings = [1, 2, 3, 4, 5, 6];
@@ -62,6 +62,7 @@ export function PublishEditorToolbar({ editor }: Props) {
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
+  const [showVideoLink, setShowVideoLink] = useState(false);
 
   return (
     <div className="w-full items-center px-2 flex flex-wrap">
@@ -234,7 +235,11 @@ export function PublishEditorToolbar({ editor }: Props) {
             label={i18next.t("publish.three-speak-gallery")}
             onClick={() => setShowVideoGallery(true)}
           />
-          <DropdownItemWithIcon icon={<UilLink />} label={i18next.t("publish.from-link")} />
+          <DropdownItemWithIcon
+            icon={<UilLink />}
+            label={i18next.t("publish.from-link")}
+            onClick={() => setShowVideoLink(true)}
+          />
         </DropdownMenu>
       </Dropdown>
 
@@ -313,6 +318,15 @@ export function PublishEditorToolbar({ editor }: Props) {
         show={showVideoUpload}
         setShow={setShowVideoUpload}
         setShowGallery={setShowVideoGallery}
+      />
+
+      <PublishEditorVideoByLinkDialog
+        show={showVideoLink}
+        setShow={setShowVideoLink}
+        onAdd={(e) => {
+          editor?.chain().focus().insertContent(`![](${e})`).run();
+          setShowVideoLink(false);
+        }}
       />
     </div>
   );

@@ -1,16 +1,16 @@
-import React, { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
-import "./index.scss";
-import { VideoUploadItem } from "./video-upload-item";
+import { useThreeSpeakVideoUpload, useUploadVideoInfo } from "@/api/threespeak";
+import { useGlobalStore } from "@/core/global-store";
+import { createFile } from "@/utils/create-file";
+import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
-import { VideoUploadRecorder } from "./video-upload-recorder";
-import useMountedState from "react-use/lib/useMountedState";
-import { Alert } from "@ui/alert";
-import { useGlobalStore } from "@/core/global-store";
-import { useThreeSpeakVideoUpload, useUploadVideoInfo } from "@/api/threespeak";
-import i18next from "i18next";
 import { recordVideoSvg } from "@ui/svg";
-import { createFile } from "@/utils/create-file";
+import i18next from "i18next";
+import React, { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
+import useMountedState from "react-use/lib/useMountedState";
+import "./index.scss";
+import { VideoUploadItem } from "./video-upload-item";
+import { VideoUploadRecorder } from "./video-upload-recorder";
 
 interface Props {
   children?: ReactNode;
