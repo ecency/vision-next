@@ -53,7 +53,7 @@ export function SignupWalletStepper({ step: stepProp }: Props) {
             className={clsx("flex text-sm items-start gap-2 md:gap-4")}
             key={step}
           >
-            <div className="bg-gray-100 dark:bg-dark-default p-2 rounded-xl">{icon}</div>
+            <div className="bg-white dark:bg-dark-default p-2 rounded-xl">{icon}</div>
             <div>
               <div className="font-bold">{title}</div>
               <div className="opacity-75">{description}</div>
