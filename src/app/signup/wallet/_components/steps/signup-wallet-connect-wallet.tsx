@@ -1,9 +1,9 @@
+import { ExternalWalletCurrency } from "@/enums";
 import { Alert } from "@/features/ui";
-import { SignupWalletCurrency } from "../../_enums";
-import { SignupWalletConnectWalletItem } from "./signup-wallet-connect-wallet-item";
 import { UilLock } from "@tooni/iconscout-unicons-react";
+import { SignupWalletConnectWalletItem } from "./signup-wallet-connect-wallet-item";
 
-const CURRENCIES = Object.values(SignupWalletCurrency);
+const CURRENCIES = Object.values(ExternalWalletCurrency);
 
 export function SignupWalletConnectWallet() {
   return (

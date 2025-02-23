@@ -6,32 +6,32 @@ import { TonWallet } from "@okxweb3/coin-ton";
 import { SolWallet } from "@okxweb3/coin-solana";
 import { AtomWallet } from "@okxweb3/coin-cosmos";
 import { AptosWallet } from "@okxweb3/coin-aptos";
-import { SignupWalletCurrency } from "../_enums";
 import { BaseWallet } from "@okxweb3/coin-base";
 import { useMutation } from "@tanstack/react-query";
 import { delay } from "@/utils";
+import { ExternalWalletCurrency } from "@/enums";
 
-function getWallet(currency: SignupWalletCurrency): BaseWallet | undefined {
+function getWallet(currency: ExternalWalletCurrency): BaseWallet | undefined {
   switch (currency) {
-    case SignupWalletCurrency.BTC:
+    case ExternalWalletCurrency.BTC:
       return new BtcWallet();
 
-    case SignupWalletCurrency.ETH:
+    case ExternalWalletCurrency.ETH:
       return new EthWallet();
 
-    case SignupWalletCurrency.TRON:
+    case ExternalWalletCurrency.TRON:
       return new TrxWallet();
 
-    case SignupWalletCurrency.TON:
+    case ExternalWalletCurrency.TON:
       return new TonWallet();
 
-    case SignupWalletCurrency.SOL:
+    case ExternalWalletCurrency.SOL:
       return new SolWallet();
 
-    case SignupWalletCurrency.ATOM:
+    case ExternalWalletCurrency.ATOM:
       return new AtomWallet();
 
-    case SignupWalletCurrency.APT:
+    case ExternalWalletCurrency.APT:
       return new AptosWallet();
 
     default:
@@ -42,7 +42,7 @@ function getWallet(currency: SignupWalletCurrency): BaseWallet | undefined {
 export function useSignpupWallet() {
   const createWallet = useMutation({
     mutationKey: ["create-wallet"],
-    mutationFn: async (currency: SignupWalletCurrency) => {
+    mutationFn: async (currency: ExternalWalletCurrency) => {
       const wallet = getWallet(currency);
       const privateKey = await wallet?.getRandomPrivateKey();
       await delay(1000);
@@ -53,7 +53,7 @@ export function useSignpupWallet() {
       return [privateKey, address] as const;
     }
   });
-  const importWallet = useCallback((currency: SignupWalletCurrency) => {}, []);
+  const importWallet = useCallback((currency: ExternalWalletCurrency) => {}, []);
 
   return {
     createWallet,

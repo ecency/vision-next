@@ -1,8 +1,8 @@
+import { ExternalWalletCurrency } from "@/enums";
 import { Badge, Button } from "@/features/ui";
 import Image from "next/image";
-import { SignupWalletCurrency } from "../../_enums";
 
-const CURRENCIES = Object.keys(SignupWalletCurrency);
+const CURRENCIES = Object.keys(ExternalWalletCurrency);
 
 interface Props {
   onNext: () => void;

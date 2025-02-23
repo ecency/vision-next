@@ -1,4 +1,4 @@
-export enum SignupWalletCurrency {
+export enum ExternalWalletCurrency {
   BTC = "btc",
   ETH = "eth",
   APT = "atpos",

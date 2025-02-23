@@ -1,8 +1,5 @@
 "use client";
 
-import { SignupWalletCurrency } from "../../_enums";
-import { useSignpupWallet } from "../../_hooks";
-import Image from "next/image";
 import aptSvg from "@/assets/img/currencies/apt.svg";
 import atomSvg from "@/assets/img/currencies/atom.svg";
 import btcSvg from "@/assets/img/currencies/btc.svg";
@@ -10,45 +7,48 @@ import ethSvg from "@/assets/img/currencies/eth.svg";
 import solSvg from "@/assets/img/currencies/solana.svg";
 import tonSvg from "@/assets/img/currencies/ton.svg";
 import tronSvg from "@/assets/img/currencies/tron.svg";
-import { Button, FormControl, InputGroup } from "@/features/ui";
-import { useMemo, useState } from "react";
-import { UilCopy, UilEye } from "@tooni/iconscout-unicons-react";
-import { useCopyToClipboard } from "react-use";
+import { ExternalWalletCurrency } from "@/enums";
 import { success } from "@/features/shared";
+import { Button, FormControl, InputGroup } from "@/features/ui";
+import { UilCopy, UilEye } from "@tooni/iconscout-unicons-react";
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import { useCopyToClipboard } from "react-use";
+import { useSignpupWallet } from "../../_hooks";
 
 const CURRENCIES_DATA = {
-  [SignupWalletCurrency.BTC]: {
+  [ExternalWalletCurrency.BTC]: {
     title: "Bitcoin",
     icon: btcSvg
   },
-  [SignupWalletCurrency.ETH]: {
+  [ExternalWalletCurrency.ETH]: {
     title: "Etherium",
     icon: ethSvg
   },
-  [SignupWalletCurrency.TRON]: {
+  [ExternalWalletCurrency.TRON]: {
     title: "Tron",
     icon: tronSvg
   },
-  [SignupWalletCurrency.TON]: {
+  [ExternalWalletCurrency.TON]: {
     title: "Ton",
     icon: tonSvg
   },
-  [SignupWalletCurrency.SOL]: {
+  [ExternalWalletCurrency.SOL]: {
     title: "Solana",
     icon: solSvg
   },
-  [SignupWalletCurrency.ATOM]: {
+  [ExternalWalletCurrency.ATOM]: {
     title: "ATOM Cosmos",
     icon: atomSvg
   },
-  [SignupWalletCurrency.APT]: {
+  [ExternalWalletCurrency.APT]: {
     title: "Aptos",
     icon: aptSvg
   }
 } as const;
 
 interface Props {
-  currency: SignupWalletCurrency;
+  currency: ExternalWalletCurrency;
 }
 
 export function SignupWalletConnectWalletItem({ currency }: Props) {
