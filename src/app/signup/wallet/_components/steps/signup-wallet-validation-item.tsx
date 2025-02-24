@@ -1,8 +1,12 @@
 import { ExternalWalletCurrency } from "@/enums";
+import clsx from "clsx";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { CURRENCIES_META_DATA } from "../../consts";
-import clsx from "clsx";
+import { Button } from "@/features/ui";
+import { UilClipboard, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
+import { useCopyToClipboard } from "react-use";
+import { success } from "@/features/shared";
 
 interface Props {
   i: number;
@@ -19,6 +23,8 @@ export function SignupWalletValidationItem({
   onSelect,
   selectable = false
 }: Props) {
+  const [_, copy] = useCopyToClipboard();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24, position: "absolute" }}
@@ -44,7 +50,16 @@ export function SignupWalletValidationItem({
         </div>
       </div>
 
-      <div className="opacity-75 text-sm mt-6 truncate">{address}</div>
+      <div
+        className="flex items-center gap-1 mt-6 cursor-pointer"
+        onClick={() => {
+          copy(address);
+          success("Address copied");
+        }}
+      >
+        <div className="opacity-75 text-sm truncate">{address}</div>
+        <Button icon={<UilClipboardAlt />} appearance="gray-link" size="xxs" />
+      </div>
     </motion.div>
   );
 }
