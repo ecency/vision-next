@@ -72,3 +72,4 @@ export * from "./waves";
 export * from "./get-discussions-query";
 export * from "./stats";
 export * from "./signup";
+export * from "./coingecko-price-query";

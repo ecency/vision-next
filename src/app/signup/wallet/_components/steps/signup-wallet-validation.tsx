@@ -8,6 +8,8 @@ import qrcode from "qrcode";
 import Image from "next/image";
 import { Button } from "@/features/ui";
 import i18next from "i18next";
+import { getCoingeckoPriceQuery } from "@/api/queries";
+import { CURRENCIES_META_DATA } from "../../consts";
 
 interface Props {
   wallets: Record<ExternalWalletCurrency, SignupExternalWalletInformation>;
@@ -17,6 +19,7 @@ export function SignupWalletValidation({ wallets }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
   // Currency and address
   const [selected, setSelected] = useState<[ExternalWalletCurrency, string]>();
+  const { data: selectedCurrencyRate } = getCoingeckoPriceQuery(selected?.[0]).useClientQuery();
 
   const walletsList = useMemo(() => Object.entries(wallets), [wallets]);
 
@@ -61,7 +64,11 @@ export function SignupWalletValidation({ wallets }: Props) {
             className="my-4 sm:my-6 lg:my-8 xl:my-12 flex flex-col gap-4 items-center"
           >
             <div>
-              Please, topup your wallet to <span className="text-blue-dark-sky">0.00003BTC</span>
+              Please, topup your wallet at least to{" "}
+              <span className="text-blue-dark-sky">
+                {selectedCurrencyRate?.toFixed(8)}
+                {CURRENCIES_META_DATA[selected[0]].name} = $1
+              </span>
             </div>
             <Countdown
               date={Date.now() + 900_000}

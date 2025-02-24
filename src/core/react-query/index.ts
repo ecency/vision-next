@@ -99,7 +99,8 @@ export enum QueryIdentifiers {
   PAGE_STATS = "page-stats",
   MARKET_TRADING_VIEW = "market-trading-view",
   MARKET_BUCKET_SIZE = "market-bucket-size",
-  EXTERNAL_WALLET_BALANCE = "external-wallet-query"
+  EXTERNAL_WALLET_BALANCE = "external-wallet-query",
+  COINGECKO_PRICE = "coingecko-price"
 }
 
 export function makeQueryClient() {
