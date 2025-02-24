@@ -28,13 +28,27 @@ export default function SignupByWalletPage() {
     }
   }, [step]);
 
+  const next = useCallback(() => {
+    switch (step) {
+      case SignupByWalletStepperSteps.VALIDATION:
+        setStep(SignupByWalletStepperSteps.CREATE_ACCOUNT);
+        break;
+      case SignupByWalletStepperSteps.INTRO:
+        setStep(SignupByWalletStepperSteps.CI);
+        break;
+      case SignupByWalletStepperSteps.CREATE_ACCOUNT:
+      default:
+        setStep(SignupByWalletStepperSteps.INTRO);
+    }
+  }, []);
+
   return (
     <div className="container mx-auto flex flex-col gap-4 md:gap-8 lg:gap-10 xl:gap-12 min-h-[90vh] items-center">
       <SignupWalletStepper step={step} />
 
-      <div className="flex flex-col max-w-[800px] w-full justify-center bg-white p-4 sm:p-6 md:p-8 rounded-xl">
-        {step !== SignupByWalletStepperSteps.INTRO && (
-          <div className="flex items-center justify-start mb-4">
+      <div className="flex flex-col max-w-[800px] w-full justify-center bg-white p-4 sm:px-6 md:px-8 rounded-xl">
+        <div className="flex items-center bg-white z-10 justify-between sticky top-0 py-4">
+          {step !== SignupByWalletStepperSteps.INTRO && (
             <Button
               noPadding={true}
               icon={<UilArrowLeft />}
@@ -45,11 +59,15 @@ export default function SignupByWalletPage() {
             >
               {i18next.t("g.back")}
             </Button>
-          </div>
-        )}
-        {step === SignupByWalletStepperSteps.INTRO && (
-          <SignupWalletIntro onNext={() => setStep(SignupByWalletStepperSteps.CI)} />
-        )}
+          )}
+          {step === SignupByWalletStepperSteps.INTRO && <div />}
+
+          <Button size="sm" onClick={next}>
+            Continue
+          </Button>
+        </div>
+
+        {step === SignupByWalletStepperSteps.INTRO && <SignupWalletIntro />}
         {step === SignupByWalletStepperSteps.CI && <SignupWalletConnectWallet />}
       </div>
     </div>
