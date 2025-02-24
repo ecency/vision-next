@@ -2,10 +2,19 @@ import { ExternalWalletCurrency } from "@/enums";
 import { Alert } from "@/features/ui";
 import { UilLock } from "@tooni/iconscout-unicons-react";
 import { SignupWalletConnectWalletItem } from "./signup-wallet-connect-wallet-item";
+import { SignupExternalWalletInformation } from "../../types";
+import { AnimatePresence } from "framer-motion";
 
 const CURRENCIES = Object.values(ExternalWalletCurrency);
 
-export function SignupWalletConnectWallet() {
+interface Props {
+  onSuccess: (
+    currency: ExternalWalletCurrency,
+    walletInformation: SignupExternalWalletInformation
+  ) => void;
+}
+
+export function SignupWalletConnectWallet({ onSuccess }: Props) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <div>
@@ -19,9 +28,16 @@ export function SignupWalletConnectWallet() {
         Keep in mind, Hive will assign public keys only to your new Hive account. Private keys will
         be show only once. Keep them in a safety place or a paper!
       </Alert>
-      {CURRENCIES.map((currency) => (
-        <SignupWalletConnectWalletItem currency={currency} key={currency} />
-      ))}
+      <AnimatePresence>
+        {CURRENCIES.map((currency, index) => (
+          <SignupWalletConnectWalletItem
+            i={index}
+            onSuccess={(info) => onSuccess(currency, info)}
+            currency={currency}
+            key={currency}
+          />
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

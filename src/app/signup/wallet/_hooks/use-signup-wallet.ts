@@ -10,6 +10,7 @@ import { BaseWallet } from "@okxweb3/coin-base";
 import { useMutation } from "@tanstack/react-query";
 import { delay } from "@/utils";
 import { ExternalWalletCurrency } from "@/enums";
+import { SignupExternalWalletInformation } from "../types";
 
 function getWallet(currency: ExternalWalletCurrency): BaseWallet | undefined {
   switch (currency) {
@@ -39,18 +40,21 @@ function getWallet(currency: ExternalWalletCurrency): BaseWallet | undefined {
   }
 }
 
-export function useSignpupWallet() {
+export function useSignpupWallet(currency: ExternalWalletCurrency) {
   const createWallet = useMutation({
-    mutationKey: ["create-wallet"],
-    mutationFn: async (currency: ExternalWalletCurrency) => {
+    mutationKey: ["create-wallet", currency],
+    mutationFn: async () => {
       const wallet = getWallet(currency);
-      const privateKey = await wallet?.getRandomPrivateKey();
+      const privateKey = (await wallet?.getRandomPrivateKey()) as string;
       await delay(1000);
-      const address = await wallet?.getNewAddress({
+      const address = (await wallet?.getNewAddress({
         privateKey
-      });
-      console.log(address);
-      return [privateKey, address] as const;
+      })) as { address: string; publicKey: string };
+      return {
+        privateKey,
+        address: address.address,
+        publicKey: address.publicKey
+      } as SignupExternalWalletInformation;
     }
   });
   const importWallet = useCallback((currency: ExternalWalletCurrency) => {}, []);

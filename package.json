@@ -67,6 +67,7 @@
     "qrcode": "^1.5.3",
     "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
+    "react-countdown": "^2.3.6",
     "react-datetime": "^3.2.0",
     "react-dom": "^18",
     "react-google-recaptcha": "^3.1.0",

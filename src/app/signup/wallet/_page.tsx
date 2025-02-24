@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   SignupByWalletStepperSteps,
   SignupWalletConnectWallet,
@@ -10,9 +10,22 @@ import {
 import { Button } from "@/features/ui";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
+import { SignupWalletValidation } from "./_components/steps/signup-wallet-validation";
+import { useMap } from "react-use";
+import { ExternalWalletCurrency } from "@/enums";
+import { SignupExternalWalletInformation } from "./types";
 
 export default function SignupByWalletPage() {
+  const [wallets, { set }] =
+    useMap<Record<ExternalWalletCurrency, SignupExternalWalletInformation>>();
+
   const [step, setStep] = useState(SignupByWalletStepperSteps.INTRO);
+
+  const hasAtLeastOneWallet = useMemo(() => Object.values(wallets).length > 0, [wallets]);
+  const isContinueDisabled = useMemo(
+    () => step !== SignupByWalletStepperSteps.INTRO && !hasAtLeastOneWallet,
+    [hasAtLeastOneWallet, step]
+  );
 
   const back = useCallback(() => {
     switch (step) {
@@ -29,6 +42,10 @@ export default function SignupByWalletPage() {
   }, [step]);
 
   const next = useCallback(() => {
+    if (isContinueDisabled) {
+      return;
+    }
+
     switch (step) {
       case SignupByWalletStepperSteps.VALIDATION:
         setStep(SignupByWalletStepperSteps.CREATE_ACCOUNT);
@@ -36,11 +53,14 @@ export default function SignupByWalletPage() {
       case SignupByWalletStepperSteps.INTRO:
         setStep(SignupByWalletStepperSteps.CI);
         break;
+      case SignupByWalletStepperSteps.CI:
+        setStep(SignupByWalletStepperSteps.VALIDATION);
+        break;
       case SignupByWalletStepperSteps.CREATE_ACCOUNT:
       default:
         setStep(SignupByWalletStepperSteps.INTRO);
     }
-  }, []);
+  }, [isContinueDisabled, step]);
 
   return (
     <div className="container mx-auto flex flex-col gap-4 md:gap-8 lg:gap-10 xl:gap-12 min-h-[90vh] items-center">
@@ -62,13 +82,18 @@ export default function SignupByWalletPage() {
           )}
           {step === SignupByWalletStepperSteps.INTRO && <div />}
 
-          <Button size="sm" onClick={next}>
+          <Button size="sm" onClick={next} disabled={isContinueDisabled}>
             Continue
           </Button>
         </div>
 
         {step === SignupByWalletStepperSteps.INTRO && <SignupWalletIntro />}
-        {step === SignupByWalletStepperSteps.CI && <SignupWalletConnectWallet />}
+        {step === SignupByWalletStepperSteps.CI && (
+          <SignupWalletConnectWallet onSuccess={(currency, wallet) => set(currency, wallet)} />
+        )}
+        {step === SignupByWalletStepperSteps.VALIDATION && (
+          <SignupWalletValidation wallets={wallets} />
+        )}
       </div>
     </div>
   );

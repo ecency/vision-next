@@ -1,58 +1,25 @@
 "use client";
 
-import aptSvg from "@/assets/img/currencies/apt.svg";
-import atomSvg from "@/assets/img/currencies/atom.svg";
-import btcSvg from "@/assets/img/currencies/btc.svg";
-import ethSvg from "@/assets/img/currencies/eth.svg";
-import solSvg from "@/assets/img/currencies/solana.svg";
-import tonSvg from "@/assets/img/currencies/ton.svg";
-import tronSvg from "@/assets/img/currencies/tron.svg";
 import { ExternalWalletCurrency } from "@/enums";
 import { success } from "@/features/shared";
 import { Button, FormControl, InputGroup } from "@/features/ui";
 import { UilCopy, UilEye } from "@tooni/iconscout-unicons-react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useCopyToClipboard } from "react-use";
 import { useSignpupWallet } from "../../_hooks";
-
-const CURRENCIES_DATA = {
-  [ExternalWalletCurrency.BTC]: {
-    title: "Bitcoin",
-    icon: btcSvg
-  },
-  [ExternalWalletCurrency.ETH]: {
-    title: "Etherium",
-    icon: ethSvg
-  },
-  [ExternalWalletCurrency.TRON]: {
-    title: "Tron",
-    icon: tronSvg
-  },
-  [ExternalWalletCurrency.TON]: {
-    title: "Ton",
-    icon: tonSvg
-  },
-  [ExternalWalletCurrency.SOL]: {
-    title: "Solana",
-    icon: solSvg
-  },
-  [ExternalWalletCurrency.ATOM]: {
-    title: "ATOM Cosmos",
-    icon: atomSvg
-  },
-  [ExternalWalletCurrency.APT]: {
-    title: "Aptos",
-    icon: aptSvg
-  }
-} as const;
+import { CURRENCIES_META_DATA } from "../../consts";
+import { SignupExternalWalletInformation } from "../../types";
+import { motion } from "framer-motion";
 
 interface Props {
+  i: number;
   currency: ExternalWalletCurrency;
+  onSuccess: (walletInformation: SignupExternalWalletInformation) => void;
 }
 
-export function SignupWalletConnectWalletItem({ currency }: Props) {
-  const { createWallet, importWallet } = useSignpupWallet();
+export function SignupWalletConnectWalletItem({ i, currency, onSuccess }: Props) {
+  const { createWallet, importWallet } = useSignpupWallet(currency);
 
   const [_, copy] = useCopyToClipboard();
 
@@ -71,12 +38,23 @@ export function SignupWalletConnectWalletItem({ currency }: Props) {
   const [hasPrivateKeyRevealed, setHasPrivateKeyRevealed] = useState(false);
 
   const privateKey = useMemo(
-    () => (hasPrivateKeyRevealed ? createWallet.data?.[0] : "************************"),
+    () => (hasPrivateKeyRevealed ? createWallet.data?.privateKey : "************************"),
     [createWallet.data, hasPrivateKeyRevealed]
   );
 
+  const create = useCallback(async () => {
+    if (createWallet.isIdle) {
+      const response = await createWallet.mutateAsync();
+      onSuccess(response);
+    }
+  }, [createWallet, onSuccess]);
+
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 24 }}
+      transition={{ delay: i * 0.1 }}
       className="bg-gray-100 dark:bg-dark-600-010 p-4 rounded-xl flex flex-col gap-4"
       key={currency}
     >
@@ -84,12 +62,12 @@ export function SignupWalletConnectWalletItem({ currency }: Props) {
         <div className="flex items-center gap-4">
           <Image
             className="w-[2rem] h-[2rem]"
-            src={CURRENCIES_DATA[currency].icon.src}
-            width={CURRENCIES_DATA[currency].icon.width}
-            height={CURRENCIES_DATA[currency].icon.height}
-            alt={CURRENCIES_DATA[currency].title}
+            src={CURRENCIES_META_DATA[currency].icon.src}
+            width={CURRENCIES_META_DATA[currency].icon.width}
+            height={CURRENCIES_META_DATA[currency].icon.height}
+            alt={CURRENCIES_META_DATA[currency].title}
           />
-          <div className="font-semibold">{CURRENCIES_DATA[currency].title}</div>
+          <div className="font-semibold">{CURRENCIES_META_DATA[currency].title}</div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -98,11 +76,16 @@ export function SignupWalletConnectWalletItem({ currency }: Props) {
             isLoading={createWallet.isPending}
             disabled={createWallet.isPending}
             size="sm"
-            onClick={() => createWallet.isIdle && createWallet.mutateAsync(currency)}
+            onClick={create}
           >
             {createWalletButtonText}
           </Button>
-          <Button size="sm" appearance="gray" onClick={() => importWallet(currency)}>
+          <Button
+            disabled={true}
+            size="sm"
+            appearance="gray"
+            onClick={() => importWallet(currency)}
+          >
             Import
           </Button>
         </div>
@@ -118,13 +101,13 @@ export function SignupWalletConnectWalletItem({ currency }: Props) {
                   appearance="gray-link"
                   icon={<UilCopy />}
                   onClick={() => {
-                    copy(createWallet.data?.[1].address);
+                    copy(createWallet.data?.address);
                     success("Copied!");
                   }}
                 />
               }
             >
-              <FormControl type="text" readOnly={true} value={createWallet.data?.[1].address} />
+              <FormControl type="text" readOnly={true} value={createWallet.data?.address} />
             </InputGroup>
           </div>
           <div className="flex flex-col gap-2">
@@ -135,13 +118,13 @@ export function SignupWalletConnectWalletItem({ currency }: Props) {
                   appearance="gray-link"
                   icon={<UilCopy />}
                   onClick={() => {
-                    copy(createWallet.data?.[1].publicKey);
+                    copy(createWallet.data?.publicKey);
                     success("Public key has copied");
                   }}
                 />
               }
             >
-              <FormControl type="text" readOnly={true} value={createWallet.data?.[1].publicKey} />
+              <FormControl type="text" readOnly={true} value={createWallet.data?.publicKey} />
             </InputGroup>
           </div>
           <div className="flex flex-col gap-2">
@@ -162,6 +145,6 @@ export function SignupWalletConnectWalletItem({ currency }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
