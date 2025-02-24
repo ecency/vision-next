@@ -1,35 +1,19 @@
 import { ExternalWalletCurrency } from "@/enums";
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { useMemo, useState } from "react";
 import { SignupExternalWalletInformation } from "../../types";
 import { SignupWalletValidationItem } from "./signup-wallet-validation-item";
-import Countdown from "react-countdown";
-import qrcode from "qrcode";
-import Image from "next/image";
-import { Button } from "@/features/ui";
-import i18next from "i18next";
-import { getCoingeckoPriceQuery } from "@/api/queries";
-import { CURRENCIES_META_DATA } from "../../consts";
+import { SignupWalletValiadtionSelected } from "./signup-wallet-validation-selected";
 
 interface Props {
   wallets: Record<ExternalWalletCurrency, SignupExternalWalletInformation>;
 }
 
 export function SignupWalletValidation({ wallets }: Props) {
-  const qrCodeRef = useRef<HTMLImageElement>(null);
   // Currency and address
   const [selected, setSelected] = useState<[ExternalWalletCurrency, string]>();
-  const { data: selectedCurrencyRate } = getCoingeckoPriceQuery(selected?.[0]).useClientQuery();
 
   const walletsList = useMemo(() => Object.entries(wallets), [wallets]);
-
-  useEffect(() => {
-    if (selected) {
-      qrcode
-        .toDataURL(selected[1], { width: 300 })
-        .then((src) => qrCodeRef.current && (qrCodeRef.current.src = src));
-    }
-  }, [selected]);
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -48,6 +32,7 @@ export function SignupWalletValidation({ wallets }: Props) {
                 key={address}
                 currency={currency as ExternalWalletCurrency}
                 address={address}
+                selectable={true}
                 onSelect={() => setSelected([currency as ExternalWalletCurrency, address])}
               />
             ))}
@@ -57,41 +42,11 @@ export function SignupWalletValidation({ wallets }: Props) {
 
       <AnimatePresence>
         {selected && (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: walletsList.length * 0.3 }}
-            className="my-4 sm:my-6 lg:my-8 xl:my-12 flex flex-col gap-4 items-center"
-          >
-            <div>
-              Please, topup your wallet at least to{" "}
-              <span className="text-blue-dark-sky">
-                {selectedCurrencyRate?.toFixed(8)}
-                {CURRENCIES_META_DATA[selected[0]].name} = $1
-              </span>
-            </div>
-            <Countdown
-              date={Date.now() + 900_000}
-              renderer={({ minutes, seconds, completed }) => (
-                <div className="flex items-center gap-2 text-4xl font-bold text-blue-dark-sky">
-                  <div>{minutes}</div>
-                  <div>:</div>
-                  <div>{seconds}</div>
-                </div>
-              )}
-            />
-            <Image
-              className="bg-gray-100 dark:bg-dark-default p-4 rounded-xl"
-              ref={qrCodeRef}
-              src=""
-              width={300}
-              height={300}
-              alt=""
-            />
-            <Button appearance="gray" onClick={() => setSelected(undefined)}>
-              {i18next.t("g.cancel")}
-            </Button>
-          </motion.div>
+          <SignupWalletValiadtionSelected
+            selected={selected}
+            walletsList={walletsList}
+            onCancel={() => setSelected(undefined)}
+          />
         )}
       </AnimatePresence>
     </div>
