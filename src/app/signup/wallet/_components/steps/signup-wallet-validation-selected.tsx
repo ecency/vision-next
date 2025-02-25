@@ -35,14 +35,20 @@ export function SignupWalletValiadtionSelected({ walletsList, selected, onCancel
       animate={{ opacity: 1, y: 0, position: "static" }}
       exit={{ opacity: 0, y: 24, position: "absolute" }}
       transition={{ delay: selected ? 0 : walletsList.length * 0.3 }}
-      className="my-4 sm:my-6 lg:my-8 xl:my-12 gap-4 items-center grid grid-cols-1 md:grid-cols-2"
+      className="my-4 sm:my-6 lg:my-8 xl:my-12 gap-4 md:gap-6 lg:gap-8 xl:gap-12 items-center flex"
     >
-      <div className="flex flex-col h-full gap-4">
-        <div className="flex flex-col gap-2 items-start">
-          Please, topup your wallet to at least $1
-          <Badge className="!text-2xl">
-            {selectedCurrencyRate?.toFixed(8)} {CURRENCIES_META_DATA[selected[0]].name}
-          </Badge>
+      <Image
+        className="min-w-[200px] rounded-xl"
+        ref={qrCodeRef}
+        src=""
+        width={200}
+        height={200}
+        alt=""
+      />
+      <div className="w-full flex flex-col items-start h-full gap-4">
+        <div className="-mb-2">Please, topup your wallet to at least $1</div>
+        <div className="text-2xl font-bold">
+          {selectedCurrencyRate?.toFixed(8)} {CURRENCIES_META_DATA[selected[0]].name}
         </div>
         <SignupWalletValidationItem
           i={0}
@@ -50,22 +56,6 @@ export function SignupWalletValiadtionSelected({ walletsList, selected, onCancel
           address={selected[1]}
           onSelect={() => {}}
         />
-      </div>
-      <div className="flex flex-col items-center gap-4 h-full">
-        <Image className="rounded-xl" ref={qrCodeRef} src="" width={200} height={200} alt="" />
-        <Countdown
-          date={Date.now() + 900_000}
-          renderer={({ minutes, seconds, completed }) => (
-            <div className="flex items-center gap-2 text-4xl font-bold">
-              <div>{minutes}</div>
-              <div>:</div>
-              <div>{seconds}</div>
-            </div>
-          )}
-        />
-      </div>
-
-      <div className="col-span-1 md:col-span-2 flex justify-center mt-4">
         <Button className="min-w-[200px]" appearance="gray" onClick={onCancel}>
           {i18next.t("g.cancel")}
         </Button>

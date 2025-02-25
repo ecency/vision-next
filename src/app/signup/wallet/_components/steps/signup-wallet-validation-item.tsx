@@ -1,12 +1,12 @@
 import { ExternalWalletCurrency } from "@/enums";
+import { success } from "@/features/shared";
+import { Button } from "@/features/ui";
+import { UilClipboardAlt } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { CURRENCIES_META_DATA } from "../../consts";
-import { Button } from "@/features/ui";
-import { UilClipboard, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
 import { useCopyToClipboard } from "react-use";
-import { success } from "@/features/shared";
+import { CURRENCIES_META_DATA } from "../../consts";
 
 interface Props {
   i: number;
@@ -32,7 +32,7 @@ export function SignupWalletValidationItem({
       exit={{ opacity: 0, y: 24, position: "absolute" }}
       transition={{ delay: i * 0.1 }}
       className={clsx(
-        "cursor-pointer bg-gray-100 dark:bg-dark-default p-4 rounded-xl",
+        "w-full cursor-pointer bg-gray-100 dark:bg-dark-default p-4 rounded-xl",
         selectable && "hover:bg-gray-200 hover:dark:bg-gray-800"
       )}
       onClick={onSelect}
@@ -52,7 +52,8 @@ export function SignupWalletValidationItem({
 
       <div
         className="flex items-center gap-1 mt-6 cursor-pointer"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           copy(address);
           success("Address copied");
         }}

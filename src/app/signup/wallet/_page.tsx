@@ -19,6 +19,7 @@ export default function SignupByWalletPage() {
   const [wallets, { set }] =
     useMap<Record<ExternalWalletCurrency, SignupExternalWalletInformation>>();
 
+  const [hasValidated, setHasValidated] = useState(false);
   const [step, setStep] = useState(SignupByWalletStepperSteps.INTRO);
 
   const hasAtLeastOneWallet = useMemo(() => Object.values(wallets).length > 0, [wallets]);
@@ -82,9 +83,11 @@ export default function SignupByWalletPage() {
           )}
           {step === SignupByWalletStepperSteps.INTRO && <div />}
 
-          <Button size="sm" onClick={next} disabled={isContinueDisabled}>
-            Continue
-          </Button>
+          {(hasValidated || step !== SignupByWalletStepperSteps.VALIDATION) && (
+            <Button size="sm" onClick={next} disabled={isContinueDisabled}>
+              Continue
+            </Button>
+          )}
         </div>
 
         {step === SignupByWalletStepperSteps.INTRO && <SignupWalletIntro />}
@@ -92,7 +95,7 @@ export default function SignupByWalletPage() {
           <SignupWalletConnectWallet onSuccess={(currency, wallet) => set(currency, wallet)} />
         )}
         {step === SignupByWalletStepperSteps.VALIDATION && (
-          <SignupWalletValidation wallets={wallets} />
+          <SignupWalletValidation wallets={wallets} onValidated={() => setHasValidated(true)} />
         )}
       </div>
     </div>

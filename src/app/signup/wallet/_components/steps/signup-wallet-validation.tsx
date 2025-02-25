@@ -7,9 +7,10 @@ import { SignupWalletValiadtionSelected } from "./signup-wallet-validation-selec
 
 interface Props {
   wallets: Record<ExternalWalletCurrency, SignupExternalWalletInformation>;
+  onValidated: () => void;
 }
 
-export function SignupWalletValidation({ wallets }: Props) {
+export function SignupWalletValidation({ wallets, onValidated }: Props) {
   // Currency and address
   const [selected, setSelected] = useState<[ExternalWalletCurrency, string]>();
 
