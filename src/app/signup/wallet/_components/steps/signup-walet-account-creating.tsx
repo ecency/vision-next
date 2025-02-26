@@ -1,4 +1,4 @@
-import { useCreateAccount, useGetAccountKeys } from "@/api/mutations";
+import { useCreateAccount, useCreateAccountKeys } from "@/api/mutations";
 import { getAccountsQuery } from "@/api/queries";
 import { Alert, Button, FormControl } from "@/features/ui";
 import { UilDownloadAlt } from "@tooni/iconscout-unicons-react";
@@ -15,15 +15,19 @@ export function SignupWalletAccountCreating() {
 
   const { data: foundAccounts, isSuccess } = getAccountsQuery([username]).useClientQuery();
 
-  const { data: accountKeys, mutateAsync: getAccountKeys, isPending } = useGetAccountKeys(username);
+  const {
+    data: accountKeys,
+    mutateAsync: getAccountKeys,
+    isPending
+  } = useCreateAccountKeys(username);
   const downloadKeys = useDownloadKeys(username, accountKeys);
-  const {} = useCreateAccount(username, "address");
+  const { mutateAsync: createAccount } = useCreateAccount(username, "address");
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
   const isInvalidUsername = useMemo(
     () =>
       (existingAccount && !accountKeys) || (usernameInput.length <= 2 && usernameInput.length > 0),
-    [existingAccount, accountKeys]
+    [existingAccount, accountKeys, usernameInput]
   );
   const canCreateAccount = useMemo(
     () => !isInvalidUsername && username && isSuccess && !accountKeys,
@@ -99,7 +103,7 @@ export function SignupWalletAccountCreating() {
               exit={{ opacity: 0, y: -16 }}
               className="flex flex-col gap-4 items-center"
             >
-              <SignupWalletPrivateKeyField privateKey={accountKeys.masterPassword} />
+              <SignupWalletPrivateKeyField privateKey={accountKeys.owner} />
               <Alert>
                 Private and other keys will be shown only once on this page. After closing this page
                 You will never be able to see them again. Please download all keys and store in a

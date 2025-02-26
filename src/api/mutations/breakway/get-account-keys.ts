@@ -20,7 +20,7 @@ interface ResponseData {
 /**
  * Generate and return keys for new account with given username
  */
-export function useGetAccountKeys(username: string) {
+export function useGetBreakwayAccountKeys(username: string) {
   return useMutation({
     mutationKey: ["breakway", "get-account-keys", username],
     mutationFn: async () => {

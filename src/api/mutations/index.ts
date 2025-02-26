@@ -34,3 +34,4 @@ export * from "./hs-login-refresh";
 export * from "./create-community";
 export * from "./analytics";
 export * from "./breakway";
+export * from "./signup";
