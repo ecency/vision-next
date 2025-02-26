@@ -3,14 +3,15 @@
 import { useCallback, useMemo, useState } from "react";
 import {
   SignupByWalletStepperSteps,
+  SignupWalletAccountCreating,
   SignupWalletConnectWallet,
   SignupWalletIntro,
-  SignupWalletStepper
+  SignupWalletStepper,
+  SignupWalletValidation
 } from "./_components";
 import { Button } from "@/features/ui";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { SignupWalletValidation } from "./_components/steps/signup-wallet-validation";
 import { useMap } from "react-use";
 import { ExternalWalletCurrency } from "@/enums";
 import { SignupExternalWalletInformation } from "./types";
@@ -21,10 +22,11 @@ export default function SignupByWalletPage() {
 
   const [hasValidated, setHasValidated] = useState(false);
   const [step, setStep] = useState(SignupByWalletStepperSteps.INTRO);
+  const [username, setUsername] = useState("");
 
   const hasAtLeastOneWallet = useMemo(() => Object.values(wallets).length > 0, [wallets]);
   const isContinueDisabled = useMemo(
-    () => step !== SignupByWalletStepperSteps.INTRO && !hasAtLeastOneWallet,
+    () => step === SignupByWalletStepperSteps.CI && !hasAtLeastOneWallet,
     [hasAtLeastOneWallet, step]
   );
 
@@ -83,11 +85,12 @@ export default function SignupByWalletPage() {
           )}
           {step === SignupByWalletStepperSteps.INTRO && <div />}
 
-          {(hasValidated || step !== SignupByWalletStepperSteps.VALIDATION) && (
-            <Button size="sm" onClick={next} disabled={isContinueDisabled}>
-              Continue
-            </Button>
-          )}
+          {(hasValidated || step !== SignupByWalletStepperSteps.VALIDATION) &&
+            step !== SignupByWalletStepperSteps.CREATE_ACCOUNT && (
+              <Button size="sm" onClick={next} disabled={isContinueDisabled}>
+                Continue
+              </Button>
+            )}
         </div>
 
         {step === SignupByWalletStepperSteps.INTRO && <SignupWalletIntro />}
@@ -97,6 +100,7 @@ export default function SignupByWalletPage() {
         {step === SignupByWalletStepperSteps.VALIDATION && (
           <SignupWalletValidation wallets={wallets} onValidated={() => setHasValidated(true)} />
         )}
+        {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && <SignupWalletAccountCreating />}
       </div>
     </div>
   );

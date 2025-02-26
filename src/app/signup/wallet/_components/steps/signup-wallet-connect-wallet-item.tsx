@@ -1,16 +1,15 @@
 "use client";
 
 import { ExternalWalletCurrency } from "@/enums";
-import { success } from "@/features/shared";
-import { Button, FormControl, InputGroup } from "@/features/ui";
-import { UilCopy, UilEye } from "@tooni/iconscout-unicons-react";
+import { Button, InputGroupCopyClipboard } from "@/features/ui";
+import { motion } from "framer-motion";
 import Image from "next/image";
-import { useCallback, useMemo, useState } from "react";
-import { useCopyToClipboard } from "react-use";
+import { useCallback, useMemo } from "react";
 import { useSignpupWallet } from "../../_hooks";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
-import { motion } from "framer-motion";
+import { SignupWalletLabeledField } from "./signup-wallet-labeled-field";
+import { SignupWalletPrivateKeyField } from "./signup-wallet-private-key-field";
 
 interface Props {
   i: number;
@@ -20,8 +19,6 @@ interface Props {
 
 export function SignupWalletConnectWalletItem({ i, currency, onSuccess }: Props) {
   const { createWallet, importWallet } = useSignpupWallet(currency);
-
-  const [_, copy] = useCopyToClipboard();
 
   const createWalletButtonText = useMemo(() => {
     if (createWallet.isPending) {
@@ -34,13 +31,6 @@ export function SignupWalletConnectWalletItem({ i, currency, onSuccess }: Props)
 
     return "Create wallet";
   }, [createWallet.isPending, createWallet.isSuccess]);
-
-  const [hasPrivateKeyRevealed, setHasPrivateKeyRevealed] = useState(false);
-
-  const privateKey = useMemo(
-    () => (hasPrivateKeyRevealed ? createWallet.data?.privateKey : "************************"),
-    [createWallet.data, hasPrivateKeyRevealed]
-  );
 
   const create = useCallback(async () => {
     if (createWallet.isIdle) {
@@ -93,56 +83,13 @@ export function SignupWalletConnectWalletItem({ i, currency, onSuccess }: Props)
 
       {createWallet.isSuccess && (
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <div className="text-sm px-2 opacity-75 font-semibold">Address</div>
-            <InputGroup
-              append={
-                <Button
-                  appearance="gray-link"
-                  icon={<UilCopy />}
-                  onClick={() => {
-                    copy(createWallet.data?.address);
-                    success("Copied!");
-                  }}
-                />
-              }
-            >
-              <FormControl type="text" readOnly={true} value={createWallet.data?.address} />
-            </InputGroup>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="text-sm px-2 opacity-75 font-semibold">Public key</div>
-            <InputGroup
-              append={
-                <Button
-                  appearance="gray-link"
-                  icon={<UilCopy />}
-                  onClick={() => {
-                    copy(createWallet.data?.publicKey);
-                    success("Public key has copied");
-                  }}
-                />
-              }
-            >
-              <FormControl type="text" readOnly={true} value={createWallet.data?.publicKey} />
-            </InputGroup>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="text-sm px-2 opacity-75 font-semibold">Private key</div>
-            <InputGroup
-              append={
-                !hasPrivateKeyRevealed && (
-                  <Button
-                    appearance="gray-link"
-                    icon={<UilEye />}
-                    onClick={() => setHasPrivateKeyRevealed(true)}
-                  />
-                )
-              }
-            >
-              <FormControl type="text" readOnly={true} value={privateKey} />
-            </InputGroup>
-          </div>
+          <SignupWalletLabeledField label="Address">
+            <InputGroupCopyClipboard value={createWallet.data?.address} />
+          </SignupWalletLabeledField>
+          <SignupWalletLabeledField label="Public key">
+            <InputGroupCopyClipboard value={createWallet.data?.publicKey} />
+          </SignupWalletLabeledField>
+          <SignupWalletPrivateKeyField privateKey={createWallet.data?.privateKey} />
         </div>
       )}
     </motion.div>

@@ -47,6 +47,7 @@ export function SignupWalletValidation({ wallets, onValidated }: Props) {
             selected={selected}
             walletsList={walletsList}
             onCancel={() => setSelected(undefined)}
+            onValid={onValidated}
           />
         )}
       </AnimatePresence>
