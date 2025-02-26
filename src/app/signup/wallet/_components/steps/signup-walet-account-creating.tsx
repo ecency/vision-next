@@ -1,4 +1,4 @@
-import { useGetAccountKeys } from "@/api/mutations";
+import { useCreateAccount, useGetAccountKeys } from "@/api/mutations";
 import { getAccountsQuery } from "@/api/queries";
 import { Alert, Button, FormControl } from "@/features/ui";
 import { UilDownloadAlt } from "@tooni/iconscout-unicons-react";
@@ -17,6 +17,7 @@ export function SignupWalletAccountCreating() {
 
   const { data: accountKeys, mutateAsync: getAccountKeys, isPending } = useGetAccountKeys(username);
   const downloadKeys = useDownloadKeys(username, accountKeys);
+  const {} = useCreateAccount(username, "address");
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
   const isInvalidUsername = useMemo(
