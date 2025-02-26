@@ -3,7 +3,8 @@
 import { FormControl, InputGroup } from "@ui/input";
 import { Button } from "@ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useDebounce } from "react-use";
 import { success } from "@/features/shared";
 import i18next from "i18next";
 import { clipboard } from "@/utils/clipboard";
@@ -15,7 +16,30 @@ export function FaqSearchBar() {
   const router = useRouter();
 
   const lang = useGlobalStore((state) => state.lang);
-  const search = useMemo(() => params.get("q") ?? "", [params]);
+  const [search, setSearch] = useState("");
+  const [typing, setTyping] = useState(false);
+
+  useEffect(() => {
+    setSearch(params.get("q") ?? "");
+  }, [params]);
+
+  const handleChangeSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setSearch(value);
+    setTyping(value.length !== 0);
+  }, []);
+
+  useDebounce(
+    () => {
+      if (search) {
+        router.push(`?q=${encodeURIComponent(search)}`);
+      } else if (params.has("q")) {
+        router.push("?");
+      }
+    },
+    1000,
+    [search, params]
+  );
 
   const copyToClipboard = useCallback((text: string) => {
     success(i18next.t("static.faq.search-link-copied"));
@@ -42,7 +66,7 @@ export function FaqSearchBar() {
           type="text"
           placeholder={`${i18next.t("static.faq.search-placeholder")}`}
           className="w-[75%]"
-          onChange={(e) => router.push(`?q=${e.target.value}`)}
+          onChange={handleChangeSearch}
           value={search}
           autoFocus={true}
         />
