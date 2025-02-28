@@ -29,7 +29,6 @@ export function SignupWalletValidationItem({
     <motion.div
       initial={{ opacity: 0, y: 24, position: "absolute" }}
       animate={{ opacity: 1, y: 0, position: "static" }}
-      exit={{ opacity: 0, y: 24, position: "absolute" }}
       transition={{ delay: i * 0.1 }}
       className={clsx(
         "w-full cursor-pointer bg-gray-100 dark:bg-dark-default p-4 rounded-xl",

@@ -16,6 +16,10 @@ import { useMap } from "react-use";
 import { ExternalWalletCurrency } from "@/enums";
 import { SignupExternalWalletInformation } from "./types";
 
+/**
+ * TODO add account to keychain if there is keychain available
+ *      add redirect uri and return back with username
+ */
 export default function SignupByWalletPage() {
   const [wallets, { set }] =
     useMap<Record<ExternalWalletCurrency, SignupExternalWalletInformation>>();

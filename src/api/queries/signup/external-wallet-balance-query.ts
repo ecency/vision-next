@@ -50,6 +50,7 @@ interface AtomResponse {
 /**
  * Returns information about the actual balance of the given currency address
  *         using various of public APIs
+ * todo extract URLs to configs
  * @param currency
  * @param address
  * @returns

@@ -34,8 +34,8 @@ export function SignupWalletValiadtionSelected({
 
   // todo: restore it
   // const hasValidated = useMemo(
-  //   () => (externalWalletBalance ?? 0) > (selectedCurrencyRate ?? 1),
-  //   [externalWalletBalance, selectedCurrencyRate]
+  // () => (externalWalletBalance ?? 0) > (selectedCurrencyRate ?? 1),
+  // [externalWalletBalance, selectedCurrencyRate]
   // );
   const hasValidated = true;
 
@@ -61,7 +61,6 @@ export function SignupWalletValiadtionSelected({
     <motion.div
       initial={{ opacity: 0, y: 24, position: "absolute" }}
       animate={{ opacity: 1, y: 0, position: "relative" }}
-      exit={{ opacity: 0, y: 24, position: "absolute" }}
       transition={{ delay: selected ? 0 : walletsList.length * 0.3 }}
       className="relative my-4 sm:my-6 lg:my-8 xl:my-12"
     >
