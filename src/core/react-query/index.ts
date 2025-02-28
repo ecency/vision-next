@@ -98,7 +98,9 @@ export enum QueryIdentifiers {
   HIVE_ENGINE_TOKEN_BALANCES_USD = "hive-engine-token-balances-usd",
   PAGE_STATS = "page-stats",
   MARKET_TRADING_VIEW = "market-trading-view",
-  MARKET_BUCKET_SIZE = "market-bucket-size"
+  MARKET_BUCKET_SIZE = "market-bucket-size",
+  EXTERNAL_WALLET_BALANCE = "external-wallet-query",
+  COINGECKO_PRICE = "coingecko-price"
 }
 
 export function makeQueryClient() {

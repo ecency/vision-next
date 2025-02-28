@@ -24,6 +24,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
     const className = classNameObject({
       // Basic
       "cursor-pointer rounded-full duration-300 no-wrap active:scale-95": true,
+      "!cursor-not-allowed": props.disabled === true,
       // Outline basics
       "border-[1.25px] border-solid": props.outline ?? false,
       // With icon

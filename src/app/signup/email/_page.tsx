@@ -67,10 +67,10 @@ export function SignUp() {
       setReferral(referral);
       setLockReferral(true);
     } else if (lsReferral && typeof lsReferral === "string") {
-      router.push(`/signup?referral=${lsReferral}`);
+      router.push(`/signup/email?referral=${lsReferral}`);
       setReferral(lsReferral);
     } else {
-      router.push("/signup");
+      router.push("/signup/email");
     }
   });
 
