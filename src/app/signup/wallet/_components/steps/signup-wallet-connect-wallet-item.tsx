@@ -30,7 +30,7 @@ export function SignupWalletConnectWalletItem({ i, currency, onSuccess }: Props)
     }
 
     return "Create wallet";
-  }, [createWallet.isPending, createWallet.isSuccess]);
+  }, [createWallet]);
 
   const create = useCallback(async () => {
     if (createWallet.isIdle) {
@@ -85,9 +85,6 @@ export function SignupWalletConnectWalletItem({ i, currency, onSuccess }: Props)
         <div className="flex flex-col gap-4">
           <SignupWalletLabeledField label="Address">
             <InputGroupCopyClipboard value={createWallet.data?.address} />
-          </SignupWalletLabeledField>
-          <SignupWalletLabeledField label="Public key">
-            <InputGroupCopyClipboard value={createWallet.data?.publicKey} />
           </SignupWalletLabeledField>
           <SignupWalletPrivateKeyField privateKey={createWallet.data?.privateKey} />
         </div>

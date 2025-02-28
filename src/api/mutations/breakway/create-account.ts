@@ -1,4 +1,5 @@
 import { appAxios } from "@/api/axios";
+import { apiBase } from "@/api/helper";
 import { error } from "@/features/shared";
 import { useMutation } from "@tanstack/react-query";
 
@@ -8,15 +9,10 @@ interface Payload {
 
 export function useCreateAccount(username: string, address: string) {
   return useMutation({
-    mutationKey: ["breakway", "create-account", username, address],
+    mutationKey: ["private-api", "create-account", username, address],
     mutationFn: async ({ accountKeys }: Payload) => {
-      const response = await appAxios.post("https://api.breakaway.community/create-account", {
-        username,
-        address,
-        ordinalAddress: "",
-        message: "",
-        signature: "",
-        accountKeys
+      const response = await appAxios.post(apiBase(`/private-api/wallets-add`), {
+        username
       });
       return response.data;
     },

@@ -25,13 +25,16 @@ export function SignupWalletAccountCreating() {
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
   const isInvalidUsername = useMemo(
-    () =>
-      (existingAccount && !accountKeys) || (usernameInput.length <= 2 && usernameInput.length > 0),
-    [existingAccount, accountKeys, usernameInput]
+    () => existingAccount && !accountKeys,
+    [existingAccount, accountKeys]
+  );
+  const isInvalidUsernameLength = useMemo(
+    () => (usernameInput.length <= 2 && usernameInput.length > 0) || usernameInput.length > 16,
+    [usernameInput.length]
   );
   const canCreateAccount = useMemo(
-    () => !isInvalidUsername && username && isSuccess && !accountKeys,
-    [isInvalidUsername, username, isSuccess, accountKeys]
+    () => !isInvalidUsername && !isInvalidUsernameLength && username && isSuccess && !accountKeys,
+    [isInvalidUsername, isInvalidUsernameLength, username, isSuccess, accountKeys]
   );
 
   useDebounce(() => setUsername(usernameInput), 500, [usernameInput]);
@@ -63,9 +66,19 @@ export function SignupWalletAccountCreating() {
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
-              className="text-sm px-4 mt-2 text-red"
+              className="text-sm px-4 -mt-2 text-red"
             >
               This username already exists. Set another one
+            </motion.div>
+          )}
+          {isInvalidUsernameLength && (
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              className="text-sm px-4 -mt-2 text-red"
+            >
+              Username length should be between 2 and 16 symbols
             </motion.div>
           )}
           {canCreateAccount && (
@@ -73,7 +86,7 @@ export function SignupWalletAccountCreating() {
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
-              className="text-sm px-4 mt-2 text-green"
+              className="text-sm px-4 -mt-2 text-green"
             >
               This username is available to use
             </motion.div>
@@ -103,13 +116,18 @@ export function SignupWalletAccountCreating() {
               exit={{ opacity: 0, y: -16 }}
               className="flex flex-col gap-4 items-center"
             >
-              <SignupWalletPrivateKeyField privateKey={accountKeys.owner} />
+              <SignupWalletPrivateKeyField privateKey={accountKeys.masterPassword} />
               <Alert>
                 Private and other keys will be shown only once on this page. After closing this page
                 You will never be able to see them again. Please download all keys and store in a
                 safe place!
               </Alert>
-              <Button icon={<UilDownloadAlt />} size="lg" onClick={downloadKeys}>
+              <Button
+                iconPlacement="left"
+                icon={<UilDownloadAlt />}
+                size="lg"
+                onClick={downloadKeys}
+              >
                 Download all keys & continue
               </Button>
             </motion.div>
