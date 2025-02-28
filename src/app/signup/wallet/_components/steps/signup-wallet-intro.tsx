@@ -6,9 +6,9 @@ const CURRENCIES = Object.keys(ExternalWalletCurrency);
 
 export function SignupWalletIntro() {
   return (
-    <div className="flex items-center gap-6 lg:pb-4 xl:pb-6">
+    <div className="flex flex-col sm:flex-row items-center gap-6 lg:pb-4 xl:pb-6">
       <div className="mx-auto md:min-w-[240px] flex justify-center">
-        <Image src="/assets/whale-auth.svg" alt="" width={200} height={200} />
+        <Image src="/assets/undraw-social-post.svg" alt="" width={200} height={200} />
       </div>
       <div>
         <div>

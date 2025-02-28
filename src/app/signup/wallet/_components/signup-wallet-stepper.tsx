@@ -42,7 +42,7 @@ const steps = [
 
 export function SignupWalletStepper({ step: stepProp }: Props) {
   return (
-    <div className="grid grid-cols-4 gap-4 lg:gap-6 xl:gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 xl:gap-8">
       <AnimatePresence>
         {steps.map(({ step, title, icon, description }, index) => (
           <motion.div

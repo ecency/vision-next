@@ -5,10 +5,10 @@ import Image from "next/image";
 export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
-      {/* <Navbar experimental={true} /> */}
+      <Navbar experimental={true} />
       <Feedback />
-      <div className="min-h-[calc(100vh-4rem)] md:py-8 bg-blue-duck-egg dark:bg-dark-700">
-        <div className="flex items-center justify-center gap-4  py-4 md:py-8 lg:py-12">
+      <div className="min-h-[calc(100vh-4rem)] md:pb-8 pt-[6rem] bg-blue-duck-egg dark:bg-dark-700 px-2">
+        <div className="flex items-center justify-center gap-4 py-4 md:py-8 lg:py-12">
           <Image
             src="/assets/logo-circle.svg"
             className="logo relative min-w-[40px] max-w-[40px]"
