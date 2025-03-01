@@ -5,20 +5,20 @@ import { Button, InputGroupCopyClipboard } from "@/features/ui";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useMemo } from "react";
-import { useSignpupWallet } from "../../_hooks";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
 import { SignupWalletLabeledField } from "./signup-wallet-labeled-field";
 import { SignupWalletPrivateKeyField } from "./signup-wallet-private-key-field";
+import { EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
 
 interface Props {
   i: number;
-  currency: ExternalWalletCurrency;
+  currency: EcencyWalletCurrency;
   onSuccess: (walletInformation: SignupExternalWalletInformation) => void;
 }
 
 export function SignupWalletConnectWalletItem({ i, currency, onSuccess }: Props) {
-  const { createWallet, importWallet } = useSignpupWallet(currency);
+  const { createWallet, importWallet } = useWalletCreate(currency);
 
   const createWalletButtonText = useMemo(() => {
     if (createWallet.isPending) {

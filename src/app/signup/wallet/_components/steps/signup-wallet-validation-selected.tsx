@@ -1,12 +1,15 @@
-import { getCoingeckoPriceQuery, getExternalWalletBalanceQuery } from "@/api/queries";
-import { ExternalWalletCurrency } from "@/enums";
+import {
+  EcencyWalletCurrency,
+  useGetExternalWalletBalanceQuery,
+  useCoinGeckoPriceQuery
+} from "@ecency/wallets";
 import { Button } from "@/features/ui";
 import { UilCheckCircle, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
 import qrcode from "qrcode";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useCopyToClipboard, useInterval } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
@@ -15,7 +18,7 @@ import clsx from "clsx";
 
 interface Props {
   walletsList: [string, SignupExternalWalletInformation][];
-  selected: [ExternalWalletCurrency, string];
+  selected: [EcencyWalletCurrency, string];
   onCancel: () => void;
   onValid: () => void;
 }
@@ -28,9 +31,9 @@ export function SignupWalletValiadtionSelected({
 }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
 
-  const { data: selectedCurrencyRate } = getCoingeckoPriceQuery(selected?.[0]).useClientQuery();
+  const { data: selectedCurrencyRate } = useCoingeckoPriceQuery(selected?.[0]);
   const { data: externalWalletBalance, refetch: refetchExternalWalletBalance } =
-    getExternalWalletBalanceQuery(selected[0], selected[1]).useClientQuery();
+    useGetExternalWalletBalanceQuery(selected[0], selected[1]);
 
   // todo: restore it
   // const hasValidated = useMemo(

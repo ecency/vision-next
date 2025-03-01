@@ -1,4 +1,4 @@
-import { useCreateAccount, useCreateAccountKeys } from "@/api/mutations";
+import { useHiveKeysCreate } from "@ecency/wallets";
 import { getAccountsQuery } from "@/api/queries";
 import { Alert, Button, FormControl } from "@/features/ui";
 import { UilDownloadAlt } from "@tooni/iconscout-unicons-react";
@@ -15,13 +15,9 @@ export function SignupWalletAccountCreating() {
 
   const { data: foundAccounts, isSuccess } = getAccountsQuery([username]).useClientQuery();
 
-  const {
-    data: accountKeys,
-    mutateAsync: getAccountKeys,
-    isPending
-  } = useCreateAccountKeys(username);
+  const { data: accountKeys, mutateAsync: getAccountKeys, isPending } = useHiveKeysCreate(username);
   const downloadKeys = useDownloadKeys(username, accountKeys);
-  const { mutateAsync: createAccount } = useCreateAccount(username, "address");
+  // const { mutateAsync: createAccount } = useCreateAccount(username, "address");
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
   const isInvalidUsername = useMemo(

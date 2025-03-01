@@ -4,12 +4,13 @@ import { UilLock } from "@tooni/iconscout-unicons-react";
 import { SignupWalletConnectWalletItem } from "./signup-wallet-connect-wallet-item";
 import { SignupExternalWalletInformation } from "../../types";
 import { AnimatePresence } from "framer-motion";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 
-const CURRENCIES = Object.values(ExternalWalletCurrency);
+const CURRENCIES = Object.values(EcencyWalletCurrency);
 
 interface Props {
   onSuccess: (
-    currency: ExternalWalletCurrency,
+    currency: EcencyWalletCurrency,
     walletInformation: SignupExternalWalletInformation
   ) => void;
 }

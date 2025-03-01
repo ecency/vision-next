@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-export function useDownloadKeys(username: string, accountKeys: Record<string, string> | undefined) {
+export function useDownloadKeys(username: string, accountKeys: any | undefined) {
   return useCallback(() => {
     const element = document.createElement("a");
     const keys = Object.entries(accountKeys ?? {})
