@@ -1,4 +1,3 @@
-import { ExternalWalletCurrency } from "@/enums";
 import { success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { UilClipboardAlt } from "@tooni/iconscout-unicons-react";
@@ -7,10 +6,11 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCopyToClipboard } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 
 interface Props {
   i: number;
-  currency: ExternalWalletCurrency;
+  currency: EcencyWalletCurrency;
   address: string;
   selectable?: boolean;
   onSelect: () => void;

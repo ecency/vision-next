@@ -1,8 +1,8 @@
-import { ExternalWalletCurrency } from "@/enums";
 import { Badge } from "@/features/ui";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 import Image from "next/image";
 
-const CURRENCIES = Object.keys(ExternalWalletCurrency);
+const CURRENCIES = Object.keys(EcencyWalletCurrency);
 
 export function SignupWalletIntro() {
   return (

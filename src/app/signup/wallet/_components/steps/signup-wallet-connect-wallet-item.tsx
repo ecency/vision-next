@@ -1,6 +1,5 @@
 "use client";
 
-import { ExternalWalletCurrency } from "@/enums";
 import { Button, InputGroupCopyClipboard } from "@/features/ui";
 import { motion } from "framer-motion";
 import Image from "next/image";

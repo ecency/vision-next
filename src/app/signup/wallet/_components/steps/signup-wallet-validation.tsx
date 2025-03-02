@@ -1,18 +1,18 @@
-import { ExternalWalletCurrency } from "@/enums";
 import { AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { SignupExternalWalletInformation } from "../../types";
 import { SignupWalletValidationItem } from "./signup-wallet-validation-item";
 import { SignupWalletValiadtionSelected } from "./signup-wallet-validation-selected";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 
 interface Props {
-  wallets: Record<ExternalWalletCurrency, SignupExternalWalletInformation>;
+  wallets: Record<EcencyWalletCurrency, SignupExternalWalletInformation>;
   onValidated: () => void;
 }
 
 export function SignupWalletValidation({ wallets, onValidated }: Props) {
   // Currency and address
-  const [selected, setSelected] = useState<[ExternalWalletCurrency, string]>();
+  const [selected, setSelected] = useState<[EcencyWalletCurrency, string]>();
 
   const walletsList = useMemo(() => Object.entries(wallets), [wallets]);
 
@@ -31,10 +31,10 @@ export function SignupWalletValidation({ wallets, onValidated }: Props) {
               <SignupWalletValidationItem
                 i={index}
                 key={address}
-                currency={currency as ExternalWalletCurrency}
+                currency={currency as EcencyWalletCurrency}
                 address={address}
                 selectable={true}
-                onSelect={() => setSelected([currency as ExternalWalletCurrency, address])}
+                onSelect={() => setSelected([currency as EcencyWalletCurrency, address])}
               />
             ))}
           </div>

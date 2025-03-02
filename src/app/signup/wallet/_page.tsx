@@ -13,8 +13,8 @@ import { Button } from "@/features/ui";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useMap } from "react-use";
-import { ExternalWalletCurrency } from "@/enums";
 import { SignupExternalWalletInformation } from "./types";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 
 /**
  * TODO add account to keychain if there is keychain available
@@ -22,7 +22,7 @@ import { SignupExternalWalletInformation } from "./types";
  */
 export default function SignupByWalletPage() {
   const [wallets, { set }] =
-    useMap<Record<ExternalWalletCurrency, SignupExternalWalletInformation>>();
+    useMap<Record<EcencyWalletCurrency, SignupExternalWalletInformation>>();
 
   const [hasValidated, setHasValidated] = useState(false);
   const [step, setStep] = useState(SignupByWalletStepperSteps.INTRO);

@@ -5,40 +5,40 @@ import ethSvg from "@/assets/img/currencies/eth.svg";
 import solSvg from "@/assets/img/currencies/solana.svg";
 import tonSvg from "@/assets/img/currencies/ton.svg";
 import tronSvg from "@/assets/img/currencies/tron.svg";
-import { ExternalWalletCurrency } from "@/enums";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 
 export const CURRENCIES_META_DATA = {
-  [ExternalWalletCurrency.BTC]: {
+  [EcencyWalletCurrency.BTC]: {
     title: "Bitcoin",
     icon: btcSvg,
     name: "BTC"
   },
-  [ExternalWalletCurrency.ETH]: {
+  [EcencyWalletCurrency.ETH]: {
     title: "Etherium",
     icon: ethSvg,
     name: "ETH"
   },
-  [ExternalWalletCurrency.TRON]: {
+  [EcencyWalletCurrency.TRON]: {
     title: "Tron",
     icon: tronSvg,
     name: "TRX"
   },
-  [ExternalWalletCurrency.TON]: {
+  [EcencyWalletCurrency.TON]: {
     title: "Ton",
     icon: tonSvg,
     name: "TON"
   },
-  [ExternalWalletCurrency.SOL]: {
+  [EcencyWalletCurrency.SOL]: {
     title: "Solana",
     icon: solSvg,
     name: "SOL"
   },
-  [ExternalWalletCurrency.ATOM]: {
+  [EcencyWalletCurrency.ATOM]: {
     title: "ATOM Cosmos",
     icon: atomSvg,
     name: "ATOM"
   },
-  [ExternalWalletCurrency.APT]: {
+  [EcencyWalletCurrency.APT]: {
     title: "Aptos",
     icon: aptSvg,
     name: "APT"

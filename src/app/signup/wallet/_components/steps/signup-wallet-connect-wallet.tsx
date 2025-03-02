@@ -1,4 +1,3 @@
-import { ExternalWalletCurrency } from "@/enums";
 import { Alert } from "@/features/ui";
 import { UilLock } from "@tooni/iconscout-unicons-react";
 import { SignupWalletConnectWalletItem } from "./signup-wallet-connect-wallet-item";
