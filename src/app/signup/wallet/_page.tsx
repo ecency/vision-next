@@ -7,7 +7,8 @@ import {
   SignupWalletConnectWallet,
   SignupWalletIntro,
   SignupWalletStepper,
-  SignupWalletValidation
+  SignupWalletValidation,
+  SignupWalletSeedPhrase
 } from "./_components";
 import { Button } from "@/features/ui";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
@@ -30,8 +31,8 @@ export default function SignupByWalletPage() {
 
   const hasAtLeastOneWallet = useMemo(() => Object.values(wallets).length > 0, [wallets]);
   const isContinueDisabled = useMemo(
-    () => step === SignupByWalletStepperSteps.CI && !hasAtLeastOneWallet,
-    [hasAtLeastOneWallet, step]
+    () => (step === SignupByWalletStepperSteps.CI && !hasAtLeastOneWallet) || !username,
+    [hasAtLeastOneWallet, step, username]
   );
 
   const back = useCallback(() => {
@@ -43,6 +44,9 @@ export default function SignupByWalletPage() {
         setStep(SignupByWalletStepperSteps.VALIDATION);
         break;
       case SignupByWalletStepperSteps.CI:
+        setStep(SignupByWalletStepperSteps.SEED);
+        break;
+      case SignupByWalletStepperSteps.SEED:
       default:
         setStep(SignupByWalletStepperSteps.INTRO);
     }
@@ -58,6 +62,9 @@ export default function SignupByWalletPage() {
         setStep(SignupByWalletStepperSteps.CREATE_ACCOUNT);
         break;
       case SignupByWalletStepperSteps.INTRO:
+        setStep(SignupByWalletStepperSteps.SEED);
+        break;
+      case SignupByWalletStepperSteps.SEED:
         setStep(SignupByWalletStepperSteps.CI);
         break;
       case SignupByWalletStepperSteps.CI:
@@ -97,14 +104,19 @@ export default function SignupByWalletPage() {
             )}
         </div>
 
-        {step === SignupByWalletStepperSteps.INTRO && <SignupWalletIntro />}
+        {step === SignupByWalletStepperSteps.INTRO && (
+          <SignupWalletIntro initialUsername={username} setUsername={setUsername} />
+        )}
+        {step === SignupByWalletStepperSteps.SEED && <SignupWalletSeedPhrase username={username} />}
         {step === SignupByWalletStepperSteps.CI && (
           <SignupWalletConnectWallet onSuccess={(currency, wallet) => set(currency, wallet)} />
         )}
         {step === SignupByWalletStepperSteps.VALIDATION && (
           <SignupWalletValidation wallets={wallets} onValidated={() => setHasValidated(true)} />
         )}
-        {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && <SignupWalletAccountCreating />}
+        {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && (
+          <SignupWalletAccountCreating username={username} />
+        )}
       </div>
     </div>
   );

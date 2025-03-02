@@ -1,9 +1,16 @@
-import { UilMoneyBill, UilMoneyInsert, UilUser, UilWallet } from "@tooni/iconscout-unicons-react";
+import {
+  UilLock,
+  UilMoneyBill,
+  UilMoneyInsert,
+  UilUser,
+  UilWallet
+} from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 
 export enum SignupByWalletStepperSteps {
   INTRO,
+  SEED,
   CI, // Create/Import
   VALIDATION,
   CREATE_ACCOUNT
@@ -21,6 +28,12 @@ const steps = [
     description: "Explore how you can create Hive account"
   },
   {
+    step: SignupByWalletStepperSteps.SEED,
+    title: "Seed phrase",
+    icon: <UilLock />,
+    description: "Create master seed phrase for all wallets and Hive account"
+  },
+  {
     step: SignupByWalletStepperSteps.CI,
     title: "Create or import a wallet",
     icon: <UilMoneyBill />,
@@ -34,7 +47,7 @@ const steps = [
   },
   {
     step: SignupByWalletStepperSteps.CREATE_ACCOUNT,
-    title: "Create Hive account ",
+    title: "Finish",
     icon: <UilUser />,
     description: "Get your own account in Hive blockchain with 0.0 fee"
   }

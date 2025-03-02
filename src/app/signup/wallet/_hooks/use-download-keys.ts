@@ -15,5 +15,5 @@ export function useDownloadKeys(username: string, accountKeys: any | undefined) 
     element.click();
 
     document.body.removeChild(element);
-  }, [accountKeys]);
+  }, [accountKeys, username]);
 }
