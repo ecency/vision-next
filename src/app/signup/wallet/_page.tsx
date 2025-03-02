@@ -70,10 +70,10 @@ export default function SignupByWalletPage() {
   }, [isContinueDisabled, step]);
 
   return (
-    <div className="container mx-auto flex flex-col gap-4 md:gap-8 lg:gap-10 xl:gap-12 min-h-[90vh] items-center">
+    <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
       <SignupWalletStepper step={step} />
 
-      <div className="flex flex-col max-w-[800px] w-full justify-center bg-white px-4 pt-4 pb-8 sm:px-6 sm:pb-10 md:px-8 md:pb-10 rounded-xl">
+      <div className="lg:col-span-2 flex flex-col max-w-[800px] w-full justify-center bg-white px-4 pt-4 pb-8 sm:px-6 sm:pb-10 md:px-8 rounded-xl">
         <div className="flex items-center bg-white z-10 justify-between sticky top-0 py-4">
           {step !== SignupByWalletStepperSteps.INTRO && (
             <Button

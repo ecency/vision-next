@@ -24,7 +24,7 @@ const steps = [
     step: SignupByWalletStepperSteps.CI,
     title: "Create or import a wallet",
     icon: <UilMoneyBill />,
-    description: "Attech your wallet to the next Hive account"
+    description: "Attach your wallet to the next Hive account"
   },
   {
     step: SignupByWalletStepperSteps.VALIDATION,
@@ -42,7 +42,7 @@ const steps = [
 
 export function SignupWalletStepper({ step: stepProp }: Props) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 xl:gap-8">
+    <div className="grid grid-cols-1 gap-4 lg:gap-6 xl:gap-8 md:pt-8">
       <AnimatePresence>
         {steps.map(({ step, title, icon, description }, index) => (
           <motion.div

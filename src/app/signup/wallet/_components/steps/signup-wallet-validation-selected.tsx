@@ -31,7 +31,7 @@ export function SignupWalletValiadtionSelected({
 }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
 
-  const { data: selectedCurrencyRate } = useCoingeckoPriceQuery(selected?.[0]);
+  const { data: selectedCurrencyRate } = useCoinGeckoPriceQuery(selected?.[0]);
   const { data: externalWalletBalance, refetch: refetchExternalWalletBalance } =
     useGetExternalWalletBalanceQuery(selected[0], selected[1]);
 
