@@ -23,7 +23,7 @@ export function WaveViewDiscussionItem({ item, i }: Props) {
   return (
     <div
       className={classNameObject({
-        "[&_.waves-list-item]:rounded-none overflow-hidden first:rounded-t-2xl last:rounded-b-2xl border-[--border-color]":
+        "[&_.waves-list-item]:rounded-none first:rounded-t-2xl last:rounded-b-2xl border-[--border-color]":
           true,
         "border-b last:border-b-0": !expanded,
         "border-y-4 first:border-t-0 last:border-b-0": expanded
@@ -49,10 +49,15 @@ export function WaveViewDiscussionItem({ item, i }: Props) {
               <WaveViewDiscussionItem item={reply as WaveEntry} i={j} key={j} />
             ))}
             {data?.length === 0 && (
-              <div className="flex flex-col items-center justify-center gap-4 p-4 md:py-6 lg:py-8 text-gray-400 dark:text-gray-600">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center gap-4 p-4 md:py-6 lg:py-8 text-gray-400 dark:text-gray-600"
+              >
                 <UilCommentAdd />
                 {i18next.t("waves.no-replies")}
-              </div>
+              </motion.div>
             )}
           </motion.div>
         )}

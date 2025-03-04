@@ -2546,6 +2546,12 @@
     "reply-to": "Respondiendo a",
     "edit-wave": "Editar onda",
     "reply": "Responder",
-    "replying": "Respondiendo..."
+    "replying": "Respondiendo...",
+    "success-reply": "Has respondido exitosamente",
+    "success-reply-edit": "Has editado exitosamente"
+  },
+  "events": {
+    "muted": "Usuario ha silenciado",
+    "unmuted": "Usuario ha dejado de silenciar"
   }
 }

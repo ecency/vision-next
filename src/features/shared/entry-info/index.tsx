@@ -33,7 +33,7 @@ export const EntryInfo = ({ entry }: Props) => {
                 </span>
               </span>
               <span className="author-reputation" title={i18next.t("entry.author-reputation")}>
-                {reputation}
+                ({reputation})
               </span>
             </div>
           </ProfileLink>

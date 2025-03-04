@@ -10,13 +10,15 @@ export type OperationGroup =
 const ops = utils.operationOrders;
 
 export const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]> = {
-  transfers: [
+  "transfers": [
     ops.transfer,
     ops.transfer_to_savings,
+    ops.transfer_from_savings,
     ops.cancel_transfer_from_savings,
     ops.recurrent_transfer,
     ops.fill_recurrent_transfer,
-    ops.proposal_pay
+    ops.escrow_transfer,
+    ops.fill_recurrent_transfer
   ],
   "market-orders": [
     ops.fill_convert_request,
@@ -26,7 +28,7 @@ export const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]> = {
     ops.limit_order_create,
     ops.limit_order_cancel
   ],
-  interests: [ops.interest],
+  "interests": [ops.interest],
   "stake-operations": [
     ops.return_vesting_delegation,
     ops.withdraw_vesting,
@@ -35,14 +37,16 @@ export const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]> = {
     ops.update_proposal_votes,
     ops.fill_vesting_withdraw,
     ops.account_witness_proxy,
-    ops.delegate_vesting_shares
+    ops.delegate_vesting_shares,
+    ops.transfer_to_vesting_completed
   ],
-  rewards: [
+  "rewards": [
     ops.author_reward,
     ops.curation_reward,
     ops.producer_reward,
     ops.claim_reward_balance,
     ops.comment_benefactor_reward,
-    ops.liquidity_reward
+    ops.liquidity_reward,
+    ops.proposal_pay
   ]
 };

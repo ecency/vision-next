@@ -68,13 +68,16 @@ const config = {
         destination: "/profile/:author/:section"
       },
       {
-        source: "/:tag([^@].+)/:community(hive-.+)/:sub",
+        source: "/:tag([^@].+)/:community(hive-\\d{5,6})/:sub",
         destination: "/community/:community/:tag/:sub"
       },
       {
-        source: "/:tag([^@].+)/:community(hive-.+)",
+        source: "/:tag([^@|\\(hive\\-\\)].+)/:community(hive-\\d{5,6})",
         destination: "/community/:community/:tag"
       },
+
+      // POSTS
+      // Handle waves comment-like post in a wave page
       {
         source: "/:category/:author(@.+)/:permlink/:sub",
         destination: "/entry/:category/:author/:permlink/:sub"
@@ -83,19 +86,12 @@ const config = {
         source: "/:author(@.+)/:permlink/edit",
         destination: "/entry/created/:author/:permlink/edit"
       },
-      // As We added preview once
-      {
-        source: "/:category/:author(@.+)/:permlink/preview",
-        destination: "/entry/:category/:author/:permlink"
-      },
-      {
-        source: "/:author(@.+)/:permlink/preview",
-        destination: "/entry/created/:author/:permlink"
-      },
       {
         source: "/:category/:author(@.+)/:permlink",
         destination: "/entry/:category/:author/:permlink"
       },
+
+      // PROFILE
       {
         source: "/:author(@.+)/:permlink",
         destination: "/entry/created/:author/:permlink"
@@ -103,6 +99,12 @@ const config = {
       {
         source: "/:author(@.+)",
         destination: "/profile/:author"
+      },
+
+      // FEEDS
+      {
+        source: "/tags/:tag",
+        destination: "/feed/created/:tag"
       },
       {
         source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag/:sub",

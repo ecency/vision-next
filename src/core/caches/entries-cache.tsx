@@ -99,7 +99,7 @@ export namespace EcencyEntriesCacheManagement {
             stats: {
               ...entry.stats,
               total_votes: votes.length,
-              flag_weight: entry.stats.flag_weight
+              flag_weight: entry?.stats?.flag_weight || 0
             },
             total_votes: votes.length,
             payout,

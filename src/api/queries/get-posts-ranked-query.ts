@@ -1,6 +1,7 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { Entry } from "@/entities";
 import { bridgeApiCall, resolvePost } from "@/api/bridge";
+import dmca from "@/dmca-tags.json";
 
 type PageParam = { author: string | undefined; permlink: string | undefined; hasNextPage: boolean };
 
@@ -17,7 +18,11 @@ export const getPostsRankedQuery = (
       if (!pageParam.hasNextPage) {
         return [];
       }
-
+      if (
+        dmca.some((rx: string) => new RegExp(rx).test(`${tag}`))
+      ) {
+        tag = "";
+      }
       const response = await bridgeApiCall<Entry[] | null>("get_ranked_posts", {
         sort,
         start_author: pageParam.author,

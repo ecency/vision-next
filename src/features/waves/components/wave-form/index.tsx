@@ -46,7 +46,7 @@ const WaveFormComponent = ({
   const disabled = useMemo(() => !text || !threadHost, [text, threadHost]);
   const poll = useEntryPollExtractor(entry);
 
-  useClickAway(rootRef, () => {
+  useClickAway(rootRef, (e) => {
     setHasFocused(false);
   });
 
@@ -74,12 +74,12 @@ const WaveFormComponent = ({
   }, [entry, setImage, setText]);
 
   const clear = useCallback(() => {
-    clearText();
+    setText("");
     clearImage();
     clearImageName();
     clearActivePoll();
     clearVideo();
-  }, [clearActivePoll, clearImage, clearImageName, clearText, clearVideo]);
+  }, [clearActivePoll, clearImage, clearImageName, clearVideo, setText]);
 
   const { mutateAsync: submit, isPending } = useWaveSubmit(entry, replySource, (item) => {
     clear();
@@ -113,6 +113,7 @@ const WaveFormComponent = ({
           clearSelectedImage={clearImage}
           placeholder={placeholder}
           showCounter={hasFocused}
+          hasFocused={hasFocused}
           onTextareaFocus={() => setHasFocused(true)}
         />
         {activeUser && hasFocused && (

@@ -5,6 +5,8 @@ import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
 import { useGlobalStore } from "@/core/global-store";
 import { useMutation } from "@tanstack/react-query";
+import { success } from "@/features/shared";
+import i18next from "i18next";
 
 interface Body {
   text: string;
@@ -87,6 +89,9 @@ export function useWaveSubmit(
       return threadItem;
     },
     onSuccess: (item) => {
+      if (editingEntry) {
+        success(i18next.t("waves.success-reply-edit"));
+      }
       if (item) {
         onSuccess?.(item);
       }

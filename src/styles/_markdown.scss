@@ -64,6 +64,7 @@
     padding-left: 10px;
     border-left-width: 4px;
     border-left-style: solid;
+    margin: 1rem 0;
 
     @include themify(day) {
       @apply text-gray-warm;
@@ -139,7 +140,7 @@
   }
 
   ol {
-    list-style: circle;
+    list-style: decimal;
     padding-left: 40px;
   }
 

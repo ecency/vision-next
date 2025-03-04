@@ -53,7 +53,7 @@ export const TransactionsList = ({ account }: Props) => {
           }
         >
           <option value="">{i18next.t("transactions.group-all")}</option>
-          {["transfers", "market-orders", "interests", "stake-operations", "rewards"].map((x) => (
+          {["rewards", "transfers", "stake-operations", "market-orders", "interests"].map((x) => (
             <option key={x} value={x}>
               {i18next.t(`transactions.group-${x}`)}
             </option>

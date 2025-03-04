@@ -179,14 +179,6 @@
               .author-reputation {
                 @apply text-gray-steel;
                 font-weight: 500;
-
-                &::before {
-                  content: "(";
-                }
-
-                &::after {
-                  content: ")";
-                }
               }
 
               &:hover {
