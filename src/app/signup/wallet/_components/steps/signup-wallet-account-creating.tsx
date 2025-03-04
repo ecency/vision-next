@@ -3,6 +3,8 @@ import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import { Button } from "@/features/ui";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 interface Props {
   username: string;
@@ -19,6 +21,8 @@ export function SignupWalletAccountCreating({
 
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
+
+  const params = useSearchParams();
 
   useEffect(() => {
     if (accountKeys) {
@@ -52,7 +56,11 @@ export function SignupWalletAccountCreating({
               <div className="text-xl text-center font-semibold my-4">
                 Your account has created. Enjoy with Hive!
               </div>
-              <Button size="lg">Back to origin</Button>
+              <Link href={params.get("backUri") ?? "/"}>
+                <Button size="lg">
+                  {params.has("backUri") ? "Back to origin" : "Explore Ecency"}
+                </Button>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
