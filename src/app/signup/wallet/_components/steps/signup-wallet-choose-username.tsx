@@ -14,7 +14,11 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
   const [usernameInput, setUsernameInput] = useState(initialUsername);
   const [username, setUsername] = useState("");
 
-  const { data: foundAccounts, isSuccess } = getAccountsQuery([username]).useClientQuery();
+  const {
+    data: foundAccounts,
+    isSuccess,
+    isPending
+  } = getAccountsQuery([username]).useClientQuery();
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
   const isInvalidUsername = useMemo(() => existingAccount, [existingAccount]);
@@ -76,6 +80,16 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
             className="text-sm px-4 text-green"
           >
             This username is available to use
+          </motion.div>
+        )}
+        {isPending && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            className="text-sm px-4 text-gray-400 dark:text-gray-600"
+          >
+            Checking username for availability...
           </motion.div>
         )}
       </AnimatePresence>

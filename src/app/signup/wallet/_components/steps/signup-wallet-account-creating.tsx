@@ -1,7 +1,6 @@
 import { useHiveKeysQuery, EcencyWalletsPrivateApi, EcencyWalletCurrency } from "@ecency/wallets";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useDownloadKeys } from "../../_hooks";
 import { useEffect } from "react";
 import { Button } from "@/features/ui";
 
@@ -17,7 +16,6 @@ export function SignupWalletAccountCreating({
   onCreated
 }: Props) {
   const { data: accountKeys } = useHiveKeysQuery(username);
-  const downloadKeys = useDownloadKeys(username, accountKeys);
 
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
@@ -57,29 +55,6 @@ export function SignupWalletAccountCreating({
               <Button size="lg">Back to origin</Button>
             </motion.div>
           )}
-          {/* {accountKeys && (
-            <motion.div
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              className="flex flex-col gap-4 items-center"
-            >
-              <SignupWalletPrivateKeyField privateKey={accountKeys.masterPassword} />
-              <Alert>
-                Private and other keys will be shown only once on this page. After closing this page
-                You will never be able to see them again. Please download all keys and store in a
-                safe place!
-              </Alert>
-              <Button
-                iconPlacement="left"
-                icon={<UilDownloadAlt />}
-                size="lg"
-                onClick={downloadKeys}
-              >
-                Download all keys & continue
-              </Button>
-            </motion.div>
-          )} */}
         </AnimatePresence>
       </div>
     </div>

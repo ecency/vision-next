@@ -1,7 +1,6 @@
 import { success } from "@/features/shared";
 import { Alert, Button } from "@/features/ui";
 import { useSeedPhrase } from "@ecency/wallets";
-import { UilEyeSlash } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";

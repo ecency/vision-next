@@ -1,15 +1,20 @@
 import { useCallback } from "react";
-import { useSeedPhrase } from "@ecency/wallets";
+import { useSeedPhrase, useHiveKeysQuery } from "@ecency/wallets";
 
 export function useDownloadSeed(username: string) {
   const { data: seed } = useSeedPhrase();
 
+  const { data: accountKeys } = useHiveKeysQuery(username);
+
   return useCallback(() => {
     const element = document.createElement("a");
+    const keys = Object.entries(accountKeys ?? {})
+      .map(([name, key]) => `${name}: ${key}`)
+      .join("\n");
+
     element.setAttribute(
       "href",
-      "data:text/plain;charset=utf-8," +
-        encodeURIComponent(`Hive username: ${username}\nSeed: ${seed}`)
+      "data:text/plain;charset=utf-8," + encodeURIComponent(`Seed: ${seed}\n\n${keys}`)
     );
     element.setAttribute("download", `ecency-${username}-seed.txt`);
 
@@ -19,5 +24,5 @@ export function useDownloadSeed(username: string) {
     element.click();
 
     document.body.removeChild(element);
-  }, [seed, username]);
+  }, [seed, username, accountKeys]);
 }
