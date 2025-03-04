@@ -24,7 +24,7 @@ export default function Page() {
         "Flexible way to create an account using email validation. Free account, full-fledged account with 3X resource credits for $2.99 or onboard friend",
       buttonText: "Continue with email",
       image: "/assets/undraw-mailbox.svg",
-      href: "/signup/wallet"
+      href: "/signup/email"
     },
     {
       title: "Signup by external wallets",
