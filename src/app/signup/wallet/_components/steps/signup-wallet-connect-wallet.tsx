@@ -8,13 +8,14 @@ import { EcencyWalletCurrency } from "@ecency/wallets";
 const CURRENCIES = Object.values(EcencyWalletCurrency);
 
 interface Props {
+  username: string;
   onSuccess: (
     currency: EcencyWalletCurrency,
     walletInformation: SignupExternalWalletInformation
   ) => void;
 }
 
-export function SignupWalletConnectWallet({ onSuccess }: Props) {
+export function SignupWalletConnectWallet({ username, onSuccess }: Props) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <div>
@@ -34,6 +35,7 @@ export function SignupWalletConnectWallet({ onSuccess }: Props) {
             i={index}
             onSuccess={(info) => onSuccess(currency, info)}
             currency={currency}
+            username={username}
             key={currency}
           />
         ))}

@@ -109,7 +109,10 @@ export default function SignupByWalletPage() {
         )}
         {step === SignupByWalletStepperSteps.SEED && <SignupWalletSeedPhrase username={username} />}
         {step === SignupByWalletStepperSteps.CI && (
-          <SignupWalletConnectWallet onSuccess={(currency, wallet) => set(currency, wallet)} />
+          <SignupWalletConnectWallet
+            username={username}
+            onSuccess={(currency, wallet) => set(currency, wallet)}
+          />
         )}
         {step === SignupByWalletStepperSteps.VALIDATION && (
           <SignupWalletValidation wallets={wallets} onValidated={() => setHasValidated(true)} />

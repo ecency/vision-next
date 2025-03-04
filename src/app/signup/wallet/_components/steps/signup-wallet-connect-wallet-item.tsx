@@ -12,12 +12,13 @@ import { EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
 
 interface Props {
   i: number;
+  username: string;
   currency: EcencyWalletCurrency;
   onSuccess: (walletInformation: SignupExternalWalletInformation) => void;
 }
 
-export function SignupWalletConnectWalletItem({ i, currency, onSuccess }: Props) {
-  const { createWallet, importWallet } = useWalletCreate(currency);
+export function SignupWalletConnectWalletItem({ i, currency, username, onSuccess }: Props) {
+  const { createWallet, importWallet } = useWalletCreate(username, currency);
 
   const createWalletButtonText = useMemo(() => {
     if (createWallet.isPending) {

@@ -1,7 +1,6 @@
-import { useHiveKeysCreate } from "@ecency/wallets";
+import { useHiveKeysQuery } from "@ecency/wallets";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMount } from "react-use";
 import { useDownloadKeys } from "../../_hooks";
 
 interface Props {
@@ -9,15 +8,9 @@ interface Props {
 }
 
 export function SignupWalletAccountCreating({ username }: Props) {
-  const {
-    data: accountKeys,
-    mutateAsync: getAccountKeys,
-    isPending: isCreatingKeys
-  } = useHiveKeysCreate(username);
+  const { data: accountKeys, isPending: isCreatingKeys } = useHiveKeysQuery(username);
   const downloadKeys = useDownloadKeys(username, accountKeys);
   // const { mutateAsync: createAccount } = useCreateAccount(username, "address");
-
-  useMount(() => !accountKeys && getAccountKeys());
 
   return (
     <div className="flex flex-col gap-4 w-full">
