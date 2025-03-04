@@ -13,7 +13,7 @@
     "@ecency/ns-query": "^1.2.11-next",
     "@ecency/render-helper": "^2.2.36",
     "@ecency/renderer": "1.1.1",
-    "@ecency/wallets": "../ecency-wallets",
+    "@ecency/wallets": "1.0.5",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@firebase/analytics": "^0.10.0",

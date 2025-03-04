@@ -1,37 +1,62 @@
-import { useHiveKeysQuery } from "@ecency/wallets";
-import { UilSpinner } from "@tooni/iconscout-unicons-react";
+import { useHiveKeysQuery, EcencyWalletsPrivateApi, EcencyWalletCurrency } from "@ecency/wallets";
+import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useDownloadKeys } from "../../_hooks";
+import { useEffect } from "react";
+import { Button } from "@/features/ui";
 
 interface Props {
   username: string;
+  validatedWallet: { currency: EcencyWalletCurrency; address: string };
+  onCreated: () => void;
 }
 
-export function SignupWalletAccountCreating({ username }: Props) {
-  const { data: accountKeys, isPending: isCreatingKeys } = useHiveKeysQuery(username);
+export function SignupWalletAccountCreating({
+  username,
+  validatedWallet: { currency, address },
+  onCreated
+}: Props) {
+  const { data: accountKeys } = useHiveKeysQuery(username);
   const downloadKeys = useDownloadKeys(username, accountKeys);
-  // const { mutateAsync: createAccount } = useCreateAccount(username, "address");
+
+  const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
+    EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
+
+  useEffect(() => {
+    if (accountKeys) {
+      createAccount({ currency, address }).then(() => onCreated());
+    }
+  }, [accountKeys, address, createAccount, currency, onCreated]);
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {/* <div>
-        <div className="text-lg font-semibold">Create an account</div>
-        <div className="opacity-50">
-          Get your own account in Hive blockchain system with 0.0 fee
-        </div>
-      </div> */}
-
       <div className="max-w-[440px] w-full my-4 md:my-8 xl:my-12 mx-auto flex flex-col gap-4">
         <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="flex items-center flex-col"
-          >
-            <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
-            <div className="text-xl font-semibold mt-4">Creating Hive account...</div>
-          </motion.div>
+          {!isAccountCreateScheduled && (
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              className="flex items-center flex-col"
+            >
+              <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+              <div className="text-xl font-semibold mt-4">Creating Hive account...</div>
+            </motion.div>
+          )}
+          {isAccountCreateScheduled && (
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              className="flex items-center flex-col"
+            >
+              <UilCheckCircle className="w-16 h-16 text-green" />
+              <div className="text-xl text-center font-semibold my-4">
+                Your account has created. Enjoy with Hive!
+              </div>
+              <Button size="lg">Back to origin</Button>
+            </motion.div>
+          )}
           {/* {accountKeys && (
             <motion.div
               initial={{ opacity: 0, y: -16 }}

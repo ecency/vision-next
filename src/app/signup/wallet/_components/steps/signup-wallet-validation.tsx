@@ -7,7 +7,7 @@ import { EcencyWalletCurrency } from "@ecency/wallets";
 
 interface Props {
   wallets: Record<EcencyWalletCurrency, SignupExternalWalletInformation>;
-  onValidated: () => void;
+  onValidated: (wallet: { currency: EcencyWalletCurrency; address: string }) => void;
 }
 
 export function SignupWalletValidation({ wallets, onValidated }: Props) {
@@ -26,7 +26,7 @@ export function SignupWalletValidation({ wallets, onValidated }: Props) {
       </div>
       <AnimatePresence>
         {!selected && (
-          <div className="grid grid-cols-2 sm:grid-col-3 md:grid-cols-4 mt-4 sm:mt-6 lg:mt-8 xl:mt-12 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 mt-4 sm:mt-6 lg:mt-8 xl:mt-12 gap-4">
             {walletsList.map(([currency, { address }], index) => (
               <SignupWalletValidationItem
                 i={index}
@@ -47,7 +47,12 @@ export function SignupWalletValidation({ wallets, onValidated }: Props) {
             selected={selected}
             walletsList={walletsList}
             onCancel={() => setSelected(undefined)}
-            onValid={onValidated}
+            onValid={() =>
+              onValidated({
+                currency: selected[0],
+                address: selected[1]
+              })
+            }
           />
         )}
       </AnimatePresence>

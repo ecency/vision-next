@@ -1274,8 +1274,10 @@
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"
 
-"@ecency/wallets@../ecency-wallets":
-  version "1.0.0"
+"@ecency/wallets@1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.0.5.tgz#431fc67a525d187bf743476bdebacb91dee5a806"
+  integrity sha512-RUvlSOjfJkNmIseQrxU4A4W3yO5kEh/vZ7essbNbF+a9t569onyxY7t7yGe+LGXPcRCUfKlElA8IxJmN5rIQ/w==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"

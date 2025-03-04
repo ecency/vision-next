@@ -25,9 +25,13 @@ export default function SignupByWalletPage() {
   const [wallets, { set }] =
     useMap<Record<EcencyWalletCurrency, SignupExternalWalletInformation>>();
 
-  const [hasValidated, setHasValidated] = useState(false);
+  const [validatedWallet, setValidatedWallet] = useState<{
+    currency: EcencyWalletCurrency;
+    address: string;
+  }>();
   const [step, setStep] = useState(SignupByWalletStepperSteps.INTRO);
   const [username, setUsername] = useState("");
+  const [isFinished, setIsFinished] = useState(false);
 
   const hasAtLeastOneWallet = useMemo(() => Object.values(wallets).length > 0, [wallets]);
   const isContinueDisabled = useMemo(
@@ -82,7 +86,7 @@ export default function SignupByWalletPage() {
 
       <div className="lg:col-span-2 flex flex-col max-w-[800px] w-full justify-center bg-white px-4 pt-4 pb-8 sm:px-6 sm:pb-10 md:px-8 rounded-xl">
         <div className="flex items-center bg-white z-10 justify-between sticky top-0 py-4">
-          {step !== SignupByWalletStepperSteps.INTRO && (
+          {!isFinished && step !== SignupByWalletStepperSteps.INTRO && (
             <Button
               noPadding={true}
               icon={<UilArrowLeft />}
@@ -96,7 +100,7 @@ export default function SignupByWalletPage() {
           )}
           {step === SignupByWalletStepperSteps.INTRO && <div />}
 
-          {(hasValidated || step !== SignupByWalletStepperSteps.VALIDATION) &&
+          {(!!validatedWallet || step !== SignupByWalletStepperSteps.VALIDATION) &&
             step !== SignupByWalletStepperSteps.CREATE_ACCOUNT && (
               <Button size="sm" onClick={next} disabled={isContinueDisabled}>
                 Continue
@@ -115,10 +119,17 @@ export default function SignupByWalletPage() {
           />
         )}
         {step === SignupByWalletStepperSteps.VALIDATION && (
-          <SignupWalletValidation wallets={wallets} onValidated={() => setHasValidated(true)} />
+          <SignupWalletValidation
+            wallets={wallets}
+            onValidated={(wallet) => setValidatedWallet(wallet)}
+          />
         )}
-        {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && (
-          <SignupWalletAccountCreating username={username} />
+        {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && validatedWallet && (
+          <SignupWalletAccountCreating
+            username={username}
+            validatedWallet={validatedWallet}
+            onCreated={() => setIsFinished(true)}
+          />
         )}
       </div>
     </div>
