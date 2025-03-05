@@ -93,7 +93,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
           <div className="text-lg font-semibold mb-4">{i18next.t("publish.story-preview")}</div>
           <PublishValidatePostThumbnailPicker />
           <PublishValidatePostMeta />
-          <div className="text-xs text-gray-400 dark:text-gray-600">
+          <div className="text-xs text-gray-600 dark:text-gray-400">
             {i18next.t("publish.public-info-hint")}
           </div>
         </div>
@@ -126,9 +126,11 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
               onClick={submit}
               isLoading={isPublishPending || isSchedulePending}
             >
-              {schedule && !isPublishPending && !isSchedulePending
-                ? i18next.t("publish.schedule-now")
-                : i18next.t("publish.publish-now")}
+              {!isPublishPending && !isSchedulePending
+                ? schedule
+                  ? i18next.t("publish.schedule-now")
+                  : i18next.t("publish.publish-now")
+                : ""}
               {isPublishPending && i18next.t("submit.publishing")}
               {isSchedulePending && i18next.t("submit.scheduling")}
             </Button>

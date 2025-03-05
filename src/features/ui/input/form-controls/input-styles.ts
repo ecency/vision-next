@@ -9,4 +9,4 @@ export const INPUT_DARK_STYLES =
 export const INVALID_INPUT_STYLES = "aria-invalid:border-red";
 
 export const INPUT_IN_GROUP =
-  "[&>input]:rounded-[0] [&>input:first-child]:rounded-l-full [&>input:last-child]:rounded-r-full";
+  "[&>input]:rounded-[0] [&>input:first-child]:rounded-l-xl [&>input:last-child]:rounded-r-xl";

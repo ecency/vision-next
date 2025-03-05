@@ -4,6 +4,8 @@ import { BeneficiaryRoute } from "@/entities";
 import { useCallback, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { postBodySummary } from "@ecency/render-helper";
+import { usePublishPollState } from "./use-publish-poll-state";
+import { addDays } from "date-fns";
 
 export function usePublishState() {
   const params = useParams();
@@ -70,9 +72,28 @@ export function usePublishState() {
     undefined,
     persistent
   );
+  const [poll, setPoll] = usePublishPollState(persistent);
 
   const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
   const thumbnails = useMemo(() => metadata.thumbnails ?? [], [metadata.thumbnails]);
+
+  const createDefaultPoll = useCallback(
+    () =>
+      !poll &&
+      setPoll({
+        title: "My poll",
+        choices: ["Choice 1", "Choice 2"],
+        voteChange: true,
+        hideVotes: false,
+        maxChoicesVoted: 1,
+        filters: {
+          accountAge: 1
+        },
+        endTime: addDays(new Date(), 1),
+        interpretation: "number_of_votes"
+      }),
+    [poll, setPoll]
+  );
 
   useEffect(() => {
     if (!metaDescription) {
@@ -127,6 +148,9 @@ export function usePublishState() {
     setSelectedThumbnail,
     clearAll,
     isReblogToCommunity,
-    setIsReblogToCommunity
+    setIsReblogToCommunity,
+    poll,
+    setPoll,
+    createDefaultPoll
   };
 }

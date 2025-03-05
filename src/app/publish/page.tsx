@@ -12,6 +12,7 @@ import { usePublishEditor } from "@/app/publish/_hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { PublishSuccessState } from "./_components/publish-success-state";
+import { PublishEditorPollEditor } from "./_editor-extensions";
 
 export default function PublishPage() {
   const editor = usePublishEditor();
@@ -34,6 +35,11 @@ export default function PublishPage() {
             </div>
             <EditorContent editor={editor} className="markdown-view p-2 md:p-4 xl:p-6 font-serif" />
           </motion.div>
+
+          <div className="publish-page max-w-[800px] rounded-2xl bg-white container mx-auto mt-4">
+            <PublishEditorPollEditor />
+          </div>
+
           <PublishActionBar onPublish={() => setStep("validation")} />
         </>
       )}

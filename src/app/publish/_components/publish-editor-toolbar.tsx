@@ -23,7 +23,9 @@ import {
   UilListOl,
   UilListUiAlt,
   UilListUl,
+  UilPanelAdd,
   UilParagraph,
+  UilQuestion,
   UilSmile,
   UilSubject,
   UilTable,
@@ -44,6 +46,7 @@ import i18next from "i18next";
 import { useRef, useState } from "react";
 import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
 import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
+import { usePublishState } from "../_hooks";
 
 interface Props {
   editor: any | null;
@@ -53,6 +56,7 @@ const headings = [1, 2, 3, 4, 5, 6];
 
 export function PublishEditorToolbar({ editor }: Props) {
   const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
+  const publishState = usePublishState();
 
   const [showFragments, setShowFragments] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
@@ -242,6 +246,15 @@ export function PublishEditorToolbar({ editor }: Props) {
           />
         </DropdownMenu>
       </Dropdown>
+      <Button
+        appearance="gray-link"
+        size="sm"
+        onClick={() => {
+          publishState.createDefaultPoll();
+          document.getElementById("publish-active-poll")?.scrollIntoView({ behavior: "smooth" });
+        }}
+        icon={<UilPanelAdd />}
+      />
 
       {/*Dialogs*/}
       <EcencyConfigManager.Conditional

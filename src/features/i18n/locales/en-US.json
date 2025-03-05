@@ -1,5 +1,6 @@
 {
   "g": {
+    "all": "All",
     "add": "Add",
     "edit": "Edit",
     "clone": "Clone",
@@ -2455,6 +2456,7 @@
     "help-hint": "Have any questions? Check out help center"
   },
   "polls": {
+    "active-poll": "Active poll",
     "poll": "Poll",
     "title": "Create a poll",
     "edit-title": "Edit a poll",
