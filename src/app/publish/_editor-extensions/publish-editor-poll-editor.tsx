@@ -1,15 +1,38 @@
-import { Button, FormControl, InputGroup, TabItem } from "@/features/ui";
-import { UilMultiply, UilPlus, UilQuestionCircle, UilTrash } from "@tooni/iconscout-unicons-react";
+import {
+  Button,
+  Datepicker,
+  FormControl,
+  InputGroup,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  TabItem
+} from "@/features/ui";
+import {
+  UilCalender,
+  UilMultiply,
+  UilPlus,
+  UilQuestionCircle,
+  UilTrash
+} from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { usePublishState } from "../_hooks";
 import { PublishEditorPollEditorSettings } from "./publish-editor-poll-editor-settings";
+import { format } from "date-fns";
 
 export function PublishEditorPollEditor() {
   const { poll, setPoll } = usePublishState();
 
+  const [showDatepicker, setShowDatePicker] = useState(false);
   const [tab, setTab] = useState<"details" | "settings">("details");
+
+  const formattedEndTime = useMemo(
+    () => (poll ? format(poll.endTime, "dd.MM.yyyy HH:mm") : ""),
+    [poll]
+  );
 
   return poll ? (
     <div id="publish-active-poll">
@@ -57,6 +80,34 @@ export function PublishEditorPollEditor() {
               }
             />
           </InputGroup>
+          <InputGroup prepend={<UilCalender />} onClick={() => setShowDatePicker(true)}>
+            <FormControl
+              type="text"
+              readOnly={true}
+              placeholder={i18next.t("polls.end-time")}
+              value={formattedEndTime}
+            />
+          </InputGroup>
+
+          <Modal show={showDatepicker} onHide={() => setShowDatePicker(false)} centered={true}>
+            <ModalHeader closeButton={true}>{i18next.t("polls.end-time")}</ModalHeader>
+            <ModalBody>
+              <Datepicker
+                value={poll?.endTime}
+                onChange={(e) =>
+                  setPoll({
+                    ...poll,
+                    endTime: e
+                  })
+                }
+              />
+            </ModalBody>
+            <ModalFooter className="flex justify-end">
+              <Button appearance="gray" size="sm" onClick={() => setShowDatePicker(false)}>
+                {i18next.t("g.close")}
+              </Button>
+            </ModalFooter>
+          </Modal>
 
           <div className="flex flex-col items-start gap-4 mt-4">
             <div>{i18next.t("polls.choices")}</div>
@@ -91,7 +142,7 @@ export function PublishEditorPollEditor() {
                       onClick={() =>
                         setPoll({
                           ...poll,
-                          choices: poll.choices.filter((c) => choice !== c)
+                          choices: poll.choices.filter((_, i) => i !== index)
                         })
                       }
                     />
@@ -106,7 +157,7 @@ export function PublishEditorPollEditor() {
               onClick={() =>
                 setPoll({
                   ...poll,
-                  choices: [...poll.choices, ""]
+                  choices: [...poll.choices, "Choice " + poll.choices.length]
                 })
               }
             >

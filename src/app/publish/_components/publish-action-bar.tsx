@@ -22,6 +22,7 @@ import { useState } from "react";
 import { useSaveDraftApi } from "../_api";
 import { usePublishState } from "../_hooks";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
+import { LoginRequired } from "@/features/shared";
 
 interface Props {
   onPublish: () => void;
@@ -48,9 +49,11 @@ export function PublishActionBar({ onPublish }: Props) {
     >
       <PublishActionBarCommunity />
       <div className="flex items-center gap-4">
-        <Button appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
-          {i18next.t(scheduleDate ? "submit.schedule" : "submit.publish")}
-        </Button>
+        <LoginRequired>
+          <Button appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
+            {i18next.t(scheduleDate ? "submit.schedule" : "submit.publish")}
+          </Button>
+        </LoginRequired>
         <Dropdown>
           <DropdownToggle>
             <Button icon={<UilEllipsisV />} appearance="gray-link" />
