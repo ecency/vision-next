@@ -1,38 +1,26 @@
-import * as ls from "@/utils/local-storage";
-import React, { useState } from "react";
-import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
-import { Spinner } from "@ui/spinner";
+import { EcencyConfigManager } from "@/config";
+import { useGlobalStore } from "@/core/global-store";
+import { OrDivider } from "@/features/shared";
+import { UserItem } from "@/features/shared/login/user-item";
+import { getAuthUrl } from "@/utils";
+import { Button } from "@ui/button";
 import { Form } from "@ui/form";
 import { FormControl } from "@ui/input";
-import ReCAPTCHA from "react-google-recaptcha";
-import { Button } from "@ui/button";
-import { Account, User, UserKeys } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
-import { getAccount } from "@/api/hive";
-import { decodeObj, generateKeys, getAuthUrl, getRefreshToken, makeHsCode } from "@/utils";
+import { Spinner } from "@ui/spinner";
 import i18next from "i18next";
-import { error, OrDivider } from "@/features/shared";
-import { grantPostingPermission } from "@/api/operations";
-import { UserItem } from "@/features/shared/login/user-item";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { EcencyConfigManager } from "@/config";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import { useLoginByKey } from "./hooks";
 
 interface Props {
-  doLogin: (
-    hsCode: string,
-    postingKey: null | undefined | string,
-    account: Account
-  ) => Promise<void>;
   userListRef?: any;
 }
 
-export function Login({ doLogin, userListRef }: Props) {
+export function Login({ userListRef }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
-  const deleteUser = useGlobalStore((state) => state.deleteUser);
-  const setActiveUser = useGlobalStore((state) => state.setActiveUser);
-  const addUser = useGlobalStore((state) => state.addUser);
   const users = useGlobalStore((state) => state.users);
   const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
 
@@ -41,44 +29,9 @@ export function Login({ doLogin, userListRef }: Props) {
   const [inProgress, setInProgress] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
 
+  const { mutateAsync: loginByKey } = useLoginByKey(username, key, isVerified);
+
   const router = useRouter();
-
-  const userSelect = async (user: User) => {
-    setInProgress(true);
-
-    try {
-      const account = await getAccount(user.username);
-      let token = getRefreshToken(user.username);
-      if (token) {
-        await doLogin(token, user.postingKey, account);
-        let shouldShowTutorialJourney = ls.get(`${user.username}HadTutorial`);
-
-        if (
-          !shouldShowTutorialJourney &&
-          shouldShowTutorialJourney &&
-          shouldShowTutorialJourney !== "true"
-        ) {
-          ls.set(`${user.username}HadTutorial`, "false");
-        }
-      } else {
-        error(`${i18next.t("login.error-user-not-found-cache")}`);
-        userDelete(user);
-      }
-    } catch (e) {
-      error(i18next.t("g.server-error"));
-    } finally {
-      setInProgress(false);
-    }
-  };
-
-  const userDelete = (user: User) => {
-    deleteUser(user.username);
-
-    // logout if active user
-    if (activeUser && user.username === activeUser.username) {
-      setActiveUser(null);
-    }
-  };
 
   const usernameChanged = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value: username } = e.target;
@@ -92,7 +45,7 @@ export function Login({ doLogin, userListRef }: Props) {
 
   const inputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      login().then();
+      loginByKey().then();
     }
   };
 
@@ -104,178 +57,6 @@ export function Login({ doLogin, userListRef }: Props) {
     if (value) {
       setIsVerified(true);
     }
-  };
-
-  const generateKeysAfterLogin = (
-    isPlainPassword: boolean,
-    withPostingKey: boolean,
-    thePrivateKey: PrivateKey
-  ) => {
-    //decode user object.
-    var user = ls.getByPrefix("user_").map((x) => {
-      const u = decodeObj(x) as User;
-
-      return {
-        username: u.username,
-        refreshToken: u.refreshToken,
-        accessToken: u.accessToken,
-        expiresIn: u.expiresIn,
-        postingKey: u.postingKey
-      };
-    });
-
-    var currentUser = user.filter((x) => x.username === activeUser?.username);
-    //generate and store private keys in case of login with password.
-    var keys: UserKeys = {};
-
-    if (isPlainPassword) {
-      keys = generateKeys(activeUser!, key);
-    } else {
-      if (withPostingKey) {
-        keys = { posting: thePrivateKey.toString() };
-      } else {
-        keys = { active: thePrivateKey.toString() };
-      }
-    }
-
-    const updatedUser: User = { ...currentUser[0], ...{ privateKeys: keys } };
-    addUser(updatedUser);
-  };
-
-  const login = async () => {
-    if (username === "" || key === "") {
-      error(i18next.t("login.error-fields-required"));
-      return;
-    }
-    if (!isVerified) {
-      error(i18next.t("login.captcha-check-required"));
-      return;
-    }
-    // Warn if the code is a public key
-    try {
-      PublicKey.fromString(key);
-      error(i18next.t("login.error-public-key"));
-      return;
-    } catch (e) {}
-
-    let account: Account;
-
-    setInProgress(true);
-    try {
-      account = await getAccount(username);
-    } catch (err) {
-      error(i18next.t("login.error-user-fetch"));
-      return;
-    } finally {
-      setInProgress(false);
-    }
-
-    if (!(account && account.name === username)) {
-      error(i18next.t("login.error-user-not-found"));
-      return;
-    }
-
-    // Posting public key of the account
-    const postingPublic = account?.posting!.key_auths.map((x) => x[0]);
-
-    const isPlainPassword = !cryptoUtils.isWif(key);
-
-    let thePrivateKey: PrivateKey;
-
-    // Whether using posting private key to login
-    let withPostingKey = false;
-
-    if (
-      !isPlainPassword &&
-      postingPublic.includes(PrivateKey.fromString(key).createPublic().toString())
-    ) {
-      // Login with posting private key
-      withPostingKey = true;
-      thePrivateKey = PrivateKey.fromString(key);
-    } else {
-      // Login with master or active private key
-      // Get active private key from user entered code
-      if (isPlainPassword) {
-        thePrivateKey = PrivateKey.fromLogin(account.name, key, "active");
-      } else {
-        thePrivateKey = PrivateKey.fromString(key);
-      }
-
-      // Generate public key from the private key
-      const activePublicInput = thePrivateKey.createPublic().toString();
-
-      // Active public key of the account
-      const activePublic = account?.active!.key_auths.map((x) => x[0]);
-
-      // Compare keys
-      if (!activePublic.includes(activePublicInput)) {
-        error(i18next.t("login.error-authenticate")); // enter master or active key
-        return;
-      }
-
-      const hasPostingPerm =
-        account?.posting!.account_auths.filter(
-          (x) => x[0] === EcencyConfigManager.CONFIG.service.hsClientId
-        ).length > 0;
-
-      if (!hasPostingPerm) {
-        setInProgress(true);
-        try {
-          await grantPostingPermission(
-            thePrivateKey,
-            account,
-            EcencyConfigManager.CONFIG.service.hsClientId
-          );
-        } catch (err) {
-          error(i18next.t("login.error-permission"));
-          return;
-        } finally {
-          setInProgress(false);
-        }
-      }
-    }
-
-    // Prepare hivesigner code
-    const signer = (message: string): Promise<string> => {
-      const hash = cryptoUtils.sha256(message);
-      return new Promise<string>((resolve) => resolve(thePrivateKey.sign(hash).toString()));
-    };
-    const code = await makeHsCode(
-      EcencyConfigManager.CONFIG.service.hsClientId,
-      account.name,
-      signer
-    );
-
-    setInProgress(true);
-
-    doLogin(code, withPostingKey ? key : null, account)
-      .then(() => {
-        generateKeysAfterLogin(isPlainPassword, withPostingKey, thePrivateKey);
-
-        if (
-          !ls.get(`${username}HadTutorial`) ||
-          (ls.get(`${username}HadTutorial`) && ls.get(`${username}HadTutorial`) !== "true")
-        ) {
-          ls.set(`${username}HadTutorial`, "false");
-        }
-
-        let shouldShowTutorialJourney = ls.get(`${username}HadTutorial`);
-
-        if (
-          !shouldShowTutorialJourney &&
-          shouldShowTutorialJourney &&
-          shouldShowTutorialJourney === "false"
-        ) {
-          ls.set(`${username}HadTutorial`, "false");
-        }
-        toggleUIProp("login");
-      })
-      .catch(() => {
-        error(i18next.t("g.server-error"));
-      })
-      .finally(() => {
-        setInProgress(false);
-      });
   };
 
   const spinner = <Spinner className="mr-[6px] w-3.5 h-3.5" />;
@@ -299,8 +80,6 @@ export function Login({ doLogin, userListRef }: Props) {
                   key={u.username}
                   disabled={inProgress}
                   user={u}
-                  onSelect={userSelect}
-                  onDelete={userDelete}
                   containerRef={userListRef}
                 />
               ))}
@@ -361,7 +140,12 @@ export function Login({ doLogin, userListRef }: Props) {
             {i18next.t("login.login-info-2")}
           </a>
         </p>
-        <Button full={true} disabled={inProgress || !isVerified} className="block" onClick={login}>
+        <Button
+          full={true}
+          disabled={inProgress || !isVerified}
+          className="block"
+          onClick={() => loginByKey()}
+        >
           {inProgress && username && key && spinner}
           {i18next.t("g.login")}
         </Button>

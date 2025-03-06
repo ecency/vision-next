@@ -1,22 +1,24 @@
-import React from "react";
-import { UserAvatar } from "@/features/shared";
-import { PopoverConfirm } from "@ui/popover-confirm";
-import { classNameObject } from "@ui/util";
-import { User } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
+import { User } from "@/entities";
+import { UserAvatar } from "@/features/shared";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
+import { PopoverConfirm } from "@ui/popover-confirm";
+import { classNameObject } from "@ui/util";
+import React from "react";
+import { useDeleteUserFromList, useUserSelect } from "./hooks";
 
 interface Props {
   user: User;
   disabled: boolean;
-  onSelect: (user: User) => void;
-  onDelete: (user: User) => void;
   containerRef?: React.RefObject<HTMLInputElement>;
 }
 
-export function UserItem({ disabled, user, onSelect, onDelete, containerRef }: Props) {
+export function UserItem({ disabled, user, containerRef }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
+
+  const { mutateAsync: select } = useUserSelect(user);
+  const deleteUser = useDeleteUserFromList(user);
 
   return (
     <div
@@ -27,7 +29,7 @@ export function UserItem({ disabled, user, onSelect, onDelete, containerRef }: P
         disabled: disabled,
         active: !!activeUser && activeUser.username === user.username
       })}
-      onClick={() => onSelect(user)}
+      onClick={() => select()}
     >
       <UserAvatar username={user.username} size="medium" />
       <span className="username">@{user.username}</span>
@@ -38,7 +40,7 @@ export function UserItem({ disabled, user, onSelect, onDelete, containerRef }: P
       )}
       <div className="flex-spacer" />
       <PopoverConfirm
-        onConfirm={() => onDelete(user)}
+        onConfirm={() => deleteUser()}
         placement="left"
         trigger="click"
         containerRef={containerRef}

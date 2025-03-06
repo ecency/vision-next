@@ -12,22 +12,18 @@ import { formatError } from "@/api/operations";
 import { error } from "@/features/shared";
 import Image from "next/image";
 import { EcencyConfigManager } from "@/config";
+import { useLoginInApp } from "./hooks";
 
-interface Props {
-  doLogin: (
-    hsCode: string,
-    postingKey: null | undefined | string,
-    account: Account
-  ) => Promise<void>;
-}
-
-export function LoginKc({ doLogin }: Props) {
+export function LoginKc() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   const [username, setUsername] = useState("");
   const [inProgress, setInProgress] = useState(false);
+
   const { data: account, isError: isAccountFetchingError } =
     getAccountFullQuery(username).useClientQuery();
+
+  const loginInApp = useLoginInApp(username);
 
   useEffect(() => {
     if (account) {
@@ -84,7 +80,7 @@ export function LoginKc({ doLogin }: Props) {
     try {
       code = await makeHsCode(EcencyConfigManager.CONFIG.service.hsClientId, username, signer);
 
-      await doLogin(code, null, account!);
+      await loginInApp(code, null, account!);
     } catch (err) {
       error(...formatError(err));
       setInProgress(false);

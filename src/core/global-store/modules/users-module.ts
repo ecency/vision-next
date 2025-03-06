@@ -1,6 +1,7 @@
 import { User } from "@/entities";
 import * as ls from "@/utils/local-storage";
 import { decodeObj, encodeObj } from "@/utils";
+import { AuthenticationState } from "./authentication-module";
 
 export function createUsersState() {
   return {
@@ -10,7 +11,10 @@ export function createUsersState() {
 
 type State = ReturnType<typeof createUsersState>;
 
-export function createUsersActions(set: (state: Partial<State>) => void, getState: () => State) {
+export function createUsersActions(
+  set: (state: Partial<State>) => void,
+  getState: () => State & AuthenticationState
+) {
   return {
     loadUsers: () =>
       set({
