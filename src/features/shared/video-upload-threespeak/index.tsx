@@ -1,18 +1,16 @@
-import React, { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
-import "./index.scss";
-import { VideoUploadItem } from "./video-upload-item";
+import { useThreeSpeakVideoUpload, useUploadVideoInfo } from "@/api/threespeak";
+import { useGlobalStore } from "@/core/global-store";
+import { createFile } from "@/utils/create-file";
+import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
-import { VideoUploadRecorder } from "./video-upload-recorder";
-import useMountedState from "react-use/lib/useMountedState";
-import { Alert } from "@ui/alert";
-import { useGlobalStore } from "@/core/global-store";
-import { useThreeSpeakVideoUpload, useUploadVideoInfo } from "@/api/threespeak";
-import i18next from "i18next";
 import { recordVideoSvg } from "@ui/svg";
-import { createFile } from "@/utils/create-file";
-
-const DEFAULT_THUMBNAIL = require("./assets/thumbnail-play.jpg");
+import i18next from "i18next";
+import React, { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
+import useMountedState from "react-use/lib/useMountedState";
+import "./index.scss";
+import { VideoUploadItem } from "./video-upload-item";
+import { VideoUploadRecorder } from "./video-upload-recorder";
 
 interface Props {
   children?: ReactNode;
@@ -125,7 +123,9 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         <Alert appearance="primary" className="mb-4">
           {i18next.t("video-upload.min-duration-alert")}
         </Alert>
-        <p className="font-weight-bold mb-2">{i18next.t("video-upload.source")}</p>
+        <p className="font-weight-bold mb-2 text-sm opacity-50">
+          {i18next.t("video-upload.source")}
+        </p>
         {showRecorder ? (
           <VideoUploadRecorder
             setVideoUrl={setVideoUrl}
@@ -138,7 +138,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
           <div className="video-source">
             {isMounted() && !selectedFile && "MediaRecorder" in window ? (
               <div
-                className="flex items-center flex-col border rounded p-3 video-upload-item"
+                className="flex items-center flex-col border border-[--border-color] rounded-xl p-3 hover:bg-gray-100 dark:hover:bg-dark-default cursor-pointer duration-300"
                 onClick={() => setShowRecorder(true)}
               >
                 {recordVideoSvg}
@@ -156,7 +156,9 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
             />
           </div>
         )}
-        <p className="font-weight-bold mt-5">{i18next.t("video-upload.thumbnail")}</p>
+        <p className="font-weight-bold mt-5 mb-2 text-sm opacity-50">
+          {i18next.t("video-upload.thumbnail")}
+        </p>
         <VideoUploadItem
           label={i18next.t("video-upload.choose-thumbnail")}
           onFileChange={handleThumbnailChange}
@@ -170,7 +172,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         disabled={!canUpload}
         onClick={async () => {
           if (!thumbUrl) {
-            const file = await createFile(DEFAULT_THUMBNAIL);
+            const file = await createFile("/assets/thumbnail-play.jpg");
             onChange({ target: { files: [file] } } as any, "thumbnail");
             setCoverImage(URL?.createObjectURL(file));
           }
