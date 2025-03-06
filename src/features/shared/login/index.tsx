@@ -2,15 +2,12 @@
 
 import { useGlobalStore } from "@/core/global-store";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
-import { useRef } from "react";
 import { useUnmount } from "react-use";
 import "./_index.scss";
 import { Login } from "./login";
 import { LoginKc } from "./login-kc";
 
 export function LoginDialog() {
-  const userListRef = useRef();
-
   const loginKc = useGlobalStore((state) => state.loginKc);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
@@ -29,13 +26,10 @@ export function LoginDialog() {
   };
 
   return (
-    <Modal show={true} centered={true} onHide={hide} className="login-modal">
-      <ModalHeader thin={true} closeButton={true} />
-      <ModalBody>
-        {!loginKc && (
-          // eslint-disable-next-line react/jsx-no-undef
-          <Login userListRef={userListRef} />
-        )}
+    <Modal show={true} centered={true} onHide={hide} size="lg">
+      <ModalHeader closeButton={true} />
+      <ModalBody className="md:p-6">
+        {!loginKc && <Login />}
         {loginKc && <LoginKc />}
       </ModalBody>
     </Modal>

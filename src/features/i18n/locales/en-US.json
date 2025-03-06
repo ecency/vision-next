@@ -206,6 +206,8 @@
   },
   "login": {
     "title": "Welcome back!",
+    "subtitle": "Login with private key or other options. Write username and continue with favorite one",
+    "subtitle-users": "Manage already authenticated users or login to new one with various options",
     "with-user-pass": "Login with your username and private key.",
     "username-placeholder": "username",
     "key-placeholder": "password / private key",
@@ -222,7 +224,9 @@
     "with-hive-signer": "Login with hivesigner",
     "with-keychain": "Login with keychain",
     "sign-up-text-1": "Don't have an account?",
-    "sign-up-text-2": "Sign up now!"
+    "sign-up-text-2": "Sign up now!",
+    "current": "Active user",
+    "continue-with-key": "Continue with key or password"
   },
   "sign-up": {
     "header": "Rewarding Web3 Communities",
