@@ -121,7 +121,7 @@ export function Login() {
         )}
       </div>
 
-      <div className="col-span-2 text-sm text-center my-4">
+      <div className="md:col-span-2 text-sm text-center my-4">
         {i18next.t("login.sign-up-text-1")}
         &nbsp;
         <Link
