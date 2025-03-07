@@ -10,7 +10,6 @@ export function useLoginInApp(username: string) {
   const router = useRouter();
 
   const addUser = useGlobalStore((state) => state.addUser);
-  const loginKc = useGlobalStore((state) => state.loginKc);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -22,10 +21,6 @@ export function useLoginInApp(username: string) {
 
   const hide = useCallback(() => {
     toggleUIProp("login");
-
-    if (loginKc) {
-      toggleUIProp("loginKc");
-    }
   }, []);
 
   return useCallback(

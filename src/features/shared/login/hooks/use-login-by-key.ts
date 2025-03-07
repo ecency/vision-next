@@ -6,7 +6,7 @@ import { Account } from "@/entities";
 import { useMutation } from "@tanstack/react-query";
 import { getAccount } from "@/api/hive";
 import { EcencyConfigManager } from "@/config";
-import { grantPostingPermission } from "@/api/operations";
+import { formatError, grantPostingPermission } from "@/api/operations";
 import { makeHsCode } from "@/utils";
 import { useLoginInApp } from "./use-login-in-app";
 import { useGlobalStore } from "@/core/global-store";
@@ -115,6 +115,6 @@ export function useLoginByKey(username: string, key: string, isVerified: boolean
 
       setSigningKey(privateKey.toString());
     },
-    onError: (e) => error(e.message)
+    onError: (e) => error(...formatError(e))
   });
 }

@@ -21,7 +21,7 @@ export function LoginUsersList({ loginInProgress }: Props) {
     <div>
       {users.length === 0 && (
         <div className="h-full flex flex-col items-center justify-start">
-          <div>
+          <div className="w-full">
             <div className="text-xl w-full font-bold">{i18next.t("login.title")}</div>
             <div className="w-full text-gray-600 dark:text-gray-400">
               {i18next.t("login.subtitle")}

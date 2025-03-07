@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
+import { useLoginByKeychain } from "./hooks";
 
 export function Login() {
   const activeUser = useGlobalStore((state) => state.activeUser);
@@ -24,13 +25,15 @@ export function Login() {
 
   const hsLogin = () =>
     (window.location.href = getAuthUrl(EcencyConfigManager.CONFIG.service.hsClientId));
-  const kcLogin = () => toggleUIProp("loginKc");
+
+  const { mutateAsync: loginByKeychain, isPending: isLoginByKeychainPending } =
+    useLoginByKeychain(username);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">
       <LoginUsersList loginInProgress={inProgress} />
 
-      <div>
+      <div className="flex flex-col gap-4">
         <div>
           {step === "key" && (
             <Button
@@ -44,6 +47,11 @@ export function Login() {
             </Button>
           )}
 
+          {step === "start" && (
+            <div className="w-full text-gray-600 dark:text-gray-400">
+              {i18next.t("login.write-username")}
+            </div>
+          )}
           <FormControl
             className="my-4"
             type="text"
@@ -67,45 +75,46 @@ export function Login() {
           {step === "key" && <LoginUserByKey username={username} />}
         </div>
 
-        <div className="hs-login">
+        <Button
+          outline={true}
+          onClick={hsLogin}
+          size="lg"
+          full={true}
+          disabled={inProgress}
+          appearance="hivesigner"
+          icon={
+            <Image
+              width={100}
+              height={100}
+              src="/assets/hive-signer.svg"
+              className="w-4 h-4"
+              alt="hivesigner"
+            />
+          }
+        >
+          {i18next.t("login.with-hive-signer")}
+        </Button>
+
+        {hasKeyChain && (
           <Button
-            outline={true}
-            onClick={hsLogin}
-            disabled={inProgress}
+            appearance="secondary"
+            full={true}
+            size="lg"
+            onClick={() => !!username && loginByKeychain()}
+            disabled={!username}
+            isLoading={isLoginByKeychainPending}
             icon={
               <Image
                 width={100}
                 height={100}
-                src="/assets/hive-signer.svg"
-                className="hs-logo"
-                alt="hivesigner"
+                src="/assets/keychain.png"
+                alt="keychain"
+                className="w-4 h-4"
               />
             }
-            iconPlacement="left"
           >
-            {i18next.t("login.with-hive-signer")}
+            {i18next.t("login.with-keychain")}
           </Button>
-        </div>
-        {hasKeyChain && (
-          <div className="kc-login">
-            <Button
-              outline={true}
-              onClick={kcLogin}
-              disabled={inProgress}
-              icon={
-                <Image
-                  width={100}
-                  height={100}
-                  src="/assets/keychain.png"
-                  className="kc-logo"
-                  alt="keychain"
-                />
-              }
-              iconPlacement="left"
-            >
-              {i18next.t("login.with-keychain")}
-            </Button>
-          </div>
         )}
         {activeUser === null && (
           <p>
