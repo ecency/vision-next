@@ -11,9 +11,10 @@ import { useDeleteUserFromList, useUserSelect } from "./hooks";
 interface Props {
   user: User;
   disabled: boolean;
+  compact?: boolean;
 }
 
-export function LoginUserItem({ disabled, user }: Props) {
+export function LoginUserItem({ disabled, user, compact = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const activeUser = useGlobalStore((state) => state.activeUser);
@@ -27,9 +28,11 @@ export function LoginUserItem({ disabled, user }: Props) {
     <div
       ref={containerRef}
       className={classNameObject({
-        "flex items-center pointer text-base p-2 rounded-full relative gap-2": true,
+        "flex items-center pointer rounded-full p-2 relative gap-2": true,
         "border border-[--border-color] hover:bg-gray-100 dark:hover:bg-dark-default duration-300":
           true,
+        "text-sm h-[46px]": compact,
+        "text-base": !compact,
         disabled: disabled,
         active: !!activeUser && activeUser.username === user.username
       })}
@@ -37,8 +40,8 @@ export function LoginUserItem({ disabled, user }: Props) {
       onMouseEnter={() => setShowDelete(true)}
       onMouseLeave={() => setShowDelete(false)}
     >
-      <UserAvatar username={user.username} size="medium" />
-      <span className="username">@{user.username}</span>
+      <UserAvatar username={user.username} size={compact ? "small" : "medium"} />
+      <span className="username max-w-full truncate">@{user.username}</span>
       {activeUser?.username === user.username && (
         <div className="rounded-full absolute left-8 bottom-1 p-1 bg-white">
           <div className="bg-green w-3 h-3 rounded-full" />

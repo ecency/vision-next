@@ -33,7 +33,7 @@ export function Login() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">
       <LoginUsersList loginInProgress={inProgress} />
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 sticky top-0">
         <div>
           {step === "key" && (
             <Button
@@ -48,7 +48,7 @@ export function Login() {
           )}
 
           {step === "start" && (
-            <div className="w-full text-gray-600 dark:text-gray-400">
+            <div className="text-xs uppercase font-bold opacity-50 w-full mt-4">
               {i18next.t("login.write-username")}
             </div>
           )}
