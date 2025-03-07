@@ -10,11 +10,10 @@ import { useDeleteUserFromList, useUserSelect } from "./hooks";
 
 interface Props {
   user: User;
-  disabled: boolean;
   compact?: boolean;
 }
 
-export function LoginUserItem({ disabled, user, compact = false }: Props) {
+export function LoginUserItem({ user, compact = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const activeUser = useGlobalStore((state) => state.activeUser);
@@ -33,7 +32,6 @@ export function LoginUserItem({ disabled, user, compact = false }: Props) {
           true,
         "text-sm h-[46px]": compact,
         "text-base": !compact,
-        disabled: disabled,
         active: !!activeUser && activeUser.username === user.username
       })}
       onClick={() => select()}

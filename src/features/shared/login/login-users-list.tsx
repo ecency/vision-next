@@ -5,11 +5,7 @@ import { LoginUserItem } from "./login-user-item";
 import { useMemo } from "react";
 import clsx from "clsx";
 
-interface Props {
-  loginInProgress: boolean;
-}
-
-export function LoginUsersList({ loginInProgress }: Props) {
+export function LoginUsersList() {
   const users = useGlobalStore((state) => state.users);
   const activeUser = useGlobalStore((state) => state.activeUser);
 
@@ -21,11 +17,11 @@ export function LoginUsersList({ loginInProgress }: Props) {
   return (
     <div>
       {users.length > 0 && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 md:pr-6 md:border-r border-[--border-color]">
           <div className="text-xs uppercase font-bold opacity-50 mt-4">
             {i18next.t("login.current")}
           </div>
-          {activeUserItem && <LoginUserItem disabled={loginInProgress} user={activeUserItem} />}
+          {activeUserItem && <LoginUserItem user={activeUserItem} />}
 
           {users.length > 1 && (
             <div className="text-xs uppercase mt-4 font-bold opacity-50">
@@ -41,25 +37,20 @@ export function LoginUsersList({ loginInProgress }: Props) {
             {users
               .filter((u) => u.username !== activeUser?.username)
               .map((u) => (
-                <LoginUserItem
-                  compact={true}
-                  key={u.username}
-                  disabled={loginInProgress}
-                  user={u}
-                />
+                <LoginUserItem compact={true} key={u.username} user={u} />
               ))}
           </div>
         </div>
       )}
 
       {users.length === 0 && (
-        <div className="h-full flex flex-col items-center justify-start">
+        <div className="h-full flex flex-col items-center justify-center">
           <Image
             width={400}
             height={400}
             src="/assets/undraw-login.svg"
             alt="Logo"
-            className="max-w-[300px] py-16"
+            className="max-w-[300px] pt-4"
           />
         </div>
       )}

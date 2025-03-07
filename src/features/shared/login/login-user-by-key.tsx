@@ -1,5 +1,6 @@
-import { useGlobalStore } from "@/core/global-store";
 import { Button, FormControl } from "@/features/ui";
+import { UilArrowRight } from "@tooni/iconscout-unicons-react";
+import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useState } from "react";
@@ -11,17 +12,15 @@ interface Props {
 }
 
 export function LoginUserByKey({ username }: Props) {
-  const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
-
   const [key, setKey] = useState("");
   const [isVerified, setIsVerified] = useState(false);
 
   const { mutateAsync: loginByKey, isPending } = useLoginByKey(username, key, isVerified);
 
   return (
-    <>
+    <motion.div className="w-full" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
       <FormControl
-        className="mb-4"
+        className="mb-2"
         type="password"
         value={key}
         autoComplete="off"
@@ -29,6 +28,12 @@ export function LoginUserByKey({ username }: Props) {
         placeholder={i18next.t("login.key-placeholder")}
         onKeyDown={(e) => e.key === "Enter" && loginByKey()}
       />
+      <div className="pl-2 text-sm">
+        {i18next.t("login.login-info-1")}{" "}
+        <Link target="_blank" href="/faq#how-to-signin">
+          {i18next.t("login.login-info-2")}
+        </Link>
+      </div>
 
       <div className="google-recaptcha">
         <ReCAPTCHA
@@ -37,20 +42,10 @@ export function LoginUserByKey({ username }: Props) {
           size="normal"
         />
       </div>
-      <p className="login-form-text my-3">
-        {i18next.t("login.login-info-1")}{" "}
-        <Link
-          href="/faq#how-to-signin"
-          onClick={(e) => {
-            e.preventDefault();
-            toggleUIProp("login");
-          }}
-        >
-          {i18next.t("login.login-info-2")}
-        </Link>
-      </p>
       <Button
         full={true}
+        size="lg"
+        icon={<UilArrowRight />}
         disabled={!isVerified}
         className="block"
         onClick={() => loginByKey()}
@@ -58,6 +53,6 @@ export function LoginUserByKey({ username }: Props) {
       >
         {i18next.t("g.login")}
       </Button>
-    </>
+    </motion.div>
   );
 }
