@@ -1,6 +1,6 @@
 import { User } from "@/entities";
-import * as ls from "@/utils/local-storage";
 import { decodeObj, encodeObj } from "@/utils";
+import * as ls from "@/utils/local-storage";
 import { AuthenticationState } from "./authentication-module";
 
 export function createUsersState() {
@@ -16,22 +16,38 @@ export function createUsersActions(
   getState: () => State & AuthenticationState
 ) {
   return {
+    setUsers: (usersList: User[]) => {
+      usersList.map((user) => ls.set(`user_${user.username}`, encodeObj(user)));
+      set({
+        users: usersList
+      });
+    },
     loadUsers: () =>
       set({
-        users: ls.getByPrefix("user_").map((x) => {
-          const u = decodeObj(x) as User;
-          return {
-            username: u.username,
-            refreshToken: "",
-            accessToken: "",
-            expiresIn: u.expiresIn,
-            postingKey: u.postingKey
-          };
-        })
+        users: ls
+          .getByPrefix("user_")
+          .map((x) => {
+            const u = decodeObj(x) as User;
+            return {
+              username: u.username,
+              refreshToken: "",
+              accessToken: "",
+              expiresIn: u.expiresIn,
+              postingKey: u.postingKey,
+              index: u.index
+            };
+          })
+          .sort((a, b) => (a.index ?? 0) - (b?.index ?? 0))
       }),
     addUser: (user: User) => {
       set({
-        users: [...getState().users.filter((x) => x.username !== user.username), user]
+        users: [
+          ...getState().users.filter((x) => x.username !== user.username),
+          {
+            ...user,
+            index: getState().users.length
+          }
+        ]
       });
 
       ls.set(`user_${user.username}`, encodeObj(user));
@@ -42,7 +58,8 @@ export function createUsersActions(
           refreshToken: "",
           accessToken: "",
           expiresIn: u.expiresIn,
-          postingKey: u.postingKey
+          postingKey: u.postingKey,
+          index: getState().users.length
         };
       });
     },

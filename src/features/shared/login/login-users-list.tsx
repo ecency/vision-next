@@ -1,9 +1,10 @@
 import { useGlobalStore } from "@/core/global-store";
+import clsx from "clsx";
 import i18next from "i18next";
 import Image from "next/image";
-import { LoginUserItem } from "./login-user-item";
 import { useMemo } from "react";
-import clsx from "clsx";
+import { LoginUserItem } from "./login-user-item";
+import { LoginUsersReorder } from "./login-users-reorder";
 
 export function LoginUsersList() {
   const users = useGlobalStore((state) => state.users);
@@ -24,8 +25,11 @@ export function LoginUsersList() {
           {activeUserItem && <LoginUserItem user={activeUserItem} />}
 
           {users.length > 1 && (
-            <div className="text-xs uppercase mt-4 font-bold opacity-50">
-              {i18next.t("g.login-as")}
+            <div className="flex items-center mt-4 justify-between">
+              <div className="text-xs uppercase font-bold opacity-50">
+                {i18next.t("g.login-as")}
+              </div>
+              <LoginUsersReorder />
             </div>
           )}
           {users.length === 1 && (

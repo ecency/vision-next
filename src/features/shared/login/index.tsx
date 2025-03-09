@@ -8,14 +8,11 @@ import i18next from "i18next";
 
 export function LoginDialog() {
   const users = useGlobalStore((state) => state.users);
-  const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
-
-  const hide = () => {
-    toggleUIProp("login");
-  };
+  const showLogin = useGlobalStore((state) => state.login);
+  const setShowLogin = useGlobalStore((state) => state.setLogin);
 
   return (
-    <Modal show={true} centered={true} onHide={hide} size="lg">
+    <Modal show={showLogin} centered={true} onHide={() => setShowLogin(false)} size="lg">
       <ModalHeader closeButton={true} />
       <ModalBody className="md:p-6">
         <div className="w-full">

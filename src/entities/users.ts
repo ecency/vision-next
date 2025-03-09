@@ -13,7 +13,7 @@ export interface User {
   refreshToken: string;
   expiresIn: number;
   postingKey: null | undefined | string;
-  privateKeys?: UserKeys;
+  index?: number; // index in a list
 }
 
 export interface UserPoints {
