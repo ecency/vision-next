@@ -55,6 +55,11 @@ export function Login() {
           onChange={(e) => setUsername(e.target.value.trim().toLowerCase())}
           placeholder={i18next.t("login.username-placeholder")}
           autoFocus={true}
+          onKeyDown={(e) => {
+            if (e.code === "Enter" && !!username) {
+              setStep("key");
+            }
+          }}
         />
 
         {step === "key" && <LoginUserByKey username={username} />}

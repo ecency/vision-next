@@ -23,6 +23,7 @@ export function LoginUsersList() {
             {i18next.t("login.current")}
           </div>
           {activeUserItem && <LoginUserItem user={activeUserItem} />}
+          {!activeUserItem && <div className="">{i18next.t("login.no-active-user")}</div>}
 
           {users.length > 1 && (
             <div className="flex items-center mt-4 justify-between">

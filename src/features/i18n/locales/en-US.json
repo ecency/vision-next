@@ -229,7 +229,8 @@
     "continue-with-key": "Continue with key or password",
     "single-account-hint": "You can log in to another account and manage multiple accounts. Give it a try!",
     "reorder": "Change users list order",
-    "reorder-list": "Change list order"
+    "reorder-list": "Change list order",
+    "no-active-user": "No active user yet"
   },
   "sign-up": {
     "header": "Rewarding Web3 Communities",
