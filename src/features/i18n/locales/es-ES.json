@@ -206,8 +206,10 @@
   },
   "login": {
     "title": "¡Bienvenido de nuevo!",
-    "with-user-pass": "Inicia sesión con tu nombre de usuario y clave privada.",
-    "username-placeholder": "nombre de Usuario",
+    "subtitle": "Login with private key or other options. Write username and continue with favorite one",
+    "subtitle-users": "Manage already authenticated users or login to new one with various options",
+    "write-username": "Enter username and select login option",
+    "username-placeholder": "Username",
     "key-placeholder": "contraseña / clave privada",
     "login-info-1": "No almacenamos sus claves privadas.",
     "login-info-2": "Más información",
@@ -222,7 +224,13 @@
     "with-hive-signer": "Iniciar Sesión con hivesigner",
     "with-keychain": "Iniciar sesión con KeyChain",
     "sign-up-text-1": "¿No tienes una cuenta?",
-    "sign-up-text-2": "¡Regístrate ahora!"
+    "sign-up-text-2": "¡Regístrate ahora!",
+    "current": "Active user",
+    "continue-with-key": "Continue with key or password",
+    "single-account-hint": "You can log in to another account and manage multiple accounts. Give it a try!",
+    "reorder": "Change users list order",
+    "reorder-list": "Change list order",
+    "no-active-user": "No active user yet"
   },
   "sign-up": {
     "header": "Recompensando a las comunidades Web3",
