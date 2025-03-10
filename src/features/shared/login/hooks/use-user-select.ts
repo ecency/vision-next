@@ -26,6 +26,7 @@ export function useUserSelect(user: User) {
           throw new Error(`${i18next.t("login.error-user-not-found-cache")}`);
         }
       } catch (e) {
+        console.error(e);
         throw new Error(i18next.t("g.server-error"));
       }
     },
