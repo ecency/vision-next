@@ -30,8 +30,8 @@ export function createUsersActions(
             const u = decodeObj(x) as User;
             return {
               username: u.username,
-              refreshToken: "",
-              accessToken: "",
+              refreshToken: u.accessToken,
+              accessToken: u.refreshToken,
               expiresIn: u.expiresIn,
               postingKey: u.postingKey,
               index: u.index
@@ -55,8 +55,8 @@ export function createUsersActions(
         const u = decodeObj(x) as User;
         return {
           username: u.username,
-          refreshToken: "",
-          accessToken: "",
+          refreshToken: u.refreshToken,
+          accessToken: u.accessToken,
           expiresIn: u.expiresIn,
           postingKey: u.postingKey,
           index: getState().users.length
