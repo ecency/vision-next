@@ -12,6 +12,7 @@ export type ButtonAppearance =
   | "info"
   | "white-link"
   | "white"
+  | "hivesigner"
   // User pressed style for buttons with pressed(not) statements like favourite like button
   | "pressed";
 export type ButtonSize = "xxs" | "xs" | "sm" | "md" | "lg" | "display";

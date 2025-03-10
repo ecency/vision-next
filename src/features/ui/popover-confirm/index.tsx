@@ -15,7 +15,7 @@ interface Props {
   onCancel?: () => void;
   trigger?: any;
   placement?: any;
-  containerRef?: React.RefObject<HTMLInputElement>;
+  containerRef?: React.RefObject<HTMLElement>;
 }
 export function PopoverConfirm({
   titleText,

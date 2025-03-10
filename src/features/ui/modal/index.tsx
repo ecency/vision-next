@@ -35,7 +35,8 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
     "show",
     "onHide",
     "centered",
-    "dialogClassName"
+    "dialogClassName",
+    "raw"
   ]);
   const isAnimated = useMemo(() => props.animation ?? true, [props.animation]);
 

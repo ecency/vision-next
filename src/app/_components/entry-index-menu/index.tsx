@@ -203,13 +203,13 @@ export function EntryIndexMenu() {
       isGlobal = false;
     }
     let showInitialIntroductionJourney =
-      !!activeUser && ls.get(`${activeUser.username}HadTutorial`);
+      !!activeUser && ls.get(`${ls.PREFIX}_${activeUser.username}HadTutorial`);
     if (
       !!activeUser &&
       (showInitialIntroductionJourney === "false" || showInitialIntroductionJourney === null)
     ) {
       showInitialIntroductionJourney = true;
-      ls.set(`${activeUser.username}HadTutorial`, "true");
+      ls.set(`${ls.PREFIX}_${activeUser.username}HadTutorial`, "true");
     }
     if (showInitialIntroductionJourney === true) {
       showInitialIntroductionJourney = IntroductionType.FRIENDS;
@@ -251,14 +251,14 @@ export function EntryIndexMenu() {
 
   useEffect(() => {
     let showInitialIntroductionJourney =
-      !!activeUser && ls.get(`${activeUser.username}HadTutorial`);
+      !!activeUser && ls.get(`${ls.PREFIX}_${activeUser.username}HadTutorial`);
     if (
       prevActiveUser !== activeUser &&
       !!activeUser &&
       (showInitialIntroductionJourney === "false" || showInitialIntroductionJourney === null)
     ) {
       showInitialIntroductionJourney = true;
-      ls.set(`${activeUser.username}HadTutorial`, "true");
+      ls.set(`${ls.PREFIX}_${activeUser.username}HadTutorial`, "true");
       setIntroduction(
         showInitialIntroductionJourney ? IntroductionType.FRIENDS : IntroductionType.NONE
       );
@@ -266,7 +266,7 @@ export function EntryIndexMenu() {
     if (
       prevActiveUser !== activeUser &&
       !activeUser &&
-      ls.get(`${prevActiveUser?.username}HadTutorial`)
+      ls.get(`${ls.PREFIX}_${prevActiveUser?.username}HadTutorial`)
     ) {
       setIntroduction(IntroductionType.NONE);
     }
@@ -281,7 +281,7 @@ export function EntryIndexMenu() {
 
   return (
     <div>
-      <div className={introductionOverlayClass} id="overlay" onClick={onClosePopup} />
+      {/* <div className={introductionOverlayClass} id="overlay" onClick={onClosePopup} /> */}
       <div className="entry-index-menu flex items-center justify-center md:justify-between py-3.5 border-b dark:border-dark-200">
         <div className="bg-gray-100 dark:bg-gray-900 rounded-3xl lg:px-4 p-2 text-sm flex flex-col-reverse items-center md:flex-row">
           <div className="flex items-center">
@@ -321,7 +321,7 @@ export function EntryIndexMenu() {
                       </Link>
                     </li>
                   ))}
-                  {introduction !== IntroductionType.NONE &&
+                  {/* {introduction !== IntroductionType.NONE &&
                   introduction !== IntroductionType.FRIENDS &&
                   (introduction === IntroductionType.HOT ||
                     introduction === IntroductionType.TRENDING ||
@@ -342,7 +342,7 @@ export function EntryIndexMenu() {
                       description={introductionDescription}
                       showFinish={introduction === IntroductionType.NEW}
                     />
-                  ) : null}
+                  ) : null} */}
                 </ul>
               </div>
               <div className="kebab-icon flex">
@@ -377,7 +377,7 @@ export function EntryIndexMenu() {
                     ))}
                   </DropdownMenu>
                 </Dropdown>
-                {introduction !== IntroductionType.NONE ? (
+                {/* {introduction !== IntroductionType.NONE ? (
                   <Introduction
                     title={getPopupTitle()}
                     media={apiBase(`/assets/our-vision.${canUseWebp ? "webp" : "png"}`)}
@@ -389,7 +389,7 @@ export function EntryIndexMenu() {
                   />
                 ) : (
                   <></>
-                )}
+                )} */}
               </div>
               <div className="hidden lg:block">
                 <ul className="flex flex-wrap">
@@ -440,7 +440,7 @@ export function EntryIndexMenu() {
             )}
           </div>
         </div>
-        <div className="flex items-center ml-auto md:ml-0 pl-3">
+        {/* <div className="flex items-center ml-auto md:ml-0 pl-3">
           <Button
             size="sm"
             appearance="gray-link"
@@ -460,7 +460,7 @@ export function EntryIndexMenu() {
             }
           />
           <ListStyleToggle />
-        </div>
+        </div> */}
       </div>
     </div>
   );

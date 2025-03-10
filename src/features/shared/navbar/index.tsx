@@ -23,7 +23,6 @@ interface Props {
 export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const toggleTheme = useGlobalStore((state) => state.toggleTheme);
-  const uiLogin = useGlobalStore((state) => state.login);
 
   const router = useRouter();
   const query = useSearchParams();
@@ -114,7 +113,7 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
         setSmVisible={setSmVisible}
         experimental={experimental}
       />
-      {uiLogin && <LoginDialog />}
+      <LoginDialog />
       {/*Do not remove from here because it`s controlling by global store*/}
       <NotificationsDialog />
     </div>

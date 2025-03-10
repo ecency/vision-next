@@ -133,7 +133,6 @@ export const activeUserInstance: ActiveUser = activeUserMaker("foo");
 
 export const UiInstance: Partial<GlobalStore> = {
   login: false,
-  loginKc: false,
   uiNotifications: false
 };
 
