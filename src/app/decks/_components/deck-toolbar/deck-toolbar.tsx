@@ -26,8 +26,6 @@ export const DeckToolbar = ({ isExpanded, setIsExpanded }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const setActiveUser = useGlobalStore((s) => s.setActiveUser);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
-  const uiNotifications = useGlobalStore((s) => s.uiNotifications);
-  const uiLogin = useGlobalStore((s) => s.login);
 
   const router = useRouter();
 
@@ -138,7 +136,7 @@ export const DeckToolbar = ({ isExpanded, setIsExpanded }: Props) => {
         <NotificationHandler />
       </EcencyConfigManager.Conditional>
       {activeUser && <NotificationsDialog openLinksInNewTab={true} />}
-      {uiLogin && <LoginDialog />}
+      <LoginDialog />
       <PurchaseQrDialog show={showPurchaseDialog} setShow={(v) => setShowPurchaseDialog(v)} />
     </div>
   );

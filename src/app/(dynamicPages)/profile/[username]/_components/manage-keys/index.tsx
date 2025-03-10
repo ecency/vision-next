@@ -1,21 +1,20 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
-import { AccountDataType, actionType, Keytype, PublicKeys } from "../manage-authority/types";
-import "./index.scss";
-import { Modal, ModalBody, ModalHeader } from "@ui/modal";
-import { FormControl, InputGroup } from "@ui/input";
-import { Button } from "@ui/button";
-import { Form } from "@ui/form";
-import { Td, Tr } from "@ui/table";
 import { useGlobalStore } from "@/core/global-store";
 import { ActiveUser, User, UserKeys } from "@/entities";
-import * as ls from "@/utils/local-storage";
-import { decodeObj, encodeObj, generateKeys } from "@/utils";
 import { error, success } from "@/features/shared";
-import i18next from "i18next";
+import { decodeObj, encodeObj, generateKeys } from "@/utils";
+import * as ls from "@/utils/local-storage";
+import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
+import { Button } from "@ui/button";
+import { Form } from "@ui/form";
+import { FormControl, InputGroup } from "@ui/input";
+import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { keySvg } from "@ui/svg";
+import { Td, Tr } from "@ui/table";
+import i18next from "i18next";
+import React, { useCallback, useEffect, useState } from "react";
 import { ManageAuthIcon } from "../manage-auth-icon";
-import useMount from "react-use/lib/useMount";
+import { AccountDataType, actionType, Keytype, PublicKeys } from "../manage-authority/types";
+import "./index.scss";
 
 interface Props {
   accountData: AccountDataType;
@@ -50,10 +49,6 @@ export function ManageKeys(props: Props) {
     );
   }, [isMobile]);
 
-  useMount(() => {
-    getKeys();
-  });
-
   const handleOwnerReveal = () => {
     setOwnerReveal(!ownerReveal);
   };
@@ -72,22 +67,6 @@ export function ManageKeys(props: Props) {
 
   const toggleKeyDialog = () => {
     setKeyDialog(!keyDialog);
-  };
-
-  const getKeys = () => {
-    const currentUser = ls
-      .getByPrefix("user_")
-      .map((x) => {
-        const u = decodeObj(x) as User;
-        return {
-          username: u.username,
-          privateKeys: u.privateKeys!
-        };
-      })
-      .filter((x) => x.username === activeUser?.username);
-    if (currentUser) {
-      setPrivatekeys(currentUser[0].privateKeys);
-    }
   };
 
   const keysFormatter = (keyObject: any) => {
@@ -196,14 +175,11 @@ export function ManageKeys(props: Props) {
       }
     }
 
-    const pKeys = currentUser[0].privateKeys;
     const updatedUser: User = {
-      ...currentUser[0],
-      ...{ ...{ privateKeys: { ...pKeys, ...keys } } }
+      ...currentUser[0]
     };
     updateUser(activeUser!, updatedUser);
     setStep(2);
-    getKeys();
   };
 
   const updateUser = (activeUser: ActiveUser, updatedUser: User) => {

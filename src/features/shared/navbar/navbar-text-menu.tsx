@@ -34,7 +34,7 @@ export function NavbarTextMenu() {
       {ITEMS.map((item, i) => (
         <>
           <Link
-            key={i}
+            key={item.link}
             className={classNameObject({
               "text-sm font-semibold duration-300 hover:opacity-75 mt-0 px-2 py-0.5 rounded-2xl":
                 true,
@@ -49,7 +49,7 @@ export function NavbarTextMenu() {
           </Link>
           {i !== ITEMS.length - 1 && (
             <i
-              key={"circle" + i}
+              key={"circle" + item.label}
               className="w-2 h-2 bg-gray-200 dark:bg-dark-default rounded-full"
             />
           )}
