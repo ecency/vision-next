@@ -38,7 +38,12 @@ export function LoginUsersList() {
               {i18next.t("login.single-account-hint")}
             </div>
           )}
-          <div className={clsx("grid gap-4", users.length > 4 ? "grid-cols-2" : "grid-cols-1")}>
+          <div
+            className={clsx(
+              "grid gap-4 max-h-[186px] overflow-y-auto",
+              users.length > 4 ? "grid-cols-2" : "grid-cols-1"
+            )}
+          >
             {users
               .filter((u) => u.username !== activeUser?.username)
               .map((u) => (
