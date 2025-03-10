@@ -30,8 +30,8 @@ export function createUsersActions(
             const u = decodeObj(x) as User;
             return {
               username: u.username,
-              refreshToken: u.accessToken,
-              accessToken: u.refreshToken,
+              refreshToken: u.refreshToken,
+              accessToken: u.accessToken,
               expiresIn: u.expiresIn,
               postingKey: u.postingKey,
               index: u.index
