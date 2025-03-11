@@ -24,7 +24,8 @@ export default function Page() {
         "Flexible way to create an account using email validation. Free account, full-fledged account with 3X resource credits for $2.99 or onboard friend",
       buttonText: "Continue with email",
       image: "/assets/undraw-mailbox.svg",
-      href: "/signup/email"
+      href: "/signup/email",
+      label: "Email"
     },
     {
       title: "Signup by external wallets",
@@ -32,7 +33,8 @@ export default function Page() {
         "Create an account for free and create/import external wallet in Bitcoin, Ethereum, Solana and more blockchains. Create an account and track your funds",
       image: "/assets/undraw-crypto-wallet.svg",
       buttonText: "Continue with wallets",
-      href: "/signup/wallet"
+      href: "/signup/wallet",
+      label: "Crypto wallet"
     }
   ];
 
@@ -68,7 +70,7 @@ export default function Page() {
               key={option.title}
               className="bg-white rounded-2xl p-6 flex flex-col justify-between"
             >
-              <div className="uppercase opacity-50 font-bold text-sm">Signup option</div>
+              <div className="uppercase opacity-50 font-bold text-sm">{option.label}</div>
               <div className="flex flex-col gap-4">
                 <Image
                   src={option.image}
