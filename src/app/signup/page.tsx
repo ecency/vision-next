@@ -37,25 +37,26 @@ export default function Page() {
   ];
 
   return (
-    <div className="bg-blue-duck-egg dark:bg-transparent pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
+    <div className=" bg-blue-duck-egg dark:bg-transparent pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
       <Feedback />
       <Navbar experimental={true} />
 
       <div className="container px-2 mx-auto mt-6 md:mt-8">
-        <div className="relative">
-          <div className="absolute bottom-0 left-0 p-6 xl:p-8 items-end justify-start col-span-6 rounded-2xl">
-            <h1 className="text-white text-xl md:text-5xl md:leading-[4rem]">
-              <b>{i18next.t("sign-up.header")}</b> – {i18next.t("sign-up.description")}
+        <div className="grid grid-cols-12 mb-10 items-center gap-4 md:gap-6 lg:gap-8 xl:gap-10">
+          <div className="col-span-12 md:col-span-6">
+            <h1 className="text-xl md:text-3xl font-bold md:leading-[3rem]">
+              {i18next.t("sign-up.header")}
             </h1>
+            <h2 className="text-lg md:text-2xl">{i18next.t("sign-up.description")}</h2>
           </div>
 
           <div className="col-span-12 md:col-span-6 top-16 rounded-2xl overflow-hidden">
             <Image
               width={1920}
               height={1920}
-              src="/assets/signup-bg.jpeg"
+              src="/assets/signup-main.svg"
               alt=""
-              className="w-full max-h-[600px] object-cover"
+              className="w-full max-h-[400px] object-cover"
             />
           </div>
         </div>
