@@ -12,6 +12,8 @@ import { useLoginByKeychain } from "./hooks";
 import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
 import { motion } from "framer-motion";
+import { TabItem } from "@/features/ui";
+import clsx from "clsx";
 
 export function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -19,6 +21,19 @@ export function Login() {
 
   const [step, setStep] = useState<"start" | "key">("start");
   const [username, setUsername] = useState("");
+  const [currentTab, setCurrentTab] = useState("login");
+  const [tabs] = useState([
+    {
+      title: i18next.t("login.my-users"),
+      name: "users",
+      key: "users"
+    },
+    {
+      title: i18next.t("login.sign-in"),
+      name: "login",
+      key: "login"
+    }
+  ]);
 
   const hsLogin = () =>
     (window.location.href = getAuthUrl(EcencyConfigManager.CONFIG.service.hsClientId));
@@ -28,9 +43,27 @@ export function Login() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">
-      <LoginUsersList />
+      <div className="md:hidden -mx-4 border-b border-[--border-color] grid grid-cols-3 items-center text-center text-sm font-semibold">
+        {tabs.map((tab, i) => (
+          <TabItem
+            isSelected={tab.key === currentTab}
+            key={tab.key}
+            name={tab.key}
+            onSelect={() => setCurrentTab(tab.key)}
+            title={tab.title}
+            i={i}
+          />
+        ))}
+      </div>
 
-      <div className="flex flex-col items-start gap-4">
+      <LoginUsersList showOnMobile={currentTab === "users"} />
+
+      <div
+        className={clsx(
+          "flex-col items-start gap-4",
+          currentTab === "login" ? "flex" : "hidden md:flex"
+        )}
+      >
         {step === "key" && (
           <Button
             iconPlacement="left"

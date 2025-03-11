@@ -6,7 +6,11 @@ import { useMemo } from "react";
 import { LoginUserItem } from "./login-user-item";
 import { LoginUsersReorder } from "./login-users-reorder";
 
-export function LoginUsersList() {
+interface Props {
+  showOnMobile: boolean;
+}
+
+export function LoginUsersList({ showOnMobile }: Props) {
   const users = useGlobalStore((state) => state.users);
   const activeUser = useGlobalStore((state) => state.activeUser);
 
@@ -16,7 +20,7 @@ export function LoginUsersList() {
   );
 
   return (
-    <div>
+    <div className={clsx(showOnMobile ? "block" : "hidden md:block")}>
       {users.length > 0 && (
         <div className="flex flex-col gap-4 md:pr-6 md:border-r border-[--border-color]">
           <div className="text-xs uppercase font-bold opacity-50 mt-4">
@@ -38,7 +42,12 @@ export function LoginUsersList() {
               {i18next.t("login.single-account-hint")}
             </div>
           )}
-          <div className={clsx("grid gap-4", users.length > 4 ? "grid-cols-2" : "grid-cols-1")}>
+          <div
+            className={clsx(
+              "grid gap-4 md:max-h-[186px] overflow-y-auto",
+              users.length > 4 ? "grid-cols-2" : "grid-cols-1"
+            )}
+          >
             {users
               .filter((u) => u.username !== activeUser?.username)
               .map((u) => (
