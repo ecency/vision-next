@@ -230,7 +230,9 @@
     "single-account-hint": "You can log in to another account and manage multiple accounts. Give it a try!",
     "reorder": "Change users list order",
     "reorder-list": "Change list order",
-    "no-active-user": "No active user yet"
+    "no-active-user": "No active user yet",
+    "sign-in": "Sign in",
+    "my-users": "My users"
   },
   "sign-up": {
     "header": "Recompensando a las comunidades Web3",
