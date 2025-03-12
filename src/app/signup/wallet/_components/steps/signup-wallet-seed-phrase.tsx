@@ -7,7 +7,13 @@ import { useState } from "react";
 import { useCopyToClipboard } from "react-use";
 import { useDownloadSeed } from "../../_hooks";
 import i18next from "i18next";
-import { UilCopyAlt, UilRefresh, UilSync } from "@tooni/iconscout-unicons-react";
+import {
+  UilArrowRight,
+  UilCopyAlt,
+  UilDownloadAlt,
+  UilRefresh,
+  UilSync
+} from "@tooni/iconscout-unicons-react";
 
 const EXAMPLE_SEED = [
   "nice",
@@ -26,9 +32,10 @@ const EXAMPLE_SEED = [
 
 interface Props {
   username: string;
+  onValidated: () => void;
 }
 
-export function SignupWalletSeedPhrase({ username }: Props) {
+export function SignupWalletSeedPhrase({ username, onValidated }: Props) {
   const [hasRevealed, setHasRevealed] = useState(false);
 
   const { data: seed, refetch } = useSeedPhrase();
@@ -42,8 +49,20 @@ export function SignupWalletSeedPhrase({ username }: Props) {
         <div className="text-lg font-semibold">{i18next.t("signup-wallets.seed.title")}</div>
         <div className="opacity-50">{i18next.t("signup-wallets.seed.description")}</div>
       </div>
+      <div className="mt-4 flex justify-end">
+        <Button icon={<UilCopyAlt />} appearance="gray-link" size="sm" />
+        <Button
+          icon={<UilSync />}
+          appearance="gray-link"
+          size="sm"
+          onClick={(e: React.MouseEvent) => {
+            e.preventDefault();
+            refetch();
+          }}
+        />
+      </div>
       <div
-        className="relative border border-[--border-color] p-4 grid grid-cols-4 gap-4 mt-4 rounded-xl cursor-pointer"
+        className="relative border border-[--border-color] p-4 grid grid-cols-3 xl:grid-cols-4 gap-4  rounded-xl cursor-pointer"
         onClick={() => {
           if (hasRevealed) {
             copy(seed);
@@ -68,32 +87,32 @@ export function SignupWalletSeedPhrase({ username }: Props) {
         {(hasRevealed ? seed?.split(" ") ?? [] : EXAMPLE_SEED).map(
           (word: string, index: number) => (
             <div
-              className={clsx("duration-300 text-xl", hasRevealed ? "blur-none" : "blur-sm")}
+              className={clsx(
+                "duration-300 font-mono bg-gray-200 p-2 rounded-xl dark:bg-dark-default text-xl",
+                hasRevealed ? "blur-none" : "blur-sm"
+              )}
               key={index}
             >
               <span className="opacity-50">{index + 1}.</span> {word}
             </div>
           )
         )}
-        <Button
-          icon={<UilCopyAlt />}
-          appearance="gray-link"
-          size="sm"
-          className="absolute right-2 top-2"
-        />
-        <Button
-          icon={<UilSync />}
-          appearance="gray-link"
-          size="sm"
-          className="absolute right-10 top-2"
-          onClick={(e: React.MouseEvent) => {
-            e.preventDefault();
-            refetch();
-          }}
-        />
       </div>
       <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
         {i18next.t("signup-wallets.seed.hint")}
+      </div>
+
+      <div className="flex mt-4 justify-end">
+        <Button
+          icon={<UilArrowRight />}
+          size="sm"
+          onClick={() => {
+            downloadSeed();
+            onValidated();
+          }}
+        >
+          {i18next.t("signup-wallets.seed.continue")}
+        </Button>
       </div>
     </div>
   );
