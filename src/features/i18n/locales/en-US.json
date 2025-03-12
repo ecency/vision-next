@@ -2562,5 +2562,19 @@
   "events": {
     "muted": "User has muted",
     "unmuted": "User has unmuted"
+  },
+  "signup-wallets": {
+    "intro": {
+      "title": "Signup by external wallets",
+      "description": "Create or import wallets, topup minimum amount of money, get your free account",
+      "currencies-info": "You can easily setup new account using one of these currencies."
+    },
+    "seed": {
+      "title": "Seed phrase",
+      "description": "This seed phrase is a master key to all wallets and Hive account",
+      "copied": "Seed phrase has copied",
+      "reveal": "Tap/Click to reveal phrase",
+      "hint": "By clicking Continue, you acknowledge that the seed phrase will be displayed only once and cannot be recovered if lost or forgotten."
+    }
   }
 }

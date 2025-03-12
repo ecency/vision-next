@@ -84,30 +84,7 @@ export default function SignupByWalletPage() {
     <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
       <SignupWalletStepper step={step} />
 
-      <div className="md:col-span-2 flex flex-col max-w-[800px] w-full justify-center bg-white px-4 pt-4 pb-8 sm:px-6 sm:pb-10 md:px-8 rounded-xl">
-        <div className="flex items-center bg-white z-10 justify-between sticky top-0 py-4">
-          {!isFinished && step !== SignupByWalletStepperSteps.INTRO && (
-            <Button
-              noPadding={true}
-              icon={<UilArrowLeft />}
-              size="sm"
-              iconPlacement="left"
-              appearance="gray-link"
-              onClick={back}
-            >
-              {i18next.t("g.back")}
-            </Button>
-          )}
-          {step === SignupByWalletStepperSteps.INTRO && <div />}
-
-          {(!!validatedWallet || step !== SignupByWalletStepperSteps.VALIDATION) &&
-            step !== SignupByWalletStepperSteps.CREATE_ACCOUNT && (
-              <Button size="sm" onClick={next} disabled={isContinueDisabled}>
-                Continue
-              </Button>
-            )}
-        </div>
-
+      <div className="md:col-span-2 flex flex-col max-w-[800px] w-full justify-center bg-white px-4 py-8 sm:px-6 sm:py-10 md:px-8 rounded-xl">
         {step === SignupByWalletStepperSteps.INTRO && (
           <SignupWalletIntro initialUsername={username} setUsername={setUsername} />
         )}
@@ -131,6 +108,27 @@ export default function SignupByWalletPage() {
             onCreated={() => setIsFinished(true)}
           />
         )}
+        <div className="flex items-center mt-4 justify-between">
+          {!isFinished && step !== SignupByWalletStepperSteps.INTRO && (
+            <Button
+              noPadding={true}
+              icon={<UilArrowLeft />}
+              size="sm"
+              iconPlacement="left"
+              appearance="gray-link"
+              onClick={back}
+            >
+              {i18next.t("g.back")}
+            </Button>
+          )}
+          {step === SignupByWalletStepperSteps.INTRO && <div />}
+          {(!!validatedWallet || step !== SignupByWalletStepperSteps.VALIDATION) &&
+            step !== SignupByWalletStepperSteps.CREATE_ACCOUNT && (
+              <Button size="sm" onClick={next} disabled={isContinueDisabled}>
+                Continue
+              </Button>
+            )}
+        </div>
       </div>
     </div>
   );

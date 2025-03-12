@@ -5,7 +5,12 @@ import { SignupExternalWalletInformation } from "../../types";
 import { AnimatePresence } from "framer-motion";
 import { EcencyWalletCurrency } from "@ecency/wallets";
 
-const CURRENCIES = Object.values(EcencyWalletCurrency);
+const CURRENCIES = [
+  EcencyWalletCurrency.BTC,
+  EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.ATOM,
+  EcencyWalletCurrency.TRON
+];
 
 interface Props {
   username: string;
@@ -24,11 +29,6 @@ export function SignupWalletConnectWallet({ username, onSuccess }: Props) {
           Newly created or imported wallets will be assigned to your new Hive account
         </div>
       </div>
-      <Alert appearance="warning" className="mb-4">
-        <UilLock className="mr-1" />
-        Keep in mind, Hive will assign public keys only to your new Hive account. Private keys will
-        be show only once. Keep them in a safety place or a paper!
-      </Alert>
       <AnimatePresence>
         {CURRENCIES.map((currency, index) => (
           <SignupWalletConnectWalletItem
@@ -40,6 +40,10 @@ export function SignupWalletConnectWallet({ username, onSuccess }: Props) {
           />
         ))}
       </AnimatePresence>
+      <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+        Keep in mind, Hive will assign public keys only to your new Hive account. Private
+        information based on seed phrase and won`t be saved.
+      </div>
     </div>
   );
 }
