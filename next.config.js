@@ -21,6 +21,10 @@ const config = {
         filename: "static/chunks/[path][name].[hash][ext]"
       }
     });
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false
+    };
 
     return config;
   },

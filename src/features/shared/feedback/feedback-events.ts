@@ -8,7 +8,7 @@ export const error = (message: string, errorType = ErrorTypes.COMMON) => {
     message,
     errorType
   };
-  const ev = new CustomEvent("feedback", { detail });
+  const ev = new CustomEvent("ecency-feedback", { detail });
   window.dispatchEvent(ev);
 };
 
@@ -18,7 +18,7 @@ export const success = (message: string) => {
     type: "success",
     message
   };
-  const ev = new CustomEvent("feedback", { detail });
+  const ev = new CustomEvent("ecency-feedback", { detail });
   window.dispatchEvent(ev);
 };
 
@@ -28,7 +28,7 @@ export const info = (message: string) => {
     type: "info",
     message
   };
-  const ev = new CustomEvent("feedback", { detail });
+  const ev = new CustomEvent("ecency-feedback", { detail });
   window.dispatchEvent(ev);
 };
 
