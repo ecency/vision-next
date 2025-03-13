@@ -1,9 +1,9 @@
-import { EcencyWalletCurrency, useSeedPhrase } from "@ecency/wallets";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { useSeedPhrase } from "@ecency/wallets";
 import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SignupWalletValidationDroppableItem } from "./signup-wallet-validation-droppable-item";
 import { SignupWalletValidationWordItem } from "./signup-wallet-validation-word-item";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
 interface Props {
   onValidated: () => void;
@@ -25,7 +25,7 @@ export function SignupWalletValidation({ onValidated }: Props) {
 
   useEffect(
     () =>
-      setValidatedWords((seed as string).split(" ").map((word, i) => (i % 2 === 1 ? "" : word))),
+      setValidatedWords((seed as string).split(" ").map((word, i) => (i % 4 === 1 ? "" : word))),
     [seed]
   );
 
