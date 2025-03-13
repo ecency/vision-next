@@ -19,22 +19,17 @@ export function SignupWalletIntro({ setUsername, initialUsername }: Props) {
         <div className="opacity-50 mb-4">{i18next.t("signup-wallets.intro.description")}</div>
       </div>
 
-      <div className="flex flex-col md:flex-row">
-        <div className="mx-auto md:min-w-[240px] flex justify-center">
-          <Image src="/assets/undraw-social-post.svg" alt="" width={200} height={200} />
+      <div>
+        <div className="mb-2">{i18next.t("signup-wallets.intro.currencies-info")}</div>
+        <div className="flex items-center gap-2 mb-4 flex-wrap">
+          {CURRENCIES.map((currency) => (
+            <Badge key={currency}>{currency}</Badge>
+          ))}
         </div>
-        <div>
-          <div className="mb-2">{i18next.t("signup-wallets.intro.currencies-info")}</div>
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            {CURRENCIES.map((currency) => (
-              <Badge key={currency}>{currency}</Badge>
-            ))}
-          </div>
-          <SignupWalletChooseUsername
-            initialUsername={initialUsername}
-            onAvailableUsername={setUsername}
-          />
-        </div>
+        <SignupWalletChooseUsername
+          initialUsername={initialUsername}
+          onAvailableUsername={setUsername}
+        />
       </div>
     </div>
   );

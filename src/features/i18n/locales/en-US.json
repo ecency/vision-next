@@ -94,7 +94,8 @@
     "reset-form": "Reset form",
     "community": "Community",
     "today": "Today",
-    "view": "View"
+    "view": "View",
+    "import": "Import"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -2574,7 +2575,17 @@
       "description": "This seed phrase is a master key to all wallets and Hive account",
       "copied": "Seed phrase has copied",
       "reveal": "Tap/Click to reveal phrase",
-      "hint": "By clicking Continue, you acknowledge that the seed phrase will be displayed only once and cannot be recovered if lost or forgotten."
+      "hint": "By clicking Continue, you acknowledge that the seed phrase will be displayed only once and cannot be recovered if lost or forgotten.",
+      "continue": "Download seed file and continue"
+    },
+    "wallets": {
+      "title": "Manage crypto wallets",
+      "description": "All crypto wallets will be created automatically. You can import own wallet to use instead of created one",
+      "hint": "Keep in mind, Hive will assign public keys only to your new Hive account. Private information based on seed phrase and won`t be saved."
+    },
+    "validate": {
+      "title": "Validate your seed phrase",
+      "description": "Place seed phrase in a right order to make sure that you are real person and saved them"
     }
   }
 }

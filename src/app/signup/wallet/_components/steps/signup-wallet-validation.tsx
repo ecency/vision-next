@@ -1,61 +1,84 @@
-import { AnimatePresence } from "framer-motion";
-import { useMemo, useState } from "react";
-import { SignupExternalWalletInformation } from "../../types";
-import { SignupWalletValidationItem } from "./signup-wallet-validation-item";
-import { SignupWalletValiadtionSelected } from "./signup-wallet-validation-selected";
-import { EcencyWalletCurrency } from "@ecency/wallets";
+import { EcencyWalletCurrency, useSeedPhrase } from "@ecency/wallets";
+import i18next from "i18next";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { SignupWalletValidationDroppableItem } from "./signup-wallet-validation-droppable-item";
+import { SignupWalletValidationWordItem } from "./signup-wallet-validation-word-item";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
 interface Props {
-  wallets: Record<EcencyWalletCurrency, SignupExternalWalletInformation>;
-  onValidated: (wallet: { currency: EcencyWalletCurrency; address: string }) => void;
+  onValidated: () => void;
 }
 
-export function SignupWalletValidation({ wallets, onValidated }: Props) {
-  // Currency and address
-  const [selected, setSelected] = useState<[EcencyWalletCurrency, string]>();
+export function SignupWalletValidation({ onValidated }: Props) {
+  const { data: seed } = useSeedPhrase();
+  const [validatedWords, setValidatedWords] = useState<string[]>([]);
 
-  const walletsList = useMemo(() => Object.entries(wallets), [wallets]);
+  const words = useMemo(
+    () =>
+      (seed as string)
+        .split(" ")
+        .map((word) => ({ word, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ word }) => word),
+    [seed]
+  );
+
+  useEffect(
+    () =>
+      setValidatedWords((seed as string).split(" ").map((word, i) => (i % 2 === 1 ? "" : word))),
+    [seed]
+  );
+
+  useEffect(() => {
+    const words = seed.split(" ");
+
+    if (
+      validatedWords.every((word, i) => words[i] === word) &&
+      validatedWords.length === words.length
+    ) {
+      onValidated();
+    }
+  }, [seed, validatedWords, onValidated]);
+
+  const handleDragEnd = useCallback((e: DragEndEvent) => {
+    const droppedWord = e.active.data.current?.word;
+    const droppableIndex = e.over?.id;
+    if (!droppedWord || typeof droppableIndex !== "number") {
+      return;
+    }
+
+    setValidatedWords((value) => {
+      const temp = [...value];
+
+      const existingWordIndex = temp.indexOf(droppedWord);
+      temp[existingWordIndex] = "";
+      temp[droppableIndex] = droppedWord;
+      return temp;
+    });
+  }, []);
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-      <div>
-        <div className="text-lg font-semibold">Validate funds</div>
-        <div className="opacity-50">
-          Topup one of your wallets to make us sure that You are real person
+    <DndContext onDragEnd={handleDragEnd}>
+      <div className="flex flex-col gap-4 w-full">
+        <div>
+          <div className="text-lg font-semibold">{i18next.t("signup-wallets.validate.title")}</div>
+          <div className="opacity-50">{i18next.t("signup-wallets.validate.description")}</div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          {validatedWords.map((word, i) => (
+            <SignupWalletValidationDroppableItem word={word} key={i} i={i} />
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-4">
+          {words
+            .filter((word) => !validatedWords.includes(word))
+            .map((word, i) => (
+              <SignupWalletValidationWordItem i={i} word={word} key={word} />
+            ))}
         </div>
       </div>
-      <AnimatePresence>
-        {!selected && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 mt-4 sm:mt-6 lg:mt-8 xl:mt-12 gap-4">
-            {walletsList.map(([currency, { address }], index) => (
-              <SignupWalletValidationItem
-                i={index}
-                key={address}
-                currency={currency as EcencyWalletCurrency}
-                address={address}
-                selectable={true}
-                onSelect={() => setSelected([currency as EcencyWalletCurrency, address])}
-              />
-            ))}
-          </div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {selected && (
-          <SignupWalletValiadtionSelected
-            selected={selected}
-            walletsList={walletsList}
-            onCancel={() => setSelected(undefined)}
-            onValid={() =>
-              onValidated({
-                currency: selected[0],
-                address: selected[1]
-              })
-            }
-          />
-        )}
-      </AnimatePresence>
-    </div>
+    </DndContext>
   );
 }

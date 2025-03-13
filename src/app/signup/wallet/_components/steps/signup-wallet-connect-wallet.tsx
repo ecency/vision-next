@@ -1,9 +1,8 @@
-import { Alert } from "@/features/ui";
-import { UilLock } from "@tooni/iconscout-unicons-react";
-import { SignupWalletConnectWalletItem } from "./signup-wallet-connect-wallet-item";
-import { SignupExternalWalletInformation } from "../../types";
-import { AnimatePresence } from "framer-motion";
 import { EcencyWalletCurrency } from "@ecency/wallets";
+import { AnimatePresence } from "framer-motion";
+import i18next from "i18next";
+import { SignupExternalWalletInformation } from "../../types";
+import { SignupWalletConnectWalletItem } from "./signup-wallet-connect-wallet-item";
 
 const CURRENCIES = [
   EcencyWalletCurrency.BTC,
@@ -24,25 +23,24 @@ export function SignupWalletConnectWallet({ username, onSuccess }: Props) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <div>
-        <div className="text-lg font-semibold">Create one or multiple wallets</div>
-        <div className="opacity-50">
-          Newly created or imported wallets will be assigned to your new Hive account
-        </div>
+        <div className="text-lg font-semibold">{i18next.t("signup-wallets.wallets.title")}</div>
+        <div className="opacity-50">{i18next.t("signup-wallets.wallets.description")}</div>
       </div>
-      <AnimatePresence>
-        {CURRENCIES.map((currency, index) => (
-          <SignupWalletConnectWalletItem
-            i={index}
-            onSuccess={(info) => onSuccess(currency, info)}
-            currency={currency}
-            username={username}
-            key={currency}
-          />
-        ))}
-      </AnimatePresence>
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <AnimatePresence>
+          {CURRENCIES.map((currency, index) => (
+            <SignupWalletConnectWalletItem
+              i={index}
+              onSuccess={(info) => onSuccess(currency, info)}
+              currency={currency}
+              username={username}
+              key={currency}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
       <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-        Keep in mind, Hive will assign public keys only to your new Hive account. Private
-        information based on seed phrase and won`t be saved.
+        {i18next.t("signup-wallets.wallets.hint")}
       </div>
     </div>
   );

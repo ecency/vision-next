@@ -1,10 +1,11 @@
-import { useHiveKeysQuery, EcencyWalletsPrivateApi, EcencyWalletCurrency } from "@ecency/wallets";
+import { useLoginInApp } from "@/features/shared/login/hooks";
+import { Button } from "@/features/ui";
+import { EcencyWalletCurrency, EcencyWalletsPrivateApi, useHiveKeysQuery } from "@ecency/wallets";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
-import { Button } from "@/features/ui";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 interface Props {
   username: string;
@@ -18,6 +19,7 @@ export function SignupWalletAccountCreating({
   onCreated
 }: Props) {
   const { data: accountKeys } = useHiveKeysQuery(username);
+  const loginInApp = useLoginInApp(username);
 
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
@@ -28,7 +30,7 @@ export function SignupWalletAccountCreating({
     if (accountKeys) {
       createAccount({ currency, address }).then(() => onCreated());
     }
-  }, [accountKeys, address, createAccount, currency, onCreated]);
+  }, [accountKeys, address, createAccount, currency]);
 
   return (
     <div className="flex flex-col gap-4 w-full">

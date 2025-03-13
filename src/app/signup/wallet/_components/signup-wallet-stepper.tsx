@@ -2,6 +2,7 @@ import {
   UilLock,
   UilMoneyBill,
   UilMoneyInsert,
+  UilUnlock,
   UilUser,
   UilWallet
 } from "@tooni/iconscout-unicons-react";
@@ -34,16 +35,16 @@ const steps = [
     description: "Create seed phrase for all wallets and Hive"
   },
   {
+    step: SignupByWalletStepperSteps.VALIDATION,
+    title: "Validate",
+    icon: <UilUnlock />,
+    description: "Making sure that You are real person"
+  },
+  {
     step: SignupByWalletStepperSteps.CI,
     title: "Create or import a wallet",
     icon: <UilMoneyBill />,
-    description: "Attach your wallet to the next Hive"
-  },
-  {
-    step: SignupByWalletStepperSteps.VALIDATION,
-    title: "Validate sufficient funds",
-    icon: <UilMoneyInsert />,
-    description: "Making sure that You are real person"
+    description: "Attach your wallet to the next Hive account"
   },
   {
     step: SignupByWalletStepperSteps.CREATE_ACCOUNT,

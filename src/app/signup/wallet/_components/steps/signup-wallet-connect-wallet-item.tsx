@@ -1,14 +1,14 @@
 "use client";
 
-import { Button, InputGroupCopyClipboard } from "@/features/ui";
+import { Button } from "@/features/ui";
+import { EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
 import { motion } from "framer-motion";
+import i18next from "i18next";
 import Image from "next/image";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
+import { useMount } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
-import { SignupWalletLabeledField } from "./signup-wallet-labeled-field";
-import { SignupWalletPrivateKeyField } from "./signup-wallet-private-key-field";
-import { EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
 
 interface Props {
   i: number;
@@ -20,24 +20,16 @@ interface Props {
 export function SignupWalletConnectWalletItem({ i, currency, username, onSuccess }: Props) {
   const { createWallet, importWallet } = useWalletCreate(username, currency);
 
-  const createWalletButtonText = useMemo(() => {
-    if (createWallet.isPending) {
-      return "Creating...";
-    }
-
-    if (createWallet.isSuccess) {
-      return "Created";
-    }
-
-    return "Create wallet";
-  }, [createWallet]);
-
   const create = useCallback(async () => {
     if (createWallet.isIdle) {
       const response = await createWallet.mutateAsync();
       onSuccess(response);
     }
   }, [createWallet, onSuccess]);
+
+  useMount(() => {
+    create();
+  });
 
   return (
     <motion.div
@@ -62,33 +54,15 @@ export function SignupWalletConnectWalletItem({ i, currency, username, onSuccess
 
         <div className="flex items-center gap-2">
           <Button
-            appearance={createWallet.isSuccess ? "success" : "primary"}
-            isLoading={createWallet.isPending}
-            disabled={createWallet.isPending}
-            size="sm"
-            onClick={create}
-          >
-            {createWalletButtonText}
-          </Button>
-          <Button
             disabled={true}
             size="sm"
             appearance="gray"
             onClick={() => importWallet(currency)}
           >
-            Import
+            {i18next.t("g.import")}
           </Button>
         </div>
       </div>
-
-      {createWallet.isSuccess && (
-        <div className="flex flex-col gap-4">
-          <SignupWalletLabeledField label="Address">
-            <InputGroupCopyClipboard value={createWallet.data?.address} />
-          </SignupWalletLabeledField>
-          <SignupWalletPrivateKeyField privateKey={createWallet.data?.privateKey} />
-        </div>
-      )}
     </motion.div>
   );
 }
