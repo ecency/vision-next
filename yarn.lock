@@ -1313,10 +1313,10 @@
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"
 
-"@ecency/wallets@1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.0.5.tgz#431fc67a525d187bf743476bdebacb91dee5a806"
-  integrity sha512-RUvlSOjfJkNmIseQrxU4A4W3yO5kEh/vZ7essbNbF+a9t569onyxY7t7yGe+LGXPcRCUfKlElA8IxJmN5rIQ/w==
+"@ecency/wallets@1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.0.6.tgz#c75f1d889607df76cd5d0222908c920ee7e1546e"
+  integrity sha512-hsDXn9rUaWU4qiVpN9A6tTB6pwKgpgyWhYQWjC605A8aGIDq28NJ1FSJO1Hnaeps78KCtY/Q4Yeyz6nFkFgJ6A==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"

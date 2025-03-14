@@ -227,11 +227,16 @@
     "sign-up-text-1": "Don't have an account?",
     "sign-up-text-2": "Sign up now!",
     "current": "Active user",
-    "continue-with-key": "Continue with key or password",
+    "continue-with-key": "Continue with Ecency",
     "single-account-hint": "You can log in to another account and manage multiple accounts. Give it a try!",
     "reorder": "Change users list order",
     "reorder-list": "Change list order",
-    "no-active-user": "No active user yet"
+    "no-active-user": "No active user yet",
+    "invalid-seed-file": "Invalid seed phrase file. Make sure it has same content as in Ecency signup or just contains 12 words and in txt file format",
+    "seed-file-placeholder": "Click(tap) to select seed phrase file",
+    "use-seed": "Use seed phrase",
+    "use-key": "Use key/pass",
+    "seed-info": "We don't store your seed phrase and generated keys"
   },
   "sign-up": {
     "header": "Rewarding Web3 Communities",

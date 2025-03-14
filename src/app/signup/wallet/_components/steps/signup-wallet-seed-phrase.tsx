@@ -1,19 +1,13 @@
 import { success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { useSeedPhrase } from "@ecency/wallets";
+import { UilArrowRight, UilCopyAlt, UilSync } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
+import i18next from "i18next";
 import { useState } from "react";
 import { useCopyToClipboard } from "react-use";
 import { useDownloadSeed } from "../../_hooks";
-import i18next from "i18next";
-import {
-  UilArrowRight,
-  UilCopyAlt,
-  UilDownloadAlt,
-  UilRefresh,
-  UilSync
-} from "@tooni/iconscout-unicons-react";
 
 const EXAMPLE_SEED = [
   "nice",
