@@ -211,7 +211,7 @@
     "subtitle-users": "Manage already authenticated users or login to new one with various options",
     "write-username": "Enter username and select login option",
     "username-placeholder": "Username",
-    "key-placeholder": "password / private key",
+    "key-placeholder": "password / private key / seed",
     "login-info-1": "We don't store your private keys.",
     "login-info-2": "More info",
     "error-fields-required": "Please enter username and private key",
@@ -234,7 +234,7 @@
     "no-active-user": "No active user yet",
     "invalid-seed-file": "Invalid seed phrase file. Make sure it has same content as in Ecency signup or just contains 12 words and in txt file format",
     "seed-file-placeholder": "Click(tap) to select seed phrase file",
-    "use-seed": "Use seed phrase",
+    "use-seed": "Use seed file",
     "use-key": "Use key/pass",
     "seed-info": "We don't store your seed phrase and generated keys"
   },

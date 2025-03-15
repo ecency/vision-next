@@ -10,25 +10,19 @@ import { formatError, grantPostingPermission } from "@/api/operations";
 import { makeHsCode } from "@/utils";
 import { useLoginInApp } from "./use-login-in-app";
 import { useGlobalStore } from "@/core/global-store";
-import { mnemonicToSeedBip39 } from "@ecency/wallets";
 
 async function signer(message: string, privateKey: PrivateKey) {
   const hash = cryptoUtils.sha256(message);
   return new Promise<string>((resolve) => resolve(privateKey.sign(hash).toString()));
 }
 
-export function useLoginByKey(
-  username: string,
-  keyOrSeed: string,
-  isVerified: boolean,
-  isSeed = false
-) {
+export function useLoginByKey(username: string, keyOrSeed: string, isVerified: boolean) {
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
 
   const loginInApp = useLoginInApp(username);
 
   return useMutation({
-    mutationKey: ["login-by-key", username, keyOrSeed, isVerified, isSeed],
+    mutationKey: ["login-by-key", username, keyOrSeed, isVerified],
     mutationFn: async () => {
       if (username === "" || keyOrSeed === "") {
         throw new Error(i18next.t("login.error-fields-required"));
@@ -65,10 +59,7 @@ export function useLoginByKey(
       // Whether using posting private key to login
       let withPostingKey = false;
 
-      if (isSeed) {
-        const seedFromMnemonic = mnemonicToSeedBip39(keyOrSeed ?? "");
-        privateKey = PrivateKey.fromSeed(seedFromMnemonic + "active");
-      } else if (
+      if (
         !isPlainPassword &&
         postingPublic.includes(PrivateKey.fromString(keyOrSeed).createPublic().toString())
       ) {

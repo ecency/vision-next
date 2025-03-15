@@ -8,7 +8,7 @@ import {
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useLoginByKey } from "./hooks";
 import clsx from "clsx";
@@ -30,8 +30,7 @@ export function LoginUserByKey({ username }: Props) {
   const { mutateAsync: loginByKey, isPending } = useLoginByKey(
     username,
     option === "seed" ? seed ?? "" : key,
-    isVerified,
-    !!seed
+    isVerified
   );
 
   async function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
@@ -137,7 +136,7 @@ export function LoginUserByKey({ username }: Props) {
           onClick={() => setOption(option === "key" ? "seed" : "key")}
           disabled={isPending}
         >
-          {i18next.t(option === "seed" ? "login.use-seed" : "login.use-key")}
+          {i18next.t(option === "key" ? "login.use-seed" : "login.use-key")}
         </Button>
         <Button
           full={true}
