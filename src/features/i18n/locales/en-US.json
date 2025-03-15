@@ -2585,7 +2585,7 @@
     },
     "wallets": {
       "title": "Manage crypto wallets",
-      "description": "All crypto wallets will be created automatically. You can import own wallet to use instead of created one",
+      "description": "Select wallets to create. You can import own wallet to use instead of created one",
       "hint": "Keep in mind, Hive will assign public keys only to your new Hive account. Private information based on seed phrase and won`t be saved."
     },
     "validate": {

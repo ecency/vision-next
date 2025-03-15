@@ -13,13 +13,15 @@ const CURRENCIES = [
 
 interface Props {
   username: string;
+  wallets: Record<EcencyWalletCurrency, SignupExternalWalletInformation>;
   onSuccess: (
     currency: EcencyWalletCurrency,
     walletInformation: SignupExternalWalletInformation
   ) => void;
+  onClear: (currency: EcencyWalletCurrency) => void;
 }
 
-export function SignupWalletConnectWallet({ username, onSuccess }: Props) {
+export function SignupWalletConnectWallet({ wallets, username, onSuccess, onClear }: Props) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <div>
@@ -30,6 +32,8 @@ export function SignupWalletConnectWallet({ username, onSuccess }: Props) {
         <AnimatePresence>
           {CURRENCIES.map((currency, index) => (
             <SignupWalletConnectWalletItem
+              onClear={() => onClear(currency)}
+              hasSelected={currency in wallets}
               i={index}
               onSuccess={(info) => onSuccess(currency, info)}
               currency={currency}

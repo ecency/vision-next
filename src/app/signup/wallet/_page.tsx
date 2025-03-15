@@ -22,7 +22,7 @@ import { EcencyWalletCurrency } from "@ecency/wallets";
  *      add redirect uri and return back with username
  */
 export default function SignupByWalletPage() {
-  const [wallets, { set }] =
+  const [wallets, { set, remove }] =
     useMap<Record<EcencyWalletCurrency, SignupExternalWalletInformation>>();
 
   const [validatedWallet, setValidatedWallet] = useState<{
@@ -86,6 +86,7 @@ export default function SignupByWalletPage() {
         {step === SignupByWalletStepperSteps.CI && (
           <SignupWalletConnectWallet
             username={username}
+            wallets={wallets}
             onSuccess={(currency, wallet) => {
               set(currency, wallet);
               if (currency === EcencyWalletCurrency.BTC) {
@@ -95,6 +96,7 @@ export default function SignupByWalletPage() {
                 });
               }
             }}
+            onClear={(currency) => remove(currency)}
           />
         )}
         {step === SignupByWalletStepperSteps.VALIDATION && (
