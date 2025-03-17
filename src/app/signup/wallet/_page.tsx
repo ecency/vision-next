@@ -75,7 +75,12 @@ export default function SignupByWalletPage() {
 
       <div className="md:col-span-2 flex flex-col max-w-[800px] w-full justify-center bg-white px-4 py-8 sm:px-6 sm:py-10 md:px-8 rounded-xl">
         {step === SignupByWalletStepperSteps.INTRO && (
-          <SignupWalletIntro initialUsername={username} setUsername={setUsername} />
+          <SignupWalletIntro
+            initialUsername={username}
+            username={username}
+            setUsername={setUsername}
+            onNext={() => setStep(SignupByWalletStepperSteps.SEED)}
+          />
         )}
         {step === SignupByWalletStepperSteps.SEED && (
           <SignupWalletSeedPhrase
@@ -108,13 +113,6 @@ export default function SignupByWalletPage() {
             validatedWallet={validatedWallet}
             onCreated={() => setIsFinished(true)}
           />
-        )}
-        {isContinueShow && (
-          <div className="flex items-center mt-4 justify-end">
-            <Button icon={<UilArrowRight />} size="sm" onClick={next} disabled={isContinueDisabled}>
-              {i18next.t("g.continue")}
-            </Button>
-          </div>
         )}
       </div>
     </div>

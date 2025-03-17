@@ -1,15 +1,20 @@
 "use client";
 
-import { Button, FormControl } from "@/features/ui";
-import { EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
+import { Badge, Button, FormControl } from "@/features/ui";
+import {
+  EcencyCreateWalletInformation,
+  EcencyWalletCurrency,
+  useWalletCreate
+} from "@ecency/wallets";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useMount } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
 import clsx from "clsx";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   i: number;
@@ -28,7 +33,12 @@ export function SignupWalletConnectWalletItem({
   onClear,
   hasSelected
 }: Props) {
-  const { createWallet, importWallet } = useWalletCreate(username, currency);
+  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
+    queryKey: ["ecency-wallets", "wallets", username]
+  });
+  const { createWallet } = useWalletCreate(username, currency);
+
+  const wallet = useMemo(() => wallets?.get(currency), [wallets]);
 
   useMount(async () => {
     const response = await createWallet.mutateAsync();
@@ -41,7 +51,7 @@ export function SignupWalletConnectWalletItem({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 24 }}
       transition={{ delay: i * 0.1 }}
-      className="bg-gray-100 dark:bg-dark-600-010 p-4 rounded-xl flex flex-col gap-4 cursor-pointer border border-transparent hover:border-[--border-color]"
+      className="bg-gray-100 dark:bg-dark-600-010 p-4 rounded-xl flex flex-col gap-4 cursor-pointer border border-transparent hover:border-[--border-color] relative overflow-hidden"
       onClick={() => (hasSelected ? onClear() : onSuccess(createWallet.data!))}
       key={currency}
     >
@@ -61,6 +71,12 @@ export function SignupWalletConnectWalletItem({
           />
           <div className={clsx("font-semibold", !hasSelected && "opacity-25")}>
             {CURRENCIES_META_DATA[currency].title}
+
+            {wallet?.custom && (
+              <div className="text-xs text-blue-dark-sky uppercase p-1.5 rounded-bl-xl bg-blue-dark-sky bg-opacity-10 absolute top-0 right-0">
+                Imported
+              </div>
+            )}
           </div>
         </div>
       </div>
