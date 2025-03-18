@@ -1,4 +1,4 @@
-import { useLoginInApp } from "@/features/shared/login/hooks";
+import { useLoginByKey, useLoginInApp } from "@/features/shared/login/hooks";
 import { Button } from "@/features/ui";
 import { EcencyWalletCurrency, EcencyWalletsPrivateApi, useHiveKeysQuery } from "@ecency/wallets";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -19,7 +19,7 @@ export function SignupWalletAccountCreating({
   onCreated
 }: Props) {
   const { data: accountKeys } = useHiveKeysQuery(username);
-  const loginInApp = useLoginInApp(username);
+  const { mutateAsync: loginInApp } = useLoginByKey(username, accountKeys?.masterPassword!, true);
 
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
@@ -28,7 +28,9 @@ export function SignupWalletAccountCreating({
 
   useEffect(() => {
     if (accountKeys) {
-      createAccount({ currency, address }).then(() => onCreated());
+      createAccount({ currency, address })
+        .then(() => loginInApp())
+        .then(() => onCreated());
     }
   }, [accountKeys, address, createAccount, currency]);
 
