@@ -1,6 +1,11 @@
 import { useLoginByKey, useLoginInApp } from "@/features/shared/login/hooks";
 import { Button } from "@/features/ui";
-import { EcencyWalletCurrency, EcencyWalletsPrivateApi, useHiveKeysQuery } from "@ecency/wallets";
+import {
+  EcencyWalletCurrency,
+  EcencyWalletsPrivateApi,
+  useHiveKeysQuery,
+  useSeedPhrase
+} from "@ecency/wallets";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
@@ -18,8 +23,9 @@ export function SignupWalletAccountCreating({
   validatedWallet: { currency, address },
   onCreated
 }: Props) {
+  const { data: seed } = useSeedPhrase();
   const { data: accountKeys } = useHiveKeysQuery(username);
-  const { mutateAsync: loginInApp } = useLoginByKey(username, accountKeys?.masterPassword!, true);
+  const { mutateAsync: loginInApp } = useLoginByKey(username, seed!, true);
 
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
