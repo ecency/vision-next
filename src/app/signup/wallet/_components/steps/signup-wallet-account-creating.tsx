@@ -23,7 +23,7 @@ export function SignupWalletAccountCreating({
   validatedWallet: { currency, address },
   onCreated
 }: Props) {
-  const { data: seed } = useSeedPhrase();
+  const { data: seed } = useSeedPhrase(username);
   const { data: accountKeys } = useHiveKeysQuery(username);
   const { mutateAsync: loginInApp } = useLoginByKey(username, seed!, true);
 

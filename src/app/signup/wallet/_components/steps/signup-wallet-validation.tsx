@@ -6,11 +6,12 @@ import { SignupWalletValidationDroppableItem } from "./signup-wallet-validation-
 import { SignupWalletValidationWordItem } from "./signup-wallet-validation-word-item";
 
 interface Props {
+  username: string;
   onValidated: () => void;
 }
 
-export function SignupWalletValidation({ onValidated }: Props) {
-  const { data: seed } = useSeedPhrase();
+export function SignupWalletValidation({ username, onValidated }: Props) {
+  const { data: seed } = useSeedPhrase(username);
   const [validatedWords, setValidatedWords] = useState<string[]>([]);
 
   const words = useMemo(

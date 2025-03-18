@@ -32,7 +32,7 @@ interface Props {
 export function SignupWalletSeedPhrase({ username, onValidated }: Props) {
   const [hasRevealed, setHasRevealed] = useState(false);
 
-  const { data: seed, refetch } = useSeedPhrase();
+  const { data: seed, refetch } = useSeedPhrase(username);
 
   const [_, copy] = useCopyToClipboard();
   const downloadSeed = useDownloadSeed(username);

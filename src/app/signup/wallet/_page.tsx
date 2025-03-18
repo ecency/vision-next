@@ -107,7 +107,7 @@ export default function SignupByWalletPage() {
           />
         )}
         {step === SignupByWalletStepperSteps.VALIDATION && (
-          <SignupWalletValidation onValidated={next} />
+          <SignupWalletValidation username={username} onValidated={next} />
         )}
         {step === SignupByWalletStepperSteps.VALIDATE_FUNDS && (
           <SignupWalletValidateFunds
