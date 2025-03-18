@@ -6,7 +6,12 @@ import i18next from "i18next";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import { useMemo } from "react";
 
-const CURRENCIES = Object.keys(EcencyWalletCurrency);
+const CURRENCIES = [
+  EcencyWalletCurrency.BTC,
+  EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.TRON,
+  EcencyWalletCurrency.ATOM
+];
 
 interface Props {
   initialUsername: string;

@@ -16,6 +16,7 @@ import i18next from "i18next";
 import { useMap } from "react-use";
 import { SignupExternalWalletInformation } from "./types";
 import { EcencyWalletCurrency } from "@ecency/wallets";
+import { SignupWalletValidateFunds } from "./_components/steps/signup-wallet-validate-funds";
 
 /**
  * TODO add account to keychain if there is keychain available
@@ -101,11 +102,18 @@ export default function SignupByWalletPage() {
                 });
               }
             }}
+            onNext={() => setStep(SignupByWalletStepperSteps.VALIDATE_FUNDS)}
             onClear={(currency) => remove(currency)}
           />
         )}
         {step === SignupByWalletStepperSteps.VALIDATION && (
           <SignupWalletValidation onValidated={next} />
+        )}
+        {step === SignupByWalletStepperSteps.VALIDATE_FUNDS && (
+          <SignupWalletValidateFunds
+            username={username}
+            onValid={() => setStep(SignupByWalletStepperSteps.CREATE_ACCOUNT)}
+          />
         )}
         {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && validatedWallet && (
           <SignupWalletAccountCreating

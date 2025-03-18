@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
 import qrcode from "qrcode";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useCopyToClipboard, useInterval } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
@@ -31,16 +31,10 @@ export function SignupWalletValiadtionSelected({
 }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
 
-  const { data: selectedCurrencyRate } = useCoinGeckoPriceQuery(selected?.[0]);
   const { data: externalWalletBalance, refetch: refetchExternalWalletBalance } =
     useGetExternalWalletBalanceQuery(selected[0], selected[1]);
 
-  // todo: restore it
-  // const hasValidated = useMemo(
-  // () => (externalWalletBalance ?? 0) > (selectedCurrencyRate ?? 1),
-  // [externalWalletBalance, selectedCurrencyRate]
-  // );
-  const hasValidated = true;
+  const hasValidated = useMemo(() => (externalWalletBalance ?? 0) > 0, [externalWalletBalance]);
 
   const [_, copy] = useCopyToClipboard();
 
@@ -82,9 +76,7 @@ export function SignupWalletValiadtionSelected({
           alt=""
         />
         <div className="w-full flex flex-col items-start h-full gap-4">
-          <div className="text-2xl font-bold">
-            {selectedCurrencyRate?.toFixed(8)} {CURRENCIES_META_DATA[selected[0]].name}
-          </div>
+          <div className="text-2xl font-bold">{CURRENCIES_META_DATA[selected[0]].name}</div>
           <div
             className="flex items-center gap-1 cursor-pointer"
             onClick={(e) => {
@@ -96,10 +88,9 @@ export function SignupWalletValiadtionSelected({
             <div className="opacity-75 text-sm truncate">{selected[1]}</div>
             <Button noPadding={true} icon={<UilClipboardAlt />} appearance="gray-link" size="xxs" />
           </div>
-          <div className="-mb-2">Please, topup your wallet to at least $1</div>
+          <div className="-mb-2">{i18next.t("signup-wallets.validate-funds.topup")}</div>
           <div className="-mb-2 text-sm opacity-50">
-            When your wallet balance will change, We will detect it automatically and let You
-            continue account creation
+            {i18next.t("signup-wallets.validate-funds.topup-description")}
           </div>
           <Button className="min-w-[200px] mt-4" appearance="gray" onClick={onCancel}>
             {i18next.t("g.cancel")}
@@ -114,7 +105,7 @@ export function SignupWalletValiadtionSelected({
           className="absolute flex gap-4 items-center justify-center w-full h-full top-0 left-0 text-lg sm:text-xl md:text-2xl font-bold"
         >
           <UilCheckCircle />
-          We have validated your wallet
+          {i18next.t("signup-wallets.validate-funds.validation-success")}
         </motion.div>
       )}
     </motion.div>

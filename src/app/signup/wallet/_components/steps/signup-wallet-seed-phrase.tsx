@@ -59,7 +59,7 @@ export function SignupWalletSeedPhrase({ username, onValidated }: Props) {
         className="relative border border-[--border-color] p-4 grid grid-cols-3 xl:grid-cols-4 gap-4  rounded-xl cursor-pointer"
         onClick={() => {
           if (hasRevealed) {
-            copy(seed);
+            copy(seed!);
             success(i18next.t("signup-wallets.seed.copied"));
           } else {
             setHasRevealed(true);

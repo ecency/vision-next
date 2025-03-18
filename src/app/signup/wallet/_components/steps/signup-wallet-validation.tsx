@@ -30,7 +30,7 @@ export function SignupWalletValidation({ onValidated }: Props) {
   );
 
   useEffect(() => {
-    const words = seed.split(" ");
+    const words = seed?.split(" ") ?? [];
 
     if (
       validatedWords.every((word, i) => words[i] === word) &&

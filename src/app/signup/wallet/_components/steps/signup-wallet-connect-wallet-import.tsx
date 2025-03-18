@@ -51,7 +51,7 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
   return (
     <>
       <Button appearance="secondary" size="sm" onClick={() => setShow(true)}>
-        Import wallet
+        {i18next.t("signup-wallets.import.title")}
       </Button>
       <Modal centered={true} show={show} onHide={() => setShow(false)}>
         <ModalHeader closeButton={true}>
@@ -74,22 +74,23 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
           {selectedToken && (
             <>
               <div className="text-lg font-semibold">
-                Import {selectedToken.toUpperCase()} token
+                {i18next.t("signup-wallets.import.exact-title", {
+                  token: selectedToken.toUpperCase()
+                })}
               </div>
               <div className="opacity-50 mb-4">
-                Import wallet by providing seed phrase/private and address pair. Based on this
-                information We can recognize that this wallet as yours.
+                {i18next.t("signup-wallets.import.exact-description")}
               </div>
               <div className="flex flex-col gap-4">
                 <FormControl
                   type="text"
-                  placeholder="Private key or seed phrase"
+                  placeholder={i18next.t("signup-wallets.import.key-placeholder")}
                   value={privateKeyOrSeed}
                   onChange={(e) => setPrivateKeyOrSeed(e.target.value)}
                 />
                 <FormControl
                   type="text"
-                  placeholder="Address"
+                  placeholder={i18next.t("signup-wallets.import.address-placeholder")}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                 />
@@ -100,7 +101,7 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
                     icon={<UilDownloadAlt />}
                     onClick={handleImportToken}
                   >
-                    Import token
+                    {i18next.t("signup-wallets.import.import-token")}
                   </Button>
                 </div>
               </div>
@@ -108,8 +109,12 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
           )}
           {!selectedToken && (
             <>
-              <div className="text-lg font-semibold">Select token</div>
-              <div className="opacity-50 mb-4">Select on of available tokens to import wallet</div>
+              <div className="text-lg font-semibold">
+                {i18next.t("signup-wallets.import.common-title")}
+              </div>
+              <div className="opacity-50 mb-4">
+                {i18next.t("signup-wallets.import.common-description")}
+              </div>
 
               <List>
                 {CURRENCIES.map((currency) => (
@@ -132,8 +137,7 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
             </>
           )}
           <div className="text-xs mt-4 text-gray-600 dark:text-gray-400">
-            Keep in mind, Ecency will never save your private information to any server, browser
-            storages. Entered private information will disappear when You will leave this page.
+            {i18next.t("signup-wallets.import.hint")}
           </div>
         </ModalBody>
       </Modal>

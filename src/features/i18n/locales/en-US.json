@@ -2591,6 +2591,24 @@
     "validate": {
       "title": "Validate your seed phrase",
       "description": "Place seed phrase in a right order to make sure that you are real person and saved them"
+    },
+    "validate-funds": {
+      "title": "Validate your funds",
+      "description": "Top-up one of wallets at least to minimal amount of token",
+      "topup": "Please, topup your wallet to a minimum amount",
+      "topup-description": "When your wallet balance will change, We will detect it automatically and let You continue account creation",
+      "validation-success": "We have validated your wallet"
+    },
+    "import": {
+      "title": "Import wallet",
+      "exact-title": "Import {{token}} token",
+      "exact-description": "Import wallet by providing seed phrase/private and address pair. Based on this information We can recognize that this wallet as yours.",
+      "key-placeholder": "Private key or seed phrase",
+      "address-placeholder": "Address",
+      "import-token": "Import token",
+      "hint": "Keep in mind, Ecency will never save your private information to any server, browser storages. Entered private information will disappear when You will leave this page.",
+      "common-title": "Select token",
+      "common-description": "Select on of available tokens to import wallet"
     }
   }
 }

@@ -14,6 +14,7 @@ export enum SignupByWalletStepperSteps {
   SEED,
   CI, // Create/Import
   VALIDATION,
+  VALIDATE_FUNDS,
   CREATE_ACCOUNT
 }
 
@@ -45,6 +46,13 @@ const steps = [
     title: "Create or import a wallet",
     icon: <UilMoneyBill />,
     description: "Attach your wallet to the next Hive account"
+  },
+
+  {
+    step: SignupByWalletStepperSteps.VALIDATE_FUNDS,
+    title: "Validate funds",
+    icon: <UilMoneyInsert />,
+    description: "Top-up one of wallets to validate"
   },
   {
     step: SignupByWalletStepperSteps.CREATE_ACCOUNT,
