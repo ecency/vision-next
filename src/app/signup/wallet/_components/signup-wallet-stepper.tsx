@@ -42,13 +42,6 @@ const steps = [
     description: "Verify that you have backed up seed phrase"
   },
   {
-    step: SignupByWalletStepperSteps.CI,
-    title: "Create or import a wallet",
-    icon: <UilMoneyBill />,
-    description: "Attach your wallet to new Hive account"
-  },
-
-  {
     step: SignupByWalletStepperSteps.VALIDATE_FUNDS,
     title: "Validate funds",
     icon: <UilMoneyInsert />,

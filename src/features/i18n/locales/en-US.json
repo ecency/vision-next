@@ -2597,7 +2597,8 @@
       "description": "Top-up one of wallets at least to minimal amount of token",
       "topup": "Please, topup your wallet to a minimum amount",
       "topup-description": "When your wallet balance will change, We will detect it automatically and let You continue account creation",
-      "validation-success": "We have validated your wallet"
+      "validation-success": "We have validated your wallet",
+      "address-copied": "Address copied"
     },
     "import": {
       "title": "Import wallet",

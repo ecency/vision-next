@@ -1,7 +1,8 @@
 import {
   EcencyWalletCurrency,
   useGetExternalWalletBalanceQuery,
-  useCoinGeckoPriceQuery
+  useCoinGeckoPriceQuery,
+  EcencyCreateWalletInformation
 } from "@ecency/wallets";
 import { Button } from "@/features/ui";
 import { UilCheckCircle, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
@@ -15,22 +16,22 @@ import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
 import { success } from "@/features/shared";
 import clsx from "clsx";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
-  walletsList: [string, SignupExternalWalletInformation][];
+  username: string;
   selected: [EcencyWalletCurrency, string];
   onCancel: () => void;
   onValid: () => void;
 }
 
-export function SignupWalletValiadtionSelected({
-  walletsList,
-  selected,
-  onCancel,
-  onValid
-}: Props) {
+export function SignupWalletValiadtionSelected({ selected, username, onCancel, onValid }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
 
+  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
+    queryKey: ["ecency-wallets", "wallets", username]
+  });
+  const walletsList = useMemo(() => Array.from(wallets?.entries() ?? []), [wallets]);
   const { data: externalWalletBalance, refetch: refetchExternalWalletBalance } =
     useGetExternalWalletBalanceQuery(selected[0], selected[1]);
 
@@ -82,7 +83,7 @@ export function SignupWalletValiadtionSelected({
             onClick={(e) => {
               e.stopPropagation();
               copy(selected[1]);
-              success("Address copied");
+              success(i18next.t("signup-wallets.validate-funds.address-copied"));
             }}
           >
             <div className="opacity-75 text-sm truncate">{selected[1]}</div>

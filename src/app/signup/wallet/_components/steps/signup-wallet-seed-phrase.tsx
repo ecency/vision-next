@@ -72,7 +72,7 @@ export function SignupWalletSeedPhrase({ username, onValidated }: Props) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute top-0 left-0 flex items-center justify-center h-full w-full font-bold"
+              className="absolute z-10 top-0 left-0 flex items-center justify-center h-full w-full font-bold"
             >
               {i18next.t("signup-wallets.seed.reveal")}
             </motion.div>
