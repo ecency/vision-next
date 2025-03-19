@@ -19,20 +19,20 @@ export async function generateMetadata(
 export default function Page() {
   const options = [
     {
-      title: "Signup by Email",
+      title: "Signup with Email",
       description:
-        "Flexible way to create an account using email validation. Free account, full-fledged account with 3X resource credits for $2.99 or onboard friend",
-      buttonText: "Continue with email",
+        "Flexible way to create an account using email validation. Choose one of the options such as Free and Boosted account with 3X resource credits for $2.99 or Onboard a friend",
+      buttonText: "Continue with Email",
       image: "/assets/undraw-mailbox.svg",
       href: "/signup/email",
       label: "Email"
     },
     {
-      title: "Signup by external wallets",
+      title: "Signup with Wallet",
       description:
-        "Create an account for free and create/import external wallet in Bitcoin, Ethereum, Solana and more blockchains. Create an account and track your funds",
+        "Create an account for free with Bitcoin, Ethereum, Solana and more blockchain wallets.",
       image: "/assets/undraw-crypto-wallet.svg",
-      buttonText: "Continue with wallets",
+      buttonText: "Continue with Wallet",
       href: "/signup/wallet",
       label: "Crypto wallet"
     }

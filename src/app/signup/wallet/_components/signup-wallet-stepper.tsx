@@ -27,25 +27,25 @@ const steps = [
     step: SignupByWalletStepperSteps.INTRO,
     title: "Introduction",
     icon: <UilWallet />,
-    description: "Explore how you can create Hive"
+    description: "Select Hive username"
   },
   {
     step: SignupByWalletStepperSteps.SEED,
     title: "Seed phrase",
     icon: <UilLock />,
-    description: "Create seed phrase for all wallets and Hive"
+    description: "Generate and backup seed phrase for all wallets and Hive"
   },
   {
     step: SignupByWalletStepperSteps.VALIDATION,
     title: "Validate",
     icon: <UilUnlock />,
-    description: "Making sure that You are real person"
+    description: "Verify that you have backed up seed phrase"
   },
   {
     step: SignupByWalletStepperSteps.CI,
     title: "Create or import a wallet",
     icon: <UilMoneyBill />,
-    description: "Attach your wallet to the next Hive account"
+    description: "Attach your wallet to new Hive account"
   },
 
   {
@@ -58,7 +58,7 @@ const steps = [
     step: SignupByWalletStepperSteps.CREATE_ACCOUNT,
     title: "Finish",
     icon: <UilUser />,
-    description: "Get own account in Hive with 0.0 fee"
+    description: "Finalize Hive account creation"
   }
 ] as const;
 

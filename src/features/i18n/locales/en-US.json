@@ -2571,8 +2571,8 @@
   },
   "signup-wallets": {
     "intro": {
-      "title": "Signup by external wallets",
-      "description": "Create or import wallets, topup minimum amount of money, get your free account",
+      "title": "Signup with Wallets",
+      "description": "Select your human readable username/nickname",
       "currencies-info": "You can easily setup new account using one of these currencies."
     },
     "seed": {
