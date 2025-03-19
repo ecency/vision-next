@@ -14,7 +14,7 @@ export const CURRENCIES_META_DATA = {
     name: "BTC"
   },
   [EcencyWalletCurrency.ETH]: {
-    title: "Etherium",
+    title: "Ethereum",
     icon: ethSvg,
     name: "ETH"
   },
