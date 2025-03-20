@@ -32,14 +32,13 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
   const activeUser = useGlobalStore((s) => s.activeUser);
   const previousIsRawContent = usePrevious(isRawContent);
 
-  const [visible, setVisible] = useState(false);
   const [order, setOrder] = useState(SortOrder.trending);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const { isLoading, data } = getDiscussionsQuery(
     parent,
     order,
-    visible && !!parent,
+    !!parent,
     activeUser?.username
   ).useClientQuery();
   const { data: botsList } = getBotsQuery().useClientQuery();
@@ -53,7 +52,7 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
   );
   const strCount = useMemo(
     () =>
-      filtered.length > 1
+      filtered.length - 1 > 1
         ? i18next.t("discussion.n-replies", { n: filtered.length })
         : i18next.t("discussion.replies"),
     [filtered]
@@ -64,27 +63,8 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
   );
 
   useEffect(() => {
-    if (previousIsRawContent !== isRawContent) {
-      show();
-    }
-  }, [isRawContent, previousIsRawContent]);
-  useEffect(() => setVisible(!!activeUser), [activeUser]);
-
-  useEffect(() => {
     updateEntryQueryData(filtered);
   }, [filtered]);
-
-  const show = () => setVisible(true);
-
-  const join = (
-    <div className="discussion-card">
-      <div className="icon">{commentSvg}</div>
-      <div className="label">{i18next.t("discussion.join")}</div>
-      <LoginRequired>
-        <Button>{i18next.t("discussion.btn-join")}</Button>
-      </LoginRequired>
-    </div>
-  );
 
   if (isLoading) {
     return (
@@ -94,29 +74,8 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
     );
   }
 
-  if (!activeUser && filtered.length < 1) {
-    return <div className="discussion">{join}</div>;
-  }
-
-  if (filtered.length < 1) {
-    return <></>;
-  }
-
-  if (!visible && filtered.length >= 1) {
-    return (
-      <div className="discussion">
-        <div className="discussion-card">
-          <div className="icon">{commentSvg}</div>
-          <div className="label">{strCount}</div>
-          {hideControls ? <></> : <Button onClick={show}>{i18next.t("g.show")}</Button>}
-        </div>
-      </div>
-    );
-  }
-
-  return (
+  return filtered.length > 0 ? (
     <div className="discussion" id="discussion">
-      {!activeUser && <>{join}</>}
       <div className="discussion-header">
         <div className="count mr-4">
           {" "}
@@ -152,5 +111,7 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
         community={community}
       />
     </div>
+  ) : (
+    <></>
   );
 }
