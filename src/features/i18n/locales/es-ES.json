@@ -791,7 +791,8 @@
     "reveal-muted-long-description": "Mostrar respuestas adicionales, incluyendo aquellas que pueden tener contenido ofensivo",
     "reveal": "Revelar comentario",
     "no-conversation": "Aún no hay conversación, se el primero en responder",
-    "start-conversation": "Iniciar conversación"
+    "start-conversation": "Iniciar conversación",
+    "join-hint": "Become part of huge Hive community and earn rewards for activity"
   },
   "community": {
     "page-description": "{{f}} temas",
