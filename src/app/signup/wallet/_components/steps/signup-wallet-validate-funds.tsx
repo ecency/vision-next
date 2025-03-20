@@ -1,10 +1,9 @@
-import { EcencyCreateWalletInformation, EcencyWalletCurrency } from "@ecency/wallets";
-import { useQuery } from "@tanstack/react-query";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 import i18next from "i18next";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { SignupWalletConnectWalletImport } from "./signup-wallet-connect-wallet-import";
 import { SignupWalletValidationItem } from "./signup-wallet-validation-item";
 import { SignupWalletValiadtionSelected } from "./signup-wallet-validation-selected";
-import { SignupWalletConnectWalletImport } from "./signup-wallet-connect-wallet-import";
 
 interface Props {
   username: string;
@@ -15,7 +14,6 @@ const TOKENS = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
   EcencyWalletCurrency.SOL,
-  EcencyWalletCurrency.TON,
   EcencyWalletCurrency.TRON,
   EcencyWalletCurrency.APT,
   EcencyWalletCurrency.ATOM
@@ -54,9 +52,11 @@ export function SignupWalletValidateFunds({ username, onValid }: Props) {
           onValid={onValid}
         />
       )}
-      <div className="flex items-center mt-4 justify-between">
-        <SignupWalletConnectWalletImport username={username} />
-      </div>
+      {!selectedWallet && (
+        <div className="flex items-center mt-4 justify-between">
+          <SignupWalletConnectWalletImport username={username} />
+        </div>
+      )}
     </div>
   );
 }

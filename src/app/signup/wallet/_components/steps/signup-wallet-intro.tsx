@@ -11,8 +11,7 @@ const CURRENCIES = [
   EcencyWalletCurrency.ETH,
   EcencyWalletCurrency.SOL,
   EcencyWalletCurrency.ATOM,
-  EcencyWalletCurrency.TON,
-  EcencyWalletCurrency.TRON,
+  EcencyWalletCurrency.TRON
 ];
 
 interface Props {
@@ -37,7 +36,9 @@ export function SignupWalletIntro({ setUsername, initialUsername, onNext, userna
           <div className="mb-2">{i18next.t("signup-wallets.intro.currencies-info")}</div>
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             {CURRENCIES.map((currency) => (
-              <Badge key={currency}>{currency}</Badge>
+              <Badge className="uppercase" key={currency}>
+                {currency}
+              </Badge>
             ))}
           </div>
           <SignupWalletChooseUsername
