@@ -61,15 +61,17 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
 
   return (
     <>
-      <Comment
-        defText={selection}
-        submitText={i18next.t("g.reply")}
-        entry={entry!}
-        onSubmit={replySubmitted}
-        isCommented={isCommented}
-        inProgress={isCreateReplyLoading}
-        inputRef={commentsInputRef}
-      />
+      {activeUser && (
+        <Comment
+          defText={selection}
+          submitText={i18next.t("g.reply")}
+          entry={entry!}
+          onSubmit={replySubmitted}
+          isCommented={isCommented}
+          inProgress={isCreateReplyLoading}
+          inputRef={commentsInputRef}
+        />
+      )}
 
       {activeUser && entry!.children === 0 && <CommentEngagement />}
 

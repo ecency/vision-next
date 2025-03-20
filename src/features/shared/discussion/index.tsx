@@ -18,6 +18,7 @@ import { getBotsQuery } from "@/api/queries";
 import { SortOrder } from "@/enums";
 import { getDiscussionsQuery } from "@/api/queries/get-discussions-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { UilComment } from "@tooni/iconscout-unicons-react";
 
 setProxyBase(defaults.imageServer);
 
@@ -74,44 +75,74 @@ export function Discussion({ hideControls, isRawContent, parent, community }: Pr
     );
   }
 
-  return filtered.length > 0 ? (
-    <div className="discussion" id="discussion">
-      <div className="discussion-header">
-        <div className="count mr-4">
-          {" "}
-          {commentSvg} {strCount}
-        </div>
-        <DiscussionBots entries={botsData ?? []} />
-        <span className="flex-spacer" />
-        {hideControls ? (
-          <></>
-        ) : (
-          <div className="order">
-            <span className="order-label">{i18next.t("discussion.order")}</span>
-            <FormControl
-              type="select"
-              value={order}
-              onChange={(e: any) => setOrder(e.target.value)}
-              disabled={isLoading}
+  return (
+    <>
+      {!activeUser && (
+        <div
+          className="flex justify-between items-center bg-cover p-4 rounded-xl"
+          style={{
+            backgroundImage: "url(/assets/promote-wave-bg.jpg)"
+          }}
+        >
+          <div className="text-white flex items-center flex-wrap gap-4">
+            <UilComment />
+            <div
+              className="max-w-[300px]"
+              style={{
+                textShadow: "rgba(0,0,0, .25) 0 0 4px"
+              }}
             >
-              <option value="trending">{i18next.t("discussion.order-trending")}</option>
-              <option value="author_reputation">{i18next.t("discussion.order-reputation")}</option>
-              <option value="votes">{i18next.t("discussion.order-votes")}</option>
-              <option value="created">{i18next.t("discussion.order-created")}</option>
-            </FormControl>
+              <div className="font-semibold">{i18next.t("discussion.join")}</div>
+              <div className="text-sm">{i18next.t("discussion.join-hint")}</div>
+            </div>
           </div>
-        )}
-      </div>
-      <DiscussionList
-        root={parent}
-        discussionList={data ?? []}
-        hideControls={hideControls}
-        parent={parent}
-        isRawContent={isRawContent}
-        community={community}
-      />
-    </div>
-  ) : (
-    <></>
+          <LoginRequired>
+            <Button appearance="white" icon="🔥" size="lg">
+              {i18next.t("discussion.btn-join")}
+            </Button>
+          </LoginRequired>
+        </div>
+      )}
+      {filtered.length > 0 && (
+        <div className="discussion" id="discussion">
+          <div className="discussion-header">
+            <div className="count mr-4">
+              {" "}
+              {commentSvg} {strCount}
+            </div>
+            <DiscussionBots entries={botsData ?? []} />
+            <span className="flex-spacer" />
+            {hideControls ? (
+              <></>
+            ) : (
+              <div className="order">
+                <span className="order-label">{i18next.t("discussion.order")}</span>
+                <FormControl
+                  type="select"
+                  value={order}
+                  onChange={(e: any) => setOrder(e.target.value)}
+                  disabled={isLoading}
+                >
+                  <option value="trending">{i18next.t("discussion.order-trending")}</option>
+                  <option value="author_reputation">
+                    {i18next.t("discussion.order-reputation")}
+                  </option>
+                  <option value="votes">{i18next.t("discussion.order-votes")}</option>
+                  <option value="created">{i18next.t("discussion.order-created")}</option>
+                </FormControl>
+              </div>
+            )}
+          </div>
+          <DiscussionList
+            root={parent}
+            discussionList={data ?? []}
+            hideControls={hideControls}
+            parent={parent}
+            isRawContent={isRawContent}
+            community={community}
+          />
+        </div>
+      )}
+    </>
   );
 }
