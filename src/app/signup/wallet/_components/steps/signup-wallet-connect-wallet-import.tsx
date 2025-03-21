@@ -13,9 +13,9 @@ const CURRENCIES = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
   EcencyWalletCurrency.SOL,
-  EcencyWalletCurrency.ATOM,
-  EcencyWalletCurrency.TON,
-  EcencyWalletCurrency.TRON
+  EcencyWalletCurrency.TRON,
+  EcencyWalletCurrency.APT,
+  EcencyWalletCurrency.ATOM
 ];
 
 interface Props {
@@ -25,7 +25,6 @@ interface Props {
 export function SignupWalletConnectWalletImport({ username }: Props) {
   const [show, setShow] = useState(false);
   const [selectedToken, setSelectedToken] = useState<EcencyWalletCurrency>();
-  const [address, setAddress] = useState<string>("");
   const [privateKeyOrSeed, setPrivateKeyOrSeed] = useState<string>("");
 
   const { mutateAsync: importWallet, error: importWalletError } = useImportWallet(
@@ -40,12 +39,11 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
   }, [importWalletError]);
 
   async function handleImportToken() {
-    if (privateKeyOrSeed && address) {
-      await importWallet({ privateKeyOrSeed, address });
-      success("Wallet imported successully!");
+    if (privateKeyOrSeed) {
+      await importWallet({ privateKeyOrSeed });
+      success(i18next.t("signup-wallets.import.success"));
       setShow(false);
       setSelectedToken(undefined);
-      setAddress("");
       setPrivateKeyOrSeed("");
     }
   }
@@ -90,15 +88,9 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
                   value={privateKeyOrSeed}
                   onChange={(e) => setPrivateKeyOrSeed(e.target.value)}
                 />
-                <FormControl
-                  type="text"
-                  placeholder={i18next.t("signup-wallets.import.address-placeholder")}
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
                 <div className="flex justify-end">
                   <Button
-                    disabled={!privateKeyOrSeed || !address}
+                    disabled={!privateKeyOrSeed}
                     size="sm"
                     icon={<UilDownloadAlt />}
                     onClick={handleImportToken}

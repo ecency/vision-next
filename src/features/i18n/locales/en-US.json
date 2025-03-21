@@ -2604,12 +2604,13 @@
       "title": "Import wallet",
       "exact-title": "Import {{token}} token",
       "exact-description": "Import wallet by providing seed phrase/private and address pair. Based on this information We can recognize that this wallet as yours.",
-      "key-placeholder": "Private key or seed phrase",
+      "key-placeholder": "Private key",
       "address-placeholder": "Address",
       "import-token": "Import token",
       "hint": "Keep in mind, Ecency will never save your private information to any server, browser storages. Entered private information will disappear when You will leave this page.",
       "common-title": "Select token",
-      "common-description": "Select on of available tokens to import wallet"
+      "common-description": "Select on of available tokens to import wallet",
+      "success": "Wallet imported successully!"
     }
   }
 }
