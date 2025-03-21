@@ -14,7 +14,6 @@ const CURRENCIES = [
   EcencyWalletCurrency.ETH,
   EcencyWalletCurrency.SOL,
   EcencyWalletCurrency.ATOM,
-  EcencyWalletCurrency.TON,
   EcencyWalletCurrency.TRON
 ];
 
@@ -25,7 +24,6 @@ interface Props {
 export function SignupWalletConnectWalletImport({ username }: Props) {
   const [show, setShow] = useState(false);
   const [selectedToken, setSelectedToken] = useState<EcencyWalletCurrency>();
-  const [address, setAddress] = useState<string>("");
   const [privateKeyOrSeed, setPrivateKeyOrSeed] = useState<string>("");
 
   const { mutateAsync: importWallet, error: importWalletError } = useImportWallet(
@@ -40,12 +38,11 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
   }, [importWalletError]);
 
   async function handleImportToken() {
-    if (privateKeyOrSeed && address) {
-      await importWallet({ privateKeyOrSeed, address });
+    if (privateKeyOrSeed) {
+      await importWallet({ privateKeyOrSeed });
       success("Wallet imported successully!");
       setShow(false);
       setSelectedToken(undefined);
-      setAddress("");
       setPrivateKeyOrSeed("");
     }
   }
@@ -90,15 +87,9 @@ export function SignupWalletConnectWalletImport({ username }: Props) {
                   value={privateKeyOrSeed}
                   onChange={(e) => setPrivateKeyOrSeed(e.target.value)}
                 />
-                <FormControl
-                  type="text"
-                  placeholder={i18next.t("signup-wallets.import.address-placeholder")}
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
                 <div className="flex justify-end">
                   <Button
-                    disabled={!privateKeyOrSeed || !address}
+                    disabled={!privateKeyOrSeed}
                     size="sm"
                     icon={<UilDownloadAlt />}
                     onClick={handleImportToken}
