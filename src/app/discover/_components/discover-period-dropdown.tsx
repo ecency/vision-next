@@ -40,7 +40,7 @@ export function DiscoverPeriodDropdown() {
             key={f}
             onClick={() => {
               setIsLoading(true);
-              router.push(`/discover?period=${f}`);
+              router.push(`/discover?period=${f}`, { scroll: false });
             }}
           >
             {i18next.t(`leaderboard.period-${f}`)}
