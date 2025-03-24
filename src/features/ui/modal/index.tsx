@@ -43,7 +43,10 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   const isMounted = useMountedState();
 
   useMount(() => document.addEventListener("keyup", onKeyUp));
-  useUnmount(() => document.removeEventListener("keyup", onKeyUp));
+  useUnmount(() => {
+    document.removeEventListener("keyup", onKeyUp);
+    document.body.classList.remove("overflow-hidden");
+  });
 
   useEffect(() => {
     setShow(props.show);
