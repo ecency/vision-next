@@ -8,6 +8,7 @@ import { SearchAdvancedForm } from "@/app/search/_components/search-advanced-for
 import { getSearchApiQuery } from "@/api/queries";
 import { useSearchParams } from "next/navigation";
 import { SearchResult } from "@/entities";
+import { Button } from "@/features/ui";
 
 enum SearchSort {
   POPULARITY = "popularity",
@@ -53,7 +54,8 @@ export function SearchComment({ disableResults }: Props) {
   const {
     data: resultsPages,
     isLoading,
-    fetchNextPage
+    fetchNextPage,
+    hasNextPage
   } = getSearchApiQuery(
     params.get("q") ?? "",
     params.get("sort") ?? SearchSort.NEWEST,
@@ -117,17 +119,13 @@ export function SearchComment({ disableResults }: Props) {
                   </Fragment>
                 ))}
 
-                <div className="show-more">
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      fetchNextPage();
-                    }}
-                  >
-                    {i18next.t("search-comment.show-more")}
-                  </a>
-                </div>
+                {hasNextPage && (
+                  <div className="flex justify-center capitalize">
+                    <Button outline={true} onClick={() => fetchNextPage()}>
+                      {i18next.t("search-comment.show-more")}
+                    </Button>
+                  </div>
+                )}
               </div>
             );
           }
