@@ -270,6 +270,7 @@
     "username-contains-double-hyphens": "Should not contain double Hyphens",
     "username-exists": "This username already registered. Please, try another one",
     "username-starts-number": "Should not start with Numbers",
+    "username-in-use": "This username already exists. Set another one",
     "referral-invalid": "This referral is invalid. Please, try another one",
     "referral-min-length-error": "Length of referral should be at least 3 characters",
     "referral-max-length-error": "Length of referral should be no more than 16 characters",
@@ -2573,7 +2574,9 @@
     "intro": {
       "title": "Signup with Wallets",
       "description": "Select your human readable username/nickname",
-      "currencies-info": "You can easily setup new account using one of these currencies."
+      "currencies-info": "You can easily setup new account using one of these currencies.",
+      "available": "This username is available to use",
+      "checking": "Checking username for availability..."
     },
     "seed": {
       "title": "Seed phrase",
@@ -2611,6 +2614,10 @@
       "common-title": "Select token",
       "common-description": "Select on of available tokens to import wallet",
       "success": "Wallet imported successully!"
+    },
+    "create-account": {
+      "creating": "Creating Hive account...",
+      "validating": "Preparing your account..."
     }
   }
 }

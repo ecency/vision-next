@@ -1,6 +1,6 @@
 "use client";
 
-import { EcencyWalletCurrency } from "@ecency/wallets";
+import { EcencyWalletCurrency } from "@ecency/sdk";
 import { useState } from "react";
 import {
   SignupByWalletStepperSteps,
@@ -16,10 +16,7 @@ import { SignupWalletValidateFunds } from "./_components/steps/signup-wallet-val
  * TODO add account to keychain if there is keychain available
  */
 export default function SignupByWalletPage() {
-  const [validatedWallet, setValidatedWallet] = useState<{
-    currency: EcencyWalletCurrency;
-    address: string;
-  }>();
+  const [validatedWallet, setValidatedWallet] = useState<EcencyWalletCurrency>();
   const [step, setStep] = useState(SignupByWalletStepperSteps.INTRO);
   const [username, setUsername] = useState("");
   const [isFinished, setIsFinished] = useState(false);
@@ -52,7 +49,10 @@ export default function SignupByWalletPage() {
         {step === SignupByWalletStepperSteps.VALIDATE_FUNDS && (
           <SignupWalletValidateFunds
             username={username}
-            onValid={() => setStep(SignupByWalletStepperSteps.CREATE_ACCOUNT)}
+            onValid={(currency) => {
+              setStep(SignupByWalletStepperSteps.CREATE_ACCOUNT);
+              setValidatedWallet(currency);
+            }}
           />
         )}
         {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && validatedWallet && (

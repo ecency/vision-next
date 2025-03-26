@@ -1,11 +1,7 @@
 "use client";
 
 import { Badge, Button, FormControl } from "@/features/ui";
-import {
-  EcencyCreateWalletInformation,
-  EcencyWalletCurrency,
-  useWalletCreate
-} from "@ecency/wallets";
+import { EcencyCreateWalletInformation, EcencyWalletCurrency, useWalletCreate } from "@ecency/sdk";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";

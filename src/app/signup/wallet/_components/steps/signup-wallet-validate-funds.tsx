@@ -1,4 +1,4 @@
-import { EcencyWalletCurrency } from "@ecency/wallets";
+import { EcencyWalletCurrency } from "@ecency/sdk";
 import i18next from "i18next";
 import { useState } from "react";
 import { SignupWalletConnectWalletImport } from "./signup-wallet-connect-wallet-import";
@@ -7,7 +7,7 @@ import { SignupWalletValiadtionSelected } from "./signup-wallet-validation-selec
 
 interface Props {
   username: string;
-  onValid: () => void;
+  onValid: (selectedWalletCurrency: EcencyWalletCurrency) => void;
 }
 
 const TOKENS = [
@@ -49,7 +49,7 @@ export function SignupWalletValidateFunds({ username, onValid }: Props) {
           username={username}
           selected={selectedWallet}
           onCancel={() => setSelectedWallet(undefined)}
-          onValid={onValid}
+          onValid={() => onValid(selectedWallet[0])}
         />
       )}
       {!selectedWallet && (

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { getAccountsQuery } from "@/api/queries";
 import { useDebounce } from "react-use";
+import i18next from "i18next";
 
 interface Props {
   initialUsername: string;
@@ -13,6 +14,7 @@ interface Props {
 export function SignupWalletChooseUsername({ initialUsername, onAvailableUsername }: Props) {
   const [usernameInput, setUsernameInput] = useState(initialUsername);
   const [username, setUsername] = useState("");
+  const [hasTouched, setHasTouched] = useState(false);
 
   const {
     data: foundAccounts,
@@ -21,14 +23,38 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
   } = getAccountsQuery([username]).useClientQuery();
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
-  const isInvalidUsername = useMemo(() => existingAccount, [existingAccount]);
-  const isInvalidUsernameLength = useMemo(
-    () => (usernameInput.length <= 2 && usernameInput.length > 0) || usernameInput.length > 16,
-    [usernameInput.length]
-  );
+  const usernameError = useMemo(() => {
+    if (!hasTouched) {
+      return;
+    }
+
+    if (existingAccount) {
+      return i18next.t("sign-up.username-in-use");
+    }
+
+    if (username.length < 2) {
+      return i18next.t("sign-up.username-max-length-error");
+    } else if (username.length > 16) {
+      return i18next.t("sign-up.username-min-length-error");
+    } else {
+      username.split(".").some((item) => {
+        if (item.length < 3) {
+          return i18next.t("sign-up.username-min-length-error");
+        } else if (!/^[\x00-\x7F]*$/.test(item[0])) {
+          return i18next.t("sign-up.username-no-ascii-first-letter-error");
+        } else if (!/^([a-zA-Z0-9]|-|\.)+$/.test(item)) {
+          return i18next.t("sign-up.username-contains-symbols-error");
+        } else if (item.includes("--")) {
+          return i18next.t("sign-up.username-contains-double-hyphens");
+        } else if (/^\d/.test(item)) {
+          return i18next.t("sign-up.username-starts-number");
+        }
+      });
+    }
+  }, [existingAccount, username, hasTouched]);
   const canCreateAccount = useMemo(
-    () => !isInvalidUsername && !isInvalidUsernameLength && username && isSuccess,
-    [isInvalidUsername, isInvalidUsernameLength, username, isSuccess]
+    () => !usernameError && username && isSuccess,
+    [usernameError, username, isSuccess]
   );
 
   useDebounce(() => setUsername(usernameInput), 500, [usernameInput]);
@@ -49,27 +75,18 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
         placeholder="Set your Hive username"
         value={usernameInput}
         onChange={(e) => setUsernameInput(e.target.value)}
+        onFocus={() => setHasTouched(true)}
       />
 
       <AnimatePresence>
-        {isInvalidUsername && (
+        {usernameError && (
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             className="text-sm px-4 text-red"
           >
-            This username already exists. Set another one
-          </motion.div>
-        )}
-        {isInvalidUsernameLength && (
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="text-sm px-4 text-red"
-          >
-            Username length should be between 2 and 16 symbols
+            {usernameError}
           </motion.div>
         )}
         {canCreateAccount && (
@@ -79,7 +96,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
             exit={{ opacity: 0, y: -16 }}
             className="text-sm px-4 text-green"
           >
-            This username is available to use
+            {i18next.t("signup-wallets.intro.available")}
           </motion.div>
         )}
         {isPending && (
@@ -89,7 +106,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
             exit={{ opacity: 0, y: -16 }}
             className="text-sm px-4 text-gray-400 dark:text-gray-600"
           >
-            Checking username for availability...
+            {i18next.t("signup-wallets.intro.checking")}
           </motion.div>
         )}
       </AnimatePresence>
