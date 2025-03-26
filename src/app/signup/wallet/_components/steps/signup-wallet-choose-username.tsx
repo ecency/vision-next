@@ -37,7 +37,8 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
     } else if (username.length > 16) {
       return i18next.t("sign-up.username-min-length-error");
     } else {
-      username.split(".").some((item) => {
+      const parts = username.split(".");
+      for (const item of parts) {
         if (item.length < 3) {
           return i18next.t("sign-up.username-min-length-error");
         } else if (!/^[\x00-\x7F]*$/.test(item[0])) {
@@ -49,7 +50,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
         } else if (/^\d/.test(item)) {
           return i18next.t("sign-up.username-starts-number");
         }
-      });
+      }
     }
   }, [existingAccount, username, hasTouched]);
   const canCreateAccount = useMemo(
@@ -79,7 +80,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
       />
 
       <AnimatePresence>
-        {usernameError && (
+        {usernameError && !isPending && (
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}

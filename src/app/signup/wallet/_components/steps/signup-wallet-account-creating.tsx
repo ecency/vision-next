@@ -21,10 +21,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 interface Props {
   username: string;
   validatedWallet: EcencyWalletCurrency;
-  onCreated: () => void;
 }
 
-export function SignupWalletAccountCreating({ username, validatedWallet, onCreated }: Props) {
+export function SignupWalletAccountCreating({ username, validatedWallet }: Props) {
   const params = useSearchParams();
 
   const [hasValidated, setHasValidated] = useState(false);
@@ -37,11 +36,8 @@ export function SignupWalletAccountCreating({ username, validatedWallet, onCreat
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
   const { mutateAsync: loginInApp } = useLoginByKey(username, seed!, true);
-  const {
-    mutateAsync: createAccount,
-    isSuccess: isAccountCreateScheduled,
-    isPending
-  } = EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
+  const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
+    EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
 
   const validateAccountIsCreated = useCallback(async () => {
     let account;
@@ -54,21 +50,13 @@ export function SignupWalletAccountCreating({ username, validatedWallet, onCreat
   }, [username]);
 
   useEffect(() => {
-    if (accountKeys && wallet && !isPending) {
+    if (accountKeys && wallet) {
       createAccount({ currency: wallet.currency, address: wallet.address })
+        .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
-        .then(() => loginInApp())
-        .then(() => onCreated());
+        .then(() => loginInApp());
     }
-  }, [
-    accountKeys,
-    wallet,
-    createAccount,
-    loginInApp,
-    onCreated,
-    isPending,
-    validateAccountIsCreated
-  ]);
+  }, [accountKeys, wallet, createAccount, loginInApp, validateAccountIsCreated]);
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -87,7 +75,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet, onCreat
               </div>
             </motion.div>
           )}
-          {!hasValidated && (
+          {!hasValidated && isAccountCreateScheduled && (
             <motion.div
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -100,7 +88,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet, onCreat
               </div>
             </motion.div>
           )}
-          {isAccountCreateScheduled && (
+          {isAccountCreateScheduled && hasValidated && (
             <motion.div
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -109,7 +97,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet, onCreat
             >
               <UilCheckCircle className="w-16 h-16 text-green" />
               <div className="text-xl text-center font-semibold my-4">
-                Your account has created. Enjoy with Hive!
+                {i18next.t("signup-wallets.create-account.success")}
               </div>
               <Link href={params.get("backUri") ?? "/"}>
                 <Button size="lg">

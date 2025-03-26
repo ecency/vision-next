@@ -19,7 +19,6 @@ export default function SignupByWalletPage() {
   const [validatedWallet, setValidatedWallet] = useState<EcencyWalletCurrency>();
   const [step, setStep] = useState(SignupByWalletStepperSteps.INTRO);
   const [username, setUsername] = useState("");
-  const [isFinished, setIsFinished] = useState(false);
 
   return (
     <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
@@ -56,11 +55,7 @@ export default function SignupByWalletPage() {
           />
         )}
         {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && validatedWallet && (
-          <SignupWalletAccountCreating
-            username={username}
-            validatedWallet={validatedWallet}
-            onCreated={() => setIsFinished(true)}
-          />
+          <SignupWalletAccountCreating username={username} validatedWallet={validatedWallet} />
         )}
       </div>
     </div>
