@@ -72,7 +72,6 @@ export function SignupWalletValidationItem({
       <div
         className="flex items-center gap-1 mt-6 cursor-pointer"
         onClick={(e) => {
-          e.stopPropagation();
           copy(wallet?.address ?? "");
           success(i18next.t("signup-wallets.validate-funds.address-copied"));
         }}

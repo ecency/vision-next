@@ -2604,7 +2604,7 @@
       "address-copied": "Address copied"
     },
     "import": {
-      "title": "Import wallet",
+      "title": "Import own wallet",
       "exact-title": "Import {{token}} token",
       "exact-description": "Import wallet by providing seed phrase/private and address pair. Based on this information We can recognize that this wallet as yours.",
       "key-placeholder": "Private key",

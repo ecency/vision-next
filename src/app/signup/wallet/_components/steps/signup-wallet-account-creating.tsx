@@ -27,6 +27,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const params = useSearchParams();
 
   const [hasValidated, setHasValidated] = useState(false);
+  const [hasInitiated, setHasInitiated] = useState(false);
 
   const { data: seed } = useSeedPhrase(username);
   const { data: accountKeys } = useHiveKeysQuery(username);
@@ -50,13 +51,14 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   }, [username]);
 
   useEffect(() => {
-    if (accountKeys && wallet) {
+    if (accountKeys && wallet && !hasInitiated) {
+      setHasInitiated(true);
       createAccount({ currency: wallet.currency, address: wallet.address })
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp());
     }
-  }, [accountKeys, wallet, createAccount, loginInApp, validateAccountIsCreated]);
+  }, [accountKeys, wallet, createAccount, loginInApp, validateAccountIsCreated, hasInitiated]);
 
   return (
     <div className="flex flex-col gap-4 w-full">
