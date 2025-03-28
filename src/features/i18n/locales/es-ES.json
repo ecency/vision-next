@@ -1861,14 +1861,14 @@
     "owner": "propietario",
     "active": "activa",
     "copy": "Copiar",
-    "import": "Private key",
+    "import": "Importar clave privada",
     "sign-title": "Firmar Transacción",
     "sign-sub-title": "Firmar tu transacción",
     "success-message": "Revocas el permiso de publicar desde ",
     "copied": "Clave copiada en el portapapeles",
-    "keys-success-message": "Private keys are validated and possible to view them",
+    "keys-success-message": "Claves de autorizaciones importadas correctamente",
     "password-title": "Introduce contraseña o clave privada",
-    "password-sub-title": "Get all Private keys with Master password or validate Individual Private key",
+    "password-sub-title": "Clave privada individual o Contraseña maestra para importar todas las claves",
     "reveal-public-key": "Mostrar clave pública",
     "reveal-private-key": "Mostrar clave privada",
     "submit": "Enviar",
@@ -1879,7 +1879,7 @@
     "memo": "memo",
     "placeholder": "Contraseña maestra o Clave privada",
     "success-title": "Éxito",
-    "success-sub-title": "Keys generated, you can view them"
+    "success-sub-title": "Importación exitosa"
   },
   "account-recovery": {
     "title": "Cambiar agente de recuperación",
