@@ -1861,14 +1861,14 @@
     "owner": "owner",
     "active": "active",
     "copy": "Copy",
-    "import": "Import private key",
+    "import": "Private key",
     "sign-title": "Sign transaction",
     "sign-sub-title": "Sign your transaction",
     "success-message": "You revoke the permission of posting from ",
     "copied": "Key copied into clipboard",
-    "keys-success-message": "Authorities keys imported successfully",
+    "keys-success-message": "Private keys are validated and possible to view them",
     "password-title": "Enter password or private key",
-    "password-sub-title": "Individual Private key or Master password to import all keys",
+    "password-sub-title": "Get all Private keys with Master password or validate Individual Private key",
     "reveal-public-key": "Reveal public key",
     "reveal-private-key": "Reveal private key",
     "submit": "Submit",
@@ -1879,7 +1879,7 @@
     "memo": "memo",
     "placeholder": "Master password or Private key",
     "success-title": "Successful",
-    "success-sub-title": "Import successful"
+    "success-sub-title": "Keys generated, you can view them"
   },
   "account-recovery": {
     "title": "Change Recovery Agent",
