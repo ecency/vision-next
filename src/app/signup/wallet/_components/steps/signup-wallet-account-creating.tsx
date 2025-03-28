@@ -8,6 +8,7 @@ import {
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
   useHiveKeysQuery,
+  useSaveWalletInformationToMetadata,
   useSeedPhrase
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
@@ -39,6 +40,8 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const { mutateAsync: loginInApp } = useLoginByKey(username, seed!, true);
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
+  const { mutateAsync: saveWalletInformationToMetadata } =
+    useSaveWalletInformationToMetadata(username);
 
   const validateAccountIsCreated = useCallback(async () => {
     let account;
@@ -56,9 +59,18 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
       createAccount({ currency: wallet.currency, address: wallet.address })
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
-        .then(() => loginInApp());
+        .then(() => loginInApp())
+        .then(() => saveWalletInformationToMetadata());
     }
-  }, [accountKeys, wallet, createAccount, loginInApp, validateAccountIsCreated, hasInitiated]);
+  }, [
+    accountKeys,
+    wallet,
+    createAccount,
+    loginInApp,
+    validateAccountIsCreated,
+    hasInitiated,
+    saveWalletInformationToMetadata
+  ]);
 
   return (
     <div className="flex flex-col gap-4 w-full">

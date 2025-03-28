@@ -1,5 +1,4 @@
 import i18next from "i18next";
-import { useCallback } from "react";
 import { error } from "../../feedback";
 import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
 import { Account } from "@/entities";

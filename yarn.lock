@@ -1313,10 +1313,10 @@
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"
 
-"@ecency/sdk@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.2.tgz#cc44dd0a34854dfde24002a19b7a2025edc4ed55"
-  integrity sha512-kgcZOsuzK5ACIdl6genJYh6z50zwMmnJU/ILC0S4adQy9ossrHW7eziz5+/AH+nmLSkpuGIZRSZPdrEta6b0SQ==
+"@ecency/sdk@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.4.tgz#b2c96ace83e62c2cf73864b353cc012d18e4ee6c"
+  integrity sha512-9wbNfWL0Nsz7QqxnM+xzRFrzbLONAEDkBDF/Z1sTd8TmdNNFehLhggw7zNYaIuSVUV9/KlrtxWuF68humb4uBQ==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"
@@ -1328,6 +1328,7 @@
     "@okxweb3/coin-tron" "^1.1.0"
     "@okxweb3/crypto-lib" "^1.0.10"
     bip39 "^3.1.0"
+    hivesigner "3.3.4"
 
 "@emnapi/runtime@^1.2.0":
   version "1.3.1"
@@ -6937,9 +6938,9 @@ hive-uri@^0.2.4, hive-uri@^0.2.5:
   resolved "https://registry.npmjs.org/hive-uri/-/hive-uri-0.2.5.tgz"
   integrity sha512-oSFqa39/Frs8XaA6oAT1W/5KtkInfp8u0Yv58YGok1klu7M8rPYMg3v9m/0rdvrRLSheAYwip88l60at2kPtYA==
 
-hivesigner@^3.3.4:
+hivesigner@3.3.4, hivesigner@^3.3.4:
   version "3.3.4"
-  resolved "https://registry.npmjs.org/hivesigner/-/hivesigner-3.3.4.tgz"
+  resolved "https://registry.yarnpkg.com/hivesigner/-/hivesigner-3.3.4.tgz#5ab19f25821eacb6683d86ee098e3868f028497e"
   integrity sha512-n+fpsmc3FvkwXwhSTHJgChq97YeL2bEcJz/Awn9o+boFnIxqrxg4Y3i4sMMR8j+kJnwDV9c5JIMF4zQVxPSPJQ==
   dependencies:
     "@babel/runtime" "^7.13.9"
