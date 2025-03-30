@@ -1,9 +1,11 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { informationOutlineSvg } from "@ui/svg";
 import i18next from "i18next";
 import { Community } from "@/entities";
-import { renderPostBody } from "@ecency/render-helper";
 import { DialogInfo } from "../../_types";
+import { EcencyRenderer } from "@ecency/renderer";
+
+const MemoRenderer = memo(EcencyRenderer);
 
 interface Props {
   community: Community;
@@ -14,10 +16,7 @@ export function CommunityCardDescription({ community, toggleInfo }: Props) {
   const description = useMemo(
     () =>
       community.description.trim() !== "" ? (
-        <div
-          className="preview-body markdown-view"
-          dangerouslySetInnerHTML={{ __html: renderPostBody(community.description, true) }}
-        />
+        <MemoRenderer className="preview-body" value={community.description} />
       ) : (
         ""
       ),
@@ -39,5 +38,7 @@ export function CommunityCardDescription({ community, toggleInfo }: Props) {
       </div>
       <div className="section-content">{description}</div>
     </div>
-  ) : null;
+  ) : (
+    <></>
+  );
 }

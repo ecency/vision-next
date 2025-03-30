@@ -23,17 +23,17 @@ export function CommunityCardRules({ community, toggleInfo }: Props) {
     [community.flag_text]
   );
 
-  return (
-    hasRules && (
-      <div className="community-section">
-        <div
-          className="section-header"
-          onClick={() => toggleInfo({ title: i18next.t("community-card.rules"), content: rules })}
-        >
-          {scriptTextOutlineSvg} {i18next.t("community-card.rules")}
-        </div>
-        <div className="section-content">{rules}</div>
+  return hasRules ? (
+    <div className="community-section">
+      <div
+        className="section-header"
+        onClick={() => toggleInfo({ title: i18next.t("community-card.rules"), content: rules })}
+      >
+        {scriptTextOutlineSvg} {i18next.t("community-card.rules")}
       </div>
-    )
+      <div className="section-content">{rules}</div>
+    </div>
+  ) : (
+    <></>
   );
 }

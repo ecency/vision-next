@@ -5,13 +5,19 @@ import { cookies } from "next/headers";
 import { Theme } from "@/enums";
 import { BannerManager } from "@/features/banners";
 import React from "react";
+import Script from "next/script";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const theme = (await cookies()).get("theme")?.value;
 
   return (
     <html lang="en">
-      <head><script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js"></script></head>
+      <Script
+        defer
+        data-domain="ecency.com"
+        data-api="/pl/api/event"
+        src="/pl/js/script.js"
+      ></Script>
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
         <HiringConsoleLog />
