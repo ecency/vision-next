@@ -1303,10 +1303,10 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.1.tgz#7377f7a95632c041d58ec7dea2ecb4bec48ddd62"
-  integrity sha512-FdmhqUPf7aQobzAT//ouy+1tKGwoTpJFMOZ0d9TknaDJPvKDbowV2KPDIJ7BXhpXV6uV+9AIgmB0fnlwEVgPrg==
+"@ecency/renderer@1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.2.tgz#c88d154d886a05d84a953cfbb05398c3a6fff4b2"
+  integrity sha512-XOT57HDiIncbtU8+H6oyjB5YbR9U4kUp5kYRYAb513KiD+tOGGAoGIKMHmxNesU+ebTNEyMyo4rbvzerZttihg==
   dependencies:
     "@ecency/render-helper" "^2.2.36"
     clsx "^2.1.1"
