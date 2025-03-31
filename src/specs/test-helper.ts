@@ -137,8 +137,6 @@ export const UiInstance: Partial<GlobalStore> = {
 };
 
 export const globalInstance: Partial<GlobalStore> = {
-  filter: AllFilter.hot,
-  tag: "",
   theme: Theme.day,
   listStyle: ListStyle.row,
   intro: true,

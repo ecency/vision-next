@@ -3,7 +3,6 @@
 import React, { createElement, useMemo } from "react";
 import { isCommunity } from "@/utils";
 import { EntryFilter } from "@/enums";
-import { useGlobalStore } from "@/core/global-store";
 import { getCommunityCache } from "@/core/caches";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
@@ -38,12 +37,10 @@ interface Props {
 export function TagLink({ tag, type, children }: Props) {
   const router = useRouter();
 
-  const filter = useGlobalStore((state) => state.filter);
-
   const isTagCommunity = useMemo(() => (typeof tag === "string" ? isCommunity(tag) : false), [tag]);
   const href = useMemo(
-    () => (typeof tag === "string" ? makePath(filter, tag) : makePath(filter, tag.name)),
-    [tag, filter]
+    () => (typeof tag === "string" ? makePath("created", tag) : makePath("created", tag.name)),
+    [tag]
   );
 
   const { data: community } = getCommunityCache(tag as string).useClientQuery();
@@ -57,7 +54,7 @@ export function TagLink({ tag, type, children }: Props) {
         onClick: (e: React.MouseEvent<HTMLElement>) => {
           e.preventDefault();
           const newLoc =
-            typeof tag === "string" ? makePath(filter, tag) : makePath(filter, tag.name);
+            typeof tag === "string" ? makePath("created", tag) : makePath("created", tag.name);
           router.push(newLoc);
         }
       }
