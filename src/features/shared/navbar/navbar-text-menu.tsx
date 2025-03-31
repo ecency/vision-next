@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Fragment } from "react";
 import Link from "next/link";
 import i18next from "i18next";
 import i18n from "i18next";
@@ -32,7 +32,7 @@ export function NavbarTextMenu() {
   return (
     <div className="hidden sm:flex md:hidden xl:flex text-menu items-center gap-4 justify-center h-full md:mr-2">
       {ITEMS.map((item, i) => (
-        <>
+        <Fragment key={i}>
           <Link
             key={item.link}
             className={classNameObject({
@@ -53,7 +53,7 @@ export function NavbarTextMenu() {
               className="w-2 h-2 bg-gray-200 dark:bg-dark-default rounded-full"
             />
           )}
-        </>
+        </Fragment>
       ))}
     </div>
   );
