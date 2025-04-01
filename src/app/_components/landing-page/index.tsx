@@ -17,7 +17,6 @@ import { useRouter } from "next/navigation";
 export function LandingPage() {
   const router = useRouter();
 
-  const filter = useGlobalStore((s) => s.filter);
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
   const theme = useGlobalStore((s) => s.theme);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
@@ -98,7 +97,7 @@ export function LandingPage() {
             <p className="mb-3 w-88">{i18next.t("landing-page.what-is-ecency")}</p>
           </div>
           <div className="flex justify-center items-center mt-10">
-            <button className="get-started mr-5" onClick={() => router.push(`/${filter}`)}>
+            <button className="get-started mr-5" onClick={() => router.push("/hot")}>
               {i18next.t("landing-page.explore")}
             </button>
             <button className="get-started ml-5">

@@ -1,87 +1,27 @@
 "use client";
 
-import React, { useRef } from "react";
-import "./_index.scss";
-import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { useGlobalStore } from "@/core/global-store";
-import { useUnmount } from "react-use";
-import { LoginKc } from "./login-kc";
+import { Modal, ModalBody, ModalHeader } from "@ui/modal";
+import "./_index.scss";
 import { Login } from "./login";
-import { Account, User } from "@/entities";
-import { hsTokenRenew } from "@/api/auth-api";
-import { usePathname, useRouter } from "next/navigation";
-import { useHsLoginRefresh, useRecordUserActivity } from "@/api/mutations";
+import i18next from "i18next";
 
 export function LoginDialog() {
-  const userListRef = useRef();
-
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const loginKc = useGlobalStore((state) => state.loginKc);
-  const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
-  const addUser = useGlobalStore((state) => state.addUser);
-  const setActiveUser = useGlobalStore((state) => state.setActiveUser);
-  const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
-
-  const { mutateAsync: recordActivity } = useRecordUserActivity();
-  const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
-
-  useUnmount(() => {
-    if (loginKc) {
-      toggleUIProp("loginKc");
-    }
-  });
-
-  const doLogin = async (code: string, postingKey: null | undefined | string, account: Account) => {
-    const x = await hsTokenRenew({ code });
-    // get access token from code
-    const user: User = {
-      username: x.username,
-      accessToken: x.access_token,
-      refreshToken: x.refresh_token,
-      expiresIn: x.expires_in,
-      postingKey
-    };
-
-    // add / update user data
-    addUser(user);
-
-    // activate user
-    setActiveUser(user.username);
-
-    // add account data of the user to the reducer
-    await updateActiveUser(account);
-
-    // login activity
-    recordActivity({ ty: 20 });
-
-    // redirection based on path name
-    if (pathname.startsWith("/signup")) {
-      const u = `/@${x.username}/feed`;
-      router.push(u);
-    }
-
-    hide();
-  };
-
-  const hide = () => {
-    toggleUIProp("login");
-
-    if (loginKc) {
-      toggleUIProp("loginKc");
-    }
-  };
+  const users = useGlobalStore((state) => state.users);
+  const showLogin = useGlobalStore((state) => state.login);
+  const setShowLogin = useGlobalStore((state) => state.setLogin);
 
   return (
-    <Modal show={true} centered={true} onHide={hide} className="login-modal">
-      <ModalHeader thin={true} closeButton={true} />
-      <ModalBody>
-        {!loginKc && (
-          // eslint-disable-next-line react/jsx-no-undef
-          <Login doLogin={doLogin} userListRef={userListRef} />
-        )}
-        {loginKc && <LoginKc doLogin={doLogin} />}
+    <Modal show={showLogin} centered={true} onHide={() => setShowLogin(false)} size="lg">
+      <ModalHeader closeButton={true} />
+      <ModalBody className="md:p-6">
+        <div className="w-full">
+          <div className="text-xl w-full font-bold">{i18next.t("login.title")}</div>
+          <div className="w-full text-gray-600 dark:text-gray-400">
+            {i18next.t(users.length > 0 ? "login.subtitle-users" : "login.subtitle")}
+          </div>
+        </div>
+        <Login />
       </ModalBody>
     </Modal>
   );

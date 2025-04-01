@@ -133,13 +133,10 @@ export const activeUserInstance: ActiveUser = activeUserMaker("foo");
 
 export const UiInstance: Partial<GlobalStore> = {
   login: false,
-  loginKc: false,
   uiNotifications: false
 };
 
 export const globalInstance: Partial<GlobalStore> = {
-  filter: AllFilter.hot,
-  tag: "",
   theme: Theme.day,
   listStyle: ListStyle.row,
   intro: true,

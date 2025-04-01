@@ -37,55 +37,53 @@ export function JoinCommunityModal({ community, communityId }: Props) {
   );
 
   return (
-    show && (
-      <LoginRequired>
-        <Modal
-          show={true}
-          centered={true}
-          onHide={() => setShow(false)}
-          className="authorities-dialog"
-          size="lg"
-        >
-          <ModalHeader thin={true} closeButton={true} />
-          <ModalBody>
-            {isCommunityAlreadyJoined ? (
-              <>
-                <div>
-                  <h4>{i18next.t("community.already-joined-community")}</h4>
+    <LoginRequired>
+      <Modal
+        show={show}
+        centered={true}
+        onHide={() => setShow(false)}
+        className="authorities-dialog"
+        size="lg"
+      >
+        <ModalHeader thin={true} closeButton={true} />
+        <ModalBody>
+          {isCommunityAlreadyJoined ? (
+            <>
+              <div>
+                <h4>{i18next.t("community.already-joined-community")}</h4>
+              </div>
+              <p className="mt-5 text-right">
+                <Button outline={true} onClick={() => setShow(false)}>
+                  {i18next.t("g.ok")}
+                </Button>
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="border-bottom">
+                <div className="join-community-dialog-titles">
+                  <h2 className="join-community-main-title">Confirmaton</h2>
                 </div>
-                <p className="mt-5 text-right">
-                  <Button outline={true} onClick={() => setShow(false)}>
-                    {i18next.t("g.ok")}
-                  </Button>
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="border-bottom">
-                  <div className="join-community-dialog-titles">
-                    <h2 className="join-community-main-title">Confirmaton</h2>
-                  </div>
-                  {inProgress && <LinearProgress />}
-                </div>
-                <div
-                  className="join-community-dialog-body"
-                  style={{ fontSize: "18px", marginTop: "12px" }}
-                >
-                  {i18next.t("confirm.title")}
-                </div>
-                <p className="join-community-confirm-buttons" style={{ textAlign: "right" }}>
-                  <Button outline={true} className="mr-4" onClick={() => setShow(false)}>
-                    {i18next.t("g.close")}
-                  </Button>
-                  <Button outline={true} className="confirm-btn" href={`/chats/${community?.name}`}>
-                    {i18next.t("g.join")}
-                  </Button>
-                </p>
-              </>
-            )}
-          </ModalBody>
-        </Modal>
-      </LoginRequired>
-    )
+                {inProgress && <LinearProgress />}
+              </div>
+              <div
+                className="join-community-dialog-body"
+                style={{ fontSize: "18px", marginTop: "12px" }}
+              >
+                {i18next.t("confirm.title")}
+              </div>
+              <p className="join-community-confirm-buttons" style={{ textAlign: "right" }}>
+                <Button outline={true} className="mr-4" onClick={() => setShow(false)}>
+                  {i18next.t("g.close")}
+                </Button>
+                <Button outline={true} className="confirm-btn" href={`/chats/${community?.name}`}>
+                  {i18next.t("g.join")}
+                </Button>
+              </p>
+            </>
+          )}
+        </ModalBody>
+      </Modal>
+    </LoginRequired>
   );
 }

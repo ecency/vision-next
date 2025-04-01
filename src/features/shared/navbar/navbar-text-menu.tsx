@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Fragment } from "react";
 import Link from "next/link";
 import i18next from "i18next";
 import i18n from "i18next";
@@ -32,9 +32,9 @@ export function NavbarTextMenu() {
   return (
     <div className="hidden sm:flex md:hidden xl:flex text-menu items-center gap-4 justify-center h-full md:mr-2">
       {ITEMS.map((item, i) => (
-        <>
+        <Fragment key={i}>
           <Link
-            key={i}
+            key={item.link}
             className={classNameObject({
               "text-sm font-semibold duration-300 hover:opacity-75 mt-0 px-2 py-0.5 rounded-2xl":
                 true,
@@ -49,11 +49,11 @@ export function NavbarTextMenu() {
           </Link>
           {i !== ITEMS.length - 1 && (
             <i
-              key={"circle" + i}
+              key={"circle" + item.label}
               className="w-2 h-2 bg-gray-200 dark:bg-dark-default rounded-full"
             />
           )}
-        </>
+        </Fragment>
       ))}
     </div>
   );

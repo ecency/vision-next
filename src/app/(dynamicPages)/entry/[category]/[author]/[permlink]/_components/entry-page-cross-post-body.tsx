@@ -58,7 +58,7 @@ export function EntryPageCrossPostBody({ entry }: Props) {
               </span>
               <span className="separator circle-separator" />
               <div className="entry-tag">
-                <span className="in-tag">{i18next.t("entry.community-in")}</span>
+                <span className="in-tag">{i18next.t("entry.published")}</span>
                 <TagLink tag={entry.original_entry.category} type="link">
                   <div className="tag-name">
                     {entry.original_entry.community

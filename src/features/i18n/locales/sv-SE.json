@@ -206,8 +206,10 @@
   },
   "login": {
     "title": "Välkommen tillbaka!",
-    "with-user-pass": "Login with your username and private key.",
-    "username-placeholder": "username",
+    "subtitle": "Login with private key or other options. Write username and continue with favorite one",
+    "subtitle-users": "Manage already authenticated users or login to new one with various options",
+    "write-username": "Enter username and select login option",
+    "username-placeholder": "Username",
     "key-placeholder": "password / private key",
     "login-info-1": "We don't store your private keys.",
     "login-info-2": "More info",
@@ -222,7 +224,15 @@
     "with-hive-signer": "Login with hivesigner",
     "with-keychain": "Login with keychain",
     "sign-up-text-1": "Har du inget konto?",
-    "sign-up-text-2": "Registrera dig nu!"
+    "sign-up-text-2": "Registrera dig nu!",
+    "current": "Active user",
+    "continue-with-key": "Continue with key or password",
+    "single-account-hint": "You can log in to another account and manage multiple accounts. Give it a try!",
+    "reorder": "Change users list order",
+    "reorder-list": "Change list order",
+    "no-active-user": "No active user yet",
+    "sign-in": "Sign in",
+    "my-users": "My users"
   },
   "sign-up": {
     "header": "Rewarding Web3 Communities",
@@ -781,7 +791,8 @@
     "reveal-muted-long-description": "Show additional replies, including those that may contain offensive content",
     "reveal": "Reveal comment",
     "no-conversation": "No conversation yet, be first to reply",
-    "start-conversation": "Start conversation"
+    "start-conversation": "Start conversation",
+    "join-hint": "Become part of huge Hive community and earn rewards for activity"
   },
   "community": {
     "page-description": "{{f}} ämnen",
@@ -1850,14 +1861,14 @@
     "owner": "owner",
     "active": "active",
     "copy": "Copy",
-    "import": "Import private key",
+    "import": "Private key",
     "sign-title": "Sign transaction",
     "sign-sub-title": "Sign your transaction",
     "success-message": "You revoke the permission of posting from ",
     "copied": "Key copied into clipboard",
-    "keys-success-message": "Authorities keys imported successfully",
+    "keys-success-message": "Private keys are validated and possible to view them",
     "password-title": "Enter password or private key",
-    "password-sub-title": "Individual Private key or Master password to import all keys",
+    "password-sub-title": "Get all Private keys with Master password or validate Individual Private key",
     "reveal-public-key": "Reveal public key",
     "reveal-private-key": "Reveal private key",
     "submit": "Submit",
@@ -1868,7 +1879,7 @@
     "memo": "memo",
     "placeholder": "Master password or Private key",
     "success-title": "Successful",
-    "success-sub-title": "Import successful"
+    "success-sub-title": "Keys generated, you can view them"
   },
   "account-recovery": {
     "title": "Change Recovery Agent",

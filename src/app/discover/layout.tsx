@@ -24,7 +24,7 @@ export default function Layout(
           <Image
             width={1920}
             height={1920}
-            src="/assets/signup.png"
+            src="/assets/discover.svg"
             alt=""
             className="absolute top-0 right-0 bottom-0 max-w-[55vw] w-full"
           />
