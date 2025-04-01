@@ -1,3 +1,5 @@
+"use client";
+
 import { TagSelector } from "@/app/submit/_components";
 import { getCommunityCache } from "@/core/caches";
 import { UserAvatar } from "@/features/shared";

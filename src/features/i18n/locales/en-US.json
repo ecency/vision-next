@@ -2610,7 +2610,17 @@
     "three-speak-gallery": "From 3Speak",
     "video-by-link": "Add video by link",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
-    "video-link-label": "Video link"
+    "video-link-label": "Video link",
+    "get-started": {
+      "title": "Meet the publish page 2.0 on Ecency",
+      "button": "Get started",
+      "single-view-title": "New single view",
+      "single-view-description": "Introducing a single dynamic view — no more separate content and preview windows.",
+      "dynamic-editor-title": "Dynamic editor",
+      "dynamic-editor-description": "Now, you can see your post exactly as it will be published while editing in real time.",
+      "focus-title": "Focus on your content",
+      "focus-description": "Less visual information — just your post and nothing more"
+    }
   },
   "ecency-images": {
     "upload-image": "Upload image",
