@@ -20,7 +20,7 @@ export function useSaveDraftApi() {
   const params = useParams();
   const queryClient = useQueryClient();
 
-  const { title, content, tags, beneficiaries, reward, metaDescription, selectedThumbnail } =
+  const { title, content, tags, beneficiaries, reward, metaDescription, selectedThumbnail, poll } =
     usePublishState();
 
   return useMutation({
@@ -44,9 +44,9 @@ export function useSaveDraftApi() {
       const draftMeta: DraftMetadata = {
         ...meta,
         beneficiaries: beneficiaries!,
-        rewardType: reward as RewardType
+        rewardType: reward as RewardType,
         // videos,
-        // poll: activePoll
+        poll
       };
 
       if (params.id) {
@@ -70,8 +70,6 @@ export function useSaveDraftApi() {
 
         router.push(`publish/drafts/${draft._id}`);
       }
-
-      // clearActivePoll();
     },
     onError: () => error(i18next.t("g.server-error"))
   });

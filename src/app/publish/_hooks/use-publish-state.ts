@@ -72,7 +72,7 @@ export function usePublishState() {
     undefined,
     persistent
   );
-  const [poll, setPoll] = usePublishPollState(persistent);
+  const [poll, setPoll, clearPoll] = usePublishPollState(persistent);
 
   const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
   const thumbnails = useMemo(() => metadata.thumbnails ?? [], [metadata.thumbnails]);
@@ -116,6 +116,7 @@ export function usePublishState() {
     setSchedule(undefined);
     setTags([]);
     setSelectedThumbnail("");
+    clearPoll();
   }, [
     setBeneficiaries,
     setContent,
@@ -124,7 +125,8 @@ export function usePublishState() {
     setSchedule,
     setSelectedThumbnail,
     setTags,
-    setTitle
+    setTitle,
+    clearPoll
   ]);
 
   return {

@@ -22,7 +22,8 @@ export function useScheduleApi() {
     reward,
     beneficiaries,
     isReblogToCommunity,
-    schedule
+    schedule,
+    poll
   } = usePublishState();
 
   return useMutation({
@@ -63,7 +64,7 @@ export function useScheduleApi() {
         .withTags(tags)
         // It should select filled description or if its empty or null/undefined then get auto summary
         .withSummary(metaDescription || postBodySummary(cleanBody))
-        // .withPoll(activePoll)
+        .withPoll(poll)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
       const options = makeCommentOptions(author, permlink, reward as RewardType, beneficiaries);
@@ -82,7 +83,6 @@ export function useScheduleApi() {
           schedule?.toISOString()!,
           isReblogToCommunity!
         );
-        // clearActivePoll();
       } catch (e) {
         if (e instanceof AxiosError) {
           if (e.response?.data?.message) {

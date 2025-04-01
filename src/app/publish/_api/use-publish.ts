@@ -28,7 +28,8 @@ export function usePublishApi() {
     selectedThumbnail,
     reward,
     beneficiaries,
-    isReblogToCommunity
+    isReblogToCommunity,
+    poll
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -75,7 +76,7 @@ export function usePublishApi() {
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
         // .withVideo(title, description, unpublished3SpeakVideo)
-        // .withPoll(activePoll)
+        .withPoll(poll)
         .build();
 
       // If post have one unpublished video need to modify
@@ -140,7 +141,6 @@ export function usePublishApi() {
         await validatePostCreating(entry.author, entry.permlink, 3);
 
         success(i18next.t("submit.published"));
-        // clearActivePoll();
 
         //Mark speak video as published
         // if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
