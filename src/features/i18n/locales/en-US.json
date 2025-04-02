@@ -2620,7 +2620,9 @@
       "dynamic-editor-description": "Now, you can see your post exactly as it will be published while editing in real time.",
       "focus-title": "Focus on your content",
       "focus-description": "Less visual information — just your post and nothing more"
-    }
+    },
+    "no-image-found": "Only image files are supporting",
+    "upload-started": "Uploading image..."
   },
   "ecency-images": {
     "upload-image": "Upload image",

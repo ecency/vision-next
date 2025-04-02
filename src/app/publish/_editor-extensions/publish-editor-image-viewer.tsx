@@ -4,7 +4,8 @@ import Text from "@tiptap/extension-text";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EcencyRenderer as PureEcencyRenderer } from "@ecency/renderer";
-import { memo } from "react";
+import { memo, useCallback, useEffect } from "react";
+import { useImageUpload } from "@/api/mutations";
 
 const EcencyRenderer = memo(PureEcencyRenderer);
 

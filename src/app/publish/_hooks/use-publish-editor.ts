@@ -11,8 +11,11 @@ import { Markdown } from "tiptap-markdown";
 import StarterKit from "@tiptap/starter-kit";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import { usePublishState } from "./use-publish-state";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { error } from "@/features/shared";
+import { useMount, useUnmount } from "react-use";
+import i18next from "i18next";
+import { useEditorDragDrop } from "./use-editor-drag-drop";
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -60,8 +63,11 @@ export function usePublishEditor() {
     }
   });
 
+  useEditorDragDrop(editor);
+
   const publishState = usePublishState();
 
+  // Prefill editor with persistent content or default value
   useEffect(() => {
     try {
       editor
