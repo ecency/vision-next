@@ -2622,7 +2622,8 @@
       "focus-description": "Less visual information — just your post and nothing more"
     },
     "no-image-found": "Only image files are supporting",
-    "upload-started": "Uploading image..."
+    "upload-started": "Uploading image...",
+    "back-to-old": "Back to previous submit page"
   },
   "ecency-images": {
     "upload-image": "Upload image",
