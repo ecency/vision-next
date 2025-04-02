@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import { Button } from "@ui/button";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";

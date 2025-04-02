@@ -22,7 +22,7 @@ export function PublishMetaInfoDialog({ show, setShow }: Props) {
         <FormControl
           type="textarea"
           value={metaDescription}
-          onChange={(e) => setMetaDescription(e.target.value)}
+          onChange={(e) => setMetaDescription((e.target as any).value)}
         />
       </ModalBody>
       <ModalFooter className="justify-end flex">
