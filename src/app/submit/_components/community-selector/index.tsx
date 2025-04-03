@@ -1,14 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
-import "./_index.scss";
-import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
-import { useGlobalStore } from "@/core/global-store";
-import { getCommunityCache } from "@/core/caches";
 import { CommunitySelectorBrowser } from "@/app/submit/_components/community-selector/community-selector-browser";
-import { isCommunity } from "@/utils";
+import { getCommunityCache } from "@/core/caches";
+import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
-import { menuDownSvg } from "@ui/svg";
-import i18next from "i18next";
 import { Button } from "@/features/ui";
+import { isCommunity } from "@/utils";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
+import i18next from "i18next";
+import { useMemo, useState } from "react";
+import "./_index.scss";
 
 interface Props {
   tags: string[];
@@ -35,16 +34,8 @@ export function CommunitySelector({ tags, onSelect }: Props) {
   const { data: community } = getCommunityCache(extractCommunityName(tags)).useClientQuery();
 
   const [visible, setVisible] = useState(false);
-  const [picked, setPicked] = useState(false);
 
-  const isMyBlog = useMemo(
-    () => !community && (tags?.length > 0 || picked),
-    [community, tags, picked]
-  );
-
-  useEffect(() => {
-    setPicked(false);
-  }, [tags]);
+  const isMyBlog = useMemo(() => !community, [community]);
 
   return (
     <>
@@ -64,8 +55,8 @@ export function CommunitySelector({ tags, onSelect }: Props) {
         onClick={() => setVisible(true)}
       >
         {community && community.title}
-        {!community && (tags?.length > 0 || picked) && i18next.t("community-selector.my-blog")}
-        {!(tags?.length > 0 || picked) && !community && i18next.t("community-selector.choose")}
+        {!community && tags?.length > 0 && i18next.t("community-selector.my-blog")}
+        {!(tags?.length > 0) && !community && i18next.t("community-selector.choose")}
       </Button>
       <Modal
         onHide={() => setVisible(false)}
@@ -81,7 +72,6 @@ export function CommunitySelector({ tags, onSelect }: Props) {
             onSelect={(name: string | null) => {
               const prev = extractCommunityName(tags);
               onSelect(prev, name);
-              setPicked(true);
               setVisible(false);
             }}
           />

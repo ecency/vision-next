@@ -136,12 +136,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
               {isPublishPending && i18next.t("submit.publishing")}
               {isSchedulePending && i18next.t("submit.scheduling")}
             </Button>
-            <Button
-              size="sm"
-              appearance="gray-link"
-              disabled={!tags?.length}
-              onClick={() => setShowSchedule(true)}
-            >
+            <Button size="sm" appearance="gray-link" onClick={() => setShowSchedule(true)}>
               {schedule
                 ? i18next.t("publish.update-schedule")
                 : i18next.t("publish.schedule-later")}
