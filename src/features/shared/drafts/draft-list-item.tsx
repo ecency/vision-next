@@ -14,6 +14,7 @@ import Image from "next/image";
 import { classNameObject } from "@ui/util";
 import { cloneOutlineSvg, deleteForeverSvg, pencilOutlineSvg } from "@ui/svg";
 import i18next from "i18next";
+import { UilCopy, UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   draft: Draft;
@@ -88,19 +89,19 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
           <div className="text-gray-steel dark:text-white-075">{summary}</div>
         </div>
         <div />
-        <div className="flex items-center gap-2 justify-end w-full">
+        <div className="flex items-center gap-4 px-2 justify-end w-full">
           <Button
             noPadding={true}
-            appearance="link"
+            appearance="gray-link"
             onClick={() => cloneFn(draft)}
-            icon={cloneOutlineSvg}
+            icon={<UilCopy />}
             title={i18next.t("g.clone")}
           />
           <Button
             noPadding={true}
-            appearance="link"
+            appearance="gray-link"
             onClick={() => editFn(draft)}
-            icon={pencilOutlineSvg}
+            icon={<UilEditAlt />}
             title={i18next.t("g.edit")}
           />
           <PopoverConfirm
@@ -110,9 +111,9 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
           >
             <Button
               noPadding={true}
-              appearance="link"
+              appearance="gray-link"
               onClick={() => deleteFn(draft)}
-              icon={deleteForeverSvg}
+              icon={<UilTrash />}
               title={i18next.t("g.delete")}
             />
           </PopoverConfirm>
