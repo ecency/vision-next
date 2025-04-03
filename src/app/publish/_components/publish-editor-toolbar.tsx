@@ -69,7 +69,7 @@ export function PublishEditorToolbar({ editor }: Props) {
   const [showVideoLink, setShowVideoLink] = useState(false);
 
   return (
-    <div className="w-full items-center px-2 flex flex-wrap">
+    <div className="w-full items-center p-2 sm:py-0 flex flex-wrap gap-1 sm:gap-0">
       <StyledTooltip content={i18next.t("publish.action-bar.bold")}>
         <Button
           appearance={editor?.isActive("bold") ? "link" : "gray-link"}
@@ -106,7 +106,7 @@ export function PublishEditorToolbar({ editor }: Props) {
           icon={<UilArrow />}
         />
       </StyledTooltip>
-      <div className="border-r border-[--border-color] h-10 w-[1px]" />
+      <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
       <StyledTooltip content={i18next.t("publish.action-bar.paragraph")}>
         <Button
           appearance={editor?.isActive("paragraph") ? "link" : "gray-link"}
@@ -188,7 +188,7 @@ export function PublishEditorToolbar({ editor }: Props) {
           />
         </DropdownMenu>
       </Dropdown>
-      <div className="border-r border-[--border-color] h-10 w-[1px]" />
+      <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
       >
