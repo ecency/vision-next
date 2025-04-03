@@ -60,7 +60,7 @@ export function StyledTooltip({ children, content, className }: StyledProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="bg-blue-powder dark:bg-dark-default max-w-[320px] z-10 p-3 rounded-lg text-sm"
+              className="bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky z-10 p-1 rounded-lg text-xs font-semibold"
               ref={setPopperElement}
               style={{ ...popper.styles.popper, visibility: show ? "visible" : "hidden" }}
               {...popper.attributes.popper}

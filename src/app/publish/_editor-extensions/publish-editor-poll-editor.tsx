@@ -18,12 +18,13 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { usePublishState } from "../_hooks";
 import { PublishEditorPollEditorSettings } from "./publish-editor-poll-editor-settings";
 import { format } from "date-fns";
 
 export function PublishEditorPollEditor() {
+  const rootRef = useRef<HTMLDivElement>(null);
   const { poll, setPoll } = usePublishState();
 
   const [showDatepicker, setShowDatePicker] = useState(false);
@@ -35,9 +36,12 @@ export function PublishEditorPollEditor() {
   );
 
   return poll ? (
-    <div id="publish-active-poll">
-      <div className="flex items-center justify-between p-4">
-        <div className="text-sm text-gray-400 dark:text-gray-600 font-bold uppercase">
+    <div id="publish-active-poll" className="contents">
+      <div
+        className="pointer bg-white -mx-2 border-t-[2px] border-[--border-color] flex items-center justify-between p-4 sticky bottom-0"
+        onClick={() => rootRef.current?.scrollIntoView({ behavior: "smooth" })}
+      >
+        <div className="text-sm text-blue-dark-sky font-bold uppercase">
           {i18next.t("polls.active-poll")}
         </div>
         <Button
@@ -48,7 +52,10 @@ export function PublishEditorPollEditor() {
         />
       </div>
 
-      <div className="border-b border-[--border-color] flex items-center text-center text-sm font-semibold">
+      <div
+        ref={rootRef}
+        className="-mx-2 border-b border-[--border-color] flex items-center text-center text-sm font-semibold"
+      >
         <TabItem
           isSelected={tab === "details"}
           name="details"
@@ -66,7 +73,7 @@ export function PublishEditorPollEditor() {
       </div>
 
       {tab === "details" && (
-        <div className="flex flex-col gap-4 mt-4 p-4">
+        <div className="-mx-2 flex flex-col gap-4 mt-4 p-4">
           <InputGroup prepend={<UilQuestionCircle />}>
             <FormControl
               type="text"

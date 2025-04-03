@@ -14,10 +14,16 @@ import {
   UilUsersAlt
 } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
-import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownItemWithIcon,
+  DropdownMenu,
+  DropdownToggle
+} from "@ui/dropdown";
 import { motion } from "framer-motion";
 import i18next from "i18next";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSaveDraftApi } from "../_api";
 import { usePublishState } from "../_hooks";
@@ -29,6 +35,8 @@ interface Props {
 }
 
 export function PublishActionBar({ onPublish }: Props) {
+  const router = useRouter();
+
   const { schedule: scheduleDate } = usePublishState();
 
   const [showReward, setShowReward] = useState(false);
@@ -89,9 +97,18 @@ export function PublishActionBar({ onPublish }: Props) {
               selected={!!scheduleDate}
               onClick={() => setSchedule(true)}
               icon={<UilClock />}
-              label="Schedule"
+              label={i18next.t("publish.schedule")}
             />
-            <DropdownItemWithIcon className="!text-red" icon={<UilTrash />} label="Clear" />
+            <DropdownItemWithIcon
+              className="!text-red"
+              icon={<UilTrash />}
+              label={i18next.t("publish.clear")}
+            />
+            <div className="border-b border-[--border-color] h-[1px] w-full" />
+            <DropdownItemWithIcon
+              label={i18next.t("publish.back-to-old")}
+              onClick={() => router.push("/submit")}
+            />
           </DropdownMenu>
         </Dropdown>
       </div>

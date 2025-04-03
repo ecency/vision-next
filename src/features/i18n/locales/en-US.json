@@ -2612,7 +2612,7 @@
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "Video link",
     "get-started": {
-      "title": "Meet the publish page 2.0 on Ecency",
+      "title": "Meet new publishing experience",
       "button": "Get started",
       "single-view-title": "New single view",
       "single-view-description": "Introducing a single dynamic view — no more separate content and preview windows.",
@@ -2623,7 +2623,24 @@
     },
     "no-image-found": "Only image files are supporting",
     "upload-started": "Uploading image...",
-    "back-to-old": "Back to previous submit page"
+    "back-to-old": "Back to classic view",
+    "clear": "Clear",
+    "schedule": "Schedule",
+    "action-bar": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "strikethrough": "Strikethrough",
+      "code": "Code",
+      "paragraph": "Paragpraph",
+      "heading": "Heading",
+      "list": "List",
+      "fragments": "Snippets",
+      "image": "Image",
+      "link": "Link",
+      "emoji": "Emoji",
+      "video": "Video",
+      "poll": "Poll"
+    }
   },
   "ecency-images": {
     "upload-image": "Upload image",

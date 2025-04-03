@@ -8,7 +8,7 @@ import { GalleryDialog } from "@/features/shared";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { VideoGallery } from "@/features/shared/video-gallery";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
-import { EmojiPicker } from "@/features/ui";
+import { EmojiPicker, StyledTooltip } from "@/features/ui";
 import {
   UilArrow,
   UilBold,
@@ -70,76 +70,93 @@ export function PublishEditorToolbar({ editor }: Props) {
 
   return (
     <div className="w-full items-center px-2 flex flex-wrap">
-      <Button
-        appearance={editor?.isActive("bold") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor?.chain().focus().toggleBold().run()}
-        disabled={!editor?.can().chain().focus().toggleBold().run()}
-        icon={<UilBold />}
-      />
-      <Button
-        appearance={editor?.isActive("italic") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor?.chain().focus().toggleItalic().run()}
-        disabled={!editor?.can().chain().focus().toggleItalic().run()}
-        icon={<UilItalic />}
-      />
-      <Button
-        appearance={editor?.isActive("strike") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor?.chain().focus().toggleStrike().run()}
-        disabled={!editor?.can().chain().focus().toggleStrike().run()}
-        icon={<UilTextStrikeThrough />}
-      />
-      <Button
-        appearance={editor?.isActive("code") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor?.chain().focus().toggleCode().run()}
-        disabled={!editor?.can().chain().focus().toggleCode().run()}
-        icon={<UilArrow />}
-      />
+      <StyledTooltip content={i18next.t("publish.action-bar.bold")}>
+        <Button
+          appearance={editor?.isActive("bold") ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor?.chain().focus().toggleBold().run()}
+          disabled={!editor?.can().chain().focus().toggleBold().run()}
+          icon={<UilBold />}
+        />
+      </StyledTooltip>
+      <StyledTooltip content={i18next.t("publish.action-bar.italic")}>
+        <Button
+          appearance={editor?.isActive("italic") ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor?.chain().focus().toggleItalic().run()}
+          disabled={!editor?.can().chain().focus().toggleItalic().run()}
+          icon={<UilItalic />}
+        />
+      </StyledTooltip>
+      <StyledTooltip content={i18next.t("publish.action-bar.strikethrough")}>
+        <Button
+          appearance={editor?.isActive("strike") ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor?.chain().focus().toggleStrike().run()}
+          disabled={!editor?.can().chain().focus().toggleStrike().run()}
+          icon={<UilTextStrikeThrough />}
+        />
+      </StyledTooltip>
+      <StyledTooltip content={i18next.t("publish.action-bar.code")}>
+        <Button
+          appearance={editor?.isActive("code") ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor?.chain().focus().toggleCode().run()}
+          disabled={!editor?.can().chain().focus().toggleCode().run()}
+          icon={<UilArrow />}
+        />
+      </StyledTooltip>
       <div className="border-r border-[--border-color] h-10 w-[1px]" />
-      <Button
-        appearance={editor?.isActive("paragraph") ? "link" : "gray-link"}
-        size="sm"
-        onClick={() => editor?.chain().focus().setParagraph().run()}
-        icon={<UilParagraph />}
-      />
-      <Dropdown>
-        <DropdownToggle>
-          <Button appearance="gray-link" size="sm" icon={<UilTextSize />} />
+      <StyledTooltip content={i18next.t("publish.action-bar.paragraph")}>
+        <Button
+          appearance={editor?.isActive("paragraph") ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor?.chain().focus().setParagraph().run()}
+          icon={<UilParagraph />}
+        />
+      </StyledTooltip>
+
+      <StyledTooltip content={i18next.t("publish.action-bar.heading")}>
+        <Dropdown>
+          <DropdownToggle>
+            <Button appearance="gray-link" size="sm" icon={<UilTextSize />} />
+            <DropdownMenu>
+              {headings.map((heading) => (
+                <DropdownItem
+                  key={heading}
+                  selected={editor?.isActive("heading", { level: heading })}
+                  onClick={() => editor?.chain().focus().toggleHeading({ level: heading }).run()}
+                >
+                  {i18next.t("publish.heading")} {heading}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </DropdownToggle>
+        </Dropdown>
+      </StyledTooltip>
+
+      <StyledTooltip content={i18next.t("publish.action-bar.list")}>
+        <Dropdown>
+          <DropdownToggle>
+            <Button appearance="gray-link" size="sm" icon={<UilListUiAlt />} />
+          </DropdownToggle>
           <DropdownMenu>
-            {headings.map((heading) => (
-              <DropdownItem
-                key={heading}
-                selected={editor?.isActive("heading", { level: heading })}
-                onClick={() => editor?.chain().focus().toggleHeading({ level: heading }).run()}
-              >
-                {i18next.t("publish.heading")} {heading}
-              </DropdownItem>
-            ))}
+            <DropdownItemWithIcon
+              selected={editor?.isActive("bulletList")}
+              icon={<UilListUl />}
+              label={i18next.t("publish.bullet-list")}
+              onClick={() => editor?.chain().focus().toggleBulletList().run()}
+            />
+            <DropdownItemWithIcon
+              selected={editor?.isActive("orderedList")}
+              icon={<UilListOl />}
+              label={i18next.t("publish.ordered-list")}
+              onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+            />
           </DropdownMenu>
-        </DropdownToggle>
-      </Dropdown>
-      <Dropdown>
-        <DropdownToggle>
-          <Button appearance="gray-link" size="sm" icon={<UilListUiAlt />} />
-        </DropdownToggle>
-        <DropdownMenu>
-          <DropdownItemWithIcon
-            selected={editor?.isActive("bulletList")}
-            icon={<UilListUl />}
-            label={i18next.t("publish.bullet-list")}
-            onClick={() => editor?.chain().focus().toggleBulletList().run()}
-          />
-          <DropdownItemWithIcon
-            selected={editor?.isActive("orderedList")}
-            icon={<UilListOl />}
-            label={i18next.t("publish.ordered-list")}
-            onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-          />
-        </DropdownMenu>
-      </Dropdown>
+        </Dropdown>
+      </StyledTooltip>
+
       <Dropdown>
         <DropdownToggle>
           <Button icon={<UilEllipsisH />} size="sm" appearance="gray-link" />
@@ -175,47 +192,55 @@ export function PublishEditorToolbar({ editor }: Props) {
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
       >
-        <Button
-          appearance="gray-link"
-          size="sm"
-          onClick={() => setShowFragments(true)}
-          icon={<UilSubject />}
-        />
+        <StyledTooltip content={i18next.t("publish.action-bar.fragments")}>
+          <Button
+            appearance="gray-link"
+            size="sm"
+            onClick={() => setShowFragments(true)}
+            icon={<UilSubject />}
+          />
+        </StyledTooltip>
       </EcencyConfigManager.Conditional>
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
       >
-        <Dropdown>
-          <DropdownToggle>
-            <Button appearance="gray-link" size="sm" icon={<UilImage />} />
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItemWithIcon
-              icon={<UilUpload />}
-              label={i18next.t("publish.upload")}
-              onClick={() => setShowImageUpload(true)}
-            />
-            <DropdownItemWithIcon
-              icon={<UilImages />}
-              label={i18next.t("publish.from-gallery")}
-              onClick={() => setShowGallery(true)}
-            />
-            <DropdownItemWithIcon
-              icon={<UilImageShare />}
-              label={i18next.t("publish.from-link")}
-              onClick={() => setShowImageByLink(true)}
-            />
-          </DropdownMenu>
-        </Dropdown>
+        <StyledTooltip content={i18next.t("publish.action-bar.image")}>
+          <Dropdown>
+            <DropdownToggle>
+              <Button appearance="gray-link" size="sm" icon={<UilImage />} />
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItemWithIcon
+                icon={<UilUpload />}
+                label={i18next.t("publish.upload")}
+                onClick={() => setShowImageUpload(true)}
+              />
+              <DropdownItemWithIcon
+                icon={<UilImages />}
+                label={i18next.t("publish.from-gallery")}
+                onClick={() => setShowGallery(true)}
+              />
+              <DropdownItemWithIcon
+                icon={<UilImageShare />}
+                label={i18next.t("publish.from-link")}
+                onClick={() => setShowImageByLink(true)}
+              />
+            </DropdownMenu>
+          </Dropdown>
+        </StyledTooltip>
       </EcencyConfigManager.Conditional>
-      <Button
-        appearance="gray-link"
-        size="sm"
-        onClick={() => setShowAddLink(true)}
-        icon={<UilLink />}
-      />
+      <StyledTooltip content={i18next.t("publish.action-bar.link")}>
+        <Button
+          appearance="gray-link"
+          size="sm"
+          onClick={() => setShowAddLink(true)}
+          icon={<UilLink />}
+        />
+      </StyledTooltip>
       <div className="relative" ref={emojiPickerAnchorRef}>
-        <Button appearance="gray-link" size="sm" icon={<UilSmile />} />
+        <StyledTooltip content={i18next.t("publish.action-bar.emoji")}>
+          <Button appearance="gray-link" size="sm" icon={<UilSmile />} />
+        </StyledTooltip>
         <EmojiPicker
           anchor={emojiPickerAnchorRef.current}
           onSelect={(e) => editor?.chain().focus().insertContent(e).run()}
@@ -224,37 +249,48 @@ export function PublishEditorToolbar({ editor }: Props) {
       <Button appearance="gray-link" size="sm" onClick={() => setShowGifPicker(true)}>
         GIF
       </Button>
-      <Dropdown>
-        <DropdownToggle>
-          <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
-        </DropdownToggle>
-        <DropdownMenu>
-          <DropdownItemWithIcon
-            icon={<UilUpload />}
-            label={i18next.t("publish.three-speak-upload")}
-            onClick={() => setShowVideoUpload(true)}
-          />
-          <DropdownItemWithIcon
-            icon={<UilVideo />}
-            label={i18next.t("publish.three-speak-gallery")}
-            onClick={() => setShowVideoGallery(true)}
-          />
-          <DropdownItemWithIcon
-            icon={<UilLink />}
-            label={i18next.t("publish.from-link")}
-            onClick={() => setShowVideoLink(true)}
-          />
-        </DropdownMenu>
-      </Dropdown>
-      <Button
-        appearance="gray-link"
-        size="sm"
-        onClick={() => {
-          publishState.createDefaultPoll();
-          document.getElementById("publish-active-poll")?.scrollIntoView({ behavior: "smooth" });
-        }}
-        icon={<UilPanelAdd />}
-      />
+      <StyledTooltip content={i18next.t("publish.action-bar.video")}>
+        <Dropdown>
+          <DropdownToggle>
+            <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItemWithIcon
+              icon={<UilUpload />}
+              label={i18next.t("publish.three-speak-upload")}
+              onClick={() => setShowVideoUpload(true)}
+            />
+            <DropdownItemWithIcon
+              icon={<UilVideo />}
+              label={i18next.t("publish.three-speak-gallery")}
+              onClick={() => setShowVideoGallery(true)}
+            />
+            <DropdownItemWithIcon
+              icon={<UilLink />}
+              label={i18next.t("publish.from-link")}
+              onClick={() => setShowVideoLink(true)}
+            />
+          </DropdownMenu>
+        </Dropdown>
+      </StyledTooltip>
+
+      <StyledTooltip content={i18next.t("publish.action-bar.poll")}>
+        <Button
+          appearance="gray-link"
+          size="sm"
+          onClick={() => {
+            publishState.createDefaultPoll();
+            setTimeout(
+              () =>
+                document
+                  .getElementById("publish-active-poll")
+                  ?.scrollIntoView({ behavior: "smooth" }),
+              100
+            );
+          }}
+          icon={<UilPanelAdd />}
+        />
+      </StyledTooltip>
 
       {/*Dialogs*/}
       <EcencyConfigManager.Conditional

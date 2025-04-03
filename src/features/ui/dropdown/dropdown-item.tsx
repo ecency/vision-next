@@ -46,7 +46,7 @@ export function DropdownItem(props: HTMLProps<HTMLDivElement> & Props) {
 }
 
 export function DropdownItemWithIcon(
-  props: Omit<HTMLProps<HTMLDivElement>, "label"> & Props & { icon: ReactNode; label: any }
+  props: Omit<HTMLProps<HTMLDivElement>, "label"> & Props & { icon?: ReactNode; label: any }
 ) {
   return (
     <DropdownItem {...props}>
