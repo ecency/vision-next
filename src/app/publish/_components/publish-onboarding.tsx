@@ -3,16 +3,17 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
 import { useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
-import {
-  UilApple,
-  UilEdit,
-  UilFocus,
-  UilMicrosoft,
-  UilWindow
-} from "@tooni/iconscout-unicons-react";
+import { UilArrowRight, UilEdit, UilFocus, UilWindow } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useCallback, useState } from "react";
 import { OnboardingFrame } from "../_frames";
+import {
+  PublishOnboardingPosting,
+  PublishOnboardingSettings,
+  PublishOnboardingSingleView,
+  PublishOnboardingToolbar
+} from "./onboarding";
+import { PublishOnboardingSuccess } from "./onboarding/publish-onboarding-success";
 
 const featuresList = [
   {
@@ -29,24 +30,6 @@ const featuresList = [
     title: i18next.t("publish.get-started.focus-title"),
     description: i18next.t("publish.get-started.focus-description"),
     icon: <UilFocus className="opacity-50" />
-  }
-];
-
-const shortcutsList = [
-  {
-    name: i18next.t("publish.action-bar.bold"),
-    macKeys: "⌘+B",
-    winKeys: "Ctrl+B"
-  },
-  {
-    name: i18next.t("publish.action-bar.italic"),
-    macKeys: "⌘+I",
-    winKeys: "Ctrl+I"
-  },
-  {
-    name: i18next.t("publish.action-bar.strikethrough"),
-    macKeys: "⌘+Shift+S",
-    winKeys: "Ctrl+Shift+S"
   }
 ];
 
@@ -73,7 +56,7 @@ export function PublishOnboarding() {
       case "posting":
         setStep("finish");
       default:
-        null;
+        setShow(false);
     }
   }, [step]);
 
@@ -119,62 +102,26 @@ export function PublishOnboarding() {
             </>
           )}
           {step !== "intro" && <OnboardingFrame step={step} />}
-          {step === "single-view" && (
-            <div className="pt-4 flex flex-col gap-2">
-              <div className="font-bold">
-                {i18next.t("publish.get-started.single-view-description")}
-              </div>
-              {i18next.t("publish.get-started.single-view-text")}
-            </div>
-          )}
-          {step === "toolbar" && (
-            <div className="pt-4 flex flex-col gap-2">
-              <div className="font-bold">
-                {i18next.t("publish.get-started.toolbar-description")}
-              </div>
-              {i18next.t("publish.get-started.toolbar-text")}
-              <div className="pt-6">
-                <div className="grid grid-cols-3 pb-2 border-b border-[--border-color] text-sm">
-                  <div>{i18next.t("publish.get-started.shortcut")}</div>
-                  <div className="flex items-center gap-2">
-                    <UilApple className="w-4 h-4" />
-                    Mac
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <UilMicrosoft className="w-4 h-4" />
-                    Windows
-                  </div>
-                </div>
-                {shortcutsList.map((shortcut) => (
-                  <div
-                    className="grid grid-cols-3 my-4 gap-2 text-xs items-center font-semibold"
-                    key={shortcut.name}
-                  >
-                    <span>{shortcut.name} </span>
-                    <div className="flex justify-start">
-                      <div className="bg-gray-200 dark:bg-gray-700 p-1.5 rounded-lg">
-                        {shortcut.macKeys}
-                      </div>
-                    </div>
-                    <div className="flex justify-start">
-                      <div className="bg-gray-200 dark:bg-gray-700 p-1.5 rounded-lg">
-                        {shortcut.winKeys}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {step === "single-view" && <PublishOnboardingSingleView />}
+          {step === "toolbar" && <PublishOnboardingToolbar />}
+          {step === "settings" && <PublishOnboardingSettings />}
+          {step === "posting" && <PublishOnboardingPosting />}
+          {step === "finish" && <PublishOnboardingSuccess />}
         </div>
       </ModalBody>
       <ModalFooter className="justify-center gap-4 flex p-4">
-        <Button onClick={next}>
-          {step === "intro" ? i18next.t("publish.get-started.button") : i18next.t("g.continue")}
+        <Button icon={<UilArrowRight />} onClick={next}>
+          {step === "intro"
+            ? i18next.t("publish.get-started.button")
+            : step === "finish"
+              ? i18next.t("g.finish")
+              : i18next.t("g.continue")}
         </Button>
-        <Button appearance="gray-link" onClick={() => setShow(false)}>
-          {i18next.t("publish.get-started.skip")}
-        </Button>
+        {step !== "finish" && (
+          <Button appearance="gray-link" onClick={() => setShow(false)}>
+            {i18next.t("publish.get-started.skip")}
+          </Button>
+        )}
       </ModalFooter>
     </Modal>
   );

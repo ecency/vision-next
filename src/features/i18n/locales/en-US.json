@@ -2625,7 +2625,16 @@
       "focus-title": "Focus on your content",
       "focus-description": "Less visual information — just your post and nothing more",
       "skip": "Skip guide",
-      "shortcut": "Shortcut"
+      "shortcut": "Shortcut",
+      "more-shortcuts": "See more shortcuts on Ecency Documentation",
+      "settings-title": "Publishing settings",
+      "settings-description": "Customize your content with advanced settings",
+      "settings-text": "Schedule posts, save drafts, update meta info — all from the three-dot menu",
+      "posting-title": "Posting",
+      "posting-description": "Publish your new post",
+      "posting-text": "Add a title, assign tags, and choose a thumbnail — this helps search engines find your content. Not ready to publish? Schedule it for later.",
+      "success-description": "That's it! Keep making content on Ecency",
+      "success-text": "Post will be published in few mintues or scheduled to specific date."
     },
     "no-image-found": "Only image files are supporting",
     "upload-started": "Uploading image...",
