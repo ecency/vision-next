@@ -2615,11 +2615,17 @@
       "title": "Meet new publishing experience",
       "button": "Get started",
       "single-view-title": "New single view",
-      "single-view-description": "Introducing a single dynamic view — no more separate content and preview windows.",
+      "single-view-description": "Introducing a single dynamic view — no more separate content and preview windows",
+      "single-view-text": "Write your content and instantly see how it will appear as a real post. No need to move between raw input and preview. Just focus on creating.",
+      "toolbar-title": "Toolbar",
+      "toolbar-description": "Discover a convenient toolbar to enrich your text effortlessly",
+      "toolbar-text": "The toolbar is packed with powerful formatting tools to make your post stand out. Speed up your workflow with handy keyboard shortcuts.",
       "dynamic-editor-title": "Dynamic editor",
-      "dynamic-editor-description": "Now, you can see your post exactly as it will be published while editing in real time.",
+      "dynamic-editor-description": "Now, you can see your post exactly as it will be published while editing in real time",
       "focus-title": "Focus on your content",
-      "focus-description": "Less visual information — just your post and nothing more"
+      "focus-description": "Less visual information — just your post and nothing more",
+      "skip": "Skip guide",
+      "shortcut": "Shortcut"
     },
     "no-image-found": "Only image files are supporting",
     "upload-started": "Uploading image...",
@@ -2640,7 +2646,8 @@
       "emoji": "Emoji",
       "video": "Video",
       "poll": "Poll"
-    }
+    },
+    "get-help": "Get help"
   },
   "ecency-images": {
     "upload-image": "Upload image",

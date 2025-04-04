@@ -4,23 +4,22 @@ import { PublishBeneficiariesDialog } from "@/app/publish/_components/publish-be
 import { PublishMetaInfoDialog } from "@/app/publish/_components/publish-meta-info-dialog";
 import { PublishRewardsDialog } from "@/app/publish/_components/publish-rewards-dialog";
 import { PublishScheduleDialog } from "@/app/publish/_components/publish-schedule-dialog";
+import { LoginRequired } from "@/features/shared";
+import { StyledTooltip } from "@/features/ui";
+import { useSynchronizedLocalStorage } from "@/utils";
+import { PREFIX } from "@/utils/local-storage";
 import {
   UilClock,
   UilDocumentInfo,
   UilEllipsisV,
   UilFileEditAlt,
   UilMoneybag,
+  UilQuestionCircle,
   UilTrash,
   UilUsersAlt
 } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownItemWithIcon,
-  DropdownMenu,
-  DropdownToggle
-} from "@ui/dropdown";
+import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,7 +27,6 @@ import { useState } from "react";
 import { useSaveDraftApi } from "../_api";
 import { usePublishState } from "../_hooks";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
-import { LoginRequired } from "@/features/shared";
 
 interface Props {
   onPublish: () => void;
@@ -45,7 +43,9 @@ export function PublishActionBar({ onPublish }: Props) {
   const [schedule, setSchedule] = useState(false);
 
   const pathname = usePathname();
+
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi();
+  const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
 
   return (
     <motion.div
@@ -53,7 +53,7 @@ export function PublishActionBar({ onPublish }: Props) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -32 }}
       transition={{ delay: 0.4 }}
-      className="container relative z-[11] justify-between gap-4 pl-2 md:pl-4 flex items-center max-w-[800px] py-4 mx-auto publish-action-bar"
+      className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex items-center max-w-[800px] py-4 mx-auto publish-action-bar"
     >
       <PublishActionBarCommunity />
       <div className="flex items-center gap-4">
@@ -62,9 +62,18 @@ export function PublishActionBar({ onPublish }: Props) {
             {i18next.t(scheduleDate ? "submit.schedule" : "submit.publish")}
           </Button>
         </LoginRequired>
+
+        <StyledTooltip content={i18next.t("publish.get-help")}>
+          <Button
+            noPadding={true}
+            appearance="gray-link"
+            icon={<UilQuestionCircle />}
+            onClick={() => setShowGuide(true)}
+          />
+        </StyledTooltip>
         <Dropdown>
           <DropdownToggle>
-            <Button icon={<UilEllipsisV />} appearance="gray-link" />
+            <Button noPadding={true} icon={<UilEllipsisV />} appearance="gray-link" />
           </DropdownToggle>
           <DropdownMenu align="right">
             <DropdownItemWithIcon
