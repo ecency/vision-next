@@ -1,25 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Tsx } from "../../i18n/helper";
-import appPackage from "../../../../package.json";
-import { EntryLink } from "../entry-link";
-import { DiscussionList } from "./discussion-list";
-import { DiscussionItemBody } from "./discussion-item-body";
-import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { Button } from "@ui/button";
-import { DiscussionBots } from "./discussion-bots";
-import { Community, Entry, ROLES } from "@/entities";
-import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
-import { useGlobalStore } from "@/core/global-store";
-import { getBotsQuery } from "@/api/queries";
 import { useCreateReply, usePinReply, useUpdateReply } from "@/api/mutations";
-import * as ss from "@/utils/session-storage";
-import {
-  createReplyPermlink,
-  dateToFormatted,
-  dateToFullRelative,
-  makeJsonMetaDataReply
-} from "@/utils";
+import { getBotsQuery } from "@/api/queries";
+import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useGlobalStore } from "@/core/global-store";
+import { Community, Entry, ROLES } from "@/entities";
 import {
   EntryDeleteBtn,
   EntryPayout,
@@ -29,10 +13,25 @@ import {
   ProfilePopover,
   UserAvatar
 } from "@/features/shared";
+import { MuteBtn } from "@/features/shared/mute-btn";
+import {
+  createReplyPermlink,
+  dateToFormatted,
+  dateToFullRelative,
+  makeJsonMetaDataReply
+} from "@/utils";
+import { Button } from "@ui/button";
+import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { deleteForeverSvg, dotsHorizontal, pencilOutlineSvg, pinSvg } from "@ui/svg";
 import i18next from "i18next";
-import { MuteBtn } from "@/features/shared/mute-btn";
+import { useMemo, useState } from "react";
+import appPackage from "../../../../package.json";
+import { Tsx } from "../../i18n/helper";
 import { Comment } from "../comment";
+import { EntryLink } from "../entry-link";
+import { DiscussionBots } from "./discussion-bots";
+import { DiscussionItemBody } from "./discussion-item-body";
+import { DiscussionList } from "./discussion-list";
 
 interface Props {
   entry: Entry;
@@ -54,7 +53,6 @@ export function DiscussionItem({
   const activeUser = useGlobalStore((s) => s.activeUser);
   const [reply, setReply] = useState(false);
   const [edit, setEdit] = useState(false);
-  const [lsDraft, setLsDraft] = useState("");
 
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
   const { data: mutedUsers } = getMutedUsersQuery(activeUser).useClientQuery();
@@ -173,12 +171,6 @@ export function DiscussionItem({
     setEdit(!edit);
   };
 
-  const checkLsDraft = useCallback(() => {
-    let replyDraft = ss.get(`reply_draft_${entry?.author}_${entry?.permlink}`);
-    replyDraft = (replyDraft && replyDraft.trim()) || "";
-    setLsDraft(replyDraft);
-  }, [entry?.author, entry?.permlink]);
-
   const submitReply = (text: string) =>
     createReply({
       text,
@@ -193,12 +185,6 @@ export function DiscussionItem({
       point: true,
       jsonMeta: makeJsonMetaDataReply(entry?.json_metadata.tags || ["ecency"], appPackage.version)
     });
-
-  useEffect(() => {
-    if (edit || reply) {
-      checkLsDraft();
-    }
-  }, [checkLsDraft, edit, reply]);
 
   return entry ? (
     <div className={`discussion-item depth-${entry?.depth} ${selected ? "selected-item" : ""}`}>
@@ -324,7 +310,6 @@ export function DiscussionItem({
       {reply && (
         <Comment
           entry={entry}
-          defText={lsDraft}
           submitText={i18next.t("g.reply")}
           cancellable={true}
           onSubmit={submitReply}
@@ -337,7 +322,6 @@ export function DiscussionItem({
       {edit && (
         <Comment
           entry={entry}
-          defText={entry.body}
           submitText={i18next.t("g.update")}
           cancellable={true}
           onSubmit={_updateReply}

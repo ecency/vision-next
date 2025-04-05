@@ -1,28 +1,25 @@
 "use client";
 
-import React, { Ref, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { setProxyBase } from "@ecency/render-helper";
-import "./_index.scss";
-import { Button } from "@ui/button";
+import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults.json";
+import { Entry } from "@/entities";
 import { AvailableCredits, LoginRequired } from "@/features/shared";
 import { CommentPreview } from "@/features/shared/comment/comment-preview";
-import { useGlobalStore } from "@/core/global-store";
-import i18next from "i18next";
-import * as ss from "@/utils/session-storage";
-import { Entry } from "@/entities";
-import { useDebounce, useMount } from "react-use";
-import useUnmount from "react-use/lib/useUnmount";
 import { detectEvent, EditorToolbar, toolbarEventListener } from "@/features/shared/editor-toolbar";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
-import usePrevious from "react-use/lib/usePrevious";
-import useLocalStorage from "react-use/lib/useLocalStorage";
 import { PREFIX } from "@/utils/local-storage";
+import { setProxyBase } from "@ecency/render-helper";
+import { Button } from "@ui/button";
+import i18next from "i18next";
+import React, { Ref, useCallback, useMemo, useRef, useState } from "react";
+import { useDebounce, useMount } from "react-use";
+import useLocalStorage from "react-use/lib/useLocalStorage";
+import useUnmount from "react-use/lib/useUnmount";
+import "./_index.scss";
 
 setProxyBase(defaults.imageServer);
 
 interface Props {
-  defText: string;
   submitText: string;
   entry: Entry;
   inProgress?: boolean;
@@ -30,37 +27,32 @@ interface Props {
   cancellable?: boolean;
   autoFocus?: boolean;
   onSubmit: (text: string) => Promise<any>;
-  resetSelection?: () => void;
   onCancel?: () => void;
   inputRef?: Ref<any>;
   clearOnSubmit?: boolean;
+  isEdit?: boolean;
 }
 
 export function Comment({
   entry,
   onSubmit,
   onCancel,
-  isCommented,
   cancellable,
   submitText,
-  defText,
-  resetSelection,
   inputRef,
   inProgress,
   autoFocus,
+  isEdit,
   clearOnSubmit = true
 }: Props) {
   const commentBodyRef = useRef<HTMLDivElement>(null);
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const [text, setText] = useLocalStorage(PREFIX + "_c_t", "");
+  const [text, setText] = useLocalStorage(PREFIX + "_reply_text", "");
   const [inputHeight, setInputHeight] = useState(0);
   const [preview, setPreview] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [showGif, setShowGif] = useState(false);
-
-  const previousDefText = usePrevious(defText);
-  const previousIsCommented = usePrevious(isCommented);
 
   const rows = useMemo(() => text!.split(/\r\n|\r|\n|<br>/).length, [text]);
 
@@ -73,8 +65,9 @@ export function Comment({
   );
 
   useMount(() => {
-    setText(defText);
-    setPreview("");
+    if (isEdit) {
+      setText(entry.body);
+    }
 
     commentBodyRef.current?.addEventListener("paste", handlePaste);
     commentBodyRef.current?.addEventListener("dragover", handleDragover);
@@ -86,13 +79,6 @@ export function Comment({
     commentBodyRef.current?.removeEventListener("dragover", handleDragover);
     commentBodyRef.current?.removeEventListener("drop", handleDrop);
   });
-
-  const updateLsCommentDraft = useCallback(
-    (text: string) => {
-      ss.set(`reply_draft_${entry.author}_${entry.permlink}`, text);
-    },
-    [entry]
-  );
 
   const textChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
     const { value: text } = e.target;
@@ -144,29 +130,6 @@ export function Comment({
       detectEvent("blockquote");
     }
   };
-
-  useEffect(() => {
-    if (defText !== previousDefText && !previousDefText) {
-      let commentText = defText;
-      setText(commentText || "");
-      setPreview(commentText || "");
-      if (resetSelection) resetSelection();
-      updateLsCommentDraft(commentText);
-    }
-    if (!previousIsCommented && isCommented) {
-      setText("");
-      setPreview("");
-      updateLsCommentDraft("");
-    }
-  }, [
-    defText,
-    isCommented,
-    previousDefText,
-    previousIsCommented,
-    resetSelection,
-    text,
-    updateLsCommentDraft
-  ]);
 
   return (
     <>
