@@ -8,8 +8,6 @@ import { currencySymbol, runWithRetries } from "@/utils";
 
 export function createGlobalState() {
   return {
-    filter: AllFilter.hot,
-    tag: "",
     theme: Cookies.get("theme") || Theme.day,
     listStyle: ListStyle.row,
     intro: true,

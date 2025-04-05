@@ -104,7 +104,7 @@ export function ManageKeys(props: Props) {
     const isPlainPassword = !cryptoUtils.isWif(key);
 
     let thePrivateKey!: PrivateKey;
-    var keys: UserKeys = {};
+    let keys: UserKeys = {};
 
     if (isPlainPassword) {
       thePrivateKey = PrivateKey.fromLogin(props.accountData!.account.name, key, "active");
@@ -114,6 +114,7 @@ export function ManageKeys(props: Props) {
         error(i18next.t("login.error-authenticate")); // enter master or active key
         return;
       }
+      setPrivatekeys(keys);
     } else {
       if (
         props

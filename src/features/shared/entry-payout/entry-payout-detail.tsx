@@ -18,7 +18,6 @@ export function EntryPayoutDetail({ entry }: Props) {
 
   const beneficiary = entry.beneficiaries;
   const pendingPayout = parseAsset(entry.pending_payout_value).amount;
-  const promotedPayout = parseAsset(entry.promoted).amount;
   const authorPayout = parseAsset(entry.author_payout_value).amount;
   const curatorPayout = parseAsset(entry.curator_payout_value).amount;
   const maxPayout = parseAsset(entry.max_accepted_payout).amount;
@@ -67,14 +66,6 @@ export function EntryPayoutDetail({ entry }: Props) {
           <span className="label">{i18next.t("entry-payout.pending-payout")}</span>
           <span className="value">
             <FormattedCurrency value={pendingPayout} fixAt={3} />
-          </span>
-        </p>
-      )}
-      {promotedPayout > 0 && (
-        <p>
-          <span className="label">{i18next.t("entry-payout.promoted")}</span>
-          <span className="value">
-            <FormattedCurrency value={promotedPayout} fixAt={3} />
           </span>
         </p>
       )}

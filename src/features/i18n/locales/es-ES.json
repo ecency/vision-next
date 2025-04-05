@@ -206,10 +206,10 @@
   },
   "login": {
     "title": "¡Bienvenido de nuevo!",
-    "subtitle": "Login with private key or other options. Write username and continue with favorite one",
-    "subtitle-users": "Manage already authenticated users or login to new one with various options",
-    "write-username": "Enter username and select login option",
-    "username-placeholder": "Username",
+    "subtitle": "Iniciar sesión con clave privada u otras opciones. Escribe el nombre de usuario y continúa con uno favorito",
+    "subtitle-users": "Administrar usuarios ya autenticados o iniciar sesión en uno nuevo con varias opciones",
+    "write-username": "Introduzca el nombre de usuario y seleccione la opción de inicio de sesión",
+    "username-placeholder": "Nombre de Usuario",
     "key-placeholder": "contraseña / clave privada",
     "login-info-1": "No almacenamos sus claves privadas.",
     "login-info-2": "Más información",
@@ -225,12 +225,14 @@
     "with-keychain": "Iniciar sesión con KeyChain",
     "sign-up-text-1": "¿No tienes una cuenta?",
     "sign-up-text-2": "¡Regístrate ahora!",
-    "current": "Active user",
-    "continue-with-key": "Continue with key or password",
-    "single-account-hint": "You can log in to another account and manage multiple accounts. Give it a try!",
-    "reorder": "Change users list order",
-    "reorder-list": "Change list order",
-    "no-active-user": "No active user yet"
+    "current": "Usuario activo",
+    "continue-with-key": "Continuar con clave o contraseña",
+    "single-account-hint": "Puedes iniciar sesión en otra cuenta y administrar varias cuentas. ¡Pruébalo!",
+    "reorder": "Cambiar el orden de lista de usuarios",
+    "reorder-list": "Cambiar orden de lista",
+    "no-active-user": "Aún no hay usuario activo",
+    "sign-in": "Iniciar sesión",
+    "my-users": "Mis usuarios"
   },
   "sign-up": {
     "header": "Recompensando a las comunidades Web3",
@@ -789,7 +791,8 @@
     "reveal-muted-long-description": "Mostrar respuestas adicionales, incluyendo aquellas que pueden tener contenido ofensivo",
     "reveal": "Revelar comentario",
     "no-conversation": "Aún no hay conversación, se el primero en responder",
-    "start-conversation": "Iniciar conversación"
+    "start-conversation": "Iniciar conversación",
+    "join-hint": "Forma parte de una enorme comunidad de Hive y gana recompensas por actividad"
   },
   "community": {
     "page-description": "{{f}} temas",
@@ -1858,14 +1861,14 @@
     "owner": "propietario",
     "active": "activa",
     "copy": "Copiar",
-    "import": "Importar clave privada",
+    "import": "Private key",
     "sign-title": "Firmar Transacción",
     "sign-sub-title": "Firmar tu transacción",
     "success-message": "Revocas el permiso de publicar desde ",
     "copied": "Clave copiada en el portapapeles",
-    "keys-success-message": "Claves de autorizaciones importadas correctamente",
+    "keys-success-message": "Private keys are validated and possible to view them",
     "password-title": "Introduce contraseña o clave privada",
-    "password-sub-title": "Clave privada individual o Contraseña maestra para importar todas las claves",
+    "password-sub-title": "Get all Private keys with Master password or validate Individual Private key",
     "reveal-public-key": "Mostrar clave pública",
     "reveal-private-key": "Mostrar clave privada",
     "submit": "Enviar",
@@ -1876,7 +1879,7 @@
     "memo": "memo",
     "placeholder": "Contraseña maestra o Clave privada",
     "success-title": "Éxito",
-    "success-sub-title": "Importación exitosa"
+    "success-sub-title": "Keys generated, you can view them"
   },
   "account-recovery": {
     "title": "Cambiar agente de recuperación",

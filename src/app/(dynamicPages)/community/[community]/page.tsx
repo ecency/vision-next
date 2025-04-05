@@ -41,9 +41,7 @@ export default async function CommunityPostsPage({ params }: Props) {
           <CommunityContentSearch community={communityData} filter="created" />
         </div>
       )}
-      {/*<CommunityContentSearchData query={query} community={community} />*/}
 
-      {/*{(!query || query?.length === 0) && (*/}
       <ProfileEntriesLayout section="created" username={community}>
         <EntryListContent
           username={community}
@@ -54,7 +52,6 @@ export default async function CommunityPostsPage({ params }: Props) {
         />
         <CommunityContentInfiniteList community={communityData} section="created" />
       </ProfileEntriesLayout>
-      {/*)}*/}
     </HydrationBoundary>
   );
 }

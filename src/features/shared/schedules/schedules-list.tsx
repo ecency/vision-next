@@ -17,8 +17,6 @@ export function SchedulesList({}: Props) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isPending, refetch } = useSchedulesQuery();
-  const { mutateAsync: moveSchedule, isPending: isScheduleMoving } = useMoveSchedule();
-  const { mutateAsync: deleteSchedule, isPending: isScheduleDeleting } = useDeleteSchedule();
 
   const items = useMemo(
     () =>
@@ -66,12 +64,7 @@ export function SchedulesList({}: Props) {
         <div className="schedules-list">
           <div className="schedules-list-body flex flex-col gap-3 my-4">
             {items.map((item) => (
-              <ScheduledListItem
-                key={item._id}
-                post={item}
-                moveFn={() => moveSchedule({ id: item._id })}
-                deleteFn={() => deleteSchedule({ id: item._id })}
-              />
+              <ScheduledListItem key={item._id} post={item} />
             ))}
           </div>
         </div>

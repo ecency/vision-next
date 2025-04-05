@@ -199,7 +199,7 @@ export const SearchListItem = ({
             {community && (
               <div className="ml-1 grow truncate">
                 {" "}
-                {i18next.t("entry.community-in")}{" "}
+                {i18next.t("entry.published")}{" "}
                 <Link target="_blank" href={`/created/${community}`}>
                   {" "}
                   {community_title}{" "}
@@ -209,7 +209,7 @@ export const SearchListItem = ({
             {!community && (
               <div className="ml-2 grow">
                 {" "}
-                {i18next.t("entry.community-in")}{" "}
+                {i18next.t("entry.published")}{" "}
                 <Link href={`/created/${category}`}> #{category} </Link>
               </div>
             )}

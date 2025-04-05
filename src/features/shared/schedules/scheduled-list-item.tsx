@@ -14,14 +14,13 @@ import i18next from "i18next";
 import Image from "next/image";
 import fallbackImage from "../../../../public/assets/fallback.png";
 import noImage from "@/assets/img/noimage.svg";
+import { useDeleteSchedule, useMoveSchedule } from "@/api/mutations";
 
 interface Props {
   post: Schedule;
-  deleteFn: (item: Schedule) => void;
-  moveFn: (item: Schedule) => void;
 }
 
-export function ScheduledListItem({ post, deleteFn, moveFn }: Props) {
+export function ScheduledListItem({ post }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
 
@@ -36,6 +35,9 @@ export function ScheduledListItem({ post, deleteFn, moveFn }: Props) {
 
   const dateRelative = useMemo(() => dateToFullRelative(post.schedule), [post]);
   const dateFormatted = useMemo(() => dateToFormatted(post.schedule), [post]);
+
+  const { mutateAsync: moveSchedule, isPending: isScheduleMoving } = useMoveSchedule();
+  const { mutateAsync: deleteSchedule, isPending: isScheduleDeleting } = useDeleteSchedule();
 
   return !activeUser?.data.__loaded ? null : (
     <div className="drafts-list-item border dark:border-dark-400 rounded-3xl overflow-hidden">
@@ -105,9 +107,10 @@ export function ScheduledListItem({ post, deleteFn, moveFn }: Props) {
         <div className="flex items-center gap-2 justify-end w-full">
           <PopoverConfirm
             titleText={`${i18next.t("schedules.move")}?`}
-            onConfirm={() => moveFn(post)}
+            onConfirm={() => moveSchedule({ id: post._id })}
           >
             <Button
+              isLoading={isScheduleMoving}
               noPadding={true}
               appearance="link"
               title={i18next.t("schedules.move")}
@@ -115,8 +118,9 @@ export function ScheduledListItem({ post, deleteFn, moveFn }: Props) {
             />
           </PopoverConfirm>
 
-          <PopoverConfirm onConfirm={() => deleteFn(post)}>
+          <PopoverConfirm onConfirm={() => deleteSchedule({ id: post._id })}>
             <Button
+              isLoading={isScheduleDeleting}
               noPadding={true}
               appearance="link"
               title={i18next.t("g.delete")}
