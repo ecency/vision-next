@@ -17,7 +17,7 @@ export function ModalHeader(props: HTMLProps<HTMLDivElement> & Props) {
     <div
       {...nativeProps}
       className={classNameObject({
-        "flex sticky bg-white z-10 top-0 items-center": true,
+        "flex sticky bg-white z-10 top-0 items-center font-semibold": true,
         "justify-between": !!props.children,
         "justify-end": !props.children,
         [props.className ?? ""]: true,

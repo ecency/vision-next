@@ -10,7 +10,7 @@ export function Alert(props: HTMLProps<HTMLDivElement> & Props) {
     <div
       {...nativeProps}
       className={classNameObject({
-        "text-sm p-3 rounded-[1rem]": true,
+        "text-sm p-3 rounded-xl": true,
         [ALERT_STYLES[props.appearance ?? "primary"]]: true,
         [props.className ?? ""]: !!props.className
       })}

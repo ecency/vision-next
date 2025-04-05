@@ -14,7 +14,7 @@ export function VideoUploadItem({ onFileChange, type, accept, label, completed }
 
   return (
     <div
-      className="flex items-center flex-col border rounded p-3 video-upload-item"
+      className="flex items-center flex-col rounded-xl border border-[--border-color] p-3 hover:bg-gray-100 dark:hover:bg-dark-default cursor-pointer duration-300"
       onClick={() => fileInput.current?.click()}
     >
       {uploadSvgV}

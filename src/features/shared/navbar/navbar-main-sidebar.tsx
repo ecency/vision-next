@@ -2,6 +2,8 @@ import {
   UilCloudComputing,
   UilColumns,
   UilCommentPlus,
+  UilEdit,
+  UilEditAlt,
   UilHome,
   UilListUl,
   UilUsersAlt,
@@ -63,6 +65,17 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
       <div className="px-4 py-6 flex flex-col gap-0.5">
         <Search />
         <div className="h-4 w-full" />
+        <NavbarSideMainMenuItem
+          label={i18next.t("navbar.post")}
+          onClick={() => {
+            setShow(false);
+          }}
+          to="/publish"
+          icon={<UilEditAlt size={16} />}
+        />
+
+        <hr className="my-2 border-[--border-color]" />
+
         <NavbarSideMainMenuItem
           label={i18next.t("navbar.home")}
           onClick={() => {
