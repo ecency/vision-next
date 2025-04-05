@@ -55,6 +55,8 @@ export function PublishOnboarding() {
         break;
       case "posting":
         setStep("finish");
+        break;
+      case "finish":
       default:
         setShow(false);
     }
