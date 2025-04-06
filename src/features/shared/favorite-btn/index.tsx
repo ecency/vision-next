@@ -36,12 +36,7 @@ export function FavouriteBtn({ targetUsername }: Props) {
         <LoginRequired>
           <span className="favorite-btn">
             <Tooltip content={i18next.t("favorite-btn.add")}>
-              <Button
-                size="sm"
-                isLoading={inProgress}
-                onClick={() => deleteFrom({ account: targetUsername })}
-                icon={<UilHeart />}
-              />
+              <Button size="sm" icon={<UilHeart />} />
             </Tooltip>
           </span>
         </LoginRequired>
