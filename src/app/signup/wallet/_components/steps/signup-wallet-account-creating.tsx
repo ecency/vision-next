@@ -60,7 +60,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp())
-        .then(() => saveWalletInformationToMetadata());
+        .then(() => saveWalletInformationToMetadata({ wallets: wallets! }));
     }
   }, [
     accountKeys,
@@ -69,7 +69,8 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     loginInApp,
     validateAccountIsCreated,
     hasInitiated,
-    saveWalletInformationToMetadata
+    saveWalletInformationToMetadata,
+    wallets
   ]);
 
   return (

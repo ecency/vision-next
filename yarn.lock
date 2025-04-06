@@ -1330,10 +1330,10 @@
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"
 
-"@ecency/sdk@1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.5.tgz#326dc968c7a12a08b0a999aa469d1824a703378b"
-  integrity sha512-EjP0vYGn+cb+wvXXnho17xh/qaApA2wrta7AWvAoTLL7asbaiKJDXz9LiF/A8EJbSn+c/c/cSg8Y7vGpa521BA==
+"@ecency/sdk@1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.8.tgz#bce4fb306f42a7cfa9d8704cf88abf6add070641"
+  integrity sha512-96S9QjUtaouUF0fRKz+Y1ByHlUEMC00gT+3/k4tP59dZU6oMXlaz+iTOJRTudOxJXixfPaCgZnsmtMPmTApGUQ==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"
