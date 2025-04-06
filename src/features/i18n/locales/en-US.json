@@ -2583,8 +2583,8 @@
     },
     "seed": {
       "title": "Seed phrase",
-      "description": "This seed phrase is a master key to all wallets and Hive account",
-      "copied": "Seed phrase has copied",
+      "description": "Seed phrase is a master key to all wallets and Hive account",
+      "copied": "Seed phrase is copied",
       "reveal": "Tap/Click to reveal phrase",
       "hint": "By clicking Continue, you acknowledge that the seed phrase will be displayed only once and cannot be recovered if lost or forgotten.",
       "continue": "Download seed file and continue"
@@ -2596,32 +2596,32 @@
     },
     "validate": {
       "title": "Validate your seed phrase",
-      "description": "Place seed phrase in a right order to make sure that you are real person and saved them"
+      "description": "Place seed phrase in a right order to verify you are real person and stored seed phrase securely."
     },
     "validate-funds": {
       "title": "Validate your funds",
-      "description": "Top-up one of wallets at least to minimal amount of token",
-      "topup": "Please, topup your wallet to a minimum amount",
-      "topup-description": "When your wallet balance will change, We will detect it automatically and let You continue account creation",
+      "description": "Top-up one of the wallets with minimal amount.",
+      "topup": "Please, top-up your wallet with some amount of tokens",
+      "topup-description": "When your wallet balance changes, page will detect automatically and let You continue account creation",
       "validation-success": "We have validated your wallet",
       "address-copied": "Address copied"
     },
     "import": {
       "title": "Import own wallet",
       "exact-title": "Import {{token}} token",
-      "exact-description": "Import wallet by providing seed phrase/private and address pair. Based on this information We can recognize that this wallet as yours.",
+      "exact-description": "Import wallet by providing seed phrase/private key. Based on this we can verify wallet ownership.",
       "key-placeholder": "Private key",
       "address-placeholder": "Address",
       "import-token": "Import token",
-      "hint": "Keep in mind, Ecency will never save your private information to any server, browser storages. Entered private information will disappear when You will leave this page.",
+      "hint": "Keep in mind, Ecency will never store or send your private information to any server, browser storages. Entered private information will disappear when You leave this page.",
       "common-title": "Select token",
-      "common-description": "Select on of available tokens to import wallet",
-      "success": "Wallet imported successully!"
+      "common-description": "Select one of the tokens to import your own wallet",
+      "success": "Wallet imported successfully!"
     },
     "create-account": {
       "creating": "Creating Hive account...",
       "validating": "Preparing your account...",
-      "success": "Your account has created. Enjoy with Hive!"
+      "success": "Your account created. Enjoy the Hive and Ecency!"
     }
   }
 }
