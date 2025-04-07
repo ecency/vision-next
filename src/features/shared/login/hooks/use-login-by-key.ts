@@ -1,5 +1,4 @@
 import i18next from "i18next";
-import { useCallback } from "react";
 import { error } from "../../feedback";
 import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
 import { Account } from "@/entities";
@@ -16,15 +15,15 @@ async function signer(message: string, privateKey: PrivateKey) {
   return new Promise<string>((resolve) => resolve(privateKey.sign(hash).toString()));
 }
 
-export function useLoginByKey(username: string, key: string, isVerified: boolean) {
+export function useLoginByKey(username: string, keyOrSeed: string, isVerified: boolean) {
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
 
   const loginInApp = useLoginInApp(username);
 
   return useMutation({
-    mutationKey: ["login-by-key", username, key, isVerified],
+    mutationKey: ["login-by-key", username, keyOrSeed, isVerified],
     mutationFn: async () => {
-      if (username === "" || key === "") {
+      if (username === "" || keyOrSeed === "") {
         throw new Error(i18next.t("login.error-fields-required"));
       }
 
@@ -34,7 +33,7 @@ export function useLoginByKey(username: string, key: string, isVerified: boolean
 
       // Warn if the code is a public key
       try {
-        PublicKey.fromString(key);
+        PublicKey.fromString(keyOrSeed);
         throw new Error(i18next.t("login.error-public-key"));
       } catch (e) {}
 
@@ -52,7 +51,7 @@ export function useLoginByKey(username: string, key: string, isVerified: boolean
 
       // Posting public key of the account
       const postingPublic = account?.posting!.key_auths.map((x) => x[0]);
-      const isPlainPassword = !cryptoUtils.isWif(key);
+      const isPlainPassword = !cryptoUtils.isWif(keyOrSeed);
 
       let privateKey: PrivateKey;
 
@@ -61,18 +60,18 @@ export function useLoginByKey(username: string, key: string, isVerified: boolean
 
       if (
         !isPlainPassword &&
-        postingPublic.includes(PrivateKey.fromString(key).createPublic().toString())
+        postingPublic.includes(PrivateKey.fromString(keyOrSeed).createPublic().toString())
       ) {
         // Login with posting private key
         withPostingKey = true;
-        privateKey = PrivateKey.fromString(key);
+        privateKey = PrivateKey.fromString(keyOrSeed);
       } else {
         // Login with master or active private key
         // Get active private key from user entered code
         if (isPlainPassword) {
-          privateKey = PrivateKey.fromLogin(account.name, key, "active");
+          privateKey = PrivateKey.fromLogin(account.name, keyOrSeed, "active");
         } else {
-          privateKey = PrivateKey.fromString(key);
+          privateKey = PrivateKey.fromString(keyOrSeed);
         }
 
         // Generate public key from the private key
@@ -111,7 +110,7 @@ export function useLoginByKey(username: string, key: string, isVerified: boolean
         (message) => signer(message, privateKey)
       );
 
-      await loginInApp(code, withPostingKey ? key : null, account);
+      await loginInApp(code, withPostingKey ? keyOrSeed : null, account);
 
       setSigningKey(privateKey.toString());
     },

@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
 
-export function Login() {
+export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
 
@@ -99,7 +99,7 @@ export function Login() {
 
         {step === "start" && (
           <motion.div
-            className="flex flex-col gap-4 w-full"
+            className="grid grid-cols-2 gap-4 w-full"
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -108,7 +108,7 @@ export function Login() {
               full={true}
               size="lg"
               icon={<UilArrowRight />}
-              className="mt-8"
+              className="mt-8 col-span-2"
               onClick={() => !!username && setStep("key")}
             >
               {i18next.t("login.continue-with-key")}
@@ -130,7 +130,7 @@ export function Login() {
                 />
               }
             >
-              {i18next.t("login.with-hive-signer")}
+              Hivesigner
             </Button>
 
             {hasKeyChain && (
@@ -152,7 +152,7 @@ export function Login() {
                   />
                 }
               >
-                {i18next.t("login.with-keychain")}
+                Keychain
               </Button>
             )}
           </motion.div>
