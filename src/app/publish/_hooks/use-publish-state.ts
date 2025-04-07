@@ -1,11 +1,11 @@
+import { BeneficiaryRoute } from "@/entities";
 import { extractMetaData, useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
-import { BeneficiaryRoute } from "@/entities";
-import { useCallback, useEffect, useMemo } from "react";
-import { useParams } from "next/navigation";
 import { postBodySummary } from "@ecency/render-helper";
-import { usePublishPollState } from "./use-publish-poll-state";
 import { addDays } from "date-fns";
+import { useParams } from "next/navigation";
+import { useCallback, useEffect, useMemo } from "react";
+import { usePublishPollState } from "./use-publish-poll-state";
 
 export function usePublishState() {
   const params = useParams();
@@ -44,13 +44,19 @@ export function usePublishState() {
     undefined,
     persistent
   );
-  const [schedule, setSchedule, clearSchedule] = useSynchronizedLocalStorage<Date>(
+  const [schedule, setSchedule, clearSchedule] = useSynchronizedLocalStorage<Date | undefined>(
     PREFIX + "_pub_schedule",
     undefined,
     {
       raw: false,
-      serializer: (value) => value.toISOString(),
-      deserializer: (value) => new Date(value)
+      serializer: (value) => value?.toISOString() ?? "",
+      deserializer: (value) => {
+        try {
+          return new Date(value);
+        } catch (e) {
+          return undefined;
+        }
+      }
     },
     persistent
   );

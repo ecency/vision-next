@@ -33,7 +33,7 @@ export function useSynchronizedLocalStorage<T>(
   const [logicalValue, setLogicalValue] = useSessionStorage<T | undefined>(
     key,
     initialValue,
-    options as Parameters<typeof useSessionStorage<T>>[2]
+    false
   );
   const [value, setValue, clearValue] = useLocalStorage<T>(key, initialValue, options);
 

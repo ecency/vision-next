@@ -46,7 +46,7 @@ export default function PublishPage() {
           )
           .run();
       } catch (e) {
-        error("Failed to laod local draft. We are working on it");
+        error("Failed to load local draft. We are working on it");
         throw e;
       }
     },
@@ -57,7 +57,7 @@ export default function PublishPage() {
     <AnimatePresence>
       {step === "edit" && (
         <>
-          <div className="container text-right max-w-[800px] mx-auto text-gray-400 dark:text-gray-600 text-xs">
+          <div className="container text-right max-w-[800px] mx-auto text-gray-600 dark:text-gray-400 text-xs">
             {i18next.t("publish.draft-mode")}
           </div>
           <PublishActionBar onPublish={() => setStep("validation")} />
