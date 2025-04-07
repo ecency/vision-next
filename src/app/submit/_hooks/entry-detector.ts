@@ -1,8 +1,7 @@
-import { useEffect } from "react";
-import { Entry } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { Entry } from "@/entities";
 import { useRouter } from "next/navigation";
-import { error } from "@/features/shared";
+import { useEffect } from "react";
 import useMount from "react-use/lib/useMount";
 
 export function useEntryDetector(
@@ -23,11 +22,9 @@ export function useEntryDetector(
 
   useEffect(() => {
     if (!normalizedEntry && isSuccess) {
-      error("Could not fetch post data.");
-      router.push("/submit");
-      return;
+      return onEntryDetected(undefined);
     }
 
     if (normalizedEntry) onEntryDetected(normalizedEntry);
-  }, [isSuccess, normalizedEntry, router]);
+  }, [isSuccess, normalizedEntry, onEntryDetected, router]);
 }

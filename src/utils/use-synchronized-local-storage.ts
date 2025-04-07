@@ -30,6 +30,7 @@ export function useSynchronizedLocalStorage<T>(
   options?: Parameters<useLocalStorageType<T>>[2],
   persistent = true
 ) {
+  // Make behavior as use local storage
   const [logicalValue, setLogicalValue] = useSessionStorage<T | undefined>(
     key,
     initialValue,

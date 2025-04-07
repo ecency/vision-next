@@ -8,48 +8,39 @@ import {
   PublishEditorToolbar,
   PublishValidatePost
 } from "@/app/publish/_components";
+import { PublishSuccessState } from "@/app/publish/_components/publish-success-state";
 import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import { useEntryDetector } from "@/app/submit/_hooks";
+import { postBodySummary } from "@ecency/render-helper";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
-import { PublishSuccessState } from "../../_components/publish-success-state";
-import { useApiDraftDetector } from "@/app/submit/_hooks";
-import { useParams } from "next/navigation";
-import { PublishDraftsNoDraft } from "./_components";
-import { error } from "@/features/shared";
 import i18next from "i18next";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+import { PublishDraftsNoPost } from "./_components";
 
 export default function PublishPage() {
   const editor = usePublishEditor();
 
   const params = useParams();
 
-  const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published" | "no-draft">(
+  const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published" | "no-post">(
     "edit"
   );
 
-  const { setTitle, setContent, setTags } = usePublishState();
+  const { setTitle, setContent, setTags, setMetaDescription, setSelectedThumbnail } =
+    usePublishState();
 
-  useApiDraftDetector(
-    params.id as string,
-    (draft) => {
-      setTitle(draft.title);
-      setContent(draft.body);
-      setTags(draft.tags_arr);
-
-      try {
-        editor
-          ?.chain()
-          .setContent(
-            `${draft.title ?? "# Hello Ecency member,"}\n\n ${draft.body ?? "Tell your story..."}`
-          )
-          .run();
-      } catch (e) {
-        error("Failed to load local draft. We are working on it");
-        throw e;
-      }
-    },
-    () => setStep("no-draft")
-  );
+  useEntryDetector(params.author as string, params.permlink as string, (entry) => {
+    if (entry) {
+      setTitle(entry.title);
+      setTags(Array.from(new Set(entry.json_metadata?.tags ?? [])));
+      setContent(entry.body);
+      setMetaDescription(entry.json_metadata?.description ?? postBodySummary(entry.body, 200));
+      entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
+    } else {
+      setStep("no-post");
+    }
+  });
 
   return (
     <AnimatePresence>
@@ -87,7 +78,7 @@ export default function PublishPage() {
           setEditStep={() => setStep("edit")}
         />
       )}
-      {step === "no-draft" && <PublishDraftsNoDraft />}
+      {step === "no-post" && <PublishDraftsNoPost />}
     </AnimatePresence>
   );
 }
