@@ -685,7 +685,7 @@
     "sign-title": "Sign your transaction",
     "fetching-market": "Fetching market...",
     "back": "Tillbaka",
-    "swap-by": "Sign by {{method}}",
+    "swap-by": "Sign with {{method}}",
     "success-title": "Transaction completed",
     "more-than-balance": "You've entered more than available balance",
     "invalid-amount": "Invalid from amount. Please, enter less value",
@@ -1388,8 +1388,8 @@
   "key-or-hot": {
     "sign": "Sign",
     "key-placeholder": "Enter active/owner/master key",
-    "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-hivesigner": "Sign with Hivesigner",
+    "with-keychain": "Sign with Keychain"
   },
   "delegated-vesting": {
     "title": "Delegated Hive Power",
