@@ -685,7 +685,7 @@
     "sign-title": "Firmar tu transacción",
     "fetching-market": "Obteniendo mercado...",
     "back": "Regresar",
-    "swap-by": "Firmar por {{method}}",
+    "swap-by": "Sign with {{method}}",
     "success-title": "Transacción completada",
     "more-than-balance": "Ha introducido más que el saldo disponible",
     "invalid-amount": "Invalidado por la cantidad. Por favor, introduce un valor menor",
@@ -1388,8 +1388,8 @@
   "key-or-hot": {
     "sign": "Firmar",
     "key-placeholder": "Introduzca la clave activa/propietaria/maestra",
-    "with-hivesigner": "Iniciar Sesión con hivesigner",
-    "with-keychain": "Iniciar sesión con KeyChain"
+    "with-hivesigner": "Sign with Hivesigner",
+    "with-keychain": "Sign with Keychain"
   },
   "delegated-vesting": {
     "title": "Hive Power delegado",
