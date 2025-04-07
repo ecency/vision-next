@@ -2573,7 +2573,17 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-email": {
+    "title": "Signup with Email",
+    "description": "Flexible way to create an account using email validation. Choose one of the options such as Free and Boosted account with 3X resource credits for $2.99 or Onboard a friend",
+    "buttonText": "Continue with Email",
+    "label": "Email"
+  },
   "signup-wallets": {
+    "title": "Signup with Wallet",
+    "description": "Create an account for free with Bitcoin, Ethereum, Solana and more blockchain wallets.",
+    "buttonText": "Continue with Wallet",
+    "label": "Crypto wallet",
     "intro": {
       "title": "Signup with Wallets",
       "description": "Select your human readable username/nickname",
