@@ -26,9 +26,10 @@ export function InputGroupCopyClipboard(props: Props & HTMLAttributes<HTMLElemen
       {...props}
       append={
         copied ? (
-          <Button appearance="success" icon={<UilCheck className="w-4 h-4" />} />
+          <Button appearance="gray-link" icon={<UilCheck className="w-4 h-4 text-green" />} />
         ) : (
           <Button
+            appearance="gray-link"
             className="copy-to-clipboard"
             onClick={() => copy(props.value)}
             icon={<UilCopy className="w-4 h-4" />}
@@ -43,7 +44,7 @@ export function InputGroupCopyClipboard(props: Props & HTMLAttributes<HTMLElemen
       <FormControl
         type="text"
         value={props.visibleValue ?? props.value}
-        disabled={props.editable ?? true}
+        readOnly={props.editable ?? true}
         className="text-blue-dark-sky pointer"
         onChange={props.onChange}
       />

@@ -3,8 +3,14 @@
 import { useGlobalStore } from "@/core/global-store";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import "./_index.scss";
-import { Login } from "./login";
 import i18next from "i18next";
+import dynamic from "next/dynamic";
+
+// Why its dynamic? We have some client-side only libraries in this page
+//     on server side they couldn't be initialised
+//     Dynamic import drops this component from server side totally
+// @ts-ignore
+const Login = dynamic(() => import("./login"), { ssr: false });
 
 export function LoginDialog() {
   const users = useGlobalStore((state) => state.users);
