@@ -46,6 +46,7 @@ export function EditorPanelActions({
             onClear();
             setClearModal(false);
           }}
+          descriptionText={i18next.t("submit.clearText")}
           onCancel={() => setClearModal(false)}
         />
       )}
