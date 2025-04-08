@@ -95,7 +95,7 @@
     "community": "Comunidad",
     "today": "Hoy",
     "view": "Vista",
-    "import": "Import"
+    "import": "Importar"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -232,7 +232,7 @@
     "reorder": "Cambiar el orden de lista de usuarios",
     "reorder-list": "Cambiar orden de lista",
     "no-active-user": "Aún no hay usuario activo",
-    "invalid-seed-file": "Invalid seed phrase file. Make sure it has same content as in Ecency signup or just contains 12 words and in txt file format",
+    "invalid-seed-file": "Archivo de frase de semilla no válido. Asegúrese de que tiene el mismo contenido que en el registro de Ecency o solamente contiene 12 palabras y en formato de archivo TXT",
     "seed-file-placeholder": "Click(tap) to select seed phrase file",
     "use-seed": "Use seed file",
     "use-key": "Use key/pass",
