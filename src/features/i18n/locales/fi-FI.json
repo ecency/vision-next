@@ -1524,7 +1524,8 @@
     "updating": "Updating..",
     "publishing": "Publishing..",
     "saving": "Saving..",
-    "scheduling": "Scheduling.."
+    "scheduling": "Scheduling..",
+    "clearText": "This will clear all content and its Advanced settings."
   },
   "video-upload": {
     "choose-video": "Select a video",
