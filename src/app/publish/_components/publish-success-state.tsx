@@ -28,7 +28,7 @@ export function PublishSuccessState({ step, setEditStep }: Props) {
             {step === "published" && i18next.t("publish.published-title")}
             {step === "scheduled" && i18next.t("publish.scheduled-title")}
           </div>
-          <div className="text-gray-400 dark:text-gray-600 text-center max-w-[500px]">
+          <div className="text-gray-600 dark:text-gray-400 text-center max-w-[500px]">
             {step === "published" && i18next.t("publish.published-hint")}
             {step === "scheduled" && i18next.t("publish.scheduled-hint")}
           </div>

@@ -70,7 +70,6 @@ export default function PublishPage() {
             </div>
             <EditorContent editor={editor} className="markdown-view p-2 md:p-4 xl:p-6 font-serif" />
           </motion.div>
-          <PublishActionBar onPublish={() => setStep("validation")} />
         </>
       )}
       {step === "validation" && (

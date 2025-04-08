@@ -2673,6 +2673,7 @@
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
     "draft-mode": "You are in a draft editing mode",
+    "edit-mode": "You are in a post editing mode",
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Upload and paste",
@@ -2725,7 +2726,12 @@
       "video": "Video",
       "poll": "Poll"
     },
-    "get-help": "Get help"
+    "get-help": "Get help",
+    "loading-post-title": "Loading your post...",
+    "loading-post-hint": "Only title, content, tags and meta information could be changed after post publication",
+    "upload-video-error-hint": "Video could be uploaded only while creating post not editing",
+    "no-post-title": "Cannot find the post",
+    "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address."
   },
   "ecency-images": {
     "upload-image": "Upload image",

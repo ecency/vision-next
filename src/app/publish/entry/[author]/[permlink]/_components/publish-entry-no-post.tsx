@@ -6,7 +6,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export function PublishDraftsNoPost() {
+export function PublishEntryNoPost() {
   const router = useRouter();
 
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -22,7 +22,7 @@ export function PublishDraftsNoPost() {
         <div className="flex flex-col items-center justify-center gap-2">
           <UilMinusCircle className="text-red w-12 h-12" />
           <div className="text-xl font-bold">{i18next.t("publish.no-post-title")}</div>
-          <div className="text-gray-400 dark:text-gray-600 text-center max-w-[500px]">
+          <div className="text-gray-600 dark:text-gray-400 text-center max-w-[500px]">
             {i18next.t("publish.no-post-hint")}
           </div>
         </div>

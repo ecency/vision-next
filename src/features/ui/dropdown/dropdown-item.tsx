@@ -35,6 +35,7 @@ export function DropdownItem(props: HTMLProps<HTMLDivElement> & Props) {
           !(props.selected ?? false),
         "px-4 py-2": !props.size || props.size === "medium",
         "px-2 py-1 text-sm": !props.size || props.size === "small",
+        "opacity-50 cursor-not-allowed": props.disabled,
         [props.className ?? ""]: !!props.className
       })}
       onClick={(e) => {

@@ -4,7 +4,7 @@ import { PublishEditorToolbarAddLinkDialog } from "@/app/publish/_components/pub
 import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
 import { EcencyConfigManager } from "@/config";
 import { EcencyImagesUploadDialog } from "@/features/ecency-images";
-import { GalleryDialog } from "@/features/shared";
+import { error, GalleryDialog } from "@/features/shared";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { VideoGallery } from "@/features/shared/video-gallery";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
@@ -50,11 +50,12 @@ import { usePublishState } from "../_hooks";
 
 interface Props {
   editor: any | null;
+  allowToUploadVideo?: boolean;
 }
 
 const headings = [1, 2, 3, 4, 5, 6];
 
-export function PublishEditorToolbar({ editor }: Props) {
+export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Props) {
   const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
   const publishState = usePublishState();
 
@@ -256,9 +257,16 @@ export function PublishEditorToolbar({ editor }: Props) {
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItemWithIcon
+              disabled={!allowToUploadVideo}
               icon={<UilUpload />}
               label={i18next.t("publish.three-speak-upload")}
-              onClick={() => setShowVideoUpload(true)}
+              onClick={() => {
+                if (allowToUploadVideo) {
+                  setShowVideoUpload(true);
+                } else {
+                  error(i18next.t("publish.upload-video-error-hint"));
+                }
+              }}
             />
             <DropdownItemWithIcon
               icon={<UilVideo />}

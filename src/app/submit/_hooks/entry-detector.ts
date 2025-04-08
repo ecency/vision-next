@@ -1,7 +1,6 @@
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { Entry } from "@/entities";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import useMount from "react-use/lib/useMount";
 
 export function useEntryDetector(
@@ -9,22 +8,23 @@ export function useEntryDetector(
   permlink: string | undefined,
   onEntryDetected: (entry?: Entry) => void
 ) {
-  const router = useRouter();
+  const attemptToLoad = useRef(false);
 
   const { data, refetch } = EcencyEntriesCacheManagement.getEntryQueryByPath(
     username?.replace("@", ""),
     permlink
   ).useClientQuery();
-  const { data: normalizedEntry, isSuccess } =
+  const { data: normalizedEntry } =
     EcencyEntriesCacheManagement.getNormalizedPostQuery(data).useClientQuery();
 
   useMount(() => refetch());
 
   useEffect(() => {
-    if (!normalizedEntry && isSuccess) {
-      return onEntryDetected(undefined);
+    // This construction helps to skip first initial value form the query
+    if (!attemptToLoad.current) {
+      attemptToLoad.current = true;
+      return;
     }
-
-    if (normalizedEntry) onEntryDetected(normalizedEntry);
-  }, [isSuccess, normalizedEntry, onEntryDetected, router]);
+    onEntryDetected(normalizedEntry ?? undefined);
+  }, [normalizedEntry, attemptToLoad]);
 }
