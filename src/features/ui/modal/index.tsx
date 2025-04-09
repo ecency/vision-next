@@ -1,9 +1,9 @@
 "use client";
 
-import { createPortal } from "react-dom";
-import React, { createContext, HTMLProps, useEffect, useMemo, useState } from "react";
 import { classNameObject, useFilteredProps } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
+import { createContext, HTMLProps, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useMount, useUnmount } from "react-use";
 import useMountedState from "react-use/lib/useMountedState";
 
@@ -104,10 +104,10 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
           <div
             {...nativeProps}
             className={classNameObject({
-              "z-[1040] fixed top-0 py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full":
+              "z-[1040] fixed top-0 pt-24 sm:py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full":
                 true,
               [props.className ?? ""]: true,
-              "flex justify-center items-start": props.centered
+              "flex justify-center itemsI-start": props.centered
             })}
             onClick={() => setShow(false)}
           >
@@ -115,14 +115,12 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
               initial={
                 isAnimated && {
                   opacity: 0,
-                  scale: 0.95,
-                  y: 8
+                  y: 24
                 }
               }
               animate={
                 isAnimated && {
                   opacity: 1,
-                  scale: 1,
                   y: 0
                 }
               }
@@ -130,16 +128,16 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
                 isAnimated
                   ? {
                       opacity: 0,
-                      scale: 0.95,
-                      y: 8
+
+                      y: 24
                     }
                   : {}
               }
               onClick={(e) => e.stopPropagation()}
               className={classNameObject({
                 "ecency-modal-content overflow-x-hidden": true,
-                " md:my-[3rem] mx-3 bg-white border border-[--border-color] rounded-xl w-[calc(100%-2rem)]":
-                  !props.raw ?? true,
+                " md:my-[3rem] w-full mt-auto mx-0 sm:mt-0 sm:mx-3 bg-white border border-[--border-color] rounded-t-xl sm:rounded-xl sm:w-[calc(100%-2rem)]":
+                  !props.raw,
                 "max-w-[500px]": !props.size || props.size === "md",
                 "max-w-[800px]": props.size === "lg",
                 [props.dialogClassName ?? ""]: true
@@ -154,7 +152,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   );
 }
 
-export * from "./modal-title";
 export * from "./modal-body";
-export * from "./modal-header";
 export * from "./modal-footer";
+export * from "./modal-header";
+export * from "./modal-title";
