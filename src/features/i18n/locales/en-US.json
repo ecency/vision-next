@@ -2731,7 +2731,11 @@
     "loading-post-hint": "Only title, content, tags and meta information could be changed after post publication",
     "upload-video-error-hint": "Video could be uploaded only while creating post not editing",
     "no-post-title": "Cannot find the post",
-    "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address."
+    "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
+    "go-to-post": "Open original post",
+    "updated-title": "Post has updated!",
+    "updated-hint": "Post content has updated. Changes will be visible in few minutes.",
+    "back-to-post": "Back to post"
   },
   "ecency-images": {
     "upload-image": "Upload image",

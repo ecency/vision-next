@@ -5,22 +5,30 @@ import { EditorContent } from "@tiptap/react";
 import { PublishEditorToolbar } from "@/app/publish/_components";
 import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { useEntryDetector } from "@/app/submit/_hooks";
+import { Entry } from "@/entities";
 import { delay } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { PublishEntryActionBar, PublishEntryLoadingPost, PublishEntryNoPost } from "./_components";
+import {
+  PublishEntryActionBar,
+  PublishEntryLoadingPost,
+  PublishEntryNoPost,
+  PublishEntryValidateEdit,
+  PublishEntrySuccessState
+} from "./_components";
 
 export function Publish() {
   const editor = usePublishEditor();
 
   const params = useParams();
 
-  const [step, setStep] = useState<"loading" | "edit" | "validation" | "no-post" | "edited">(
+  const [step, setStep] = useState<"loading" | "edit" | "no-post" | "validation" | "updated">(
     "loading"
   );
+  const [entry, setEnrty] = useState<Entry>();
 
   const { setTitle, setContent, setTags, setMetaDescription, setSelectedThumbnail } =
     usePublishState();
@@ -32,6 +40,7 @@ export function Publish() {
       await delay(2000);
 
       if (entry) {
+        setEnrty(entry);
         setStep("edit");
         setTitle(entry.title);
         setTags(Array.from(new Set(entry.json_metadata?.tags ?? [])));
@@ -65,8 +74,16 @@ export function Publish() {
           </motion.div>
         </>
       )}
+      {step === "validation" && (
+        <PublishEntryValidateEdit
+          entry={entry}
+          onClose={() => setStep("edit")}
+          onSuccess={(step) => setStep(step)}
+        />
+      )}
       {step === "no-post" && <PublishEntryNoPost />}
       {step === "loading" && <PublishEntryLoadingPost />}
+      {step === "updated" && <PublishEntrySuccessState />}
     </AnimatePresence>
   );
 }

@@ -17,15 +17,7 @@ import { usePublishApi, useScheduleApi } from "../_api";
 
 interface Props {
   onClose: () => void;
-  onSuccess: (
-    step: "published" | "scheduled",
-    post: {
-      title: string;
-      description: string;
-      tags: string[];
-      thumbnail: string;
-    }
-  ) => void;
+  onSuccess: (step: "published" | "scheduled") => void;
 }
 
 export function PublishValidatePost({ onClose, onSuccess }: Props) {
@@ -44,21 +36,11 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     if (schedule) {
       await scheduleNow();
 
-      onSuccess("scheduled", {
-        title: title!,
-        description: metaDescription!,
-        tags: tags!,
-        thumbnail: selectedThumbnail!
-      });
+      onSuccess("scheduled");
     } else {
       await publishNow();
 
-      onSuccess("published", {
-        title: title!,
-        description: metaDescription!,
-        tags: tags!,
-        thumbnail: selectedThumbnail!
-      });
+      onSuccess("published");
     }
 
     clearAll();

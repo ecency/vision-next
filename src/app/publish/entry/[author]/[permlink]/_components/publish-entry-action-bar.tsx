@@ -7,6 +7,8 @@ import {
   DropdownMenu,
   DropdownToggle
 } from "@/features/ui/dropdown";
+import { useSynchronizedLocalStorage } from "@/utils";
+import { PREFIX } from "@/utils/local-storage";
 import {
   UilDocumentInfo,
   UilEllipsisV,
@@ -15,6 +17,8 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 
 interface Props {
@@ -22,8 +26,11 @@ interface Props {
 }
 
 export function PublishEntryActionBar({ onEdit }: Props) {
-  const [showGuide, setShowGuide] = useState(false);
+  const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
+
   const [showMetaInfo, setShowMetaInfo] = useState(false);
+
+  const { author, permlink } = useParams();
 
   return (
     <motion.div
@@ -33,7 +40,11 @@ export function PublishEntryActionBar({ onEdit }: Props) {
       transition={{ delay: 0.4 }}
       className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex items-center max-w-[800px] py-4 mx-auto publish-action-bar"
     >
-      <div />
+      <Link target="_blank" href={`/created/@${(author as string).replace("%40", "")}/${permlink}`}>
+        <Button size="sm" noPadding={true} appearance="link">
+          {i18next.t("publish.go-to-post")}
+        </Button>
+      </Link>
       <div className="flex items-center gap-4">
         <LoginRequired>
           <Button onClick={onEdit}>{i18next.t("submit.update")}</Button>
