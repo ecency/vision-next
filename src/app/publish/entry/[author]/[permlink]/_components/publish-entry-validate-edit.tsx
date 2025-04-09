@@ -40,7 +40,7 @@ export function PublishEntryValidateEdit({ onClose, onSuccess, entry }: Props) {
       exit={{ opacity: 0, scale: 0.95 }}
       className="publish-page max-w-[1024px] mx-auto"
     >
-      <div className="col-span-2 justify-end flex p-4">
+      <div className="col-span-2 justify-end flex p-4 pt-0 md:pt-4">
         <Button
           appearance="gray"
           icon={<UilMultiply />}
