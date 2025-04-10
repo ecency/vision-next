@@ -1320,10 +1320,10 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.3.tgz#0c2493c0689dd9597d7f0ca69e21d5d11820c36b"
-  integrity sha512-gFKn5m8UjQL+xAP5Rm2/x+cmrtO2Jv6YyR34djfZJeRDIc3gDzSzaNYauZLGt9+OVB0+lTi+UVKU6M19L/KVOg==
+"@ecency/renderer@1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.6.tgz#b19916bb0629be5676c094a00d17a2de45affd54"
+  integrity sha512-R+YcTU9t+Qu8kSj0THn9P0g/t8+R94PvX8/Ks9zdFQ857FZLTxhyeW0ZS0qn3ETfM5zKBh5cNS1jcMD3Upxjjw==
   dependencies:
     "@ecency/render-helper" "^2.2.36"
     clsx "^2.1.1"
