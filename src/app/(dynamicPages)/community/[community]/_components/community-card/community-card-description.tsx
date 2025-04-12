@@ -3,9 +3,7 @@ import { informationOutlineSvg } from "@ui/svg";
 import i18next from "i18next";
 import { Community } from "@/entities";
 import { DialogInfo } from "../../_types";
-import { EcencyRenderer } from "@ecency/renderer";
-
-const MemoRenderer = memo(EcencyRenderer);
+import { PostContentRenderer } from "@/features/shared";
 
 interface Props {
   community: Community;
@@ -16,7 +14,7 @@ export function CommunityCardDescription({ community, toggleInfo }: Props) {
   const description = useMemo(
     () =>
       community.description.trim() !== "" ? (
-        <MemoRenderer className="preview-body" value={community.description} />
+        <PostContentRenderer className="preview-body" value={community.description} />
       ) : (
         ""
       ),

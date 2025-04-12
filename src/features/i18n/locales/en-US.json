@@ -1383,7 +1383,9 @@
     "type-limit_order_create": "New trade created",
     "type-limit_order_cancel": "Open trade cancelled",
     "type-effective_comment_vote": "Effective vote",
-    "type-account_witness_proxy": "Governance proxy update"
+    "type-account_witness_proxy": "Governance proxy update",
+    "broken-hint": "Transaction has broken and cannot be recognized",
+    "signer-text": "Signing transaction with next information"
   },
   "key-or-hot": {
     "sign": "Sign",

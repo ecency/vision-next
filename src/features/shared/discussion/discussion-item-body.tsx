@@ -1,7 +1,7 @@
 import React from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { EcencyRenderer } from "@ecency/renderer";
+import { PostContentRenderer } from "../post-content-renderer";
 
 interface Props {
   entry: Entry;
@@ -14,7 +14,7 @@ export function DiscussionItemBody({ entry, isRawContent }: Props) {
   return (
     <>
       {!isRawContent ? (
-        <EcencyRenderer value={entry.body} className="!text-base" />
+        <PostContentRenderer value={entry.body} className="!text-base" />
       ) : (
         <pre className="item-body markdown-view mini-markdown">{entry.body}</pre>
       )}

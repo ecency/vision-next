@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { IdentifiableEntry } from "../deck-threads-manager";
 import { classNameObject } from "@ui/util";
 import Image from "next/image";
-import { EcencyRenderer } from "@ecency/renderer";
+import { PostContentRenderer } from "@/features/shared";
 
 interface Props {
   entry: IdentifiableEntry;
@@ -34,7 +34,7 @@ export const DeckThreadItemBody = ({
 
   return (
     <div className="thread-item-body">
-      <EcencyRenderer value={entry.body} />
+      <PostContentRenderer value={entry.body} />
       {currentViewingImage &&
         createPortal(
           <div

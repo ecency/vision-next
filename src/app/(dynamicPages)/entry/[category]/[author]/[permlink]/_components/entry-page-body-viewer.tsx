@@ -5,7 +5,7 @@ import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 import { EntryPageEdit } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-edit";
 import { SelectionPopover } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/selection-popover";
 import { EntryPageViewerManager } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-viewer-manager";
-import { EcencyRenderer } from "@ecency/renderer";
+import { PostContentRenderer } from "@/features/shared";
 
 interface Props {
   entry: Entry;
@@ -23,7 +23,7 @@ export function EntryPageBodyViewer({ entry, rawParam, isEdit }: Props) {
       {!isEdit && (
         <>
           <SelectionPopover postUrl={entry.url}>
-            <EcencyRenderer value={preparedEntryBody} />
+            <PostContentRenderer value={preparedEntryBody} />
             {postPoll && (
               <div className="pb-6">
                 <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />
