@@ -1384,12 +1384,14 @@
     "type-limit_order_cancel": "Open trade cancelled",
     "type-effective_comment_vote": "Effective vote",
     "type-account_witness_proxy": "Governance proxy update",
-    "broken-hint": "Transaction has broken and cannot be recognized",
-    "signer-text": "Signing transaction with next information"
+    "broken-hint": "Operation has broken and cannot be recognized",
+    "signer-text": "Signing transaction with next information",
+    "success-hint": "Operation has signed and transaction passed",
+    "error-hint": "Operation cannot be signed or transactions could't be passed. Please, check operation and try again"
   },
   "key-or-hot": {
     "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master key",
+    "key-placeholder": "Enter active/owner/master key or seed",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain"
   },
