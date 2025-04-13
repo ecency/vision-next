@@ -13,7 +13,6 @@ import { Account } from "@/entities";
 import useMount from "react-use/lib/useMount";
 
 export * from "./transaction-row";
-export * from "./transaction-signer";
 
 interface Props {
   account: Account;

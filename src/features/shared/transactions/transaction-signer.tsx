@@ -1,8 +1,10 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { KeyOrHot } from "../key-or-hot";
+import { useGlobalStore } from "@/core/global-store";
+import { useSignOperation } from "@ecency/sdk";
 
 interface Props {
   show: boolean;
@@ -10,7 +12,12 @@ interface Props {
   operation: string | undefined;
 }
 
-export function TransactionSigner({ show, onHide, operation }: Props) {
+export default function TransactionSigner({ show, onHide, operation }: Props) {
+  const activeUser = useGlobalStore((s) => s.activeUser);
+  const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
+
+  const { mutateAsync: signOperationByKey } = useSignOperation(activeUser?.username as string);
+
   const [step, setStep] = useState<"details" | "sign" | "success" | "failure">("details");
 
   const decodedOp = useMemo(() => {
@@ -22,6 +29,12 @@ export function TransactionSigner({ show, onHide, operation }: Props) {
   }, [operation]);
 
   const handleNextStep = useCallback(() => {
+    if (!activeUser) {
+      onHide();
+      toggleUiProp("login");
+      return;
+    }
+
     switch (step) {
       case "details":
         if (decodedOp !== i18next.t("transactions.broken-hint")) {
@@ -34,7 +47,13 @@ export function TransactionSigner({ show, onHide, operation }: Props) {
       default:
         setStep("details");
     }
-  }, [step, decodedOp]);
+  }, [activeUser, step, onHide, toggleUiProp, decodedOp]);
+
+  useEffect(() => {
+    if (!show) {
+      setStep("details");
+    }
+  }, [show]);
 
   return (
     <Modal centered={true} show={show} onHide={onHide}>
