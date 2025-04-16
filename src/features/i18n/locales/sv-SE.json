@@ -1383,11 +1383,15 @@
     "type-limit_order_create": "New trade created",
     "type-limit_order_cancel": "Open trade cancelled",
     "type-effective_comment_vote": "Effective vote",
-    "type-account_witness_proxy": "Governance proxy update"
+    "type-account_witness_proxy": "Governance proxy update",
+    "broken-hint": "Operation link is broken or cannot be recognized",
+    "signer-text": "Signing following transaction/operation",
+    "success-hint": "Operation signed and transaction broadcasted",
+    "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
     "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master key",
+    "key-placeholder": "Enter active/owner/master key or seed",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain"
   },
