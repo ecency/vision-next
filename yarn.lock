@@ -1320,20 +1320,20 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@1.1.6":
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.6.tgz#b19916bb0629be5676c094a00d17a2de45affd54"
-  integrity sha512-R+YcTU9t+Qu8kSj0THn9P0g/t8+R94PvX8/Ks9zdFQ857FZLTxhyeW0ZS0qn3ETfM5zKBh5cNS1jcMD3Upxjjw==
+"@ecency/renderer@1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.7.tgz#c2271a261bb6beaa99a962c2bd900178ee4eeeca"
+  integrity sha512-sjwmNms6HRc4bUEJ3ZpmpFn+djxUZuM3xVZfT+j0jC1Vmpjt6BPhuUFd9Rl+vUZfyO4PSMJkYUge0gcGk0lOTg==
   dependencies:
     "@ecency/render-helper" "^2.2.36"
     clsx "^2.1.1"
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"
 
-"@ecency/sdk@1.0.14":
-  version "1.0.14"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.14.tgz#08507a3cf173c669db871b4ae711b1afba22b089"
-  integrity sha512-0Dz+xVHGkV0r+z8auJ94UvbxQAIW2FNdkdwzgY51V2RcTLlsqDjZJZ4Ulxe9+yli8bFu0iEoYAT8pJUsA7d/Tg==
+"@ecency/sdk@1.0.17":
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.17.tgz#a50625368f88a233ee9ee71491c1860cdf617278"
+  integrity sha512-gYg/K2lmGOQTNSefJ3Nvk/HTOj9P4kjLU/v4cWVW5dnqgszXMLkOcYEVH4lh3Ge+3ahvTT1H3FMMcrzcm/wWVQ==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"

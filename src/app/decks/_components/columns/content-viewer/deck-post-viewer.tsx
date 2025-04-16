@@ -8,8 +8,13 @@ import { Entry } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { arrowLeftSvg } from "@ui/svg";
 import i18next from "i18next";
-import { Discussion, EntryInfo, EntryVoteBtn, EntryVotes } from "@/features/shared";
-import { EcencyRenderer } from "@ecency/renderer";
+import {
+  Discussion,
+  EntryInfo,
+  EntryVoteBtn,
+  EntryVotes,
+  PostContentRenderer
+} from "@/features/shared";
 
 interface Props {
   entry: Entry;
@@ -57,7 +62,7 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
         <EntryInfo entry={entry} />
       </div>
       <div className="px-3 pb-4">
-        <EcencyRenderer value={entry.body} />
+        <PostContentRenderer value={entry.body} />
       </div>
       <div className="bottom-actions p-3">
         <EntryVoteBtn entry={entry} isPostSlider={false} />

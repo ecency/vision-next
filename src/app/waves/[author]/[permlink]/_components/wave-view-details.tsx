@@ -7,10 +7,8 @@ import React, { memo, useState } from "react";
 import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { EcencyRenderer } from "@ecency/renderer";
 import useMount from "react-use/lib/useMount";
-
-const EcencyRendererMemo = memo(EcencyRenderer);
+import { PostContentRenderer } from "@/features/shared";
 
 interface Props {
   entry: WaveEntry;
@@ -35,7 +33,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
         status={status}
       />
       <div className="p-4">
-        <EcencyRendererMemo value={entry?.body ?? ""} />
+        <PostContentRenderer value={entry?.body ?? ""} />
       </div>
       <WaveActions
         showStats={true}

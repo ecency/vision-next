@@ -14,10 +14,8 @@ import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useInViewport } from "react-in-viewport";
 import { useCollectPageViewEvent } from "@/api/mutations";
-import { EcencyRenderer } from "@ecency/renderer";
 import { useWavesGrid } from "@/app/waves/_hooks";
-
-const EcencyRendererMemo = memo(EcencyRenderer);
+import { PostContentRenderer } from "@/features/shared";
 
 interface Props {
   item: WaveEntry;
@@ -103,7 +101,7 @@ export function WavesListItem({
         onViewFullThread={onClick}
       />
       <div className="p-4" onClick={(e) => e.stopPropagation()}>
-        <EcencyRendererMemo value={entry?.body ?? ""} />
+        <PostContentRenderer value={entry?.body ?? ""} />
       </div>
       {poll && (
         <div onClick={(e) => e.stopPropagation()} className="p-4">
