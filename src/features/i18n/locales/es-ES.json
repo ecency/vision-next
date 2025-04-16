@@ -1384,14 +1384,14 @@
     "type-limit_order_cancel": "Operación abierta cancelada",
     "type-effective_comment_vote": "Voto efectivo",
     "type-account_witness_proxy": "Actualización del proxy de gobernanza",
-    "broken-hint": "Operation link is broken or cannot be recognized",
-    "signer-text": "Signing following transaction/operation",
-    "success-hint": "Operation signed and transaction broadcasted",
-    "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
+    "broken-hint": "El enlace de la operación está roto o no puede ser reconocido",
+    "signer-text": "Firmando la siguiente transacción/operación",
+    "success-hint": "Operación firmada y transaccionada",
+    "error-hint": "La operación no puede ser firmada o las transacciones no pudieron ser transmitidas. Por favor, compruebe la operación y vuelva a intentarlo"
   },
   "key-or-hot": {
     "sign": "Firmar",
-    "key-placeholder": "Enter active/owner/master key or seed",
+    "key-placeholder": "Introduzca la Clave activa/propietaria/maestra o la Semilla",
     "with-hivesigner": "Ingresar con Hivesigner",
     "with-keychain": "Ingresar con Keychain"
   },
