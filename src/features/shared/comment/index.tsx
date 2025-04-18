@@ -48,7 +48,10 @@ export function Comment({
   const commentBodyRef = useRef<HTMLDivElement>(null);
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const [text, setText] = useLocalStorage(PREFIX + "_reply_text", "");
+  const [text, setText] = useLocalStorage(
+    PREFIX + `_reply_text_${entry.author}_${entry.permlink}`,
+    ""
+  );
   const [inputHeight, setInputHeight] = useState(0);
   const [preview, setPreview] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
