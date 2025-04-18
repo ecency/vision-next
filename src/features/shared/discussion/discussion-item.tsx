@@ -322,6 +322,7 @@ export function DiscussionItem({
       {edit && (
         <Comment
           entry={entry}
+          isEdit={true}
           submitText={i18next.t("g.update")}
           cancellable={true}
           onSubmit={_updateReply}
