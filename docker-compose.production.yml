@@ -24,7 +24,7 @@ services:
       - NEXT_PUBLIC_USE_PRIVATE
       - NEXT_PUBLIC_HS_CLIENT_SECRET
       - NODE_ENV
-      - PLAUSIBLE_API_KEY
+      - NEXT_PUBLIC_PLAUSIBLE_API_KEY
     restart: always
     ports:
       - "3000:3000"
