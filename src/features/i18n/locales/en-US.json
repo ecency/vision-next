@@ -950,7 +950,8 @@
     "no-posts-community": "Join and post in this community",
     "create-posts": "Let's create a new post",
     "link-copied": "Search link copied to clipboard",
-    "no-posts-found": "Found nothing!"
+    "no-posts-found": "Found nothing!",
+    "subscribe": "Subscribe"
   },
   "rc-info": {
     "available": "Available",

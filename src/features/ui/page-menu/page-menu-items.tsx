@@ -1,9 +1,14 @@
-import { PropsWithChildren } from "react";
+import clsx from "clsx";
+import { HTMLProps, PropsWithChildren } from "react";
 
-export function PageMenuItems(props: PropsWithChildren) {
+export function PageMenuItems(props: PropsWithChildren & HTMLProps<HTMLDivElement>) {
   return (
-    <div className="hidden lg:flex bg-gray-100 gap-2 md:gap-4 items-center dark:bg-gray-900 rounded-3xl p-2 lg:px-4">
-      {props.children}
-    </div>
+    <div
+      {...props}
+      className={clsx(
+        "hidden lg:flex bg-white gap-2 md:gap-4 items-center rounded-xl p-2 lg:px-4",
+        props.className
+      )}
+    />
   );
 }

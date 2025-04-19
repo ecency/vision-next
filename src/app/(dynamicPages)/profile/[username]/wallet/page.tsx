@@ -15,7 +15,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   return generateProfileMetadata(username.replace("%40", ""), "wallet");
 }
 
-export default async function EnginePage({ params }: Props) {
+export default async function WalletPage({ params }: Props) {
   const { username } = await params;
   const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
   await getTransactionsQuery(username, 20).prefetch();
@@ -26,7 +26,7 @@ export default async function EnginePage({ params }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <WalletHive account={account} />
+      {/* <WalletHive account={account} /> */}
     </HydrationBoundary>
   );
 }
