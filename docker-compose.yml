@@ -23,7 +23,7 @@ services:
     environment:
       - NEXT_PUBLIC_USE_PRIVATE
       - NEXT_PUBLIC_HS_CLIENT_SECRET
-      - NEXT_PUBLIC_PLAUSIBLE_API_KEY
+      - PLAUSIBLE_API_KEY
     restart: always
     ports:
       - "3000:3000"
