@@ -34,6 +34,7 @@ function MuteButton({ disabled, following }: ButtonProps) {
         }
       >
         <Button
+          outline={true}
           isLoading={isPending}
           size="sm"
           noPadding={true}

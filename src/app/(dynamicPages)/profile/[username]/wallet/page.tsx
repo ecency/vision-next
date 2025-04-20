@@ -1,10 +1,10 @@
 import { getAccountFullQuery, getTransactionsQuery } from "@/api/queries";
-import { notFound } from "next/navigation";
-import { WalletHive } from "../_components";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
-import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
+import { getQueryClient } from "@/core/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Metadata, ResolvingMetadata } from "next";
+import { notFound } from "next/navigation";
+import { ProfileWalletTokenPicker } from "./_components";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -26,7 +26,7 @@ export default async function WalletPage({ params }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      {/* <WalletHive account={account} /> */}
+      <ProfileWalletTokenPicker />
     </HydrationBoundary>
   );
 }

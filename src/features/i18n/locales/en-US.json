@@ -2639,5 +2639,9 @@
       "validating": "Preparing your account...",
       "success": "Your account created. Enjoy the Hive and Ecency!"
     }
+  },
+  "profile-wallet": {
+    "pick-tokens": "Pick tokens to show",
+    "search-token": "Search token"
   }
 }

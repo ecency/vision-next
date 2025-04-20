@@ -1,4 +1,4 @@
-import { ProfileCard, ProfileCover, ProfileMenu, ProfileSearch } from "./_components";
+import { ProfileCard, ProfileMenu, ProfileSearch } from "./_components";
 import { getAccountFullQuery } from "@/api/queries";
 import { PropsWithChildren } from "react";
 import "./profile.scss";
@@ -29,7 +29,6 @@ export default async function ProfileLayout({ params, children }: PropsWithChild
         </div>
         <div className="col-span-12 md:col-span-8 lg:col-span-9">
           <ProfileMenu username={username.replace("%40", "")} />
-          {account && <ProfileCover account={account} />}
           <ProfileSearch username={username.replace("%40", "")} />
 
           {children}
