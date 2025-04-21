@@ -35,7 +35,7 @@ interface Props {
 export function PublishActionBar({ onPublish }: Props) {
   const router = useRouter();
 
-  const { schedule: scheduleDate } = usePublishState();
+  const { schedule: scheduleDate, clearAll } = usePublishState();
 
   const [showReward, setShowReward] = useState(false);
   const [showBeneficiaries, setShowBeneficiaries] = useState(false);
@@ -112,6 +112,7 @@ export function PublishActionBar({ onPublish }: Props) {
               className="!text-red"
               icon={<UilTrash />}
               label={i18next.t("publish.clear")}
+              onClick={clearAll}
             />
             <div className="border-b border-[--border-color] h-[1px] w-full" />
             <DropdownItemWithIcon

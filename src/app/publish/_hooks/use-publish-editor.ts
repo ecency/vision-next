@@ -1,21 +1,19 @@
-import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
+import { error } from "@/features/shared";
 import Document from "@tiptap/extension-document";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import { Markdown } from "tiptap-markdown";
+import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
+import { Markdown } from "tiptap-markdown";
 import { PublishEditorImageViewer } from "../_editor-extensions";
-import { usePublishState } from "./use-publish-state";
-import { useCallback, useEffect } from "react";
-import { error } from "@/features/shared";
-import { useMount, useUnmount } from "react-use";
-import i18next from "i18next";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
+import { usePublishState } from "./use-publish-state";
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -66,6 +64,17 @@ export function usePublishEditor() {
   useEditorDragDrop(editor);
 
   const publishState = usePublishState();
+
+  // Handle editor clearing
+  useEffect(() => {
+    if (
+      !publishState.title &&
+      !publishState.content &&
+      editor?.storage.markdown.getMarkdown() !== ""
+    ) {
+      editor?.chain().setContent("").run();
+    }
+  }, [editor, publishState.title, publishState.content]);
 
   // Prefill editor with persistent content or default value
   useEffect(() => {

@@ -55,8 +55,7 @@ export function CommunitySelector({ tags, onSelect }: Props) {
         onClick={() => setVisible(true)}
       >
         {community && community.title}
-        {!community && tags?.length > 0 && i18next.t("community-selector.my-blog")}
-        {!(tags?.length > 0) && !community && i18next.t("community-selector.choose")}
+        {!community && i18next.t("community-selector.my-blog")}
       </Button>
       <Modal
         onHide={() => setVisible(false)}
