@@ -94,7 +94,8 @@
     "reset-form": "Reiniciar formulario",
     "community": "Comunidad",
     "today": "Hoy",
-    "view": "Vista"
+    "view": "Vista",
+    "import": "Import"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -209,7 +210,7 @@
     "subtitle": "Iniciar sesión con clave privada u otras opciones. Escribe el nombre de usuario y continúa con uno favorito",
     "subtitle-users": "Administrar usuarios ya autenticados o iniciar sesión en uno nuevo con varias opciones",
     "write-username": "Introduzca el nombre de usuario y seleccione la opción de inicio de sesión",
-    "username-placeholder": "Nombre de Usuario",
+    "username-placeholder": "nombre de Usuario",
     "key-placeholder": "contraseña / clave privada",
     "login-info-1": "No almacenamos sus claves privadas.",
     "login-info-2": "Más información",
@@ -231,12 +232,18 @@
     "reorder": "Cambiar el orden de lista de usuarios",
     "reorder-list": "Cambiar orden de lista",
     "no-active-user": "Aún no hay usuario activo",
+    "invalid-seed-file": "Invalid seed phrase file. Make sure it has same content as in Ecency signup or just contains 12 words and in txt file format",
+    "seed-file-placeholder": "Click(tap) to select seed phrase file",
+    "use-seed": "Use seed file",
+    "use-key": "Use key/pass",
+    "seed-info": "We don't store your seed phrase and generated keys",
     "sign-in": "Iniciar sesión",
     "my-users": "Mis usuarios"
   },
   "sign-up": {
     "header": "Recompensando a las comunidades Web3",
     "description": "¡Libertad de Expresión, Verdadera propiedad de contenidos, Libertad financiera!",
+    "description-2": "Hive powers many apps and is run completely decentralized by community members all around the world. With an account, you have direct access to the ecosystem.",
     "bottom-description": "Una cuenta, una cartera para gestionar todo en Blockchain.",
     "learn-more": "Obtenga más información sobre los beneficios en nuestras <a href=\"/faq#how-to-join\">Preguntas frecuentes</a>",
     "username": "Elige un nombre de usuario",
@@ -265,6 +272,7 @@
     "username-contains-double-hyphens": "No debe contener Signos de Puntuación dobles",
     "username-exists": "Este nombre de usuario ya está registrado. Por favor, prueba otro",
     "username-starts-number": "No debe comenzar con números",
+    "username-in-use": "This username already exists. Set another one",
     "referral-invalid": "Esta referencia no es válida. Por favor, prueba con otra",
     "referral-min-length-error": "La longitud de la referencia debe tener al menos 3 caracteres",
     "referral-max-length-error": "La longitud de la referencia no debe tener más de 16 caracteres",
@@ -1861,14 +1869,14 @@
     "owner": "propietario",
     "active": "activa",
     "copy": "Copiar",
-    "import": "Private key",
+    "import": "Clave privada",
     "sign-title": "Firmar Transacción",
     "sign-sub-title": "Firmar tu transacción",
     "success-message": "Revocas el permiso de publicar desde ",
     "copied": "Clave copiada en el portapapeles",
-    "keys-success-message": "Private keys are validated and possible to view them",
+    "keys-success-message": "Las claves privadas están validadas y es posible visualizarlas",
     "password-title": "Introduce contraseña o clave privada",
-    "password-sub-title": "Get all Private keys with Master password or validate Individual Private key",
+    "password-sub-title": "Obtenga todas las claves privadas con Contraseña Maestra o valide la Clave Privada individual",
     "reveal-public-key": "Mostrar clave pública",
     "reveal-private-key": "Mostrar clave privada",
     "submit": "Enviar",
@@ -1879,7 +1887,7 @@
     "memo": "memo",
     "placeholder": "Contraseña maestra o Clave privada",
     "success-title": "Éxito",
-    "success-sub-title": "Keys generated, you can view them"
+    "success-sub-title": "Claves generadas, puedes visualizarlas"
   },
   "account-recovery": {
     "title": "Cambiar agente de recuperación",
@@ -2564,5 +2572,66 @@
   "events": {
     "muted": "Usuario ha silenciado",
     "unmuted": "Usuario ha dejado de silenciar"
+  },
+  "signup-email": {
+    "title": "Signup with Email",
+    "description": "Flexible way to create an account using email validation. Choose one of the options such as Free and Boosted account with 3X resource credits for $2.99 or Onboard a friend",
+    "buttonText": "Continue with Email",
+    "label": "Email"
+  },
+  "signup-wallets": {
+    "title": "Signup with Wallet",
+    "description": "Create an account for free with Bitcoin, Ethereum, Solana and more blockchain wallets.",
+    "buttonText": "Continue with Wallet",
+    "label": "Crypto wallet",
+    "intro": {
+      "title": "Signup with Wallets",
+      "description": "Select your human readable username/nickname",
+      "currencies-info": "You can easily setup new account using one of these currencies.",
+      "available": "This username is available to use",
+      "checking": "Checking username for availability..."
+    },
+    "seed": {
+      "title": "Seed phrase",
+      "description": "Seed phrase is a master key to all wallets and Hive account",
+      "copied": "Seed phrase is copied",
+      "reveal": "Tap/Click to reveal phrase",
+      "hint": "By clicking Continue, you acknowledge that the seed phrase will be displayed only once and cannot be recovered if lost or forgotten.",
+      "continue": "Download seed file and continue"
+    },
+    "wallets": {
+      "title": "Manage crypto wallets",
+      "description": "Select wallets to create. You can import own wallet to use instead of created one",
+      "hint": "Keep in mind, Hive will assign public keys only to your new Hive account. Private information based on seed phrase won't be saved."
+    },
+    "validate": {
+      "title": "Validate your seed phrase",
+      "description": "Place seed phrase in a right order to verify you are real person and stored seed phrase securely."
+    },
+    "validate-funds": {
+      "title": "Validate your funds",
+      "description": "Top-up one of the wallets with minimal amount.",
+      "topup": "Please, top-up your wallet with some amount of tokens",
+      "topup-description": "When your wallet balance changes, page will detect automatically and let You continue account creation",
+      "validation-success": "We have validated your wallet",
+      "address-copied": "Address copied"
+    },
+    "import": {
+      "title": "Import own wallet",
+      "exact-title": "Import {{token}} token",
+      "exact-description": "Import wallet by providing seed phrase/private key. Based on this we can verify wallet ownership.",
+      "key-placeholder": "Private key",
+      "address-placeholder": "Address",
+      "import-token": "Import token",
+      "hint": "Keep in mind, Ecency will never store or send your private information to any server, browser storages. Entered private information will disappear when You leave this page.",
+      "common-title": "Select token",
+      "common-description": "Select one of the tokens to import your own wallet",
+      "success": "Wallet imported successfully!"
+    },
+    "create-account": {
+      "creating": "Creating Hive account...",
+      "validating": "Preparing your account...",
+      "success": "Your account created. Enjoy the Hive and Ecency!"
+    }
   }
 }

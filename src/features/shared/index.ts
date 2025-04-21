@@ -58,3 +58,4 @@ export * from "./edit-history";
 export * from "./editor-toolbar";
 export * from "./redirect";
 export * from "./entry-stats";
+export * from "./post-content-renderer";

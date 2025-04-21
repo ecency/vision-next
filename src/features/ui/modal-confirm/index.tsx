@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, ModalFooter, ModalHeader, ModalTitle } from "@ui/modal";
+import {Modal, ModalBody, ModalFooter, ModalHeader, ModalTitle} from "@ui/modal";
 import { Button, ButtonProps } from "@ui/button";
 import i18next from "i18next";
 
@@ -8,6 +8,7 @@ interface Props {
   okText?: string;
   okVariant?: ButtonProps["appearance"];
   cancelText?: string;
+  descriptionText?: string;
   onConfirm?: () => void;
   onCancel?: () => void;
 }
@@ -17,6 +18,7 @@ export function ModalConfirm({
   okText,
   onConfirm,
   cancelText,
+    descriptionText,
   onCancel,
   okVariant
 }: Props) {
@@ -25,6 +27,9 @@ export function ModalConfirm({
       <ModalHeader closeButton={true}>
         <ModalTitle>{titleText || i18next.t("confirm.title")}</ModalTitle>
       </ModalHeader>
+      <ModalBody>
+        <div className="description-wrapper">{descriptionText || ""}</div>
+      </ModalBody>
       <ModalFooter className="flex gap-3">
         <Button appearance="secondary" outline={true} onClick={() => onCancel?.()}>
           {" "}

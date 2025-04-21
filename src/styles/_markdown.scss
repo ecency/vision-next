@@ -131,11 +131,16 @@
   }
 
   :not(pre) code {
-    padding: .2em .3em;
+    padding: 0.2em 0.3em;
     border-radius: 6px;
   }
 
-  p + pre, h1 + pre, h2 + pre, h3 + pre, h4 + pre, h5 + pre {
+  p + pre,
+  h1 + pre,
+  h2 + pre,
+  h3 + pre,
+  h4 + pre,
+  h5 + pre {
     margin-top: 0.5rem;
   }
 
@@ -170,7 +175,8 @@
     font-size: 0.875rem;
   }
 
-  pre, code {
+  pre,
+  code {
     @include themify(day) {
       @apply bg-light-600;
       @apply text-gray-charcoal;
@@ -273,11 +279,31 @@
   .markdown-video-link {
     background: #000;
     display: block;
-    width: 100%;
     position: relative;
-    max-width: 720px;
-    padding-top: 55%; // About 16x9 ratio
-    height: 0;
+
+    &.ecency-renderer-video-extension {
+      max-width: 720px;
+      padding-top: 55%; // About 16x9 ratio
+      height: 0;
+      width: 100%;
+
+      iframe {
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    &.markdown-video-link-vimeo {
+      padding-top: 56.25%;
+
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
 
     .markdown-video-play {
       position: absolute;
@@ -289,7 +315,7 @@
       z-index: 2;
       left: calc(50% - 32px);
       top: calc(50% - 32px);
-      transition: .3s;
+      transition: 0.3s;
 
       &:hover {
         transform: scale(1.125);
@@ -300,10 +326,6 @@
       width: 100%;
       height: 100%;
       display: block;
-      margin: auto;
-      position: absolute;
-      top: 0;
-      left: 0;
       object-fit: cover;
     }
 
@@ -317,11 +339,6 @@
       position: absolute;
       width: 22px;
       z-index: 20;
-    }
-
-    iframe {
-      height: 100%;
-      width: 100%;
     }
   }
 
