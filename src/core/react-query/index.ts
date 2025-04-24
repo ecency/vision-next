@@ -117,6 +117,14 @@ export function makeQueryClient() {
     }
   });
 }
-export const getQueryClient = isServer ? cache(() => makeQueryClient()) : () => makeQueryClient();
+export const getQueryClient = isServer
+  ? cache(() => makeQueryClient())
+  : () => {
+      if ((global as any).clientQueryClient) {
+        return (global as any).clientQueryClient as QueryClient;
+      }
+      (global as any).clientQueryClient = makeQueryClient();
+      return (global as any).clientQueryClient as QueryClient;
+    };
 
 export * from "./ecency-queries-manager";

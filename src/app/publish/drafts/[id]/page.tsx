@@ -8,7 +8,7 @@ import {
   PublishEditorToolbar,
   PublishValidatePost
 } from "@/app/publish/_components";
-import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import { MENTION_PURE_REGEX, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { PublishSuccessState } from "../../_components/publish-success-state";
@@ -40,7 +40,16 @@ export default function PublishPage() {
         editor
           ?.chain()
           .setContent(
-            `${draft.title ?? "# Hello Ecency member,"}\n\n ${draft.body ?? "Tell your story..."}`
+            `${draft.title ?? "# Hello Ecency member,"}\n\n ${
+              draft.body.replace(
+                MENTION_PURE_REGEX,
+                (match) =>
+                  `<span data-type="mention" data-id=${match.replace("@", "")}>${match.replace(
+                    "@",
+                    ""
+                  )}</span>`
+              ) ?? "Tell your story..."
+            }`
           )
           .run();
       } catch (e) {
