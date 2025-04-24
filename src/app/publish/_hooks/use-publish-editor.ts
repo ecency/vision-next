@@ -70,6 +70,8 @@ export function usePublishEditor() {
       const title = markdown.substring(0, markdown.indexOf("\n"));
       const content = markdown.substring(markdown.indexOf("\n"));
 
+      console.log(markdown);
+
       publishState.setTitle(title.replace("# ", ""));
       publishState.setContent(
         content.replace(MENTION_SPAN_REGEX, (match: string) => {

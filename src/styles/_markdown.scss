@@ -111,8 +111,7 @@
   table {
     word-break: normal !important;
     overflow-x: auto;
-    display: block;
-    width: fit-content;
+    width: 100%;
     max-width: 100%;
 
     @apply border dark:border-gray-700 overflow-hidden table-auto border-collapse text-xs sm:text-sm md:text-base;
@@ -127,6 +126,10 @@
 
     th {
       @apply border-b dark:border-gray-700 text-left font-[500] bg-gray-100 dark:bg-dark-200 text-sm text-gray-700 dark:text-white border-r last:border-r-0 sm:text-sm md:text-base p-1 sm:p-2;
+    }
+
+    p {
+      margin-bottom: 0;
     }
   }
 
