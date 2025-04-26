@@ -53,11 +53,10 @@ export function EntryPageEdit({ entry: initialEntry, isEdit }: Props) {
     isEdit && (
       <div className="relative">
         <Comment
-          defText={entry!.body}
+          isEdit={true}
           submitText={i18next.t("g.update")}
           entry={entry!!}
           onSubmit={updateReply}
-          clearOnSubmit={false}
           cancellable={true}
           onCancel={() => router.back()}
           inProgress={isLoading || isPending}
