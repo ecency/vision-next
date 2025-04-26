@@ -13,7 +13,7 @@ const config = {
     includePaths: [path.join(__dirname, "src/styles")]
   },
   generateBuildId: async () => v4(),
-  webpack: (config, options) => {
+  webpack: (config, { isServer }) => {
     config.module.rules.push({
       test: /\.(mp3)$/,
       type: "asset/resource",
@@ -25,6 +25,10 @@ const config = {
       ...config.resolve.fallback,
       fs: false
     };
+
+    if (isServer) {
+      config.externals.push("formidable", "hexoid");
+    }
 
     return config;
   },
@@ -83,12 +87,16 @@ const config = {
       // POSTS
       // Handle waves comment-like post in a wave page
       {
+        source: "/:category/:author(@.+)/:permlink/edit",
+        destination: "/publish/entry/:author/:permlink"
+      },
+      {
         source: "/:category/:author(@.+)/:permlink/:sub",
         destination: "/entry/:category/:author/:permlink/:sub"
       },
       {
         source: "/:author(@.+)/:permlink/edit",
-        destination: "/entry/created/:author/:permlink/edit"
+        destination: "/publish/entry/:author/:permlink"
       },
       {
         source: "/:category/:author(@.+)/:permlink",

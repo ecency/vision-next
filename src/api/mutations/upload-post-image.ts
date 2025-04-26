@@ -4,7 +4,7 @@ import { addImage } from "../private-api";
 import axios from "axios";
 import { useGlobalStore } from "@/core/global-store";
 import { getAccessToken } from "@/utils";
-import { error } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import i18next from "i18next";
 import { EcencyConfigManager } from "@/config";
 import useConditionalMutation = EcencyConfigManager.useConditionalMutation;
@@ -76,6 +76,9 @@ export function useUploadPostImage() {
       const response = await upload({ file });
       await add(response);
       return response;
+    },
+    onSuccess: () => {
+      success(i18next.t("ecency-images.success-upload"));
     }
   });
 }

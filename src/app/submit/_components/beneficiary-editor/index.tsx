@@ -14,14 +14,13 @@ import { error } from "@/features/shared";
 import { getAccount } from "@/api/hive";
 
 interface Props {
-  body: string;
   author?: string;
   list: BeneficiaryRoute[];
   onAdd: (item: BeneficiaryRoute) => void;
   onDelete: (username: string) => void;
 }
 
-export function BeneficiaryEditorDialog({ list, author, onDelete, body, onAdd }: Props) {
+export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const { videos } = useThreeSpeakManager();
 
