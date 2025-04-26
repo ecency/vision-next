@@ -3,12 +3,12 @@ import { UserAvatar } from "@/features/shared";
 import { getSearchAccountsByUsernameQueryOptions } from "@ecency/sdk";
 import { autoPlacement, computePosition } from "@floating-ui/dom";
 import { ReactRenderer } from "@tiptap/react";
-import { SuggestionOptions, SuggestionProps } from "@tiptap/suggestion";
+import { SuggestionProps } from "@tiptap/suggestion";
 import clsx from "clsx";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 const MentionList = forwardRef<{ onKeyDown: (e: any) => void }, SuggestionProps<string, any>>(
-  ({ items, command }, ref) => {
+  function MentionListForwarded({ items, command }, ref) {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const selectItem = (index: number) => {
@@ -78,8 +78,8 @@ const MentionList = forwardRef<{ onKeyDown: (e: any) => void }, SuggestionProps<
   }
 );
 
-export const MentionExtensionConfig: SuggestionOptions<string> = {
-  items: async ({ query }) => {
+export const MentionExtensionConfig = {
+  items: async ({ query }: { query: string }) => {
     const options = getSearchAccountsByUsernameQueryOptions(query);
     await getQueryClient()?.prefetchQuery(options);
 
@@ -91,7 +91,7 @@ export const MentionExtensionConfig: SuggestionOptions<string> = {
     let reactRenderer: ReactRenderer<any>;
 
     return {
-      onStart: (props) => {
+      onStart: (props: any) => {
         if (!props.clientRect) {
           return;
         }
@@ -114,7 +114,7 @@ export const MentionExtensionConfig: SuggestionOptions<string> = {
         });
       },
 
-      onUpdate(props) {
+      onUpdate(props: any) {
         reactRenderer.updateProps(props);
 
         computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
@@ -127,7 +127,7 @@ export const MentionExtensionConfig: SuggestionOptions<string> = {
         });
       },
 
-      onKeyDown(props) {
+      onKeyDown(props: any) {
         if (props.event.key === "Escape") {
           reactRenderer.element.classList.add("hidden");
           return true;

@@ -3,6 +3,7 @@
 import { Feedback, Navbar, Theme } from "@/features/shared";
 import { PropsWithChildren } from "react";
 import { PublishOnboarding } from "./_components";
+import "./page.scss";
 
 export default function Layout({ children }: PropsWithChildren) {
   return (

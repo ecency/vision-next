@@ -62,7 +62,7 @@ export function usePublishEditor() {
           class:
             "border border-[--border-color] rounded-lg px-1 py-0.5 bg-gray-100 dark:bg-dark-default text-blue-dark-sky"
         },
-        suggestion: MentionExtensionConfig
+        suggestion: MentionExtensionConfig as any
       })
     ],
     onUpdate({ editor }) {

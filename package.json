@@ -16,7 +16,7 @@
     "@ecency/ns-query": "^1.2.11-next",
     "@ecency/render-helper": "^2.2.38",
     "@ecency/renderer": "1.1.7",
-    "@ecency/sdk": "1.0.23",
+    "@ecency/sdk": "1.0.25",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@firebase/analytics": "^0.10.0",
