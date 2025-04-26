@@ -18,11 +18,9 @@ export const DeckPostViewerCommentBox = ({ entry, onReplied }: Props) => {
   const location = useLocation();
 
   const [isReplying, setIsReplying] = useState(false);
-  const [isCommented, setIsCommented] = useState(false);
 
   const { mutateAsync: createReply } = useCreateReply(entry, undefined, () => {
     onReplied();
-    setIsCommented(true);
     setIsReplying(false);
   });
 
@@ -42,11 +40,9 @@ export const DeckPostViewerCommentBox = ({ entry, onReplied }: Props) => {
   };
   return (
     <Comment
-      defText=""
       submitText={i18next.t("g.reply")}
       entry={entry}
       onSubmit={submitReply}
-      isCommented={isCommented}
       inProgress={isReplying}
     />
   );

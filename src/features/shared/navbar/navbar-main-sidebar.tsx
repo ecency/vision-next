@@ -143,7 +143,8 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
         <div className="text-xs">
           <NavbarSideMainMenuItem
             label={i18next.t("entry-index.faq")}
-            to="/faq"
+            target="_blank"
+            to="https://docs.ecency.com"
             onClick={() => setShow(false)}
           />
           <NavbarSideMainMenuItem

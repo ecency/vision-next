@@ -1,19 +1,19 @@
-import { Button } from "@ui/button";
-import React, { useState } from "react";
-import { NavbarTextMenu } from "./navbar-text-menu";
 import { useGlobalStore } from "@/core/global-store";
-import { classNameObject } from "@ui/util";
-import { UilEditAlt } from "@tooni/iconscout-unicons-react";
-import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
-import { Search } from "@/features/shared/navbar/search";
-import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button";
-import { Tooltip } from "@ui/tooltip";
-import i18next from "i18next";
-import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notifications-button";
-import { AnonUserButtons } from "@/features/shared/navbar/anon-user-buttons";
 import { UserAvatar } from "@/features/shared";
-import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
+import { AnonUserButtons } from "@/features/shared/navbar/anon-user-buttons";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
+import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
+import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notifications-button";
+import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button";
+import { Search } from "@/features/shared/navbar/search";
+import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
+import { UilEditAlt, UilQuestionCircle } from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
+import { Tooltip } from "@ui/tooltip";
+import { classNameObject } from "@ui/util";
+import i18next from "i18next";
+import { useState } from "react";
+import { NavbarTextMenu } from "./navbar-text-menu";
 
 interface Props {
   step?: number;
@@ -58,6 +58,15 @@ export function NavbarDesktop({
         <div className="flex-1" />
         <NavbarTextMenu />
         <div className="flex-spacer" />
+        <Tooltip content="FAQ and documetation">
+          <Button
+            className="after:!hidden"
+            href="https://docs.ecency.com"
+            target="_blank"
+            icon={<UilQuestionCircle />}
+            appearance="gray-link"
+          />
+        </Tooltip>
         {(step !== 1 || transparentVerify) && (
           <div className="max-w-[400px] w-full">
             <Search />
