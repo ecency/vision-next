@@ -4,7 +4,7 @@ import { getQueryClient } from "@/core/react-query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
-import { ProfileWalletTokenPicker } from "./_components";
+import { ProfileWalletTokenPicker, ProfileWalletTokensList } from "./_components";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -27,6 +27,7 @@ export default async function WalletPage({ params }: Props) {
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       <ProfileWalletTokenPicker />
+      <ProfileWalletTokensList />
     </HydrationBoundary>
   );
 }

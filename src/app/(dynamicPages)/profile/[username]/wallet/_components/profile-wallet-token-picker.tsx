@@ -3,7 +3,7 @@
 import { SearchBox } from "@/features/shared";
 import { Button, FormControl, Modal, ModalBody, ModalHeader } from "@/features/ui";
 import { List, ListItem } from "@/features/ui/list";
-import { useGetAllTokensListQuery } from "@ecency/sdk";
+import { useGetAllTokensListQuery } from "@ecency/wallets";
 import { UilCog, UilTimesCircle } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useState, ChangeEvent, useMemo } from "react";
