@@ -1,4 +1,4 @@
-import { EcencyWalletCurrency } from "@ecency/sdk";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { SignupExternalWalletInformation } from "../../types";
