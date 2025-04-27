@@ -26,8 +26,6 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
 
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const [isCommented, setIsCommented] = useState(false);
-
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
   const { data: community } = getCommunityCache(category).useClientQuery();
   const isRawContent = useMemo(
@@ -39,9 +37,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
   const { mutateAsync: createReply, isPending: isCreateReplyLoading } = useCreateReply(
     entry,
     undefined,
-    () => {
-      setIsCommented(true);
-    }
+    () => {}
   );
 
   const replySubmitted = async (text: string) => {
@@ -63,11 +59,9 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
     <>
       {activeUser && (
         <Comment
-          defText={selection}
           submitText={i18next.t("g.reply")}
           entry={entry!}
           onSubmit={replySubmitted}
-          isCommented={isCommented}
           inProgress={isCreateReplyLoading}
           inputRef={commentsInputRef}
         />

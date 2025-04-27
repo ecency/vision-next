@@ -22,7 +22,7 @@ export function ClientInit() {
 
   useMount(() => {
     console.log("client init");
-    ConfigManager.setQueryClient(queryClient);
+    ConfigManager.setQueryClient(queryClient as any);
 
     initKeychain();
     initI18next();

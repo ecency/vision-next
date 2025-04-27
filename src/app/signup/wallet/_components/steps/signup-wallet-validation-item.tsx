@@ -6,7 +6,11 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCopyToClipboard, useMount } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
-import { EcencyCreateWalletInformation, EcencyWalletCurrency, useWalletCreate } from "@ecency/sdk";
+import {
+  EcencyCreateWalletInformation,
+  EcencyWalletCurrency,
+  useWalletCreate
+} from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import i18next from "i18next";

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useSeedPhrase, useHiveKeysQuery } from "@ecency/sdk";
+import { useSeedPhrase, useHiveKeysQuery } from "@ecency/wallets";
 
 export function useDownloadSeed(username: string) {
   const { data: seed } = useSeedPhrase(username);
