@@ -10,7 +10,7 @@ import {
   useHiveKeysQuery,
   useSaveWalletInformationToMetadata,
   useSeedPhrase
-} from "@ecency/sdk";
+} from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
