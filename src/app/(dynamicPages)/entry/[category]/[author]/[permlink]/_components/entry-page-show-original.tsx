@@ -10,9 +10,9 @@ interface Props {
 export function EntryPageShowOriginal({ entry }: Props) {
   return entry.original_entry ? (
     <div className="browse-original">
-      <EntryLink entry={entry.original_entry}>
+      {/* <EntryLink entry={entry.original_entry}>
         <Button>{i18next.t("entry.browse-original")}</Button>
-      </EntryLink>
+      </EntryLink> */}
     </div>
   ) : (
     <></>
