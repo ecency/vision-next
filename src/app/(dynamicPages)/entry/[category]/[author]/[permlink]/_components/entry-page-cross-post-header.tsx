@@ -1,15 +1,15 @@
 "use client";
 
-import i18next from "i18next";
+import { Entry } from "@/entities";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { TagLink } from "@/features/shared/tag";
-import { crossPostMessage } from "@/utils/cross-post";
-import { Entry } from "@/entities";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
+import { makeEntryPath } from "@/utils";
+import { crossPostMessage } from "@/utils/cross-post";
+import i18next from "i18next";
+import Link from "next/link";
 import { useState } from "react";
 import { EntryPageCrossPostBody } from "./entry-page-cross-post-body";
-import { makeEntryPath } from "@/utils";
-import Link from "next/link";
 
 interface Props {
   entry: Entry;
