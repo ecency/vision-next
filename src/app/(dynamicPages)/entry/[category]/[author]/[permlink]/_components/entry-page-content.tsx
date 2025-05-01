@@ -1,17 +1,15 @@
-import { EntryPageCrossPostBody } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-cross-post-body";
-import { EntryPageWarnings } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-warnings";
-import { EntryPageIsCommentHeader } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-is-comment-header";
-import { EntryPageBodyViewer } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-body-viewer";
-import { EntryPageMainInfo } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-main-info";
-import { EntryPageProfileBox } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-profile-box";
-import { EntryTags } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-tags";
-import { EntryFooterInfo } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-footer-info";
 import { EntryFooterControls } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-footer-controls";
-import { EntryPageShowOriginal } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-show-original";
-import { EntryPageSimilarEntries } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-similar-entries";
+import { EntryFooterInfo } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-footer-info";
+import { EntryPageBodyViewer } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-body-viewer";
 import { EntryPageDiscussions } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-discussions";
-import { Entry } from "@/entities";
+import { EntryPageIsCommentHeader } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-is-comment-header";
+import { EntryPageMainInfo } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-main-info";
 import { EntryPageNsfwRevealing } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-nsfw-revealing";
+import { EntryPageProfileBox } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-profile-box";
+import { EntryPageSimilarEntries } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-similar-entries";
+import { EntryPageWarnings } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-warnings";
+import { EntryTags } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-tags";
+import { Entry } from "@/entities";
 
 interface Props {
   entry: Entry;
@@ -23,7 +21,6 @@ interface Props {
 export function EntryPageContent({ entry, rawParam, isEdit, category }: Props) {
   return (
     <EntryPageNsfwRevealing entry={entry}>
-      <EntryPageCrossPostBody entry={entry} />
       <EntryPageProfileBox entry={entry} />
       <div className="entry-header">
         <EntryPageWarnings entry={entry} />
@@ -37,7 +34,6 @@ export function EntryPageContent({ entry, rawParam, isEdit, category }: Props) {
         <EntryFooterInfo entry={entry} />
         <EntryFooterControls entry={entry} />
       </div>
-      <EntryPageShowOriginal entry={entry} />
       <EntryPageSimilarEntries entry={entry} />
       <EntryPageDiscussions category={category} entry={entry} />
     </EntryPageNsfwRevealing>
