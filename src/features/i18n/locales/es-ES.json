@@ -95,7 +95,7 @@
     "community": "Comunidad",
     "today": "Hoy",
     "view": "Vista",
-    "import": "Import"
+    "import": "Importar"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -232,18 +232,18 @@
     "reorder": "Cambiar el orden de lista de usuarios",
     "reorder-list": "Cambiar orden de lista",
     "no-active-user": "Aún no hay usuario activo",
-    "invalid-seed-file": "Invalid seed phrase file. Make sure it has same content as in Ecency signup or just contains 12 words and in txt file format",
-    "seed-file-placeholder": "Click(tap) to select seed phrase file",
-    "use-seed": "Use seed file",
-    "use-key": "Use key/pass",
-    "seed-info": "We don't store your seed phrase and generated keys",
+    "invalid-seed-file": "Archivo de frase de semilla no válido. Asegúrese de que tiene el mismo contenido que en el registro de Ecency o solamente contiene 12 palabras y en formato de archivo TXT",
+    "seed-file-placeholder": "Clic (pulsa) para seleccionar archivo de frase de semilla",
+    "use-seed": "Usar archivo semilla",
+    "use-key": "Usar clave/password",
+    "seed-info": "No almacenamos su frase de semilla ni las claves generadas",
     "sign-in": "Iniciar sesión",
     "my-users": "Mis usuarios"
   },
   "sign-up": {
     "header": "Recompensando a las comunidades Web3",
     "description": "¡Libertad de Expresión, Verdadera propiedad de contenidos, Libertad financiera!",
-    "description-2": "Hive powers many apps and is run completely decentralized by community members all around the world. With an account, you have direct access to the ecosystem.",
+    "description-2": "Hive provee muchas aplicaciones y está completamente descentralizada por miembros de la comunidad de todo el mundo. Con una cuenta, usted tiene acceso directo al ecosistema.",
     "bottom-description": "Una cuenta, una cartera para gestionar todo en Blockchain.",
     "learn-more": "Obtenga más información sobre los beneficios en nuestras <a href=\"/faq#how-to-join\">Preguntas frecuentes</a>",
     "username": "Elige un nombre de usuario",
@@ -272,7 +272,7 @@
     "username-contains-double-hyphens": "No debe contener Signos de Puntuación dobles",
     "username-exists": "Este nombre de usuario ya está registrado. Por favor, prueba otro",
     "username-starts-number": "No debe comenzar con números",
-    "username-in-use": "This username already exists. Set another one",
+    "username-in-use": "Este nombre de usuario ya existe. Establecer otro",
     "referral-invalid": "Esta referencia no es válida. Por favor, prueba con otra",
     "referral-min-length-error": "La longitud de la referencia debe tener al menos 3 caracteres",
     "referral-max-length-error": "La longitud de la referencia no debe tener más de 16 caracteres",
@@ -685,7 +685,7 @@
     "sign-title": "Firmar tu transacción",
     "fetching-market": "Obteniendo mercado...",
     "back": "Regresar",
-    "swap-by": "Firmar por {{method}}",
+    "swap-by": "Ingresar con {{method}}",
     "success-title": "Transacción completada",
     "more-than-balance": "Ha introducido más que el saldo disponible",
     "invalid-amount": "Invalidado por la cantidad. Por favor, introduce un valor menor",
@@ -1383,13 +1383,17 @@
     "type-limit_order_create": "Nueva operación creada",
     "type-limit_order_cancel": "Operación abierta cancelada",
     "type-effective_comment_vote": "Voto efectivo",
-    "type-account_witness_proxy": "Actualización del proxy de gobernanza"
+    "type-account_witness_proxy": "Actualización del proxy de gobernanza",
+    "broken-hint": "El enlace de la operación está roto o no puede ser reconocido",
+    "signer-text": "Firmando la siguiente transacción/operación",
+    "success-hint": "Operación firmada y transaccionada",
+    "error-hint": "La operación no puede ser firmada o las transacciones no pudieron ser transmitidas. Por favor, compruebe la operación y vuelva a intentarlo"
   },
   "key-or-hot": {
     "sign": "Firmar",
-    "key-placeholder": "Introduzca la clave activa/propietaria/maestra",
-    "with-hivesigner": "Iniciar Sesión con hivesigner",
-    "with-keychain": "Iniciar sesión con KeyChain"
+    "key-placeholder": "Introduzca la Clave activa/propietaria/maestra o la Semilla",
+    "with-hivesigner": "Ingresar con Hivesigner",
+    "with-keychain": "Ingresar con Keychain"
   },
   "delegated-vesting": {
     "title": "Hive Power delegado",
@@ -1524,7 +1528,8 @@
     "updating": "Actualizando..",
     "publishing": "Publicando...",
     "saving": "Guardando..",
-    "scheduling": "Programando.."
+    "scheduling": "Programando..",
+    "clearText": "Esto borrará todo el contenido y sus ajustes avanzados."
   },
   "video-upload": {
     "choose-video": "Selecciona un vídeo",
@@ -2574,64 +2579,64 @@
     "unmuted": "Usuario ha dejado de silenciar"
   },
   "signup-email": {
-    "title": "Signup with Email",
-    "description": "Flexible way to create an account using email validation. Choose one of the options such as Free and Boosted account with 3X resource credits for $2.99 or Onboard a friend",
-    "buttonText": "Continue with Email",
-    "label": "Email"
+    "title": "Regístrate con Email",
+    "description": "Forma flexible de crear una cuenta usando la validación de correo electrónico. Elija una de las opciones, tales como cuenta gratuita o cuenta optimizada con 3X créditos de recursos, por $2,99 o por invitación de un amigo",
+    "buttonText": "Continuar con email",
+    "label": "Correo electrónico"
   },
   "signup-wallets": {
-    "title": "Signup with Wallet",
-    "description": "Create an account for free with Bitcoin, Ethereum, Solana and more blockchain wallets.",
-    "buttonText": "Continue with Wallet",
-    "label": "Crypto wallet",
+    "title": "Regístrate con Billetera o Wallet",
+    "description": "Crea una cuenta gratis con Bitcoin, Ethereum, Solana y más billeteras de blockchain.",
+    "buttonText": "Continuar con Wallet",
+    "label": "Billetera Cripto",
     "intro": {
-      "title": "Signup with Wallets",
-      "description": "Select your human readable username/nickname",
-      "currencies-info": "You can easily setup new account using one of these currencies.",
-      "available": "This username is available to use",
-      "checking": "Checking username for availability..."
+      "title": "Regístrate con Billetera o Wallet",
+      "description": "Seleccione su nombre de usuario/apodo legible",
+      "currencies-info": "Puede configurar fácilmente una nueva cuenta usando una de estas monedas.",
+      "available": "Este nombre de usuario está disponible para usar",
+      "checking": "Comprobando disponibilidad del nombre de usuario..."
     },
     "seed": {
-      "title": "Seed phrase",
-      "description": "Seed phrase is a master key to all wallets and Hive account",
-      "copied": "Seed phrase is copied",
-      "reveal": "Tap/Click to reveal phrase",
-      "hint": "By clicking Continue, you acknowledge that the seed phrase will be displayed only once and cannot be recovered if lost or forgotten.",
-      "continue": "Download seed file and continue"
+      "title": "Frase de semilla",
+      "description": "La frase semilla es una clave maestra para todas las billeteras y cuenta de Hive",
+      "copied": "Frase de semilla copiada",
+      "reveal": "Toque/Clic para mostrar la frase",
+      "hint": "Al hacer clic en Continuar, usted reconoce que la frase de semilla se mostrará sólo una vez y no puede ser recuperada si se pierde u olvidada.",
+      "continue": "Descargar archivo de semilla y continuar"
     },
     "wallets": {
-      "title": "Manage crypto wallets",
-      "description": "Select wallets to create. You can import own wallet to use instead of created one",
-      "hint": "Keep in mind, Hive will assign public keys only to your new Hive account. Private information based on seed phrase won't be saved."
+      "title": "Administrar carteras cripto",
+      "description": "Seleccione las carteras a crear. Puede importar su propia cartera para usarla en lugar de la creada",
+      "hint": "Ten en cuenta, Hive asignará claves públicas solamente a tu nueva cuenta de Hive. La información privada basada en la frase de semilla no se guardará."
     },
     "validate": {
-      "title": "Validate your seed phrase",
-      "description": "Place seed phrase in a right order to verify you are real person and stored seed phrase securely."
+      "title": "Validar tu frase semilla",
+      "description": "Coloque la frase de semilla en un orden correcto para verificar que usted es una persona real y la frase de semilla está guardada de forma segura."
     },
     "validate-funds": {
-      "title": "Validate your funds",
-      "description": "Top-up one of the wallets with minimal amount.",
-      "topup": "Please, top-up your wallet with some amount of tokens",
-      "topup-description": "When your wallet balance changes, page will detect automatically and let You continue account creation",
-      "validation-success": "We have validated your wallet",
-      "address-copied": "Address copied"
+      "title": "Validar sus fondos",
+      "description": "Abra una de las wallets con una cantidad mínima.",
+      "topup": "Por favor, recargue su wallet con alguna cantidad de tokens",
+      "topup-description": "Cuando el balance de su cartera cambia, la página lo detectará automáticamente y le permitirá continuar con la creación de la cuenta",
+      "validation-success": "Hemos validado su wallet",
+      "address-copied": "Dirección copiada"
     },
     "import": {
-      "title": "Import own wallet",
-      "exact-title": "Import {{token}} token",
-      "exact-description": "Import wallet by providing seed phrase/private key. Based on this we can verify wallet ownership.",
-      "key-placeholder": "Private key",
-      "address-placeholder": "Address",
-      "import-token": "Import token",
-      "hint": "Keep in mind, Ecency will never store or send your private information to any server, browser storages. Entered private information will disappear when You leave this page.",
-      "common-title": "Select token",
-      "common-description": "Select one of the tokens to import your own wallet",
-      "success": "Wallet imported successfully!"
+      "title": "Importar cartera propia",
+      "exact-title": "Importar token {{token}}",
+      "exact-description": "Importar cartera proporcionando frase de semilla/clave privada. Basándonos en esto podemos verificar la propiedad de la cartera.",
+      "key-placeholder": "Clave privada",
+      "address-placeholder": "Dirección",
+      "import-token": "Importar token",
+      "hint": "Tenga en cuenta, Ecency nunca almacenará o enviará su información privada a ningún servidor, o almacenamiento del navegador. La información privada introducida desaparecerá cuando salga de esta página.",
+      "common-title": "Seleccionar token",
+      "common-description": "Seleccione uno de los tokens para importar su propia cartera",
+      "success": "¡Cartera importada con éxito!"
     },
     "create-account": {
-      "creating": "Creating Hive account...",
-      "validating": "Preparing your account...",
-      "success": "Your account created. Enjoy the Hive and Ecency!"
+      "creating": "Creando cuenta de Hive...",
+      "validating": "Preparando tu cuenta...",
+      "success": "Tu cuenta fue creada. ¡Disfruta de Hive y Ecencia!"
     }
   }
 }
