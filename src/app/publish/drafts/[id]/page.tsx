@@ -8,7 +8,7 @@ import {
   PublishEditorToolbar,
   PublishValidatePost
 } from "@/app/publish/_components";
-import { MENTION_PURE_REGEX, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { PublishSuccessState } from "../../_components/publish-success-state";
@@ -17,6 +17,7 @@ import { useParams } from "next/navigation";
 import { PublishDraftsNoDraft } from "./_components";
 import { error } from "@/features/shared";
 import i18next from "i18next";
+import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
 
 export default function PublishPage() {
   const editor = usePublishEditor();
@@ -41,14 +42,7 @@ export default function PublishPage() {
           ?.chain()
           .setContent(
             `${draft.title ?? "# Hello Ecency member,"}\n\n ${
-              draft.body.replace(
-                MENTION_PURE_REGEX,
-                (match) =>
-                  `<span data-type="mention" data-id=${match.replace("@", "")}>${match.replace(
-                    "@",
-                    ""
-                  )}</span>`
-              ) ?? "Tell your story..."
+              parseAllExtensionsToDoc(draft.body) ?? "Tell your story..." // todo
             }`
           )
           .run();

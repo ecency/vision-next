@@ -1,11 +1,16 @@
 import { getQueryClient } from "@/core/react-query";
-import { UserAvatar } from "@/features/shared";
-import { getSearchAccountsByUsernameQueryOptions } from "@ecency/sdk";
-import { autoPlacement, computePosition } from "@floating-ui/dom";
+import { getTrendingTagsQueryOptions } from "@ecency/sdk";
+import { computePosition, flip } from "@floating-ui/dom";
+import { InfiniteData } from "@tanstack/react-query";
+import { PluginKey } from "@tiptap/pm/state";
 import { ReactRenderer } from "@tiptap/react";
 import { SuggestionProps } from "@tiptap/suggestion";
 import clsx from "clsx";
+import { AnimatePresence, motion } from "framer-motion";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+
+export const TAG_MENTION_PURE_REGEX = /#\w+/g;
+export const TAG_MENTION_SPAN_REGEX = /<span[^>]*data-type="tag"[^>]*data-id="(.*)"*>.*<\/span>/g;
 
 const MentionList = forwardRef<{ onKeyDown: (e: any) => void }, SuggestionProps<string, any>>(
   function MentionListForwarded({ items, command }, ref) {
@@ -55,37 +60,53 @@ const MentionList = forwardRef<{ onKeyDown: (e: any) => void }, SuggestionProps<
     }));
 
     return (
-      <div className="flex flex-col items-start border border-[--border-color] rounded-xl bg-white text-sm">
-        {items.length ? (
-          items.map((item, index) => (
-            <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="overflow-hidden flex flex-col items-start border border-[--border-color] rounded-xl bg-white text-sm"
+      >
+        <AnimatePresence>
+          {items.map((item, index) => (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95, position: "absolute" }}
               className={clsx(
-                "border-b w-full border[--border-color] flex items-center p-2 gap-2",
+                "border-b last:border-0 w-full border[--border-color] flex items-center p-2 gap-2 cursor-pointer hover:bg-gray-100 dark:hover-gray-800",
                 index === selectedIndex ? "bg-blue-powder dark:bg-dark-default" : ""
               )}
-              key={index}
+              key={item}
               onClick={() => selectItem(index)}
             >
-              <UserAvatar username={item} size="small" />
-              {item}
-            </div>
-          ))
-        ) : (
-          <div className="p-2 opacity-50">No result</div>
-        )}
-      </div>
+              #{item}
+            </motion.div>
+          ))}
+          {items.length == 0 && <div className="p-2 opacity-50">No result</div>}
+        </AnimatePresence>
+      </motion.div>
     );
   }
 );
 
-export const MentionExtensionConfig = {
+export const TagMentionExtensionConfig = {
   items: async ({ query }: { query: string }) => {
-    const options = getSearchAccountsByUsernameQueryOptions(query);
-    await getQueryClient()?.prefetchQuery(options);
+    const options = getTrendingTagsQueryOptions(100);
+    await getQueryClient()?.prefetchInfiniteQuery(options);
 
-    const response = getQueryClient()?.getQueryData(options.queryKey);
-    return response ?? [];
+    const response = getQueryClient()?.getQueryData<InfiniteData<string[]>>(options.queryKey);
+    const filteredItems =
+      response?.pages?.[0]
+        .filter((item) => item.toLowerCase().includes(query.toLowerCase()))
+        .slice(0, 4) ?? [];
+
+    if (!filteredItems.includes(query)) {
+      filteredItems.push(query);
+    }
+
+    return filteredItems;
   },
+  char: "#",
+  pluginKey: new PluginKey("tag"),
   render: () => {
     const placementArea = document.querySelector("#popper-container");
     let reactRenderer: ReactRenderer<any>;
@@ -105,7 +126,7 @@ export const MentionExtensionConfig = {
         placementArea?.appendChild(reactRenderer.element);
 
         computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
-          middleware: [autoPlacement()]
+          middleware: [flip()]
         }).then(({ x, y }) => {
           Object.assign((reactRenderer.element as HTMLElement).style, {
             left: `${x}px`,
@@ -118,7 +139,7 @@ export const MentionExtensionConfig = {
         reactRenderer.updateProps(props);
 
         computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
-          middleware: [autoPlacement()]
+          middleware: [flip()]
         }).then(({ x, y }) => {
           Object.assign((reactRenderer.element as HTMLElement).style, {
             left: `${x}px`,

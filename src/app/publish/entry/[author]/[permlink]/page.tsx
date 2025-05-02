@@ -3,7 +3,7 @@
 import { EditorContent } from "@tiptap/react";
 
 import { PublishEditorToolbar } from "@/app/publish/_components";
-import { MENTION_PURE_REGEX, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { useEntryDetector } from "@/app/submit/_hooks";
 import { Entry } from "@/entities";
 import { delay } from "@/utils";
@@ -19,6 +19,7 @@ import {
   PublishEntryValidateEdit,
   PublishEntrySuccessState
 } from "./_components";
+import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
 
 export default function Publish() {
   const editor = usePublishEditor();
@@ -44,18 +45,18 @@ export default function Publish() {
         setStep("edit");
         setTitle(entry.title);
         setTags(Array.from(new Set(entry.json_metadata?.tags ?? [])));
-        setContent(
-          entry.body.replace(
-            MENTION_PURE_REGEX,
-            (match) =>
-              `<span data-type="mention" data-id=${match.replace("@", "")}>${match.replace(
-                "@",
-                ""
-              )}</span>`
-          )
-        );
+        setContent(entry.body); // todo
         setMetaDescription(entry.json_metadata?.description ?? postBodySummary(entry.body, 200));
         entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
+
+        editor
+          ?.chain()
+          .setContent(
+            `${entry.title ?? "# Hello Ecency member,"}\n\n ${
+              parseAllExtensionsToDoc(entry.body) ?? "Tell your story..." // todo
+            }`
+          )
+          .run();
       } else {
         setStep("no-post");
       }

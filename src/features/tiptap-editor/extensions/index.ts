@@ -1,1 +1,2 @@
-export * from "./mention-extension-config";
+export * from "./user-mention-extension-config";
+export * from "./tag-mention-extension-config";

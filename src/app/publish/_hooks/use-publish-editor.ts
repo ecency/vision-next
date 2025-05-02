@@ -1,13 +1,19 @@
 import { error } from "@/features/shared";
+import {
+  TagMentionExtensionConfig,
+  UserMentionExtensionConfig,
+  convertAllExtensionsToText,
+  parseAllExtensionsToDoc
+} from "@/features/tiptap-editor";
 import Document from "@tiptap/extension-document";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
 import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import Mention from "@tiptap/extension-mention";
 import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
@@ -15,11 +21,6 @@ import { Markdown } from "tiptap-markdown";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
-import { MentionExtensionConfig } from "@/features/tiptap-editor";
-
-export const MENTION_PURE_REGEX =
-  /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/g;
-export const MENTION_SPAN_REGEX = /<span[^>]*data-type="mention"[^>]*data-id="(.*)"*>.*<\/span>/g;
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -57,12 +58,24 @@ export function usePublishEditor() {
       Link.configure({
         openOnClick: false
       }),
+      // User mention
       Mention.configure({
         HTMLAttributes: {
           class:
             "border border-[--border-color] rounded-lg px-1 py-0.5 bg-gray-100 dark:bg-dark-default text-blue-dark-sky"
         },
-        suggestion: MentionExtensionConfig as any
+        suggestion: UserMentionExtensionConfig as any
+      }),
+      // Tags mention
+      Mention.extend({
+        name: "tag",
+        priority: 102
+      }).configure({
+        HTMLAttributes: {
+          class:
+            "border border-[--border-color] rounded-lg px-1 py-0.5 bg-gray-100 dark:bg-dark-default text-blue-dark-sky"
+        },
+        suggestion: TagMentionExtensionConfig as any
       })
     ],
     onUpdate({ editor }) {
@@ -71,13 +84,7 @@ export function usePublishEditor() {
       const content = markdown.substring(markdown.indexOf("\n"));
 
       publishState.setTitle(title.replace("# ", ""));
-      publishState.setContent(
-        content.replace(MENTION_SPAN_REGEX, (match: string) => {
-          const el = document.createElement("span");
-          el.innerHTML = match;
-          return "@" + (el.firstChild as HTMLElement)?.dataset["id"];
-        })
-      );
+      publishState.setContent(convertAllExtensionsToText(content));
     }
   });
 
@@ -103,10 +110,7 @@ export function usePublishEditor() {
         ?.chain()
         .setContent(
           `${publishState.title ?? "# Hello Ecency member,"}\n\n ${
-            publishState.content?.replace(
-              MENTION_PURE_REGEX,
-              (match) => `<span data-type="mention" data-id=${match.replace("@", "")} />`
-            ) ?? "Tell your story..."
+            parseAllExtensionsToDoc(publishState.content) ?? "Tell your story..."
           }`
         )
         .run();

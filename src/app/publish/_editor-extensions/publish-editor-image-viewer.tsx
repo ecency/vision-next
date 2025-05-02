@@ -48,12 +48,13 @@ export function PublishEditorImageViewer({
     >
       <StyledTooltip
         content={
-          <div className="rounded-lg flex gap-2 px-2 border border-[--border-color]">
+          <div className="rounded-lg flex gap-2 pl-1 py-1 border border-[--border-color]">
             {src.includes("https://images.ecency.com") && (
               <Button
                 noPadding={true}
                 size="xs"
                 appearance="link"
+                className="!h-auto"
                 onClick={() =>
                   updateAttributes({
                     src: proxifyImageSrc(src, 200, 200, "match")
@@ -68,6 +69,7 @@ export function PublishEditorImageViewer({
                 noPadding={true}
                 size="xs"
                 appearance="link"
+                className="!h-auto"
                 onClick={() =>
                   updateAttributes({
                     src: proxifyImageSrc(src, 400, 400, "match")
@@ -82,6 +84,7 @@ export function PublishEditorImageViewer({
                 noPadding={true}
                 size="xs"
                 appearance="link"
+                className="!h-auto"
                 onClick={() =>
                   updateAttributes({
                     src: proxifyImageSrc(src, 0, 0, "match")
@@ -92,7 +95,7 @@ export function PublishEditorImageViewer({
               </Button>
             )}
             <Button
-              noPadding={true}
+              className="!h-auto"
               icon={<UilTrash />}
               size="xs"
               appearance="link"
