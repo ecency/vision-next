@@ -1,20 +1,19 @@
-import { EditorContent, NodeViewProps, NodeViewWrapper, useEditor, Node } from "@tiptap/react";
-import clsx from "clsx";
-import Text from "@tiptap/extension-text";
+import { Button, StyledTooltip } from "@/features/ui";
+import { proxifyImageSrc } from "@ecency/render-helper";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
-import { EcencyRenderer as PureEcencyRenderer } from "@ecency/renderer";
-import { memo, useCallback, useEffect } from "react";
-import { useImageUpload } from "@/api/mutations";
-
-const EcencyRenderer = memo(PureEcencyRenderer);
+import Text from "@tiptap/extension-text";
+import { EditorContent, Node, NodeViewProps, NodeViewWrapper, useEditor } from "@tiptap/react";
+import { UilTrash } from "@tooni/iconscout-unicons-react";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
 export function PublishEditorImageViewer({
   node: {
     attrs: { src, alt }
   },
-  selected,
-  updateAttributes
+  updateAttributes,
+  deleteNode
 }: NodeViewProps) {
   const editor = useEditor({
     shouldRerenderOnTransaction: true,
@@ -43,13 +42,76 @@ export function PublishEditorImageViewer({
 
   return (
     <NodeViewWrapper
-      className={clsx("publish-editor-image-viewer", selected && "ProseMirror-selectednode")}
+      onClick={() => editor?.chain().selectTextblockEnd().focus().run()}
+      className="publish-editor-image-viewer cursor-grab border border-transparent hover:border-blue-dark-sky"
       data-drag-handle
     >
-      <EcencyRenderer value={src} />
-      <div className="flex items-center justify-center text-sm font-sans text-center leading-relaxed">
-        <EditorContent editor={editor} />
-      </div>
+      <StyledTooltip
+        content={
+          <div className="rounded-lg flex gap-2 px-2 border border-[--border-color]">
+            {src.includes("https://images.ecency.com") && (
+              <Button
+                noPadding={true}
+                size="xs"
+                appearance="link"
+                onClick={() =>
+                  updateAttributes({
+                    src: proxifyImageSrc(src, 200, 200, "match")
+                  })
+                }
+              >
+                Small
+              </Button>
+            )}
+            {src.includes("https://images.ecency.com") && (
+              <Button
+                noPadding={true}
+                size="xs"
+                appearance="link"
+                onClick={() =>
+                  updateAttributes({
+                    src: proxifyImageSrc(src, 400, 400, "match")
+                  })
+                }
+              >
+                Medium
+              </Button>
+            )}
+            {src.includes("https://images.ecency.com") && (
+              <Button
+                noPadding={true}
+                size="xs"
+                appearance="link"
+                onClick={() =>
+                  updateAttributes({
+                    src: proxifyImageSrc(src, 0, 0, "match")
+                  })
+                }
+              >
+                Original
+              </Button>
+            )}
+            <Button
+              noPadding={true}
+              icon={<UilTrash />}
+              size="xs"
+              appearance="link"
+              onClick={deleteNode}
+            />
+          </div>
+        }
+      >
+        <motion.div
+          className="flex flex-col items-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <Image className="w-auto max-w-full" src={src} width={200} height={200} alt={alt} />
+          <div className="flex items-center justify-center text-sm font-sans text-center leading-relaxed py-4">
+            <EditorContent editor={editor} className="cursor-text" />
+          </div>
+        </motion.div>
+      </StyledTooltip>
     </NodeViewWrapper>
   );
 }

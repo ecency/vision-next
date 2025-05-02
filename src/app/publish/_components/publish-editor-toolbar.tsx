@@ -332,7 +332,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             show={showGallery}
             setShow={setShowGallery}
             onPick={(e) => {
-              editor?.chain().focus().insertContent(`![](${e})`).run();
+              editor
+                ?.chain()
+                .focus()
+                .insertContent([{ type: "image", attrs: { src: e } }, { type: "paragraph" }])
+                .run();
               setShowGallery(false);
             }}
           />
@@ -349,7 +353,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           show={showGifPicker}
           setShow={setShowGifPicker}
           onPick={(url, alt) => {
-            editor?.chain().focus().insertContent(`![${alt}](${url})`).run();
+            editor
+              ?.chain()
+              .focus()
+              .insertContent([{ type: "image", attrs: { src: url, alt } }, { type: "paragraph" }])
+              .run();
             setShowGifPicker(false);
           }}
         />
@@ -357,7 +365,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           show={showImageByLink}
           setShow={setShowImageByLink}
           onPick={(link, alt) => {
-            editor?.chain().focus().insertContent(`![${alt}](${link})`).run();
+            editor
+              ?.chain()
+              .focus()
+              .insertContent([{ type: "image", attrs: { src: link, alt } }, { type: "paragraph" }])
+              .run();
             setShowImageByLink(false);
           }}
         />
@@ -365,7 +377,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           show={showImageUpload}
           setShow={setShowImageUpload}
           onPick={(e) => {
-            editor?.chain().focus().insertContent(`![](${e})`).run();
+            editor
+              ?.chain()
+              .focus()
+              .insertContent([{ type: "image", attrs: { src: e } }, { type: "paragraph" }])
+              .run();
             setShowImageUpload(false);
           }}
         />
