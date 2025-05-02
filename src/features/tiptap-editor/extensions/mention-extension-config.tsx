@@ -133,7 +133,7 @@ export const MentionExtensionConfig = {
           return true;
         }
 
-        return reactRenderer.ref?.onKeyDown(props);
+        return reactRenderer?.ref?.onKeyDown(props);
       },
 
       onExit() {

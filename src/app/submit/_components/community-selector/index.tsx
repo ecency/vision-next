@@ -4,6 +4,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { isCommunity } from "@/utils";
+import { UilAngleDown } from "@tooni/iconscout-unicons-react";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
@@ -56,6 +57,7 @@ export function CommunitySelector({ tags, onSelect }: Props) {
       >
         {community && community.title}
         {!community && i18next.t("community-selector.my-blog")}
+        <UilAngleDown className="w-4 h-4" />
       </Button>
       <Modal
         onHide={() => setVisible(false)}
