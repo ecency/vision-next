@@ -1,32 +1,40 @@
 import { Button, FormControl, Popover, PopoverContent, StyledTooltip } from "@/features/ui";
 import { Form } from "@/features/ui/form";
-import { handleInvalid, handleOnInput } from "@/utils";
 import { Editor } from "@tiptap/core";
 import { UilEnter, UilExternalLinkAlt, UilLink } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { object, string } from "yup";
 
 interface Props {
   editor: Editor;
 }
 
+const linkSchema = object({
+  link: string().url().required()
+});
+
 export function PublishEditorToolbarLinkForm({ onSubmit }: { onSubmit: (link: string) => void }) {
   const formRef = useRef<HTMLFormElement>(null);
+
   const [link, setLink] = useState("https://");
+  const [isLinkInvalid, setIsLinkInvalid] = useState(false);
 
   return (
     <Form
       ref={formRef}
-      onSubmit={(e: React.FormEvent) => {
+      onSubmit={async (e: React.FormEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!formRef.current?.checkValidity()) {
-          return;
+        try {
+          if (await linkSchema.validate({ link })) {
+            onSubmit(link);
+          }
+        } catch (e) {
+          setIsLinkInvalid(true);
         }
-
-        onSubmit(link);
       }}
       className="flex items-center gap-2"
     >
@@ -35,11 +43,13 @@ export function PublishEditorToolbarLinkForm({ onSubmit }: { onSubmit: (link: st
         autoComplete="off"
         value={link}
         placeholder={i18next.t("add-link.text-label")}
-        onChange={(e) => setLink(e.target.value)}
+        onChange={(e) => {
+          setLink(e.target.value);
+          setIsLinkInvalid(false);
+        }}
         autoFocus={true}
         required={true}
-        onInvalid={(e: any) => handleInvalid(e, "add-link.", "validation-text")}
-        onInput={handleOnInput}
+        aria-invalid={isLinkInvalid}
         size="sm"
       />
       <Button type="submit" icon={<UilEnter />} disabled={!link} appearance="gray" size="xs" />
@@ -61,7 +71,7 @@ export function PublishEditorToolbarAddLink({ editor }: Props) {
         onClick={() => setShow(true)}
         icon={<UilLink />}
       />
-      <Popover show={show} setShow={setShow} anchorParent={true}>
+      <Popover show={show} setShow={setShow} behavior="click">
         <PopoverContent>
           <PublishEditorToolbarLinkForm
             onSubmit={(href) => {

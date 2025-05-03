@@ -3,8 +3,7 @@ import {
   Selection,
   TagMentionExtensionConfig,
   UserMentionExtensionConfig,
-  convertAllExtensionsToText,
-  parseAllExtensionsToDoc
+  convertAllExtensionsToText
 } from "@/features/tiptap-editor";
 import Document from "@tiptap/extension-document";
 import Image from "@tiptap/extension-image";
@@ -15,17 +14,16 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import { AnyExtension, generateText, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
+import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
 
+import { MARKDOWN_SERIALIZERS } from "@/features/tiptap-editor/markdown-serializers";
+import DOMPurify from "dompurify";
+import { parse } from "marked";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
-import { MARKDOWN_SERIALIZERS } from "@/features/tiptap-editor/markdown-serializers";
-import { markdownToHTML } from "@ecency/render-helper/lib/methods";
-import { parse } from "marked";
-import DOMPurify from "dompurify";
 
 const CustomDocument = Document.extend({
   content: "heading block*"

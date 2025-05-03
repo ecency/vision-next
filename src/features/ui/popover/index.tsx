@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useFilteredProps } from "../util";
 import { useClickAway, useMountedState, useWindowSize } from "react-use";
 import { PopoverSheet } from "@ui/popover/popover-sheet";
-import { autoUpdate, flip, Placement } from "@floating-ui/dom";
+import { autoUpdate, flip, Placement, shift } from "@floating-ui/dom";
 import { useFloating } from "@floating-ui/react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -13,15 +13,15 @@ interface ShowProps {
   show: boolean;
   setShow: (v: boolean) => void;
   children: ReactNode;
-  stopPropagationForChild?: boolean;
-  placement?: Placement;
 }
 
 interface Props {
-  children: ReactNode;
-  anchorParent?: boolean; // TODO add support
+  directContent?: ReactNode;
   customClassName?: string;
   useMobileSheet?: boolean;
+  stopPropagationForChild?: boolean;
+  placement?: Placement;
+  behavior?: "hover" | "click";
 }
 
 export function Popover(
@@ -34,16 +34,19 @@ export function Popover(
     "customClassName",
     "useMobileSheet",
     "placement",
-    "stopPropagationForChild"
+    "stopPropagationForChild",
+    "behavior",
+    "directContent"
   ]);
 
   const { refs, floatingStyles } = useFloating({
     whileElementsMounted: autoUpdate,
-    middleware: [flip()],
-    placement: props.placement
+    middleware: [flip(), shift()],
+    placement: props.placement,
+    transform: true
   });
 
-  useClickAway(refs.floating as any, () => show && setShow(false));
+  useClickAway(refs.floating as any, () => props.behavior === "click" && show && setShow(false));
 
   const [show, setShow] = useState((props as ShowProps).show ?? false);
 
@@ -62,26 +65,24 @@ export function Popover(
     show !== props.show && props.setShow?.(show);
   }, [show]);
 
-  // useEffect(() => {
-  //   if ((props as Props).anchorParent && host) {
-  //     host.parentElement.addEventListener("click", () => setShow(true));
-  //     host.parentElement.addEventListener("mouseenter", () => setShow(true));
-  //     host.parentElement.addEventListener("mouseleave", () => setShow(false));
-  //   }
-  // }, [host, props]);
-
   return (
     <div
       ref={refs.setReference}
       {...nativeProps}
-      // onMouseLeave={(e) => props.stopPropagationForChild && setShow(false)}
+      onClick={(e) => {
+        e.stopPropagation();
+        typeof props.setShow === "function" || isSheet ? undefined : setShow(true);
+      }}
+      onMouseEnter={() => props.behavior === "hover" && setShow(true)}
+      onMouseLeave={() => props.behavior === "hover" && setShow(false)}
     >
+      {props.directContent}
       {isMounted() &&
         !isSheet &&
         createPortal(
           <AnimatePresence>
             {show && (
-              <div ref={refs.setFloating} style={floatingStyles} className="absolute">
+              <div ref={refs.setFloating} style={floatingStyles} className="absolute z-[1060]">
                 <motion.div
                   className={
                     props.customClassName ?? "bg-white border border-[--border-color] rounded-xl"

@@ -8,8 +8,6 @@ interface Props {
 }
 
 export function PopoverSheet({ show, setShow, children }: PropsWithChildren<Props>) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
   useLockBodyScroll(show);
 
   return (
@@ -34,10 +32,10 @@ export function PopoverSheet({ show, setShow, children }: PropsWithChildren<Prop
           <motion.div
             key="sheet"
             className="fixed z-[1060] overflow-hidden bottom-0 w-full h-[640px] bg-white rounded-t-2xl"
-            ref={ref}
             initial={{ y: 640 }}
             animate={{ y: 160 }}
             exit={{ y: 640 }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="overflow-y-auto h-[480px]">{children}</div>
           </motion.div>

@@ -13,7 +13,7 @@ export const BUTTON_STYLES: Record<ButtonAppearance, string> = {
   "gray-link": "text-gray-600 hover:text-blue-dark-sky focus:text-blue-dark-sky-active",
   white:
     "text-blue-dark-sky bg-white hover:bg-gray-100 focus:bg-gray-200 dark:bg-dark-default dark:hover:bg-dark-200 dark:focus:bg-gray-900 dark:text-white disabled:opacity-75",
-  gray: "bg-gray-200 text-gray-600 dark:text-gray-400 dark:bg-gray-800 hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200",
+  gray: "bg-gray-200 text-gray-600 dark:text-gray-400 dark:bg-gray-800 hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200 disabled:opacity-50",
   "white-link": "text-white hover:opacity-50 focus:opacity-75",
   pressed: "text-red hover:text-red-040 bg:blue-duck-egg dark:bg-dark-default",
   hivesigner: ""

@@ -112,7 +112,6 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
             <Button
               noPadding={true}
               appearance="gray-link"
-              onClick={() => deleteFn(draft)}
               icon={<UilTrash />}
               title={i18next.t("g.delete")}
             />

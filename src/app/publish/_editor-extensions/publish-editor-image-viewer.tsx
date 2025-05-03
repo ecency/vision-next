@@ -1,4 +1,4 @@
-import { Button, StyledTooltip } from "@/features/ui";
+import { Button, Popover, PopoverContent, StyledTooltip } from "@/features/ui";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -46,9 +46,23 @@ export function PublishEditorImageViewer({
       className="publish-editor-image-viewer cursor-grab border border-transparent hover:border-blue-dark-sky"
       data-drag-handle
     >
-      <StyledTooltip
-        content={
-          <div className="rounded-lg flex gap-2 pl-1 py-1 border border-[--border-color]">
+      <Popover
+        directContent={
+          <motion.div
+            className="flex flex-col items-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <Image className="w-auto max-w-full" src={src} width={200} height={200} alt={alt} />
+            <div className="flex items-center justify-center text-sm font-sans text-center leading-relaxed py-4">
+              <EditorContent editor={editor} className="cursor-text" />
+            </div>
+          </motion.div>
+        }
+        behavior="hover"
+      >
+        <PopoverContent>
+          <div className="flex gap-2">
             {src.includes("https://images.ecency.com") && (
               <Button
                 noPadding={true}
@@ -95,6 +109,7 @@ export function PublishEditorImageViewer({
               </Button>
             )}
             <Button
+              noPadding={true}
               className="!h-auto"
               icon={<UilTrash />}
               size="xs"
@@ -102,19 +117,8 @@ export function PublishEditorImageViewer({
               onClick={deleteNode}
             />
           </div>
-        }
-      >
-        <motion.div
-          className="flex flex-col items-center"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          <Image className="w-auto max-w-full" src={src} width={200} height={200} alt={alt} />
-          <div className="flex items-center justify-center text-sm font-sans text-center leading-relaxed py-4">
-            <EditorContent editor={editor} className="cursor-text" />
-          </div>
-        </motion.div>
-      </StyledTooltip>
+        </PopoverContent>
+      </Popover>
     </NodeViewWrapper>
   );
 }

@@ -29,34 +29,38 @@ export function ChatMessageChannelItemExtension({
   const communityTeam = useMemo(() => community?.team.map(([name]) => name) ?? [], [community]);
 
   return (
-    <>
-      <Link href={`@${profile?.name ?? ""}`}>
-        <UserAvatar username={profile?.name ?? ""} size="w-[2rem] h-[2rem]" />
-      </Link>
-      <Popover id="profile-popover" className="profile-popover">
-        {children}
-        <PopoverContent>
-          <div className="profile-box" ref={popoverRef as RefObject<HTMLDivElement>}>
-            <div className="profile-box-content">
-              <div className="profile-box-logo flex justify-center">
-                <UserAvatar username={profile?.name ?? ""} size="large" />
-              </div>
+    <Popover
+      id="profile-popover"
+      className="profile-popover"
+      behavior="hover"
+      directContent={
+        <Link href={`@${profile?.name ?? ""}`}>
+          <UserAvatar username={profile?.name ?? ""} size="w-[2rem] h-[2rem]" />
+        </Link>
+      }
+    >
+      {children}
+      <PopoverContent>
+        <div className="profile-box" ref={popoverRef as RefObject<HTMLDivElement>}>
+          <div className="profile-box-content">
+            <div className="profile-box-logo flex justify-center">
+              <UserAvatar username={profile?.name ?? ""} size="large" />
+            </div>
 
-              <p className="flex justify-center profile-name">{`@${profile?.name}`}</p>
-              <div
-                className={`flex mb-3 ${
-                  communityTeam.includes(activeUser?.username!) &&
-                  profile?.name !== currentChannel.communityName
-                    ? "justify-between"
-                    : "justify-center"
-                }  profile-box-buttons`}
-              >
-                <FollowControls targetUsername={profile?.name ?? ""} where="chat-box" />
-              </div>
+            <p className="flex justify-center profile-name">{`@${profile?.name}`}</p>
+            <div
+              className={`flex mb-3 ${
+                communityTeam.includes(activeUser?.username!) &&
+                profile?.name !== currentChannel.communityName
+                  ? "justify-between"
+                  : "justify-center"
+              }  profile-box-buttons`}
+            >
+              <FollowControls targetUsername={profile?.name ?? ""} where="chat-box" />
             </div>
           </div>
-        </PopoverContent>
-      </Popover>
-    </>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
