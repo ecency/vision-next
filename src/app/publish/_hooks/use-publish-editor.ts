@@ -3,7 +3,7 @@ import {
   Selection,
   TagMentionExtensionConfig,
   UserMentionExtensionConfig,
-  convertAllExtensionsToText
+  parseAllExtensionsToDoc
 } from "@/features/tiptap-editor";
 import Document from "@tiptap/extension-document";
 import Image from "@tiptap/extension-image";
@@ -17,13 +17,14 @@ import TableRow from "@tiptap/extension-table-row";
 import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
-
-import { MARKDOWN_SERIALIZERS } from "@/features/tiptap-editor/markdown-serializers";
 import DOMPurify from "dompurify";
-import { parse } from "marked";
+import { marked } from "marked";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
+import Turndown from "turndown";
+// @ts-ignore
+import { strikethrough } from "@joplin/turndown-plugin-gfm";
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -53,7 +54,9 @@ export function usePublishEditor() {
       TableRow,
       TableCell,
       TableHeader,
-      Image.extend({
+      Image.configure({
+        inline: true
+      }).extend({
         addNodeView() {
           return ReactNodeViewRenderer(PublishEditorImageViewer);
         }
@@ -82,15 +85,17 @@ export function usePublishEditor() {
       })
     ],
     onUpdate({ editor }) {
-      const text = editor.getText({
-        textSerializers: MARKDOWN_SERIALIZERS
-      });
-      console.log(text);
+      const text = new Turndown({
+        codeBlockStyle: "fenced"
+      })
+        .use(strikethrough)
+        .keep(["table", "tbody", "th", "tr", "td"])
+        .turndown(editor.getHTML());
       const title = text.substring(0, text.indexOf("\n"));
-      const content = text.substring(text.indexOf("\n"));
+      const content = text.substring(text.indexOf("\n")).replace("============", "");
 
       publishState.setTitle(title.replace("# ", ""));
-      publishState.setContent(convertAllExtensionsToText(content));
+      publishState.setContent(content);
     }
   });
 
@@ -100,11 +105,7 @@ export function usePublishEditor() {
 
   // Handle editor clearing
   useEffect(() => {
-    if (
-      !publishState.title &&
-      !publishState.content &&
-      editor?.storage.markdown.getMarkdown() !== ""
-    ) {
+    if (!publishState.title && !publishState.content && editor?.getText() !== "") {
       editor?.chain().setContent("").run();
     }
   }, [editor, publishState.title, publishState.content]);
@@ -112,12 +113,14 @@ export function usePublishEditor() {
   // Prefill editor with persistent content or default value
   useEffect(() => {
     try {
+      const sanitizedContent = publishState.content
+        ? parseAllExtensionsToDoc(DOMPurify.sanitize(marked.parse(publishState.content) as string))
+        : undefined;
       editor
         ?.chain()
         .setContent(
           `${publishState.title ?? "# Hello Ecency member,"}\n\n ${
-            (publishState.content && DOMPurify.sanitize(parse(publishState.content) as string)) ??
-            "Tell your story..."
+            sanitizedContent ?? "Tell your story..."
           }`
         )
         .run();
