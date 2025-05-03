@@ -19,10 +19,9 @@ import {
   PublishEntryValidateEdit,
   PublishEntrySuccessState
 } from "./_components";
-import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
 
 export default function Publish() {
-  const editor = usePublishEditor();
+  const { editor, setEditorContent } = usePublishEditor();
 
   const params = useParams();
 
@@ -49,14 +48,7 @@ export default function Publish() {
         setMetaDescription(entry.json_metadata?.description ?? postBodySummary(entry.body, 200));
         entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
 
-        editor
-          ?.chain()
-          .setContent(
-            `${entry.title ?? "# Hello Ecency member,"}\n\n ${
-              parseAllExtensionsToDoc(entry.body) ?? "Tell your story..." // todo
-            }`
-          )
-          .run();
+        setEditorContent(entry.title, entry.body);
       } else {
         setStep("no-post");
       }

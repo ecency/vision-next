@@ -16,7 +16,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 import { PublishEditorImageViewer } from "../_editor-extensions";
@@ -32,6 +32,7 @@ const CustomDocument = Document.extend({
 
 export function usePublishEditor() {
   const editor = useEditor({
+    immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     extensions: [
       CustomDocument,
@@ -103,6 +104,26 @@ export function usePublishEditor() {
 
   const publishState = usePublishState();
 
+  const setEditorContent = useCallback(
+    (title: string | undefined, content: string | undefined) => {
+      try {
+        const sanitizedContent = content
+          ? parseAllExtensionsToDoc(DOMPurify.sanitize(marked.parse(content) as string))
+          : undefined;
+        editor
+          ?.chain()
+          .setContent(
+            `${title ?? "# Hello Ecency member,"}\n\n ${sanitizedContent ?? "Tell your story..."}`
+          )
+          .run();
+      } catch (e) {
+        error("Failed to laod local draft. We are working on it");
+        throw e;
+      }
+    },
+    [editor]
+  );
+
   // Handle editor clearing
   useEffect(() => {
     if (!publishState.title && !publishState.content && editor?.getText() !== "") {
@@ -112,23 +133,8 @@ export function usePublishEditor() {
 
   // Prefill editor with persistent content or default value
   useEffect(() => {
-    try {
-      const sanitizedContent = publishState.content
-        ? parseAllExtensionsToDoc(DOMPurify.sanitize(marked.parse(publishState.content) as string))
-        : undefined;
-      editor
-        ?.chain()
-        .setContent(
-          `${publishState.title ?? "# Hello Ecency member,"}\n\n ${
-            sanitizedContent ?? "Tell your story..."
-          }`
-        )
-        .run();
-    } catch (e) {
-      error("Failed to laod local draft. We are working on it");
-      throw e;
-    }
-  }, [editor]);
+    setEditorContent(publishState.title, publishState.content);
+  }, [setEditorContent]);
 
-  return editor;
+  return { editor, setEditorContent };
 }

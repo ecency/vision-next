@@ -58,14 +58,6 @@ export function PublishEditorTableToolbar({ editor }: Props) {
       >
         Delete row
       </Button>
-      <Button
-        appearance="gray-link"
-        size="sm"
-        onClick={() => editor.chain().focus().fixTables().run()}
-        disabled={!editor.can().fixTables()}
-      >
-        Fix tables
-      </Button>
 
       <Button
         appearance="gray-link"

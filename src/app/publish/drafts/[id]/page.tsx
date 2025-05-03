@@ -9,18 +9,16 @@ import {
   PublishValidatePost
 } from "@/app/publish/_components";
 import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import { useApiDraftDetector } from "@/app/submit/_hooks";
 import { AnimatePresence, motion } from "framer-motion";
+import i18next from "i18next";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { PublishSuccessState } from "../../_components/publish-success-state";
-import { useApiDraftDetector } from "@/app/submit/_hooks";
-import { useParams } from "next/navigation";
 import { PublishDraftsNoDraft } from "./_components";
-import { error } from "@/features/shared";
-import i18next from "i18next";
-import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
 
 export default function PublishPage() {
-  const editor = usePublishEditor();
+  const { editor, setEditorContent } = usePublishEditor();
 
   const params = useParams();
 
@@ -37,19 +35,7 @@ export default function PublishPage() {
       setContent(draft.body);
       setTags(draft.tags_arr);
 
-      try {
-        editor
-          ?.chain()
-          .setContent(
-            `${draft.title ?? "# Hello Ecency member,"}\n\n ${
-              parseAllExtensionsToDoc(draft.body) ?? "Tell your story..." // todo
-            }`
-          )
-          .run();
-      } catch (e) {
-        error("Failed to load local draft. We are working on it");
-        throw e;
-      }
+      setEditorContent(draft.title, draft.body);
     },
     () => setStep("no-draft")
   );

@@ -13,7 +13,7 @@ import { PublishEditorPollEditor } from "./_editor-extensions";
 import { EditorContent } from "@tiptap/react";
 
 export default function Publish() {
-  const editor = usePublishEditor();
+  const { editor } = usePublishEditor();
 
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
 

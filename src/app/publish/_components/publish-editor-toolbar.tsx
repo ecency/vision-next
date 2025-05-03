@@ -76,8 +76,6 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
     );
   }, [editor]);
 
-  // TODO add use editor state hook
-
   return (
     <>
       <div className="w-full items-center p-2 sm:py-0 flex flex-wrap gap-1 sm:gap-0">
