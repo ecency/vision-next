@@ -14,6 +14,7 @@ import { PublishValidatePostThumbnailPicker } from "./publish-validate-post-thum
 import { PublishScheduleDialog } from "./publish-schedule-dialog";
 import { PublishValidatePostMeta } from "./publish-validate-post-meta";
 import { usePublishApi, useScheduleApi } from "../_api";
+import { useMount } from "react-use";
 
 interface Props {
   onClose: () => void;
@@ -21,8 +22,7 @@ interface Props {
 }
 
 export function PublishValidatePost({ onClose, onSuccess }: Props) {
-  const { title, metaDescription, tags, setTags, schedule, selectedThumbnail, clearAll } =
-    usePublishState();
+  const { tags, setTags, schedule, clearAll, content } = usePublishState();
 
   const [showSchedule, setShowSchedule] = useState(false);
 
@@ -44,17 +44,13 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     }
 
     clearAll();
-  }, [
-    clearAll,
-    metaDescription,
-    onSuccess,
-    publishNow,
-    schedule,
-    scheduleNow,
-    selectedThumbnail,
-    tags,
-    title
-  ]);
+  }, [clearAll, onSuccess, publishNow, schedule, scheduleNow]);
+
+  useMount(() => {
+    console.log(content);
+    const computedTags = content?.match(/#\w+/gm);
+    console.log(computedTags);
+  });
 
   return (
     <motion.div

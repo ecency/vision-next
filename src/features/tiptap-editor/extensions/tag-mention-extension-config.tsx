@@ -9,8 +9,9 @@ import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
-export const TAG_MENTION_PURE_REGEX = /#\w+/g;
-export const TAG_MENTION_SPAN_REGEX = /<span[^>]*data-type="tag"[^>]*data-id="(.*)"*>.*<\/span>/g;
+export const TAG_MENTION_PURE_REGEX = /#\w+/gm;
+export const TAG_MENTION_SPAN_REGEX =
+  /(<span[^>]*data-type="tag"[^>]*data-id="(.*)"*>.*<\/span>)/gm;
 
 const MentionList = forwardRef<{ onKeyDown: (e: any) => void }, SuggestionProps<string, any>>(
   function MentionListForwarded({ items, command }, ref) {

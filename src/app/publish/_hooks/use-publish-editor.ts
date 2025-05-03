@@ -1,5 +1,6 @@
 import { error } from "@/features/shared";
 import {
+  Selection,
   TagMentionExtensionConfig,
   UserMentionExtensionConfig,
   convertAllExtensionsToText,
@@ -14,13 +15,17 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
+import { AnyExtension, generateText, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
-import { Markdown } from "tiptap-markdown";
+
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
+import { MARKDOWN_SERIALIZERS } from "@/features/tiptap-editor/markdown-serializers";
+import { markdownToHTML } from "@ecency/render-helper/lib/methods";
+import { parse } from "marked";
+import DOMPurify from "dompurify";
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -45,7 +50,7 @@ export function usePublishEditor() {
           return "";
         }
       }),
-      Markdown,
+      Selection,
       Table,
       TableRow,
       TableCell,
@@ -79,9 +84,12 @@ export function usePublishEditor() {
       })
     ],
     onUpdate({ editor }) {
-      const markdown = editor.storage.markdown.getMarkdown();
-      const title = markdown.substring(0, markdown.indexOf("\n"));
-      const content = markdown.substring(markdown.indexOf("\n"));
+      const text = editor.getText({
+        textSerializers: MARKDOWN_SERIALIZERS
+      });
+      console.log(text);
+      const title = text.substring(0, text.indexOf("\n"));
+      const content = text.substring(text.indexOf("\n"));
 
       publishState.setTitle(title.replace("# ", ""));
       publishState.setContent(convertAllExtensionsToText(content));
@@ -110,7 +118,8 @@ export function usePublishEditor() {
         ?.chain()
         .setContent(
           `${publishState.title ?? "# Hello Ecency member,"}\n\n ${
-            parseAllExtensionsToDoc(publishState.content) ?? "Tell your story..."
+            (publishState.content && DOMPurify.sanitize(parse(publishState.content) as string)) ??
+            "Tell your story..."
           }`
         )
         .run();

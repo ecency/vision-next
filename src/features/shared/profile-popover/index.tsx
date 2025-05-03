@@ -16,7 +16,7 @@ export const ProfilePopover = ({ entry }: { entry: Entry }) => {
       </div>
       <Popover
         useMobileSheet={true}
-        placement="auto"
+        placement="bottom"
         anchorParent={true}
         customClassName="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-xl w-[320px]"
       >

@@ -1,11 +1,11 @@
 "use client";
 
+import { autoUpdate } from "@floating-ui/dom";
+import { flip, useFloating } from "@floating-ui/react-dom";
+import clsx from "clsx";
+import { AnimatePresence, motion } from "framer-motion";
 import React, { ReactNode, useState } from "react";
 import { createPortal } from "react-dom";
-import { usePopper } from "react-popper";
-import { useMountedState } from "react-use";
-import { classNameObject } from "@ui/util";
-import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
   content: string | JSX.Element;
@@ -21,62 +21,52 @@ interface StyledProps {
   children: ReactNode;
   content: ReactNode;
   className?: string;
+  onHide?: () => void;
 }
 
-export function StyledTooltip({ children, content, className }: StyledProps) {
-  const [ref, setRef] = useState<any>();
-  const [popperElement, setPopperElement] = useState<any>();
+export function StyledTooltip({ children, content, className, onHide }: StyledProps) {
   const [show, setShow] = useState(false);
 
-  const isMounted = useMountedState();
+  const { refs, floatingStyles } = useFloating({
+    whileElementsMounted: autoUpdate,
+    placement: "bottom",
+    middleware: [flip()]
+  });
 
-  const popper = usePopper(ref, popperElement);
-
-  return isMounted() ? (
+  return (
     <div
-      ref={setRef}
-      className={classNameObject({
-        "styled-tooltip": true,
-        [className ?? ""]: true
-      })}
-      onMouseEnter={() => {
-        setShow(true);
-        popper.update?.();
-      }}
+      ref={refs.setReference}
+      className={clsx("styled-tooltip", className)}
+      onMouseEnter={() => setShow(true)}
       onMouseLeave={() => {
         setShow(false);
-        popper.update?.();
+        onHide?.();
       }}
-      onClick={() => {
-        setShow(!show);
-        popper.update?.();
-      }}
+      onClick={() => setShow(!show)}
     >
       {children}
-      {createPortal(
-        <AnimatePresence>
-          {show && (
-            <motion.div
-              ref={setPopperElement}
-              className="z-10"
-              style={{ ...popper.styles.popper, visibility: show ? "visible" : "hidden" }}
-              {...popper.attributes.popper}
-            >
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {show && content && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.75 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.75 }}
-                className="bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky p-1 rounded-lg text-xs font-semibold"
+                ref={refs.setFloating}
+                className="z-10"
+                style={{ ...floatingStyles, visibility: show ? "visible" : "hidden" }}
               >
-                {content}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.75 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.75 }}
+                  className="bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky p-1 rounded-lg text-xs font-semibold"
+                >
+                  {content}
+                </motion.div>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.querySelector("#popper-container") ?? document.createElement("div")
-      )}
+            )}
+          </AnimatePresence>,
+          document.querySelector("#popper-container") ?? document.createElement("div")
+        )}
     </div>
-  ) : (
-    <></>
   );
 }

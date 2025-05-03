@@ -1,6 +1,5 @@
 "use client";
 
-import { PublishEditorToolbarAddLinkDialog } from "@/app/publish/_components/publish-editor-toolbar-add-link-dialog";
 import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
 import { EcencyConfigManager } from "@/config";
 import { EcencyImagesUploadDialog } from "@/features/ecency-images";
@@ -25,7 +24,6 @@ import {
   UilListUl,
   UilPanelAdd,
   UilParagraph,
-  UilQuestion,
   UilSmile,
   UilSubject,
   UilTable,
@@ -44,11 +42,11 @@ import {
 } from "@ui/dropdown";
 import i18next from "i18next";
 import { useEffect, useRef, useState } from "react";
-import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
-import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
 import { usePublishState } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
-import { useMount } from "react-use";
+import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
+import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
+import { PublishEditorToolbarAddLink } from "./publish-editor-toolbar-add-link";
 
 interface Props {
   editor: any | null;
@@ -72,13 +70,13 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
 
-  useEffect(
-    () =>
-      editor?.on("selectionUpdate", ({ editor }: any) =>
-        setIsFocusingTable(editor.isActive("table"))
-      ),
-    [editor]
-  );
+  useEffect(() => {
+    editor?.on("selectionUpdate", ({ editor }: any) =>
+      setIsFocusingTable(editor.isActive("table"))
+    );
+  }, [editor]);
+
+  // TODO add use editor state hook
 
   return (
     <>
@@ -242,14 +240,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             </Dropdown>
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
-        <StyledTooltip content={i18next.t("publish.action-bar.link")}>
-          <Button
-            appearance="gray-link"
-            size="sm"
-            onClick={() => setShowAddLink(true)}
-            icon={<UilLink />}
-          />
-        </StyledTooltip>
+        <PublishEditorToolbarAddLink editor={editor} />
         <div className="relative" ref={emojiPickerAnchorRef}>
           <StyledTooltip content={i18next.t("publish.action-bar.emoji")}>
             <Button appearance="gray-link" size="sm" icon={<UilSmile />} />
@@ -341,14 +332,6 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             }}
           />
         </EcencyConfigManager.Conditional>
-        <PublishEditorToolbarAddLinkDialog
-          show={showAddLink}
-          setShow={setShowAddLink}
-          onSubmit={(text, link) => {
-            editor?.chain().focus().insertContent(`[${text}](${link})`).run();
-            setShowAddLink(false);
-          }}
-        />
         <PublishGifPickerDialog
           show={showGifPicker}
           setShow={setShowGifPicker}

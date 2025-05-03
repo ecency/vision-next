@@ -9,9 +9,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 export const USER_MENTION_PURE_REGEX =
-  /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/g;
+  /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gm;
 export const USER_MENTION_SPAN_REGEX =
-  /<span[^>]*data-type="mention"[^>]*data-id="(.*)"*>.*<\/span>/g;
+  /<span[^>]*data-type="mention"[^>]*data-id="(.*)"*>.*<\/span>/gm;
 
 const MentionList = forwardRef<{ onKeyDown: (e: any) => void }, SuggestionProps<string, any>>(
   function MentionListForwarded({ items, command }, ref) {

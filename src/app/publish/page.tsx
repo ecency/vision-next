@@ -31,7 +31,10 @@ export default function Publish() {
             <div className="publish-page-editor-toolbar-container border-b border-[--border-color] sticky top-[60px] md:top-[76px] -mx-2 rounded-t-2xl z-10 bg-white">
               <PublishEditorToolbar editor={editor} />
             </div>
-            <EditorContent editor={editor} className="markdown-view p-2 md:p-4 xl:p-6 font-serif" />
+            <EditorContent
+              editor={editor}
+              className="markdown-view p-2 md:p-4 xl:p-6 font-serif caret-blue-dark-sky"
+            />
             <PublishEditorPollEditor />
           </motion.div>
         </>
