@@ -47,9 +47,11 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
   }, [clearAll, onSuccess, publishNow, schedule, scheduleNow]);
 
   useMount(() => {
-    console.log(content);
-    const computedTags = content?.match(/#\w+/gm);
-    console.log(computedTags);
+    const computedTags = Array.from(content?.match(/#\w+/gm) ?? []).map((tag) =>
+      tag.replace("#", "")
+    );
+    const uniqueTagsSet = new Set([...computedTags, ...(tags ?? [])]);
+    setTags(Array.from(uniqueTagsSet));
   });
 
   return (
