@@ -1330,15 +1330,15 @@
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"
 
-"@ecency/sdk@1.0.29":
-  version "1.0.29"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.29.tgz#e0d748425fa25a0a8ec2b7863dcc888ef29ddb8d"
-  integrity sha512-hyzhaee6/RUlMI+geFyF0Zlbbhu3wWZlgqL+3Er14DjTdj5vEmZJSMl3OaterCDgosLPrO9Tf8YMvMox6jD/Dw==
+"@ecency/sdk@1.0.35":
+  version "1.0.35"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.35.tgz#cd9054e69aeaf1e72719e5c11565da529f4b429c"
+  integrity sha512-NXKXnyS15s5VlDvU6SwCjkfGQfmaDW+gzDl7tAF5VbRA2rlq62q4RvJbj4CvT5PtyJjgdzpKvrXeIlXw0lEhoA==
 
-"@ecency/wallets@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.3.tgz#f09ce11fa1c570c3c15a24fc166b3467fdba7a62"
-  integrity sha512-QVLP3AIqWWpkqc3xLc7ZNniM2xMLdX1x+2N0Chxb0DTvvYiv8pBHOjxv2mbXew7hmJYECl0dLl6LnkzaFWHw2g==
+"@ecency/wallets@^1.2.11":
+  version "1.2.11"
+  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.11.tgz#24554ee85ce62860ea743a1e5474273240a508f3"
+  integrity sha512-uYB5EslZ0yCjihyClujXtbpzupM7FnllX//j1kL8b3tygk0/Nu09q6cmr7c/0CKPpPaY5g2jwPnQcr7AZNJjVQ==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"
@@ -3287,10 +3287,10 @@
   dependencies:
     tslib "^2.8.0"
 
-"@tanstack/query-core@5.14.2":
-  version "5.14.2"
-  resolved "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.14.2.tgz"
-  integrity sha512-QmoJvC72sSWs3hgGis8JdmlDvqLfYGWUK4UG6OR9Q6t28JMN9m2FDwKPqoSJ9YVocELCSjMt/FGjEiLfk8000Q==
+"@tanstack/query-core@5.76.0":
+  version "5.76.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.76.0.tgz#3b4d5d34ce307ba0cf7d1a3e90d7adcdc6c46be0"
+  integrity sha512-FN375hb8ctzfNAlex5gHI6+WDXTNpe0nbxp/d2YJtnP+IBM6OUm7zcaoCW6T63BawGOYZBbKC0iPvr41TteNVg==
 
 "@tanstack/query-devtools@5.15.0":
   version "5.15.0"
@@ -3304,12 +3304,12 @@
   dependencies:
     "@tanstack/query-devtools" "5.15.0"
 
-"@tanstack/react-query@^5.15.0":
-  version "5.15.0"
-  resolved "https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.15.0.tgz"
-  integrity sha512-hWLuZ2Hg9HzmHJ3VtWzhvK+sTxPz+rIIujYUxzapPoU9PPXe7NCm8k8EaKpm+Sc65FM7Dljfk/Ov9yYMhwg9vw==
+"@tanstack/react-query@^5.74.4":
+  version "5.76.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.76.0.tgz#d6e797543e5b36007d2c144a347fd2effb18f0a4"
+  integrity sha512-dZLYzVuUFZJkenxd8o01oyFimeLBmSkaUviPHuDzXe7LSLO4WTTx92jwJlNUXOOHzg6t0XknklZ15cjhYNSDjA==
   dependencies:
-    "@tanstack/query-core" "5.14.2"
+    "@tanstack/query-core" "5.76.0"
 
 "@testing-library/dom@^10.4.0":
   version "10.4.0"

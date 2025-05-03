@@ -8,7 +8,7 @@ import { UilCog, UilTimesCircle } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useState, ChangeEvent, useMemo } from "react";
 
-export function ProfileWalletTokenPicker() {
+export default function ProfileWalletTokenPicker() {
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -16,7 +16,9 @@ export function ProfileWalletTokenPicker() {
 
   return (
     <>
-      <Button icon={<UilCog />} appearance="gray-link" onClick={() => setShow(true)} />
+      <Button size="sm" icon={<UilCog />} appearance="gray-link" onClick={() => setShow(true)}>
+        {i18next.t("profile-wallet.setup-tokens")}
+      </Button>
       <Modal show={show} onHide={() => setShow(false)} centered={true}>
         <ModalHeader closeButton={true}>{i18next.t("profile-wallet.pick-tokens")}</ModalHeader>
         <ModalBody>

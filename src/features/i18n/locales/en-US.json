@@ -2642,6 +2642,10 @@
   },
   "profile-wallet": {
     "pick-tokens": "Pick tokens to show",
-    "search-token": "Search token"
+    "search-token": "Search token",
+    "setup-tokens": "Setup assets",
+    "asset-name": "Asset name",
+    "price": "Price",
+    "balance": "Balance"
   }
 }
