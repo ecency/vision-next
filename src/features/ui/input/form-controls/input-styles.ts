@@ -11,7 +11,8 @@ export const INVALID_INPUT_STYLES = "aria-invalid:border-red";
 export const INPUT_IN_GROUP =
   "[&>input]:rounded-[0] [&>input:first-child]:rounded-l-xl [&>input:last-child]:rounded-r-xl";
 
-export const INPUT_SIZES: Record<"sm" | "md", string> = {
+export const INPUT_SIZES: Record<"sm" | "md" | "xs", string> = {
   sm: "text-sm py-1 px-2 rounded-lg",
-  md: "py-2 px-3 rounded-xl"
+  md: "py-2 px-3 rounded-xl",
+  xs: "px-2 py-1 text-sm"
 };
