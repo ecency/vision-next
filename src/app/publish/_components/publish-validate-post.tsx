@@ -15,6 +15,7 @@ import { PublishScheduleDialog } from "./publish-schedule-dialog";
 import { PublishValidatePostMeta } from "./publish-validate-post-meta";
 import { usePublishApi, useScheduleApi } from "../_api";
 import { useMount } from "react-use";
+import { PublishActionBarCommunity } from "./publish-action-bar-community";
 
 interface Props {
   onClose: () => void;
@@ -25,9 +26,6 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
   const { tags, setTags, schedule, clearAll, content } = usePublishState();
 
   const [showSchedule, setShowSchedule] = useState(false);
-
-  const communityTag = useMemo(() => tags?.find((t) => isCommunity(t)), [tags]);
-  const { data: community } = getCommunityCache(communityTag).useClientQuery();
 
   const { mutateAsync: publishNow, isPending: isPublishPending } = usePublishApi();
   const { mutateAsync: scheduleNow, isPending: isSchedulePending } = useScheduleApi();
@@ -50,7 +48,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     const computedTags = Array.from(content?.match(/#\w+/gm) ?? []).map((tag) =>
       tag.replace("#", "")
     );
-    const uniqueTagsSet = new Set([...computedTags, ...(tags ?? [])]);
+    const uniqueTagsSet = new Set([...(tags ?? []), ...computedTags]);
     setTags(Array.from(uniqueTagsSet));
   });
 
@@ -80,13 +78,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
           </div>
         </div>
         <div className="flex flex-col gap-4 md:gap-6 lg:gap-8 items-start">
-          <div className="flex items-center gap-2">
-            <span className="opacity-75">{i18next.t("decks.threads-form.thread-host")}</span>
-            <div className="font-semibold flex items-center gap-2">
-              {community && <UserAvatar username={communityTag ?? ""} size="small" />}
-              {community?.title ?? "My blog"}
-            </div>
-          </div>
+          <PublishActionBarCommunity />
           <div className="flex flex-col gap-2">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {i18next.t("publish.tags-hint")}
