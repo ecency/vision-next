@@ -35,7 +35,7 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
                 ? i18next.t("navbar.discover")
                 : i18next.t("profile-info.create-posts")
             }
-            buttonTo={section == "feed" ? "/discover" : "/submit"}
+            buttonTo={section == "feed" ? "/discover" : "/publish"}
           />
         ) : isCommunity(username) ? (
           <MessageNoData
@@ -62,7 +62,7 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
                 : i18next.t(`g.${section}`)
             }.`}
             buttonText={isMyProfile ? i18next.t("profile-info.create-posts") : ""}
-            buttonTo="/submit"
+            buttonTo="/publish"
           />
         ) : (
           <MessageNoData
@@ -73,7 +73,7 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
                 : i18next.t(`g.${section}`)
             }.`}
             buttonText={isMyProfile ? i18next.t("profile-info.create-posts") : ""}
-            buttonTo="/submit"
+            buttonTo="/publish"
           />
         ))}
     </>
