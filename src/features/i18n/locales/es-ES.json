@@ -1391,7 +1391,7 @@
   },
   "key-or-hot": {
     "sign": "Firmar",
-    "key-placeholder": "Introduzca la Clave activa/propietaria/maestra o la Semilla",
+    "key-placeholder": "Enter active/owner/master private key or seed",
     "with-hivesigner": "Ingresar con Hivesigner",
     "with-keychain": "Ingresar con Keychain"
   },
@@ -2592,7 +2592,7 @@
     "intro": {
       "title": "Regístrate con Billetera o Wallet",
       "description": "Seleccione su nombre de usuario/apodo legible",
-      "currencies-info": "Puede configurar fácilmente una nueva cuenta usando una de estas monedas.",
+      "currencies-info": "You can easily setup new account if you hold of any these currencies.",
       "available": "Este nombre de usuario está disponible para usar",
       "checking": "Comprobando disponibilidad del nombre de usuario..."
     },

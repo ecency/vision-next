@@ -1391,7 +1391,7 @@
   },
   "key-or-hot": {
     "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master key or seed",
+    "key-placeholder": "Enter active/owner/master private key or seed",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain"
   },
@@ -2592,7 +2592,7 @@
     "intro": {
       "title": "Signup with Wallets",
       "description": "Select your human readable username/nickname",
-      "currencies-info": "You can easily setup new account using one of these currencies.",
+      "currencies-info": "You can easily setup new account if you hold of any these currencies.",
       "available": "This username is available to use",
       "checking": "Checking username for availability..."
     },
