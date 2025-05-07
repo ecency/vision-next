@@ -1391,7 +1391,7 @@
   },
   "key-or-hot": {
     "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master key or seed",
+    "key-placeholder": "Enter active/owner/master private key or seed",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain"
   },
