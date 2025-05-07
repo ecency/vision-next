@@ -1391,14 +1391,14 @@
   },
   "key-or-hot": {
     "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master private key or seed",
+    "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain"
   },
   "delegated-vesting": {
     "title": "Delegated Hive Power",
-    "undelegate": "undelegate",
-    "subtitle": " HP Pending delegation returns"
+    "undelegate": "Undelegate",
+    "subtitle": " HP Pending return delegations"
   },
   "received-vesting": {
     "title": "Received Hive Power"
@@ -2423,7 +2423,7 @@
     "enter-your-email-adress": "Ange din e-postadress",
     "send": "Skicka",
     "subscribe-paragraph": "Be first to know what's happening in decentralized web.",
-    "copy-rights": "©2021 Ecency. All right reserved.",
+    "copy-rights": "©2025 Ecency. All rights reserved.",
     "success-message-subscribe": "You are subscribed to our newsletters!",
     "validation-email": "A valid email is required",
     "error-occured": "A server error has been occured."
@@ -2592,7 +2592,7 @@
     "intro": {
       "title": "Signup with Wallets",
       "description": "Select your human readable username/nickname",
-      "currencies-info": "You can easily setup new account if you hold of any these currencies.",
+      "currencies-info": "You can easily setup new account using one of these currencies.",
       "available": "This username is available to use",
       "checking": "Checking username for availability..."
     },
