@@ -1397,8 +1397,8 @@
   },
   "delegated-vesting": {
     "title": "Delegated Hive Power",
-    "undelegate": "Undelegate",
-    "subtitle": " HP Pending return delegations"
+    "undelegate": "undelegate",
+    "subtitle": " HP Pending delegation returns"
   },
   "received-vesting": {
     "title": "Received Hive Power"
@@ -2423,7 +2423,7 @@
     "enter-your-email-adress": "Enter your email adress",
     "send": "Send",
     "subscribe-paragraph": "Be first to know what's happening in decentralized web.",
-    "copy-rights": "©2025 Ecency. All rights reserved.",
+    "copy-rights": "©2021 Ecency. All right reserved.",
     "success-message-subscribe": "You are subscribed to our newsletters!",
     "validation-email": "A valid email is required",
     "error-occured": "A server error has been occured."
