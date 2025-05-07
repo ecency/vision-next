@@ -1397,8 +1397,8 @@
   },
   "delegated-vesting": {
     "title": "Delegated Hive Power",
-    "undelegate": "undelegate",
-    "subtitle": " HP Pending delegation returns"
+    "undelegate": "Undelegate",
+    "subtitle": " HP Pending return delegations"
   },
   "received-vesting": {
     "title": "Received Hive Power"
