@@ -1,6 +1,6 @@
 "use client";
 
-import { EcencyWalletCurrency } from "@ecency/sdk";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 import { useState } from "react";
 import {
   SignupByWalletStepperSteps,

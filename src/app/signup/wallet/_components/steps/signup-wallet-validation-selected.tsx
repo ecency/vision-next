@@ -3,7 +3,7 @@ import {
   useGetExternalWalletBalanceQuery,
   useCoinGeckoPriceQuery,
   EcencyCreateWalletInformation
-} from "@ecency/sdk";
+} from "@ecency/wallets";
 import { Button } from "@/features/ui";
 import { UilCheckCircle, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";

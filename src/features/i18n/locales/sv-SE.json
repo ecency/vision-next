@@ -685,7 +685,7 @@
     "sign-title": "Sign your transaction",
     "fetching-market": "Fetching market...",
     "back": "Tillbaka",
-    "swap-by": "Sign by {{method}}",
+    "swap-by": "Sign with {{method}}",
     "success-title": "Transaction completed",
     "more-than-balance": "You've entered more than available balance",
     "invalid-amount": "Invalid from amount. Please, enter less value",
@@ -1383,13 +1383,17 @@
     "type-limit_order_create": "New trade created",
     "type-limit_order_cancel": "Open trade cancelled",
     "type-effective_comment_vote": "Effective vote",
-    "type-account_witness_proxy": "Governance proxy update"
+    "type-account_witness_proxy": "Governance proxy update",
+    "broken-hint": "Operation link is broken or cannot be recognized",
+    "signer-text": "Signing following transaction/operation",
+    "success-hint": "Operation signed and transaction broadcasted",
+    "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
     "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master key",
-    "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "key-placeholder": "Enter active/owner/master private key or seed",
+    "with-hivesigner": "Sign with Hivesigner",
+    "with-keychain": "Sign with Keychain"
   },
   "delegated-vesting": {
     "title": "Delegated Hive Power",
@@ -1524,7 +1528,8 @@
     "updating": "Updating..",
     "publishing": "Publishing..",
     "saving": "Saving..",
-    "scheduling": "Scheduling.."
+    "scheduling": "Scheduling..",
+    "clearText": "This will clear all content and its Advanced settings."
   },
   "video-upload": {
     "choose-video": "Select a video",
@@ -2587,7 +2592,7 @@
     "intro": {
       "title": "Signup with Wallets",
       "description": "Select your human readable username/nickname",
-      "currencies-info": "You can easily setup new account using one of these currencies.",
+      "currencies-info": "You can easily setup new account if you hold of any these currencies.",
       "available": "This username is available to use",
       "checking": "Checking username for availability..."
     },

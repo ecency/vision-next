@@ -1,3 +1,5 @@
+"use client";
+
 import { createElement, PropsWithChildren, useContext } from "react";
 import { AccordionContext } from "./accordion-context";
 import { useFilteredProps } from "@/features/ui/util";

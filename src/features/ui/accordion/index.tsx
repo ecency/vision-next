@@ -1,3 +1,5 @@
+"use client";
+
 import React, { HTMLProps, useState } from "react";
 import { AccordionContext } from "./accordion-context";
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
