@@ -1397,8 +1397,8 @@
   },
   "delegated-vesting": {
     "title": "Hive Power delegado",
-    "undelegate": "retirar delegación",
-    "subtitle": " Delegación de HP pendiente de devolución"
+    "undelegate": "Undelegate",
+    "subtitle": " HP Pending return delegations"
   },
   "received-vesting": {
     "title": "Hive Power recibido"
