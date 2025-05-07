@@ -44,7 +44,7 @@ export default function PublishPage() {
     <AnimatePresence>
       {step === "edit" && (
         <>
-          <div className="container text-right max-w-[800px] mx-auto text-gray-600 dark:text-gray-400 text-xs">
+          <div className="container text-right max-w-[800px] mx-auto text-gray-600 dark:text-gray-400 text-xs p-2 md:p-0">
             {i18next.t("publish.draft-mode")}
           </div>
           <PublishActionBar onPublish={() => setStep("validation")} />

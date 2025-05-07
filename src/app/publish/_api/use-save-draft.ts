@@ -10,6 +10,7 @@ import { error } from "highcharts";
 import i18next from "i18next";
 import { useParams, useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
+import { EcencyAnalytics } from "@ecency/sdk";
 
 export function useSaveDraftApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -22,6 +23,11 @@ export function useSaveDraftApi() {
 
   const { title, content, tags, beneficiaries, reward, metaDescription, selectedThumbnail, poll } =
     usePublishState();
+
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "draft-created"
+  );
 
   return useMutation({
     mutationKey: ["saveDraft-2.0"],
@@ -70,6 +76,8 @@ export function useSaveDraftApi() {
 
         router.push(`publish/drafts/${draft._id}`);
       }
+
+      recordActivity();
     },
     onError: () => error(i18next.t("g.server-error"))
   });

@@ -10,6 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import i18next from "i18next";
 import { usePublishState } from "../_hooks";
+import { EcencyAnalytics } from "@ecency/sdk";
 
 export function useScheduleApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -25,6 +26,11 @@ export function useScheduleApi() {
     schedule,
     poll
   } = usePublishState();
+
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "draft-created"
+  );
 
   return useMutation({
     mutationKey: ["schedule-2.0"],
@@ -83,6 +89,7 @@ export function useScheduleApi() {
           schedule?.toISOString()!,
           isReblogToCommunity!
         );
+        recordActivity();
       } catch (e) {
         if (e instanceof AxiosError) {
           if (e.response?.data?.message) {

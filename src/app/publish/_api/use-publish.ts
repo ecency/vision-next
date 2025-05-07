@@ -1,20 +1,20 @@
+import { validatePostCreating } from "@/api/hive";
+import { comment, formatError, reblog } from "@/api/operations";
+import { getPostHeaderQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { usePublishState } from "../_hooks";
-import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
-import { Entry, FullAccount, RewardType } from "@/entities";
-import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
-import { getPostHeaderQuery } from "@/api/queries";
-import { postBodySummary } from "@ecency/render-helper";
-import { comment, formatError, reblog } from "@/api/operations";
-import { validatePostCreating } from "@/api/hive";
-import { error, success } from "@/features/shared";
-import i18next from "i18next";
-import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { QueryIdentifiers } from "@/core/react-query";
+import { Entry, FullAccount, RewardType } from "@/entities";
+import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
-import { useRouter } from "next/navigation";
+import { GetPollDetailsQueryResponse } from "@/features/polls/api";
+import { error, success } from "@/features/shared";
+import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
+import { postBodySummary } from "@ecency/render-helper";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import i18next from "i18next";
+import { usePublishState } from "../_hooks";
+import { EcencyAnalytics } from "@ecency/sdk";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();
@@ -33,6 +33,10 @@ export function usePublishApi() {
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "post-created"
+  );
 
   return useMutation({
     mutationKey: ["publish-2.0"],
@@ -139,6 +143,7 @@ export function usePublishApi() {
         updateEntryQueryData([entry]);
 
         await validatePostCreating(entry.author, entry.permlink, 3);
+        recordActivity();
 
         success(i18next.t("submit.published"));
 

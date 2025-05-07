@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 import { postBodySummary } from "@ecency/render-helper";
+import { EcencyAnalytics } from "@ecency/sdk";
 
 export function usePostEdit(entry: Entry | undefined) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -18,6 +19,11 @@ export function usePostEdit(entry: Entry | undefined) {
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "post-updated"
+  );
 
   return useMutation({
     mutationKey: ["update-entry", entry?.author, entry?.permlink],
@@ -69,6 +75,8 @@ export function usePostEdit(entry: Entry | undefined) {
           updated: correctIsoDate(moment().toISOString())
         }
       ]);
+
+      recordActivity();
 
       success(i18next.t("submit.updated"));
       const newLoc = makeEntryPath(category, author, permlink);
