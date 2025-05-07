@@ -1391,7 +1391,7 @@
   },
   "key-or-hot": {
     "sign": "Firmar",
-    "key-placeholder": "Introduzca la clave activa/propietaria/maestra",
+    "key-placeholder": "Enter active/owner/master private key or seed",
     "with-hivesigner": "Ingresar con Hivesigner",
     "with-keychain": "Ingresar con Keychain"
   },
