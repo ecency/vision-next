@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { getAccountsQuery } from "@/api/queries";
 import { useDebounce } from "react-use";
 import i18next from "i18next";
+import { useQuery } from "@tanstack/react-query";
+import { checkUsernameWalletsPendingQueryOptions } from "@ecency/sdk";
 
 interface Props {
   initialUsername: string;
@@ -21,6 +23,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
     isSuccess,
     isPending
   } = getAccountsQuery([username]).useClientQuery();
+  const { data } = useQuery(checkUsernameWalletsPendingQueryOptions(username));
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
   const usernameError = useMemo(() => {
