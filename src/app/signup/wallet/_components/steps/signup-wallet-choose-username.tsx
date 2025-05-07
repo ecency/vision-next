@@ -31,7 +31,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
       return;
     }
 
-    if (existingAccount) {
+    if (existingAccount || (data as any)?.exist === true) {
       return i18next.t("sign-up.username-in-use");
     }
 
@@ -55,7 +55,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
         }
       }
     }
-  }, [existingAccount, username, hasTouched]);
+  }, [existingAccount, username, hasTouched, data]);
   const canCreateAccount = useMemo(
     () => !usernameError && username && isSuccess,
     [usernameError, username, isSuccess]

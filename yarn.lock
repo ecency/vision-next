@@ -1330,15 +1330,15 @@
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"
 
-"@ecency/sdk@1.0.32":
-  version "1.0.32"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.32.tgz#5c1e102f45c2ee6d44f5ba2bc8cf1a0d167699bd"
-  integrity sha512-8xLCXOSiyZNkPBi6PJzRNRood8m1J5mg6Qdk8mInGWT5Bc69t602BEhxXkS3Sp1Dis62ZgHPQY54L7jVss8b9A==
+"@ecency/sdk@1.0.34":
+  version "1.0.34"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.34.tgz#d8cb773225fc0276c4ecb83de74c0098a26be1ad"
+  integrity sha512-91qqABIWMzg+hFI7M6808VIOWoRM5TymqRuLNfFVlDyF4ehn5uvjirJayM/PHrFhWKRADyMHh9JnPTusKf6RuQ==
 
-"@ecency/wallets@^1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.6.tgz#dd4e1db6ea69f8534bb807cf0d73184d09e05699"
-  integrity sha512-80a4neCpbOrmYQZW5Z8J7SIT/bthZle1WaPuobDV0/G0nqMIg/QhdTQfOH6GPcSGoJUxtbupFBEy32oV73eXnQ==
+"@ecency/wallets@^1.2.8":
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.8.tgz#dcbe65ffb2a3109ce856c78e09fd0fe11ffa4517"
+  integrity sha512-5AWr92v9PBJiHwrZJkpEeft+R7ZxkvJo2PhVJr8VWec2ioYQlC1YF7YqKMj+v5VWrxQm/tdkR/AxudbygiGiMA==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"
