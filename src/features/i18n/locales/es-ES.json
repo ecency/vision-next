@@ -2592,7 +2592,7 @@
     "intro": {
       "title": "Regístrate con Billetera o Wallet",
       "description": "Seleccione su nombre de usuario/apodo legible",
-      "currencies-info": "Puede configurar fácilmente una nueva cuenta usando una de estas monedas.",
+      "currencies-info": "You can easily setup new account if you hold of any these currencies.",
       "available": "Este nombre de usuario está disponible para usar",
       "checking": "Comprobando disponibilidad del nombre de usuario..."
     },
