@@ -1286,23 +1286,6 @@
   dependencies:
     nostr-tools "^1.17.0"
 
-"@ecency/render-helper@^2.2.36":
-  version "2.2.36"
-  resolved "https://registry.npmjs.org/@ecency/render-helper/-/render-helper-2.2.36.tgz"
-  integrity sha512-U3xELhOXeTx5A445XK1drXkfM6uBgJu0qLoWaXbq3u3zzy2xh+DE5frJ6EwcrBW21hmQhCXFYfEaSNM/hxgdFA==
-  dependencies:
-    he "^1.2.0"
-    lolight "^1.4.0"
-    lru-cache "^6.0.0"
-    multihashes "0.4.13"
-    path "^0.12.7"
-    querystring "^0.2.0"
-    react-native-crypto-js "^1.0.0"
-    remarkable "^2.0.1"
-    url "^0.11.0"
-    xmldom "^0.5.0"
-    xss "^1.0.9"
-
 "@ecency/render-helper@^2.2.38":
   version "2.2.38"
   resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.2.38.tgz#037ea1c73c265223a0564c8c7ec1cbdb3a996afe"
@@ -1320,13 +1303,11 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@1.1.7":
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.7.tgz#c2271a261bb6beaa99a962c2bd900178ee4eeeca"
-  integrity sha512-sjwmNms6HRc4bUEJ3ZpmpFn+djxUZuM3xVZfT+j0jC1Vmpjt6BPhuUFd9Rl+vUZfyO4PSMJkYUge0gcGk0lOTg==
+"@ecency/renderer@1.1.9":
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.9.tgz#a3a4325b04b0860791ef13f94f5d01afc6b26aab"
+  integrity sha512-hebr3i1UNPAswPi4e1No5bycAIozGS4A7Nuk3P8esMzEMaTQgbmN4iHA8n4LomQI7Viq/7V3QsmlvP1YvVh4wQ==
   dependencies:
-    "@ecency/render-helper" "^2.2.36"
-    clsx "^2.1.1"
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"
 

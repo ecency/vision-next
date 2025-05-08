@@ -1391,14 +1391,14 @@
   },
   "key-or-hot": {
     "sign": "Firmar",
-    "key-placeholder": "Enter active/owner/master private key or seed",
+    "key-placeholder": "Introducir clave privada activa/propietaria/maestra, o frase semilla",
     "with-hivesigner": "Ingresar con Hivesigner",
     "with-keychain": "Ingresar con Keychain"
   },
   "delegated-vesting": {
     "title": "Hive Power delegado",
-    "undelegate": "retirar delegación",
-    "subtitle": " Delegación de HP pendiente de devolución"
+    "undelegate": "Undelegate",
+    "subtitle": " HP Pending return delegations"
   },
   "received-vesting": {
     "title": "Hive Power recibido"
@@ -2423,7 +2423,7 @@
     "enter-your-email-adress": "Introduce tu correo electrónico",
     "send": "Enviar",
     "subscribe-paragraph": "Sé el primero en saber lo que está pasando en la web descentralizada.",
-    "copy-rights": "©2021 Ecency. Todos los derechos reservados.",
+    "copy-rights": "©2025 Ecency. All rights reserved.",
     "success-message-subscribe": "¡Estás suscrito a nuestros boletines de noticias!",
     "validation-email": "Se requiere un email válido",
     "error-occured": "Se ha producido un error en el servidor."
@@ -2592,7 +2592,7 @@
     "intro": {
       "title": "Regístrate con Billetera o Wallet",
       "description": "Seleccione su nombre de usuario/apodo legible",
-      "currencies-info": "You can easily setup new account if you hold of any these currencies.",
+      "currencies-info": "Puede configurar fácilmente una nueva cuenta si mantiene estacada alguna de estas monedas.",
       "available": "Este nombre de usuario está disponible para usar",
       "checking": "Comprobando disponibilidad del nombre de usuario..."
     },
