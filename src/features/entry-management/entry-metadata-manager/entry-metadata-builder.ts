@@ -119,7 +119,7 @@ export class EntryMetadataBuilder {
             }
           }
         : undefined
-    );
+    ).withField("type", "video");
   }
 
   public withPoll(poll?: PollSnapshot): this {

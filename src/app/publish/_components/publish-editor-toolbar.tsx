@@ -5,7 +5,6 @@ import { EcencyConfigManager } from "@/config";
 import { EcencyImagesUploadDialog } from "@/features/ecency-images";
 import { error, GalleryDialog } from "@/features/shared";
 import { FragmentsDialog } from "@/features/shared/fragments";
-import { VideoGallery } from "@/features/shared/video-gallery";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker, StyledTooltip } from "@/features/ui";
 import {
@@ -42,11 +41,12 @@ import {
 } from "@ui/dropdown";
 import i18next from "i18next";
 import { useEffect, useRef, useState } from "react";
-import { usePublishState } from "../_hooks";
+import { usePublishState, usePublishVideoAttach } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
 import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
 import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
 import { PublishEditorToolbarAddLink } from "./publish-editor-toolbar-add-link";
+import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 
 interface Props {
   editor: any | null;
@@ -69,6 +69,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
+
+  const attachVideo = usePublishVideoAttach(editor);
 
   useEffect(() => {
     editor?.on("selectionUpdate", ({ editor }: any) =>
@@ -367,17 +369,17 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           }}
         />
 
-        <VideoGallery
-          showGallery={showVideoGallery}
-          setShowGallery={(v) => setShowVideoGallery(v)}
-          insertText={(t) => {}}
-          setVideoEncoderBeneficiary={(e) => {
-            console.log("ben", e);
+        <PublishEditorVideoGallery
+          show={showVideoGallery}
+          setShow={setShowVideoGallery}
+          onUpload={() => {
+            setShowVideoGallery(false);
+            setShowVideoUpload(true);
           }}
-          toggleNsfwC={() => {
-            console.log("nsfw");
+          onAdd={(video, isNsfw) => {
+            attachVideo(video, isNsfw);
+            setShowVideoGallery(false);
           }}
-          setVideoMetadata={(e) => console.log("meta", e)}
         />
 
         <VideoUpload

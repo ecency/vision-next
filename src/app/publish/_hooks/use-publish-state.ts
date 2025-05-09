@@ -6,6 +6,7 @@ import { addDays } from "date-fns";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { usePublishPollState } from "./use-publish-poll-state";
+import { ThreeSpeakVideo } from "@ecency/sdk";
 
 export function usePublishState() {
   const params = useParams();
@@ -78,6 +79,13 @@ export function usePublishState() {
     undefined,
     persistent
   );
+  const [publishingVideo, setPublishingVideo, clearPublishingVideo] =
+    useSynchronizedLocalStorage<ThreeSpeakVideo>(
+      PREFIX + "_pub_publishing_video",
+      undefined,
+      undefined,
+      persistent
+    );
   const [poll, setPoll, clearPoll] = usePublishPollState(persistent);
 
   const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
@@ -123,6 +131,7 @@ export function usePublishState() {
     setTags([]);
     setSelectedThumbnail("");
     clearPoll();
+    clearPublishingVideo();
   }, [
     setBeneficiaries,
     setContent,
@@ -132,7 +141,8 @@ export function usePublishState() {
     setSelectedThumbnail,
     setTags,
     setTitle,
-    clearPoll
+    clearPoll,
+    clearPublishingVideo
   ]);
 
   return {
@@ -159,6 +169,9 @@ export function usePublishState() {
     setIsReblogToCommunity,
     poll,
     setPoll,
-    createDefaultPoll
+    createDefaultPoll,
+    publishingVideo,
+    setPublishingVideo,
+    clearPublishingVideo
   };
 }

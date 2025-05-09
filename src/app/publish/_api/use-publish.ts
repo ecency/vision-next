@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { updateSpeakVideoInfo } from "@/api/threespeak";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();
@@ -29,7 +30,8 @@ export function usePublishApi() {
     reward,
     beneficiaries,
     isReblogToCommunity,
-    poll
+    poll,
+    publishingVideo
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -41,9 +43,6 @@ export function usePublishApi() {
   return useMutation({
     mutationKey: ["publish-2.0"],
     mutationFn: async () => {
-      // const unpublished3SpeakVideo = Object.values(videos).find(
-      //   (v) => v.status === "publish_manual"
-      // );
       const cleanBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildClearBody(content!);
@@ -59,15 +58,14 @@ export function usePublishApi() {
       let permlink = createPermlink(title!);
 
       // permlink duplication check
-      let existingEntry: Entry | null = null;
       try {
-        existingEntry = await getPostHeaderQuery(author, permlink).fetchAndGet();
-      } catch (e) {}
+        const existingEntry = await getPostHeaderQuery(author, permlink).fetchAndGet();
 
-      if (existingEntry?.author) {
-        // create permlink with random suffix
-        permlink = createPermlink(title!, true);
-      }
+        if (existingEntry?.author) {
+          // create permlink with random suffix
+          permlink = createPermlink(title!, true);
+        }
+      } catch (e) {}
 
       const [parentPermlink] = tags!;
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
@@ -79,32 +77,30 @@ export function usePublishApi() {
         .withTags(tags)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
-        // .withVideo(title, description, unpublished3SpeakVideo)
+        .withVideo(title!, metaDescription!, publishingVideo)
         .withPoll(poll)
         .build();
 
       // If post have one unpublished video need to modify
       //    json metadata which matches to 3Speak
-      //   if (unpublished3SpeakVideo) {
-      //     // Permlink should be got from 3speak video metadata
-      //     permlink = unpublished3SpeakVideo.permlink;
-      //     // update speak video with title, body and tags
-      //     await updateSpeakVideoInfo(
-      //       activeUser.username,
-      //       buildBody(body),
-      //       unpublished3SpeakVideo._id,
-      //       title,
-      //       tags,
-      //       isNsfw
-      //     );
-      //     // set specific metadata for 3speak
-      //     jsonMeta.app = makeApp(appPackage.version);
-      //     jsonMeta.type = "video";
-      //   }
+      if (publishingVideo) {
+        // Permlink should be got from 3speak video metadata
+        permlink = publishingVideo.permlink;
+        // Update speak video with title, body and tags
+        await updateSpeakVideoInfo(
+          activeUser.username,
+          content!,
+          publishingVideo._id,
+          title!,
+          tags ?? [],
+          // isNsfw,
+          false
+        );
+      }
 
-      //   if (jsonMeta.type === "video" && activePoll) {
-      //     throw new Error(i18next.t("polls.videos-collision-error"));
-      //   }
+      if (jsonMeta.type === "video" && poll) {
+        throw new Error(i18next.t("polls.videos-collision-error"));
+      }
 
       const options = makeCommentOptions(author, permlink, reward as RewardType, beneficiaries);
 

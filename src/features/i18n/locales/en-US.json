@@ -2740,7 +2740,12 @@
     "go-to-post": "Open original post",
     "updated-title": "Post has updated!",
     "updated-hint": "Post content has updated. Changes will be visible in few minutes.",
-    "back-to-post": "Back to post"
+    "back-to-post": "Back to post",
+    "video-gallery": {
+      "no-data": "No videos yet",
+      "no-data-hint": "Change filter or publish your first video with 3Speak",
+      "no-data-button": "Upload now"
+    }
   },
   "ecency-images": {
     "upload-image": "Upload image",
