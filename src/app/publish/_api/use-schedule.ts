@@ -24,7 +24,8 @@ export function useScheduleApi() {
     beneficiaries,
     isReblogToCommunity,
     schedule,
-    poll
+    poll,
+    postLinks
   } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
@@ -71,6 +72,7 @@ export function useScheduleApi() {
         // It should select filled description or if its empty or null/undefined then get auto summary
         .withSummary(metaDescription || postBodySummary(cleanBody))
         .withPoll(poll)
+        .withPostLinks(postLinks)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
       const options = makeCommentOptions(author, permlink, reward as RewardType, beneficiaries);

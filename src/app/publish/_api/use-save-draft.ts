@@ -19,8 +19,18 @@ export function useSaveDraftApi() {
   const params = useParams();
   const queryClient = useQueryClient();
 
-  const { title, content, tags, beneficiaries, reward, metaDescription, selectedThumbnail, poll } =
-    usePublishState();
+  const {
+    title,
+    content,
+    tags,
+    beneficiaries,
+    reward,
+    metaDescription,
+    selectedThumbnail,
+    poll,
+    postLinks,
+    publishingVideo
+  } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
@@ -29,10 +39,7 @@ export function useSaveDraftApi() {
 
   return useMutation({
     mutationKey: ["saveDraft-2.0"],
-    mutationFn: async ({} //   videoMetadata
-    : {
-      //   videoMetadata?: ThreeSpeakVideo;
-    }) => {
+    mutationFn: async () => {
       const tagJ = tags?.join(" ");
 
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
@@ -42,14 +49,19 @@ export function useSaveDraftApi() {
         .withTags(tags)
         // It should select filled description or if its empty or null/undefined then get auto summary
         .withSummary(metaDescription! || postBodySummary(content!))
+        .withPostLinks(postLinks)
         .withSelectedThumbnail(selectedThumbnail);
+
+      if (publishingVideo) {
+        metaBuilder.withVideo(title!, content!, publishingVideo);
+      }
 
       const meta = metaBuilder.build();
       const draftMeta: DraftMetadata = {
         ...meta,
         beneficiaries: beneficiaries!,
         rewardType: reward as RewardType,
-        // videos,
+        videos: {},
         poll
       };
 

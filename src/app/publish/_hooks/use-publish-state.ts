@@ -1,4 +1,4 @@
-import { BeneficiaryRoute } from "@/entities";
+import { BeneficiaryRoute, Entry } from "@/entities";
 import { extractMetaData, useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { postBodySummary } from "@ecency/render-helper";
@@ -86,6 +86,16 @@ export function usePublishState() {
       undefined,
       persistent
     );
+  const [postLinks, setPostLinks, clearPostLinks] = useSynchronizedLocalStorage<Entry[]>(
+    PREFIX + "_pub_post_links",
+    [],
+    {
+      serializer: (val) => JSON.stringify(val),
+      deserializer: (val) => JSON.parse(val),
+      raw: false
+    },
+    persistent
+  );
   const [poll, setPoll, clearPoll] = usePublishPollState(persistent);
 
   const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
@@ -132,6 +142,7 @@ export function usePublishState() {
     setSelectedThumbnail("");
     clearPoll();
     clearPublishingVideo();
+    clearPostLinks();
   }, [
     setBeneficiaries,
     setContent,
@@ -142,7 +153,8 @@ export function usePublishState() {
     setTags,
     setTitle,
     clearPoll,
-    clearPublishingVideo
+    clearPublishingVideo,
+    clearPostLinks
   ]);
 
   return {
@@ -172,6 +184,8 @@ export function usePublishState() {
     createDefaultPoll,
     publishingVideo,
     setPublishingVideo,
-    clearPublishingVideo
+    clearPublishingVideo,
+    postLinks,
+    setPostLinks
   };
 }

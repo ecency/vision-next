@@ -18,15 +18,16 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useCallback, useEffect } from "react";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
+import { useCallback, useEffect } from "react";
+import Turndown from "turndown";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
-import Turndown from "turndown";
 // @ts-ignore
 import { strikethrough } from "@joplin/turndown-plugin-gfm";
+import { usePublishLinksAttach } from "./use-publish-links-attach";
 
 const CustomDocument = Document.extend({
   content: "heading block*"
@@ -100,10 +101,11 @@ export function usePublishEditor() {
       const content = text.substring(text.indexOf("\n"));
 
       publishState.setTitle(title.replace("# ", ""));
-      publishState.setContent(content);
+      publishState.setContent(content.substring(text.indexOf("\n") + 1));
     }
   });
 
+  usePublishLinksAttach(editor);
   useEditorDragDrop(editor);
 
   const publishState = usePublishState();

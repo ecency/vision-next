@@ -2,7 +2,7 @@ import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import { PollSnapshot } from "../../polls";
 import appPackage from "../../../../package.json";
 import { getDimensionsFromDataUrl } from "./get-dimensions-from-data-url";
-import { extractMetaData, makeApp } from "@/utils";
+import { extractMetaData, makeApp, makeEntryPath } from "@/utils";
 import { Entry, MetaData } from "@/entities";
 import { ThreeSpeakVideo } from "@/api/threespeak";
 
@@ -50,6 +50,29 @@ export class EntryMetadataBuilder {
 
   public withTags(tags?: string[]): this {
     return this.withField("tags", tags?.concat(DEFAULT_TAGS) ?? DEFAULT_TAGS);
+  }
+
+  public withPostLinks(entries: Entry[] = []): this {
+    return this.withField(
+      "links",
+      entries.map(
+        (entry) =>
+          `https://ecency.com${makeEntryPath(entry.category, entry.author, entry.permlink)}`
+      )
+    ).withField(
+      "links_meta",
+      entries.reduce(
+        (acc, entry) => ({
+          ...acc,
+          [`https://ecency.comA${makeEntryPath(entry.category, entry.author, entry.permlink)}`]: {
+            title: entry.title,
+            summary: entry.json_metadata.description,
+            image: entry.json_metadata.image
+          }
+        }),
+        {}
+      )
+    );
   }
 
   public async withSelectedThumbnail(

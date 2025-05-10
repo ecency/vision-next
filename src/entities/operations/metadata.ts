@@ -10,4 +10,6 @@ export interface MetaData {
   video?: any;
   type?: string;
   pinned_reply?: string; // author/permlink
+  links?: string[];
+  links_meta?: Record<string, { image: string; summary: string; title: string }>;
 }

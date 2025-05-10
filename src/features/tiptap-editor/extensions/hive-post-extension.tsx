@@ -74,7 +74,8 @@ export const HivePostExtension = Node.create({
       "a",
       {
         href: HTMLAttributes.href
-      }
+      },
+      HTMLAttributes.href
     ];
   },
 

@@ -52,7 +52,7 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
 
   // Handle tags
   (Array.from(tree.querySelectorAll("*:not(:has(a)):not(a)").values()) as HTMLElement[])
-    .filter((el) => USER_MENTION_PURE_REGEX.test(el.innerText))
+    .filter((el) => TAG_MENTION_PURE_REGEX.test(el.innerText))
     .forEach((el) => {
       el.innerHTML = el.innerHTML.replace(
         TAG_MENTION_PURE_REGEX,

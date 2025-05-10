@@ -31,7 +31,8 @@ export function usePublishApi() {
     beneficiaries,
     isReblogToCommunity,
     poll,
-    publishingVideo
+    publishingVideo,
+    postLinks
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -75,6 +76,7 @@ export function usePublishApi() {
         // It should select filled description or if its empty or null/undefined then get auto summary
         .withSummary(metaDescription || postBodySummary(cleanBody))
         .withTags(tags)
+        .withPostLinks(postLinks)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
         .withVideo(title!, metaDescription!, publishingVideo)
