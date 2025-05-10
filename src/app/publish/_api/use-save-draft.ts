@@ -14,8 +14,6 @@ import { EcencyAnalytics } from "@ecency/sdk";
 
 export function useSaveDraftApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  //   const { videos } = useThreeSpeakManager();
-  //   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
   const router = useRouter();
   const params = useParams();

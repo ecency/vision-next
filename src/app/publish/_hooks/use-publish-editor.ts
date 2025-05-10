@@ -2,6 +2,7 @@ import { error } from "@/features/shared";
 import {
   Selection,
   TagMentionExtensionConfig,
+  ThreeSpeakVideoExtension,
   UserMentionExtensionConfig,
   parseAllExtensionsToDoc
 } from "@/features/tiptap-editor";
@@ -83,7 +84,8 @@ export function usePublishEditor() {
             "border border-[--border-color] rounded-lg px-1 py-0.5 bg-gray-100 dark:bg-dark-default text-blue-dark-sky"
         },
         suggestion: TagMentionExtensionConfig as any
-      })
+      }),
+      ThreeSpeakVideoExtension
     ],
     onUpdate({ editor }) {
       const text = new Turndown({
@@ -93,7 +95,7 @@ export function usePublishEditor() {
         .keep(["table", "tbody", "th", "tr", "td"])
         .turndown(editor.getHTML());
       const title = text.substring(0, text.indexOf("\n"));
-      const content = text.substring(text.indexOf("\n")).replace("============", "");
+      const content = text.substring(text.indexOf("\n")).replace("======", "");
 
       publishState.setTitle(title.replace("# ", ""));
       publishState.setContent(content);
