@@ -84,7 +84,7 @@ export const HivePostExtension = Node.create({
   },
   addCommands() {
     return {
-      set3SpeakVideo:
+      setHivePost:
         (options) =>
         ({ commands }) => {
           return commands.insertContent({
@@ -100,7 +100,6 @@ export const HivePostExtension = Node.create({
         find: HIVE_POST_PURE_REGEX,
         type: this.type,
         getAttributes(match) {
-          console.log(match);
           return {
             href: match[0]
           };

@@ -42,17 +42,17 @@ export function usePublishEditor() {
       StarterKit.configure({
         document: false
       }) as AnyExtension,
-      Placeholder.configure({
-        placeholder: ({ node }) => {
-          if (node.type.name === "heading") {
-            return "What’s the title?";
-          } else if (node.type.name === "paragraph") {
-            return "Tell your story...";
-          }
+      // Placeholder.configure({
+      //   placeholder: ({ node }) => {
+      //     if (node.type.name === "heading") {
+      //       return "What’s the title?";
+      //     } else if (node.type.name === "paragraph") {
+      //       return "Tell your story...";
+      //     }
 
-          return "";
-        }
-      }),
+      //     return "";
+      //   }
+      // }),
       Selection,
       Table,
       TableRow,

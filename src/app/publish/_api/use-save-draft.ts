@@ -61,7 +61,6 @@ export function useSaveDraftApi() {
         ...meta,
         beneficiaries: beneficiaries!,
         rewardType: reward as RewardType,
-        videos: {},
         poll
       };
 

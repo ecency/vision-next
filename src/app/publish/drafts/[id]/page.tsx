@@ -1,81 +1,14 @@
-"use client";
+import { PagesMetadataGenerator } from "@/features/metadata";
+import Draft from "./_page";
+import { Metadata, ResolvingMetadata } from "next";
 
-import { EditorContent } from "@tiptap/react";
-import "../../page.scss";
+export async function generateMetadata(
+  props: unknown,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  return PagesMetadataGenerator.getForPage("draft");
+}
 
-import {
-  PublishActionBar,
-  PublishEditorToolbar,
-  PublishValidatePost
-} from "@/app/publish/_components";
-import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
-import { useApiDraftDetector } from "@/app/submit/_hooks";
-import { AnimatePresence, motion } from "framer-motion";
-import i18next from "i18next";
-import { useParams } from "next/navigation";
-import { useState } from "react";
-import { PublishSuccessState } from "../../_components/publish-success-state";
-import { PublishDraftsNoDraft } from "./_components";
-
-export default function PublishPage() {
-  const { editor, setEditorContent } = usePublishEditor();
-
-  const params = useParams();
-
-  const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published" | "no-draft">(
-    "edit"
-  );
-
-  const { setTitle, setContent, setTags } = usePublishState();
-
-  useApiDraftDetector(
-    params.id as string,
-    (draft) => {
-      setTitle(draft.title);
-      setContent(draft.body);
-      setTags(draft.tags_arr);
-
-      setEditorContent(draft.title, draft.body);
-    },
-    () => setStep("no-draft")
-  );
-
-  return (
-    <AnimatePresence>
-      {step === "edit" && (
-        <>
-          <div className="container text-right max-w-[800px] mx-auto text-gray-600 dark:text-gray-400 text-xs p-2 md:p-0">
-            {i18next.t("publish.draft-mode")}
-          </div>
-          <PublishActionBar onPublish={() => setStep("validation")} />
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="publish-page max-w-[800px] rounded-2xl bg-white container mx-auto px-2"
-          >
-            <div className="publish-page-editor-toolbar-container border-b border-[--border-color] sticky top-[60px] md:top-[76px] -mx-2 rounded-t-2xl z-10 bg-white">
-              <PublishEditorToolbar editor={editor} />
-            </div>
-            <EditorContent editor={editor} className="markdown-view p-2 md:p-4 xl:p-6 font-serif" />
-          </motion.div>
-        </>
-      )}
-      {step === "validation" && (
-        <PublishValidatePost
-          onClose={() => setStep("edit")}
-          onSuccess={(step) => {
-            setStep(step);
-          }}
-        />
-      )}
-      {["scheduled", "published"].includes(step) && (
-        <PublishSuccessState
-          step={step as "published" | "scheduled"}
-          setEditStep={() => setStep("edit")}
-        />
-      )}
-      {step === "no-draft" && <PublishDraftsNoDraft />}
-    </AnimatePresence>
-  );
+export default function DraftPage() {
+  return <Draft />;
 }
