@@ -370,6 +370,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
         />
 
         <PublishEditorVideoGallery
+          hasAlreadyPublishingVideo={!!publishState.publishingVideo}
+          filterOnly={allowToUploadVideo ? undefined : "published"}
           show={showVideoGallery}
           setShow={setShowVideoGallery}
           onUpload={() => {

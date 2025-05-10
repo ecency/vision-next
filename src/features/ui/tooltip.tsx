@@ -51,7 +51,7 @@ export function StyledTooltip({ children, content, className, onHide }: StyledPr
             {show && content && (
               <motion.div
                 ref={refs.setFloating}
-                className="z-10"
+                className="z-[1070] absolute"
                 style={{ ...floatingStyles, visibility: show ? "visible" : "hidden" }}
               >
                 <motion.div

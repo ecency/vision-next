@@ -1,6 +1,6 @@
 import { Button, Popover, PopoverContent } from "@/features/ui";
 import { proxifyImageSrc } from "@ecency/render-helper";
-import { Node, NodeViewProps } from "@tiptap/core";
+import { mergeAttributes, Node, NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
@@ -107,8 +107,13 @@ export const ThreeSpeakVideoExtension = Node.create({
     ];
   },
   renderHTML({ HTMLAttributes }) {
-    // mergeAttributes(this.options.HTMLAttributes, HTMLAttributes)
-    return ["div", "video is here"];
+    return [
+      "a",
+      {
+        href: HTMLAttributes.src
+      },
+      ["img", { src: HTMLAttributes.thumbnail, alt: "" }]
+    ];
   },
 
   addNodeView() {

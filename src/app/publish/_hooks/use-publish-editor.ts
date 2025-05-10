@@ -95,7 +95,7 @@ export function usePublishEditor() {
         .keep(["table", "tbody", "th", "tr", "td"])
         .turndown(editor.getHTML());
       const title = text.substring(0, text.indexOf("\n"));
-      const content = text.substring(text.indexOf("\n")).replace("======", "");
+      const content = text.substring(text.indexOf("\n"));
 
       publishState.setTitle(title.replace("# ", ""));
       publishState.setContent(content);
@@ -110,7 +110,10 @@ export function usePublishEditor() {
     (title: string | undefined, content: string | undefined) => {
       try {
         const sanitizedContent = content
-          ? parseAllExtensionsToDoc(DOMPurify.sanitize(marked.parse(content) as string))
+          ? parseAllExtensionsToDoc(
+              DOMPurify.sanitize(marked.parse(content) as string),
+              publishState.publishingVideo
+            )
           : undefined;
         editor
           ?.chain()
@@ -123,7 +126,7 @@ export function usePublishEditor() {
         throw e;
       }
     },
-    [editor]
+    [editor, publishState.publishingVideo]
   );
 
   // Handle editor clearing
@@ -136,7 +139,7 @@ export function usePublishEditor() {
   // Prefill editor with persistent content or default value
   useEffect(() => {
     setEditorContent(publishState.title, publishState.content);
-  }, [setEditorContent]);
+  }, [editor]);
 
   return { editor, setEditorContent };
 }

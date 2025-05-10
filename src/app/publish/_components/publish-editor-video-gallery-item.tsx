@@ -1,4 +1,4 @@
-import { Button, Popover } from "@/features/ui";
+import { Button, Popover, StyledTooltip } from "@/features/ui";
 import { dateToFullRelative } from "@/utils";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { ThreeSpeakVideo } from "@ecency/sdk";
@@ -9,6 +9,7 @@ import Image from "next/image";
 
 interface Props {
   video: ThreeSpeakVideo;
+  hasAlreadyPublishingVideo: boolean;
   onAdd: () => void;
   onAddNsfw: () => void;
 }
@@ -63,7 +64,12 @@ function Status({ status, encodingProgress }: { status: string; encodingProgress
   );
 }
 
-export function PublishEditorVideoGalleryItem({ video, onAdd, onAddNsfw }: Props) {
+export function PublishEditorVideoGalleryItem({
+  video,
+  onAdd,
+  onAddNsfw,
+  hasAlreadyPublishingVideo
+}: Props) {
   return (
     <div className="border border-[--border-color] rounded-xl overflow-hidden">
       <Image
@@ -91,10 +97,23 @@ export function PublishEditorVideoGalleryItem({ video, onAdd, onAddNsfw }: Props
 
         {["publish_manual", "published"].includes(video.status) && (
           <div className="grid grid-cols-1 sm:grid-cols-2">
-            <Button size="sm" onClick={onAdd}>
-              {i18next.t("video-gallery.insert-video")}
-            </Button>
-            {video.status != "published" && (
+            <StyledTooltip
+              content={
+                hasAlreadyPublishingVideo &&
+                video.status === "publish_manual" &&
+                "Only one video can be published in one post"
+              }
+            >
+              <Button
+                full={true}
+                size="sm"
+                onClick={onAdd}
+                disabled={hasAlreadyPublishingVideo && video.status === "publish_manual"}
+              >
+                {i18next.t("video-gallery.insert-video")}
+              </Button>
+            </StyledTooltip>
+            {video.status === "published" && (
               <Button appearance="link" size="sm" onClick={onAddNsfw}>
                 {i18next.t("video-gallery.insert-nsfw")}
               </Button>

@@ -4,14 +4,16 @@ import { ThreeSpeakIntegration, ThreeSpeakVideo } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilMinusCircle, UilPlus, UilSync } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PublishEditorVideoGalleryItem } from "./publish-editor-video-gallery-item";
 
 interface Props {
   show: boolean;
   setShow: (v: boolean) => void;
   onUpload: () => void;
+  hasAlreadyPublishingVideo: boolean;
   onAdd: (video: ThreeSpeakVideo, isNsfw: boolean) => void;
+  filterOnly?: string;
 }
 
 const TABS = [
@@ -41,7 +43,14 @@ const TABS = [
   }
 ];
 
-export function PublishEditorVideoGallery({ show, setShow, onUpload, onAdd }: Props) {
+export function PublishEditorVideoGallery({
+  show,
+  setShow,
+  onUpload,
+  onAdd,
+  hasAlreadyPublishingVideo,
+  filterOnly
+}: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const [tab, setTab] = useState("all");
@@ -56,22 +65,30 @@ export function PublishEditorVideoGallery({ show, setShow, onUpload, onAdd }: Pr
     )
   });
 
+  useEffect(() => {
+    if (filterOnly) {
+      setTab(filterOnly);
+    }
+  }, [filterOnly]);
+
   return (
     <Modal centered={true} size="lg" show={show} onHide={() => setShow(false)}>
       <ModalHeader closeButton={true}>{i18next.t("video-gallery.title")}</ModalHeader>
       <ModalBody>
         <div className="flex items-center justify-between border-b border-[--border-color] -mx-3 px-3">
           <div className="flex overflow-x-auto no-scrollbar text-sm font-semibold">
-            {TABS.map(({ label, value }, i) => (
-              <TabItem
-                title={label}
-                name={value}
-                key={value}
-                i={i}
-                onSelect={() => setTab(value)}
-                isSelected={value === tab}
-              />
-            ))}
+            {TABS.filter((tab) => (filterOnly ? filterOnly === tab.value : true)).map(
+              ({ label, value }, i) => (
+                <TabItem
+                  title={label}
+                  name={value}
+                  key={value}
+                  i={i}
+                  onSelect={() => setTab(value)}
+                  isSelected={value === tab}
+                />
+              )
+            )}
           </div>
 
           <Button
@@ -88,6 +105,7 @@ export function PublishEditorVideoGallery({ show, setShow, onUpload, onAdd }: Pr
         <div className="grid grid-col-1 sm:grid-cols-2 gap-2">
           {data?.map((item) => (
             <PublishEditorVideoGalleryItem
+              hasAlreadyPublishingVideo={hasAlreadyPublishingVideo}
               video={item}
               key={item._id}
               onAdd={() => onAdd(item, false)}
