@@ -1,5 +1,6 @@
 import { error } from "@/features/shared";
 import {
+  HivePostExtension,
   Selection,
   TagMentionExtensionConfig,
   ThreeSpeakVideoExtension,
@@ -85,7 +86,8 @@ export function usePublishEditor() {
         },
         suggestion: TagMentionExtensionConfig as any
       }),
-      ThreeSpeakVideoExtension
+      ThreeSpeakVideoExtension,
+      HivePostExtension
     ],
     onUpdate({ editor }) {
       const text = new Turndown({
@@ -138,7 +140,9 @@ export function usePublishEditor() {
 
   // Prefill editor with persistent content or default value
   useEffect(() => {
-    setEditorContent(publishState.title, publishState.content);
+    if (editor) {
+      setEditorContent(publishState.title, publishState.content);
+    }
   }, [editor]);
 
   return { editor, setEditorContent };
