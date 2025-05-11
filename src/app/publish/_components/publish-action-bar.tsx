@@ -100,7 +100,7 @@ export function PublishActionBar({ onPublish }: Props) {
                   ? i18next.t("publish.update-draft")
                   : i18next.t("publish.save-draft")
               }
-              onClick={() => saveToDraft({})}
+              onClick={() => saveToDraft()}
             />
             <DropdownItemWithIcon
               selected={!!scheduleDate}
