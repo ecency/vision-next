@@ -30,11 +30,11 @@ function VideoViewer({
                   className="w-full h-full object-cover"
                 />
                 <Image
-                  src="https://3speak.tv/img/3S_logo.svg"
-                  width={100}
-                  height={60}
+                  src="/assets/speak-logo.svg"
+                  width={48}
+                  height={48}
                   alt=""
-                  className="absolute top-4 left-4 rounded-lg bg-white p-2"
+                  className="absolute top-4 left-4"
                 />
                 <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
                   <div className="font-sans text-white backdrop-blur-md p-4 rounded-xl">
