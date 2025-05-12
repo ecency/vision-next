@@ -123,8 +123,8 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("g.edit"),
           onClick:
-            isComment && toggleEdit
-              ? toggleEdit
+            isComment
+              ? () => router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`)
               : () => router.push(`/@${entry.author}/${entry.permlink}/edit`),
           icon: <UilPen />
         })
