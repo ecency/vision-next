@@ -8,10 +8,11 @@ import { Entry } from "@/entities";
 interface Props {
   filter: string;
   tag: string;
+  observer?: string;
 }
 
-export function FeedInfiniteList({ filter, tag }: Props) {
-  const { fetchNextPage, data } = usePostsFeedQuery(filter, tag);
+export function FeedInfiniteList({ filter, tag, observer }: Props) {
+  const { fetchNextPage, data } = usePostsFeedQuery(filter, tag, observer);
 
   const entryList = useMemo(
     () =>

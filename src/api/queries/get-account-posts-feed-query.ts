@@ -68,7 +68,7 @@ export function getPostsFeedQueryData(what: string, tag: string, limit = 20, obs
   return getPostsRankedQuery(what, tag, limit, observer ?? "").getData();
 }
 
-export function usePostsFeedQuery(what: string, tag: string, limit = 20) {
+export function usePostsFeedQuery(what: string, tag: string, observer?: string, limit = 20) {
   const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
 
@@ -85,7 +85,7 @@ export function usePostsFeedQuery(what: string, tag: string, limit = 20) {
       tag.replace("@", "").replace("%40", ""),
       what,
       limit,
-      "",
+      observer ?? "",
       true
     ).useClientQuery();
   }
@@ -94,5 +94,5 @@ export function usePostsFeedQuery(what: string, tag: string, limit = 20) {
     return getControversialRisingQuery(what, tag).useClientQuery();
   }
 
-  return getPostsRankedQuery(what, tag, limit, "").useClientQuery();
+  return getPostsRankedQuery(what, tag, limit, observer??"").useClientQuery();
 }
