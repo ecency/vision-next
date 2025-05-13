@@ -37,7 +37,7 @@ export function FeedContent({ filter, tag, observer, searchParams }: Props) {
         isPromoted={true}
         username=""
       />
-      <FeedInfiniteList tag={tag} filter={filter} />
+      <FeedInfiniteList tag={tag} filter={filter} observer={observer} />
     </FeedLayout>
   );
 }
