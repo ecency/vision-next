@@ -1,11 +1,14 @@
 "use client";
 
+import { useGlobalStore } from "@/core/global-store";
 import { ErrorTypes } from "@/enums";
 import { ErrorFeedbackObject, FeedbackModal, FeedbackObject } from "@/features/shared";
+import { EcencyAnalytics } from "@ecency/sdk";
 import { UilCheckCircle, UilExclamationCircle, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
 import i18next from "i18next";
+import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { useMount } from "react-use";
 
@@ -16,6 +19,7 @@ interface Props {
 
 export function FeedbackMessage({ feedback, onClose }: Props) {
   const timeoutRef = useRef<any>();
+  const activeUser = useGlobalStore((s) => s.activeUser);
 
   const [showDialog, setShowDialog] = useState(false);
   const errorType = (feedback as ErrorFeedbackObject).errorType;
@@ -49,7 +53,10 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
               )}
             >
               {feedback.type === "success" && "Success"}
-              {feedback.type === "error" && "Error"}
+              {feedback.type === "error" &&
+                (errorType === ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS
+                  ? i18next.t("feedback-modal.insufficient-resource-title")
+                  : "Error")}
               {feedback.type === "info" && "Information"}
             </div>
             <Button
@@ -60,6 +67,18 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
             />
           </div>
           <div className="text-gray-600 dark:text-gray-400">{feedback.message}</div>
+          {errorType === ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS && (
+            <div className="mt-2 flex flex-col gap-2">
+              <Link
+                href={`https://ecency.com/purchase?username=${activeUser?.username}&type=boost&product_id=999points`}
+                target="_external"
+              >
+                <Button size="xs" appearance="gray">
+                  {i18next.t("feedback-modal.insufficient-resource-buy")}
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -70,6 +89,7 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
               {i18next.t("feedback-modal.question")}
             </Button>
           )}
+
           {errorType !== ErrorTypes.INFO && (
             <Button
               size="xs"
