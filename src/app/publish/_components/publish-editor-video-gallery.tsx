@@ -55,7 +55,7 @@ export function PublishEditorVideoGallery({
 
   const [tab, setTab] = useState("all");
 
-  const { data, refetch, isFetching } = useQuery<ThreeSpeakVideo[]>({
+  const { data, refetch, isFetching } = useQuery({
     ...ThreeSpeakIntegration.queries.getAccountVideosQueryOptions(activeUser?.username),
     refetchInterval: 60000,
     select: useCallback(
