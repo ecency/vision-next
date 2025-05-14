@@ -8,6 +8,7 @@ import { error, success } from "@/features/shared";
 import * as ss from "@/utils/session-storage";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
+import { getAccountRcQueryOptions } from "@ecency/sdk";
 
 export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?: () => void) {
   const activeUser = useGlobalStore((state) => state.activeUser);
@@ -73,6 +74,7 @@ export function useCreateReply(entry?: Entry | null, parent?: Entry, onSuccess?:
         ],
         (previousReplies) => [data, ...(previousReplies ?? [])]
       );
+      queryClient.refetchQueries(getAccountRcQueryOptions(data.author));
 
       onSuccess?.();
 

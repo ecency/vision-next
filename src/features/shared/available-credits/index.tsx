@@ -12,7 +12,8 @@ import { RcOperation } from "@/entities";
 import { useMounted } from "@/utils/use-mounted";
 import { rcFormatter } from "@/utils";
 import i18next from "i18next";
-import { getRcAccountsQuery, getRcOperatorsStatsQuery } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountRcQueryOptions, getRcStatsQueryOptions } from "@ecency/sdk";
 
 interface Props {
   username: string;
@@ -35,8 +36,8 @@ export const AvailableCredits = ({ username, className }: Props) => {
   const [popperElement, setPopperElement] = useState<any>();
   const [isShow, setIsShow] = useState(false);
 
-  const { data: rcValues } = getRcAccountsQuery(username).useClientQuery();
-  const { data: rcStats } = getRcOperatorsStatsQuery().useClientQuery();
+  const { data: rcValues } = useQuery(getAccountRcQueryOptions(username));
+  const { data: rcStats } = useQuery(getRcStatsQueryOptions());
 
   const popper = usePopper(host, popperElement);
 
@@ -62,7 +63,7 @@ export const AvailableCredits = ({ username, className }: Props) => {
     const formatIncoming = rcFormatter(inComing);
     setReceivedDelegation(formatIncoming);
 
-    const operationCosts = rcStats.rc_stats.ops;
+    const operationCosts = rcStats.ops;
     const commentCost = operationCosts.comment_operation.avg_cost;
     const transferCost = operationCosts.transfer_operation.avg_cost;
     const voteCost = operationCosts.vote_operation.avg_cost;

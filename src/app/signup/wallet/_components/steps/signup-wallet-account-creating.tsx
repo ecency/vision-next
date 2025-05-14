@@ -3,6 +3,7 @@ import { useUpdateProfile } from "@/api/mutations";
 import { useLoginByKey, useLoginInApp } from "@/features/shared/login/hooks";
 import { Button } from "@/features/ui";
 import { delay } from "@/utils";
+import { EcencyAnalytics } from "@ecency/sdk";
 import {
   EcencyCreateWalletInformation,
   EcencyWalletCurrency,
@@ -42,6 +43,10 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
     useSaveWalletInformationToMetadata(username);
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    username,
+    "signed-up-with-wallets"
+  );
 
   const validateAccountIsCreated = useCallback(async () => {
     let account;
@@ -60,7 +65,8 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp())
-        .then(() => saveWalletInformationToMetadata({ wallets: wallets! }));
+        .then(() => saveWalletInformationToMetadata({ wallets: wallets! }))
+        .then(() => recordActivity());
     }
   }, [
     accountKeys,

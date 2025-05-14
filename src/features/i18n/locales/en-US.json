@@ -1399,8 +1399,8 @@
   },
   "delegated-vesting": {
     "title": "Delegated Hive Power",
-    "undelegate": "undelegate",
-    "subtitle": " HP Pending delegation returns"
+    "undelegate": "Undelegate",
+    "subtitle": " HP Pending return delegations"
   },
   "received-vesting": {
     "title": "Received Hive Power"
@@ -2425,7 +2425,7 @@
     "enter-your-email-adress": "Enter your email adress",
     "send": "Send",
     "subscribe-paragraph": "Be first to know what's happening in decentralized web.",
-    "copy-rights": "©2021 Ecency. All right reserved.",
+    "copy-rights": "©2025 Ecency. All rights reserved.",
     "success-message-subscribe": "You are subscribed to our newsletters!",
     "validation-email": "A valid email is required",
     "error-occured": "A server error has been occured."
@@ -2441,10 +2441,12 @@
   "feedback-modal": {
     "title": "Error details",
     "question": "How to fix this?",
-    "insufficient-resource-title": "How to get more Resource credits?",
+    "insufficient-resource-title": "Insufficient resource credits",
     "insufficient-resource-purchase": "Purchase account boost or delegation",
     "insufficient-resource-buy-hive": "Buy HIVE and Power it up",
     "insufficient-resource-wait": "Wait few hours for RC refill",
+    "insufficient-resource-buy": "Boost an account",
+    "insufficient-resource-message": "You don't have enough resource credits. Please boost your account/buy Hive power or wait  few hours for refill",
     "report": "Report"
   },
   "perks": {

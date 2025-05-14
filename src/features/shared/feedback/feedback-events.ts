@@ -1,5 +1,6 @@
 import { ErrorTypes } from "@/enums";
 import { random } from "@/utils";
+import i18next from "i18next";
 
 export const error = (message: string, errorType = ErrorTypes.COMMON) => {
   const detail: ErrorFeedbackObject = {
@@ -8,6 +9,12 @@ export const error = (message: string, errorType = ErrorTypes.COMMON) => {
     message,
     errorType
   };
+
+  if (message.includes("Please wait to transact")) {
+    detail.errorType = ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS;
+    detail.message = i18next.t("feedback-modal.insufficient-resource-message");
+  }
+
   const ev = new CustomEvent("ecency-feedback", { detail });
   window.dispatchEvent(ev);
 };

@@ -3,7 +3,7 @@ import moment from "moment";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getRcAccountsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@/api/hive";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
@@ -11,6 +11,8 @@ import { hiveSvg } from "@ui/svg";
 import { StyledTooltip } from "@ui/tooltip";
 import { Spinner } from "@ui/spinner";
 import { UilInfo } from "@tooni/iconscout-unicons-react";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountRcQueryOptions } from "@ecency/sdk";
 
 interface ContentProps {
   account: FullAccount;
@@ -90,7 +92,7 @@ interface Props {
 }
 
 export function ProfileInfo({ account }: Props) {
-  const { data } = getRcAccountsQuery(account.name).useClientQuery();
+  const { data } = useQuery(getAccountRcQueryOptions(account.name));
   const rcAccount = useMemo(() => data?.[0], [data]);
   const isLoaded = account?.__loaded && rcAccount;
 
