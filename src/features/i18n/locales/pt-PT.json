@@ -2439,10 +2439,12 @@
   "feedback-modal": {
     "title": "Detalhes do erro",
     "question": "Como resolver isso?",
-    "insufficient-resource-title": "How to get more Resource credits?",
+    "insufficient-resource-title": "Insufficient resource credits",
     "insufficient-resource-purchase": "Purchase account boost or delegation",
     "insufficient-resource-buy-hive": "Buy HIVE and Power it up",
     "insufficient-resource-wait": "Wait few hours for RC refill",
+    "insufficient-resource-buy": "Boost an account",
+    "insufficient-resource-message": "You don't have enough resource credits. Please boost your account/buy Hive power or wait  few hours for refill",
     "report": "Reportar"
   },
   "perks": {
