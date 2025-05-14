@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
-import "./_index.scss";
-import { Modal, ModalBody, ModalHeader } from "@ui/modal";
-import { useGlobalStore } from "@/core/global-store";
-import { getCommunityCache } from "@/core/caches";
 import { CommunitySelectorBrowser } from "@/app/submit/_components/community-selector/community-selector-browser";
-import { isCommunity } from "@/utils";
+import { getCommunityCache } from "@/core/caches";
+import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
-import { menuDownSvg } from "@ui/svg";
+import { Button } from "@/features/ui";
+import { isCommunity } from "@/utils";
+import { UilAngleDown } from "@tooni/iconscout-unicons-react";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
+import { useMemo, useState } from "react";
+import "./_index.scss";
 
 interface Props {
   tags: string[];
@@ -34,63 +35,62 @@ export function CommunitySelector({ tags, onSelect }: Props) {
   const { data: community } = getCommunityCache(extractCommunityName(tags)).useClientQuery();
 
   const [visible, setVisible] = useState(false);
-  const [picked, setPicked] = useState(false);
 
-  useEffect(() => {
-    setPicked(false);
-  }, [tags]);
+  const isMyBlog = useMemo(() => !community, [community]);
 
   return (
     <>
-      <a
-        href="#"
+      <Button
+        appearance="gray-link"
+        size="sm"
         id="community-picker"
-        className="community-selector"
-        onClick={(e) => {
-          e.preventDefault();
-          setVisible(!visible);
-        }}
-      >
-        {community && (
-          <>
-            <UserAvatar username={community.name} size="small" />
-            <span className="label">{community.title}</span> {menuDownSvg}
-          </>
-        )}
-        {!community && (tags?.length > 0 || picked) && (
-          <>
-            <UserAvatar username={activeUser?.username ?? ""} size="small" />
-            <span className="label">{i18next.t("community-selector.my-blog")}</span> {menuDownSvg}
-          </>
-        )}
-        {!(tags?.length > 0 || picked) && !community && (
-          <>
-            <span className="label">{i18next.t("community-selector.choose")}</span> {menuDownSvg}
-          </>
-        )}
-      </a>
-
-      {visible && (
-        <Modal
-          onHide={() => setVisible(!visible)}
-          show={true}
-          centered={true}
-          className="community-selector-modal"
-        >
-          <ModalHeader closeButton={true} />
-
-          <ModalBody>
-            <CommunitySelectorBrowser
-              onHide={() => setVisible(!visible)}
-              onSelect={(name: string | null) => {
-                const prev = extractCommunityName(tags);
-                onSelect(prev, name);
-                setPicked(true);
-              }}
+        iconPlacement="left"
+        icon={
+          (community || isMyBlog) && (
+            <UserAvatar
+              username={community ? community.name : activeUser?.username ?? ""}
+              size="small"
             />
-          </ModalBody>
-        </Modal>
-      )}
+          )
+        }
+        onClick={() => setVisible(true)}
+      >
+        {community && community.title}
+        {!community && i18next.t("community-selector.my-blog")}
+        <UilAngleDown className="w-4 h-4" />
+      </Button>
+      <Modal
+        onHide={() => setVisible(false)}
+        show={visible}
+        centered={true}
+        className="community-selector-modal"
+      >
+        <ModalHeader closeButton={true}>{i18next.t("community-selector.choose")}</ModalHeader>
+
+        <ModalBody>
+          <CommunitySelectorBrowser
+            onHide={() => setVisible(!visible)}
+            onSelect={(name: string | null) => {
+              const prev = extractCommunityName(tags);
+              onSelect(prev, name);
+              setVisible(false);
+            }}
+          />
+        </ModalBody>
+        <ModalFooter className="flex justify-end">
+          <Button
+            appearance="gray"
+            size="sm"
+            onClick={() => {
+              const prev = extractCommunityName(tags);
+              onSelect(prev, null);
+              setVisible(false);
+            }}
+          >
+            {i18next.t("submit.clear")}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 }

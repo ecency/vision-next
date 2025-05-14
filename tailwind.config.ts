@@ -248,6 +248,7 @@ const config: Config = {
         dark: "#081c36"
       },
       green: "#69bb85",
+      "green-hover": "#519362",
       "green-030": "#bcf3cf",
       "green-040": "#e3fceb",
       warning: {
@@ -415,7 +416,7 @@ const config: Config = {
         '"Segoe UI Symbol"',
         '"Noto Color Emoji"'
       ],
-      serif: ["ui-serif", "Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
+      serif: ["Lora", "ui-serif", "Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
       mono: [
         "ui-monospace",
         "SFMono-Regular",

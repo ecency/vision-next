@@ -27,7 +27,7 @@ export function NavbarSide({ show, setShow, placement = "right" }: Props) {
       </div>
       <div className="px-4 justify-between pb-2 flex items-center">
         <Button
-          href="/submit"
+          href="/publish"
           appearance="gray-link"
           icon={<UilEditAlt width={20} height={20} />}
         />

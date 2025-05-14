@@ -56,7 +56,7 @@ export function useWaveSubmit(
           ...localDraft,
           body: content
         });
-        window.open("/submit", "_blank");
+        window.open("/publish", "_blank");
         return;
       }
 

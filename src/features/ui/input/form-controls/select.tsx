@@ -1,5 +1,5 @@
 import React, { HTMLProps, ReactNode } from "react";
-import { INPUT_DARK_STYLES, INPUT_STYLES } from "@ui/input/form-controls/input-styles";
+import { INPUT_DARK_STYLES, INPUT_SIZES, INPUT_STYLES } from "@ui/input/form-controls/input-styles";
 import { classNameObject, useFilteredProps } from "@ui/util";
 
 // TODO: Add styles for select in input-group
@@ -8,7 +8,7 @@ export interface SelectProps extends Omit<HTMLProps<HTMLSelectElement>, "size"> 
   type: "select";
   children: ReactNode;
   full?: boolean;
-  size?: "md" | "xs";
+  size?: "md" | "xs" | "sm";
 }
 
 export function Select(props: SelectProps) {
@@ -20,7 +20,7 @@ export function Select(props: SelectProps) {
       className={classNameObject({
         [INPUT_STYLES]: true,
         [INPUT_DARK_STYLES]: true,
-        "px-2 py-1 text-sm": props.size === "xs",
+        [INPUT_SIZES[props.size ?? "md"]]: true,
         [props.className ?? ""]: true,
         "!w-auto": props.full === false
       })}

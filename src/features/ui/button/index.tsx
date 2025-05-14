@@ -23,7 +23,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
 
     const className = classNameObject({
       // Basic
-      "cursor-pointer rounded-full duration-300 no-wrap active:scale-95": true,
+      "cursor-pointer rounded-xl duration-300 no-wrap active:scale-95": true,
       "!cursor-not-allowed": props.disabled === true,
       // Outline basics
       "border-[1.25px] border-solid": props.outline ?? false,
@@ -46,8 +46,10 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       props.icon || props.isLoading ? (
         <div
           className={classNameObject({
-            "flex justify-center items-center w-5 h-5 [&>svg]:w-5 [&>svg]:h-5": true,
-            [props.iconClassName ?? ""]: true
+            "flex justify-center items-center": true,
+            [props.iconClassName ?? ""]: true,
+            "w-4 h-4 [&>svg]:w-4 [&>svg]:h-4": props.size === "xs",
+            "w-5 h-5 [&>svg]:w-5 [&>svg]:h-5": props.size !== "xs"
           })}
         >
           {props.isLoading ? <UilSpinner className="w-5 h-5 animate-spin" /> : props.icon}

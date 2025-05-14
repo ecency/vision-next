@@ -12,7 +12,11 @@ export function EcencyCenter() {
 
   const pathname = usePathname();
   const isSubmitPage = useMemo(
-    () => pathname.includes("submit") || pathname.includes("edit") || pathname.includes("draft"),
+    () =>
+      pathname.includes("submit") ||
+      pathname.includes("edit") ||
+      pathname.includes("draft") ||
+      pathname.includes("publish"),
     [pathname]
   );
   useClickAway(rootRef, () => show && setShow(false));

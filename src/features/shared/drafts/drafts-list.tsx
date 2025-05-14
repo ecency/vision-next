@@ -37,7 +37,7 @@ export function DraftsList({ onHide, onPick }: Props) {
   const { mutateAsync: deleteDraft } = useDeleteDraft((id) => {
     // if user editing the draft, redirect to submit page
     if (pathname === `/draft/${id}`) {
-      router.push("/submit");
+      router.push("/publish");
     }
   });
 

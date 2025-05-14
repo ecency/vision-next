@@ -114,7 +114,7 @@ export const DeckThreadsForm = ({
           ...localDraft,
           body: content
         });
-        window.open("/submit", "_blank");
+        window.open("/publish", "_blank");
         return;
       }
 
@@ -245,7 +245,7 @@ export const DeckThreadsForm = ({
               )}
               <Button
                 className="whitespace-nowrap flex items-center"
-                href="/submit"
+                href="/publish"
                 target="_blank"
                 appearance="primary"
                 outline={true}

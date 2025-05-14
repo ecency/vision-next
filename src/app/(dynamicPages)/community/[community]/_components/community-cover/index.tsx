@@ -78,7 +78,7 @@ export function CommunityCover({ community, account }: Props) {
 
       <div className="controls-holder absolute z-10 right-0 top-4 flex gap-2 px-2 md:px-4">
         <SubscriptionBtn community={community} />
-        <Link href={`/submit?com=${community.name}`}>
+        <Link href={`/publish?com=${community.name}`}>
           <Button>{i18next.t("community.post")}</Button>
         </Link>
       </div>

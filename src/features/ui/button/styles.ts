@@ -7,13 +7,13 @@ export const BUTTON_STYLES: Record<ButtonAppearance, string> = {
     "bg-gray-600 hover:bg-gray-700 disabled:hover:bg-gray-600 focus:bg-gray-800 text-white dark:bg-blue-metallic-20 disabled:dark:hover:bg-blue-metallic-20 dark:hover:bg-blue-metallic disabled:opacity-50",
   link: "text-blue-dark-sky hover:text-blue-dark-sky-hover focus:text-blue-dark-sky-active",
   danger: "bg-red hover:bg-red-020 focus:bg-red-030 text-white",
-  success: "bg-green hover:bg-green-020 focus:bg-green-020 text-white",
+  success: "bg-green hover:bg-green-hover focus:bg-green-hover text-white",
   warning: "",
   info: "bg-info-default hover:info-hover focus:bg-info-focus text-white disabled:opacity-50 disabled:hover:bg-info-default disabled:focus:bg-info-default",
   "gray-link": "text-gray-600 hover:text-blue-dark-sky focus:text-blue-dark-sky-active",
   white:
     "text-blue-dark-sky bg-white hover:bg-gray-100 focus:bg-gray-200 dark:bg-dark-default dark:hover:bg-dark-200 dark:focus:bg-gray-900 dark:text-white disabled:opacity-75",
-  gray: "bg-gray-200 text-gray-600 dark:text-gray-400 dark:bg-gray-800 hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200",
+  gray: "bg-gray-200 text-gray-600 dark:text-gray-400 dark:bg-gray-800 hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200 disabled:opacity-50",
   "white-link": "text-white hover:opacity-50 focus:opacity-75",
   pressed: "text-red hover:text-red-040 bg:blue-duck-egg dark:bg-dark-default",
   hivesigner: ""
