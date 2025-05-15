@@ -8,6 +8,9 @@ import { FragmentsDialog } from "@/features/shared/fragments";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker, StyledTooltip } from "@/features/ui";
 import {
+  UilAlignCenter,
+  UilAlignLeft,
+  UilAlignRight,
   UilArrow,
   UilBold,
   UilBorderHorizontal,
@@ -115,6 +118,31 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             onClick={() => editor?.chain().focus().toggleCode().run()}
             disabled={!editor?.can().chain().focus().toggleCode().run()}
             icon={<UilArrow />}
+          />
+        </StyledTooltip>
+        <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
+        <StyledTooltip content={i18next.t("publish.action-bar.code")}>
+          <Button
+            appearance={editor?.isActive({ textAlign: "left" }) ? "link" : "gray-link"}
+            size="sm"
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            icon={<UilAlignLeft />}
+          />
+        </StyledTooltip>
+        <StyledTooltip content={i18next.t("publish.action-bar.code")}>
+          <Button
+            appearance={editor?.isActive({ textAlign: "center" }) ? "link" : "gray-link"}
+            size="sm"
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            icon={<UilAlignCenter />}
+          />
+        </StyledTooltip>
+        <StyledTooltip content={i18next.t("publish.action-bar.code")}>
+          <Button
+            appearance={editor?.isActive({ textAlign: "right" }) ? "link" : "gray-link"}
+            size="sm"
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            icon={<UilAlignRight />}
           />
         </StyledTooltip>
         <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />

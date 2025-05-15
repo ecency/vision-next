@@ -16,6 +16,7 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
+import TextAlign from "@tiptap/extension-text-align";
 import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import DOMPurify from "dompurify";
@@ -52,6 +53,9 @@ export function usePublishEditor() {
 
           return "";
         }
+      }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"]
       }),
       Selection,
       Table,
@@ -94,6 +98,21 @@ export function usePublishEditor() {
       const text = new Turndown({
         codeBlockStyle: "fenced"
       })
+        .addRule("centeredParagraph", {
+          filter: function (node) {
+            const styles = node.getAttribute("style");
+            return (
+              node.nodeName === "P" &&
+              !!styles &&
+              ["text-align: center", "text-align: right", "text-align: left"].includes(styles)
+            );
+          },
+          replacement: function (content, node) {
+            const styles = (node as HTMLElement).getAttribute("style");
+            const align = styles?.replace("text-align: ", "") ?? "auto";
+            return `<p dir="${align}" style="${styles}">${content}</p>`;
+          }
+        })
         .use(strikethrough)
         .keep(["table", "tbody", "th", "tr", "td"])
         .turndown(editor.getHTML());

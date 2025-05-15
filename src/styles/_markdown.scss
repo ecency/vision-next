@@ -87,6 +87,18 @@
     text-rendering: optimizeLegibility;
   }
 
+  p[dir="left"] {
+    text-align: left;
+  }
+
+  p[dir="center"] {
+    text-align: center;
+  }
+
+  p[dir="right"] {
+    text-align: right;
+  }
+
   ul li,
   ol li {
     line-height: 150%;
