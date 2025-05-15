@@ -1,7 +1,11 @@
 import { Editor, EditorContent } from "@tiptap/react";
+import clsx from "clsx";
 import { motion } from "framer-motion";
+import i18next from "i18next";
 import { PublishEditorPollEditor } from "../_editor-extensions";
+import { usePublishState } from "../_hooks";
 import { PublishEditorToolbar } from "./publish-editor-toolbar";
+import { PublishEditorCounter } from "./publish-editor-counter";
 
 interface Props {
   editor: Editor | null;
@@ -22,6 +26,7 @@ export function PublishEditor({ editor }: Props) {
         editor={editor}
         className="markdown-view p-2 md:p-4 xl:p-6 font-serif caret-blue-dark-sky"
       />
+      <PublishEditorCounter />
       <PublishEditorPollEditor />
     </motion.div>
   );
