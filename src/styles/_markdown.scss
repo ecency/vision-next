@@ -99,6 +99,10 @@
     text-align: right;
   }
 
+  p[dir="justify"] {
+    text-align: justify;
+  }
+
   ul li,
   ol li {
     line-height: 150%;

@@ -9,6 +9,7 @@ import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker, StyledTooltip } from "@/features/ui";
 import {
   UilAlignCenter,
+  UilAlignJustify,
   UilAlignLeft,
   UilAlignRight,
   UilArrow,
@@ -121,30 +122,30 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           />
         </StyledTooltip>
         <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
-        <StyledTooltip content={i18next.t("publish.action-bar.code")}>
-          <Button
-            appearance={editor?.isActive({ textAlign: "left" }) ? "link" : "gray-link"}
-            size="sm"
-            onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            icon={<UilAlignLeft />}
-          />
-        </StyledTooltip>
-        <StyledTooltip content={i18next.t("publish.action-bar.code")}>
-          <Button
-            appearance={editor?.isActive({ textAlign: "center" }) ? "link" : "gray-link"}
-            size="sm"
-            onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            icon={<UilAlignCenter />}
-          />
-        </StyledTooltip>
-        <StyledTooltip content={i18next.t("publish.action-bar.code")}>
-          <Button
-            appearance={editor?.isActive({ textAlign: "right" }) ? "link" : "gray-link"}
-            size="sm"
-            onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            icon={<UilAlignRight />}
-          />
-        </StyledTooltip>
+        <Button
+          appearance={editor?.isActive({ textAlign: "left" }) ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          icon={<UilAlignLeft />}
+        />
+        <Button
+          appearance={editor?.isActive({ textAlign: "center" }) ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          icon={<UilAlignCenter />}
+        />
+        <Button
+          appearance={editor?.isActive({ textAlign: "right" }) ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          icon={<UilAlignRight />}
+        />
+        <Button
+          appearance={editor?.isActive({ textAlign: "justify" }) ? "link" : "gray-link"}
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+          icon={<UilAlignJustify />}
+        />
         <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
         <StyledTooltip content={i18next.t("publish.action-bar.paragraph")}>
           <Button

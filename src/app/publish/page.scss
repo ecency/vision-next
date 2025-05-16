@@ -1,6 +1,10 @@
 .publish-page {
   @apply w-full;
 
+  *[data-tippy-root] {
+    display: none;
+  }
+
   .tiptap {
     @apply outline-none;
   }

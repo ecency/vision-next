@@ -5,6 +5,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Text from "@tiptap/extension-text";
 import { EditorContent, Node, NodeViewProps, NodeViewWrapper, useEditor } from "@tiptap/react";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
+import clsx from "clsx";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -13,7 +14,8 @@ export function PublishEditorImageViewer({
     attrs: { src, alt }
   },
   updateAttributes,
-  deleteNode
+  deleteNode,
+  selected
 }: NodeViewProps) {
   const editor = useEditor({
     shouldRerenderOnTransaction: true,
@@ -43,13 +45,17 @@ export function PublishEditorImageViewer({
   return (
     <NodeViewWrapper
       onClick={() => editor?.chain().selectTextblockEnd().focus().run()}
-      className="publish-editor-image-viewer cursor-grab border border-transparent hover:border-blue-dark-sky"
+      className={clsx(
+        "publish-editor-image-viewer cursor-grab border hover:border-blue-dark-sky inline-flex",
+        selected ? "border-blue-dark-sky" : "border-transparent"
+      )}
       data-drag-handle
     >
       <Popover
+        className="inline-flex"
         directContent={
           <motion.div
-            className="flex flex-col items-center"
+            className="inline-flex flex-col items-center"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
