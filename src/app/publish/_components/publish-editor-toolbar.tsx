@@ -93,43 +93,6 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   return (
     <>
       <div className="w-full items-center p-2 sm:py-0 flex flex-wrap gap-1 sm:gap-0">
-        <StyledTooltip content={i18next.t("publish.action-bar.bold")}>
-          <Button
-            appearance={editor?.isActive("bold") ? "link" : "gray-link"}
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleBold().run()}
-            disabled={!editor?.can().chain().focus().toggleBold().run()}
-            icon={<UilBold />}
-          />
-        </StyledTooltip>
-        <StyledTooltip content={i18next.t("publish.action-bar.italic")}>
-          <Button
-            appearance={editor?.isActive("italic") ? "link" : "gray-link"}
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleItalic().run()}
-            disabled={!editor?.can().chain().focus().toggleItalic().run()}
-            icon={<UilItalic />}
-          />
-        </StyledTooltip>
-        <StyledTooltip content={i18next.t("publish.action-bar.strikethrough")}>
-          <Button
-            appearance={editor?.isActive("strike") ? "link" : "gray-link"}
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleStrike().run()}
-            disabled={!editor?.can().chain().focus().toggleStrike().run()}
-            icon={<UilTextStrikeThrough />}
-          />
-        </StyledTooltip>
-        <StyledTooltip content={i18next.t("publish.action-bar.code")}>
-          <Button
-            appearance={editor?.isActive("code") ? "link" : "gray-link"}
-            size="sm"
-            onClick={() => editor?.chain().focus().toggleCode().run()}
-            disabled={!editor?.can().chain().focus().toggleCode().run()}
-            icon={<UilArrow />}
-          />
-        </StyledTooltip>
-        <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
         <StyledTooltip content={!canAlign && i18next.t("publish.action-bar.align-hint")}>
           <Button
             appearance={editor?.isActive({ textAlign: "left" }) ? "link" : "gray-link"}

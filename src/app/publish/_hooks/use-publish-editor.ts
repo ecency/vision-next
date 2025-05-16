@@ -30,29 +30,14 @@ import { usePublishState } from "./use-publish-state";
 import { strikethrough } from "@joplin/turndown-plugin-gfm";
 import { usePublishLinksAttach } from "./use-publish-links-attach";
 
-const CustomDocument = Document.extend({
-  content: "heading block*"
-});
-
 export function usePublishEditor() {
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     extensions: [
-      CustomDocument,
-      StarterKit.configure({
-        document: false
-      }) as AnyExtension,
+      StarterKit.configure() as AnyExtension,
       Placeholder.configure({
-        placeholder: ({ node }) => {
-          if (node.type.name === "heading") {
-            return "What’s the title?";
-          } else if (node.type.name === "paragraph") {
-            return "Tell your story...";
-          }
-
-          return "";
-        }
+        placeholder: "Tell your story.."
       }),
       TextAlign.configure({
         types: ["heading", "paragraph"]
@@ -118,11 +103,8 @@ export function usePublishEditor() {
         .use(strikethrough)
         .keep(["table", "tbody", "th", "tr", "td"])
         .turndown(editor.getHTML());
-      const title = text.substring(0, text.indexOf("\n"));
-      const content = text.substring(text.indexOf("\n"));
 
-      publishState.setTitle(title.replace("# ", ""));
-      publishState.setContent(content.substring(text.indexOf("\n") + 1));
+      publishState.setContent(text);
     }
   });
 
@@ -132,7 +114,7 @@ export function usePublishEditor() {
   const publishState = usePublishState();
 
   const setEditorContent = useCallback(
-    (title: string | undefined, content: string | undefined) => {
+    (content: string | undefined) => {
       try {
         const sanitizedContent = content
           ? parseAllExtensionsToDoc(
@@ -142,7 +124,7 @@ export function usePublishEditor() {
           : undefined;
         editor
           ?.chain()
-          .setContent(`${title ?? ""}\n\n ${sanitizedContent ?? ""}`)
+          .setContent(sanitizedContent ?? "")
           .run();
       } catch (e) {
         error("Failed to laod local draft. We are working on it");
@@ -154,15 +136,15 @@ export function usePublishEditor() {
 
   // Handle editor clearing
   useEffect(() => {
-    if (!publishState.title && !publishState.content && editor?.getText() !== "") {
+    if (!publishState.content && editor?.getText() !== "") {
       editor?.chain().setContent("").run();
     }
-  }, [editor, publishState.title, publishState.content]);
+  }, [editor, publishState.content]);
 
   // Prefill editor with persistent content or default value
   useEffect(() => {
     if (editor) {
-      setEditorContent(publishState.title, publishState.content);
+      setEditorContent(publishState.content);
     }
   }, [editor]);
 

@@ -85,7 +85,7 @@ export function Popover(
               <div ref={refs.setFloating} style={floatingStyles} className="absolute z-[1060]">
                 <motion.div
                   className={
-                    props.customClassName ?? "bg-white border border-[--border-color] rounded-xl"
+                    props.customClassName ?? "bg-white border border-[--border-color] rounded-lg"
                   }
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}

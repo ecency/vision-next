@@ -73,7 +73,7 @@ export function PublishEditorImageViewer({
               <Button
                 noPadding={true}
                 size="xs"
-                appearance="link"
+                appearance="gray-link"
                 className="!h-auto"
                 onClick={() =>
                   updateAttributes({
@@ -88,7 +88,7 @@ export function PublishEditorImageViewer({
               <Button
                 noPadding={true}
                 size="xs"
-                appearance="link"
+                appearance="gray-link"
                 className="!h-auto"
                 onClick={() =>
                   updateAttributes({
@@ -103,7 +103,7 @@ export function PublishEditorImageViewer({
               <Button
                 noPadding={true}
                 size="xs"
-                appearance="link"
+                appearance="gray-link"
                 className="!h-auto"
                 onClick={() =>
                   updateAttributes({
@@ -114,12 +114,13 @@ export function PublishEditorImageViewer({
                 Original
               </Button>
             )}
+            <div className="h-[36px] -my-2 w-[1px] bg-[--border-color]" />
             <Button
               noPadding={true}
               className="!h-auto"
               icon={<UilTrash />}
               size="xs"
-              appearance="link"
+              appearance="gray-link"
               onClick={deleteNode}
             />
           </div>

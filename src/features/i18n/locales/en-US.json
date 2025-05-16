@@ -2749,7 +2749,8 @@
       "no-data-hint": "Change filter or publish your first video with 3Speak",
       "no-data-button": "Upload now"
     },
-    "video-availability": "Video will be available after publishing"
+    "video-availability": "Video will be available after publishing",
+    "title-placeholder": "What is the title?"
   },
   "ecency-images": {
     "upload-image": "Upload image",
