@@ -44,13 +44,14 @@ import {
   DropdownToggle
 } from "@ui/dropdown";
 import i18next from "i18next";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePublishState, usePublishVideoAttach } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
 import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
 import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
 import { PublishEditorToolbarAddLink } from "./publish-editor-toolbar-add-link";
 import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
+import { useEditorState } from "@tiptap/react";
 
 interface Props {
   editor: any | null;
@@ -62,10 +63,15 @@ const headings = [1, 2, 3, 4, 5, 6];
 export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Props) {
   const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
   const publishState = usePublishState();
+  const { canAlign } = useEditorState({
+    editor,
+    selector: ({ editor }) => ({
+      canAlign: editor?.isActive("paragraph") || editor?.isActive("image")
+    })
+  });
 
   const [showFragments, setShowFragments] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
-  const [showAddLink, setShowAddLink] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [showImageByLink, setShowImageByLink] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
@@ -81,6 +87,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
       setIsFocusingTable(editor.isActive("table"))
     );
   }, [editor]);
+
+  const clearChain = useCallback(() => editor?.chain().focus().setTextAlign("left"), [editor]);
 
   return (
     <>
@@ -122,30 +130,42 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           />
         </StyledTooltip>
         <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
-        <Button
-          appearance={editor?.isActive({ textAlign: "left" }) ? "link" : "gray-link"}
-          size="sm"
-          onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          icon={<UilAlignLeft />}
-        />
-        <Button
-          appearance={editor?.isActive({ textAlign: "center" }) ? "link" : "gray-link"}
-          size="sm"
-          onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          icon={<UilAlignCenter />}
-        />
-        <Button
-          appearance={editor?.isActive({ textAlign: "right" }) ? "link" : "gray-link"}
-          size="sm"
-          onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          icon={<UilAlignRight />}
-        />
-        <Button
-          appearance={editor?.isActive({ textAlign: "justify" }) ? "link" : "gray-link"}
-          size="sm"
-          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-          icon={<UilAlignJustify />}
-        />
+        <StyledTooltip content={!canAlign && i18next.t("publish.action-bar.align-hint")}>
+          <Button
+            appearance={editor?.isActive({ textAlign: "left" }) ? "link" : "gray-link"}
+            size="sm"
+            disabled={!canAlign}
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            icon={<UilAlignLeft />}
+          />
+        </StyledTooltip>
+        <StyledTooltip content={!canAlign && i18next.t("publish.action-bar.align-hint")}>
+          <Button
+            appearance={editor?.isActive({ textAlign: "center" }) ? "link" : "gray-link"}
+            size="sm"
+            disabled={!canAlign}
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            icon={<UilAlignCenter />}
+          />
+        </StyledTooltip>
+        <StyledTooltip content={!canAlign && i18next.t("publish.action-bar.align-hint")}>
+          <Button
+            appearance={editor?.isActive({ textAlign: "right" }) ? "link" : "gray-link"}
+            size="sm"
+            disabled={!canAlign}
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            icon={<UilAlignRight />}
+          />
+        </StyledTooltip>
+        <StyledTooltip content={!canAlign && i18next.t("publish.action-bar.align-hint")}>
+          <Button
+            appearance={editor?.isActive({ textAlign: "justify" }) ? "link" : "gray-link"}
+            size="sm"
+            disabled={!canAlign}
+            onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+            icon={<UilAlignJustify />}
+          />
+        </StyledTooltip>
         <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
         <StyledTooltip content={i18next.t("publish.action-bar.paragraph")}>
           <Button
@@ -165,7 +185,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                   <DropdownItem
                     key={heading}
                     selected={editor?.isActive("heading", { level: heading })}
-                    onClick={() => editor?.chain().focus().toggleHeading({ level: heading }).run()}
+                    onClick={() => clearChain().toggleHeading({ level: heading }).run()}
                   >
                     {i18next.t("publish.heading")} {heading}
                   </DropdownItem>
@@ -185,13 +205,13 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 selected={editor?.isActive("bulletList")}
                 icon={<UilListUl />}
                 label={i18next.t("publish.bullet-list")}
-                onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                onClick={() => clearChain().toggleBulletList().run()}
               />
               <DropdownItemWithIcon
                 selected={editor?.isActive("orderedList")}
                 icon={<UilListOl />}
                 label={i18next.t("publish.ordered-list")}
-                onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                onClick={() => clearChain().toggleOrderedList().run()}
               />
             </DropdownMenu>
           </Dropdown>
@@ -203,20 +223,20 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItemWithIcon
-              onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+              onClick={() => clearChain().toggleCodeBlock().run()}
               selected={editor?.isActive("codeBlock")}
               icon={<UilArrow />}
               label={i18next.t("publish.code-block")}
             />
             <DropdownItemWithIcon
-              onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+              onClick={() => clearChain().toggleBlockquote().run()}
               selected={editor?.isActive("blockquote")}
               icon={<UilDocumentLayoutRight />}
               label={i18next.t("publish.quote")}
             />
             <DropdownItemWithIcon
               onClick={() =>
-                editor?.chain().focus().insertTable({ rows: 2, cols: 2, withHeaderRow: true }).run()
+                clearChain().insertTable({ rows: 2, cols: 2, withHeaderRow: true }).run()
               }
               icon={<UilTable />}
               label={i18next.t("publish.table")}
@@ -224,7 +244,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             <DropdownItemWithIcon
               icon={<UilBorderHorizontal />}
               label={i18next.t("publish.horizontal-rule")}
-              onClick={() => editor?.chain().focus().setHorizontalRule().run()}
+              onClick={() => clearChain().setHorizontalRule().run()}
             />
           </DropdownMenu>
         </Dropdown>
@@ -423,7 +443,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           show={showVideoLink}
           setShow={setShowVideoLink}
           onAdd={(e) => {
-            editor?.chain().focus().insertContent(`![](${e})`).run();
+            clearChain().insertContent(`![](${e})`).run();
             setShowVideoLink(false);
           }}
         />

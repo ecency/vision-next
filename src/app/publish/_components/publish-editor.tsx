@@ -1,11 +1,8 @@
-import { BubbleMenu, Editor, EditorContent } from "@tiptap/react";
-import clsx from "clsx";
+import { Editor, EditorContent } from "@tiptap/react";
 import { motion } from "framer-motion";
-import i18next from "i18next";
 import { PublishEditorPollEditor } from "../_editor-extensions";
-import { usePublishState } from "../_hooks";
-import { PublishEditorToolbar } from "./publish-editor-toolbar";
 import { PublishEditorCounter } from "./publish-editor-counter";
+import { PublishEditorToolbar } from "./publish-editor-toolbar";
 
 interface Props {
   editor: Editor | null;
@@ -22,30 +19,6 @@ export function PublishEditor({ editor }: Props) {
       <div className="publish-page-editor-toolbar-container border-b border-[--border-color] sticky top-[60px] md:top-[76px] -mx-2 rounded-t-2xl z-10 bg-white">
         <PublishEditorToolbar editor={editor} />
       </div>
-      {editor && (
-        <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
-          <div className="bubble-menu">
-            <button
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={editor.isActive("bold") ? "is-active" : ""}
-            >
-              Bold
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={editor.isActive("italic") ? "is-active" : ""}
-            >
-              Italic
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={editor.isActive("strike") ? "is-active" : ""}
-            >
-              Strike
-            </button>
-          </div>
-        </BubbleMenu>
-      )}
       <EditorContent
         editor={editor}
         className="markdown-view p-2 md:p-4 xl:p-6 font-serif caret-blue-dark-sky"

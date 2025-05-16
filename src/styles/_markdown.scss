@@ -85,6 +85,10 @@
     line-height: 1.55;
     margin: 0 0 1em 0;
     text-rendering: optimizeLegibility;
+
+    img {
+      display: inline-block; // to keep alignment
+    }
   }
 
   p[dir="left"] {

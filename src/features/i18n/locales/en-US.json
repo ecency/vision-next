@@ -2731,7 +2731,8 @@
       "link": "Link",
       "emoji": "Emoji",
       "video": "Video",
-      "poll": "Poll"
+      "poll": "Poll",
+      "align-hint": "Only paragraph and images can be aligned"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",

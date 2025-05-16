@@ -102,7 +102,7 @@ export function usePublishEditor() {
           filter: function (node) {
             const styles = node.getAttribute("style");
             return (
-              node.nodeName === "P" &&
+              ["P"].includes(node.nodeName) &&
               !!styles &&
               ["text-align: center", "text-align: right", "text-align: justify"].includes(styles)
             );
