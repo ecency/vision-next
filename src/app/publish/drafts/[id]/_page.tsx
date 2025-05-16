@@ -30,7 +30,7 @@ export default function PublishPage() {
       setContent(draft.body);
       setTags(draft.tags_arr);
 
-      setEditorContent(draft.title, draft.body);
+      setEditorContent(draft.body);
       setPublishingVideo(draft.meta?.video);
     },
     () => setStep("no-draft")

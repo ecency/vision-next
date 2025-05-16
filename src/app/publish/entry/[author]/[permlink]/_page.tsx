@@ -46,7 +46,7 @@ export default function Publish() {
         setMetaDescription(entry.json_metadata?.description ?? postBodySummary(entry.body, 200));
         entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
 
-        setEditorContent(entry.title, entry.body);
+        setEditorContent(entry.body);
       } else {
         setStep("no-post");
       }
