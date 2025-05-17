@@ -1,5 +1,6 @@
 {
   "g": {
+    "all": "Todo",
     "add": "Agregar",
     "edit": "Editar",
     "clone": "Clonar",
@@ -95,6 +96,7 @@
     "community": "Comunidad",
     "today": "Hoy",
     "view": "Vista",
+    "tomorrow": "Mañana",
     "import": "Importar"
   },
   "confirm": {
@@ -685,7 +687,7 @@
     "sign-title": "Firmar tu transacción",
     "fetching-market": "Obteniendo mercado...",
     "back": "Regresar",
-    "swap-by": "Ingresar con {{method}}",
+    "swap-by": "Firmar por {{method}}",
     "success-title": "Transacción completada",
     "more-than-balance": "Ha introducido más que el saldo disponible",
     "invalid-amount": "Invalidado por la cantidad. Por favor, introduce un valor menor",
@@ -1392,13 +1394,13 @@
   "key-or-hot": {
     "sign": "Firmar",
     "key-placeholder": "Introducir clave privada activa/propietaria/maestra, o frase semilla",
-    "with-hivesigner": "Ingresar con Hivesigner",
-    "with-keychain": "Ingresar con Keychain"
+    "with-hivesigner": "Iniciar Sesión con hivesigner",
+    "with-keychain": "Iniciar sesión con KeyChain"
   },
   "delegated-vesting": {
     "title": "Hive Power delegado",
-    "undelegate": "Undelegate",
-    "subtitle": " HP Pending return delegations"
+    "undelegate": "Retirar delegación",
+    "subtitle": " Delegación de HP pendiente de devolución"
   },
   "received-vesting": {
     "title": "Hive Power recibido"
@@ -2423,7 +2425,7 @@
     "enter-your-email-adress": "Introduce tu correo electrónico",
     "send": "Enviar",
     "subscribe-paragraph": "Sé el primero en saber lo que está pasando en la web descentralizada.",
-    "copy-rights": "©2025 Ecency. All rights reserved.",
+    "copy-rights": "©️2025 Ecency. Todos los derechos reservados.",
     "success-message-subscribe": "¡Estás suscrito a nuestros boletines de noticias!",
     "validation-email": "Se requiere un email válido",
     "error-occured": "Se ha producido un error en el servidor."
@@ -2443,6 +2445,8 @@
     "insufficient-resource-purchase": "Comprar potenciador de cuenta o delegación",
     "insufficient-resource-buy-hive": "Comprar HIVE y aumentar poder",
     "insufficient-resource-wait": "Espere unas horas para la recarga de RC",
+    "insufficient-resource-buy": "Impulsar una cuenta",
+    "insufficient-resource-message": "No tienes suficientes créditos de recursos. Por favor impulsa tu cuenta/compra Hive Power, o espera unas horas para recargar",
     "report": "Reportar"
   },
   "perks": {
@@ -2478,6 +2482,7 @@
     "help-hint": "¿Tienes alguna pregunta? Revisa el centro de ayuda"
   },
   "polls": {
+    "active-poll": "Encuesta activa",
     "poll": "Encuesta",
     "title": "Crear una encuesta",
     "edit-title": "Editar una encuesta",
@@ -2592,7 +2597,7 @@
     "intro": {
       "title": "Regístrate con Billetera o Wallet",
       "description": "Seleccione su nombre de usuario/apodo legible",
-      "currencies-info": "Puede configurar fácilmente una nueva cuenta si mantiene estacada alguna de estas monedas.",
+      "currencies-info": "You can easily setup new account using one of these currencies.",
       "available": "Este nombre de usuario está disponible para usar",
       "checking": "Comprobando disponibilidad del nombre de usuario..."
     },
@@ -2638,5 +2643,121 @@
       "validating": "Preparando tu cuenta...",
       "success": "Tu cuenta fue creada. ¡Disfruta de Hive y Ecencia!"
     }
+  },
+  "publish": {
+    "gif-picker": "Elegir imagen GIF",
+    "description-hint": "Ayuda al sistema de motor de búsqueda para encontrar este post",
+    "schedule-hint": "La programación está disponible por 1 hora de anticipación",
+    "heading": "Encabezado",
+    "bullet-list": "Lista de viñetas",
+    "ordered-list": "Lista ordenada",
+    "code-block": "Bloque de códigos",
+    "quote": "Citar",
+    "table": "Tabla",
+    "horizontal-rule": "Regla horizontal",
+    "from-gallery": "Desde la galería",
+    "upload": "Subir y pegar",
+    "from-link": "Desde enlace",
+    "add-image-by-link": "Añadir imagen por enlace",
+    "add-image-by-link-title-hint": "Título de la imagen",
+    "story-preview": "Vista previa de la historia",
+    "change-thumb": "Cambiar imagen de vista previa",
+    "tags-hint": "Añade o cambia etiquetas (hasta 10) para que los lectores sepan de qué trata tu historia",
+    "tags-min-message": "Debe establecerse al menos una etiqueta",
+    "publish-now": "Publicar ahora",
+    "schedule-later": "Programar para más tarde",
+    "schedule-now": "Programar ahora",
+    "update-schedule": "Actualizar ajustes de programación",
+    "public-info-hint": "Nota: Los cambios aquí afectarán cómo tu historia aparece en lugares públicos como la página principal de Ecency (y otras plataformas de Hive) y en sistemas de búsqueda — no el contenido de la historia misma.",
+    "preview-subtitle": "Previsualizar subtítulo..",
+    "thumb-selection": "Definir imágenes de vista previa",
+    "published-title": "Tu publicación ha sido publicada",
+    "published-hint": "Tu publicación ha sido publicada con éxito. Puedes verla en tu blog o en el feed.",
+    "scheduled-title": "Tu publicación se ha programado",
+    "scheduled-hint": "Tu publicación ha sido programada con éxito. Puedes verla en tu blog o en el feed a la hora de publicar.",
+    "back-to-editor": "Volver al editor",
+    "go-to-posts": "Ir a mis publicaciones",
+    "no-draft-title": "No se han encontrado borradores",
+    "no-draft-hint": "No tienes borrador con el ID dado. Por favor, comprueba tus borradores.",
+    "draft-mode": "Estás en modo de edición de borradores",
+    "edit-mode": "Estás en modo de edición de posts",
+    "save-draft": "Guardar borrador",
+    "update-draft": "Actualizar borrador",
+    "three-speak-upload": "Subir y pegar",
+    "three-speak-gallery": "Desde 3Speak",
+    "video-by-link": "Añadir vídeo por enlace",
+    "video-link-hint": "Coloca el enlace abajo e intentamos identificarlo (YouTube, 3Speak, Twitch, Vimeo). Otros servicios de videos pueden ser añadidos como un enlace regular.",
+    "video-link-label": "Enlace de video",
+    "get-started": {
+      "title": "Conoce la nueva experiencia de publicación",
+      "button": "Empieza ya",
+      "single-view-title": "Nueva vista individual",
+      "single-view-description": "Introduciendo una única vista dinámica: no más contenidos separados y ventanas de vista previa",
+      "single-view-text": "Write your content and instantly see how it will appear as a real post. No need to move between raw input and preview. Just focus on creating.",
+      "toolbar-title": "Toolbar",
+      "toolbar-description": "Discover a convenient toolbar to enrich your text effortlessly",
+      "toolbar-text": "The toolbar is packed with powerful formatting tools to make your post stand out. Speed up your workflow with handy keyboard shortcuts.",
+      "dynamic-editor-title": "Dynamic editor",
+      "dynamic-editor-description": "Now, you can see your post exactly as it will be published while editing in real time",
+      "focus-title": "Focus on your content",
+      "focus-description": "Less visual information — just your post and nothing more",
+      "skip": "Skip guide",
+      "shortcut": "Shortcut",
+      "more-shortcuts": "See more shortcuts on Ecency Documentation",
+      "settings-title": "Publishing settings",
+      "settings-description": "Customize your content with advanced settings",
+      "settings-text": "Schedule posts, save drafts, update meta info — all from the three-dot menu",
+      "posting-title": "Posting",
+      "posting-description": "Publish your new post",
+      "posting-text": "Add a title, assign tags, and choose a thumbnail — this helps search engines find your content. Not ready to publish? Schedule it for later.",
+      "success-description": "That's it! Keep making content on Ecency",
+      "success-text": "Post will be published in few mintues or scheduled to specific date."
+    },
+    "no-image-found": "Only image files are supporting",
+    "upload-started": "Uploading image...",
+    "back-to-old": "Back to Classic View",
+    "clear": "Clear",
+    "schedule": "Schedule",
+    "action-bar": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "strikethrough": "Strikethrough",
+      "code": "Code",
+      "paragraph": "Paragpraph",
+      "heading": "Heading",
+      "list": "List",
+      "fragments": "Snippets",
+      "image": "Image",
+      "link": "Link",
+      "emoji": "Emoji",
+      "video": "Video",
+      "poll": "Poll",
+      "align-hint": "Only paragraph and images can be aligned"
+    },
+    "get-help": "Get help",
+    "loading-post-title": "Loading your post...",
+    "loading-post-hint": "Only title, content, tags and meta information could be changed after post publication",
+    "upload-video-error-hint": "Video could be uploaded only while creating post not editing",
+    "no-post-title": "Cannot find the post",
+    "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
+    "go-to-post": "Open original post",
+    "updated-title": "Post has updated!",
+    "updated-hint": "Post content has updated. Changes will be visible in few minutes.",
+    "back-to-post": "Back to post",
+    "video-gallery": {
+      "no-data": "No videos yet",
+      "no-data-hint": "Change filter or publish your first video with 3Speak",
+      "no-data-button": "Upload now"
+    },
+    "video-availability": "El vídeo estará disponible después de la publicación",
+    "title-placeholder": "What is the title?"
+  },
+  "ecency-images": {
+    "upload-image": "Subir imagen",
+    "dropzone-title": "Arrastrar archivos aquí o haz clic para subirlos",
+    "dropzone-hint": "El tamaño máximo del archivo es de 10MB",
+    "dropzone-realize": "Suelte el archivo aquí",
+    "success-upload": "Imagen cargada con éxito",
+    "uploading": "Subiendo..."
   }
 }
