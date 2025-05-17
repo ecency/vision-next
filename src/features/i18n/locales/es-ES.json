@@ -2731,7 +2731,8 @@
       "link": "Link",
       "emoji": "Emoji",
       "video": "Video",
-      "poll": "Poll"
+      "poll": "Poll",
+      "align-hint": "Only paragraph and images can be aligned"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
@@ -2748,7 +2749,8 @@
       "no-data-hint": "Change filter or publish your first video with 3Speak",
       "no-data-button": "Upload now"
     },
-    "video-availability": "El vídeo estará disponible después de la publicación"
+    "video-availability": "El vídeo estará disponible después de la publicación",
+    "title-placeholder": "What is the title?"
   },
   "ecency-images": {
     "upload-image": "Subir imagen",
