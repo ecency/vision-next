@@ -29,6 +29,7 @@ export function usePublishVideoAttach(editor: Editor) {
 
       editor
         .chain()
+        .setTextAlign("left")
         .set3SpeakVideo({
           src: `https://3speak.tv/watch?v=${video.owner}/${video.permlink}`,
           thumbnail: `https://ipfs-3speak.b-cdn.net/ipfs/${video.thumbUrl}`,
