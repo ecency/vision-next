@@ -85,6 +85,26 @@
     line-height: 1.55;
     margin: 0 0 1em 0;
     text-rendering: optimizeLegibility;
+
+    img {
+      display: inline-block; // to keep alignment
+    }
+  }
+
+  p[dir="left"] {
+    text-align: left;
+  }
+
+  p[dir="center"] {
+    text-align: center;
+  }
+
+  p[dir="right"] {
+    text-align: right;
+  }
+
+  p[dir="justify"] {
+    text-align: justify;
   }
 
   ul li,

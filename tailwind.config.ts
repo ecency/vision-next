@@ -193,7 +193,7 @@ const config: Config = {
         "warm-025": "#c2c2c2",
         charcoal: "#3c4449",
         "charcoal-010": "#535e65",
-        "charcoal-100": "#475157",
+        "charcoal-100": "#2d2d2d",
         steel: "#788187",
         "steel-005": "#6c7479",
         "steel-010": "#939a9f",
@@ -416,7 +416,15 @@ const config: Config = {
         '"Segoe UI Symbol"',
         '"Noto Color Emoji"'
       ],
-      serif: ["Lora", "ui-serif", "Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
+      serif: [
+        "Noto Serif",
+        "ui-serif",
+        "Georgia",
+        "Cambria",
+        '"Times New Roman"',
+        "Times",
+        "serif"
+      ],
       mono: [
         "ui-monospace",
         "SFMono-Regular",

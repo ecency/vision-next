@@ -59,7 +59,7 @@ export function PublishActionBar({ onPublish }: Props) {
       <div className="flex items-center gap-4">
         <LoginRequired>
           <Button appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
-            {i18next.t(scheduleDate ? "submit.schedule" : "submit.publish")}
+            {i18next.t("g.continue")}
           </Button>
         </LoginRequired>
 

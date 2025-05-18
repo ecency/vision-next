@@ -38,7 +38,7 @@ export function PublishEditorPollEditor() {
   return poll ? (
     <div id="publish-active-poll" className="contents">
       <div
-        className="pointer bg-white -mx-2 border-t-[2px] border-[--border-color] flex items-center justify-between px-4 py-2 sm:py-4 sticky bottom-0"
+        className="pointer bg-white -mx-2 border-t-[2px] border-[--border-color] flex items-center justify-between px-4 py-2 sticky bottom-0"
         onClick={() => rootRef.current?.scrollIntoView({ behavior: "smooth" })}
       >
         <div className="text-sm text-blue-dark-sky font-bold uppercase">
