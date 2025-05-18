@@ -7,6 +7,7 @@ import { PublishEditorPollEditor } from "../_editor-extensions";
 import { usePublishState } from "../_hooks";
 import { PublishEditorCounter } from "./publish-editor-counter";
 import { PublishEditorToolbar } from "./publish-editor-toolbar";
+import { useMount } from "react-use";
 
 interface Props {
   editor: Editor | null;
@@ -14,6 +15,12 @@ interface Props {
 
 export function PublishEditor({ editor }: Props) {
   const { title, setTitle, tags, setTags } = usePublishState();
+
+  useMount(() => {
+    editor?.on("paste", (e) => {
+      console.log(e);
+    });
+  });
 
   return (
     <motion.div

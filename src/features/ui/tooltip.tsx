@@ -1,6 +1,6 @@
 "use client";
 
-import { autoUpdate } from "@floating-ui/dom";
+import { autoUpdate, offset } from "@floating-ui/dom";
 import { flip, useFloating } from "@floating-ui/react-dom";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
@@ -30,7 +30,7 @@ export function StyledTooltip({ children, content, className, onHide }: StyledPr
   const { refs, floatingStyles } = useFloating({
     whileElementsMounted: autoUpdate,
     placement: "bottom",
-    middleware: [flip()]
+    middleware: [flip(), offset({ mainAxis: 4 })]
   });
 
   return (
