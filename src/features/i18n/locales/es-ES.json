@@ -2752,7 +2752,7 @@
     "video-availability": "El vídeo estará disponible después de la publicación",
     "title-placeholder": "¿Cuál es el título?",
     "html-warning": {
-      "title": "Pure HTML code detected",
+      "title": "Código HTML puro detectado",
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     }
   },
