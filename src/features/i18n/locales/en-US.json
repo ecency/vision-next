@@ -2753,7 +2753,7 @@
     "title-placeholder": "What is the title?",
     "html-warning": {
       "title": "Pure HTML code detected",
-      "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic view"
+      "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     }
   },
   "ecency-images": {
