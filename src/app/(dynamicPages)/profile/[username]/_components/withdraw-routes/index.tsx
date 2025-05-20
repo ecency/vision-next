@@ -27,7 +27,7 @@ export function WithdrawRoutesDialog({ onHide }: Props) {
 
   const [mode, setMode] = useState("");
   const [account, setAccount] = useState("");
-  const [percent, setPercent] = useState("10");
+  const [percent, setPercent] = useState(10);
   const [auto, setAuto] = useState("");
 
   const { data: routes } = getWithdrawRoutesQuery(activeUser!.username).useClientQuery();
@@ -49,7 +49,7 @@ export function WithdrawRoutesDialog({ onHide }: Props) {
     async (key: PrivateKey) => {
       await signByKey({ key });
       setMode("");
-      setPercent("10");
+      setPercent(10);
       setAuto("yes");
     },
     [signByKey]
@@ -63,14 +63,14 @@ export function WithdrawRoutesDialog({ onHide }: Props) {
       auto === "yes"
     );
     setMode("");
-    setPercent("10");
+    setPercent(10);
     setAuto("yes");
   }, [account, activeUser, auto, percent]);
 
   const signKS = useCallback(async () => {
     await signByKeychain();
     setMode("");
-    setPercent("10");
+    setPercent(10);
     setAuto("yes");
   }, [signByKeychain]);
 
@@ -192,7 +192,7 @@ export function WithdrawRoutesDialog({ onHide }: Props) {
                               appearance="gray-link"
                               onClick={() => {
                                 setAccount(r.to_account);
-                                setPercent("0");
+                                setPercent(0);
                                 setAuto("no");
                                 setMode("sign");
                               }}

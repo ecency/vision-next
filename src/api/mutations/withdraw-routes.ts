@@ -17,7 +17,7 @@ export function useWithDrawRouteByKey(account: string, percent: string, auto: st
         {
           from_account: activeUser!.username,
           to_account: account,
-          percent,
+          percent: percent*100,
           auto_vest: auto === "yes"
         }
       ];
@@ -39,7 +39,7 @@ export function useWithDrawRouteByKeychain(account: string, percent: string, aut
         {
           from_account: activeUser!.username,
           to_account: account,
-          percent,
+          percent: percent*100,
           auto_vest: auto === "yes"
         }
       ];
