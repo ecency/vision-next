@@ -38,7 +38,7 @@ export function useSaveDraftApi() {
   );
 
   return useMutation({
-    mutationKey: ["saveDraft-2.0"],
+    mutationKey: ["saveDraft-2.0", params],
     mutationFn: async () => {
       const tagJ = tags?.join(" ");
 
