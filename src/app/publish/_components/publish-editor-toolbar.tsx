@@ -4,23 +4,21 @@ import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-pi
 import { EcencyConfigManager } from "@/config";
 import { EcencyImagesUploadDialog } from "@/features/ecency-images";
 import { error, GalleryDialog } from "@/features/shared";
-import { FragmentsDialog } from "@/features/shared/fragments";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker, StyledTooltip } from "@/features/ui";
+import { useEditorState } from "@tiptap/react";
 import {
   UilAlignCenter,
   UilAlignJustify,
   UilAlignLeft,
   UilAlignRight,
   UilArrow,
-  UilBold,
   UilBorderHorizontal,
   UilDocumentLayoutRight,
   UilEllipsisH,
   UilImage,
   UilImages,
   UilImageShare,
-  UilItalic,
   UilLink,
   UilListOl,
   UilListUiAlt,
@@ -31,7 +29,6 @@ import {
   UilSubject,
   UilTable,
   UilTextSize,
-  UilTextStrikeThrough,
   UilUpload,
   UilVideo
 } from "@tooni/iconscout-unicons-react";
@@ -47,11 +44,12 @@ import i18next from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePublishState, usePublishVideoAttach } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
-import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
-import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
 import { PublishEditorToolbarAddLink } from "./publish-editor-toolbar-add-link";
+import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
 import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
-import { useEditorState } from "@tiptap/react";
+import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
+
+import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
 
 interface Props {
   editor: any | null;
@@ -316,18 +314,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
         </StyledTooltip>
 
         {/*Dialogs*/}
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
-        >
-          <FragmentsDialog
-            show={showFragments}
-            setShow={setShowFragments}
-            onPick={(e) => {
-              editor?.chain().focus().insertContent(e).run();
-              setShowFragments(false);
-            }}
-          />
-        </EcencyConfigManager.Conditional>
+        <PublishEditorToolbarFragments
+          showFragments={showFragments}
+          setShowFragments={setShowFragments}
+          editor={editor}
+        />
         <EcencyConfigManager.Conditional
           condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
         >

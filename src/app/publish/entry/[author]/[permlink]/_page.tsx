@@ -17,16 +17,18 @@ import {
   PublishEntrySuccessState,
   PublishEntryValidateEdit
 } from "./_components";
+import { PublishEditorHtmlWarning } from "@/app/publish/_components/publish-editor-html-warning";
 
 export default function Publish() {
-  const { editor, setEditorContent } = usePublishEditor();
-
   const params = useParams();
 
   const [step, setStep] = useState<"loading" | "edit" | "no-post" | "validation" | "updated">(
     "loading"
   );
   const [entry, setEnrty] = useState<Entry>();
+  const [showHtmlWarning, setShowHtmlWarning] = useState(false);
+
+  const { editor, setEditorContent } = usePublishEditor(() => setShowHtmlWarning(true));
 
   const { setTitle, setContent, setTags, setMetaDescription, setSelectedThumbnail } =
     usePublishState();
@@ -54,26 +56,29 @@ export default function Publish() {
   );
 
   return (
-    <AnimatePresence>
-      {step === "edit" && (
-        <>
-          <div className="container text-right max-w-[800px] mx-auto text-gray-600 dark:text-gray-400 text-xs p-2 md:p-0">
-            {i18next.t("publish.edit-mode")}
-          </div>
-          <PublishEntryActionBar onEdit={() => setStep("validation")} />
-          <PublishEditor editor={editor} />
-        </>
-      )}
-      {step === "validation" && (
-        <PublishEntryValidateEdit
-          entry={entry}
-          onClose={() => setStep("edit")}
-          onSuccess={(step) => setStep(step)}
-        />
-      )}
-      {step === "no-post" && <PublishEntryNoPost />}
-      {step === "loading" && <PublishEntryLoadingPost />}
-      {step === "updated" && <PublishEntrySuccessState />}
-    </AnimatePresence>
+    <>
+      <AnimatePresence>
+        {step === "edit" && (
+          <>
+            <div className="container text-right max-w-[800px] mx-auto text-gray-600 dark:text-gray-400 text-xs p-2 md:p-0">
+              {i18next.t("publish.edit-mode")}
+            </div>
+            <PublishEntryActionBar onEdit={() => setStep("validation")} />
+            <PublishEditor editor={editor} />
+          </>
+        )}
+        {step === "validation" && (
+          <PublishEntryValidateEdit
+            entry={entry}
+            onClose={() => setStep("edit")}
+            onSuccess={(step) => setStep(step)}
+          />
+        )}
+        {step === "no-post" && <PublishEntryNoPost />}
+        {step === "loading" && <PublishEntryLoadingPost />}
+        {step === "updated" && <PublishEntrySuccessState />}
+      </AnimatePresence>
+      <PublishEditorHtmlWarning show={showHtmlWarning} setShow={setShowHtmlWarning} />
+    </>
   );
 }

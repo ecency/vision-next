@@ -5,9 +5,9 @@ import {
   TagMentionExtensionConfig,
   ThreeSpeakVideoExtension,
   UserMentionExtensionConfig,
+  markdownToHtml,
   parseAllExtensionsToDoc
 } from "@/features/tiptap-editor";
-import Document from "@tiptap/extension-document";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
@@ -22,18 +22,34 @@ import StarterKit from "@tiptap/starter-kit";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 import { useCallback, useEffect } from "react";
-import Turndown from "turndown";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
-// @ts-ignore
-import { strikethrough } from "@joplin/turndown-plugin-gfm";
 import { usePublishLinksAttach } from "./use-publish-links-attach";
 
-export function usePublishEditor() {
+export function usePublishEditor(onHtmlPaste: () => void) {
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
+    editorProps: {
+      handlePaste(view, event, slice) {
+        event.preventDefault();
+
+        const pastedText = event.clipboardData?.getData("text/plain");
+        if (pastedText) {
+          if (/<[a-z]+>.*<\/[a-z]+>/gim.test(pastedText)) {
+            onHtmlPaste();
+          } else {
+            const parsedText = parseAllExtensionsToDoc(
+              DOMPurify.sanitize(marked.parse(pastedText) as string)
+            );
+
+            editor?.chain().insertContent(parsedText).run();
+          }
+        }
+        return true;
+      }
+    },
     extensions: [
       StarterKit.configure() as AnyExtension,
       Placeholder.configure({
@@ -80,31 +96,7 @@ export function usePublishEditor() {
       HivePostExtension
     ],
     onUpdate({ editor }) {
-      const text = new Turndown({
-        codeBlockStyle: "fenced"
-      })
-        .addRule("centeredParagraph", {
-          filter: function (node) {
-            const styles = node.getAttribute("style");
-            return (
-              ["P"].includes(node.nodeName) &&
-              !!styles &&
-              ["text-align: center", "text-align: right", "text-align: justify"].includes(styles)
-            );
-          },
-          replacement: function (content, node) {
-            const styles = (node as HTMLElement).getAttribute("style");
-            const align = styles?.replace("text-align: ", "") ?? "auto";
-
-            (node as HTMLElement).setAttribute("dir", align);
-            return (node as HTMLElement).outerHTML;
-          }
-        })
-        .use(strikethrough)
-        .keep(["table", "tbody", "th", "tr", "td"])
-        .turndown(editor.getHTML());
-
-      publishState.setContent(text);
+      publishState.setContent(markdownToHtml(editor.getHTML()));
     }
   });
 

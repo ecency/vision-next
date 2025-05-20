@@ -23,7 +23,7 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { PropsWithChildren, useState } from "react";
 import { useSaveDraftApi } from "../_api";
 import { usePublishState } from "../_hooks";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
@@ -32,7 +32,7 @@ interface Props {
   onPublish: () => void;
 }
 
-export function PublishActionBar({ onPublish }: Props) {
+export function PublishActionBar({ onPublish, children }: PropsWithChildren<Props>) {
   const router = useRouter();
 
   const { schedule: scheduleDate, clearAll } = usePublishState();
@@ -62,6 +62,7 @@ export function PublishActionBar({ onPublish }: Props) {
             {i18next.t("g.continue")}
           </Button>
         </LoginRequired>
+        {children}
 
         <StyledTooltip content={i18next.t("publish.get-help")}>
           <Button
