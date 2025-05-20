@@ -1303,10 +1303,10 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@1.1.9":
-  version "1.1.9"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.9.tgz#a3a4325b04b0860791ef13f94f5d01afc6b26aab"
-  integrity sha512-hebr3i1UNPAswPi4e1No5bycAIozGS4A7Nuk3P8esMzEMaTQgbmN4iHA8n4LomQI7Viq/7V3QsmlvP1YvVh4wQ==
+"@ecency/renderer@1.1.10":
+  version "1.1.10"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.10.tgz#02786093ea9a13b582759eb90f3f45ba6aa6000c"
+  integrity sha512-es5uX2dEyO4sRB0pQr7BOmZlqSES0pykuQUzwnhAGC3J/fh4RhNnMohe70BMV9dD0YOHBQBdnYDyzZxtD7VuYA==
   dependencies:
     medium-zoom "^1.1.0"
     react-twitter-embed "^4.0.4"

@@ -5,11 +5,13 @@ import { usePublishEditor } from "@/app/publish/_hooks";
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { PublishSuccessState } from "./_components/publish-success-state";
+import { PublishEditorHtmlWarning } from "./_components/publish-editor-html-warning";
 
 export default function Publish() {
-  const { editor } = usePublishEditor();
-
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
+  const [showHtmlWarning, setShowHtmlWarning] = useState(false);
+
+  const { editor } = usePublishEditor(() => setShowHtmlWarning(true));
 
   return (
     <>
@@ -35,6 +37,7 @@ export default function Publish() {
           />
         )}
       </AnimatePresence>
+      <PublishEditorHtmlWarning show={showHtmlWarning} setShow={setShowHtmlWarning} />
     </>
   );
 }

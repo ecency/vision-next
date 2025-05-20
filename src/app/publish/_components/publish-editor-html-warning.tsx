@@ -1,5 +1,5 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
-import { UilArrow, UilHtml5 } from "@tooni/iconscout-unicons-react";
+import { UilArrow } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Link from "next/link";
 

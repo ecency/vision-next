@@ -27,10 +27,29 @@ import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
 import { usePublishLinksAttach } from "./use-publish-links-attach";
 
-export function usePublishEditor() {
+export function usePublishEditor(onHtmlPaste: () => void) {
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
+    editorProps: {
+      handlePaste(view, event, slice) {
+        event.preventDefault();
+
+        const pastedText = event.clipboardData?.getData("text/plain");
+        if (pastedText) {
+          if (/<[a-z]+>.*<\/[a-z]+>/gim.test(pastedText)) {
+            onHtmlPaste();
+          } else {
+            const parsedText = parseAllExtensionsToDoc(
+              DOMPurify.sanitize(marked.parse(pastedText) as string)
+            );
+
+            editor?.chain().insertContent(parsedText).run();
+          }
+        }
+        return true;
+      }
+    },
     extensions: [
       StarterKit.configure() as AnyExtension,
       Placeholder.configure({

@@ -16,12 +16,6 @@ interface Props {
 export function PublishEditor({ editor }: Props) {
   const { title, setTitle, tags, setTags } = usePublishState();
 
-  useMount(() => {
-    editor?.on("paste", (e) => {
-      console.log(e);
-    });
-  });
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
