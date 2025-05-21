@@ -2753,7 +2753,7 @@
     "title-placeholder": "¿Cuál es el título?",
     "html-warning": {
       "title": "Código HTML puro detectado",
-      "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
+      "content": "El código HTML puro no es compatible con el editor. Es muy recomendable usar herramientas de editor en lugar de HTML puro. Si todavía desea utilizar HTML elija volver al Editor Clásico"
     }
   },
   "ecency-images": {
