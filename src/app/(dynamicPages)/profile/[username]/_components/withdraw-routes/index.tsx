@@ -138,7 +138,7 @@ export function WithdrawRoutesDialog({ onHide }: Props) {
                     required={true}
                     value={percent}
                     name="percent"
-                    onChange={(e) => setPercent(e.target.value)}
+                    onChange={(e) => setPercent(parseInt(e.target.value))}
                     onInvalid={(e: any) =>
                       handleInvalid(e, "withdraw-routes.", "validation-percent")
                     }
