@@ -33,12 +33,12 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     shouldRerenderOnTransaction: true,
     editorProps: {
       handlePaste(view, event, slice) {
-        event.preventDefault();
-
         const pastedText = event.clipboardData?.getData("text/plain");
         if (pastedText) {
           if (/<[a-z]+>.*<\/[a-z]+>/gim.test(pastedText)) {
             onHtmlPaste();
+            event.preventDefault();
+            return true;
           } else {
             const parsedText = parseAllExtensionsToDoc(
               DOMPurify.sanitize(marked.parse(pastedText) as string)
@@ -47,7 +47,6 @@ export function usePublishEditor(onHtmlPaste: () => void) {
             editor?.chain().insertContent(parsedText).run();
           }
         }
-        return true;
       }
     },
     extensions: [
