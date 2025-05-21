@@ -70,7 +70,7 @@ export const ReadTime = (props: any) => {
           " " +
           readTime +
           " " +
-          i18next.t("entry.post-read-minuites")
+          i18next.t("entry.post-read-minutes")
         }
       >
         <Button appearance="gray-link" size="sm" noPadding={true} icon={<UilInfoCircle />} />
@@ -84,7 +84,7 @@ export const ReadTime = (props: any) => {
             {i18next.t("entry.post-word-count")} {wordCount}
           </p>
           <p>
-            {i18next.t("entry.post-read-time")} {readTime} {i18next.t("entry.post-read-minuites")}
+            {i18next.t("entry.post-read-time")} {readTime} {i18next.t("entry.post-read-minutes")}
           </p>
           {topCurator && (
             <div className="top-curator">
