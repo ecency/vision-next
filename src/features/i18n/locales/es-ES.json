@@ -756,7 +756,7 @@
     "published": "Publicado en",
     "post-word-count": "Palabras:",
     "post-read-time": "Leyendo:",
-    "post-read-minuites": "min",
+    "post-read-minutes": "min",
     "raw": "Ver formato RAW",
     "post-top-curator": "Top Curador:",
     "stats": {
@@ -975,7 +975,7 @@
     "learn-more": "/PreguntasFrecuentes#qué-son-cr",
     "faq-link": "Preguntas Frecuentes (FAQ)",
     "insufficient-rc-error": "Créditos de Recursos insuficientes",
-    "minimum-rc-error": "CR mínimo es de 5.000.000.000",
+    "minimum-rc-error": "Minimum RC is 5,000,000,000",
     "extra-details-heading": "¿Qué es posible hacer con mis Créditos de Recursos (RC) disponible actual?",
     "transfers": "Transferencias:",
     "comments-posts": "Publicaciones / Comentarios:",
@@ -1032,7 +1032,7 @@
     "estimated-description-points": "El valor estimado se basa en el valor de compra de los puntos.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE es una moneda que puede transferirse en cualquier momento. HIVE se puede convertir a Hive Power en un proceso llamado Power Up.",
+    "hive-description": "HIVE are tradable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "HIVE POWER",
     "hive-power-description": "Hive Power son fichas de influencia que ganan más poder por mantenerlas a largo plazo y votar sobre el contenido. Cuanto más Hive Power se tenga, más influye uno en las recompensas de los demás y se gana más recompensas por votar. Hive Power es HIVE en Estaca (Staked) que puede retirado (Unstaked) en 13 semanas.",
     "hive-power-apr-rate": "La tasa de interés APR para Hive Power es de {{value}}%",
@@ -1389,7 +1389,7 @@
     "broken-hint": "El enlace de la operación está roto o no puede ser reconocido",
     "signer-text": "Firmando la siguiente transacción/operación",
     "success-hint": "Operación firmada y transaccionada",
-    "error-hint": "La operación no puede ser firmada o las transacciones no pudieron ser transmitidas. Por favor, compruebe la operación y vuelva a intentarlo"
+    "error-hint": "Operation cannot be signed or transactions couldn't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
     "sign": "Firmar",
@@ -1539,7 +1539,7 @@
     "choose-thumbnail": "Establece una miniatura (opcional)",
     "continue": "Continuar",
     "encode": "Enviar para la codificación",
-    "success": "Video subido correctamente",
+    "success": "Video successfully uploaded",
     "finished": "Finalizado",
     "upload-video": "Subir vídeo",
     "video-gallery": "Galería de vídeo",
@@ -2227,7 +2227,7 @@
       "how-to-stake-header": "¿Cómo Estacar fichas?",
       "how-to-stake-body": "Los detalles sobre sus tokens, incluidos los tipos y cantidades, así como sus usos potenciales, están disponibles en su billetera. Es importante tener en cuenta que no todos los tokens son elegibles para estacar. Si está interesado en estacar, asegúrese de verificar la elegibilidad para estacar de un token específico seleccionándolo en su billetera. Si se puede estacar, debería haber una opción de estacar disponible. Simplemente, haga clic en él e ingrese la cantidad deseada de tokens para estacar en su billetera.",
       "what-is-reblogging-header": "¿Qué es Rebloguear?",
-      "what-is-reblogging-body": "<p>Un reblog es cuando ves una publicación que encuentras útil, y haciendo clic en el botón de reblog, haces que el post aparezca en el muro de tu blog también. Ahora todos tus seguidores pueden disfrutar del post. Puedes encontrar el icono de Reblog debajo de la publicación o puedes elegir entre las opciones que aparecen cuando haces clic en los tres puntos en la parte superior de la entrada.</p>",
+      "what-is-reblogging-body": "<p>A reblog is when you see a post you find useful, and by clicking the reblog button, you make the post appear on your blog too. Now all of your followers can enjoy the post. You can fing Reblog icon under the post or you can choose from the options that appear when you click on the three dots at the top of the post .</p>",
       "how-to-bookmark-header": "¿Cómo poner el contenido de Ecency en Marcadores (Bookmark)?",
       "how-to-bookmark-body": "<p>Si quieres participar y leer contenido más tarde, simplemente marcarlo y puedes volver más tarde para leer y participar. Puedes aprender todo al respecto en el siguiente artículo <a href=\"/hive-125125/@ecency/how-to-bookmark-content-on\" class=\"push-link\">Cómo marcar el contenido</a></p>",
       "how-to-favorite-header": "¿Cómo se marca a una persona en favoritos de Ecency?",
@@ -2245,7 +2245,7 @@
       "find-friends-header": "¿Cómo encontrar más amigos en Ecency?",
       "find-friends-body": "<p>En la parte superior derecha de la página de Ecency, puedes ver el botón Descubrir/Comunidad. Al hacer clic en Descubrir, puedes encontrar información sobre los usuarios más activos, curadores y usuarios populares.</p>",
       "accounts-included-leaderboard-header": "¿Qué cuentas están incluidas en el Tablero de Posiciones?",
-      "accounts-included-leaderboard-body": "<p>Las posiciones cuentas del Tablero se basan en el número total de acciones realizadas, como comentar y crear un post. Los más activos son siempre los que ganan más puntos por estar activos en Ecency. La lista toma un cierto marco de tiempo y se actualiza constantemente. Se recomienda a las personas de la tabla de clasificación a los nuevos registros, cuando nuevas personas se unan a Ecency verán las cuentas de la tabla de clasificación como recomendación a seguir.</p>",
+      "accounts-included-leaderboard-body": "<p>Leaderboard accounts are based on the total number of actions performed, such as commenting and creating a post. The most Actives are always the ones who earn the most Points by being active on Ecency. The list takes a certain time frame and is constantly updated. Leaderboard people are recommended to new signups, when new people join Ecency they will see leaderboard accounts as recommendation to follow.</p>",
       "find-communities-header": "¿Cómo descubrir comunidades?",
       "find-communities-body": "<p> Al hacer clic en Comunidades en el botón Descubrir/Comunidades en la parte superior derecha de la página, se presentará una lista de comunidades. Las comunidades están ordenadas en un determinado orden, y puedes unirte al grupo que quieras eligiendo una de las opciones de ordenación, tales como Populares, Rango, Miembros, Nuevo, haciendo clic en el botón para Unirse.</p>",
       "what-communities-header": "¿Qué son las Comunidades?",
@@ -2298,12 +2298,12 @@
       "what-new-feed-body": "<p> Las publicaciones más recientes ordenadas por hora de publicación se muestran en el feed Nuevo. </p>",
       "how-change-design-header": "¿Cómo cambiar el diseño del Feed (Muro de Contenidos)?",
       "how-change-design-body": "<p>Haga clic en el icono de cuadrícula en la parte superior derecha del feed. Elija uno de los diseños de apariencia: Clásico o Cuadrícula. </p>",
-      "what-is-deck-header": "¿Qué es Deck (Mazo) en Ecency?",
+      "what-is-deck-header": "What is Deck view on Ecency?",
       "what-is-deck-body": "<p>Además de las vistas Clásica y Cuadrícula, hay otra vista llamada Deck (Mazo). Los Decks facilita la administración de su cuenta. Con los decks no solo puedes ver varias cosas en paralelo, sino que también puedes configurar cada deck y mezclar las cosas.</p>",
       "what-deck-types-header": "¿Cuáles son los tipos de deck (mazo)",
       "what-deck-types-body": "Al hacer clic en el icono + tendrás una nueva ventana emergente que mostrará los tipos de deck. Puedes elegir cualquier tipo de deck (mazo) y cada uno tiene su propia configuración. Por ejemplo, eligiendo el deck de usuarios puedes ver los mensajes creados por el usuario que deseas ver.",
       "what-rising-feed-header": "¿Qué muestra el Muro (Feed) de Ascenso?",
-      "what-rising-feed-body": "<p>El Feed de Ascenso muestra publicaciones que tienen más comentarios y votos comparados con otros en toda la plataforma.</p>",
+      "what-rising-feed-body": "<p>Rising feed shows posts that have more comments and votes compare to others on entire platform.</p>",
       "how-sort-rising-header": "¿Cómo ordenar el feed (Muro de contenido) de Ascenso?",
       "how-sort-rising-body": "El Feed (Muro de Contenidos) de Ascenso puede ser ordenado por: Hoy, esta semana, este mes, este año, y todas las publicaciones creadas en un lapso de tiempo específico. Elige una de estas opciones y consigue una oportunidad de ver las publicaciones que se están elevando en un tiempo en particular.",
       "what-controversial-feed-header": "¿Qué muestra el feed (Muro) de Controversial?",
@@ -2422,13 +2422,13 @@
     "communities": "Comunidades",
     "help": "Ayuda",
     "subscribe-us": "Suscribirse",
-    "enter-your-email-adress": "Introduce tu correo electrónico",
+    "enter-your-email-adress": "Enter your email address",
     "send": "Enviar",
     "subscribe-paragraph": "Sé el primero en saber lo que está pasando en la web descentralizada.",
     "copy-rights": "©️2025 Ecency. Todos los derechos reservados.",
     "success-message-subscribe": "¡Estás suscrito a nuestros boletines de noticias!",
     "validation-email": "Se requiere un email válido",
-    "error-occured": "Se ha producido un error en el servidor."
+    "error-occured": "A server error has been occurred."
   },
   "layouts": {
     "grid": "Cuadrícula",
@@ -2580,8 +2580,8 @@
     "success-reply-edit": "Has editado exitosamente"
   },
   "events": {
-    "muted": "Usuario ha silenciado",
-    "unmuted": "Usuario ha dejado de silenciar"
+    "muted": "User is muted",
+    "unmuted": "User is unmuted"
   },
   "signup-email": {
     "title": "Regístrate con Email",
@@ -2711,7 +2711,7 @@
       "posting-description": "Publica tu nueva publicación",
       "posting-text": "Añadir un título, asignar etiquetas y elegir una miniatura — esto ayuda a los motores de búsqueda a encontrar su contenido. ¿No está listo para publicarlo? Programe para más tarde.",
       "success-description": "¡Eso es todo! Sigue haciendo contenido en Ecency",
-      "success-text": "La publicación se publicará en pocos mintues o se programará para una fecha específica."
+      "success-text": "Post will be published in a few minutes or scheduled to specific date."
     },
     "no-image-found": "Solamente son compatibles archivos de imagen",
     "upload-started": "Subiendo imagen...",
@@ -2723,7 +2723,7 @@
       "italic": "Itálica",
       "strikethrough": "Tachado",
       "code": "Código",
-      "paragraph": "Párrafo",
+      "paragraph": "Paragraph",
       "heading": "Encabezado",
       "list": "Lista",
       "fragments": "Fragmentos de código",
