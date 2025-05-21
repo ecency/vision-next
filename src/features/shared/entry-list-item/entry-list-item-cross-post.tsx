@@ -30,7 +30,7 @@ export function EntryListItemCrossPost({ entry }: Props) {
             : entry.category
         }
       >
-        <a className="community-name">{entry.community_title || entry.category}</a>
+        <div className="community-name">{entry.community_title || entry.category}</div>
       </TagLink>
     </div>
   ) : (

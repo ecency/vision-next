@@ -63,9 +63,9 @@ export function Fragments(props: Props) {
       {!isPending && data?.length === 0 && (
         <div className="fragments-list flex items-center flex-col gap-4">
           <p>{i18next.t("g.empty-list")}</p>
-          <p>
-            <Button onClick={() => setMode("add")}>{i18next.t("fragments.create-first")}</Button>
-          </p>
+          <Button className="min-w-[6rem]" onClick={() => setMode("add")}>
+            {i18next.t("fragments.create-first")}
+          </Button>
         </div>
       )}
       {data && data.length > 0 && (
@@ -80,7 +80,7 @@ export function Fragments(props: Props) {
               style={{ marginRight: "6px" }}
             />
             <div>
-              <Button className="h-full" onClick={() => setMode("add")}>
+              <Button className="min-w-[6rem] h-full" onClick={() => setMode("add")}>
                 {i18next.t("g.add")}
               </Button>
             </div>
@@ -92,7 +92,7 @@ export function Fragments(props: Props) {
             <div className="flex flex-col gap-3 my-4">
               {items.map((item) => (
                 <div
-                  className="flex flex-col border dark:border-dark-400 rounded-3xl overflow-hidden cursor-pointer hover:opacity-75 duration-300"
+                  className="flex flex-col border dark:border-dark-400 rounded-xl overflow-hidden cursor-pointer hover:opacity-75 duration-300"
                   key={item.id}
                   onClick={() => {
                     if (props.onPick) {

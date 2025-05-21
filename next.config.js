@@ -87,12 +87,16 @@ const config = {
       // POSTS
       // Handle waves comment-like post in a wave page
       {
+        source: "/:category/:author(@.+)/:permlink/edit",
+        destination: "/publish/entry/:author/:permlink"
+      },
+      {
         source: "/:category/:author(@.+)/:permlink/:sub",
         destination: "/entry/:category/:author/:permlink/:sub"
       },
       {
         source: "/:author(@.+)/:permlink/edit",
-        destination: "/entry/created/:author/:permlink/edit"
+        destination: "/publish/entry/:author/:permlink"
       },
       {
         source: "/:category/:author(@.+)/:permlink",

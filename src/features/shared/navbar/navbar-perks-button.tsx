@@ -5,7 +5,11 @@ import i18next from "i18next";
 
 export function NavbarPerksButton() {
   return (
-    <Button href="/perks" icon={<UilFire />} className="font-semibold whitespace-nowrap text-sm">
+    <Button
+      href="/perks"
+      icon={<UilFire />}
+      className="font-semibold !hidden lg:!flex whitespace-nowrap text-sm"
+    >
       {i18next.t("user-nav.perks")}
     </Button>
   );

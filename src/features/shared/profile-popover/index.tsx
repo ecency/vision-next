@@ -10,18 +10,18 @@ export const ProfilePopover = ({ entry }: { entry: Entry }) => {
   const author = entry.original_entry ? entry.original_entry.author : entry.author;
 
   return (
-    <div>
-      <div className="notranslate relative hover:bg-gray-200 font-bold dark:hover:bg-gray-800 rounded-2xl px-2 pointer duration-300">
-        {author}
-      </div>
-      <Popover
-        useMobileSheet={true}
-        placement="auto"
-        anchorParent={true}
-        customClassName="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-xl w-[320px]"
-      >
-        <ProfilePreview username={author} />
-      </Popover>
-    </div>
+    <Popover
+      behavior="hover"
+      useMobileSheet={true}
+      placement="bottom-start"
+      directContent={
+        <div className="notranslate relative hover:bg-gray-200 font-bold dark:hover:bg-gray-800 rounded-2xl px-2 pointer duration-300">
+          {author}
+        </div>
+      }
+      customClassName="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-xl w-[320px]"
+    >
+      <ProfilePreview username={author} />
+    </Popover>
   );
 };

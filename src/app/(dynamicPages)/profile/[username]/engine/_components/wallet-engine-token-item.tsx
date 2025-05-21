@@ -65,9 +65,12 @@ export function WalletEngineTokenItem({ token, openTransferDialog, account, i }:
 
       <div className="ml-auto flex flex-col justify-between">
         <div className="flex items-center gap-1 mb-1 justify-end align-self-end">
-          <div className="text-blue-dark-sky font-semibold">{token.balanced()}</div>
-
-          <Popover anchorParent={true}>
+          <Popover
+            behavior="hover"
+            directContent={
+              <div className="text-blue-dark-sky font-semibold">{token.balanced()}</div>
+            }
+          >
             <div className="flex flex-col gap-3 p-4 opacity-75">
               <p>
                 {i18next.t("wallet-engine.token")}:{" "}

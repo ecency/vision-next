@@ -142,7 +142,12 @@ export function WalletHiveEngine({ account }: Props) {
               {hasMultipleUnclaimedRewards ? (
                 <div className="rewards">
                   <span className="reward-type">
-                    <Popover>
+                    <Popover
+                      behavior="hover"
+                      directContent={
+                        <div className="flex items-center">{`${rewards.length} tokens`}</div>
+                      }
+                    >
                       <PopoverContent>
                         <div className="tooltip-inner rewards-container">
                           {rewardsToShowInTooltip.map((reward, ind) => (
@@ -157,7 +162,6 @@ export function WalletHiveEngine({ account }: Props) {
                         </div>
                       </PopoverContent>
                     </Popover>
-                    <div className="flex items-center">{`${rewards.length} tokens`}</div>
                   </span>
                   {isMyPage && (
                     <a

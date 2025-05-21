@@ -4,24 +4,8 @@
   position: relative;
 }
 
-.video-upload-item {
-  cursor: pointer;
-  transition: 0.3s;
-
-  &:hover {
-    @include themify(day) {
-      background-color: darken($white, 6);
-    }
-
-    @include themify(night) {
-      background-color: lighten($dark, 6);
-    }
-
-  }
-}
-
 .new-feature::after {
-  content: '';
+  content: "";
   height: 0.35rem;
   width: 0.35rem;
   background: $red;
@@ -86,9 +70,7 @@ label {
   gap: 5px;
 }
 
-
 .three-speak-video-uploading {
-
   .video-source {
     display: flex;
     gap: 1rem;

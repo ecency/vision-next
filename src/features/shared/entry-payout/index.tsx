@@ -46,23 +46,28 @@ export const EntryPayout = ({ entry }: Props) => {
 
   return searchPayout <= 0 ? (
     <div className="noselection">
-      <Popover show={showPopover} setShow={setShowPopover}>
+      <Popover
+        directContent={
+          <div
+            onMouseOver={() => setShowPopover(true)}
+            onMouseLeave={() => setShowPopover(false)}
+            className={classNameObject({
+              "entry-payout notranslate": true,
+              "payout-declined": isPayoutDeclined,
+              "payout-limit-hit": payoutLimitHit
+            })}
+          >
+            <FormattedCurrency value={shownPayout ?? 0} fixAt={3} />
+          </div>
+        }
+        behavior="hover"
+        show={showPopover}
+        setShow={setShowPopover}
+      >
         <PopoverContent>
           <EntryPayoutDetail entry={entry} />
         </PopoverContent>
       </Popover>
-
-      <div
-        onMouseOver={() => setShowPopover(true)}
-        onMouseLeave={() => setShowPopover(false)}
-        className={classNameObject({
-          "entry-payout notranslate": true,
-          "payout-declined": isPayoutDeclined,
-          "payout-limit-hit": payoutLimitHit
-        })}
-      >
-        <FormattedCurrency value={shownPayout ?? 0} fixAt={3} />
-      </div>
     </div>
   ) : (
     <div

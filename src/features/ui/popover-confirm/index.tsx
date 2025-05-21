@@ -1,9 +1,9 @@
 "use client";
 
-import { cloneElement, ReactElement, useState } from "react";
-import { Popover, PopoverContent, PopoverTitle } from "@ui/popover";
 import { Button } from "@ui/button";
+import { Popover, PopoverContent, PopoverTitle } from "@ui/popover";
 import i18next from "i18next";
+import { cloneElement, ReactElement, useState } from "react";
 
 interface Props {
   titleText?: string;
@@ -31,44 +31,27 @@ export function PopoverConfirm({
 }: Props) {
   const [show, setShow] = useState(false);
 
-  const toggle = (e?: any) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    setShow(!show);
-  };
-
   const confirm = () => {
-    toggle();
-
-    if (onConfirm) {
-      onConfirm();
-    }
+    setShow(true);
+    onConfirm?.();
   };
 
   const cancel = () => {
-    toggle();
-
-    if (onCancel) {
-      onCancel();
-    }
+    setShow(false);
+    onCancel?.();
   };
 
   const clonedChildren = cloneElement(children, {
-    onClick: toggle
+    onClick: () => setShow(!show)
   });
 
-  const popover = (
+  return (
     <Popover
+      directContent={clonedChildren}
+      behavior="click"
+      placement={placement}
       show={show}
       setShow={(value) => setShow(value)}
-      id="popover-confirm"
-      onClick={(e) => {
-        // Prevent to trigger hide event on modal dialog
-        e.stopPropagation();
-      }}
     >
       <PopoverTitle className="!p-4 whitespace-nowrap">
         {titleText || i18next.t("confirm.title")}
@@ -89,16 +72,5 @@ export function PopoverConfirm({
         </div>
       </PopoverContent>
     </Popover>
-  );
-
-  if (!show) {
-    return clonedChildren;
-  }
-
-  return (
-    <>
-      {popover}
-      {children}
-    </>
   );
 }

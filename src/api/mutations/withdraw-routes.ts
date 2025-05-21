@@ -6,7 +6,7 @@ import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import * as keychain from "@/utils/keychain";
 
-export function useWithDrawRouteByKey(account: string, percent: string, auto: string) {
+export function useWithDrawRouteByKey(account: string, percent: number, auto: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   return useMutation({
@@ -17,7 +17,7 @@ export function useWithDrawRouteByKey(account: string, percent: string, auto: st
         {
           from_account: activeUser!.username,
           to_account: account,
-          percent,
+          percent: percent*100,
           auto_vest: auto === "yes"
         }
       ];
@@ -28,7 +28,7 @@ export function useWithDrawRouteByKey(account: string, percent: string, auto: st
   });
 }
 
-export function useWithDrawRouteByKeychain(account: string, percent: string, auto: string) {
+export function useWithDrawRouteByKeychain(account: string, percent: number, auto: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   return useMutation({
@@ -39,7 +39,7 @@ export function useWithDrawRouteByKeychain(account: string, percent: string, aut
         {
           from_account: activeUser!.username,
           to_account: account,
-          percent,
+          percent: percent*100,
           auto_vest: auto === "yes"
         }
       ];

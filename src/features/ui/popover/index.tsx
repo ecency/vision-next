@@ -3,37 +3,51 @@
 import { HTMLAttributes, ReactNode, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFilteredProps } from "../util";
-import { Placement } from "@popperjs/core";
-import { PopoverPopper } from "@ui/popover/popover-popper";
-import { useMountedState, useWindowSize } from "react-use";
+import { useClickAway, useMountedState, useWindowSize } from "react-use";
 import { PopoverSheet } from "@ui/popover/popover-sheet";
+import { autoUpdate, flip, Placement, shift } from "@floating-ui/dom";
+import { useFloating } from "@floating-ui/react-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface ShowProps {
   show: boolean;
   setShow: (v: boolean) => void;
   children: ReactNode;
-  stopPropagationForChild?: boolean;
-  placement?: Placement;
 }
 
 interface Props {
-  children: ReactNode;
-  anchorParent?: boolean;
+  directContent?: ReactNode;
   customClassName?: string;
   useMobileSheet?: boolean;
   stopPropagationForChild?: boolean;
+  placement?: Placement;
+  behavior?: "hover" | "click";
 }
 
-export function Popover(props: (ShowProps | Props) & HTMLAttributes<HTMLDivElement>) {
+export function Popover(
+  props: (Partial<ShowProps> & Partial<Props>) & HTMLAttributes<HTMLDivElement>
+) {
   const nativeProps = useFilteredProps(props, [
     "anchorParent",
     "show",
     "setShow",
     "customClassName",
-    "useMobileSheet"
+    "useMobileSheet",
+    "placement",
+    "stopPropagationForChild",
+    "behavior",
+    "directContent"
   ]);
 
-  const [host, setHost] = useState<any>();
+  const { refs, floatingStyles } = useFloating({
+    whileElementsMounted: autoUpdate,
+    middleware: [flip(), shift()],
+    placement: props.placement,
+    transform: true
+  });
+
+  useClickAway(refs.floating as any, () => props.behavior === "click" && show && setShow(false));
+
   const [show, setShow] = useState((props as ShowProps).show ?? false);
 
   const isMounted = useMountedState();
@@ -44,31 +58,46 @@ export function Popover(props: (ShowProps | Props) & HTMLAttributes<HTMLDivEleme
     [props, windowSize.width]
   );
   useEffect(() => {
-    setShow((props as ShowProps).show ?? false);
-  }, [props]);
+    props.show !== show && setShow((props as ShowProps).show ?? false);
+  }, [props.show]);
 
   useEffect(() => {
-    if ((props as Props).anchorParent && host) {
-      host.parentElement.addEventListener("click", () => setShow(true));
-      host.parentElement.addEventListener("mouseenter", () => setShow(true));
-      host.parentElement.addEventListener("mouseleave", () => setShow(false));
-    }
-  }, [host, props]);
+    show !== props.show && props.setShow?.(show);
+  }, [show]);
 
   return (
-    <div {...nativeProps} ref={setHost}>
-      {isMounted() && !isSheet && (
-        <PopoverPopper
-          host={host}
-          setShow={setShow}
-          show={show}
-          stopPropagationForChild={props.stopPropagationForChild}
-          placement={"placement" in props ? props.placement : undefined}
-          customClassName={"customClassName" in props ? props.customClassName : undefined}
-        >
-          {props.children}
-        </PopoverPopper>
-      )}
+    <div
+      ref={refs.setReference}
+      {...nativeProps}
+      onClick={(e) => {
+        e.stopPropagation();
+        typeof props.setShow === "function" || isSheet ? undefined : setShow(true);
+      }}
+      onMouseEnter={() => props.behavior === "hover" && setShow(true)}
+      onMouseLeave={() => props.behavior === "hover" && setShow(false)}
+    >
+      {props.directContent}
+      {isMounted() &&
+        !isSheet &&
+        createPortal(
+          <AnimatePresence>
+            {show && (
+              <div ref={refs.setFloating} style={floatingStyles} className="absolute z-[1060]">
+                <motion.div
+                  className={
+                    props.customClassName ?? "bg-white border border-[--border-color] rounded-lg"
+                  }
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                >
+                  {props.children}
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.querySelector("#popper-container") ?? document.createElement("div")
+        )}
       {isMounted() &&
         createPortal(
           isSheet ? (

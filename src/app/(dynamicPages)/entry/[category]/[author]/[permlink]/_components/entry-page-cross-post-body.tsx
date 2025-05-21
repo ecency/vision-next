@@ -28,7 +28,6 @@ export function EntryPageCrossPostBody({ entry }: Props) {
   return (
     <>
       <div className="entry-header">
-        <h1 className="entry-title">{entry.original_entry.title}</h1>
         <div className="entry-info">
           <ProfileLink username={entry.original_entry.author}>
             <div className="author-avatar">
@@ -58,7 +57,7 @@ export function EntryPageCrossPostBody({ entry }: Props) {
               </span>
               <span className="separator circle-separator" />
               <div className="entry-tag">
-                <span className="in-tag">{i18next.t("entry.published")}</span>
+                <span className="in-tag mr-2">{i18next.t("entry.published")}</span>
                 <TagLink tag={entry.original_entry.category} type="link">
                   <div className="tag-name">
                     {entry.original_entry.community

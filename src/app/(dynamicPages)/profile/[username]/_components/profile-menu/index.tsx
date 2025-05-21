@@ -31,18 +31,6 @@ export function ProfileMenu({ username }: Props) {
         id: x
       }))
       .filter((item) => !item.selected),
-    {
-      label: i18next.t("profile.witnesses"),
-      href: "/witnesses",
-      selected: false,
-      id: "witnesses"
-    },
-    {
-      label: i18next.t("profile.proposals"),
-      href: "/proposals",
-      selected: false,
-      id: "proposals"
-    },
     ...EcencyConfigManager.composeConditionals(
       EcencyConfigManager.withConditional(
         (config) => config.visionFeatures.referrals.enabled,
