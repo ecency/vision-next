@@ -151,7 +151,7 @@ export class EntryMetadataBuilder {
       ...(poll
         ? {
             content_type: "poll",
-            version: 0.6,
+            version: 1.1,
             question: poll.title,
             choices: poll.choices,
             preferred_interpretation: poll.interpretation,
