@@ -13,25 +13,26 @@ interface Props {
   editor: Editor | null;
 }
 
-const HTML_REGEX = /<[a-z]+>.*<\/[a-z]+>/gim;
-
 export function PublishEditorToolbarFragments({ showFragments, setShowFragments, editor }: Props) {
   const [showWarning, setShowWarning] = useState(false);
 
-  const onPick = useCallback((e: string) => {
-    if (!HTML_REGEX.test(e)) {
-      setShowFragments(false);
-      setShowWarning(true);
-      return;
-    }
+  const onPick = useCallback(
+    (e: string) => {
+      if (/<[a-z]+>.*<\/[a-z]+>/gm.test(e)) {
+        setShowFragments(false);
+        setShowWarning(true);
+        return;
+      }
 
-    editor
-      ?.chain()
-      .focus()
-      .insertContent(parseAllExtensionsToDoc(DOMPurify.sanitize(marked.parse(e) as string)))
-      .run();
-    setShowFragments(false);
-  }, []);
+      editor
+        ?.chain()
+        .focus()
+        .insertContent(parseAllExtensionsToDoc(DOMPurify.sanitize(marked.parse(e) as string)))
+        .run();
+      setShowFragments(false);
+    },
+    [editor, setShowFragments]
+  );
 
   return (
     <EcencyConfigManager.Conditional
