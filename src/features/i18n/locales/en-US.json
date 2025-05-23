@@ -2771,6 +2771,8 @@
     "setup-tokens": "Setup assets",
     "asset-name": "Asset name",
     "price": "Price",
-    "balance": "Balance"
+    "balance": "Balance",
+    "apr": "APR Rewards",
+    "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe"
   }
 }
