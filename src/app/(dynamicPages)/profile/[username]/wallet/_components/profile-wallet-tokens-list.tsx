@@ -1,6 +1,5 @@
 "use client";
 
-import { FormattedCurrency } from "@/features/shared";
 import { StyledTooltip } from "@/features/ui";
 import { getAccountWalletListQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
@@ -30,7 +29,13 @@ export default function ProfileWalletTokensList() {
         <div>{i18next.t("profile-wallet.price")}</div>
         <div>{i18next.t("profile-wallet.balance")}</div>
       </div>
-      {data?.map((item) => <ProfileWalletTokensListItem item={item} />)}
+      {data?.map((item) => (
+        <ProfileWalletTokensListItem
+          asset={item}
+          key={item}
+          username={(username as string).replace("%40", "")}
+        />
+      ))}
     </div>
   );
 }

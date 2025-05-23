@@ -21,7 +21,6 @@ export function ClientInit() {
   const { data } = getAccountFullQuery(activeUser?.username).useClientQuery();
 
   useMount(() => {
-    console.log("client init");
     ConfigManager.setQueryClient(queryClient as any);
 
     initKeychain();
