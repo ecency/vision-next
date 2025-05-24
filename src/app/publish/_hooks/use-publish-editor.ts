@@ -37,8 +37,6 @@ export function usePublishEditor(onHtmlPaste: () => void) {
         if (pastedText) {
           if (/<[a-z]+>.*<\/[a-z]+>/gim.test(pastedText)) {
             onHtmlPaste();
-            event.preventDefault();
-            return true;
           } else {
             const parsedText = parseAllExtensionsToDoc(
               DOMPurify.sanitize(marked.parse(pastedText) as string)
@@ -46,6 +44,9 @@ export function usePublishEditor(onHtmlPaste: () => void) {
 
             editor?.chain().insertContent(parsedText).run();
           }
+
+          event.preventDefault();
+          return true;
         }
       }
     },
