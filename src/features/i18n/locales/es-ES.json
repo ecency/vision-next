@@ -1,5 +1,6 @@
 {
   "g": {
+    "all": "Todo",
     "add": "Agregar",
     "edit": "Editar",
     "clone": "Clonar",
@@ -95,6 +96,7 @@
     "community": "Comunidad",
     "today": "Hoy",
     "view": "Vista",
+    "tomorrow": "Mañana",
     "import": "Importar"
   },
   "confirm": {
@@ -685,7 +687,7 @@
     "sign-title": "Firmar tu transacción",
     "fetching-market": "Obteniendo mercado...",
     "back": "Regresar",
-    "swap-by": "Ingresar con {{method}}",
+    "swap-by": "Firmar por {{method}}",
     "success-title": "Transacción completada",
     "more-than-balance": "Ha introducido más que el saldo disponible",
     "invalid-amount": "Invalidado por la cantidad. Por favor, introduce un valor menor",
@@ -754,7 +756,7 @@
     "published": "Publicado en",
     "post-word-count": "Palabras:",
     "post-read-time": "Leyendo:",
-    "post-read-minuites": "min",
+    "post-read-minutes": "min",
     "raw": "Ver formato RAW",
     "post-top-curator": "Top Curador:",
     "stats": {
@@ -973,7 +975,7 @@
     "learn-more": "/PreguntasFrecuentes#qué-son-cr",
     "faq-link": "Preguntas Frecuentes (FAQ)",
     "insufficient-rc-error": "Créditos de Recursos insuficientes",
-    "minimum-rc-error": "CR mínimo es de 5.000.000.000",
+    "minimum-rc-error": "RC mínimo es 5.000.000.000",
     "extra-details-heading": "¿Qué es posible hacer con mis Créditos de Recursos (RC) disponible actual?",
     "transfers": "Transferencias:",
     "comments-posts": "Publicaciones / Comentarios:",
@@ -1030,7 +1032,7 @@
     "estimated-description-points": "El valor estimado se basa en el valor de compra de los puntos.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE es una moneda que puede transferirse en cualquier momento. HIVE se puede convertir a Hive Power en un proceso llamado Power Up.",
+    "hive-description": "HIVE son fichas comercializables que pueden transferirse en cualquier momento. El HIVE se puede convertir en Hive Power, en un proceso llamado encendido (Power Up).",
     "hive-power": "HIVE POWER",
     "hive-power-description": "Hive Power son fichas de influencia que ganan más poder por mantenerlas a largo plazo y votar sobre el contenido. Cuanto más Hive Power se tenga, más influye uno en las recompensas de los demás y se gana más recompensas por votar. Hive Power es HIVE en Estaca (Staked) que puede retirado (Unstaked) en 13 semanas.",
     "hive-power-apr-rate": "La tasa de interés APR para Hive Power es de {{value}}%",
@@ -1392,13 +1394,13 @@
   "key-or-hot": {
     "sign": "Firmar",
     "key-placeholder": "Introducir clave privada activa/propietaria/maestra, o frase semilla",
-    "with-hivesigner": "Ingresar con Hivesigner",
-    "with-keychain": "Ingresar con Keychain"
+    "with-hivesigner": "Iniciar Sesión con hivesigner",
+    "with-keychain": "Iniciar sesión con KeyChain"
   },
   "delegated-vesting": {
     "title": "Hive Power delegado",
-    "undelegate": "Undelegate",
-    "subtitle": " HP Pending return delegations"
+    "undelegate": "Retirar delegación",
+    "subtitle": " Delegación de HP pendiente de devolución"
   },
   "received-vesting": {
     "title": "Hive Power recibido"
@@ -1537,7 +1539,7 @@
     "choose-thumbnail": "Establece una miniatura (opcional)",
     "continue": "Continuar",
     "encode": "Enviar para la codificación",
-    "success": "Video subido correctamente",
+    "success": "Vídeo cargado correctamente",
     "finished": "Finalizado",
     "upload-video": "Subir vídeo",
     "video-gallery": "Galería de vídeo",
@@ -2225,7 +2227,7 @@
       "how-to-stake-header": "¿Cómo Estacar fichas?",
       "how-to-stake-body": "Los detalles sobre sus tokens, incluidos los tipos y cantidades, así como sus usos potenciales, están disponibles en su billetera. Es importante tener en cuenta que no todos los tokens son elegibles para estacar. Si está interesado en estacar, asegúrese de verificar la elegibilidad para estacar de un token específico seleccionándolo en su billetera. Si se puede estacar, debería haber una opción de estacar disponible. Simplemente, haga clic en él e ingrese la cantidad deseada de tokens para estacar en su billetera.",
       "what-is-reblogging-header": "¿Qué es Rebloguear?",
-      "what-is-reblogging-body": "<p>Un reblog es cuando ves una publicación que encuentras útil, y haciendo clic en el botón de reblog, haces que el post aparezca en el muro de tu blog también. Ahora todos tus seguidores pueden disfrutar del post. Puedes encontrar el icono de Reblog debajo de la publicación o puedes elegir entre las opciones que aparecen cuando haces clic en los tres puntos en la parte superior de la entrada.</p>",
+      "what-is-reblogging-body": "<p>Un reblog es cuando ves una publicación que encuentras útil, y haciendo clic en el botón de reblog, haces que el post aparezca en el muro de tu blog también. Ahora, todos tus seguidores pueden disfrutar del post. Puedes encontrar el icono de Reblog debajo de la publicación o puedes elegir entre las opciones que aparecen cuando haces clic en los tres puntos en la parte superior de la publicación.</p>",
       "how-to-bookmark-header": "¿Cómo poner el contenido de Ecency en Marcadores (Bookmark)?",
       "how-to-bookmark-body": "<p>Si quieres participar y leer contenido más tarde, simplemente marcarlo y puedes volver más tarde para leer y participar. Puedes aprender todo al respecto en el siguiente artículo <a href=\"/hive-125125/@ecency/how-to-bookmark-content-on\" class=\"push-link\">Cómo marcar el contenido</a></p>",
       "how-to-favorite-header": "¿Cómo se marca a una persona en favoritos de Ecency?",
@@ -2243,7 +2245,7 @@
       "find-friends-header": "¿Cómo encontrar más amigos en Ecency?",
       "find-friends-body": "<p>En la parte superior derecha de la página de Ecency, puedes ver el botón Descubrir/Comunidad. Al hacer clic en Descubrir, puedes encontrar información sobre los usuarios más activos, curadores y usuarios populares.</p>",
       "accounts-included-leaderboard-header": "¿Qué cuentas están incluidas en el Tablero de Posiciones?",
-      "accounts-included-leaderboard-body": "<p>Las posiciones cuentas del Tablero se basan en el número total de acciones realizadas, como comentar y crear un post. Los más activos son siempre los que ganan más puntos por estar activos en Ecency. La lista toma un cierto marco de tiempo y se actualiza constantemente. Se recomienda a las personas de la tabla de clasificación a los nuevos registros, cuando nuevas personas se unan a Ecency verán las cuentas de la tabla de clasificación como recomendación a seguir.</p>",
+      "accounts-included-leaderboard-body": "<p>Las cuentas de la tabla de clasificación se basan en el número total de acciones realizadas, como comentar y crear una publicación. Los usuarios más activos siempre son quienes ganan más puntos por estar activos en Ecency. La lista tiene una duración determinada y se actualiza constantemente. Los usuarios de la tabla de clasificación son recomendados a los nuevos usuarios registrados, y cuando se unan a Ecency, verán las cuentas de la tabla de clasificación como una recomendación para seguir.</p>",
       "find-communities-header": "¿Cómo descubrir comunidades?",
       "find-communities-body": "<p> Al hacer clic en Comunidades en el botón Descubrir/Comunidades en la parte superior derecha de la página, se presentará una lista de comunidades. Las comunidades están ordenadas en un determinado orden, y puedes unirte al grupo que quieras eligiendo una de las opciones de ordenación, tales como Populares, Rango, Miembros, Nuevo, haciendo clic en el botón para Unirse.</p>",
       "what-communities-header": "¿Qué son las Comunidades?",
@@ -2296,12 +2298,12 @@
       "what-new-feed-body": "<p> Las publicaciones más recientes ordenadas por hora de publicación se muestran en el feed Nuevo. </p>",
       "how-change-design-header": "¿Cómo cambiar el diseño del Feed (Muro de Contenidos)?",
       "how-change-design-body": "<p>Haga clic en el icono de cuadrícula en la parte superior derecha del feed. Elija uno de los diseños de apariencia: Clásico o Cuadrícula. </p>",
-      "what-is-deck-header": "¿Qué es Deck (Mazo) en Ecency?",
+      "what-is-deck-header": "¿Qué es la vista de Deck (Mazo) en Ecency?",
       "what-is-deck-body": "<p>Además de las vistas Clásica y Cuadrícula, hay otra vista llamada Deck (Mazo). Los Decks facilita la administración de su cuenta. Con los decks no solo puedes ver varias cosas en paralelo, sino que también puedes configurar cada deck y mezclar las cosas.</p>",
       "what-deck-types-header": "¿Cuáles son los tipos de deck (mazo)",
       "what-deck-types-body": "Al hacer clic en el icono + tendrás una nueva ventana emergente que mostrará los tipos de deck. Puedes elegir cualquier tipo de deck (mazo) y cada uno tiene su propia configuración. Por ejemplo, eligiendo el deck de usuarios puedes ver los mensajes creados por el usuario que deseas ver.",
       "what-rising-feed-header": "¿Qué muestra el Muro (Feed) de Ascenso?",
-      "what-rising-feed-body": "<p>El Feed de Ascenso muestra publicaciones que tienen más comentarios y votos comparados con otros en toda la plataforma.</p>",
+      "what-rising-feed-body": "<p>El feed de ‘en ascenso’ muestra publicaciones que tienen más comentarios y votos en comparación con otros en toda la plataforma.</p>",
       "how-sort-rising-header": "¿Cómo ordenar el feed (Muro de contenido) de Ascenso?",
       "how-sort-rising-body": "El Feed (Muro de Contenidos) de Ascenso puede ser ordenado por: Hoy, esta semana, este mes, este año, y todas las publicaciones creadas en un lapso de tiempo específico. Elige una de estas opciones y consigue una oportunidad de ver las publicaciones que se están elevando en un tiempo en particular.",
       "what-controversial-feed-header": "¿Qué muestra el feed (Muro) de Controversial?",
@@ -2420,10 +2422,10 @@
     "communities": "Comunidades",
     "help": "Ayuda",
     "subscribe-us": "Suscribirse",
-    "enter-your-email-adress": "Introduce tu correo electrónico",
+    "enter-your-email-adress": "Introduce tu dirección de correo electrónico",
     "send": "Enviar",
     "subscribe-paragraph": "Sé el primero en saber lo que está pasando en la web descentralizada.",
-    "copy-rights": "©2025 Ecency. All rights reserved.",
+    "copy-rights": "©️2025 Ecency. Todos los derechos reservados.",
     "success-message-subscribe": "¡Estás suscrito a nuestros boletines de noticias!",
     "validation-email": "Se requiere un email válido",
     "error-occured": "Se ha producido un error en el servidor."
@@ -2443,6 +2445,8 @@
     "insufficient-resource-purchase": "Comprar potenciador de cuenta o delegación",
     "insufficient-resource-buy-hive": "Comprar HIVE y aumentar poder",
     "insufficient-resource-wait": "Espere unas horas para la recarga de RC",
+    "insufficient-resource-buy": "Impulsar una cuenta",
+    "insufficient-resource-message": "No tienes suficientes créditos de recursos. Por favor impulsa tu cuenta/compra Hive Power, o espera unas horas para recargar",
     "report": "Reportar"
   },
   "perks": {
@@ -2478,6 +2482,7 @@
     "help-hint": "¿Tienes alguna pregunta? Revisa el centro de ayuda"
   },
   "polls": {
+    "active-poll": "Encuesta activa",
     "poll": "Encuesta",
     "title": "Crear una encuesta",
     "edit-title": "Editar una encuesta",
@@ -2575,8 +2580,8 @@
     "success-reply-edit": "Has editado exitosamente"
   },
   "events": {
-    "muted": "Usuario ha silenciado",
-    "unmuted": "Usuario ha dejado de silenciar"
+    "muted": "Usuario silenciado",
+    "unmuted": "Usuario no silenciado"
   },
   "signup-email": {
     "title": "Regístrate con Email",
@@ -2592,7 +2597,7 @@
     "intro": {
       "title": "Regístrate con Billetera o Wallet",
       "description": "Seleccione su nombre de usuario/apodo legible",
-      "currencies-info": "Puede configurar fácilmente una nueva cuenta si mantiene estacada alguna de estas monedas.",
+      "currencies-info": "You can easily setup new account using one of these currencies.",
       "available": "Este nombre de usuario está disponible para usar",
       "checking": "Comprobando disponibilidad del nombre de usuario..."
     },
@@ -2638,5 +2643,125 @@
       "validating": "Preparando tu cuenta...",
       "success": "Tu cuenta fue creada. ¡Disfruta de Hive y Ecencia!"
     }
+  },
+  "publish": {
+    "gif-picker": "Elegir imagen GIF",
+    "description-hint": "Ayuda al sistema de motor de búsqueda para encontrar este post",
+    "schedule-hint": "La programación está disponible por 1 hora de anticipación",
+    "heading": "Encabezado",
+    "bullet-list": "Lista de viñetas",
+    "ordered-list": "Lista ordenada",
+    "code-block": "Bloque de códigos",
+    "quote": "Citar",
+    "table": "Tabla",
+    "horizontal-rule": "Regla horizontal",
+    "from-gallery": "Desde la galería",
+    "upload": "Subir y pegar",
+    "from-link": "Desde enlace",
+    "add-image-by-link": "Añadir imagen por enlace",
+    "add-image-by-link-title-hint": "Título de la imagen",
+    "story-preview": "Vista previa de la historia",
+    "change-thumb": "Cambiar imagen de vista previa",
+    "tags-hint": "Añade o cambia etiquetas (hasta 10) para que los lectores sepan de qué trata tu historia",
+    "tags-min-message": "Debe establecerse al menos una etiqueta",
+    "publish-now": "Publicar ahora",
+    "schedule-later": "Programar para más tarde",
+    "schedule-now": "Programar ahora",
+    "update-schedule": "Actualizar ajustes de programación",
+    "public-info-hint": "Nota: Los cambios aquí afectarán cómo tu historia aparece en lugares públicos como la página principal de Ecency (y otras plataformas de Hive) y en sistemas de búsqueda — no el contenido de la historia misma.",
+    "preview-subtitle": "Previsualizar subtítulo..",
+    "thumb-selection": "Definir imágenes de vista previa",
+    "published-title": "Tu publicación ha sido publicada",
+    "published-hint": "Tu publicación ha sido publicada con éxito. Puedes verla en tu blog o en el feed.",
+    "scheduled-title": "Tu publicación se ha programado",
+    "scheduled-hint": "Tu publicación ha sido programada con éxito. Puedes verla en tu blog o en el feed a la hora de publicar.",
+    "back-to-editor": "Volver al editor",
+    "go-to-posts": "Ir a mis publicaciones",
+    "no-draft-title": "No se han encontrado borradores",
+    "no-draft-hint": "No tienes borrador con el ID dado. Por favor, comprueba tus borradores.",
+    "draft-mode": "Estás en modo de edición de borradores",
+    "edit-mode": "Estás en modo de edición de posts",
+    "save-draft": "Guardar borrador",
+    "update-draft": "Actualizar borrador",
+    "three-speak-upload": "Subir y pegar",
+    "three-speak-gallery": "Desde 3Speak",
+    "video-by-link": "Añadir vídeo por enlace",
+    "video-link-hint": "Coloca el enlace abajo e intentamos identificarlo (YouTube, 3Speak, Twitch, Vimeo). Otros servicios de videos pueden ser añadidos como un enlace regular.",
+    "video-link-label": "Enlace de video",
+    "get-started": {
+      "title": "Conoce la nueva experiencia de publicación",
+      "button": "Empieza ya",
+      "single-view-title": "Nueva vista individual",
+      "single-view-description": "Introduciendo una única vista dinámica: no más contenidos separados y ventanas de vista previa",
+      "single-view-text": "Escribe tu contenido y ve instantáneamente cómo aparecerá como un mensaje real. No hay necesidad de moverse entre entrada RAW en bruto y vista previa. Solamente hay que centrarse en la creación.",
+      "toolbar-title": "Barra de herramientas",
+      "toolbar-description": "Descubre una cómoda barra de herramientas para enriquecer tu texto sin esfuerzo",
+      "toolbar-text": "La barra de herramientas está repleta de potentes herramientas de formato para hacer que su post destaque. Acelere su flujo de trabajo con accesos rápidos de teclado.",
+      "dynamic-editor-title": "Editor dinámico",
+      "dynamic-editor-description": "Ahora, puedes ver tu publicación exactamente como se publicará mientras se edita en tiempo real",
+      "focus-title": "Concéntrate en tu contenido",
+      "focus-description": "Menos información visual — sólo su publicación y nada más",
+      "skip": "Omitir la guía",
+      "shortcut": "Acceso directo",
+      "more-shortcuts": "Ver más accesos directos en documentación de Ecencia",
+      "settings-title": "Configuración de publicación",
+      "settings-description": "Personaliza tu contenido con ajustes avanzados",
+      "settings-text": "Programar mensajes, guardar borradores, actualizar meta info — todo desde el menú de tres puntos",
+      "posting-title": "Publicación",
+      "posting-description": "Publica tu nueva publicación",
+      "posting-text": "Añadir un título, asignar etiquetas y elegir una miniatura — esto ayuda a los motores de búsqueda a encontrar su contenido. ¿No está listo para publicarlo? Programe para más tarde.",
+      "success-description": "¡Eso es todo! Sigue haciendo contenido en Ecency",
+      "success-text": "La publicación se publicará en pocos minutos o se programará para una fecha específica."
+    },
+    "no-image-found": "Solamente son compatibles archivos de imagen",
+    "upload-started": "Subiendo imagen...",
+    "back-to-old": "Volver al editor clásico",
+    "clear": "Restablecer",
+    "schedule": "Programar",
+    "action-bar": {
+      "bold": "Negrita",
+      "italic": "Itálica",
+      "strikethrough": "Tachado",
+      "code": "Código",
+      "paragraph": "Párrafo",
+      "heading": "Encabezado",
+      "list": "Lista",
+      "fragments": "Fragmentos de código",
+      "image": "Imagen",
+      "link": "Enlace",
+      "emoji": "Emoji",
+      "video": "Vídeo",
+      "poll": "Encuesta",
+      "align-hint": "Sólo los párrafos e imágenes pueden ser alineados"
+    },
+    "get-help": "Buscar ayuda",
+    "loading-post-title": "Cargando tu publicación...",
+    "loading-post-hint": "Sólo el título, el contenido, las etiquetas y la meta información pueden ser cambiadas después de la publicación",
+    "upload-video-error-hint": "El vídeo sólo se puede subir mientras se crea la publicación sin editar",
+    "no-post-title": "No hemos podido encontrar la publicación",
+    "no-post-hint": "Parece que el mensaje tiene un enlace no válido o no existe. Por favor, comprueba la dirección.",
+    "go-to-post": "Abrir publicación original",
+    "updated-title": "¡Publicación actualizada!",
+    "updated-hint": "El contenido del mensaje ha sido actualizado. Los cambios serán visibles en pocos minutos.",
+    "back-to-post": "Volver a la publicación",
+    "video-gallery": {
+      "no-data": "Aún no hay videos",
+      "no-data-hint": "Cambiar el filtro o publicar tu primer vídeo con 3Speak",
+      "no-data-button": "Subir ahora"
+    },
+    "video-availability": "El vídeo estará disponible después de la publicación",
+    "title-placeholder": "¿Cuál es el título?",
+    "html-warning": {
+      "title": "Código HTML puro detectado",
+      "content": "El código HTML puro no es compatible con el editor. Es muy recomendable usar herramientas de editor en lugar de HTML puro. Si todavía desea utilizar HTML elija volver al Editor Clásico"
+    }
+  },
+  "ecency-images": {
+    "upload-image": "Subir imagen",
+    "dropzone-title": "Arrastrar archivos aquí o haz clic para subirlos",
+    "dropzone-hint": "El tamaño máximo del archivo es de 10MB",
+    "dropzone-realize": "Suelte el archivo aquí",
+    "success-upload": "Imagen cargada con éxito",
+    "uploading": "Subiendo..."
   }
 }

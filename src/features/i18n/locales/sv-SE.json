@@ -1,5 +1,6 @@
 {
   "g": {
+    "all": "All",
     "add": "Lägg till",
     "edit": "Redigera",
     "clone": "Clone",
@@ -95,6 +96,7 @@
     "community": "Community",
     "today": "Today",
     "view": "View",
+    "tomorrow": "Tomorrow",
     "import": "Import"
   },
   "confirm": {
@@ -210,7 +212,7 @@
     "subtitle": "Login with private key or other options. Write username and continue with favorite one",
     "subtitle-users": "Manage already authenticated users or login to new one with various options",
     "write-username": "Enter username and select login option",
-    "username-placeholder": "Username",
+    "username-placeholder": "username",
     "key-placeholder": "password / private key",
     "login-info-1": "We don't store your private keys.",
     "login-info-2": "More info",
@@ -685,7 +687,7 @@
     "sign-title": "Sign your transaction",
     "fetching-market": "Fetching market...",
     "back": "Tillbaka",
-    "swap-by": "Sign with {{method}}",
+    "swap-by": "Sign by {{method}}",
     "success-title": "Transaction completed",
     "more-than-balance": "You've entered more than available balance",
     "invalid-amount": "Invalid from amount. Please, enter less value",
@@ -754,7 +756,7 @@
     "published": "Published in",
     "post-word-count": "Ord:",
     "post-read-time": "Reading:",
-    "post-read-minuites": "min",
+    "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
     "stats": {
@@ -973,7 +975,7 @@
     "learn-more": "/faq#what-are-rc",
     "faq-link": "FAQ",
     "insufficient-rc-error": "Insufficient resource credits",
-    "minimum-rc-error": "Mininum RC is 5,000,000,000",
+    "minimum-rc-error": "Minimum RC is 5,000,000,000",
     "extra-details-heading": "What's possible with current available RC?",
     "transfers": "Transfers:",
     "comments-posts": "Posts / Comments:",
@@ -1030,7 +1032,7 @@
     "estimated-description-points": "The estimated value is based on purchase value of Points.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE are tradable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "HIVE POWER",
     "hive-power-description": "Hive Power are influence tokens that earn more power for holding long term and voting on content. The more Hive Power one holds, the more one can influence other’s rewards and earn rewards for accurate voting. Hive Power is staked HIVE token that can be unstaked in 13 weeks.",
     "hive-power-apr-rate": "APR interest rate for Hive Power is {{value}}%",
@@ -1387,18 +1389,18 @@
     "broken-hint": "Operation link is broken or cannot be recognized",
     "signer-text": "Signing following transaction/operation",
     "success-hint": "Operation signed and transaction broadcasted",
-    "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
+    "error-hint": "Operation cannot be signed or transactions couldn't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
     "sign": "Sign",
     "key-placeholder": "Enter active/owner/master key",
-    "with-hivesigner": "Sign with Hivesigner",
-    "with-keychain": "Sign with Keychain"
+    "with-hivesigner": "Sign with hivesigner",
+    "with-keychain": "Sign with keychain"
   },
   "delegated-vesting": {
     "title": "Delegated Hive Power",
-    "undelegate": "Undelegate",
-    "subtitle": " HP Pending return delegations"
+    "undelegate": "undelegate",
+    "subtitle": " HP Pending delegation returns"
   },
   "received-vesting": {
     "title": "Received Hive Power"
@@ -1537,7 +1539,7 @@
     "choose-thumbnail": "Set a thumbnail(optional)",
     "continue": "Fortsätt",
     "encode": "Send for encoding",
-    "success": "Video succesfully uploaded",
+    "success": "Video successfully uploaded",
     "finished": "Finished",
     "upload-video": "Upload video",
     "video-gallery": "Video gallery",
@@ -2225,7 +2227,7 @@
       "how-to-stake-header": "How to stake tokens?",
       "how-to-stake-body": "Details regarding your tokens, including the types and quantities, as well as their potential uses, are available in your wallet. It's important to note that not all tokens are eligible for staking. If you're interested in staking, make sure to verify the staking eligibility of a specific token by selecting it in your wallet. If it can be staked, there should be a staking option available. Simply click on it and input the desired amount of tokens to be staked in your wallet.",
       "what-is-reblogging-header": "What is Reblogging?",
-      "what-is-reblogging-body": "<p>A reblog is when you see a post you find usefull, and by clicking the reblog button, you make the post appear on your blog too. Now all of your followers can enjoy the post. You can fing Reblog icon under the post or you can choose from the options that appear when you click on the three dots at the top of the post .</p>",
+      "what-is-reblogging-body": "<p>A reblog is when you see a post you find useful, and by clicking the reblog button, you make the post appear on your blog too. Now all of your followers can enjoy the post. You can fing Reblog icon under the post or you can choose from the options that appear when you click on the three dots at the top of the post .</p>",
       "how-to-bookmark-header": "How to bookmark content on Ecency?",
       "how-to-bookmark-body": "<p>If you want to engage and read content later, simply bookmark it and come back later to read and engage. You can learn all about it in following article <a href=\"/hive-125125/@ecency/how-to-bookmark-content-on\" class=\"push-link\">How to bookmark content</a></p>",
       "how-to-favorite-header": "How to favorite people on Ecency?",
@@ -2243,7 +2245,7 @@
       "find-friends-header": "How to Find more friends on Ecency?",
       "find-friends-body": "<p>At the top right of the Ecency page, you can see Discover/Community button. By clicking Discover, you can find information about Most Active users, Curators and Popular users.</p>",
       "accounts-included-leaderboard-header": "Which accounts are included in the Leaderboard?",
-      "accounts-included-leaderboard-body": "<p>Leaderboard acoounts are based on the total number of actions performed, such as commenting and creating a post. The most Actives are always the ones who earn the most Points by being active on Ecency. The list takes a certain time frame and is constantly updated. Leaderboard people are recommended to new signups, when new people join Ecency they will see leaderboard accounts as recommendation to follow.</p>",
+      "accounts-included-leaderboard-body": "<p>Leaderboard accounts are based on the total number of actions performed, such as commenting and creating a post. The most Actives are always the ones who earn the most Points by being active on Ecency. The list takes a certain time frame and is constantly updated. Leaderboard people are recommended to new signups, when new people join Ecency they will see leaderboard accounts as recommendation to follow.</p>",
       "find-communities-header": "How to discover Communities?",
       "find-communities-body": "<p> By clicking Communities in the Discover/Communities button at the top right of the page, you will be presented with a list of Communities. The Communities are sorted in a certain order, and you can join the group you want by choosing one of the sorting options, such as Hot, Rank, Members, New, by clicking the Join button.</p>",
       "what-communities-header": "What are Communities?",
@@ -2296,12 +2298,12 @@
       "what-new-feed-body": "<p> The newest posts sorted by the published time are shown in the New feed. </p>",
       "how-change-design-header": "How to change feed design?",
       "how-change-design-body": "<p>Click on the grid icon at the top right of the feed. Choose one of the look designs: Classic or Grid. </p>",
-      "what-is-deck-header": "What is Deck wiew on Ecency?",
+      "what-is-deck-header": "What is Deck view on Ecency?",
       "what-is-deck-body": "<p>From other Classic and Grid views there is another view called Deck. Decks makes easy to manage your account. With decks not only you get to see multiple things in parallel but you can configure each decks and shuffle things around.</p>",
       "what-deck-types-header": "What are the deck types",
       "what-deck-types-body": "By clicking + icon you will have new pop-up window that is shown deck types. You can choose any type of deck and each deck has its own setup. For example choosing User deck you can see posts created user you want to see.",
       "what-rising-feed-header": "What does Rising feed show?",
-      "what-rising-feed-body": "<p>Risind feed shows posts that have more comments and votes compare to others on entire platform.</p>",
+      "what-rising-feed-body": "<p>Rising feed shows posts that have more comments and votes compare to others on entire platform.</p>",
       "how-sort-rising-header": "How to sort Rising feed?",
       "how-sort-rising-body": "The rising feed can be sorted by today, this week, this month, this year, and all time posts created during the specific time. Choose one of them and get a chance of seeing posts that become rising you wanted time.",
       "what-controversial-feed-header": "What does controversial feed show?",
@@ -2420,13 +2422,13 @@
     "communities": "Communities",
     "help": "Hjälp",
     "subscribe-us": "Subscribe Us",
-    "enter-your-email-adress": "Ange din e-postadress",
+    "enter-your-email-adress": "Enter your email address",
     "send": "Skicka",
     "subscribe-paragraph": "Be first to know what's happening in decentralized web.",
-    "copy-rights": "©2025 Ecency. All rights reserved.",
+    "copy-rights": "©2021 Ecency. All right reserved.",
     "success-message-subscribe": "You are subscribed to our newsletters!",
     "validation-email": "A valid email is required",
-    "error-occured": "A server error has been occured."
+    "error-occured": "A server error has been occurred."
   },
   "layouts": {
     "grid": "Grid",
@@ -2443,6 +2445,8 @@
     "insufficient-resource-purchase": "Purchase account boost or delegation",
     "insufficient-resource-buy-hive": "Buy HIVE and Power it up",
     "insufficient-resource-wait": "Wait few hours for RC refill",
+    "insufficient-resource-buy": "Boost an account",
+    "insufficient-resource-message": "You don't have enough resource credits. Please boost your account/buy Hive power or wait  few hours for refill",
     "report": "Report"
   },
   "perks": {
@@ -2478,6 +2482,7 @@
     "help-hint": "Have any questions? Check out help center"
   },
   "polls": {
+    "active-poll": "Active poll",
     "poll": "Poll",
     "title": "Create a poll",
     "edit-title": "Edit a poll",
@@ -2575,8 +2580,8 @@
     "success-reply-edit": "You have edited successfully"
   },
   "events": {
-    "muted": "User has muted",
-    "unmuted": "User has unmuted"
+    "muted": "User is muted",
+    "unmuted": "User is unmuted"
   },
   "signup-email": {
     "title": "Signup with Email",
@@ -2638,5 +2643,125 @@
       "validating": "Preparing your account...",
       "success": "Your account created. Enjoy the Hive and Ecency!"
     }
+  },
+  "publish": {
+    "gif-picker": "Pick GIF image",
+    "description-hint": "Helps to search engine systems to find out this post",
+    "schedule-hint": "Scheduling is available for 1 hour forward",
+    "heading": "Heading",
+    "bullet-list": "Bullet list",
+    "ordered-list": "Ordered list",
+    "code-block": "Code block",
+    "quote": "Quote",
+    "table": "Table",
+    "horizontal-rule": "Horizontal rule",
+    "from-gallery": "From gallery",
+    "upload": "Upload and paste",
+    "from-link": "From link",
+    "add-image-by-link": "Add image by link",
+    "add-image-by-link-title-hint": "Title of the image",
+    "story-preview": "Story preview",
+    "change-thumb": "Change preview image",
+    "tags-hint": "Add or change topics (up to 10) so readers know what your story is about",
+    "tags-min-message": "At least one tag should be set",
+    "publish-now": "Publish now",
+    "schedule-later": "Schedule for later",
+    "schedule-now": "Schedule now",
+    "update-schedule": "Update schedule settings",
+    "public-info-hint": "Note: Changes here will affect how your story appears in public places like Ecency (and other Hive clients) homepage and in a search engine systems — not the contents of the story itself.",
+    "preview-subtitle": "Preview subtitle..",
+    "thumb-selection": "Set preview images",
+    "published-title": "Your post has published",
+    "published-hint": "Your post has been published successfully. You can view it on your blog or in the feed.",
+    "scheduled-title": "Your post has scheduled",
+    "scheduled-hint": "Your post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
+    "back-to-editor": "Back to editor",
+    "go-to-posts": "Go to my posts",
+    "no-draft-title": "No draft found",
+    "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
+    "draft-mode": "You are in a draft editing mode",
+    "edit-mode": "You are in a post editing mode",
+    "save-draft": "Save to draft",
+    "update-draft": "Update draft",
+    "three-speak-upload": "Upload and paste",
+    "three-speak-gallery": "From 3Speak",
+    "video-by-link": "Add video by link",
+    "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
+    "video-link-label": "Video link",
+    "get-started": {
+      "title": "Meet new publishing experience",
+      "button": "Get started",
+      "single-view-title": "New single view",
+      "single-view-description": "Introducing a single dynamic view — no more separate content and preview windows",
+      "single-view-text": "Write your content and instantly see how it will appear as a real post. No need to move between raw input and preview. Just focus on creating.",
+      "toolbar-title": "Toolbar",
+      "toolbar-description": "Discover a convenient toolbar to enrich your text effortlessly",
+      "toolbar-text": "The toolbar is packed with powerful formatting tools to make your post stand out. Speed up your workflow with handy keyboard shortcuts.",
+      "dynamic-editor-title": "Dynamic editor",
+      "dynamic-editor-description": "Now, you can see your post exactly as it will be published while editing in real time",
+      "focus-title": "Focus on your content",
+      "focus-description": "Less visual information — just your post and nothing more",
+      "skip": "Skip guide",
+      "shortcut": "Shortcut",
+      "more-shortcuts": "See more shortcuts on Ecency Documentation",
+      "settings-title": "Publishing settings",
+      "settings-description": "Customize your content with advanced settings",
+      "settings-text": "Schedule posts, save drafts, update meta info — all from the three-dot menu",
+      "posting-title": "Posting",
+      "posting-description": "Publish your new post",
+      "posting-text": "Add a title, assign tags, and choose a thumbnail — this helps search engines find your content. Not ready to publish? Schedule it for later.",
+      "success-description": "That's it! Keep making content on Ecency",
+      "success-text": "Post will be published in a few minutes or scheduled to specific date."
+    },
+    "no-image-found": "Only image files are supporting",
+    "upload-started": "Uploading image...",
+    "back-to-old": "Back to Classic Editor",
+    "clear": "Clear",
+    "schedule": "Schedule",
+    "action-bar": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "strikethrough": "Strikethrough",
+      "code": "Code",
+      "paragraph": "Paragraph",
+      "heading": "Heading",
+      "list": "List",
+      "fragments": "Snippets",
+      "image": "Image",
+      "link": "Link",
+      "emoji": "Emoji",
+      "video": "Video",
+      "poll": "Poll",
+      "align-hint": "Only paragraph and images can be aligned"
+    },
+    "get-help": "Get help",
+    "loading-post-title": "Loading your post...",
+    "loading-post-hint": "Only title, content, tags and meta information could be changed after post publication",
+    "upload-video-error-hint": "Video could be uploaded only while creating post not editing",
+    "no-post-title": "Cannot find the post",
+    "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
+    "go-to-post": "Open original post",
+    "updated-title": "Post has updated!",
+    "updated-hint": "Post content has updated. Changes will be visible in few minutes.",
+    "back-to-post": "Back to post",
+    "video-gallery": {
+      "no-data": "No videos yet",
+      "no-data-hint": "Change filter or publish your first video with 3Speak",
+      "no-data-button": "Upload now"
+    },
+    "video-availability": "Video will be available after publishing",
+    "title-placeholder": "What is the title?",
+    "html-warning": {
+      "title": "Pure HTML code detected",
+      "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
+    }
+  },
+  "ecency-images": {
+    "upload-image": "Upload image",
+    "dropzone-title": "Drop files here or click to upload",
+    "dropzone-hint": "Maximum file size is 10MB",
+    "dropzone-realize": "Drop file here",
+    "success-upload": "Image has uploaded successfully",
+    "uploading": "Uploading..."
   }
 }
