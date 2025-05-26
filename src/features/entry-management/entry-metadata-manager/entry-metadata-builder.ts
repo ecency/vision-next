@@ -55,10 +55,12 @@ export class EntryMetadataBuilder {
   public withPostLinks(entries: Entry[] = []): this {
     return this.withField(
       "links",
-      entries.map(
-        (entry) =>
-          `https://ecency.com${makeEntryPath(entry.category, entry.author, entry.permlink)}`
-      )
+      entries
+        .filter((e) => !!e)
+        .map(
+          (entry) =>
+            `https://ecency.com${makeEntryPath(entry.category, entry.author, entry.permlink)}`
+        )
     ).withField(
       "links_meta",
       entries.reduce(
