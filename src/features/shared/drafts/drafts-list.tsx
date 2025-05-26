@@ -81,7 +81,7 @@ export function DraftsList({ onHide, onPick }: Props) {
                 key={item._id}
                 draft={item}
                 editFn={() => {
-                  router.push(`/draft/${item._id}`);
+                  router.push(`/publish/drafts/${item._id}`);
                   onHide();
                 }}
                 deleteFn={() => deleteDraft({ id: item._id })}

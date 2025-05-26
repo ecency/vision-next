@@ -38,7 +38,7 @@ export function usePublishApi() {
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
-    "post-created"
+    "post-published" as any
   );
 
   return useMutation({
