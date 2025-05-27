@@ -5,6 +5,7 @@ import {
   TagMentionExtensionConfig,
   ThreeSpeakVideoExtension,
   UserMentionExtensionConfig,
+  clipboardPlugin,
   markdownToHtml,
   parseAllExtensionsToDoc
 } from "@/features/tiptap-editor";
@@ -33,21 +34,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     shouldRerenderOnTransaction: true,
     editorProps: {
       handlePaste(view, event, slice) {
-        const pastedText = event.clipboardData?.getData("text/plain");
-        if (pastedText) {
-          if (/<[a-z]+>.*<\/[a-z]+>/gim.test(pastedText)) {
-            onHtmlPaste();
-          } else {
-            const parsedText = parseAllExtensionsToDoc(
-              DOMPurify.sanitize(marked.parse(pastedText) as string)
-            );
-
-            editor?.chain().insertContent(parsedText).run();
-          }
-
-          event.preventDefault();
-          return true;
-        }
+        clipboardPlugin(event, editor, onHtmlPaste).handle(event);
       }
     },
     extensions: [

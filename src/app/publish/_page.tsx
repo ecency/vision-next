@@ -6,19 +6,24 @@ import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { PublishSuccessState } from "./_components/publish-success-state";
 import { PublishEditorHtmlWarning } from "./_components/publish-editor-html-warning";
+import { useRouter } from "next/navigation";
 
 export default function Publish() {
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
   const [showHtmlWarning, setShowHtmlWarning] = useState(false);
 
   const { editor } = usePublishEditor(() => setShowHtmlWarning(true));
+  const router = useRouter();
 
   return (
     <>
       <AnimatePresence>
         {step === "edit" && (
           <>
-            <PublishActionBar onPublish={() => setStep("validation")} />
+            <PublishActionBar
+              onPublish={() => setStep("validation")}
+              onBackToClassic={() => router.push("/submit")}
+            />
             <PublishEditor editor={editor} />
           </>
         )}

@@ -1,6 +1,6 @@
 {
   "name": "ecency-vision-next",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -15,7 +15,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@ecency/ns-query": "^1.2.11-next",
     "@ecency/render-helper": "^2.2.40",
-    "@ecency/renderer": "1.1.10",
+    "@ecency/renderer": "1.1.11",
     "@ecency/sdk": "1.0.38",
     "@ecency/wallets": "^1.2.12",
     "@emoji-mart/data": "^1.1.2",
