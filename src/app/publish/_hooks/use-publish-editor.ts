@@ -33,9 +33,8 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     editorProps: {
-      handlePaste(view, event, slice) {
-        clipboardPlugin(event, editor, onHtmlPaste).handle(event);
-      }
+      handlePaste: ((_: any, event: ClipboardEvent, __: any) =>
+        clipboardPlugin(event, editor, onHtmlPaste).handle(event)) as any
     },
     extensions: [
       StarterKit.configure() as AnyExtension,

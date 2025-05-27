@@ -6,12 +6,12 @@ export class ClipboardPluginImageStrategy implements ClipboardStrategy {
 
   constructor() {}
 
-  handle(event: ClipboardEvent) {
+  handle(event: ClipboardEvent): boolean | void {
     const allFiles = Array.from(event.clipboardData?.files ?? []);
     const chain = this.editor?.chain();
 
     allFiles
-      .filter((file) => ["image/png", "image/jpeg"].includes(file.type))
+      .filter((file) => ["image/png", "image/jpeg", "image/jpg"].includes(file.type))
       .forEach(
         (file) =>
           chain?.setImage({
