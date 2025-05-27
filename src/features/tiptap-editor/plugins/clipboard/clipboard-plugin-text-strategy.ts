@@ -12,7 +12,7 @@ export class ClipboardPluginTextStrategy implements ClipboardStrategy {
     this.onHtmlPaste = onHtmlPaste;
   }
 
-  handle(event: ClipboardEvent) {
+  handle(event: ClipboardEvent): boolean | void {
     const pastedText = event.clipboardData?.getData("text/plain");
     if (pastedText) {
       if (/<[a-z]+>.*<\/[a-z]+>/gim.test(pastedText)) {
