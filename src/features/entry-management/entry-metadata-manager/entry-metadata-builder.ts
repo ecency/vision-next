@@ -164,7 +164,9 @@ export class EntryMetadataBuilder {
             filters: {
               account_age: poll.filters.accountAge
             },
-            end_time: Math.round(poll.endTime.getTime() / 1000)
+            end_time: Math.round(
+              poll.endTime instanceof Date ? poll.endTime.getTime() / 1000 : poll.endTime
+            )
           }
         : {})
     } as MetaData;
