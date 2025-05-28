@@ -47,7 +47,7 @@
     "trending": "feed",
     "created": "feed",
     "muted": "muted",
-    "trail": "trail",
+    "trail": "P",
     "controversial": "controversial",
     "rising": "rising",
     "found": "found",
@@ -450,7 +450,7 @@
     "description": "{{f}} topics on a social network owned and operated by its users.",
     "description-tag": "{{f}} #{{t}} topics",
     "description-user-feed": "{{u}}'s feed",
-    "faq": "FAQ",
+    "faq": "L",
     "tos": "Terms of service",
     "pp": "Privacy Policy"
   },
@@ -774,7 +774,7 @@
     }
   },
   "edit-history": {
-    "title": "Edit History",
+    "title": "L",
     "show-diff": "Show Difference",
     "version": "Version {{n}}"
   },
