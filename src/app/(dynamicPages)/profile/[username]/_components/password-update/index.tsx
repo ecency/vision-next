@@ -44,7 +44,7 @@ export function PasswordUpdate({ onUpdate }: Props) {
       newPublicKeys[r] = k.createPublic().toString();
     });
 
-    const ownerKey = PrivateKey.fromLogin(activeUser.username, curPass, "owner");
+    const ownerKey = curPass.startsWith('5') ? PrivateKey.fromString(curPass) : PrivateKey.fromLogin(activeUser.username, curPass, "owner");
 
     const { data: accountData } = activeUser;
 
