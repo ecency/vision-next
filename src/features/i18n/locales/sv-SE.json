@@ -1433,7 +1433,7 @@
     "followers": "Följare ({{n}})",
     "following": "Följer ({{n}})",
     "search-placeholder": "Sök",
-    "active": "Active:"
+    "active": "active:"
   },
   "friends-filter": {
     "all": "Alla",
