@@ -421,7 +421,7 @@
     "unmute-success": "Post no silenciado",
     "promote": "Promocionar",
     "boost": "Impulsar",
-    "edit-classic": "Edit in Classic Editor"
+    "edit-classic": "Editar en el Editor Clásico"
   },
   "cross-post": {
     "title": "Publicación cruzada",
@@ -1433,7 +1433,7 @@
     "followers": "Seguidores ({{n}})",
     "following": "Siguiendo ({{n}})",
     "search-placeholder": "Buscar",
-    "active": "active:"
+    "active": "activo:"
   },
   "friends-filter": {
     "all": "Todos",
@@ -1820,8 +1820,8 @@
   "drafts": {
     "title": "Borradores",
     "filter": "Buscar por título",
-    "open-editor": "Open in Editor",
-    "open-classic": "Open in Classic Editor"
+    "open-editor": "Abrir en el editor",
+    "open-classic": "Abrir en Editor Clásico"
   },
   "schedules": {
     "title": "Publicaciones programadas",
@@ -2455,7 +2455,7 @@
   "perks": {
     "page-title": "Bienvenido a las ventajas (Perks)",
     "title": "Conoce las ventajas (perks) de Ecency",
-    "title-next": "unified, fast and simple way to boost your experience",
+    "title-next": "una forma unificada, rápida y simple de optimizar tu cuenta",
     "points-title": "Comprar puntos",
     "points-action": "Comprar",
     "points-description": "Empieza a mejorar el compromiso con tu contenido comprando Puntos con Ecency Móvil",
