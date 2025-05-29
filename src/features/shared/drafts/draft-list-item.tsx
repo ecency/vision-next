@@ -18,7 +18,7 @@ import { UilCopy, UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
 
 interface Props {
   draft: Draft;
-  editFn: (item: Draft) => void;
+  editFn: (item: Draft, isNewEditor: boolean) => void;
   deleteFn: (item: Draft) => void;
   cloneFn: (item: Draft) => void;
 }
@@ -44,29 +44,38 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
 
   return !activeUser?.data.__loaded ? null : (
     <div className="drafts-list-item border dark:border-dark-400 rounded-3xl overflow-hidden">
-      <div className="flex items-center gap-3 border-b dark:border-dark-300 mb-4 p-2 bg-gray-100 dark:bg-dark-500">
-        <div className="flex items-center gap-2">
-          <UserAvatar username={author} size="medium" />
-          <div className="flex items-center text-sm">
-            <div className="font-bold">{author}</div>
-            <div className="text-gray-600 pl-1">({accountReputation(reputation)})</div>
+      <div className="flex items-center justify-between border-b dark:border-dark-300 mb-4 p-2 bg-gray-100 dark:bg-dark-500">
+        <div className="flex items-center gap-3">
+          <Badge>{community?.title ?? tag}</Badge>
+          <div className="text-sm text-gray-600" title={dateFormatted}>
+            {dateRelative}
           </div>
         </div>
-        <Badge>{community?.title ?? tag}</Badge>
-        <div className="text-sm text-gray-600" title={dateFormatted}>
-          {dateRelative}
+
+        <div className="flex items-center">
+          <Button
+            size="xs"
+            appearance="gray-link"
+            onClick={() => cloneFn(draft)}
+            icon={<UilCopy />}
+            title={i18next.t("g.clone")}
+          />
+          <PopoverConfirm
+            onConfirm={() => {
+              deleteFn(draft);
+            }}
+          >
+            <Button
+              size="xs"
+              appearance="gray-link"
+              icon={<UilTrash />}
+              title={i18next.t("g.delete")}
+            />
+          </PopoverConfirm>
         </div>
       </div>
-      <div
-        className="grid gap-4 p-2"
-        style={{
-          gridTemplateColumns: "150px 1fr"
-        }}
-      >
-        <div
-          className="w-full flex items-center justify-center border rounded-2xl aspect-[4/3] overflow-hidden"
-          onClick={() => editFn(draft)}
-        >
+      <div className="grid gap-4 p-2 grid-cols-1 md:grid-cols-[150px_1fr]">
+        <div className="w-full flex flex-col items-center justify-center border rounded-2xl aspect-[4/3] overflow-hidden">
           <Image
             alt={draft.title}
             src={img}
@@ -82,40 +91,20 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
             })}
           />
         </div>
-        <div onClick={() => editFn(draft)}>
+        <div>
           <div className="text-gray-charcoal dark:text-white text-lg font-semibold">
             {draft.title}
           </div>
           <div className="text-gray-steel dark:text-white-075">{summary}</div>
         </div>
         <div />
-        <div className="flex items-center gap-4 px-2 justify-end w-full">
-          <Button
-            noPadding={true}
-            appearance="gray-link"
-            onClick={() => cloneFn(draft)}
-            icon={<UilCopy />}
-            title={i18next.t("g.clone")}
-          />
-          <Button
-            noPadding={true}
-            appearance="gray-link"
-            onClick={() => editFn(draft)}
-            icon={<UilEditAlt />}
-            title={i18next.t("g.edit")}
-          />
-          <PopoverConfirm
-            onConfirm={() => {
-              deleteFn(draft);
-            }}
-          >
-            <Button
-              noPadding={true}
-              appearance="gray-link"
-              icon={<UilTrash />}
-              title={i18next.t("g.delete")}
-            />
-          </PopoverConfirm>
+        <div className="flex flex-wrap items-center gap-4 px-2 justify-end w-full">
+          <Button size="sm" onClick={() => editFn(draft, true)} icon={<UilEditAlt />}>
+            {i18next.t("drafts.open-editor")}
+          </Button>
+          <Button size="sm" appearance="gray" onClick={() => editFn(draft, false)}>
+            {i18next.t("drafts.open-classic")}
+          </Button>
         </div>
       </div>
     </div>

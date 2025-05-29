@@ -1818,7 +1818,9 @@
   },
   "drafts": {
     "title": "Drafts",
-    "filter": "Search by title"
+    "filter": "Search by title",
+    "open-editor": "Open in Editor",
+    "open-classic": "Open in Classic editor"
   },
   "schedules": {
     "title": "Scheduled Posts",

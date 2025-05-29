@@ -61,7 +61,7 @@ export function DraftsList({ onHide, onPick }: Props) {
 
   return (
     <div className="dialog-content">
-      <div className="dialog-filter">
+      <div className="dialog-filter sticky -top-12 sm:top-4 w-full bg-white border-b border-[--border-color] pt-2 pb-4">
         <FormControl
           ref={innerRef}
           type="text"
@@ -80,8 +80,12 @@ export function DraftsList({ onHide, onPick }: Props) {
               <DraftListItem
                 key={item._id}
                 draft={item}
-                editFn={() => {
-                  router.push(`/publish/drafts/${item._id}`);
+                editFn={(_, isNewEditor) => {
+                  if (isNewEditor) {
+                    router.push(`/publish/drafts/${item._id}`);
+                  } else {
+                    router.push(`/draft/${item._id}`);
+                  }
                   onHide();
                 }}
                 deleteFn={() => deleteDraft({ id: item._id })}
