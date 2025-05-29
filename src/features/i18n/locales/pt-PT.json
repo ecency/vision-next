@@ -1433,7 +1433,7 @@
     "followers": "Followers ({{n}})",
     "following": "Following ({{n}})",
     "search-placeholder": "Search",
-    "active": "Active:"
+    "active": "active:"
   },
   "friends-filter": {
     "all": "All",
