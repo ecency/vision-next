@@ -129,7 +129,7 @@ export const FriendsList = ({ account, mode }: Props) => {
         </div>
       </div>
 
-      {!!query && dataFlow.length > 1 && (
+      {!query && dataFlow.length > 1 && (
         <div className="load-more">
           <Button disabled={isLoading || !hasMore} onClick={() => fetchNextPage()}>
             {i18next.t("g.load-more")}
