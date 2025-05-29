@@ -420,7 +420,8 @@
     "unmute": "Quitar silencio",
     "unmute-success": "Post no silenciado",
     "promote": "Promocionar",
-    "boost": "Impulsar"
+    "boost": "Impulsar",
+    "edit-classic": "Edit in Classic Editor"
   },
   "cross-post": {
     "title": "Publicación cruzada",
@@ -1818,7 +1819,9 @@
   },
   "drafts": {
     "title": "Borradores",
-    "filter": "Buscar por título"
+    "filter": "Buscar por título",
+    "open-editor": "Open in Editor",
+    "open-classic": "Open in Classic Editor"
   },
   "schedules": {
     "title": "Publicaciones programadas",
