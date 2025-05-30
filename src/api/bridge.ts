@@ -253,8 +253,8 @@ export interface Profile {
 export const getProfiles = async (
     accounts: string[],
     observer?: string,
-): Promise<Profile[] | null> => {
-  return await bridgeApiCall<Profile[] | null>("get_profiles", {
+): Promise<Profile[]> => {
+  return await bridgeApiCall<Profile[]>("get_profiles", {
     accounts,
     observer
   });
