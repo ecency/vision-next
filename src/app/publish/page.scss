@@ -25,13 +25,6 @@
 
       a {
         cursor: pointer;
-        // 🔒 Protection against extensions injecting styles/classes
-        &.keychainify-checked {
-          all: revert !important;
-          animation: none !important;
-          transition: none !important;
-          will-change: auto;
-        }
       }
     }
   }
