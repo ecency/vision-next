@@ -47,7 +47,7 @@
     "trending": "feed",
     "created": "feed",
     "muted": "muted",
-    "trail": "trail",
+    "trail": "P",
     "controversial": "controversial",
     "rising": "rising",
     "found": "found",
@@ -420,7 +420,8 @@
     "unmute": "Unmute",
     "unmute-success": "Post unmuted",
     "promote": "Promote",
-    "boost": "Boost"
+    "boost": "Boost",
+    "edit-classic": "Edit in Classic Editor"
   },
   "cross-post": {
     "title": "Cross Post",
@@ -450,7 +451,7 @@
     "description": "{{f}} topics on a social network owned and operated by its users.",
     "description-tag": "{{f}} #{{t}} topics",
     "description-user-feed": "{{u}}'s feed",
-    "faq": "FAQ",
+    "faq": "L",
     "tos": "Terms of service",
     "pp": "Privacy Policy"
   },
@@ -774,7 +775,7 @@
     }
   },
   "edit-history": {
-    "title": "Edit History",
+    "title": "L",
     "show-diff": "Show Difference",
     "version": "Version {{n}}"
   },
@@ -975,7 +976,7 @@
     "learn-more": "/faq#what-are-rc",
     "faq-link": "FAQ",
     "insufficient-rc-error": "Insufficient resource credits",
-    "minimum-rc-error": "Minimum RC is 5,000,000,000",
+    "minimum-rc-error": "Mininum RC is 5,000,000,000",
     "extra-details-heading": "What's possible with current available RC?",
     "transfers": "Transfers:",
     "comments-posts": "Posts / Comments:",
@@ -1032,7 +1033,7 @@
     "estimated-description-points": "The estimated value is based on purchase value of Points.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "HIVE POWER",
     "hive-power-description": "Hive Power are influence tokens that earn more power for holding long term and voting on content. The more Hive Power one holds, the more one can influence other’s rewards and earn rewards for accurate voting. Hive Power is staked HIVE token that can be unstaked in 13 weeks.",
     "hive-power-apr-rate": "APR interest rate for Hive Power is {{value}}%",
@@ -1389,7 +1390,7 @@
     "broken-hint": "Operation link is broken or cannot be recognized",
     "signer-text": "Signing following transaction/operation",
     "success-hint": "Operation signed and transaction broadcasted",
-    "error-hint": "Operation cannot be signed or transactions couldn't be broadcasted. Please, check operation and try again"
+    "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
     "sign": "Sign",
@@ -1432,7 +1433,7 @@
     "followers": "Followers ({{n}})",
     "following": "Following ({{n}})",
     "search-placeholder": "Search",
-    "active": "Active:"
+    "active": "active:"
   },
   "friends-filter": {
     "all": "All",
@@ -1539,7 +1540,7 @@
     "choose-thumbnail": "Set a thumbnail(optional)",
     "continue": "Continue",
     "encode": "Send for encoding",
-    "success": "Video successfully uploaded",
+    "success": "Video succesfully uploaded",
     "finished": "Finished",
     "upload-video": "Upload video",
     "video-gallery": "Video gallery",
@@ -1818,7 +1819,9 @@
   },
   "drafts": {
     "title": "Drafts",
-    "filter": "Search by title"
+    "filter": "Search by title",
+    "open-editor": "Open in Editor",
+    "open-classic": ""
   },
   "schedules": {
     "title": "Scheduled Posts",
@@ -2227,7 +2230,7 @@
       "how-to-stake-header": "How to stake tokens?",
       "how-to-stake-body": "Details regarding your tokens, including the types and quantities, as well as their potential uses, are available in your wallet. It's important to note that not all tokens are eligible for staking. If you're interested in staking, make sure to verify the staking eligibility of a specific token by selecting it in your wallet. If it can be staked, there should be a staking option available. Simply click on it and input the desired amount of tokens to be staked in your wallet.",
       "what-is-reblogging-header": "What is Reblogging?",
-      "what-is-reblogging-body": "<p>A reblog is when you see a post you find useful, and by clicking the reblog button, you make the post appear on your blog too. Now all of your followers can enjoy the post. You can fing Reblog icon under the post or you can choose from the options that appear when you click on the three dots at the top of the post .</p>",
+      "what-is-reblogging-body": "<p>A reblog is when you see a post you find usefull, and by clicking the reblog button, you make the post appear on your blog too. Now all of your followers can enjoy the post. You can fing Reblog icon under the post or you can choose from the options that appear when you click on the three dots at the top of the post .</p>",
       "how-to-bookmark-header": "How to bookmark content on Ecency?",
       "how-to-bookmark-body": "<p>If you want to engage and read content later, simply bookmark it and come back later to read and engage. You can learn all about it in following article <a href=\"/hive-125125/@ecency/how-to-bookmark-content-on\" class=\"push-link\">How to bookmark content</a></p>",
       "how-to-favorite-header": "How to favorite people on Ecency?",
@@ -2245,7 +2248,7 @@
       "find-friends-header": "How to Find more friends on Ecency?",
       "find-friends-body": "<p>At the top right of the Ecency page, you can see Discover/Community button. By clicking Discover, you can find information about Most Active users, Curators and Popular users.</p>",
       "accounts-included-leaderboard-header": "Which accounts are included in the Leaderboard?",
-      "accounts-included-leaderboard-body": "<p>Leaderboard accounts are based on the total number of actions performed, such as commenting and creating a post. The most Actives are always the ones who earn the most Points by being active on Ecency. The list takes a certain time frame and is constantly updated. Leaderboard people are recommended to new signups, when new people join Ecency they will see leaderboard accounts as recommendation to follow.</p>",
+      "accounts-included-leaderboard-body": "<p>Leaderboard acoounts are based on the total number of actions performed, such as commenting and creating a post. The most Actives are always the ones who earn the most Points by being active on Ecency. The list takes a certain time frame and is constantly updated. Leaderboard people are recommended to new signups, when new people join Ecency they will see leaderboard accounts as recommendation to follow.</p>",
       "find-communities-header": "How to discover Communities?",
       "find-communities-body": "<p> By clicking Communities in the Discover/Communities button at the top right of the page, you will be presented with a list of Communities. The Communities are sorted in a certain order, and you can join the group you want by choosing one of the sorting options, such as Hot, Rank, Members, New, by clicking the Join button.</p>",
       "what-communities-header": "What are Communities?",
@@ -2298,12 +2301,12 @@
       "what-new-feed-body": "<p> The newest posts sorted by the published time are shown in the New feed. </p>",
       "how-change-design-header": "How to change feed design?",
       "how-change-design-body": "<p>Click on the grid icon at the top right of the feed. Choose one of the look designs: Classic or Grid. </p>",
-      "what-is-deck-header": "What is Deck view on Ecency?",
+      "what-is-deck-header": "What is Deck wiew on Ecency?",
       "what-is-deck-body": "<p>From other Classic and Grid views there is another view called Deck. Decks makes easy to manage your account. With decks not only you get to see multiple things in parallel but you can configure each decks and shuffle things around.</p>",
       "what-deck-types-header": "What are the deck types",
       "what-deck-types-body": "By clicking + icon you will have new pop-up window that is shown deck types. You can choose any type of deck and each deck has its own setup. For example choosing User deck you can see posts created user you want to see.",
       "what-rising-feed-header": "What does Rising feed show?",
-      "what-rising-feed-body": "<p>Rising feed shows posts that have more comments and votes compare to others on entire platform.</p>",
+      "what-rising-feed-body": "<p>Risind feed shows posts that have more comments and votes compare to others on entire platform.</p>",
       "how-sort-rising-header": "How to sort Rising feed?",
       "how-sort-rising-body": "The rising feed can be sorted by today, this week, this month, this year, and all time posts created during the specific time. Choose one of them and get a chance of seeing posts that become rising you wanted time.",
       "what-controversial-feed-header": "What does controversial feed show?",
@@ -2422,13 +2425,13 @@
     "communities": "Communities",
     "help": "Help",
     "subscribe-us": "Subscribe Us",
-    "enter-your-email-adress": "Enter your email address",
+    "enter-your-email-adress": "Enter your email adress",
     "send": "Send",
     "subscribe-paragraph": "Be first to know what's happening in decentralized web.",
     "copy-rights": "©2021 Ecency. All right reserved.",
     "success-message-subscribe": "You are subscribed to our newsletters!",
     "validation-email": "A valid email is required",
-    "error-occured": "A server error has been occurred."
+    "error-occured": "A server error has been occured."
   },
   "layouts": {
     "grid": "Grid",
@@ -2452,7 +2455,7 @@
   "perks": {
     "page-title": "Welcome to Perks",
     "title": "Meet Ecency perks",
-    "title-next": "unified, fast and simple way to boost your account",
+    "title-next": "E",
     "points-title": "Buy points",
     "points-action": "Buy",
     "points-description": "Jump start to improve engagement on your content by purchasing Points with Ecency Mobile",
@@ -2580,8 +2583,8 @@
     "success-reply-edit": "You have edited successfully"
   },
   "events": {
-    "muted": "User is muted",
-    "unmuted": "User is unmuted"
+    "muted": "User has muted",
+    "unmuted": "User has unmuted"
   },
   "signup-email": {
     "title": "Signup with Email",
@@ -2671,10 +2674,10 @@
     "public-info-hint": "Note: Changes here will affect how your story appears in public places like Ecency (and other Hive clients) homepage and in a search engine systems — not the contents of the story itself.",
     "preview-subtitle": "Preview subtitle..",
     "thumb-selection": "Set preview images",
-    "published-title": "Your post has published",
-    "published-hint": "Your post has been published successfully. You can view it on your blog or in the feed.",
-    "scheduled-title": "Your post has scheduled",
-    "scheduled-hint": "Your post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
+    "published-title": "Your post is published",
+    "published-hint": "Post has been sent to chain successfully. You can view it on your blog or in the feed.",
+    "scheduled-title": "Your post is scheduled",
+    "scheduled-hint": "Post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
     "back-to-editor": "Back to editor",
     "go-to-posts": "Go to my posts",
     "no-draft-title": "No draft found",
@@ -2711,11 +2714,11 @@
       "posting-description": "Publish your new post",
       "posting-text": "Add a title, assign tags, and choose a thumbnail — this helps search engines find your content. Not ready to publish? Schedule it for later.",
       "success-description": "That's it! Keep making content on Ecency",
-      "success-text": "Post will be published in a few minutes or scheduled to specific date."
+      "success-text": "Post will be published in few mintues or scheduled to specific date."
     },
     "no-image-found": "Only image files are supporting",
     "upload-started": "Uploading image...",
-    "back-to-old": "Back to Classic Editor",
+    "back-to-old": "Back to Classic View",
     "clear": "Clear",
     "schedule": "Schedule",
     "action-bar": {
@@ -2723,7 +2726,7 @@
       "italic": "Italic",
       "strikethrough": "Strikethrough",
       "code": "Code",
-      "paragraph": "Paragraph",
+      "paragraph": "Paragpraph",
       "heading": "Heading",
       "list": "List",
       "fragments": "Snippets",
