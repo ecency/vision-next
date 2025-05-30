@@ -220,11 +220,41 @@ export const getRelationshipBetweenAccounts = (
     following
   ]);
 
+export interface Profile {
+  "active": string,
+  "blacklists": string[],
+  "context": {
+    "followed": boolean,
+    "muted": boolean
+  },
+  "created": string,
+  "id": number,
+  "metadata": {
+    "profile": {
+      "about": string,
+      "blacklist_description": string,
+      "cover_image": string,
+      "location": string,
+      "muted_list_description": string,
+      "name": string,
+      "profile_image": string,
+      "website": string
+    }
+  },
+  "name": string,
+  "post_count": number,
+  "reputation": number,
+  "stats": {
+    "followers": number,
+    "following": number,
+    "rank": number
+  }
+}
 export const getProfiles = async (
     accounts: string[],
     observer?: string,
-): Promise<[] | null> => {
-  return await bridgeApiCall<[] | null>("get_profiles", {
+): Promise<Profile[] | null> => {
+  return await bridgeApiCall<Profile[] | null>("get_profiles", {
     accounts,
     observer
   });
