@@ -1,6 +1,6 @@
-import { Client } from "@hiveio/dhive";
+import {Client} from "@hiveio/dhive";
 import SERVERS from "@/servers.json";
-import { Community, Entry, Subscription } from "@/entities";
+import {Community, Entry, Subscription} from "@/entities";
 import dmca from "@/dmca.json";
 
 export const bridgeServer = new Client(SERVERS, {
@@ -219,3 +219,15 @@ export const getRelationshipBetweenAccounts = (
     follower,
     following
   ]);
+
+export const getProfiles = async (
+    accounts: string[],
+    observer?: string,
+): Promise<[] | null> => {
+  return await bridgeApiCall<[] | null>("get_profiles", {
+    accounts,
+    observer
+  });
+}
+
+

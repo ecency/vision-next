@@ -1,9 +1,10 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { client, getAccounts } from "@/api/hive";
+import { client } from "@/api/hive";
 import { Follow, FriendSearchResult } from "@/entities";
 import moment from "moment";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
+import {getProfiles} from "@/api/bridge";
 
 export const getFriendsQuery = (
   following: string,
@@ -22,13 +23,9 @@ export const getFriendsQuery = (
         [following, startFollowing === "" ? null : startFollowing, followType, limit]
       )) as Follow[];
       const accountNames = response.map((e) => (mode === "following" ? e.following : e.follower));
-      const accounts = await getAccounts(accountNames);
+      const accounts = await getProfiles(accountNames);
       return accounts.map((a) => {
-        const lastActive = moment.max(
-          moment(a?.last_vote_time),
-          moment(a?.last_post),
-          moment(a?.created)
-        );
+        const lastActive = moment(a?.active);
         return {
           name: a.name,
           reputation: a.reputation!,
@@ -70,7 +67,7 @@ export const getSearchFriendsQuery = (username: string, mode: string, query: str
       const { data } = await request;
 
       const followingAccountNames = data.map((friend) => friend.name);
-      const accounts = await getAccounts(followingAccountNames);
+      const accounts = await getProfiles(followingAccountNames);
 
       return data.map((friend) => {
         const isMatch = accounts.find((account) => account.name === friend.name);
@@ -78,11 +75,7 @@ export const getSearchFriendsQuery = (username: string, mode: string, query: str
           return friend;
         }
 
-        const lastActive = moment.max(
-          moment(isMatch.last_vote_time),
-          moment(isMatch.last_post),
-          moment(isMatch.created)
-        );
+        const lastActive = moment(isMatch.active);
 
         return {
           ...friend,

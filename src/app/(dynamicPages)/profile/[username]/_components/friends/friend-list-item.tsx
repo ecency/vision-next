@@ -18,6 +18,9 @@ export function FriendListItem({ item }: Props) {
           <ProfileLink username={item.name}>
             <span className="item-name notranslate">{item.name}</span>
           </ProfileLink>
+          {item?.reputation !== undefined && (
+            <span className="item-reputation">{accountReputation(item.reputation)}</span>
+          )}
         </div>
       </div>
       <div className="last-seen mt-1">
