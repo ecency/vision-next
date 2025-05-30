@@ -1433,7 +1433,7 @@
     "followers": "Seguidores ({{n}})",
     "following": "Siguiendo ({{n}})",
     "search-placeholder": "Buscar",
-    "active": "activo:"
+    "active": "Activo:"
   },
   "friends-filter": {
     "all": "Todos",
@@ -2675,9 +2675,9 @@
     "preview-subtitle": "Previsualizar subtítulo..",
     "thumb-selection": "Definir imágenes de vista previa",
     "published-title": "Tu publicación ha sido publicada",
-    "published-hint": "La publicación ha sido enviada a la cadena con éxito. Puedes verla en tu blog o en el feed.",
-    "scheduled-title": "Tu publicación está programada",
-    "scheduled-hint": "La publicación ha sido programada con éxito. Puedes verla en tu blog o en el feed en el momento de la publicación.",
+    "published-hint": "Tu publicación ha sido publicada con éxito. Puedes verla en tu blog o en el feed.",
+    "scheduled-title": "Tu publicación se ha programado",
+    "scheduled-hint": "Tu publicación ha sido programada con éxito. Puedes verla en tu blog o en el feed a la hora de publicar.",
     "back-to-editor": "Volver al editor",
     "go-to-posts": "Ir a mis publicaciones",
     "no-draft-title": "No se han encontrado borradores",
