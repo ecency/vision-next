@@ -25,6 +25,11 @@
 
       a {
         cursor: pointer;
+        // 🔒 Protection against extensions injecting styles/classes
+        will-change: auto;
+        transition: none !important;
+        animation: none !important;
+        all: revert; // optional, neutralizes injected styles
       }
     }
   }
