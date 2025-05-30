@@ -25,7 +25,7 @@ export const getFriendsQuery = (
       const accountNames = response.map((e) => (mode === "following" ? e.following : e.follower));
       const accounts = await getProfiles(accountNames);
       return accounts?.map((a) => {
-        const lastActive = moment(a?.active);
+        const lastActive = moment(a.active);
         return {
           name: a.name,
           reputation: a.reputation!,
