@@ -1433,7 +1433,7 @@
     "followers": "Followers ({{n}})",
     "following": "Following ({{n}})",
     "search-placeholder": "Search",
-    "active": "active:"
+    "active": "Active:"
   },
   "friends-filter": {
     "all": "All",
@@ -2455,7 +2455,7 @@
   "perks": {
     "page-title": "Welcome to Perks",
     "title": "Meet Ecency perks",
-    "title-next": "unified, fast and simple way to boost your experience",
+    "title-next": "unified, fast and simple way to boost your account",
     "points-title": "Buy points",
     "points-action": "Buy",
     "points-description": "Jump start to improve engagement on your content by purchasing Points with Ecency Mobile",
@@ -2674,10 +2674,10 @@
     "public-info-hint": "Note: Changes here will affect how your story appears in public places like Ecency (and other Hive clients) homepage and in a search engine systems — not the contents of the story itself.",
     "preview-subtitle": "Preview subtitle..",
     "thumb-selection": "Set preview images",
-    "published-title": "Your post is published",
-    "published-hint": "Post has been sent to chain successfully. You can view it on your blog or in the feed.",
-    "scheduled-title": "Your post is scheduled",
-    "scheduled-hint": "Post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
+    "published-title": "Your post has published",
+    "published-hint": "Your post has been published successfully. You can view it on your blog or in the feed.",
+    "scheduled-title": "Your post has scheduled",
+    "scheduled-hint": "Your post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
     "back-to-editor": "Back to editor",
     "go-to-posts": "Go to my posts",
     "no-draft-title": "No draft found",
