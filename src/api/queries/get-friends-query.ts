@@ -24,7 +24,7 @@ export const getFriendsQuery = (
       )) as Follow[];
       const accountNames = response.map((e) => (mode === "following" ? e.following : e.follower));
       const accounts = await getProfiles(accountNames);
-      return accounts.map((a) => {
+      return accounts?.map((a) => {
         const lastActive = moment(a?.active);
         return {
           name: a.name,
@@ -70,7 +70,7 @@ export const getSearchFriendsQuery = (username: string, mode: string, query: str
       const accounts = await getProfiles(followingAccountNames);
 
       return data.map((friend) => {
-        const isMatch = accounts.find((account) => account.name === friend.name);
+        const isMatch = accounts?.find((account) => account.name === friend.name);
         if (!isMatch) {
           return friend;
         }
