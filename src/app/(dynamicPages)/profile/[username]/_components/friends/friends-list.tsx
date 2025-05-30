@@ -44,8 +44,8 @@ export const FriendsList = ({ account, mode }: Props) => {
     () =>
       query
         ? searchData ?? []
-        : data?.pages
-            ?.reduce((acc, page) => [...acc, ...page], [])
+          : data?.pages
+          ?.reduce((acc, page) => [...acc, ...(page ?? [])], [])
             ?.filter((item) => {
               if (!type) {
                 return true;
