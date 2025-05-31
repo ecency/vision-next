@@ -10,13 +10,7 @@ import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { usePollsCreationManagement } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";
 import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
-import {
-  createPermlink,
-  isCommunity,
-  makeApp,
-  makeCommentOptions,
-  tempEntry
-} from "@/utils";
+import { createPermlink, isCommunity, makeApp, makeCommentOptions, tempEntry } from "@/utils";
 import appPackage from "../../../../package.json";
 import i18next from "i18next";
 import { error, success } from "@/features/shared";
@@ -25,6 +19,7 @@ import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
 import { validatePostCreating } from "@/api/hive";
+import { EcencyAnalytics } from "@ecency/sdk";
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
@@ -36,6 +31,10 @@ export function usePublishApi(onClear: () => void) {
 
   const { clearAll } = usePollsCreationManagement();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "legacy-post-created"
+  );
 
   return useMutation({
     mutationKey: ["publish"],
@@ -156,6 +155,7 @@ export function usePublishApi(onClear: () => void) {
         updateEntryQueryData([entry]);
 
         await validatePostCreating(entry.author, entry.permlink, 3);
+        recordActivity();
 
         success(i18next.t("submit.published"));
         onClear();
