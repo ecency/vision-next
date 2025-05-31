@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Button } from "@ui/button";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
-import i18next from "i18next";
+import { Button } from "@ui/button";
+import { FormControl } from "@ui/input";
+import { clsx } from "clsx";
 import {
   addDays,
   addHours,
@@ -17,11 +17,13 @@ import {
   startOfWeek,
   subMonths
 } from "date-fns";
-import { clsx } from "clsx";
-import { FormControl } from "@ui/input";
+import i18next from "i18next";
+import { useMemo, useState } from "react";
+import { DatepickerCell } from "./datepicker-cell";
 
 interface Props {
   value: Date | undefined;
+  minDate: Date | undefined;
   onChange: (value: Date) => void;
 }
 
@@ -53,13 +55,13 @@ export function Datepicker(props: Props) {
     const endWeekDate = addDays(endOfWeek(monthEndDate), 1);
 
     const allDates = [weekStartDate];
+    const now = new Date();
 
     let temp = new Date(weekStartDate.toISOString());
     while (temp.getDate() !== endWeekDate.getDate() || temp.getMonth() !== endWeekDate.getMonth()) {
-      temp = addDays(temp, 1);
+      temp = setHours(addDays(temp, 1), now.getHours());
       allDates.push(temp);
     }
-
     return allDates;
   }, [calendarValue]);
 
@@ -68,24 +70,27 @@ export function Datepicker(props: Props) {
 
   return (
     <div className="ecency-datepicker">
-      <div className="flex justify-between gap-4">
-        <Button
-          size="sm"
-          className="!h-[36px]"
-          appearance="gray"
-          onClick={() => setCalendarValue(subMonths(calendarValue, 1))}
-          icon={<UilArrowLeft />}
-        />
-        <div className="capitalize font-semibold">
-          {currentMonth} {calendarValue.getFullYear()}
+      <div className="flex justify-between items-center gap-4">
+        <div className="capitalize md:text-xl lg:text-2xl">
+          <b>{currentMonth}</b> {calendarValue.getFullYear()}
         </div>
-        <Button
-          size="sm"
-          className="!h-[36px]"
-          appearance="gray"
-          onClick={() => setCalendarValue(addMonths(calendarValue, 1))}
-          icon={<UilArrowRight />}
-        />
+        <div className="flex items-center gap-2">
+          <Button
+            size="xs"
+            appearance="gray"
+            onClick={() => setCalendarValue(subMonths(calendarValue, 1))}
+            icon={<UilArrowLeft />}
+          />
+          <Button size="xs" appearance="gray" onClick={() => setCalendarValue(new Date())}>
+            {i18next.t("g.today")}
+          </Button>
+          <Button
+            size="xs"
+            appearance="gray"
+            onClick={() => setCalendarValue(addMonths(calendarValue, 1))}
+            icon={<UilArrowRight />}
+          />
+        </div>
       </div>
       <div className="grid grid-cols-7 gap-4 text-sm text-center">
         {weekdays.map((weekday) => (
@@ -97,32 +102,17 @@ export function Datepicker(props: Props) {
           </div>
         ))}
         {monthDays.map((day) => (
-          <div
-            className={clsx(
-              day.getMonth() !== calendarValue.getMonth() && "opacity-50",
-              addHours(new Date(), 1).getTime() > day.getTime() && "!opacity-25 cursor-not-allowed",
-              "cursor-pointer text-base h-[54px] flex items-center justify-center rounded-xl text-gray-600 dark:text-gray-400  hover:bg-blue-duck-egg hover:text-blue-dark-sky hover:dark:bg-dark-default focus:text-blue-dark-sky-active focus:dark:bg-dark-200",
-              props.value?.getDate() === day.getDate() &&
-                props.value?.getMonth() === day.getMonth() &&
-                "bg-gray-200 !text-blue-dark-sky dark:bg-gray-800"
-            )}
+          <DatepickerCell
             key={`${day.getDate()}-${day.getMonth()}-${day.getFullYear()}`}
-            onClick={() =>
-              addHours(new Date(), 1).getTime() <= day.getTime() &&
-              props.onChange(
-                setMinutes(
-                  setHours(day, (props.value ?? calendarValue).getHours()),
-                  (props.value ?? calendarValue).getMinutes()
-                )
-              )
-            }
-          >
-            {day.getDate()}
-          </div>
+            calendarValue={calendarValue}
+            value={props.value}
+            day={day}
+            onPick={props.onChange}
+          />
         ))}
       </div>
 
-      <div className="flex justify-center gap-4 my-4 border-t border-[--border-color] pt-4">
+      <div className="flex justify-center gap-4 mt-4 border-t border-[--border-color] pt-4 -mx-2 md:-mx-4">
         <FormControl
           type="select"
           className="max-w-[100px]"

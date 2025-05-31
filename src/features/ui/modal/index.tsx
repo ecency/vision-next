@@ -12,7 +12,7 @@ interface Props {
   onHide: () => void;
   centered?: boolean;
   animation?: boolean;
-  size?: "md" | "lg";
+  size?: "md" | "lg" | "sm";
   dialogClassName?: string;
   overlayClassName?: string;
   raw?: boolean;
@@ -140,6 +140,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
                   !props.raw,
                 "max-w-[500px]": !props.size || props.size === "md",
                 "max-w-[800px]": props.size === "lg",
+                "w-full sm:max-w-[375px]": props.size === "sm",
                 [props.dialogClassName ?? ""]: true
               })}
             >

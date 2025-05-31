@@ -1,10 +1,10 @@
-import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
-import i18next from "i18next";
-import React from "react";
 import { usePublishState } from "@/app/publish/_hooks";
-import { Button } from "@ui/button";
 import { Alert, Datepicker } from "@/features/ui";
-import { addDays, setHours, setMinutes } from "date-fns";
+import { Button } from "@ui/button";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
+import { addHours, format } from "date-fns";
+import i18next from "i18next";
+import { useMemo, useState } from "react";
 
 interface Props {
   show: boolean;
@@ -14,30 +14,49 @@ interface Props {
 export function PublishScheduleDialog({ show, setShow }: Props) {
   const { schedule, setSchedule, clearSchedule } = usePublishState();
 
+  const [state, setState] = useState(schedule);
+
+  const isInPast = useMemo(
+    () => (state ? state.getTime() <= addHours(new Date(), 1).getTime() : false),
+    [state]
+  );
+
   return (
     <Modal show={show} onHide={() => setShow(false)} centered={true}>
       <ModalHeader closeButton={true}>{i18next.t("submit.schedule")}</ModalHeader>
       <ModalBody>
         <Alert className="mb-4">{i18next.t("publish.schedule-hint")}</Alert>
-        <Datepicker value={schedule} onChange={setSchedule} />
+        <div className="p-2 md:p-4 border border-[--border-color] rounded-xl">
+          <Datepicker value={state} onChange={setState} minDate={addHours(new Date(), 1)} />
+        </div>
+        <div className="py-4">
+          {state && i18next.t("publish.schedule-to", { n: format(state, "dd/MM/yyyy HH:mm") })}
+          {!state && i18next.t("publish.no-schedule")}
+        </div>
+        {isInPast && <Alert appearance="danger">{i18next.t("publish.schedule-error")}</Alert>}
       </ModalBody>
       <ModalFooter className="justify-between flex gap-4">
         <Button
-          appearance="link"
-          onClick={() =>
-            setSchedule(
-              setMinutes(
-                setHours(addDays(new Date(), 1), schedule?.getHours() ?? 0),
-                schedule?.getMinutes() ?? 0
-              )
-            )
-          }
+          className="!w-full sm:!w-auto"
+          appearance="gray"
+          onClick={() => setState(undefined)}
           size="sm"
         >
-          {i18next.t("g.tomorrow")}
-        </Button>
-        <Button appearance="gray" onClick={() => clearSchedule()} size="sm">
           {i18next.t("submit.clear")}
+        </Button>
+        <Button
+          className="!w-full sm:!w-auto"
+          appearance="success"
+          disabled={isInPast}
+          onClick={() => {
+            if (!isInPast) {
+              setSchedule(state);
+              setShow(false);
+            }
+          }}
+          size="sm"
+        >
+          {i18next.t("g.done")}
         </Button>
       </ModalFooter>
     </Modal>

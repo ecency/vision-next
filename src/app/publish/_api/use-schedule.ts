@@ -30,7 +30,7 @@ export function useScheduleApi() {
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
-    "draft-created"
+    "post-scheduled"
   );
 
   return useMutation({
