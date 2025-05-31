@@ -1,6 +1,7 @@
 import { error } from "@/features/shared";
 import {
   HivePostExtension,
+  SafeLink,
   Selection,
   TagMentionExtensionConfig,
   ThreeSpeakVideoExtension,
@@ -56,9 +57,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
           return ReactNodeViewRenderer(PublishEditorImageViewer);
         }
       }),
-      Link.configure({
-        openOnClick: false
-      }),
+      SafeLink,
       // User mention
       Mention.configure({
         HTMLAttributes: {
