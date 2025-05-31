@@ -3,7 +3,7 @@
 import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
 import { EcencyConfigManager } from "@/config";
 import { EcencyImagesUploadDialog } from "@/features/ecency-images";
-import { error, GalleryDialog } from "@/features/shared";
+import { error, GalleryDialog, LoginRequired } from "@/features/shared";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker, StyledTooltip } from "@/features/ui";
 import { useEditorState } from "@tiptap/react";
@@ -213,42 +213,48 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
         >
           <StyledTooltip content={i18next.t("publish.action-bar.fragments")}>
-            <Button
-              appearance="gray-link"
-              size="sm"
-              onClick={() => setShowFragments(true)}
-              icon={<UilSubject />}
-            />
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                onClick={() => setShowFragments(true)}
+                icon={<UilSubject />}
+              />
+            </LoginRequired>
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
+
         <EcencyConfigManager.Conditional
           condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
         >
           <StyledTooltip content={i18next.t("publish.action-bar.image")}>
-            <Dropdown>
-              <DropdownToggle>
-                <Button appearance="gray-link" size="sm" icon={<UilImage />} />
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItemWithIcon
-                  icon={<UilUpload />}
-                  label={i18next.t("publish.upload")}
-                  onClick={() => setShowImageUpload(true)}
-                />
-                <DropdownItemWithIcon
-                  icon={<UilImages />}
-                  label={i18next.t("publish.from-gallery")}
-                  onClick={() => setShowGallery(true)}
-                />
-                <DropdownItemWithIcon
-                  icon={<UilImageShare />}
-                  label={i18next.t("publish.from-link")}
-                  onClick={() => setShowImageByLink(true)}
-                />
-              </DropdownMenu>
-            </Dropdown>
+            <LoginRequired>
+              <Dropdown>
+                <DropdownToggle>
+                  <Button appearance="gray-link" size="sm" icon={<UilImage />} />
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItemWithIcon
+                    icon={<UilUpload />}
+                    label={i18next.t("publish.upload")}
+                    onClick={() => setShowImageUpload(true)}
+                  />
+                  <DropdownItemWithIcon
+                    icon={<UilImages />}
+                    label={i18next.t("publish.from-gallery")}
+                    onClick={() => setShowGallery(true)}
+                  />
+                  <DropdownItemWithIcon
+                    icon={<UilImageShare />}
+                    label={i18next.t("publish.from-link")}
+                    onClick={() => setShowImageByLink(true)}
+                  />
+                </DropdownMenu>
+              </Dropdown>
+            </LoginRequired>
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
+
         <div className="relative" ref={emojiPickerAnchorRef}>
           <StyledTooltip content={i18next.t("publish.action-bar.emoji")}>
             <Button appearance="gray-link" size="sm" icon={<UilSmile />} />
@@ -261,36 +267,39 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
         <Button appearance="gray-link" size="sm" onClick={() => setShowGifPicker(true)}>
           GIF
         </Button>
+
         <StyledTooltip content={i18next.t("publish.action-bar.video")}>
-          <Dropdown>
-            <DropdownToggle>
-              <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItemWithIcon
-                disabled={!allowToUploadVideo}
-                icon={<UilUpload />}
-                label={i18next.t("publish.three-speak-upload")}
-                onClick={() => {
-                  if (allowToUploadVideo) {
-                    setShowVideoUpload(true);
-                  } else {
-                    error(i18next.t("publish.upload-video-error-hint"));
-                  }
-                }}
-              />
-              <DropdownItemWithIcon
-                icon={<UilVideo />}
-                label={i18next.t("publish.three-speak-gallery")}
-                onClick={() => setShowVideoGallery(true)}
-              />
-              <DropdownItemWithIcon
-                icon={<UilLink />}
-                label={i18next.t("publish.from-link")}
-                onClick={() => setShowVideoLink(true)}
-              />
-            </DropdownMenu>
-          </Dropdown>
+          <LoginRequired>
+            <Dropdown>
+              <DropdownToggle>
+                <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItemWithIcon
+                  disabled={!allowToUploadVideo}
+                  icon={<UilUpload />}
+                  label={i18next.t("publish.three-speak-upload")}
+                  onClick={() => {
+                    if (allowToUploadVideo) {
+                      setShowVideoUpload(true);
+                    } else {
+                      error(i18next.t("publish.upload-video-error-hint"));
+                    }
+                  }}
+                />
+                <DropdownItemWithIcon
+                  icon={<UilVideo />}
+                  label={i18next.t("publish.three-speak-gallery")}
+                  onClick={() => setShowVideoGallery(true)}
+                />
+                <DropdownItemWithIcon
+                  icon={<UilLink />}
+                  label={i18next.t("publish.from-link")}
+                  onClick={() => setShowVideoLink(true)}
+                />
+              </DropdownMenu>
+            </Dropdown>
+          </LoginRequired>
         </StyledTooltip>
 
         <StyledTooltip content={i18next.t("publish.action-bar.poll")}>
