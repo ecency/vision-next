@@ -44,7 +44,6 @@ import i18next from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePublishState, usePublishVideoAttach } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
-import { PublishEditorToolbarAddLink } from "./publish-editor-toolbar-add-link";
 import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
 import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
@@ -250,7 +249,6 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             </Dropdown>
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
-        <PublishEditorToolbarAddLink editor={editor} />
         <div className="relative" ref={emojiPickerAnchorRef}>
           <StyledTooltip content={i18next.t("publish.action-bar.emoji")}>
             <Button appearance="gray-link" size="sm" icon={<UilSmile />} />
