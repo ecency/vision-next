@@ -20,7 +20,7 @@ export function EcencyImagesUploadForm({ onFilePick }: Props) {
           if (item.kind === "file") {
             const file = item.getAsFile();
             const fileExtension = file?.name.split(".").pop()?.toLowerCase();
-            if (file && ["png", "svg", "jpg", "jpeg", "webp"].includes(fileExtension!)) {
+            if (file && ["png", "svg", "jpg", "jpeg", "webp", "gif"].includes(fileExtension!)) {
               onFilePick(file);
             }
           }
@@ -58,7 +58,7 @@ export function EcencyImagesUploadForm({ onFilePick }: Props) {
       exit={{ opacity: 0, position: "absolute" }}
     >
       <input
-        accept="image/jpg, image/jpeg, image/webp, image/png, image/svg"
+        accept="image/jpg, image/jpeg, image/webp, image/png, image/svg, image/gif"
         type="file"
         ref={fileInputRef}
         className="hidden"

@@ -12,6 +12,7 @@ import { error } from "highcharts";
 import { AxiosError } from "axios";
 import i18next from "i18next";
 import { postBodySummary } from "@ecency/render-helper";
+import { EcencyAnalytics } from "@ecency/sdk";
 
 export function useScheduleApi(onClear: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -19,6 +20,10 @@ export function useScheduleApi(onClear: () => void) {
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
   const { clearAll } = usePollsCreationManagement();
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "legacy-post-scheduled"
+  );
 
   return useMutation({
     mutationKey: ["schedule"],
@@ -90,6 +95,7 @@ export function useScheduleApi(onClear: () => void) {
       }
     },
     onSuccess: () => {
+      recordActivity();
       clearAll();
     }
   });
