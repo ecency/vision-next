@@ -42,7 +42,13 @@ export function StyledTooltip({ children, content, className, onHide }: StyledPr
         setShow(false);
         onHide?.();
       }}
-      onClick={() => setShow(!show)}
+      onClick={() => {
+        setShow(!show);
+
+        if (show) {
+          onHide?.();
+        }
+      }}
     >
       {children}
       {typeof document !== "undefined" &&
@@ -58,7 +64,7 @@ export function StyledTooltip({ children, content, className, onHide }: StyledPr
                   initial={{ opacity: 0, scale: 0.75 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.75 }}
-                  className="bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky p-1 rounded-lg text-xs font-semibold"
+                  className="hidden sm:block bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky p-1 rounded-lg text-xs font-semibold"
                 >
                   {content}
                 </motion.div>
