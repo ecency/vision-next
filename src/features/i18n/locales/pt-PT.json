@@ -2650,7 +2650,10 @@
   "publish": {
     "gif-picker": "Pick GIF image",
     "description-hint": "Helps to search engine systems to find out this post",
-    "schedule-hint": "Scheduling is available for 1 hour forward",
+    "schedule-hint": "Scheduling is available for 1 hour forward. Select date, configure time and click/tap on 'Done'.",
+    "no-schedule": "Schedule not set yet",
+    "schedule-to": "You have set schedule to {{n}}",
+    "schedule-error": "You can set schedule only at least 1 hour forward",
     "heading": "Heading",
     "bullet-list": "Bullet list",
     "ordered-list": "Ordered list",
@@ -2720,7 +2723,7 @@
     "upload-started": "Uploading image...",
     "back-to-old": "Back to Classic View",
     "clear": "Clear",
-    "schedule": "Schedule",
+    "schedule": "Schedule settings",
     "action-bar": {
       "bold": "Bold",
       "italic": "Italic",
@@ -2757,7 +2760,9 @@
     "html-warning": {
       "title": "Pure HTML code detected",
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
-    }
+    },
+    "continue-to-publish": "Continue to publish",
+    "continue-to-schedule": "Continue to schedule"
   },
   "ecency-images": {
     "upload-image": "Upload image",
