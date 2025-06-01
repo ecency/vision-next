@@ -2650,7 +2650,7 @@
   "publish": {
     "gif-picker": "Elegir imagen GIF",
     "description-hint": "Ayuda al sistema de motor de búsqueda para encontrar este post",
-    "schedule-hint": "Scheduling is available for 1 hour forward. Select date, configure time and click/tap on 'Done'.",
+    "schedule-hint": "La programación está disponible por 1 hora de anticipación",
     "no-schedule": "Schedule not set yet",
     "schedule-to": "You have set schedule to {{n}}",
     "schedule-error": "You can set schedule only at least 1 hour forward",
@@ -2723,7 +2723,7 @@
     "upload-started": "Subiendo imagen...",
     "back-to-old": "Volver a la vista clásica",
     "clear": "Restablecer",
-    "schedule": "Schedule settings",
+    "schedule": "Programar",
     "action-bar": {
       "bold": "Negrita",
       "italic": "Itálica",
