@@ -1433,7 +1433,7 @@
     "followers": "Seguidores ({{n}})",
     "following": "Siguiendo ({{n}})",
     "search-placeholder": "Buscar",
-    "active": "activo:"
+    "active": "Activo:"
   },
   "friends-filter": {
     "all": "Todos",
@@ -2650,7 +2650,10 @@
   "publish": {
     "gif-picker": "Elegir imagen GIF",
     "description-hint": "Ayuda al sistema de motor de búsqueda para encontrar este post",
-    "schedule-hint": "La programación está disponible por 1 hora de anticipación",
+    "schedule-hint": "Scheduling is available for 1 hour forward. Select date, configure time and click/tap on 'Done'.",
+    "no-schedule": "Schedule not set yet",
+    "schedule-to": "You have set schedule to {{n}}",
+    "schedule-error": "You can set schedule only at least 1 hour forward",
     "heading": "Encabezado",
     "bullet-list": "Lista de viñetas",
     "ordered-list": "Lista ordenada",
@@ -2675,9 +2678,9 @@
     "preview-subtitle": "Previsualizar subtítulo..",
     "thumb-selection": "Definir imágenes de vista previa",
     "published-title": "Tu publicación ha sido publicada",
-    "published-hint": "La publicación ha sido enviada a la cadena con éxito. Puedes verla en tu blog o en el feed.",
-    "scheduled-title": "Tu publicación está programada",
-    "scheduled-hint": "La publicación ha sido programada con éxito. Puedes verla en tu blog o en el feed en el momento de la publicación.",
+    "published-hint": "Tu publicación ha sido publicada con éxito. Puedes verla en tu blog o en el feed.",
+    "scheduled-title": "Tu publicación se ha programado",
+    "scheduled-hint": "Tu publicación ha sido programada con éxito. Puedes verla en tu blog o en el feed a la hora de publicar.",
     "back-to-editor": "Volver al editor",
     "go-to-posts": "Ir a mis publicaciones",
     "no-draft-title": "No se han encontrado borradores",
@@ -2720,7 +2723,7 @@
     "upload-started": "Subiendo imagen...",
     "back-to-old": "Volver a la vista clásica",
     "clear": "Restablecer",
-    "schedule": "Programar",
+    "schedule": "Schedule settings",
     "action-bar": {
       "bold": "Negrita",
       "italic": "Itálica",
@@ -2757,7 +2760,9 @@
     "html-warning": {
       "title": "Código HTML puro detectado",
       "content": "El código HTML puro no es compatible con el editor. Es muy recomendable usar herramientas de editor en lugar de HTML puro. Si todavía desea utilizar HTML elija volver al Editor Clásico"
-    }
+    },
+    "continue-to-publish": "Continue to publish",
+    "continue-to-schedule": "Continue to schedule"
   },
   "ecency-images": {
     "upload-image": "Subir imagen",
