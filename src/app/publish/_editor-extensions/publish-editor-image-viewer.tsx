@@ -1,5 +1,5 @@
 import { useUploadPostImage } from "@/api/mutations";
-import { Button, Popover, PopoverContent, StyledTooltip } from "@/features/ui";
+import { Button, Popover, PopoverContent } from "@/features/ui";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
