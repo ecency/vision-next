@@ -27,7 +27,7 @@ export function EcencyCenter() {
     <div
       ref={rootRef}
       className={classNameObject({
-        "fixed z-[202] bottom-4": true,
+        "fixed z-[202] bottom-4 ecency-center": true,
         "left-4": !pathname.includes("decks"),
         "right-4": pathname.includes("decks")
       })}

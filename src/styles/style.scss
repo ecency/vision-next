@@ -27,3 +27,17 @@
     scrollbar-width: none;
   }
 }
+
+@media print {
+  .post-disclaimer-print {
+    display: block !important;
+    font-size: 12px;
+    color: #000;
+    margin-top: 20px;
+  }
+
+  /* Optional: Hide UI elements don't want printed */
+  .entry-payout, .ecency-center, .similar-entries-list, #sticky-container, #word-count {
+    display: none !important;
+  }
+}
