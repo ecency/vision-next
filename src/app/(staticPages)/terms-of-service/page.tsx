@@ -426,9 +426,9 @@ export default function TermsOfService() {
           <h2>17. Indemnity</h2>
           <p>
             Users agree to indemnify and hold harmless Ecency, its affiliates, officers, agents,
-            and employees from any claim or demand, including reasonable attorneys' fees, made by
+            and employees from any claim or demand, including reasonable attorneys&apos; fees, made by
             any third party due to or arising out of content submitted, posted, transmitted, or
-            otherwise made available through Ecency, the user's use of Ecency, or the user's violation of these Terms of Service.
+            otherwise made available through Ecency, the user&apos;s use of Ecency, or the user&apos;s violation of these Terms of Service.
           </p>
           <p>
             Specifically, you agree to hold us, our affiliates, officers, directors, employees,
