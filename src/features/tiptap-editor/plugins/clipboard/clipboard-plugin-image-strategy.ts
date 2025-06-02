@@ -15,7 +15,7 @@ export class ClipboardPluginImageStrategy implements ClipboardStrategy {
       .forEach(
         (file) =>
           chain?.setImage({
-            alt: file.name,
+            alt: "",
             src: URL.createObjectURL(file)
           })
       );
