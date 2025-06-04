@@ -40,6 +40,10 @@ export function usePublishApi() {
     activeUser?.username,
     "post-created"
   );
+  const { mutateAsync: recordUploadVideoActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "video-published"
+  );
 
   return useMutation({
     mutationKey: ["publish-2.0"],
@@ -141,17 +145,14 @@ export function usePublishApi() {
         updateEntryQueryData([entry]);
 
         await validatePostCreating(entry.author, entry.permlink, 3);
+
+        // Record all user activity
         recordActivity();
+        if (publishingVideo) {
+          recordUploadVideoActivity();
+        }
 
         success(i18next.t("submit.published"));
-
-        //Mark speak video as published
-        // if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
-        //   success(i18next.t("video-upload.publishing"));
-        //   setTimeout(() => {
-        //     markAsPublished(activeUser!.username, unpublished3SpeakVideo._id);
-        //   }, 10000);
-        // }
         if (isCommunity(tags?.[0]) && isReblogToCommunity) {
           await reblog(author, author, permlink);
         }

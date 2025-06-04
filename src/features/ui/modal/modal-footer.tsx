@@ -8,7 +8,7 @@ export function ModalFooter(props: HTMLProps<HTMLDivElement> & { sticky?: boolea
     <div
       {...filteredProps}
       className={classNameObject({
-        "p-3": true,
+        "p-3 mb-4 sm:mb-0": true,
         "sticky bottom-0 bg-white border-t border-[--border-color]": props.sticky ?? false,
         [props.className ?? ""]: true
       })}

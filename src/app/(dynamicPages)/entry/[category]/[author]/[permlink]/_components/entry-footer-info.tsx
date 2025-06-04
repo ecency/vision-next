@@ -42,6 +42,13 @@ export function EntryFooterInfo({ entry }: Props) {
           </div>
         </>
       )}
+        {app && app.indexOf('ecency')==-1 && (
+            <div className="post-disclaimer-print">
+                <Tsx k="entry.disclaimer" args={{ appName: appShort }}>
+                    <a href="/faq#source-label" />
+                </Tsx>
+            </div>
+        )}
     </div>
   );
 }

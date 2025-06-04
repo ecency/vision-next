@@ -61,8 +61,9 @@ export function PublishActionBar({
       <PublishActionBarCommunity />
       <div className="flex items-center gap-4">
         <LoginRequired>
-          <Button appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
-            {i18next.t("g.continue")}
+          <Button size="sm" appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
+            {scheduleDate && i18next.t("publish.continue-to-schedule")}
+            {!scheduleDate && i18next.t("publish.continue-to-publish")}
           </Button>
         </LoginRequired>
         {children}

@@ -246,6 +246,10 @@
     .entry-footer {
       @include clearfix();
 
+      .post-disclaimer-print {
+        display: none;
+      }
+
       @media (min-width: $sm-break) {
         font-size: initial;
       }

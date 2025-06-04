@@ -7,14 +7,13 @@ import { PublishEditorPollEditor } from "../_editor-extensions";
 import { usePublishState } from "../_hooks";
 import { PublishEditorCounter } from "./publish-editor-counter";
 import { PublishEditorToolbar } from "./publish-editor-toolbar";
-import { useMount } from "react-use";
 
 interface Props {
   editor: Editor | null;
 }
 
 export function PublishEditor({ editor }: Props) {
-  const { title, setTitle, tags, setTags } = usePublishState();
+  const { title, setTitle } = usePublishState();
 
   return (
     <motion.div
