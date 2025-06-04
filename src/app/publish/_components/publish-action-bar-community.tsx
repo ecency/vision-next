@@ -23,7 +23,7 @@ export function PublishActionBarCommunity() {
           const current = tags?.filter((tag) => tag !== next) ?? [];
           if (next?.startsWith("hive-")) {
             // In case of existing community have to clear it
-            if (current[0].startsWith("hive-")) {
+            if (current[0]?.startsWith("hive-")) {
               current.shift();
             }
             current.unshift(next);
