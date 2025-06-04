@@ -2468,7 +2468,9 @@
     "promote-description": "Impressions boost that will increase eyeballs on your content. Promoted posts are showing in a multiple places on Ecency",
     "boost-plus-title": "Boost+",
     "boost-plus-action": "Boost+",
-    "boost-plus-description": "Boost your account with your points in few clicks"
+    "boost-plus-description": "Boost your account with your points in few clicks",
+    "no-post": "No post selected",
+    "go-to-perks": "Go to Perks"
   },
   "boost-plus": {
     "title": "Boost+",

@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export function PerksHeader() {
   return (
-    <div className="grid grid-cols-12 mb-10 items-center gap-4 md:gap-6 lg:gap-8 xl:gap-10">
+    <div className="grid grid-cols-12 mb-10 items-center gap-4 md:gap-6 lg:gap-8 xl:gap-10 p-2 sm:p-0">
       <div className="col-span-12 md:col-span-6">
         <h1 className="text-blue-dark-sky text-xl md:text-3xl font-bold md:leading-[3rem]">
           {i18next.t("perks.title")}
@@ -18,7 +18,7 @@ export function PerksHeader() {
           height={1920}
           src="/assets/undraw-grow.svg"
           alt=""
-          className="w-full max-h-[360px] object-fit"
+          className="w-full max-h-[240px] md:max-h-[360px] object-fit"
         />
       </div>
     </div>
