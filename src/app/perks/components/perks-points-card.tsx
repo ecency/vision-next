@@ -1,14 +1,20 @@
 import { Button } from "@/features/ui";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
+import { GetPointsFrame } from "../_frames";
 
 export function PerksPointsCard() {
   return (
-    <div className="bg-blue-dark-sky w-full h-full rounded-xl">
+    <div className="bg-blue-dark-sky w-full h-full flex flex-col justify-between rounded-xl overflow-hidden duration-300 hover:rotate-1">
       <div className="flex items-start justify-between gap-2 p-2 md:p-4 lg:p-6">
-        <div className="text-[#ffffff] text-xl font-bold">{i18next.t("perks.points-title")}</div>
+        <div>
+          <div className="text-[#ffffff] text-xl font-bold">{i18next.t("perks.points-title")}</div>
+          <div className="text-[#ffffff]">{i18next.t("perks.points-title-2")}</div>
+        </div>
         <Button size="xs" appearance="white" icon={<UilArrowRight />} />
       </div>
+
+      <GetPointsFrame />
     </div>
   );
 }
