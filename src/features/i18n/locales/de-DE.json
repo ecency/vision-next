@@ -421,7 +421,7 @@
     "unmute-success": "Post unmuted",
     "promote": "Promote",
     "boost": "Boost",
-    "edit-classic": "Edit in Classic Editor"
+    "edit-classic": "Classic Edit"
   },
   "cross-post": {
     "title": "Cross Post",
@@ -562,7 +562,7 @@
       "transfers": "Transfers",
       "delegations": "Delegations",
       "search-query": "Search query",
-      "enter-search-query": "Configure a search query and explore all posts\n",
+      "enter-search-query": "Konfigurieren Sie eine Suchabfrage und erkunden Sie alle Beiträge",
       "blogs": "Blogs",
       "feeds": "Friends Feed",
       "posts": "Posts",
@@ -739,7 +739,7 @@
   "entry": {
     "via-app": "via <span class=\"app-name\">{{app}}</span>",
     "author-reputation": "Author's reputation",
-    "disclaimer": "D",
+    "disclaimer": "Dieser Beitrag wurde über {{appName}} veröffentlicht. Ecency ist nicht der Urheber oder Herausgeber dieses Inhalts und zeigt ihn nur zu Entdeckungszwecken an.",
     "comment-entry-title": "You are viewing a single comment's thread from: ",
     "comment-entry-go-root": "View the full context",
     "comment-entry-go-parent": "View the direct parent",
@@ -1821,8 +1821,8 @@
   "drafts": {
     "title": "Drafts",
     "filter": "Search by title",
-    "open-editor": "Open in Editor",
-    "open-classic": ""
+    "open-editor": "Editor",
+    "open-classic": "Classic Editor"
   },
   "schedules": {
     "title": "Scheduled Posts",
