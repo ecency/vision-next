@@ -421,7 +421,7 @@
     "unmute-success": "Post unmuted",
     "promote": "Promote",
     "boost": "Boost",
-    "edit-classic": "Edit in Classic Editor"
+    "edit-classic": "Klassischer Editor"
   },
   "cross-post": {
     "title": "Cross Post",
@@ -1822,7 +1822,7 @@
     "title": "Drafts",
     "filter": "Search by title",
     "open-editor": "Open in Editor",
-    "open-classic": ""
+    "open-classic": "Klassischer Editor"
   },
   "schedules": {
     "title": "Scheduled Posts",
@@ -2722,7 +2722,7 @@
     },
     "no-image-found": "Only image files are supporting",
     "upload-started": "Uploading image...",
-    "back-to-old": "Back to Classic View",
+    "back-to-old": "Zurück zum klassischen Editor",
     "clear": "Clear",
     "schedule": "Schedule",
     "action-bar": {
@@ -2762,8 +2762,8 @@
       "title": "Pure HTML code detected",
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     },
-    "continue-to-publish": "LP",
-    "continue-to-schedule": "Continue to schedule"
+    "continue-to-publish": "Veröffentlichen fortsetzen",
+    "continue-to-schedule": "Weiter zum Zeitplan"
   },
   "ecency-images": {
     "upload-image": "Upload image",
