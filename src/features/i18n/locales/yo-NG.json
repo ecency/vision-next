@@ -421,7 +421,7 @@
     "unmute-success": "Post unmuted",
     "promote": "Promote",
     "boost": "Boost",
-    "edit-classic": "Edit in Classic Editor"
+    "edit-classic": "Classic Edit"
   },
   "cross-post": {
     "title": "Cross Post",
@@ -1821,8 +1821,8 @@
   "drafts": {
     "title": "Drafts",
     "filter": "Search by title",
-    "open-editor": "Open in Editor",
-    "open-classic": "Open in Classic Editor"
+    "open-editor": "Editor",
+    "open-classic": "Classic Editor"
   },
   "schedules": {
     "title": "Scheduled Posts",
