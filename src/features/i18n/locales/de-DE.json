@@ -1822,7 +1822,7 @@
     "title": "Drafts",
     "filter": "Search by title",
     "open-editor": "Open in Editor",
-    "open-classic": "Classic Editor"
+    "open-classic": ""
   },
   "schedules": {
     "title": "Scheduled Posts",
@@ -2762,8 +2762,8 @@
       "title": "Pure HTML code detected",
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     },
-    "continue-to-publish": "",
-    "continue-to-schedule": "Continuo von gedulde"
+    "continue-to-publish": "LP",
+    "continue-to-schedule": "Continue to schedule"
   },
   "ecency-images": {
     "upload-image": "Upload image",
