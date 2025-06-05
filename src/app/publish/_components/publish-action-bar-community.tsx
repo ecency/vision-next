@@ -16,21 +16,22 @@ export function PublishActionBarCommunity() {
       <CommunitySelector
         tags={tags ?? []}
         onSelect={(prev, next) => {
-          if (!next) {
-            return;
-          }
-
-          const current = tags?.filter((tag) => tag !== next) ?? [];
-          if (next?.startsWith("hive-")) {
-            // In case of existing community have to clear it
-            if (current[0]?.startsWith("hive-")) {
-              current.shift();
+            if (next === null) {
+                // Selecting "My blog"
+                const updated = [...(tags ?? [])].filter(tag => !tag.startsWith("hive-"));
+                setTags(updated);
+                return;
             }
-            current.unshift(next);
-          } else {
-            current.push(next);
-          }
-          setTags(current);
+
+            const current = tags?.filter((tag) => tag !== next) ?? [];
+
+            if (next.startsWith("hive-")) {
+                // Remove any existing hive- community tag
+                const withoutHive = current.filter(tag => !tag.startsWith("hive-"));
+                setTags([next, ...withoutHive]);
+            } else {
+                setTags([...current, next]);
+            }
         }}
       />
     </div>
