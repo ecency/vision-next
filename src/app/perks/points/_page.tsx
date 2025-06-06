@@ -1,11 +1,13 @@
 "use client";
 
 import { PurchaseQrDialog, PurchaseTypes } from "@/features/shared";
-import { PointsActionCard, PointsBasicInfo } from "./_components";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PointsActionCard, PointsBasicInfo } from "./_components";
 
 export function PointsPage() {
   const [showPurchaseQr, setShowPurchaseQr] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
@@ -23,7 +25,7 @@ export function PointsPage() {
         title="Buy points using Hive/HBD"
         description="Already have some HIVE or HBD? Swap HIVE/HBD to POINTS quicky"
         buttonText="Buy with HIVE/HBD"
-        onClick={() => {}}
+        onClick={() => router.push("/perks/points/buy-with-hive")}
       />
 
       <PointsActionCard

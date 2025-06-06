@@ -1,0 +1,10 @@
+.buy-points-page {
+  .amount-control {
+    @apply bg-transparent border-0 text-5xl rounded-none;
+
+    &:focus,
+    &:active {
+      @apply bg-transparent;
+    }
+  }
+}
