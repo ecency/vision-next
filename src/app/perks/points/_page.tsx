@@ -1,6 +1,6 @@
 "use client";
 
-import { PurchaseQrDialog, PurchaseTypes } from "@/features/shared";
+import { LoginRequired, PurchaseQrDialog, PurchaseTypes } from "@/features/shared";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
@@ -13,28 +13,34 @@ export function PointsPage() {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
       <PointsBasicInfo />
 
-      <PointsActionCard
-        imageSrc="/assets/undraw-credit-card.svg"
-        title="Buy points with QR"
-        description="Buy points using our mobile application by paying with in-app payment system using credit card"
-        buttonText="Buy with QR code"
-        onClick={() => setShowPurchaseQr(true)}
-      />
-      <PointsActionCard
-        imageSrc="/assets/undraw-transfer.svg"
-        title="Buy points using Hive/HBD"
-        description="Already have some HIVE or HBD? Swap HIVE/HBD to POINTS quicky"
-        buttonText="Buy with HIVE/HBD"
-        onClick={() => router.push("/perks/points/buy-with-hive")}
-      />
+      <LoginRequired>
+        <PointsActionCard
+          imageSrc="/assets/undraw-credit-card.svg"
+          title="Buy points with QR"
+          description="Buy points using our mobile application by paying with in-app payment system using credit card"
+          buttonText="Buy with QR code"
+          onClick={() => setShowPurchaseQr(true)}
+        />
+      </LoginRequired>
+      <LoginRequired>
+        <PointsActionCard
+          imageSrc="/assets/undraw-transfer.svg"
+          title="Buy points using Hive/HBD"
+          description="Already have some HIVE or HBD? Swap HIVE/HBD to POINTS quicky"
+          buttonText="Buy with HIVE/HBD"
+          onClick={() => router.push("/perks/points/buy-with-hive")}
+        />
+      </LoginRequired>
 
-      <PointsActionCard
-        imageSrc="/assets/undraw-savings.svg"
-        title="Claim points"
-        description="Claim FREE points every week"
-        buttonText="Claim"
-        onClick={() => {}}
-      />
+      <LoginRequired>
+        <PointsActionCard
+          imageSrc="/assets/undraw-savings.svg"
+          title="Claim points"
+          description="Claim FREE points every week"
+          buttonText="Claim"
+          onClick={() => {}}
+        />
+      </LoginRequired>
 
       <PurchaseQrDialog
         type={PurchaseTypes.POINTS}

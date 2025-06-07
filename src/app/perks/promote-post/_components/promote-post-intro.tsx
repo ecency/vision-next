@@ -1,3 +1,4 @@
+import { LoginRequired } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
@@ -15,9 +16,11 @@ export function PromotePostIntro({ onContinue }: Props) {
         <div
           dangerouslySetInnerHTML={{ __html: i18next.t("static.faq.how-promotion-work-body") }}
         />
-        <Button size="lg" icon={<UilArrowRight />} onClick={onContinue}>
-          {i18next.t("g.continue")}
-        </Button>
+        <LoginRequired>
+          <Button size="lg" icon={<UilArrowRight />} onClick={onContinue}>
+            {i18next.t("g.continue")}
+          </Button>
+        </LoginRequired>
       </div>
     </div>
   );

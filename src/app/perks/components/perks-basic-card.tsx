@@ -1,3 +1,4 @@
+import { LoginRequired } from "@/features/shared";
 import clsx from "clsx";
 import { HTMLProps } from "react";
 
