@@ -1,10 +1,16 @@
 "use client";
 
 import i18next from "i18next";
-import { PerksPointsCard, PerksPromoteCard } from "./components";
+import { PerksBasicCard, PerksPointsCard, PerksPromoteCard } from "./components";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import { BoostDialog, PurchaseQrDialog } from "@/features/shared";
+import { useState } from "react";
 
 export function PerksPage() {
+  const [showBoost, setShowBoost] = useState(false);
+  const [showQrDialog, setShowQrDialog] = useState(false);
+
   return (
     <div className="grid grid-cols-12 grid-rows-4 gap-4">
       <motion.div
@@ -26,20 +32,40 @@ export function PerksPage() {
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
-        className="col-span-12 sm:col-span-6 row-span-2 md:col-span-3"
+        className="col-span-6 row-span-2 md:col-span-3"
       >
-        <div className="bg-white dark:bg-gray-900 w-full h-full rounded-xl">
-          <div>{i18next.t("perks.account-boost-title")}</div>
-        </div>
+        <PerksBasicCard
+          className="md:text-xl font-bold min-h-[13rem] cursor-pointer"
+          onClick={() => setShowQrDialog(true)}
+        >
+          <div className="p-4 text-blue-dark-sky">{i18next.t("perks.account-boost-title")}</div>
+          <Image
+            className="absolute -bottom-8"
+            src="/assets/undraw-power.svg"
+            width={320}
+            height={240}
+            alt=""
+          />
+        </PerksBasicCard>
       </motion.div>
       <motion.div
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3 }}
-        className="col-span-12 sm:col-span-6 row-span-2 md:col-span-3"
+        className="col-span-6 row-span-2 md:col-span-3"
       >
-        <div className="bg-white dark:bg-gray-900 w-full h-full rounded-xl">Promote post</div>
+        <PerksBasicCard
+          className="min-h-[13rem] cursor-pointer p-4"
+          onClick={() => setShowBoost(true)}
+        >
+          <div className="md:text-xl font-bold">{i18next.t("perks.boost-plus-title")}</div>
+          <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+            {i18next.t("perks.boost-plus-description")}
+          </div>
+        </PerksBasicCard>
       </motion.div>
+      {showBoost && <BoostDialog onHide={() => setShowBoost(false)} />}
+      <PurchaseQrDialog show={showQrDialog} setShow={(v) => setShowQrDialog(v)} />
     </div>
   );
 }
