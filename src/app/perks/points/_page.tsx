@@ -4,6 +4,7 @@ import { LoginRequired, PurchaseQrDialog, PurchaseTypes } from "@/features/share
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
+import i18next from "i18next";
 
 export function PointsPage() {
   const [showPurchaseQr, setShowPurchaseQr] = useState(false);
@@ -16,18 +17,18 @@ export function PointsPage() {
       <LoginRequired>
         <PointsActionCard
           imageSrc="/assets/undraw-credit-card.svg"
-          title="Buy points with QR"
-          description="Buy points using our mobile application by paying with in-app payment system using credit card"
-          buttonText="Buy with QR code"
+          title={i18next.t("perks.buy-points-qr-title")}
+          description={i18next.t("perks.buy-points-qr-description")}
+          buttonText={i18next.t("perks.buy-points-qr-button")}
           onClick={() => setShowPurchaseQr(true)}
         />
       </LoginRequired>
       <LoginRequired>
         <PointsActionCard
           imageSrc="/assets/undraw-transfer.svg"
-          title="Buy points using Hive/HBD"
-          description="Already have some HIVE or HBD? Swap HIVE/HBD to POINTS quicky"
-          buttonText="Buy with HIVE/HBD"
+          title={i18next.t("perks.buy-points-hive-title")}
+          description={i18next.t("perks.buy-points-hive-description")}
+          buttonText={i18next.t("perks.buy-points-hive-button")}
           onClick={() => router.push("/perks/points/buy-with-hive")}
         />
       </LoginRequired>
@@ -35,9 +36,9 @@ export function PointsPage() {
       <LoginRequired>
         <PointsActionCard
           imageSrc="/assets/undraw-savings.svg"
-          title="Claim points"
-          description="Claim FREE points every week"
-          buttonText="Claim"
+          title={i18next.t("perks.claim-points-title")}
+          description={i18next.t("perks.claim-points-description")}
+          buttonText={i18next.t("perks.claim-points-button")}
           onClick={() => {}}
         />
       </LoginRequired>
