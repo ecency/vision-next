@@ -31,6 +31,14 @@ export function PromotePostSetup({ onSuccess }: Props) {
     permlink
   ).useClientQuery();
 
+  const isAmountMoreThanBalance = useMemo(() => {
+    const price = prices?.find((p) => p.duration === selectedDuration);
+    if (activeUserPoints && price) {
+      return +activeUserPoints?.points < price.price;
+    }
+    return false;
+  }, [activeUserPoints, prices, selectedDuration]);
+
   useDebounce(() => setPathQuery(path), 500, [path]);
 
   return (
@@ -91,8 +99,19 @@ export function PromotePostSetup({ onSuccess }: Props) {
             </motion.div>
           ))}
         </div>
+        <div>
+          {isAmountMoreThanBalance && (
+            <small className="usd-balance bold block text-red mt-3">
+              {i18next.t("market.more-than-balance")}
+            </small>
+          )}
+        </div>
         <div className="flex md:col-span-2 justify-end">
-          <Button size="sm" disabled={!path} onClick={() => onSuccess(path, selectedDuration)}>
+          <Button
+            size="sm"
+            disabled={!path || isAmountMoreThanBalance}
+            onClick={() => onSuccess(path, selectedDuration)}
+          >
             {i18next.t("g.continue")}
           </Button>
         </div>
