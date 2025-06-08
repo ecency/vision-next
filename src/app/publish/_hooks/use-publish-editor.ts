@@ -114,7 +114,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
   // Handle editor clearing
   useEffect(() => {
     if (!publishState.content && editor?.getText() !== "") {
-      editor?.chain().setContent("").run();
+      editor?.commands.setContent("");
     }
   }, [editor, publishState.content]);
 

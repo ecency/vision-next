@@ -15,5 +15,6 @@ Sentry.init({
   release: appPackage.version,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false
+  debug: false,
+  _experiments: { enableLogs: true }
 });

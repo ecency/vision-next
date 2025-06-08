@@ -8,7 +8,7 @@ import { PollOption } from "./poll-option";
 import { PollOptionWithResults } from "./poll-option-with-results";
 import { PollVotesListDialog } from "./poll-votes-list-dialog";
 import { UilClock, UilPanelAdd } from "@tooni/iconscout-unicons-react";
-import { format, isBefore, isDate } from "date-fns";
+import { format, isBefore, isDate, isValid } from "date-fns";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { FormControl } from "@ui/input";
 import { useSet } from "react-use";
@@ -44,7 +44,10 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
     useState<PollSnapshot["interpretation"]>("number_of_votes");
 
   const endTimeFullDate = useMemo(
-    () => (isDate(poll.endTime) ? format(poll.endTime, "dd.MM.yyyy HH:mm") : "Unset"),
+    () =>
+      isDate(poll.endTime) && isValid(poll.endTime)
+        ? format(poll.endTime, "dd.MM.yyyy HH:mm")
+        : "Unset",
     [poll.endTime]
   );
   const isFinished = useMemo(() => isBefore(poll.endTime, new Date()), [poll.endTime]);

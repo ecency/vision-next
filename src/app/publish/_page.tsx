@@ -17,31 +17,30 @@ export default function Publish() {
 
   return (
     <>
-      <AnimatePresence>
-        {step === "edit" && (
-          <>
-            <PublishActionBar
-              onPublish={() => setStep("validation")}
-              onBackToClassic={() => router.push("/submit")}
-            />
-            <PublishEditor editor={editor} />
-          </>
-        )}
-        {step === "validation" && (
-          <PublishValidatePost
-            onClose={() => setStep("edit")}
-            onSuccess={(step) => {
-              setStep(step);
-            }}
+      {step === "edit" && (
+        <>
+          <PublishActionBar
+            onPublish={() => setStep("validation")}
+            onBackToClassic={() => router.push("/submit")}
           />
-        )}
-        {["scheduled", "published"].includes(step) && (
-          <PublishSuccessState
-            step={step as "published" | "scheduled"}
-            setEditStep={() => setStep("edit")}
-          />
-        )}
-      </AnimatePresence>
+          <PublishEditor editor={editor} />
+        </>
+      )}
+      {step === "validation" && (
+        <PublishValidatePost
+          onClose={() => setStep("edit")}
+          onSuccess={(step) => {
+            setStep(step);
+          }}
+        />
+      )}
+      {["scheduled", "published"].includes(step) && (
+        <PublishSuccessState
+          step={step as "published" | "scheduled"}
+          setEditStep={() => setStep("edit")}
+        />
+      )}
+
       <PublishEditorHtmlWarning show={showHtmlWarning} setShow={setShowHtmlWarning} />
     </>
   );
