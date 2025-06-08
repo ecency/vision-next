@@ -2,6 +2,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { UilCheckCircle } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
+import i18next from "i18next";
 import Link from "next/link";
 
 interface Props {
@@ -22,20 +23,22 @@ export function BuyWithHiveSuccess({ pointsAmount }: Props) {
         <div className="flex flex-col items-center justify-center gap-2">
           <UilCheckCircle className="text-green w-12 h-12" />
 
-          <div className="text-xl font-bold">You've got +{pointsAmount} points</div>
+          <div className="text-xl font-bold">
+            {i18next.t("perks.buy-points-hive-success-title", { amount: pointsAmount })}{" "}
+          </div>
           <div className="text-gray-600 dark:text-gray-400 text-center max-w-[500px]">
-            Points has transferred to your account. Please, check it in a wallet page or perks
+            {i18next.t("perks.buy-points-hive-success-description")}
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/perks/points">
+          <Link href="/perks">
             <Button appearance="gray" size="sm">
-              Spend points
+              {i18next.t("perks.spend-points")}
             </Button>
           </Link>
           <Link href={`/@${activeUser?.username}/wallet`}>
-            <Button size="sm">Go to wallet</Button>
+            <Button size="sm">{i18next.t("perks.go-to-wallet")}</Button>
           </Link>
         </div>
       </div>
