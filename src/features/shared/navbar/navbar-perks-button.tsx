@@ -8,7 +8,7 @@ export function NavbarPerksButton() {
     <Button
       href="/perks"
       icon={<UilFire />}
-      className="font-semibold !hidden lg:!flex whitespace-nowrap text-sm"
+      className="font-semibold flex whitespace-nowrap text-sm"
     >
       {i18next.t("user-nav.perks")}
     </Button>
