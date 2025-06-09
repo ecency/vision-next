@@ -2486,6 +2486,7 @@
     "claim-points-title": "Claim points",
     "claim-points-description": "Ecency generates POINTS for different activities such as comments, posts etc. Get them for free!",
     "claim-points-button": "Claim now",
+    "claim-points-nothing": "Nothing to claim:(",
     "spend-points": " Spend points",
     "go-to-wallet": "Go to wallet"
   },
