@@ -5,7 +5,12 @@ import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
 import { useState } from "react";
-import { PerksBasicCard, PerksPointsCard, PerksPromoteCard } from "./components";
+import {
+  PerksBasicCard,
+  PerksPointsCard,
+  PerksPointsSpinBanner,
+  PerksPromoteCard
+} from "./components";
 
 export function PerksPage() {
   const [showBoost, setShowBoost] = useState(false);
@@ -36,7 +41,7 @@ export function PerksPage() {
       >
         <LoginRequired>
           <PerksBasicCard
-            className="md:text-xl font-bold min-h-[13rem] cursor-pointer"
+            className="md:text-lg font-bold min-h-[13rem] cursor-pointer"
             onClick={() => setShowQrDialog(true)}
           >
             <div className="p-4 text-blue-dark-sky">{i18next.t("perks.account-boost-title")}</div>
@@ -61,11 +66,22 @@ export function PerksPage() {
             className="min-h-[13rem] cursor-pointer p-4"
             onClick={() => setShowBoost(true)}
           >
-            <div className="md:text-xl font-bold">{i18next.t("perks.boost-plus-title")}</div>
+            <div className="md:text-lg font-bold">{i18next.t("perks.boost-plus-title")}</div>
             <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
               {i18next.t("perks.boost-plus-description")}
             </div>
           </PerksBasicCard>
+        </LoginRequired>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3 }}
+        className="col-span-12 row-span-1"
+      >
+        <LoginRequired>
+          <PerksPointsSpinBanner />
         </LoginRequired>
       </motion.div>
       {showBoost && <BoostDialog onHide={() => setShowBoost(false)} />}

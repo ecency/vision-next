@@ -1,4 +1,3 @@
-import React from "react";
 import i18next from "i18next";
 import Image from "next/image";
 
@@ -12,7 +11,7 @@ export function PerksHeader() {
         <h2 className="text-lg md:text-2xl">{i18next.t("perks.title-next")}</h2>
         <p className="mt-4">{i18next.t("perks.description")}</p>
       </div>
-      <div className="col-span-12 md:col-span-6 mt-16 rounded-2xl overflow-hidden">
+      <div className="col-span-12 md:col-span-6 hidden sm:block mt-16 rounded-2xl overflow-hidden">
         <Image
           width={1920}
           height={1920}

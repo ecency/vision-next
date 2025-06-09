@@ -2488,7 +2488,11 @@
     "claim-points-button": "Claim now",
     "claim-points-nothing": "Nothing to claim:(",
     "spend-points": " Spend points",
-    "go-to-wallet": "Go to wallet"
+    "go-to-wallet": "Go to wallet",
+    "spin-title": "Earn up to 200 POINTS daily",
+    "spin-description": "Use daily free spins and earn different rewards up to 200 POINTS",
+    "spin-now": "Spin now",
+    "want-more-spins": "Want more spins?"
   },
   "boost-plus": {
     "title": "Boost+",
