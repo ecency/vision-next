@@ -19,7 +19,6 @@ export const DeckThreadsFormToolbar = ({ onAddImage, onEmojiPick, onAddVideo }: 
     <div className="deck-threads-form-toolbar">
       <DeckThreadsFormToolbarImagePicker onAddImage={onAddImage} />
       <DeckThreadsFormEmojiPicker onPick={onEmojiPick} />
-      {/*<DeckThreadsFormToolbarVideoPicker onSelect={onAddVideo} />*/}
       <Button appearance="gray-link" icon={<UilChart />} onClick={() => setShow(true)} />
       <PollsCreation
         existingPoll={activePoll}
