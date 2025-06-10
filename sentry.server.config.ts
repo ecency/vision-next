@@ -20,6 +20,7 @@ Sentry.init({
   ignoreErrors: [
     "NEXT_HTTP_ERROR_FALLBACK;404",
     "AxiosError",
-    "Wrong private key. Master or active or posting private key required."
+    "Wrong private key. Master or active or posting private key required.",
+    "Network request failed"
   ]
 });
