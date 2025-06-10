@@ -421,7 +421,7 @@
     "unmute-success": "Post no silenciado",
     "promote": "Promocionar",
     "boost": "Impulsar",
-    "edit-classic": "Classic Edit"
+    "edit-classic": "Edición clásica"
   },
   "cross-post": {
     "title": "Publicación cruzada",
@@ -739,7 +739,7 @@
   "entry": {
     "via-app": "vía <span class=\"app-name\">{{app}}</span>",
     "author-reputation": "Reputación del Autor",
-    "disclaimer": "This post was published via {{appName}}. Ecency is not the originator or editor of this content and displays it for discovery purposes only.",
+    "disclaimer": "Esta publicación fue publicada a través de {{appName}}. Ecency no es el creador o editor de este contenido y la muestra solo para fines de descubrimiento.",
     "comment-entry-title": "Estás viendo los comentarios relacionados de: ",
     "comment-entry-go-root": "Ver los demas comentarios",
     "comment-entry-go-parent": "Ver el comentario relacionado",
@@ -1822,7 +1822,7 @@
     "title": "Borradores",
     "filter": "Buscar por título",
     "open-editor": "Editor",
-    "open-classic": "Classic Editor"
+    "open-classic": "Editor clásico"
   },
   "schedules": {
     "title": "Publicaciones programadas",
