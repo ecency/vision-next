@@ -2,6 +2,7 @@ import {Client} from "@hiveio/dhive";
 import SERVERS from "@/servers.json";
 import {Community, Entry, Subscription} from "@/entities";
 import dmca from "@/dmca.json";
+import dmca_accounts from "@/dmca-accounts.json";
 
 export const bridgeServer = new Client(SERVERS, {
   timeout: 2000,
@@ -86,6 +87,9 @@ export const getAccountPosts = (
     limit,
     observer
   }).then((resp) => {
+    if (dmca_accounts.includes(account)) {
+      return [];
+    }
     if (resp) {
       return resolvePosts(resp, observer);
     }

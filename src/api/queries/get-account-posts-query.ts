@@ -1,6 +1,8 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { bridgeApiCall, resolvePost } from "@/api/bridge";
 import { Entry } from "@/entities";
+import dmca_accounts from "@/dmca-accounts.json";
+
 
 type PageParam = { author: string | undefined; permlink: string | undefined; hasNextPage: boolean };
 
@@ -26,6 +28,9 @@ export const getAccountPostsQuery = (
         limit,
         observer
       });
+      if (username && dmca_accounts.includes(username)) {
+        return [];
+      }
       if (resp) {
         return await Promise.all(resp.map((p) => resolvePost(p, observer)));
       }
