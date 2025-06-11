@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function PublishValidatePost({ onClose, onSuccess }: Props) {
-  const { tags, setTags, schedule, clearAll, content,metaDescription,
+  const { tags, setTags, schedule, clearAll, content, metaDescription,
     setMetaDescription } = usePublishState();
 
   const [showSchedule, setShowSchedule] = useState(false);
