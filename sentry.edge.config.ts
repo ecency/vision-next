@@ -16,5 +16,11 @@ Sentry.init({
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
-  _experiments: { enableLogs: true }
+  _experiments: { enableLogs: true },
+  ignoreErrors: [
+    "NEXT_HTTP_ERROR_FALLBACK;404",
+    "AxiosError",
+    "Wrong private key. Master or active or posting private key required.",
+    "Network request failed"
+  ]
 });

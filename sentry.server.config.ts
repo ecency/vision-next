@@ -16,5 +16,11 @@ Sentry.init({
   debug: false,
   release: appPackage.version,
   integrations: [nodeProfilingIntegration()],
-  _experiments: { enableLogs: true }
+  _experiments: { enableLogs: true },
+  ignoreErrors: [
+    "NEXT_HTTP_ERROR_FALLBACK;404",
+    "AxiosError",
+    "Wrong private key. Master or active or posting private key required.",
+    "Network request failed"
+  ]
 });
