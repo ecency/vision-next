@@ -421,7 +421,7 @@
     "unmute-success": "Post unmuted",
     "promote": "Promote",
     "boost": "Boost",
-    "edit-classic": "Edit in Classic Editor"
+    "edit-classic": "Klassischer Editor"
   },
   "cross-post": {
     "title": "Cross Post",
@@ -562,7 +562,7 @@
       "transfers": "Transfers",
       "delegations": "Delegations",
       "search-query": "Search query",
-      "enter-search-query": "Configure a search query and explore all posts",
+      "enter-search-query": "Konfigurieren Sie eine Suchabfrage und erkunden Sie alle Beiträge",
       "blogs": "Blogs",
       "feeds": "Friends Feed",
       "posts": "Posts",
@@ -739,7 +739,7 @@
   "entry": {
     "via-app": "via <span class=\"app-name\">{{app}}</span>",
     "author-reputation": "Author's reputation",
-    "disclaimer": "This post was published via {{appName}}. Ecency is not the originator or editor of this content and displays it for discovery purposes only.",
+    "disclaimer": "Dieser Beitrag wurde über {{appName}} veröffentlicht. Ecency ist nicht der Urheber oder Herausgeber dieses Inhalts und zeigt ihn nur zu Entdeckungszwecken an.",
     "comment-entry-title": "You are viewing a single comment's thread from: ",
     "comment-entry-go-root": "View the full context",
     "comment-entry-go-parent": "View the direct parent",
@@ -1822,7 +1822,7 @@
     "title": "Drafts",
     "filter": "Search by title",
     "open-editor": "Open in Editor",
-    "open-classic": ""
+    "open-classic": "Klassischer Editor"
   },
   "schedules": {
     "title": "Scheduled Posts",
@@ -2722,7 +2722,7 @@
     },
     "no-image-found": "Only image files are supporting",
     "upload-started": "Uploading image...",
-    "back-to-old": "Back to Classic View",
+    "back-to-old": "Zurück zum klassischen Editor",
     "clear": "Clear",
     "schedule": "Schedule",
     "action-bar": {
@@ -2762,8 +2762,8 @@
       "title": "Pure HTML code detected",
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     },
-    "continue-to-publish": "",
-    "continue-to-schedule": "Continuo von gedulde"
+    "continue-to-publish": "Veröffentlichen fortsetzen",
+    "continue-to-schedule": "Weiter zum Zeitplan"
   },
   "ecency-images": {
     "upload-image": "Upload image",

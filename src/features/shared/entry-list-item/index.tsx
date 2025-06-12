@@ -3,7 +3,7 @@ import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 import defaults from "@/defaults.json";
 import { Account, Community, Entry, FullAccount } from "@/entities";
-import { dateToFormatted, dateToRelative, makeEntryPath } from "@/utils";
+import { makeEntryPath } from "@/utils";
 import { pinSvg, repeatSvg } from "@ui/svg";
 import {
   EntryMenu,
@@ -13,7 +13,8 @@ import {
   EntryVotes,
   ProfileLink,
   ProfilePopover,
-  UserAvatar
+  UserAvatar,
+  TimeLabel
 } from "@/features/shared";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
@@ -54,8 +55,6 @@ export function EntryListItemComponent({
   const entry = entryProp.original_entry || entryProp;
   const pinned = entry?.stats?.is_pinned ?? pageAccount?.profile?.pinned;
 
-  const dateRelative = dateToRelative(entry.created);
-  const dateFormatted = dateToFormatted(entry.created);
   const reBlogged =
     entry.reblogged_by?.length > 0
       ? entry.reblogged_by[0]
@@ -98,9 +97,7 @@ export function EntryListItemComponent({
             <>{entry.community_title || entry.category}</>
           </TagLink>
           <span className="read-mark ml-2" />
-          <span className="date" title={dateFormatted}>
-            {dateRelative}
-          </span>
+          <TimeLabel created={entry.created} />
 
           <EntryListItemPollIcon entry={entryProp} />
         </div>

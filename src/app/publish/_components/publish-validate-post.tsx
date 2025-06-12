@@ -8,7 +8,7 @@ import { isCommunity } from "@/utils";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { usePublishState } from "../_hooks";
 import { PublishValidatePostThumbnailPicker } from "./publish-validate-post-thumbnail-picker";
 import { PublishScheduleDialog } from "./publish-schedule-dialog";
@@ -23,7 +23,8 @@ interface Props {
 }
 
 export function PublishValidatePost({ onClose, onSuccess }: Props) {
-  const { tags, setTags, schedule, clearAll, content } = usePublishState();
+  const { tags, setTags, schedule, clearAll, content, metaDescription,
+    setMetaDescription } = usePublishState();
 
   const [showSchedule, setShowSchedule] = useState(false);
 
@@ -51,6 +52,21 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     const uniqueTagsSet = new Set([...(tags ?? []), ...computedTags]);
     setTags(Array.from(uniqueTagsSet));
   });
+
+  useEffect(() => {
+    if (!content) return;
+
+    // Only generate description if it's empty or 1-char garbage
+    if (!metaDescription || metaDescription.trim().length <= 1) {
+      const plainText = content
+          .replace(/<[^>]+>/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+
+      const description = plainText.slice(0, 160);
+      setMetaDescription(description);
+    }
+  }, [content]);
 
   return (
     <motion.div

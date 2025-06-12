@@ -57,8 +57,6 @@ export function BubbleMenu({ editor }: Props) {
         }
       });
 
-      console.log(isLink);
-
       if (!editor.isFocused || (!isText && !isLink)) {
         setShow(false);
         setMode(undefined);

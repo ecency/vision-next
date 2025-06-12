@@ -1,9 +1,9 @@
 import moment from "moment";
 
 export const dateToRelative = (d: string): string => {
-  const isTimeZoned = d.indexOf(".") !== -1 || d.indexOf("+") !== -1 ? d : `${d}.000Z`;
-  const dm = moment(new Date(isTimeZoned));
-  const dd = dm.fromNow(true);
+  const normalized = d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`;
+  const dm = moment.utc(normalized).local();
+  const dd = dm.local().fromNow(true);
   return dd
     .replace("a few seconds", "~1s")
     .replace(" seconds", "s")
@@ -20,15 +20,13 @@ export const dateToRelative = (d: string): string => {
 };
 
 export const dateToFullRelative = (d: string): string => {
-  const isTimeZoned = d.indexOf(".") !== -1 || d.indexOf("+") !== -1 ? d : `${d}.000Z`;
-  const dm = moment(new Date(isTimeZoned));
-  return dm.fromNow();
+  const normalized = d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`;
+  return moment.utc(normalized).local().fromNow();
 };
 
 export const dateToFormatted = (d: string, format: string = "LLLL"): string => {
-  const isTimeZoned = d.indexOf(".") !== -1 || d.indexOf("+") !== -1 ? d : `${d}.000Z`;
-  const dm = moment(new Date(isTimeZoned));
-  return dm.format(format);
+  const normalized = d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`;
+  return moment.utc(normalized).local().format(format);
 };
 
 export const dayDiff = (d: string) => {
@@ -56,11 +54,14 @@ export const secondDiff = (d: string) => {
   return Math.abs(Math.round(diff));
 };
 
-export const parseDate = (d: string): Date => {
+export const parseDate = (d: string, dropTimezone = true): Date => {
   if (!d) return new Date();
   try {
     const date = moment(d).isValid() ? moment(d).toDate() : new Date();
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    if (dropTimezone) {
+      return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    }
+    return date;
   } catch (e) {
     return new Date();
   }

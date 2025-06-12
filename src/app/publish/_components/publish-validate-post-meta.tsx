@@ -5,7 +5,7 @@ import i18next from "i18next";
 export function PublishValidatePostMeta() {
   const { title, metaDescription, setMetaDescription } = usePublishState();
 
-  return (
+    return (
     <div className="flex flex-col gap-2">
       <FormControl className="text-sm" type="text" disabled={true} value={title} />
       <FormControl

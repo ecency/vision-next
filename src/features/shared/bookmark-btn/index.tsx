@@ -19,7 +19,7 @@ export interface Props {
 export function BookmarkBtn({ entry }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
-  const { data: bookmarks } = useBookmarksQuery();
+  const { data: bookmarks = [] } = useBookmarksQuery();
 
   const bookmarkId = useMemo(() => {
     const bookmark = bookmarks.find(

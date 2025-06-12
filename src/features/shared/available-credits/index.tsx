@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { usePopper } from "react-popper";
 import { client, powerRechargeTime, rcPower } from "@/api/hive";
+import { RcOperation } from "@/entities";
+import { rcFormatter } from "@/utils";
+import { useMounted } from "@/utils/use-mounted";
+import { getAccountRcQueryOptions, getRcStatsQueryOptions } from "@ecency/sdk";
+import { autoUpdate, flip, shift, useFloating } from "@floating-ui/react-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@ui/button";
+import i18next from "i18next";
 import moment, { Moment } from "moment";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { PurchaseQrDialog } from "../purchase-qr";
 import "./index.scss";
-import { createPortal } from "react-dom";
-import { Button } from "@ui/button";
-import { RcOperation } from "@/entities";
-import { useMounted } from "@/utils/use-mounted";
-import { rcFormatter } from "@/utils";
-import i18next from "i18next";
-import { useQuery } from "@tanstack/react-query";
-import { getAccountRcQueryOptions, getRcStatsQueryOptions } from "@ecency/sdk";
 
 interface Props {
   username: string;
@@ -32,14 +32,17 @@ export const AvailableCredits = ({ username, className }: Props) => {
   const [transferAmount, setTransferAmount] = useState(0);
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
 
-  const [host, setHost] = useState<any>();
-  const [popperElement, setPopperElement] = useState<any>();
   const [isShow, setIsShow] = useState(false);
 
   const { data: rcValues } = useQuery(getAccountRcQueryOptions(username));
   const { data: rcStats } = useQuery(getRcStatsQueryOptions());
 
-  const popper = usePopper(host, popperElement);
+  const { refs, floatingStyles, update } = useFloating({
+    whileElementsMounted: autoUpdate,
+    middleware: [flip(), shift()],
+    placement: "top",
+    transform: true
+  });
 
   const isMounted = useMounted();
 
@@ -74,21 +77,14 @@ export const AvailableCredits = ({ username, className }: Props) => {
     setTransferAmount(Math.ceil(Number(availableResourceCredit[0]) / transferCost));
   }, [rcStats, rcValues]);
 
-  const show = () => {
-    setIsShow(true);
-    popper.update?.();
-  };
-
-  const hide = () => {
-    setIsShow(false);
-    popper.update?.();
-  };
+  const show = () => setIsShow(true);
+  const hide = () => setIsShow(false);
 
   return isMounted ? (
     <>
       <div className="available-credits flex items-center justify-between w-full pr-3">
         <div
-          ref={setHost}
+          ref={refs.setReference}
           className={
             "available-credits-bar w-full " +
             className +
@@ -119,10 +115,9 @@ export const AvailableCredits = ({ username, className }: Props) => {
       </div>
       {createPortal(
         <div
-          ref={setPopperElement}
+          ref={refs.setFloating}
           className={"available-credits-bar-popper " + (isShow ? "show" : "")}
-          style={popper.styles.popper}
-          {...popper.attributes.popper}
+          style={floatingStyles}
         >
           <div>
             <div className="p-3">

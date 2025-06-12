@@ -35,7 +35,6 @@ import "./_index.scss";
 import { useThreeSpeakMigrationAdapter } from "@/app/submit/_hooks/three-speak-migration-adapter";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
-import { IntroTour } from "@ui/intro-tour";
 import { PollsContext, PollsManager } from "@/app/submit/_hooks/polls-manager";
 import { FullHeight } from "@/features/ui";
 import {
@@ -355,14 +354,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
       <Feedback />
       <Navbar />
 
-      <IntroTour
-        forceActivation={forceReactivateTour}
-        setForceActivation={setForceReactivateTour}
-        steps={introSteps}
-        id="submit"
-        enabled={tourEnabled}
-      />
-
       <div className="app-content submit-page">
         <div className="editor-panel">
           {editingEntry === null && activeUser && (
@@ -377,17 +368,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                   tagsChanged(newTags);
                 }}
               />
-
-              <div className="flex justify-end w-full items-center gap-4">
-                <Button
-                  size="sm"
-                  appearance="gray-link"
-                  onClick={() => setForceReactivateTour(true)}
-                  icon={informationSvg}
-                >
-                  {!isTourFinished && i18next.t("submit.take-tour")}
-                </Button>
-              </div>
             </div>
           )}
           <EditorToolbar

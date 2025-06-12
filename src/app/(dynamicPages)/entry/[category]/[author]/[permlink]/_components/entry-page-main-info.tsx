@@ -15,7 +15,7 @@ interface Props {
 export function EntryPageMainInfo({ entry }: Props) {
   const isComment = !!entry.parent_author;
 
-  const published = moment(parseDate(entry.created));
+  const published = moment(parseDate(entry.created, false));
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
