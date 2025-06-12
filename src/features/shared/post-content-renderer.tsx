@@ -3,6 +3,7 @@
 import { EcencyRenderer } from "@ecency/renderer";
 import dynamic from "next/dynamic";
 import { HTMLProps, memo, useCallback, useState } from "react";
+import { Tweet } from "react-tweet";
 
 const MemoizedEcencyRenderer = memo(EcencyRenderer);
 // As Next renders RSC client type on server and client both then it should skip renderinng
@@ -29,6 +30,7 @@ export function PostContentRenderer({
         value={value}
         {...(props as any)}
         onHiveOperationClick={handleHiveOperationClick}
+        TwitterComponent={Tweet}
       />
       <TransactionSigner
         show={!!signingOperation}
