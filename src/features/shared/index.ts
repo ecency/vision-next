@@ -59,3 +59,4 @@ export * from "./editor-toolbar";
 export * from "./redirect";
 export * from "./entry-stats";
 export * from "./post-content-renderer";
+export * from "./time-label";
