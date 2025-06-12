@@ -20,7 +20,7 @@ export function BookmarkBtn({ entry }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
   const { data: bookmarks } = useBookmarksQuery();
-
+  if (!bookmarks) return null;
   const bookmarkId = useMemo(() => {
     const bookmark = bookmarks.find(
       (x) => x.author === entry.author && x.permlink == entry.permlink
