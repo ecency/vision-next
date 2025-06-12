@@ -12,7 +12,7 @@ interface Props {
 export function EntryFooterInfo({ entry }: Props) {
   const app = appName(entry.json_metadata.app);
   const appShort = app.split("/")[0].split(" ")[0];
-  const published = moment(parseDate(entry.created));
+  const published = moment(parseDate(entry.created, false));
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
