@@ -1,6 +1,5 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults.json";
 import { Entry } from "@/entities";
 import { AvailableCredits, LoginRequired } from "@/features/shared";
@@ -16,6 +15,7 @@ import { useDebounce, useMount } from "react-use";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import useUnmount from "react-use/lib/useUnmount";
 import "./_index.scss";
+import {useClientActiveUser} from "@/api/queries";
 
 setProxyBase(defaults.imageServer);
 
@@ -46,7 +46,7 @@ export function Comment({
   clearOnSubmit = true
 }: Props) {
   const commentBodyRef = useRef<HTMLDivElement>(null);
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   const [text, setText] = useLocalStorage(
     PREFIX + `_reply_text_${entry.author}_${entry.permlink}`,

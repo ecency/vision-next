@@ -12,9 +12,8 @@ import defaults from "@/defaults.json";
 import { Community, Entry } from "@/entities";
 import { commentSvg } from "@ui/svg";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { LinearProgress, LoginRequired } from "@/features/shared";
-import { getBotsQuery } from "@/api/queries";
+import {getBotsQuery, useClientActiveUser} from "@/api/queries";
 import { SortOrder } from "@/enums";
 import { getDiscussionsQuery } from "@/api/queries/get-discussions-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -30,7 +29,7 @@ interface Props {
 }
 
 export function Discussion({ hideControls, isRawContent, parent, community }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
   const previousIsRawContent = usePrevious(isRawContent);
 
   const [order, setOrder] = useState(SortOrder.trending);

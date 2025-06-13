@@ -13,6 +13,7 @@ import appPackage from "../../../../../../../../package.json";
 import { useCreateReply } from "@/api/mutations";
 import { EcencyEntriesCacheManagement, getCommunityCache } from "@/core/caches";
 import { EcencyConfigManager } from "@/config";
+import {useClientActiveUser} from "@/api/queries";
 
 interface Props {
   entry: Entry;
@@ -24,7 +25,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
 
   const { commentsInputRef, selection, setSelection } = useContext(EntryPageContext);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
   const { data: community } = getCommunityCache(category).useClientQuery();
