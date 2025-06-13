@@ -57,7 +57,7 @@ export function EntryReblogBtn({ entry }: Props) {
 
     return (
     <PopoverConfirm
-        onConfirm={() => reblog({ isDelete: reblogged })}
+        onConfirm={() => reblog({ isDelete: !!reblogged })}
         okVariant={reblogged ? "danger" : "primary"}
         titleText={
             reblogged
