@@ -3,6 +3,7 @@ import { bridgeApiCall, resolvePost } from "@/api/bridge";
 import { Entry } from "@/entities";
 import * as Sentry from "@sentry/nextjs";
 import dmca_accounts from "@/dmca-accounts.json";
+import { parseRpcInfo, RPCError } from "@/utils/rpcmessage";
 
 type PageParam = {
     author: string | undefined;
@@ -48,14 +49,22 @@ export const getAccountPostsQuery = (
 
                 return [];
             } catch (err) {
-                Sentry.captureException(err, {
+                const rpcError = err as RPCError;
+
+                const readableMessage = parseRpcInfo(rpcError.jse_info);
+
+                Sentry.captureException(rpcError, {
                     extra: {
                         rpcMethod: "get_account_posts",
-                        params: rpcParams,
-                        pageParam,
-                        username
+                        username,
+                        parsedRpcError: readableMessage ?? undefined,
+                        params: rpcParams
+                    },
+                    tags: {
+                        rpc_category: readableMessage?.includes("does not exist") ? "account_missing" : "other"
                     }
                 });
+
                 return [];
             }
         },
