@@ -10,6 +10,7 @@ import { Button } from "@ui/button";
 import { UserAvatar } from "@/features/shared";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
+import {useClientActiveUser} from "@/api/queries";
 
 interface Props {
   step?: number;
@@ -28,7 +29,7 @@ export function NavbarMobile({
   mainBarExpanded,
   setMainBarExpanded
 }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const activeUser = useClientActiveUser();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   return (
