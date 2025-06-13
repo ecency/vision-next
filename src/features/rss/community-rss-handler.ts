@@ -14,7 +14,7 @@ export class CommunityRssHandler extends EntriesRssHandler {
   }
 
   protected async fetchData() {
-    const data = await getPostsRankedQuery(this.tag, this.community, 100).fetchAndGet();
+    const data = await getPostsRankedQuery(this.tag, this.community, 20).fetchAndGet();
     return data.pages?.[0] ?? [];
   }
 }

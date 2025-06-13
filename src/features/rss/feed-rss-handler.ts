@@ -14,7 +14,7 @@ export class FeedRssHandler extends EntriesRssHandler {
   }
 
   protected async fetchData() {
-    const data = await getPostsRankedQuery(this.filter, this.tag, 100).fetchAndGet();
+    const data = await getPostsRankedQuery(this.filter, this.tag, 20).fetchAndGet();
     return data.pages?.[0] ?? [];
   }
 }
