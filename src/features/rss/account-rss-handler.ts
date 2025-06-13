@@ -23,8 +23,9 @@ export class AccountRssHandler extends EntriesRssHandler {
     const data = await getAccountPostsQuery(
       author,
       this.filter,
-      100
+      20
     ).fetchAndGet();
+
     return data.pages?.[0] ?? [];
   }
 }
