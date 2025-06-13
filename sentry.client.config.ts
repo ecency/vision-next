@@ -20,6 +20,7 @@ Sentry.init({
     "NEXT_HTTP_ERROR_FALLBACK;404",
     "AxiosError",
     "Wrong private key. Master or active or posting private key required.",
-    "Network request failed"
+    "Network request failed",
+    "Failed to read the 'localStorage' property from 'Window'"
   ]
 });
