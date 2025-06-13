@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, {useMemo} from "react";
 import defaults from "@/defaults.json";
-import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
+import {proxifyImageSrc, setProxyBase} from "@ecency/render-helper";
 import "./_index.scss";
-import { Account } from "@/entities";
-import { FollowControls } from "@/features/shared";
-import { useGlobalStore } from "@/core/global-store";
-import { FavouriteBtn } from "@/features/shared/favorite-btn";
-import { ProfileInfo } from "@/app/(dynamicPages)/profile/[username]/_components/profile-info";
-import { EcencyConfigManager } from "@/config";
-import { ProfileFilter } from "@/enums";
-import { usePathname } from "next/navigation";
+import {Account} from "@/entities";
+import {FollowControls} from "@/features/shared";
+import {useGlobalStore} from "@/core/global-store";
+import {FavouriteBtn} from "@/features/shared/favorite-btn";
+import {ProfileInfo} from "@/app/(dynamicPages)/profile/[username]/_components/profile-info";
+import {EcencyConfigManager} from "@/config";
+import {ProfileFilter, Theme} from "@/enums";
+import {usePathname} from "next/navigation";
+import {useClientTheme} from "@/api/queries";
 
 setProxyBase(defaults.imageServer);
 
@@ -20,7 +21,8 @@ interface Props {
 }
 
 export function ProfileCover({ account }: Props) {
-  const theme = useGlobalStore((state) => state.theme);
+  const [theme] = useClientTheme();
+
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const activeUser = useGlobalStore((state) => state.activeUser);
 
@@ -32,7 +34,7 @@ export function ProfileCover({ account }: Props) {
   let bgImage = "";
 
   if (account?.__loaded) {
-    bgImage = theme === "day" ? coverFallbackDay : coverFallbackNight;
+    bgImage = theme === Theme.day ? coverFallbackDay : coverFallbackNight;
     if (account.profile?.cover_image) {
       bgImage = proxifyImageSrc(account.profile.cover_image, 0, 0, canUseWebp ? "webp" : "match");
     }
