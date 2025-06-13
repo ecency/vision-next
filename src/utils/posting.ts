@@ -5,34 +5,32 @@ import { BeneficiaryRoute, CommentOptions, MetaData, RewardType } from "@/entiti
 const permlinkRnd = () => (Math.random() + 1).toString(16).substring(2);
 
 export const createPermlink = (title: string, random: boolean = false): string => {
-  const slug = getSlug(title);
-  let perm = slug.toString();
+  let slug = getSlug(title).toString();
 
-  // make shorter url if possible
-  let shortp = perm.split("-");
-  if (shortp.length > 5) {
-    perm = shortp.slice(0, 5).join("-");
-  }
+  // normalize early
+  slug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, "");
+
+  // shorten if too long
+  const parts = slug.split("-");
+  let perm = parts.length > 5 ? parts.slice(0, 5).join("-") : slug;
 
   if (random) {
-    const rnd = permlinkRnd();
+    const rnd = permlinkRnd().toLowerCase(); // ensure random part is clean
     perm = `${perm}-${rnd}`;
   }
 
-  // HIVE_MAX_PERMLINK_LENGTH
+  // enforce Hive max length
   if (perm.length > 255) {
-    perm = perm.substring(perm.length - 255, perm.length);
+    perm = perm.substring(0, 250);
   }
 
-  // only letters numbers and dashes
-  perm = perm.toLowerCase().replace(/[^a-z0-9-]+/g, "");
-
   if (perm.length === 0) {
-    return permlinkRnd();
+    return permlinkRnd().toLowerCase();
   }
 
   return perm;
 };
+
 
 export const extractMetaData = (body: string): MetaData => {
   const urlReg = /(\b(https?|ftp):\/\/[A-Z0-9+&@#/%?=~_|!:,.;-]*[-A-Z0-9+&@#/%=~_|])/gim;
