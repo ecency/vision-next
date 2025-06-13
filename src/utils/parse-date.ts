@@ -20,7 +20,14 @@ export const dateToRelative = (d: string): string => {
 };
 
 export const dateToFullRelative = (d: string): string => {
-  const normalized = d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`;
+  if (!d) return "";
+
+  // If it's not already ISO-like, try to coerce it using moment parsing
+  const isValidISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(d);
+  const normalized = isValidISO
+      ? (d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`)
+      : moment(d).toISOString(); // force valid ISO
+
   return moment.utc(normalized).local().fromNow();
 };
 
