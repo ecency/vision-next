@@ -1303,10 +1303,10 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@^1.1.15":
-  version "1.1.15"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.15.tgz#ea018789d8a9e281fcce98e5cc05b221c5cc3556"
-  integrity sha512-80nfBt7RbncjKlrZcjPiCMFPA/ELddChM88G34Y6YR+31BlsevGHB1npF23PnQBCH51LFwSsWoSNulYS/PR8uQ==
+"@ecency/renderer@^1.1.16":
+  version "1.1.16"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.16.tgz#02cf3ff1488ccab76a9f1210eff3f10a7d87bdf0"
+  integrity sha512-Orny9RS3FHkaRu28Rq90HQMUroSdP13ryFtYdiT3odE6CdX4V0V06NLf2SINntTNTTfLhgVrfdo1ZoLLD63EUg==
   dependencies:
     medium-zoom "^1.1.0"
 
