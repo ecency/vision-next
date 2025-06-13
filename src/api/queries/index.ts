@@ -69,3 +69,5 @@ export * from "./waves";
 export * from "./get-discussions-query";
 export * from "./stats";
 export * from "./useClientActiveUser";
+export * from "./useClientTheme";
+export * from "./useHydrated";

@@ -9,9 +9,9 @@ import { NavbarMobile } from "./navbar-mobile";
 import { NavbarDesktop } from "./navbar-desktop";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Theme } from "@/enums";
-import { useGlobalStore } from "@/core/global-store";
 import { LoginDialog, NotificationsDialog } from "@/features/shared";
 import { classNameObject } from "@ui/util";
+import { useClientActiveUser, useClientTheme } from "@/api/queries";
 
 interface Props {
   step?: number;
@@ -21,8 +21,8 @@ interface Props {
 }
 
 export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
-  const toggleTheme = useGlobalStore((state) => state.toggleTheme);
+  const activeUser = useClientActiveUser();
+  const [theme, toggleTheme] = useClientTheme();
 
   const router = useRouter();
   const query = useSearchParams();
@@ -86,7 +86,7 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
           ? Theme.night
           : Theme.day;
     }
-    toggleTheme(theme);
+    toggleTheme?.(theme);
   };
 
   return (

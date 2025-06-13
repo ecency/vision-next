@@ -9,17 +9,17 @@ import { useUpdateNotificationsSettings } from "@/api/mutations";
 import { success } from "@/features/shared";
 import * as ls from "@/utils/local-storage";
 import currencies from "@/consts/currencies.json";
-import { useNotificationsSettingsQuery } from "@/api/queries";
+import { useNotificationsSettingsQuery, useClientTheme, useClientActiveUser } from "@/api/queries";
 
 export function Preferences() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
+
   const setCurrency = useGlobalStore((s) => s.setCurrency);
 
   const nsfw = useGlobalStore((s) => s.nsfw);
   const setNsfw = useGlobalStore((s) => s.setNsfw);
 
-  const theme = useGlobalStore((s) => s.theme);
-  const toggleTheme = useGlobalStore((s) => s.toggleTheme);
+  const [theme, toggleTheme] = useClientTheme();
 
   const currency = useGlobalStore((s) => s.currency);
   const lang = useGlobalStore((s) => s.lang);
