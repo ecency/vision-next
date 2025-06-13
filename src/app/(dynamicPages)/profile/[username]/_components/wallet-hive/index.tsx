@@ -766,7 +766,7 @@ export function WalletHive({ account }: Props) {
               title={`${hourDiff(w.nextVestingWithdrawalDate.toString())}h`}
             >
               {i18next.t("wallet.next-power-down", {
-                time: dateToFullRelative(w.nextVestingWithdrawalDate.toString()),
+                time: dateToFullRelative(w.nextVestingWithdrawalDate.toISOString()),
                 amount: formattedNumber(w.nextVestingSharesWithdrawalHive, { suffix: "HIVE" }),
                 weeks: w.weeksLeft
               })}
