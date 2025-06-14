@@ -3,6 +3,7 @@ import { useCountdown } from "@/utils";
 import { getGameStatusCheckQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { intervalToDuration } from "date-fns";
+import i18next from "i18next";
 import { useEffect, useMemo } from "react";
 
 export function PerksPointsSpinCountdown() {
@@ -23,8 +24,10 @@ export function PerksPointsSpinCountdown() {
   return (
     <>
       {typeof data?.remaining !== "number"
-        ? `Next spin ${duration.hours}:${duration.minutes}:${duration.seconds}`
-        : "Spin now"}
+        ? `${i18next.t("perks.next-spin")} ${duration.hours}:${duration.minutes}:${
+            duration.seconds
+          }`
+        : i18next.t("perks.spin-now")}
     </>
   );
 }

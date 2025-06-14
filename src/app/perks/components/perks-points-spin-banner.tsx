@@ -30,7 +30,7 @@ export function PerksPointsSpinBanner() {
     await claim();
     await delay(1000);
     refetch();
-    success("Points has transfered to your account. Enjoy with Ecency!");
+    success(i18next.t("perks.spin-success"));
   }, [claim, refetch]);
 
   return (
@@ -69,7 +69,9 @@ export function PerksPointsSpinBanner() {
           <PointsSpin startSpin={isPending} options={SPIN_VALUES} destination={claimData?.score} />
         </ModalBody>
         <ModalFooter className="flex justify-between items-center">
-          <div>{data?.remaining ?? 0} spins left</div>
+          <div>
+            {data?.remaining ?? 0} {i18next.t("perks.spins-left")}
+          </div>
           <Button
             disabled={typeof data?.remaining !== "number"}
             appearance="success"

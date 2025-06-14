@@ -2492,7 +2492,10 @@
     "spin-title": "Earn up to 200 POINTS daily",
     "spin-description": "Use daily free spins and earn different rewards up to 200 POINTS",
     "spin-now": "Spin now",
-    "want-more-spins": "Want more spins?"
+    "want-more-spins": "Want more spins?",
+    "spin-success": "Points has transfered to your account. Enjoy with Ecency!",
+    "spins-left": "spins left",
+    "next-spin": "Next free spin"
   },
   "boost-plus": {
     "title": "Boost+",
