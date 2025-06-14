@@ -6,23 +6,32 @@ import clsx from "clsx";
 
 interface Props {
   options: number[];
-  destination: string | undefined;
+  destination: number | undefined;
   startSpin: boolean;
-  onSpinComplete: (destination: string | undefined) => void;
 }
 
-export function PointsSpin({ options, destination, startSpin, onSpinComplete }: Props) {
+export function PointsSpin({ options, destination, startSpin }: Props) {
   const points = useMemo(() => arrangeSunflowerSeeds(options, 144, 80), [options]);
 
   return (
     <div className="flex relative items-center justify-center min-w-[288] min-h-[288px]">
-      <Image
-        src="/assets/logo-circle.svg"
-        width={96}
-        height={96}
-        alt=""
-        className="p-2 bg-white rounded-full absolute z-10"
-      />
+      <motion.div
+        className="absolute z-10"
+        animate={{ rotate: startSpin ? 360 : 0 }}
+        transition={{
+          repeat: startSpin ? Infinity : 0,
+          ease: "linear",
+          duration: startSpin ? 6 : 0
+        }}
+      >
+        <Image
+          src="/assets/logo-circle.svg"
+          width={96}
+          height={96}
+          alt=""
+          className="p-2 bg-white rounded-full "
+        />
+      </motion.div>
       <AnimatePresence>
         {points.map((option, i) => (
           <motion.div
@@ -38,27 +47,29 @@ export function PointsSpin({ options, destination, startSpin, onSpinComplete }: 
                 "text-lg font-semibold text-blue-dark-sky"
             )}
             animate={{
-              x: startSpin
-                ? [option.x, 0]
-                : [
-                    option.x,
-                    option.x + Math.random() * 6 * (Math.random() < 0.5 ? -1 : 1),
-                    option.x + Math.random() * 6 * (Math.random() < 0.5 ? -1 : 1),
-                    option.x
-                  ],
-              y: startSpin
-                ? [option.y, 0]
-                : [
-                    option.y,
-                    option.y + Math.random() * 6 * (Math.random() < 0.5 ? -1 : 1),
-                    option.y + Math.random() * 6 * (Math.random() < 0.5 ? -1 : 1),
-                    option.y
-                  ]
+              x:
+                startSpin || destination
+                  ? [option.x, 0]
+                  : [
+                      option.x,
+                      option.x + Math.random() * 6 * (Math.random() < 0.5 ? -1 : 1),
+                      option.x + Math.random() * 6 * (Math.random() < 0.5 ? -1 : 1),
+                      option.x
+                    ],
+              y:
+                startSpin || destination
+                  ? [option.y, 0]
+                  : [
+                      option.y,
+                      option.y + Math.random() * 6 * (Math.random() < 0.5 ? -1 : 1),
+                      option.y + Math.random() * 6 * (Math.random() < 0.5 ? -1 : 1),
+                      option.y
+                    ]
             }}
             transition={{
-              duration: startSpin ? 1 : 8,
-              repeat: startSpin ? 0 : Infinity,
-              ease: startSpin ? "easeIn" : "linear"
+              duration: startSpin || destination ? 1 : 8,
+              repeat: startSpin || destination ? 0 : Infinity,
+              ease: startSpin || destination ? "easeIn" : "linear"
             }}
           >
             {option.label}
@@ -81,6 +92,20 @@ export function PointsSpin({ options, destination, startSpin, onSpinComplete }: 
           </motion.div>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {destination && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.75 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.75 }}
+            className="absolute bg-blue-dark-sky bg-opacity-75 backdrop-blur-md rounded-2xl z-10 p-4 text-center text-white"
+          >
+            <div>You won points</div>
+            <div className="font-bold text-6xl">{destination}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

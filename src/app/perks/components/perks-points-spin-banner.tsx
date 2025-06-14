@@ -1,15 +1,37 @@
 "use client";
 
+import { useGlobalStore } from "@/core/global-store";
 import { PointsSpin, SPIN_VALUES } from "@/features/points";
+import { success } from "@/features/shared";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, StyledTooltip } from "@/features/ui";
+import { delay } from "@/utils";
+import { getGameStatusCheckQueryOptions, useGameClaim } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { UilMoneyStack, UilSpin } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { PerksBasicCard } from "./perks-basic-card";
+import { PerksPointsSpinCountdown } from "./perks-points-spin-countdown";
 
 export function PerksPointsSpinBanner() {
+  const activeUser = useGlobalStore((s) => s.activeUser);
+
   const [showSpinner, setShowSpinner] = useState(false);
+
+  const { data, refetch } = useQuery(getGameStatusCheckQueryOptions(activeUser?.username, "spin"));
+  const {
+    mutateAsync: claim,
+    isPending,
+    data: claimData
+  } = useGameClaim(activeUser?.username, "spin", data?.key ?? "");
+
+  const claimGame = useCallback(async () => {
+    await claim();
+    await delay(1000);
+    refetch();
+    success("Points has transfered to your account. Enjoy with Ecency!");
+  }, [claim, refetch]);
 
   return (
     <>
@@ -44,17 +66,18 @@ export function PerksPointsSpinBanner() {
           </div>
         </ModalHeader>
         <ModalBody className="flex flex-col items-center gap-4 md:gap-8 justify-center">
-          <PointsSpin
-            startSpin={true}
-            options={SPIN_VALUES}
-            onSpinComplete={() => {}}
-            destination={undefined}
-          />
+          <PointsSpin startSpin={isPending} options={SPIN_VALUES} destination={claimData?.score} />
         </ModalBody>
         <ModalFooter className="flex justify-between items-center">
-          <div>3 spins left</div>
-          <Button appearance="success" size="lg" icon={<UilSpin />}>
-            Spin now
+          <div>{data?.remaining ?? 0} spins left</div>
+          <Button
+            disabled={typeof data?.remaining !== "number"}
+            appearance="success"
+            size="lg"
+            icon={typeof data?.remaining !== "number" ? undefined : <UilSpin />}
+            onClick={claimGame}
+          >
+            <PerksPointsSpinCountdown />
           </Button>
         </ModalFooter>
       </Modal>
