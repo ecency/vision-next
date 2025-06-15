@@ -63,7 +63,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const { canAlign } = useEditorState({
     editor,
     selector: ({ editor }) => ({
-      canAlign: editor?.isActive("paragraph") || editor?.isActive("image")
+      canAlign: editor?.isActive("paragraph") || editor?.isActive("image") || editor?.isActive("heading")
     })
   });
 
