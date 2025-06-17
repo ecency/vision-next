@@ -16,6 +16,7 @@ import i18next from "i18next";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { updateSpeakVideoInfo } from "@/api/threespeak";
+import {ErrorTypes} from "@/enums";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();
@@ -160,7 +161,15 @@ export function usePublishApi() {
         // return [entry as Entry, activePoll] as const;
         return [entry, null as PollSnapshot | null] as const;
       } catch (e) {
-        error(...formatError(e));
+        const [message, type] = formatError(e);
+        error(message, type);
+        if (
+            type === ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS ||
+            type === ErrorTypes.INFO
+        ) {
+          return;
+        }
+        // Log the unexpected ones to Sentry
         throw e;
       }
     },

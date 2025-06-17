@@ -95,9 +95,19 @@ export function Comment({
   }, []);
 
   const submit = useCallback(async () => {
-    await onSubmit(text!);
-    if (clearOnSubmit) {
-      setText("");
+    try {
+      await onSubmit(text!);
+      if (clearOnSubmit) {
+        setText("");
+      }
+    }
+    catch (err: any) {
+      if (
+          err?.error === "server_error" &&
+          err?.error_description?.includes("Please wait to transact, or power up")
+      ) {
+        return;
+      }
     }
   }, [onSubmit, text, clearOnSubmit]);
 
