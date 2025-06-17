@@ -102,7 +102,10 @@ export function Comment({
       }
     }
     catch (err: any) {
-      handleAndReportError(err, "comment");
+      const handled = handleAndReportError(err, "comment");
+      if (!handled) {
+        throw err; // ❌ only throw unexpected errors
+      }
     }
   }, [onSubmit, text, clearOnSubmit]);
 

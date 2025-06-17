@@ -1,5 +1,5 @@
 import { validatePostCreating } from "@/api/hive";
-import { comment, formatError, reblog } from "@/api/operations";
+import { comment, reblog } from "@/api/operations";
 import { getPostHeaderQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
@@ -8,7 +8,7 @@ import { Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
-import {error, handleAndReportError, success} from "@/features/shared";
+import { handleAndReportError, success} from "@/features/shared";
 import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,7 +16,6 @@ import i18next from "i18next";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { updateSpeakVideoInfo } from "@/api/threespeak";
-import {ErrorTypes} from "@/enums";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();
@@ -161,7 +160,11 @@ export function usePublishApi() {
         // return [entry as Entry, activePoll] as const;
         return [entry, null as PollSnapshot | null] as const;
       } catch (e) {
-        handleAndReportError(e, "publish-post");
+        const handled = handleAndReportError(e, "publish-post");
+        if (!handled) {
+          throw e;
+        }
+        return undefined as never; // Tell TypeScript: "I'm done, nothing else is returned"
       }
     },
     onSuccess([entry, poll]) {

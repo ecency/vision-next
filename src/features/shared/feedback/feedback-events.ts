@@ -54,16 +54,13 @@ export interface ErrorFeedbackObject extends FeedbackObject {
 }
 
 /**
- * Handle an error by showing the feedback modal,
- * suppressing known error types, and reporting unexpected ones to Sentry.
+ * Handles known app errors and conditionally reports to Sentry.
+ * @returns true if error was handled and should NOT be rethrown.
  */
-export function handleAndReportError(err: any, contextTag?: string) {
+export function handleAndReportError(err: any, contextTag?: string): boolean {
   const [message, type] = formatError(err);
 
-  // Show feedback modal
-  error(message, type);
-
-  // Skip known handled cases
+  // Suppress known handled cases
   const suppressedTypes = [
     ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS,
     ErrorTypes.COMMON,
@@ -71,13 +68,17 @@ export function handleAndReportError(err: any, contextTag?: string) {
   ];
 
   if (suppressedTypes.includes(type)) {
-    return;
+    return true; // ✅ already handled
   }
+
+  // Show modal
+  error(message, type);
 
   if (contextTag) {
     Sentry.setTag("context", contextTag);
   }
 
   Sentry.captureException(err);
-  throw err;
+  return false; // ❌ unexpected, should throw
 }
+
