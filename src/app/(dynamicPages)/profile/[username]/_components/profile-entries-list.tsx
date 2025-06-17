@@ -18,7 +18,7 @@ function shouldShowPinnedEntry(account: FullAccount, section: string) {
   );
 }
 
-export async function ProfileEntriesList({ section, account }: Props) {
+export default async function ProfileEntriesList({ section, account }: Props) {
   const pinnedEntry = shouldShowPinnedEntry(account, section)
     ? getPostQuery(account.name, account.profile?.pinned).getData()
     : undefined;
