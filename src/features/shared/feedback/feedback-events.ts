@@ -1,6 +1,8 @@
 import { ErrorTypes } from "@/enums";
 import { random } from "@/utils";
 import i18next from "i18next";
+import * as Sentry from "@sentry/nextjs";
+import { formatError } from "@/api/operations";
 
 export const error = (message: string, errorType = ErrorTypes.COMMON) => {
   const detail: ErrorFeedbackObject = {
@@ -49,4 +51,33 @@ export interface FeedbackObject {
 
 export interface ErrorFeedbackObject extends FeedbackObject {
   errorType: ErrorTypes;
+}
+
+/**
+ * Handle an error by showing the feedback modal,
+ * suppressing known error types, and reporting unexpected ones to Sentry.
+ */
+export function handleAndReportError(err: any, contextTag?: string) {
+  const [message, type] = formatError(err);
+
+  // Show feedback modal
+  error(message, type);
+
+  // Skip known handled cases
+  const suppressedTypes = [
+    ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS,
+    ErrorTypes.COMMON,
+    ErrorTypes.INFO
+  ];
+
+  if (suppressedTypes.includes(type)) {
+    return;
+  }
+
+  if (contextTag) {
+    Sentry.setTag("context", contextTag);
+  }
+
+  Sentry.captureException(err);
+  throw err;
 }

@@ -2,7 +2,7 @@
 
 import defaults from "@/defaults.json";
 import { Entry } from "@/entities";
-import { AvailableCredits, LoginRequired } from "@/features/shared";
+import {AvailableCredits, handleAndReportError, LoginRequired} from "@/features/shared";
 import { CommentPreview } from "@/features/shared/comment/comment-preview";
 import { detectEvent, EditorToolbar, toolbarEventListener } from "@/features/shared/editor-toolbar";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
@@ -102,12 +102,7 @@ export function Comment({
       }
     }
     catch (err: any) {
-      if (
-          err?.error === "server_error" &&
-          err?.error_description?.includes("Please wait to transact, or power up")
-      ) {
-        return;
-      }
+      handleAndReportError(err, "comment");
     }
   }, [onSubmit, text, clearOnSubmit]);
 

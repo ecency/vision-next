@@ -8,7 +8,7 @@ import { Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
-import { error, success } from "@/features/shared";
+import {error, handleAndReportError, success} from "@/features/shared";
 import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -161,16 +161,7 @@ export function usePublishApi() {
         // return [entry as Entry, activePoll] as const;
         return [entry, null as PollSnapshot | null] as const;
       } catch (e) {
-        const [message, type] = formatError(e);
-        error(message, type);
-        if (
-            type === ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS ||
-            type === ErrorTypes.INFO
-        ) {
-          return;
-        }
-        // Log the unexpected ones to Sentry
-        throw e;
+        handleAndReportError(e, "publish-post");
       }
     },
     onSuccess([entry, poll]) {
