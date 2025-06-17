@@ -9,7 +9,8 @@ Sentry.init({
   dsn: "https://8a5c1659d1c2ba3385be28dc7235ce56@o4507985141956608.ingest.de.sentry.io/4507985146609744",
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+  enabled: process.env.NODE_ENV === "production",
 
   release: appPackage.version,
 
@@ -24,3 +25,4 @@ Sentry.init({
     "Failed to read the 'localStorage' property from 'Window'"
   ]
 });
+Sentry.setTag("source", "client");
