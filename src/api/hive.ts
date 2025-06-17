@@ -37,7 +37,7 @@ import { OrdersDataItem } from "@/entities/hive/orders-data-item";
 export const client = new Client(SERVERS, {
   timeout: 2000,
   failoverThreshold: 2,
-  consoleOnFailover: true
+  consoleOnFailover: false
 });
 
 const handleError = (error: any) => {

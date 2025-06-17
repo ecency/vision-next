@@ -7,7 +7,7 @@ import dmca_accounts from "@/dmca-accounts.json";
 export const bridgeServer = new Client(SERVERS, {
   timeout: 2000,
   failoverThreshold: 2,
-  consoleOnFailover: true
+  consoleOnFailover: false
 });
 export const dataLimit = typeof window !== "undefined" && window.screen.width < 540 ? 5 : 20 || 20;
 
