@@ -60,3 +60,4 @@ export * from "./redirect";
 export * from "./entry-stats";
 export * from "./post-content-renderer";
 export * from "./time-label";
+export * from "./tag";
