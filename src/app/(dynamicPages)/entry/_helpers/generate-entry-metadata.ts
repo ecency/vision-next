@@ -4,10 +4,15 @@ import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { Metadata } from "next";
 
 export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
+  if (!username || !permlink) {
+    console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink });
+    return {};
+  }
   try {
     const entry = await getPost(username, permlink);
 
     if (!entry || !entry.title || !entry.body || !entry.created) {
+      console.warn("generateEntryMetadata: Incomplete post data", { username, permlink });
       return {};
     }
 
@@ -15,7 +20,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
     const summary = entry.json_metadata?.description
         || truncate(postBodySummary(entry.body, 210), 140);
 
-    const image = catchPostImage(entry, 1200, 630, "match") || "";
+    const image = catchPostImage(entry, 600, 500, "match") || "";
     const fullUrl = `https://ecency.com${entry.url}`;
     const authorUrl = `https://ecency.com/@${entry.author}`;
     const createdAt = parseDate(entry.created);
@@ -47,7 +52,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
       },
     };
   } catch (e) {
-    console.error("generateEntryMetadata failed:", e);
+    console.error("generateEntryMetadata failed:", e, { username, permlink });
     return {};
   }
 }
