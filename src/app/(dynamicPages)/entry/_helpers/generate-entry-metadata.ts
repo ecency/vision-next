@@ -3,7 +3,9 @@ import { parseDate, truncate } from "@/utils";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 
 export async function generateEntryMetadata(username: string, permlink: string) {
-  const entry = await getPostQuery(username, permlink).prefetch();
+  //const entry = await getPostQuery(username, permlink).prefetch();
+  const entry = await getPostQuery(username, permlink).fetchAndGet();
+
   if (entry) {
     const description = `${
       entry.json_metadata?.description
