@@ -4,7 +4,7 @@ import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { Metadata } from "next";
 
 export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
-  if (!username || !permlink) {
+  if (!username || !permlink || permlink.includes(".")) {
     console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink });
     return {};
   }
