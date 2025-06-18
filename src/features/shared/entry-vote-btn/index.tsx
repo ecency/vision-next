@@ -52,7 +52,13 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
     return { upVoted, downVoted };
   }, [activeUser, entry?.active_votes]);
 
-  useClickAway(rootRef, () => {
+  useClickAway(rootRef, (e) => {
+    const target = e.target as HTMLElement;
+
+    // Ignore clicks inside the tipping modal container
+    if (target.closest("#modal-dialog-container")) {
+      return;
+    }
     if (dialog) setDialog(false);
   });
 
