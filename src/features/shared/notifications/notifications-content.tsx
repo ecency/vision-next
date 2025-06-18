@@ -43,11 +43,11 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
               {i18next.t(`notifications.type-${filter ?? "all"}`)}
             </DropdownToggle>
             <DropdownMenu>
-              <DropdownItem onClick={() => setFilter(null)}>
+              <DropdownItem onClick={() => setFilter(null)} selected={filter === null}>
                 {i18next.t("notifications.type-all-short")}
               </DropdownItem>
               {Object.values(NotificationFilter).map((f) => (
-                <DropdownItem key={f} onClick={() => setFilter(f)}>
+                <DropdownItem key={f} onClick={() => setFilter(f)} selected={filter === f}>
                   {i18next.t(`notifications.type-${f}`)}
                 </DropdownItem>
               ))}
