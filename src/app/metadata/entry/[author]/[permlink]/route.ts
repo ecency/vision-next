@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { generateEntryMetadata } from "@/app/(dynamicPages)/entry/_helpers";
 
 export async function GET(
-    req: Request,
-    { params }: { params: { author: string; permlink: string } }
+    req: NextRequest,
+    context: { params: { author: string; permlink: string } }
 ) {
-    const { author, permlink } = params;
-    const meta = await generateEntryMetadata(author, permlink);
+    const { author, permlink } = context.params;
 
+    const meta = await generateEntryMetadata(author, permlink);
     const og = meta.openGraph || {};
     const twitter = meta.twitter || {};
 
