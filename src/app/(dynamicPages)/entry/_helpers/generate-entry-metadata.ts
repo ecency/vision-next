@@ -15,7 +15,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
     const summary = entry.json_metadata?.description
         || truncate(postBodySummary(entry.body, 210), 140);
 
-    const image = catchPostImage(entry, 600, 500, "match") || "";
+    const image = catchPostImage(entry, 1200, 630, "match") || "";
     const fullUrl = `https://ecency.com${entry.url}`;
     const authorUrl = `https://ecency.com/@${entry.author}`;
     const createdAt = parseDate(entry.created);
