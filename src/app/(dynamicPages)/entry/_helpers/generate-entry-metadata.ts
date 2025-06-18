@@ -11,17 +11,25 @@ export async function generateEntryMetadata(username: string, permlink: string):
   try {
     const entry = await getPost(username, permlink);
 
-    if (!entry || !entry.title || !entry.body || !entry.created) {
+    if (!entry || !entry.body || !entry.created) {
       console.warn("generateEntryMetadata: Incomplete post data", { username, permlink });
       return {};
     }
+    const isComment = !!entry.parent_author;
 
-    const title = truncate(entry.title, 67);
+    const rawCommentTitle = truncate(postBodySummary(entry.body, 12), 67);
+    const title = isComment
+        ? `@${entry.author}: ${rawCommentTitle}`
+        : truncate(entry.title, 67);
+
     const summary = entry.json_metadata?.description
         || truncate(postBodySummary(entry.body, 210), 140);
 
     const image = catchPostImage(entry, 600, 500, "match") || "";
-    const fullUrl = `https://ecency.com${entry.url}`;
+    const urlParts = entry.url.split("#");
+    const fullUrl = isComment && urlParts[1]
+        ? `https://ecency.com/${urlParts[1]}`
+        : `https://ecency.com${entry.url}`;
     const authorUrl = `https://ecency.com/@${entry.author}`;
     const createdAt = parseDate(entry.created);
     const updatedAt = parseDate(entry.updated ?? entry.created);
