@@ -1,37 +1,38 @@
 import { getPostQuery } from "@/api/queries";
+import { getPost } from "@/api/hive";
 import { parseDate, truncate } from "@/utils";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
+import {Metadata} from "next";
 
-export async function generateEntryMetadata(username: string, permlink: string) {
-  //const entry = await getPostQuery(username, permlink).prefetch();
-  const entry = await getPostQuery(username, permlink).fetchAndGet();
+export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
+  const entry = await getPost(username, permlink);
 
-  if (entry) {
-    const description = `${
-      entry.json_metadata?.description
-        ? entry.json_metadata?.description
-        : truncate(postBodySummary(entry.body, 210), 140)
-    } by @${entry.author}`;
-    const tags = entry.json_metadata.tags instanceof Array ? Array.from(new Set(entry.json_metadata.tags))?.filter(
-      (t) => !!t
-    ) : ['ecency'];
-    //const tags =
-    //  (entry.json_metadata.tags && Array.from(new Set(entry.json_metadata.tags)))?.filter(
-    //    (t) => !!t
-    //  ) ?? [];
-    return {
-      title: truncate(entry.title, 67),
-      description,
-      openGraph: {
-        title: truncate(entry.title, 67),
-        description,
-        url: entry.url,
-        images: [catchPostImage(entry, 600, 500, "match")],
-        publishedTime: parseDate(entry.created).toISOString(),
-        modifiedTime: parseDate(entry.updated).toISOString(),
-        tags
-      }
-    };
-  }
-  return {};
+  if (!entry) return {};
+
+  const title = truncate(entry.title, 67);
+  const summary = entry.json_metadata?.description
+      || truncate(postBodySummary(entry.body, 210), 140);
+  const image = catchPostImage(entry, 600, 500, "match");
+  const fullUrl = `https://ecency.com/${entry.url}`;
+
+  return {
+    title,
+    description: `${summary} by @${entry.author}`,
+    openGraph: {
+      title,
+      description: summary,
+      url: fullUrl,
+      images: [image],
+      type: "article",
+      publishedTime: parseDate(entry.created).toISOString(),
+      modifiedTime: parseDate(entry.updated).toISOString(),
+      locale: "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: summary,
+      images: [image],
+    }
+  };
 }
