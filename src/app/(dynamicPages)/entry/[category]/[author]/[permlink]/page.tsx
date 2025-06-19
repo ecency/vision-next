@@ -13,13 +13,16 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound, redirect } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateEntryMetadata } from "../../../_helpers";
+import { headers } from "next/headers";
+import { catchPostImage, postBodySummary } from "@ecency/render-helper";
+import { parseDate } from "@/utils";
+
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }
-
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
     props: Props,
@@ -29,12 +32,17 @@ export async function generateMetadata(
   return generateEntryMetadata(author.replace("%40", ""), permlink);
 }
 
-export default async function EntryPage({ params, searchParams }: Props) {
-  const { author: username, permlink, category } = await params;
-  const search = await searchParams;
-  const isEdit = search["edit"];
+export default async function EntryPage({
+  params,
+  searchParams
+}: Props) {
+  const headersList = await headers(); // ✅ await required in dynamic routes
+  const ua = headersList.get("user-agent") || "";
+  const isBot = /bot|crawl|spider|reddit|discord|facebook|slack|telegram/i.test(ua);
 
-  const author = username.replace("%40", "");
+  const { author: rawAuthor, permlink, category } = await params;
+  const author = rawAuthor.replace("%40", "");
+
   const entry = await getPostQuery(author, permlink).prefetch();
 
   if (
@@ -44,6 +52,38 @@ export default async function EntryPage({ params, searchParams }: Props) {
     return redirect(`/waves/${author}/${permlink}`);
   }
 
+  // ✅ Special SSR-only HTML for bots like Reddit
+  if (isBot && entry) {
+    const title = entry.title || "Post";
+    const summary = entry.json_metadata?.description || postBodySummary(entry.body, 160);
+    const image = catchPostImage(entry, 600, 500, "match") || "";
+    const fullUrl = `https://ecency.com${entry.url}`;
+    const createdAt = parseDate(entry.created).toISOString();
+
+    return (
+        <html>
+        <head>
+          <title>{title}</title>
+          <meta name="description" content={summary} />
+          <meta property="og:type" content="article" />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={summary} />
+          <meta property="og:url" content={fullUrl} />
+          {image && <meta property="og:image" content={image} />}
+          <meta property="article:published_time" content={createdAt} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={title} />
+          <meta name="twitter:description" content={summary} />
+          {image && <meta name="twitter:image" content={image} />}
+        </head>
+        <body>
+        <p>Bot preview only</p>
+        </body>
+        </html>
+    );
+  }
+
+  // 🔁 Normal SSR + hydration for real users
   await getAccountFullQuery(entry?.author).prefetch();
 
   if (!entry) {
@@ -63,9 +103,11 @@ export default async function EntryPage({ params, searchParams }: Props) {
           </EntryPageContextProvider>
       );
     }
-
     return notFound();
   }
+
+  const search = await searchParams;
+  const isEdit = search["edit"];
 
   return (
       <HydrationBoundary state={dehydrate(getQueryClient())}>
