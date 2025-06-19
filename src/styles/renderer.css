@@ -131,7 +131,6 @@
 }
 .ecency-renderer-youtube-extension .youtube-shorts-iframe {
   width: 100%;
-  height: 300px;
 }
 .ecency-renderer-wave-like-post-extension-renderer {
   border-radius: 1rem;
@@ -259,7 +258,6 @@
 }
 .ecency-renderer-speak-extension .speak-iframe {
   width: 100%;
-  height: 300px;
 }
 .ecency-renderer-twitter-extension::after {
   content: none !important;
