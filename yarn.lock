@@ -1286,10 +1286,10 @@
   dependencies:
     nostr-tools "^1.17.0"
 
-"@ecency/render-helper@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.0.tgz#c58389a1056e93dcde899794755ccd6afd9621c6"
-  integrity sha512-3zFrZG8fLqqdWw1HY60Jru/PN6IWBzEP9OxG7UMNa29jwxt3aZ9mCZ5Vt902Ia1HQAPC1zBqzDPV3nNnvP2WNA==
+"@ecency/render-helper@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.1.tgz#a75bd1a46c07beec7172de12895de0fdb3771b6c"
+  integrity sha512-zl+FY4j7GAJcSMLv10X6zx6ODfL+NcjNEiVn68f5pftEVDIlBA18B1SKBeutkOzaMJVz66pF/3x4hmuf3rnVwg==
   dependencies:
     he "^1.2.0"
     lolight "^1.4.0"
@@ -1303,10 +1303,10 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@^1.1.16":
-  version "1.1.16"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.16.tgz#02cf3ff1488ccab76a9f1210eff3f10a7d87bdf0"
-  integrity sha512-Orny9RS3FHkaRu28Rq90HQMUroSdP13ryFtYdiT3odE6CdX4V0V06NLf2SINntTNTTfLhgVrfdo1ZoLLD63EUg==
+"@ecency/renderer@^1.1.17":
+  version "1.1.17"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.1.17.tgz#59d24480c1e32f034d4655031d3e03f76473ea6f"
+  integrity sha512-9Jx16b8KlNFkcAQKZNrw21lOHP38GjXe0Ae3/NpH0/RwyM2k0RRURkszOALFEP8jqNTDCq+yQDRe2QYy9UN68w==
   dependencies:
     medium-zoom "^1.1.0"
 
