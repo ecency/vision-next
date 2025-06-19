@@ -49,27 +49,32 @@ export default async function EntryPage({ params, searchParams }: any) {
     const fullUrl = `https://ecency.com${entry.url}`;
     const createdAt = parseDate(entry.created).toISOString();
 
-    return (
+    const html = `
+        <!DOCTYPE html>
         <html>
         <head>
-          <title>{title}</title>
-          <meta name="description" content={summary} />
+          <title>${title}</title>
+          <meta name="description" content=${summary} />
           <meta property="og:type" content="article" />
-          <meta property="og:title" content={title} />
-          <meta property="og:description" content={summary} />
-          <meta property="og:url" content={fullUrl} />
-          {image && <meta property="og:image" content={image} />}
+          <meta property="og:title" content=${title} />
+          <meta property="og:description" content=${summary} />
+          <meta property="og:url" content=${fullUrl} />
+          <meta property="og:image" content=${image} />
           <meta property="article:published_time" content={createdAt} />
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={title} />
-          <meta name="twitter:description" content={summary} />
-          {image && <meta name="twitter:image" content={image} />}
+          <meta name="twitter:title" content=${title} />
+          <meta name="twitter:description" content=${summary} />
+          <meta name="twitter:image" content=${image} />
         </head>
         <body>
         <p>Bot preview only</p>
         </body>
-        </html>
-    );
+        </html>`;
+    return new Response(html, {
+      headers: {
+        "Content-Type": "text/html",
+      },
+    });
   }
 
   // 🔁 Normal SSR + hydration for real users
