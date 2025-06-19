@@ -3,6 +3,12 @@ import { parseDate, truncate } from "@/utils";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { Metadata } from "next";
 
+function toProxiedSizedImage(original: string, size = "600x500") {
+  if (!original || !original.startsWith("http")) return "";
+  const cleanUrl = original.split("?")[0];
+  return `https://images.ecency.com/${size}/${cleanUrl}`;
+}
+
 export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
   if (!username || !permlink || permlink.includes(".")) {
     console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink });
@@ -25,7 +31,8 @@ export async function generateEntryMetadata(username: string, permlink: string):
     const summary = entry.json_metadata?.description
         || truncate(postBodySummary(entry.body, 210), 140);
 
-    const image = catchPostImage(entry, 600, 500, "match") || "";
+    const rawImage = catchPostImage(entry, 600, 500, "match") || "";
+    const image = toProxiedSizedImage(rawImage);
     const urlParts = entry.url.split("#");
     const fullUrl = isComment && urlParts[1]
         ? `https://ecency.com/${urlParts[1]}`
