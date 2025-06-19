@@ -14,6 +14,7 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form-toolbar";
 import { useWaveSubmit } from "@/features/waves";
+import {useClientActiveUser} from "@/api/queries";
 
 interface Props {
   className?: string;
@@ -31,7 +32,7 @@ const WaveFormComponent = ({
   hideAvatar = false,
   entry
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   const rootRef = useRef<HTMLDivElement>(null);
   const { clearActivePoll, setActivePoll } = useContext(PollsContext);

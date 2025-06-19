@@ -1,7 +1,7 @@
 import React from "react";
 import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
-import { PostContentRenderer } from "../post-content-renderer";
+import { PostContentRenderer } from "@/features/shared";
 
 interface Props {
   entry: Entry;

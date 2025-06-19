@@ -24,7 +24,7 @@ export function WavesFastReplyDialog({ show, onHide, entry }: Props) {
         </div>
       </ModalHeader>
       <AnimatePresence>
-        {entry && <WavesListItem interactable={false} item={entry} i={0} />}
+        {entry && <WavesListItem key={entry!.post_id} interactable={false} item={entry} i={0} />}
       </AnimatePresence>
       <WaveForm
         entry={undefined}
