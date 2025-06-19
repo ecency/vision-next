@@ -91,29 +91,31 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
     },
     [maxItem, onChange, tags]
   );
-  const handlePaste = useCallback(
-    async (e: any) => {
-      let clipboardData, pastedData;
+    const handlePaste = useCallback(
+        (e: React.ClipboardEvent<HTMLInputElement>) => {
+            e.preventDefault();
+            const pastedText = e.clipboardData.getData("Text").trim();
 
-      e.stopPropagation();
-      e.preventDefault();
-      clipboardData = e.clipboardData;
-      pastedData = clipboardData.getData("Text");
-      setValue("");
+            // Normalize delimiters to space, then split
+            const rawTags = pastedText.replace(/,/g, " ").split(/\s+/);
+            const newTags = rawTags
+                .map((tag) => tag.toLowerCase().replace(/#/g, ""))
+                .filter((tag) => !!tag && !tags.includes(tag));
 
-      let isMultiTagsWithSpace = pastedData.split(" ").join(",").split("\n").join(",").split(",");
-      if (isMultiTagsWithSpace.length > 1) {
-        for (const item of isMultiTagsWithSpace) {
-          await filter(item.split(" "));
-          if (warning === "") {
-            setTimeout(() => add(item), 250);
-          }
-        }
-      }
-    },
-    [add, filter, warning]
-  );
-  const onKeyDown = useCallback(
+            const finalTags = [...tags];
+
+            for (const tag of newTags) {
+                if (finalTags.length >= maxItem) break;
+                finalTags.push(tag);
+            }
+
+            onChange(finalTags.slice(0, maxItem));
+            setValue(""); // clear input
+        },
+        [tags, maxItem, onChange]
+    );
+
+    const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (
         (13 === e.which || 13 === e.keyCode || 13 === e.charCode || "Enter" === e.key) &&
