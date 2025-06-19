@@ -1,6 +1,6 @@
 import React from "react";
 
-import UserAvatar from "./index";
+import {UserAvatar} from "./index";
 import TestRenderer from "react-test-renderer";
 
 import { globalInstance } from "../../helper/test-helper";

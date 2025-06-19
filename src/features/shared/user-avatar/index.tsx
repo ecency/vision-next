@@ -23,11 +23,26 @@ export function UserAvatar({ username, size, src, onClick, className }: Props) {
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => setHasMounted(true), []);
 
-  const imgSize = useMemo(
-      () =>
-          size === "xLarge" ? "large" : size === "normal" || size === "small" ? "small" : "medium",
-      [size]
-  );
+  const imgSize = useMemo(() => {
+    switch (size) {
+      case "xLarge":
+        return "large";
+      case "normal":
+      case "small":
+        return "small";
+      case "sLarge":
+      case "medium":
+        return "medium";
+      case "large":
+        return "large";
+      case "xsmall":
+        return "small";
+      case "deck-item":
+        return "small";
+      default:
+        return "medium";
+    }
+  }, [size]);
 
   const imageSrc = useMemo(() => {
     // fallback to non-webp version until after hydration
@@ -48,4 +63,15 @@ export function UserAvatar({ username, size, src, onClick, className }: Props) {
   );
 }
 
-export * from "./user-avatar-loading";
+interface PropsL {
+  size?: string;
+  className?: string;
+}
+
+export function UserAvatarLoading({ size, className }: PropsL) {
+  return (
+      <span
+          className={`user-avatar animate-pulse  bg-blue-dark-sky-040 dark:bg-blue-dark-grey ${size} ${className}`}
+      />
+  );
+}

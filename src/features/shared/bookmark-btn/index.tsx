@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import "./_index.scss";
-import { LoginRequired } from "@/features/shared";
+import { LoginRequired } from "../login-required";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { useBookmarksQuery, useClientActiveUser } from "@/api/queries";
