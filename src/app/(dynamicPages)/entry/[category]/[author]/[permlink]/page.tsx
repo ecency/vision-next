@@ -19,28 +19,17 @@ import { parseDate } from "@/utils";
 
 export const dynamic = "force-dynamic";
 
-interface Props {
-  params: Promise<{ author: string; permlink: string; category: string }>;
-  searchParams: Promise<Record<string, string | undefined>>;
-}
-
-export async function generateMetadata(
-    props: Props,
-    _parent: ResolvingMetadata
-): Promise<Metadata> {
-  const { author, permlink } = await props.params;
+export async function generateMetadata({ params }: any) {
+  const { author, permlink } = params;
   return generateEntryMetadata(author.replace("%40", ""), permlink);
 }
 
-export default async function EntryPage({
-  params,
-  searchParams
-}: Props) {
+export default async function EntryPage({ params, searchParams }: any) {
   const headersList = await headers(); // ✅ await required in dynamic routes
   const ua = headersList.get("user-agent") || "";
   const isBot = /bot|crawl|spider|reddit|discord|facebook|slack|telegram/i.test(ua);
 
-  const { author: rawAuthor, permlink, category } = await params;
+  const { author: rawAuthor, permlink, category } = params;
   const author = rawAuthor.replace("%40", "");
 
   const entry = await getPostQuery(author, permlink).prefetch();
@@ -106,8 +95,7 @@ export default async function EntryPage({
     return notFound();
   }
 
-  const search = await searchParams;
-  const isEdit = search["edit"];
+  const isEdit = searchParams["edit"];
 
   return (
       <HydrationBoundary state={dehydrate(getQueryClient())}>
