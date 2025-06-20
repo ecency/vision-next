@@ -45,7 +45,7 @@ const handleError = (error: any) => {
   return { error: "api error", data: error };
 };
 
-export const getPost = (username: string, permlink: string): Promise<any> =>
+export const getContent = (username: string, permlink: string): Promise<any> =>
   client.call("condenser_api", "get_content", [username, permlink]);
 
 export const getMarketStatistics = (): Promise<MarketStatistics> =>
@@ -391,7 +391,7 @@ export async function validatePostCreating(author: string, permlink: string, att
 
   let response: Entry | undefined;
   try {
-    response = await getPost(author, permlink);
+    response = await getContent(author, permlink);
   } catch (e) {
     response = undefined;
   }

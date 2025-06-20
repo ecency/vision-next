@@ -1,4 +1,4 @@
-import { getPost } from "@/api/hive";
+import { getPost } from "@/api/bridge";
 import { parseDate, truncate } from "@/utils";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { Metadata } from "next";
@@ -23,10 +23,11 @@ export async function generateEntryMetadata(username: string, permlink: string):
     }
     const isComment = !!entry.parent_author;
 
-    const rawCommentTitle = truncate(postBodySummary(entry.body, 12), 67);
-    const title = isComment
-        ? `@${entry.author}: ${rawCommentTitle}`
-        : truncate(entry.title, 67);
+    let title = truncate(entry.title, 67);
+    if (isComment) {
+      const rawCommentTitle = truncate(postBodySummary(entry.body, 12), 67);
+      title = `@${entry.author}: ${rawCommentTitle}`;
+    }
 
     const summary = entry.json_metadata?.description
         || truncate(postBodySummary(entry.body, 210), 140);

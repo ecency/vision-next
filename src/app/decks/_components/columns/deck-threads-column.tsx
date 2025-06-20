@@ -18,7 +18,7 @@ import usePrevious from "react-use/lib/usePrevious";
 import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
 import i18next from "i18next";
-import { getPost } from "@/api/hive";
+import { getContent } from "@/api/hive";
 import useMount from "react-use/lib/useMount";
 import useUnmount from "react-use/lib/useUnmount";
 
@@ -210,7 +210,7 @@ const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
             onEdit={(entry) => setCurrentEditingEntry(entry)}
             onSeeFullThread={async () => {
               try {
-                const entry = (await getPost(
+                const entry = (await getContent(
                   item.parent_author!,
                   item.parent_permlink!
                 )) as IdentifiableEntry;
