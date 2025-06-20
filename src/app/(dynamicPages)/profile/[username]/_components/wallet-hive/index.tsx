@@ -3,7 +3,7 @@
 import { AssetSymbol } from "@hiveio/dhive";
 import "./_index.scss";
 import {
-  FormattedCurrency,
+  FormattedCurrency, Skeleton,
   TransactionsList,
   Transfer,
   TransferAsset,
@@ -39,7 +39,7 @@ import {
   getConversionRequestsQuery,
   getDynamicPropsQuery,
   getOpenOrdersQuery,
-  getSavingsWithdrawFromQuery
+  getSavingsWithdrawFromQuery, useClientActiveUser
 } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
@@ -53,7 +53,7 @@ interface Props {
 export function WalletHive({ account }: Props) {
   const router = useRouter();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
   const { data: openOrdersData } = getOpenOrdersQuery(account.name).useClientQuery();
@@ -322,46 +322,50 @@ export function WalletHive({ account }: Props) {
                   )}
                 </div>
 
-                <span>{formattedNumber(w.balance, { suffix: "HIVE" })}</span>
+                <span>{dynamicProps ? (
+                    <span>{formattedNumber(w.balance, { suffix: "HIVE" })}</span>
+                ) : (
+                    <Skeleton style={{ width: "80px", height: "20px" }} />
+                )}</span>
               </div>
-              {cconverting > 0 && (
-                <div className="amount amount-passive converting-hbd">
-                  <Tooltip content={i18next.t("wallet.converting-hive-amount")}>
-                    <span className="amount-btn" onClick={() => setCconvertList(true)}>
-                      {"+"} {formattedNumber(cconverting, { suffix: "HIVE" })}
-                    </span>
-                  </Tooltip>
-                </div>
+              {ccrData ? (
+                  cconverting > 0 && (
+                      <div className="amount amount-passive converting-hbd">
+                        <Tooltip content={i18next.t("wallet.converting-hive-amount")}>
+                            <span className="amount-btn" onClick={() => setCconvertList(true)}>
+                              {"+"} {formattedNumber(cconverting, { suffix: "HIVE" })}
+                            </span>
+                        </Tooltip>
+                      </div>
+                  )
+              ) : (
+                  <Skeleton style={{ width: "80px", height: "16px" }} />
               )}
-              {openOrders && openOrders.hive > 0 && (
-                <div className="amount amount-passive converting-hbd">
-                  <Tooltip content={i18next.t("wallet.reserved-amount")}>
-                    <span
-                      className="amount-btn"
-                      onClick={() => {
-                        setOpenOrdersList(true);
-                        setTransferAsset("HIVE");
-                      }}
-                    >
-                      {"+"} {formattedNumber(openOrders.hive, { suffix: "HIVE" })}
-                    </span>
-                  </Tooltip>
-                </div>
+              {openOrdersData ? (
+                  openOrders.hive > 0 && (
+                      <div className="amount amount-passive converting-hbd">
+                        <Tooltip content={i18next.t("wallet.reserved-amount")}>
+                          <span className="amount-btn" onClick={() => { setOpenOrdersList(true); setTransferAsset("HIVE"); }}>
+                            {"+"} {formattedNumber(openOrders.hive, { suffix: "HIVE" })}
+                          </span>
+                        </Tooltip>
+                      </div>
+                  )
+              ) : (
+                  <Skeleton style={{ width: "80px", height: "16px" }} />
               )}
-              {withdrawSavings && withdrawSavings.hive > 0 && (
-                <div className="amount amount-passive converting-hbd">
-                  <Tooltip content={i18next.t("wallet.withdrawing-amount")}>
-                    <span
-                      className="amount-btn"
-                      onClick={() => {
-                        setSavingWithdrawList(true);
-                        setTransferAsset("HIVE");
-                      }}
-                    >
-                      {"+"} {formattedNumber(withdrawSavings.hive, { suffix: "HIVE" })}
-                    </span>
-                  </Tooltip>
-                </div>
+              {withdrawFromData ? (
+                  withdrawSavings.hive > 0 && (
+                      <div className="amount amount-passive converting-hbd">
+                        <Tooltip content={i18next.t("wallet.withdrawing-amount")}>
+                          <span className="amount-btn" onClick={() => { setSavingWithdrawList(true); setTransferAsset("HIVE"); }}>
+                            {"+"} {formattedNumber(withdrawSavings.hive, { suffix: "HIVE" })}
+                          </span>
+                        </Tooltip>
+                      </div>
+                  )
+              ) : (
+                  <Skeleton style={{ width: "80px", height: "16px" }} />
               )}
             </div>
           </div>
@@ -370,8 +374,13 @@ export function WalletHive({ account }: Props) {
             <div className="balance-info">
               <div className="title">{i18next.t("wallet.hive-power")}</div>
               <div className="description">{i18next.t("wallet.hive-power-description")}</div>
-              <div className="description font-bold mt-2">
-                {i18next.t("wallet.hive-power-apr-rate", { value: hp })}
+              <div className="description font-bold mt-2">{dynamicProps ? (
+                  <div className="description font-bold mt-2">
+                    {i18next.t("wallet.hive-power-apr-rate", { value: hp })}
+                  </div>
+              ) : (
+                  <Skeleton style={{ width: "60px", height: "16px", marginTop: "8px" }} />
+              )}
               </div>
             </div>
 
@@ -433,10 +442,10 @@ export function WalletHive({ account }: Props) {
                     </Dropdown>
                   )}
                 </div>
-                {totalHP}
+                {dynamicProps ? totalHP : <Skeleton style={{ width: "100px", height: "20px" }} />}
               </div>
 
-              {w.vestingSharesDelegated > 0 && (
+              {dynamicProps ? (w.vestingSharesDelegated > 0 && (
                 <div className="amount amount-passive delegated-shares">
                   <Tooltip content={i18next.t("wallet.hive-power-delegated")}>
                     <span className="amount-btn" onClick={() => setDelegatedList(true)}>
@@ -452,7 +461,9 @@ export function WalletHive({ account }: Props) {
                       )}
                     </span>
                   </Tooltip>
-                </div>
+                </div>)
+              ) : (
+                  <Skeleton style={{ width: "60px", height: "16px" }} />
               )}
 
               {(() => {
@@ -473,7 +484,9 @@ export function WalletHive({ account }: Props) {
                     <div className="amount amount-passive received-shares">
                       <Tooltip content={i18next.t("wallet.hive-power-received")}>
                         <span className="amount-btn" onClick={() => setReceivedList(true)}>
-                          {strReceived}
+                          {dynamicProps ? (strReceived): (
+                              <Skeleton style={{ width: "90px", height: "16px" }} />
+                          )}
                         </span>
                       </Tooltip>
                     </div>
@@ -483,7 +496,11 @@ export function WalletHive({ account }: Props) {
                 return (
                   <div className="amount amount-passive received-shares">
                     <Tooltip content={i18next.t("wallet.hive-power-received")}>
-                      <span className="amount">{strReceived}</span>
+                      <span className="amount">
+                        {dynamicProps ? (strReceived): (
+                          <Skeleton style={{ width: "90px", height: "16px" }} />
+                        )}
+                      </span>
                     </Tooltip>
                   </div>
                 );
@@ -493,7 +510,7 @@ export function WalletHive({ account }: Props) {
                 <div className="amount amount-passive next-power-down-amount">
                   <Tooltip content={i18next.t("wallet.next-power-down-amount")}>
                     <span>
-                      {formattedNumber(
+                      {dynamicProps ? formattedNumber(
                         vestsToHp(
                           w.nextVestingSharesWithdrawal,
                           (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
@@ -502,7 +519,7 @@ export function WalletHive({ account }: Props) {
                           prefix: "-",
                           suffix: "HP"
                         }
-                      )}
+                      ) : (<Skeleton style={{ width: "90px", height: "16px" }} />)}
                     </span>
                   </Tooltip>
                 </div>
@@ -514,7 +531,7 @@ export function WalletHive({ account }: Props) {
                 <div className="amount total-hive-power">
                   <Tooltip content={i18next.t("wallet.hive-power-total")}>
                     <span>
-                      {formattedNumber(
+                      {dynamicProps ? formattedNumber(
                         vestsToHp(
                           w.vestingSharesTotal,
                           (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests
@@ -523,7 +540,7 @@ export function WalletHive({ account }: Props) {
                           prefix: "=",
                           suffix: "HP"
                         }
-                      )}
+                      ) : (<Skeleton style={{ width: "100px", height: "16px" }} />)}
                     </span>
                   </Tooltip>
                 </div>
@@ -592,49 +609,53 @@ export function WalletHive({ account }: Props) {
                     </Dropdown>
                   )}
                 </div>
-                <span>{formattedNumber(w.hbdBalance, { prefix: "$" })}</span>
+                <span>{dynamicProps ? (
+                    <span>{formattedNumber(w.hbdBalance, { suffix: "$" })}</span>
+                ) : (
+                    <Skeleton style={{ width: "80px", height: "20px" }} />
+                )}</span>
               </div>
 
-              {converting > 0 && (
-                <div className="amount amount-passive converting-hbd">
-                  <Tooltip content={i18next.t("wallet.converting-hbd-amount")}>
-                    <span className="amount-btn" onClick={() => setConverList(true)}>
-                      {"+"} {formattedNumber(converting, { prefix: "$" })}
-                    </span>
-                  </Tooltip>
-                </div>
+              {crData ? (
+                  converting > 0 && (
+                      <div className="amount amount-passive converting-hbd">
+                        <Tooltip content={i18next.t("wallet.converting-hbd-amount")}>
+                          <span className="amount-btn" onClick={() => setConverList(true)}>
+                            {"+"} {formattedNumber(converting, { prefix: "$" })}
+                          </span>
+                        </Tooltip>
+                      </div>
+                  )
+              ) : (
+                  <Skeleton style={{ width: "80px", height: "16px" }} />
               )}
 
-              {withdrawSavings && withdrawSavings.hbd > 0 && (
-                <div className="amount amount-passive converting-hbd">
-                  <Tooltip content={i18next.t("wallet.withdrawing-amount")}>
-                    <span
-                      className="amount-btn"
-                      onClick={() => {
-                        setSavingWithdrawList(true);
-                        setTransferAsset("HBD");
-                      }}
-                    >
-                      {"+"} {formattedNumber(withdrawSavings.hbd, { prefix: "$" })}
-                    </span>
-                  </Tooltip>
-                </div>
+              {withdrawFromData ? (
+                  withdrawSavings.hbd > 0 && (
+                      <div className="amount amount-passive converting-hbd">
+                        <Tooltip content={i18next.t("wallet.withdrawing-amount")}>
+                          <span className="amount-btn" onClick={() => { setSavingWithdrawList(true); setTransferAsset("HBD"); }}>
+                            {"+"} {formattedNumber(withdrawSavings.hbd, { suffix: "$" })}
+                          </span>
+                        </Tooltip>
+                      </div>
+                  )
+              ) : (
+                  <Skeleton style={{ width: "80px", height: "16px" }} />
               )}
 
-              {openOrders && openOrders.hbd > 0 && (
-                <div className="amount amount-passive converting-hbd">
-                  <Tooltip content={i18next.t("wallet.reserved-amount")}>
-                    <span
-                      className="amount-btn"
-                      onClick={() => {
-                        setOpenOrdersList(true);
-                        setTransferAsset("HBD");
-                      }}
-                    >
-                      {"+"} {formattedNumber(openOrders.hbd, { prefix: "$" })}
-                    </span>
-                  </Tooltip>
-                </div>
+              {openOrdersData ? (
+                  openOrders.hbd > 0 && (
+                      <div className="amount amount-passive converting-hbd">
+                        <Tooltip content={i18next.t("wallet.reserved-amount")}>
+                          <span className="amount-btn" onClick={() => { setOpenOrdersList(true); setTransferAsset("HBD"); }}>
+                            {"+"} {formattedNumber(openOrders.hbd, { suffix: "$" })}
+                          </span>
+                        </Tooltip>
+                      </div>
+                  )
+              ) : (
+                  <Skeleton style={{ width: "80px", height: "16px" }} />
               )}
             </div>
           </div>
@@ -643,11 +664,15 @@ export function WalletHive({ account }: Props) {
             <div className="balance-info">
               <div className="title">{i18next.t("wallet.savings")}</div>
               <div className="description">{i18next.t("wallet.savings-description")}</div>
-              <div className="description font-bold mt-2">
-                {i18next.t("wallet.hive-dollars-apr-rate", {
-                  value: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hbdInterestRate / 100
-                })}
-              </div>
+              {dynamicProps ? (
+                  <div className="description font-bold mt-2">
+                    {i18next.t("wallet.hive-dollars-apr-rate", {
+                      value: dynamicProps.hbdInterestRate / 100
+                    })}
+                  </div>
+              ) : (
+                  <Skeleton style={{ width: "60px", height: "16px", marginTop: "8px" }} />
+              )}
               {estimatedUIn >= 0.001 && (
                 <div className="description font-bold mt-2">
                   {i18next.t("wallet.hive-dollars-apr-claim", { value: lastIPaymentRelative })}{" "}
@@ -709,7 +734,11 @@ export function WalletHive({ account }: Props) {
                   )}
                 </div>
 
-                <span>{formattedNumber(w.savingBalance, { suffix: "HIVE" })}</span>
+                <span>{dynamicProps ? (
+                    <span>{formattedNumber(w.savingBalance, { suffix: "HIVE" })}</span>
+                ) : (
+                    <Skeleton style={{ width: "80px", height: "20px" }} />
+                )}</span>
               </div>
               <div className="amount">
                 <div className="amount-actions">
@@ -743,7 +772,11 @@ export function WalletHive({ account }: Props) {
                   )}
                 </div>
 
-                <span>{formattedNumber(w.savingBalanceHbd, { suffix: "$" })}</span>
+                <span>{dynamicProps ? (
+                    <span>{formattedNumber(w.savingBalanceHbd, { suffix: "$" })}</span>
+                ) : (
+                    <Skeleton style={{ width: "80px", height: "20px" }} />
+                )}</span>
               </div>
             </div>
           </div>
@@ -754,13 +787,16 @@ export function WalletHive({ account }: Props) {
               <div className="description">{i18next.t("wallet.estimated-description")}</div>
             </div>
             <div className="balance-values">
-              <div className="amount amount-bold">
-                <FormattedCurrency value={w.estimatedValue} fixAt={3} />
+              <div className="amount amount-bold">{dynamicProps ? (
+                  <FormattedCurrency value={w.estimatedValue} fixAt={3} />
+              ) : (
+                  <Skeleton style={{ width: "100px", height: "24px" }} />
+              )}
               </div>
             </div>
           </div>
 
-          {w.isPoweringDown && (
+          {dynamicProps ? w.isPoweringDown && (
             <div
               className="next-power-down"
               title={`${hourDiff(w.nextVestingWithdrawalDate.toString())}h`}
@@ -771,7 +807,7 @@ export function WalletHive({ account }: Props) {
                 weeks: w.weeksLeft
               })}
             </div>
-          )}
+          ) : (<Skeleton style={{ width: "40px", height: "16px" }} /> )}
 
           <TransactionsList account={account} />
         </div>
