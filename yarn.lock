@@ -1286,10 +1286,10 @@
   dependencies:
     nostr-tools "^1.17.0"
 
-"@ecency/render-helper@^2.3.3":
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.3.tgz#34717c1bf024d09f7c2f0166d4108b0fb0406810"
-  integrity sha512-jvuTduLnKjyJO2lJFEBU52yysM/w7EpuEMGlEUdHH9WGwTRWApl8qdQFofP/1ORZqgsIyFbTrO0l+KvLDDiWMQ==
+"@ecency/render-helper@^2.3.4":
+  version "2.3.4"
+  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.4.tgz#b08a964ee6595e5a0aaf3243cd0dfdad7649af2e"
+  integrity sha512-7BKEYZQp7NtfwwljnqgCDTwmwbpSquTUQaEJcpa53Co8qUq0vNOkhj68x6EyB3O0PUgdF7QbRfYVFgEhIZOrmg==
   dependencies:
     he "^1.2.0"
     lolight "^1.4.0"

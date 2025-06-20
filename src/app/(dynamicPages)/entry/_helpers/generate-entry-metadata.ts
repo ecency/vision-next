@@ -1,6 +1,6 @@
 import { getContent } from "@/api/hive";
 import { parseDate, truncate } from "@/utils";
-import { catchPostImage, postBodySummary } from "@ecency/render-helper";
+import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
 import { headers } from 'next/headers';
 
@@ -11,14 +11,14 @@ function toProxiedSizedImage(original: string, size = "600x500") {
   return `https://images.ecency.com/${size}/${cleanUrl}`;
 }
 
-export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
+export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata | undefined> {
   const requestHeaders = await headers();
   const userAgent = requestHeaders.get('user-agent');
   const referer = requestHeaders.get('referer');
-  if (!username || !permlink || permlink.includes(".")) {
+  if (!username || !isValidPermlink(permlink)) {
     console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink, userAgent,
       referer });
-    return {};
+    return undefined;
   }
   try {
     const cleanAuthor = username.replace("%40", "");
