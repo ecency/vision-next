@@ -2,7 +2,8 @@ import { getContent } from "@/api/hive";
 import { parseDate, truncate } from "@/utils";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { Metadata } from "next";
-import {getPostQuery} from "@/api/queries";
+import { headers } from 'next/headers';
+
 
 function toProxiedSizedImage(original: string, size = "600x500") {
   if (!original || !original.startsWith("http")) return "";
@@ -11,8 +12,12 @@ function toProxiedSizedImage(original: string, size = "600x500") {
 }
 
 export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
+  const requestHeaders = await headers();
+  const userAgent = requestHeaders.get('user-agent');
+  const referer = requestHeaders.get('referer');
   if (!username || !permlink || permlink.includes(".")) {
-    console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink });
+    console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink, userAgent,
+      referer });
     return {};
   }
   try {
