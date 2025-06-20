@@ -1,7 +1,8 @@
-import { getPost } from "@/api/bridge";
+import { getContent } from "@/api/hive";
 import { parseDate, truncate } from "@/utils";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { Metadata } from "next";
+import {getPostQuery} from "@/api/queries";
 
 function toProxiedSizedImage(original: string, size = "600x500") {
   if (!original || !original.startsWith("http")) return "";
@@ -15,7 +16,9 @@ export async function generateEntryMetadata(username: string, permlink: string):
     return {};
   }
   try {
-    const entry = await getPost(username, permlink);
+    const cleanAuthor = username.replace("%40", "");
+    //const entry = await getPostQuery(cleanAuthor, permlink).fetchAndGet();
+    const entry = await getContent(cleanAuthor, permlink);
 
     if (!entry || !entry.body || !entry.created) {
       console.warn("generateEntryMetadata: Incomplete post data", { username, permlink });
