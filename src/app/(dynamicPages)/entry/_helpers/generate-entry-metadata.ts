@@ -11,14 +11,14 @@ function toProxiedSizedImage(original: string, size = "600x500") {
   return `https://images.ecency.com/${size}/${cleanUrl}`;
 }
 
-export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata | undefined> {
+export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
   const requestHeaders = await headers();
   const userAgent = requestHeaders.get('user-agent');
   const referer = requestHeaders.get('referer');
   if (!username || !isValidPermlink(permlink)) {
     console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink, userAgent,
       referer });
-    return undefined;
+    return {};
   }
   try {
     const cleanAuthor = username.replace("%40", "");

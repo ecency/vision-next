@@ -26,9 +26,7 @@ export async function generateMetadata(
     _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { author, permlink } = await props.params;
-  const metadata = await generateEntryMetadata(author.replace("%40", ""), permlink);
-  if (!metadata) notFound();
-  return metadata;
+  return generateEntryMetadata(author.replace("%40", ""), permlink);
 }
 
 export default async function EntryPage({ params, searchParams }: Props) {
