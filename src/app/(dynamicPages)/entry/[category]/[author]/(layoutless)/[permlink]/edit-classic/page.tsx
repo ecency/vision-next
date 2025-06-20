@@ -11,7 +11,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   const meta = await generateEntryMetadata(author.replace("%40", ""), permlink);
   return {
     ...meta,
-    title: `Edit – ${meta.title}`
+    title: `Edit – ${meta?.title}`
   };
 }
 
