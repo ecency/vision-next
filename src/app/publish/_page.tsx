@@ -3,7 +3,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publish/_components";
 import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
-import { AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { PublishSuccessState } from "./_components/publish-success-state";
 import { PublishEditorHtmlWarning } from "./_components/publish-editor-html-warning";
@@ -23,8 +22,8 @@ export default function Publish() {
     const isDraft = Boolean(params?.id);
 
     if (!isDraft && !sessionId) {
-      clearAll();              // ✅ only clear for NEW posts
-      setSessionId(uuidv4());  // ✅ only create session for NEW posts
+      clearAll(); // ✅ only clear for NEW posts
+      setSessionId(uuidv4()); // ✅ only create session for NEW posts
     }
   }, []);
 

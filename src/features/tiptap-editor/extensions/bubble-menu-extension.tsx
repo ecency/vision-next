@@ -12,7 +12,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useClickAway } from "react-use";
 import { PublishEditorToolbarLinkForm } from "./link-form";
 
 interface Props {
@@ -30,8 +29,6 @@ export function BubbleMenu({ editor }: Props) {
     placement: "top",
     transform: true
   });
-
-  // useClickAway(refs.floating, () => show && setShow(false));
 
   useEffect(() => {
     const updateMenu = () => {

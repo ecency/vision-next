@@ -1,9 +1,7 @@
 import React, { HTMLProps, PropsWithChildren, ReactNode, useContext } from "react";
 import { DropdownContext } from "@ui/dropdown/dropdown-context";
-import { classNameObject } from "@ui/util";
 import { clsx } from "clsx";
 import Link from "next/link";
-
 
 interface Props {
   size?: "small" | "medium" | "large";
@@ -24,7 +22,6 @@ type DropdownItemProps = {
   children: React.ReactNode;
 } & Omit<React.HTMLAttributes<HTMLElement>, "onClick">;
 
-
 export interface MenuItem {
   label: string | JSX.Element;
   href?: string;
@@ -39,15 +36,15 @@ export interface MenuItem {
 }
 
 export function DropdownItem({
-   href,
-   selected,
-   disabled,
-   size,
-   className,
-   onClick,
-   children,
-   ...rest
-  }: DropdownItemProps) {
+  href,
+  selected,
+  disabled,
+  size,
+  className,
+  onClick,
+  children,
+  ...rest
+}: DropdownItemProps) {
   const { setShow } = useContext(DropdownContext);
 
   const baseClasses = clsx(
@@ -55,14 +52,13 @@ export function DropdownItem({
     "min-w-[80%] block w-full",
     size === "small" ? "px-2 py-1 text-sm" : "px-3 py-1.5",
     selected
-        ? "bg-blue-dark-sky-040 text-blue-dark-sky dark:text-white dark:bg-gray-900 hover:bg-blue-dark-sky-030 dark:hover:bg-gray-800"
-        : "hover:bg-blue-dark-sky-040 text-dark-default hover:text-blue-dark-sky dark:text-white dark:hover:bg-dark-default",
+      ? "bg-blue-dark-sky-040 text-blue-dark-sky dark:text-white dark:bg-gray-900 hover:bg-blue-dark-sky-030 dark:hover:bg-gray-800"
+      : "hover:bg-blue-dark-sky-040 text-dark-default hover:text-blue-dark-sky dark:text-white dark:hover:bg-dark-default",
     disabled && "opacity-50 cursor-not-allowed",
     className
   );
 
-
-    const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     if (disabled) {
       e.preventDefault();
       return;
@@ -73,41 +69,47 @@ export function DropdownItem({
 
   if (href) {
     return (
-        <Link href={href} legacyBehavior passHref>
-          <a className={baseClasses} onClick={handleClick} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
-            {children}
-          </a>
-        </Link>
+      <Link href={href} legacyBehavior passHref>
+        <a
+          className={baseClasses}
+          onClick={handleClick}
+          {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        >
+          {children}
+        </a>
+      </Link>
     );
   }
 
   return (
-      <div className={baseClasses} onClick={handleClick} {...(rest as React.HTMLAttributes<HTMLDivElement>)}>
-        {children}
-      </div>
+    <div
+      className={baseClasses}
+      onClick={handleClick}
+      {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+    >
+      {children}
+    </div>
   );
 }
 
-
 export function DropdownItemWithIcon(
-    props: Omit<HTMLProps<HTMLDivElement>, "label"> & Props & { icon?: ReactNode; label: ReactNode }
+  props: Omit<HTMLProps<HTMLDivElement>, "label"> & Props & { icon?: ReactNode; label: ReactNode }
 ) {
-    const { icon, label, className, ...rest } = props;
+  const { icon, label, className, ...rest } = props;
 
-    return (
-        <DropdownItem
-            {...rest}
-            className={clsx(
-                "flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky [&>div>svg]:w-4",
-                className
-            )}
-        >
-            {icon && <span className="flex items-center">{icon}</span>}
-            <span className="text-sm font-semibold">{label}</span>
-        </DropdownItem>
-    );
+  return (
+    <DropdownItem
+      {...rest}
+      className={clsx(
+        "flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky [&>span>svg]:w-4",
+        className
+      )}
+    >
+      {icon && <span className="flex items-center">{icon}</span>}
+      <span className="text-sm font-semibold">{label}</span>
+    </DropdownItem>
+  );
 }
-
 
 export function DropdownItemHeader(props: PropsWithChildren<HTMLProps<HTMLDivElement>>) {
   return <div className="px-4 text-sm font-semibold opacity-50" {...props} />;

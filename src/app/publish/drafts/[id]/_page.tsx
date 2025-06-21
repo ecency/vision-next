@@ -6,7 +6,6 @@ import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publ
 import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { useApiDraftDetector } from "@/app/submit/_hooks";
 import { Button } from "@/features/ui";
-import { UilFileEditAlt } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useParams, useRouter } from "next/navigation";
