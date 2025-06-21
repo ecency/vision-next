@@ -19,27 +19,27 @@ interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(
+    props: Props,
+    _parent: ResolvingMetadata
+): Promise<Metadata> {
   const { author, permlink } = await props.params;
   return generateEntryMetadata(author.replace("%40", ""), permlink);
 }
 
 export default async function EntryPage({ params, searchParams }: Props) {
   const { author: username, permlink, category } = await params;
-  const isEdit = (await searchParams)["edit"];
+  const search = await searchParams;
+  const isEdit = search["edit"];
 
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
 
-  /**
-   * In case of when user attempts to open comment-like wave post
-   *    then better to replace page with wave details page
-   *    @note User will be unable to open wave posts like regular posts
-   *          keep in mind when create any new action related to posts in a regular page
-   */
   if (
-    permlink.startsWith("wave-") ||
-    (permlink.startsWith("re-ecencywaves-") && entry?.parent_author === "ecency.waves")
+      permlink.startsWith("wave-") ||
+      (permlink.startsWith("re-ecencywaves-") && entry?.parent_author === "ecency.waves")
   ) {
     return redirect(`/waves/${author}/${permlink}`);
   }
@@ -50,17 +50,17 @@ export default async function EntryPage({ params, searchParams }: Props) {
     const deletedEntry = await getDeletedEntryQuery(author, permlink).prefetch();
     if (deletedEntry) {
       return (
-        <EntryPageContextProvider>
-          <div className="app-content entry-page">
-            <div className="the-entry">
-              <DeletedPostScreen
-                deletedEntry={deletedEntry}
-                username={author}
-                permlink={permlink}
-              />
+          <EntryPageContextProvider>
+            <div className="app-content entry-page">
+              <div className="the-entry">
+                <DeletedPostScreen
+                    deletedEntry={deletedEntry}
+                    username={author}
+                    permlink={permlink}
+                />
+              </div>
             </div>
-          </div>
-        </EntryPageContextProvider>
+          </EntryPageContextProvider>
       );
     }
 
@@ -68,27 +68,25 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <EntryPageContextProvider>
-        <MdHandler />
-
-        <div className="app-content entry-page">
-          <ReadTime entry={entry} />
-
-          <div className="the-entry">
-            <EntryPageCrossPostHeader entry={entry} />
-            <span itemScope={true} itemType="http://schema.org/Article">
+      <HydrationBoundary state={dehydrate(getQueryClient())}>
+        <EntryPageContextProvider>
+          <MdHandler />
+          <div className="app-content entry-page">
+            <ReadTime entry={entry} />
+            <div className="the-entry">
+              <EntryPageCrossPostHeader entry={entry} />
+              <span itemScope itemType="http://schema.org/Article">
               <EntryPageContent
-                category={category}
-                isEdit={isEdit === "true" ?? false}
-                entry={entry}
-                rawParam={isEdit ?? ""}
+                  category={category}
+                  isEdit={isEdit === "true"}
+                  entry={entry}
+                  rawParam={isEdit ?? ""}
               />
             </span>
+            </div>
           </div>
-        </div>
-        <EntryPageEditHistory entry={entry} />
-      </EntryPageContextProvider>
-    </HydrationBoundary>
+          <EntryPageEditHistory entry={entry} />
+        </EntryPageContextProvider>
+      </HydrationBoundary>
   );
 }

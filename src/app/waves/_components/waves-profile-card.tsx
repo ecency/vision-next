@@ -1,6 +1,6 @@
 "use client";
 
-import { getAccountFullQuery } from "@/api/queries";
+import {getAccountFullQuery, useClientActiveUser} from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
 import Image from "next/image";
@@ -12,14 +12,14 @@ import { Button } from "@ui/button";
 import Link from "next/link";
 
 export function WavesProfileCard() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
   const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
 
   const { data, isLoading } = getAccountFullQuery(activeUser?.username).useClientQuery();
 
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
-  const [imageSrc, setImageSrc] = useState<string>();
+  const imageSrc = "/assets/promote-wave-bg.jpg";
 
   if (isLoading || !activeUser) {
     return (
@@ -45,15 +45,14 @@ export function WavesProfileCard() {
     <div className="rounded-2xl overflow-hidden relative bg-white dark:bg-dark-200 p-4">
       <Image
         className="absolute top-0 left-0 w-full h-[156px]"
-        src={imageSrc ?? data?.profile.cover_image ?? ""}
-        onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
+        src={data?.profile.cover_image?.trim() ? data.profile.cover_image : imageSrc}
         alt=""
         width={300}
         height={200}
       />
       <div className="relative flex flex-col mt-[100px] gap-2">
         <UserAvatar username={activeUser?.username ?? ""} size="large" className="mb-2" />
-        <div className="font-semibold">{data?.profile.name ?? data ? `@${data?.name}` : ""}</div>
+        <div className="font-semibold">{data?.profile.name || (data?.name ? `@${data.name}` : "")}</div>
         {data?.profile.about && <div className="line-clamp-2 text-sm">{data?.profile.about}</div>}
         <div className="grid grid-cols-2">
           <div

@@ -42,8 +42,8 @@ export function SwitchLang({ label, onSelect }: Props) {
               {locale.name}
             </DropdownItem>
           ))}
-          <DropdownItem>
-            <Link href="/contributors">{i18next.t("switch-lang.contributors")}</Link>
+          <DropdownItem href="/contributors">
+            {i18next.t("switch-lang.contributors")}
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>

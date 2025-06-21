@@ -6,10 +6,10 @@ import { Entry } from "@/entities";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { heartSvg } from "@ui/svg";
-import { useGlobalStore } from "@/core/global-store";
 import usePrevious from "react-use/lib/usePrevious";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryVotesDialog } from "@/features/shared/entry-votes/entry-votes-dialog";
+import {useClientActiveUser} from "@/api/queries";
 
 type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
@@ -22,7 +22,7 @@ export function EntryVotes({ entry: initialEntry, icon }: Props) {
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
   const previousEntry = usePrevious(entry);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   const [visible, setVisible] = useState(false);
 

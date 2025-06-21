@@ -1,8 +1,8 @@
+export * from "./user-avatar";
 export * from "./search-box";
 export * from "./scroll-to-top";
 export * from "./linear-progress";
 export * from "./profile-link";
-export * from "./user-avatar";
 export * from "./login-required";
 export * from "./theme";
 export * from "./navbar";
@@ -60,3 +60,4 @@ export * from "./redirect";
 export * from "./entry-stats";
 export * from "./post-content-renderer";
 export * from "./time-label";
+export * from "./tag";

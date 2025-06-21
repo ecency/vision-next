@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@ui/badge";
 import Link from "next/link";
 
-export const makePath = (filter: string, tag: string): string => {
+export const makePathTag = (filter: string, tag: string): string => {
   // created is default filter for community pages
   if (isCommunity(tag)) {
     return `/${EntryFilter.created}/${tag}`;
@@ -39,7 +39,7 @@ export function TagLink({ tag, type, children }: Props) {
 
   const isTagCommunity = useMemo(() => (typeof tag === "string" ? isCommunity(tag) : false), [tag]);
   const href = useMemo(
-    () => (typeof tag === "string" ? makePath("created", tag) : makePath("created", tag.name)),
+    () => (typeof tag === "string" ? makePathTag("created", tag) : makePathTag("created", tag.name)),
     [tag]
   );
 
@@ -54,7 +54,7 @@ export function TagLink({ tag, type, children }: Props) {
         onClick: (e: React.MouseEvent<HTMLElement>) => {
           e.preventDefault();
           const newLoc =
-            typeof tag === "string" ? makePath("created", tag) : makePath("created", tag.name);
+            typeof tag === "string" ? makePathTag("created", tag) : makePathTag("created", tag.name);
           router.push(newLoc);
         }
       }

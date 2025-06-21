@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import Link from "next/link";
 
-export const makePath = (username: string) => `/@${username}`;
+export const makePathProfile = (username: string) => `/@${username}`;
 
 interface Props {
   children: ReactNode;
@@ -18,7 +18,7 @@ export function ProfileLink({ afterClick, target, className, children, username 
 
   return (
     <Link
-      href={makePath(username)}
+      href={makePathProfile(username)}
       target={target}
       className={className}
       onClick={typeof window !== "undefined" ? clicked : undefined}

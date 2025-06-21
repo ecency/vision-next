@@ -48,11 +48,13 @@ export const CommunityMenu = (props: Props) => {
     <PageMenu className="pb-4 pt-4 md:pt-0">
       <PageMenuMobileDropdown isSelected={isFilterInItems()} label={label}>
         {menuItems.map((x) => (
-          <DropdownItem key={x} selected={filter === x}>
-            <Link href={`/${x}/${props.community.name}`}>
+            <DropdownItem
+                key={x}
+                href={`/${x}/${props.community.name}`}
+                selected={filter === x}
+            >
               {i18next.t(`entry-filter.filter-${x}`)}
-            </Link>
-          </DropdownItem>
+            </DropdownItem>
         ))}
       </PageMenuMobileDropdown>
       <PageMenuItems>

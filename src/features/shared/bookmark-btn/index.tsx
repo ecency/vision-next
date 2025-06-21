@@ -2,11 +2,10 @@
 
 import React, { useMemo } from "react";
 import "./_index.scss";
-import { useGlobalStore } from "@/core/global-store";
-import { LoginRequired } from "@/features/shared";
+import { LoginRequired } from "../login-required";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { useBookmarksQuery } from "@/api/queries";
+import { useBookmarksQuery, useClientActiveUser } from "@/api/queries";
 import { Entry } from "@/entities";
 import { useBookmarkAdd, useBookmarkDelete } from "@/api/mutations/bookmarks";
 import { Button } from "@ui/button";
@@ -17,7 +16,7 @@ export interface Props {
 }
 
 export function BookmarkBtn({ entry }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const activeUser = useClientActiveUser();
 
   const { data: bookmarks = [] } = useBookmarksQuery();
 

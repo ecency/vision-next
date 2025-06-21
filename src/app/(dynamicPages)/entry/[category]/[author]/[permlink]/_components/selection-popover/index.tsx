@@ -30,7 +30,9 @@ class VirtualSelectionReference {
 
   getBoundingClientRect() {
     if (this.selection.rangeCount > 0) {
-      return this.selection.getRangeAt(0).getBoundingClientRect();
+      const rect = this.selection.getRangeAt(0).getBoundingClientRect();
+      // Sanity check
+      if (rect) return rect;
     }
   }
 }
@@ -75,7 +77,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
     <div onMouseUp={handleSelection}>
       {children}
 
-      {isMounted() &&
+      {isMounted() && selectedText && floatingStyles?.left != null &&
         createPortal(
           selectedText ? (
             <div ref={refs.setFloating} style={floatingStyles}>

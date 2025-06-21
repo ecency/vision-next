@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useMountedState } from "react-use";
 import { v4 } from "uuid";
 import {
@@ -25,6 +25,7 @@ import { ThreeSpeakVideo } from "@/api/threespeak";
 import { PollsCreation, PollSnapshot } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";
 import { useUploadPostImage } from "@/api/mutations";
+import { useClientActiveUser } from "@/api/queries";
 import { insertOrReplace, replace } from "@/utils";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -74,7 +75,9 @@ export function EditorToolbar({
   onDeletePoll,
   readonlyPoll
 }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
+  const activeUserRef = useRef(activeUser);
+
   const isMobile = useGlobalStore((s) => s.isMobile);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -95,6 +98,9 @@ export function EditorToolbar({
 
   const uploadImage = useUploadPostImage();
   const isMounted = useMountedState();
+  useEffect(() => {
+    activeUserRef.current = activeUser;
+  }, [activeUser]);
 
   useMount(() => {
     window.addEventListener("bold", bold);
@@ -104,7 +110,14 @@ export function EditorToolbar({
     window.addEventListener("codeBlock", code);
     window.addEventListener("blockquote", quote);
     window.addEventListener("image", () => setImage(true));
-    window.addEventListener("customToolbarEvent", handleCustomToolbarEvent);
+    // 🆕 Native drag-drop listeners on the editor
+    const editor = rootRef.current?.parentElement?.querySelector(".the-editor");
+
+    if (editor) {
+      editor.addEventListener("dragover", (e) => onDragOver(e as DragEvent));
+      editor.addEventListener("drop", (e) => drop(e as DragEvent));
+      editor.addEventListener("paste", (e) => onPaste(e as ClipboardEvent));
+    }
 
     return () => {
       window.removeEventListener("bold", bold);
@@ -114,7 +127,12 @@ export function EditorToolbar({
       window.removeEventListener("codeBlock", code);
       window.removeEventListener("blockquote", quote);
       window.removeEventListener("image", () => setImage(true));
-      window.removeEventListener("customToolbarEvent", handleCustomToolbarEvent);
+
+      if (editor) {
+        editor.removeEventListener("dragover", (e) => onDragOver(e as DragEvent));
+        editor.removeEventListener("drop", (e) => drop(e as DragEvent));
+        editor.removeEventListener("paste", (e) => onPaste(e as ClipboardEvent));
+      }
     };
   });
 
@@ -205,28 +223,13 @@ export function EditorToolbar({
   const checkFile = (filename: string) =>
     ["jpg", "jpeg", "gif", "png", "webp"].some((el) => filename.toLowerCase().endsWith(el));
 
-  const handleCustomToolbarEvent = (e: Event) => {
-    const detail = (e as CustomEvent).detail;
-    switch (detail.eventType) {
-      case "paste":
-        onPaste(detail.event);
-        break;
-      case "dragover":
-        onDragOver(detail.event);
-        break;
-      case "drop":
-        drop(detail.event);
-        break;
-    }
-  };
-
   const onDragOver = (e: DragEvent) => {
-    if (!activeUser) {
-      return;
-    }
-
     e.preventDefault();
     e.stopPropagation();
+
+    if (!activeUserRef.current) {
+      return;
+    }
 
     if (e.dataTransfer) {
       e.dataTransfer.effectAllowed = "copy";
@@ -235,14 +238,10 @@ export function EditorToolbar({
   };
 
   const drop = (e: DragEvent) => {
-    if (!activeUser) {
-      return;
-    }
-
     e.preventDefault();
     e.stopPropagation();
 
-    if (!e.dataTransfer) {
+    if (!e.dataTransfer || !activeUserRef.current) {
       return;
     }
 

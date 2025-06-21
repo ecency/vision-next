@@ -4,7 +4,6 @@ import React, { useMemo } from "react";
 import { ListStyleToggle } from "@/features/shared";
 import { ProfileFilter } from "@/enums";
 import { useGlobalStore } from "@/core/global-store";
-import Link from "next/link";
 import i18next from "i18next";
 import { kebabMenuHorizontalSvg } from "@ui/svg";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
@@ -74,9 +73,13 @@ export function ProfileMenu({ username }: Props) {
         isSelected={false}
       >
         {dropDownMenuItems.map((item) => (
-          <DropdownItem selected={item.selected} key={item.id}>
-            <Link href={item.href}>{item.label}</Link>
-          </DropdownItem>
+            <DropdownItem
+                href={item.href}
+                key={item.id}
+                selected={item.selected}
+            >
+                {item.label}
+            </DropdownItem>
         ))}
       </PageMenuMobileDropdown>
       <PageMenuItems>
@@ -107,9 +110,13 @@ export function ProfileMenu({ username }: Props) {
           </DropdownToggle>
           <DropdownMenu align="left">
             {kebabMenuItems.map((item) => (
-              <DropdownItem selected={item.selected} key={item.id}>
-                <Link href={item.href}>{item.label}</Link>
-              </DropdownItem>
+                <DropdownItem
+                    href={item.href}
+                    key={item.id}
+                    selected={item.selected}
+                >
+                    {item.label}
+                </DropdownItem>
             ))}
           </DropdownMenu>
         </Dropdown>

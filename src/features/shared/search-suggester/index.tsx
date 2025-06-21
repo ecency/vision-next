@@ -1,8 +1,8 @@
 "use client";
 
 import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
-import { makePath as makePathTag } from "../tag";
-import { makePath as makePathProfile } from "../profile-link";
+import { makePathTag } from "../tag";
+import { makePathProfile } from "../profile-link";
 import defaults from "@/defaults.json";
 import { Community, Reputations } from "@/entities";
 import { usePathname, useRouter } from "next/navigation";

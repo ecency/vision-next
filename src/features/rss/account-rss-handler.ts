@@ -14,11 +14,18 @@ export class AccountRssHandler extends EntriesRssHandler {
   }
 
   protected async fetchData() {
+    const author = this.author?.trim().replace("@", "");
+
+    if (!author) {
+      console.warn("AccountRssHandler: Missing or invalid author");
+      return []; // Don't proceed with RPC call
+    }
     const data = await getAccountPostsQuery(
-      this.author.replace("@", ""),
+      author,
       this.filter,
-      100
+      20
     ).fetchAndGet();
+
     return data.pages?.[0] ?? [];
   }
 }

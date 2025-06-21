@@ -1,9 +1,8 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults.json";
 import { Entry } from "@/entities";
-import { AvailableCredits, LoginRequired } from "@/features/shared";
+import {AvailableCredits, handleAndReportError, LoginRequired} from "@/features/shared";
 import { CommentPreview } from "@/features/shared/comment/comment-preview";
 import { detectEvent, EditorToolbar, toolbarEventListener } from "@/features/shared/editor-toolbar";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
@@ -16,6 +15,7 @@ import { useDebounce, useMount } from "react-use";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import useUnmount from "react-use/lib/useUnmount";
 import "./_index.scss";
+import {useClientActiveUser} from "@/api/queries";
 
 setProxyBase(defaults.imageServer);
 
@@ -46,7 +46,7 @@ export function Comment({
   clearOnSubmit = true
 }: Props) {
   const commentBodyRef = useRef<HTMLDivElement>(null);
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   const [text, setText] = useLocalStorage(
     PREFIX + `_reply_text_${entry.author}_${entry.permlink}`,
@@ -95,9 +95,17 @@ export function Comment({
   }, []);
 
   const submit = useCallback(async () => {
-    await onSubmit(text!);
-    if (clearOnSubmit) {
-      setText("");
+    try {
+      await onSubmit(text!);
+      if (clearOnSubmit) {
+        setText("");
+      }
+    }
+    catch (err: any) {
+      const handled = handleAndReportError(err, "comment");
+      if (!handled) {
+        throw err; // ❌ only throw unexpected errors
+      }
     }
   }, [onSubmit, text, clearOnSubmit]);
 
