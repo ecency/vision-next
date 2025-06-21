@@ -2,6 +2,13 @@
 import { strikethrough } from "@joplin/turndown-plugin-gfm";
 import Turndown from "turndown";
 
+const CENTERED_TEXT_RULE_NODES = ["P", "H1", "H2", "H3", "H4", "H5", "H6"];
+const CENTERED_TEXT_RULE_STYLES = [
+  "text-align: center",
+  "text-align: right",
+  "text-align: justify"
+];
+
 export function markdownToHtml(html: string | undefined) {
   if (!html) {
     return "";
@@ -10,13 +17,13 @@ export function markdownToHtml(html: string | undefined) {
   return new Turndown({
     codeBlockStyle: "fenced"
   })
-    .addRule("centeredParagraph", {
+    .addRule("centeredText", {
       filter: function (node) {
         const styles = node.getAttribute("style");
         return (
-          ["P"].includes(node.nodeName) &&
+          CENTERED_TEXT_RULE_NODES.includes(node.nodeName) &&
           !!styles &&
-          ["text-align: center", "text-align: right", "text-align: justify"].includes(styles)
+          CENTERED_TEXT_RULE_STYLES.includes(styles)
         );
       },
       replacement: function (content, node) {
