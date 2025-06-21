@@ -5,11 +5,11 @@ import { success } from "../feedback";
 import qrcode from "qrcode";
 import defaults from "@/defaults.json";
 import { PurchaseTypes } from "./purchase-types";
-import { PurchaseQrTypes } from "./purchase-qr-types";
+import { PurchaseQrTypes } from "@/features/shared/purchase-qr/purchase-qr-types";
+import { SearchByUsername } from "@/features/shared/search-by-username";
 import { InputGroupCopyClipboard } from "@ui/input";
 import { Alert } from "@ui/alert";
 import i18next from "i18next";
-import { SearchByUsername } from "@/features/shared/search-by-username";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 
@@ -25,8 +25,10 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
   const [isQrShow, setIsQrShow] = useState(false);
   const [type, setType] = useState(PurchaseTypes.BOOST);
   const [pointsValue, setPointsValue] = useState("999points");
-
   const searchParams = useSearchParams();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (queryType) {
@@ -102,7 +104,7 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
           <></>
         )}
       </div>
-      <Image
+      {mounted && (<Image
         width={600}
         height={600}
         ref={qrImgRef as any}
@@ -110,7 +112,7 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
         src=""
         className="my-4"
         style={{ display: isQrShow ? "block" : "none" }}
-      />
+      />)}
       {isQrShow ? (
         <div className="w-full mb-4">
           <InputGroupCopyClipboard value={getURL()} />

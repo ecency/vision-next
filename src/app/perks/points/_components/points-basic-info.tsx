@@ -1,13 +1,13 @@
-import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { getPointsQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowLeft, UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Link from "next/link";
+import {useClientActiveUser} from "@/api/queries";
 
 export function PointsBasicInfo() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
   const { data: activeUserPoints, isPending } = useQuery(
     getPointsQueryOptions(activeUser?.username)
   );

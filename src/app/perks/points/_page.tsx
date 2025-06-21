@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
 import { formatError } from "@/api/operations";
-import { useMount } from "react-use";
 
 export function PointsPage() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -28,8 +27,6 @@ export function PointsPage() {
     () => success(i18next.t("points.claim-ok")),
     (err) => error(...formatError(err))
   );
-
-  useMount(() => success("hello"));
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">

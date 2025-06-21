@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { FormControl, InputGroup } from "@ui/input";
 import { Spinner } from "@ui/spinner";
-import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { SuggestionList } from "@/features/shared/suggestion-list";
 import i18next from "i18next";
-import { useSearchByUsernameQuery } from "@/api/queries";
+import {useClientActiveUser, useSearchByUsernameQuery} from "@/api/queries";
 import { useDebounce } from "react-use";
 
 interface Props {
@@ -16,7 +15,7 @@ interface Props {
 }
 
 export const SearchByUsername = ({ setUsername, excludeActiveUser, recent, username }: Props) => {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const activeUser = useClientActiveUser();
 
   const [prefilledUsername, setPrefilledUsername] = useState(username || "");
   const [usernameInput, setUsernameInput] = useState(username || "");
