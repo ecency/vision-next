@@ -67,11 +67,11 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
   };
 
   return (
-    <div className="flex flex-col items-center px-3 text-center">
-      <h6>
-        {isQrShow ? i18next.t("purchase-qr.scan-code") : i18next.t("purchase-qr.select-user")}
-      </h6>
-      <div className="w-full mt-4">
+    <div className="grid grid-cols-1 md:grid-cols-2">
+      <div className="flex flex-col gap-2 md:gap-4">
+        <div>
+          {isQrShow ? i18next.t("purchase-qr.scan-code") : i18next.t("purchase-qr.select-user")}
+        </div>
         <SearchByUsername
           username={username}
           setUsername={(value) => {
@@ -84,41 +84,26 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
             }
           }}
         />
-        {type === PurchaseTypes.POINTS ? (
-          <PurchaseQrTypes
-            className="mt-3"
-            value={pointsValue}
-            setValue={(v: string) => setPointsValue(v)}
-          />
-        ) : (
-          <></>
+        {type === PurchaseTypes.POINTS && (
+          <PurchaseQrTypes value={pointsValue} setValue={(v: string) => setPointsValue(v)} />
+        )}
+        {isQrShow && <InputGroupCopyClipboard value={getURL()} />}
+        {type === PurchaseTypes.BOOST && isQrShow && (
+          <Alert>{i18next.t("purchase-qr.boost-info")}</Alert>
         )}
       </div>
-      {mounted && (
-        <Image
-          width={600}
-          height={600}
-          ref={qrImgRef as any}
-          alt="Boost QR Code"
-          src=""
-          className="my-4"
-          style={{ display: isQrShow ? "block" : "none" }}
-        />
-      )}
-      {isQrShow ? (
-        <div className="w-full mb-4">
-          <InputGroupCopyClipboard value={getURL()} />
+      <div className="flex flex-col items-center">
+        <div className="w-[240px] h-[240px] border rounded-xl overflow-hidden border-[--border-color] my-4">
+          <Image
+            width={240}
+            height={240}
+            ref={qrImgRef as any}
+            alt="Boost QR Code"
+            src=""
+            style={{ display: isQrShow ? "block" : "none" }}
+          />
         </div>
-      ) : (
-        <></>
-      )}
-      {type === PurchaseTypes.BOOST && isQrShow ? (
-        <Alert className="text-left mt-3 mb-0 text-small">
-          {i18next.t("purchase-qr.boost-info")}
-        </Alert>
-      ) : (
-        <></>
-      )}
+      </div>
     </div>
   );
 };
