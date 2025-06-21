@@ -44,7 +44,9 @@ export function PerksPage() {
             className="md:text-lg font-bold min-h-[13rem] cursor-pointer"
             onClick={() => setShowQrDialog(true)}
           >
-            <div className="p-4 text-blue-dark-sky">{i18next.t("perks.account-boost-title")}</div>
+            <div className="p-4 text-blue-dark-sky relative z-10">
+              {i18next.t("perks.account-boost-title")}
+            </div>
             <Image
               className="absolute -bottom-8"
               src="/assets/undraw-power.svg"

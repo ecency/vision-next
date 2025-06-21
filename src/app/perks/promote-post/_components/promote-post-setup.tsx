@@ -17,7 +17,7 @@ interface Props {
 export function PromotePostSetup({ onSuccess }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const [path, setPath] = useState("");
+  const [path, setPath] = useState(activeUser ? `${activeUser.username}/` : "");
   const [pathQuery, setPathQuery] = useState("");
   const [selectedDuration, setSelectedDuration] = useState(7);
 
