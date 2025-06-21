@@ -1,6 +1,6 @@
 {
   "name": "ecency-vision-next",
-  "version": "4.1.6",
+  "version": "4.2.0",
   "private": true,
   "scripts": {
     "dev": "NODE_OPTIONS=\"--trace-warnings --trace-deprecation\" next dev",
@@ -16,8 +16,8 @@
     "@ecency/ns-query": "^1.2.11-next",
     "@ecency/render-helper": "^2.3.4",
     "@ecency/renderer": "^1.1.25",
-    "@ecency/sdk": "1.0.39",
-    "@ecency/wallets": "^1.2.13",
+    "@ecency/sdk": "1.0.42",
+    "@ecency/wallets": "^1.2.16",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@firebase/analytics": "^0.10.0",

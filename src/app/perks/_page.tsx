@@ -1,84 +1,91 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  BoostDialog,
-  Feedback,
-  Navbar,
-  Promote,
-  PurchaseQrDialog,
-  PurchaseTypes
-} from "@/features/shared";
+import { BoostDialog, LoginRequired, PurchaseQrDialog } from "@/features/shared";
+import { motion } from "framer-motion";
 import i18next from "i18next";
-import { MajorPerkCard, PerksHeader } from "@/app/perks/components";
-import { UilChart, UilFire, UilMoneyWithdraw, UilRocket } from "@tooni/iconscout-unicons-react";
+import Image from "next/image";
+import { useState } from "react";
+import {
+  PerksBasicCard,
+  PerksPointsCard,
+  PerksPointsSpinBanner,
+  PerksPromoteCard
+} from "./components";
 
 export function PerksPage() {
-  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
-  const [showBuyPointsDialog, setShowBuyPointsDialog] = useState(false);
-  const [showPromoteDialog, setShowPromoteDialog] = useState(false);
-  const [showBoostDialog, setShowBoostDialog] = useState(false);
+  const [showBoost, setShowBoost] = useState(false);
+  const [showQrDialog, setShowQrDialog] = useState(false);
 
   return (
-    <div className="bg-blue-duck-egg dark:bg-transparent pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
-      <Feedback />
-      <Navbar />
+    <div className="grid grid-cols-12 grid-rows-4 gap-4">
+      <motion.div
+        initial={{ opacity: 0, x: -16 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="col-span-12 sm:col-span-6 row-span-4 md:col-span-5"
+      >
+        <PerksPointsCard />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="col-span-12 sm:col-span-6 row-span-4 md:col-span-4"
+      >
+        <PerksPromoteCard />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+        className="col-span-6 row-span-2 md:col-span-3"
+      >
+        <LoginRequired>
+          <PerksBasicCard
+            className="md:text-lg font-bold min-h-[13rem] cursor-pointer"
+            onClick={() => setShowQrDialog(true)}
+          >
+            <div className="p-4 text-blue-dark-sky">{i18next.t("perks.account-boost-title")}</div>
+            <Image
+              className="absolute -bottom-8"
+              src="/assets/undraw-power.svg"
+              width={320}
+              height={240}
+              alt=""
+            />
+          </PerksBasicCard>
+        </LoginRequired>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3 }}
+        className="col-span-6 row-span-2 md:col-span-3"
+      >
+        <LoginRequired>
+          <PerksBasicCard
+            className="min-h-[13rem] cursor-pointer p-4"
+            onClick={() => setShowBoost(true)}
+          >
+            <div className="md:text-lg font-bold">{i18next.t("perks.boost-plus-title")}</div>
+            <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+              {i18next.t("perks.boost-plus-description")}
+            </div>
+          </PerksBasicCard>
+        </LoginRequired>
+      </motion.div>
 
-      <div className="container mx-auto">
-        <div className="grid grid-cols-12 items-stretch gap-6">
-          <div className="col-span-12">
-            <PerksHeader />
-          </div>
-          <div className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3">
-            <MajorPerkCard
-              title={i18next.t("perks.points-title")}
-              actionText={i18next.t("perks.points-action")}
-              subtitle={i18next.t("perks.points-description")}
-              img="/assets/reward.png"
-              icon={<UilMoneyWithdraw />}
-              onClick={() => setShowBuyPointsDialog(true)}
-            />
-          </div>
-          <div className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3">
-            <MajorPerkCard
-              title={i18next.t("perks.account-boost-title")}
-              actionText={i18next.t("perks.account-boost-action")}
-              subtitle={i18next.t("perks.account-boost-description")}
-              img="/assets/like.png"
-              icon={<UilRocket />}
-              onClick={() => setShowPurchaseDialog(true)}
-            />
-          </div>
-          <div className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3">
-            <MajorPerkCard
-              title={i18next.t("perks.promote-title")}
-              img="/assets/writer.png"
-              icon={<UilChart />}
-              actionText={i18next.t("perks.promote-action")}
-              subtitle={i18next.t("perks.promote-description")}
-              onClick={() => setShowPromoteDialog(true)}
-            />
-          </div>
-          <div className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3">
-            <MajorPerkCard
-              title={i18next.t("perks.boost-plus-title")}
-              actionText={i18next.t("perks.boost-plus-action")}
-              subtitle={i18next.t("perks.boost-plus-description")}
-              img="/assets/writer-thinking.png"
-              icon={<UilFire />}
-              onClick={() => setShowBoostDialog(true)}
-            />
-          </div>
-        </div>
-      </div>
-      <PurchaseQrDialog show={showPurchaseDialog} setShow={setShowPurchaseDialog} />
-      <PurchaseQrDialog
-        type={PurchaseTypes.POINTS}
-        show={showBuyPointsDialog}
-        setShow={setShowBuyPointsDialog}
-      />
-      {showPromoteDialog && <Promote onHide={() => setShowPromoteDialog(false)} />}
-      {showBoostDialog && <BoostDialog onHide={() => setShowBoostDialog(false)} />}
+      <motion.div
+        initial={{ opacity: 0, x: 16 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3 }}
+        className="col-span-12 row-span-1"
+      >
+        <LoginRequired>
+          <PerksPointsSpinBanner />
+        </LoginRequired>
+      </motion.div>
+      {showBoost && <BoostDialog onHide={() => setShowBoost(false)} />}
+      <PurchaseQrDialog show={showQrDialog} setShow={(v) => setShowQrDialog(v)} />
     </div>
   );
 }

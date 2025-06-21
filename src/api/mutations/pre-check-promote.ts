@@ -4,6 +4,8 @@ import { EntryHeader } from "@/entities";
 import { getPostHeader } from "@/api/bridge";
 import { getPromotedPost } from "@/api/private-api";
 import i18next from "i18next";
+import { error } from "@/features/shared";
+import { formatError } from "../operations";
 
 export function usePreCheckPromote(path: string, onSuccess: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -33,6 +35,7 @@ export function usePreCheckPromote(path: string, onSuccess: () => void) {
 
       return;
     },
-    onSuccess
+    onSuccess,
+    onError: (e) => error(...formatError(e))
   });
 }

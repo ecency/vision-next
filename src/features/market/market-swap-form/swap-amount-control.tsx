@@ -60,9 +60,12 @@ export const SwapAmountControl = ({
 
   return (
     <div
-      className={"px-3 pt-3 pb-5 mb-0 border dark:border-[--border-color] rounded-2xl " + className}
+      className={
+        "px-3 pt-3 pb-5 lg:px-6 lg:pt-4 lg:pb-8 mb-0 border dark:border-[--border-color] rounded-2xl " +
+        className
+      }
     >
-      <label>{i18next.t(labelKey)}</label>
+      <label className="text-xs uppercase opacity-50 font-bold">{i18next.t(labelKey)}</label>
       <div className="flex items-center w-full">
         <div className="w-full">
           <FormControl
@@ -94,7 +97,7 @@ export const SwapAmountControl = ({
             ))}
           </FormControl>
           {balance && showBalance ? (
-            <small className="balance block text-gray-600 whitespace-nowrap">
+            <small className="balance block text-gray-600 whitespace-nowrap pt-1 pr-1">
               {i18next.t("market.balance")}:
               <span
                 className="text-blue-dark-sky font-bold cursor-pointer ml-1"
