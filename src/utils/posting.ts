@@ -5,27 +5,34 @@ import { BeneficiaryRoute, CommentOptions, MetaData, RewardType } from "@/entiti
 const permlinkRnd = () => (Math.random() + 1).toString(16).substring(2);
 
 export const createPermlink = (title: string, random: boolean = false): string => {
-  let slug = getSlug(title).toString();
+  // Ensure the string is valid and normalized
+  let slug = getSlug(title || "", { lang: false, symbols: true }) ?? "";
 
-  // normalize early
-  slug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, "");
+  // Normalize and remove problematic Unicode characters
+  slug = slug
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+      .replace(/[^a-zA-Z0-9 -]/g, "") // Remove emoji and symbols
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-") // Replace spaces with dashes
+      .replace(/-+/g, "-"); // Collapse repeated dashes
 
-  // shorten if too long
+  // Fallback if result is empty
+  if (!slug || slug.length === 0) {
+    return permlinkRnd().toLowerCase();
+  }
+
   const parts = slug.split("-");
   let perm = parts.length > 5 ? parts.slice(0, 5).join("-") : slug;
 
   if (random) {
-    const rnd = permlinkRnd().toLowerCase(); // ensure random part is clean
+    const rnd = permlinkRnd().toLowerCase();
     perm = `${perm}-${rnd}`;
   }
 
-  // enforce Hive max length
   if (perm.length > 255) {
     perm = perm.substring(0, 250);
-  }
-
-  if (perm.length === 0) {
-    return permlinkRnd().toLowerCase();
   }
 
   return perm;
