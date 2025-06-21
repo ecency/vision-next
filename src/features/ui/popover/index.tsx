@@ -1,6 +1,14 @@
 "use client";
 
-import { HTMLAttributes, ReactNode, useEffect, useMemo, useState } from "react";
+import {
+  HTMLAttributes,
+  HTMLProps,
+  PropsWithChildren,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 import { createPortal } from "react-dom";
 import { useFilteredProps } from "../util";
 import { useClickAway, useMountedState, useWindowSize } from "react-use";
@@ -117,6 +125,10 @@ export function PopoverTitle({ children, className }: { children: ReactNode; cla
   return <div className={className + " p-2 border-b border-[--border-color]"}>{children}</div>;
 }
 
-export function PopoverContent({ children }: { children: ReactNode }) {
-  return <div className="p-2">{children}</div>;
+export function PopoverContent(props: PropsWithChildren<HTMLProps<HTMLDivElement>>) {
+  return (
+    <div {...props} className="p-2">
+      {props.children}
+    </div>
+  );
 }

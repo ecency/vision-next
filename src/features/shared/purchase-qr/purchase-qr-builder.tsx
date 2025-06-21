@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { success } from "../feedback";
-import qrcode from "qrcode";
 import defaults from "@/defaults.json";
-import { PurchaseTypes } from "./purchase-types";
 import { PurchaseQrTypes } from "@/features/shared/purchase-qr/purchase-qr-types";
 import { SearchByUsername } from "@/features/shared/search-by-username";
-import { InputGroupCopyClipboard } from "@ui/input";
 import { Alert } from "@ui/alert";
+import { InputGroupCopyClipboard } from "@ui/input";
 import i18next from "i18next";
-import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import qrcode from "qrcode";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { PurchaseTypes } from "./purchase-types";
 
 interface Props {
   username?: string;
@@ -67,16 +66,6 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    const textField = document.createElement("textarea");
-    textField.innerText = text;
-    document.body.appendChild(textField);
-    textField.select();
-    document.execCommand("copy");
-    textField.remove();
-    success(i18next.t("purchase-qr.copied"));
-  };
-
   return (
     <div className="flex flex-col items-center px-3 text-center">
       <h6>
@@ -84,7 +73,8 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
       </h6>
       <div className="w-full mt-4">
         <SearchByUsername
-          setUsername={(value: string) => {
+          username={username}
+          setUsername={(value) => {
             setUsername(value);
 
             if (!value) {
@@ -104,15 +94,17 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
           <></>
         )}
       </div>
-      {mounted && (<Image
-        width={600}
-        height={600}
-        ref={qrImgRef as any}
-        alt="Boost QR Code"
-        src=""
-        className="my-4"
-        style={{ display: isQrShow ? "block" : "none" }}
-      />)}
+      {mounted && (
+        <Image
+          width={600}
+          height={600}
+          ref={qrImgRef as any}
+          alt="Boost QR Code"
+          src=""
+          className="my-4"
+          style={{ display: isQrShow ? "block" : "none" }}
+        />
+      )}
       {isQrShow ? (
         <div className="w-full mb-4">
           <InputGroupCopyClipboard value={getURL()} />
