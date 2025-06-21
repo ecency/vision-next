@@ -21,6 +21,8 @@ const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
     return [i18next.t("chain-error.min-root-comment"), ErrorTypes.COMMON];
   } else if (/Your current vote on this comment is identical/.test(strErr)) {
     return [i18next.t("chain-error.identical-vote"), ErrorTypes.INFO];
+  } else if (/Must claim something/.test(strErr)) {
+    return [i18next.t("chain-error.must-claim"), ErrorTypes.INFO];
   } else if (/Please wait to transact, or power up/.test(strErr)) {
     return [
       i18next.t("chain-error.insufficient-resource"),
