@@ -8,6 +8,13 @@ import Link, { isAllowedUri } from "@tiptap/extension-link";
 export const SafeLink = Link.configure({
   openOnClick: false
 }).extend({
+  parseHTML() {
+    return [
+      {
+        tag: "span[rel]"
+      }
+    ];
+  },
   renderHTML({ HTMLAttributes }) {
     // prevent XSS attacks
     if (
