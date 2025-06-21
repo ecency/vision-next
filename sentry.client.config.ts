@@ -22,7 +22,8 @@ Sentry.init({
     "AxiosError",
     "Wrong private key. Master or active or posting private key required.",
     "Network request failed",
-    "Failed to read the 'localStorage' property from 'Window'"
+    "Failed to read the 'localStorage' property from 'Window'",
+    "Invalid parameters"
   ]
 });
 Sentry.setTag("source", "client");
