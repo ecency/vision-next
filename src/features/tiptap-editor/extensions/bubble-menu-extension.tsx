@@ -18,6 +18,16 @@ interface Props {
   editor: any | null;
 }
 
+function getEditingLinkHref(editor: Editor, from: number, to: number) {
+  let href;
+  editor.view.state.doc.nodesBetween(from, to, (node) => {
+    if (node.type.name === "text" && node.marks.length > 0 && node.marks[0].type.name === "link") {
+      href = node.marks[0].attrs.href;
+    }
+  });
+  return href;
+}
+
 export function BubbleMenu({ editor }: Props) {
   const [show, setShow] = useState(false);
   const [mode, setMode] = useState<"link">();
@@ -40,21 +50,13 @@ export function BubbleMenu({ editor }: Props) {
       } = editor.state;
 
       const isText = editor.state.doc.textBetween(from, to).length > 0;
-      let isLink = false;
+      const editingLinkHref = getEditingLinkHref(editor, from, to);
+      if (editingLinkHref) {
+        setEditingLink(editingLinkHref);
+        setTimeout(() => setMode("link"), 1);
+      }
 
-      (editor as Editor).view.state.doc.nodesBetween(from, to, (node) => {
-        if (
-          node.type.name === "text" &&
-          node.marks.length > 0 &&
-          node.marks[0].type.name === "link"
-        ) {
-          isLink = true;
-          setEditingLink(node.marks[0].attrs.href);
-          setMode("link");
-        }
-      });
-
-      if (!editor.isFocused || (!isText && !isLink)) {
+      if (!editor.isFocused || (!isText && !editingLinkHref)) {
         setShow(false);
         setMode(undefined);
         setEditingLink(undefined);
