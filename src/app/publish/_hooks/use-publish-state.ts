@@ -10,19 +10,7 @@ import { ThreeSpeakVideo } from "@ecency/sdk";
 
 export function usePublishState() {
   const params = useParams();
-
-  // If there is any ID parameter which means we are in edit mode
-  // then need to disable the persistent storage
-  //const persistent = useMemo(() => !params.id, [params.id]);
-  const persistent = true;
-
-  // Persistent always true, handle publish and draft edits states with sessionId reset logic
-  const [sessionId, setSessionId] = useSynchronizedLocalStorage<string>(
-      PREFIX + "_pub_session_id",
-      "",
-      undefined,
-      true // always persist
-  );
+  const persistent = useMemo(() => !params.id, [params]);
 
   const [title, setTitle] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_title",
@@ -141,7 +129,6 @@ export function usePublishState() {
   }, [thumbnails]);
 
   const clearAll = useCallback(() => {
-    setSessionId("");
     setTitle("");
     setContent("");
     setReward("default");
@@ -154,7 +141,6 @@ export function usePublishState() {
     clearPublishingVideo();
     clearPostLinks();
   }, [
-    setSessionId,
     setBeneficiaries,
     setContent,
     setMetaDescription,
@@ -169,8 +155,6 @@ export function usePublishState() {
   ]);
 
   return {
-    sessionId,
-    setSessionId,
     title,
     content,
     setTitle,
