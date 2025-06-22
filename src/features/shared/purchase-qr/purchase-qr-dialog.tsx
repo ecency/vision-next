@@ -21,6 +21,7 @@ export const PurchaseQrDialog = ({ show, setShow, type }: Props) => {
       centered={true}
       onHide={() => setShow?.(false)}
       className="purchase-qr-dialog"
+      size="lg"
     >
       <ModalHeader closeButton={true}>
         <ModalTitle>
