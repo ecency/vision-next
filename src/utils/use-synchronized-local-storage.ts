@@ -2,6 +2,7 @@
 
 import { useLocalStorage, useMount, useSessionStorage, useUnmount } from "react-use";
 import { useCallback, useState } from "react";
+import { useLogicalStorage } from "@/core/caches";
 
 type useLocalStorageType<T> = typeof useLocalStorage<T>;
 
@@ -31,7 +32,7 @@ export function useSynchronizedLocalStorage<T>(
   persistent = true
 ) {
   // Make behavior as use local storage
-  const [logicalValue, setLogicalValue] = useState<T | undefined>(initialValue);
+  const [logicalValue, setLogicalValue] = useLogicalStorage<T>(key, initialValue);
   const [value, setValue, clearValue] = useLocalStorage<T>(key, initialValue, options);
 
   const handler = useCallback(

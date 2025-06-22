@@ -11,7 +11,6 @@ import {
   parseAllExtensionsToDoc
 } from "@/features/tiptap-editor";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
 import Table from "@tiptap/extension-table";

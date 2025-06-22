@@ -1,8 +1,7 @@
 import { Button, FormControl } from "@/features/ui";
 import { Form } from "@/features/ui/form";
-import { UilEnter, UilExternalLinkAlt, UilTrashAlt } from "@tooni/iconscout-unicons-react";
+import { UilEnter, UilTrashAlt } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import Link from "next/link";
 import { useRef, useState } from "react";
 import { object, string } from "yup";
 
@@ -58,6 +57,7 @@ export function PublishEditorToolbarLinkForm({
         required={true}
         aria-invalid={isLinkInvalid}
         size="sm"
+        className="font-normal"
       />
       <Button type="submit" icon={<UilEnter />} disabled={!link} appearance="gray" size="xs" />
       {deletable && (

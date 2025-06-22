@@ -1,13 +1,11 @@
 "use client";
 
-import { v4 as uuidv4 } from "uuid";
 import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publish/_components";
-import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
-import { AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
-import { PublishSuccessState } from "./_components/publish-success-state";
+import { usePublishEditor } from "@/app/publish/_hooks";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { PublishEditorHtmlWarning } from "./_components/publish-editor-html-warning";
-import { useRouter, useParams } from "next/navigation";
+import { PublishSuccessState } from "./_components/publish-success-state";
 
 export default function Publish() {
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
@@ -15,18 +13,6 @@ export default function Publish() {
 
   const { editor } = usePublishEditor(() => setShowHtmlWarning(true));
   const router = useRouter();
-
-  const { sessionId, setSessionId, clearAll } = usePublishState();
-  const params = useParams();
-
-  useEffect(() => {
-    const isDraft = Boolean(params?.id);
-
-    if (!isDraft && !sessionId) {
-      clearAll();              // ✅ only clear for NEW posts
-      setSessionId(uuidv4());  // ✅ only create session for NEW posts
-    }
-  }, []);
 
   return (
     <>
