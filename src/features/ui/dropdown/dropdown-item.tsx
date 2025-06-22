@@ -1,11 +1,26 @@
 import React, { HTMLProps, PropsWithChildren, ReactNode, useContext } from "react";
 import { DropdownContext } from "@ui/dropdown/dropdown-context";
-import { classNameObject } from "@ui/util";
 import { clsx } from "clsx";
+import Link from "next/link";
 
 interface Props {
   size?: "small" | "medium" | "large";
+  href?: string;
+  selected?: boolean;
+  disabled?: boolean;
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
 }
+
+type DropdownItemProps = {
+  href?: string;
+  selected?: boolean;
+  disabled?: boolean;
+  size?: "small" | "medium" | "large";
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
+  children: React.ReactNode;
+} & Omit<React.HTMLAttributes<HTMLElement>, "onClick">;
 
 export interface MenuItem {
   label: string | JSX.Element;
@@ -20,46 +35,78 @@ export interface MenuItem {
   isStatic?: boolean;
 }
 
-export function DropdownItem(props: HTMLProps<HTMLDivElement> & Props) {
+export function DropdownItem({
+  href,
+  selected,
+  disabled,
+  size,
+  className,
+  onClick,
+  children,
+  ...rest
+}: DropdownItemProps) {
   const { setShow } = useContext(DropdownContext);
+
+  const baseClasses = clsx(
+    "cursor-pointer rounded-tr-xl rounded-br-xl duration-200",
+    "min-w-[80%] block w-full",
+    size === "small" ? "px-2 py-1 text-sm" : "px-3 py-1.5",
+    selected
+      ? "bg-blue-dark-sky-040 text-blue-dark-sky dark:text-white dark:bg-gray-900 hover:bg-blue-dark-sky-030 dark:hover:bg-gray-800"
+      : "hover:bg-blue-dark-sky-040 text-dark-default hover:text-blue-dark-sky dark:text-white dark:hover:bg-dark-default",
+    disabled && "opacity-50 cursor-not-allowed",
+    className
+  );
+
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (disabled) {
+      e.preventDefault();
+      return;
+    }
+    setShow(false);
+    onClick?.(e);
+  };
+
+  if (href) {
+    return (
+      <Link href={href} legacyBehavior passHref>
+        <a
+          className={baseClasses}
+          onClick={handleClick}
+          {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        >
+          {children}
+        </a>
+      </Link>
+    );
+  }
 
   return (
     <div
-      {...props}
-      className={classNameObject({
-        "min-w-[80%] cursor-pointer [&>a]:text-dark-default dark:text-white dark:[&>a]:text-white rounded-tr-xl rounded-br-xl duration-200":
-          true,
-        "bg-blue-dark-sky-040 text-blue-dark-sky dark:bg-gray-900 hover:bg-blue-dark-sky-030 dark:hover:bg-gray-800":
-          props.selected ?? false,
-        "hover:bg-blue-dark-sky-040 text-dark-default hover:text-blue-dark-sky dark:hover:bg-dark-default":
-          !(props.selected ?? false),
-        "px-3 py-1.5": !props.size || props.size === "medium",
-        "px-2 py-1 text-sm": !props.size || props.size === "small",
-        "opacity-50 cursor-not-allowed": props.disabled,
-        [props.className ?? ""]: !!props.className
-      })}
-      onClick={(e) => {
-        setShow(false);
-        props.onClick?.(e);
-      }}
-    />
+      className={baseClasses}
+      onClick={handleClick}
+      {...(rest as React.HTMLAttributes<HTMLDivElement>)}
+    >
+      {children}
+    </div>
   );
 }
 
 export function DropdownItemWithIcon(
-  props: Omit<HTMLProps<HTMLDivElement>, "label"> & Props & { icon?: ReactNode; label: any }
+  props: Omit<HTMLProps<HTMLDivElement>, "label"> & Props & { icon?: ReactNode; label: ReactNode }
 ) {
+  const { icon, label, className, ...rest } = props;
+
   return (
-    <DropdownItem {...props}>
-      <div
-        className={clsx(
-          "flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky [&>div>svg]:w-4",
-          props.className
-        )}
-      >
-        <div className="flex items-center">{props.icon}</div>
-        <div className="text-sm font-semibold">{props.label}</div>
-      </div>
+    <DropdownItem
+      {...rest}
+      className={clsx(
+        "flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-blue-dark-sky [&>span>svg]:w-4",
+        className
+      )}
+    >
+      {icon && <span className="flex items-center">{icon}</span>}
+      <span className="text-sm font-semibold">{label}</span>
     </DropdownItem>
   );
 }

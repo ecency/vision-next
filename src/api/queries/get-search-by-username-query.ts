@@ -3,10 +3,10 @@ import { lookupAccounts } from "@/api/hive";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { useQuery } from "@tanstack/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import {useClientActiveUser} from "@/api/queries/useClientActiveUser";
 
 export function useSearchByUsernameQuery(query: string, excludeActiveUser = false) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   return useQuery({
     queryKey: [QueryIdentifiers.SEARCH_BY_USERNAME, query],

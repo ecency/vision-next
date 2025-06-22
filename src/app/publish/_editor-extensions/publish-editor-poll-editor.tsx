@@ -21,7 +21,7 @@ import i18next from "i18next";
 import { useMemo, useRef, useState } from "react";
 import { usePublishState } from "../_hooks";
 import { PublishEditorPollEditorSettings } from "./publish-editor-poll-editor-settings";
-import { format } from "date-fns";
+import {addHours, format} from "date-fns";
 
 export function PublishEditorPollEditor() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -101,6 +101,7 @@ export function PublishEditorPollEditor() {
             <ModalBody>
               <Datepicker
                 value={poll?.endTime}
+                minDate={addHours(new Date(), 1)}
                 onChange={(e) =>
                   setPoll({
                     ...poll,

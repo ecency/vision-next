@@ -1,13 +1,15 @@
-import { Button, Popover, PopoverContent, StyledTooltip } from "@/features/ui";
+import { useUploadPostImage } from "@/api/mutations";
+import { Button, Popover, PopoverContent } from "@/features/ui";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
 import Text from "@tiptap/extension-text";
 import { EditorContent, Node, NodeViewProps, NodeViewWrapper, useEditor } from "@tiptap/react";
-import { UilTrash } from "@tooni/iconscout-unicons-react";
+import { UilSpinner, UilTrash } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useMount } from "react-use";
 
 export function PublishEditorImageViewer({
   node: {
@@ -42,11 +44,23 @@ export function PublishEditorImageViewer({
     }
   });
 
+  const { mutateAsync: uploadImage } = useUploadPostImage();
+
+  useMount(() => {
+    if (src.startsWith("blob")) {
+      fetch(src)
+        .then((response) => response.blob())
+        .then((blob) => new File([blob], alt, { type: blob.type }))
+        .then((file) => uploadImage({ file }))
+        .then(({ url }) => updateAttributes({ src: url }));
+    }
+  });
+
   return (
     <NodeViewWrapper
       onClick={() => editor?.chain().selectTextblockEnd().focus().run()}
       className={clsx(
-        "publish-editor-image-viewer cursor-grab border hover:border-blue-dark-sky inline-flex",
+        "publish-editor-image-viewer cursor-grab border hover:border-blue-dark-sky inline-flex relative",
         selected ? "border-blue-dark-sky" : "border-transparent"
       )}
       data-drag-handle
@@ -59,7 +73,21 @@ export function PublishEditorImageViewer({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <Image className="w-auto max-w-full" src={src} width={200} height={200} alt={alt} />
+            <div
+              className={clsx(
+                "absolute top-0 left-0 w-full h-full items-center justify-center",
+                src.startsWith("blob") ? "flex" : "hidden"
+              )}
+            >
+              <UilSpinner className="w-12 h-12 text-white animate-spin" />
+            </div>
+            <Image
+              className={clsx("w-auto max-w-full", src.startsWith("blob") && "grayscale blur-sm")}
+              src={src}
+              width={200}
+              height={200}
+              alt={alt}
+            />
             <div className="flex items-center justify-center text-sm font-sans text-center leading-relaxed py-4">
               <EditorContent editor={editor} className="cursor-text" />
             </div>
@@ -114,7 +142,9 @@ export function PublishEditorImageViewer({
                 Original
               </Button>
             )}
-            <div className="h-[36px] -my-2 w-[1px] bg-[--border-color]" />
+            {src.includes("https://images.ecency.com") && (
+              <div className="h-[36px] -my-2 w-[1px] bg-[--border-color]" />
+            )}
             <Button
               noPadding={true}
               className="!h-auto"

@@ -18,13 +18,20 @@ export function WaveFollowsCard() {
       return [];
     }
 
-    const uniqueUsernames: LeaderBoardItem[] = [];
-    while (uniqueUsernames.length < 5) {
-      uniqueUsernames.push(data[Math.floor(Math.random() * data.length)]);
+    const seen = new Set<string>();
+    const result: LeaderBoardItem[] = [];
+
+    while (result.length < 5 && seen.size < data.length) {
+      const candidate = data[Math.floor(Math.random() * data.length)];
+      if (!seen.has(candidate._id)) {
+        seen.add(candidate._id);
+        result.push(candidate);
+      }
     }
 
-    return uniqueUsernames;
+    return result;
   }, [data]);
+
 
   return (
     <div className="rounded-2xl bg-white dark:bg-dark-200 p-4">

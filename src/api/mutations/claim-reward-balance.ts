@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { broadcastPostingOperations, claimRewardBalance, formatError } from "@/api/operations";
+import { broadcastPostingOperations, formatError } from "@/api/operations";
 import { Operation } from "@hiveio/dhive";
 import { useGlobalStore } from "@/core/global-store";
 import { getAccountFullQuery } from "@/api/queries";
-import { error, success } from "@/features/shared";
+import {error, handleAndReportError, success} from "@/features/shared";
 import i18next from "i18next";
 
 export function useClaimRewardBalance() {
@@ -33,7 +33,12 @@ export function useClaimRewardBalance() {
 
       const opArray: Operation[] = [["claim_reward_balance", params]];
 
-      return broadcastPostingOperations(activeUser!.username, opArray);
+      try {
+        return await broadcastPostingOperations(activeUser!.username, opArray);
+      } catch (err) {
+        const handled = handleAndReportError(err, "claim-reward");
+        if (!handled) throw err; // Rethrow for react-query's `onError` if needed
+      }
     },
     onError: (err) => error(...formatError(err)),
     onSuccess: () => {

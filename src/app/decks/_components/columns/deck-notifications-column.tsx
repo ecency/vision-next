@@ -17,7 +17,7 @@ import { getNotifications } from "@/api/private-api";
 import { NotificationFilter } from "@/enums";
 import i18next from "i18next";
 import { NotificationListItem } from "@/features/shared";
-import { getPost } from "@/api/hive";
+import { getContent } from "@/api/hive";
 
 interface Props {
   id: string;
@@ -151,7 +151,7 @@ export const DeckNotificationsColumn = ({ id, settings, draggable }: Props) => {
               case "vote":
               case "favorites":
               case "reblog":
-                const entry = await getPost(item.author, item.permlink);
+                const entry = await getContent(item.author, item.permlink);
                 if (entry) {
                   setCurrentViewingEntry(entry);
                 }

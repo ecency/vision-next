@@ -122,10 +122,19 @@ export function useMenuItemsGenerator(
         () => isOwn,
         () => ({
           label: i18next.t("g.edit"),
-          onClick:
-            isComment
-              ? () => router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`)
-              : () => router.push(`/@${entry.author}/${entry.permlink}/edit`),
+          onClick: isComment
+            ? () => router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`)
+            : () => router.push(`/@${entry.author}/${entry.permlink}/edit`),
+          icon: <UilPen />
+        })
+      ),
+      ...safeSpread(
+        () => isOwn,
+        () => ({
+          label: i18next.t("entry-menu.edit-classic"),
+          onClick: isComment
+            ? () => router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`)
+            : () => router.push(`/@${entry.author}/${entry.permlink}/edit-classic`),
           icon: <UilPen />
         })
       ),

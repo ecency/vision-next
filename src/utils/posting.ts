@@ -5,34 +5,39 @@ import { BeneficiaryRoute, CommentOptions, MetaData, RewardType } from "@/entiti
 const permlinkRnd = () => (Math.random() + 1).toString(16).substring(2);
 
 export const createPermlink = (title: string, random: boolean = false): string => {
-  const slug = getSlug(title);
-  let perm = slug.toString();
+  // Ensure the string is valid and normalized
+  let slug = getSlug(title || "", { lang: false, symbols: true }) ?? "";
 
-  // make shorter url if possible
-  let shortp = perm.split("-");
-  if (shortp.length > 5) {
-    perm = shortp.slice(0, 5).join("-");
+  // Normalize and remove problematic Unicode characters
+  slug = slug
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+      .replace(/[^a-zA-Z0-9 -]/g, "") // Remove emoji and symbols
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-") // Replace spaces with dashes
+      .replace(/-+/g, "-"); // Collapse repeated dashes
+
+  // Fallback if result is empty
+  if (!slug || slug.length === 0) {
+    return permlinkRnd().toLowerCase();
   }
 
+  const parts = slug.split("-");
+  let perm = parts.length > 5 ? parts.slice(0, 5).join("-") : slug;
+
   if (random) {
-    const rnd = permlinkRnd();
+    const rnd = permlinkRnd().toLowerCase();
     perm = `${perm}-${rnd}`;
   }
 
-  // HIVE_MAX_PERMLINK_LENGTH
   if (perm.length > 255) {
-    perm = perm.substring(perm.length - 255, perm.length);
-  }
-
-  // only letters numbers and dashes
-  perm = perm.toLowerCase().replace(/[^a-z0-9-]+/g, "");
-
-  if (perm.length === 0) {
-    return permlinkRnd();
+    perm = perm.substring(0, 250);
   }
 
   return perm;
 };
+
 
 export const extractMetaData = (body: string): MetaData => {
   const urlReg = /(\b(https?|ftp):\/\/[A-Z0-9+&@#/%?=~_|!:,.;-]*[-A-Z0-9+&@#/%=~_|])/gim;

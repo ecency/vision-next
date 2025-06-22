@@ -2,7 +2,7 @@ import { Appearance } from "./types";
 
 export const ALERT_STYLES: Record<Appearance, string> = {
   primary:
-    "bg-blue-dark-sky-040 border border-blue-dark-sky-030 text-blue-dark-sky dark:bg-dark-400 dark:border-dark-300 dark:text-white",
+    "bg-blue-dark-sky-040 border border-blue-dark-sky-030 text-blue-dark-sky dark:bg-dark-default dark:border-dark-300 dark:text-gray-100",
   secondary:
     "bg-gray-100 border border-gray-200 text-gray-600 dark:bg-opacity-[20%] dark:border-opacity-[20%]",
   success:

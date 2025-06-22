@@ -1,6 +1,6 @@
 import { PerksPage } from "@/app/perks/_page";
-import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
+import { Metadata, ResolvingMetadata } from "next";
 
 export const dynamic = "force-dynamic";
 

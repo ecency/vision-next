@@ -150,8 +150,10 @@ export const UserMentionExtensionConfig = {
       },
 
       onExit() {
-        placementArea?.removeChild(reactRenderer.element);
-        reactRenderer.destroy();
+        if (reactRenderer) {
+          placementArea?.removeChild(reactRenderer.element);
+          reactRenderer.destroy();
+        }
       }
     };
   }

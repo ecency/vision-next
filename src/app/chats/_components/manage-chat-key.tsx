@@ -64,17 +64,16 @@ export function ManageChatKey() {
           <InputGroupCopyClipboard value={pin ?? ""} />
           <div className="text-sm mt-4">{i18next.t("chat.ecency-key")}</div>
           <InputGroupCopyClipboard value={ecencyKey ?? ""} />
-          <Image
-            alt=""
-            src=""
-            width={1000}
-            height={1000}
+          <img
+            alt="QR code"
+            width={300}
+            height={300}
             ref={qrImgRef}
             className={classNameObject({
               "self-center border rounded-xl border-[--border-color]": true,
               hidden: !isQrShow,
               block: isQrShow
-            })}
+          })}
           />
           <Button
             className="mx-auto"
@@ -93,7 +92,7 @@ export function ManageChatKey() {
       ) : (
         <>
           <div className="text-center text-gray-600 dark:text-gray-400">
-            {i18next.t("chat.unlock-the-[...sections]")}
+            {i18next.t("chat.unlock-the-section")}
           </div>
           <CodeInput value={validationPin} setValue={setValidationPin} codeSize={8} />
           {validationPin !== pin && validationPin.length === pin?.length && (

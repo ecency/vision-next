@@ -12,7 +12,7 @@ interface Props {
 export function EntryFooterInfo({ entry }: Props) {
   const app = appName(entry.json_metadata.app);
   const appShort = app.split("/")[0].split(" ")[0];
-  const published = moment(parseDate(entry.created));
+  const published = moment(parseDate(entry.created, false));
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
@@ -42,6 +42,13 @@ export function EntryFooterInfo({ entry }: Props) {
           </div>
         </>
       )}
+        {app && app.indexOf('ecency')==-1 && (
+            <div className="post-disclaimer-print">
+                <Tsx k="entry.disclaimer" args={{ appName: appShort }}>
+                    <a href="/faq#source-label" />
+                </Tsx>
+            </div>
+        )}
     </div>
   );
 }

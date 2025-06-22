@@ -13,6 +13,7 @@ import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "highcharts";
 import { useRouter } from "next/navigation";
 import { postBodySummary } from "@ecency/render-helper";
+import { EcencyAnalytics } from "@ecency/sdk";
 
 export function useSaveDraftApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -21,6 +22,11 @@ export function useSaveDraftApi() {
 
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "legacy-draft-created"
+  );
 
   return useMutation({
     mutationKey: ["saveDraft"],
@@ -72,6 +78,8 @@ export function useSaveDraftApi() {
         } else {
           const resp = await addDraft(activeUser?.username!, title, body, tagJ, draftMeta);
           success(i18next.t("submit.draft-saved"));
+
+          recordActivity();
 
           const { drafts } = resp;
           const draft = drafts[drafts?.length - 1];

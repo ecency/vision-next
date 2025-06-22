@@ -5,7 +5,6 @@ import "./_index.scss";
 import * as ss from "@/utils/session-storage";
 import { LoginRequired } from "@/features/shared";
 import useClickAway from "react-use/lib/useClickAway";
-import { useGlobalStore } from "@/core/global-store";
 import { chevronUpSvgForVote } from "@ui/svg";
 import { EntryVoteDialog } from "@/features/shared/entry-vote-btn/entry-vote-dialog";
 import { useEntryVote } from "@/api/mutations";
@@ -15,6 +14,7 @@ import { prepareVotes } from "@/features/shared/entry-vote-btn/utils";
 import { classNameObject } from "@ui/util";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { AnimatePresence, motion } from "framer-motion";
+import {useClientActiveUser} from "@/api/queries";
 
 interface Props {
   entry: Entry;
@@ -25,7 +25,7 @@ interface Props {
 export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Props) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   const { data: entry } =
     EcencyEntriesCacheManagement.getEntryQuery(originalEntry).useClientQuery();
@@ -52,7 +52,13 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
     return { upVoted, downVoted };
   }, [activeUser, entry?.active_votes]);
 
-  useClickAway(rootRef, () => {
+  useClickAway(rootRef, (e) => {
+    const target = e.target as HTMLElement;
+
+    // Ignore clicks inside the tipping modal container
+    if (target.closest("#modal-dialog-container")) {
+      return;
+    }
     if (dialog) setDialog(false);
   });
 

@@ -22,7 +22,7 @@ import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { motion } from "framer-motion";
 import i18next from "i18next";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { PropsWithChildren, useState } from "react";
 import { useSaveDraftApi } from "../_api";
 import { usePublishState } from "../_hooks";
@@ -30,11 +30,14 @@ import { PublishActionBarCommunity } from "./publish-action-bar-community";
 
 interface Props {
   onPublish: () => void;
+  onBackToClassic: () => void;
 }
 
-export function PublishActionBar({ onPublish, children }: PropsWithChildren<Props>) {
-  const router = useRouter();
-
+export function PublishActionBar({
+  onPublish,
+  children,
+  onBackToClassic
+}: PropsWithChildren<Props>) {
   const { schedule: scheduleDate, clearAll } = usePublishState();
 
   const [showReward, setShowReward] = useState(false);
@@ -58,8 +61,9 @@ export function PublishActionBar({ onPublish, children }: PropsWithChildren<Prop
       <PublishActionBarCommunity />
       <div className="flex items-center gap-4">
         <LoginRequired>
-          <Button appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
-            {i18next.t("g.continue")}
+          <Button size="sm" appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
+            {scheduleDate && i18next.t("publish.continue-to-schedule")}
+            {!scheduleDate && i18next.t("publish.continue-to-publish")}
           </Button>
         </LoginRequired>
         {children}
@@ -118,7 +122,7 @@ export function PublishActionBar({ onPublish, children }: PropsWithChildren<Prop
             <div className="border-b border-[--border-color] h-[1px] w-full" />
             <DropdownItemWithIcon
               label={i18next.t("publish.back-to-old")}
-              onClick={() => router.push("/submit")}
+              onClick={onBackToClassic}
             />
           </DropdownMenu>
         </Dropdown>

@@ -12,7 +12,7 @@ interface Props {
   onHide: () => void;
   centered?: boolean;
   animation?: boolean;
-  size?: "md" | "lg";
+  size?: "md" | "lg" | "sm";
   dialogClassName?: string;
   overlayClassName?: string;
   raw?: boolean;
@@ -135,11 +135,12 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
               }
               onClick={(e) => e.stopPropagation()}
               className={classNameObject({
-                "ecency-modal-content overflow-x-hidden": true,
+                "ecency-modal-content": true,
                 " md:my-[3rem] w-full mt-auto mx-0 sm:mt-0 sm:mx-3 bg-white border border-[--border-color] rounded-t-xl sm:rounded-xl sm:w-[calc(100%-2rem)]":
                   !props.raw,
                 "max-w-[500px]": !props.size || props.size === "md",
                 "max-w-[800px]": props.size === "lg",
+                "w-full sm:max-w-[375px]": props.size === "sm",
                 [props.dialogClassName ?? ""]: true
               })}
             >

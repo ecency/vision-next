@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useClientActiveUser } from "@/api/queries";
+import { UserAvatar } from "@/features/shared/user-avatar";
+import { getSearchAccountsByUsernameQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { FormControl, InputGroup } from "@ui/input";
 import { Spinner } from "@ui/spinner";
-import { useGlobalStore } from "@/core/global-store";
-import { UserAvatar } from "@/features/shared/user-avatar";
-import { SuggestionList } from "@/features/shared/suggestion-list";
-import i18next from "i18next";
-import { useSearchByUsernameQuery } from "@/api/queries";
+import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "react-use";
+import { Popover } from "../ui";
 
 interface Props {
   username?: string;
@@ -15,69 +15,70 @@ interface Props {
   recent?: string[];
 }
 
-export const SearchByUsername = ({ setUsername, excludeActiveUser, recent, username }: Props) => {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+export const SearchByUsername = ({ setUsername, excludeActiveUser, username }: Props) => {
+  const activeUser = useClientActiveUser();
 
-  const [prefilledUsername, setPrefilledUsername] = useState(username || "");
+  const rootRef = useRef<HTMLDivElement>(null);
+
   const [usernameInput, setUsernameInput] = useState(username || "");
-  const [isActiveUserSet, setIsActiveUserSet] = useState(false);
-
   const [query, setQuery] = useState("");
+  const [show, setShow] = useState(false);
 
-  const { data: usernameData, isLoading: isUsernameDataLoading } = useSearchByUsernameQuery(
-    query,
-    !isActiveUserSet
+  const { data: usernameData, isLoading: isUsernameDataLoading } = useQuery(
+    getSearchAccountsByUsernameQueryOptions(query)
   );
 
   useDebounce(() => setQuery(usernameInput), 500, [usernameInput]);
 
   useEffect(() => {
     if (activeUser && !excludeActiveUser) {
-      setIsActiveUserSet(true);
       setUsername(activeUser.username);
       setUsernameInput(activeUser.username);
     }
-  }, [activeUser, excludeActiveUser, setUsername]);
-
-  useEffect(() => {
-    if (usernameInput !== prefilledUsername) {
-      setPrefilledUsername("");
-    }
-  }, [prefilledUsername, usernameInput]);
-
-  const suggestionProps = {
-    renderer: (i: any) => {
-      return (
-        <>
-          <UserAvatar username={i.username || i} size="medium" />{" "}
-          <span style={{ marginLeft: "4px" }}>{i}</span>
-        </>
-      );
-    },
-    onSelect: (selectedText: any) => {
-      setUsernameInput(selectedText);
-      setUsername(selectedText);
-    }
-  };
+  }, [activeUser, excludeActiveUser]);
 
   return (
-    <SuggestionList
-      items={usernameData ?? []}
-      {...suggestionProps}
-      header={!usernameInput ? i18next.t("transfer.recent-transfers") : ""}
+    <Popover
+      behavior="click"
+      show={show}
+      directContent={
+        <div ref={rootRef}>
+          <InputGroup prepend={isUsernameDataLoading ? <Spinner /> : "@"}>
+            <FormControl
+              type="text"
+              placeholder=""
+              value={usernameInput}
+              onFocus={() => setShow(true)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setUsernameInput(e.target.value);
+              }}
+            />
+          </InputGroup>
+        </div>
+      }
     >
-      <InputGroup prepend={isUsernameDataLoading ? <Spinner /> : "@"}>
-        <FormControl
-          type="text"
-          autoFocus={true}
-          placeholder=""
-          value={usernameInput}
-          onChange={(e) => {
-            setUsernameInput(e.target.value);
-            setUsername(e.target.value);
-          }}
-        />
-      </InputGroup>
-    </SuggestionList>
+      <div
+        className="w-full"
+        style={{
+          width: rootRef.current?.clientWidth
+        }}
+      >
+        {usernameData?.map((username) => (
+          <div
+            key={username}
+            className="border-b border-[--border-color] last:border-0 p-2 md:p-4 flex items-center gap-2 md:gap-3 cursor-pointer hover:bg-gray-200 dark:hover-bg-gray-800"
+            onClick={() => {
+              setUsername(username);
+              setUsernameInput(username);
+              setShow(false);
+            }}
+          >
+            <UserAvatar size="small" username={username} />
+            <div>{username}</div>
+          </div>
+        ))}
+      </div>
+    </Popover>
   );
 };

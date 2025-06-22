@@ -43,7 +43,13 @@ export function StyledTooltip({ children, content, className, size = "sm", onHid
         setShow(false);
         onHide?.();
       }}
-      onClick={() => setShow(!show)}
+      onClick={() => {
+        setShow(!show);
+
+        if (show) {
+          onHide?.();
+        }
+      }}
     >
       {children}
       {typeof document !== "undefined" &&

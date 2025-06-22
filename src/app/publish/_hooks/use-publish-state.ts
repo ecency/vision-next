@@ -10,10 +10,7 @@ import { ThreeSpeakVideo } from "@ecency/sdk";
 
 export function usePublishState() {
   const params = useParams();
-
-  // If there is any ID parameter which means we are in edit mode
-  // then need to disable the persistent storage
-  const persistent = useMemo(() => !params.id, [params.id]);
+  const persistent = useMemo(() => !params.id, [params]);
 
   const [title, setTitle] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_title",

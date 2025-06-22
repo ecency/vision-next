@@ -1,12 +1,11 @@
-import { BookmarkBtn, EntryStats, ProfileLink, UserAvatar } from "@/features/shared";
 import i18next from "i18next";
 import { Entry } from "@/entities";
 import ReadTime from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-read-time";
 import moment from "moment/moment";
 import { accountReputation, parseDate } from "@/utils";
-import { TagLink } from "@/features/shared/tag";
 import { EntryPageMainInfoMenu } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-main-info-menu";
 import { EcencyConfigManager } from "@/config";
+import { UserAvatar, BookmarkBtn, EntryStats, ProfileLink, TagLink } from "@/features/shared";
 
 interface Props {
   entry: Entry;
@@ -15,7 +14,7 @@ interface Props {
 export function EntryPageMainInfo({ entry }: Props) {
   const isComment = !!entry.parent_author;
 
-  const published = moment(parseDate(entry.created));
+  const published = moment(parseDate(entry.created, false));
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (

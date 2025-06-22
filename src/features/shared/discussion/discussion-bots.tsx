@@ -1,14 +1,14 @@
-import React, { useMemo, useRef, useState } from "react";
-import { UserAvatar } from "../user-avatar";
-import { createPortal } from "react-dom";
-import { usePopper } from "react-popper";
-import useClickAway from "react-use/lib/useClickAway";
-import { renderPostBody } from "@ecency/render-helper";
-import { EntryLink } from "../entry-link";
 import { Entry } from "@/entities";
-import { dateToRelative } from "@/utils";
 import { ProfileLink } from "@/features/shared";
+import { dateToRelative } from "@/utils";
+import { renderPostBody } from "@ecency/render-helper";
+import { autoUpdate, flip, shift, useFloating } from "@floating-ui/react-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { useMemo, useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import useClickAway from "react-use/lib/useClickAway";
+import { EntryLink } from "../entry-link";
+import { UserAvatar } from "../user-avatar";
 
 interface Props {
   entries: Entry[];
@@ -16,11 +16,17 @@ interface Props {
 
 export function DiscussionBots({ entries }: Props) {
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const [host, setHost] = useState<any>();
-  const [popperElement, setPopperElement] = useState<any>();
   const [show, setShow] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [portalContainer, setPortalContainer] = useState<Element | null>(null);
 
-  const popper = usePopper(host, popperElement);
+
+  const { refs, floatingStyles } = useFloating({
+    whileElementsMounted: autoUpdate,
+    middleware: [flip(), shift()],
+    placement: "top",
+    transform: true
+  });
 
   const authors = useMemo(
     () =>
@@ -31,9 +37,13 @@ export function DiscussionBots({ entries }: Props) {
   );
 
   useClickAway(contentRef, () => setShow(false));
+  useEffect(() => {
+    setMounted(true);
+    setPortalContainer(document.querySelector("#popper-container"));
+  }, []);
 
   return (
-    <div ref={setHost}>
+    <div ref={refs.setReference}>
       <div
         className="flex items-center opacity-50 hover:opacity-100 cursor-pointer"
         onClick={() => setShow(true)}
@@ -44,13 +54,8 @@ export function DiscussionBots({ entries }: Props) {
           </div>
         ))}
       </div>
-      {createPortal(
-        <div
-          ref={setPopperElement}
-          className="z-20"
-          style={popper.styles.popper}
-          {...popper.attributes.popper}
-        >
+      {mounted && portalContainer && createPortal(
+        <div ref={refs.setFloating} className="z-20" style={floatingStyles}>
           <AnimatePresence>
             {show ? (
               <motion.div
@@ -89,7 +94,7 @@ export function DiscussionBots({ entries }: Props) {
             )}
           </AnimatePresence>
         </div>,
-        document.querySelector("#popper-container")!
+          portalContainer
       )}
     </div>
   );

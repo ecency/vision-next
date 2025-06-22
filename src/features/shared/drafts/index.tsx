@@ -15,16 +15,8 @@ interface Props {
 
 export function DraftsDialog({ show, setShow, onPick }: Props) {
   return (
-    <Modal
-      show={show}
-      centered={true}
-      onHide={() => setShow(false)}
-      size="lg"
-      className="drafts-modal"
-    >
-      <ModalHeader closeButton={true}>
-        <ModalTitle>{i18next.t("drafts.title")}</ModalTitle>
-      </ModalHeader>
+    <Modal show={show} centered={true} onHide={() => setShow(false)} size="lg">
+      <ModalHeader closeButton={true}>{i18next.t("drafts.title")}</ModalHeader>
       <ModalBody>
         <DraftsList onHide={() => setShow(false)} onPick={onPick} />
       </ModalBody>

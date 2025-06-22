@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 import { postBodySummary } from "@ecency/render-helper";
+import { EcencyAnalytics } from "@ecency/sdk";
 
 export function useUpdateApi(onClear: () => void) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -20,6 +21,10 @@ export function useUpdateApi(onClear: () => void) {
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "legacy-post-updated"
+  );
 
   return useMutation({
     mutationKey: ["update"],
@@ -83,6 +88,8 @@ export function useUpdateApi(onClear: () => void) {
           updated: correctIsoDate(moment().toISOString())
         };
         updateEntryQueryData([entry]);
+
+        recordActivity();
 
         onClear();
         success(i18next.t("submit.updated"));

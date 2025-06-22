@@ -21,18 +21,16 @@ export function WavesListView({ host }: Props) {
 
   return (
     <div className="flex flex-col pb-8">
-      {data?.pages?.map((page, i) => (
-        <Fragment key={i}>
-          {page.map((item, j) => (
-            <WavesListItem
-              i={j}
-              key={item.id}
-              item={item}
-              onExpandReplies={() => setReplyingEntry(item)}
-            />
-          ))}
-        </Fragment>
-      ))}
+        {data?.pages?.flatMap((page) =>
+            page.map((item, j) => (
+                <WavesListItem
+                    key={`${item.author}/${item.permlink}`}
+                    i={j}
+                    item={item}
+                    onExpandReplies={() => setReplyingEntry(item)}
+                />
+            ))
+        )}
 
       <WavesListLoader data={dataFlow} failed={isError} isEndReached={!hasNextPage} />
       <DetectBottom onBottom={() => fetchNextPage()} />

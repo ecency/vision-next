@@ -7,10 +7,17 @@ interface Props {
 
 export async function GET(request: NextRequest, { params }: Props) {
   const { username } = await params;
-  return new Response(
-    (
-      await new AccountRssHandler(request.nextUrl.pathname, username.replace("%40", "")).getFeed()
-    ).xml(),
-    { headers: { "Content-Type": "text/xml" } }
-  );
+
+  try {
+    return new Response(
+      (
+        await new AccountRssHandler(request.nextUrl.pathname, username.replace("%40", "")).getFeed()
+      ).xml(),
+      { headers: { "Content-Type": "text/xml" } }
+    );
+  } catch (e) {
+    return new Response("", {
+      status: 400
+    });
+  }
 }

@@ -63,7 +63,7 @@ export function useAdvancedManager() {
     setAdvanced,
     reward: reward!!,
     setReward,
-    beneficiaries: beneficiaries!!,
+    beneficiaries: beneficiaries ?? [],
     setBeneficiaries,
     description: description ?? null,
     setDescription,

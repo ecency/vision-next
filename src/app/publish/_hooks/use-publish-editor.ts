@@ -1,15 +1,16 @@
 import { error } from "@/features/shared";
 import {
   HivePostExtension,
+  SafeLink,
   Selection,
   TagMentionExtensionConfig,
   ThreeSpeakVideoExtension,
   UserMentionExtensionConfig,
+  clipboardPlugin,
   markdownToHtml,
   parseAllExtensionsToDoc
 } from "@/features/tiptap-editor";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
 import Table from "@tiptap/extension-table";
@@ -32,22 +33,8 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     editorProps: {
-      handlePaste(view, event, slice) {
-        const pastedText = event.clipboardData?.getData("text/plain");
-        if (pastedText) {
-          if (/<[a-z]+>.*<\/[a-z]+>/gim.test(pastedText)) {
-            onHtmlPaste();
-            event.preventDefault();
-            return true;
-          } else {
-            const parsedText = parseAllExtensionsToDoc(
-              DOMPurify.sanitize(marked.parse(pastedText) as string)
-            );
-
-            editor?.chain().insertContent(parsedText).run();
-          }
-        }
-      }
+      handlePaste: ((_: any, event: ClipboardEvent, __: any) =>
+        clipboardPlugin(event, editor, onHtmlPaste).handle(event)) as any
     },
     extensions: [
       StarterKit.configure() as AnyExtension,
@@ -69,9 +56,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
           return ReactNodeViewRenderer(PublishEditorImageViewer);
         }
       }),
-      Link.configure({
-        openOnClick: false
-      }),
+      SafeLink,
       // User mention
       Mention.configure({
         HTMLAttributes: {
@@ -128,7 +113,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
   // Handle editor clearing
   useEffect(() => {
     if (!publishState.content && editor?.getText() !== "") {
-      editor?.chain().setContent("").run();
+      editor?.commands.setContent("");
     }
   }, [editor, publishState.content]);
 

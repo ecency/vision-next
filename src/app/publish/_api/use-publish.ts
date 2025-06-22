@@ -1,5 +1,5 @@
 import { validatePostCreating } from "@/api/hive";
-import { comment, formatError, reblog } from "@/api/operations";
+import { comment, reblog } from "@/api/operations";
 import { getPostHeaderQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
@@ -8,7 +8,7 @@ import { Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
-import { error, success } from "@/features/shared";
+import { handleAndReportError, success} from "@/features/shared";
 import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -39,6 +39,10 @@ export function usePublishApi() {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "post-created"
+  );
+  const { mutateAsync: recordUploadVideoActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "video-published"
   );
 
   return useMutation({
@@ -141,17 +145,14 @@ export function usePublishApi() {
         updateEntryQueryData([entry]);
 
         await validatePostCreating(entry.author, entry.permlink, 3);
+
+        // Record all user activity
         recordActivity();
+        if (publishingVideo) {
+          recordUploadVideoActivity();
+        }
 
         success(i18next.t("submit.published"));
-
-        //Mark speak video as published
-        // if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
-        //   success(i18next.t("video-upload.publishing"));
-        //   setTimeout(() => {
-        //     markAsPublished(activeUser!.username, unpublished3SpeakVideo._id);
-        //   }, 10000);
-        // }
         if (isCommunity(tags?.[0]) && isReblogToCommunity) {
           await reblog(author, author, permlink);
         }
@@ -159,8 +160,11 @@ export function usePublishApi() {
         // return [entry as Entry, activePoll] as const;
         return [entry, null as PollSnapshot | null] as const;
       } catch (e) {
-        error(...formatError(e));
-        throw e;
+        const handled = handleAndReportError(e, "publish-post");
+        if (!handled) {
+          throw e;
+        }
+        return undefined as never; // Tell TypeScript: "I'm done, nothing else is returned"
       }
     },
     onSuccess([entry, poll]) {

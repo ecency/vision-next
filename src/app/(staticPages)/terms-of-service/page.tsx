@@ -80,6 +80,9 @@ export default function TermsOfService() {
             products, services, processes or other information by name, trademark, manufacturer,
             supplier or otherwise does not constitute or imply endorsement, sponsorship or
             recommendation by Ecency.
+            Ecency is a user interface for decentralized content on the Hive blockchain and affiliated
+            third-party applications. The Service does not originate, host, or control user content and functions
+            solely as a viewer and aggregator of content publicly available through external networks and platforms.
           </p>
           <h2>5. Assumption of Risk, Limitations on Liability.</h2>
           <p>
@@ -163,9 +166,9 @@ export default function TermsOfService() {
             account independently of the Service. If you would like to use part of the Service, you
             must create a Hive blockchain account (&quot;Account&quot;). When you create an Account,
             you are strongly advised to take the following precautions, as failure to do so may
-            result in loss of access to, and/or control over, your Account: (b) Provide accurate and
-            truthful information; (c) maintain the security of your Account by protecting your
-            Account password and access to your computer and your Account; (e) Promptly notify us if
+            result in loss of access to, and/or control over, your Account: (a) Provide accurate and
+            truthful information; (b) maintain the security of your Account by protecting your
+            Account password and access to your computer and your Account; (c) Promptly notify us if
             you discover or otherwise suspect any security breaches related to your Account.
           </p>
           <p>
@@ -249,7 +252,7 @@ export default function TermsOfService() {
           </p>
           <p>
             9.9. Taxes. It is your responsibility to determine what, if any, taxes apply to the
-            transactions you for which you have submitted transaction details via the Services, and
+            transactions for which you have submitted transaction details via the Services, and
             it is your responsibility to report and remit the correct tax to the appropriate tax
             authority. You agree that the we are not responsible for determining whether taxes apply
             to your Hive blockchain transactions or for collecting, reporting, withholding, or
@@ -362,7 +365,7 @@ export default function TermsOfService() {
           </p>
           <p>
             15.2 Your right to file a counter-notice. If you believe your user content was wrongly
-            removed due to a mistake or misidentification of the material, you can s end a
+            removed due to a mistake or misidentification of the material, you can send a
             counter-notice to our Copyright Agent (contact information provided above) that includes
             the following:
           </p>
@@ -397,12 +400,35 @@ export default function TermsOfService() {
             user has repeatedly been charged with infringing the copyrights or other intellectual
             property rights of others.
           </p>
-          <h2>16. Indemnity</h2>
+          <h2>16. Third-Party Content and Legal Complaints (Non-Copyright)</h2>
           <p>
-            All the things you do and all the information you submit or post to the Service remain
-            your responsibility. Indemnity is basically a way of saying that you will not hold us
-            legally liable for any of your content or actions that infringe the law or the rights of
-            a third party or person in any way.
+            Ecency is a front-end interface and content discovery platform for decentralized networks such as the Hive blockchain. Some content displayed on the Service is published through external applications or third-party platforms and is clearly attributed to its original source.
+          </p>
+          <p>
+            Ecency does not create, modify, or host this third-party content and cannot guarantee the legality, accuracy, or appropriateness of such material. Responsibility for such content lies with the original publisher.
+          </p>
+          <p>
+            If you believe that content visible on Ecency is unlawful, defamatory, infringes your personal rights, or violates applicable laws (excluding copyright claims, which are addressed in Section 15), you may submit a complaint to <code>info@ecency.com</code>. Please include:
+          </p>
+          <ul>
+            <li>Your full name and contact information</li>
+            <li>A direct link (URL) to the content in question</li>
+            <li>A detailed explanation of your claim, including legal basis (e.g., defamation, privacy violation)</li>
+            <li>A statement identifying whether the content originated from another app or platform</li>
+            <li>Whether you are requesting removal or restricted visibility on Ecency</li>
+          </ul>
+          <p>
+            We will review valid complaints in good faith. While Ecency may restrict the visibility of content on its interface, we cannot guarantee full removal, especially for data published through decentralized or third-party systems beyond our control.
+          </p>
+          <p>
+            Content moderation decisions are made at our sole discretion and do not imply liability or admission of fault.
+          </p>
+          <h2>17. Indemnity</h2>
+          <p>
+            Users agree to indemnify and hold harmless Ecency, its affiliates, officers, agents,
+            and employees from any claim or demand, including reasonable attorneys&apos; fees, made by
+            any third party due to or arising out of content submitted, posted, transmitted, or
+            otherwise made available through Ecency, the user&apos;s use of Ecency, or the user&apos;s violation of these Terms of Service.
           </p>
           <p>
             Specifically, you agree to hold us, our affiliates, officers, directors, employees,
@@ -412,7 +438,7 @@ export default function TermsOfService() {
             Service, your violation of this user agreement, and/or your violation of the rights of
             any third-party or person.
           </p>
-          <h2>17. Disclaimers</h2>
+          <h2>18. Disclaimers</h2>
           <p>
             To the fullest extent permitted by applicable law, the Service and the Hive Content are
             provided on an &quot;as is&quot; and &quot;as available&quot; basis, without warranties
@@ -427,7 +453,7 @@ export default function TermsOfService() {
             implied terms in contracts with consumers, so some or all the disclaimers in this
             Section may not apply to you.
           </p>
-          <h2>18. Limitation of liability</h2>
+          <h2>19. Limitation of liability</h2>
           <p>
             To the fullest extent permitted by applicable law, in no event shall this site’s
             operators or any related party, that includes but is not limited to, subsidiaries,
@@ -441,31 +467,35 @@ export default function TermsOfService() {
             warranty, tort (including negligence, whether active, passive or imputed), product
             liability, strict liability or other theory, arising out of or relating to the use of or
             inability to use of the Service.
+            Ecency provides a platform for users to share content but does not guarantee the accuracy,
+            integrity, or quality of such content. Under no circumstances will Ecency be liable for any content,
+            including, but not limited to, any errors or omissions, or for any loss or damage incurred as a result
+            of the use of any content posted, emailed, transmitted, or otherwise made available through Ecency.
           </p>
           <p>
             Some jurisdictions do not allow the exclusion or limitation of certain damages, so some
             or all of the exclusions and limitations in this Section may not apply to you.
           </p>
-          <h2>19. Modifications to the Service</h2>
+          <h2>20. Modifications to the Service</h2>
           <p>
             We reserve the right to modify or discontinue, temporarily or permanently, the Service,
             or any features or portions of the Service, without prior notice. You agree that we will
             not be liable for any modification, suspension, or discontinuance of the Service.
           </p>
-          <h2>20. Termination</h2>
+          <h2>21. Termination</h2>
           <p>
             We reserve the right, without notice and in our sole discretion, to terminate your
             license to access and use of the Service, which includes this site, and to block or
             prevent your future access to, and use of, the Service that we provide.
           </p>
-          <h2>21. Severability</h2>
+          <h2>22. Severability</h2>
           <p>
             If any term, clause, or provision of this Agreement is deemed to be unlawful, void or
             for any reason unenforceable, then that term, clause or provision shall be deemed
             severable from this Agreement and shall not affect the validity and enforceability of
             any remaining provisions.
           </p>
-          <h2>22. Changes</h2>
+          <h2>23. Changes</h2>
           <p>
             This Agreement is the entire agreement between you and us concerning the Service. It
             supersedes all prior or contemporaneous agreements between you and us. We may modify
@@ -474,7 +504,7 @@ export default function TermsOfService() {
             archive. By continuing to use the Services after a change to this agreement, you agree
             to those changes.
           </p>
-          <h2>23. Contact Information</h2>
+          <h2>24. Contact Information</h2>
           <p>
             Notices to this site’s operators should be directed to <code>info@ecency.com</code>.
           </p>

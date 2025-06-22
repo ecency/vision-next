@@ -23,8 +23,8 @@
         }
       }
 
-      a {
-        cursor: pointer;
+      .editor-link {
+        @apply text-blue-dark-sky hover:text-blue-dark-sky-hover;
       }
     }
   }

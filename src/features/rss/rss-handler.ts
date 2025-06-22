@@ -21,7 +21,12 @@ export abstract class RssHandler<T> {
       const data = await this.fetchData();
       data.forEach((item) => feed.item(this.convertItem(item)));
     } catch (e) {
-      Sentry.captureException(e);
+      Sentry.captureException(e,{
+        extra: {
+          pathname: this.pathname,
+          handlerClass: this.constructor.name
+        }
+      });
     }
 
     return feed;

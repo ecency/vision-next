@@ -37,8 +37,7 @@ export const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]> = {
     ops.update_proposal_votes,
     ops.fill_vesting_withdraw,
     ops.account_witness_proxy,
-    ops.delegate_vesting_shares,
-    ops.transfer_to_vesting_completed
+    ops.delegate_vesting_shares
   ],
   "rewards": [
     ops.author_reward,

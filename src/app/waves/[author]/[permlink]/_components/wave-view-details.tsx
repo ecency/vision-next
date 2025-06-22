@@ -9,6 +9,7 @@ import i18next from "i18next";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import useMount from "react-use/lib/useMount";
 import { PostContentRenderer } from "@/features/shared";
+import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 
 interface Props {
   entry: WaveEntry;
@@ -18,6 +19,8 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
 
   const [showEditModal, setShowEditModal] = useState(false);
+
+  const poll = useEntryPollExtractor(entry);
 
   const status = "default";
 
@@ -34,6 +37,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
       />
       <div className="p-4">
         <PostContentRenderer value={entry?.body ?? ""} />
+        {poll && <PollWidget entry={entry} poll={poll} isReadOnly={false} />}
       </div>
       <WaveActions
         showStats={true}

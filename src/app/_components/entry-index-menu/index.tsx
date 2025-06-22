@@ -352,9 +352,9 @@ export function EntryIndexMenu() {
                   </DropdownToggle>
                   <DropdownMenu align="left">
                     {secondaryMenu.map((item, i) => (
-                      <Link href={item.href} key={i}>
-                        <DropdownItem selected={item.selected}>{item.label}</DropdownItem>
-                      </Link>
+                        <DropdownItem key={i} href={item.href} selected={item.selected}>
+                          {item.label}
+                        </DropdownItem>
                     ))}
                   </DropdownMenu>
                 </Dropdown>
@@ -394,19 +394,18 @@ export function EntryIndexMenu() {
               <div className="hidden lg:block">
                 <ul className="flex flex-wrap">
                   {mobileItems.map((i, k) => (
-                    <li key={k}>
-                      <Link
-                        href={i.href!}
-                        className={classNameObject({
-                          "text-gray-steel hover:text-blue-dark-sky rounded-full flex items-center px-3 py-1.5":
-                            true,
-                          active: i.selected,
-                          [`link-${i.id}`]: true
-                        })}
+                      <DropdownItem
+                          key={k}
+                          href={i.href}
+                          selected={i.selected}
+                          className={classNameObject({
+                            "text-gray-steel hover:text-blue-dark-sky rounded-full flex items-center px-3 py-1.5": true,
+                            "bg-blue-dark-sky text-white hover:text-white": i.selected,
+                            [`link-${i.id}`]: true
+                          })}
                       >
                         {i.label}
-                      </Link>
-                    </li>
+                      </DropdownItem>
                   ))}
                 </ul>
               </div>

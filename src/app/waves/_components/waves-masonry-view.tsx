@@ -44,22 +44,18 @@ export function WavesMasonryView({ host }: Props) {
   return (
     <div>
       <div className="grid grid-cols-2 items-start gap-4 pb-8">
-        {masonryDataFlow?.map((column, colIndex) => (
-          <div className="flex flex-col gap-4" key={colIndex}>
-            {column.map((page, pageIndex) => (
-              <Fragment key={pageIndex}>
-                {page.map((item, j) => (
-                  <WavesListItem
-                    i={colIndex + pageIndex + j}
-                    key={item.id}
-                    item={item}
-                    onExpandReplies={() => setReplyingEntry(item)}
-                  />
-                ))}
-              </Fragment>
-            ))}
-          </div>
-        ))}
+          {masonryDataFlow?.map((column, colIndex) => (
+              <div className="flex flex-col gap-4" key={colIndex}>
+                  {column.flat().map((item, index) => (
+                      <WavesListItem
+                          key={`${item.author}/${item.permlink}`}
+                          i={index}
+                          item={item}
+                          onExpandReplies={() => setReplyingEntry(item)}
+                      />
+                  ))}
+              </div>
+          ))}
       </div>
 
       <WavesListLoader data={dataFlow} failed={isError} isEndReached={!hasNextPage} />

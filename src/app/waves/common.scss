@@ -4,5 +4,25 @@
       margin: 0 auto;
       max-height: 320px;
     }
+    .markdown-image-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1rem 0; // optional spacing
+    }
+
+    .markdown-image-container img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .markdown-img-caption {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: #666;
+      text-align: center;
+    }
   }
 }

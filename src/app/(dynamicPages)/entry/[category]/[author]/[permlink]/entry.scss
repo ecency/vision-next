@@ -241,10 +241,20 @@
         margin-left: auto;
         margin-right: auto;
       }
+      .markdown-video-link-youtube .medium-zoom-image {
+        pointer-events: none;
+      }
+      .markdown-video-link-speak .medium-zoom-image {
+        pointer-events: none;
+      }
     }
 
     .entry-footer {
       @include clearfix();
+
+      .post-disclaimer-print {
+        display: none;
+      }
 
       @media (min-width: $sm-break) {
         font-size: initial;

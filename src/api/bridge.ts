@@ -1,12 +1,13 @@
-import { Client } from "@hiveio/dhive";
+import {Client} from "@hiveio/dhive";
 import SERVERS from "@/servers.json";
-import { Community, Entry, Subscription } from "@/entities";
+import {Community, Entry, Subscription} from "@/entities";
 import dmca from "@/dmca.json";
+import dmca_accounts from "@/dmca-accounts.json";
 
 export const bridgeServer = new Client(SERVERS, {
   timeout: 2000,
   failoverThreshold: 2,
-  consoleOnFailover: true
+  consoleOnFailover: false
 });
 export const dataLimit = typeof window !== "undefined" && window.screen.width < 540 ? 5 : 20 || 20;
 
@@ -86,6 +87,9 @@ export const getAccountPosts = (
     limit,
     observer
   }).then((resp) => {
+    if (dmca_accounts.includes(account)) {
+      return [];
+    }
     if (resp) {
       return resolvePosts(resp, observer);
     }
@@ -219,3 +223,45 @@ export const getRelationshipBetweenAccounts = (
     follower,
     following
   ]);
+
+export interface Profile {
+  "active": string,
+  "blacklists": string[],
+  "context": {
+    "followed": boolean,
+    "muted": boolean
+  },
+  "created": string,
+  "id": number,
+  "metadata": {
+    "profile": {
+      "about": string,
+      "blacklist_description": string,
+      "cover_image": string,
+      "location": string,
+      "muted_list_description": string,
+      "name": string,
+      "profile_image": string,
+      "website": string
+    }
+  },
+  "name": string,
+  "post_count": number,
+  "reputation": number,
+  "stats": {
+    "followers": number,
+    "following": number,
+    "rank": number
+  }
+}
+export const getProfiles = async (
+    accounts: string[],
+    observer?: string,
+): Promise<Profile[]> => {
+  return await bridgeApiCall<Profile[]>("get_profiles", {
+    accounts,
+    observer
+  });
+}
+
+

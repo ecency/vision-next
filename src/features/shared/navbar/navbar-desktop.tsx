@@ -14,6 +14,7 @@ import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { useState } from "react";
 import { NavbarTextMenu } from "./navbar-text-menu";
+import {useClientActiveUser, useHydrated} from "@/api/queries";
 
 interface Props {
   step?: number;
@@ -33,7 +34,8 @@ export function NavbarDesktop({
   setMainBarExpanded,
   experimental = false
 }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const activeUser = useClientActiveUser();
+  const hydrated = useHydrated();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
 
@@ -82,11 +84,11 @@ export function NavbarDesktop({
               icon={<UilEditAlt width={20} height={20} />}
             />
           </Tooltip>
-          {activeUser && <NavbarNotificationsButton />}
+          {hydrated && activeUser && <NavbarNotificationsButton />}
         </div>
         <div className="btn-menu">
           <AnonUserButtons />
-          {activeUser && (
+          {hydrated && activeUser && (
             <div
               className="cursor-pointer ml-4"
               onClick={() => {
@@ -101,7 +103,7 @@ export function NavbarDesktop({
           )}
         </div>
       </div>
-      {activeUser && <NavbarSide show={showSidebar} setShow={setShowSidebar} />}
+      {hydrated && activeUser && <NavbarSide show={showSidebar} setShow={setShowSidebar} />}
       <NavbarMainSidebar
         show={mainBarExpanded}
         setShow={setMainBarExpanded}

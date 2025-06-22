@@ -200,7 +200,7 @@
     "boost": "Boost",
     "submit": "Create a post",
     "chats": "Chats",
-    "perks": "Buy perks"
+    "perks": "Upgrade"
   },
   "intro": {
     "title": "Aspire to greatness",
@@ -420,7 +420,8 @@
     "unmute": "Unmute",
     "unmute-success": "Post unmuted",
     "promote": "Promote",
-    "boost": "Boost"
+    "boost": "Boost",
+    "edit-classic": "Classic Edit"
   },
   "cross-post": {
     "title": "Cross Post",
@@ -738,6 +739,7 @@
   "entry": {
     "via-app": "via <span class=\"app-name\">{{app}}</span>",
     "author-reputation": "Author's reputation",
+    "disclaimer": "This post was published via {{appName}}. Ecency is not the originator or editor of this content and displays it for discovery purposes only.",
     "comment-entry-title": "You are viewing a single comment's thread from: ",
     "comment-entry-go-root": "View the full context",
     "comment-entry-go-parent": "View the direct parent",
@@ -1433,7 +1435,7 @@
     "followers": "Followers ({{n}})",
     "following": "Following ({{n}})",
     "search-placeholder": "Search",
-    "active": "Active:"
+    "active": "active:"
   },
   "friends-filter": {
     "all": "All",
@@ -1819,7 +1821,9 @@
   },
   "drafts": {
     "title": "Drafts",
-    "filter": "Search by title"
+    "filter": "Search by title",
+    "open-editor": "Editor",
+    "open-classic": "Classic Editor"
   },
   "schedules": {
     "title": "Scheduled Posts",
@@ -2364,6 +2368,7 @@
   "chain-error": {
     "min-root-comment": "You may only post once every five minutes.",
     "identical-vote": "Your current vote on this content is identical to this vote.",
+    "must-claim": "No claiming balance or already claimed.",
     "insufficient-resource": "Insufficient Resource Credits.",
     "delete-comment-with-vote": "Cannot delete a content with positive pending rewards.",
     "comment-cashout": "Content after their payout cannot be deleted.",
@@ -2452,20 +2457,47 @@
   },
   "perks": {
     "page-title": "Welcome to Perks",
-    "title": "Meet Ecency perks",
-    "title-next": "unified, fast and simple way to boost your account",
-    "points-title": "Buy points",
+    "title": "Ecency perks",
+    "title-next": "Unified, fast and simple way to boost your experience",
+    "description": "Grow Big in the Hive World! Get Ecency Points to share your posts and grab Hive Power. Buy now to keep growing in the Hive ecosystem!",
+    "points-title": "Get more points",
+    "points-title-2": "Buy, claim points to be on top of Hive communities",
     "points-action": "Buy",
-    "points-description": "Jump start to improve engagement on your content by purchasing Points with Ecency Mobile",
-    "account-boost-title": "Account boosting",
+    "points-description": "Jump start to improve engagement on your content by purchasing Points",
+    "points-buy-hive-title": "Buy points with HIVE/HBD",
+    "points-buy-hive-description": "Simply swap your HIVE/HBD to POINTS",
+    "account-boost-title": "Out of Resource credits? Get more using Ecency mobile app",
     "account-boost-action": "Boost now!",
     "account-boost-description": "Use In-App purchase to acquire extra powers",
     "promote-title": "Promote your post",
     "promote-action": "Promote",
-    "promote-description": "Impressions boost that will increase eyeballs on your content",
-    "boost-plus-title": "Boost+",
+    "promote-description": "Impressions boost that will increase eyeballs on your content. Promoted posts are showing in a multiple places on Ecency",
+    "boost-plus-title": "Get more Resource credits",
     "boost-plus-action": "Boost+",
-    "boost-plus-description": "Boost your account with your points in few clicks"
+    "boost-plus-description": "Swap your POINTS to resource credits simply with few clicks",
+    "no-post": "No post selected",
+    "go-to-perks": "Go to Perks",
+    "buy-points-qr-title": "Buy points with QR",
+    "buy-points-qr-description": "Use Ecency mobile app to buy POINTS with Credit card/Apple/Google Pay",
+    "buy-points-qr-button": "Buy with QR code",
+    "buy-points-hive-title": "Buy points using Hive/HBD",
+    "buy-points-hive-description": "Already have some HIVE or HBD? Swap HIVE/HBD to POINTS quickly",
+    "buy-points-hive-button": "Buy with HIVE/HBD",
+    "buy-points-hive-success-title": "You`ve got +{{amount}} points",
+    "buy-points-hive-success-description": "Points has transferred to your account. Please, check it in a wallet page",
+    "claim-points-title": "Claim points",
+    "claim-points-description": "POINTS are generated for different activities such as comments, posts etc. Get them for free!",
+    "claim-points-button": "Claim now",
+    "claim-points-nothing": "Nothing to claim :(",
+    "spend-points": "Spend points",
+    "go-to-wallet": "Go to wallet",
+    "spin-title": "Earn up to 200 POINTS daily",
+    "spin-description": "Use daily free spins and earn different rewards up to 200 POINTS",
+    "spin-now": "Spin now",
+    "want-more-spins": "Want more spins?",
+    "spin-success": "Points has transferred to your account. Enjoy with Ecency!",
+    "spins-left": "spins left",
+    "next-spin": "Next free spin"
   },
   "boost-plus": {
     "title": "Boost+",
@@ -2648,7 +2680,10 @@
   "publish": {
     "gif-picker": "Pick GIF image",
     "description-hint": "Helps to search engine systems to find out this post",
-    "schedule-hint": "Scheduling is available for 1 hour forward",
+    "schedule-hint": "Scheduling is available for 1 hour forward. Select date, configure time and click/tap on 'Done'.",
+    "no-schedule": "Schedule not set yet",
+    "schedule-to": "You have set schedule to {{n}}",
+    "schedule-error": "You can set schedule only at least 1 hour forward",
     "heading": "Heading",
     "bullet-list": "Bullet list",
     "ordered-list": "Ordered list",
@@ -2672,10 +2707,10 @@
     "public-info-hint": "Note: Changes here will affect how your story appears in public places like Ecency (and other Hive clients) homepage and in a search engine systems — not the contents of the story itself.",
     "preview-subtitle": "Preview subtitle..",
     "thumb-selection": "Set preview images",
-    "published-title": "Your post has published",
-    "published-hint": "Your post has been published successfully. You can view it on your blog or in the feed.",
-    "scheduled-title": "Your post has scheduled",
-    "scheduled-hint": "Your post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
+    "published-title": "Your post is published",
+    "published-hint": "Post has been sent to chain successfully. You can view it on your blog or in the feed.",
+    "scheduled-title": "Your post is scheduled",
+    "scheduled-hint": "Post has been scheduled successfully. You can view it on your blog or in the feed at the posting time.",
     "back-to-editor": "Back to editor",
     "go-to-posts": "Go to my posts",
     "no-draft-title": "No draft found",
@@ -2718,7 +2753,7 @@
     "upload-started": "Uploading image...",
     "back-to-old": "Back to Classic Editor",
     "clear": "Clear",
-    "schedule": "Schedule",
+    "schedule": "Schedule settings",
     "action-bar": {
       "bold": "Bold",
       "italic": "Italic",
@@ -2755,7 +2790,9 @@
     "html-warning": {
       "title": "Pure HTML code detected",
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
-    }
+    },
+    "continue-to-publish": "Continue to publish",
+    "continue-to-schedule": "Continue to schedule"
   },
   "ecency-images": {
     "upload-image": "Upload image",
