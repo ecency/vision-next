@@ -16,9 +16,9 @@ export default function ProfileWalletTokensList() {
 
   return (
     <div className="bg-white rounded-xl">
-      <div className="grid text-sm grid-cols-4 p-2 md:p-3 text-gray-600 dark:text-gray-400 border-b border-[--border-color]">
-        <div>{i18next.t("profile-wallet.asset-name")}</div>
-        <div>
+      <div className="grid text-sm grid-cols-4 p-3 text-gray-600 dark:text-gray-400 border-b border-[--border-color]">
+        <div className="col-span-2 sm:col-span-1">{i18next.t("profile-wallet.asset-name")}</div>
+        <div className="hidden sm:block">
           <StyledTooltip size="md" content={i18next.t("profile-wallet.apr-hint")}>
             <div className="flex items-center gap-1">
               {i18next.t("profile-wallet.apr")}
