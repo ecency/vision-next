@@ -44,7 +44,7 @@ export default function ProfileWalletTokenPicker() {
       changeList([
         ...(allTokens?.basic.filter((i) => list.includes(i)) ?? []),
         ...(allTokens?.external.filter((i) => list.includes(i)) ?? []),
-        ...(allTokens?.layer2?.filter((i) => list.includes(i.name)).map((i) => i.name) ?? [])
+        ...(allTokens?.layer2?.filter((i) => list.includes(i.symbol)).map((i) => i.symbol) ?? [])
       ]);
     },
     [changeList, walletList, allTokens]
@@ -110,8 +110,8 @@ export default function ProfileWalletTokenPicker() {
                   <ListItem className="!flex items-center gap-2" key={token.name}>
                     <FormControl
                       type="checkbox"
-                      checked={walletList?.includes(token.name)}
-                      onChange={() => update(token.name)}
+                      checked={walletList?.includes(token.symbol)}
+                      onChange={() => update(token.symbol)}
                     />
                     <Image
                       alt=""

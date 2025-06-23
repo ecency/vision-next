@@ -1,10 +1,15 @@
 import { FormattedCurrency } from "@/features/shared";
 import { Badge, StyledTooltip } from "@/features/ui";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import {
+  getAccountWalletAssetInfoQueryOptions,
+  getAllTokensListQueryOptions
+} from "@ecency/wallets";
 import i18next from "i18next";
 import { useMemo } from "react";
 import { TOKEN_LOGOS_MAP } from "../_consts";
 import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
+import { proxifyImageSrc } from "@ecency/render-helper";
 
 interface Props {
   username: string;
@@ -13,9 +18,25 @@ interface Props {
 
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const { data } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
+  const { data: allTokens } = useQuery(getAllTokensListQueryOptions(username));
 
-  const logo = useMemo(() => (data ? TOKEN_LOGOS_MAP[data.name] : ""), [data]);
-  const layerLogo = useMemo(() => (data?.layer ? TOKEN_LOGOS_MAP[data.layer] : ""), [data]);
+  const logo = useMemo(() => {
+    const layer2Token = allTokens?.layer2?.find((token) => token.symbol === asset);
+    if (layer2Token) {
+      return (
+        <Image
+          alt=""
+          src={proxifyImageSrc(JSON.parse(layer2Token.metadata)?.icon, 32, 32, "match")}
+          width={32}
+          height={32}
+          className="rounded-lg p-1 object-cover min-w-[32px] max-w-[32px] h-[32px] border border-[--border-color]"
+        />
+      );
+    }
+    if (data) {
+      return TOKEN_LOGOS_MAP[data.name];
+    }
+  }, [allTokens?.layer2, asset, data]);
 
   return (
     <div className="grid grid-cols-4 p-3 md:p-4 border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:bg-gray-800">
