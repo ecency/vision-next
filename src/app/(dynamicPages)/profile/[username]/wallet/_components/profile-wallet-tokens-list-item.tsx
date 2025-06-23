@@ -18,7 +18,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const layerLogo = useMemo(() => (data?.layer ? TOKEN_LOGOS_MAP[data.layer] : ""), [data]);
 
   return (
-    <div className="grid grid-cols-4 p-3 md:p-4 border-b last:border-0 border-[--border-color]">
+    <div className="grid grid-cols-4 p-3 md:p-4 border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:bg-gray-800">
       <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
         <div className="mt-1">{logo}</div>
         <StyledTooltip size="md" content={i18next.t("wallet.hive-description")}>

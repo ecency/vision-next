@@ -5,18 +5,50 @@ import { Button, FormControl, Modal, ModalBody, ModalHeader } from "@/features/u
 import { List, ListItem } from "@/features/ui/list";
 import { UilCog, UilTimesCircle } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useCallback } from "react";
 import { TOKEN_LOGOS_MAP } from "../_consts";
 import { useQuery } from "@tanstack/react-query";
-import { getAllTokensListQueryOptions } from "@ecency/wallets";
+import {
+  getAccountWalletListQueryOptions,
+  getAllTokensListQueryOptions,
+  useChangeAssetsList
+} from "@ecency/wallets";
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
+import { useParams } from "next/navigation";
 
 export default function ProfileWalletTokenPicker() {
+  const { username } = useParams();
+
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
 
   const { data: allTokens } = useQuery(getAllTokensListQueryOptions(query));
+  const { data: walletList } = useQuery(
+    getAccountWalletListQueryOptions((username as string).replace("%40", ""))
+  );
+
+  const { mutateAsync: changeList } = useChangeAssetsList((username as string).replace("%40", ""));
+
+  const update = useCallback(
+    (token: string) => {
+      let list = [...walletList];
+      if (list.includes(token)) {
+        const index = list.indexOf(token);
+        delete list[index];
+      } else {
+        list.push(token);
+      }
+
+      list = list.filter((i) => !!i);
+      changeList([
+        ...(allTokens?.basic.filter((i) => list.includes(i)) ?? []),
+        ...(allTokens?.external.filter((i) => list.includes(i)) ?? []),
+        ...(allTokens?.layer2?.filter((i) => list.includes(i.name)).map((i) => i.name) ?? [])
+      ]);
+    },
+    [changeList, walletList, allTokens]
+  );
 
   return (
     <>
@@ -38,7 +70,12 @@ export default function ProfileWalletTokenPicker() {
               <List>
                 {allTokens.basic.map((token) => (
                   <ListItem className="!flex items-center gap-2" key={token}>
-                    <FormControl type="checkbox" checked={false} onChange={(e) => {}} />
+                    <FormControl
+                      type="checkbox"
+                      disabled={["POINTS", "HIVE", "HBD"].includes(token)}
+                      checked={walletList?.includes(token)}
+                      onChange={() => !["POINTS", "HIVE", "HBD"].includes(token) && update(token)}
+                    />
                     <div>{TOKEN_LOGOS_MAP[token]}</div>
                     {token}
                   </ListItem>
@@ -53,7 +90,11 @@ export default function ProfileWalletTokenPicker() {
               <List>
                 {allTokens.external.map((token) => (
                   <ListItem className="!flex items-center gap-2" key={token}>
-                    <FormControl type="checkbox" checked={false} onChange={(e) => {}} />
+                    <FormControl
+                      type="checkbox"
+                      checked={walletList?.includes(token)}
+                      onChange={() => update(token)}
+                    />
                     {token}
                   </ListItem>
                 ))}
@@ -67,7 +108,11 @@ export default function ProfileWalletTokenPicker() {
               <List>
                 {allTokens.layer2.map((token) => (
                   <ListItem className="!flex items-center gap-2" key={token.name}>
-                    <FormControl type="checkbox" checked={false} onChange={(e) => {}} />
+                    <FormControl
+                      type="checkbox"
+                      checked={walletList?.includes(token.name)}
+                      onChange={() => update(token.name)}
+                    />
                     <Image
                       alt=""
                       src={proxifyImageSrc(JSON.parse(token.metadata)?.icon, 32, 32, "match")}

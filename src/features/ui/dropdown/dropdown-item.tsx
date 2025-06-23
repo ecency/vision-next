@@ -48,9 +48,9 @@ export function DropdownItem({
   const { setShow } = useContext(DropdownContext);
 
   const baseClasses = clsx(
-    "cursor-pointer rounded-tr-xl rounded-br-xl duration-200",
+    "cursor-pointer rounded-tr-xl text-sm rounded-br-xl duration-200",
     "min-w-[80%] block w-full",
-    size === "small" ? "px-2 py-1 text-sm" : "px-3 py-1.5",
+    size === "small" ? "px-2 py-1" : "px-3 py-1.5",
     selected
       ? "bg-blue-dark-sky-040 text-blue-dark-sky dark:text-white dark:bg-gray-900 hover:bg-blue-dark-sky-030 dark:hover:bg-gray-800"
       : "hover:bg-blue-dark-sky-040 text-dark-default hover:text-blue-dark-sky dark:text-white dark:hover:bg-dark-default",
