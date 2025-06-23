@@ -2,10 +2,11 @@ import moment from "moment";
 import "./_index.scss";
 import { accountReputation, parseDate } from "@/utils";
 import { Entry } from "@/entities";
-import { BookmarkBtn, EntryMenu, ProfileLink, UserAvatar } from "@/features/shared";
+import {BookmarkBtn, EntryMenu, ProfileLink, TimeLabel, UserAvatar} from "@/features/shared";
 import i18next from "i18next";
 import { TagLink } from "@/features/shared/tag";
 import { EcencyConfigManager } from "@/config";
+import React from "react";
 
 interface Props {
   entry: Entry;
@@ -40,9 +41,7 @@ export const EntryInfo = ({ entry }: Props) => {
         </div>
 
         <div className="info-line-2">
-          <span className="date" title={published.format("LLLL")}>
-            {published.fromNow()}
-          </span>
+          <TimeLabel created={entry.created} />
           <span className="separator circle-separator" />
           <div className="entry-tag">
             <span className="in-tag">{i18next.t("entry.published")}</span>
