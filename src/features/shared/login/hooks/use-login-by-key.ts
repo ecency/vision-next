@@ -17,7 +17,6 @@ async function signer(message: string, privateKey: PrivateKey) {
 
 export function useLoginByKey(username: string, keyOrSeed: string, isVerified: boolean) {
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
-  console.log(PrivateKey.fromString("5HrghgqkefZHkBdCUzpr154XnoT9XhH1kaG66wvx7GjCBBdAfiY").createPublic().toString());
   const loginInApp = useLoginInApp(username);
 
   return useMutation({
