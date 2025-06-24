@@ -10,6 +10,7 @@ import { TOKEN_LOGOS_MAP } from "../_consts";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
+import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
 
 interface Props {
   username: string;
@@ -39,40 +40,43 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
   }, [allTokens?.layer2, asset, data]);
 
   return (
-    <div className="grid grid-cols-4 p-3 md:p-4 border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:bg-gray-800">
-      <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
-        <div className="mt-1">{logo}</div>
-        <StyledTooltip size="md" content={i18next.t("wallet.hive-description")}>
-          <div>{data?.title}</div>
-          <div className="flex items-center gap-1">
-            <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
-            {data?.layer && (
-              <Badge className="!rounded-lg !p-0 !px-1" appearance="secondary">
-                {data.layer}
-              </Badge>
-            )}
+    <div className="border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900">
+      <div className="grid grid-cols-4 p-3 md:p-4">
+        <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
+          <div className="mt-1">{logo}</div>
+          <StyledTooltip size="md" content={i18next.t("wallet.hive-description")}>
+            <div>{data?.title}</div>
+            <div className="flex items-center gap-1">
+              <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
+              {data?.layer && (
+                <Badge className="!rounded-lg !p-0 !px-1" appearance="secondary">
+                  {data.layer}
+                </Badge>
+              )}
+            </div>
+          </StyledTooltip>
+        </div>
+        <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
+        <div className="text-blue-dark-sky">
+          <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+        </div>
+        <div>
+          <div>{data?.accountBalance}</div>
+          {data?.parts?.map(({ name, balance }) => (
+            <div
+              key={name}
+              className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500"
+            >
+              <div>{name}:</div>
+              <div>{balance}</div>
+            </div>
+          ))}
+          <div className="text-gray-600 dark:text-gray-400 text-sm">
+            <FormattedCurrency value={(data?.accountBalance ?? 0) * (data?.price ?? 0)} fixAt={2} />
           </div>
-        </StyledTooltip>
-      </div>
-      <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
-      <div className="text-blue-dark-sky">
-        <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
-      </div>
-      <div>
-        <div>{data?.accountBalance}</div>
-        {data?.parts?.map(({ name, balance }) => (
-          <div
-            key={name}
-            className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500"
-          >
-            <div>{name}:</div>
-            <div>{balance}</div>
-          </div>
-        ))}
-        <div className="text-gray-600 dark:text-gray-400 text-sm">
-          <FormattedCurrency value={(data?.accountBalance ?? 0) * (data?.price ?? 0)} fixAt={2} />
         </div>
       </div>
+      {asset === "POINTS" && <ProfileWalletTokensListItemPoints username={username} />}
     </div>
   );
 }
