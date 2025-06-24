@@ -15,7 +15,7 @@
 
   .entry-list-body:not(.grid-view) {
     .entry-list-item {
-      @apply p-4 md:py-6 border-b mt-0 border-[--border-color] bg-white dark:bg-dark-200 first:rounded-t-xl last:rounded-b-xl;
+      @apply p-4 md:py-6 border-b mt-0 border-[--border-color] bg-white dark:bg-dark-200 first:border-t last:rounded-b-xl;
     }
   }
 }

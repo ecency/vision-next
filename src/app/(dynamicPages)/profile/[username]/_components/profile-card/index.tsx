@@ -63,7 +63,7 @@ export const ProfileCard = ({ account }: Props) => {
   return (
     <div className="rounded-xl w-full overflow-hidden relative p-4">
       <Image
-        className="absolute top-0 left-0 w-full h-[156px] object-cover"
+        className="absolute top-0 left-0 w-full h-[96px] object-cover"
         src={imageSrc ?? data?.profile.cover_image ?? ""}
         onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
         alt=""
@@ -86,14 +86,20 @@ export const ProfileCard = ({ account }: Props) => {
         </div>
       </AnimatePresence>
 
-      <div className="relative flex flex-col mt-[100px] gap-2">
+      <div className="relative flex flex-col mt-10 gap-2">
         <UserAvatar username={account?.name ?? ""} size="large" />
 
-        <div className="font-semibold flex items-center flex-wrap gap-2">
-          {data?.profile.name ?? data ? `@${data?.name}` : ""}
-          <Badge>{accountReputation(data?.reputation ?? 0)}</Badge>
+        <div className="flex flex-col gap-1">
+          <div className="font-semibold flex items-center flex-wrap gap-2">
+            {data?.profile?.name ?? account.name}
+          </div>
+          <span className="text-sm text-gray-600 dark:text-gray-400 truncate flex gap-1">
+            @{account.name}
+            <Badge className="!px-1 !py-0">{accountReputation(data?.reputation ?? 0)}</Badge>
+          </span>
+          {data?.profile.about && <div className="text-sm">{data?.profile.about}</div>}
         </div>
-        {data?.profile.about && <div className="text-sm">{data?.profile.about}</div>}
+
         <div className="grid grid-cols-2 pb-4">
           <div
             className="hover:text-blue-dark-sky hover:scale-95 duration-300 cursor-pointer"
