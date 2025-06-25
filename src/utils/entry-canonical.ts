@@ -25,7 +25,6 @@ export function entryCanonical(entry: Entry, isAmp = false): string | null {
 
   const app = appName(entry.json_metadata?.app);
   const identifier = app?.split("/")[0];
-
   if (!identifier || ["ecency", "esteem"].includes(identifier)) {
     return null;
   }
