@@ -1,7 +1,17 @@
 import { Entry } from "@/entities";
-import apps from "@hiveio/hivescript/apps.json";
+import rawApps from "@hiveio/hivescript/apps.json";
 import defaults from "@/defaults.json";
 import { appName } from "./app-name";
+
+type AppInfo = {
+  name: string;
+  homepage: string;
+  url_scheme?: string;
+};
+
+type AppsMap = Record<string, AppInfo>;
+
+const apps = rawApps as AppsMap;
 
 export function entryCanonical(entry: Entry, isAmp = false): string | null {
   if (isAmp) {
