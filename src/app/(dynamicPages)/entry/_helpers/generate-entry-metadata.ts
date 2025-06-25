@@ -1,5 +1,6 @@
 import { getContent } from "@/api/hive";
 import { parseDate, truncate } from "@/utils";
+import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
 import { headers } from 'next/headers';
@@ -49,6 +50,8 @@ export async function generateEntryMetadata(username: string, permlink: string):
     const authorUrl = `https://ecency.com/@${entry.author}`;
     const createdAt = parseDate(entry.created);
     const updatedAt = parseDate(entry.updated ?? entry.created);
+    const canonical = entryCanonical(entry);
+    const finalCanonical = canonical && canonical !== fullUrl ? canonical : undefined;
 
     return {
       title,
@@ -74,6 +77,11 @@ export async function generateEntryMetadata(username: string, permlink: string):
         "article:author": authorUrl,
         "og:updated_time": updatedAt.toISOString(),
       },
+      ...(finalCanonical && {
+        alternates: {
+          canonical: finalCanonical,
+        },
+      }),
     };
   } catch (e) {
     console.error("generateEntryMetadata failed:", e, { username, permlink });
