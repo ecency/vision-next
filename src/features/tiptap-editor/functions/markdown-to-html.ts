@@ -34,14 +34,6 @@ export function markdownToHtml(html: string | undefined) {
         return (node as HTMLElement).outerHTML;
       }
     })
-    .addRule("safeLink", {
-      filter: function (node) {
-        return node.classList.contains("editor-link");
-      },
-      replacement: function (content, node) {
-        return `[${content}](${(node as HTMLElement).getAttribute("href")})`;
-      }
-    })
     .use(strikethrough)
     .keep(["table", "tbody", "th", "tr", "td"])
     .turndown(html);
