@@ -8,15 +8,14 @@ import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { error } from "highcharts";
 import i18next from "i18next";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
 
-export function useSaveDraftApi() {
+export function useSaveDraftApi(draftId?: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const router = useRouter();
-  const params = useParams();
   const queryClient = useQueryClient();
 
   const {
@@ -38,7 +37,7 @@ export function useSaveDraftApi() {
   );
 
   return useMutation({
-    mutationKey: ["saveDraft-2.0", params],
+    mutationKey: ["saveDraft-2.0", draftId],
     mutationFn: async () => {
       const tagJ = tags?.join(" ");
 
@@ -64,10 +63,10 @@ export function useSaveDraftApi() {
         poll
       };
 
-      if (params.id) {
+      if (draftId) {
         await updateDraft(
           activeUser?.username!,
-          params.id as string,
+          draftId,
           title!,
           content!,
           tagJ!,
