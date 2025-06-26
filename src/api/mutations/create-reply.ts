@@ -5,15 +5,15 @@ import { Entry, FullAccount, MetaData, CommentOptions } from "@/entities";
 import { tempEntry } from "@/utils";
 import { QueryIdentifiers } from "@/core/react-query";
 import { SortOrder } from "@/enums";
-import { useGlobalStore } from "@/core/global-store";
 import { error, success } from "@/features/shared";
 import * as ss from "@/utils/session-storage";
 import i18next from "i18next";
 import { getAccountRcQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import {useClientActiveUser} from "@/api/queries";
 
 export function useCreateReply(entry: Entry, root: Entry, onSuccess?: () => void) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
   const queryClient = useQueryClient();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);

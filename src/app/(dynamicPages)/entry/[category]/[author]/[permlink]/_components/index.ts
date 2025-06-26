@@ -19,3 +19,4 @@ export * from "./entry-page-discussions";
 export * from "./entry-page-edit-history";
 export * from "./context";
 export * from "./entry-page-content";
+export * from "./entry-reply-section";
