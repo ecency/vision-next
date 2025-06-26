@@ -19,7 +19,7 @@ export const DeckPostViewerCommentBox = ({ entry, onReplied }: Props) => {
 
   const [isReplying, setIsReplying] = useState(false);
 
-  const { mutateAsync: createReply } = useCreateReply(entry, undefined, () => {
+  const { mutateAsync: createReply } = useCreateReply(entry, entry, () => {
     onReplied();
     setIsReplying(false);
   });
