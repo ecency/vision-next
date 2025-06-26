@@ -1,7 +1,7 @@
-import { EntryFooterControls } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-footer-controls";
+//import { EntryFooterControls } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-footer-controls";
+//import { EntryPageDiscussions } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-discussions";
 import { EntryFooterInfo } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-footer-info";
 import { EntryPageBodyViewer } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-body-viewer";
-import { EntryPageDiscussions } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-discussions";
 import { EntryPageIsCommentHeader } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-is-comment-header";
 import { EntryPageMainInfo } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-main-info";
 import { EntryPageNsfwRevealing } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-nsfw-revealing";
@@ -10,6 +10,12 @@ import { EntryPageSimilarEntries } from "@/app/(dynamicPages)/entry/[category]/[
 import { EntryPageWarnings } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-warnings";
 import { EntryTags } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-tags";
 import { Entry } from "@/entities";
+
+import ClientEntryFooterControls
+    from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/client-entry-footer-controls";
+import ClientEntryPageDiscussions
+    from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/client-entry-page-discussions";
+
 
 interface Props {
   entry: Entry;
@@ -32,10 +38,10 @@ export function EntryPageContent({ entry, rawParam, isEdit, category }: Props) {
       <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
         <EntryTags entry={entry} />
         <EntryFooterInfo entry={entry} />
-        <EntryFooterControls entry={entry} />
+        <ClientEntryFooterControls entry={entry} />
       </div>
       <EntryPageSimilarEntries entry={entry} />
-      <EntryPageDiscussions category={category} entry={entry} />
+      <ClientEntryPageDiscussions category={category} entry={entry} />
     </EntryPageNsfwRevealing>
   );
 }

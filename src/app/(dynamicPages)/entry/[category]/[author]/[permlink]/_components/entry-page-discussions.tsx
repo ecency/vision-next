@@ -3,8 +3,7 @@
 import { Comment, Discussion } from "@/features/shared";
 import i18next from "i18next";
 import { Entry } from "@/entities";
-import { useContext, useMemo, useState } from "react";
-import { useGlobalStore } from "@/core/global-store";
+import { useContext, useMemo } from "react";
 import { CommentEngagement } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/comment-engagement";
 import { useSearchParams } from "next/navigation";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
@@ -79,3 +78,5 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
     </>
   );
 }
+
+export default EntryPageDiscussions;
