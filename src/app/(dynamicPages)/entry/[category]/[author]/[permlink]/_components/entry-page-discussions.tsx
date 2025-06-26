@@ -21,25 +21,24 @@ interface Props {
 
 export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
   const params = useSearchParams();
-
   const { commentsInputRef, selection, setSelection } = useContext(EntryPageContext);
-
   const activeUser = useClientActiveUser();
 
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
   const { data: community } = getCommunityCache(category).useClientQuery();
+
+  if (!entry) return null;
+
   const isRawContent = useMemo(
     () =>
       EcencyConfigManager.CONFIG.visionFeatures.entries.rawContent.enabled && !!params.get("raw"),
     [params]
   );
-  if (!entry) return null;
   const { mutateAsync: createReply, isPending: isCreateReplyLoading } = useCreateReply(
     entry,
     entry,
     () => {}
   );
-
   const replySubmitted = async (text: string) => {
     const permlink = createReplyPermlink(entry!.author);
     const tags = entry!.json_metadata.tags || ["ecency"];
@@ -50,7 +49,6 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
       permlink,
       point: true
     });
-
     setSelection("");
     return response;
   };
