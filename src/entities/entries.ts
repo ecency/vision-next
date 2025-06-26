@@ -82,6 +82,7 @@ export interface Entry {
   updated: string;
   url: string;
   original_entry?: Entry;
+  is_optimistic?: boolean;
 }
 
 export interface EntryHeader {

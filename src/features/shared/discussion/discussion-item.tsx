@@ -37,6 +37,9 @@ import { DiscussionItemBody } from "./discussion-item-body";
 import { DiscussionList } from "./discussion-list";
 import {useClientActiveUser} from "@/api/queries";
 import appPackage from "../../../../package.json";
+import {SortOrder} from "@/enums";
+import {QueryIdentifiers} from "@/core/react-query";
+import {useQueryClient} from "@tanstack/react-query";
 
 
 interface Props {
@@ -90,30 +93,45 @@ export const DiscussionItem = memo(function DiscussionItem({
 
   const hasAnyAction = useMemo(() => canEdit || (isOwnRoot && isTopComment) || isDeletable, [canEdit, isOwnRoot, isTopComment, isDeletable]);
 
+  const queryClient = useQueryClient();
+
+  const allReplies = queryClient.getQueryData<Entry[]>([
+    QueryIdentifiers.FETCH_DISCUSSIONS,
+    root.author,
+    root.permlink,
+    SortOrder.created,
+    activeUser?.username,
+  ]);
+
   const filtered = useMemo(() =>
-          discussionList.filter((x) => x.parent_author === entry.author && x.parent_permlink === entry.permlink),
-      [discussionList, entry]
+    (allReplies ?? []).filter(
+      (x) =>
+        x.parent_author === entry.author && x.parent_permlink === entry.permlink
+    ),
+[allReplies, entry]
   );
 
-  const botsData = useMemo(() =>
-          filtered.filter((e) => botsList.includes(e.author) && e.children === 0),
-      [filtered, botsList]
+  const botsData = useMemo(() => filtered.filter((e) => botsList.includes(e.author) && e.children === 0),
+  [filtered, botsList]
   );
 
-    const { mutateAsync: createReply, isPending: isCreateLoading } = useCreateReply(entry, root, async () => { toggleReply(); return; });
-    const { mutateAsync: updateReply, isPending: isUpdateReplyLoading } = useUpdateReply(entry, async () => { toggleEdit(); return; });
-    const { mutateAsync: pinReply } = usePinReply(entry, root);
+  const { mutateAsync: createReply, isPending: isCreateLoading } = useCreateReply(entry, root, async () => { toggleReply(); return; });
+  const { mutateAsync: updateReply, isPending: isUpdateReplyLoading } = useUpdateReply(entry, async () => { toggleEdit(); return; });
+  const { mutateAsync: pinReply } = usePinReply(entry, root);
 
   const toggleReply = () => edit || setReply((r) => !r);
   const toggleEdit = () => reply || setEdit((e) => !e);
 
-  const submitReply = (text: string) =>
-      createReply({
-        text,
-        jsonMeta: makeJsonMetaDataReply(entry.json_metadata.tags || ["ecency"], appPackage.version),
-        permlink: createReplyPermlink(entry.author),
-        point: true
-      });
+  const submitReply = async (text: string) => {
+    const permlink = createReplyPermlink(entry.author);
+    await createReply({
+      text,
+      jsonMeta: makeJsonMetaDataReply(entry.json_metadata.tags || ["ecency"], appPackage.version),
+      permlink,
+      point: true
+    });
+    setReply(false);
+  }
 
   const _updateReply = (text: string) =>
       updateReply({

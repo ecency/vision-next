@@ -33,10 +33,10 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
       EcencyConfigManager.CONFIG.visionFeatures.entries.rawContent.enabled && !!params.get("raw"),
     [params]
   );
-
+  if (!entry) return null;
   const { mutateAsync: createReply, isPending: isCreateReplyLoading } = useCreateReply(
     entry,
-    undefined,
+    entry,
     () => {}
   );
 
