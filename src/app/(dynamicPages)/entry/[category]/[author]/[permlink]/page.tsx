@@ -32,9 +32,7 @@ export async function generateMetadata(
 
 export default async function EntryPage({ params, searchParams }: Props) {
   const { author: username, permlink, category } = await params;
-  if (!isValidPermlink(permlink)) {
-    return notFound();
-  }
+
   const search = await searchParams;
   const isEdit = search["edit"];
 
