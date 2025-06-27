@@ -267,6 +267,7 @@
     "buy-account-li-2": "3x RC compared to normal new accounts",
     "buy-account-li-3": "300 Points to help you get started",
     "qr-desc": "Scan with Ecency mobile app to continue",
+    "username-invalid-hyphen-position": "Nazwa użytkownika nie może zaczynać się lub kończyć hipenami",
     "username-min-length-error": "Length of username should be at least 3 characters",
     "username-max-length-error": "Length of username should be no more than 16 characters",
     "username-no-ascii-first-letter-error": "First character should be a Letter",
