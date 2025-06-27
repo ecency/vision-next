@@ -13,6 +13,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound, redirect } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateEntryMetadata } from "../../../_helpers";
+import { isValidPermlink } from "@ecency/render-helper";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
@@ -31,6 +32,9 @@ export async function generateMetadata(
 
 export default async function EntryPage({ params, searchParams }: Props) {
   const { author: username, permlink, category } = await params;
+  if (!isValidPermlink(permlink)) {
+    return notFound();
+  }
   const search = await searchParams;
   const isEdit = search["edit"];
 
