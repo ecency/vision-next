@@ -2715,7 +2715,7 @@
     "go-to-posts": "Ir a mis publicaciones",
     "no-draft-title": "No se han encontrado borradores",
     "no-draft-hint": "No tienes borrador con el ID dado. Por favor, comprueba tus borradores.",
-    "draft-mode": "Modo de edición borrador",
+    "draft-mode": "Modo de edición de borrador",
     "edit-mode": "Modo de edición de mensajes",
     "auto-save": "Auto guardado",
     "save-draft": "Guardar borrador",
