@@ -30,7 +30,7 @@ export default function Publish() {
 
   const { editor, setEditorContent } = usePublishEditor(() => setShowHtmlWarning(true));
 
-  const { setTitle, setContent, setTags, setMetaDescription, setSelectedThumbnail } =
+  const { setTitle, setContent, setTags, setMetaDescription, setSelectedThumbnail, setLocation } =
     usePublishState();
 
   useEntryDetector(
@@ -47,6 +47,7 @@ export default function Publish() {
         setContent(entry.body); // todo
         setMetaDescription(entry.json_metadata?.description ?? postBodySummary(entry.body, 200));
         entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
+        entry?.json_metadata?.location && setLocation(entry?.json_metadata?.location);
 
         setEditorContent(entry.body);
       } else {
