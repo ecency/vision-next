@@ -334,7 +334,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               appearance="gray-link"
               size="sm"
               onClick={() => setShowGeoTag(true)}
-              icon={<UilMap className={clsx(publishState.location && "text-green")} />}
+              icon={<UilMap className={clsx(publishState.location && "text-green-hover")} />}
             />
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
