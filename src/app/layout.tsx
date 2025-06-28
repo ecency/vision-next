@@ -12,12 +12,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en">
-      <Script
-        defer
-        data-domain="ecency.com"
-        data-api="/pl/api/event"
-        src="/pl/js/script.js"
-      ></Script>
+      <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
         <HiringConsoleLog />
