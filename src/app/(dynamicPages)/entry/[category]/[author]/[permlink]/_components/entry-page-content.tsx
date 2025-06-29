@@ -11,11 +11,11 @@ import { EntryPageWarnings } from "@/app/(dynamicPages)/entry/[category]/[author
 import { EntryTags } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-tags";
 import { Entry } from "@/entities";
 
-import ClientEntryFooterControls
-    from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/client-entry-footer-controls";
-import ClientEntryPageDiscussions
-    from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/client-entry-page-discussions";
-
+import ClientEntryFooterControls from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/client-entry-footer-controls";
+import ClientEntryPageDiscussions from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/client-entry-page-discussions";
+import Link from "next/link";
+import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
+import { useEntryLocation } from "@/utils";
 
 interface Props {
   entry: Entry;
@@ -25,6 +25,8 @@ interface Props {
 }
 
 export function EntryPageContent({ entry, rawParam, isEdit, category }: Props) {
+  const location = useEntryLocation(entry);
+
   return (
     <EntryPageNsfwRevealing entry={entry}>
       <EntryPageProfileBox entry={entry} />
@@ -36,6 +38,17 @@ export function EntryPageContent({ entry, rawParam, isEdit, category }: Props) {
       </div>
       <EntryPageBodyViewer entry={entry} rawParam={rawParam} isEdit={isEdit} />
       <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
+        {location && (
+          <Link
+            href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
+            target="_external"
+            rel="noopener"
+            className="text-sm mb-2 block"
+          >
+            <UilMapPinAlt className="w-4 h-4 mr-1" />
+            {location.address}
+          </Link>
+        )}
         <EntryTags entry={entry} />
         <EntryFooterInfo entry={entry} />
         <ClientEntryFooterControls entry={entry} />

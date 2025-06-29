@@ -26,6 +26,7 @@ export interface JsonMetadata {
   original_permlink?: string;
   image?: string[];
   pinned_reply?: string; // author/permlink
+  location?: { coordinates: { lat: number; lng: number }; address?: string };
 }
 
 export interface JsonPollMetadata {

@@ -103,6 +103,13 @@ const CONFIG = {
         host: "https://pl.ecency.com",
         siteId: "ecency.com",
         apiKey: process.env.PLAUSIBLE_API_KEY
+      },
+      publish: {
+        geoPicker: {
+          enabled: true,
+          gMapsMapId: process.env.GMAPS_MAP_ID,
+          gMapsApiKey: process.env.GMAPS_API_KEY
+        }
       }
     },
     service: {

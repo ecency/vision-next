@@ -93,6 +93,19 @@ export function usePublishState() {
     },
     persistent
   );
+  const [location, setLocation, clearLocation] = useSynchronizedLocalStorage<{
+    coordinates: { lng: number; lat: number };
+    address?: string;
+  }>(
+    PREFIX + "_pub_location",
+    undefined,
+    {
+      serializer: (val) => JSON.stringify(val),
+      deserializer: (val) => JSON.parse(val),
+      raw: false
+    },
+    persistent
+  );
   const [poll, setPoll, clearPoll] = usePublishPollState(persistent);
 
   const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
@@ -140,6 +153,7 @@ export function usePublishState() {
     clearPoll();
     clearPublishingVideo();
     clearPostLinks();
+    clearLocation();
   }, [
     setBeneficiaries,
     setContent,
@@ -151,7 +165,8 @@ export function usePublishState() {
     setTitle,
     clearPoll,
     clearPublishingVideo,
-    clearPostLinks
+    clearPostLinks,
+    clearLocation
   ]);
 
   return {
@@ -183,6 +198,9 @@ export function usePublishState() {
     setPublishingVideo,
     clearPublishingVideo,
     postLinks,
-    setPostLinks
+    setPostLinks,
+    location,
+    setLocation,
+    clearLocation
   };
 }

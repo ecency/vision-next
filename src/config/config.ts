@@ -99,6 +99,13 @@ const CONFIG = {
       },
       waves: {
         enabled: true
+      },
+      publish: {
+        geoPicker: {
+          enabled: true,
+          gMapsMapId: process.env.GMAPS_MAP_ID,
+          gMapsApiKey: process.env.GMAPS_API_KEY
+        }
       }
     },
     service: {

@@ -173,6 +173,17 @@ export class EntryMetadataBuilder {
     return this;
   }
 
+  public withLocation(location?: { coordinates: { lat: number; lng: number }; address?: string }) {
+    this.temporaryMetadata = {
+      ...this.temporaryMetadata,
+      ...(location && {
+        location
+      })
+    };
+
+    return this;
+  }
+
   public build(): MetaData {
     return { ...this.temporaryMetadata };
   }

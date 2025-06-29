@@ -8,7 +8,7 @@ import { Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
-import { handleAndReportError, success} from "@/features/shared";
+import { handleAndReportError, success } from "@/features/shared";
 import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -32,7 +32,8 @@ export function usePublishApi() {
     isReblogToCommunity,
     poll,
     publishingVideo,
-    postLinks
+    postLinks,
+    location
   } = usePublishState();
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -48,9 +49,13 @@ export function usePublishApi() {
   return useMutation({
     mutationKey: ["publish-2.0"],
     mutationFn: async () => {
-      const cleanBody = EntryBodyManagement.EntryBodyManager.shared
+      let cleanBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildClearBody(content!);
+
+      cleanBody = EntryBodyManagement.EntryBodyManager.shared
+        .builder()
+        .withLocation(cleanBody, location);
 
       // make sure active user fully loaded
       if (!activeUser || !activeUser.data.__loaded) {
@@ -81,6 +86,7 @@ export function usePublishApi() {
         .withSummary(metaDescription || postBodySummary(cleanBody))
         .withTags(tags)
         .withPostLinks(postLinks)
+        .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
         .withVideo(title!, metaDescription!, publishingVideo)
