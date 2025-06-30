@@ -97,7 +97,8 @@
     "today": "Today",
     "view": "View",
     "tomorrow": "Tomorrow",
-    "import": "Import"
+    "import": "Import",
+    "clear": "Pulisci"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -267,6 +268,7 @@
     "buy-account-li-2": "3x RC compared to normal new accounts",
     "buy-account-li-3": "300 Points to help you get started",
     "qr-desc": "Scan with Ecency mobile app to continue",
+    "username-invalid-hyphen-position": "Il nome utente non può iniziare o terminare con ipens",
     "username-min-length-error": "Length of username should be at least 3 characters",
     "username-max-length-error": "Length of username should be no more than 16 characters",
     "username-no-ascii-first-letter-error": "First character should be a Letter",
@@ -2714,8 +2716,9 @@
     "go-to-posts": "Go to my posts",
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
-    "draft-mode": "You are in a draft editing mode",
-    "edit-mode": "You are in a post editing mode",
+    "draft-mode": "Modalità di modifica bozza",
+    "edit-mode": "Modalità post modifica",
+    "auto-save": "Salvato automaticamente",
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Upload and paste",
@@ -2767,7 +2770,8 @@
       "emoji": "Emoji",
       "video": "Video",
       "poll": "Poll",
-      "align-hint": "Only paragraph and images can be aligned"
+      "align-hint": "Only paragraph and images can be aligned",
+      "geotag": "Geo tag"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
@@ -2791,7 +2795,13 @@
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     },
     "continue-to-publish": "Continue to publish",
-    "continue-to-schedule": "Continue to schedule"
+    "continue-to-schedule": "Continue to schedule",
+    "geo-tag": {
+      "title": "Geo tag post",
+      "subtitle": "In collaborazione con WorldMapPin.com",
+      "location-placeholder": "Scrivi posizione...",
+      "selected-location": "Posizione già selezionata"
+    }
   },
   "ecency-images": {
     "upload-image": "Upload image",

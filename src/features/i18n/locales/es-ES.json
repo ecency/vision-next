@@ -97,7 +97,8 @@
     "today": "Hoy",
     "view": "Vista",
     "tomorrow": "Mañana",
-    "import": "Importar"
+    "import": "Importar",
+    "clear": "Limpiar"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -267,6 +268,7 @@
     "buy-account-li-2": "3x RC comparado con cuentas nuevas normales",
     "buy-account-li-3": "300 puntos para ayudarte a comenzar",
     "qr-desc": "Escanear con aplicación móvil de Ecency para continuar",
+    "username-invalid-hyphen-position": "El nombre de usuario no puede comenzar o terminar con hipenos",
     "username-min-length-error": "La longitud del nombre de usuario debe tener al menos 3 caracteres",
     "username-max-length-error": "La longitud del nombre de usuario no debe tener más de 16 caracteres",
     "username-no-ascii-first-letter-error": "El primer carácter debe ser una letra",
@@ -2714,8 +2716,9 @@
     "go-to-posts": "Ir a mis publicaciones",
     "no-draft-title": "No se han encontrado borradores",
     "no-draft-hint": "No tienes borrador con el ID dado. Por favor, comprueba tus borradores.",
-    "draft-mode": "Estás en modo de edición de borradores",
-    "edit-mode": "Estás en modo de edición de posts",
+    "draft-mode": "Modo de edición de borrador",
+    "edit-mode": "Modo de edición de mensajes",
+    "auto-save": "Auto guardado",
     "save-draft": "Guardar borrador",
     "update-draft": "Actualizar borrador",
     "three-speak-upload": "Subir y pegar",
@@ -2767,7 +2770,8 @@
       "emoji": "Emoji",
       "video": "Vídeo",
       "poll": "Encuesta",
-      "align-hint": "Sólo los párrafos e imágenes pueden ser alineados"
+      "align-hint": "Sólo los párrafos e imágenes pueden ser alineados",
+      "geotag": "Etiqueta Geo"
     },
     "get-help": "Buscar ayuda",
     "loading-post-title": "Cargando tu publicación...",
@@ -2791,7 +2795,13 @@
       "content": "El código HTML puro no es compatible con el editor. Es muy recomendable usar herramientas de editor en lugar de HTML puro. Si todavía desea utilizar HTML elija volver al Editor Clásico"
     },
     "continue-to-publish": "Continuar publicando",
-    "continue-to-schedule": "Continuar con la programación"
+    "continue-to-schedule": "Continuar con la programación",
+    "geo-tag": {
+      "title": "Etiqueta geo del post",
+      "subtitle": "En colaboración con WorldMapPin.com",
+      "location-placeholder": "Escribir ubicación...",
+      "selected-location": "Ubicación ya seleccionada"
+    }
   },
   "ecency-images": {
     "upload-image": "Subir imagen",

@@ -97,7 +97,8 @@
     "today": "Today",
     "view": "View",
     "tomorrow": "",
-    "import": "Import"
+    "import": "Import",
+    "clear": "Leeren"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -267,6 +268,7 @@
     "buy-account-li-2": "3x RC compared to normal new accounts",
     "buy-account-li-3": "300 Points to help you get started",
     "qr-desc": "Scan with Ecency mobile app to continue",
+    "username-invalid-hyphen-position": "Benutzername kann nicht mit Bindestrichen beginnen oder enden",
     "username-min-length-error": "Length of username should be at least 3 characters",
     "username-max-length-error": "Length of username should be no more than 16 characters",
     "username-no-ascii-first-letter-error": "First character should be a Letter",
@@ -2714,8 +2716,9 @@
     "go-to-posts": "Go to my posts",
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
-    "draft-mode": "You are in a draft editing mode",
-    "edit-mode": "You are in a post editing mode",
+    "draft-mode": "Entwurfsbearbeitung",
+    "edit-mode": "Beitragsbearbeitung",
+    "auto-save": "Auto gespeichert",
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Upload and paste",
@@ -2767,7 +2770,8 @@
       "emoji": "Emoji",
       "video": "Video",
       "poll": "Poll",
-      "align-hint": "."
+      "align-hint": ".",
+      "geotag": "Geo-Tag"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
@@ -2791,7 +2795,13 @@
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     },
     "continue-to-publish": "Veröffentlichen fortsetzen",
-    "continue-to-schedule": "Weiter zum Zeitplan"
+    "continue-to-schedule": "Weiter zum Zeitplan",
+    "geo-tag": {
+      "title": "Geo-Tag des Beitrags",
+      "subtitle": "In Zusammenarbeit mit WorldMapPin.com",
+      "location-placeholder": "Ort schreiben...",
+      "selected-location": "Bereits ausgewählter Ort"
+    }
   },
   "ecency-images": {
     "upload-image": "Upload image",
