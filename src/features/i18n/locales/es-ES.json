@@ -97,7 +97,8 @@
     "today": "Hoy",
     "view": "Vista",
     "tomorrow": "Mañana",
-    "import": "Importar"
+    "import": "Importar",
+    "clear": "Claro"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -2769,7 +2770,8 @@
       "emoji": "Emoji",
       "video": "Vídeo",
       "poll": "Encuesta",
-      "align-hint": "Sólo los párrafos e imágenes pueden ser alineados"
+      "align-hint": "Sólo los párrafos e imágenes pueden ser alineados",
+      "geotag": "Etiqueta Geo"
     },
     "get-help": "Buscar ayuda",
     "loading-post-title": "Cargando tu publicación...",
@@ -2793,7 +2795,13 @@
       "content": "El código HTML puro no es compatible con el editor. Es muy recomendable usar herramientas de editor en lugar de HTML puro. Si todavía desea utilizar HTML elija volver al Editor Clásico"
     },
     "continue-to-publish": "Continuar publicando",
-    "continue-to-schedule": "Continuar con la programación"
+    "continue-to-schedule": "Continuar con la programación",
+    "geo-tag": {
+      "title": "Etiqueta geo del post",
+      "subtitle": "En colaboración con WorldMapPin.com",
+      "location-placeholder": "Escribir ubicación...",
+      "selected-location": "Ubicación seleccionada"
+    }
   },
   "ecency-images": {
     "upload-image": "Subir imagen",
