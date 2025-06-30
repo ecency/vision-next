@@ -38,7 +38,7 @@ export function EntryPageContent({ entry, rawParam, isEdit, category }: Props) {
       </div>
       <EntryPageBodyViewer entry={entry} rawParam={rawParam} isEdit={isEdit} />
       <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
-        {location && (
+        {location?.coordinates && (
           <Link
             href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
             target="_external"

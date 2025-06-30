@@ -101,7 +101,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
         <EntryLink entry={isCrossPost ? entryProp : entry}>
           <div className="item-title !mb-0">{entry.title}</div>
         </EntryLink>
-        {location && (
+        {location?.coordinates && (
           <Link
             href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
             target="_external"
