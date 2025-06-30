@@ -24,8 +24,8 @@ services:
       - NEXT_PUBLIC_USE_PRIVATE
       - NEXT_PUBLIC_HS_CLIENT_SECRET
       - PLAUSIBLE_API_KEY
-      - GMAPS_MAP_ID
-      - GMAPS_API_KEY
+      - NEXT_PUBLIC_GMAPS_MAP_ID
+      - NEXT_PUBLIC_GMAPS_API_KEY
     restart: always
     ports:
       - "3000:3000"

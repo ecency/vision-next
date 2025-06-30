@@ -107,8 +107,8 @@ const CONFIG = {
       publish: {
         geoPicker: {
           enabled: true,
-          gMapsMapId: process.env.GMAPS_MAP_ID,
-          gMapsApiKey: process.env.GMAPS_API_KEY
+          gMapsMapId: process.env.NEXT_PUBLIC_GMAPS_MAP_ID,
+          gMapsApiKey: process.env.NEXT_PUBLIC_GMAPS_API_KEY
         }
       }
     },
