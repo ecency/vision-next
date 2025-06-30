@@ -21,7 +21,7 @@ services:
     deploy:
       replicas: 4
     environment:
-      - NEXT_PUBLIC_USE_PRIVATE
+      - USE_PRIVATE
       - HIVESIGNER_SECRET
       - PLAUSIBLE_API_KEY
       - NEXT_PUBLIC_GMAPS_MAP_ID
