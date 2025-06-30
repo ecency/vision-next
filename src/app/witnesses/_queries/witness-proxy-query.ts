@@ -12,7 +12,7 @@ export function useWitnessProxyQuery() {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const { data: activeUserAccount } = getAccountFullQuery(activeUser?.username).useClientQuery();
   const { data: urlParamAccount } = getAccountFullQuery(
-    searchParams.get("username") ?? searchParams.get("account") ?? ""
+    searchParams?.get("username") ?? searchParams?.get("account") ?? ""
   ).useClientQuery();
 
   useEffect(() => {

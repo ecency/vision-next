@@ -26,7 +26,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
 
   const isRawContent = useMemo(
       () =>
-          EcencyConfigManager.CONFIG.visionFeatures.entries.rawContent.enabled && !!params.get("raw"),
+          EcencyConfigManager.CONFIG.visionFeatures.entries.rawContent.enabled && !!params?.get("raw"),
       [params]
   );
 

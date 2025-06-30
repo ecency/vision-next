@@ -62,7 +62,7 @@ export function SignUp() {
   const router = useRouter();
 
   useMount(() => {
-    const referral = params.get("referral");
+    const referral = params?.get("referral");
     if (referral && typeof referral === "string") {
       setReferral(referral);
       setLockReferral(true);

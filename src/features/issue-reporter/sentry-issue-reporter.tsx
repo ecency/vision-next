@@ -39,7 +39,7 @@ export function SentryIssueReporter({ error, onHide }: Props) {
       message,
       name,
       email,
-      url: pathname,
+      url: pathname ?? undefined,
       associatedEventId: eventId
     });
 

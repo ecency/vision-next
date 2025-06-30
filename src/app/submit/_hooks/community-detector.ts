@@ -5,7 +5,7 @@ export function useCommunityDetector(onDetected: (community: string) => void) {
   const searchParams = useSearchParams();
 
   useMount(() => {
-    const com = searchParams.get("com");
+    const com = searchParams?.get("com");
     if (com) {
       onDetected(com as string);
     }

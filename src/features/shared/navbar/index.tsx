@@ -38,7 +38,7 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
 
   useMount(() => {
     // referral check / redirect
-    if (location.pathname.startsWith("/signup") && query.has("referral")) {
+    if (location.pathname.startsWith("/signup") && query?.has("referral")) {
       router.push(`/signup?referral=${query.get("referral")}`);
     }
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", handleSetTheme);
@@ -70,8 +70,12 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
   }, [pathname, previousPathname, activeUser, previousActiveUser, setStepOne, setStepTwo]);
 
   useEffect(() => {
+    if (!pathname) {
+      setTransparentVerify(false);
+      return;
+    }
     setTransparentVerify(
-      pathname.startsWith("/hot") ||
+        pathname.startsWith("/hot") ||
         pathname.startsWith("/created") ||
         pathname.startsWith("/trending")
     );

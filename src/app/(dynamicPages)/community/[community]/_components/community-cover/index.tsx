@@ -85,7 +85,7 @@ export function CommunityCover({ community, account }: Props) {
       {canUpdateCoverImage && <CommunityCoverEditImage account={account as FullAccount} />}
       <JoinCommunityModal
         community={community}
-        communityId={searchParams.get("communityid") ?? ""}
+        communityId={searchParams?.get("communityid") ?? ""}
       />
     </div>
   );

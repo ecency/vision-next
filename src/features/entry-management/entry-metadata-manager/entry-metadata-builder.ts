@@ -105,14 +105,14 @@ export class EntryMetadataBuilder {
   }
 
   public withVideo(
-    title: string,
-    description: string | null,
-    videoMetadata?: ThreeSpeakVideo
+      title: string,
+      description: string | null,
+      videoMetadata?: ThreeSpeakVideo
   ): this {
-    return this.withField(
-      "video",
-      videoMetadata
-        ? {
+    if (videoMetadata) {
+      return this.withField(
+          "video",
+          {
             info: {
               platform: "3speak",
               title: title || videoMetadata.title,
@@ -143,9 +143,11 @@ export class EntryMetadataBuilder {
               tags: videoMetadata.tags_v2
             }
           }
-        : undefined
-    ).withField("type", "video");
+      ).withField("type", "video");
+    }
+    return this;
   }
+
 
   public withPoll(poll?: PollSnapshot): this {
     this.temporaryMetadata = {

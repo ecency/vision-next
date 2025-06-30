@@ -33,7 +33,7 @@ export function CenterContent() {
       {current === "faq" && <CenterFaq />}
       {current === "announcements" && <CenterAnnouncements />}
       {current === "chats" &&
-        (pathname.startsWith("/chats") ? (
+        (pathname?.startsWith("/chats") ? (
           <div className="h-[480px] w-full flex p-4 items-center justify-center opacity-50 text-sm font-semibold">
             {i18next.t("center.chats-page-placeholder")}
           </div>
