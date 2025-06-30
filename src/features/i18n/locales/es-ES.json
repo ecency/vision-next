@@ -98,7 +98,7 @@
     "view": "Vista",
     "tomorrow": "Mañana",
     "import": "Importar",
-    "clear": "Claro"
+    "clear": "Limpiar"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -2800,7 +2800,7 @@
       "title": "Etiqueta geo del post",
       "subtitle": "En colaboración con WorldMapPin.com",
       "location-placeholder": "Escribir ubicación...",
-      "selected-location": "Ubicación seleccionada"
+      "selected-location": "Ubicación ya seleccionada"
     }
   },
   "ecency-images": {
