@@ -110,7 +110,7 @@ const CONFIG = {
     },
     service: {
       hsClientId: process.env.NEXT_PUBLIC_HS_CLIENT_ID || "ecency.app",
-      hsClientSecret: process.env.NEXT_PUBLIC_HS_CLIENT_SECRET || ""
+      hsClientSecret: process.env.HIVESIGNER_SECRET || ""
     }
   }
 };

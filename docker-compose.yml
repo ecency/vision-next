@@ -22,7 +22,7 @@ services:
       replicas: 4
     environment:
       - NEXT_PUBLIC_USE_PRIVATE
-      - NEXT_PUBLIC_HS_CLIENT_SECRET
+      - HIVESIGNER_SECRET
       - PLAUSIBLE_API_KEY
       - NEXT_PUBLIC_GMAPS_MAP_ID
       - NEXT_PUBLIC_GMAPS_API_KEY
