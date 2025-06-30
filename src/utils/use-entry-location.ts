@@ -21,7 +21,7 @@ export function useEntryLocation(entry?: Entry) {
           !cleanedAddress ||
           cleanedAddress === "<DESCRIPTION GOES HERE>" ||
           cleanedAddress === "d3scr"
-              ? entry.title
+              ? `${lat}, ${lng}`
               : cleanedAddress;
 
       return {
