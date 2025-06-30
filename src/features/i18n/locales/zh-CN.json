@@ -97,7 +97,8 @@
     "today": "Today",
     "view": "View",
     "tomorrow": "Tomorrow",
-    "import": "Import"
+    "import": "Import",
+    "clear": "清空"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -2769,7 +2770,8 @@
       "emoji": "Emoji",
       "video": "Video",
       "poll": "Poll",
-      "align-hint": "Only paragraph and images can be aligned"
+      "align-hint": "Only paragraph and images can be aligned",
+      "geotag": "Geo 标签"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
@@ -2793,7 +2795,13 @@
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     },
     "continue-to-publish": "Continue to publish",
-    "continue-to-schedule": "Continue to schedule"
+    "continue-to-schedule": "Continue to schedule",
+    "geo-tag": {
+      "title": "帖子的地理标签",
+      "subtitle": "与 WorldMapPin.com 协作",
+      "location-placeholder": "写位置...",
+      "selected-location": "已选择位置"
+    }
   },
   "ecency-images": {
     "upload-image": "Upload image",
