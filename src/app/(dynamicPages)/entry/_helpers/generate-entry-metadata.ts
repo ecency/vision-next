@@ -4,6 +4,7 @@ import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render
 import { Metadata } from "next";
 import { headers } from 'next/headers';
 import {getPostQuery} from "@/api/queries";
+import {getContent} from "@/api/hive";
 
 
 function toProxiedSizedImage(original: string, size = "600x500") {
@@ -23,12 +24,28 @@ export async function generateEntryMetadata(username: string, permlink: string):
   }
   try {
     const cleanAuthor = username.replace("%40", "");
-    const entry = await getPostQuery(cleanAuthor, permlink).prefetch();
+    let entry = await getPostQuery(cleanAuthor, permlink).prefetch();
     //const entry = await getContent(cleanAuthor, permlink);
 
     if (!entry || !entry.body || !entry.created) {
-      console.warn("generateEntryMetadata: Incomplete post data", { username, permlink });
-      return {};
+      console.warn("generateEntryMetadata: incomplete post data, trying fallback getContent", {
+        username,
+        permlink,
+        userAgent,
+        referer,
+      });
+      try {
+        // fallback to direct content API
+        entry = await getContent(cleanAuthor, permlink);
+      } catch (e) {
+        console.error("generateEntryMetadata fallback getContent failed", e);
+        return {};
+      }
+
+      if (!entry || !entry.body || !entry.created) {
+        console.warn("generateEntryMetadata: fallback also failed", { username, permlink });
+        return {};
+      }
     }
     const isComment = !!entry.parent_author;
 
