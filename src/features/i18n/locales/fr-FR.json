@@ -97,7 +97,8 @@
     "today": "Aujourd'hui",
     "view": "Afficher",
     "tomorrow": "Demain",
-    "import": "Import"
+    "import": "Import",
+    "clear": "Nettoyer"
   },
   "confirm": {
     "title": "Êtes-vous sûr ?",
@@ -2769,7 +2770,8 @@
       "emoji": "Emoji",
       "video": "Video",
       "poll": "Poll",
-      "align-hint": "Only paragraph and images can be aligned"
+      "align-hint": "Only paragraph and images can be aligned",
+      "geotag": "Balise Geo"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
@@ -2793,7 +2795,13 @@
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     },
     "continue-to-publish": "Continue to publish",
-    "continue-to-schedule": "Continue to schedule"
+    "continue-to-schedule": "Continue to schedule",
+    "geo-tag": {
+      "title": "Balise géo du message",
+      "subtitle": "En collaboration avec WorldMapPin.com",
+      "location-placeholder": "Écrire un emplacement...",
+      "selected-location": "Lieu déjà sélectionné"
+    }
   },
   "ecency-images": {
     "upload-image": "Upload image",
