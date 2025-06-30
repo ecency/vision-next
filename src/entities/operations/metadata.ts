@@ -12,4 +12,5 @@ export interface MetaData {
   pinned_reply?: string; // author/permlink
   links?: string[];
   links_meta?: Record<string, { image: string; summary: string; title: string }>;
+  location?: { coordinates: { lat: number; lng: number }; address?: string };
 }

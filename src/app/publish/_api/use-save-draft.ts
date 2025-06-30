@@ -28,7 +28,8 @@ export function useSaveDraftApi(draftId?: string) {
     selectedThumbnail,
     poll,
     postLinks,
-    publishingVideo
+    publishingVideo,
+    location
   } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
@@ -49,6 +50,7 @@ export function useSaveDraftApi(draftId?: string) {
         // It should select filled description or if its empty or null/undefined then get auto summary
         .withSummary(metaDescription! || postBodySummary(content!))
         .withPostLinks(postLinks)
+        .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
 
       if (publishingVideo) {
@@ -64,14 +66,7 @@ export function useSaveDraftApi(draftId?: string) {
       };
 
       if (draftId) {
-        await updateDraft(
-          activeUser?.username!,
-          draftId,
-          title!,
-          content!,
-          tagJ!,
-          draftMeta
-        );
+        await updateDraft(activeUser?.username!, draftId, title!, content!, tagJ!, draftMeta);
         success(i18next.t("submit.draft-updated"));
       } else {
         const resp = await addDraft(activeUser?.username!, title!, content!, tagJ!, draftMeta);

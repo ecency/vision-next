@@ -27,6 +27,17 @@ export namespace EntryBodyManagement {
 
       return newBody;
     }
+
+    public withLocation(
+      body: string,
+      location?: { coordinates: { lat: number; lng: number }; address?: string }
+    ) {
+      if (location) {
+        body += `\n\n[//]:# (!worldmappin ${location.coordinates.lat} lat ${location.coordinates.lng} long ${location.address})`;
+      }
+
+      return body;
+    }
   }
 
   export class EntryBodyManager {
