@@ -97,7 +97,8 @@
     "today": "Сегодня",
     "view": "Просмотр",
     "tomorrow": "Завтра",
-    "import": "Импорт"
+    "import": "Импорт",
+    "clear": "Очистить"
   },
   "confirm": {
     "title": "Вы уверены?",
@@ -2769,7 +2770,8 @@
       "emoji": "Эмодзи",
       "video": "Видео",
       "poll": "Опрос",
-      "align-hint": "Only paragraph and images can be aligned"
+      "align-hint": "Only paragraph and images can be aligned",
+      "geotag": "Гео-тег"
     },
     "get-help": "Получить помощь",
     "loading-post-title": "Loading your post...",
@@ -2793,7 +2795,13 @@
       "content": "Чистый HTML-код не поддерживается в редакторе. Настоятельно рекомендуется использовать инструменты редактора вместо чистого HTML. Если вы все еще хотите использовать HTML, вернитесь к классическому редактору"
     },
     "continue-to-publish": "Продолжайте публиковать",
-    "continue-to-schedule": "Continue to schedule"
+    "continue-to-schedule": "Continue to schedule",
+    "geo-tag": {
+      "title": "Гео тег пост",
+      "subtitle": "В сотрудничестве с WorldMapPin.com",
+      "location-placeholder": "Записать место...",
+      "selected-location": "Уже выбрано местоположение"
+    }
   },
   "ecency-images": {
     "upload-image": "Загрузить изображение",
