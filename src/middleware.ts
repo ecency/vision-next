@@ -19,6 +19,17 @@ export function middleware(request: NextRequest) {
     return new NextResponse("Not found", { status: 404 });
   }
 
+  // ADD BOT DETECTION
+  const userAgent = request.headers.get("user-agent") || "";
+  const isSocialBot = /redditbot/i.test(userAgent);
+
+  if (isSocialBot && path.match(/^\/[^\/]+\/@[^\/]+\/[^\/]+$/)) {
+    // example: /ecency/@someuser/permlink
+    const url = request.nextUrl.clone();
+    url.pathname = `/bot-entry${url.pathname}`;
+    return NextResponse.rewrite(url);
+  }
+
   return NextResponse.next();
 }
 
