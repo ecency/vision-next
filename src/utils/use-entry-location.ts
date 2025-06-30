@@ -2,25 +2,39 @@ import { Entry } from "@/entities";
 import { useMemo } from "react";
 
 export function useEntryLocation(entry?: Entry) {
-  const metadataLocation = useMemo(() => entry?.json_metadata?.location, [entry]);
-  const bodyLocation = useMemo(() => {
-    const worldMapPinMention = entry?.body.match(
-      /\[\/\/\]:#\s\(\!worldmappin\s(.+)lat\s(.+)long\s(.+)/gim
+  return useMemo(() => {
+    const metadataLocation = entry?.json_metadata?.location;
+    if (metadataLocation) return metadataLocation;
+
+    if (!entry?.body) return undefined;
+
+    const match = entry.body.match(
+        /\[\/\/\]:#\s\(\!(?:worldmappin|pinmapple)\s+([-\d.]+)\s+lat\s+([-\d.]+)\s+long(?:\s+(.*?))?(?:\s+d3scr)?\)/i
     );
-    if (worldMapPinMention?.[0]) {
-      const pureLocation = worldMapPinMention[0].replace("[//]:# (!worldmappin ", "");
-      const [lat, _] = pureLocation.split("lat");
-      const [lng, __] = _.split("long");
+
+    if (match) {
+      const [, lat, lng, address] = match;
+
+      const cleanedAddress = address?.trim();
+
+      const fallbackAddress =
+          !cleanedAddress ||
+          cleanedAddress === "<DESCRIPTION GOES HERE>" ||
+          cleanedAddress === "d3scr"
+              ? entry.title
+              : cleanedAddress;
+
       return {
         coordinates: {
           lat,
-          lng
+          lng,
         },
-        address: __.slice(0, __.length - 1)
+        address: fallbackAddress,
       };
     }
-    return "";
-  }, [entry]);
 
-  return bodyLocation ?? metadataLocation;
+    return undefined;
+  }, [entry]);
 }
+
+

@@ -74,7 +74,7 @@ export function PublishEditorGeoTagDialog({
             <span>{initialLocation.address}</span>
           </div>
         )}
-        <APIProvider apiKey={G_MAPS_API_KEY}>
+        <APIProvider apiKey={G_MAPS_API_KEY ?? ""}>
           <PublishEditorGeoTagAutocomplete
             selectedAddress={selectedAddress}
             selectedPlace={selectedPlace}
