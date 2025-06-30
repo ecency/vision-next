@@ -26,7 +26,7 @@ export function middleware(request: NextRequest) {
   if (isSocialBot && path.match(/^\/[^\/]+\/@[^\/]+\/[^\/]+$/)) {
     // example: /ecency/@someuser/permlink
     const url = request.nextUrl.clone();
-    url.pathname = `/bot-entry${url.pathname}`;
+    url.pathname = `/bot-entry${url.pathname.replace(/\/$/, "")}`;
     return NextResponse.rewrite(url);
   }
 
