@@ -3,15 +3,16 @@ import { Metadata } from "next";
 import {generateEntryMetadata} from "@/app/(dynamicPages)/entry/_helpers";
 
 interface Props {
-    params: { author: string; permlink: string; category: string }
+    params: Promise<{ author: string; permlink: string; category: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    return generateEntryMetadata(params.author, params.permlink);
+    const { author, permlink } = await params;
+    return generateEntryMetadata(author, permlink);
 }
 
 export default async function BotEntryPage({ params }: Props) {
-    const { author, permlink } = params;
+    const { author, permlink } = await params;
     return (
         <html>
         <head>
