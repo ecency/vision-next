@@ -7,9 +7,11 @@ import { EntryTags } from "./entry-tags";
 import { EntryFooterInfo } from "./entry-footer-info";
 import { EntryPageSimilarEntries } from "./entry-page-similar-entries";
 import { EntryPageStaticBody } from "./entry-page-static-body";
+import { EntryFooterControls } from "./entry-footer-controls";
 import Link from "next/link";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import { useEntryLocation } from "@/utils";
+import {PollWidget, useEntryPollExtractor} from "@/features/polls";
 
 interface Props {
     entry: Entry;
@@ -17,6 +19,7 @@ interface Props {
 
 export function EntryPageContentSSR({ entry }: Props) {
     const location = useEntryLocation(entry);
+    const postPoll = useEntryPollExtractor(entry);
 
     return (
         <>
@@ -29,6 +32,11 @@ export function EntryPageContentSSR({ entry }: Props) {
             </div>
             {/* SSR static body */}
             <EntryPageStaticBody entry={entry} />
+            {postPoll && (
+                <div className="pb-6">
+                    <PollWidget entry={entry} poll={postPoll} isReadOnly={true} />
+                </div>
+            )}
             <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
                 {location?.coordinates && (
                     <Link
@@ -43,6 +51,7 @@ export function EntryPageContentSSR({ entry }: Props) {
                 )}
                 <EntryTags entry={entry} />
                 <EntryFooterInfo entry={entry} />
+                <EntryFooterControls entry={entry} />
             </div>
             <EntryPageSimilarEntries entry={entry} />
         </>

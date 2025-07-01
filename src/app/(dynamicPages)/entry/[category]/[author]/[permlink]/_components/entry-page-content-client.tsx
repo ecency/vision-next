@@ -2,7 +2,6 @@
 
 import { Entry } from "@/entities";
 import { EntryPageBodyViewer } from "./entry-page-body-viewer";
-import { EntryFooterControls } from "./entry-footer-controls";
 import { EntryPageDiscussions } from "./entry-page-discussions";
 import { EntryPageEditHistory } from "./entry-page-edit-history";
 import { useContext } from "react";
@@ -29,7 +28,6 @@ export function EntryPageContentClient({ entry, rawParam, isEdit, category }: Pr
                     showIfNsfw={showIfNsfw}
                 />
             </ClientEntryPageNsfwRevealing>
-            <EntryFooterControls entry={entry} />
             <EntryPageDiscussions category={category} entry={entry} />
             <EntryPageEditHistory entry={entry} />
         </>

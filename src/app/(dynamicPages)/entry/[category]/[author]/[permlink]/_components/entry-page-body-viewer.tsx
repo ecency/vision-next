@@ -18,7 +18,6 @@ interface Props {
 }
 
 export function EntryPageBodyViewer({ entry, rawParam, showIfNsfw, isEdit }: Props) {
-  const postPoll = useEntryPollExtractor(entry);
 
   const [signingOperation, setSigningOperation] = useState<string>();
 
@@ -42,11 +41,6 @@ export function EntryPageBodyViewer({ entry, rawParam, showIfNsfw, isEdit }: Pro
             <>
               <SelectionPopover postUrl={entry.url}>
                 {/* nothing here, SSR will render #post-body */}
-                {postPoll && (
-                    <div className="pb-6">
-                      <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />
-                    </div>
-                )}
               </SelectionPopover>
             </>
         )}
