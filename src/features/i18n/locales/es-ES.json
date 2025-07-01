@@ -2612,7 +2612,7 @@
     "replying": "Respondiendo...",
     "success-reply": "Has respondido exitosamente",
     "success-reply-edit": "Has editado exitosamente",
-    "muted-post": "Mensaje del autor silenciado"
+    "muted-post": "Publicación de autor silenciado"
   },
   "events": {
     "muted": "Usuario ha silenciado",
