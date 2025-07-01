@@ -797,7 +797,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
             <Button
               className="mt-3 w-[50%] align-self-center"
               onClick={() => {
-                if (queryParams.has("tid")) {
+                if (queryParams?.has("tid")) {
                   sendMail();
                 }
               }}

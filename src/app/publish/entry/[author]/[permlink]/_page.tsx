@@ -34,8 +34,8 @@ export default function Publish() {
     usePublishState();
 
   useEntryDetector(
-    (params.author as string).replace("%40", ""),
-    params.permlink as string,
+    (params?.author as string).replace("%40", ""),
+    params?.permlink as string,
     async (entry) => {
       await delay(2000);
 

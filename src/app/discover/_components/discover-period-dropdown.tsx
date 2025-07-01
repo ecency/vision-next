@@ -16,7 +16,7 @@ export function DiscoverPeriodDropdown() {
   const params = useSearchParams();
 
   useEffect(() => {
-    if (params.get("period")) {
+    if (params?.get("period")) {
       setIsLoading(false);
     }
   }, [params]);

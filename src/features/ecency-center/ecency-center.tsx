@@ -13,10 +13,10 @@ export function EcencyCenter() {
   const pathname = usePathname();
   const isSubmitPage = useMemo(
     () =>
-      pathname.includes("submit") ||
-      pathname.includes("edit") ||
-      pathname.includes("draft") ||
-      pathname.includes("publish"),
+      pathname?.includes("submit") ||
+      pathname?.includes("edit") ||
+      pathname?.includes("draft") ||
+      pathname?.includes("publish"),
     [pathname]
   );
   useClickAway(rootRef, () => show && setShow(false));
@@ -28,8 +28,8 @@ export function EcencyCenter() {
       ref={rootRef}
       className={classNameObject({
         "fixed z-[202] bottom-4 ecency-center": true,
-        "left-4": !pathname.includes("decks"),
-        "right-4": pathname.includes("decks")
+        "left-4": !pathname?.includes("decks"),
+        "right-4": pathname?.includes("decks")
       })}
     >
       <CenterButton onClick={() => setShow(!show)} />

@@ -153,9 +153,9 @@ export function usePublishApi() {
         await validatePostCreating(entry.author, entry.permlink, 3);
 
         // Record all user activity
-        recordActivity();
+        await recordActivity();
         if (publishingVideo) {
-          recordUploadVideoActivity();
+          await recordUploadVideoActivity();
         }
 
         success(i18next.t("submit.published"));

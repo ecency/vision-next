@@ -38,8 +38,8 @@ export function NavbarTextMenu() {
             className={classNameObject({
               "text-sm font-semibold duration-300 hover:opacity-75 mt-0 px-2 py-0.5 rounded-2xl":
                 true,
-              "text-gunmetal dark:text-white": !pathname.includes(item.link),
-              "bg-blue-duck-egg text-blue-dark-sky dark:bg-dark-default": pathname.includes(
+              "text-gunmetal dark:text-white": !pathname?.includes(item.link),
+              "bg-blue-duck-egg text-blue-dark-sky dark:bg-dark-default": pathname?.includes(
                 item.link
               )
             })}

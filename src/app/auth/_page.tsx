@@ -26,8 +26,8 @@ export function AuthPage() {
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
 
   const initUser = useCallback(async () => {
-    const code = searchParams.get("code");
-    const isValidToken = validateToken(code);
+    const code = searchParams?.get("code");
+    const isValidToken = validateToken(code ?? "");
 
     if (!code || !isValidToken) {
       router.push("/");

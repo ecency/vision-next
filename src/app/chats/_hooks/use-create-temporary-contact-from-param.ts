@@ -15,7 +15,7 @@ export function useCreateTemporaryContactFromParam() {
   const { setReceiverPubKey, activeUsername } = useContext(ChatContext);
   const params = useSearchParams();
 
-  const usernameParam = useMemo(() => params.get("username") ?? "", [params]);
+  const usernameParam = useMemo(() => params?.get("username") ?? "", [params]);
 
   const { isFetched: isContactsFetched } = useDirectContactsQuery();
   const { data: contactKeys, isFetched, isError } = useGetPublicKeysQuery(usernameParam);
