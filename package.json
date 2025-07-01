@@ -15,7 +15,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@ecency/ns-query": "^1.2.11-next",
     "@ecency/render-helper": "^2.3.7",
-    "@ecency/renderer": "^1.1.25",
+    "@ecency/renderer": "^1.2.1",
     "@ecency/sdk": "1.0.42",
     "@ecency/wallets": "^1.2.16",
     "@emoji-mart/data": "^1.1.2",

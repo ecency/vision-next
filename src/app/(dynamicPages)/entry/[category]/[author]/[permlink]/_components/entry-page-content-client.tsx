@@ -1,4 +1,3 @@
-// EntryPageContentClient.tsx
 "use client";
 
 import { Entry } from "@/entities";
@@ -8,8 +7,7 @@ import { EntryPageDiscussions } from "./entry-page-discussions";
 import { EntryPageEditHistory } from "./entry-page-edit-history";
 import { useContext } from "react";
 import { EntryPageContext } from "./context";
-import ClientEntryPageNsfwRevealing
-    from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/client-entry-page-nsfwrevealing";
+import ClientEntryPageNsfwRevealing from "./client-entry-page-nsfwrevealing";
 
 interface Props {
     entry: Entry;

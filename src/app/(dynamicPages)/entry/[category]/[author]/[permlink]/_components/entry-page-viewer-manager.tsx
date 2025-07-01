@@ -7,11 +7,13 @@ import { Entry } from "@/entities";
 export function EntryPageViewerManager(props: PropsWithChildren<{ entry: Entry }>) {
   const { isRawContent } = useContext(EntryPageContext);
 
-  return isRawContent ? (
-    <pre className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900">
+  if (isRawContent) {
+    return (
+        <pre className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900">
       {props.entry.body}
     </pre>
-  ) : (
-    props.children
-  );
+    );
+  }
+
+  return props.children;
 }

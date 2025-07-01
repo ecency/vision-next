@@ -1,4 +1,3 @@
-// EntryPageContentSSR.tsx
 import { Entry } from "@/entities";
 import { EntryPageProfileBox } from "./entry-page-profile-box";
 import { EntryPageIsCommentHeader } from "./entry-page-is-comment-header";
@@ -7,6 +6,7 @@ import { EntryPageWarnings } from "./entry-page-warnings";
 import { EntryTags } from "./entry-tags";
 import { EntryFooterInfo } from "./entry-footer-info";
 import { EntryPageSimilarEntries } from "./entry-page-similar-entries";
+import { EntryPageStaticBody } from "./entry-page-static-body";
 import Link from "next/link";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import { useEntryLocation } from "@/utils";
@@ -27,6 +27,8 @@ export function EntryPageContentSSR({ entry }: Props) {
                 <h1 className="entry-title">{entry.title}</h1>
                 <EntryPageMainInfo entry={entry} />
             </div>
+            {/* SSR static body */}
+            <EntryPageStaticBody entry={entry} />
             <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
                 {location?.coordinates && (
                     <Link
