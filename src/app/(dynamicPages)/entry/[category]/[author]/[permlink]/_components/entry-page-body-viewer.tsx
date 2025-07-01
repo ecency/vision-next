@@ -10,10 +10,11 @@ import { PostContentRenderer } from "@/features/shared";
 interface Props {
   entry: Entry;
   rawParam: string;
+  showIfNsfw: boolean;
   isEdit: boolean;
 }
 
-export function EntryPageBodyViewer({ entry, rawParam, isEdit }: Props) {
+export function EntryPageBodyViewer({ entry, rawParam, showIfNsfw, isEdit }: Props) {
   const postPoll = useEntryPollExtractor(entry);
 
   const preparedEntryBody = entry.body.replace(/<a id="/g, '<a data-id="');
