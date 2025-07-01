@@ -119,15 +119,8 @@ export function makeQueryClient() {
   });
 }
 
-let serverQueryClient: QueryClient | null = null;
-
 export const getQueryClient = isServer
-  ? () => {
-      if (!serverQueryClient) {
-        serverQueryClient = makeQueryClient();
-      }
-      return serverQueryClient;
-    }
+  ? cache(() => makeQueryClient())
   : () => {
       if ((global as any).clientQueryClient) {
         ConfigManager.setQueryClient((global as any).clientQueryClient);
