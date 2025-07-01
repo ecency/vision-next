@@ -79,10 +79,10 @@ export default async function EntryPage({ params, searchParams }: Props) {
               <EntryPageCrossPostHeader entry={entry} />
               <span itemScope itemType="http://schema.org/Article">
               <EntryPageContent
-                  category={category}
-                  isEdit={isEdit === "true"}
-                  entry={entry}
-                  rawParam={isEdit ?? ""}
+                category={category}
+                isEdit={isEdit === "true"}
+                entry={entry}
+                rawParam={isEdit ?? ""}
               />
             </span>
             </div>
