@@ -7,7 +7,6 @@ export * from "./schedules";
 export * from "./gallery-image";
 export * from "./drafts";
 export * from "./notifications";
-export * from "./account-following";
 export * from "./image-upload";
 export * from "./update-profile";
 export * from "./update-community";
