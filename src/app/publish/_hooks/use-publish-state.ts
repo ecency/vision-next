@@ -10,7 +10,7 @@ import { ThreeSpeakVideo } from "@ecency/sdk";
 
 export function usePublishState() {
   const params = useParams();
-  const persistent = useMemo(() => !params.id, [params]);
+  const persistent = useMemo(() => !params?.id, [params]);
 
   const [title, setTitle] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_title",

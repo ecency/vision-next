@@ -73,7 +73,7 @@ export const ChatsDropdownMenu = (props: Props) => {
               }}
             />
           )}
-          {!pathname.startsWith("/chats") && (
+          {!pathname?.startsWith("/chats") && (
             <DropdownItemWithIcon
               icon={extendedView}
               label={i18next.t("chat.extended-view")}

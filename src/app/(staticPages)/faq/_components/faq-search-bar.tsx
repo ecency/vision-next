@@ -18,7 +18,7 @@ export function FaqSearchBar() {
   const [searchInput, setSearchInput] = useState("");
 
   const lang = useGlobalStore((state) => state.lang);
-  const search = useMemo(() => params.get("q") ?? "", [params]);
+  const search = useMemo(() => params?.get("q") ?? "", [params]);
 
   const copyToClipboard = useCallback((text: string) => {
     success(i18next.t("static.faq.search-link-copied"));

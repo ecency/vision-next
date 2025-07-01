@@ -20,7 +20,7 @@ export function CommunityContentSearch({ community, filter }: Props) {
   const router = useRouter();
 
   useEffect(() => {
-    setSearch(params.get("q") ?? "");
+    setSearch(params?.get("q") ?? "");
   }, [params]);
 
   const handleChangeSearch = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +33,7 @@ export function CommunityContentSearch({ community, filter }: Props) {
     () => {
       if (search) {
         router.push(`/${filter}/${community.name}?q=${encodeURIComponent(search)}`);
-      } else if (params.has("q")) {
+      } else if (params?.has("q")) {
         router.push(`/${filter}/${community.name}`);
       }
     },

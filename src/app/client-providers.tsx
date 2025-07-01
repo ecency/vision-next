@@ -1,6 +1,5 @@
 "use client";
 
-import { ChatProvider } from "@/app/chat-provider";
 import { ClientInit } from "@/app/client-init";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";
@@ -13,6 +12,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { UIManager } from "@ui/core";
 import { PropsWithChildren } from "react";
+import { ConditionalChatProvider } from "@/app/conditional-chat-provider";
 
 export function ClientProviders(props: PropsWithChildren) {
   return (
@@ -26,14 +26,14 @@ export function ClientProviders(props: PropsWithChildren) {
         </EcencyConfigManager.Conditional>
         <Tracker />
         <PushNotificationsProvider>
-          <ChatProvider>
+          <ConditionalChatProvider>
             {props.children}
             <EcencyConfigManager.Conditional
               condition={({ visionFeatures }) => visionFeatures.center.enabled}
             >
               <EcencyCenter />
             </EcencyConfigManager.Conditional>
-          </ChatProvider>
+          </ConditionalChatProvider>
         </PushNotificationsProvider>
         <Announcements />
       </UIManager>

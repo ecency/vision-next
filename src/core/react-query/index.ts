@@ -118,6 +118,7 @@ export function makeQueryClient() {
     }
   });
 }
+
 export const getQueryClient = isServer
   ? cache(() => makeQueryClient())
   : () => {

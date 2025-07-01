@@ -18,7 +18,7 @@ import { PublishDraftsNoDraft } from "./_components";
 export default function PublishPage() {
   const params = useParams();
   const router = useRouter();
-  const draftId = params.id as string | undefined;
+  const draftId = params?.id as string | undefined;
 
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published" | "no-draft">(
     "edit"
@@ -31,7 +31,7 @@ export default function PublishPage() {
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
 
   useApiDraftDetector(
-    params.id as string,
+    params?.id as string,
     (draft) => {
       setTitle(draft.title);
       setContent(draft.body);
@@ -62,7 +62,7 @@ export default function PublishPage() {
             </div>
             <PublishActionBar
               onPublish={() => setStep("validation")}
-              onBackToClassic={() => router.push(`/draft/${params.id}`)}
+              onBackToClassic={() => router.push(`/draft/${params?.id}`)}
             >
               <Button
                 appearance="gray"

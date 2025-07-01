@@ -25,9 +25,9 @@ export function CommunityCreateHsPage() {
   const [done, setDone] = useState(false);
 
   const handle = async () => {
-    const code = params.get("code");
-    const title = params.get("title") ?? "";
-    const about = params.get("about") ?? "";
+    const code = params?.get("code");
+    const title = params?.get("title") ?? "";
+    const about = params?.get("about") ?? "";
 
     if (!code || !activeUser) {
       router.push("/");

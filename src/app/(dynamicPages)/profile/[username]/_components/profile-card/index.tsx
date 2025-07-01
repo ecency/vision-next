@@ -121,7 +121,7 @@ export const ProfileCard = ({ account }: Props) => {
     activeUser.username === account?.name &&
     activeUser.data.__loaded &&
     activeUser.data.profile;
-  const isSettings = pathname.includes("settings");
+  const isSettings = pathname?.includes("settings");
 
   return (
     <div className="profile-card">

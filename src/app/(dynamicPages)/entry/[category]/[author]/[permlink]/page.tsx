@@ -1,7 +1,6 @@
 import { getAccountFullQuery, getDeletedEntryQuery, getPostQuery } from "@/api/queries";
 import {
   DeletedPostScreen,
-  EntryPageContent,
   EntryPageContextProvider,
   EntryPageCrossPostHeader,
   EntryPageEditHistory,
@@ -13,7 +12,12 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound, redirect } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateEntryMetadata } from "../../../_helpers";
-import { isValidPermlink } from "@ecency/render-helper";
+import {
+  EntryPageContentSSR
+} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
+import {
+  EntryPageContentClient
+} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
@@ -78,13 +82,14 @@ export default async function EntryPage({ params, searchParams }: Props) {
             <div className="the-entry">
               <EntryPageCrossPostHeader entry={entry} />
               <span itemScope itemType="http://schema.org/Article">
-              <EntryPageContent
-                  category={category}
-                  isEdit={isEdit === "true"}
-                  entry={entry}
-                  rawParam={isEdit ?? ""}
-              />
-            </span>
+                <EntryPageContentSSR entry={entry} />
+                <EntryPageContentClient
+                    entry={entry}
+                    rawParam={isEdit ?? ""}
+                    isEdit={isEdit === "true"}
+                    category={category}
+                />
+              </span>
             </div>
           </div>
           <EntryPageEditHistory entry={entry} />

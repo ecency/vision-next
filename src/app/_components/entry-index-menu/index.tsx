@@ -30,9 +30,13 @@ export enum IntroductionType {
 
 export function EntryIndexMenu() {
   const router = useRouter();
-  const {
-    sections: [filter = "hot", tag = ""]
-  } = useParams() as { sections: string[] };
+  const params = useParams<{ sections: string[] }>();
+  let filter = "hot";
+  let tag = "";
+
+  if (params && params.sections) {
+    [filter = "hot", tag = ""] = params.sections;
+  }
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -47,7 +51,7 @@ export function EntryIndexMenu() {
 
   const [menuItems, secondaryMenu, isMy] = useFeedMenu();
 
-  const noReblog = useMemo(() => searchParams.get("no-reblog") == "true", [searchParams]);
+  const noReblog = useMemo(() => searchParams?.get("no-reblog") == "true", [searchParams]);
 
   const dropdownLabel = useMemo(
     () =>
@@ -198,8 +202,8 @@ export function EntryIndexMenu() {
   );
 
   useMount(() => {
-    let isGlobal = !pathname.includes("/my");
-    if (!!activeUser && pathname.includes(activeUser.username)) {
+    let isGlobal = !pathname?.includes("/my");
+    if (!!activeUser && pathname?.includes(activeUser.username)) {
       isGlobal = false;
     }
     let showInitialIntroductionJourney =
@@ -221,7 +225,7 @@ export function EntryIndexMenu() {
   });
 
   useEffect(() => {
-    if (pathname.includes("/my") && !activeUser) {
+    if (pathname?.includes("/my") && !activeUser) {
       router.push(pathname.replace("/my", ""));
     } else if (!prevActiveUser && activeUser && filter !== "feed") {
       let isGlobalValue = !(tag.length > 0 && tag === "my");

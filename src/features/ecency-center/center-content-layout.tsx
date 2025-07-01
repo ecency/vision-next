@@ -26,8 +26,8 @@ export function CenterContentLayout({ show, setShow, children }: PropsWithChildr
           className={classNameObject({
             "fixed bg-white dark:bg-dark-200 bottom-4 rounded-2xl overflow-hidden origin-bottom-left w-full max-w-[320px] sm:max-w-[400px]":
               true,
-            "left-4": !pathname.includes("decks"),
-            "right-4": pathname.includes("decks")
+            "left-4": !pathname?.includes("decks"),
+            "right-4": pathname?.includes("decks")
           })}
         >
           <div className="bg-gradient-primary-day dark:bg-gradient-primary-night text-white p-4 min-h-[100px] w-full rounded-t-2xl">

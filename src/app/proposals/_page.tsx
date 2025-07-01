@@ -113,7 +113,7 @@ export function ProposalsPage() {
   );
 
   useEffect(() => {
-    if (searchParams.has("filter")) {
+    if (searchParams?.has("filter")) {
       setFilter(searchParams.get("filter") as Filter);
     }
   }, [searchParams]);

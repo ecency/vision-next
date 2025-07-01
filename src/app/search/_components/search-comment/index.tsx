@@ -34,7 +34,7 @@ export function SearchComment({ disableResults }: Props) {
 
   const since = useMemo(() => {
     let sinceDate;
-    switch (params.get("date") ?? DateOpt.M) {
+    switch (params?.get("date") ?? DateOpt.M) {
       case DateOpt.W:
         sinceDate = moment().subtract("1", "week");
         break;
@@ -57,9 +57,9 @@ export function SearchComment({ disableResults }: Props) {
     fetchNextPage,
     hasNextPage
   } = getSearchApiQuery(
-    params.get("q") ?? "",
-    params.get("sort") ?? SearchSort.NEWEST,
-    params.get("hd") !== "0",
+    params?.get("q") ?? "",
+    params?.get("sort") ?? SearchSort.NEWEST,
+    params?.get("hd") !== "0",
     since
   ).useClientQuery();
   const results = useMemo(

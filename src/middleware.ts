@@ -7,7 +7,8 @@ export function middleware(request: NextRequest) {
   if (isIndexRedirect(request)) {
     return handleIndexRedirect(request);
   }
-  // 🛑 block invalid permlinks with file extensions
+
+  // block invalid permlinks with file extensions
   const path = request.nextUrl.pathname;
 
   if (
@@ -19,17 +20,5 @@ export function middleware(request: NextRequest) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  // ADD BOT DETECTION
-  const userAgent = request.headers.get("user-agent") || "";
-  const isSocialBot = /redditbot/i.test(userAgent);
-
-  if (isSocialBot && path.match(/^\/[^\/]+\/@[^\/]+\/[^\/]+$/)) {
-    // example: /ecency/@someuser/permlink
-    const url = request.nextUrl.clone();
-    url.pathname = `/bot-entry${url.pathname.replace(/\/$/, "")}`;
-    return NextResponse.rewrite(url);
-  }
-
   return NextResponse.next();
 }
-

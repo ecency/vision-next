@@ -148,6 +148,7 @@ export class EntryMetadataBuilder {
     return this;
   }
 
+
   public withPoll(poll?: PollSnapshot): this {
     this.temporaryMetadata = {
       ...this.temporaryMetadata,
