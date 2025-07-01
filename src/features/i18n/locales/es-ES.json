@@ -2611,7 +2611,8 @@
     "reply": "Responder",
     "replying": "Respondiendo...",
     "success-reply": "Has respondido exitosamente",
-    "success-reply-edit": "Has editado exitosamente"
+    "success-reply-edit": "Has editado exitosamente",
+    "muted-post": "Mensaje del autor silenciado"
   },
   "events": {
     "muted": "Usuario ha silenciado",
