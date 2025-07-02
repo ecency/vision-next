@@ -29,10 +29,10 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
           EcencyConfigManager.CONFIG.visionFeatures.entries.rawContent.enabled && !!params?.get("raw"),
       [params]
   );
+  const [hasComments, setHasComments] = useState(initialEntry.children > 0);
 
   if (!entry) return null;
 
-  const [hasComments, setHasComments] = useState(entry.children > 0);
   return (
       <>
         {activeUser && <EntryReplySection entry={entry} />}
