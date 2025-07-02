@@ -38,7 +38,9 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const { author: username, permlink, category } = await params;
 
   const search = await searchParams;
+  const isRaw = search["raw"];
   const isEdit = search["edit"];
+
 
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
@@ -87,7 +89,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
                 <EntryPageContentSSR entry={entry} />
                 <EntryPageContentClient
                     entry={entry}
-                    rawParam={isEdit ?? ""}
+                    rawParam={isRaw ?? ""}
                     isEdit={isEdit === "true"}
                     category={category}
                 />

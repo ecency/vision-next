@@ -2,7 +2,6 @@ import { parseDate, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import { headers } from 'next/headers';
 import {getPostQuery} from "@/api/queries";
 import {getContent} from "@/api/hive";
 
