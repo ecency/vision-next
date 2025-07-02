@@ -25,9 +25,10 @@ interface Props {
   community: Community | null;
   isRawContent: boolean;
   hideControls: boolean;
+  onTopLevelCommentsChange?: (hasComments: boolean) => void;
 }
 
-export function Discussion({ parent, community, isRawContent, hideControls }: Props) {
+export function Discussion({ parent, community, isRawContent, hideControls, onTopLevelCommentsChange }: Props) {
   const activeUser = useClientActiveUser();
   const [order, setOrder] = useState(SortOrder.created);
   const previousIsRawContent = usePrevious(isRawContent);
@@ -68,6 +69,10 @@ export function Discussion({ parent, community, isRawContent, hideControls }: Pr
   useEffect(() => {
     updateEntryQueryData(allComments);
   }, [allComments]);
+
+  useEffect(() => {
+    onTopLevelCommentsChange?.(topLevelComments.length > 0);
+  }, [topLevelComments]);
 
   if (isLoading) {
     return (
