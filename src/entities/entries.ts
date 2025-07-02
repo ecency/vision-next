@@ -43,6 +43,7 @@ export interface JsonPollMetadata {
 }
 
 export interface Entry {
+  last_update?: string;
   active_votes: EntryVote[];
   author: string;
   author_payout_value: string;
@@ -80,7 +81,7 @@ export interface Entry {
   replies: any[];
   stats: EntryStat;
   title: string;
-  updated: string;
+  updated?: string;
   url: string;
   original_entry?: Entry;
   is_optimistic?: boolean;

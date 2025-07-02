@@ -2,8 +2,8 @@ import { parseDate, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import {getPostQuery} from "@/api/queries";
 import {getContent} from "@/api/hive";
+import {getPost} from "@/api/bridge";
 
 
 function toProxiedSizedImage(original: string, size = "600x500") {
@@ -19,8 +19,8 @@ export async function generateEntryMetadata(username: string, permlink: string):
   }
   try {
     const cleanAuthor = username.replace("%40", "");
-    let entry = await getPostQuery(cleanAuthor, permlink).prefetch();
-    //const entry = await getContent(cleanAuthor, permlink);
+    //let entry = await getPostQuery(cleanAuthor, permlink).prefetch();
+    let entry = await getPost(cleanAuthor, permlink);
 
     if (!entry || !entry.body || !entry.created) {
       console.warn("generateEntryMetadata: incomplete, trying fallback getContent", {
@@ -60,7 +60,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
         : `https://ecency.com${entry.url}`;
     const authorUrl = `https://ecency.com/@${entry.author}`;
     const createdAt = parseDate(entry.created ?? new Date().toISOString());
-    const updatedAt = parseDate(entry.updated ?? entry.created ?? new Date().toISOString());
+    const updatedAt = parseDate(entry.updated ?? entry.last_update ?? entry.created ?? new Date().toISOString());
     const canonical = entryCanonical(entry);
     const finalCanonical = canonical && canonical !== fullUrl ? canonical : undefined;
 
