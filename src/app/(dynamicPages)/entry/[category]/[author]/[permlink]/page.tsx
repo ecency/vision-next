@@ -50,7 +50,9 @@ export default async function EntryPage({ params, searchParams }: Props) {
     return redirect(`/waves/${author}/${permlink}`);
   }
 
-  await getAccountFullQuery(entry?.author).prefetch();
+  if (entry?.author) {
+    await getAccountFullQuery(entry.author).prefetch();
+  }
 
   if (!entry) {
     const deletedEntry = await getDeletedEntryQuery(author, permlink).prefetch();

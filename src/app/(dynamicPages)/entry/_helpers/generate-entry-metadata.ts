@@ -14,12 +14,8 @@ function toProxiedSizedImage(original: string, size = "600x500") {
 }
 
 export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const userAgent = requestHeaders.get('user-agent');
-  const referer = requestHeaders.get('referer');
   if (!username || !isValidPermlink(permlink)) {
-    console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink, userAgent,
-      referer });
+    console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
     return {};
   }
   try {
@@ -28,17 +24,15 @@ export async function generateEntryMetadata(username: string, permlink: string):
     //const entry = await getContent(cleanAuthor, permlink);
 
     if (!entry || !entry.body || !entry.created) {
-      console.warn("generateEntryMetadata: incomplete post data, trying fallback getContent", {
+      console.warn("generateEntryMetadata: incomplete, trying fallback getContent", {
         username,
-        permlink,
-        userAgent,
-        referer,
+        permlink
       });
       try {
         // fallback to direct content API
         entry = await getContent(cleanAuthor, permlink);
       } catch (e) {
-        console.error("generateEntryMetadata fallback getContent failed", cleanAuthor, permlink, e);
+        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, permlink, e);
         return {};
       }
 
@@ -47,6 +41,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
         return {};
       }
     }
+
     const isComment = !!entry.parent_author;
 
     let title = truncate(entry.title, 67);
@@ -65,8 +60,8 @@ export async function generateEntryMetadata(username: string, permlink: string):
         ? `https://ecency.com/${urlParts[1]}`
         : `https://ecency.com${entry.url}`;
     const authorUrl = `https://ecency.com/@${entry.author}`;
-    const createdAt = parseDate(entry.created);
-    const updatedAt = parseDate(entry.updated ?? entry.created);
+    const createdAt = parseDate(entry.created ?? new Date().toISOString());
+    const updatedAt = parseDate(entry.updated ?? entry.created ?? new Date().toISOString());
     const canonical = entryCanonical(entry);
     const finalCanonical = canonical && canonical !== fullUrl ? canonical : undefined;
 
