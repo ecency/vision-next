@@ -81,7 +81,7 @@ export interface Entry {
   replies: any[];
   stats: EntryStat;
   title: string;
-  updated?: string;
+  updated: string;
   url: string;
   original_entry?: Entry;
   is_optimistic?: boolean;
