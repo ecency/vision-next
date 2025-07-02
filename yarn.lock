@@ -1303,10 +1303,10 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.2.1.tgz#77f1b9463d334f177da2145533a7fc305ecb3fb9"
-  integrity sha512-2yUNK6d1RL/akfNe+YPtTvMucKzL3n240NKIH/uNfr+OOx4DaJKPYwB5p1wdkUHOsqBZAp4XmWgV2ii80f2h7Q==
+"@ecency/renderer@^1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.2.2.tgz#aca1df27a749abc44ff225849da58ba8cc8ea689"
+  integrity sha512-39/SlO98JdwhyOtwGvVfhRVHsCop3uzgBl8neIJZotBuWV1o48K2nfhC2JQHUrIsvstj2RmTrUQX9pLk3XDQPg==
   dependencies:
     "@testing-library/react" "14"
     medium-zoom "^1.1.0"
