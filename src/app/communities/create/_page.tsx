@@ -13,7 +13,7 @@ import {
 } from "@/app/communities/create/_components";
 import { useGlobalStore } from "@/core/global-store";
 import { parseAsset, random } from "@/utils";
-import { getChainPropertiesQueryOptions } from "@ecency/sdk";
+import { EcencyAnalytics, getChainPropertiesQueryOptions } from "@ecency/sdk";
 import { cryptoUtils } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -52,6 +52,10 @@ export function CreateCommunityPage() {
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateCommunity } = useUpdateCommunity(username);
   const { mutateAsync: setUserRole } = useCommunitySetUserRole(username);
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "community-created" as any
+  );
 
   const prepareCreatedCommunity = useCallback(
     async (code: string) => {
@@ -100,9 +104,20 @@ export function CreateCommunityPage() {
         }, 3000);
       });
 
+      recordActivity();
       setStep(CommunityStepperSteps.DONE);
     },
-    [about, activeUser, addUser, hsTokenRenew, setUserRole, title, updateCommunity, username]
+    [
+      about,
+      activeUser,
+      addUser,
+      hsTokenRenew,
+      setUserRole,
+      title,
+      updateCommunity,
+      username,
+      recordActivity
+    ]
   );
 
   return (
