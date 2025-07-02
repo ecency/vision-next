@@ -29,6 +29,7 @@ export function SearchBox({ showcopybutton, value, username, filter, ...other }:
               type="text"
               {...{ ...other, value, username, filter }}
               className={"input-with-copy rounded-r"}
+              autoComplete="off"
             />
           </InputGroup>
         </div>
