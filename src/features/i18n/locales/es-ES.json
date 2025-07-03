@@ -872,7 +872,8 @@
     "sort-subs": "Miembros",
     "sort-new": "Nuevo",
     "no-results": "No se encontraron resultados",
-    "create": "Crear comunidad"
+    "create": "Crear comunidad",
+    "hint": "Las comunidades de colmenas son una parte enorme del ecosistema: hay deportes, puestos de trabajo, pasatiempos, intereses y muchas más. ¡Explora todos ellos y conviértete en parte de Ecencia y Colmena!"
   },
   "communities-create": {
     "page-title": "Crear una Comunidad",
@@ -895,12 +896,15 @@
     "progress-role": "Configurando @{{u}} como administrador...",
     "progress-props": "Actualizando ajustes de la comunidad...",
     "done": "Tu comunidad fue creada 🎉",
+    "done-hint": "¡Tu comunidad creada con éxito en la Colmena y la Ecencia!",
     "reason-one": "Propiedad real",
     "reason-two": "Permanente, recompensa",
     "password-copied": "Contraseña copiada al portapapeles",
     "reason-three": "Desarrollado con tecnología blockchain",
     "reason-four": "Cuesta 3 HIVE crear una comunidad de verdadera propiedad permanente e inmutable",
-    "done-link-label": "Empieza ya."
+    "done-link-label": "Empieza ya.",
+    "open-community": "Abrir comunidad",
+    "back-to-communities": "Volver a las comunidades"
   },
   "community-rewards-registration": {
     "body-text": "Registra tu comunidad para obtener POINTS de Ecency",
