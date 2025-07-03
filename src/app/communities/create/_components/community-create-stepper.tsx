@@ -1,4 +1,4 @@
-import { UilLock, UilUnlock, UilUsersAlt } from "@tooni/iconscout-unicons-react";
+import { UilLock, UilUnlock, UilUserCheck, UilUsersAlt } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -32,6 +32,12 @@ const steps = [
     title: "Sign operation",
     icon: <UilUnlock />,
     description: "Confirm community create operation with own key"
+  },
+  {
+    step: CommunityStepperSteps.CREATING,
+    title: "Updating community",
+    icon: <UilUserCheck />,
+    description: "Updating community settings and roles"
   }
 ] as const;
 

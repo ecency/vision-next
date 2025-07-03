@@ -7,12 +7,13 @@ import {
   CommunityCreateAccountStep,
   CommunityCreateCardLayout,
   CommunityCreateDetailsStep,
+  CommunityCreateDoneStep,
   CommunityCreateSignStep,
   CommunityCreateStepper,
   CommunityStepperSteps
 } from "@/app/communities/create/_components";
 import { useGlobalStore } from "@/core/global-store";
-import { parseAsset, random } from "@/utils";
+import { delay, parseAsset, random } from "@/utils";
 import { EcencyAnalytics, getChainPropertiesQueryOptions } from "@ecency/sdk";
 import { cryptoUtils } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
@@ -98,11 +99,7 @@ export function CreateCommunityPage() {
       });
 
       // wait 3 seconds to hivemind synchronize community data
-      await new Promise((r) => {
-        setTimeout(() => {
-          r(true);
-        }, 3000);
-      });
+      await delay(3000);
 
       recordActivity();
       setStep(CommunityStepperSteps.DONE);
@@ -160,30 +157,7 @@ export function CreateCommunityPage() {
           </div>
         </CommunityCreateCardLayout>
       )}
-      {step === CommunityStepperSteps.DONE && (
-        <CommunityCreateCardLayout hideTitle={true}>
-          <div className="md:py-16 flex flex-col gap-4 md:gap-8">
-            <div className="flex flex-col items-center justify-center gap-2">
-              <UilCheckCircle className="text-green w-12 h-12" />
-              <div className="text-xl font-bold">{i18next.t("communities-create.done")}</div>
-              <div className="text-gray-600 dark:text-gray-400 text-center max-w-[500px]">
-                {i18next.t("communities-create.done-hint")}
-              </div>
-            </div>
-
-            <div className="flex justify-center items-center gap-4">
-              <Link href="/communities">
-                <Button appearance="gray" size="sm">
-                  {i18next.t("communities-create.back-to-communities")}
-                </Button>
-              </Link>
-              <Link href={`/created/${username}`}>
-                <Button size="sm">{i18next.t("communities-create.open-community")}</Button>
-              </Link>
-            </div>
-          </div>
-        </CommunityCreateCardLayout>
-      )}
+      {step === CommunityStepperSteps.DONE && <CommunityCreateDoneStep username={username} />}
     </div>
   );
 }
