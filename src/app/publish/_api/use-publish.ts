@@ -1,21 +1,21 @@
 import { validatePostCreating } from "@/api/hive";
 import { comment, reblog } from "@/api/operations";
 import { getPostHeaderQuery } from "@/api/queries";
+import { updateSpeakVideoInfo } from "@/api/threespeak";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
-import { Entry, FullAccount, RewardType } from "@/entities";
+import { FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { handleAndReportError, success } from "@/features/shared";
 import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
+import { EcencyAnalytics } from "@ecency/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { usePublishState } from "../_hooks";
-import { EcencyAnalytics } from "@ecency/sdk";
-import { updateSpeakVideoInfo } from "@/api/threespeak";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();

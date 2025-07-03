@@ -154,6 +154,7 @@ export function usePublishState() {
     clearPublishingVideo();
     clearPostLinks();
     clearLocation();
+    setIsReblogToCommunity(false);
   }, [
     setBeneficiaries,
     setContent,
@@ -166,7 +167,8 @@ export function usePublishState() {
     clearPoll,
     clearPublishingVideo,
     clearPostLinks,
-    clearLocation
+    clearLocation,
+    setIsReblogToCommunity
   ]);
 
   return {
