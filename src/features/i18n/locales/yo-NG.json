@@ -872,7 +872,8 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Hive communities are huge part of ecosystem: there are sports, jobs, hobbies, interests and many more. Explore all of them and become a part of Ecency and Hive!"
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -895,12 +896,15 @@
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Your community created successfully in Hive and Ecency!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Open community",
+    "back-to-communities": "Back to communites"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
