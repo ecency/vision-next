@@ -872,7 +872,8 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Le comunità di alveari sono una parte enorme dell'ecosistema: ci sono sport, lavoro, hobby, interessi e molti altri. Esplorate tutte e diventate parte di Ecenza e Hive!"
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -895,12 +896,15 @@
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "La vostra comunità creata con successo in Hive ed Ecency!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Apri comunità",
+    "back-to-communities": "Torna alle comunità"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
