@@ -872,7 +872,8 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Bienenvölker sind ein großer Teil des Ökosystems: Es gibt Sport, Arbeitsplätze, Hobbies, Interessen und vieles mehr. Erkunden Sie alle und werden Sie Teil von Ecency and Hive!"
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -895,12 +896,15 @@
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Deine Community wurde erfolgreich in Bienvenue und Ecence erstellt!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Community öffnen",
+    "back-to-communities": "Zurück zu Communites"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
