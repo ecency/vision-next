@@ -3,7 +3,7 @@ import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
 import {getContent} from "@/api/hive";
-import {getPost} from "@/api/bridge";
+import {getPostQuery} from "@/api/queries";
 
 
 function toProxiedSizedImage(original: string, size = "600x500") {
@@ -19,8 +19,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
   }
   try {
     const cleanAuthor = username.replace("%40", "");
-    //let entry = await getPostQuery(cleanAuthor, permlink).prefetch();
-    let entry = await getPost(cleanAuthor, permlink);
+    let entry = await getPostQuery(cleanAuthor, permlink).prefetch();
 
     if (!entry || !entry.body || !entry.created) {
       console.warn("generateEntryMetadata: incomplete, trying fallback getContent", {

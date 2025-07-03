@@ -9,6 +9,7 @@ const { v4 } = require("uuid");
 
 const config = {
   productionBrowserSourceMaps: true,
+  htmlLimitedBots: /redditbot|SimpleCrawler/,
   sassOptions: {
     includePaths: [path.join(__dirname, "src/styles")]
   },
