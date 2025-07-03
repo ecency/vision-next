@@ -6,12 +6,6 @@ import {getContent} from "@/api/hive";
 import {getPostQuery} from "@/api/queries";
 
 
-function toProxiedSizedImage(original: string, size = "600x500") {
-  if (!original || !original.startsWith("http")) return "";
-  const cleanUrl = original.split("?")[0];
-  return `https://images.ecency.com/${size}/${cleanUrl}`;
-}
-
 export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
   if (!username || !isValidPermlink(permlink)) {
     console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
@@ -51,8 +45,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
     const summary = entry.json_metadata?.description
         || truncate(postBodySummary(entry.body, 210), 140);
 
-    const rawImage = catchPostImage(entry, 600, 500, "match") || "";
-    const image = toProxiedSizedImage(rawImage);
+    const image = catchPostImage(entry, 600, 500, "match")
     const urlParts = entry.url.split("#");
     const fullUrl = isComment && urlParts[1]
         ? `https://ecency.com/${urlParts[1]}`
