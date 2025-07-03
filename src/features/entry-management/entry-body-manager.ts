@@ -33,8 +33,8 @@ export namespace EntryBodyManagement {
       location?: { coordinates: { lat: number; lng: number }; address?: string }
     ) {
       if (location) {
-        const lat = location.coordinates.lat.toFixed(3);
-        const lng = location.coordinates.lng.toFixed(3);
+        const lat = location.coordinates.lat.toFixed(6);
+        const lng = location.coordinates.lng.toFixed(6);
         body += `\n\n[//]:# (!worldmappin ${lat} lat ${lng} long ${location.address} d3scr)`;
       }
 
