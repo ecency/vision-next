@@ -872,7 +872,8 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Les communautés de ruche font partie intégrante de l'écosystème : il y a du sport, des emplois, des loisirs, des intérêts et bien d'autres encore. Explorez tous et devenez partie de Ecency and Ruve!"
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -895,12 +896,15 @@
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Votre communauté a été créée avec succès dans Hive et Ecency!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Communauté ouverte",
+    "back-to-communities": "Retour aux communautés"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
