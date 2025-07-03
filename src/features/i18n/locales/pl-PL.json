@@ -872,7 +872,8 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Społeczności uliczne stanowią ogromną część ekosystemu: są sport, miejsca pracy, hobby, interesy i wiele innych. Zbadaj ich wszystkie i stań się częścią Ecencji i Uli,"
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -895,12 +896,15 @@
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Twoja społeczność utworzona pomyślnie w Ule i Ecencji!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Otwórz społeczność",
+    "back-to-communities": "Powrót do społeczności"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
