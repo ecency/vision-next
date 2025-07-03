@@ -19,7 +19,7 @@ export default function Layout({ children }: PropsWithChildren) {
             <p className="mt-4">{i18next.t("sign-up.description-2")}</p>
           </div>
 
-          <div className="col-span-12 md:col-span-6 top-16 rounded-2xl overflow-hidden">
+          <div className="col-span-12 md:col-span-6 top-16 rounded-2xl hidden md:block overflow-hidden">
             <Image
               width={1920}
               height={1920}
