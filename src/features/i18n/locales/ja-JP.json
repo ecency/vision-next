@@ -872,7 +872,8 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "ハイブコミュニティはエコシステムの大きな一部です:スポーツ、仕事、趣味、興味などがあります。 それらのすべてを探索し、EcencyとHiveの一部になる!"
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -895,12 +896,15 @@
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "あなたのコミュニティはHiveとEcencyで正常に作成されました！",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "コミュニティを開く",
+    "back-to-communities": "コミュニティーに戻る"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
