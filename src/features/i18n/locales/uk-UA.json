@@ -872,7 +872,8 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Вузькі громади - це величезна частина екосистеми: існують види спорту, роботи, хобі, інтереси та багато іншого. Досліджуйте їх усі та станьте частиною Етапу й хід!"
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -895,12 +896,15 @@
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Ваше співтовариство успішно створено на вулиці та в місці!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Відкрити спільнотство",
+    "back-to-communities": "Повернутися до спільнот"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
