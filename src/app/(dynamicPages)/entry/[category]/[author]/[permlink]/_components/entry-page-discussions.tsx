@@ -2,7 +2,7 @@
 
 import { Discussion } from "@/features/shared";
 import { Entry } from "@/entities";
-import { useContext, useMemo } from "react";
+import {useContext, useMemo, useState} from "react";
 import { CommentEngagement } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/comment-engagement";
 import { useSearchParams } from "next/navigation";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
@@ -29,6 +29,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
           EcencyConfigManager.CONFIG.visionFeatures.entries.rawContent.enabled && !!params?.get("raw"),
       [params]
   );
+  const [hasComments, setHasComments] = useState(initialEntry.children > 0);
 
   if (!entry) return null;
 
@@ -36,13 +37,14 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
       <>
         {activeUser && <EntryReplySection entry={entry} />}
 
-        {activeUser && entry.children === 0 && <CommentEngagement />}
+        {activeUser && !hasComments && <CommentEngagement />}
 
         <Discussion
             parent={entry}
             community={community!}
             hideControls={false}
             isRawContent={isRawContent}
+            onTopLevelCommentsChange={setHasComments}
         />
       </>
   );

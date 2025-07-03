@@ -43,6 +43,7 @@ export interface JsonPollMetadata {
 }
 
 export interface Entry {
+  last_update?: string;
   active_votes: EntryVote[];
   author: string;
   author_payout_value: string;

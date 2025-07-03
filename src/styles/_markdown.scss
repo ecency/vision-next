@@ -307,6 +307,27 @@
     background: #000;
     display: block;
     position: relative;
+    padding-top: 56.25%;
+    height: 0;
+
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .video-thumbnail {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
 
     &.ecency-renderer-video-extension {
       max-width: 720px;
@@ -347,13 +368,6 @@
       &:hover {
         transform: scale(1.125);
       }
-    }
-
-    .video-thumbnail {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
     }
 
     &.markdown-video-link-dtube {

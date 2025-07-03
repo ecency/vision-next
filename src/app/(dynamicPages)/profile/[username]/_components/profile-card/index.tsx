@@ -140,7 +140,7 @@ export const ProfileCard = ({ account }: Props) => {
       </h1>
 
       {loggedIn && !isMyProfile && (
-        <div className="flex mb-3">
+        <div className="flex justify-center md:justify-start mb-3">
           {followsActiveUserLoading ? (
             <Skeleton className="loading-follows-you" />
           ) : followsActiveUser ? (

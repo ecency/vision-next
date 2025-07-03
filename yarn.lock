@@ -1303,23 +1303,23 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.2.1.tgz#77f1b9463d334f177da2145533a7fc305ecb3fb9"
-  integrity sha512-2yUNK6d1RL/akfNe+YPtTvMucKzL3n240NKIH/uNfr+OOx4DaJKPYwB5p1wdkUHOsqBZAp4XmWgV2ii80f2h7Q==
+"@ecency/renderer@^1.2.3":
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.2.3.tgz#a08aadd85c18638f72b7bfe2fec14e694b5a1aca"
+  integrity sha512-64ICvDZVNGg9Hsu7lNKnz+hl9590BSVIFWY3f+ixvMpC49nR2HQPOUuXq/zz9pwnXC+fKskJwErrZi+Dvcuotw==
   dependencies:
     "@testing-library/react" "14"
     medium-zoom "^1.1.0"
 
-"@ecency/sdk@1.0.42":
-  version "1.0.42"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.42.tgz#06acd67e4a2587611199455a6978a8635b2f685d"
-  integrity sha512-jXB6AkDVJDyQBhT92U3I2DpGQJvoECm9I+ZJsnMQextPX37Ak9kUeWVQ4TSeWeuG0ynQTXk0L4vPumy6BuQkvw==
+"@ecency/sdk@1.0.43":
+  version "1.0.43"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.43.tgz#4948f98f86d8fe25d11685b0a573eed4d2c3447b"
+  integrity sha512-qODx/6mHBCSbB16jEiARwuHgLTuGGSYbu4fPn8fU9eQ01Xr0nkrcxXv2Om3EXRqCsIarbmZShmZFSi4APfTSCg==
 
-"@ecency/wallets@^1.2.16":
-  version "1.2.16"
-  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.16.tgz#2fcdab5780d2bade0c731f5753d6b8acfcdda19e"
-  integrity sha512-z13IbCxV3qN8jceKCIvW/Oecs2PscAYKuJqDbI9oZmVuRNO+9WkmNFOtgsry9ZuQdwivs7tVj+dSzWxvXA4BdQ==
+"@ecency/wallets@^1.2.17":
+  version "1.2.17"
+  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.17.tgz#212d4495aa7392586be523067175eccaa5c142cd"
+  integrity sha512-00YOs94S4asJoZYgIZGU70CgtWQjI6b+RSytDS3YlBwR6rnE6kMnCT8qgDrXM9XBRuuxtp00jFLPGwfLdJTDRg==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"

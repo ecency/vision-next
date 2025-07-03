@@ -12,6 +12,7 @@ import Link from "next/link";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import { useEntryLocation } from "@/utils";
 import {PollWidget, useEntryPollExtractor} from "@/features/polls";
+import {catchPostImage, postBodySummary} from "@ecency/render-helper";
 
 interface Props {
     entry: Entry;
@@ -20,7 +21,22 @@ interface Props {
 export function EntryPageContentSSR({ entry }: Props) {
     const location = useEntryLocation(entry);
     const postPoll = useEntryPollExtractor(entry);
-
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: entry.title,
+        author: {
+            "@type": "Person",
+            name: entry.author,
+            url: `https://ecency.com/@${entry.author}`,
+        },
+        datePublished: entry.created,
+        dateModified: entry.updated ?? entry.created,
+        image: catchPostImage(entry, 600, 500, "match") ?? undefined,
+        description:
+            entry.json_metadata?.description || postBodySummary(entry.body, 140),
+        mainEntityOfPage: `https://ecency.com${entry.url}`,
+    };
     return (
         <>
             <EntryPageProfileBox entry={entry} />
@@ -54,6 +70,10 @@ export function EntryPageContentSSR({ entry }: Props) {
                 <EntryFooterControls entry={entry} />
             </div>
             <EntryPageSimilarEntries entry={entry} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
         </>
     );
 }
