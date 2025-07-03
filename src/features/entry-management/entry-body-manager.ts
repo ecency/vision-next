@@ -33,7 +33,9 @@ export namespace EntryBodyManagement {
       location?: { coordinates: { lat: number; lng: number }; address?: string }
     ) {
       if (location) {
-        body += `\n\n[//]:# (!worldmappin ${location.coordinates.lat} lat ${location.coordinates.lng} long ${location.address})`;
+        const lat = location.coordinates.lat.toFixed(3);
+        const lng = location.coordinates.lng.toFixed(3);
+        body += `\n\n[//]:# (!worldmappin ${lat} lat ${lng} long ${location.address} d3scr)`;
       }
 
       return body;
