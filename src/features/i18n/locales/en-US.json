@@ -2447,7 +2447,8 @@
     "deck": "Deck"
   },
   "top-communities": {
-    "title": "Top communities"
+    "title": "Top communities",
+    "create-button": "Create decentralized community"
   },
   "feedback-modal": {
     "title": "Error details",
