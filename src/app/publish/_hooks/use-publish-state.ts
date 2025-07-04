@@ -64,12 +64,8 @@ export function usePublishState() {
     undefined,
     persistent
   );
-  const [selectedThumbnail, setSelectedThumbnail] = useSynchronizedLocalStorage<string>(
-    PREFIX + "_pub_sel_thumb",
-    "",
-    undefined,
-    persistent
-  );
+  const [selectedThumbnail, setSelectedThumbnail, clearSelectedThumbnail] =
+    useSynchronizedLocalStorage<string>(PREFIX + "_pub_sel_thumb", "", undefined, persistent);
   const [isReblogToCommunity, setIsReblogToCommunity] = useSynchronizedLocalStorage<boolean>(
     PREFIX + "_pub_reblog_to_community",
     false,
@@ -149,7 +145,7 @@ export function usePublishState() {
     setMetaDescription("");
     setSchedule(undefined);
     setTags([]);
-    setSelectedThumbnail("");
+    clearSelectedThumbnail();
     clearPoll();
     clearPublishingVideo();
     clearPostLinks();
@@ -161,7 +157,7 @@ export function usePublishState() {
     setMetaDescription,
     setReward,
     setSchedule,
-    setSelectedThumbnail,
+    clearSelectedThumbnail,
     setTags,
     setTitle,
     clearPoll,
@@ -203,6 +199,7 @@ export function usePublishState() {
     setPostLinks,
     location,
     setLocation,
-    clearLocation
+    clearLocation,
+    clearSelectedThumbnail
   };
 }
