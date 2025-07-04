@@ -16,6 +16,7 @@ import { PopoverSheet } from "@ui/popover/popover-sheet";
 import { autoUpdate, flip, Placement, shift } from "@floating-ui/dom";
 import { useFloating } from "@floating-ui/react-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import clsx from "clsx";
 
 interface ShowProps {
   show: boolean;
@@ -127,7 +128,7 @@ export function PopoverTitle({ children, className }: { children: ReactNode; cla
 
 export function PopoverContent(props: PropsWithChildren<HTMLProps<HTMLDivElement>>) {
   return (
-    <div {...props} className="p-2">
+    <div {...props} className={clsx("p-2", props.className)}>
       {props.children}
     </div>
   );

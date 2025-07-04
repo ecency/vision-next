@@ -1,4 +1,10 @@
-import React, { ReactNode, useMemo, useState } from "react";
+import { EcencyConfigManager } from "@/config";
+import { useGlobalStore } from "@/core/global-store";
+import { BookmarksDialog } from "@/features/shared/bookmarks";
+import { DraftsDialog } from "@/features/shared/drafts";
+import { FragmentsDialog } from "@/features/shared/fragments";
+import { GalleryDialog } from "@/features/shared/gallery";
+import { SchedulesDialog } from "@/features/shared/schedules";
 import {
   UilArchive,
   UilClock,
@@ -9,19 +15,13 @@ import {
   UilMoneyWithdraw,
   UilSetting,
   UilSignin,
-  UilSignout,
   UilUser,
   UilWallet
 } from "@tooni/iconscout-unicons-react";
-import { NavbarSideMainMenuItem } from "./navbar-side-main-menu-item";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
-import { GalleryDialog } from "@/features/shared/gallery";
-import { DraftsDialog } from "@/features/shared/drafts";
-import { BookmarksDialog } from "@/features/shared/bookmarks";
-import { SchedulesDialog } from "@/features/shared/schedules";
-import { FragmentsDialog } from "@/features/shared/fragments";
-import { EcencyConfigManager } from "@/config";
+import { ReactNode, useMemo, useState } from "react";
+import { NavbarSideMainLogout } from "./navbar-side-main-logout";
+import { NavbarSideMainMenuItem } from "./navbar-side-main-menu-item";
 
 interface Props {
   onHide: () => void;
@@ -36,7 +36,6 @@ interface MenuItem {
 
 export function NavbarSideMainMenu({ onHide }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
-  const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   const [gallery, setGallery] = useState(false);
@@ -112,24 +111,6 @@ export function NavbarSideMainMenu({ onHide }: Props) {
     [activeUser?.username, bookmarks, drafts, fragments, gallery, onHide, schedules]
   );
 
-  const authMenu = useMemo(
-    () => [
-      {
-        label: i18next.t("g.login-as"),
-        onClick: () => toggleUIProp("login"),
-        icon: <UilSignin size={16} />
-      },
-      {
-        label: i18next.t("user-nav.logout"),
-        icon: <UilSignout size={16} />,
-        onClick: () => {
-          setActiveUser(null);
-        }
-      }
-    ],
-    [setActiveUser, toggleUIProp]
-  );
-
   return (
     <>
       <div className="px-4 flex flex-col gap-0.5">
@@ -150,17 +131,12 @@ export function NavbarSideMainMenu({ onHide }: Props) {
           icon={<UilDashboard size={16} />}
         />
         <hr className="my-2 border-[--border-color]" />
-        {authMenu.map(({ label, onClick, icon }) => (
-          <NavbarSideMainMenuItem
-            key={label}
-            label={label}
-            onClick={() => {
-              onClick?.();
-              onHide();
-            }}
-            icon={icon}
-          />
-        ))}
+        <NavbarSideMainMenuItem
+          label={i18next.t("g.login-as")}
+          onClick={() => toggleUIProp("login")}
+          icon={<UilSignin size={16} />}
+        />
+        <NavbarSideMainLogout />
       </div>
       <EcencyConfigManager.Conditional
         condition={({ visionFeatures }) => visionFeatures.gallery.enabled}
