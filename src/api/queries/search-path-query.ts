@@ -14,7 +14,11 @@ export function useSearchPathQuery(q: string) {
     queryKey: [QueryIdentifiers.SEARCH_PATH, requestQuery],
     queryFn: async () => {
       const response = await appAxios.post(apiBase(`/search-api/search-path`), { q: requestQuery });
-      return response.data;
+      if (response.data?.length > 0) {
+        return response.data;
+      }
+
+      return [q];
     }
   });
 
