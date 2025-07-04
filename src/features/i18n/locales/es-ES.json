@@ -873,7 +873,7 @@
     "sort-new": "Nuevo",
     "no-results": "No se encontraron resultados",
     "create": "Crear comunidad",
-    "hint": "Las comunidades de colmenas son una parte enorme del ecosistema: hay deportes, puestos de trabajo, pasatiempos, intereses y muchas más. ¡Explora todos ellos y conviértete en parte de Ecencia y Colmena!"
+    "hint": "Las Comunidades de Hive son una parte enorme del ecosistema: hay comunidades de deportes, trabajos, pasatiempos, intereses y muchas más. ¡Explóralas todas, conviértete en parte de Ecency y de Hive!"
   },
   "communities-create": {
     "page-title": "Crear una Comunidad",
@@ -896,7 +896,7 @@
     "progress-role": "Configurando @{{u}} como administrador...",
     "progress-props": "Actualizando ajustes de la comunidad...",
     "done": "Tu comunidad fue creada 🎉",
-    "done-hint": "¡Tu comunidad creada con éxito en la Colmena y la Ecencia!",
+    "done-hint": "¡Tu comunidad fue creada con éxito en Hive y en Ecency!",
     "reason-one": "Propiedad real",
     "reason-two": "Permanente, recompensa",
     "password-copied": "Contraseña copiada al portapapeles",
