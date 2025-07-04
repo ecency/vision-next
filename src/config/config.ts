@@ -95,7 +95,7 @@ const CONFIG = {
         enabled: true,
         host: "https://pl.ecency.com",
         siteId: "ecency.com",
-        apiKey: process.env.PLAUSIBLE_API_KEY
+        apiKey: "12NY14F30H6-89a0emigJkIx4yrkI5yBw-3JAk80CXNCVU69dqGK6zy5_HXMSBn5"
       },
       waves: {
         enabled: true
