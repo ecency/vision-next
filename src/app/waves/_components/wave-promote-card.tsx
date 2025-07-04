@@ -1,4 +1,7 @@
+import { LoginRequired } from "@/features/shared";
+import { Button } from "@/features/ui";
 import i18next from "i18next";
+import Link from "next/link";
 
 export function WavePromoteCard() {
   return (
@@ -11,13 +14,13 @@ export function WavePromoteCard() {
       <div className="relative flex flex-col gap-4">
         <div className="font-semibold text-lg">{i18next.t("waves.promote.title")}</div>
         <div className="text-sm mb-8">{i18next.t("waves.promote.subtitle")}</div>
-        {/*<LoginRequired>*/}
-        {/*  <Button disabled={true} className="text-sm font-semibold" size="lg" appearance="white">*/}
-        <div className="flex items-center justify-center text-sm font-semibold">
-          {i18next.t("waves.promote.coming-soon")}
-        </div>
-        {/*</Button>*/}
-        {/*</LoginRequired>*/}
+        <LoginRequired>
+          <Link href="/perks/promote-post" target="_external" className="block">
+            <Button full={true} className="text-sm font-semibold" size="lg" appearance="white">
+              {i18next.t("entry-menu.promote")}
+            </Button>
+          </Link>
+        </LoginRequired>
       </div>
     </div>
   );
