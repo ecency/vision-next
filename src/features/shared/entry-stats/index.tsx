@@ -10,6 +10,7 @@ import { Entry } from "@/entities";
 import { format, parseISO } from "date-fns";
 import { EntryPageStatsItem } from "./entry-page-stats-item";
 import { EntryPageStatsByDevices } from "./entry-page-stats-by-devices";
+import { EntryPageStatsByReferrers } from "./entry-page-stats-by-referrers";
 
 interface Props {
   entry: Entry;
@@ -69,6 +70,7 @@ export function EntryStats({ entry }: Props) {
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <EntryPageStatsByDevices cleanedPathname={pathname} totalViews={totalViews} />
+            <EntryPageStatsByReferrers cleanedPathname={pathname} totalViews={totalViews} />
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-between p-4 rounded-2xl border border-[--border-color]">
