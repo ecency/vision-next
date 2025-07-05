@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "Déconnexion simple",
+    "logout-and-clear": "Déconnexion & Effacer les données locales",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
