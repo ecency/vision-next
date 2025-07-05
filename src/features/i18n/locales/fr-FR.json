@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "Déconnexion simple",
+    "logout-and-clear": "Déconnexion & Effacer les données locales",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -771,6 +773,7 @@
       "reads": "Read time",
       "countries": "Countries",
       "devices": "Devices",
+      "referrers": "Référents",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
@@ -872,7 +875,8 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Les communautés de ruche font partie intégrante de l'écosystème : il y a du sport, des emplois, des loisirs, des intérêts et bien d'autres encore. Explorez tous et devenez partie de Ecency and Ruve!"
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -895,12 +899,15 @@
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Votre communauté a été créée avec succès dans Hive et Ecency!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Communauté ouverte",
+    "back-to-communities": "Retour aux communautés"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2443,7 +2450,8 @@
     "deck": "Deck"
   },
   "top-communities": {
-    "title": "Top communities"
+    "title": "Top communities",
+    "create-button": "Créer une communauté décentralisée"
   },
   "feedback-modal": {
     "title": "Error details",
@@ -2611,7 +2619,8 @@
     "reply": "Reply",
     "replying": "Replying...",
     "success-reply": "You have replied successfully",
-    "success-reply-edit": "You have edited successfully"
+    "success-reply-edit": "You have edited successfully",
+    "muted-post": "Message de l'auteur muet"
   },
   "events": {
     "muted": "User has muted",

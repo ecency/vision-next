@@ -193,6 +193,8 @@
     "fragments": "Fragmentos de código",
     "settings": "Configuración",
     "logout": "Cerrar sesión",
+    "just-logout": "Salir",
+    "logout-and-clear": "Salir y borrar datos locales",
     "theme": "tema",
     "light": "claro",
     "dark": "oscuro",
@@ -771,6 +773,7 @@
       "reads": "Tiempo de lectura",
       "countries": "Países",
       "devices": "Dispositivos",
+      "referrers": "Referentes",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "¿Quieres más vistas y lecturas?",
       "promotion-subtitle": "Utilice las ventajas de Ecency (Ecency Perks) para promocionar su publicación y obtener una exposición más amplia.",
@@ -872,7 +875,8 @@
     "sort-subs": "Miembros",
     "sort-new": "Nuevo",
     "no-results": "No se encontraron resultados",
-    "create": "Crear comunidad"
+    "create": "Crear comunidad",
+    "hint": "Las Comunidades de Hive son una parte enorme del ecosistema: hay comunidades de deportes, trabajos, pasatiempos, intereses y muchas más. ¡Explóralas todas, conviértete en parte de Ecency y de Hive!"
   },
   "communities-create": {
     "page-title": "Crear una Comunidad",
@@ -895,12 +899,15 @@
     "progress-role": "Configurando @{{u}} como administrador...",
     "progress-props": "Actualizando ajustes de la comunidad...",
     "done": "Tu comunidad fue creada 🎉",
+    "done-hint": "¡Tu comunidad fue creada con éxito en Hive y en Ecency!",
     "reason-one": "Propiedad real",
     "reason-two": "Permanente, recompensa",
     "password-copied": "Contraseña copiada al portapapeles",
     "reason-three": "Desarrollado con tecnología blockchain",
     "reason-four": "Cuesta 3 HIVE crear una comunidad de verdadera propiedad permanente e inmutable",
-    "done-link-label": "Empieza ya."
+    "done-link-label": "Empieza ya.",
+    "open-community": "Abrir comunidad",
+    "back-to-communities": "Volver a las comunidades"
   },
   "community-rewards-registration": {
     "body-text": "Registra tu comunidad para obtener POINTS de Ecency",
@@ -2443,7 +2450,8 @@
     "deck": "Mazo"
   },
   "top-communities": {
-    "title": "Comunidades populares"
+    "title": "Comunidades populares",
+    "create-button": "Crear comunidad descentralizada"
   },
   "feedback-modal": {
     "title": "Detalles del error",
@@ -2611,7 +2619,8 @@
     "reply": "Responder",
     "replying": "Respondiendo...",
     "success-reply": "Has respondido exitosamente",
-    "success-reply-edit": "Has editado exitosamente"
+    "success-reply-edit": "Has editado exitosamente",
+    "muted-post": "Publicación de autor silenciado"
   },
   "events": {
     "muted": "Usuario ha silenciado",
