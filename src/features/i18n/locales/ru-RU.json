@@ -771,6 +771,7 @@
       "reads": "Время чтения",
       "countries": "Страны",
       "devices": "Устройства",
+      "referrers": "Рефералы",
       "warn": "Статистика собирается только в приложениях Ecency с декабря 2024",
       "promotion-title": "Хотите больше просмотров и читать?",
       "promotion-subtitle": "Используйте Ecency Perks, чтобы повысить уровень вашего поста и повысить степень облучения.",
@@ -2447,7 +2448,8 @@
     "deck": "Deck"
   },
   "top-communities": {
-    "title": "Top communities"
+    "title": "Top communities",
+    "create-button": "Создать децентрализованное сообщество"
   },
   "feedback-modal": {
     "title": "Error details",
