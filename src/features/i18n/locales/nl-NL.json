@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "Uitloggen",
+    "logout-and-clear": "Uitloggen en lokale gegevens wissen",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
