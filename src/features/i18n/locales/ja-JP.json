@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "ログアウトするだけ",
+    "logout-and-clear": "ログアウトしてローカルデータをクリア",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
