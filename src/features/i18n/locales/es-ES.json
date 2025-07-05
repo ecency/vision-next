@@ -193,6 +193,8 @@
     "fragments": "Fragmentos de código",
     "settings": "Configuración",
     "logout": "Cerrar sesión",
+    "just-logout": "Salir",
+    "logout-and-clear": "Cerrar sesión y borrar datos locales",
     "theme": "tema",
     "light": "claro",
     "dark": "oscuro",
