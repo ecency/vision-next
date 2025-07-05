@@ -771,6 +771,7 @@
       "reads": "Tiempo de lectura",
       "countries": "Países",
       "devices": "Dispositivos",
+      "referrers": "Referentes",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "¿Quieres más vistas y lecturas?",
       "promotion-subtitle": "Utilice las ventajas de Ecency (Ecency Perks) para promocionar su publicación y obtener una exposición más amplia.",
@@ -2447,7 +2448,8 @@
     "deck": "Mazo"
   },
   "top-communities": {
-    "title": "Comunidades populares"
+    "title": "Comunidades populares",
+    "create-button": "Crear comunidad descentralizada"
   },
   "feedback-modal": {
     "title": "Detalles del error",
