@@ -25,7 +25,8 @@ export function useScheduleApi() {
     isReblogToCommunity,
     schedule,
     poll,
-    postLinks
+    postLinks,
+    location
   } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
@@ -39,9 +40,13 @@ export function useScheduleApi() {
       // const unpublished3SpeakVideo = Object.values(videos).find(
       //   (v) => v.status === "publish_manual"
       // );
-      const cleanBody = EntryBodyManagement.EntryBodyManager.shared
+      let cleanBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildClearBody(content!);
+
+      cleanBody = EntryBodyManagement.EntryBodyManager.shared
+        .builder()
+        .withLocation(cleanBody, location);
 
       // make sure active user fully loaded
       if (!activeUser || !activeUser.data.__loaded) {
@@ -73,6 +78,7 @@ export function useScheduleApi() {
         .withSummary(metaDescription || postBodySummary(cleanBody))
         .withPoll(poll)
         .withPostLinks(postLinks)
+        .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
       const options = makeCommentOptions(author, permlink, reward as RewardType, beneficiaries);

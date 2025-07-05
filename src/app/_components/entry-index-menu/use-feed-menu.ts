@@ -10,9 +10,13 @@ import { useInfiniteDataFlow } from "@/utils";
 export function useFeedMenu() {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const {
-    sections: [filter = "hot", tag = ""]
-  } = useParams<{ sections: string[] }>();
+  const params = useParams<{ sections: string[] }>();
+  let filter = "hot";
+  let tag = "";
+
+  if (params && params.sections) {
+    [filter = "hot", tag = ""] = params.sections;
+  }
   const router = useRouter();
   const pathname = usePathname();
 
@@ -25,7 +29,7 @@ export function useFeedMenu() {
       ((activeUser.username === tag.replace("@", "") && filter === "feed") || tag === "my"),
     [activeUser, filter, tag]
   );
-  const isGlobal = useMemo(() => !pathname.includes("/my"), [pathname]);
+  const isGlobal = useMemo(() => !pathname?.includes("/my"), [pathname]);
 
   const secondaryMenu = useMemo(
     () => [

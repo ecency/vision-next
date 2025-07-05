@@ -19,7 +19,7 @@ export function SearchCommunities() {
   const params = useSearchParams();
 
   const q = useMemo(
-    () => new SearchQuery(params.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
+    () => new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
     [params]
   );
   const { isLoading, data } = getCommunitiesQuery("rank", q, 4).useClientQuery();

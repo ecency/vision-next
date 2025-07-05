@@ -1,12 +1,7 @@
 "use client";
 
-import { getAccountFullQuery, getTransactionsQuery } from "@/api/queries";
-import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
-import { getQueryClient } from "@/core/react-query";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { Metadata, ResolvingMetadata } from "next";
 import dynamic from "next/dynamic";
-import { notFound } from "next/navigation";
+import { ProfileWalletSummary } from "./_components";
 
 const ProfileWalletTokenPicker = dynamic(
   () => import("./_components/profile-wallet-token-picker"),
@@ -28,6 +23,7 @@ interface Props {
 export default function WalletPage({ params }: Props) {
   return (
     <>
+      <ProfileWalletSummary />
       <div className="flex justify-end mb-2">
         <ProfileWalletTokenPicker />
       </div>

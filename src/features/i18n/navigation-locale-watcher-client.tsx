@@ -13,7 +13,7 @@ import moment from "moment";
 export function NavigationLocaleWatcherClient() {
   const params = useSearchParams();
   const languageFromList = useMemo(
-    () => langOptions.find((item) => item.code.split("-")[0] === params.get("lang")),
+    () => langOptions.find((item) => item.code.split("-")[0] === params?.get("lang")),
     [params]
   );
 

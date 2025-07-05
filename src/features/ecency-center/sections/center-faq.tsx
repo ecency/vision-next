@@ -42,7 +42,7 @@ export function CenterFaq() {
     const faqKeys = [...faqKeysGeneral];
     setFaqKeys(faqKeys);
     for (const p of data.faqPaths) {
-      if (pathname.match(p.path)) {
+      if (pathname?.match(p.path)) {
         setDefaultFaqKeys(p.suggestions);
         setDatatoShow(p.suggestions);
       }

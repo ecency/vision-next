@@ -25,7 +25,7 @@ export const CommunityMenu = (props: Props) => {
   const [label, setLabel] = useState<string>(EntryFilter.hot);
 
   const pathname = usePathname();
-  const filter = useMemo(() => pathname.split("/")[1], [pathname]);
+  const filter = useMemo(() => pathname?.split("/")[1], [pathname]);
 
   useEffect(() => {
     let newLabel: string | undefined;

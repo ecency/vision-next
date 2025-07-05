@@ -11,9 +11,13 @@ import { getTrendingTagsQuery } from "@/api/queries";
 
 export function TrendingTagsCard() {
   const router = useRouter();
-  const {
-    sections: [filter = "hot", tag = ""]
-  } = useParams() as { sections: string[] };
+  const params = useParams<{ sections: string[] }>();
+  let filter = "hot";
+  let tag = "";
+
+  if (params && params.sections) {
+    [filter = "hot", tag = ""] = params.sections;
+  }
 
   const activeUser = useGlobalStore((s) => s.activeUser);
 

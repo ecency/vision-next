@@ -30,7 +30,10 @@ export function PublishEntryActionBar({ onEdit }: Props) {
 
   const [showMetaInfo, setShowMetaInfo] = useState(false);
 
-  const { author, permlink } = useParams();
+  const params = useParams();
+
+  const author = params?.author ?? "";
+  const permlink = params?.permlink ?? "";
 
   return (
     <motion.div

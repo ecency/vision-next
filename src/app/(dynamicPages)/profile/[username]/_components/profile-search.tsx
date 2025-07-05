@@ -24,10 +24,10 @@ export function ProfileSearch({ username }: Props) {
   const [typing, setTyping] = useState(false);
 
   const pathname = usePathname();
-  const section = useMemo(() => pathname.split("/")[2] ?? "posts", [pathname]);
+  const section = useMemo(() => pathname?.split("/")[2] ?? "posts", [pathname]);
 
   useMount(() => {
-    setSearch(params.get("query") ?? "");
+    setSearch(params?.get("query") ?? "");
   });
 
   const handleChangeSearch = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +41,7 @@ export function ProfileSearch({ username }: Props) {
       if (search) {
         router.push(`${pathname}/?query=${encodeURIComponent(search)}`);
         setTyping(false);
-      } else if (params.has("query")) {
+      } else if (params?.has("query")) {
         router.push(`${pathname}`);
         setTyping(false);
       }

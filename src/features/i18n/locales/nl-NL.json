@@ -97,7 +97,8 @@
     "today": "Today",
     "view": "View",
     "tomorrow": "Tomorrow",
-    "import": "Import"
+    "import": "Import",
+    "clear": "Verwijderen"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -200,7 +201,7 @@
     "boost": "Boost",
     "submit": "Create a post",
     "chats": "Chats",
-    "perks": "Buy perks"
+    "perks": "Upgrade"
   },
   "intro": {
     "title": "Aspire to greatness",
@@ -267,6 +268,7 @@
     "buy-account-li-2": "3x RC compared to normal new accounts",
     "buy-account-li-3": "300 Points to help you get started",
     "qr-desc": "Scan with Ecency mobile app to continue",
+    "username-invalid-hyphen-position": "Gebruikersnaam kan niet beginnen of eindigen met hypenes",
     "username-min-length-error": "Length of username should be at least 3 characters",
     "username-max-length-error": "Length of username should be no more than 16 characters",
     "username-no-ascii-first-letter-error": "First character should be a Letter",
@@ -421,7 +423,7 @@
     "unmute-success": "Post unmuted",
     "promote": "Promote",
     "boost": "Boost",
-    "edit-classic": "Classic Edit"
+    "edit-classic": "Edit in Classic Editor"
   },
   "cross-post": {
     "title": "Cross Post",
@@ -1821,8 +1823,8 @@
   "drafts": {
     "title": "Drafts",
     "filter": "Search by title",
-    "open-editor": "Editor",
-    "open-classic": "Classic Editor"
+    "open-editor": "Open in Editor",
+    "open-classic": "Open in Classic Editor"
   },
   "schedules": {
     "title": "Scheduled Posts",
@@ -2101,7 +2103,7 @@
       "where-tokens-come-header": "Where do the tokens come from?",
       "where-tokens-come-body": "<p>The Hive network continually creates new digital tokens to reward content creators and curators. Some of the newly-created tokens are transferred to users who add value to platform by posting, commenting, and voting on other people's posts. The remainder is distributed to holders of HIVE POWER and the witnesses that secures the blockchain.</p>",
       "how-promotion-work-header": "How content promotion works?",
-      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple and easy. Ecency Points are used to promote content for 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in mobile app, desktop app and website. There is no limit or restrictions, any post can be promoted to get more exposure and engagement. We hold right to remove posts from promotion list if it violates certain internet etiquette.</p>",
+      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple. Select content, period of promotion 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in Ecency mobile app, website. There are no limits or restrictions, any post can be promoted to get more exposure and engagement. Ecency has right to remove posts from promotion list if it violates certain internet etiquette and norms.</p>",
       "how-to-transfer-header": "How to transfer blockchain tokens?",
       "how-to-transfer-body": "<p>After login, you will find Wallet page in top header on website and desktop app or in Profile page, bottom navigation bar on mobile app. In wallet page you can initiate transfer of any token you hold to another user or exchange accounts, click on arrow next to your balance and find transfer operations. Transfers are irreversible because they are registered on blockchain, make sure to send correct recipient.</p>",
       "how-see-rewards-header": "How do I see my post rewards?",
@@ -2367,6 +2369,7 @@
   "chain-error": {
     "min-root-comment": "You may only post once every five minutes.",
     "identical-vote": "Your current vote on this content is identical to this vote.",
+    "must-claim": "No claiming balance or already claimed.",
     "insufficient-resource": "Insufficient Resource Credits.",
     "delete-comment-with-vote": "Cannot delete a content with positive pending rewards.",
     "comment-cashout": "Content after their payout cannot be deleted.",
@@ -2457,18 +2460,45 @@
     "page-title": "Welcome to Perks",
     "title": "Meet Ecency perks",
     "title-next": "unified, fast and simple way to boost your account",
+    "description": "Grow Big in the Hive World! Get Ecency Points to share your posts and grab Hive Power. Buy now to keep growing in the Hive ecosystem!",
     "points-title": "Buy points",
+    "points-title-2": "Buy, claim points to be on top of Hive communities",
     "points-action": "Buy",
     "points-description": "Jump start to improve engagement on your content by purchasing Points with Ecency Mobile",
-    "account-boost-title": "Account boosting",
+    "points-buy-hive-title": "Buy points with HIVE/HBD",
+    "points-buy-hive-description": "Simply swap your HIVE/HBD to POINTS",
+    "account-boost-title": "Out of Resource credits? Get more using Ecency mobile app",
     "account-boost-action": "Boost now!",
     "account-boost-description": "Use In-App purchase to acquire extra powers",
     "promote-title": "Promote your post",
     "promote-action": "Promote",
     "promote-description": "Impressions boost that will increase eyeballs on your content",
-    "boost-plus-title": "Boost+",
+    "boost-plus-title": "Get more Resources (Boost+)",
     "boost-plus-action": "Boost+",
-    "boost-plus-description": "Boost your account with your points in few clicks"
+    "boost-plus-description": "Swap your POINTS to acquire Resource credits and Hive power with few clicks.",
+    "no-post": "No post selected",
+    "go-to-perks": "Go to Perks",
+    "buy-points-qr-title": "Buy points with QR",
+    "buy-points-qr-description": "Use Ecency mobile app to buy POINTS with Credit card/Apple/Google Pay",
+    "buy-points-qr-button": "Buy with QR code",
+    "buy-points-hive-title": "Buy points using Hive/HBD",
+    "buy-points-hive-description": "Already have some HIVE or HBD? Swap HIVE/HBD to POINTS quickly",
+    "buy-points-hive-button": "Buy with HIVE/HBD",
+    "buy-points-hive-success-title": "You`ve got +{{amount}} points",
+    "buy-points-hive-success-description": "Points has transferred to your account. Please, check it in a wallet page",
+    "claim-points-title": "Claim points",
+    "claim-points-description": "POINTS are generated for different activities such as comments, posts etc. Get them for free!",
+    "claim-points-button": "Claim now",
+    "claim-points-nothing": "Nothing to claim :(",
+    "spend-points": "Spend points",
+    "go-to-wallet": "Go to wallet",
+    "spin-title": "Earn up to 200 POINTS daily",
+    "spin-description": "Use daily free spins and earn different rewards up to 200 POINTS",
+    "spin-now": "Spin now",
+    "want-more-spins": "Want more spins?",
+    "spin-success": "Points has transferred to your account. Enjoy with Ecency!",
+    "spins-left": "spins left",
+    "next-spin": "Next free spin"
   },
   "boost-plus": {
     "title": "Boost+",
@@ -2686,8 +2716,9 @@
     "go-to-posts": "Go to my posts",
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
-    "draft-mode": "You are in a draft editing mode",
-    "edit-mode": "You are in a post editing mode",
+    "draft-mode": "Concept bewerkingsmodus",
+    "edit-mode": "Post bewerkingsmodus",
+    "auto-save": "Automatisch opgeslagen",
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Upload and paste",
@@ -2739,7 +2770,8 @@
       "emoji": "Emoji",
       "video": "Video",
       "poll": "Poll",
-      "align-hint": "Only paragraph and images can be aligned"
+      "align-hint": "Only paragraph and images can be aligned",
+      "geotag": "Geo tag"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
@@ -2763,7 +2795,13 @@
       "content": "Pure HTML code isn't supporting in the editor. It's highly recommend to use editor tools instead of pure HTML. If you still want to use HTML return back to Classic Editor"
     },
     "continue-to-publish": "Continue to publish",
-    "continue-to-schedule": "Continue to schedule"
+    "continue-to-schedule": "Continue to schedule",
+    "geo-tag": {
+      "title": "Geo-tag van het bericht",
+      "subtitle": "In samenwerking met WorldMapPin.com",
+      "location-placeholder": "Schrijf locatie...",
+      "selected-location": "Reeds geselecteerde locatie"
+    }
   },
   "ecency-images": {
     "upload-image": "Upload image",

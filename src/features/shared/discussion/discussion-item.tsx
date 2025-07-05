@@ -1,9 +1,9 @@
+"use client";
+
+import { memo, useMemo, useState } from "react";
 import { useCreateReply, usePinReply, useUpdateReply } from "@/api/mutations";
-import { getBotsQuery } from "@/api/queries";
-import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
+import { Entry, Community } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
-import { Community, Entry, ROLES } from "@/entities";
 import {
   EntryDeleteBtn,
   EntryPayout,
@@ -14,24 +14,33 @@ import {
   UserAvatar
 } from "@/features/shared";
 import { MuteBtn } from "@/features/shared/mute-btn";
+import { Button } from "@ui/button";
+import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import {
+  deleteForeverSvg,
+  dotsHorizontal,
+  pencilOutlineSvg,
+  pinSvg
+} from "@ui/svg";
+import i18next from "i18next";
 import {
   createReplyPermlink,
   dateToFormatted,
   dateToFullRelative,
   makeJsonMetaDataReply
 } from "@/utils";
-import { Button } from "@ui/button";
-import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { deleteForeverSvg, dotsHorizontal, pencilOutlineSvg, pinSvg } from "@ui/svg";
-import i18next from "i18next";
-import { useMemo, useState } from "react";
-import appPackage from "../../../../package.json";
 import { Tsx } from "../../i18n/helper";
 import { Comment } from "../comment";
 import { EntryLink } from "../entry-link";
 import { DiscussionBots } from "./discussion-bots";
 import { DiscussionItemBody } from "./discussion-item-body";
 import { DiscussionList } from "./discussion-list";
+import {useClientActiveUser} from "@/api/queries";
+import appPackage from "../../../../package.json";
+import {SortOrder} from "@/enums";
+import {QueryIdentifiers} from "@/core/react-query";
+import {useQueryClient} from "@tanstack/react-query";
+
 
 interface Props {
   entry: Entry;
@@ -40,310 +49,179 @@ interface Props {
   isRawContent: boolean;
   hideControls: boolean;
   discussionList: Entry[];
+  botsList: string[];
+  mutedUsers: string[];
+  canMute: boolean;
 }
 
-export function DiscussionItem({
-  hideControls,
-  isRawContent,
-  entry: initialEntry,
-  community,
-  discussionList,
-  root
+export const DiscussionItem = memo(function DiscussionItem({
+    hideControls,
+    isRawContent,
+    entry,
+    community,
+    discussionList,
+    root,
+    botsList,
+    mutedUsers,
+    canMute
 }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
   const [reply, setReply] = useState(false);
   const [edit, setEdit] = useState(false);
-
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
-  const { data: mutedUsers } = getMutedUsersQuery(activeUser).useClientQuery();
-  const { data: botsList } = getBotsQuery().useClientQuery();
-
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
-  const readMore = useMemo(() => (entry ? entry.children > 0 && entry.depth > 5 : false), [entry]);
-  const showSubList = useMemo(
-    () => (entry ? !readMore && entry.children > 0 : false),
-    [entry, readMore]
-  );
-  const canEdit = useMemo(
-    () => activeUser && activeUser.username === entry?.author,
-    [activeUser, entry]
-  );
-  const anchorId = useMemo(
-    () => (entry ? `anchor-@${entry.author}/${entry.permlink}` : ""),
-    [entry]
-  );
-  const canMute = useMemo(
-    () =>
-      !!activeUser &&
-      !!community &&
-      community.team.some(
-        (m) =>
-          m[0] === activeUser.username &&
-          [ROLES.OWNER.toString(), ROLES.ADMIN.toString(), ROLES.MOD.toString()].includes(m[1])
-      ),
-    [activeUser, community]
-  );
-  const selected = useMemo(
-    () =>
-      location.hash && location.hash.replace("#", "") === `@${entry?.author}/${entry?.permlink}`,
-    [entry]
-  );
-  const entryIsMuted = useMemo(
-    () => mutedUsers?.includes(entry?.author ?? "") ?? false,
-    [entry, mutedUsers]
-  );
-  const isTopComment = useMemo(
-    () => entry?.parent_author === root.author && entry?.parent_permlink === root.permlink,
-    [entry, root]
-  );
-  const isComment = useMemo(() => !!entry?.parent_author, [entry]);
-  const isOwnRoot = useMemo(
-    () => !!activeUser && activeUser.username === root.author,
-    [activeUser, root]
-  );
-  const isOwnReply = useMemo(
-    () => !!activeUser && activeUser.username === entry?.author,
-    [activeUser, entry]
-  );
-  const isHidden = useMemo(
-    () => (entry ? entry.net_rshares < -7000000000 && entry.active_votes.length > 3 : false),
-    [entry]
-  ); // 1000 HP
-  const isMuted = useMemo(
-    () => entry?.stats?.gray && entry?.net_rshares >= 0 && entry?.author_reputation >= 0,
-    [entry]
-  );
-  const isLowReputation = useMemo(
-    () => entry?.stats?.gray && entry?.net_rshares >= 0 && entry?.author_reputation < 0,
-    [entry]
-  );
-  const mightContainMutedComments = useMemo(
-    () => !!activeUser && entryIsMuted && !isComment && !isOwnReply,
-    [activeUser, entryIsMuted, isComment, isOwnReply]
-  );
-  const isDeletable = useMemo(
-    () =>
-      !(entry?.is_paidout || (entry?.net_rshares ?? 0) > 0 || (entry?.children ?? 0) > 0) &&
-      entry?.author === activeUser?.username,
-    [activeUser?.username, entry?.author, entry?.children, entry?.is_paidout, entry?.net_rshares]
-  );
-  const isPinned = useMemo(
-    () => root.json_metadata.pinned_reply === `${entry?.author}/${entry?.permlink}`,
-    [root, entry]
-  );
-  const hasAnyAction = useMemo(
-    () => canEdit || (isOwnRoot && isTopComment) || isDeletable,
-    [canEdit, isOwnRoot, isTopComment, isDeletable]
-  );
-  const filtered = useMemo(
-    () =>
-      discussionList.filter(
-        (x) => x.parent_author === entry?.author && x.parent_permlink === entry?.permlink
-      ),
-    [discussionList, entry]
-  );
-  const botsData = useMemo(
-    () => filtered.filter((entry) => botsList?.includes(entry.author) && entry.children === 0),
-    [botsList, filtered]
+  const readMore = useMemo(() => entry.children > 0 && entry.depth > 5, [entry]);
+  const showSubList = useMemo(() => !readMore && entry.children > 0, [entry, readMore]);
+  const canEdit = useMemo(() => activeUser?.username === entry.author, [activeUser, entry]);
+  const anchorId = useMemo(() => `anchor-@${entry.author}/${entry.permlink}`, [entry]);
+  const isPinned = useMemo(() => root.json_metadata.pinned_reply === `${entry.author}/${entry.permlink}`, [root, entry]);
+  const selected = useMemo(() => location.hash === `#@${entry.author}/${entry.permlink}`, [entry]);
+
+  const entryIsMuted = useMemo(() => mutedUsers?.includes(entry.author), [entry, mutedUsers]);
+  const isTopComment = useMemo(() => entry.parent_author === root.author && entry.parent_permlink === root.permlink, [entry, root]);
+  const isComment = !!entry.parent_author;
+  const isOwnRoot = useMemo(() => activeUser?.username === root.author, [activeUser, root]);
+  const isOwnReply = useMemo(() => activeUser?.username === entry.author, [activeUser, entry]);
+  const isHidden = useMemo(() => entry.net_rshares < -7000000000 && entry.active_votes.length > 3, [entry]);
+  const isMuted = useMemo(() => entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation >= 0, [entry]);
+  const isLowReputation = useMemo(() => entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation < 0, [entry]);
+  const mightContainMutedComments = useMemo(() => activeUser && entryIsMuted && !isComment && !isOwnReply, [activeUser, entryIsMuted, isComment, isOwnReply]);
+  const isDeletable = useMemo(() =>
+          !(entry.is_paidout || entry.net_rshares > 0 || entry.children > 0) &&
+          entry.author === activeUser?.username,
+      [entry, activeUser]);
+
+  const hasAnyAction = useMemo(() => canEdit || (isOwnRoot && isTopComment) || isDeletable, [canEdit, isOwnRoot, isTopComment, isDeletable]);
+
+  const queryClient = useQueryClient();
+
+  const allReplies = queryClient.getQueryData<Entry[]>([
+    QueryIdentifiers.FETCH_DISCUSSIONS,
+    root.author,
+    root.permlink,
+    SortOrder.created,
+    activeUser?.username,
+  ]);
+
+  const filtered = useMemo(() =>
+    (allReplies ?? []).filter(
+      (x) =>
+        x.parent_author === entry.author && x.parent_permlink === entry.permlink
+    ),
+[allReplies, entry]
   );
 
-  const { mutateAsync: createReply, isPending: isCreateLoading } = useCreateReply(entry, root, () =>
-    toggleReply()
+  const botsData = useMemo(() => filtered.filter((e) => botsList.includes(e.author) && e.children === 0),
+  [filtered, botsList]
   );
-  const { mutateAsync: updateReply, isPending: isUpdateReplyLoading } = useUpdateReply(
-    entry,
-    async () => toggleEdit()
-  );
+
+  const { mutateAsync: createReply, isPending: isCreateLoading } = useCreateReply(entry, root, async () => { toggleReply(); return; });
+  const { mutateAsync: updateReply, isPending: isUpdateReplyLoading } = useUpdateReply(entry, async () => { toggleEdit(); return; });
   const { mutateAsync: pinReply } = usePinReply(entry, root);
 
-  const toggleReply = () => {
-    if (edit) {
-      return;
-    }
-    setReply(!reply);
-  };
+  const toggleReply = () => edit || setReply((r) => !r);
+  const toggleEdit = () => reply || setEdit((e) => !e);
 
-  const toggleEdit = () => {
-    if (reply) {
-      return;
-    }
-    setEdit(!edit);
-  };
-
-  const submitReply = (text: string) =>
-    createReply({
+  const submitReply = async (text: string) => {
+    const permlink = createReplyPermlink(entry.author);
+    await createReply({
       text,
-      jsonMeta: makeJsonMetaDataReply(entry?.json_metadata.tags || ["ecency"], appPackage.version),
-      permlink: createReplyPermlink(entry?.author),
+      jsonMeta: makeJsonMetaDataReply(entry.json_metadata.tags || ["ecency"], appPackage.version),
+      permlink,
       point: true
     });
+    setReply(false);
+  }
 
   const _updateReply = (text: string) =>
-    updateReply({
-      text,
-      point: true,
-      jsonMeta: makeJsonMetaDataReply(entry?.json_metadata.tags || ["ecency"], appPackage.version)
-    });
+      updateReply({
+        text,
+        point: true,
+        jsonMeta: makeJsonMetaDataReply(entry.json_metadata.tags || ["ecency"], appPackage.version)
+      });
 
-  return entry ? (
-    <div className={`discussion-item depth-${entry?.depth} ${selected ? "selected-item" : ""}`}>
-      <div className="relative">
-        <div className="item-anchor" id={anchorId} />
-      </div>
-      <div className="item-inner">
-        <div className="item-figure">
-          <ProfileLink username={entry.author}>
-            <UserAvatar username={entry.author} size="medium" />
-          </ProfileLink>
+  return (
+      <div className={`discussion-item depth-${entry.depth} ${selected ? "selected-item" : ""}`}>
+        <div className="relative">
+          <div className="item-anchor" id={anchorId} />
         </div>
-        <div className="item-content">
-          <div className="item-header">
-            <div className="flex items-center" id={`${entry.author}-${entry.permlink}`}>
-              <ProfilePopover entry={entry} />
-            </div>
-            <span className="separator circle-separator" />
-            <div className="flex items-center">
-              <EntryLink entry={entry}>
+        <div className="item-inner">
+          <div className="item-figure">
+            <ProfileLink username={entry.author}>
+              <UserAvatar username={entry.author} size="medium" />
+            </ProfileLink>
+          </div>
+          <div className="item-content">
+            <div className="item-header">
+              <div className="flex items-center" id={`${entry.author}-${entry.permlink}`}>
+                <ProfilePopover entry={entry} />
+              </div>
+              <span className="separator circle-separator" />
+              <div className="flex items-center">
+                <EntryLink entry={entry}>
                 <span className="date" title={dateToFormatted(entry.created)}>
                   {dateToFullRelative(entry.created)}
                 </span>
-              </EntryLink>
-              {isPinned && <div className="w-3.5 h-3.5 ml-3 flex">{pinSvg}</div>}
-            </div>
-          </div>
-          {isMuted && (
-            <div className="hidden-warning mt-2">
-              <span>
-                <Tsx k="entry.muted-warning" args={{ community: entry.community_title }}>
-                  <span />
-                </Tsx>
-              </span>
-            </div>
-          )}
-
-          {isHidden && (
-            <div className="hidden-warning mt-2">
-              <span>{i18next.t("entry.hidden-warning")}</span>
-            </div>
-          )}
-
-          {isLowReputation && (
-            <div className="hidden-warning mt-2">
-              <span>{i18next.t("entry.lowrep-warning")}</span>
-            </div>
-          )}
-
-          {mightContainMutedComments && (
-            <div className="hidden-warning mt-2">
-              <span>{i18next.t("entry.comments-hidden")}</span>
-            </div>
-          )}
-
-          <DiscussionItemBody entry={entry} isRawContent={isRawContent} />
-          {hideControls ? (
-            <></>
-          ) : (
-            <div className="item-controls flex items-center gap-2">
-              <EntryVoteBtn entry={entry} isPostSlider={false} />
-              <EntryPayout entry={entry} />
-              <EntryVotes entry={entry} />
-              <a className={`reply-btn ${edit ? "disabled" : ""}`} onClick={toggleReply}>
-                {i18next.t("g.reply")}
-              </a>
-              {community && canMute && (
-                <MuteBtn
-                  entry={entry}
-                  community={community}
-                  onSuccess={(entry) => updateEntryQueryData([entry])}
-                />
-              )}
-
-              <div className="ml-3 dropdown-container">
-                {hasAnyAction && (
-                  <Dropdown>
-                    <DropdownToggle>
-                      <Button icon={dotsHorizontal} appearance="gray-link" />
-                    </DropdownToggle>
-                    <DropdownMenu>
-                      {canEdit && (
-                        <DropdownItemWithIcon
-                          label={i18next.t("g.edit")}
-                          icon={pencilOutlineSvg}
-                          onClick={toggleEdit}
-                        />
-                      )}
-                      {isOwnRoot && isTopComment && (
-                        <DropdownItemWithIcon
-                          label={i18next.t(isPinned ? "g.unpin" : "g.pin")}
-                          icon={pinSvg}
-                          onClick={() => pinReply({ pin: !isPinned })}
-                        />
-                      )}
-                      {isDeletable && (
-                        <DropdownItemWithIcon
-                          label={
-                            <EntryDeleteBtn parent={root} entry={entry}>
-                              <div className="flex items-center [&>svg]:w-3.5 gap-3">
-                                {} {i18next.t("g.delete")}
-                              </div>
-                            </EntryDeleteBtn>
-                          }
-                          icon={deleteForeverSvg}
-                        />
-                      )}
-                    </DropdownMenu>
-                  </Dropdown>
-                )}
+                </EntryLink>
+                {isPinned && <div className="w-3.5 h-3.5 ml-3 flex">{pinSvg}</div>}
               </div>
-              <DiscussionBots entries={botsData} />
             </div>
-          )}
-          {readMore && (
-            <div className="read-more">
-              <EntryLink entry={entry}>{i18next.t("discussion.read-more")}</EntryLink>
-            </div>
-          )}
+
+            {isMuted && <div className="hidden-warning mt-2"><span><Tsx k="entry.muted-warning" args={{ community: entry.community_title }}><span /></Tsx></span></div>}
+            {isHidden && <div className="hidden-warning mt-2"><span>{i18next.t("entry.hidden-warning")}</span></div>}
+            {isLowReputation && <div className="hidden-warning mt-2"><span>{i18next.t("entry.lowrep-warning")}</span></div>}
+            {mightContainMutedComments && <div className="hidden-warning mt-2"><span>{i18next.t("entry.comments-hidden")}</span></div>}
+
+            <DiscussionItemBody entry={entry} isRawContent={isRawContent} />
+
+            {!hideControls && (
+                <div className="item-controls flex items-center gap-2">
+                  <EntryVoteBtn entry={entry} isPostSlider={false} />
+                  <EntryPayout entry={entry} />
+                  <EntryVotes entry={entry} />
+                  <a className={`reply-btn ${edit ? "disabled" : ""}`} onClick={toggleReply}>{i18next.t("g.reply")}</a>
+                  {community && canMute && (
+                      <MuteBtn entry={entry} community={community} onSuccess={(entry) => updateEntryQueryData([entry])} />
+                  )}
+                  {hasAnyAction && (
+                      <div className="ml-3 dropdown-container">
+                        <Dropdown>
+                          <DropdownToggle>
+                            <Button icon={dotsHorizontal} appearance="gray-link" />
+                          </DropdownToggle>
+                          <DropdownMenu>
+                            {canEdit && <DropdownItemWithIcon label={i18next.t("g.edit")} icon={pencilOutlineSvg} onClick={toggleEdit} />}
+                            {isOwnRoot && isTopComment && <DropdownItemWithIcon label={i18next.t(isPinned ? "g.unpin" : "g.pin")} icon={pinSvg} onClick={() => pinReply({ pin: !isPinned })} />}
+                            {isDeletable && (
+                                <DropdownItemWithIcon label={<EntryDeleteBtn parent={root} entry={entry}><div className="flex items-center [&>svg]:w-3.5 gap-3">{} {i18next.t("g.delete")}</div></EntryDeleteBtn>} icon={deleteForeverSvg} />
+                            )}
+                          </DropdownMenu>
+                        </Dropdown>
+                      </div>
+                  )}
+                  <DiscussionBots entries={botsData} />
+                </div>
+            )}
+
+            {readMore && (
+                <div className="read-more">
+                  <EntryLink entry={entry}>{i18next.t("discussion.read-more")}</EntryLink>
+                </div>
+            )}
+          </div>
         </div>
+
+        {reply && (
+            <Comment entry={entry} submitText={i18next.t("g.reply")} cancellable onSubmit={submitReply} onCancel={toggleReply} inProgress={isCreateLoading || isUpdateReplyLoading} autoFocus />
+        )}
+
+        {edit && (
+            <Comment entry={entry} isEdit submitText={i18next.t("g.update")} cancellable onSubmit={_updateReply} onCancel={toggleEdit} inProgress={isCreateLoading || isUpdateReplyLoading} autoFocus />
+        )}
+
+        {showSubList && (
+            <DiscussionList discussionList={discussionList} community={community} parent={entry} root={root} hideControls={hideControls} isRawContent={isRawContent} />
+        )}
       </div>
-
-      {reply && (
-        <Comment
-          entry={entry}
-          submitText={i18next.t("g.reply")}
-          cancellable={true}
-          onSubmit={submitReply}
-          onCancel={toggleReply}
-          inProgress={isCreateLoading || isUpdateReplyLoading}
-          autoFocus={true}
-        />
-      )}
-
-      {edit && (
-        <Comment
-          entry={entry}
-          isEdit={true}
-          submitText={i18next.t("g.update")}
-          cancellable={true}
-          onSubmit={_updateReply}
-          onCancel={toggleEdit}
-          inProgress={isCreateLoading || isUpdateReplyLoading}
-          autoFocus={true}
-        />
-      )}
-
-      {showSubList && (
-        <DiscussionList
-          discussionList={discussionList}
-          community={community}
-          parent={entry}
-          root={root}
-          hideControls={hideControls}
-          isRawContent={isRawContent}
-        />
-      )}
-    </div>
-  ) : (
-    <></>
   );
-}
+});

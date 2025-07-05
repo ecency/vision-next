@@ -120,9 +120,9 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
               <div className="text-xl text-center font-semibold my-4">
                 {i18next.t("signup-wallets.create-account.success")}
               </div>
-              <Link href={params.get("backUri") ?? "/"}>
+              <Link href={params?.get("backUri") ?? "/"}>
                 <Button size="lg">
-                  {params.has("backUri") ? "Back to origin" : "Explore Ecency"}
+                  {params?.has("backUri") ? "Back to origin" : "Explore Ecency"}
                 </Button>
               </Link>
             </motion.div>

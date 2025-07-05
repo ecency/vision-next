@@ -97,7 +97,8 @@
     "today": "Hoy",
     "view": "Vista",
     "tomorrow": "Mañana",
-    "import": "Importar"
+    "import": "Importar",
+    "clear": "Limpiar"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -200,7 +201,7 @@
     "boost": "Impulsar",
     "submit": "Crear una publicación",
     "chats": "Chats",
-    "perks": "Comprar ventajas (perks)"
+    "perks": "Actualizar"
   },
   "intro": {
     "title": "Aspira a la grandeza",
@@ -267,6 +268,7 @@
     "buy-account-li-2": "3x RC comparado con cuentas nuevas normales",
     "buy-account-li-3": "300 puntos para ayudarte a comenzar",
     "qr-desc": "Escanear con aplicación móvil de Ecency para continuar",
+    "username-invalid-hyphen-position": "El nombre de usuario no puede comenzar o terminar con hipenos",
     "username-min-length-error": "La longitud del nombre de usuario debe tener al menos 3 caracteres",
     "username-max-length-error": "La longitud del nombre de usuario no debe tener más de 16 caracteres",
     "username-no-ascii-first-letter-error": "El primer carácter debe ser una letra",
@@ -421,7 +423,7 @@
     "unmute-success": "Post no silenciado",
     "promote": "Promocionar",
     "boost": "Impulsar",
-    "edit-classic": "Edición clásica"
+    "edit-classic": "Editar en el Editor Clásico"
   },
   "cross-post": {
     "title": "Publicación cruzada",
@@ -1821,8 +1823,8 @@
   "drafts": {
     "title": "Borradores",
     "filter": "Buscar por título",
-    "open-editor": "Editor",
-    "open-classic": "Editor clásico"
+    "open-editor": "Abrir en el editor",
+    "open-classic": "Abrir en Editor Clásico"
   },
   "schedules": {
     "title": "Publicaciones programadas",
@@ -2101,7 +2103,7 @@
       "where-tokens-come-header": "¿De dónde vienen las fichas (Tokens)?",
       "where-tokens-come-body": "<p>La red de HIVE crea continuamente nuevas fichas digitales para recompensar a los creadores y curadores de contenido. Algunos de los tokens recién generados son transferidos a usuarios que agregan valor a la plataforma publicando, comentando y votando en las publicaciones de otras personas. El resto se distribuye a los titulares de HIVE POWER y a los testigos que aseguran la cadena de bloques.</p>",
       "how-promotion-work-header": "¿Cómo funciona la promoción de contenido?",
-      "how-promotion-work-body": "<p>Promocionar contenido en Ecency es muy simple y fácil. Los puntos de Ecency se utilizan para promocionar contenido durante 1, 2, 3, 7 o 14 días para obtener una mayor exposición. Las publicaciones promocionadas se mezclan en los feeds para todos los usuarios en la aplicación móvil, la aplicación de escritorio y el sitio web. No hay límites ni restricciones, cualquier publicación puede promocionarse para obtener más exposición y participación. Nos reservamos el derecho a eliminar publicaciones de la lista de promociones si infringe ciertas normas de etiqueta de Internet.</p>",
+      "how-promotion-work-body": "<p>Promover contenido en Ecencia es muy simple. Seleccione contenido, período de promoción 1, 2, 3, 7 o 14 días para obtener más exposición. Los mensajes promocionados se barajan a través de los canales a todos los usuarios de la aplicación móvil Ecence, sitio web. No hay límites ni restricciones, ningún puesto puede ser promovido para obtener más exposición y compromiso. Ecencia tiene derecho a eliminar los mensajes de la lista de promoción si viola cierto espectro de Internet y normas.</p>",
       "how-to-transfer-header": "¿Cómo transferir los tokens de blockchain?",
       "how-to-transfer-body": "<p>Después de iniciar sesión, encontrará la página de Cartera en el encabezado superior del sitio web y la aplicación de escritorio o en la página de Perfil, en la aplicación móvil está en la barra de navegación inferior. En la página de la Cartera puedes iniciar la transferencia de cualquier token que tengas a otro usuario o a cuantas de intercambio, haga clic en la flecha junto a su saldo y encuentre las operaciones de transferencia. Las transferencias son irreveribles porque están registradas en blockchain, asegúrate de enviar al destinatario correcto.</p>",
       "how-see-rewards-header": "¿Cómo puedo ver mis recompensas de publicaciones?",
@@ -2367,6 +2369,7 @@
   "chain-error": {
     "min-root-comment": "Sólo puedes publicar una vez cada cinco minutos.",
     "identical-vote": "Tu voto actual sobre este contenido es idéntico a esta votación.",
+    "must-claim": "Nada a reclamar en balance o ya ha sido reclamado.",
     "insufficient-resource": "Créditos de Recursos insuficientes.",
     "delete-comment-with-vote": "No se puede eliminar un contenido con recompensas positivas pendientes.",
     "comment-cashout": "El contenido después de su pago no puede ser eliminado.",
@@ -2457,18 +2460,45 @@
     "page-title": "Bienvenido a las ventajas (Perks)",
     "title": "Conoce las ventajas (perks) de Ecency",
     "title-next": "una forma unificada, rápida y simple de optimizar tu cuenta",
+    "description": "¡Crece grande en el mundo de HIVE! Consigue puntos de Ecency para compartir tus posts y aumentar tu Hive Power. ¡Compra ahora para seguir creciendo en el ecosistema de HIVE!",
     "points-title": "Comprar puntos",
+    "points-title-2": "Comprar, reclamar puntos para estar en la cima de las comunidades de Hive",
     "points-action": "Comprar",
     "points-description": "Empieza a mejorar el compromiso con tu contenido comprando Puntos con Ecency Móvil",
-    "account-boost-title": "Impulsar la cuenta",
+    "points-buy-hive-title": "Compra puntos con Hive/HBD",
+    "points-buy-hive-description": "Cambia tu HIVE/HBD a PUNTOS de manera simple",
+    "account-boost-title": "¿Sin Créditos de Recursos? Obtén más usando la aplicación móvil Ecency",
     "account-boost-action": "¡Impulsar ahora!",
     "account-boost-description": "Usa la opción de compra en la Aplicación para adquirir poderes adicionales",
     "promote-title": "Promociona tu post",
     "promote-action": "Promocionar",
     "promote-description": "Impresiones optimizadas que incrementarán las visualizaciones de tu contenido",
-    "boost-plus-title": "Impulsar+",
+    "boost-plus-title": "Obtén más Recursos (Boost+)",
     "boost-plus-action": "Impulsar+",
-    "boost-plus-description": "Impulsa tu cuenta con tus puntos en pocos clics"
+    "boost-plus-description": "Intercambia tus POINTOS para adquirir créditos de Recursos y poder de Colmena con unos pocos clics.",
+    "no-post": "Ningún mensaje seleccionado",
+    "go-to-perks": "Ir a Beneficios (Perks)",
+    "buy-points-qr-title": "Comprar puntos con QR",
+    "buy-points-qr-description": "Utilice la aplicación móvil Ecency para comprar PUNTOS con tarjeta de crédito/Apple/Google Pay",
+    "buy-points-qr-button": "Comprar con código QR",
+    "buy-points-hive-title": "Compra puntos usando Hive/HBD",
+    "buy-points-hive-description": "¿Ya tienes alguna HIVE o HBD? Cambia rápidamente el HIVE/HBD a PUNTOS",
+    "buy-points-hive-button": "Comprar con HIVE/HBD",
+    "buy-points-hive-success-title": "Has conseguido +{{amount}} puntos",
+    "buy-points-hive-success-description": "Los puntos han sido transferidos a su cuenta. Por favor, compruébalo en una página de cartera",
+    "claim-points-title": "Reclamar puntos",
+    "claim-points-description": "Los PUNTOS se generan para diferentes actividades tales como comentarios, publicaciones, etc. ¡Consíguelos gratis!",
+    "claim-points-button": "Reclama ahora",
+    "claim-points-nothing": "Nada que reclamar :(",
+    "spend-points": "Canjear puntos",
+    "go-to-wallet": "Ir a la cartera",
+    "spin-title": "Gana hasta 200 PUNTOS diarios",
+    "spin-description": "Usa giros gratis diarios y gana diferentes recompensas hasta 200 PUNTOS",
+    "spin-now": "Gire ahora",
+    "want-more-spins": "¿Quieres más jugadas?",
+    "spin-success": "Los puntos se han transferido a tu cuenta. ¡Disfruta con Ecency!",
+    "spins-left": "giros restantes",
+    "next-spin": "Siguiente giro gratis"
   },
   "boost-plus": {
     "title": "Impulsar+",
@@ -2686,8 +2716,9 @@
     "go-to-posts": "Ir a mis publicaciones",
     "no-draft-title": "No se han encontrado borradores",
     "no-draft-hint": "No tienes borrador con el ID dado. Por favor, comprueba tus borradores.",
-    "draft-mode": "Estás en modo de edición de borradores",
-    "edit-mode": "Estás en modo de edición de posts",
+    "draft-mode": "Modo de edición de borrador",
+    "edit-mode": "Modo de edición de mensajes",
+    "auto-save": "Auto guardado",
     "save-draft": "Guardar borrador",
     "update-draft": "Actualizar borrador",
     "three-speak-upload": "Subir y pegar",
@@ -2739,7 +2770,8 @@
       "emoji": "Emoji",
       "video": "Vídeo",
       "poll": "Encuesta",
-      "align-hint": "Sólo los párrafos e imágenes pueden ser alineados"
+      "align-hint": "Sólo los párrafos e imágenes pueden ser alineados",
+      "geotag": "Etiqueta Geo"
     },
     "get-help": "Buscar ayuda",
     "loading-post-title": "Cargando tu publicación...",
@@ -2763,7 +2795,13 @@
       "content": "El código HTML puro no es compatible con el editor. Es muy recomendable usar herramientas de editor en lugar de HTML puro. Si todavía desea utilizar HTML elija volver al Editor Clásico"
     },
     "continue-to-publish": "Continuar publicando",
-    "continue-to-schedule": "Continuar con la programación"
+    "continue-to-schedule": "Continuar con la programación",
+    "geo-tag": {
+      "title": "Etiqueta geo del post",
+      "subtitle": "En colaboración con WorldMapPin.com",
+      "location-placeholder": "Escribir ubicación...",
+      "selected-location": "Ubicación ya seleccionada"
+    }
   },
   "ecency-images": {
     "upload-image": "Subir imagen",

@@ -14,7 +14,6 @@ export * from "./gallery-images-query";
 export * from "./drafts-query";
 export * from "./notifications";
 export * from "./get-account-posts-query";
-export * from "./get-relationship-btw-accounts";
 export * from "./get-discover-leaderboard-query";
 export * from "./get-curation-query";
 export * from "./get-contributors-query";

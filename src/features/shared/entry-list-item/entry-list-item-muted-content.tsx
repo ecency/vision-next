@@ -12,6 +12,9 @@ import { useGlobalStore } from "@/core/global-store";
 import { EcencyClientServerBridge } from "@/core/client-server-bridge";
 import { EntryListItemContext } from "@/features/shared/entry-list-item/entry-list-item-context";
 import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
+import Link from "next/link";
+import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
+import { useEntryLocation } from "@/utils";
 
 interface Props {
   entry: Entry;
@@ -24,6 +27,8 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   const [showMuted, setShowMuted] = useState(false);
   const [showModMuted, setShowModMuted] = useState(false);
   const { data: mutedUsers } = getMutedUsersQuery(activeUser).useClientQuery();
+
+  const location = useEntryLocation(entryProp);
 
   const isPostMuted = useMemo(
     () => (activeUser && mutedUsers?.includes(entryProp.author)) ?? false,
@@ -94,8 +99,19 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
       )}
       <div className="item-summary overflow-x-hidden">
         <EntryLink entry={isCrossPost ? entryProp : entry}>
-          <div className="item-title">{entry.title}</div>
+          <div className="item-title !mb-0">{entry.title}</div>
         </EntryLink>
+        {location?.coordinates && (
+          <Link
+            href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
+            target="_external"
+            rel="noopener"
+            className="text-sm"
+          >
+            <UilMapPinAlt className="w-4 h-4 mr-1" />
+            {location.address}
+          </Link>
+        )}
         <EntryLink entry={isCrossPost ? entryProp : entry}>
           <div className="item-body">
             {entry.json_metadata.description || postBodySummary(entry, 200)}

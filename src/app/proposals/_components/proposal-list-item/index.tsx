@@ -27,14 +27,14 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
 
   const { data: votesPages, isLoading } = getProposalVotesQuery(
     proposal.proposal_id,
-    params.get("voter") ?? "",
+    params?.get("voter") ?? "",
     1000
   ).useClientQuery();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
   const votes = useMemo(() => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []), []);
 
   const votedByVoter = useMemo(
-    () => (votes?.length ?? 0) > 0 && votes?.[0].voter === params.get("voter"),
+    () => (votes?.length ?? 0) > 0 && votes?.[0].voter === params?.get("voter"),
     [params, votes]
   );
 

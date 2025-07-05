@@ -1,7 +1,6 @@
 import { getAccountFullQuery, getDeletedEntryQuery, getPostQuery } from "@/api/queries";
 import {
   DeletedPostScreen,
-  EntryPageContent,
   EntryPageContextProvider,
   EntryPageCrossPostHeader,
   EntryPageEditHistory,
@@ -13,6 +12,12 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { notFound, redirect } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateEntryMetadata } from "../../../_helpers";
+import {
+  EntryPageContentSSR
+} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
+import {
+  EntryPageContentClient
+} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
@@ -31,8 +36,11 @@ export async function generateMetadata(
 
 export default async function EntryPage({ params, searchParams }: Props) {
   const { author: username, permlink, category } = await params;
+
   const search = await searchParams;
+  const isRaw = search["raw"];
   const isEdit = search["edit"];
+
 
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
@@ -44,7 +52,9 @@ export default async function EntryPage({ params, searchParams }: Props) {
     return redirect(`/waves/${author}/${permlink}`);
   }
 
-  await getAccountFullQuery(entry?.author).prefetch();
+  if (entry?.author) {
+    await getAccountFullQuery(entry.author).prefetch();
+  }
 
   if (!entry) {
     const deletedEntry = await getDeletedEntryQuery(author, permlink).prefetch();
@@ -76,13 +86,14 @@ export default async function EntryPage({ params, searchParams }: Props) {
             <div className="the-entry">
               <EntryPageCrossPostHeader entry={entry} />
               <span itemScope itemType="http://schema.org/Article">
-              <EntryPageContent
-                  category={category}
-                  isEdit={isEdit === "true"}
-                  entry={entry}
-                  rawParam={isEdit ?? ""}
-              />
-            </span>
+                <EntryPageContentSSR entry={entry} />
+                <EntryPageContentClient
+                    entry={entry}
+                    rawParam={isRaw ?? ""}
+                    isEdit={isEdit === "true"}
+                    category={category}
+                />
+              </span>
             </div>
           </div>
           <EntryPageEditHistory entry={entry} />

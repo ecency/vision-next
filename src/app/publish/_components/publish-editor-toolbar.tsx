@@ -23,6 +23,9 @@ import {
   UilListOl,
   UilListUiAlt,
   UilListUl,
+  UilMap,
+  UilMapPin,
+  UilMapPinAlt,
   UilPanelAdd,
   UilParagraph,
   UilSmile,
@@ -49,6 +52,8 @@ import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
+import { PublishEditorGeoTagDialog } from "./publish-editor-geo-tag/publish-editor-geo-tag-dialog";
+import clsx from "clsx";
 
 interface Props {
   editor: any | null;
@@ -63,7 +68,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const { canAlign } = useEditorState({
     editor,
     selector: ({ editor }) => ({
-      canAlign: editor?.isActive("paragraph") || editor?.isActive("image") || editor?.isActive("heading")
+      canAlign:
+        editor?.isActive("paragraph") || editor?.isActive("image") || editor?.isActive("heading")
     })
   });
 
@@ -75,6 +81,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoLink, setShowVideoLink] = useState(false);
+  const [showGeoTag, setShowGeoTag] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
 
   const attachVideo = usePublishVideoAttach(editor);
@@ -319,6 +326,18 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             icon={<UilPanelAdd />}
           />
         </StyledTooltip>
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.publish.geoPicker.enabled}
+        >
+          <StyledTooltip content={i18next.t("publish.action-bar.geotag")}>
+            <Button
+              appearance="gray-link"
+              size="sm"
+              onClick={() => setShowGeoTag(true)}
+              icon={<UilMap className={clsx(publishState.location && "text-green-hover")} />}
+            />
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
 
         {/*Dialogs*/}
         <PublishEditorToolbarFragments
@@ -408,6 +427,21 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             setShowVideoLink(false);
           }}
         />
+        {showGeoTag && (
+          <PublishEditorGeoTagDialog
+            show={showGeoTag}
+            setShow={setShowGeoTag}
+            initialLocation={publishState.location}
+            onPick={(location) => {
+              publishState.setLocation(location);
+              setShowGeoTag(false);
+            }}
+            onClear={() => {
+              publishState.clearLocation();
+              setShowGeoTag(false);
+            }}
+          />
+        )}
       </div>
       {isFocusingTable && <PublishEditorTableToolbar editor={editor} />}
     </>

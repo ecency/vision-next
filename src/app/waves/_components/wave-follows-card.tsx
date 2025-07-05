@@ -1,6 +1,6 @@
 "use client";
 
-import { getDiscoverLeaderboardQuery } from "@/api/queries";
+import {getDiscoverLeaderboardQuery, useClientActiveUser} from "@/api/queries";
 import i18next from "i18next";
 import { motion } from "framer-motion";
 import { FollowControls, ProfileLink, UserAvatar } from "@/features/shared";
@@ -12,6 +12,7 @@ import { LeaderBoardItem } from "@/entities";
 
 export function WaveFollowsCard() {
   const { data } = getDiscoverLeaderboardQuery("day").useClientQuery();
+  const activeUser = useClientActiveUser();
 
   const items = useMemo(() => {
     if (!data) {
@@ -23,6 +24,7 @@ export function WaveFollowsCard() {
 
     while (result.length < 5 && seen.size < data.length) {
       const candidate = data[Math.floor(Math.random() * data.length)];
+      if (candidate._id === activeUser?.username) continue;
       if (!seen.has(candidate._id)) {
         seen.add(candidate._id);
         result.push(candidate);
@@ -30,7 +32,7 @@ export function WaveFollowsCard() {
     }
 
     return result;
-  }, [data]);
+  }, [data, activeUser]);
 
 
   return (

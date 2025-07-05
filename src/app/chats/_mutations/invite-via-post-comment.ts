@@ -14,7 +14,7 @@ export function useInviteViaPostComment(username: string) {
 
   const posts = useMemo(() => data?.pages[0] ?? [], [data]);
 
-  const { mutateAsync: addReply } = useCreateReply(posts[0]);
+  const { mutateAsync: addReply } = useCreateReply(posts[0], posts[0]);
 
   useMount(() => refetch());
 

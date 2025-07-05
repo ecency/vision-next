@@ -109,42 +109,40 @@ export class EntryMetadataBuilder {
     description: string | null,
     videoMetadata?: ThreeSpeakVideo
   ): this {
-    return this.withField(
-      "video",
-      videoMetadata
-        ? {
-            info: {
-              platform: "3speak",
-              title: title || videoMetadata.title,
-              author: videoMetadata.owner,
-              permlink: videoMetadata.permlink,
-              duration: videoMetadata.duration,
-              filesize: videoMetadata.size,
-              file: videoMetadata.filename,
-              lang: videoMetadata.language,
-              firstUpload: videoMetadata.firstUpload,
-              ipfs: null,
-              ipfsThumbnail: null,
-              video_v2: videoMetadata.video_v2,
-              sourceMap: [
-                {
-                  type: "video",
-                  url: videoMetadata.video_v2,
-                  format: "m3u8"
-                },
-                {
-                  type: "thumbnail",
-                  url: videoMetadata.thumbUrl
-                }
-              ]
+    if (videoMetadata) {
+      return this.withField("video", {
+        info: {
+          platform: "3speak",
+          title: title || videoMetadata.title,
+          author: videoMetadata.owner,
+          permlink: videoMetadata.permlink,
+          duration: videoMetadata.duration,
+          filesize: videoMetadata.size,
+          file: videoMetadata.filename,
+          lang: videoMetadata.language,
+          firstUpload: videoMetadata.firstUpload,
+          ipfs: null,
+          ipfsThumbnail: null,
+          video_v2: videoMetadata.video_v2,
+          sourceMap: [
+            {
+              type: "video",
+              url: videoMetadata.video_v2,
+              format: "m3u8"
             },
-            content: {
-              description: description || videoMetadata.description,
-              tags: videoMetadata.tags_v2
+            {
+              type: "thumbnail",
+              url: videoMetadata.thumbUrl
             }
-          }
-        : undefined
-    ).withField("type", "video");
+          ]
+        },
+        content: {
+          description: description || videoMetadata.description,
+          tags: videoMetadata.tags_v2
+        }
+      }).withField("type", "video");
+    }
+    return this;
   }
 
   public withPoll(poll?: PollSnapshot): this {
@@ -170,6 +168,23 @@ export class EntryMetadataBuilder {
           }
         : {})
     } as MetaData;
+    return this;
+  }
+
+  public withLocation(location?: { coordinates: { lat: number; lng: number }; address?: string }) {
+    this.temporaryMetadata = {
+      ...this.temporaryMetadata,
+      ...(location && {
+        location: {
+          coordinates: {
+            lat: +location.coordinates.lat.toFixed(3),
+            lng: +location.coordinates.lng.toFixed(3)
+          },
+          address: location.address
+        }
+      })
+    };
+
     return this;
   }
 

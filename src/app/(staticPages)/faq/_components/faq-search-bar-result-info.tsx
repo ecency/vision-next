@@ -9,7 +9,7 @@ import { searchWithinFaqStrict } from "@/app/(staticPages)/faq/utils";
 export function FaqSearchBarResultInfo() {
   const params = useSearchParams();
 
-  const search = useMemo(() => params.get("q") ?? "", [params]);
+  const search = useMemo(() => params?.get("q") ?? "", [params]);
   const searchResult = useMemo(() => searchWithinFaqStrict(search), [search]);
 
   return search.length > 0 ? (

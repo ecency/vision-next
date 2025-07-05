@@ -1,16 +1,23 @@
 "use client";
 
-import { error, Feedback, Navbar, Theme } from "@/features/shared";
-import { Button } from "@ui/button";
+import { hsTokenRenew } from "@/api/auth-api";
+import { setUserRole, updateCommunity } from "@/api/operations";
+import { useGlobalStore } from "@/core/global-store";
+import { User } from "@/entities";
+import { delay } from "@/utils";
+import { EcencyAnalytics } from "@ecency/sdk";
+import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Head from "next/head";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useGlobalStore } from "@/core/global-store";
-import { useState } from "react";
-import { User } from "@/entities";
-import { hsTokenRenew } from "@/api/auth-api";
-import { formatError, setUserRole, updateCommunity } from "@/api/operations";
+import { useCallback, useState } from "react";
 import useMount from "react-use/lib/useMount";
+import {
+  CommunityCreateCardLayout,
+  CommunityCreateDoneStep,
+  CommunityCreateStepper,
+  CommunityStepperSteps
+} from "../create/_components";
 
 export function CommunityCreateHsPage() {
   const router = useRouter();
@@ -19,92 +26,62 @@ export function CommunityCreateHsPage() {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const addUser = useGlobalStore((s) => s.addUser);
 
-  const [_, setUsername] = useState("");
-  const [inProgress, setInProgress] = useState(true);
-  const [progress, setProgress] = useState("");
-  const [done, setDone] = useState(false);
+  const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
+    activeUser?.username,
+    "community-created" as any
+  );
 
-  const handle = async () => {
-    const code = params.get("code");
-    const title = params.get("title") ?? "";
-    const about = params.get("about") ?? "";
+  const [username, setUsername] = useState("");
+  const [step, setStep] = useState(CommunityStepperSteps.CREATING);
+
+  const [progress, setProgress] = useState("");
+
+  const handle = useCallback(async () => {
+    const code = params?.get("code");
+    const title = params?.get("title") ?? "";
+    const about = params?.get("about") ?? "";
 
     if (!code || !activeUser) {
       router.push("/");
       return;
     }
 
-    setInProgress(true);
     setProgress(i18next.t("communities-create.progress-user"));
 
     // get access token from code and create user object
-    let user: User;
-    try {
-      user = await hsTokenRenew(code).then((x) => ({
-        username: x.username,
-        accessToken: x.access_token,
-        refreshToken: x.refresh_token,
-        expiresIn: x.expires_in,
-        postingKey: null
-      }));
-    } catch (e) {
-      error(...formatError(e));
-      setInProgress(false);
-      setProgress("");
-      return;
-    }
-
-    // add username to state
-    setUsername(user.username);
+    const response = await hsTokenRenew(code);
+    const user = {
+      username: response.username,
+      accessToken: response.access_token,
+      refreshToken: response.refresh_token,
+      expiresIn: response.expires_in,
+      postingKey: null
+    } satisfies User;
 
     // add community user to reducer
     addUser(user);
+    setUsername(user.username);
 
     // set admin role
     setProgress(i18next.t("communities-create.progress-role", { u: activeUser.username }));
-
-    try {
-      await setUserRole(user.username, user.username, activeUser.username, "admin");
-    } catch (e) {
-      error(...formatError(e));
-      setInProgress(false);
-      setProgress("");
-      return;
-    }
+    await setUserRole(user.username, user.username, activeUser.username, "admin");
 
     // update community props
     setProgress(i18next.t("communities-create.progress-props"));
-
-    try {
-      await updateCommunity(user.username, user.username, {
-        title,
-        about,
-        lang: "en",
-        description: "",
-        flag_text: "",
-        is_nsfw: false
-      });
-    } catch (e) {
-      error(...formatError(e));
-      setInProgress(false);
-      setProgress("");
-      return;
-    }
-
-    // wait 3 seconds to hivemind synchronize community data
-    await new Promise((r) => {
-      setTimeout(() => {
-        r(true);
-      }, 3000);
+    await updateCommunity(user.username, user.username, {
+      title,
+      about,
+      lang: "en",
+      description: "",
+      flag_text: "",
+      is_nsfw: false
     });
 
-    // done
-    setInProgress(false);
-    setDone(true);
-
-    // redirect to community page
-    router.push(`/created/${user.username}`);
-  };
+    // wait 3 seconds to hivemind synchronize community data
+    await delay(3000);
+    setStep(CommunityStepperSteps.DONE);
+    recordActivity();
+  }, [activeUser, addUser, params, recordActivity, router]);
 
   useMount(handle);
 
@@ -114,24 +91,19 @@ export function CommunityCreateHsPage() {
         <title>{i18next.t("communities-create.page-title")}</title>
         <meta name="description" content={i18next.t("communities-create.description")} />
       </Head>
-      <Theme />
-      <Feedback />
-      <Navbar />
 
-      <div className="app-content communities-page">
-        <div className="community-form">
-          <h1 className="form-title">{i18next.t("communities-create.page-title")}</h1>
-          {inProgress && <p>{progress}</p>}
-          {done && <></>}
-          {!inProgress && !done && (
-            <div>
-              <p className="text-red">{i18next.t("g.server-error")}</p>
-              <p>
-                <Button onClick={() => handle()}>{i18next.t("g.try-again")}</Button>
-              </p>
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
+        <CommunityCreateStepper step={step} />
+        {step === CommunityStepperSteps.CREATING && (
+          <CommunityCreateCardLayout hideTitle={true}>
+            <div className="md:py-16 flex flex-col items-center gap-4">
+              <UilSpinner className="animate-spin w-12 h-12 text-blue-dark-sky" />
+              <div className="text-xl text-blue-dark-sky">{progress}</div>
             </div>
-          )}
-        </div>
+          </CommunityCreateCardLayout>
+        )}
+
+        {step === CommunityStepperSteps.DONE && <CommunityCreateDoneStep username={username} />}
       </div>
     </>
   );

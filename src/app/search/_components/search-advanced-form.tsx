@@ -23,7 +23,7 @@ export function SearchAdvancedForm() {
   const [hideLow, setHideLow] = useState(false);
 
   useEffect(() => {
-    const q = params.get("q");
+    const q = params?.get("q");
     if (q) {
       const searchQuery = new SearchQuery(q);
       setAuthor(searchQuery.author);
@@ -33,9 +33,9 @@ export function SearchAdvancedForm() {
       setSearch(searchQuery.query);
     }
 
-    setSort((params.get("sort") as SearchSort) ?? SearchSort.NEWEST);
-    setHideLow(params.get("hd") !== "0");
-    setDate((params.get("date") as DateOpt) ?? DateOpt.M);
+    setSort((params?.get("sort") as SearchSort) ?? SearchSort.NEWEST);
+    setHideLow(params?.get("hd") !== "0");
+    setDate((params?.get("date") as DateOpt) ?? DateOpt.M);
   }, [params, setDate]);
 
   const searchChanged = (e: React.ChangeEvent<HTMLInputElement>): void =>

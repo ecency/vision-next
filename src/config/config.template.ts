@@ -1,6 +1,6 @@
 const CONFIG = {
   visionConfig: {
-    privateMode: process.env.NEXT_PUBLIC_USE_PRIVATE || "1",
+    privateMode: process.env.USE_PRIVATE || "1",
     features: {
       communities: {
         rewards: {
@@ -103,11 +103,18 @@ const CONFIG = {
         host: "https://pl.ecency.com",
         siteId: "ecency.com",
         apiKey: process.env.PLAUSIBLE_API_KEY
+      },
+      publish: {
+        geoPicker: {
+          enabled: true,
+          gMapsMapId: process.env.NEXT_PUBLIC_GMAPS_MAP_ID,
+          gMapsApiKey: process.env.NEXT_PUBLIC_GMAPS_API_KEY
+        }
       }
     },
     service: {
-      hsClientId: process.env.NEXT_PUBLIC_HS_CLIENT_ID || "ecency.app",
-      hsClientSecret: process.env.NEXT_PUBLIC_HS_CLIENT_SECRET || ""
+      hsClientId: process.env.HIVESIGNER_CLIENT_ID || "ecency.app",
+      hsClientSecret: process.env.HIVESIGNER_SECRET || ""
     }
   }
 };

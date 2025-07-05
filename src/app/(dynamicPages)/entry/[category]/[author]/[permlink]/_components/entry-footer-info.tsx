@@ -1,9 +1,9 @@
-import { ProfileLink } from "@/features/shared";
+import {ProfileLink, TimeLabel} from "@/features/shared";
 import i18next from "i18next";
 import { Tsx } from "@/features/i18n/helper";
 import { Entry } from "@/entities";
 import { accountReputation, appName, parseDate } from "@/utils";
-import moment from "moment";
+import React from "react";
 
 interface Props {
   entry: Entry;
@@ -12,14 +12,11 @@ interface Props {
 export function EntryFooterInfo({ entry }: Props) {
   const app = appName(entry.json_metadata.app);
   const appShort = app.split("/")[0].split(" ")[0];
-  const published = moment(parseDate(entry.created, false));
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
     <div className="entry-info text-sm">
-      <div className="date" title={published.format("LLLL")}>
-        {published.fromNow()}
-      </div>
+      <TimeLabel created={entry.created} />
       <span className="separator circle-separator" />
       <ProfileLink username={entry.author}>
         <div className="author notranslate">

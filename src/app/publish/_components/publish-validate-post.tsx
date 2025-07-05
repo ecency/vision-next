@@ -1,21 +1,19 @@
 "use client";
 
 import { TagSelector } from "@/app/submit/_components";
-import { getCommunityCache } from "@/core/caches";
-import { UserAvatar } from "@/features/shared";
-import { Button } from "@/features/ui";
-import { isCommunity } from "@/utils";
+import { Button, FormControl } from "@/features/ui";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useMount } from "react-use";
+import { usePublishApi, useScheduleApi } from "../_api";
 import { usePublishState } from "../_hooks";
-import { PublishValidatePostThumbnailPicker } from "./publish-validate-post-thumbnail-picker";
+import { PublishActionBarCommunity } from "./publish-action-bar-community";
 import { PublishScheduleDialog } from "./publish-schedule-dialog";
 import { PublishValidatePostMeta } from "./publish-validate-post-meta";
-import { usePublishApi, useScheduleApi } from "../_api";
-import { useMount } from "react-use";
-import { PublishActionBarCommunity } from "./publish-action-bar-community";
+import { PublishValidatePostThumbnailPicker } from "./publish-validate-post-thumbnail-picker";
+import { isCommunity } from "@/utils";
 
 interface Props {
   onClose: () => void;
@@ -23,8 +21,17 @@ interface Props {
 }
 
 export function PublishValidatePost({ onClose, onSuccess }: Props) {
-  const { tags, setTags, schedule, clearAll, content, metaDescription,
-    setMetaDescription } = usePublishState();
+  const {
+    tags,
+    setTags,
+    schedule,
+    clearAll,
+    content,
+    metaDescription,
+    setMetaDescription,
+    isReblogToCommunity,
+    setIsReblogToCommunity
+  } = usePublishState();
 
   const [showSchedule, setShowSchedule] = useState(false);
 
@@ -59,9 +66,9 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     // Only generate description if it's empty or 1-char garbage
     if (!metaDescription || metaDescription.trim().length <= 1) {
       const plainText = content
-          .replace(/<[^>]+>/g, "")
-          .replace(/\s+/g, " ")
-          .trim();
+        .replace(/<[^>]+>/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
 
       const description = plainText.slice(0, 160);
       setMetaDescription(description);
@@ -93,8 +100,9 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
             {i18next.t("publish.public-info-hint")}
           </div>
         </div>
-        <div className="flex flex-col gap-4 md:gap-6 lg:gap-8 items-start">
+        <div className="flex flex-col gap-4 md:gap-6 lg:gap-7 items-start">
           <PublishActionBarCommunity />
+
           <div className="flex flex-col gap-2">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {i18next.t("publish.tags-hint")}
@@ -109,6 +117,25 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
               <div className="text-sm text-red">{i18next.t("publish.tags-min-message")}</div>
             )}
           </div>
+
+          {isCommunity(tags?.[0]) && (
+            <div className="text-sm">
+              <FormControl
+                type="checkbox"
+                isToggle={true}
+                id="reblog-switch"
+                label={i18next.t("submit.reblog")}
+                checked={isReblogToCommunity ?? false}
+                onChange={(v) => {
+                  setIsReblogToCommunity(v);
+                }}
+              />
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                {i18next.t("submit.reblog-hint")}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             <Button
               size="lg"

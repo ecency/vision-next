@@ -29,9 +29,9 @@ export const Announcements = () => {
       .filter((announcement) => (announcement.auth ? !!activeUser : true))
       .filter((announcement) => {
         if (typeof announcement.path === "object") {
-          return announcement.path.some((aPath) => pathname.match(aPath));
+          return announcement.path.some((aPath) => pathname?.match(aPath));
         }
-        return pathname.match(announcement.path);
+        return pathname?.match(announcement.path);
       });
 
     const dismissList: number[] = ls.get("dismiss_announcements");

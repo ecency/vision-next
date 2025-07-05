@@ -8,13 +8,6 @@ import Link, { isAllowedUri } from "@tiptap/extension-link";
 export const SafeLink = Link.configure({
   openOnClick: false
 }).extend({
-  parseHTML() {
-    return [
-      {
-        tag: "span[rel]"
-      }
-    ];
-  },
   renderHTML({ HTMLAttributes }) {
     // prevent XSS attacks
     if (
@@ -26,11 +19,11 @@ export const SafeLink = Link.configure({
     ) {
       // strip out the href
       return [
-        "span",
+        "a",
         mergeAttributes(this.options.HTMLAttributes, {
           ...HTMLAttributes,
           href: "",
-          class: "editor-link",
+          class: "editor-link keychainify-checked",
           title: ""
         }),
         0
@@ -38,10 +31,10 @@ export const SafeLink = Link.configure({
     }
 
     return [
-      "span",
+      "a",
       mergeAttributes(this.options.HTMLAttributes, {
         ...HTMLAttributes,
-        class: "editor-link",
+        class: "editor-link keychainify-checked",
         title: HTMLAttributes.href
       }),
       0

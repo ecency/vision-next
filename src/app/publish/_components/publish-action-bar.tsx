@@ -101,7 +101,7 @@ export function PublishActionBar({
               disabled={isDraftPending}
               icon={<UilFileEditAlt />}
               label={
-                pathname.includes("drafts")
+                pathname?.includes("drafts")
                   ? i18next.t("publish.update-draft")
                   : i18next.t("publish.save-draft")
               }

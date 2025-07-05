@@ -9,7 +9,10 @@ import { useParams } from "next/navigation";
 export function PublishEntrySuccessState() {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const { author, permlink } = useParams();
+  const params = useParams();
+
+  const author = params?.author ?? "";
+  const permlink = params?.permlink ?? "";
 
   return (
     <motion.div

@@ -10,7 +10,7 @@ import { FaqCategory } from "@/app/(staticPages)/faq/_components/faq-category";
 export function FaqSearchResult() {
   const params = useSearchParams();
 
-  const search = useMemo(() => params.get("q") ?? "", [params]);
+  const search = useMemo(() => params?.get("q") ?? "", [params]);
   const searchResult = useMemo(() => searchWithinFaq(search), [search]);
 
   return search ? (

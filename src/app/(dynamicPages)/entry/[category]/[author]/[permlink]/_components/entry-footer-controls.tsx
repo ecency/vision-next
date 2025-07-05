@@ -86,3 +86,4 @@ export function EntryFooterControls({ entry }: Props) {
     </div>
   );
 }
+export default EntryFooterControls;

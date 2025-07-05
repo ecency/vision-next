@@ -26,7 +26,7 @@ export function markdownToHtml(html: string | undefined) {
           CENTERED_TEXT_RULE_STYLES.includes(styles)
         );
       },
-      replacement: function (content, node) {
+      replacement: function (_, node) {
         const styles = (node as HTMLElement).getAttribute("style");
         const align = styles?.replace("text-align: ", "") ?? "auto";
 
@@ -34,15 +34,19 @@ export function markdownToHtml(html: string | undefined) {
         return (node as HTMLElement).outerHTML;
       }
     })
-    .addRule("safeLink", {
+    .addRule("table", {
       filter: function (node) {
-        return node.classList.contains("editor-link");
+        return node.nodeName === "TABLE";
       },
-      replacement: function (content, node) {
-        return `[${content}](${(node as HTMLElement).getAttribute("href")})`;
+      replacement: function (_, node) {
+        const colgroup = (node as HTMLElement).querySelector("colgroup");
+        if (colgroup) {
+          node.removeChild(colgroup);
+        }
+
+        return (node as HTMLElement).outerHTML;
       }
     })
     .use(strikethrough)
-    .keep(["table", "tbody", "th", "tr", "td"])
     .turndown(html);
 }

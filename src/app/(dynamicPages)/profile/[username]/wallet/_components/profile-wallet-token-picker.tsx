@@ -16,9 +16,11 @@ import {
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
+import { useClientActiveUser } from "@/api/queries";
 
 export default function ProfileWalletTokenPicker() {
   const { username } = useParams();
+  const activeUser = useClientActiveUser();
 
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
@@ -49,6 +51,10 @@ export default function ProfileWalletTokenPicker() {
     },
     [changeList, walletList, allTokens]
   );
+
+  if (activeUser?.username !== (username as string).replace("%40", "")) {
+    return <></>;
+  }
 
   return (
     <>

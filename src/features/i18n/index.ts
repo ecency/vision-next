@@ -34,10 +34,6 @@ export const langOptions = [
     name: "Srpski"
   },
   {
-    code: "fi-FI",
-    name: "Suomi"
-  },
-  {
     code: "uk-UA",
     name: "Українська"
   },
@@ -60,7 +56,6 @@ export const langOptions = [
 ];
 
 const enUs = require("./locales/en-US.json");
-const fiFI = require("./locales/fi-FI.json");
 const esES = require("./locales/es-ES.json");
 const hiIN = require("./locales/hi-IN.json");
 const itIT = require("./locales/it-IT.json");
@@ -77,9 +72,6 @@ export async function initI18next() {
   const resources = {
     ["en-US"]: {
       translation: enUs
-    },
-    ["fi-FI"]: {
-      translation: fiFI
     },
     ["es-ES"]: {
       translation: esES

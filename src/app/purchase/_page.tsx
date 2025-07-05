@@ -23,13 +23,13 @@ export function Purchase() {
   const [productId, setProductId] = useState("999points");
 
   useEffect(() => {
-    if (params.get("username")) {
+    if (params?.get("username")) {
       setUsername(params.get("username") as string);
     }
-    if (params.get("type")) {
+    if (params?.get("type")) {
       setType(params.get("type") as PurchaseTypes);
     }
-    if (params.get("product_id")) {
+    if (params?.get("product_id")) {
       setProductId(params.get("product_id") as string);
     }
   }, [params]);

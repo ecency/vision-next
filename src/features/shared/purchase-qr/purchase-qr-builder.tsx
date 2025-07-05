@@ -45,7 +45,7 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
     const url = new URL(defaults.base);
     url.pathname = "purchase";
 
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams ?? "");
     params.set("username", username);
     params.set("type", type);
     params.set("product_id", pointsValue);

@@ -1,5 +1,4 @@
 import i18next from "i18next";
-import Image from "next/image";
 
 export function PerksHeader() {
   return (

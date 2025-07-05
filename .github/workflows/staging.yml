@@ -42,6 +42,8 @@ jobs:
           context: ./
           build-args: |
             "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}"
+            "NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}"
+            "NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}"
           file: ./Dockerfile
           push: true
           tags: ecency/vision-next:develop
@@ -70,10 +72,9 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY
         script: |
-          export NEXT_PUBLIC_USE_PRIVATE=$USE_PRIVATE
+          export USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
           export PRIVATE_API_AUTH=$PRIVATE_API_AUTH
-          export NEXT_PUBLIC_HS_CLIENT_SECRET=$HIVESIGNER_SECRET
           export HIVESIGNER_SECRET=$HIVESIGNER_SECRET
           export SEARCH_API_ADDR=$SEARCH_API_ADDR
           export SEARCH_API_SECRET=$SEARCH_API_SECRET

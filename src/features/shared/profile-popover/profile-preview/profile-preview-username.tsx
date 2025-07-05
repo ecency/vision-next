@@ -1,10 +1,12 @@
+import { getAccountFullQuery } from "@/api/queries";
+import { useGlobalStore } from "@/core/global-store";
 import { Skeleton } from "@/features/shared";
+import { accountReputation } from "@/utils";
+import { getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import Link from "next/link";
-import React, { useMemo } from "react";
-import { getAccountFullQuery, useGetRelationshipBtwAccounts } from "@/api/queries";
-import { accountReputation } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
+import { useMemo } from "react";
 
 interface Props {
   username: string;
@@ -16,8 +18,9 @@ export function ProfilePreviewUsername({ username }: Props) {
   const { data: profile, isLoading: isProfileLoading } =
     getAccountFullQuery(username).useClientQuery();
 
-  const { data: relationsBetweenAccounts, isLoading: followsActiveUserLoading } =
-    useGetRelationshipBtwAccounts(username, activeUser?.username);
+  const { data: relationsBetweenAccounts, isLoading: followsActiveUserLoading } = useQuery(
+    getRelationshipBetweenAccountsQueryOptions(username, activeUser?.username)
+  );
 
   const followsActiveUser = useMemo(
     () => relationsBetweenAccounts?.follows ?? false,

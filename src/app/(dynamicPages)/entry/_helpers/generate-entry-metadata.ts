@@ -1,34 +1,39 @@
-import { getContent } from "@/api/hive";
 import { parseDate, truncate } from "@/utils";
+import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import { headers } from 'next/headers';
+import {getContent} from "@/api/hive";
+import {getPostQuery} from "@/api/queries";
 
-
-function toProxiedSizedImage(original: string, size = "600x500") {
-  if (!original || !original.startsWith("http")) return "";
-  const cleanUrl = original.split("?")[0];
-  return `https://images.ecency.com/${size}/${cleanUrl}`;
-}
 
 export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const userAgent = requestHeaders.get('user-agent');
-  const referer = requestHeaders.get('referer');
   if (!username || !isValidPermlink(permlink)) {
-    console.warn("generateEntryMetadata: Missing username or permlink", { username, permlink, userAgent,
-      referer });
+    console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
     return {};
   }
   try {
     const cleanAuthor = username.replace("%40", "");
-    //const entry = await getPostQuery(cleanAuthor, permlink).fetchAndGet();
-    const entry = await getContent(cleanAuthor, permlink);
+    let entry = await getPostQuery(cleanAuthor, permlink).prefetch();
 
     if (!entry || !entry.body || !entry.created) {
-      console.warn("generateEntryMetadata: Incomplete post data", { username, permlink });
-      return {};
+      console.warn("generateEntryMetadata: incomplete, trying fallback getContent", {
+        username,
+        permlink
+      });
+      try {
+        // fallback to direct content API
+        entry = await getContent(cleanAuthor, permlink);
+      } catch (e) {
+        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, permlink, e);
+        return {};
+      }
+
+      if (!entry || !entry.body || !entry.created) {
+        console.warn("generateEntryMetadata: fallback also failed", { username, permlink });
+        return {};
+      }
     }
+
     const isComment = !!entry.parent_author;
 
     let title = truncate(entry.title, 67);
@@ -40,15 +45,16 @@ export async function generateEntryMetadata(username: string, permlink: string):
     const summary = entry.json_metadata?.description
         || truncate(postBodySummary(entry.body, 210), 140);
 
-    const rawImage = catchPostImage(entry, 600, 500, "match") || "";
-    const image = toProxiedSizedImage(rawImage);
+    const image = catchPostImage(entry, 600, 500, "match")
     const urlParts = entry.url.split("#");
     const fullUrl = isComment && urlParts[1]
         ? `https://ecency.com/${urlParts[1]}`
         : `https://ecency.com${entry.url}`;
     const authorUrl = `https://ecency.com/@${entry.author}`;
-    const createdAt = parseDate(entry.created);
-    const updatedAt = parseDate(entry.updated ?? entry.created);
+    const createdAt = parseDate(entry.created ?? new Date().toISOString());
+    const updatedAt = parseDate(entry.updated ?? entry.last_update ?? entry.created ?? new Date().toISOString());
+    const canonical = entryCanonical(entry);
+    const finalCanonical = canonical && canonical !== fullUrl ? canonical : undefined;
 
     return {
       title,
@@ -74,6 +80,11 @@ export async function generateEntryMetadata(username: string, permlink: string):
         "article:author": authorUrl,
         "og:updated_time": updatedAt.toISOString(),
       },
+      ...(finalCanonical && {
+        alternates: {
+          canonical: finalCanonical,
+        },
+      }),
     };
   } catch (e) {
     console.error("generateEntryMetadata failed:", e, { username, permlink });

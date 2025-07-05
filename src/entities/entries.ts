@@ -26,6 +26,7 @@ export interface JsonMetadata {
   original_permlink?: string;
   image?: string[];
   pinned_reply?: string; // author/permlink
+  location?: { coordinates: { lat: number; lng: number }; address?: string };
 }
 
 export interface JsonPollMetadata {
@@ -42,6 +43,7 @@ export interface JsonPollMetadata {
 }
 
 export interface Entry {
+  last_update?: string;
   active_votes: EntryVote[];
   author: string;
   author_payout_value: string;
@@ -82,6 +84,7 @@ export interface Entry {
   updated: string;
   url: string;
   original_entry?: Entry;
+  is_optimistic?: boolean;
 }
 
 export interface EntryHeader {

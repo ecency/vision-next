@@ -18,7 +18,7 @@ import i18next from "i18next";
 import { getAccounts } from "@/api/hive";
 import { signUp } from "@/api/private-api";
 import { error, Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
-import { b64uEnc, handleInvalid, handleOnInput } from "@/utils";
+import {b64uEnc, getUsernameError, handleInvalid, handleOnInput} from "@/utils";
 import { appleSvg, checkSvg, googleSvg, hiveSvg } from "@ui/svg";
 import { Tsx } from "@/features/i18n/helper";
 import { useGlobalStore } from "@/core/global-store";
@@ -62,7 +62,7 @@ export function SignUp() {
   const router = useRouter();
 
   useMount(() => {
-    const referral = params.get("referral");
+    const referral = params?.get("referral");
     if (referral && typeof referral === "string") {
       setReferral(referral);
       setLockReferral(true);
@@ -92,35 +92,11 @@ export function SignUp() {
   }, [email, referral, stage, username]);
 
   useEffect(() => {
-    setUsernameError("");
-    setIsDisabled(false);
+    if (!username && !usernameTouched) return;
 
-    if (!username && !usernameTouched) {
-      return;
-    }
-    if (username.length > 16) {
-      setUsernameError(i18next.t("sign-up.username-max-length-error"));
-      setIsDisabled(true);
-    } else {
-      username.split(".").some((item) => {
-        if (item.length < 3) {
-          setUsernameError(i18next.t("sign-up.username-min-length-error"));
-          setIsDisabled(true);
-        } else if (!/^[\x00-\x7F]*$/.test(item[0])) {
-          setUsernameError(i18next.t("sign-up.username-no-ascii-first-letter-error"));
-          setIsDisabled(true);
-        } else if (!/^([a-zA-Z0-9]|-|\.)+$/.test(item)) {
-          setUsernameError(i18next.t("sign-up.username-contains-symbols-error"));
-          setIsDisabled(true);
-        } else if (item.includes("--")) {
-          setUsernameError(i18next.t("sign-up.username-contains-double-hyphens"));
-          setIsDisabled(true);
-        } else if (/^\d/.test(item)) {
-          setUsernameError(i18next.t("sign-up.username-starts-number"));
-          setIsDisabled(true);
-        }
-      });
-    }
+    const errorMsg = getUsernameError(username);
+    setUsernameError(errorMsg || "");
+    setIsDisabled(!!errorMsg);
   }, [username, usernameTouched]);
 
   useDebounce(

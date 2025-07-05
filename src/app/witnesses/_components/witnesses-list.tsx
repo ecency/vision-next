@@ -77,10 +77,10 @@ export function WitnessesList() {
     <LinearProgress />
   ) : (
     <>
-      {(proxy || searchParams.get("username") || searchParams.get("account")) && (
+      {(proxy || searchParams?.get("username") || searchParams?.get("account")) && (
         <WitnessesActiveProxy
           isProxy={!proxy}
-          username={searchParams.get("username") ?? searchParams.get("account") ?? proxy}
+          username={searchParams?.get("username") ?? searchParams?.get("account") ?? proxy}
           onDone={() => queryClient.setQueryData<string>([QueryIdentifiers.WITNESSES, "proxy"], "")}
         />
       )}

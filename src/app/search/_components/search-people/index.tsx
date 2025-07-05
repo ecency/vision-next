@@ -11,7 +11,7 @@ export function SearchPeople() {
   const params = useSearchParams();
 
   const q = useMemo(
-    () => new SearchQuery(params.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
+    () => new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
     [params]
   );
   const { data: results, isLoading } = getSearchAccountQuery(q).useClientQuery();

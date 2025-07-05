@@ -1,11 +1,11 @@
 import i18next from "i18next";
 import { Entry } from "@/entities";
 import ReadTime from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-read-time";
-import moment from "moment/moment";
-import { accountReputation, parseDate } from "@/utils";
+import { accountReputation } from "@/utils";
 import { EntryPageMainInfoMenu } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-main-info-menu";
 import { EcencyConfigManager } from "@/config";
-import { UserAvatar, BookmarkBtn, EntryStats, ProfileLink, TagLink } from "@/features/shared";
+import {UserAvatar, BookmarkBtn, EntryStats, ProfileLink, TagLink, TimeLabel} from "@/features/shared";
+import React from "react";
 
 interface Props {
   entry: Entry;
@@ -14,7 +14,6 @@ interface Props {
 export function EntryPageMainInfo({ entry }: Props) {
   const isComment = !!entry.parent_author;
 
-  const published = moment(parseDate(entry.created, false));
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
@@ -53,9 +52,7 @@ export function EntryPageMainInfo({ entry }: Props) {
           <span className="separator circle-separator mx-1 lg:hidden" />
           <EntryStats entry={entry} />
           <span className="separator circle-separator mx-1" />
-          <div className="date" title={published.format("LLLL")}>
-            {published.fromNow()}
-          </div>
+          <TimeLabel created={entry.created} />
         </div>
         <div className="flex items-center justify-end">
           {!isComment && (
