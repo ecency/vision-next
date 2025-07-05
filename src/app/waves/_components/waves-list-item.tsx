@@ -1,8 +1,8 @@
 "use client";
 
-import { WaveEntry } from "@/entities";
+import { Entry, WaveEntry } from "@/entities";
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
-import React, { memo, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WaveActions, WaveForm } from "@/features/waves";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { motion } from "framer-motion";
@@ -17,8 +17,9 @@ import { useCollectPageViewEvent } from "@/api/mutations";
 import { useWavesGrid } from "@/app/waves/_hooks";
 import { PostContentRenderer } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
-import { getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
+import { getPromotedPostsQuery, getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
 import { useGlobalStore } from "@/core/global-store";
+import clsx from "clsx";
 
 interface Props {
   item: WaveEntry;
@@ -49,6 +50,14 @@ export function WavesListItem({
     EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(item).useClientQuery();
   const { data: relations } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(activeUser?.username, item.author)
+  );
+  const { data: promoted } = useQuery(getPromotedPostsQuery<Entry>("waves"));
+  const hasPromoted = useMemo(
+    () =>
+      promoted?.some(
+        ({ author, permlink }) => author === entry?.author && permlink === entry.permlink
+      ),
+    [promoted, entry]
   );
 
   const poll = useEntryPollExtractor(entry);
@@ -92,15 +101,20 @@ export function WavesListItem({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: relations?.ignores ? 0.5 : 1, scale: 1 }}
       transition={{ delay: i * 0.2 }}
-      className={classNameObject({
-        "waves-list-item bg-white dark:bg-dark-200": true,
-        "first:rounded-t-2xl last:rounded-b-2xl border-b border-[--border-color] last:border-b-0":
-          grid === "feed",
-        "rounded-2xl": grid === "masonry",
-        grayscale: relations?.ignores
-        // "hover:bg-gray-100 dark:hover:bg-dark-600-010 cursor-pointer": interactable
-      })}
+      className={clsx(
+        "waves-list-item bg-white dark:bg-dark-200 relative",
+        grid === "feed" &&
+          "first:rounded-t-2xl last:rounded-b-2xl border-b border-[--border-color] last:border-b-0",
+        grid === "masonry" && "rounded-2xl",
+        relations?.ignores && "grayscale",
+        hasPromoted && grid === "masonry" && "border border-blue-dark-sky"
+      )}
     >
+      {hasPromoted && (
+        <div className="text-xs font-semibold uppercase rounded-br-lg px-1 rounded-tl-lg bg-blue-dark-sky text-white absolute top-[-1px] left-[-1px]">
+          Promoted
+        </div>
+      )}
       <WavesListItemHeader
         entry={entry!}
         hasParent={false}
