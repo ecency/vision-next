@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "Просто вийти з системи",
+    "logout-and-clear": "Вийти і очистити локальні дані",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
