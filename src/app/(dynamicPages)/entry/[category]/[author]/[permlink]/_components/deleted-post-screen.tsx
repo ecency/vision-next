@@ -1,6 +1,6 @@
 "use client";
 
-import { renderPostBody } from "@ecency/render-helper";
+import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import { EditHistory, Navbar, ScrollToTop, StaticNavbar, Theme } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
@@ -8,6 +8,7 @@ import { SimilarEntries } from "@/app/(dynamicPages)/entry/[category]/[author]/[
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 import { AuthorInfoCard } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/author-info-card";
 import { useContext } from "react";
+import defaults from "@/defaults.json";
 
 interface Props {
   deletedEntry: {
@@ -19,7 +20,7 @@ interface Props {
   username: string;
   permlink: string;
 }
-
+setProxyBase(defaults.imageServer);
 export const DeletedPostScreen = ({ username, permlink, staticNav, deletedEntry }: Props) => {
   const isMobile = useGlobalStore((s) => s.isMobile);
   const { showProfileBox, editHistory, setEditHistory } = useContext(EntryPageContext);

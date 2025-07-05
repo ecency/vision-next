@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { renderPostBody } from "@ecency/render-helper";
+import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import md5 from "js-md5";
 import useMount from "react-use/lib/useMount";
 import { useGlobalStore } from "@/core/global-store";
+import defaults from "@/defaults.json";
 
 interface Props {
   rawBody: string;
@@ -13,7 +14,7 @@ interface Line {
   element: Element;
   hash: string;
 }
-
+setProxyBase(defaults.imageServer);
 export function PostBodyLazyRenderer({ rawBody, className }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 

@@ -1,7 +1,7 @@
 import { Entry } from "@/entities";
 import { ProfileLink } from "@/features/shared";
 import { dateToRelative } from "@/utils";
-import { renderPostBody } from "@ecency/render-helper";
+import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import { autoUpdate, flip, shift, useFloating } from "@floating-ui/react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState, useEffect } from "react";
@@ -9,11 +9,12 @@ import { createPortal } from "react-dom";
 import useClickAway from "react-use/lib/useClickAway";
 import { EntryLink } from "../entry-link";
 import { UserAvatar } from "../user-avatar";
+import defaults from "@/defaults.json";
 
 interface Props {
   entries: Entry[];
 }
-
+setProxyBase(defaults.imageServer);
 export function DiscussionBots({ entries }: Props) {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [show, setShow] = useState(false);

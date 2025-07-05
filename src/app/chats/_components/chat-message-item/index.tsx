@@ -1,6 +1,6 @@
 import { isMessageGif } from "../../_utils";
 import React, { useMemo, useRef, useState } from "react";
-import { renderPostBody } from "@ecency/render-helper";
+import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import { ChatMessageChannelItemExtension } from "../chat-message-channel-item-extension";
 import useMount from "react-use/lib/useMount";
 import useDebounce from "react-use/lib/useDebounce";
@@ -21,6 +21,7 @@ import { ChatMessageRepliedLabel } from "./chat-message-replied-label";
 import { ChatMessageUsernameLabel } from "./chat-message-username-label";
 import { classNameObject } from "@ui/util";
 import { useGlobalStore } from "@/core/global-store";
+import defaults from "@/defaults.json";
 
 interface Props {
   type: "sender" | "receiver";
@@ -34,7 +35,7 @@ interface Props {
   onInViewport?: (inViewport: boolean) => void;
   className?: string;
 }
-
+setProxyBase(defaults.imageServer);
 export function ChatMessageItem({
   type,
   message,
