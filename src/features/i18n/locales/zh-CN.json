@@ -194,7 +194,7 @@
     "settings": "Settings",
     "logout": "Logout",
     "just-logout": "只是注销",
-    "logout-and-clear": "注销并清除本地数据",
+    "logout-and-clear": "登出并清除登录数据",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
