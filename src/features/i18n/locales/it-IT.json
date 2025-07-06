@@ -194,7 +194,7 @@
     "settings": "Settings",
     "logout": "Logout",
     "just-logout": "Basta uscire",
-    "logout-and-clear": "Esci e cancella i dati locali",
+    "logout-and-clear": "Logout e cancella i dati di accesso",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
