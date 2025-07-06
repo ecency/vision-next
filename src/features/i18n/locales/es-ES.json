@@ -194,7 +194,7 @@
     "settings": "Configuración",
     "logout": "Cerrar sesión",
     "just-logout": "Salir",
-    "logout-and-clear": "Salir y borrar datos locales",
+    "logout-and-clear": "Cerrar sesión y borrar datos de acceso",
     "theme": "tema",
     "light": "claro",
     "dark": "oscuro",
