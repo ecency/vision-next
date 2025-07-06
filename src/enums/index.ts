@@ -10,3 +10,4 @@ export * from "./points-transaction-type";
 export * from "./notification-filter";
 export * from "./sort-order";
 export * from "./date-opt";
+export * from "./community-types";

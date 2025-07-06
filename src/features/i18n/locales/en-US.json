@@ -907,7 +907,10 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Open community",
-    "back-to-communities": "Back to communites"
+    "back-to-communities": "Back to communites",
+    "topic": "Topic – anyone can post or comment",
+    "journal": "Journal – only members can post and guests can only comment",
+    "council": "Council – only members can post or comment"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
