@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { Spinner } from "@ui/spinner";
-import { Button, ButtonProps } from "@ui/button";
-import { Community } from "@/entities";
-import i18next from "i18next";
-import { LoginRequired } from "@/features/shared";
-import { useGetSubscriptionsQuery } from "@/api/queries";
 import { useSubscribeToCommunity } from "@/api/mutations";
 import { useGlobalStore } from "@/core/global-store";
+import { Community } from "@/entities";
+import { LoginRequired } from "@/features/shared";
+import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { Button, ButtonProps } from "@ui/button";
+import { Spinner } from "@ui/spinner";
+import i18next from "i18next";
+import { useMemo, useState } from "react";
 
 interface Props {
   community: Community;
@@ -18,7 +19,9 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const [hover, setHover] = useState(false);
 
-  const { data: subscriptions } = useGetSubscriptionsQuery(activeUser?.username);
+  const { data: subscriptions } = useQuery(
+    getAccountSubscriptionsQueryOptions(activeUser?.username)
+  );
   const { mutateAsync: subscribe, isPending } = useSubscribeToCommunity(community);
 
   const subscribed = useMemo(
