@@ -1,17 +1,18 @@
 "use client";
 
-import { getCommunitiesQuery } from "@/api/queries";
 import { CommunityListItem, CommunityListItemLoading } from "@/app/_components";
 import { getCommunityCache } from "@/core/caches";
 import { Community } from "@/entities";
 import { Button } from "@/features/ui";
+import { getCommunitiesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import Link from "next/link";
 import { Fragment, useMemo } from "react";
 
 export const TopCommunitiesWidget = () => {
   const { data: ecencyCommunity } = getCommunityCache("hive-125125").useClientQuery();
-  const { data, isLoading: loading } = getCommunitiesQuery("rank").useClientQuery();
+  const { data, isLoading: loading } = useQuery(getCommunitiesQueryOptions("rank"));
 
   const list = useMemo(() => {
     if (!data || !ecencyCommunity) {

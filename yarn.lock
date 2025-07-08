@@ -1311,15 +1311,15 @@
     "@testing-library/react" "14"
     medium-zoom "^1.1.0"
 
-"@ecency/sdk@1.0.45":
-  version "1.0.45"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.45.tgz#8dec88363b3dfd7e62150d52e0e11bab6a6b9851"
-  integrity sha512-gkH8A0CBCwvHt/57CUROmh1I3WJbT5QOJvckpVK4X2QL/OCzQ3464DCbGdwodrngMqNrxGL3EbWH0XKR9cBeIw==
+"@ecency/sdk@1.0.48":
+  version "1.0.48"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.48.tgz#635bea9b54cfc1e961f3e0439bd55c41fc6d3e12"
+  integrity sha512-ivrlZSPeMYTAWIIOB5ehrPDK+1s+w0+uNKcCP6fKkGXYCt4HA+GmFphi6zJPsAc3UhVeL/+wyGb8b0gbcJ2djA==
 
-"@ecency/wallets@^1.2.19":
-  version "1.2.19"
-  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.19.tgz#efdd2d7d0a4d740eb12a6620822998b522029ed2"
-  integrity sha512-1u9EqYEoRAMH6a4AuMdM1Ir5IEr//kG5CoeDKTSRgJpWPZWKuhpRML6xzpXWtlw6gqnJe77vYvcPyQPyz6GMUA==
+"@ecency/wallets@^1.2.21":
+  version "1.2.22"
+  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.22.tgz#aec74e886feee8ca21a8b2ea6f299791f834ce32"
+  integrity sha512-1CRJ6Wlke3UWcBhLXcXzN+vTJDmI1R9o7th97xGdfgrKUQpKH/7fI4AsY9WOVO4Rp3FTBl1OqawQe2lyN+TbfA==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"

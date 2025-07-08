@@ -1,10 +1,10 @@
-import "./page.scss";
-import { CommunitiesList } from "./_components";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
-import { getCommunitiesQuery } from "@/api/queries";
-import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
+import { getCommunitiesQueryOptions } from "@ecency/sdk";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Metadata, ResolvingMetadata } from "next";
+import { CommunitiesList } from "./_components";
+import "./page.scss";
+import { getQueryClient } from "@/core/react-query";
 
 export const dynamic = "force-dynamic";
 
@@ -21,11 +21,12 @@ interface Props {
 
 export default async function Communities({ searchParams }: Props) {
   const { sort, q } = await searchParams;
-  await getCommunitiesQuery(sort ?? "rank", q ?? "").prefetch();
+
+  await getQueryClient().prefetchQuery(getCommunitiesQueryOptions(sort ?? "rank", q ?? ""));
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <CommunitiesList query={q ?? ""} sort={sort || "rank"} />
+      <CommunitiesList query={q ?? ""} sort={sort ?? "rank"} />
     </HydrationBoundary>
   );
 }

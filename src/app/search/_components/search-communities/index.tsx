@@ -1,13 +1,14 @@
-import React, { useMemo } from "react";
-import "./_index.scss";
-import i18next from "i18next";
+import defaults from "@/defaults.json";
 import { LinearProgress, UserAvatar } from "@/features/shared";
 import { formattedNumber, makePath, truncate } from "@/utils";
-import defaults from "@/defaults.json";
+import { SearchQuery } from "@/utils/search-query";
+import { getCommunitiesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import i18next from "i18next";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { SearchQuery } from "@/utils/search-query";
-import { getCommunitiesQuery } from "@/api/queries";
+import { useMemo } from "react";
+import "./_index.scss";
 
 interface Props {
   history: History;
@@ -22,7 +23,7 @@ export function SearchCommunities() {
     () => new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
     [params]
   );
-  const { isLoading, data } = getCommunitiesQuery("rank", q, 4).useClientQuery();
+  const { isLoading, data } = useQuery(getCommunitiesQueryOptions("rank", q, 4));
 
   return (
     <div className="border border-[--border-color] bg-white rounded search-communities">
