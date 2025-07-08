@@ -24,7 +24,7 @@ export function useLoginByKeychain(username: string) {
           (x) => x[0] === EcencyConfigManager.CONFIG.service.hsClientId
         ).length > 0;
 
-      if (!hasPostingPerm) {
+      /*if (!hasPostingPerm) {
         const weight = account.posting!.weight_threshold;
 
         try {
@@ -37,7 +37,7 @@ export function useLoginByKeychain(username: string) {
         } catch (err) {
           throw new Error(i18next.t("login.error-permission"));
         }
-      }
+      }*/
 
       const code = await makeHsCode(
         EcencyConfigManager.CONFIG.service.hsClientId,
@@ -45,7 +45,7 @@ export function useLoginByKeychain(username: string) {
         (message) => signBuffer(username, message, "Posting").then((r) => r.result)
       );
 
-      await loginInApp(code, null, account!);
+      await loginInApp(code, null, account!, "keychain");
     },
     onError: (e) => error(...formatError(e))
   });

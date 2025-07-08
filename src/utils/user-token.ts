@@ -28,5 +28,8 @@ export const getAccessToken = (username: string): string | undefined =>
 export const getPostingKey = (username: string): null | undefined | string =>
   getUser(username) && getUser(username)!.postingKey;
 
+export const getLoginType = (username: string): null | undefined | string =>
+    getUser(username) && getUser(username)!.loginType;
+
 export const getRefreshToken = (username: string): string | undefined =>
   getUser(username) && getUser(username)!.refreshToken;

@@ -1,6 +1,6 @@
 import { useHsLoginRefresh, useRecordUserActivity } from "@/api/mutations";
 import { useGlobalStore } from "@/core/global-store";
-import { Account, User } from "@/entities";
+import {Account, LoginType, User} from "@/entities";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useAfterLoginTutorial } from "./use-after-login-tutorial";
@@ -24,7 +24,7 @@ export function useLoginInApp(username: string) {
   }, []);
 
   return useCallback(
-    async (code: string, postingKey: null | undefined | string, account: Account) => {
+    async (code: string, postingKey: null | undefined | string, account: Account, loginType?: LoginType) => {
       const token = await hsTokenRenew({ code });
       // get access token from code
       const user: User = {
@@ -32,7 +32,8 @@ export function useLoginInApp(username: string) {
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
         expiresIn: token.expires_in,
-        postingKey
+        postingKey,
+        loginType
       };
 
       // add / update user data
