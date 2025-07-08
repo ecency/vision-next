@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Hive communities are huge part of ecosystem: there are sports, jobs, hobbies, interests and many more. Explore all of them and become a part of Ecency and Hive!"
+    "hint": "Hive communities are huge part of ecosystem: there are sports, jobs, hobbies, interests and many more. Explore all of them and become a part of Ecency and Hive!",
+    "types": {
+      "topic": "Topic",
+      "journal": "Journal",
+      "council": "Council"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -1615,7 +1620,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency and Hive introduce different community categories: topic, journal and council. Learn more for details."
   },
   "word-count": {
     "label": "{{n}} words",

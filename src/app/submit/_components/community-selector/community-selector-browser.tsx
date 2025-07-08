@@ -70,6 +70,7 @@ export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
                 key={x.id}
                 name={x.name}
                 title={x.title}
+                community={x}
                 onSelect={onSelect}
                 onHide={onHide}
               />
