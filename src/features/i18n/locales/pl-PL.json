@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Społeczności uliczne stanowią ogromną część ekosystemu: są sport, miejsca pracy, hobby, interesy i wiele innych. Zbadaj ich wszystkie i stań się częścią Ecencji i Uli,"
+    "hint": "Społeczności uliczne stanowią ogromną część ekosystemu: są sport, miejsca pracy, hobby, interesy i wiele innych. Zbadaj ich wszystkie i stań się częścią Ecencji i Uli,",
+    "types": {
+      "topic": "Temat",
+      "journal": "Dziennik",
+      "council": "Rozporządzenie Parlamentu Europejskiego i Rady (UE, Euratom) nr 966/2012 z dnia 25 października 2012 r. w sprawie zasad finansowych mających zastosowanie do budżetu ogólnego Unii oraz uchylające rozporządzenie Rady (WE, Euratom) nr 1605/2002 (Dz.U. L 298 z 26.10.2012, s. 1)."
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Otwórz społeczność",
-    "back-to-communities": "Powrót do społeczności"
+    "back-to-communities": "Powrót do społeczności",
+    "topic": "Temat - każdy może pisać lub komentować",
+    "journal": "Dziennik - tylko użytkownicy mogą dodawać posty, a goście mogą komentować tylko",
+    "council": "Rada – tylko członkowie mogą zamieszczać lub komentować",
+    "types-hint": "Dowiedz się więcej o rodzajach społeczności"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecencja i Ul wprowadzają różne kategorie społeczności: temat, dziennik i rada. Dowiedz się więcej po szczegóły."
   },
   "word-count": {
     "label": "{{n}} words",
