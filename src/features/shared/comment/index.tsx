@@ -65,14 +65,11 @@ export function Comment({
   const [showGif, setShowGif] = useState(false);
 
   const { data: userContext } = useQuery({
-    ...getCommunityContextQueryOptions(
-      activeUser?.username,
-      entry.json_metadata?.tags?.[0] ?? undefined
-    ),
-    enabled: !!activeUser?.username && isCommunity(entry.json_metadata?.tags?.[0]),
+    ...getCommunityContextQueryOptions(activeUser?.username, entry.category),
+    enabled: !!activeUser?.username && isCommunity(entry.category),
     select: ({ subscribed, role }) =>
       getCommunityPermissions({
-        communityType: getCommunityType(entry.json_metadata?.tags?.[0] ?? "", -1),
+        communityType: getCommunityType(entry.category ?? "", -1),
         subscribed,
         userRole: role
       })

@@ -70,10 +70,7 @@ export const DiscussionItem = memo(function DiscussionItem({
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const { data: userContext } = useQuery({
-    ...getCommunityContextQueryOptions(
-      activeUser?.username,
-      entry.json_metadata?.tags?.[0] ?? undefined
-    ),
+    ...getCommunityContextQueryOptions(activeUser?.username, community?.name ?? undefined),
     select: ({ subscribed, role }) =>
       getCommunityPermissions({
         communityType: getCommunityType(community?.name ?? "", -1),
