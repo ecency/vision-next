@@ -8,8 +8,6 @@ export * from "./witnesses-query";
 export * from "./get-post-header-query";
 export * from "./get-accounts-query";
 export * from "./schedules-query";
-export * from "./bookmarks-query";
-export * from "./favourites-query";
 export * from "./gallery-images-query";
 export * from "./drafts-query";
 export * from "./notifications";

@@ -18,7 +18,6 @@ export * from "./mute-post";
 export * from "./promote";
 export * from "./pre-check-promote";
 export * from "./pin-to-blog";
-export * from "./favourites";
 export * from "./sign-transfer";
 export * from "./entry-vote";
 export * from "./record-user-activity";
