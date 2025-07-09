@@ -1,4 +1,3 @@
-export * from "./communities-query";
 export * from "./dynamic-props-query";
 export * from "./get-account-full-query";
 export * from "./image-downloader-query";
@@ -18,7 +17,6 @@ export * from "./get-contributors-query";
 export * from "./get-rewarded-communities";
 export * from "./community-subscribers-query";
 export * from "./get-account-notifications-query";
-export * from "./get-subscriptions-query";
 export * from "./get-comment-history-query";
 export * from "./get-promote-price-query";
 export * from "./search-path-query";

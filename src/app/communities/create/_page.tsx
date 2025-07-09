@@ -13,19 +13,26 @@ import {
   CommunityStepperSteps
 } from "@/app/communities/create/_components";
 import { useGlobalStore } from "@/core/global-store";
+import { CommunityTypes } from "@/enums";
 import { delay, parseAsset, random } from "@/utils";
 import { EcencyAnalytics, getChainPropertiesQueryOptions } from "@ecency/sdk";
 import { cryptoUtils } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
-import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
+import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import numeral from "numeral";
-import { useCallback, useState } from "react";
-import Link from "next/link";
-import { Button } from "@/features/ui";
+import { useCallback, useEffect, useState } from "react";
 
-function generateUsername() {
-  return `hive-${Math.floor(Math.random() * 100000) + 100000}`;
+function generateUsername(type: CommunityTypes) {
+  switch (type) {
+    case CommunityTypes.Council:
+      return `hive-${Math.floor(Math.random() * 100000) + 300000}`;
+    case CommunityTypes.Journal:
+      return `hive-${Math.floor(Math.random() * 100000) + 200000}`;
+    case CommunityTypes.Topic:
+    default:
+      return `hive-${Math.floor(Math.random() * 100000) + 100000}`;
+  }
 }
 
 function generateWif() {
@@ -38,7 +45,8 @@ export function CreateCommunityPage() {
 
   const [title, setTitle] = useState("");
   const [about, setAbout] = useState("");
-  const [username, setUsername] = useState(generateUsername());
+  const [communityType, setCommunityType] = useState(CommunityTypes.Topic);
+  const [username, setUsername] = useState(generateUsername(communityType));
   const [wif, setWif] = useState(generateWif());
   const [progress, setProgress] = useState("");
   const [step, setStep] = useState(CommunityStepperSteps.INTRO);
@@ -57,6 +65,10 @@ export function CreateCommunityPage() {
     activeUser?.username,
     "community-created" as any
   );
+
+  useEffect(() => {
+    setUsername(generateUsername(communityType));
+  }, [communityType]);
 
   const prepareCreatedCommunity = useCallback(
     async (code: string) => {
@@ -127,6 +139,8 @@ export function CreateCommunityPage() {
           setTitle={setTitle}
           about={about}
           setAbout={setAbout}
+          communityType={communityType}
+          setCommunityType={setCommunityType}
           onContinue={() => setStep(CommunityStepperSteps.CREATE_ACCOUNT)}
         />
       )}

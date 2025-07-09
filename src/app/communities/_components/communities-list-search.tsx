@@ -1,11 +1,12 @@
 "use client";
 
-import i18next from "i18next";
-import { ChangeEvent, useEffect, useState } from "react";
 import { SearchBox } from "@/features/shared";
-import { useDebounce } from "react-use";
+import { getCommunitiesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import i18next from "i18next";
 import { useRouter } from "next/navigation";
-import { getCommunitiesQuery } from "@/api/queries";
+import { ChangeEvent, useEffect, useState } from "react";
+import { useDebounce } from "react-use";
 
 interface Props {
   sort: string;
@@ -18,7 +19,7 @@ export function CommunitiesListSearch({ sort, query: preQuery }: Props) {
   const [query, setQuery] = useState(preQuery);
   const [fetchingQuery, setFetchingQuery] = useState("");
 
-  const { isLoading } = getCommunitiesQuery(sort, fetchingQuery).useClientQuery();
+  const { isLoading } = useQuery(getCommunitiesQueryOptions(sort, fetchingQuery));
 
   useDebounce(() => setFetchingQuery(query), 1000, [query]);
 

@@ -1,13 +1,14 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
-import { FormControl } from "@ui/input";
-import { Button } from "@ui/button";
-import { useGetSubscriptionsQuery } from "@/api/queries";
-import { SuggestionList } from "@/features/shared";
-import i18next from "i18next";
 import { useCrossPost } from "@/api/mutations";
-import { Entry } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
+import { Entry } from "@/entities";
+import { SuggestionList } from "@/features/shared";
+import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@ui/button";
+import { FormControl } from "@ui/input";
+import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
+import i18next from "i18next";
+import React, { useCallback, useMemo, useState } from "react";
 
 interface Props {
   entry: Entry;
@@ -21,7 +22,9 @@ export function CrossPost({ entry, onSuccess, onHide }: Props) {
   const [community, setCommunity] = useState("");
   const [message, setMessage] = useState("");
 
-  const { data: subscriptions, isLoading } = useGetSubscriptionsQuery(activeUser?.username);
+  const { data: subscriptions, isLoading } = useQuery(
+    getAccountSubscriptionsQueryOptions(activeUser?.username)
+  );
 
   const communities = useMemo(
     () => subscriptions?.map((x) => ({ id: x[0], name: x[1] })) ?? [],
