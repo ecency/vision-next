@@ -2,7 +2,7 @@
 
 import defaults from "@/defaults.json";
 import { Entry } from "@/entities";
-import {AvailableCredits, handleAndReportError, LoginRequired} from "@/features/shared";
+import { AvailableCredits, handleAndReportError, LoginRequired } from "@/features/shared";
 import { CommentPreview } from "@/features/shared/comment/comment-preview";
 import { detectEvent, EditorToolbar, toolbarEventListener } from "@/features/shared/editor-toolbar";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
@@ -15,7 +15,14 @@ import { useDebounce, useMount } from "react-use";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import useUnmount from "react-use/lib/useUnmount";
 import "./_index.scss";
-import {useClientActiveUser} from "@/api/queries";
+import { useClientActiveUser } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
+import {
+  getCommunityContextQueryOptions,
+  getCommunityPermissions,
+  getCommunityType
+} from "@ecency/sdk";
+import { isCommunity } from "@/utils";
 
 setProxyBase(defaults.imageServer);
 
@@ -56,6 +63,20 @@ export function Comment({
   const [preview, setPreview] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [showGif, setShowGif] = useState(false);
+
+  const { data: userContext } = useQuery({
+    ...getCommunityContextQueryOptions(
+      activeUser?.username,
+      entry.json_metadata?.tags?.[0] ?? undefined
+    ),
+    enabled: !!activeUser?.username && isCommunity(entry.json_metadata?.tags?.[0]),
+    select: ({ subscribed, role }) =>
+      getCommunityPermissions({
+        communityType: getCommunityType(entry.json_metadata?.tags?.[0] ?? "", -1),
+        subscribed,
+        userRole: role
+      })
+  });
 
   const rows = useMemo(() => text!.split(/\r\n|\r|\n|<br>/).length, [text]);
 
@@ -100,8 +121,7 @@ export function Comment({
       if (clearOnSubmit) {
         setText("");
       }
-    }
-    catch (err: any) {
+    } catch (err: any) {
       const handled = handleAndReportError(err, "comment");
       if (!handled) {
         throw err; // ❌ only throw unexpected errors
@@ -141,6 +161,10 @@ export function Comment({
       detectEvent("blockquote");
     }
   };
+
+  if (!userContext?.canComment) {
+    return <></>;
+  }
 
   return (
     <>
