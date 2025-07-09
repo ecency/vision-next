@@ -876,7 +876,7 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Вузькі громади - це величезна частина екосистеми: існують види спорту, роботи, хобі, інтереси та багато іншого. Досліджуйте їх усі та станьте частиною Етапу й хід!",
+    "hint": "Вуличні громади є великою частиною екосистеми, - від спорту, робочих місць до хобі та інтересів. Відкрийте для них усі та станьте частиною досвіду на святих і вулиці!",
     "types": {
       "topic": "Тема",
       "journal": "Журнал",
@@ -893,11 +893,11 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
+    "username-wrong-format": "Не припустимий формат. Необхідний формат: hive-Yxxxx, Y може бути 1, 2 або 3.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved my owner username and password.",
+    "confirmation": "Я надійно зберіг ім'я користувача і пароль власника спільноти.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
@@ -1622,7 +1622,7 @@
     "choose": "Choose a community",
     "my-blog": "My Blog",
     "search-placeholder": "Search Communities",
-    "types-hint": "Рівень рівності та Hive познайомлять різні категорії спільнот: тематичний, журнал та сила. Дізнайтеся більше про деталі."
+    "types-hint": "Єдність та вулики підтримують різні типи спільнот — теми, Журнали та Рада — кожен із унікальними функціями та цілями. Натисніть, щоб дізнатися більше."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1992,7 +1992,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
+    "start-community-channel": "Почати чат спільноти",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
