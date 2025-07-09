@@ -1,21 +1,24 @@
-import React, { useMemo } from "react";
-import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
+import { useAddFavourite, useDeleteFavourite } from "@/api/mutations";
+import { useClientActiveUser } from "@/api/queries";
 import { LoginRequired } from "@/features/shared";
+import { getActiveAccountFavouritesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { UilHeart } from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { useAddFavourite, useDeleteFavourite } from "@/api/mutations";
-import { useFavouritesQuery } from "@/api/queries";
-import { UilHeart } from "@tooni/iconscout-unicons-react";
+import { useMemo } from "react";
 
 interface Props {
   targetUsername: string;
 }
 
 export function FavouriteBtn({ targetUsername }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
-  const { data, isPending } = useFavouritesQuery();
+  const { data, isPending } = useQuery(
+    getActiveAccountFavouritesQueryOptions(activeUser?.username)
+  );
 
   const { mutateAsync: add, isPending: isAddPending } = useAddFavourite(() => {});
   const { mutateAsync: deleteFrom, isPending: isDeletePending } = useDeleteFavourite(() => {});

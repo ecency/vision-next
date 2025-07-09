@@ -5,6 +5,8 @@ import React, { useCallback } from "react";
 import { Favorite } from "@/entities";
 import { useDeleteFavourite } from "@/api/mutations";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Props {
   item: Favorite;
@@ -13,6 +15,7 @@ interface Props {
 }
 
 export function FavouriteItem({ item, onHide, i }: Props) {
+  const { data: account } = useQuery(getAccountFullQueryOptions(item.account));
   const { mutateAsync: removeFromFavourites, isPending } = useDeleteFavourite(() => {});
 
   const remove = useCallback(
@@ -32,10 +35,17 @@ export function FavouriteItem({ item, onHide, i }: Props) {
       transition={{ duration: 0.2, delay: 0.1 * i }}
     >
       <ProfileLink key={item._id} username={item.account} afterClick={onHide}>
-        <div className="dialog-list-item">
-          <UserAvatar username={item.account} size="medium" />
-          <div className="item-body">
-            <span className="author notranslate">{item.account}</span>
+        <div className="bg-white rounded-lg border border-[--border-color] p-2 md:p-4 flex items-center justify-between gap-2 md:gap-4">
+          <div className="flex items-center gap-2">
+            <UserAvatar username={item.account} size="medium" />
+            <div className="flex flex-col">
+              <span className="font-bold notranslate">
+                {account?.profile?.name ?? item.account}
+              </span>
+              <span className="text-sm text-gray-600 dark:text-gray-400 notranslate">
+                {item.account}
+              </span>
+            </div>
           </div>
           <Button
             icon={<UilTrash />}
