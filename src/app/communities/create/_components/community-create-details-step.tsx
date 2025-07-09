@@ -66,7 +66,7 @@ export function CommunityCreateDetailsStep({
             type="select"
             value={communityType}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              setCommunityType(+e.target.value as CommunityTypes)
+              setCommunityType(e.target.value as CommunityTypes)
             }
             name="type"
           >
