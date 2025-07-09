@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Вузькі громади - це величезна частина екосистеми: існують види спорту, роботи, хобі, інтереси та багато іншого. Досліджуйте їх усі та станьте частиною Етапу й хід!"
+    "hint": "Вузькі громади - це величезна частина екосистеми: існують види спорту, роботи, хобі, інтереси та багато іншого. Досліджуйте їх усі та станьте частиною Етапу й хід!",
+    "types": {
+      "topic": "Тема",
+      "journal": "Журнал",
+      "council": "Рада"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Відкрити спільнотство",
-    "back-to-communities": "Повернутися до спільнот"
+    "back-to-communities": "Повернутися до спільнот",
+    "topic": "Тема - кожен може опублікувати або коментувати",
+    "journal": "Журнал - тільки учасники можуть розміщувати і гості можуть тільки прокоментувати",
+    "council": "Рада - лише члени можуть розміщувати чи коментувати",
+    "types-hint": "Дізнатися більше про типи спільноти"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Рівень рівності та Hive познайомлять різні категорії спільнот: тематичний, журнал та сила. Дізнайтеся більше про деталі."
   },
   "word-count": {
     "label": "{{n}} words",
