@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "Just logout",
+    "logout-and-clear": "Logout & Clear login data",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -771,6 +773,7 @@
       "reads": "Read time",
       "countries": "Countries",
       "devices": "Devices",
+      "referrers": "Referrers",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
@@ -872,7 +875,13 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Hive communities are a big part of the ecosystem — from sports and jobs to hobbies and interests. Discover them all and become part of the Ecency and Hive experience!",
+    "types": {
+      "topic": "Topic",
+      "journal": "Journal",
+      "council": "Council"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -884,23 +893,30 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
+    "username-wrong-format": "Not a valid format. Required format: hive-Yxxxxx, Y can be 1, 2 or 3.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved my owner username and password.",
+    "confirmation": "I have securely saved community owner username and password.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Your community created successfully in Hive and Ecency!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Open community",
+    "back-to-communities": "Back to communities",
+    "topic": "Topic – anyone can post or comment",
+    "journal": "Journal – only members can post and guests can only comment",
+    "council": "Council – only members can post or comment",
+    "types-hint": "Learn more about community types"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1605,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency and Hive support different types of communities — Topic, Journal, and Council — each with unique features and purposes. Tap to learn more."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1975,7 +1992,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
+    "start-community-channel": "Start community chat",
     "view-community-channel": "View community channel",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2443,7 +2460,8 @@
     "deck": "Deck"
   },
   "top-communities": {
-    "title": "Top communities"
+    "title": "Top communities",
+    "create-button": "Create decentralized community"
   },
   "feedback-modal": {
     "title": "Error details",
@@ -2611,7 +2629,8 @@
     "reply": "Reply",
     "replying": "Replying...",
     "success-reply": "You have replied successfully",
-    "success-reply-edit": "You have edited successfully"
+    "success-reply-edit": "You have edited successfully",
+    "muted-post": "Muted author's post"
   },
   "events": {
     "muted": "User has muted",

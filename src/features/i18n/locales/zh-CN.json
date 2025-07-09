@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "只是注销",
+    "logout-and-clear": "登出并清除登录数据",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -771,6 +773,7 @@
       "reads": "Read time",
       "countries": "Countries",
       "devices": "Devices",
+      "referrers": "推荐人",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
@@ -872,7 +875,13 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Hive 社区是生态系统的一大部分——从体育和工作到爱好和利益。 发现所有他们并成为生态和Hive 体验的一部分！",
+    "types": {
+      "topic": "主题",
+      "journal": "日记",
+      "council": "Original: ENGLISH"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -884,23 +893,30 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
+    "username-wrong-format": "无效格式。必填格式：hive-Yxxxxx, Y 可以是 1, 2 或 3。",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved my owner username and password.",
+    "confirmation": "我已安全地保存社区所有者的用户名和密码。",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "你的社区成功地创建了Hive 和生态！",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "打开社区",
+    "back-to-communities": "返回社区",
+    "topic": "主题 - 任何人都可以发表评论或评论",
+    "journal": "日记——只有会员可以发帖，客人只能留言",
+    "council": "Council — — 只有会员可以发布或评论",
+    "types-hint": "了解更多关于社区类型的信息"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1605,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "生态和Hive 支持不同类型的社区——主题、期刊和理事会，每个社区都有独特的特点和目的。点击以了解更多信息。"
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1975,7 +1992,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
+    "start-community-channel": "开始社区聊天",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2443,7 +2460,8 @@
     "deck": "Deck"
   },
   "top-communities": {
-    "title": "Top communities"
+    "title": "Top communities",
+    "create-button": "创建分散的社区"
   },
   "feedback-modal": {
     "title": "Error details",
@@ -2611,7 +2629,8 @@
     "reply": "Reply",
     "replying": "Replying...",
     "success-reply": "You have replied successfully",
-    "success-reply-edit": "You have edited successfully"
+    "success-reply-edit": "You have edited successfully",
+    "muted-post": "静音作者帖子"
   },
   "events": {
     "muted": "User has muted",

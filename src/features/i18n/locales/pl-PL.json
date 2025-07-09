@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "Wyloguj się",
+    "logout-and-clear": "Wyloguj się i wyczyść dane logowania",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -771,6 +773,7 @@
       "reads": "Read time",
       "countries": "Countries",
       "devices": "Devices",
+      "referrers": "Odsyłacze",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
@@ -872,7 +875,13 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Społeczności uliczne stanowią dużą część ekosystemu – od sportu i miejsc pracy po hobby i interesy. Odkryj ich wszystkie i stań się częścią doświadczenia Ecencji i Uli!",
+    "types": {
+      "topic": "Temat",
+      "journal": "Dziennik",
+      "council": "Rozporządzenie Parlamentu Europejskiego i Rady (UE, Euratom) nr 966/2012 z dnia 25 października 2012 r. w sprawie zasad finansowych mających zastosowanie do budżetu ogólnego Unii oraz uchylające rozporządzenie Rady (WE, Euratom) nr 1605/2002 (Dz.U. L 298 z 26.10.2012, s. 1)."
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -884,23 +893,30 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
+    "username-wrong-format": "Nieprawidłowy format. Wymagany format: hive-Yxxxxx, Y może być 1, 2 lub 3.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved my owner username and password.",
+    "confirmation": "Bezpiecznie zapisałem nazwę użytkownika i hasło właściciela społeczności.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Twoja społeczność utworzona pomyślnie w Ule i Ecencji!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Otwórz społeczność",
+    "back-to-communities": "Powrót do społeczności",
+    "topic": "Temat - każdy może pisać lub komentować",
+    "journal": "Dziennik - tylko użytkownicy mogą dodawać posty, a goście mogą komentować tylko",
+    "council": "Rada – tylko członkowie mogą zamieszczać lub komentować",
+    "types-hint": "Dowiedz się więcej o rodzajach społeczności"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1605,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecencja i uprawa wspierają różne rodzaje społeczności — Tematy, Dzienniki i Rady — z unikalnymi funkcjami i celami. Kliknij, aby dowiedzieć się więcej."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1975,7 +1992,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
+    "start-community-channel": "Rozpocznij czat społecznościowy",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2443,7 +2460,8 @@
     "deck": "Deck"
   },
   "top-communities": {
-    "title": "Top communities"
+    "title": "Top communities",
+    "create-button": "Utwórz społeczność zdecentralizowaną"
   },
   "feedback-modal": {
     "title": "Error details",
@@ -2611,7 +2629,8 @@
     "reply": "Reply",
     "replying": "Replying...",
     "success-reply": "You have replied successfully",
-    "success-reply-edit": "You have edited successfully"
+    "success-reply-edit": "You have edited successfully",
+    "muted-post": "Wyciszono post autora"
   },
   "events": {
     "muted": "User has muted",

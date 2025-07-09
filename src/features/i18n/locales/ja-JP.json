@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "ログアウトするだけ",
+    "logout-and-clear": "ログアウトしてログインデータをクリア",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -771,6 +773,7 @@
       "reads": "Read time",
       "countries": "Countries",
       "devices": "Devices",
+      "referrers": "リファラー",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
@@ -872,7 +875,13 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Hiveコミュニティは、スポーツや仕事から趣味や関心まで、エコシステムの大きな部分です。 それらすべてを発見し、Ecencyとハイブの経験の一部になる!",
+    "types": {
+      "topic": "トピック",
+      "journal": "日記",
+      "council": "評議会（評議会）"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -884,23 +893,30 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
+    "username-wrong-format": "有効なフォーマットではありません。必要なフォーマット：hive-Yxxxxx、Yを1、2、3とすることができます。",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved my owner username and password.",
+    "confirmation": "コミュニティ所有者のユーザー名とパスワードを安全に保存しました。",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "あなたのコミュニティはHiveとEcencyで正常に作成されました！",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "コミュニティを開く",
+    "back-to-communities": "コミュニティに戻る",
+    "topic": "トピック – 誰でも投稿またはコメントできます",
+    "journal": "Journal – 投稿できるメンバーとゲストのみがコメントできます",
+    "council": "Council - メンバーのみが投稿またはコメントできます",
+    "types-hint": "コミュニティタイプについてもっと詳しく"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1605,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency and Hiveは、トピック、ジャーナル、および評議会など、それぞれ独自の機能と目的を持つさまざまな種類のコミュニティをサポートしています。詳細についてはタップしてください。"
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1975,7 +1992,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
+    "start-community-channel": "コミュニティ チャットを開始",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2443,7 +2460,8 @@
     "deck": "Deck"
   },
   "top-communities": {
-    "title": "Top communities"
+    "title": "Top communities",
+    "create-button": "分散型コミュニティを作成"
   },
   "feedback-modal": {
     "title": "Error details",
@@ -2611,7 +2629,8 @@
     "reply": "Reply",
     "replying": "Replying...",
     "success-reply": "You have replied successfully",
-    "success-reply-edit": "You have edited successfully"
+    "success-reply-edit": "You have edited successfully",
+    "muted-post": "ミュートされた著者の投稿"
   },
   "events": {
     "muted": "User has muted",
