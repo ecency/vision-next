@@ -57,7 +57,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
       tag.replace("#", "")
     );
     const uniqueTagsSet = new Set([...(tags ?? []), ...computedTags]);
-    setTags(Array.from(uniqueTagsSet));
+    setTags(Array.from(uniqueTagsSet).slice(0, 10));
   });
 
   useEffect(() => {
