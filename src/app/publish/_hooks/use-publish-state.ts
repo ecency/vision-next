@@ -4,7 +4,7 @@ import { PREFIX } from "@/utils/local-storage";
 import { postBodySummary } from "@ecency/render-helper";
 import { addDays } from "date-fns";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import {useCallback, useEffect, useMemo} from "react";
 import { usePublishPollState } from "./use-publish-poll-state";
 import { ThreeSpeakVideo } from "@ecency/sdk";
 
@@ -66,6 +66,13 @@ export function usePublishState() {
   );
   const [selectedThumbnail, setSelectedThumbnail, clearSelectedThumbnail] =
     useSynchronizedLocalStorage<string>(PREFIX + "_pub_sel_thumb", "", undefined, persistent);
+  const [skipAutoThumbnailSelection, setSkipAutoThumbnailSelection] =
+      useSynchronizedLocalStorage<boolean>(
+          PREFIX + "_pub_skip_auto_thumb",
+          false,
+          undefined,
+          persistent
+      );
   const [isReblogToCommunity, setIsReblogToCommunity] = useSynchronizedLocalStorage<boolean>(
     PREFIX + "_pub_reblog_to_community",
     false,
@@ -163,10 +170,21 @@ export function usePublishState() {
   }, [content, metaDescription, setMetaDescription]);
 
   useEffect(() => {
-    if (!selectedThumbnail) {
+    if (!selectedThumbnail && thumbnails.length && !skipAutoThumbnailSelection) {
       setSelectedThumbnail(thumbnails[0]);
     }
-  }, [thumbnails]);
+  }, [thumbnails, selectedThumbnail, skipAutoThumbnailSelection]);
+
+  useEffect(() => {
+    if (selectedThumbnail && skipAutoThumbnailSelection) {
+      setSkipAutoThumbnailSelection(false);
+    }
+  }, [selectedThumbnail, skipAutoThumbnailSelection, setSkipAutoThumbnailSelection]);
+
+  const _clearSelectedThumbnail = useCallback(() => {
+    clearSelectedThumbnail();
+    setSkipAutoThumbnailSelection(true);
+  }, [clearSelectedThumbnail, setSkipAutoThumbnailSelection]);
 
   const clearAll = useCallback(() => {
     setTitle("");
@@ -234,6 +252,7 @@ export function usePublishState() {
     location,
     setLocation,
     clearLocation,
-    clearSelectedThumbnail
+    skipAutoThumbnailSelection,
+    clearSelectedThumbnail: _clearSelectedThumbnail
   };
 }
