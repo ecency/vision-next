@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Bienenvölker sind ein großer Teil des Ökosystems: Es gibt Sport, Arbeitsplätze, Hobbies, Interessen und vieles mehr. Erkunden Sie alle und werden Sie Teil von Ecency and Hive!"
+    "hint": "Bienenvölker sind ein großer Teil des Ökosystems: Es gibt Sport, Arbeitsplätze, Hobbies, Interessen und vieles mehr. Erkunden Sie alle und werden Sie Teil von Ecency and Hive!",
+    "types": {
+      "topic": "Thema",
+      "journal": "Tagebuch",
+      "council": "Rat"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Community öffnen",
-    "back-to-communities": "Zurück zu Communites"
+    "back-to-communities": "Zurück zu Communites",
+    "topic": "Thema – jeder kann schreiben oder kommentieren",
+    "journal": "Journal – nur Mitglieder können Beiträge verfassen und Gäste können nur kommentieren",
+    "council": "Rat – nur Mitglieder können schreiben oder kommentieren",
+    "types-hint": "Erfahren Sie mehr über Community-Typen"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency and Bive führen verschiedene Community-Kategorien ein: Thema, Journal und Rat. Erfahre mehr für Details."
   },
   "word-count": {
     "label": "{{n}} words",
