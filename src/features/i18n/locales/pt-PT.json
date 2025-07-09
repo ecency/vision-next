@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "As comunidades da Colméia são uma enorme parte do ecossistema: há desportos, empregos, hobbies, interesses e muito mais. Explore todos eles e torne-se parte da Ecência e da Hive!"
+    "hint": "As comunidades da Colméia são uma enorme parte do ecossistema: há desportos, empregos, hobbies, interesses e muito mais. Explore todos eles e torne-se parte da Ecência e da Hive!",
+    "types": {
+      "topic": "Tópico",
+      "journal": "Diário",
+      "council": "Conselho"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Abrir comunidade",
-    "back-to-communities": "Voltar às comunidades"
+    "back-to-communities": "Voltar às comunidades",
+    "topic": "Tópico – qualquer um pode postar ou comentar",
+    "journal": "Diário - apenas membros podem postar e convidados só podem comentar",
+    "council": "Conselho – apenas os membros podem postar ou comentar",
+    "types-hint": "Saiba mais sobre os tipos de comunidade"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "A Ecency e a Hive introduzem diferentes categorias comunitárias: tópico, periódico e conselho. Saiba mais para mais detalhes."
   },
   "word-count": {
     "label": "{{n}} words",
