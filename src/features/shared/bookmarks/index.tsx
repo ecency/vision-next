@@ -34,7 +34,7 @@ export function BookmarksDialog({ show, setShow }: Props) {
           />
         </div>
       </ModalHeader>
-      <ModalBody className="bg-gray-100 dark:bg-gray-900">
+      <ModalBody className="bg-gray-100 dark:bg-gray-900 rounded-b-2xl">
         {section === "bookmarks" && <BookmarksList onHide={() => setShow(false)} />}
         {section === "favorites" && <FavouritesList onHide={() => setShow(false)} />}
       </ModalBody>
