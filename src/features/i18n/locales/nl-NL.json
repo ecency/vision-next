@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Hive gemeenschappen maken een groot deel uit van het ecosysteem: er zijn sport, banen, hobby's, belangen en nog veel meer. Verken ze allemaal en word een onderdeel van Ecency and Hive!"
+    "hint": "Hive gemeenschappen maken een groot deel uit van het ecosysteem: er zijn sport, banen, hobby's, belangen en nog veel meer. Verken ze allemaal en word een onderdeel van Ecency and Hive!",
+    "types": {
+      "topic": "Onderwerp",
+      "journal": "Logboek",
+      "council": "Raad"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Open community",
-    "back-to-communities": "Terug naar communites"
+    "back-to-communities": "Terug naar communites",
+    "topic": "Onderwerp - iedereen kan posten of reageren",
+    "journal": "Logboek - alleen leden kunnen posten en gasten kunnen alleen reageren",
+    "council": "Raad - alleen leden kunnen posten of reageren",
+    "types-hint": "Meer informatie over community types"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency en Hive introduceren verschillende gemeenschapscategorieën: topic, journalistiek en raad. Leer meer voor details."
   },
   "word-count": {
     "label": "{{n}} words",
