@@ -876,7 +876,12 @@
     "sort-new": "Nuevo",
     "no-results": "No se encontraron resultados",
     "create": "Crear comunidad",
-    "hint": "Las Comunidades de Hive son una parte enorme del ecosistema: hay comunidades de deportes, trabajos, pasatiempos, intereses y muchas más. ¡Explóralas todas, conviértete en parte de Ecency y de Hive!"
+    "hint": "Las Comunidades de Hive son una parte enorme del ecosistema: hay comunidades de deportes, trabajos, pasatiempos, intereses y muchas más. ¡Explóralas todas, conviértete en parte de Ecency y de Hive!",
+    "types": {
+      "topic": "Tema",
+      "journal": "Diario",
+      "council": "Consejo"
+    }
   },
   "communities-create": {
     "page-title": "Crear una Comunidad",
@@ -907,7 +912,11 @@
     "reason-four": "Cuesta 3 HIVE crear una comunidad de verdadera propiedad permanente e inmutable",
     "done-link-label": "Empieza ya.",
     "open-community": "Abrir comunidad",
-    "back-to-communities": "Volver a las comunidades"
+    "back-to-communities": "Volver a las comunidades",
+    "topic": "Tema - cualquiera puede publicar o comentar",
+    "journal": "Diario - sólo los miembros pueden publicar y los invitados sólo pueden comentar",
+    "council": "Consejo - sólo los miembros pueden publicar o comentar",
+    "types-hint": "Aprende más sobre los tipos de comunidad"
   },
   "community-rewards-registration": {
     "body-text": "Registra tu comunidad para obtener POINTS de Ecency",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Elige una comunidad",
     "my-blog": "Mi blog",
-    "search-placeholder": "Buscar comunidades"
+    "search-placeholder": "Buscar comunidades",
+    "types-hint": "Ecency and Hive introduce diferentes categorías de comunidades: temática, revista y consejo."
   },
   "word-count": {
     "label": "{{n}} palabras",
