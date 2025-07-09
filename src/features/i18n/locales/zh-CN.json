@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "希望社区是生态系统的很大一部分：体育、工作、爱好、兴趣和许多其他方面。 探索所有他们并成为生态与运动的一部分！"
+    "hint": "希望社区是生态系统的很大一部分：体育、工作、爱好、兴趣和许多其他方面。 探索所有他们并成为生态与运动的一部分！",
+    "types": {
+      "topic": "主题",
+      "journal": "日记",
+      "council": "Original: ENGLISH"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "打开社区",
-    "back-to-communities": "返回社区"
+    "back-to-communities": "返回社区",
+    "topic": "主题 - 任何人都可以发表评论或评论",
+    "journal": "日记——只有会员可以发帖，客人只能留言",
+    "council": "Council — — 只有会员可以发布或评论",
+    "types-hint": "了解更多关于社区类型的信息"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency and Hive 介绍了不同的社区类别：专题、期刊和理事会。了解更多详情。"
   },
   "word-count": {
     "label": "{{n}} words",
