@@ -89,6 +89,23 @@ export function usePublishState() {
     },
     persistent
   );
+  const [entryImages, setEntryImages, clearEntryImages] = useSynchronizedLocalStorage<string[]>(
+      PREFIX + "_pub_entry_images",
+      [],
+      {
+        serializer: (val) => JSON.stringify(val),
+        deserializer: (val) => {
+          try {
+            const parsed = JSON.parse(val);
+            return Array.isArray(parsed) && parsed.every((x) => typeof x === "string") ? parsed : [];
+          } catch {
+            return [];
+          }
+        },
+        raw: false
+      },
+      persistent
+  );
   const [location, setLocation, clearLocation] = useSynchronizedLocalStorage<{
     coordinates: { lng: number; lat: number };
     address?: string;
@@ -104,7 +121,21 @@ export function usePublishState() {
   );
   const [poll, setPoll, clearPoll] = usePublishPollState(persistent);
 
-  const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
+  //const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
+  const metadata = useMemo(() => {
+    const initialImage = selectedThumbnail
+        ? [selectedThumbnail]
+        : publishingVideo?.thumbUrl
+            ? [publishingVideo.thumbUrl]
+            : [];
+
+    const mergedImages = Array.from(new Set([...initialImage, ...(entryImages ?? [])]));
+
+    return extractMetaData(content ?? "", {
+      image: mergedImages,
+      thumbnails: mergedImages
+    });
+  }, [content, selectedThumbnail, publishingVideo, entryImages]);
   const thumbnails = useMemo(() => metadata.thumbnails ?? [], [metadata.thumbnails]);
 
   const createDefaultPoll = useCallback(
@@ -149,6 +180,7 @@ export function usePublishState() {
     clearPoll();
     clearPublishingVideo();
     clearPostLinks();
+    clearEntryImages();
     clearLocation();
     setIsReblogToCommunity(false);
   }, [
@@ -163,6 +195,7 @@ export function usePublishState() {
     clearPoll,
     clearPublishingVideo,
     clearPostLinks,
+    clearEntryImages,
     clearLocation,
     setIsReblogToCommunity
   ]);
@@ -197,6 +230,7 @@ export function usePublishState() {
     clearPublishingVideo,
     postLinks,
     setPostLinks,
+    setEntryImages,
     location,
     setLocation,
     clearLocation,
