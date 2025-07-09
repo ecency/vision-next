@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Le comunità di alveari sono una parte enorme dell'ecosistema: ci sono sport, lavoro, hobby, interessi e molti altri. Esplorate tutte e diventate parte di Ecenza e Hive!"
+    "hint": "Le comunità di alveari sono una parte enorme dell'ecosistema: ci sono sport, lavoro, hobby, interessi e molti altri. Esplorate tutte e diventate parte di Ecenza e Hive!",
+    "types": {
+      "topic": "Argomento",
+      "journal": "Diario",
+      "council": "Consiglio"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Apri comunità",
-    "back-to-communities": "Torna alle comunità"
+    "back-to-communities": "Torna alle comunità",
+    "topic": "Argomento – chiunque può pubblicare o commentare",
+    "journal": "Journal – solo i membri possono inviare e gli ospiti possono solo commentare",
+    "council": "Consiglio – solo i membri possono inviare o commentare",
+    "types-hint": "Scopri di più sui tipi di community"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency e Hive introducono diverse categorie di comunità: tema, rivista e consiglio. Per saperne di più per i dettagli."
   },
   "word-count": {
     "label": "{{n}} words",
