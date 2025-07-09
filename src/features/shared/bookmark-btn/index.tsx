@@ -1,15 +1,21 @@
 "use client";
 
-import React, { useMemo } from "react";
-import "./_index.scss";
-import { LoginRequired } from "../login-required";
+import { useClientActiveUser } from "@/api/queries";
+import { Entry } from "@/entities";
+import {
+  getActiveAccountBookmarksQueryOptions,
+  useBookmarkAdd,
+  useBookmarkDelete
+} from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { UilBookmark } from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { useBookmarksQuery, useClientActiveUser } from "@/api/queries";
-import { Entry } from "@/entities";
-import { useBookmarkAdd, useBookmarkDelete } from "@/api/mutations/bookmarks";
-import { Button } from "@ui/button";
-import { UilBookmark } from "@tooni/iconscout-unicons-react";
+import { useMemo } from "react";
+import { LoginRequired } from "../login-required";
+import "./_index.scss";
+import { error, success } from "../feedback";
 
 export interface Props {
   entry: Entry;
@@ -18,7 +24,9 @@ export interface Props {
 export function BookmarkBtn({ entry }: Props) {
   const activeUser = useClientActiveUser();
 
-  const { data: bookmarks = [] } = useBookmarksQuery();
+  const { data: bookmarks = [] } = useQuery(
+    getActiveAccountBookmarksQueryOptions(activeUser?.username)
+  );
 
   const bookmarkId = useMemo(() => {
     const bookmark = bookmarks.find(
@@ -27,8 +35,16 @@ export function BookmarkBtn({ entry }: Props) {
     return bookmark?._id;
   }, [bookmarks, entry.author, entry.permlink]);
 
-  const { mutateAsync: addBookmark, isPending: isAdding } = useBookmarkAdd(entry);
-  const { mutateAsync: deleteBookmark, isPending: isDeleting } = useBookmarkDelete(bookmarkId);
+  const { mutateAsync: addBookmark, isPending: isAdding } = useBookmarkAdd(
+    activeUser?.username,
+    () => success(i18next.t("bookmark-btn.added")),
+    () => error(i18next.t("g.server-error"))
+  );
+  const { mutateAsync: deleteBookmark, isPending: isDeleting } = useBookmarkDelete(
+    activeUser?.username,
+    () => success(i18next.t("bookmark-btn.deleted")),
+    () => error(i18next.t("g.server-error"))
+  );
 
   if (!activeUser) {
     return (
@@ -46,7 +62,7 @@ export function BookmarkBtn({ entry }: Props) {
     return (
       <div
         className={`bookmark-btn bookmarked ${isDeleting ? "in-progress" : ""}`}
-        onClick={() => deleteBookmark()}
+        onClick={() => deleteBookmark(bookmarkId)}
       >
         <Tooltip content={i18next.t("bookmark-btn.delete")}>
           <Button appearance="gray-link" size="sm" icon={<UilBookmark color="green" />} />
@@ -56,7 +72,10 @@ export function BookmarkBtn({ entry }: Props) {
   }
 
   return (
-    <div className={`bookmark-btn ${isAdding ? "in-progress" : ""}`} onClick={() => addBookmark()}>
+    <div
+      className={`bookmark-btn ${isAdding ? "in-progress" : ""}`}
+      onClick={() => addBookmark({ author: entry.author, permlink: entry.permlink })}
+    >
       <Tooltip content={i18next.t("bookmark-btn.add")}>
         <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
       </Tooltip>

@@ -1,4 +1,4 @@
-import { ProfileLink, UserAvatar } from "@/features/shared";
+import { error, ProfileLink, success, UserAvatar } from "@/features/shared";
 import { Button } from "@ui/button";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
 import React, { useCallback } from "react";
@@ -6,7 +6,9 @@ import { Favorite } from "@/entities";
 import { useDeleteFavourite } from "@/api/mutations";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, useAccountFavouriteDelete } from "@ecency/sdk";
+import { useClientActiveUser } from "@/api/queries";
+import i18next from "i18next";
 
 interface Props {
   item: Favorite;
@@ -15,14 +17,21 @@ interface Props {
 }
 
 export function FavouriteItem({ item, onHide, i }: Props) {
+  const activeUser = useClientActiveUser();
+
   const { data: account } = useQuery(getAccountFullQueryOptions(item.account));
-  const { mutateAsync: removeFromFavourites, isPending } = useDeleteFavourite(() => {});
+  const { mutateAsync: removeFromFavourites, isPending: isDeletePending } =
+    useAccountFavouriteDelete(
+      activeUser?.username,
+      () => success(i18next.t("favorite-btn.deleted")),
+      () => error(i18next.t("g.server-error"))
+    );
 
   const remove = useCallback(
     (e: React.MouseEvent, item: Favorite) => {
       e.stopPropagation();
       e.preventDefault();
-      removeFromFavourites({ account: item.account });
+      removeFromFavourites(item.account);
     },
     [removeFromFavourites]
   );
@@ -51,7 +60,7 @@ export function FavouriteItem({ item, onHide, i }: Props) {
             icon={<UilTrash />}
             appearance="gray-link"
             size="sm"
-            isLoading={isPending}
+            isLoading={isDeletePending}
             onClick={(e: React.MouseEvent<Element, MouseEvent>) => remove(e, item)}
           />
         </div>

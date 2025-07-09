@@ -1,7 +1,10 @@
-import { useAddFavourite, useDeleteFavourite } from "@/api/mutations";
 import { useClientActiveUser } from "@/api/queries";
-import { LoginRequired } from "@/features/shared";
-import { getActiveAccountFavouritesQueryOptions } from "@ecency/sdk";
+import { error, LoginRequired, success } from "@/features/shared";
+import {
+  getActiveAccountFavouritesQueryOptions,
+  useAccountFavouriteAdd,
+  useAccountFavouriteDelete
+} from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilHeart } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
@@ -20,8 +23,16 @@ export function FavouriteBtn({ targetUsername }: Props) {
     getActiveAccountFavouritesQueryOptions(activeUser?.username)
   );
 
-  const { mutateAsync: add, isPending: isAddPending } = useAddFavourite(() => {});
-  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useDeleteFavourite(() => {});
+  const { mutateAsync: add, isPending: isAddPending } = useAccountFavouriteAdd(
+    activeUser?.username,
+    () => success(i18next.t("favorite-btn.added")),
+    () => error(i18next.t("g.server-error"))
+  );
+  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavouriteDelete(
+    activeUser?.username,
+    () => success(i18next.t("favorite-btn.deleted")),
+    () => error(i18next.t("g.server-error"))
+  );
 
   const favourited = useMemo(
     () => data?.some((item) => item.account === targetUsername),
@@ -52,11 +63,7 @@ export function FavouriteBtn({ targetUsername }: Props) {
             noPadding={true}
             className="w-8"
             isLoading={inProgress}
-            onClick={() =>
-              favourited
-                ? deleteFrom({ account: targetUsername })
-                : add({ account: targetUsername })
-            }
+            onClick={() => (favourited ? deleteFrom(targetUsername) : add(targetUsername))}
             icon={<UilHeart />}
           />
         </Tooltip>
