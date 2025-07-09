@@ -49,7 +49,8 @@ export class EntryMetadataBuilder {
   }
 
   public withTags(tags?: string[]): this {
-    return this.withField("tags", tags?.concat(DEFAULT_TAGS) ?? DEFAULT_TAGS);
+    const finalTags = tags && tags.length > 0 ? tags : DEFAULT_TAGS;
+    return this.withField("tags", finalTags);
   }
 
   public withPostLinks(entries: Entry[] = []): this {
