@@ -3,7 +3,6 @@ import { Button } from "@ui/button";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
 import React, { useCallback } from "react";
 import { Favorite } from "@/entities";
-import { useDeleteFavourite } from "@/api/mutations";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions, useAccountFavouriteDelete } from "@ecency/sdk";
