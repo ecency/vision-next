@@ -5,6 +5,12 @@ import { CommunityTypes } from "@/enums";
 import i18next from "i18next";
 import { Button } from "@/features/ui";
 import { Community } from "@/entities";
+import { useQuery } from "@tanstack/react-query";
+import {
+  getCommunityContextQueryOptions,
+  getCommunityPermissions,
+  getCommunityType
+} from "@ecency/sdk";
 
 interface Props {
   name: string | null;
@@ -23,38 +29,24 @@ const COMMUNITY_TYPES = {
 export function CommunitySelectorItem({ name, title, onSelect, onHide, community }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const communityType = useMemo(() => {
-    if (name?.startsWith("hive-3")) {
-      return CommunityTypes.Council;
-    }
+  const { data: userContext } = useQuery({
+    ...getCommunityContextQueryOptions(activeUser?.username, name ?? undefined),
+    select: ({ subscribed, role }) =>
+      getCommunityPermissions({
+        communityType: getCommunityType(name ?? "", -1),
+        subscribed,
+        userRole: role
+      })
+  });
 
-    if (name?.startsWith("hive-2")) {
-      return CommunityTypes.Journal;
-    }
-
-    return CommunityTypes.Topic;
-  }, [name]);
-  const canPost = useMemo(() => {
-    switch (communityType) {
-      case CommunityTypes.Journal:
-      case CommunityTypes.Council:
-        return (
-          activeUser &&
-          (community?.admins?.includes(activeUser.username) || activeUser.username === name)
-        );
-
-      case CommunityTypes.Topic:
-      default:
-        return true;
-    }
-  }, [communityType, community, activeUser, name]);
+  const communityType = useMemo(() => getCommunityType(name ?? "", -1), [name]);
 
   return (
     <Button
       appearance="gray"
-      disabled={!canPost}
+      disabled={!userContext?.canPost && !!name}
       onClick={() => {
-        if (canPost) {
+        if (userContext?.canPost || !name) {
           onSelect(name);
           onHide();
         }

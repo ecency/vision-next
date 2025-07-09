@@ -915,7 +915,8 @@
     "back-to-communities": "Back to communites",
     "topic": "Topic – anyone can post or comment",
     "journal": "Journal – only members can post and guests can only comment",
-    "council": "Council – only members can post or comment"
+    "council": "Council – only members can post or comment",
+    "types-hint": "Learn more about community types"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",

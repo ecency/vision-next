@@ -1,5 +1,5 @@
 export enum CommunityTypes {
-  Topic = 1,
-  Journal = 2,
-  Council = 3
+  Topic = "Topic",
+  Journal = "Journal",
+  Council = "Council"
 }

@@ -16,7 +16,7 @@
     "@ecency/ns-query": "^1.2.11-next",
     "@ecency/render-helper": "^2.3.8",
     "@ecency/renderer": "^1.2.3",
-    "@ecency/sdk": "1.0.48",
+    "@ecency/sdk": "1.0.54",
     "@ecency/wallets": "^1.2.21",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
