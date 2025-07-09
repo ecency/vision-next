@@ -1,7 +1,7 @@
 "use client";
 
 import { rcPower } from "@/api/hive";
-import { getAccountFullQuery, useGetSubscriptionsQuery } from "@/api/queries";
+import { getAccountFullQuery } from "@/api/queries";
 import { EcencyConfigManager } from "@/config";
 import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults.json";
@@ -10,6 +10,12 @@ import { FollowControls, UserAvatar } from "@/features/shared";
 import { FavouriteBtn } from "@/features/shared/favorite-btn";
 import { Badge } from "@/features/ui";
 import { accountReputation, dateToFormatted } from "@/utils";
+import {
+  getAccountRcQueryOptions,
+  getAccountSubscriptionsQueryOptions,
+  getRelationshipBetweenAccountsQueryOptions
+} from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { UilCalendarAlt, UilGlobe, UilLocationPoint, UilRss } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
@@ -21,8 +27,6 @@ import { ProfileInfo } from "../profile-info";
 import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
 import { ProfileCardExtraProperty } from "./profile-card-extra-property";
-import { useQuery } from "@tanstack/react-query";
-import { getAccountRcQueryOptions, getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
 
 interface Props {
   account: Account;
@@ -36,7 +40,7 @@ export const ProfileCard = ({ account }: Props) => {
   const { data: relationshipBetweenAccounts } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(account?.name, activeUser?.username)
   );
-  const { data: subscriptions } = useGetSubscriptionsQuery(account?.name);
+  const { data: subscriptions } = useQuery(getAccountSubscriptionsQueryOptions(account?.name));
 
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
