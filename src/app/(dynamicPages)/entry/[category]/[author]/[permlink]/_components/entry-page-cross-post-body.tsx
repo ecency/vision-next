@@ -1,18 +1,18 @@
 import {BookmarkBtn, EntryMenu, ProfileLink, TimeLabel, UserAvatar} from "@/features/shared";
 import i18next from "i18next";
-import moment from "moment";
-import { accountReputation, parseDate } from "@/utils";
+import { accountReputation } from "@/utils";
 import { Entry } from "@/entities";
-import { renderPostBody } from "@ecency/render-helper";
+import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import { useGlobalStore } from "@/core/global-store";
 import { TagLink } from "@/features/shared/tag";
 import { EcencyConfigManager } from "@/config";
 import React from "react";
+import defaults from "@/defaults.json";
 
 interface Props {
   entry: Entry;
 }
-
+setProxyBase(defaults.imageServer);
 export function EntryPageCrossPostBody({ entry }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 

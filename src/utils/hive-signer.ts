@@ -60,7 +60,7 @@ export async function makeHsCode(
   account: string,
   signer: (message: string) => Promise<string>
 ): Promise<string> {
-  const timestamp = new Date().getTime() / 1000;
+  const timestamp = Math.floor(Date.now() / 1000);
 
   const messageObj: HiveSignerMessage = {
     signed_message: { type: "code", app: hsClientId },

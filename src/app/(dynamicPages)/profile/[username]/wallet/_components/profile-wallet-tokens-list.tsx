@@ -29,7 +29,7 @@ export default function ProfileWalletTokensList() {
         <div>{i18next.t("profile-wallet.price")}</div>
         <div>{i18next.t("profile-wallet.balance")}</div>
       </div>
-      {data?.map((item) => (
+      {data?.map((item: string) => (
         <ProfileWalletTokensListItem
           asset={item}
           key={item}

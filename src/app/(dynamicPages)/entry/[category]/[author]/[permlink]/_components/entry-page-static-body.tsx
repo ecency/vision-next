@@ -1,10 +1,11 @@
 import { Entry } from "@/entities";
-import { renderPostBody } from "@ecency/render-helper";
+import {renderPostBody, setProxyBase} from "@ecency/render-helper";
+import defaults from "@/defaults.json";
 
 interface Props {
     entry: Entry;
 }
-
+setProxyBase(defaults.imageServer);
 export function EntryPageStaticBody({ entry }: Props) {
     return (
         <div

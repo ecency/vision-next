@@ -1,5 +1,5 @@
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { catchPostImage, postBodySummary, renderPostBody } from "@ecency/render-helper";
+import {catchPostImage, postBodySummary, renderPostBody, setProxyBase} from "@ecency/render-helper";
 import { NextRequest } from "next/server";
 
 interface Props {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: Props) {
     if (!entry) {
       throw new Error();
     }
-
+    setProxyBase("https://images.hive.blog");
     const image = catchPostImage(entry);
 
     return new Response(

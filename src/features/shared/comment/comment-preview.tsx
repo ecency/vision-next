@@ -1,12 +1,13 @@
 import React from "react";
-import { renderPostBody } from "@ecency/render-helper";
+import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
+import defaults from "@/defaults.json";
 
 interface Props {
   text: string;
 }
-
+setProxyBase(defaults.imageServer);
 export function CommentPreview({ text }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 

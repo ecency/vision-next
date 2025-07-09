@@ -8,6 +8,28 @@
       height: 500px;
       overflow: auto;
 
+      del {
+        @include themify(day) {
+          background-color: #ffe6e6!important;
+          color: #000!important;
+        }
+        @include themify(night) {
+          background-color: #5a1a1a !important;
+          color: #fff !important;
+        }
+      }
+
+      ins {
+        @include themify(day) {
+          background-color: #e6ffe6!important;
+          color: #000!important;
+        }
+        @include themify(night) {
+          background-color: #1a5a1a!important;
+          color: #fff!important;
+        }
+      }
+
       @apply border-[--border-color] border-t;
 
       &.loading {

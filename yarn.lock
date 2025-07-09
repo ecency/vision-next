@@ -1286,10 +1286,10 @@
   dependencies:
     nostr-tools "^1.17.0"
 
-"@ecency/render-helper@^2.3.7":
-  version "2.3.7"
-  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.7.tgz#1f2a4127d60987e575da43f8385c71efc1c41887"
-  integrity sha512-fNbhbc2PPOgC0iiH3irN8ssab5EP42hV16LpKKeixdV6ph7zlsj/8NtOFwpozIgf/1AQNbs45PqhJqAXfBgq0g==
+"@ecency/render-helper@^2.3.8":
+  version "2.3.8"
+  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.8.tgz#6faeb51de64e3aee623007eaffb2bf51dc5b9ca4"
+  integrity sha512-G4ykJ4cjryO1RPVNU/KsspH5sD93CaF4Ux/vTeOsDKIl1SbIeyzkehWuKIsFijnscylxhrGb2el7quXBSRjcJw==
   dependencies:
     he "^1.2.0"
     lolight "^1.4.0"
@@ -1311,15 +1311,15 @@
     "@testing-library/react" "14"
     medium-zoom "^1.1.0"
 
-"@ecency/sdk@1.0.44":
-  version "1.0.44"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.44.tgz#b00b1093215900338fc31d451a049b4e82dae34f"
-  integrity sha512-FEm1PJk74NVXpYa0BzxP4ugeIOkA/sy+9RGv1t6r1q7j1r/ORQBsd6+11lmQjgEu0nwAyBGL49zj3p32MqBeFg==
+"@ecency/sdk@^1.0.52":
+  version "1.0.52"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.52.tgz#54c7b5258d613eef5b0fd84bb7eb0e41a1799cc6"
+  integrity sha512-TQnNkaKcTGxOxk58KsUPn9rjUna2irTFhq5tOleBKwrjXD5aaK01UklKu6cDes2g7cUj8APqo8aHwc2Ri9QjrQ==
 
-"@ecency/wallets@^1.2.18":
-  version "1.2.18"
-  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.18.tgz#cd1eeb71e5c27d5729d92609819d8e033cf3d322"
-  integrity sha512-zujV+pWTeCqhG/dULPY4IYIpolwiNtvu2DD9r1XUmGnSaHRMvOSbupIctC6q/VzptfRFDiGYweI/kT9e5NYuYQ==
+"@ecency/wallets@^1.2.19":
+  version "1.2.19"
+  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.2.19.tgz#efdd2d7d0a4d740eb12a6620822998b522029ed2"
+  integrity sha512-1u9EqYEoRAMH6a4AuMdM1Ir5IEr//kG5CoeDKTSRgJpWPZWKuhpRML6xzpXWtlw6gqnJe77vYvcPyQPyz6GMUA==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"

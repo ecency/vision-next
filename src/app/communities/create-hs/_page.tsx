@@ -55,7 +55,8 @@ export function CommunityCreateHsPage() {
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
       expiresIn: response.expires_in,
-      postingKey: null
+      postingKey: null,
+      loginType: "hivesigner"
     } satisfies User;
 
     // add community user to reducer

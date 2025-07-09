@@ -34,6 +34,7 @@ export function createUsersActions(
               accessToken: u.accessToken,
               expiresIn: u.expiresIn,
               postingKey: u.postingKey,
+              loginType: u.loginType,
               index: u.index
             };
           })
@@ -59,6 +60,7 @@ export function createUsersActions(
           accessToken: u.accessToken,
           expiresIn: u.expiresIn,
           postingKey: u.postingKey,
+          loginType: u.loginType,
           index: getState().users.length
         };
       });

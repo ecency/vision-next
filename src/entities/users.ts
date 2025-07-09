@@ -7,6 +7,8 @@ export interface UserKeys {
   memo?: string;
 }
 
+export type LoginType = "hivesigner" | "keychain" | "privateKey";
+
 export interface User {
   username: string;
   accessToken: string;
@@ -14,6 +16,7 @@ export interface User {
   expiresIn: number;
   postingKey: null | undefined | string;
   index?: number; // index in a list
+  loginType?: LoginType;
 }
 
 export interface UserPoints {

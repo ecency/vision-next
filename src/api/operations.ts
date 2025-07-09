@@ -1,4 +1,5 @@
 import hs from "hivesigner";
+import * as keychain from "@/utils/keychain";
 import {
   AccountUpdateOperation,
   CustomJsonOperation,
@@ -12,9 +13,8 @@ import { client as hiveClient } from "./hive";
 import { usrActivity } from "./private-api";
 import { BuySellHiveTransactionType, ErrorTypes, OrderIdPrefix } from "@/enums";
 import i18next from "i18next";
-import { formatNumber, getAccessToken, getPostingKey, hotSign, parseAsset } from "@/utils";
+import {formatNumber, getAccessToken, getLoginType, getPostingKey, hotSign, parseAsset } from "@/utils";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
-import * as keychain from "@/utils/keychain";
 
 const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
   if (/You may only post once every/.test(strErr)) {
@@ -92,6 +92,12 @@ export const broadcastPostingJSON = (
     return hiveClient.broadcast.json(operation, privateKey);
   }
 
+  const loginType = getLoginType(username);
+
+  if (loginType && loginType == 'keychain') {
+    return keychain.customJson(username, id, "Posting", JSON.stringify(json), "Custom json").then((r: any) => r.result)
+  }
+
   // With hivesigner access token
 
   let token = getAccessToken(username);
@@ -114,6 +120,11 @@ export const broadcastPostingOperations = (
     const privateKey = PrivateKey.fromString(postingKey);
 
     return hiveClient.broadcast.sendOperations(operations, privateKey);
+  }
+
+  const loginType = getLoginType(username);
+  if (loginType == 'keychain') {
+    return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result)
   }
 
   // With hivesigner access token

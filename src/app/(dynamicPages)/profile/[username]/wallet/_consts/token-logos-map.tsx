@@ -39,3 +39,13 @@ export const TOKEN_LOGOS_MAP: Record<string, ReactNode> = {
     </div>
   )
 };
+
+export const TOKEN_COLORS_MAP: Record<string, string> = {
+  HIVE: "#e05e5e",
+  HP: "#b33f3f",
+  HBD: "#69bb84",
+  SPK: "#14a2b8",
+  LARYNX: "#1c8798",
+  LP: "#529fab",
+  POINTS: "#357ce6"
+};

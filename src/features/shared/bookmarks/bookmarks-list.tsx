@@ -1,47 +1,36 @@
-import { EntryLink, LinearProgress, UserAvatar } from "@/features/shared";
-import React, { useMemo } from "react";
-import { useBookmarksQuery } from "@/api/queries";
+import { useClientActiveUser } from "@/api/queries";
+import { LinearProgress } from "@/features/shared";
+import { getActiveAccountBookmarksQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
+import { BookmarkItem } from "./bookmark-item";
 
 interface Props {
   onHide: () => void;
 }
 
 export function BookmarksList({ onHide }: Props) {
-  const { data, isLoading } = useBookmarksQuery();
-  const items = useMemo(() => data.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)), [data]);
+  const activeUser = useClientActiveUser();
+
+  const { data, isLoading } = useQuery({
+    ...getActiveAccountBookmarksQueryOptions(activeUser?.username),
+    refetchOnMount: true,
+    select: (data) => data?.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)) ?? []
+  });
 
   return (
-    <div className="dialog-content">
+    <div className="dialog-content ">
       {isLoading && <LinearProgress />}
-      {items.length > 0 && (
+      {data && data.length > 0 && (
         <div className="dialog-list">
-          <div className="dialog-list-body">
-            {items.map((item) => {
-              return (
-                <div key={item._id}>
-                  <EntryLink
-                    entry={{
-                      category: "foo",
-                      author: item.author,
-                      permlink: item.permlink
-                    }}
-                  >
-                    <div onClick={onHide} className="dialog-list-item">
-                      <UserAvatar username={item.author} size="medium" />
-                      <div className="item-body">
-                        <span className="author with-slash">{item.author}</span>
-                        <span className="permlink">{item.permlink}</span>
-                      </div>
-                    </div>
-                  </EntryLink>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 gap-4">
+            {data.map((item, i) => (
+              <BookmarkItem i={i} key={item._id} author={item.author} permlink={item.permlink} />
+            ))}
           </div>
         </div>
       )}
-      {!isLoading && data.length === 0 && (
+      {!isLoading && data?.length === 0 && (
         <div className="dialog-list">{i18next.t("g.empty-list")}</div>
       )}
     </div>

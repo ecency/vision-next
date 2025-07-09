@@ -1,4 +1,4 @@
-import { catchPostImage, renderPostBody } from "@ecency/render-helper";
+import {catchPostImage, renderPostBody, setProxyBase} from "@ecency/render-helper";
 import React from "react";
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import i18next from "i18next";
@@ -15,13 +15,14 @@ import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
 import { Button } from "@ui/button";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
+import defaults from "@/defaults.json";
 
 export interface Props {
   params: Promise<{
     id: string;
   }>;
 }
-
+setProxyBase(defaults.imageServer);
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata

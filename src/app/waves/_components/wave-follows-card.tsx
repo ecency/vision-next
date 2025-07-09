@@ -1,6 +1,6 @@
 "use client";
 
-import {getDiscoverLeaderboardQuery, useClientActiveUser} from "@/api/queries";
+import { getDiscoverLeaderboardQuery, useClientActiveUser } from "@/api/queries";
 import i18next from "i18next";
 import { motion } from "framer-motion";
 import { FollowControls, ProfileLink, UserAvatar } from "@/features/shared";
@@ -34,7 +34,6 @@ export function WaveFollowsCard() {
     return result;
   }, [data, activeUser]);
 
-
   return (
     <div className="rounded-2xl bg-white dark:bg-dark-200 p-4">
       <div className="font-semibold mb-6 flex justify-between items-center gap-4">
@@ -59,7 +58,9 @@ export function WaveFollowsCard() {
               <UserAvatar size="medium" username={item._id} />
               <div>@{item._id}</div>
             </ProfileLink>
-            <FollowControls targetUsername={item._id} where="chat-box"/>
+            <div className="flex gap-2">
+              <FollowControls targetUsername={item._id} where="chat-box" />
+            </div>
           </motion.div>
         ))}
       </div>
