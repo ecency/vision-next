@@ -876,7 +876,7 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Les communautés de ruche font partie intégrante de l'écosystème : il y a du sport, des emplois, des loisirs, des intérêts et bien d'autres encore. Explorez tous et devenez partie de Ecency and Ruve!",
+    "hint": "Les communautés de ruches sont une grande partie de l'écosystème — du sport à l'emploi en passant par les loisirs et les intérêts. Découvrez-les tous et devenez partie de l'expérience Ecency and Hive !",
     "types": {
       "topic": "Sujet",
       "journal": "Journal",
@@ -893,11 +893,11 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
+    "username-wrong-format": "Format non valide. Format requis : hive-Yxxxxx, Y peut être 1, 2 ou 3.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved my owner username and password.",
+    "confirmation": "J'ai enregistré en toute sécurité le nom d'utilisateur et le mot de passe du propriétaire de la communauté.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
@@ -1622,7 +1622,7 @@
     "choose": "Choose a community",
     "my-blog": "My Blog",
     "search-placeholder": "Search Communities",
-    "types-hint": "Ecency and Hive introduisent différentes catégories communautaires : thème, journal et conseil."
+    "types-hint": "Ecency and Hive supportent différents types de communautés — Topic, Journal et Conseil — chacune avec des caractéristiques et des objectifs uniques. Appuyez pour en savoir plus."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1992,7 +1992,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
+    "start-community-channel": "Démarrer le chat de la communauté",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
