@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "ハイブコミュニティはエコシステムの大きな一部です:スポーツ、仕事、趣味、興味などがあります。 それらのすべてを探索し、EcencyとHiveの一部になる!"
+    "hint": "ハイブコミュニティはエコシステムの大きな一部です:スポーツ、仕事、趣味、興味などがあります。 それらのすべてを探索し、EcencyとHiveの一部になる!",
+    "types": {
+      "topic": "トピック",
+      "journal": "日記",
+      "council": "評議会（評議会）"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "コミュニティを開く",
-    "back-to-communities": "コミュニティーに戻る"
+    "back-to-communities": "コミュニティーに戻る",
+    "topic": "トピック – 誰でも投稿またはコメントできます",
+    "journal": "Journal – 投稿できるメンバーとゲストのみがコメントできます",
+    "council": "Council - メンバーのみが投稿またはコメントできます",
+    "types-hint": "コミュニティタイプについてもっと詳しく"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency and Hiveは、トピック、ジャーナル、評議会など、さまざまなコミュニティのカテゴリを紹介します。詳細については詳細をご覧ください。"
   },
   "word-count": {
     "label": "{{n}} words",
