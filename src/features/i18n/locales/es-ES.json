@@ -876,7 +876,7 @@
     "sort-new": "Nuevo",
     "no-results": "No se encontraron resultados",
     "create": "Crear comunidad",
-    "hint": "Las comunidades de colmenas son una gran parte del ecosistema, desde el deporte y el empleo hasta las aficiones e intereses. ¡Descubra todos ellos y pase a formar parte de la experiencia Ecencia y Hive!",
+    "hint": "Las comunidades de Hive son una gran parte del ecosistema, desde deportes y empleos hasta las aficiones e intereses. ¡Descubra todos ellos y pase a formar parte de la experiencia Ecency y de Hive!",
     "types": {
       "topic": "Tema",
       "journal": "Diario",
@@ -897,7 +897,7 @@
     "checkbox-validation": "Marque esta casilla si desea continuar.",
     "title-validation": "Por favor, rellene este campo.",
     "password": "Contraseña de la Comunidad",
-    "confirmation": "He guardado con seguridad el nombre de usuario y contraseña del propietario de la comunidad.",
+    "confirmation": "He guardado con seguridad el nombre de usuario propietario de la comunidad y la contraseña.",
     "submit": "Crear comunidad",
     "progress-account": "Creando cuenta...",
     "progress-user": "Preparando datos...",
@@ -914,8 +914,8 @@
     "open-community": "Abrir comunidad",
     "back-to-communities": "Volver a las comunidades",
     "topic": "Tema - cualquiera puede publicar o comentar",
-    "journal": "Diario - sólo los miembros pueden publicar y los invitados sólo pueden comentar",
-    "council": "Consejo - sólo los miembros pueden publicar o comentar",
+    "journal": "Diario - únicamente los miembros pueden publicar y los invitados solamente pueden comentar",
+    "council": "Consejo - solamente los miembros pueden publicar o comentar",
     "types-hint": "Aprende más sobre los tipos de comunidad"
   },
   "community-rewards-registration": {
@@ -1622,7 +1622,7 @@
     "choose": "Elige una comunidad",
     "my-blog": "Mi blog",
     "search-placeholder": "Buscar comunidades",
-    "types-hint": "Ecencia y colmena soportan diferentes tipos de comunidades — temática, revista y Consejo — cada una con características y propósitos únicos. Toca para aprender más."
+    "types-hint": "Hive y Ecency soportan diferentes tipos de comunidades — Temática, Revista y Consejo — cada una con características y propósitos únicos. Toca para aprender más."
   },
   "word-count": {
     "label": "{{n}} palabras",
