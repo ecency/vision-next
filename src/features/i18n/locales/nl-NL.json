@@ -193,6 +193,8 @@
     "fragments": "Snippets",
     "settings": "Settings",
     "logout": "Logout",
+    "just-logout": "Uitloggen",
+    "logout-and-clear": "Afmelden en inloggegevens wissen",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -771,6 +773,7 @@
       "reads": "Read time",
       "countries": "Countries",
       "devices": "Devices",
+      "referrers": "Verwijzers",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
@@ -872,7 +875,13 @@
     "sort-subs": "Members",
     "sort-new": "New",
     "no-results": "No results found",
-    "create": "Create community"
+    "create": "Create community",
+    "hint": "Hive gemeenschappen maken een groot deel uit van het ecosysteem - van sport en banen tot hobby's en belangen. Ontdek ze allemaal en word onderdeel van de Ecency en Hive ervaring!",
+    "types": {
+      "topic": "Onderwerp",
+      "journal": "Logboek",
+      "council": "Raad"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -884,23 +893,30 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
+    "username-wrong-format": "Geen geldig formaat. Vereist formaat: hive-Yxxxxx, Y kan 1, 2 of 3 zijn.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved my owner username and password.",
+    "confirmation": "Ik heb veilig de community eigenaar gebruikersnaam en wachtwoord opgeslagen.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
     "progress-role": "Setting @{{u}} as admin...",
     "progress-props": "Updating community settings...",
     "done": "Your community was created 🎉",
+    "done-hint": "Je gemeenschap is succesvol gemaakt in Hive en Ecency!",
     "reason-one": "True ownership",
     "reason-two": "Permanent, rewarding",
     "password-copied": "Password copied to clipboard",
     "reason-three": "Powered by blockchain technology",
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
-    "done-link-label": "Get started."
+    "done-link-label": "Get started.",
+    "open-community": "Open community",
+    "back-to-communities": "Terug naar gemeenschappen",
+    "topic": "Onderwerp - iedereen kan posten of reageren",
+    "journal": "Logboek - alleen leden kunnen posten en gasten kunnen alleen reageren",
+    "council": "Raad - alleen leden kunnen posten of reageren",
+    "types-hint": "Meer informatie over community types"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1605,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency en Hive ondersteunen verschillende soorten gemeenschappen — onderwerp, Journal en Raad — elk met unieke functies en doelen. Tik om meer te leren."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1975,7 +1992,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
+    "start-community-channel": "Start community chat",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2443,7 +2460,8 @@
     "deck": "Deck"
   },
   "top-communities": {
-    "title": "Top communities"
+    "title": "Top communities",
+    "create-button": "Maak een gedecentraliseerde gemeenschap"
   },
   "feedback-modal": {
     "title": "Error details",
@@ -2611,7 +2629,8 @@
     "reply": "Reply",
     "replying": "Replying...",
     "success-reply": "You have replied successfully",
-    "success-reply-edit": "You have edited successfully"
+    "success-reply-edit": "You have edited successfully",
+    "muted-post": "Gedempt auteur's bericht"
   },
   "events": {
     "muted": "User has muted",

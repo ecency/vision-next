@@ -235,14 +235,12 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     threeSpeakManager.checkBodyForVideos(body);
 
     // Whenever body changed then need to re-validate thumbnails
-    const { thumbnails } = extractMetaData(body);
-    const existingImages = editingEntry?.json_metadata.image ?? [];
-    const newThumbnails = thumbnails ? [...existingImages, ...thumbnails] : existingImages;
-    setThumbnails(Array.from(new Set(newThumbnails)));
+    const { thumbnails: mergedThumbnails } = extractMetaData(body, editingEntry?.json_metadata ?? {});
+    setThumbnails(mergedThumbnails ?? []);
 
     // In case of thumbnail isn't part of the thumbnails then should be reset to first one
-    if (!selectedThumbnail || !thumbnails?.includes(selectedThumbnail)) {
-      setSelectedThumbnail(newThumbnails[0]);
+    if (!selectedThumbnail || !mergedThumbnails?.includes(selectedThumbnail)) {
+      setSelectedThumbnail(mergedThumbnails?.[0]);
     }
 
     setIsDraftEmpty(!Boolean(title?.length || tags?.length || body?.length));

@@ -39,27 +39,22 @@ export const createPermlink = (title: string, random: boolean = false): string =
 };
 
 
-export const extractMetaData = (body: string): MetaData => {
-  const urlReg = /(\b(https?|ftp):\/\/[A-Z0-9+&@#/%?=~_|!:,.;-]*[-A-Z0-9+&@#/%=~_|])/gim;
-  const imgReg = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp))/gim;
+export const extractMetaData = (body: string, initialMeta: MetaData = {}): MetaData => {
+  const imgReg = /https?:\/\/[^\s"']+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp)/gi;
 
-  const out: MetaData = {};
-  const mUrls = body.match(urlReg);
+  const bodyImages = body.match(imgReg) || [];
+  const existingImages = initialMeta.image ?? [];
+  const existingThumbnails = initialMeta.thumbnails ?? [];
 
-  const matchedImages = [];
+  const allImages = Array.from(new Set([...existingImages, ...bodyImages]));
 
-  if (mUrls) {
-    for (let i = 0; i < mUrls.length; i++) {
-      const ind = mUrls[i].match(imgReg);
-      if (ind) {
-        matchedImages.push(mUrls[i]);
-      }
-    }
-  }
+  const out: MetaData = { ...initialMeta };
 
-  if (matchedImages.length) {
-    out.image = matchedImages.slice(0, 10);
-    out.thumbnails = matchedImages;
+  if (allImages.length > 0) {
+    out.image = allImages.slice(0, 10);
+    out.thumbnails = Array.from(
+        new Set([...existingThumbnails, ...existingImages, ...bodyImages])
+    );
   }
 
   return out;

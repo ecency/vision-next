@@ -1,33 +1,65 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
+import { CommunityTypes } from "@/enums";
+import i18next from "i18next";
+import { Button } from "@/features/ui";
+import { Community } from "@/entities";
+import { useQuery } from "@tanstack/react-query";
+import {
+  getCommunityContextQueryOptions,
+  getCommunityPermissions,
+  getCommunityType
+} from "@ecency/sdk";
 
 interface Props {
   name: string | null;
   title: string;
+  community?: Community;
   onSelect: (value: string | null) => void;
   onHide: () => void;
 }
 
-export function CommunitySelectorItem({ name, title, onSelect, onHide }: Props) {
+const COMMUNITY_TYPES = {
+  [CommunityTypes.Topic]: i18next.t("communities.types.topic"),
+  [CommunityTypes.Journal]: i18next.t("communities.types.journal"),
+  [CommunityTypes.Council]: i18next.t("communities.types.council")
+};
+
+export function CommunitySelectorItem({ name, title, onSelect, onHide, community }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
+  const { data: userContext } = useQuery({
+    ...getCommunityContextQueryOptions(activeUser?.username, name ?? undefined),
+    select: ({ subscribed, role }) =>
+      getCommunityPermissions({
+        communityType: getCommunityType(name ?? "", -1),
+        subscribed,
+        userRole: role
+      })
+  });
+
+  const communityType = useMemo(() => getCommunityType(name ?? "", -1), [name]);
+
   return (
-    <a
-      href="#"
-      className="flex"
-      onClick={(e) => {
-        e.preventDefault();
-        onSelect(name);
-        onHide();
+    <Button
+      appearance="gray"
+      disabled={!userContext?.canPost && !!name}
+      onClick={() => {
+        if (userContext?.canPost || !name) {
+          onSelect(name);
+          onHide();
+        }
       }}
+      icon={<UserAvatar username={name ?? activeUser?.username ?? ""} size="small" />}
+      iconPlacement="left"
     >
-      <div className="flex bg-light-600 hover:bg-blue-dark-sky-040 dark:bg-blue-metallic-20 dark:hover:bg-blue-metallic-10 rounded-md px-2 py-1.5 text-sm items-center gap-2 hover:text-blue-dark-sky dark:hover:text-white cursor-pointer">
-        <UserAvatar username={name ?? activeUser?.username ?? ""} size="small" />
-        <div className="item-info">
-          <span className="item-name notranslate">{title}</span>
-        </div>
+      <div className="text-left flex flex-col">
+        <span className="text-xs font-semibold notranslate">{title}</span>
+        <span className="text-gray-600 font-semibold text-[9px] uppercase dark:text-gray-400">
+          {COMMUNITY_TYPES[communityType]}
+        </span>
       </div>
-    </a>
+    </Button>
   );
 }

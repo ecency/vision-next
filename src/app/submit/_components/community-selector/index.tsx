@@ -9,6 +9,7 @@ import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
 import "./_index.scss";
+import Link from "next/link";
 
 interface Props {
   tags: string[];
@@ -68,6 +69,12 @@ export function CommunitySelector({ tags, onSelect }: Props) {
         <ModalHeader closeButton={true}>{i18next.t("community-selector.choose")}</ModalHeader>
 
         <ModalBody>
+          <div className="text-sm text-gray-600 dark:text-gray-400 pb-4">
+            {i18next.t("community-selector.types-hint")}
+            <Link className="pl-1" href="https://docs.ecency.com/communities/types" target="_blank">
+              Ecency docs
+            </Link>
+          </div>
           <CommunitySelectorBrowser
             onHide={() => setVisible(!visible)}
             onSelect={(name: string | null) => {

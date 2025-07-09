@@ -1,18 +1,21 @@
-import { getCommunitiesQuery } from "@/api/queries";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
-import React from "react";
 import { CommunityCard } from "@/app/discover/@communities/_components/community-card";
-import { getCommunityCache } from "@/core/caches";
-import { PrimaryCommunityCard } from "@/app/discover/@communities/_components/primary-community-card";
-import Link from "next/link";
-import i18next from "i18next";
-import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import { CommunityCardAnimated } from "@/app/discover/@communities/_components/community-card-animated";
+import { PrimaryCommunityCard } from "@/app/discover/@communities/_components/primary-community-card";
+import { getCommunityCache } from "@/core/caches";
+import { getQueryClient } from "@/core/react-query";
+import { Communities, getCommunitiesQueryOptions } from "@ecency/sdk";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { UilArrowRight } from "@tooni/iconscout-unicons-react";
+import i18next from "i18next";
+import Link from "next/link";
 
 export default async function CommunitiesList() {
   const ecencyCommunity = await getCommunityCache("hive-125125").prefetch();
-  const communities = await getCommunitiesQuery("hot", "", 5).prefetch();
+
+  await getQueryClient().prefetchQuery(getCommunitiesQueryOptions("hot", "", 5));
+  const communities = getQueryClient().getQueryData<Communities>(
+    getCommunitiesQueryOptions("hot", "", 5).queryKey
+  );
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

@@ -1,10 +1,11 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
-import i18next from "i18next";
+import { getCommunitiesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { FormControl } from "@ui/input";
-import { getCommunitiesQuery } from "@/api/queries";
+import i18next from "i18next";
 import { useRouter } from "next/navigation";
+import { ChangeEvent, useEffect, useState } from "react";
 
 interface Props {
   sort: string;
@@ -16,7 +17,7 @@ export function CommunitiesListSortSelector({ sort: preSort, query }: Props) {
 
   const [sort, setSort] = useState(preSort);
 
-  const { isLoading } = getCommunitiesQuery(sort, query).useClientQuery();
+  const { isLoading } = useQuery(getCommunitiesQueryOptions(sort, query));
 
   useEffect(() => {
     router.push(`?sort=${sort}`);

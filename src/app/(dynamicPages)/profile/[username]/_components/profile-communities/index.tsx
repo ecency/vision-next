@@ -1,18 +1,19 @@
 "use client";
-import React, { useMemo, useState } from "react";
-import { LinearProgress } from "@/features/shared";
-import Link from "next/link";
-import i18next from "i18next";
-import { SortCommunities } from "../sort-profile-communities";
-import { useGetSubscriptionsQuery } from "@/api/queries";
+import { CommunityListItem } from "@/app/_components";
+import { useCommunitiesCache } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
 import { Account } from "@/entities";
-import { useCommunitiesCache } from "@/core/caches";
-import { AnimatePresence, motion } from "framer-motion";
+import { LinearProgress } from "@/features/shared";
+import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { UilUser } from "@tooni/iconscout-unicons-react";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
-import { UilUser } from "@tooni/iconscout-unicons-react";
-import { CommunityListItem } from "@/app/_components";
+import { AnimatePresence, motion } from "framer-motion";
+import i18next from "i18next";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { SortCommunities } from "../sort-profile-communities";
 
 interface Props {
   account: Account;
@@ -23,7 +24,7 @@ export function ProfileCommunities({ account }: Props) {
 
   const [sort, setSort] = useState<"asc" | "desc">("asc");
 
-  const { data, isFetching } = useGetSubscriptionsQuery(account.name);
+  const { data, isFetching } = useQuery(getAccountSubscriptionsQueryOptions(account.name));
   const communities = useCommunitiesCache(data?.map((item) => item[0]) ?? []);
 
   const showCreateLink = activeUser && activeUser.username === account.name;

@@ -4,7 +4,7 @@ import { PREFIX } from "@/utils/local-storage";
 import { postBodySummary } from "@ecency/render-helper";
 import { addDays } from "date-fns";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import {useCallback, useEffect, useMemo} from "react";
 import { usePublishPollState } from "./use-publish-poll-state";
 import { ThreeSpeakVideo } from "@ecency/sdk";
 
@@ -66,6 +66,13 @@ export function usePublishState() {
   );
   const [selectedThumbnail, setSelectedThumbnail, clearSelectedThumbnail] =
     useSynchronizedLocalStorage<string>(PREFIX + "_pub_sel_thumb", "", undefined, persistent);
+  const [skipAutoThumbnailSelection, setSkipAutoThumbnailSelection] =
+      useSynchronizedLocalStorage<boolean>(
+          PREFIX + "_pub_skip_auto_thumb",
+          false,
+          undefined,
+          persistent
+      );
   const [isReblogToCommunity, setIsReblogToCommunity] = useSynchronizedLocalStorage<boolean>(
     PREFIX + "_pub_reblog_to_community",
     false,
@@ -89,6 +96,23 @@ export function usePublishState() {
     },
     persistent
   );
+  const [entryImages, setEntryImages, clearEntryImages] = useSynchronizedLocalStorage<string[]>(
+      PREFIX + "_pub_entry_images",
+      [],
+      {
+        serializer: (val) => JSON.stringify(val),
+        deserializer: (val) => {
+          try {
+            const parsed = JSON.parse(val);
+            return Array.isArray(parsed) && parsed.every((x) => typeof x === "string") ? parsed : [];
+          } catch {
+            return [];
+          }
+        },
+        raw: false
+      },
+      persistent
+  );
   const [location, setLocation, clearLocation] = useSynchronizedLocalStorage<{
     coordinates: { lng: number; lat: number };
     address?: string;
@@ -104,7 +128,21 @@ export function usePublishState() {
   );
   const [poll, setPoll, clearPoll] = usePublishPollState(persistent);
 
-  const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
+  //const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
+  const metadata = useMemo(() => {
+    const initialImage = selectedThumbnail
+        ? [selectedThumbnail]
+        : publishingVideo?.thumbUrl
+            ? [publishingVideo.thumbUrl]
+            : [];
+
+    const mergedImages = Array.from(new Set([...initialImage, ...(entryImages ?? [])]));
+
+    return extractMetaData(content ?? "", {
+      image: mergedImages,
+      thumbnails: mergedImages
+    });
+  }, [content, selectedThumbnail, publishingVideo, entryImages]);
   const thumbnails = useMemo(() => metadata.thumbnails ?? [], [metadata.thumbnails]);
 
   const createDefaultPoll = useCallback(
@@ -132,10 +170,21 @@ export function usePublishState() {
   }, [content, metaDescription, setMetaDescription]);
 
   useEffect(() => {
-    if (!selectedThumbnail) {
+    if (!selectedThumbnail && thumbnails.length && !skipAutoThumbnailSelection) {
       setSelectedThumbnail(thumbnails[0]);
     }
-  }, [thumbnails]);
+  }, [thumbnails, selectedThumbnail, skipAutoThumbnailSelection]);
+
+  useEffect(() => {
+    if (selectedThumbnail && skipAutoThumbnailSelection) {
+      setSkipAutoThumbnailSelection(false);
+    }
+  }, [selectedThumbnail, skipAutoThumbnailSelection, setSkipAutoThumbnailSelection]);
+
+  const _clearSelectedThumbnail = useCallback(() => {
+    clearSelectedThumbnail();
+    setSkipAutoThumbnailSelection(true);
+  }, [clearSelectedThumbnail, setSkipAutoThumbnailSelection]);
 
   const clearAll = useCallback(() => {
     setTitle("");
@@ -149,6 +198,7 @@ export function usePublishState() {
     clearPoll();
     clearPublishingVideo();
     clearPostLinks();
+    clearEntryImages();
     clearLocation();
     setIsReblogToCommunity(false);
   }, [
@@ -163,6 +213,7 @@ export function usePublishState() {
     clearPoll,
     clearPublishingVideo,
     clearPostLinks,
+    clearEntryImages,
     clearLocation,
     setIsReblogToCommunity
   ]);
@@ -197,9 +248,11 @@ export function usePublishState() {
     clearPublishingVideo,
     postLinks,
     setPostLinks,
+    setEntryImages,
     location,
     setLocation,
     clearLocation,
-    clearSelectedThumbnail
+    skipAutoThumbnailSelection,
+    clearSelectedThumbnail: _clearSelectedThumbnail
   };
 }

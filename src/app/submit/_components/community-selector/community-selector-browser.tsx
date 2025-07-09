@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { FormControl } from "@ui/input";
 import { CommunitySelectorItem } from "@/app/submit/_components/community-selector/community-selector-item";
-import i18next from "i18next";
-import { getCommunitiesQuery, useGetSubscriptionsQuery } from "@/api/queries";
-import { useDebounce } from "react-use";
-import useMount from "react-use/lib/useMount";
 import { useGlobalStore } from "@/core/global-store";
 import { LinearProgress } from "@/features/shared";
+import { getAccountSubscriptionsQueryOptions, getCommunitiesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { FormControl } from "@ui/input";
+import i18next from "i18next";
+import { useState } from "react";
+import { useDebounce } from "react-use";
+import useMount from "react-use/lib/useMount";
 
 interface BrowserProps {
   onSelect: (name: string | null) => void;
@@ -19,17 +20,20 @@ export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
     data: subscriptions,
     refetch,
     isLoading: isSubsLoading
-  } = useGetSubscriptionsQuery(activeUser?.username);
+  } = useQuery(getAccountSubscriptionsQueryOptions(activeUser?.username));
 
   const [query, setQuery] = useState("");
   const [fetchingQuery, setFetchingQuery] = useState("");
 
-  const { data: results, isLoading } = getCommunitiesQuery(
-    "rank",
-    fetchingQuery,
-    14,
-    fetchingQuery !== ""
-  ).useClientQuery();
+  const { data: results, isLoading } = useQuery(
+    getCommunitiesQueryOptions(
+      "rank",
+      fetchingQuery,
+      14,
+      activeUser?.username,
+      fetchingQuery !== ""
+    )
+  );
 
   useMount(() => {
     refetch();
@@ -70,6 +74,7 @@ export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
                 key={x.id}
                 name={x.name}
                 title={x.title}
+                community={x}
                 onSelect={onSelect}
                 onHide={onHide}
               />

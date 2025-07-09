@@ -193,6 +193,8 @@
     "fragments": "Fragmentos de código",
     "settings": "Configuración",
     "logout": "Cerrar sesión",
+    "just-logout": "Salir",
+    "logout-and-clear": "Cerrar sesión y borrar datos de acceso",
     "theme": "tema",
     "light": "claro",
     "dark": "oscuro",
@@ -771,6 +773,7 @@
       "reads": "Tiempo de lectura",
       "countries": "Países",
       "devices": "Dispositivos",
+      "referrers": "Referentes",
       "warn": "Stats are collecting only in Ecency's applications",
       "promotion-title": "¿Quieres más vistas y lecturas?",
       "promotion-subtitle": "Utilice las ventajas de Ecency (Ecency Perks) para promocionar su publicación y obtener una exposición más amplia.",
@@ -872,7 +875,13 @@
     "sort-subs": "Miembros",
     "sort-new": "Nuevo",
     "no-results": "No se encontraron resultados",
-    "create": "Crear comunidad"
+    "create": "Crear comunidad",
+    "hint": "Las comunidades de Hive son una gran parte del ecosistema, desde deportes y empleos hasta las aficiones e intereses. ¡Descubra todos ellos y pase a formar parte de la experiencia Ecency y de Hive!",
+    "types": {
+      "topic": "Tema",
+      "journal": "Diario",
+      "council": "Consejo"
+    }
   },
   "communities-create": {
     "page-title": "Crear una Comunidad",
@@ -884,23 +893,30 @@
     "username": "Nombre de Usuario de la Comunidad",
     "username-available": "Disponible.",
     "username-not-available": "No disponible.",
-    "username-wrong-format": "Formato no válido. Formato hive-1xxxxx necesario.",
+    "username-wrong-format": "Formato no válido. Formato requerido: hive-Yxxxxx, Y puede ser 1, 2 o 3.",
     "checkbox-validation": "Marque esta casilla si desea continuar.",
     "title-validation": "Por favor, rellene este campo.",
     "password": "Contraseña de la Comunidad",
-    "confirmation": "He guardado con seguridad mi contraseña generada.",
+    "confirmation": "He guardado con seguridad el nombre de usuario propietario de la comunidad y la contraseña.",
     "submit": "Crear comunidad",
     "progress-account": "Creando cuenta...",
     "progress-user": "Preparando datos...",
     "progress-role": "Configurando @{{u}} como administrador...",
     "progress-props": "Actualizando ajustes de la comunidad...",
     "done": "Tu comunidad fue creada 🎉",
+    "done-hint": "¡Tu comunidad fue creada con éxito en Hive y en Ecency!",
     "reason-one": "Propiedad real",
     "reason-two": "Permanente, recompensa",
     "password-copied": "Contraseña copiada al portapapeles",
     "reason-three": "Desarrollado con tecnología blockchain",
     "reason-four": "Cuesta 3 HIVE crear una comunidad de verdadera propiedad permanente e inmutable",
-    "done-link-label": "Empieza ya."
+    "done-link-label": "Empieza ya.",
+    "open-community": "Abrir comunidad",
+    "back-to-communities": "Volver a las comunidades",
+    "topic": "Tema - cualquiera puede publicar o comentar",
+    "journal": "Diario - únicamente los miembros pueden publicar y los invitados solamente pueden comentar",
+    "council": "Consejo - solamente los miembros pueden publicar o comentar",
+    "types-hint": "Aprende más sobre los tipos de comunidad"
   },
   "community-rewards-registration": {
     "body-text": "Registra tu comunidad para obtener POINTS de Ecency",
@@ -1605,7 +1621,8 @@
   "community-selector": {
     "choose": "Elige una comunidad",
     "my-blog": "Mi blog",
-    "search-placeholder": "Buscar comunidades"
+    "search-placeholder": "Buscar comunidades",
+    "types-hint": "Hive y Ecency soportan diferentes tipos de comunidades — Temática, Revista y Consejo — cada una con características y propósitos únicos. Toca para aprender más."
   },
   "word-count": {
     "label": "{{n}} palabras",
@@ -1975,7 +1992,7 @@
     "create-new-account": "Crear Nueva Cuenta",
     "loading": "Cargando...",
     "blocked-user-message": "Has sido bloqueado de esta comunidad",
-    "start-community-channel": "Iniciar canal comunitario",
+    "start-community-channel": "Iniciar chat comunitario",
     "view-community-channel": "Ver canal comunitario",
     "submit": "Enviar",
     "chat-priv-key": "Por favor, guarde la clave de chat haciendo clic en el botón de descarga o escaneando el código QR para restaurar sus conversaciones.",
@@ -2443,7 +2460,8 @@
     "deck": "Mazo"
   },
   "top-communities": {
-    "title": "Comunidades populares"
+    "title": "Comunidades populares",
+    "create-button": "Crear comunidad descentralizada"
   },
   "feedback-modal": {
     "title": "Detalles del error",
@@ -2611,7 +2629,8 @@
     "reply": "Responder",
     "replying": "Respondiendo...",
     "success-reply": "Has respondido exitosamente",
-    "success-reply-edit": "Has editado exitosamente"
+    "success-reply-edit": "Has editado exitosamente",
+    "muted-post": "Publicación de autor silenciado"
   },
   "events": {
     "muted": "Usuario ha silenciado",
