@@ -876,7 +876,7 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Społeczności uliczne stanowią ogromną część ekosystemu: są sport, miejsca pracy, hobby, interesy i wiele innych. Zbadaj ich wszystkie i stań się częścią Ecencji i Uli,",
+    "hint": "Społeczności uliczne stanowią dużą część ekosystemu – od sportu i miejsc pracy po hobby i interesy. Odkryj ich wszystkie i stań się częścią doświadczenia Ecencji i Uli!",
     "types": {
       "topic": "Temat",
       "journal": "Dziennik",
@@ -893,11 +893,11 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
+    "username-wrong-format": "Nieprawidłowy format. Wymagany format: hive-Yxxxxx, Y może być 1, 2 lub 3.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved my owner username and password.",
+    "confirmation": "Bezpiecznie zapisałem nazwę użytkownika i hasło właściciela społeczności.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
@@ -1622,7 +1622,7 @@
     "choose": "Choose a community",
     "my-blog": "My Blog",
     "search-placeholder": "Search Communities",
-    "types-hint": "Ecencja i Ul wprowadzają różne kategorie społeczności: temat, dziennik i rada. Dowiedz się więcej po szczegóły."
+    "types-hint": "Ecencja i uprawa wspierają różne rodzaje społeczności — Tematy, Dzienniki i Rady — z unikalnymi funkcjami i celami. Kliknij, aby dowiedzieć się więcej."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1992,7 +1992,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
+    "start-community-channel": "Rozpocznij czat społecznościowy",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
