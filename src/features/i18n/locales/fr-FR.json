@@ -876,7 +876,12 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Les communautés de ruche font partie intégrante de l'écosystème : il y a du sport, des emplois, des loisirs, des intérêts et bien d'autres encore. Explorez tous et devenez partie de Ecency and Ruve!"
+    "hint": "Les communautés de ruche font partie intégrante de l'écosystème : il y a du sport, des emplois, des loisirs, des intérêts et bien d'autres encore. Explorez tous et devenez partie de Ecency and Ruve!",
+    "types": {
+      "topic": "Sujet",
+      "journal": "Journal",
+      "council": "Conseil"
+    }
   },
   "communities-create": {
     "page-title": "Create a community",
@@ -907,7 +912,11 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Communauté ouverte",
-    "back-to-communities": "Retour aux communautés"
+    "back-to-communities": "Retour aux communautés",
+    "topic": "Sujet - n'importe qui peut poster ou commenter",
+    "journal": "Journal – seuls les membres peuvent poster et les invités ne peuvent commenter que",
+    "council": "Conseil – seuls les membres peuvent poster ou commenter",
+    "types-hint": "En savoir plus sur les types de communauté"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1612,7 +1621,8 @@
   "community-selector": {
     "choose": "Choose a community",
     "my-blog": "My Blog",
-    "search-placeholder": "Search Communities"
+    "search-placeholder": "Search Communities",
+    "types-hint": "Ecency and Hive introduisent différentes catégories communautaires : thème, journal et conseil."
   },
   "word-count": {
     "label": "{{n}} words",
