@@ -85,7 +85,8 @@ export function CreateCommunityPage() {
         accessToken: renewOpts.access_token,
         refreshToken: renewOpts.refresh_token,
         expiresIn: renewOpts.expires_in,
-        postingKey: null
+        postingKey: null,
+        loginType: "hivesigner"
       });
 
       // set admin role

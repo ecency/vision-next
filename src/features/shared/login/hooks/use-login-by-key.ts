@@ -53,6 +53,7 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
       const isPlainPassword = !cryptoUtils.isWif(keyOrSeed);
 
       let privateKey: PrivateKey;
+      let postingKey: PrivateKey | null = null;
 
       // Whether using posting private key to login
       let withPostingKey = false;
@@ -64,11 +65,13 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
         // Login with posting private key
         withPostingKey = true;
         privateKey = PrivateKey.fromString(keyOrSeed);
+        postingKey = privateKey;
       } else {
         // Login with master or active private key
         // Get active private key from user entered code
         if (isPlainPassword) {
           privateKey = PrivateKey.fromLogin(account.name, keyOrSeed, "active");
+          postingKey = PrivateKey.fromLogin(account.name, keyOrSeed, "posting");
         } else {
           privateKey = PrivateKey.fromString(keyOrSeed);
         }
@@ -89,7 +92,7 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
             (x) => x[0] === EcencyConfigManager.CONFIG.service.hsClientId
           ).length > 0;
 
-        if (!hasPostingPerm) {
+        if (!hasPostingPerm && !withPostingKey) {
           try {
             await grantPostingPermission(
               privateKey,
@@ -109,7 +112,7 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
         (message) => signer(message, privateKey)
       );
 
-      await loginInApp(code, withPostingKey ? keyOrSeed : null, account);
+      await loginInApp(code, postingKey ? postingKey.toString() : null, account, "privateKey");
 
       setSigningKey(privateKey.toString());
     },

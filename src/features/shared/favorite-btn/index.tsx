@@ -1,24 +1,38 @@
-import React, { useMemo } from "react";
+import { useClientActiveUser } from "@/api/queries";
+import { error, LoginRequired, success } from "@/features/shared";
+import {
+  getActiveAccountFavouritesQueryOptions,
+  useAccountFavouriteAdd,
+  useAccountFavouriteDelete
+} from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { UilHeart } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
-import { LoginRequired } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { useAddFavourite, useDeleteFavourite } from "@/api/mutations";
-import { useFavouritesQuery } from "@/api/queries";
-import { UilHeart } from "@tooni/iconscout-unicons-react";
+import { useMemo } from "react";
 
 interface Props {
   targetUsername: string;
 }
 
 export function FavouriteBtn({ targetUsername }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
-  const { data, isPending } = useFavouritesQuery();
+  const { data, isPending } = useQuery(
+    getActiveAccountFavouritesQueryOptions(activeUser?.username)
+  );
 
-  const { mutateAsync: add, isPending: isAddPending } = useAddFavourite(() => {});
-  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useDeleteFavourite(() => {});
+  const { mutateAsync: add, isPending: isAddPending } = useAccountFavouriteAdd(
+    activeUser?.username,
+    () => success(i18next.t("favorite-btn.added")),
+    () => error(i18next.t("g.server-error"))
+  );
+  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavouriteDelete(
+    activeUser?.username,
+    () => success(i18next.t("favorite-btn.deleted")),
+    () => error(i18next.t("g.server-error"))
+  );
 
   const favourited = useMemo(
     () => data?.some((item) => item.account === targetUsername),
@@ -49,11 +63,7 @@ export function FavouriteBtn({ targetUsername }: Props) {
             noPadding={true}
             className="w-8"
             isLoading={inProgress}
-            onClick={() =>
-              favourited
-                ? deleteFrom({ account: targetUsername })
-                : add({ account: targetUsername })
-            }
+            onClick={() => (favourited ? deleteFrom(targetUsername) : add(targetUsername))}
             icon={<UilHeart />}
           />
         </Tooltip>
