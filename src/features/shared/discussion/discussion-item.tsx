@@ -69,8 +69,10 @@ export const DiscussionItem = memo(function DiscussionItem({
   const [edit, setEdit] = useState(false);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
+  const isCommunityPost = !!community?.name;
   const { data: userContext } = useQuery({
     ...getCommunityContextQueryOptions(activeUser?.username, community?.name ?? undefined),
+    enabled: isCommunityPost && !!activeUser?.username,
     select: ({ subscribed, role }) =>
       getCommunityPermissions({
         communityType: getCommunityType(community?.name ?? "", -1),
@@ -78,6 +80,10 @@ export const DiscussionItem = memo(function DiscussionItem({
         userRole: role
       })
   });
+
+  const canComment = isCommunityPost
+      ? userContext?.canComment
+      : !!activeUser?.username;
 
   const readMore = useMemo(() => entry.children > 0 && entry.depth > 5, [entry]);
   const showSubList = useMemo(() => !readMore && entry.children > 0, [entry, readMore]);
@@ -245,7 +251,7 @@ export const DiscussionItem = memo(function DiscussionItem({
               <EntryVoteBtn entry={entry} isPostSlider={false} />
               <EntryPayout entry={entry} />
               <EntryVotes entry={entry} />
-              {userContext?.canComment && (
+              {canComment && (
                 <a className={`reply-btn ${edit ? "disabled" : ""}`} onClick={toggleReply}>
                   {i18next.t("g.reply")}
                 </a>
