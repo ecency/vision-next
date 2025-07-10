@@ -73,8 +73,8 @@ export function ProfileWalletTokensListItemPoints({ username }: Props) {
       <div>
         <div className="text-sm opacity-50 mb-2">{i18next.t("points.earn-points")}</div>
         <div className="flex gap-2 flex-wrap">
-          {list.map(({ icon, tooltip, value }) => (
-            <StyledTooltip content={tooltip}>
+          {list.map(({ icon, tooltip, value }, i) => (
+            <StyledTooltip key={i} content={tooltip}>
               <div className="flex flex-col rounded-lg overflow-hidden">
                 <span className="bg-blue-duck-egg dark:bg-blue-dark-grey flex items-center justify-center w-8 h-8">
                   {icon}

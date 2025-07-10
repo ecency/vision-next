@@ -2840,6 +2840,19 @@
     "price": "Price",
     "balance": "Balance",
     "apr": "APR Rewards",
-    "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe"
+    "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe",
+    "operations": {
+      "transfer": "Transfer",
+      "transfer_savings": "To Savings",
+      "power_up": "Power Up",
+      "power_down": "Power Down",
+      "swap": "Swap",
+      "delegate": "Delegate",
+      "withdraw_routes": "Withdraw routes",
+      "gift": "Gift",
+      "promote": "Promote",
+      "claim": "Claim",
+      "buy": "Buy"
+    }
   }
 }

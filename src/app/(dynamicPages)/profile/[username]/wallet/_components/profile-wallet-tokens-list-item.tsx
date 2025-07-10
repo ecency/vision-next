@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
+import { useRouter } from "next/navigation";
 
 interface Props {
   username: string;
@@ -20,6 +21,8 @@ interface Props {
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const { data } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
   const { data: allTokens } = useQuery(getAllTokensListQueryOptions(username));
+
+  const router = useRouter();
 
   const logo = useMemo(() => {
     const layer2Token = allTokens?.layer2?.find((token) => token.symbol === asset);
@@ -40,7 +43,10 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
   }, [allTokens?.layer2, asset, data]);
 
   return (
-    <div className="border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900">
+    <div
+      className="border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900"
+      onClick={() => router.push(`/@${username}/wallet/${asset.toLowerCase()}`)}
+    >
       <div className="grid grid-cols-4 p-3 md:p-4">
         <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
           <div className="mt-1">{logo}</div>

@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { TOKEN_COLORS_MAP } from "../_consts";
 
-export function ProfileWalletSummary() {
+export default function ProfileWalletSummary() {
   const { username } = useParams();
   const { data } = useQuery(
     getAccountWalletListQueryOptions((username as string).replace("%40", ""))

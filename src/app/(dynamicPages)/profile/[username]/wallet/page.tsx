@@ -1,13 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { ProfileWalletSummary } from "./_components";
 
 const ProfileWalletTokenPicker = dynamic(
   () => import("./_components/profile-wallet-token-picker"),
   { ssr: false }
 );
 const ProfileWalletTokensList = dynamic(() => import("./_components/profile-wallet-tokens-list"), {
+  ssr: false
+});
+
+const ProfileWalletSummary = dynamic(() => import("./_components/profile-wallet-summary"), {
   ssr: false
 });
 
