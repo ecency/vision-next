@@ -5,22 +5,22 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 function detachNotificationAudioElement() {
   const element = document.querySelector("#notification-audio-container");
-  if (element) {
-    document.removeChild(element);
+  if (element?.parentNode) {
+    element.parentNode.removeChild(element);
   }
 }
 
 export function playNotificationSound() {
   const element = (
-    <audio
-      id="notification-audio"
-      autoPlay={false}
-      src="/assets/notification.mp3"
-      style={{ display: "none" }}
-      onEnded={() => {
-        detachNotificationAudioElement();
-      }}
-    />
+      <audio
+          id="notification-audio"
+          autoPlay={false}
+          src="/assets/notification.mp3"
+          style={{ display: "none" }}
+          onEnded={() => {
+            detachNotificationAudioElement();
+          }}
+      />
   );
 
   const container = document.createElement("div");
@@ -29,7 +29,9 @@ export function playNotificationSound() {
 
   document.body.appendChild(container);
 
-  setTimeout(
-    () => (document.querySelector("#notification-audio") as HTMLAudioElement | null)?.play()
-  );
+  const audio = container.querySelector("#notification-audio") as HTMLAudioElement;
+  const playPromise = audio?.play();
+  if (playPromise) {
+    playPromise.catch((e) => console.warn("Failed to play notification sound:", e));
+  }
 }

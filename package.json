@@ -14,7 +14,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@ecency/ns-query": "^1.2.11-next",
-    "@ecency/render-helper": "^2.3.8",
+    "@ecency/render-helper": "^2.3.9",
     "@ecency/renderer": "^1.2.3",
     "@ecency/sdk": "1.0.54",
     "@ecency/wallets": "^1.2.21",
