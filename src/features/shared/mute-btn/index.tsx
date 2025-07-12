@@ -21,7 +21,7 @@ export function MuteBtn({ entry, community, onSuccess, onCancel, onlyDialog }: P
   const [value, setValue] = useState("");
   const [dialog, setDialog] = useState(false);
 
-  const isMuted = useMemo(() => !!entry.stats?.gray, [entry]);
+  const isMuted = useMemo(() => !!entry.stats?.gray, [entry?.stats?.gray]);
   const { mutateAsync: mutePost, isPending } = useMutePost(entry, community);
 
   const submit = useCallback(

@@ -42,7 +42,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
       entry.json_metadata.tags &&
       Array.isArray(entry.json_metadata.tags) &&
       entry.json_metadata.tags.includes("nsfw"),
-    [entry]
+    [entry?.json_metadata]
   );
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
 
   useEffect(() => {
     setShowModMuted(entry.stats?.gray ?? false);
-  }, [entry]);
+  }, [entry?.stats?.gray]);
 
   return showModMuted && showMuted ? (
     <>

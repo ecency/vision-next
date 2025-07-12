@@ -20,7 +20,7 @@ export function EntryPageMainInfoMenu({ entry }: Props) {
   const router = useRouter();
   const { setLoading } = useContext(EntryPageContext);
 
-  const isComment = useMemo(() => !!entry.parent_author, [entry]);
+  const isComment = useMemo(() => !!entry.parent_author, [entry?.parent_author]);
   const isOwnEntry = useMemo(
     () => activeUser?.username === entry.author,
     [activeUser?.username, entry.author]

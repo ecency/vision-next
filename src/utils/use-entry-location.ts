@@ -34,7 +34,7 @@ export function useEntryLocation(entry?: Entry) {
     }
 
     return undefined;
-  }, [entry]);
+  }, [entry?.body, entry?.json_metadata?.location]);
 }
 
 

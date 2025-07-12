@@ -40,7 +40,7 @@ export const DEFAULT_CONTEXT: ContextState = {
   isRawContent: false,
   setIsRawContent: () => {},
   selection: "",
-  setSelection: () => {}
+  setSelection: () => {},
 };
 
 export const EntryPageContext = createContext<ContextState>(DEFAULT_CONTEXT);

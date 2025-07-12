@@ -38,7 +38,8 @@ export namespace EcencyQueriesManager {
     return {
       prefetch: () => prefetchQuery(options),
       getData: () => getQueryData<T>(options.queryKey),
-      useClientQuery: () => useQuery(options),
+      useClientQuery: (overrideOptions?: Partial<UseQueryOptions<T>>) =>
+          useQuery({ ...options, ...overrideOptions }),
       fetchAndGet: () => getQueryClient().fetchQuery(options)
     };
   }

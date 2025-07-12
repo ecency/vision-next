@@ -89,7 +89,7 @@ export function EntryVoteDialog({
     const now = moment(new Date());
     const duration = moment.duration(now.diff(past));
     return duration.asDays();
-  }, [entry]);
+  }, [entry?.created]);
 
   const upSliderChanged = useCallback(
     (value: number) => {
