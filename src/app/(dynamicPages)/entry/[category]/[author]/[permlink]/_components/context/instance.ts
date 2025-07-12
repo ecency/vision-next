@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, MutableRefObject } from "react";
-import {Entry} from "@/entities";
 
 interface ContextState {
   showProfileBox: boolean;
@@ -24,11 +23,6 @@ interface ContextState {
 
   selection: string;
   setSelection: (value: string) => void;
-
-  entry?: Entry;
-  liveEntry?: Entry;
-  setLiveEntry?: (entry: Entry) => void;
-
   commentsInputRef?: MutableRefObject<HTMLInputElement | null>;
 }
 
@@ -47,9 +41,6 @@ export const DEFAULT_CONTEXT: ContextState = {
   setIsRawContent: () => {},
   selection: "",
   setSelection: () => {},
-  entry: undefined,
-  liveEntry: undefined,
-  setLiveEntry: () => {}
 };
 
 export const EntryPageContext = createContext<ContextState>(DEFAULT_CONTEXT);

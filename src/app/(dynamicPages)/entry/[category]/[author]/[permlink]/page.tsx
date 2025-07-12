@@ -18,7 +18,6 @@ import {
 import {
   EntryPageContentClient
 } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
-import {Entry} from "@/entities";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;

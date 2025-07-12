@@ -17,7 +17,8 @@ export async function GET(req: NextRequest) {
     let previous = {
         voteCount: 0,
         commentCount: 0,
-        payout: "0.000 HBD",
+        pending_payout_value: "0.000 HBD",
+        active_votes: [] as any[],
     };
 
     const stream = new ReadableStream({
@@ -47,22 +48,26 @@ export async function GET(req: NextRequest) {
                         stats: { total_votes: voteCount },
                         children: commentCount,
                         pending_payout_value: pendingPayout,
+                        active_votes: activeVotes,
                     } = data;
 
                     if (
                         voteCount !== previous.voteCount ||
                         commentCount !== previous.commentCount ||
-                        pendingPayout !== previous.payout
+                        pendingPayout !== previous.pending_payout_value ||
+                        activeVotes.length !== previous.active_votes.length
                     ) {
                         previous = {
                             voteCount,
                             commentCount,
-                            payout: pendingPayout,
+                            pending_payout_value: pendingPayout,
+                            active_votes: activeVotes,
                         };
 
                         const message = JSON.stringify({
                             type: "engagement_update",
                             stats: { total_votes: voteCount },
+                            active_votes: activeVotes,
                             children: commentCount,
                             pending_payout_value: pendingPayout,
                         });
@@ -84,10 +89,10 @@ export async function GET(req: NextRequest) {
                 try {
                     controller.close();
                 } catch {}
-                console.log(`SSE aborted for ${author}/${permlink}`);
+                //console.log(`SSE aborted for ${author}/${permlink}`);
             });
 
-            console.log(`SSE started for ${author}/${permlink}`);
+            // console.log(`SSE started for ${author}/${permlink}`);
             await poll();
         },
     });

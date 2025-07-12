@@ -29,7 +29,7 @@ export const ReadTime = (props: any) => {
   useEffect(() => {
     calculateExtras();
     getTopCurator();
-  }, [entry]);
+  }, [entry?.body, entry?.active_votes]);
 
   const getTopCurator = async () => {
     if (entry.active_votes?.length > 0) {

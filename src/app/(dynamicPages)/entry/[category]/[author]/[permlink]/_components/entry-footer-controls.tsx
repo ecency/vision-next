@@ -19,9 +19,7 @@ import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]
 import { useRouter } from "next/navigation";
 import { Button } from "@ui/button";
 import { UilAlignAlt } from "@tooni/iconscout-unicons-react";
-import {
-  useEffectiveEntry
-} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/use-effective-entry";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 interface Props {
   entry: Entry;
@@ -40,7 +38,15 @@ export function EntryFooterControls({ entry }: Props) {
     isRawContent
   } = useContext(EntryPageContext);
 
-  const effectiveEntry = useEffectiveEntry(entry);
+  const { data } = EcencyEntriesCacheManagement
+      .getEntryQuery(entry)
+      .useClientQuery({
+        initialData: entry,
+        staleTime: Infinity,
+      });
+
+  const effectiveEntry = data ?? entry;
+
   const activeUser = useGlobalStore((s) => s.activeUser);
   const isOwnEntry = useMemo(
     () => activeUser?.username === effectiveEntry.author,

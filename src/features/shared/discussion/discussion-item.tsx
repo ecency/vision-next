@@ -85,35 +85,35 @@ export const DiscussionItem = memo(function DiscussionItem({
       ? userContext?.canComment
       : !!activeUser?.username;
 
-  const readMore = useMemo(() => entry.children > 0 && entry.depth > 5, [entry]);
-  const showSubList = useMemo(() => !readMore && entry.children > 0, [entry, readMore]);
-  const canEdit = useMemo(() => activeUser?.username === entry.author, [activeUser, entry]);
-  const anchorId = useMemo(() => `anchor-@${entry.author}/${entry.permlink}`, [entry]);
+  const readMore = useMemo(() => entry.children > 0 && entry.depth > 5, [entry?.children, entry?.depth]);
+  const showSubList = useMemo(() => !readMore && entry.children > 0, [entry?.children, readMore]);
+  const canEdit = useMemo(() => activeUser?.username === entry.author, [activeUser, entry?.author]);
+  const anchorId = useMemo(() => `anchor-@${entry.author}/${entry.permlink}`, [entry?.author, entry?.permlink]);
   const isPinned = useMemo(
     () => root.json_metadata.pinned_reply === `${entry.author}/${entry.permlink}`,
-    [root, entry]
+    [root?.json_metadata, entry?.author, entry?.permlink]
   );
-  const selected = useMemo(() => location.hash === `#@${entry.author}/${entry.permlink}`, [entry]);
+  const selected = useMemo(() => location.hash === `#@${entry.author}/${entry.permlink}`, [entry?.author, entry?.permlink]);
 
-  const entryIsMuted = useMemo(() => mutedUsers?.includes(entry.author), [entry, mutedUsers]);
+  const entryIsMuted = useMemo(() => mutedUsers?.includes(entry.author), [entry?.author, mutedUsers]);
   const isTopComment = useMemo(
     () => entry.parent_author === root.author && entry.parent_permlink === root.permlink,
-    [entry, root]
+    [entry?.parent_permlink, entry?.parent_author, root?.author, root?.permlink]
   );
   const isComment = !!entry.parent_author;
   const isOwnRoot = useMemo(() => activeUser?.username === root.author, [activeUser, root]);
-  const isOwnReply = useMemo(() => activeUser?.username === entry.author, [activeUser, entry]);
+  const isOwnReply = useMemo(() => activeUser?.username === entry.author, [activeUser, entry?.author]);
   const isHidden = useMemo(
     () => entry.net_rshares < -7000000000 && entry.active_votes.length > 3,
-    [entry]
+    [entry?.net_rshares, entry?.active_votes]
   );
   const isMuted = useMemo(
     () => entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation >= 0,
-    [entry]
+    [entry?.stats, entry?.net_rshares, entry?.author_reputation]
   );
   const isLowReputation = useMemo(
     () => entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation < 0,
-    [entry]
+    [entry?.stats, entry?.net_rshares, entry?.author_reputation]
   );
   const mightContainMutedComments = useMemo(
     () => activeUser && entryIsMuted && !isComment && !isOwnReply,
@@ -123,7 +123,7 @@ export const DiscussionItem = memo(function DiscussionItem({
     () =>
       !(entry.is_paidout || entry.net_rshares > 0 || entry.children > 0) &&
       entry.author === activeUser?.username,
-    [entry, activeUser]
+    [entry?.author, entry?.children, entry?.net_rshares, entry?.is_paidout, activeUser]
   );
 
   const hasAnyAction = useMemo(
@@ -146,7 +146,7 @@ export const DiscussionItem = memo(function DiscussionItem({
       (allReplies ?? []).filter(
         (x) => x.parent_author === entry.author && x.parent_permlink === entry.permlink
       ),
-    [allReplies, entry]
+    [allReplies, entry?.author, entry?.permlink]
   );
 
   const botsData = useMemo(

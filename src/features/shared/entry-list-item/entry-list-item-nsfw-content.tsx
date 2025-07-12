@@ -26,7 +26,7 @@ export function EntryListItemNsfwContent({ entry }: Props) {
       entry.json_metadata.tags &&
       Array.isArray(entry.json_metadata.tags) &&
       entry.json_metadata.tags.includes("nsfw"),
-    [entry]
+    [entry?.json_metadata?.tags]
   );
 
   return nsfw && !showNsfw && !globalNsfw ? (

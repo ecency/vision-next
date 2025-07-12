@@ -25,8 +25,8 @@ export function EntryTipBtn({ entry, setTipDialogMounted, handleClickAway, accou
 
   const [dialog, setDialog] = useState(false);
 
-  const to = useMemo(() => entry.author, [entry]);
-  const memo = useMemo(() => `Tip for @${entry.author}/${entry.permlink}`, [entry]);
+  const to = useMemo(() => entry.author, [entry?.author]);
+  const memo = useMemo(() => `Tip for @${entry.author}/${entry.permlink}`, [entry?.author, entry?.permlink]);
 
   useMount(() => setTipDialogMounted?.(true));
   useUnmount(() => setTipDialogMounted?.(false));

@@ -24,7 +24,7 @@ export function EntryPageMightContainsMutedCommentsWarning({ entry }: Props) {
     () => activeUser?.username === entry.author,
     [activeUser?.username, entry.author]
   );
-  const isComment = useMemo(() => !!entry.author, [entry]);
+  const isComment = useMemo(() => !!entry.author, [entry?.author]);
   const entryIsMuted = useMemo(
     () => followings?.map((user) => user.following).includes(entry.author) ?? false,
     [entry.author, followings]

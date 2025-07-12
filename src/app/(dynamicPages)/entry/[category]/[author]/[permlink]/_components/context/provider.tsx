@@ -1,10 +1,10 @@
 "use client";
 
-import { PropsWithChildren, useRef, useState } from "react";
+import {PropsWithChildren, useEffect, useRef, useState} from "react";
 import { EntryPageContext } from "./instance";
 import { useSearchParams } from "next/navigation";
 import { Entry } from "@/entities";
-import { useEntryStream } from "@/api/queries/entry/useEntryStream";
+import { initEntrySSE } from "@/api/queries/entry/entry-sse";
 
 interface Props extends PropsWithChildren {
     entry?: Entry;
@@ -15,7 +15,6 @@ export function EntryPageContextProvider({ entry, children }: Props) {
     const searchParams = useSearchParams();
     const rawFromUrl = searchParams.get("raw") === "1";
 
-    const [liveEntry, setLiveEntry] = useState<Entry | undefined>(entry);
     const [showProfileBox, setShowProfileBox] = useState(false);
     const [editHistory, setEditHistory] = useState(false);
     const [showWordCount, setShowWordCount] = useState(false);
@@ -24,22 +23,14 @@ export function EntryPageContextProvider({ entry, children }: Props) {
     const [isRawContent, setIsRawContent] = useState(rawFromUrl);
     const [selection, setSelection] = useState("");
 
-    // ✅ Use hook directly – safe at top level
-    useEntryStream(entry?.author ?? "", entry?.permlink ?? "", (payload) => {
-        setLiveEntry((prev) =>
-            prev
-                ? {
-                    ...prev,
-                    stats: {
-                        ...prev.stats,
-                        total_votes: payload.stats.total_votes,
-                    },
-                    children: payload.children,
-                    pending_payout_value: payload.pending_payout_value,
-                }
-                : prev
-        );
-    });
+    useEffect(() => {
+        if (!entry?.author || !entry?.permlink) return;
+        const stop = initEntrySSE(entry.author, entry.permlink);
+
+        return () => {
+            stop();
+        };
+    }, [entry?.author, entry?.permlink]);
 
     return (
         <EntryPageContext.Provider
@@ -58,9 +49,6 @@ export function EntryPageContextProvider({ entry, children }: Props) {
                 setIsRawContent,
                 setSelection,
                 selection,
-                entry,
-                liveEntry,
-                setLiveEntry,
                 commentsInputRef,
             }}
         >
