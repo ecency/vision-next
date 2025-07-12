@@ -16,7 +16,6 @@ export function useNotificationSSE(username?: string, onEvent?: () => void) {
         eventSource.onerror = () => {
             console.warn("SSE connection lost. Reconnecting...");
             eventSource.close();
-            // Let browser auto-reconnect. You could also implement exponential backoff manually.
         };
 
         return () => {

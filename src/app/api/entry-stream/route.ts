@@ -89,10 +89,8 @@ export async function GET(req: NextRequest) {
                 try {
                     controller.close();
                 } catch {}
-                //console.log(`SSE aborted for ${author}/${permlink}`);
             });
 
-            // console.log(`SSE started for ${author}/${permlink}`);
             await poll();
         },
     });

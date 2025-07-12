@@ -1,5 +1,5 @@
 import { getQueryClient } from "@/core/react-query";
-import {makeEntryPath} from "@/utils"; // your shared query client
+import {makeEntryPath} from "@/utils";
 
 interface EngagementPayload {
     type: "engagement_update";
@@ -30,7 +30,6 @@ export function initEntrySSE(
         try {
             const data: EngagementPayload = JSON.parse(event.data);
 
-            // Optional external callback
             onUpdate?.(data);
 
             queryClient.setQueryData(["entry", makeEntryPath("", author, permlink ?? "")], (old: any) => {
