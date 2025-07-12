@@ -25,6 +25,6 @@ export function useNotificationUnreadCountQuery() {
     },
     enabled: !!activeUser,
     initialData: 0,
-    refetchInterval: 60000
+    refetchInterval: 150000
   });
 }

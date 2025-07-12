@@ -19,6 +19,9 @@ import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]
 import { useRouter } from "next/navigation";
 import { Button } from "@ui/button";
 import { UilAlignAlt } from "@tooni/iconscout-unicons-react";
+import {
+  useEffectiveEntry
+} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/use-effective-entry";
 
 interface Props {
   entry: Entry;
@@ -37,10 +40,11 @@ export function EntryFooterControls({ entry }: Props) {
     isRawContent
   } = useContext(EntryPageContext);
 
+  const effectiveEntry = useEffectiveEntry(entry);
   const activeUser = useGlobalStore((s) => s.activeUser);
   const isOwnEntry = useMemo(
-    () => activeUser?.username === entry.author,
-    [activeUser?.username, entry.author]
+    () => activeUser?.username === effectiveEntry.author,
+    [activeUser?.username, effectiveEntry.author]
   );
 
   useDistanceDetector(ref, showProfileBox, showWordCount, setShowProfileBox, setShowWordCount);
@@ -51,11 +55,11 @@ export function EntryFooterControls({ entry }: Props) {
       ref={ref}
     >
       <div className="flex items-center gap-4">
-        <EntryVoteBtn isPostSlider={true} entry={entry} />
-        <EntryPayout entry={entry} />
-        <EntryVotes entry={entry} />
-        <EntryTipBtn entry={entry} />
-        {!isOwnEntry && <EntryReblogBtn entry={entry} />}
+        <EntryVoteBtn isPostSlider={true} entry={effectiveEntry} />
+        <EntryPayout entry={effectiveEntry} />
+        <EntryVotes entry={effectiveEntry} />
+        <EntryTipBtn entry={effectiveEntry} />
+        {!isOwnEntry && <EntryReblogBtn entry={effectiveEntry} />}
       </div>
       <span className="flex-spacer" />
       <div className="flex items-center">
@@ -67,18 +71,18 @@ export function EntryFooterControls({ entry }: Props) {
             icon={<UilAlignAlt />}
           />
         </Tooltip>
-        <BookmarkBtn entry={entry} />
+        <BookmarkBtn entry={effectiveEntry} />
         <div className="border-l border-[--border-color] h-6 mx-4 w-[1px]" />
         <EntryMenu
-          entry={entry}
+          entry={effectiveEntry}
           alignBottom={true}
           separatedSharing={true}
           toggleEdit={() => {
-            if (typeof entry.parent_author === "string") {
+            if (typeof effectiveEntry.parent_author === "string") {
               // It will trigger in-place editor
-              router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`);
+              router.push(`/${effectiveEntry.category}/@${effectiveEntry.author}/${effectiveEntry.permlink}?edit=true`);
             } else {
-              router.push(`/${entry.url}/edit`);
+              router.push(`/${effectiveEntry.url}/edit`);
             }
           }}
         />

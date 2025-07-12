@@ -18,6 +18,7 @@ import {
 import {
   EntryPageContentClient
 } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
+import {Entry} from "@/entities";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
@@ -40,7 +41,6 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const search = await searchParams;
   const isRaw = search["raw"];
   const isEdit = search["edit"];
-
 
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
@@ -79,7 +79,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   return (
       <HydrationBoundary state={dehydrate(getQueryClient())}>
-        <EntryPageContextProvider>
+        <EntryPageContextProvider entry={entry}>
           <MdHandler />
           <div className="app-content entry-page">
             <ReadTime entry={entry} />
