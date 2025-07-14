@@ -1,5 +1,6 @@
 "use client";
 
+import { PropsWithChildren } from "react";
 import dynamic from "next/dynamic";
 
 const ProfileWalletTokenSummary = dynamic(
@@ -10,19 +11,15 @@ const ProfileWalletTokenActions = dynamic(
   () => import("./_components/profile-wallet-token-actions"),
   { ssr: false }
 );
-const ProfileWalletTokenHistory = dynamic(
-  () => import("./_components/profile-wallet-token-history"),
-  { ssr: false }
-);
 
-export default function TokenPage() {
+export default function Layout({ children }: PropsWithChildren) {
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <ProfileWalletTokenSummary />
         <ProfileWalletTokenActions />
       </div>
-      <ProfileWalletTokenHistory />
+      {children}
     </>
   );
 }

@@ -18,7 +18,7 @@ export default function Layout(
       <ScrollToTop />
       <FullHeight />
       <Theme />
-      <Navbar />
+      <Navbar experimental={true} />
       <div className="bg-blue-duck-egg dark:bg-black pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
         <div className="absolute hidden lg:block top-16 left-0 right-0 bottom-0">
           <Image

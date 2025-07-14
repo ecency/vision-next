@@ -15,7 +15,7 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import i18next from "i18next";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { ReactNode } from "react";
 
 const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
@@ -35,12 +35,13 @@ const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
 export default function ProfileWalletTokenActions() {
   const activeUser = useClientActiveUser();
   const { token, username } = useParams();
+  const pathname = usePathname();
 
   const cleanUsername = (username as string).replace("%40", "");
 
   const { data: operations } = useQuery(
     getTokenOperationsQueryOptions(
-      (token as string).toUpperCase(),
+      (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase(),
       cleanUsername,
       activeUser?.username === cleanUsername
     )
