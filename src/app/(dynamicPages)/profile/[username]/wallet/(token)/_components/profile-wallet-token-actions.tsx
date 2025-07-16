@@ -32,7 +32,7 @@ const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
   [AssetOperation.Buy]: <UilBoltAlt />
 };
 
-export default function ProfileWalletTokenActions() {
+export function ProfileWalletTokenActions() {
   const activeUser = useClientActiveUser();
   const { token, username } = useParams();
   const pathname = usePathname();

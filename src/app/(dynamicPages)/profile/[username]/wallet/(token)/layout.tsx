@@ -1,16 +1,7 @@
 "use client";
 
 import { PropsWithChildren } from "react";
-import dynamic from "next/dynamic";
-
-const ProfileWalletTokenSummary = dynamic(
-  () => import("./_components/profile-wallet-token-summary"),
-  { ssr: false }
-);
-const ProfileWalletTokenActions = dynamic(
-  () => import("./_components/profile-wallet-token-actions"),
-  { ssr: false }
-);
+import { ProfileWalletTokenActions, ProfileWalletTokenSummary } from "./_components";
 
 export default function Layout({ children }: PropsWithChildren) {
   return (

@@ -17,11 +17,11 @@ function format(value: number) {
   return formatter.format(value);
 }
 
-export default function ProfileWalletTokenSummary() {
+export function ProfileWalletTokenSummary() {
   const { token, username } = useParams();
   const pathname = usePathname();
 
-  const { data } = useQuery(
+  const { data, isFetching } = useQuery(
     getAccountWalletAssetInfoQueryOptions(
       (username as string).replace("%40", ""),
       (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase()
@@ -51,6 +51,20 @@ export default function ProfileWalletTokenSummary() {
       return getSizedTokenLogo(data.name, 36);
     }
   }, [allTokens?.layer2, data]);
+
+  if (isFetching) {
+    <div className="bg-white rounded-xl p-3 flex flex-col justify-between gap-4">
+      <div className="flex justify-between">
+        <div className="w-[90px] rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+        <div className="w-[56px] rounded-lg animate-pulse h-[24px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+      </div>
+      <div className="grid grid-cols-3 gap-2 md:gap-4">
+        <div className="w-[56px] rounded-lg animate-pulse h-[64px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+        <div className="w-full rounded-lg animate-pulse h-[64px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+        <div className="w-full rounded-lg animate-pulse h-[64px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+      </div>
+    </div>;
+  }
 
   return (
     <div className="bg-white rounded-xl p-3 flex flex-col justify-between gap-4">
