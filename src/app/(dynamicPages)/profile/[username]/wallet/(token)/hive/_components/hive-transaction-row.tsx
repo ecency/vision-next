@@ -5,22 +5,16 @@ import {
   chevronUpSvgForVote,
   closeSvg,
   exchangeSvg,
-  pickAxeSvg,
-  powerDownSvg,
-  powerUpSvg,
   reOrderHorizontalSvg,
-  starsSvg,
   ticketSvg
 } from "@/assets/img/svg";
+import { Transaction } from "@/entities";
 import { Tsx } from "@/features/i18n/helper";
-import { dateToFullRelative, formattedNumber, parseAsset, vestsToHp } from "@/utils";
-import i18next from "i18next";
 import { EntryLink, UserAvatar } from "@/features/shared";
 import { TwoUserAvatar } from "@/features/shared/two-user-avatar";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
-import { Transaction } from "@/entities";
-import { UilArrowRight } from "@tooni/iconscout-unicons-react";
-import { format } from "date-fns";
+import { formattedNumber, parseAsset } from "@/utils";
+import { UilArrowRight, UilRefresh } from "@tooni/iconscout-unicons-react";
+import { ProfileWalletTokenHistoryHiveItem } from "../../_components";
 
 interface Props {
   transaction: Transaction;
@@ -28,63 +22,29 @@ interface Props {
   onMounted?: () => void;
 }
 
-export function HiveTransactionRow({ entry, transaction: item }: Props) {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-
-  const { hivePerMVests } = dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
-  const tr = item || entry;
-
-  let flag = false;
+export function HiveTransactionRow({ entry, transaction: tr }: Props) {
+  let flag = true;
   let icon = ticketSvg;
   let numbers = null;
   let details = null;
 
-  if (tr.type === "curation_reward") {
-    flag = true;
-    icon = cashCoinSvg;
+  if (tr.type === "claim_reward_balance") {
+    const reward_hive = parseAsset(tr.reward_hive);
 
     numbers = (
       <>
-        {formattedNumber(vestsToHp(parseAsset(tr.reward).amount, hivePerMVests), {
-          suffix: "HP"
-        })}
+        {reward_hive.amount > 0 && (
+          <span className="number">{formattedNumber(reward_hive.amount, { suffix: "HIVE" })}</span>
+        )}
       </>
     );
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.comment_author || tr.author || "",
-          permlink: tr.comment_permlink || tr.permlink || ""
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.comment_author || tr.author}/{tr.comment_permlink || tr.permlink}
-        </span>
-      </EntryLink>
-    );
-  }
-
-  if (tr.type === "author_reward" || tr.type === "comment_benefactor_reward") {
-    flag = true;
+  } else if (tr.type === "author_reward" || tr.type === "comment_benefactor_reward") {
     icon = cashCoinSvg;
-
-    const hbd_payout = parseAsset(tr.hbd_payout);
     const hive_payout = parseAsset(tr.hive_payout);
-    const vesting_payout = parseAsset(tr.vesting_payout);
     numbers = (
       <>
-        {hbd_payout.amount > 0 && (
-          <span className="number">{formattedNumber(hbd_payout.amount, { suffix: "HBD" })}</span>
-        )}
         {hive_payout.amount > 0 && (
           <span className="number">{formattedNumber(hive_payout.amount, { suffix: "HIVE" })}</span>
-        )}
-        {vesting_payout.amount > 0 && (
-          <span className="number">
-            {formattedNumber(vestsToHp(vesting_payout.amount, hivePerMVests), { suffix: "HP" })}{" "}
-          </span>
         )}
       </>
     );
@@ -103,39 +63,12 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         </span>
       </EntryLink>
     );
-  }
-
-  if (tr.type === "claim_reward_balance") {
-    flag = true;
-
-    const reward_hbd = parseAsset(tr.reward_hbd);
-    const reward_hive = parseAsset(tr.reward_hive);
-    const reward_vests = parseAsset(tr.reward_vests);
-
-    numbers = (
-      <>
-        {reward_hbd.amount > 0 && (
-          <span className="number">{formattedNumber(reward_hbd.amount, { suffix: "HBD" })}</span>
-        )}
-        {reward_hive.amount > 0 && (
-          <span className="number">{formattedNumber(reward_hive.amount, { suffix: "HIVE" })}</span>
-        )}
-        {reward_vests.amount > 0 && (
-          <span className="number">
-            {formattedNumber(vestsToHp(reward_vests.amount, hivePerMVests), { suffix: "HP" })}
-          </span>
-        )}
-      </>
-    );
-  }
-
-  if (
+  } else if (
     tr.type === "transfer" ||
     tr.type === "transfer_to_vesting" ||
     tr.type === "transfer_to_savings"
   ) {
     flag = true;
-    // @ts-ignore
     icon = <UilArrowRight className="w-4 h-4" />;
 
     details = (
@@ -152,28 +85,9 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
     );
 
     numbers = <span className="number">{tr.amount}</span>;
-  }
-
-  if (tr.type === "set_withdraw_vesting_route") {
+  } else if (tr.type === "recurrent_transfer" || tr.type === "fill_recurrent_transfer") {
     flag = true;
-    icon = <TwoUserAvatar from={tr.from_account} to={tr.to_account} size="small" />;
-
-    details = (
-      <span>
-        {"Auto Vest:"} {tr.auto_vest} <br />
-        {"Percent:"} {tr.percent} <br />
-        <>
-          <strong>@{tr.from_account}</strong> -&gt; <strong>@{tr.to_account}</strong>
-        </>
-      </span>
-    );
-
-    numbers = <span className="number">{tr.percent}</span>;
-  }
-
-  if (tr.type === "recurrent_transfer" || tr.type === "fill_recurrent_transfer") {
-    flag = true;
-    icon = <TwoUserAvatar from={tr.from} to={tr.to} size="small" />;
+    icon = <UilRefresh className="w-4 h-4" />;
 
     details = (
       <span>
@@ -215,10 +129,7 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
       aam = `${t.amount} ${t.symbol}`;
     }
     numbers = <span className="number">{aam}</span>;
-  }
-
-  if (tr.type === "cancel_transfer_from_savings") {
-    flag = true;
+  } else if (tr.type === "cancel_transfer_from_savings") {
     icon = closeSvg;
 
     details = (
@@ -229,63 +140,7 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         <span />
       </Tsx>
     );
-  }
-
-  if (tr.type === "withdraw_vesting") {
-    flag = true;
-    icon = powerDownSvg;
-
-    const vesting_shares = parseAsset(tr.vesting_shares);
-    numbers = (
-      <span className="number">
-        {formattedNumber(vestsToHp(vesting_shares.amount, hivePerMVests), { suffix: "HP" })}
-      </span>
-    );
-
-    details = tr.acc ? (
-      <span>
-        <strong>@{tr.acc}</strong>
-      </span>
-    ) : null;
-  }
-
-  if (tr.type === "delegate_vesting_shares") {
-    flag = true;
-    icon = <TwoUserAvatar from={tr.delegator} to={tr.delegatee} size="small" />;
-
-    const vesting_shares = parseAsset(tr.vesting_shares);
-    numbers = (
-      <span className="number">
-        {formattedNumber(vestsToHp(vesting_shares.amount, hivePerMVests), { suffix: "HP" })}
-      </span>
-    );
-
-    details = tr.delegatee ? (
-      <span>
-        <>
-          <strong>@{tr.delegator}</strong> -&gt; <strong>@{tr.delegatee}</strong>
-        </>
-      </span>
-    ) : null;
-  }
-
-  if (tr.type === "fill_vesting_withdraw") {
-    flag = true;
-    icon = powerDownSvg;
-
-    numbers = <span className="number">{tr.deposited}</span>;
-
-    details = tr.from_account ? (
-      <span>
-        <strong>
-          @{tr.from_account} -&gt; @{tr.to_account}
-        </strong>
-      </span>
-    ) : null;
-  }
-
-  if (tr.type === "fill_order") {
-    flag = true;
+  } else if (tr.type === "fill_order") {
     icon = reOrderHorizontalSvg;
 
     numbers = (
@@ -293,10 +148,7 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         {tr.current_pays} = {tr.open_pays}
       </span>
     );
-  }
-
-  if (tr.type === "limit_order_create") {
-    flag = true;
+  } else if (tr.type === "limit_order_create") {
     icon = reOrderHorizontalSvg;
 
     numbers = (
@@ -304,10 +156,7 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         {tr.amount_to_sell} = {tr.min_to_receive}
       </span>
     );
-  }
-
-  if (tr.type === "limit_order_cancel") {
-    flag = true;
+  } else if (tr.type === "limit_order_cancel") {
     icon = reOrderHorizontalSvg;
 
     numbers = <span className="number">{tr.num}</span>;
@@ -316,30 +165,11 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         <strong>Order ID: {tr.orderid}</strong>
       </span>
     ) : null;
-  }
-
-  if (tr.type === "producer_reward") {
-    flag = true;
-    icon = pickAxeSvg;
-
-    numbers = (
-      <>
-        {formattedNumber(vestsToHp(parseAsset(tr.vesting_shares).amount, hivePerMVests), {
-          suffix: "HP"
-        })}
-      </>
-    );
-  }
-
-  if (tr.type === "interest") {
-    flag = true;
+  } else if (tr.type === "interest") {
     icon = cashMultiple;
 
     numbers = <span className="number">{tr.interest}</span>;
-  }
-
-  if (tr.type === "fill_convert_request") {
-    flag = true;
+  } else if (tr.type === "fill_convert_request") {
     icon = reOrderHorizontalSvg;
 
     numbers = (
@@ -347,10 +177,7 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         {tr.amount_in} = {tr.amount_out}
       </span>
     );
-  }
-
-  if (tr.type === "fill_collateralized_convert_request") {
-    flag = true;
+  } else if (tr.type === "fill_collateralized_convert_request") {
     icon = reOrderHorizontalSvg;
 
     numbers = (
@@ -366,30 +193,11 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         <span />
       </Tsx>
     );
-  }
-
-  if (tr.type === "return_vesting_delegation") {
-    flag = true;
-    icon = powerUpSvg;
-
-    numbers = (
-      <>
-        {formattedNumber(vestsToHp(parseAsset(tr.vesting_shares).amount, hivePerMVests), {
-          suffix: "HP"
-        })}
-      </>
-    );
-  }
-
-  if (tr.type === "proposal_pay") {
-    flag = true;
+  } else if (tr.type === "proposal_pay") {
     icon = ticketSvg;
 
     numbers = <span className="number">{tr.payment}</span>;
-  }
-
-  if (tr.type === "update_proposal_votes") {
-    flag = true;
+  } else if (tr.type === "update_proposal_votes") {
     icon = tr.approve ? chevronUpSvgForVote : chevronDownSvgForSlider;
 
     details = (
@@ -397,60 +205,7 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         <span />
       </Tsx>
     );
-  }
-
-  if (tr.type === "comment_payout_update") {
-    flag = true;
-    icon = starsSvg;
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
-  }
-
-  if (tr.type === "comment_reward") {
-    flag = true;
-    icon = cashCoinSvg;
-
-    const payout = parseAsset(tr.payout);
-
-    numbers = (
-      <>
-        {payout.amount > 0 && (
-          <span className="number">{formattedNumber(payout.amount, { suffix: "HBD" })}</span>
-        )}
-      </>
-    );
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
-  }
-
-  if (tr.type === "collateralized_convert") {
-    flag = true;
+  } else if (tr.type === "collateralized_convert") {
     icon = exchangeSvg;
     const amount = parseAsset(tr.amount);
 
@@ -467,39 +222,7 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         <span />
       </Tsx>
     );
-  }
-
-  if (tr.type === "effective_comment_vote") {
-    flag = true;
-
-    const payout = parseAsset(tr.pending_payout);
-
-    numbers = (
-      <>
-        {payout.amount > 0 && (
-          <span className="number">{formattedNumber(payout.amount, { suffix: "HBD" })}</span>
-        )}
-      </>
-    );
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
-  }
-
-  if (tr.type === "account_witness_proxy") {
-    flag = true;
+  } else if (tr.type === "account_witness_proxy") {
     icon = tr.proxy ? (
       <TwoUserAvatar from={tr.account} to={tr.proxy} size="small" />
     ) : (
@@ -511,29 +234,31 @@ export function HiveTransactionRow({ entry, transaction: item }: Props) {
         <strong>@{tr.account}</strong> -&gt; <strong>{tr.proxy ? `@${tr.proxy}` : ""}</strong>
       </span>
     );
+  } else {
+    flag = false;
   }
 
   if (flag) {
     return (
-      <div className="leading-[1] border-b border-[--border-color] p-4 grid items-start gap-4 grid-cols-[32px_1fr_1fr_max-content]">
-        <div className="text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-dark-grey flex items-center justify-center p-2 rounded-lg">
-          {icon}
-        </div>
-        <div className="transaction-title">
-          <div>{i18next.t(`transactions.type-${tr.type}`)}</div>
-          <div className="text-sm mt-1 text-gray-600 dark:text-gray-400">
-            {format(new Date(tr.timestamp), "dd.MM.yyyy hh:mm")}
-          </div>
-        </div>
-        <div className="text-sm">{details}</div>
-        <div className="text-blue-dark-sky">{numbers}</div>
-      </div>
+      <ProfileWalletTokenHistoryHiveItem
+        icon={icon}
+        type={tr.type}
+        timestamp={tr.timestamp}
+        numbers={numbers}
+      >
+        {details}
+      </ProfileWalletTokenHistoryHiveItem>
     );
   }
 
   return (
-    <div className="transaction-list-item transaction-list-item-raw">
-      <div className="raw-code">{JSON.stringify(tr)}</div>
-    </div>
+    <ProfileWalletTokenHistoryHiveItem
+      icon={icon}
+      type={tr.type}
+      timestamp={tr.timestamp}
+      numbers={numbers}
+    >
+      <code>{JSON.stringify(tr)}</code>
+    </ProfileWalletTokenHistoryHiveItem>
   );
 }
