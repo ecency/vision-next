@@ -18,7 +18,7 @@ import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
 import { useClientActiveUser } from "@/api/queries";
 
-export default function ProfileWalletTokenPicker() {
+export function ProfileWalletTokenPicker() {
   const { username } = useParams();
   const activeUser = useClientActiveUser();
 

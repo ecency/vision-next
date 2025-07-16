@@ -7,8 +7,9 @@ import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { ProfileWalletTokensListItem } from "./profile-wallet-tokens-list-item";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
 
-export default function ProfileWalletTokensList() {
+export function ProfileWalletTokensList() {
   const { username } = useParams();
   const { data } = useQuery(
     getAccountWalletListQueryOptions((username as string).replace("%40", ""))
@@ -36,6 +37,8 @@ export default function ProfileWalletTokensList() {
           username={(username as string).replace("%40", "")}
         />
       ))}
+      {data?.length === 0 &&
+        new Array(6).fill(1).map((_, i) => <ProfileWalletTokensListItemLoading key={i} />)}
     </div>
   );
 }

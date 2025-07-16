@@ -8,6 +8,7 @@ import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import clsx from "clsx";
+import { ProfileCardLoading } from "./_components/profile-card/profile-card-loading";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -37,7 +38,7 @@ export default function ProfileLayout({ params, children }: PropsWithChildren<Pr
             showSidebar ? "static" : "md:absolute"
           )}
         >
-          {account && <ProfileCard account={account} />}
+          {account ? <ProfileCard account={account} /> : <ProfileCardLoading />}
 
           <span itemScope={true} itemType="http://schema.org/Person">
             <meta itemProp="name" content={account?.profile?.name || account?.name} />

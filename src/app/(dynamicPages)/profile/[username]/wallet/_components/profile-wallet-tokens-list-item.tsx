@@ -42,6 +42,15 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     }
   }, [allTokens?.layer2, asset, data]);
 
+  if (!data) {
+    <div className="border-b last:border-0 border-[--border-color] grid grid-cols-4 gap-4 p-3 md:p-4">
+      <div className="w-full rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+      <div className="w-full rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+      <div className="w-full rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+      <div className="w-full rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+    </div>;
+  }
+
   return (
     <div
       className="border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900"
@@ -67,7 +76,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
           <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
         </div>
         <div>
-          <div>{data?.accountBalance}</div>
+          <div>{data?.accountBalance.toFixed(3)}</div>
           {data?.parts?.map(({ name, balance }) => (
             <div
               key={name}

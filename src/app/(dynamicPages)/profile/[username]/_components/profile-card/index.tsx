@@ -32,7 +32,7 @@ interface Props {
   account: Account;
 }
 
-export const ProfileCard = ({ account }: Props) => {
+export function ProfileCard({ account }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   const { data } = getAccountFullQuery(account.name).useClientQuery();
@@ -60,7 +60,11 @@ export const ProfileCard = ({ account }: Props) => {
   );
 
   return (
-    <div className="rounded-xl w-full overflow-hidden relative p-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="rounded-xl w-full overflow-hidden relative p-4"
+    >
       <Image
         className="absolute top-0 left-0 w-full h-[96px] object-cover"
         src={imageSrc ?? data?.profile.cover_image ?? ""}
@@ -96,7 +100,16 @@ export const ProfileCard = ({ account }: Props) => {
             @{account.name}
             <Badge className="!px-1 !py-0">{accountReputation(data?.reputation ?? 0)}</Badge>
           </span>
-          {data?.profile.about && <div className="text-sm">{data?.profile.about}</div>}
+          {data?.profile.about && (
+            <motion.div
+              initial={{ height: 20 }}
+              animate={{ height: "auto" }}
+              transition={{ delay: 0.1 }}
+              className="text-sm overflow-hidden"
+            >
+              {data?.profile.about}
+            </motion.div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 pb-4">
@@ -185,6 +198,6 @@ export const ProfileCard = ({ account }: Props) => {
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
-};
+}

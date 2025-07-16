@@ -1,27 +1,18 @@
-"use client";
-
-import dynamic from "next/dynamic";
-
-const ProfileWalletTokenPicker = dynamic(
-  () => import("./_components/profile-wallet-token-picker"),
-  { ssr: false }
-);
-const ProfileWalletTokensList = dynamic(() => import("./_components/profile-wallet-tokens-list"), {
-  ssr: false
-});
-
-const ProfileWalletSummary = dynamic(() => import("./_components/profile-wallet-summary"), {
-  ssr: false
-});
-
+import {
+  ProfileWalletSummary,
+  ProfileWalletTokenPicker,
+  ProfileWalletTokensList
+} from "./_components";
+import { Metadata, ResolvingMetadata } from "next";
+import { generateProfileMetadata } from "../_helpers";
 interface Props {
   params: Promise<{ username: string }>;
 }
 
-// export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
-//   const { username } = await props.params;
-//   return generateProfileMetadata(username.replace("%40", ""), "wallet");
-// }
+export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+  const { username } = await props.params;
+  return generateProfileMetadata(username.replace("%40", ""), "wallet");
+}
 
 export default function WalletPage({ params }: Props) {
   return (
