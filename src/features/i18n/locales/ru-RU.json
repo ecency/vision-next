@@ -1494,12 +1494,12 @@
     "emoji": "Emoji",
     "image-error": "Couldn't upload image.",
     "image-error-cache": ".",
-    "image-error-size": "Image size is too large, try smaller size image again.",
-    "image-error-conflict-name": "You have image with this filename already. Select it from gallery instead.",
-    "fragments": "Snippets",
-    "link-image": "Link",
-    "polls": "Polls",
-    "image-error-network": "Can't upload image due to API error"
+    "image-error-size": "Слишком большой размер изображения. Попробуйте уменьшить его.",
+    "image-error-conflict-name": "У вас уже есть изображение с таким именем. Выберите его из галереи.",
+    "fragments": "Снипеты",
+    "link-image": "Ссылка",
+    "polls": "Опросы",
+    "image-error-network": "Не удается загрузить изображение из-за ошибки API"
   },
   "emoji-picker": {
     "filter-placeholder": "Filter",
