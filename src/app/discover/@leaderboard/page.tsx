@@ -1,3 +1,5 @@
+"use client";
+
 import { LeaderBoardDuration } from "@/entities";
 import { EcencyConfigManager } from "@/config";
 import { getDiscoverLeaderboardQuery } from "@/api/queries";
@@ -16,15 +18,18 @@ import { Badge } from "@ui/badge";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { medalSvg } from "@ui/svg";
 import { classNameObject } from "@ui/util";
+import { useParams, useSearchParams } from "next/navigation";
 
 interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-export default async function LeaderboardPage({ searchParams }: Props) {
-  const period = (await searchParams)["period"] as LeaderBoardDuration;
+export default function LeaderboardPage({ searchParams }: Props) {
+  const params = useSearchParams();
 
-  const data = await getDiscoverLeaderboardQuery(period ?? "day").prefetch();
+  const { data } = getDiscoverLeaderboardQuery(
+    (params.get("period") as LeaderBoardDuration) ?? "day"
+  ).useClientQuery();
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
@@ -33,7 +38,9 @@ export default async function LeaderboardPage({ searchParams }: Props) {
       >
         <UsersTableListLayout>
           <div className="flex justify-between items-center">
-            <div className="font-semibold">{i18next.t(`leaderboard.title-${period ?? "day"}`)}</div>
+            <div className="font-semibold">
+              {i18next.t(`leaderboard.title-${params.get("period") ?? "day"}`)}
+            </div>
             <DiscoverPeriodDropdown />
           </div>
           <UserTableListHeader>
