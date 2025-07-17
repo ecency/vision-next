@@ -1,3 +1,5 @@
+"use client";
+
 import {
   UsersTableListItem,
   UsersTableListLayout,
@@ -14,16 +16,19 @@ import { formattedNumber, vestsToHp } from "@/utils";
 import React from "react";
 import { Badge } from "@ui/badge";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
+import { useSearchParams } from "next/navigation";
 
 interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-export default async function CurationPage({ searchParams }: Props) {
-  const period = (await searchParams)["period"] as LeaderBoardDuration;
+export default function CurationPage({ searchParams }: Props) {
+  const params = useSearchParams();
 
-  const dynamicProps = await getDynamicPropsQuery().prefetch();
-  const data = await getDiscoverCurationQuery((period as LeaderBoardDuration) ?? "day").prefetch();
+  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data } = getDiscoverCurationQuery(
+    (params.get("period") as LeaderBoardDuration) ?? "day"
+  ).useClientQuery();
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
@@ -34,7 +39,7 @@ export default async function CurationPage({ searchParams }: Props) {
           <div className="flex justify-between items-center">
             <div className="font-semibold">{i18next.t("leaderboard.title-curators")}</div>
             <div className="text-sm opacity-50">
-              {i18next.t(`leaderboard.title-${period ?? "day"}`)}
+              {i18next.t(`leaderboard.title-${params.get("period") ?? "day"}`)}
             </div>
           </div>
           <UserTableListHeader>
