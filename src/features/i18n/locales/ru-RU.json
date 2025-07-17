@@ -716,36 +716,36 @@
       "view-details": "View details",
       "chart": "Диаграмма",
       "trading-form-auth-required": "Вы должны быть авторизованы для сделки",
-      "open-orders-auth-required": "You have to be authorized to see open orders",
-      "empty-open-orders": "No orders",
+      "open-orders-auth-required": "Вы должны быть авторизованы, чтобы увидеть открытые ордера",
+      "empty-open-orders": "Нет ордеров",
       "history-widget": {
-        "price": "Price",
-        "amount": "Amount",
-        "volume": "Volume",
-        "time": "Time"
+        "price": "Цена",
+        "amount": "Сумма",
+        "volume": "Объем",
+        "time": "Время"
       }
     }
   },
   "list-style": {
-    "title": "Toggle list style"
+    "title": "Переключить стиль списка"
   },
   "entry-votes": {
-    "title": "1 Vote",
-    "title-n": "{{n}} Votes",
-    "title-empty": "No Votes",
-    "sort": "Sort",
-    "sort-reward": "Reward",
-    "sort-timestamp": "Time",
-    "sort-reputation": "Reputation",
-    "sort-percent": "Percentage",
-    "pending-message": "Content has pending votes. Please, wait a minute and refresh this dialog to see new votes."
+    "title": "1 Голос",
+    "title-n": "Голоса: {{n}}",
+    "title-empty": "Нет голосов",
+    "sort": "Сортировать",
+    "sort-reward": "Награда",
+    "sort-timestamp": "Время",
+    "sort-reputation": "Репутация",
+    "sort-percent": "Процент",
+    "pending-message": "Контент ожидает голосования. Пожалуйста, подождите минуту и обновите это диалоговое окно, чтобы увидеть новые голоса."
   },
   "entry": {
-    "via-app": "via <span class=\"app-name\">{{app}}</span>",
-    "author-reputation": "Author's reputation",
-    "disclaimer": "This post was published via {{appName}}. Ecency is not the originator or editor of this content and displays it for discovery purposes only.",
+    "via-app": "через <span class=\"app-name\">{{app}}</span>",
+    "author-reputation": "Репутация автора",
+    "disclaimer": "Это сообщение было опубликовано через {{appName}}. Эчень не является автором или редактором этого содержания и отображает его только в целях поиска.",
     "comment-entry-title": "You are viewing a single comment's thread from: ",
-    "comment-entry-go-root": "View the full context",
+    "comment-entry-go-root": "Просмотр полного контекста",
     "comment-entry-go-parent": "View the direct parent",
     "hidden-warning": "This content got low rating by people.",
     "delete-disabled": "Content after their payout cannot be deleted.",
