@@ -1141,8 +1141,8 @@
         "1": "Зарабатывает токены управления SPK",
         "2": "Мгновенная блокировка | Разблокировка 4 недели",
         "3": "Делегирование учетным записям держателям нод для достижения консенсуса (DPoS)",
-        "4": "LARYNX POWER (LP) earns SPK tokens at {{rate}}%",
-        "5": "Delegated LP (DLP) earns SPK tokens for both delegator and delegate at {{rate}}%"
+        "4": "LARYNX POWER (LP) зарабатывает токены SPK {{rate}}%",
+        "5": ""
       },
       "larynx-locked-benefits": {
         "title": "Benefits of LARYNX Locked",
