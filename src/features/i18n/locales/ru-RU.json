@@ -1075,52 +1075,52 @@
     "convert": "Конвертировать",
     "power-up": "Повысить силу",
     "withdraw-hive": "Вывести Hive",
-    "withdraw-hbd": "Withdraw Hive Dollar",
-    "delegate": "Delegate",
-    "power-down": "Power down",
-    "withdraw-routes": "Withdraw Routes",
-    "calculating": "Calculating",
+    "withdraw-hbd": "Вывести Hive Dollar",
+    "delegate": "Делегировать",
+    "power-down": "Понизить силу",
+    "withdraw-routes": "Установить маршрут вывода",
+    "calculating": "Вычисление",
     "converting-hbd-amount": "Converting to HIVE",
     "converting-hive-amount": "Converting to HBD",
-    "withdrawing-amount": "Withdrawing from Savings",
-    "reserved-amount": "Reserved for Open order in Market",
+    "withdrawing-amount": "Вывести из сейфа",
+    "reserved-amount": "Зарезервировано для открытого ордера на рынке",
     "spk": {
       "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Unclaimed rewards"
+        "title": "Получить",
+        "unclaimed-rewards": "Невостребованные награды"
       },
       "delegate": {
-        "title": "Delegate",
-        "subtitle": "Delegate tokens",
-        "node-operator-placeholder": "Select a node operator",
+        "title": "Делегирование",
+        "subtitle": "Делегировать токены",
+        "node-operator-placeholder": "Выберите оператора ноды",
         "delegated-larynx-power": {
-          "title": "Delegated LARYNX Power"
+          "title": "Делегированная LARYNX Power"
         }
       },
       "power-up": {
-        "title": "Power up",
-        "subtitle": "Power up to earn passive rewards"
+        "title": "Повысить силу",
+        "subtitle": "Повысить силу, чтобы заработать пассивные награды"
       },
       "power-down": {
-        "title": "Power down",
-        "subtitle": "Power down to earn passive rewards",
-        "in-progress": "A power down is scheduled to happen in {{date}} ({{count}} installments remaining)"
+        "title": "Понизить силу",
+        "subtitle": "Понизить силу, чтобы заработать пассивные награды",
+        "in-progress": "Понижение запланировано на {{date}} (осталось {{count}} платежей)"
       },
       "lock": {
-        "title": "Lock Liquidity",
-        "subtitle": "Locking Larynx for liquidity reward",
-        "button": "Lock liquidity"
+        "title": "Блокировка ликвидности",
+        "subtitle": "Блокировка Larynx для вознаграждения за ликвидность",
+        "button": "Блокировать ликвидность"
       },
       "unlock": {
-        "title": "Unlock Liquidity",
+        "title": "Разблокировать ликвидность",
         "subtitle": "Unlock LARYNX to liquid form",
-        "button": "Unlock liquidity"
+        "button": "Разблокировать ликвидность"
       },
       "send": {
-        "balance": "Balance",
-        "button": "Send",
-        "from": "From",
-        "to": "To",
+        "balance": "Баланс",
+        "button": "Отправить",
+        "from": "От",
+        "to": "Кому",
         "amount": "Количество",
         "optional": "опционально",
         "title": "Отправить SPK",
@@ -1138,9 +1138,9 @@
       "larynx-power-description": "Активированные токены, используемые для майнинга SPK",
       "larynx-power-benefits": {
         "title": "",
-        "1": "Earns SPK governance tokens",
-        "2": "Instant Lock | 4 Week Unlock",
-        "3": "Delegate to node service accounts to build consensus (DPoS)",
+        "1": "Зарабатывает токены управления SPK",
+        "2": "Мгновенная блокировка | Разблокировка 4 недели",
+        "3": "Делегирование учетным записям держателям нод для достижения консенсуса (DPoS)",
         "4": "LARYNX POWER (LP) earns SPK tokens at {{rate}}%",
         "5": "Delegated LP (DLP) earns SPK tokens for both delegator and delegate at {{rate}}%"
       },
