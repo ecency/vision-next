@@ -1,23 +1,17 @@
-import { getAccountAssetTransactionsQueryOptions } from "@ecency/wallets";
-import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { useParams } from "next/navigation";
-import { TRANSACTIONS_ICONS, TRANSACTIONS_LABELS } from "../_consts";
+import { GeneralAssetTransaction } from "@ecency/wallets";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { TRANSACTIONS_ICONS, TRANSACTIONS_LABELS } from "../_consts";
 import { ProfileWalletTokenHistoryCard } from "./profile-wallet-token-history-card";
 
-export default function ProfileWalletTokenHistory() {
-  const { token, username } = useParams();
+interface Props {
+  data: GeneralAssetTransaction[];
+}
 
-  const { data } = useQuery(
-    getAccountAssetTransactionsQueryOptions(
-      (username as string).replace("%40", ""),
-      (token as string).toUpperCase()
-    )
-  );
+export function ProfileWalletTokenHistory({ data }: Props) {
   return (
     <ProfileWalletTokenHistoryCard>
-      {data?.map(({ created, type, results }) => (
+      {data.map(({ created, type, results }) => (
         <motion.div
           className="flex items-start justify-between gap-4 px-4 py-2 md:py-4 border-b border-[--border-color] last:border-0"
           key={created.getTime()}

@@ -17,7 +17,7 @@ export function ProfileWalletTokenHistoryHiveItem({
   numbers
 }: PropsWithChildren<Props>) {
   return (
-    <div className="leading-[1] border-b border-[--border-color] p-4 grid items-start gap-4 grid-cols-[32px_2fr_2fr_1fr]">
+    <div className="leading-[1] border-b border-[--border-color] p-4 grid items-start gap-4 grid-cols-[32px_2fr_2fr_1fr] last:border-0">
       <div className="text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-dark-grey flex items-center justify-center p-2 rounded-lg">
         {icon}
       </div>

@@ -31,8 +31,8 @@ export default function ProfileLayout({ params, children }: PropsWithChildren<Pr
       <Navbar experimental={true} />
       <div className="profile-page pt-[72px] md:pt-[128px] max-w-[1600px] sm:px-4 md:px-6 lg:px-8 mx-auto flex gap-4 md:gap-6 xl:gap-8 bg-blue-duck-egg dark:bg-dark-700 min-h-[100vh] items-start">
         <motion.div
-          onViewportEnter={() => setShowSidebar(true)}
-          onViewportLeave={() => setShowSidebar(false)}
+          // onViewportEnter={() => setShowSidebar(true)}
+          // onViewportLeave={() => setShowSidebar(false)}
           className={clsx(
             "bg-white rounded-xl min-w-[280px] max-w-[280px]",
             showSidebar ? "static" : "md:absolute"
