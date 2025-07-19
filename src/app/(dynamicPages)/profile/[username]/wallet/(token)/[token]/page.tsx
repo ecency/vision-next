@@ -1,7 +1,12 @@
 "use client";
 
-import { HiveEngineTokenHistory } from "./_components";
+import { HiveEngineChart, HiveEngineTokenHistory } from "./_components";
 
 export default function TokenPage() {
-  return <HiveEngineTokenHistory />;
+  return (
+    <>
+      <HiveEngineChart />
+      <HiveEngineTokenHistory />
+    </>
+  );
 }
