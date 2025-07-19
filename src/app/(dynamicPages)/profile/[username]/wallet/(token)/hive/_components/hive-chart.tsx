@@ -1,14 +1,16 @@
+import { TradingViewQueryDataItem } from "@/app/market/advanced/_components/api";
 import { useGlobalStore } from "@/core/global-store";
-import { getHiveEngineTokensMetricsQueryOptions } from "@ecency/wallets";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteDataFlow } from "@/utils";
+import { getHiveAssetMetricQueryOptions } from "@ecency/wallets";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { createChart, IChartApi, ISeriesApi } from "lightweight-charts";
+import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
 import { useParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import { useMount } from "react-use";
 
-export function HiveEngineChart() {
+export function HiveChart() {
   const theme = useGlobalStore((s) => s.theme);
 
   const { token } = useParams();
@@ -17,20 +19,29 @@ export function HiveEngineChart() {
   const chartRef = useRef<IChartApi>();
   const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick">>();
 
-  const { data } = useQuery({
-    ...getHiveEngineTokensMetricsQueryOptions(token as string),
-    select: (items) =>
-      items
-        .map((item) => ({
-          open: +item.open,
-          close: +item.close,
-          high: +item.high,
-          low: +item.low,
-          volume: +item.quoteVolume,
-          time: format(new Date(item.timestamp * 1000), "yyyy-MM-dd")
-        }))
-        .sort((a, b) => Number(a.time) - Number(b.time))
-  });
+  const {
+    data: dataPages,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useInfiniteQuery(getHiveAssetMetricQueryOptions());
+
+  const data = useInfiniteDataFlow(dataPages);
+  const uniqueData = useMemo(
+    () =>
+      Array.from(
+        data
+          .reduce(
+            (acc, item) =>
+              acc.set(format(item.time, "yyyy-MM-dd"), {
+                ...item,
+                time: format(item.time, "yyyy-MM-dd")
+              }),
+            new Map<Time, TradingViewQueryDataItem>()
+          )
+          .values()
+      ).sort((a, b) => Number(a.time) - Number(b.time)),
+    [data]
+  );
 
   useMount(() => {
     if (!chartContainerRef.current || chartRef.current) {
@@ -87,11 +98,11 @@ export function HiveEngineChart() {
   });
 
   useEffect(() => {
-    if (candleStickSeriesRef.current && data) {
+    if (candleStickSeriesRef.current && uniqueData) {
       candleStickSeriesRef.current.setData([]);
-      candleStickSeriesRef.current.setData([...data]);
+      candleStickSeriesRef.current.setData(uniqueData);
     }
-  }, [data]);
+  }, [uniqueData]);
 
   return (
     <div className="bg-white rounded-xl mb-4">

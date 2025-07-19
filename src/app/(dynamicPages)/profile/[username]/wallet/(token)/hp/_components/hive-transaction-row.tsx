@@ -52,17 +52,9 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
   } else if (tr.type === "author_reward" || tr.type === "comment_benefactor_reward") {
     icon = cashCoinSvg;
 
-    const hbd_payout = parseAsset(tr.hbd_payout);
-    const hive_payout = parseAsset(tr.hive_payout);
     const vesting_payout = parseAsset(tr.vesting_payout);
     numbers = (
       <>
-        {hbd_payout.amount > 0 && (
-          <span className="number">{formattedNumber(hbd_payout.amount, { suffix: "HBD" })}</span>
-        )}
-        {hive_payout.amount > 0 && (
-          <span className="number">{formattedNumber(hive_payout.amount, { suffix: "HIVE" })}</span>
-        )}
         {vesting_payout.amount > 0 && (
           <span className="number">
             {formattedNumber(vestsToHp(vesting_payout.amount, hivePerMVests), { suffix: "HP" })}{" "}
