@@ -53,7 +53,7 @@ export function ProfileWalletTokenSummary() {
   }, [allTokens?.layer2, data]);
 
   if (isFetching) {
-    <div className="bg-white rounded-xl p-3 flex flex-col justify-between gap-4">
+    <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
       <div className="flex justify-between">
         <div className="w-[90px] rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
         <div className="w-[56px] rounded-lg animate-pulse h-[24px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
@@ -67,7 +67,7 @@ export function ProfileWalletTokenSummary() {
   }
 
   return (
-    <div className="bg-white rounded-xl p-3 flex flex-col justify-between gap-4">
+    <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
       <div className="flex justify-between">
         <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
           <div className="mt-1">{logo}</div>

@@ -52,7 +52,7 @@ export function ProfileWalletTokenActions() {
       {operations?.map((operation) => (
         <div
           className={clsx(
-            "bg-white rounded-xl p-3 flex flex-col sm:flex-row items-center text-center text-sm gap-2 cursor-pointer border border-white dark:border-dark-200 hover:border-blue-dark-sky dark:hover:border-blue-dark-sky hover:text-blue-dark-sky duration-300",
+            " bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col sm:flex-row items-center text-center text-sm gap-2 cursor-pointer border border-white dark:border-dark-200 hover:border-blue-dark-sky dark:hover:border-blue-dark-sky hover:text-blue-dark-sky duration-300",
             AssetOperation.Buy === operation && "text-blue-dark-sky border border-blue-dark-sky"
           )}
           key={operation}
@@ -64,7 +64,10 @@ export function ProfileWalletTokenActions() {
         </div>
       ))}
       {new Array(6 - (operations?.length ?? 0)).fill(1).map((_, i) => (
-        <div className="bg-gray-100 dark:bg-gray-900 rounded-xl p-3 flex flex-col gap-4" key={i} />
+        <div
+          className=" bg-white/60 dark:bg-dark-200/70 glass-box rounded-xl p-3 flex flex-col gap-4"
+          key={i}
+        />
       ))}
     </div>
   );

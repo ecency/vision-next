@@ -19,7 +19,7 @@ export default function TokenPage() {
   );
   return (
     <>
-      <div className="bg-white rounded-xl mb-4">
+      <div className=" bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl mb-4">
         <div className="p-4 flex justify-between">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {i18next.t("points.earn-points")}
