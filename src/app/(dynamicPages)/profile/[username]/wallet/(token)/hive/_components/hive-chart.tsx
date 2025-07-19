@@ -1,10 +1,14 @@
 import { TradingViewQueryDataItem } from "@/app/market/advanced/_components/api";
 import { useGlobalStore } from "@/core/global-store";
+import { Button } from "@/features/ui";
 import { useInfiniteDataFlow } from "@/utils";
 import { getHiveAssetMetricQueryOptions } from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 import { format } from "date-fns";
+import i18next from "i18next";
 import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
@@ -106,7 +110,19 @@ export function HiveChart() {
 
   return (
     <div className="bg-white rounded-xl mb-4">
-      <div className="p-4 text-sm text-gray-600 dark:text-gray-400">Market</div>
+      <div className="p-4 flex justify-between">
+        <div className="text-sm text-gray-600 dark:text-gray-400">Market</div>
+
+        <Button
+          href="/marked/advanced"
+          target="_blank"
+          appearance="gray"
+          size="sm"
+          icon={<UilArrowUpRight />}
+        >
+          {i18next.t("market-data.trade")}
+        </Button>
+      </div>
       <div className="px-4 pb-4">
         <div className="h-[200px]" ref={chartContainerRef} />
       </div>
