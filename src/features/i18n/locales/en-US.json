@@ -972,7 +972,8 @@
     "no-posts-community": "Join and post in this community",
     "create-posts": "Let's create a new post",
     "link-copied": "Search link copied to clipboard",
-    "no-posts-found": "Found nothing!"
+    "no-posts-found": "Found nothing!",
+    "subscribe": "Subscribe"
   },
   "rc-info": {
     "available": "Available",
@@ -1203,6 +1204,7 @@
     "checkin-extra-desc": "Consistent use of app gives you extra chances to earn more 10 points, be more active and earn more.",
     "delegation-desc": "You can earn ~100 points per day for each 1000HP delegation.",
     "community-desc": "Register your community to get 20 points for per post published with Ecency applications.",
+    "referral-desc": "Invite friends and earn Points",
     "history": "History",
     "post-list-desc": "Points for post",
     "comment-list-desc": "Points for comment",
@@ -2829,5 +2831,28 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "profile-wallet": {
+    "pick-tokens": "Pick tokens to show",
+    "search-token": "Search token",
+    "setup-tokens": "Setup assets",
+    "asset-name": "Asset name",
+    "price": "Price",
+    "balance": "Balance",
+    "apr": "APR Rewards",
+    "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe",
+    "operations": {
+      "transfer": "Transfer",
+      "transfer_savings": "To Savings",
+      "power_up": "Power Up",
+      "power_down": "Power Down",
+      "swap": "Swap",
+      "delegate": "Delegate",
+      "withdraw_routes": "Withdraw routes",
+      "gift": "Gift",
+      "promote": "Promote",
+      "claim": "Claim",
+      "buy": "Buy"
+    }
   }
 }
