@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { TOKEN_COLORS_MAP } from "../_consts";
+import clsx from "clsx";
 
 export function ProfileWalletSummary() {
   const { username } = useParams();
@@ -99,10 +100,10 @@ export function ProfileWalletSummary() {
         )}
         {assetsParts.map(({ asset, percent, usdValue }) => (
           <motion.div
-            className="p-2"
-            style={{
-              backgroundColor: TOKEN_COLORS_MAP[asset] ?? "#fcc920"
-            }}
+            className={clsx(
+              "p-2",
+              TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
+            )}
             initial={{ opacity: 0, width: "0%" }}
             animate={{ opacity: 1, width: `${percent}%` }}
             key={asset}

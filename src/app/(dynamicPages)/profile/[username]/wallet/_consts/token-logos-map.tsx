@@ -71,11 +71,11 @@ export const TOKEN_LOGOS_MAP: Record<string, ReactNode> = {
 };
 
 export const TOKEN_COLORS_MAP: Record<string, string> = {
-  HIVE: "#e05e5e",
-  HP: "#b33f3f",
-  HBD: "#69bb84",
-  SPK: "#14a2b8",
-  LARYNX: "#1c8798",
-  LP: "#529fab",
-  POINTS: "#357ce6"
+  HIVE: "bg-gradient-to-r from-[#e05e5e] to-[#e05e5e]/60",
+  HP: "bg-gradient-to-r from-[#e05e5e] to-[#e05e5e]/60",
+  HBD: "bg-gradient-to-r from-[#69bb84] to-[#69bb84]/60",
+  SPK: "bg-gradient-to-r from-[#14a2b8] to-[#14a2b8]/60",
+  LARYNX: "bg-gradient-to-r from-[#1c8798] to-[#1c8798]/60",
+  LP: "bg-gradient-to-r from-[#529fab] to-[#529fab]/60",
+  POINTS: "bg-gradient-to-r from-[#357ce6] to-[#357ce6]/60"
 };
