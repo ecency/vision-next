@@ -50,7 +50,7 @@ export function EntryPageContentSSR({ entry }: Props) {
             <EntryPageStaticBody entry={entry} />
             {postPoll && (
                 <div className="pb-6">
-                    <PollWidget entry={entry} poll={postPoll} isReadOnly={true} />
+                    <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />
                 </div>
             )}
             <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
