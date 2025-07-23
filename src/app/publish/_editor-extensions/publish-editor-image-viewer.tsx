@@ -47,7 +47,7 @@ export function PublishEditorImageViewer({
   const { mutateAsync: uploadImage } = useUploadPostImage();
 
   useMount(() => {
-    if (src.startsWith("blob")) {
+    if (typeof src === "string" && src.startsWith("blob")) {
       fetch(src)
         .then((response) => response.blob())
         .then((blob) => new File([blob], alt, { type: blob.type }))
@@ -76,13 +76,13 @@ export function PublishEditorImageViewer({
             <div
               className={clsx(
                 "absolute top-0 left-0 w-full h-full items-center justify-center",
-                src.startsWith("blob") ? "flex" : "hidden"
+                  typeof src === "string" && src.startsWith("blob") ? "flex" : "hidden"
               )}
             >
               <UilSpinner className="w-12 h-12 text-white animate-spin" />
             </div>
             <Image
-              className={clsx("w-auto max-w-full", src.startsWith("blob") && "grayscale blur-sm")}
+              className={clsx("w-auto max-w-full", typeof src === "string" && src.startsWith("blob") && "grayscale blur-sm")}
               src={src}
               width={200}
               height={200}
@@ -97,7 +97,7 @@ export function PublishEditorImageViewer({
       >
         <PopoverContent>
           <div className="flex gap-2">
-            {src.includes("https://images.ecency.com") && (
+            {typeof src === "string" && src.includes("https://images.ecency.com") && (
               <Button
                 noPadding={true}
                 size="xs"
@@ -112,7 +112,7 @@ export function PublishEditorImageViewer({
                 Small
               </Button>
             )}
-            {src.includes("https://images.ecency.com") && (
+            {typeof src === "string" && src.includes("https://images.ecency.com") && (
               <Button
                 noPadding={true}
                 size="xs"
@@ -127,7 +127,7 @@ export function PublishEditorImageViewer({
                 Medium
               </Button>
             )}
-            {src.includes("https://images.ecency.com") && (
+            {typeof src === "string" && src.includes("https://images.ecency.com") && (
               <Button
                 noPadding={true}
                 size="xs"
@@ -142,7 +142,7 @@ export function PublishEditorImageViewer({
                 Original
               </Button>
             )}
-            {src.includes("https://images.ecency.com") && (
+            {typeof src === "string" && src.includes("https://images.ecency.com") && (
               <div className="h-[36px] -my-2 w-[1px] bg-[--border-color]" />
             )}
             <Button
