@@ -160,7 +160,9 @@ export const TagMentionExtensionConfig = {
 
       onExit() {
         if (reactRenderer) {
-          placementArea?.removeChild(reactRenderer.element);
+          if (reactRenderer.element && placementArea?.contains(reactRenderer.element)) {
+            placementArea.removeChild(reactRenderer.element);
+          }
           reactRenderer.destroy();
         }
       }
