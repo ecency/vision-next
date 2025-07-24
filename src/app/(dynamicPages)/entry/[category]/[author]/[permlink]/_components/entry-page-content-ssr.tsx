@@ -54,7 +54,7 @@ export function EntryPageContentSSR({ entry }: Props) {
           <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />
         </div>
       )}
-      <div className="entry-footer bg-white rounded-xl flex-wrap my-4 lg:mb-8 p-2 md:p-4">
+      <div className="entry-footer bg-white/80 rounded-xl flex-wrap my-4 lg:mb-8 p-2 md:p-4">
         {location?.coordinates && (
           <Link
             href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}

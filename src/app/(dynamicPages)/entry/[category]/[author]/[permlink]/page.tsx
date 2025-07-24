@@ -75,7 +75,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       <EntryPageContextProvider>
         <MdHandler />
-        <div className="app-content entry-page bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
+        <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
           <div className="the-entry">
             <EntryPageCrossPostHeader entry={entry} />
             <span itemScope itemType="http://schema.org/Article">
