@@ -165,20 +165,27 @@ export class NotificationsWebSocket {
         ? this.enabledNotifyTypes.includes(messageNotifyType)
         : true;
 
-    if (msg) {
-      this.onSuccessCallbacks.forEach((cb) => cb());
-      if (!this.hasNotifications || !allowedToNotify) {
-        return;
-      }
-
+    if (!msg || !this.hasNotifications || !allowedToNotify) {
+      return;
+    }
+    const permission = await requestNotificationPermission();
+    if (permission === "granted") {
       await this.playSound();
 
-      new Notification(i18next.t("notification.popup-title"), { body: msg, icon: logo }).onclick =
-        () => {
-          if (!this.hasUiNotifications) {
-            this.toggleUiProp("notifications");
-          }
-        };
+      const notification = new Notification(i18next.t("notification.popup-title"), {
+        body: msg,
+        icon: logo,
+      });
+
+      notification.onclick = () => {
+        if (!this.hasUiNotifications) {
+          this.toggleUiProp("notifications");
+        }
+      };
+    } else if (this.hasUiNotifications) {
+      this.toggleUiProp("notifications");
     }
+
+    this.onSuccessCallbacks.forEach((cb) => cb());
   }
 }
