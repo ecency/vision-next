@@ -42,7 +42,9 @@ export function EntryPageContentSSR({ entry }: Props) {
       <div className="entry-header">
         <EntryPageWarnings entry={entry} />
         <EntryPageIsCommentHeader entry={entry} />
-        <h1 className="entry-title">{entry.title}</h1>
+        <h1 className="text-xl sm:text-2xl md:text-[32px] lg:text-[42px] !leading-[1.5] mt-4 mb-6 break-words !font-[Lora]">
+          {entry.title}
+        </h1>
         <EntryPageMainInfo entry={entry} />
       </div>
       {/* SSR static body */}
@@ -52,7 +54,7 @@ export function EntryPageContentSSR({ entry }: Props) {
           <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />
         </div>
       )}
-      <div className="entry-footer flex-wrap mb-4 lg:mb-8 border border-[--border-color] p-2 md:p-4 rounded-2xl">
+      <div className="entry-footer bg-white rounded-xl flex-wrap my-4 lg:mb-8 p-2 md:p-4">
         {location?.coordinates && (
           <Link
             href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}

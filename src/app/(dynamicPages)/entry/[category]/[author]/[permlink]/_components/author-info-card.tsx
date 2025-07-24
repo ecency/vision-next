@@ -25,7 +25,7 @@ export const AuthorInfoCard = ({ entry }: Props) => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95, y: -8 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      className="w-[180px] flex-col gap-4 hidden md:flex break-all"
+      className="w-[180px] flex-col gap-4 hidden xl:flex break-all"
     >
       <div className="flex items-center gap-4">
         <ProfileLink username={entry?.author}>

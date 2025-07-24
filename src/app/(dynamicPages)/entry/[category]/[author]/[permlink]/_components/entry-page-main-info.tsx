@@ -23,13 +23,13 @@ export function EntryPageMainInfo({ entry }: Props) {
   const reputation = accountReputation(entry.author_reputation ?? 0);
 
   return (
-    <div className="flex flex-col gap-4 mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 w-full items-end gap-2">
+    <div className=" bg-white rounded-xl flex flex-col mb-4 md:mb-6 lg:mb-8 mt-2 lg:mt-4">
+      <div className="p-2 md:p-3 grid grid-cols-1 sm:grid-cols-2 w-full items-end gap-2">
         <div className="flex items-center gap-2 md:gap-3 truncate overflow-hidden">
           <ProfileLink username={entry.author}>
             <UserAvatar username={entry.author} size="sLarge" />
           </ProfileLink>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col">
             <ProfileLink username={entry.author}>
               <div
                 className="text-lg notranslate"
@@ -56,7 +56,7 @@ export function EntryPageMainInfo({ entry }: Props) {
         <EntryPageListen entry={entry} />
       </div>
 
-      <div className="py-2 border-y border-[--border-color] flex items-center justify-between">
+      <div className="p-2 md:p-3 border-t border-[--border-color] flex items-center justify-between">
         <div className="flex items-center text-sm">
           <span className="separator circle-separator mx-1 lg:hidden" />
           <EntryStats entry={entry} />
