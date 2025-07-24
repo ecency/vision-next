@@ -72,6 +72,7 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
         await wsRef.current
             .withActiveUser(activeUser)
             .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
+            .setHasNotifications(true)
             .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
             .connect();
       }
