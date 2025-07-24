@@ -79,6 +79,7 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
       setFbSupport(isFbMessagingSupported ? "granted" : "denied");
     },
     [
+      activeUser,
       notificationUnreadCountQuery,
       notificationsSettingsQuery,
       setFbSupport,
@@ -86,13 +87,21 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
     ]
   );
 
-  useEffect(() => {
-    if (activeUser && activeUser?.username !== previousActiveUsr?.username) {
-      (async () => {
-        await init(activeUser.username);
-      })();
-    }
-  }, [activeUser, previousActiveUsr, init]);
+    useEffect(() => {
+        const ws = wsRef.current;
 
-  return children;
+        if (activeUser && activeUser.username !== previousActiveUsr?.username) {
+            ws.disconnect();
+
+            (async () => {
+                await init(activeUser.username);
+            })();
+        }
+
+        return () => {
+            ws.disconnect();
+        };
+    }, [activeUser?.username, previousActiveUsr?.username, init]);
+
+    return children;
 }
