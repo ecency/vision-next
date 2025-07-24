@@ -69,10 +69,12 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
           notificationUnreadCountQuery.refetch();
         });
       } else {
+        const hasUi = permission !== "granted";
         await wsRef.current
             .withActiveUser(activeUser)
             .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
             .setHasNotifications(true)
+            .setHasUiNotifications(hasUi)
             .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
             .connect();
       }
@@ -89,7 +91,9 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
 
     useEffect(() => {
         const ws = wsRef.current;
-
+        if (!activeUser?.username && previousActiveUsr?.username) {
+            ws.disconnect();
+        }
         if (activeUser && activeUser.username !== previousActiveUsr?.username) {
             ws.disconnect();
 
