@@ -28,14 +28,8 @@ export function EntryFooterControls({ entry }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const {
-    showProfileBox,
-    setShowProfileBox,
-    showWordCount,
-    setShowWordCount,
-    setIsRawContent,
-    isRawContent
-  } = useContext(EntryPageContext);
+  const { showProfileBox, setShowProfileBox, setIsRawContent, isRawContent } =
+    useContext(EntryPageContext);
 
   const activeUser = useGlobalStore((s) => s.activeUser);
   const isOwnEntry = useMemo(
@@ -43,7 +37,7 @@ export function EntryFooterControls({ entry }: Props) {
     [activeUser?.username, entry.author]
   );
 
-  useDistanceDetector(ref, showProfileBox, showWordCount, setShowProfileBox, setShowWordCount);
+  useDistanceDetector(ref, showProfileBox, setShowProfileBox);
 
   return (
     <div

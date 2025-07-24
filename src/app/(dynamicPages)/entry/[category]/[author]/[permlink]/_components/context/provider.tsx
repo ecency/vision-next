@@ -10,7 +10,6 @@ export function EntryPageContextProvider(props: PropsWithChildren) {
   const rawFromUrl = searchParams.get("raw") === "1";
   const [showProfileBox, setShowProfileBox] = useState(false);
   const [editHistory, setEditHistory] = useState(false);
-  const [showWordCount, setShowWordCount] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showIfNsfw, setShowIfNsfw] = useState(false);
   const [isRawContent, setIsRawContent] = useState(rawFromUrl);
@@ -19,8 +18,6 @@ export function EntryPageContextProvider(props: PropsWithChildren) {
   return (
     <EntryPageContext.Provider
       value={{
-        showWordCount,
-        setShowWordCount,
         showProfileBox,
         setShowProfileBox,
         editHistory,

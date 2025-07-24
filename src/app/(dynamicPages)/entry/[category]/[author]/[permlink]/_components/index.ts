@@ -2,7 +2,6 @@ export * from "./deleted-post-screen";
 export * from "./distance-detector";
 export * from "./similar-entries";
 export * from "./md-handler";
-export * from "./entry-read-time";
 export * from "./entry-tags";
 export * from "./entry-footer-info";
 export * from "./entry-footer-controls";
