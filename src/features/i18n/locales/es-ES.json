@@ -876,7 +876,7 @@
     "sort-new": "Nuevo",
     "no-results": "No se encontraron resultados",
     "create": "Crear comunidad",
-    "hint": "Las comunidades de Hive son una gran parte del ecosistema, desde deportes y empleos hasta las aficiones e intereses. ¡Descubra todos ellos y pase a formar parte de la experiencia Ecency y de Hive!",
+    "hint": "Las Comunidades de Hive son una parte enorme del ecosistema: hay comunidades de deportes, trabajos, pasatiempos, intereses y muchas más. ¡Explóralas todas, conviértete en parte de Ecency y de Hive!",
     "types": {
       "topic": "Tema",
       "journal": "Diario",
@@ -897,7 +897,7 @@
     "checkbox-validation": "Marque esta casilla si desea continuar.",
     "title-validation": "Por favor, rellene este campo.",
     "password": "Contraseña de la Comunidad",
-    "confirmation": "He guardado con seguridad el nombre de usuario propietario de la comunidad y la contraseña.",
+    "confirmation": "He guardado con seguridad mi contraseña generada.",
     "submit": "Crear comunidad",
     "progress-account": "Creando cuenta...",
     "progress-user": "Preparando datos...",
@@ -1622,7 +1622,7 @@
     "choose": "Elige una comunidad",
     "my-blog": "Mi blog",
     "search-placeholder": "Buscar comunidades",
-    "types-hint": "Hive y Ecency soportan diferentes tipos de comunidades — Temática, Revista y Consejo — cada una con características y propósitos únicos. Toca para aprender más."
+    "types-hint": "Ecency and Hive introduce diferentes categorías de comunidades: temática, revista y consejo."
   },
   "word-count": {
     "label": "{{n}} palabras",
