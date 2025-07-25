@@ -1,6 +1,7 @@
 "use client";
 
 import { Entry } from "@/entities";
+import { TextToSpeechSettingsDialog, useTts } from "@/features/text-to-speech";
 import { Button } from "@/features/ui";
 import { UilPause, UilPlay } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
@@ -21,21 +22,12 @@ function countWords(entry: string) {
 }
 
 export function EntryPageListen({ entry }: Props) {
-  const speechRef = useRef<SpeechSynthesisUtterance>();
+  const { speechRef, hasPaused, hasStarted } = useTts(entry.body);
 
-  const [hasStarted, setHasStarted] = useState(false);
-  const [hasPaused, setHasPaused] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [readTime, setReadTime] = useState(0);
 
   useMount(() => {
-    speechRef.current = new SpeechSynthesisUtterance(entry.body.replaceAll(/^[^\w]+?/g, "").trim());
-
-    speechRef.current.addEventListener("start", () => setHasStarted(true));
-    speechRef.current.addEventListener("end", () => setHasStarted(false));
-    speechRef.current.addEventListener("pause", () => setHasPaused(true));
-    speechRef.current.addEventListener("resume", () => setHasPaused(false));
-
     const entryCount = countWords(entry.body);
     const wordPerMinuite: number = 225;
     setWordCount(entryCount);
@@ -54,7 +46,7 @@ export function EntryPageListen({ entry }: Props) {
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(speechRef.current);
     }
-  }, [hasPaused, hasStarted]);
+  }, [hasPaused, hasStarted, speechRef]);
 
   return (
     <div className="border border-[--border-color] rounded-xl grid grid-cols-2 items-center">
@@ -73,9 +65,11 @@ export function EntryPageListen({ entry }: Props) {
       <div className="flex items-center w-full gap-2 justify-between p-2 ">
         <div className="flex flex-col">
           <div className="text-sm opacity-50">Listen to post</div>
-          <div className="cursor-pointer text-blue-dark-sky hover:text-blue-dark-sky-hover text-xs">
-            Settings
-          </div>
+          <TextToSpeechSettingsDialog>
+            <div className="cursor-pointer text-blue-dark-sky hover:text-blue-dark-sky-hover text-xs">
+              Settings
+            </div>
+          </TextToSpeechSettingsDialog>
         </div>
         <Button
           appearance="gray"
