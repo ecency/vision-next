@@ -48,26 +48,26 @@ export function EntryPageContentSSR({ entry }: Props) {
         <EntryPageMainInfo entry={entry} />
       </div>
       {/* SSR static body */}
-      <EntryPageStaticBody entry={entry} />
-      {postPoll && (
-        <div className="pb-6">
-          <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />
-        </div>
-      )}
-      <div className="entry-footer bg-white/80 dark:bg-dark-200/90 rounded-xl flex-wrap my-4 lg:mb-8 p-2 md:p-4">
+      <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-3">
+        <EntryPageStaticBody entry={entry} />
+        {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
+      </div>
+      <div className="entry-footer bg-white/80 dark:bg-dark-200/90 rounded-xl flex-wrap my-4 lg:mb-8">
         {location?.coordinates && (
           <Link
             href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
             target="_external"
             rel="noopener"
-            className="text-sm mb-2 block"
+            className="text-sm block border-b border-[--border-color] p-2 md:p-3"
           >
             <UilMapPinAlt className="w-4 h-4 mr-1" />
             {location.address}
           </Link>
         )}
-        <EntryTags entry={entry} />
-        <EntryFooterInfo entry={entry} />
+        <div className="border-b border-[--border-color] p-2 md:p-3">
+          <EntryTags entry={entry} />
+          <EntryFooterInfo entry={entry} />
+        </div>
         <EntryFooterControls entry={entry} />
       </div>
       <EntryPageSimilarEntries entry={entry} />
