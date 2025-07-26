@@ -50,7 +50,7 @@ export default function PublishPage() {
       <AnimatePresence>
         {step === "edit" && (
           <>
-            <div className="container max-w-[800px] mx-auto text-xs text-gray-600 dark:text-gray-400 p-2 md:p-0">
+            <div className="container max-w-[1024px] mx-auto text-xs text-gray-600 dark:text-gray-400 p-2 md:p-0">
               <div className="flex flex-wrap justify-between items-center">
                 <span>{i18next.t("publish.draft-mode")}</span>
                 {lastSaved && (

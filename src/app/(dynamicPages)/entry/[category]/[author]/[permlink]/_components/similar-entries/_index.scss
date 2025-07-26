@@ -4,16 +4,6 @@
   margin: 20px 0;
   padding-top: 15px;
 
-  @include themify(day) {
-    border-top: 1px solid;
-    @apply border-light-300;
-  }
-
-  @include themify(night) {
-    border-top: 1px solid;
-    @apply border-dark-200;
-  }
-
   .similar-entries-list-header {
     margin-bottom: 14px;
 
@@ -34,7 +24,6 @@
   }
 
   .similar-entries-list-body {
-
     .similar-entries-list-item {
       cursor: pointer;
 

@@ -1,23 +1,18 @@
 import { getAccountFullQuery, getDeletedEntryQuery, getPostQuery } from "@/api/queries";
+import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
+import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
+import { getQueryClient } from "@/core/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Metadata, ResolvingMetadata } from "next";
+import { notFound, redirect } from "next/navigation";
+import { generateEntryMetadata } from "../../../_helpers";
 import {
   DeletedPostScreen,
   EntryPageContextProvider,
   EntryPageCrossPostHeader,
   EntryPageEditHistory,
-  MdHandler,
-  ReadTime
+  MdHandler
 } from "./_components";
-import { getQueryClient } from "@/core/react-query";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { notFound, redirect } from "next/navigation";
-import { Metadata, ResolvingMetadata } from "next";
-import { generateEntryMetadata } from "../../../_helpers";
-import {
-  EntryPageContentSSR
-} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
-import {
-  EntryPageContentClient
-} from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
@@ -27,8 +22,8 @@ interface Props {
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
-    props: Props,
-    _parent: ResolvingMetadata
+  props: Props,
+  _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { author, permlink } = await props.params;
   return generateEntryMetadata(author.replace("%40", ""), permlink);
@@ -41,13 +36,12 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const isRaw = search["raw"];
   const isEdit = search["edit"];
 
-
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
 
   if (
-      permlink.startsWith("wave-") ||
-      (permlink.startsWith("re-ecencywaves-") && entry?.parent_author === "ecency.waves")
+    permlink.startsWith("wave-") ||
+    (permlink.startsWith("re-ecencywaves-") && entry?.parent_author === "ecency.waves")
   ) {
     return redirect(`/waves/${author}/${permlink}`);
   }
@@ -60,17 +54,17 @@ export default async function EntryPage({ params, searchParams }: Props) {
     const deletedEntry = await getDeletedEntryQuery(author, permlink).prefetch();
     if (deletedEntry) {
       return (
-          <EntryPageContextProvider>
-            <div className="app-content entry-page">
-              <div className="the-entry">
-                <DeletedPostScreen
-                    deletedEntry={deletedEntry}
-                    username={author}
-                    permlink={permlink}
-                />
-              </div>
+        <EntryPageContextProvider>
+          <div className="app-content entry-page">
+            <div className="the-entry">
+              <DeletedPostScreen
+                deletedEntry={deletedEntry}
+                username={author}
+                permlink={permlink}
+              />
             </div>
-          </EntryPageContextProvider>
+          </div>
+        </EntryPageContextProvider>
       );
     }
 
@@ -78,26 +72,25 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   return (
-      <HydrationBoundary state={dehydrate(getQueryClient())}>
-        <EntryPageContextProvider>
-          <MdHandler />
-          <div className="app-content entry-page">
-            <ReadTime entry={entry} />
-            <div className="the-entry">
-              <EntryPageCrossPostHeader entry={entry} />
-              <span itemScope itemType="http://schema.org/Article">
-                <EntryPageContentSSR entry={entry} />
-                <EntryPageContentClient
-                    entry={entry}
-                    rawParam={isRaw ?? ""}
-                    isEdit={isEdit === "true"}
-                    category={category}
-                />
-              </span>
-            </div>
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
+      <EntryPageContextProvider>
+        <MdHandler />
+        <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
+          <div className="the-entry">
+            <EntryPageCrossPostHeader entry={entry} />
+            <span itemScope itemType="http://schema.org/Article">
+              <EntryPageContentSSR entry={entry} />
+              <EntryPageContentClient
+                entry={entry}
+                rawParam={isRaw ?? ""}
+                isEdit={isEdit === "true"}
+                category={category}
+              />
+            </span>
           </div>
-          <EntryPageEditHistory entry={entry} />
-        </EntryPageContextProvider>
-      </HydrationBoundary>
+        </div>
+        <EntryPageEditHistory entry={entry} />
+      </EntryPageContextProvider>
+    </HydrationBoundary>
   );
 }

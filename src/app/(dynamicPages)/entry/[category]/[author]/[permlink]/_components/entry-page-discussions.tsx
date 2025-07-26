@@ -32,7 +32,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
   if (!entry) return null;
 
   return (
-    <>
+    <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-3">
       {activeUser && <EntryReplySection entry={entry} />}
 
       {activeUser && !hasComments && <CommentEngagement />}
@@ -44,7 +44,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
         isRawContent={isRawContent}
         onTopLevelCommentsChange={setHasComments}
       />
-    </>
+    </div>
   );
 }
 
