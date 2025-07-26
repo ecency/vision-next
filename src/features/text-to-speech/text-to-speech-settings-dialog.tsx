@@ -1,11 +1,12 @@
-import { cloneElement, ReactElement, useEffect, useMemo, useState } from "react";
-import { Button, FormControl, Modal, ModalBody, ModalFooter, ModalHeader } from "../ui";
-import { UilPause, UilPlay } from "@tooni/iconscout-unicons-react";
+"use client";
+
 import { useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
-import { useTts } from "./use-tts";
-import { TextToSpeechSettingsItem } from "./text-to-speech-settings-item";
+import { cloneElement, ReactElement, useEffect, useState } from "react";
 import { success } from "../shared";
+import { Button, FormControl, Modal, ModalBody, ModalHeader } from "../ui";
+import { TextToSpeechSettingsItem } from "./text-to-speech-settings-item";
+import i18next from "i18next";
 
 interface Props {
   children: ReactElement;
@@ -41,7 +42,7 @@ export function TextToSpeechSettingsDialog({ children }: Props) {
       <div>{clonedChildren}</div>
       <Modal centered={true} show={show} onHide={() => setShow(false)} size="lg">
         <ModalHeader closeButton={false} className="flex justify-between">
-          <div>Text-to-Speech settings</div>
+          <div>{i18next.t("tts-settings.title")}</div>
 
           <div className="flex gap-2">
             <Button
@@ -54,7 +55,7 @@ export function TextToSpeechSettingsDialog({ children }: Props) {
                 }
                 setVoice(selected?.voiceURI);
                 setShow(false);
-                success(`Text-to-Speech voice changed to ${selected?.name}`);
+                success(i18next.t("tts-settings.voice-updated", { n: selected?.name }));
               }}
             >
               Save
@@ -65,17 +66,14 @@ export function TextToSpeechSettingsDialog({ children }: Props) {
           </div>
         </ModalHeader>
         <ModalBody>
-          <div className="mb-4 text-sm">
-            Text-to-Speech uses browser`s built-in tools for converting text content to speech.
-            Voices list, availability and quality depends only on your browser and device.
-          </div>
+          <div className="mb-4 text-sm">{i18next.t("tts-settings.hint")}</div>
           <div className="mb-4">
-            <div className="text-sm opacity-50 mb-2">Playground</div>
+            <div className="text-sm opacity-50 mb-2">{i18next.t("tts-settings.playground")}</div>
 
             <FormControl type="text" value={text} onChange={(e) => setText(e.target.value)} />
           </div>
           <div>
-            <div className="text-sm opacity-50 mb-2">Voices</div>
+            <div className="text-sm opacity-50 mb-2">{i18next.t("tts-settings.voices")}</div>
             <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
               {getVoices().map((voice) => (
                 <TextToSpeechSettingsItem

@@ -106,7 +106,7 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
   }, [pollDetails, pollDetails.data?.poll_trx_id]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 border border-[--border-color] rounded-3xl p-4 dark:border-gray-900">
+    <div className="grid grid-cols-1 gap-4 border border-[--border-color] rounded-3xl p-4 dark:border-gray-900">
       <div>
         {isReadOnly && (
           <div className="text-xs uppercase tracking-wide font-semibold opacity-50">
@@ -146,7 +146,7 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
         )}
       </div>
       <div>
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {poll.choices.map((choice) =>
             resultsMode ? (
               <PollOptionWithResults

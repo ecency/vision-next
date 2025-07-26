@@ -8,7 +8,6 @@ import { EntryFooterControls } from "./entry-footer-controls";
 import { EntryFooterInfo } from "./entry-footer-info";
 import { EntryPageIsCommentHeader } from "./entry-page-is-comment-header";
 import { EntryPageMainInfo } from "./entry-page-main-info";
-import { EntryPageProfileBox } from "./entry-page-profile-box";
 import { EntryPageSimilarEntries } from "./entry-page-similar-entries";
 import { EntryPageStaticBody } from "./entry-page-static-body";
 import { EntryPageWarnings } from "./entry-page-warnings";
@@ -38,7 +37,6 @@ export function EntryPageContentSSR({ entry }: Props) {
   };
   return (
     <>
-      <EntryPageProfileBox entry={entry} />
       <div className="entry-header">
         <EntryPageWarnings entry={entry} />
         <EntryPageIsCommentHeader entry={entry} />
@@ -48,7 +46,7 @@ export function EntryPageContentSSR({ entry }: Props) {
         <EntryPageMainInfo entry={entry} />
       </div>
       {/* SSR static body */}
-      <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-3">
+      <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
         <EntryPageStaticBody entry={entry} />
         {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
       </div>
