@@ -98,7 +98,9 @@
     "view": "Vista",
     "tomorrow": "Mañana",
     "import": "Importar",
-    "clear": "Limpiar"
+    "clear": "Limpiar",
+    "play": "Jugar",
+    "pause": "Pausa"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Publicación cruzada por",
     "cross-post-community": "comunidad",
     "published": "Publicado en",
-    "post-word-count": "Palabras:",
-    "post-read-time": "Leyendo:",
+    "post-word-count": "Palabras",
+    "post-read-time": "Leyendo",
     "post-read-minutes": "min",
     "raw": "Ver formato RAW",
     "post-top-curator": "Top Curador:",
@@ -778,7 +780,8 @@
       "promotion-title": "¿Quieres más vistas y lecturas?",
       "promotion-subtitle": "Utilice las ventajas de Ecency (Ecency Perks) para promocionar su publicación y obtener una exposición más amplia.",
       "try-now": "Prueba ahora"
-    }
+    },
+    "listen": "Escuchar"
   },
   "edit-history": {
     "title": "Editar historial",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Suelte el archivo aquí",
     "success-upload": "Imagen cargada con éxito",
     "uploading": "Subiendo..."
+  },
+  "tts-settings": {
+    "title": "Configuración de texto a voz",
+    "voice-updated": "Voz de texto a voz cambiada a {{n}}",
+    "hint": "Texto a voz utiliza las herramientas integradas por el navegador para convertir contenido de texto a voz. La lista, disponibilidad y calidad de los votos depende sólo de su navegador y dispositivo.",
+    "playground": "Campo de juego",
+    "voices": "Votos"
   }
 }
