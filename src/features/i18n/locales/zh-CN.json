@@ -98,7 +98,9 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "清空"
+    "clear": "清空",
+    "play": "播放",
+    "pause": "暂停"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "单词",
+    "post-read-time": "正在阅读",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +780,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "监听"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "文字转语音设置",
+    "voice-updated": "Text-to-Speech voice changed to {{n}}",
+    "hint": "语音文本使用内置工具将文本内容转换为语音。语音列表、可用性和质量仅取决于您的浏览器和设备。",
+    "playground": "游乐场",
+    "voices": "声音"
   }
 }
