@@ -98,7 +98,9 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "Очистити"
+    "clear": "Очистити",
+    "play": "Відтворити",
+    "pause": "Пауза"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "Слова",
+    "post-read-time": "Читання",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +780,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Слухати"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Налаштування синтезу мовлення",
+    "voice-updated": "Text-to-Speech voice changed to {{n}}",
+    "hint": "Text-to-Speech використовує вбудовані інструменти для перетворення тексту в мовлення. Список голосів, наявність і якість залежить лише від вашого браузера і пристрою.",
+    "playground": "Ігровий майданчик",
+    "voices": "Голоси"
   }
 }
