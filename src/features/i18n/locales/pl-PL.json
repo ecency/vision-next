@@ -98,7 +98,9 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "Wyczyść"
+    "clear": "Wyczyść",
+    "play": "Odtwórz",
+    "pause": "Wstrzymaj"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "Słowa",
+    "post-read-time": "Czytanie",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +780,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Słuchaj"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Ustawienia tekstu na mowę",
+    "voice-updated": "Głos tekstu na mowę zmieniony na {{n}}",
+    "hint": "Text-to-Speech używa wbudowanych narzędzi przeglądarki do konwersji treści tekstowych na mowę. Lista głosów, dostępność i jakość zależą tylko od Twojej przeglądarki i urządzenia.",
+    "playground": "Plac zabaw",
+    "voices": "Głosy"
   }
 }
