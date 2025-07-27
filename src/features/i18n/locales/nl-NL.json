@@ -98,7 +98,9 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "Verwijderen"
+    "clear": "Verwijderen",
+    "play": "Afspelen",
+    "pause": "Onderbreken"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "Woorden",
+    "post-read-time": "Lezen",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +780,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Luister"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Tekst-naar-spraak instellingen",
+    "voice-updated": "Text-to-Speech stem veranderd naar {{n}}",
+    "hint": "Text-to-Speech maakt gebruik van browser`s ingebouwde tools voor het omzetten van tekst naar speech. Voiceslijst, beschikbaarheid en kwaliteit zijn alleen afhankelijk van uw browser en apparaat.",
+    "playground": "Speelplaats",
+    "voices": "Stemmen"
   }
 }
