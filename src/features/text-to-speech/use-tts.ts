@@ -1,7 +1,6 @@
 import { useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { useEffect, useRef, useState } from "react";
-import { useMount } from "react-use";
 
 export function useTts(text: string) {
   const speechRef = useRef<SpeechSynthesisUtterance>();
@@ -9,9 +8,14 @@ export function useTts(text: string) {
   const [hasStarted, setHasStarted] = useState(false);
   const [hasPaused, setHasPaused] = useState(false);
 
-  const [voice, setVoice] = useSynchronizedLocalStorage<string>(PREFIX + "_tts_voice");
+  const [voice] = useSynchronizedLocalStorage<string>(PREFIX + "_tts_voice");
 
   useEffect(() => {
+    if (speechRef.current) {
+      speechRef.current = undefined;
+      setHasPaused(false);
+      setHasStarted(false);
+    }
     speechRef.current = new SpeechSynthesisUtterance(text.replaceAll(/^[^\w]+?/g, "").trim());
 
     if (voice) {

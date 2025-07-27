@@ -40,7 +40,7 @@ export function EntryPageContentSSR({ entry }: Props) {
       <div className="entry-header">
         <EntryPageWarnings entry={entry} />
         <EntryPageIsCommentHeader entry={entry} />
-        <h1 className="text-xl sm:text-2xl md:text-[32px] lg:text-[42px] !leading-[1.5] mt-4 mb-6 break-words !font-[Lora]">
+        <h1 className=" px-2 lg:px-0 text-xl sm:text-2xl md:text-[32px] lg:text-[42px] !leading-[1.5] mt-4 mb-6 break-words !font-[Lora]">
           {entry.title}
         </h1>
         <EntryPageMainInfo entry={entry} />

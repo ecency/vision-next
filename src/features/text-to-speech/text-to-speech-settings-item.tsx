@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function TextToSpeechSettingsItem({ voice, text, selected, onSelect }: Props) {
-  const { hasStarted, speechRef, voice: activeVoice } = useTts(text);
+  const { hasStarted, speechRef } = useTts(text);
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {

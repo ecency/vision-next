@@ -6,7 +6,7 @@ import { Button } from "@/features/ui";
 import { getPurePostText } from "@/utils";
 import { UilPause, UilPlay, UilSetting } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useMount } from "react-use";
 
 interface Props {
@@ -22,7 +22,8 @@ function countWords(entry: string): number {
 }
 
 export function EntryPageListen({ entry }: Props) {
-  const { speechRef, hasPaused, hasStarted } = useTts(getPurePostText(entry.body));
+  const text = useMemo(() => getPurePostText(entry.body), [entry]);
+  const { speechRef, hasPaused, hasStarted } = useTts(text);
 
   const [wordCount, setWordCount] = useState(0);
   const [readTime, setReadTime] = useState(0);
