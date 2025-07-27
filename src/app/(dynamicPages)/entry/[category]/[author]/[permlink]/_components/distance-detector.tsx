@@ -5,14 +5,11 @@ import { MutableRefObject, useCallback, useEffect } from "react";
 export function useDistanceDetector<T extends Element | null>(
   entryControlsRef: MutableRefObject<T>,
   showProfileBox: boolean,
-  showWordCount: boolean,
-  setShowProfileBox: (v: boolean) => void,
-  setShowWordCount: (v: boolean) => void
+  setShowProfileBox: (v: boolean) => void
 ) {
   // detects distance between title and comments [...sections] sets visibility of profile card
   const detect = useCallback(() => {
     const infoCard: HTMLElement | null = document.getElementById("avatar-fixed-container");
-    const wordCounter: HTMLElement | null = document.getElementById("word-count");
     const top = entryControlsRef.current?.getBoundingClientRect().top || 120;
 
     if (infoCard != null && window.scrollY > 180 && top && !(top <= 0)) {
@@ -24,13 +21,6 @@ export function useDistanceDetector<T extends Element | null>(
     } else if (top && top <= 0 && infoCard !== null) {
       infoCard.classList.replace("visible", "invisible");
       setShowProfileBox(false);
-    } else return;
-
-    if (top && top > 0) {
-      setShowWordCount(true);
-    } else if (top && top < 0) {
-      wordCounter?.classList.replace("visible", "invisible");
-      setShowWordCount(false);
     } else return;
   }, []);
 
