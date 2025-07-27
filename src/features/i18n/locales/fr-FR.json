@@ -98,7 +98,9 @@
     "view": "Afficher",
     "tomorrow": "Demain",
     "import": "Import",
-    "clear": "Nettoyer"
+    "clear": "Nettoyer",
+    "play": "Jouer",
+    "pause": "Mettre en pause"
   },
   "confirm": {
     "title": "Êtes-vous sûr ?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "Mots",
+    "post-read-time": "Lecture en cours",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +780,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Écouter"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Paramètres de synthèse vocale",
+    "voice-updated": "La voix vocale a été changée en {{n}}",
+    "hint": "Text-to-Speech utilise les outils intégrés du navigateur pour convertir le contenu du texte en discours. La liste, la disponibilité et la qualité dépendent uniquement de votre navigateur et de votre appareil.",
+    "playground": "Terrain de jeux",
+    "voices": "Voix"
   }
 }
