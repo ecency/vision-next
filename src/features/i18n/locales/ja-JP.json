@@ -98,7 +98,9 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "クリア"
+    "clear": "クリア",
+    "play": "再生",
+    "pause": "一時停止"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "単語",
+    "post-read-time": "読書中",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +780,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Listen"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "テキスト読み上げの設定",
+    "voice-updated": "テキスト読み上げ音声が {{n}}に変更されました",
+    "hint": "テキスト読み上げツールは、テキストコンテンツを音声に変換するためのブラウザ内蔵ツールを使用します。音声リスト、可用性、および品質は、お使いのブラウザとデバイスにのみ依存します。",
+    "playground": "Playground",
+    "voices": "声"
   }
 }
