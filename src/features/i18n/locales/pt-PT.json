@@ -98,7 +98,9 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "Limpar"
+    "clear": "Limpar",
+    "play": "Reproduzir",
+    "pause": "Suspender"
   },
   "confirm": {
     "title": "Tem certeza?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "Palavras",
+    "post-read-time": "Lendo",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +780,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Ouvir"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Configurações de texto-para-voz",
+    "voice-updated": "Voz de voz de voz alterada para {{n}}",
+    "hint": "Text-to-Speech usa ferramentas integradas do navegador para converter conteúdo de texto em fala. A lista de vozes, a disponibilidade e a qualidade depende apenas de seu navegador e dispositivo.",
+    "playground": "Parquinho",
+    "voices": "Vozes"
   }
 }
