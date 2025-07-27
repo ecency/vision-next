@@ -98,7 +98,9 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "Pulisci"
+    "clear": "Pulisci",
+    "play": "Gioca",
+    "pause": "Pausa"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -760,8 +762,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "Parole",
+    "post-read-time": "Lettura",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +780,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Ascolta"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2829,5 +2832,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Impostazioni della pronuncia",
+    "voice-updated": "Voce della pronuncia cambiata in {{n}}",
+    "hint": "Text-to-Speech utilizza gli strumenti integrati del browser per convertire contenuti di testo in voce. L'elenco vocali, la disponibilità e la qualità dipendono solo dal browser e dal dispositivo.",
+    "playground": "Playground",
+    "voices": "Voci"
   }
 }
