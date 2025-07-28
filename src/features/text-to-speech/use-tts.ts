@@ -30,6 +30,11 @@ export function useTts(text: string) {
     speechRef.current.addEventListener("end", () => setHasStarted(false));
     speechRef.current.addEventListener("pause", () => setHasPaused(true));
     speechRef.current.addEventListener("resume", () => setHasPaused(false));
+
+    return () => {
+      speechSynthesis.cancel();
+      speechRef.current = undefined;
+    };
   }, [text, voice]);
 
   return {

@@ -23,5 +23,8 @@ export function getPurePostText(text: string) {
   // Remove comments
   text = text.replace(/<!--[\s\S]*?-->/g, "");
 
+  // Remove URLs (http:// or https://)
+  text = text.replace(/https?:\/\/[^\s/$.?#].[^\s]*/g, "");
+
   return text;
 }
