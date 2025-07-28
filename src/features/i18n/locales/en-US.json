@@ -100,6 +100,11 @@
     "import": "Import",
     "clear": "Clear"
   },
+  "validation": {
+    "required": "Required field",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Must be at most {{n}} characters"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
