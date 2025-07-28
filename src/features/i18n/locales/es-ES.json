@@ -2836,8 +2836,8 @@
   "tts-settings": {
     "title": "Configuración de texto a voz",
     "voice-updated": "Voz de texto a voz cambiada a {{n}}",
-    "hint": "Texto a voz utiliza las herramientas integradas por el navegador para convertir contenido de texto a voz. La lista, disponibilidad y calidad de los votos depende sólo de su navegador y dispositivo.",
+    "hint": "Texto-a-voz utiliza las herramientas integradas en el navegador para convertir contenido de texto a voz. La lista de voces, su disponibilidad y calidad depende solamente de tu navegador y dispositivo.",
     "playground": "Campo de juego",
-    "voices": "Votos"
+    "voices": "Voces"
   }
 }
