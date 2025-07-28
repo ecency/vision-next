@@ -1,13 +1,14 @@
 import { useUpdateCommunity } from "@/api/mutations";
 import { useClientActiveUser } from "@/api/queries";
 import { Community } from "@/entities";
-import { LinearProgress } from "@/features/shared";
-import { useAccountUpdate } from "@ecency/sdk";
+import { getAccountFullQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
-import { Spinner } from "@ui/spinner";
 import i18next from "i18next";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { CommunitySettingsAdvanced } from "./community-settings-advanced";
@@ -37,6 +38,7 @@ const form = yup.object({
 export function CommunitySettingsDialog({ onHide, community }: Props) {
   const activeUser = useClientActiveUser();
 
+  const router = useRouter();
   const methods = useForm({
     resolver: yupResolver(form),
     defaultValues: {
@@ -50,11 +52,35 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
     }
   });
 
+  const { data: communityOwnerAccount } = useQuery(getAccountFullQueryOptions(community.name));
+
   const { mutateAsync: updateAccount } = useAccountUpdate(activeUser?.username ?? "");
   const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
 
+  useEffect(() => {
+    if (communityOwnerAccount) {
+      try {
+        const meta = JSON.parse(communityOwnerAccount.posting_json_metadata);
+        const beneficiary = meta.beneficiary;
+        methods.setValue("defaultBeneficiaryUsername", beneficiary.account);
+        methods.setValue("defaultBeneficiaryReward", beneficiary.weight / 100);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [communityOwnerAccount, methods]);
+
   const onSubmit = methods.handleSubmit(
-    async ({ title, about, description, lang, rules, nsfw }) => {
+    async ({
+      title,
+      about,
+      description,
+      lang,
+      rules,
+      nsfw,
+      defaultBeneficiaryReward,
+      defaultBeneficiaryUsername
+    }) => {
       await updateCommunity({
         payload: {
           title,
@@ -66,8 +92,22 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
         }
       });
 
-      // onHide();
-      // setTimeout(() => router.refresh(), 3000);
+      // Only owner can update the beneficiaries settings because this setting is storing in account itself
+      if (
+        activeUser?.username === community.name &&
+        defaultBeneficiaryUsername &&
+        defaultBeneficiaryReward
+      ) {
+        await updateAccount({
+          beneficiary: {
+            username: defaultBeneficiaryUsername,
+            reward: defaultBeneficiaryReward * 100
+          }
+        });
+      }
+
+      onHide();
+      setTimeout(() => router.refresh(), 3000);
     }
   );
 

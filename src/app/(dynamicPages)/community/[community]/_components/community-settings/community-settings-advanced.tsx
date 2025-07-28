@@ -7,7 +7,7 @@ import { useFormContext } from "react-hook-form";
 
 export function CommunitySettingsAdvanced() {
   const activeUser = useClientActiveUser();
-  const { username } = useParams();
+  const { community } = useParams();
   const { register } = useFormContext();
 
   return (
@@ -47,7 +47,7 @@ export function CommunitySettingsAdvanced() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormControl
             {...register("defaultBeneficiaryUsername")}
-            disabled={activeUser?.username !== username}
+            disabled={activeUser?.username !== community}
             type="text"
             autoComplete="off"
             placeholder={i18next.t("communities-create.default-beneficiary-username")}
@@ -55,7 +55,7 @@ export function CommunitySettingsAdvanced() {
           <InputGroup prepend="%">
             <FormControl
               {...register("defaultBeneficiaryReward")}
-              disabled={activeUser?.username !== username}
+              disabled={activeUser?.username !== community}
               type="number"
               autoComplete="off"
               placeholder={i18next.t("communities-create.default-beneficiary-reward")}
