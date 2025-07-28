@@ -22,7 +22,7 @@ export function PollOption({ activeChoices, choice, addActiveChoice, removeActiv
     <div
       className={classNameObject({
         "flex items-center gap-4 duration-300 cursor-pointer text-sm px-4 py-3 rounded-2xl": true,
-        "bg-gray-200 hover:bg-gray-300 dark:bg-dark-200 dark:hover:bg-gray-900":
+        "bg-gray-200 hover:bg-gray-300 dark:bg-dark-default dark:hover:bg-gray-900":
           !activeChoices.has(choice),
         "bg-blue-dark-sky hover:bg-blue-dark-sky-hover bg-opacity-50 hover:bg-opacity-50 text-blue-dark-sky-active dark:text-blue-dark-sky-010":
           activeChoices.has(choice)

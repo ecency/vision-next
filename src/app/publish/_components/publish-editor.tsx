@@ -20,7 +20,7 @@ export function PublishEditor({ editor }: Props) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="publish-page max-w-[800px] rounded-2xl bg-white container mx-auto px-2"
+      className="publish-page max-w-[1024px] rounded-2xl bg-white container mx-auto px-2"
     >
       <TextareaAutosize
         className="text-xl w-full px-4 py-4 pb-3 bg-transparent outline-none font-serif resize-none"

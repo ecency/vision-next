@@ -93,13 +93,12 @@ a[target="_blank"] {
 
 // main layout
 .app-content {
-  padding: 0 10px;
-  margin: 6rem auto 30px;
+  padding: 6rem 0 30px;
   display: flex;
   max-width: 1600px;
 
   @media (min-width: $lg-break) {
-    padding: 0 20px;
+    padding: 6rem 20px 0;
   }
 }
 
