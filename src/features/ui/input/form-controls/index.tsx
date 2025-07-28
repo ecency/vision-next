@@ -7,9 +7,7 @@ import { Toggle } from "@/features/ui/input/form-controls/toggle";
 
 type Props = InputProps | TextareaProps | SelectProps | CheckboxProps;
 
-type Refs = typeof Textarea | typeof Select | typeof Toggle | typeof Checkbox | typeof Input;
-
-export const FormControl = forwardRef<Refs, Props>((props, ref) => {
+export const FormControl = forwardRef<any, Props>((props, ref) => {
   switch (props.type) {
     case "textarea":
       return <Textarea {...props} ref={ref as any} />;
