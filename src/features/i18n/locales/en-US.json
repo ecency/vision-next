@@ -2829,6 +2829,10 @@
       "subtitle": "In collaboration with WorldMapPin.com",
       "location-placeholder": "Write location...",
       "selected-location": "Already selected location"
+    },
+    "community-beneficiary": {
+      "reward": "Community reward",
+      "hint": "This community asks ≥ 25% of post rewards"
     }
   },
   "ecency-images": {

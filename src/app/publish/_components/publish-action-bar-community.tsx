@@ -43,7 +43,7 @@ export function PublishActionBarCommunity() {
         />
         {beneficiaryReward && (
           <div className="text-xs text-end text-blue-dark-sky">
-            Community reward: {beneficiaryReward / 100}%
+            {i18next.t("publish.community-beneficiary.reward")}: {beneficiaryReward / 100}%
           </div>
         )}
       </div>

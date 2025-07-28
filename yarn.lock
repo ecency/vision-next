@@ -1311,10 +1311,10 @@
     "@testing-library/react" "14"
     medium-zoom "^1.1.0"
 
-"@ecency/sdk@1.0.54":
-  version "1.0.54"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.54.tgz#fa4c6bc5d5140b456277fbdd9f0e8bbc92369bcb"
-  integrity sha512-xfkuVsjB3skmvlRwurvm5/afC1D9DOi1JpioTw5rO8pJcAMcWSysjdoE1U/oXCEbSfBGXVOdRzeapHIA5m5PvA==
+"@ecency/sdk@1.0.55":
+  version "1.0.55"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.0.55.tgz#2a67f3248f8367f484ea62a314dac46bee86d121"
+  integrity sha512-3Y8X+RfcgNT5kzgkiTOOkMAtsYRK8cFP8midTn4jAydNFaaSEUPzWDoIns/F56t8gkxi7VsTtXJpzOUijN/0SA==
 
 "@ecency/wallets@^1.2.21":
   version "1.2.22"
