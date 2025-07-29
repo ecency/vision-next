@@ -102,6 +102,11 @@
     "play": "Abspielen",
     "pause": "Pause"
   },
+  "validation": {
+    "required": "Pflichtfeld",
+    "min-length": "Muss mindestens {{n}} Zeichen sein",
+    "max-length": "Muss höchstens {{n}} Zeichen sein"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
@@ -919,7 +924,11 @@
     "topic": "Thema – jeder kann schreiben oder kommentieren",
     "journal": "Journal – nur Mitglieder können Beiträge verfassen und Gäste können nur kommentieren",
     "council": "Rat – nur Mitglieder können schreiben oder kommentieren",
-    "types-hint": "Erfahren Sie mehr über Community-Typen"
+    "types-hint": "Erfahren Sie mehr über Community-Typen",
+    "default-beneficiary": "Standard Empfänger",
+    "default-beneficiary-username": "Hive-Benutzername",
+    "default-beneficiary-reward": "Belohnung (in %)",
+    "default-beneficiary-docs": "Dokumentation ansehen"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "In Zusammenarbeit mit WorldMapPin.com",
       "location-placeholder": "Ort schreiben...",
       "selected-location": "Bereits ausgewählter Ort"
+    },
+    "community-beneficiary": {
+      "reward": "Gemeinschaftsbelohnung",
+      "hint": "Diese Community fragt <unk> 25% der Beitragsbelohnungen"
     }
   },
   "ecency-images": {
