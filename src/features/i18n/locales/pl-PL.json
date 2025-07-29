@@ -102,6 +102,11 @@
     "play": "Odtwórz",
     "pause": "Wstrzymaj"
   },
+  "validation": {
+    "required": "Pole wymagane",
+    "min-length": "Musi mieć co najmniej {{n}} znaków",
+    "max-length": "Musi być co najwyżej {{n}} znaków"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
@@ -919,7 +924,11 @@
     "topic": "Temat - każdy może pisać lub komentować",
     "journal": "Dziennik - tylko użytkownicy mogą dodawać posty, a goście mogą komentować tylko",
     "council": "Rada – tylko członkowie mogą zamieszczać lub komentować",
-    "types-hint": "Dowiedz się więcej o rodzajach społeczności"
+    "types-hint": "Dowiedz się więcej o rodzajach społeczności",
+    "default-beneficiary": "Domyślny beneficjent",
+    "default-beneficiary-username": "Nazwa użytkownika",
+    "default-beneficiary-reward": "Nagroda (w %)",
+    "default-beneficiary-docs": "Zobacz dokumenty"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "We współpracy z WorldMapPin.com",
       "location-placeholder": "Zapisz lokalizację...",
       "selected-location": "Już wybrana lokalizacja"
+    },
+    "community-beneficiary": {
+      "reward": "Nagroda dla społeczności",
+      "hint": "Ta społeczność prosi o ponad 25% nagród za posty"
     }
   },
   "ecency-images": {
