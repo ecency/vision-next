@@ -102,6 +102,11 @@
     "play": "Afspelen",
     "pause": "Onderbreken"
   },
+  "validation": {
+    "required": "Verplicht veld",
+    "min-length": "Moet ten minste {{n}} tekens bevatten",
+    "max-length": "Moet maximaal {{n}} tekens bevatten"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
@@ -919,7 +924,11 @@
     "topic": "Onderwerp - iedereen kan posten of reageren",
     "journal": "Logboek - alleen leden kunnen posten en gasten kunnen alleen reageren",
     "council": "Raad - alleen leden kunnen posten of reageren",
-    "types-hint": "Meer informatie over community types"
+    "types-hint": "Meer informatie over community types",
+    "default-beneficiary": "Standaard begunstigde",
+    "default-beneficiary-username": "Gebruikersnaam invullen",
+    "default-beneficiary-reward": "Beloning(in %)",
+    "default-beneficiary-docs": "Bekijk documenten"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "In samenwerking met WorldMapPin.com",
       "location-placeholder": "Schrijf locatie...",
       "selected-location": "Reeds geselecteerde locatie"
+    },
+    "community-beneficiary": {
+      "reward": "Gemeenschap beloning",
+      "hint": "Deze gemeenschap vraagt ≥ 25% van de postbeloningen"
     }
   },
   "ecency-images": {
