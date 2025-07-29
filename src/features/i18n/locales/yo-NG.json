@@ -102,6 +102,11 @@
     "play": "Play",
     "pause": "Pause"
   },
+  "validation": {
+    "required": "Required field",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Must be at most {{n}} characters"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
@@ -919,7 +924,11 @@
     "topic": "Topic – anyone can post or comment",
     "journal": "Journal – only members can post and guests can only comment",
     "council": "Council – only members can post or comment",
-    "types-hint": "Learn more about community types"
+    "types-hint": "Learn more about community types",
+    "default-beneficiary": "Default beneficiary",
+    "default-beneficiary-username": "Hive username",
+    "default-beneficiary-reward": "Reward(in %)",
+    "default-beneficiary-docs": "See docs"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "In collaboration with WorldMapPin.com",
       "location-placeholder": "Write location...",
       "selected-location": "Already selected location"
+    },
+    "community-beneficiary": {
+      "reward": "Community reward",
+      "hint": "This community asks ≥ 25% of post rewards"
     }
   },
   "ecency-images": {
