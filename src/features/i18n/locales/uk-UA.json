@@ -102,6 +102,11 @@
     "play": "Відтворити",
     "pause": "Пауза"
   },
+  "validation": {
+    "required": "Обов'язкове поле",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Must be at most {{n}} characters"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
@@ -919,7 +924,11 @@
     "topic": "Тема - кожен може опублікувати або коментувати",
     "journal": "Журнал - тільки учасники можуть розміщувати і гості можуть тільки прокоментувати",
     "council": "Рада - лише члени можуть розміщувати чи коментувати",
-    "types-hint": "Дізнатися більше про типи спільноти"
+    "types-hint": "Дізнатися більше про типи спільноти",
+    "default-beneficiary": "Бенефіціар за замовчуванням",
+    "default-beneficiary-username": "Вуличне ім'я користувача",
+    "default-beneficiary-reward": "Винагорода (у %)",
+    "default-beneficiary-docs": "Переглянути документацію"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "У співпраці з WorldMapPin.com",
       "location-placeholder": "Написати місце розташування...",
       "selected-location": "Вже виділене місце"
+    },
+    "community-beneficiary": {
+      "reward": "Нагорода спільноти",
+      "hint": "Ця спільнота запитує ≥ 25% винагород за публікацію"
     }
   },
   "ecency-images": {
