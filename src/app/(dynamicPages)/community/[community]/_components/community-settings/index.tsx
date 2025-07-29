@@ -1,152 +1,115 @@
-import React, { useCallback, useRef, useState } from "react";
-import "./_index.scss";
-import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
-import { FormControl, InputGroup } from "@ui/input";
-import { Button } from "@ui/button";
-import { Form } from "@ui/form";
-import i18next from "i18next";
-import { LinearProgress } from "@/features/shared";
-import { cleanString } from "@/utils/clean-string";
-import { handleInvalid, handleOnInput } from "@/utils/input-util";
 import { useUpdateCommunity } from "@/api/mutations";
+import { useClientActiveUser } from "@/api/queries";
 import { Community } from "@/entities";
-import { Spinner } from "@ui/spinner";
+import { getAccountFullQueryOptions, useAccountUpdate } from "@ecency/sdk";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@ui/button";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
+import i18next from "i18next";
 import { useRouter } from "next/navigation";
-
-const langOpts = [
-  { id: "af", name: "Afrikaans" },
-  { id: "sq", name: "Albanian" },
-  { id: "am", name: "Amharic" },
-  { id: "ar", name: "Arabic" },
-  { id: "hy", name: "Armenian" },
-  { id: "az", name: "Azerbaijani" },
-  { id: "eu", name: "Basque" },
-  { id: "be", name: "Belarusian" },
-  { id: "bn", name: "Bengali" },
-  { id: "bs", name: "Bosnian" },
-  { id: "bg", name: "Bulgarian" },
-  { id: "my", name: "Burmese" },
-  { id: "ca", name: "Catalan" },
-  { id: "ny", name: "Chewa" },
-  { id: "zh", name: "Chinese" },
-  { id: "co", name: "Corsican" },
-  { id: "hr", name: "Croatian" },
-  { id: "cs", name: "Czech" },
-  { id: "da", name: "Danish" },
-  { id: "nl", name: "Dutch" },
-  { id: "en", name: "English" },
-  { id: "eo", name: "Esperanto" },
-  { id: "et", name: "Estonian" },
-  { id: "fi", name: "Finnish" },
-  { id: "fr", name: "French" },
-  { id: "gl", name: "Galician" },
-  { id: "ka", name: "Georgian" },
-  { id: "de", name: "German" },
-  { id: "el", name: "Greek" },
-  { id: "gu", name: "Gujarati" },
-  { id: "ht", name: "Haitian Creole" },
-  { id: "ha", name: "Hausa" },
-  { id: "he", name: "Hebrew" },
-  { id: "hi", name: "Hindi" },
-  { id: "hu", name: "Hungarian" },
-  { id: "is", name: "Icelandic" },
-  { id: "ig", name: "Igbo" },
-  { id: "id", name: "Indonesian" },
-  { id: "ga", name: "Irish" },
-  { id: "it", name: "Italian" },
-  { id: "ja", name: "Japanese" },
-  { id: "jv", name: "Javanese" },
-  { id: "kn", name: "Kannada" },
-  { id: "kk", name: "Kazakh" },
-  { id: "rw", name: "Kinyarwanda" },
-  { id: "ko", name: "Korean" },
-  { id: "ku", name: "Kurdish" },
-  { id: "ky", name: "Kyrgyz" },
-  { id: "lo", name: "Lao" },
-  { id: "la", name: "Latin" },
-  { id: "lv", name: "Latvian" },
-  { id: "lt", name: "Lithuanian" },
-  { id: "lb", name: "Luxembourgish" },
-  { id: "mk", name: "Macedonian" },
-  { id: "mg", name: "Malagasy" },
-  { id: "ms", name: "Malay" },
-  { id: "ml", name: "Malayalam" },
-  { id: "mt", name: "Maltese" },
-  { id: "mi", name: "Maori" },
-  { id: "mr", name: "Marathi" },
-  { id: "mn", name: "Mongolian" },
-  { id: "ne", name: "Nepali" },
-  { id: "nb", name: "Norwegian (Bokmål)" },
-  { id: "ps", name: "Pashto" },
-  { id: "fa", name: "Persian" },
-  { id: "pl", name: "Polish" },
-  { id: "pt", name: "Portuguese" },
-  { id: "pa", name: "Punjabi (Gurmukhi)" },
-  { id: "ro", name: "Romanian" },
-  { id: "ru", name: "Russian" },
-  { id: "sm", name: "Samoan" },
-  { id: "sr", name: "Serbian" },
-  { id: "sn", name: "Shona" },
-  { id: "sd", name: "Sindhi" },
-  { id: "si", name: "Sinhala" },
-  { id: "sk", name: "Slovak" },
-  { id: "sl", name: "Slovenian" },
-  { id: "so", name: "Somali" },
-  { id: "es", name: "Spanish" },
-  { id: "su", name: "Sundanese" },
-  { id: "sw", name: "Swahili" },
-  { id: "sv", name: "Swedish" },
-  { id: "tg", name: "Tajik" },
-  { id: "ta", name: "Tamil" },
-  { id: "tt", name: "Tatar" },
-  { id: "te", name: "Telugu" },
-  { id: "th", name: "Thai" },
-  { id: "tr", name: "Turkish" },
-  { id: "tk", name: "Turkmen" },
-  { id: "uk", name: "Ukrainian" },
-  { id: "ur", name: "Urdu" },
-  { id: "ug", name: "Uyghur" },
-  { id: "uz", name: "Uzbek" },
-  { id: "vi", name: "Vietnamese" },
-  { id: "cy", name: "Welsh" },
-  { id: "xh", name: "Xhosa" },
-  { id: "yi", name: "Yiddish" },
-  { id: "yo", name: "Yoruba" },
-  { id: "zu", name: "Zulu" }
-];
+import { useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { CommunitySettingsAdvanced } from "./community-settings-advanced";
+import { CommunitySettingsGeneralInfo } from "./community-settings-general-info";
 
 interface Props {
   community: Community;
   onHide: () => void;
 }
 
+const form = yup.object({
+  title: yup
+    .string()
+    .required(i18next.t("validation.required"))
+    .min(3, i18next.t("validation.min-length", { n: 3 }))
+    .max(20, i18next.t("validation.max-length", { n: 20 }))
+    .trim(),
+  about: yup.string().required(i18next.t("validation.required")).trim(),
+  lang: yup.string().required(i18next.t("validation.required")).trim(),
+  description: yup.string().required(i18next.t("validation.required")).trim(),
+  rules: yup.string().required(i18next.t("validation.required")).trim(),
+  nsfw: yup.boolean().required(i18next.t("validation.required")),
+  defaultBeneficiaryUsername: yup.string().trim().optional(),
+  defaultBeneficiaryReward: yup.number().optional().positive().min(1).max(100)
+});
+
 export function CommunitySettingsDialog({ onHide, community }: Props) {
-  const formRef = useRef<HTMLFormElement | null>(null);
+  const activeUser = useClientActiveUser();
 
-  const [title, setTitle] = useState(cleanString(community.title));
-  const [about, setAbout] = useState(cleanString(community.about));
-  const [lang, setLang] = useState(community.lang || "en");
-  const [description, setDescription] = useState(cleanString(community.description));
-  const [flagText, setFlagText] = useState(cleanString(community.flag_text));
-  const [isNsfw, setIsNsfw] = useState(community.is_nsfw);
-
-  const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
   const router = useRouter();
+  const methods = useForm({
+    resolver: yupResolver(form),
+    defaultValues: {
+      title: community.title,
+      about: community.about,
+      description: community.description,
+      lang: community.lang,
+      rules: community.flag_text,
+      nsfw: community.is_nsfw,
+      defaultBeneficiaryReward: 5
+    }
+  });
 
-  const submit = useCallback(async () => {
-    await updateCommunity({
-      payload: {
-        title: cleanString(title),
-        about: cleanString(about),
-        description: cleanString(description),
-        lang,
-        flag_text: cleanString(flagText),
-        is_nsfw: isNsfw
+  const { data: communityOwnerAccount } = useQuery(getAccountFullQueryOptions(community.name));
+
+  const { mutateAsync: updateAccount } = useAccountUpdate(activeUser?.username ?? "");
+  const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
+
+  useEffect(() => {
+    if (communityOwnerAccount) {
+      try {
+        const meta = JSON.parse(communityOwnerAccount.posting_json_metadata);
+        const beneficiary = meta.beneficiary;
+        methods.setValue("defaultBeneficiaryUsername", beneficiary.account);
+        methods.setValue("defaultBeneficiaryReward", beneficiary.weight / 100);
+      } catch (e) {
+        console.error(e);
       }
-    });
-    onHide();
-    setTimeout(() => router.refresh(), 3000);
-  }, [about, router, description, flagText, isNsfw, lang, title, updateCommunity]);
+    }
+  }, [communityOwnerAccount, methods]);
+
+  const onSubmit = methods.handleSubmit(
+    async ({
+      title,
+      about,
+      description,
+      lang,
+      rules,
+      nsfw,
+      defaultBeneficiaryReward,
+      defaultBeneficiaryUsername
+    }) => {
+      await updateCommunity({
+        payload: {
+          title,
+          about,
+          description,
+          lang,
+          flag_text: rules,
+          is_nsfw: nsfw
+        }
+      });
+
+      // Only owner can update the beneficiaries settings because this setting is storing in account itself
+      if (
+        activeUser?.username === community.name &&
+        defaultBeneficiaryUsername &&
+        defaultBeneficiaryReward
+      ) {
+        await updateAccount({
+          beneficiary: {
+            username: defaultBeneficiaryUsername,
+            reward: defaultBeneficiaryReward * 100
+          }
+        });
+      }
+
+      onHide();
+      setTimeout(() => router.refresh(), 3000);
+    }
+  );
 
   return (
     <Modal
@@ -156,141 +119,29 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
       className="community-settings-dialog"
       size="lg"
     >
-      <ModalHeader closeButton={true}>
-        <ModalTitle>{i18next.t("community-settings.dialog-title")}</ModalTitle>
-      </ModalHeader>
-      <ModalBody>
-        <div className="community-settings-dialog-content">
-          {isPending && <LinearProgress />}
+      <FormProvider {...methods}>
+        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+          <ModalHeader closeButton={true}>
+            {i18next.t("community-settings.dialog-title")}
+          </ModalHeader>
+          <ModalBody className="!p-0">
+            <div className="community-settings-dialog-content">
+              <div className="flex flex-col gap-4">
+                <CommunitySettingsGeneralInfo />
 
-          <Form
-            ref={formRef}
-            className={`settings-form ${isPending ? "in-progress" : ""}`}
-            onSubmit={(e: React.FormEvent) => {
-              e.preventDefault();
-              e.stopPropagation();
+                <div className="border-b border-[--border-color] w-full" />
 
-              if (!formRef.current?.checkValidity()) {
-                return;
-              }
-
-              submit().then();
-            }}
-          >
-            <div className="flex mb-4">
-              <div className="w-full sm:w-2/12 pt-2.5">
-                <label>{i18next.t("community-settings.title")}</label>
-              </div>
-              <div className="w-full sm:w-10/12">
-                <InputGroup>
-                  <FormControl
-                    type="text"
-                    autoComplete="off"
-                    value={title}
-                    name="title"
-                    onChange={(e) => setTitle(e.target.value)}
-                    required={true}
-                    onInvalid={(e: any) =>
-                      handleInvalid(e, "community-settings.", "validation-title")
-                    }
-                    onInput={handleOnInput}
-                  />
-                </InputGroup>
+                <CommunitySettingsAdvanced />
+                <ModalFooter className="flex justify-end">
+                  <Button type="submit" disabled={isPending} isLoading={isPending}>
+                    {i18next.t("g.save")}
+                  </Button>
+                </ModalFooter>
               </div>
             </div>
-            <div className="flex mb-4">
-              <div className="w-full sm:w-2/12 pt-2.5">
-                <label>{i18next.t("community-settings.about")}</label>
-              </div>
-              <div className="w-full sm:w-10/12">
-                <FormControl
-                  type="text"
-                  autoComplete="off"
-                  value={about}
-                  name="about"
-                  onChange={(e) => setAbout(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex mb-4">
-              <div className="w-full sm:w-2/12 pt-2.5">
-                <label>{i18next.t("community-settings.lang")}</label>
-              </div>
-              <div className="w-full sm:w-4/12">
-                <FormControl
-                  type="select"
-                  value={lang}
-                  name="lang"
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setLang(e.target.value)}
-                >
-                  {langOpts.map((l, k) => (
-                    <option key={k} value={l.id}>
-                      {l.name}
-                    </option>
-                  ))}
-                </FormControl>
-              </div>
-            </div>
-            <div className="flex mb-4">
-              <div className="w-full sm:w-2/12 pt-2.5">
-                <label>{i18next.t("community-settings.description")}</label>
-              </div>
-              <div className="w-full sm:w-10/12">
-                <InputGroup>
-                  <FormControl
-                    type="textarea"
-                    value={description}
-                    name="description"
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      setDescription(e.target.value)
-                    }
-                  />
-                </InputGroup>
-              </div>
-            </div>
-            <div className="flex mb-4">
-              <div className="w-full sm:w-2/12 pt-2.5">
-                <label>{i18next.t("community-settings.rules")}</label>
-              </div>
-              <div className="w-full sm:w-10/12">
-                <InputGroup>
-                  <FormControl
-                    type="textarea"
-                    value={flagText}
-                    name="flag_text"
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      setFlagText(e.target.value)
-                    }
-                  />
-                </InputGroup>
-                <small>{i18next.t("community-settings.rules-help")}</small>
-              </div>
-            </div>
-            <div className="flex mb-4">
-              <div className="w-full sm:w-2/12" />
-              <div className="w-full flex justify-start sm:w-10/12">
-                <FormControl
-                  id="check-nsfw"
-                  type="checkbox"
-                  label="NSFW"
-                  name="is_nsfw"
-                  checked={isNsfw}
-                  onChange={(v) => setIsNsfw(v)}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={isPending}
-                icon={isPending && <Spinner className="w-3.5 h-3.5 animate-spin" />}
-              >
-                {i18next.t("g.save")}
-              </Button>
-            </div>
-          </Form>
-        </div>
-      </ModalBody>
+          </ModalBody>
+        </form>
+      </FormProvider>
     </Modal>
   );
 }

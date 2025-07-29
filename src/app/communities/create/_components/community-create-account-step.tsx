@@ -1,29 +1,40 @@
 import { getAccountsQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { ProfileLink, UserAvatar } from "@/features/shared";
-import { Badge, Button, FormControl, InputGroupCopyClipboard, StyledTooltip } from "@/features/ui";
+import {
+  Badge,
+  Button,
+  FormControl,
+  InputGroup,
+  InputGroupCopyClipboard,
+  StyledTooltip
+} from "@/features/ui";
 import { Form } from "@/features/ui/form";
 import i18next from "i18next";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, SetStateAction, Dispatch } from "react";
 import { COMMUNITY_NAME_PATTERN } from "../_consts";
 import { CommunityCreateCardLayout } from "./community-create-card-layout";
+import { Accordion, AccordionCollapse, AccordionToggle } from "@/features/ui/accordion";
+import Link from "next/link";
 
 interface Props {
-  title: string;
+  defaultBeneficiary: { username: string; reward: number };
   fee: string | undefined;
   username: string;
   wif: string;
   setUsername: (v: string) => void;
+  setDefaultBeneficiary: Dispatch<SetStateAction<Props["defaultBeneficiary"]>>;
   onSubmit: () => void;
 }
 
 export function CommunityCreateAccountStep({
-  title,
   username,
   setUsername,
   fee,
   onSubmit,
-  wif
+  wif,
+  defaultBeneficiary,
+  setDefaultBeneficiary
 }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -121,11 +132,65 @@ export function CommunityCreateAccountStep({
         </div>
 
         <div className="mb-4">
-          <label className="label-text">
+          <label>
             <input type="checkbox" required={true} disabled={true} checked />{" "}
             {i18next.t("communities-create.confirmation")}
           </label>
         </div>
+
+        <Accordion>
+          <AccordionToggle eventKey="advanced">
+            <div className="-mx-6 px-6 border-y text-sm font-semibold border-[--border-color] cursor-pointer py-4 hover:bg-gray-100 dark:hover:bg-gray-900 duration-300">
+              {i18next.t("submit.advanced")}
+            </div>
+          </AccordionToggle>
+          <AccordionCollapse eventKey="advanced" className="py-4">
+            <div className="mb-4">
+              <div className="text-sm font-semibold px-3 mb-2">
+                {i18next.t("communities-create.default-beneficiary")}
+                <Link
+                  className="font-normal pl-1"
+                  target="_blank"
+                  href="https://docs.ecency.com/communities/default-beneficiary"
+                >
+                  {i18next.t("communities-create.default-beneficiary-docs")}
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <FormControl
+                  type="text"
+                  autoComplete="off"
+                  value={defaultBeneficiary.username}
+                  name="beneficiary"
+                  placeholder={i18next.t("communities-create.default-beneficiary-username")}
+                  onChange={(e) =>
+                    setDefaultBeneficiary((v) => ({
+                      ...v,
+                      username: e.target.value
+                    }))
+                  }
+                />
+                <InputGroup prepend="%">
+                  <FormControl
+                    type="number"
+                    autoComplete="off"
+                    value={defaultBeneficiary.reward}
+                    min={0}
+                    max={100}
+                    name="reward"
+                    placeholder={i18next.t("communities-create.default-beneficiary-reward")}
+                    onChange={(e) =>
+                      setDefaultBeneficiary((v) => ({
+                        ...v,
+                        reward: +e.target.value
+                      }))
+                    }
+                  />
+                </InputGroup>
+              </div>
+            </div>
+          </AccordionCollapse>
+        </Accordion>
       </Form>
 
       <div className="flex justify-end">

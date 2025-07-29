@@ -15,7 +15,7 @@ import {
 import { useGlobalStore } from "@/core/global-store";
 import { CommunityTypes } from "@/enums";
 import { delay, parseAsset, random } from "@/utils";
-import { EcencyAnalytics, getChainPropertiesQueryOptions } from "@ecency/sdk";
+import { EcencyAnalytics, getChainPropertiesQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { cryptoUtils } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -50,6 +50,10 @@ export function CreateCommunityPage() {
   const [wif, setWif] = useState(generateWif());
   const [progress, setProgress] = useState("");
   const [step, setStep] = useState(CommunityStepperSteps.INTRO);
+  const [defaultBeneficiary, setDefaultBeneficiary] = useState<{
+    username: string;
+    reward: number;
+  }>({ username: "", reward: 0 });
 
   const { data: fee } = useQuery({
     ...getChainPropertiesQueryOptions(),
@@ -58,6 +62,7 @@ export function CreateCommunityPage() {
       return `${numeral(asset.amount).format("0.000")} ${asset.symbol}`;
     }
   });
+  const { mutateAsync: updateAccount } = useAccountUpdate(username);
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateCommunity } = useUpdateCommunity(username);
   const { mutateAsync: setUserRole } = useCommunitySetUserRole(username);
@@ -111,6 +116,15 @@ export function CreateCommunityPage() {
         }
       });
 
+      if (defaultBeneficiary.username && defaultBeneficiary.reward) {
+        await updateAccount({
+          beneficiary: {
+            username: defaultBeneficiary.username,
+            reward: defaultBeneficiary.reward * 100
+          }
+        });
+      }
+
       // wait 3 seconds to hivemind synchronize community data
       await delay(3000);
 
@@ -118,14 +132,16 @@ export function CreateCommunityPage() {
       setStep(CommunityStepperSteps.DONE);
     },
     [
-      about,
       activeUser,
-      addUser,
       hsTokenRenew,
+      addUser,
       setUserRole,
-      title,
-      updateCommunity,
       username,
+      updateCommunity,
+      title,
+      about,
+      updateAccount,
+      defaultBeneficiary,
       recordActivity
     ]
   );
@@ -148,9 +164,10 @@ export function CreateCommunityPage() {
         <CommunityCreateAccountStep
           username={username}
           setUsername={setUsername}
-          title={title}
           fee={fee}
           wif={wif}
+          defaultBeneficiary={defaultBeneficiary}
+          setDefaultBeneficiary={setDefaultBeneficiary}
           onSubmit={() => setStep(CommunityStepperSteps.SIGN)}
         />
       )}

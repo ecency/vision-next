@@ -25,7 +25,7 @@ import i18next from "i18next";
 import { usePathname } from "next/navigation";
 import { PropsWithChildren, useState } from "react";
 import { useSaveDraftApi } from "../_api";
-import { usePublishState } from "../_hooks";
+import { useDefaultBeneficiary, usePublishState } from "../_hooks";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
 
 interface Props {
@@ -47,6 +47,8 @@ export function PublishActionBar({
 
   const pathname = usePathname();
 
+  useDefaultBeneficiary();
+
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi();
   const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
 
@@ -56,7 +58,7 @@ export function PublishActionBar({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -32 }}
       transition={{ delay: 0.4 }}
-      className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
+      className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col sm:flex-row items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
     >
       <PublishActionBarCommunity />
       <div className="flex items-center gap-4">
