@@ -102,6 +102,11 @@
     "play": "Играть",
     "pause": "Пауза"
   },
+  "validation": {
+    "required": "Обязательное поле",
+    "min-length": "Должно быть не менее {{n}} символов",
+    "max-length": "Должно быть не больше {{n}} символов"
+  },
   "confirm": {
     "title": "Вы уверены?",
     "ok": "Подтвердить",
@@ -919,7 +924,11 @@
     "topic": "Тема – любой может писать или комментировать",
     "journal": "Журнал – только участники могут публиковать и гости могут только комментировать",
     "council": "Совет – только члены могут размещать или комментировать",
-    "types-hint": "Узнайте больше о типах сообщества"
+    "types-hint": "Узнайте больше о типах сообщества",
+    "default-beneficiary": "Поставщик по умолчанию",
+    "default-beneficiary-username": "Имя пользователя в Hive",
+    "default-beneficiary-reward": "Награда (в %)",
+    "default-beneficiary-docs": "Смотреть документы"
   },
   "community-rewards-registration": {
     "body-text": "Зарегистрируйте свое сообщество, чтобы получить Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "В сотрудничестве с WorldMapPin.com",
       "location-placeholder": "Записать место...",
       "selected-location": "Уже выбрано местоположение"
+    },
+    "community-beneficiary": {
+      "reward": "Награда за сообщество",
+      "hint": "Это сообщество запрашивает ≥ 25% наград за пост"
     }
   },
   "ecency-images": {
