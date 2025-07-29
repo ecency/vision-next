@@ -102,6 +102,11 @@
     "play": "播放",
     "pause": "暂停"
   },
+  "validation": {
+    "required": "必填字段",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Must be at most {{n}} characters"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
@@ -919,7 +924,11 @@
     "topic": "主题 - 任何人都可以发表评论或评论",
     "journal": "日记——只有会员可以发帖，客人只能留言",
     "council": "Council — — 只有会员可以发布或评论",
-    "types-hint": "了解更多关于社区类型的信息"
+    "types-hint": "了解更多关于社区类型的信息",
+    "default-beneficiary": "默认收件人",
+    "default-beneficiary-username": "Hive 用户名",
+    "default-beneficiary-reward": "奖励(%)",
+    "default-beneficiary-docs": "查看文档"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "与 WorldMapPin.com 协作",
       "location-placeholder": "写位置...",
       "selected-location": "已选择位置"
+    },
+    "community-beneficiary": {
+      "reward": "社区奖励",
+      "hint": "这个社区询问的帖子奖励必须是025%"
     }
   },
   "ecency-images": {
