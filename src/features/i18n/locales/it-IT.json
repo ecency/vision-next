@@ -102,6 +102,11 @@
     "play": "Gioca",
     "pause": "Pausa"
   },
+  "validation": {
+    "required": "Campo obbligatorio",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Must be at most {{n}} characters"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
@@ -919,7 +924,11 @@
     "topic": "Argomento – chiunque può pubblicare o commentare",
     "journal": "Journal – solo i membri possono inviare e gli ospiti possono solo commentare",
     "council": "Consiglio – solo i membri possono inviare o commentare",
-    "types-hint": "Scopri di più sui tipi di community"
+    "types-hint": "Scopri di più sui tipi di community",
+    "default-beneficiary": "Beneficiario predefinito",
+    "default-beneficiary-username": "Nome utente alveare",
+    "default-beneficiary-reward": "Ricompensa (in %)",
+    "default-beneficiary-docs": "Vedi documenti"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "In collaborazione con WorldMapPin.com",
       "location-placeholder": "Scrivi posizione...",
       "selected-location": "Posizione già selezionata"
+    },
+    "community-beneficiary": {
+      "reward": "Ricompensa comunità",
+      "hint": "Questa comunità chiede ≥ 25% dei premi post"
     }
   },
   "ecency-images": {
