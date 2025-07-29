@@ -926,7 +926,7 @@
     "council": "Consejo - solamente los miembros pueden publicar o comentar",
     "types-hint": "Aprende más sobre los tipos de comunidad",
     "default-beneficiary": "beneficiario por defecto",
-    "default-beneficiary-username": "Nombre de usuario colgante",
+    "default-beneficiary-username": "Nombre de usuario en Hive",
     "default-beneficiary-reward": "Recompensa (en %)",
     "default-beneficiary-docs": "Ver documentos"
   },
