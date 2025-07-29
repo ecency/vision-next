@@ -102,6 +102,11 @@
     "play": "Jouer",
     "pause": "Mettre en pause"
   },
+  "validation": {
+    "required": "Champ obligatoire",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Doit contenir au maximum {{n}} caractères"
+  },
   "confirm": {
     "title": "Êtes-vous sûr ?",
     "ok": "Confirmer",
@@ -919,7 +924,11 @@
     "topic": "Sujet - n'importe qui peut poster ou commenter",
     "journal": "Journal – seuls les membres peuvent poster et les invités ne peuvent commenter que",
     "council": "Conseil – seuls les membres peuvent poster ou commenter",
-    "types-hint": "En savoir plus sur les types de communauté"
+    "types-hint": "En savoir plus sur les types de communauté",
+    "default-beneficiary": "Destinataire par défaut",
+    "default-beneficiary-username": "Nom d'utilisateur Hive",
+    "default-beneficiary-reward": "Récompenses (en %)",
+    "default-beneficiary-docs": "Voir la documentation"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "En collaboration avec WorldMapPin.com",
       "location-placeholder": "Écrire un emplacement...",
       "selected-location": "Lieu déjà sélectionné"
+    },
+    "community-beneficiary": {
+      "reward": "Récompense de la communauté",
+      "hint": "Cette communauté demande \\n\\n25% des récompenses de publication"
     }
   },
   "ecency-images": {
