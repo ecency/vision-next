@@ -102,6 +102,11 @@
     "play": "再生",
     "pause": "一時停止"
   },
+  "validation": {
+    "required": "必須項目",
+    "min-length": "少なくとも {{n}} 文字以上でなければなりません",
+    "max-length": "{{n}} 文字以上でなければなりません"
+  },
   "confirm": {
     "title": "Are you sure?",
     "ok": "Confirm",
@@ -919,7 +924,11 @@
     "topic": "トピック – 誰でも投稿またはコメントできます",
     "journal": "Journal – 投稿できるメンバーとゲストのみがコメントできます",
     "council": "Council - メンバーのみが投稿またはコメントできます",
-    "types-hint": "コミュニティタイプについてもっと詳しく"
+    "types-hint": "コミュニティタイプについてもっと詳しく",
+    "default-beneficiary": "既定の<unk>",
+    "default-beneficiary-username": "ハイブユーザー名",
+    "default-beneficiary-reward": "報酬 (%)",
+    "default-beneficiary-docs": "ドキュメントを見る"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2823,6 +2832,10 @@
       "subtitle": "WorldMapPin.comとの連携",
       "location-placeholder": "場所を書く...",
       "selected-location": "既に選択されている場所"
+    },
+    "community-beneficiary": {
+      "reward": "コミュニティ報酬",
+      "hint": "このコミュニティはポスト報酬を25%以上求めています"
     }
   },
   "ecency-images": {
