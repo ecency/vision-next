@@ -118,9 +118,11 @@ export function CreateCommunityPage() {
 
       if (defaultBeneficiary.username && defaultBeneficiary.reward) {
         await updateAccount({
-          beneficiary: {
-            username: defaultBeneficiary.username,
-            reward: defaultBeneficiary.reward * 100
+          profile: {
+            beneficiary: {
+              account: defaultBeneficiary.username,
+              weight: defaultBeneficiary.reward * 100
+            }
           }
         });
       }

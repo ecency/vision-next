@@ -99,9 +99,11 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
         defaultBeneficiaryReward
       ) {
         await updateAccount({
-          beneficiary: {
-            username: defaultBeneficiaryUsername,
-            reward: defaultBeneficiaryReward * 100
+          profile: {
+            beneficiary: {
+              account: defaultBeneficiaryUsername,
+              weight: defaultBeneficiaryReward * 100
+            }
           }
         });
       }

@@ -1,33 +1,52 @@
-import { usePublishState } from "./use-publish-state";
 import { isCommunity } from "@/utils";
-import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import { usePrevious } from "react-use";
+import { usePublishState } from "./use-publish-state";
 
+/**
+ * This hook controls the default beneficiary feature
+ *      Default beneficiary settings are storing in the community's same named Hive account hive-xxxxxx
+ *      in posting_metadata
+ *
+ * Whenever community changes it should control beneficiaries logic
+ */
 export function useDefaultBeneficiary() {
   const { tags, beneficiaries, setBeneficiaries } = usePublishState();
+  const previousTags = usePrevious(tags);
 
-  const { data: communityAccount } = useQuery({
+  const { data: beneficiary } = useQuery({
     ...getAccountFullQueryOptions(tags?.[0] ?? ""),
-    enabled: isCommunity(tags?.[0])
+    enabled: isCommunity(tags?.[0]),
+    select: (data) => data.profile.beneficiary
   });
 
-  useEffect(() => {
-    if (communityAccount) {
-      const beneficiary = JSON.parse(communityAccount.posting_json_metadata || "{}").beneficiary;
-      const hasSetBeneficiary = beneficiaries?.some(
-        (ben) => ben.account === tags?.[0] && ben.weight === beneficiary.weight
-      );
+  const hasSetBeneficiary = useMemo(
+    () =>
+      beneficiaries?.some((ben) => ben.account === tags?.[0] && ben.weight === beneficiary?.weight),
+    [beneficiaries, beneficiary, tags]
+  );
 
-      if (!hasSetBeneficiary && beneficiary) {
-        setBeneficiaries([
-          ...(beneficiaries?.filter((b) => b.account !== tags?.[0]) ?? []),
-          {
-            account: tags?.[0] ?? "",
-            weight: beneficiary.weight
-          }
-        ]);
-      }
+  // In case of existing default beneficiary settings in community account it should be populated and never removed
+  useEffect(() => {
+    if (beneficiary && !hasSetBeneficiary) {
+      setBeneficiaries([
+        ...(beneficiaries?.filter((b) => b.account !== tags?.[0]) ?? []),
+        {
+          account: tags?.[0] ?? "",
+          weight: beneficiary.weight
+        }
+      ]);
     }
-  }, [beneficiaries, communityAccount, setBeneficiaries, tags]);
+  }, [beneficiaries, beneficiary, hasSetBeneficiary, setBeneficiaries, tags]);
+
+  // In case of removing community tag and there is some beneficiary with this community
+  //    it should be cleared to avoid any unnecessary beneficiaries
+  useEffect(() => {
+    const tag = previousTags?.[0];
+    if (tag && isCommunity(tag) && tags?.[0] !== tag) {
+      setBeneficiaries(beneficiaries?.filter((ben) => ben.account !== tag));
+    }
+  }, [beneficiaries, previousTags, setBeneficiaries, tags]);
 }
