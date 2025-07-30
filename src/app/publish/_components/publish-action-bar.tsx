@@ -58,10 +58,10 @@ export function PublishActionBar({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -32 }}
       transition={{ delay: 0.4 }}
-      className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col sm:flex-row items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
+      className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col-reverse sm:flex-row sm:items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
     >
       <PublishActionBarCommunity />
-      <div className="flex items-center gap-4">
+      <div className="w-full sm:w-auto flex justify-end sm:justify-normal items-center gap-4">
         <LoginRequired>
           <Button size="sm" appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
             {scheduleDate && i18next.t("publish.continue-to-schedule")}
