@@ -30,8 +30,15 @@ export default function Publish() {
 
   const { editor, setEditorContent } = usePublishEditor(() => setShowHtmlWarning(true));
 
-  const { setTitle, setContent, setTags, setMetaDescription, setSelectedThumbnail, setLocation, setEntryImages } =
-    usePublishState();
+  const {
+    setTitle,
+    setContent,
+    setTags,
+    setMetaDescription,
+    setSelectedThumbnail,
+    setLocation,
+    setEntryImages
+  } = usePublishState();
 
   useEntryDetector(
     (params?.author as string).replace("%40", ""),
@@ -47,7 +54,8 @@ export default function Publish() {
         setContent(entry.body); // todo
         setMetaDescription(entry.json_metadata?.description ?? postBodySummary(entry.body, 200));
         entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
-        entry?.json_metadata?.image && setEntryImages(Array.from(new Set(entry.json_metadata?.image)));
+        entry?.json_metadata?.image &&
+          setEntryImages(Array.from(new Set(entry.json_metadata?.image)));
         entry?.json_metadata?.location && setLocation(entry?.json_metadata?.location);
 
         setEditorContent(entry.body);
@@ -62,7 +70,7 @@ export default function Publish() {
       <AnimatePresence>
         {step === "edit" && (
           <>
-            <div className="container text-right max-w-[800px] mx-auto text-gray-600 dark:text-gray-400 text-xs p-2 md:p-0">
+            <div className="container text-right max-w-[1024px] mx-auto text-gray-600 dark:text-gray-400 text-xs p-2 md:p-0">
               {i18next.t("publish.edit-mode")}
             </div>
             <PublishEntryActionBar onEdit={() => setStep("validation")} />

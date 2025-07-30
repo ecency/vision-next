@@ -28,14 +28,8 @@ export function EntryFooterControls({ entry }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const {
-    showProfileBox,
-    setShowProfileBox,
-    showWordCount,
-    setShowWordCount,
-    setIsRawContent,
-    isRawContent
-  } = useContext(EntryPageContext);
+  const { showProfileBox, setShowProfileBox, setIsRawContent, isRawContent } =
+    useContext(EntryPageContext);
 
   const activeUser = useGlobalStore((s) => s.activeUser);
   const isOwnEntry = useMemo(
@@ -43,11 +37,11 @@ export function EntryFooterControls({ entry }: Props) {
     [activeUser?.username, entry.author]
   );
 
-  useDistanceDetector(ref, showProfileBox, showWordCount, setShowProfileBox, setShowWordCount);
+  useDistanceDetector(ref, showProfileBox, setShowProfileBox);
 
   return (
     <div
-      className="entry-controls text-sm flex-wrap gap-4 [&_.entry-tip-btn]:mr-0 [&_.entry-reblog-btn]:!mr-0"
+      className="entry-controls p-2 md:p-3 text-sm flex-wrap gap-4 [&_.entry-tip-btn]:mr-0 [&_.entry-reblog-btn]:!mr-0"
       ref={ref}
     >
       <div className="flex items-center gap-4">

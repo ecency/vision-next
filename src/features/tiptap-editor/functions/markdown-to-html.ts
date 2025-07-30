@@ -40,7 +40,7 @@ export function markdownToHtml(html: string | undefined) {
       },
       replacement: function (_, node) {
         const colgroup = (node as HTMLElement).querySelector("colgroup");
-        if (colgroup) {
+        if (colgroup && node.contains(colgroup)) {
           node.removeChild(colgroup);
         }
 

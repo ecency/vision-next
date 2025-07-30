@@ -162,20 +162,20 @@ export const reblog = (
   });
 };
 
-export const comment = (
-  username: string,
-  parentAuthor: string,
-  parentPermlink: string,
-  permlink: string,
-  title: string,
-  body: string,
-  jsonMetadata: MetaData,
-  options: CommentOptions | null,
-  point: boolean = false
+export const comment = async (
+    username: string,
+    parentAuthor: string,
+    parentPermlink: string,
+    permlink: string,
+    title: string,
+    body: string,
+    jsonMetadata: MetaData,
+    options: CommentOptions | null,
+    point: boolean = false
 ): Promise<TransactionConfirmation> => {
   const params = {
-    parent_author: parentAuthor,
-    parent_permlink: parentPermlink,
+    parent_author: parentAuthor.trim(),
+    parent_permlink: parentPermlink.trim(),
     author: username,
     permlink,
     title,
@@ -190,13 +190,12 @@ export const comment = (
     opArray.push(e);
   }
 
-  return broadcastPostingOperations(username, opArray).then((r) => {
-    if (point) {
-      const t = title ? 100 : 110;
-      usrActivity(username, t, r.block_num, r.id).then();
-    }
-    return r;
-  });
+  const r = await broadcastPostingOperations(username, opArray);
+  if (point) {
+    const t = title ? 100 : 110;
+    usrActivity(username, t, r.block_num, r.id).then();
+  }
+  return r;
 };
 
 export const deleteComment = (

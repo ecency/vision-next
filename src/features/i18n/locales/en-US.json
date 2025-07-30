@@ -98,7 +98,14 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "Clear"
+    "clear": "Clear",
+    "play": "Play",
+    "pause": "Pause"
+  },
+  "validation": {
+    "required": "Required field",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Must be at most {{n}} characters"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -760,8 +767,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words:",
-    "post-read-time": "Reading:",
+    "post-word-count": "Words",
+    "post-read-time": "Reading",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +785,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Listen"
   },
   "edit-history": {
     "title": "Edit History",
@@ -916,7 +924,11 @@
     "topic": "Topic – anyone can post or comment",
     "journal": "Journal – only members can post and guests can only comment",
     "council": "Council – only members can post or comment",
-    "types-hint": "Learn more about community types"
+    "types-hint": "Learn more about community types",
+    "default-beneficiary": "Default beneficiary",
+    "default-beneficiary-username": "Hive username",
+    "default-beneficiary-reward": "Reward(in %)",
+    "default-beneficiary-docs": "See docs"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -2820,6 +2832,10 @@
       "subtitle": "In collaboration with WorldMapPin.com",
       "location-placeholder": "Write location...",
       "selected-location": "Already selected location"
+    },
+    "community-beneficiary": {
+      "reward": "Community reward",
+      "hint": "This community asks ≥ 25% of post rewards"
     }
   },
   "ecency-images": {
@@ -2829,5 +2845,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Text-to-Speech settings",
+    "voice-updated": "Text-to-Speech voice changed to {{n}}",
+    "hint": "Text-to-Speech uses browser`s built-in tools for converting text content to speech. Voices list, availability and quality depends only on your browser and device.",
+    "playground": "Playground",
+    "voices": "Voices"
   }
 }

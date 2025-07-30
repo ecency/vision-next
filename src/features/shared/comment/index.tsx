@@ -158,8 +158,12 @@ export function Comment({
       detectEvent("blockquote");
     }
   };
+  const isCommunityPost = isCommunity(entry.category);
+  const canComment = isCommunityPost
+      ? userContext?.canComment
+      : !!activeUser?.username;
 
-  if (!userContext?.canComment) {
+  if (!canComment) {
     return <></>;
   }
 

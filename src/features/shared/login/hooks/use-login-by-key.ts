@@ -41,7 +41,9 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
       try {
         account = await getAccount(username);
       } catch (err) {
-        throw new Error(i18next.t("login.error-user-fetch"));
+        const wrapped = new Error(i18next.t("login.error-user-fetch"));
+        (wrapped as any).cause = err;
+        throw wrapped;
       }
 
       if (!account || account.name !== username) {

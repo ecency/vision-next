@@ -106,14 +106,8 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
   }, [pollDetails, pollDetails.data?.poll_trx_id]);
 
   return (
-    <div className="grid grid-cols-4">
-      <div
-        className={classNameObject({
-          "col-span-4 flex flex-col gap-4 border border-[--border-color] rounded-3xl p-4 dark:border-gray-900":
-            true,
-          "sm:col-span-3": !compact
-        })}
-      >
+    <div className="grid grid-cols-1 gap-4 border border-[--border-color] rounded-3xl p-4 dark:border-gray-900">
+      <div>
         {isReadOnly && (
           <div className="text-xs uppercase tracking-wide font-semibold opacity-50">
             {i18next.t("polls.preview-mode")}
@@ -150,7 +144,9 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
             {i18next.t("polls.max-votes-hint", { n: poll.maxChoicesVoted ?? 1 })}
           </div>
         )}
-        <div className="flex flex-col gap-3">
+      </div>
+      <div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {poll.choices.map((choice) =>
             resultsMode ? (
               <PollOptionWithResults
@@ -194,37 +190,39 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
               </div>
             )}
         </div>
-        {showVote && (
-          <Button
-            disabled={isReadOnly || activeChoices.size === 0 || isVoting}
-            icon={<UilPanelAdd />}
-            iconPlacement="left"
-            size="lg"
-            className="font-semibold text-sm px-4 mt-4"
-            onClick={() => {
-              setIsVotedAlready(false);
-              vote({ choices: activeChoices!! });
-            }}
-          >
-            {i18next.t(isVoting ? "polls.voting" : "polls.vote")}
-          </Button>
-        )}
-        {pollDetails.data && !pollDetails.data.poll_trx_id && !isReadOnly && (
-          <Button size="sm" disabled={true}>
-            {i18next.t("polls.creating-in-progress")}
-          </Button>
-        )}
-        {showChangeVote && (
-          <Button appearance="link" size="sm" onClick={() => setResultsMode(false)}>
-            {i18next.t("polls.back-to-vote")}
-          </Button>
-        )}
-        {!resultsMode && (
-          <Button appearance="link" size="sm" onClick={() => setResultsMode(true)}>
-            {i18next.t("polls.view-votes")}
-          </Button>
-        )}
-        {resultsMode && showViewVotes && <PollVotesListDialog entry={entry} />}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-center mt-4">
+          {showVote && (
+            <Button
+              disabled={isReadOnly || activeChoices.size === 0 || isVoting}
+              icon={<UilPanelAdd />}
+              iconPlacement="left"
+              size="lg"
+              className="font-semibold text-sm px-4"
+              onClick={() => {
+                setIsVotedAlready(false);
+                vote({ choices: activeChoices!! });
+              }}
+            >
+              {i18next.t(isVoting ? "polls.voting" : "polls.vote")}
+            </Button>
+          )}
+          {pollDetails.data && !pollDetails.data.poll_trx_id && !isReadOnly && (
+            <Button size="sm" disabled={true}>
+              {i18next.t("polls.creating-in-progress")}
+            </Button>
+          )}
+          {showChangeVote && (
+            <Button appearance="link" size="sm" onClick={() => setResultsMode(false)}>
+              {i18next.t("polls.back-to-vote")}
+            </Button>
+          )}
+          {!resultsMode && (
+            <Button appearance="link" size="sm" onClick={() => setResultsMode(true)}>
+              {i18next.t("polls.view-votes")}
+            </Button>
+          )}
+          {resultsMode && showViewVotes && <PollVotesListDialog entry={entry} />}
+        </div>
       </div>
     </div>
   );

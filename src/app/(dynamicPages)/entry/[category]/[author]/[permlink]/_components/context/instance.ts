@@ -9,9 +9,6 @@ interface ContextState {
   editHistory: boolean;
   setEditHistory: (value: boolean) => void;
 
-  showWordCount: boolean;
-  setShowWordCount: (value: boolean) => void;
-
   loading: boolean;
   setLoading: (value: boolean) => void;
 
@@ -31,8 +28,6 @@ export const DEFAULT_CONTEXT: ContextState = {
   setShowProfileBox: () => {},
   editHistory: false,
   setEditHistory: () => {},
-  showWordCount: false,
-  setShowWordCount: () => {},
   loading: false,
   setLoading: () => {},
   showIfNsfw: false,

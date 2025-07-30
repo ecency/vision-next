@@ -187,11 +187,13 @@ export function usePublishApi() {
             end_time: poll?.endTime.toISOString(),
             filter_account_age_days: poll?.filters?.accountAge,
             permlink: entry.permlink,
-            poll_choices: poll?.choices.map((c, i) => ({
-              choice_num: i,
-              choice_text: c,
-              votes: null
-            })),
+            poll_choices: Array.isArray(poll?.choices)
+                ? poll.choices.map((c, i) => ({
+                  choice_num: i,
+                  choice_text: c,
+                  votes: null
+                }))
+                : [],
             poll_stats: { total_voting_accounts_num: 0, total_hive_hp_incl_proxied: null },
             poll_trx_id: undefined,
             poll_voters: undefined,
