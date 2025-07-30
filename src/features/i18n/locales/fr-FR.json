@@ -98,7 +98,14 @@
     "view": "Afficher",
     "tomorrow": "Demain",
     "import": "Import",
-    "clear": "Nettoyer"
+    "clear": "Nettoyer",
+    "play": "Jouer",
+    "pause": "Mettre en pause"
+  },
+  "validation": {
+    "required": "Champ obligatoire",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Doit contenir au maximum {{n}} caractères"
   },
   "confirm": {
     "title": "Êtes-vous sûr ?",
@@ -194,7 +201,7 @@
     "settings": "Settings",
     "logout": "Logout",
     "just-logout": "Déconnexion simple",
-    "logout-and-clear": "Déconnexion & Effacer les données de connexion",
+    "logout-and-clear": "Déconnexion & Effacer les données locales",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -760,8 +767,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words",
-    "post-read-time": "Reading",
+    "post-word-count": "Mots",
+    "post-read-time": "Lecture en cours",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +785,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Écouter"
   },
   "edit-history": {
     "title": "Edit History",
@@ -876,7 +884,7 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Les communautés de ruches sont une grande partie de l'écosystème — du sport à l'emploi en passant par les loisirs et les intérêts. Découvrez-les tous et devenez partie de l'expérience Ecency and Hive !",
+    "hint": "Les communautés de ruche font partie intégrante de l'écosystème : il y a du sport, des emplois, des loisirs, des intérêts et bien d'autres encore. Explorez tous et devenez partie de Ecency and Ruve!",
     "types": {
       "topic": "Sujet",
       "journal": "Journal",
@@ -893,11 +901,11 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Format non valide. Format requis : hive-Yxxxxx, Y peut être 1, 2 ou 3.",
+    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "J'ai enregistré en toute sécurité le nom d'utilisateur et le mot de passe du propriétaire de la communauté.",
+    "confirmation": "I have securely saved my owner username and password.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
@@ -916,7 +924,11 @@
     "topic": "Sujet - n'importe qui peut poster ou commenter",
     "journal": "Journal – seuls les membres peuvent poster et les invités ne peuvent commenter que",
     "council": "Conseil – seuls les membres peuvent poster ou commenter",
-    "types-hint": "En savoir plus sur les types de communauté"
+    "types-hint": "En savoir plus sur les types de communauté",
+    "default-beneficiary": "Destinataire par défaut",
+    "default-beneficiary-username": "Nom d'utilisateur Hive",
+    "default-beneficiary-reward": "Récompenses (en %)",
+    "default-beneficiary-docs": "Voir la documentation"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1622,7 +1634,7 @@
     "choose": "Choose a community",
     "my-blog": "My Blog",
     "search-placeholder": "Search Communities",
-    "types-hint": "Ecency and Hive supportent différents types de communautés — Topic, Journal et Conseil — chacune avec des caractéristiques et des objectifs uniques. Appuyez pour en savoir plus."
+    "types-hint": "Ecency and Hive introduisent différentes catégories communautaires : thème, journal et conseil."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1992,7 +2004,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Démarrer le chat de la communauté",
+    "start-community-channel": "Start community channel",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2820,6 +2832,10 @@
       "subtitle": "En collaboration avec WorldMapPin.com",
       "location-placeholder": "Écrire un emplacement...",
       "selected-location": "Lieu déjà sélectionné"
+    },
+    "community-beneficiary": {
+      "reward": "Récompense de la communauté",
+      "hint": "Cette communauté demande \\n\\n25% des récompenses de publication"
     }
   },
   "ecency-images": {
@@ -2829,5 +2845,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Paramètres de synthèse vocale",
+    "voice-updated": "La voix vocale a été changée en {{n}}",
+    "hint": "Text-to-Speech utilise les outils intégrés du navigateur pour convertir le contenu du texte en discours. La liste, la disponibilité et la qualité dépendent uniquement de votre navigateur et de votre appareil.",
+    "playground": "Terrain de jeux",
+    "voices": "Voix"
   }
 }

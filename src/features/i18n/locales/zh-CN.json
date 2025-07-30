@@ -98,7 +98,14 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "清空"
+    "clear": "清空",
+    "play": "播放",
+    "pause": "暂停"
+  },
+  "validation": {
+    "required": "必填字段",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Must be at most {{n}} characters"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -194,7 +201,7 @@
     "settings": "Settings",
     "logout": "Logout",
     "just-logout": "只是注销",
-    "logout-and-clear": "登出并清除登录数据",
+    "logout-and-clear": "注销并清除本地数据",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -760,8 +767,8 @@
     "cross-post-by": "Cross post by",
     "cross-post-community": "community",
     "published": "Published in",
-    "post-word-count": "Words",
-    "post-read-time": "Reading",
+    "post-word-count": "单词",
+    "post-read-time": "正在阅读",
     "post-read-minutes": "min",
     "raw": "View RAW format",
     "post-top-curator": "Top Curator:",
@@ -778,7 +785,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "监听"
   },
   "edit-history": {
     "title": "Edit History",
@@ -876,7 +884,7 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Hive 社区是生态系统的一大部分——从体育和工作到爱好和利益。 发现所有他们并成为生态和Hive 体验的一部分！",
+    "hint": "希望社区是生态系统的很大一部分：体育、工作、爱好、兴趣和许多其他方面。 探索所有他们并成为生态与运动的一部分！",
     "types": {
       "topic": "主题",
       "journal": "日记",
@@ -893,11 +901,11 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "无效格式。必填格式：hive-Yxxxxx, Y 可以是 1, 2 或 3。",
+    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "我已安全地保存社区所有者的用户名和密码。",
+    "confirmation": "I have securely saved my owner username and password.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
@@ -916,7 +924,11 @@
     "topic": "主题 - 任何人都可以发表评论或评论",
     "journal": "日记——只有会员可以发帖，客人只能留言",
     "council": "Council — — 只有会员可以发布或评论",
-    "types-hint": "了解更多关于社区类型的信息"
+    "types-hint": "了解更多关于社区类型的信息",
+    "default-beneficiary": "默认收件人",
+    "default-beneficiary-username": "Hive 用户名",
+    "default-beneficiary-reward": "奖励(%)",
+    "default-beneficiary-docs": "查看文档"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1622,7 +1634,7 @@
     "choose": "Choose a community",
     "my-blog": "My Blog",
     "search-placeholder": "Search Communities",
-    "types-hint": "生态和Hive 支持不同类型的社区——主题、期刊和理事会，每个社区都有独特的特点和目的。点击以了解更多信息。"
+    "types-hint": "Ecency and Hive 介绍了不同的社区类别：专题、期刊和理事会。了解更多详情。"
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1992,7 +2004,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "开始社区聊天",
+    "start-community-channel": "Start community channel",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2820,6 +2832,10 @@
       "subtitle": "与 WorldMapPin.com 协作",
       "location-placeholder": "写位置...",
       "selected-location": "已选择位置"
+    },
+    "community-beneficiary": {
+      "reward": "社区奖励",
+      "hint": "这个社区询问的帖子奖励必须是025%"
     }
   },
   "ecency-images": {
@@ -2829,5 +2845,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "文字转语音设置",
+    "voice-updated": "Text-to-Speech voice changed to {{n}}",
+    "hint": "语音文本使用内置工具将文本内容转换为语音。语音列表、可用性和质量仅取决于您的浏览器和设备。",
+    "playground": "游乐场",
+    "voices": "声音"
   }
 }
