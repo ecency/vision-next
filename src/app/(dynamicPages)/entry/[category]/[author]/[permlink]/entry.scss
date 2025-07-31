@@ -45,6 +45,8 @@
 }
 
 .entry-page {
+  max-width: 100% !important;
+
   @apply font-sans;
 
   .the-entry {
