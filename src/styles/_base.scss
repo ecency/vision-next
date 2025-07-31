@@ -94,9 +94,11 @@ a[target="_blank"] {
 // main layout
 .app-content {
   display: flex;
+  width: 100%;
   max-width: 1600px;
+  min-height: 100vh;
 
-  @apply pt-4 md:pt-[6rem];
+  @apply pt-4 px-2 md:px-4 md:pt-[6rem];
 }
 
 // markdown styles
