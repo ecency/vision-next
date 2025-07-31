@@ -56,7 +56,7 @@ export function NavbarMobile({
       {activeUser && (
         <>
           <Button
-            href={`/${activeUser?.username}/wallet`}
+            href={`/@${activeUser?.username}/wallet`}
             appearance="gray-link"
             icon={<UilWallet width={20} height={20} />}
           />
