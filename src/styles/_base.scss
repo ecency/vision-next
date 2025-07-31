@@ -96,7 +96,7 @@ a[target="_blank"] {
   display: flex;
   max-width: 1600px;
 
-  @apply pt-4 md:pt-[6rem];
+  @apply pt-4 px-2 md:px-4 md:pt-[6rem];
 }
 
 // markdown styles
