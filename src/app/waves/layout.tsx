@@ -29,8 +29,8 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
       <Feedback />
       <ScrollToTop />
       <Navbar experimental={true} />
-      <div className="pt-[156px] max-w-[1600px] md:px-6 lg:px-8 mx-auto grid grid-cols-12 gap-4 md:gap-6 xl:gap-8">
-        <div className="col-span-12 md:col-span-4 xl:col-span-3 flex flex-col gap-4 xl:gap-8">
+      <div className="pt-4 md:pt-[156px] max-w-[1600px] md:px-6 lg:px-8 mx-auto grid grid-cols-12 gap-4 md:gap-6 xl:gap-8">
+        <div className="hidden md:col-span-4 xl:col-span-3 md:flex flex-col gap-4 xl:gap-8">
           <WavesProfileCard />
           <WavePromoteCard />
           <ClientOnly>

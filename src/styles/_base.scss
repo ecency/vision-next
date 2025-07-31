@@ -93,13 +93,10 @@ a[target="_blank"] {
 
 // main layout
 .app-content {
-  padding: 6rem 0 30px;
   display: flex;
   max-width: 1600px;
 
-  @media (min-width: $lg-break) {
-    padding: 6rem 20px 0;
-  }
+  @apply pt-4 md:pt-[6rem];
 }
 
 // markdown styles

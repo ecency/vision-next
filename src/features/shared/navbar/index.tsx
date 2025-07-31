@@ -75,7 +75,7 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
       return;
     }
     setTransparentVerify(
-        pathname.startsWith("/hot") ||
+      pathname.startsWith("/hot") ||
         pathname.startsWith("/created") ||
         pathname.startsWith("/trending")
     );
@@ -96,7 +96,8 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
   return (
     <div
       className={classNameObject({
-        "fixed z-20 top-0 left-0 right-0 flex flex-col justify-start": true,
+        "fixed z-20 top-[unset] bottom-0 md:top-0 md:bottom-[unset] left-0 right-0 flex flex-col justify-start":
+          true,
         "md:p-2": experimental
       })}
       id="sticky-container"

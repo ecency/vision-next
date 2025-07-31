@@ -10,7 +10,7 @@ export default function WavesDetailsLoading() {
             <div className="animate-pulse h-[20px] rounded-lg w-[20px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
           </div>
         </WavesNavigationLayout>
-        <WaveFormLoading isReply={false} />
+        {/* <WaveFormLoading isReply={false} /> */}
       </div>
     </div>
   );
