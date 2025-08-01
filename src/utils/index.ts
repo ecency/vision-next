@@ -40,3 +40,4 @@ export * from "./use-countdown";
 export * from "./username-validation";
 export * from "./use-entry-location";
 export * from "./get-pure-post-text";
+export * from "./speech";

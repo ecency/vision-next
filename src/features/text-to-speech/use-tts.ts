@@ -1,4 +1,4 @@
-import { useSynchronizedLocalStorage } from "@/utils";
+import {getVoicesAsync, useSynchronizedLocalStorage} from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,25 +11,28 @@ export function useTts(text: string) {
   const [voice] = useSynchronizedLocalStorage<string>(PREFIX + "_tts_voice");
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     if (speechRef.current) {
       speechRef.current = undefined;
       setHasPaused(false);
       setHasStarted(false);
     }
-    speechRef.current = new SpeechSynthesisUtterance(text.replaceAll(/^[^\w]+?/g, "").trim());
 
-    if (voice) {
-      const voices = window.speechSynthesis.getVoices();
+    const utterance = new SpeechSynthesisUtterance(text.replace(/^[^\w]+?/g, "").trim());
+    speechRef.current = utterance;
+
+    getVoicesAsync().then((voices) => {
       const foundVoice = voices.find((vc) => vc.voiceURI === voice);
       if (foundVoice) {
-        speechRef.current.voice = foundVoice;
+        utterance.voice = foundVoice;
       }
-    }
+    });
 
-    speechRef.current.addEventListener("start", () => setHasStarted(true));
-    speechRef.current.addEventListener("end", () => setHasStarted(false));
-    speechRef.current.addEventListener("pause", () => setHasPaused(true));
-    speechRef.current.addEventListener("resume", () => setHasPaused(false));
+    utterance.addEventListener("start", () => setHasStarted(true));
+    utterance.addEventListener("end", () => setHasStarted(false));
+    utterance.addEventListener("pause", () => setHasPaused(true));
+    utterance.addEventListener("resume", () => setHasPaused(false));
 
     return () => {
       speechSynthesis.cancel();

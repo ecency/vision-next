@@ -1,6 +1,6 @@
 "use client";
 
-import { useSynchronizedLocalStorage } from "@/utils";
+import {getVoicesAsync, useSynchronizedLocalStorage} from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { cloneElement, ReactElement, useEffect, useState } from "react";
 import { success } from "../shared";
@@ -12,30 +12,28 @@ interface Props {
   children: ReactElement;
 }
 
-function getVoices() {
-  return window.speechSynthesis.getVoices();
-}
-
 export function TextToSpeechSettingsDialog({ children }: Props) {
   const [show, setShow] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   const clonedChildren = cloneElement(children, {
     onClick: () => setShow(!show)
   });
-  const [text, setText] = useState("Hello Eccencial, how are you?");
+  const [text, setText] = useState("Hello Hive, how are you?");
   const [selected, setSelected] = useState<SpeechSynthesisVoice>();
 
-  const [voice, setVoice] = useSynchronizedLocalStorage<string>(PREFIX + "_tts_voice");
+  const [savedVoiceURI, setSavedVoiceURI] = useSynchronizedLocalStorage<string>(PREFIX + "_tts_voice");
 
   useEffect(() => {
-    setTimeout(() => {
-      const voices = window.speechSynthesis.getVoices();
+    if (typeof window === "undefined") return;
 
+    getVoicesAsync().then((voices) => {
+      setAvailableVoices(voices);
       const defaultVoice = voices.find((vc) => vc.default);
-      const found = voices.find((vc) => vc.voiceURI === voice);
-      setSelected(found ?? defaultVoice);
-    }, 1);
-  }, [voice]);
+      const found = voices.find((vc) => vc.voiceURI === savedVoiceURI);
+      setSelected(found ?? defaultVoice ?? voices[0]);
+    });
+  }, [savedVoiceURI]);
 
   return (
     <>
@@ -53,7 +51,7 @@ export function TextToSpeechSettingsDialog({ children }: Props) {
                 if (!selected) {
                   return;
                 }
-                setVoice(selected?.voiceURI);
+                setSavedVoiceURI(selected?.voiceURI);
                 setShow(false);
                 success(i18next.t("tts-settings.voice-updated", { n: selected?.name }));
               }}
@@ -75,7 +73,7 @@ export function TextToSpeechSettingsDialog({ children }: Props) {
           <div>
             <div className="text-sm opacity-50 mb-2">{i18next.t("tts-settings.voices")}</div>
             <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-              {getVoices().map((voice) => (
+              {availableVoices.map((voice) => (
                 <TextToSpeechSettingsItem
                   text={text}
                   voice={voice}
