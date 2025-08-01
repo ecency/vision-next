@@ -9,7 +9,10 @@ interface Props {
 }
 
 export function EntryPageStatsByDevices({ totalViews, cleanedPathname }: Props) {
-  const { data: stats } = useGetStatsQuery(cleanedPathname, ["visit:device"]).useClientQuery();
+    const { data: stats } = useGetStatsQuery({
+        url: cleanedPathname,
+        dimensions: ["visit:device"]
+    }).useClientQuery();
 
   const devices = useMemo(
     () =>
