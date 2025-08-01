@@ -1,4 +1,4 @@
-import {getVoicesAsync, useSynchronizedLocalStorage} from "@/utils";
+import {createUtterance, getVoicesAsync, useSynchronizedLocalStorage} from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { useEffect, useRef, useState } from "react";
 
@@ -19,7 +19,8 @@ export function useTts(text: string) {
       setHasStarted(false);
     }
 
-    const utterance = new SpeechSynthesisUtterance(text.replace(/^[^\w]+?/g, "").trim());
+    const utterance = createUtterance(text);
+    if (!utterance) return;
     speechRef.current = utterance;
 
     getVoicesAsync().then((voices) => {

@@ -25,7 +25,13 @@ export function TextToSpeechSettingsDialog({ children }: Props) {
   const [savedVoiceURI, setSavedVoiceURI] = useSynchronizedLocalStorage<string>(PREFIX + "_tts_voice");
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (
+        typeof window === "undefined" ||
+        typeof SpeechSynthesisUtterance === "undefined" ||
+        typeof window.speechSynthesis === "undefined"
+    ) {
+      return;
+    }
 
     getVoicesAsync().then((voices) => {
       setAvailableVoices(voices);

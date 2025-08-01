@@ -12,3 +12,7 @@ export function getVoicesAsync(): Promise<SpeechSynthesisVoice[]> {
         }
     });
 }
+export function createUtterance(text: string): SpeechSynthesisUtterance | null {
+    if (typeof window === "undefined" || typeof SpeechSynthesisUtterance === "undefined") return null;
+    return new SpeechSynthesisUtterance(text.replace(/^[^\w]+?/g, "").trim());
+}
