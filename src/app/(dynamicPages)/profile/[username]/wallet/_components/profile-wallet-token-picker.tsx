@@ -6,7 +6,6 @@ import { List, ListItem } from "@/features/ui/list";
 import { UilCog, UilTimesCircle } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useState, ChangeEvent, useCallback } from "react";
-import { TOKEN_LOGOS_MAP } from "../_consts";
 import { useQuery } from "@tanstack/react-query";
 import {
   getAccountWalletListQueryOptions,
@@ -17,6 +16,7 @@ import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
 import { useClientActiveUser } from "@/api/queries";
+import { TOKEN_LOGOS_MAP } from "@/features/wallet";
 
 export function ProfileWalletTokenPicker() {
   const { username } = useParams();

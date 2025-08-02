@@ -10,8 +10,9 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
-import { TOKEN_COLORS_MAP } from "../_consts";
+
 import clsx from "clsx";
+import { TOKEN_COLORS_MAP } from "@/features/wallet";
 
 export function ProfileWalletSummary() {
   const { username } = useParams();

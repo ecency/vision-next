@@ -1,16 +1,10 @@
 import { FormattedCurrency } from "@/features/shared";
-import {
-  getAccountWalletAssetInfoQueryOptions,
-  getAllTokensListQueryOptions
-} from "@ecency/wallets";
-import { useQuery } from "@tanstack/react-query";
-import { useParams, usePathname } from "next/navigation";
-import { useMemo } from "react";
-import Image from "next/image";
-import { proxifyImageSrc } from "@ecency/render-helper";
-import { getSizedTokenLogo } from "../../_consts";
 import { Badge, StyledTooltip } from "@/features/ui";
+import { useGetTokenLogoImage } from "@/features/wallet";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
+import { useParams, usePathname } from "next/navigation";
 
 function format(value: number) {
   const formatter = new Intl.NumberFormat();
@@ -28,29 +22,10 @@ export function ProfileWalletTokenSummary() {
     )
   );
 
-  const { data: allTokens } = useQuery(
-    getAllTokensListQueryOptions((username as string).replace("%40", ""))
+  const logo = useGetTokenLogoImage(
+    (username as string).replace("%40", ""),
+    (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase()
   );
-
-  const logo = useMemo(() => {
-    const layer2Token = allTokens?.layer2?.find(
-      (token) => token.symbol === data?.name.toUpperCase()
-    );
-    if (layer2Token) {
-      return (
-        <Image
-          alt=""
-          src={proxifyImageSrc(JSON.parse(layer2Token.metadata)?.icon, 32, 32, "match")}
-          width={32}
-          height={32}
-          className="rounded-lg p-1 object-cover min-w-[32px] max-w-[32px] h-[32px] border border-[--border-color]"
-        />
-      );
-    }
-    if (data) {
-      return getSizedTokenLogo(data.name, 36);
-    }
-  }, [allTokens?.layer2, data]);
 
   if (isFetching) {
     <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">

@@ -6,12 +6,12 @@ import {
 } from "@ecency/wallets";
 import i18next from "i18next";
 import { useMemo } from "react";
-import { TOKEN_LOGOS_MAP } from "../_consts";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
 import { useRouter } from "next/navigation";
+import { TOKEN_LOGOS_MAP } from "@/features/wallet";
 
 interface Props {
   username: string;

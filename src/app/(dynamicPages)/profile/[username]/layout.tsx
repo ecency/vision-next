@@ -32,7 +32,7 @@ export default function ProfileLayout({ params, children }: PropsWithChildren<Pr
       <Navbar experimental={true} />
       <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-blue-dark-sky to-blue-duck-egg backdrop-blur-lg -z-[1]" />
       <div className="fixed top-0 left-0 w-full h-full bg-white/80 dark:bg-black/90 backdrop-blur-lg -z-[1]" />
-      <div className="profile-page pt-[72px] md:pt-[128px] max-w-[1600px] sm:px-4 md:px-6 lg:px-8 mx-auto flex gap-4 md:gap-6 xl:gap-8 min-h-[100vh] items-start">
+      <div className="profile-page pt-[72px] md:pt-[128px] max-w-[1600px] sm:px-4 md:px-6 lg:px-8 mx-auto flex gap-4 min-h-[100vh] items-start">
         <motion.div
           // onViewportEnter={() => setShowSidebar(true)}
           // onViewportLeave={() => setShowSidebar(false)}
