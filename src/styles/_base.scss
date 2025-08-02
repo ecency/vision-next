@@ -98,7 +98,7 @@ a[target="_blank"] {
   max-width: 1600px;
   min-height: 100vh;
 
-  @apply pt-4 px-2 md:px-4 md:pt-[6rem];
+  @apply pt-4 px-2 md:px-4 md:pt-[6rem] mx-auto;
 }
 
 // markdown styles
