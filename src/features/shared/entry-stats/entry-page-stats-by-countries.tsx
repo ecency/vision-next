@@ -9,9 +9,10 @@ interface Props {
 }
 
 export function EntryPageStatsByCountries({ totalViews, cleanedPathname }: Props) {
-  const { data: stats } = useGetStatsQuery(cleanedPathname, [
-    "visit:country_name"
-  ]).useClientQuery();
+    const { data: stats } = useGetStatsQuery({
+        url: cleanedPathname,
+        dimensions: ["visit:country_name"]
+    }).useClientQuery();
 
   const countries = useMemo(
     () =>

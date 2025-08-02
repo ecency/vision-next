@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, useCallback, useEffect } from "react";
+import {PropsWithChildren, useCallback, useEffect, useRef} from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { isSupported } from "@firebase/messaging";
 import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
@@ -9,11 +9,13 @@ import { useNotificationsSettingsQuery, useNotificationUnreadCountQuery } from "
 import { playNotificationSound } from "@/utils";
 import { useUpdateNotificationsSettings } from "@/api/mutations";
 import usePrevious from "react-use/lib/usePrevious";
+import {NotificationsWebSocket} from "@/api/notifications-ws-api";
+
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const previousActiveUsr = usePrevious(activeUser);
-
+  const wsRef = useRef(new NotificationsWebSocket());
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
 
   const notificationsSettingsQuery = useNotificationsSettingsQuery();
@@ -27,43 +29,59 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
       let token = username + "-web";
       let oldToken = ls.get("fb-notifications-token");
 
+      let permission = "default";
       if ("Notification" in window) {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted" && isFbMessagingSupported) {
-          try {
-            token = await getFcmToken();
-          } catch (e) {
-            isFbMessagingSupported = false;
-            oldToken = null;
-          }
-        }
+        permission = await Notification.requestPermission();
+      }
 
+      // Try FCM only if supported and granted
+      if (isFbMessagingSupported && permission === "granted") {
         try {
-          await notificationsSettingsQuery.refetch();
+          token = await getFcmToken();
         } catch (e) {
-          ls.remove("notifications");
+          isFbMessagingSupported = false;
+          oldToken = null;
         }
+      }
 
-        if (permission === "granted") {
-          if (oldToken !== token) {
-            ls.set("fb-notifications-token", token);
-            await updateNotificationsSettings.mutateAsync({
-              notifyTypes: notificationsSettingsQuery.data?.notify_types ?? [],
-              isEnabled: notificationsSettingsQuery.data.allows_notify == -1
-            });
-          }
+      let settingsData: typeof notificationsSettingsQuery.data | undefined;
+      try {
+        const result = await notificationsSettingsQuery.refetch();
+        settingsData = result.data;
+      } catch (e) {
+        ls.remove("notifications");
+      }
 
-          if (isFbMessagingSupported) {
-            listenFCM(() => {
-              playNotificationSound();
-              notificationUnreadCountQuery.refetch();
-            });
-          }
-        }
+      if (permission === "granted" && oldToken !== token) {
+        ls.set("fb-notifications-token", token);
+        await updateNotificationsSettings.mutateAsync({
+          notifyTypes: settingsData?.notify_types ?? [],
+          isEnabled:
+              settingsData?.allows_notify === -1
+                  ? true
+                  : Boolean(settingsData?.allows_notify)
+        });
+      }
+
+      if (isFbMessagingSupported && permission === "granted") {
+        listenFCM(() => {
+          playNotificationSound();
+          notificationUnreadCountQuery.refetch();
+        });
+      } else {
+        const hasUi = permission !== "granted";
+        await wsRef.current
+            .withActiveUser(activeUser)
+            .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
+            .setHasNotifications(true)
+            .setHasUiNotifications(hasUi)
+            .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
+            .connect();
       }
       setFbSupport(isFbMessagingSupported ? "granted" : "denied");
     },
     [
+      activeUser,
       notificationUnreadCountQuery,
       notificationsSettingsQuery,
       setFbSupport,
@@ -71,11 +89,23 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
     ]
   );
 
-  useEffect(() => {
-    if (activeUser && activeUser?.username !== previousActiveUsr?.username) {
-      init(activeUser.username);
-    }
-  }, [activeUser, previousActiveUsr, init]);
+    useEffect(() => {
+        const ws = wsRef.current;
+        if (!activeUser?.username && previousActiveUsr?.username) {
+            ws.disconnect();
+        }
+        if (activeUser && activeUser.username !== previousActiveUsr?.username) {
+            ws.disconnect();
 
-  return children;
+            (async () => {
+                await init(activeUser.username);
+            })();
+        }
+
+        return () => {
+            ws.disconnect();
+        };
+    }, [activeUser?.username, previousActiveUsr?.username, init]);
+
+    return children;
 }

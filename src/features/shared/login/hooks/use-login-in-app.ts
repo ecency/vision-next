@@ -1,9 +1,12 @@
-import { useHsLoginRefresh, useRecordUserActivity } from "@/api/mutations";
+import {useHsLoginRefresh, useRecordUserActivity, useUpdateNotificationsSettings} from "@/api/mutations";
+import { useNotificationsSettingsQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import {Account, LoginType, User} from "@/entities";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useAfterLoginTutorial } from "./use-after-login-tutorial";
+import * as ls from "@/utils/local-storage";
+import {ALL_NOTIFY_TYPES} from "@/enums";
 
 export function useLoginInApp(username: string) {
   const pathname = usePathname();
@@ -16,6 +19,8 @@ export function useLoginInApp(username: string) {
 
   const { mutateAsync: recordActivity } = useRecordUserActivity();
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
+  const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
+  const notificationsSettingsQuery = useNotificationsSettingsQuery();
 
   const handleTutorial = useAfterLoginTutorial(username);
 
@@ -45,8 +50,28 @@ export function useLoginInApp(username: string) {
       // add account data of the user to the reducer
       await updateActiveUser(account);
 
-      // login activity
-      recordActivity({ ty: 20 });
+      const notifToken = ls.get("fb-notifications-token") ?? "";
+      if (notifToken) {
+        const { data: existingSettings } = await notificationsSettingsQuery.refetch();
+
+        if (existingSettings) {
+            await updateNotificationSettings({
+                notifyTypes: existingSettings.notify_types ?? [],
+                isEnabled:
+                    existingSettings.allows_notify === -1
+                        ? true
+                        : Boolean(existingSettings.allows_notify)
+            });
+        } else {
+            await updateNotificationSettings({
+                notifyTypes: [...ALL_NOTIFY_TYPES],
+                isEnabled: true
+            });
+        }
+      }
+
+        // login activity
+      await recordActivity({ty: 20});
 
       // redirection based on path name
       if (pathname?.startsWith("/signup/email")) {

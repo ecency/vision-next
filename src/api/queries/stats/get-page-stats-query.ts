@@ -15,12 +15,19 @@ export interface StatsResponse {
     filters: unknown[];
   };
 }
+interface UseStatsQueryOptions {
+  url: string;
+  dimensions?: string[];
+  metrics?: string[];
+  enabled?: boolean;
+}
 
-export function useGetStatsQuery(
-  url: string,
-  dimensions: string[] = [],
-  metrics = ["visitors", "pageviews", "visit_duration"]
-) {
+export function useGetStatsQuery({
+                                   url,
+                                   dimensions = [],
+                                   metrics = ["visitors", "pageviews", "visit_duration"],
+                                   enabled = true
+                                 }: UseStatsQueryOptions) {
   return EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.PAGE_STATS, url, dimensions, metrics],
     queryFn: async () => {
@@ -31,6 +38,7 @@ export function useGetStatsQuery(
       });
       return response.data;
     },
-    enabled: !!url
+    enabled: !!url && enabled
   });
 }
+

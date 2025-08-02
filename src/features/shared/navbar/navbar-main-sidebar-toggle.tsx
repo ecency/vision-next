@@ -1,3 +1,5 @@
+import { Button } from "@/features/ui";
+import { UilBars } from "@tooni/iconscout-unicons-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -7,13 +9,9 @@ interface Props {
 
 export function NavbarMainSidebarToggle({ onClick }: Props) {
   return (
-    <div className="h-[40px] min-w-[60px] pl-[30px] cursor-pointer relative">
-      <div className="absolute flex gap-1 flex-col top-3.5 left-0" onClick={onClick}>
-        <span className="w-[20px] h-[2px] bg-gray-400 dark:bg-gray-700" />
-        <span className="w-[20px] h-[2px] bg-gray-400 dark:bg-gray-700" />
-        <span className="w-[20px] h-[2px] bg-gray-400 dark:bg-gray-700" />
-      </div>
-      <Link href="/">
+    <div className="h-[40px] min-w-[40px] md:min-w-[60px] flex items-center gap-1.5 cursor-pointer relative">
+      <Button onClick={onClick} appearance="gray-link" noPadding={true} icon={<UilBars />} />
+      <Link className="hidden md:block" href="/">
         <Image
           src="/assets/logo-circle.svg"
           className="logo relative min-w-[40px] max-w-[40px]"

@@ -1,16 +1,20 @@
-import { NavbarTextMenu } from "./navbar-text-menu";
-import React from "react";
+import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import { classNameObject } from "@ui/util";
-import { UilEditAlt } from "@tooni/iconscout-unicons-react";
-import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
-import { Tooltip } from "@ui/tooltip";
-import i18next from "i18next";
-import { Button } from "@ui/button";
 import { UserAvatar } from "@/features/shared";
-import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
-import {useClientActiveUser} from "@/api/queries";
+import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
+import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
+import {
+  UilEditAlt,
+  UilHome,
+  UilHomeAlt,
+  UilLock,
+  UilWallet,
+  UilWater
+} from "@tooni/iconscout-unicons-react";
+import { Button } from "@ui/button";
+import clsx from "clsx";
+import i18next from "i18next";
 
 interface Props {
   step?: number;
@@ -34,35 +38,43 @@ export function NavbarMobile({
 
   return (
     <div
-      className={classNameObject({
-        "flex items-center justify-between bg-light-200 dark:bg-dark-200 md:hidden h-[64px] border-b border-[--border-color] px-3":
-          true,
-        transparent: step === 1
-      })}
+      className={clsx(
+        "flex items-center justify-between bg-white/80 dark:bg-dark-200/80 backdrop-blur-sm md:hidden m-2 rounded-xl p-3",
+        "shadow-sm border border-[--border-color]",
+        step === 1 && "transparent"
+      )}
     >
-      <NavbarMainSidebarToggle onClick={() => setMainBarExpanded(true)} />
-      <NavbarTextMenu />
+      <Button
+        appearance="gray-link"
+        icon={<UilHomeAlt width={20} height={20} />}
+        onClick={() => setMainBarExpanded(true)}
+      />
 
-      <div className="flex items-center ml-3">
-        <Tooltip content={i18next.t("navbar.post")}>
+      <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} />
+      <Button href="/publish" appearance="gray-link" icon={<UilEditAlt width={20} height={20} />} />
+
+      {activeUser && (
+        <>
           <Button
-            href="/publish"
+            href={`/@${activeUser?.username}/wallet`}
             appearance="gray-link"
-            className="ml-3"
-            icon={<UilEditAlt width={20} height={20} />}
+            icon={<UilWallet width={20} height={20} />}
           />
-        </Tooltip>
-        {activeUser && (
-          <div className="cursor-pointer ml-4" onClick={() => setExpanded(true)}>
+          <div onClick={() => setExpanded(true)}>
             <UserAvatar size="medium" username={activeUser.username} />
           </div>
-        )}
-        {!activeUser && (
-          <Button className="btn-login" onClick={() => toggleUIProp("login")}>
-            {i18next.t("g.login")}
-          </Button>
-        )}
-      </div>
+        </>
+      )}
+      {!activeUser && (
+        <Button
+          className="btn-login"
+          onClick={() => toggleUIProp("login")}
+          size="sm"
+          icon={<UilLock />}
+        >
+          {i18next.t("g.login")}
+        </Button>
+      )}
 
       {activeUser && <NavbarSide show={expanded} setShow={setExpanded} />}
       <NavbarMainSidebar

@@ -151,7 +151,13 @@ export const UserMentionExtensionConfig = {
 
       onExit() {
         if (reactRenderer) {
-          placementArea?.removeChild(reactRenderer.element);
+          if (
+              placementArea &&
+              reactRenderer.element &&
+              placementArea.contains(reactRenderer.element)
+          ) {
+            placementArea.removeChild(reactRenderer.element);
+          }
           reactRenderer.destroy();
         }
       }

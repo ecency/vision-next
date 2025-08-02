@@ -1,11 +1,11 @@
 "use client";
 
 import { TagSelector } from "@/app/submit/_components";
-import { Button, FormControl } from "@/features/ui";
+import { Alert, Button, FormControl } from "@/features/ui";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMount } from "react-use";
 import { usePublishApi, useScheduleApi } from "../_api";
 import { usePublishState } from "../_hooks";
@@ -30,10 +30,19 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     metaDescription,
     setMetaDescription,
     isReblogToCommunity,
-    setIsReblogToCommunity
+    setIsReblogToCommunity,
+    beneficiaries
   } = usePublishState();
 
   const [showSchedule, setShowSchedule] = useState(false);
+
+  const beneficiaryReward = useMemo(
+    () =>
+      isCommunity(tags?.[0])
+        ? beneficiaries?.find((ben) => ben.account === tags?.[0])?.weight
+        : undefined,
+    [beneficiaries, tags]
+  );
 
   const { mutateAsync: publishNow, isPending: isPublishPending } = usePublishApi();
   const { mutateAsync: scheduleNow, isPending: isSchedulePending } = useScheduleApi();
@@ -134,6 +143,12 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
                 {i18next.t("submit.reblog-hint")}
               </div>
             </div>
+          )}
+
+          {(beneficiaryReward ?? 0) / 100 > 25 && (
+            <Alert className="w-full" appearance="warning">
+              {i18next.t("publish.community-beneficiary.hint")}
+            </Alert>
           )}
 
           <div className="flex items-center gap-2">

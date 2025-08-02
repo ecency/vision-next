@@ -78,7 +78,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
         type="text"
         placeholder="Set your Hive username"
         value={usernameInput}
-        onChange={(e) => setUsernameInput(e.target.value)}
+        onChange={(e) => setUsernameInput(e.target.value.toLowerCase())}
         onFocus={() => setHasTouched(true)}
       />
 

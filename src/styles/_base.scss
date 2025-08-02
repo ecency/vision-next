@@ -93,14 +93,12 @@ a[target="_blank"] {
 
 // main layout
 .app-content {
-  padding: 0 10px;
-  margin: 6rem auto 30px;
   display: flex;
+  width: 100%;
   max-width: 1600px;
+  min-height: 100vh;
 
-  @media (min-width: $lg-break) {
-    padding: 0 20px;
-  }
+  @apply pt-4 px-2 md:px-4 md:pt-[6rem] mx-auto;
 }
 
 // markdown styles

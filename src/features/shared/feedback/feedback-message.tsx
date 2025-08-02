@@ -3,7 +3,6 @@
 import { useGlobalStore } from "@/core/global-store";
 import { ErrorTypes } from "@/enums";
 import { ErrorFeedbackObject, FeedbackModal, FeedbackObject } from "@/features/shared";
-import { EcencyAnalytics } from "@ecency/sdk";
 import { UilCheckCircle, UilExclamationCircle, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
@@ -11,6 +10,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { useMount } from "react-use";
+import * as Sentry from "@sentry/browser";
 
 interface Props {
   feedback: FeedbackObject;
@@ -94,12 +94,10 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
             <Button
               size="xs"
               appearance="gray"
-              onClick={() =>
-                window.open(
-                  "mailto:bug@ecency.com?Subject=Reporting issue&Body=Hello team, \n I would like to report issue: \n",
-                  "_blank"
-                )
-              }
+              onClick={() => {
+                Sentry.captureException(feedback.message);
+                onClose();
+              }}
             >
               {i18next.t("feedback-modal.report")}
             </Button>

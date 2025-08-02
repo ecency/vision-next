@@ -98,7 +98,14 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "Clear"
+    "clear": "Clear",
+    "play": "Play",
+    "pause": "Pause"
+  },
+  "validation": {
+    "required": "Required field",
+    "min-length": "Must be at least {{n}} characters",
+    "max-length": "Must be at most {{n}} characters"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -194,7 +201,7 @@
     "settings": "Settings",
     "logout": "Logout",
     "just-logout": "Just logout",
-    "logout-and-clear": "Logout & Clear login data",
+    "logout-and-clear": "Logout & Clear local data",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -778,7 +785,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Listen"
   },
   "edit-history": {
     "title": "Edit History",
@@ -876,7 +884,7 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Hive communities are a big part of the ecosystem — from sports and jobs to hobbies and interests. Discover them all and become part of the Ecency and Hive experience!",
+    "hint": "Hive communities are huge part of ecosystem: there are sports, jobs, hobbies, interests and many more. Explore all of them and become a part of Ecency and Hive!",
     "types": {
       "topic": "Topic",
       "journal": "Journal",
@@ -893,11 +901,11 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Not a valid format. Required format: hive-Yxxxxx, Y can be 1, 2 or 3.",
+    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "I have securely saved community owner username and password.",
+    "confirmation": "I have securely saved my owner username and password.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
@@ -912,11 +920,15 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Open community",
-    "back-to-communities": "Back to communities",
+    "back-to-communities": "Back to communites",
     "topic": "Topic – anyone can post or comment",
     "journal": "Journal – only members can post and guests can only comment",
     "council": "Council – only members can post or comment",
-    "types-hint": "Learn more about community types"
+    "types-hint": "Learn more about community types",
+    "default-beneficiary": "Default beneficiary",
+    "default-beneficiary-username": "Hive username",
+    "default-beneficiary-reward": "Reward(in %)",
+    "default-beneficiary-docs": "See docs"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1622,7 +1634,7 @@
     "choose": "Choose a community",
     "my-blog": "My Blog",
     "search-placeholder": "Search Communities",
-    "types-hint": "Ecency and Hive support different types of communities — Topic, Journal, and Council — each with unique features and purposes. Tap to learn more."
+    "types-hint": "Ecency and Hive introduce different community categories: topic, journal and council. Learn more for details."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1992,7 +2004,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community chat",
+    "start-community-channel": "Start community channel",
     "view-community-channel": "Community chat",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2820,6 +2832,10 @@
       "subtitle": "In collaboration with WorldMapPin.com",
       "location-placeholder": "Write location...",
       "selected-location": "Already selected location"
+    },
+    "community-beneficiary": {
+      "reward": "Community reward",
+      "hint": "This community asks ≥ 25% of post rewards"
     }
   },
   "ecency-images": {
@@ -2829,5 +2845,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Text-to-Speech settings",
+    "voice-updated": "Text-to-Speech voice changed to {{n}}",
+    "hint": "Text-to-Speech uses browser`s built-in tools for converting text content to speech. Voices list, availability and quality depends only on your browser and device.",
+    "playground": "Playground",
+    "voices": "Voices"
   }
 }

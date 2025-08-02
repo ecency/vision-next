@@ -98,7 +98,14 @@
     "view": "View",
     "tomorrow": "Tomorrow",
     "import": "Import",
-    "clear": "Limpar"
+    "clear": "Limpar",
+    "play": "Reproduzir",
+    "pause": "Suspender"
+  },
+  "validation": {
+    "required": "Campo obrigatório",
+    "min-length": "Deve ter pelo menos {{n}} caracteres",
+    "max-length": "Deve ter no máximo {{n}} caracteres"
   },
   "confirm": {
     "title": "Tem certeza?",
@@ -194,7 +201,7 @@
     "settings": "Settings",
     "logout": "Logout",
     "just-logout": "Apenas sair",
-    "logout-and-clear": "Logout & Limpar dados de login",
+    "logout-and-clear": "Sair e Limpar dados locais",
     "theme": "theme",
     "light": "light",
     "dark": "dark",
@@ -778,7 +785,8 @@
       "promotion-title": "Want more views and reads?",
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
-    }
+    },
+    "listen": "Ouvir"
   },
   "edit-history": {
     "title": "Edit History",
@@ -876,7 +884,7 @@
     "sort-new": "New",
     "no-results": "No results found",
     "create": "Create community",
-    "hint": "Comunidades de Colmeia são uma grande parte do ecossistema — desde esportes e empregos a hobbies e interesses. Descubra todos eles e faça parte da experiência de Ecência e Hive!",
+    "hint": "As comunidades da Colméia são uma enorme parte do ecossistema: há desportos, empregos, hobbies, interesses e muito mais. Explore todos eles e torne-se parte da Ecência e da Hive!",
     "types": {
       "topic": "Tópico",
       "journal": "Diário",
@@ -893,11 +901,11 @@
     "username": "Community username",
     "username-available": "Available.",
     "username-not-available": "Not available.",
-    "username-wrong-format": "Não é um formato válido. Formato obrigatório: hive-Yxxxxx, Y pode ser 1, 2 ou 3.",
+    "username-wrong-format": "Not a valid format. hive-1xxxxx format required.",
     "checkbox-validation": "Please tick this box if you want to proceed.",
     "title-validation": "Please fill in this field.",
     "password": "Community password",
-    "confirmation": "Eu salvei com segurança o nome de usuário e senha do proprietário da comunidade.",
+    "confirmation": "I have securely saved my owner username and password.",
     "submit": "Create Community",
     "progress-account": "Creating account...",
     "progress-user": "Preparing user data...",
@@ -912,11 +920,15 @@
     "reason-four": "It costs 3 HIVE to create permanent, immutable, true ownership community",
     "done-link-label": "Get started.",
     "open-community": "Abrir comunidade",
-    "back-to-communities": "Voltar para as comunidades",
+    "back-to-communities": "Voltar às comunidades",
     "topic": "Tópico – qualquer um pode postar ou comentar",
     "journal": "Diário - apenas membros podem postar e convidados só podem comentar",
     "council": "Conselho – apenas os membros podem postar ou comentar",
-    "types-hint": "Saiba mais sobre os tipos de comunidade"
+    "types-hint": "Saiba mais sobre os tipos de comunidade",
+    "default-beneficiary": "Beneficiário padrão",
+    "default-beneficiary-username": "Usuário do Hive",
+    "default-beneficiary-reward": "Recompensa (em %)",
+    "default-beneficiary-docs": "Ver documentos"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",
@@ -1622,7 +1634,7 @@
     "choose": "Choose a community",
     "my-blog": "My Blog",
     "search-placeholder": "Search Communities",
-    "types-hint": "A Ecência e a Hive suportam diferentes tipos de comunidades — Tópico, Jornal e Conselho — cada um com recursos e propósitos únicos. Toque para saber mais."
+    "types-hint": "A Ecency e a Hive introduzem diferentes categorias comunitárias: tópico, periódico e conselho. Saiba mais para mais detalhes."
   },
   "word-count": {
     "label": "{{n}} words",
@@ -1992,7 +2004,7 @@
     "create-new-account": "Create New Account",
     "loading": "Loading...",
     "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Iniciar chat da comunidade",
+    "start-community-channel": "Start community channel",
     "view-community-channel": "View community channel",
     "submit": "Submit",
     "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
@@ -2820,6 +2832,10 @@
       "subtitle": "Em colaboração com WorldMapPin.com",
       "location-placeholder": "Gravar localização...",
       "selected-location": "Localização já selecionada"
+    },
+    "community-beneficiary": {
+      "reward": "Recompensa da comunidade",
+      "hint": "Esta comunidade pede ≥ 25% das recompensas de publicações"
     }
   },
   "ecency-images": {
@@ -2829,5 +2845,12 @@
     "dropzone-realize": "Drop file here",
     "success-upload": "Image has uploaded successfully",
     "uploading": "Uploading..."
+  },
+  "tts-settings": {
+    "title": "Configurações de texto-para-voz",
+    "voice-updated": "Voz de voz de voz alterada para {{n}}",
+    "hint": "Text-to-Speech usa ferramentas integradas do navegador para converter conteúdo de texto em fala. A lista de vozes, a disponibilidade e a qualidade depende apenas de seu navegador e dispositivo.",
+    "playground": "Parquinho",
+    "voices": "Vozes"
   }
 }

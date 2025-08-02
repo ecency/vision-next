@@ -93,7 +93,6 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             to="/waves"
             onClick={() => setShow(false)}
             icon={<UilWater size={16} />}
-            isNew={true}
           />
         </EcencyConfigManager.Conditional>
 

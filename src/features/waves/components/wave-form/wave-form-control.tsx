@@ -16,9 +16,6 @@ interface Props {
   selectedImage: string | undefined;
   clearSelectedImage: () => void;
   placeholder?: string;
-  onTextareaFocus: () => void;
-  showCounter?: boolean;
-  hasFocused?: boolean;
 }
 
 export const WaveFormControl = ({
@@ -26,10 +23,7 @@ export const WaveFormControl = ({
   setText,
   selectedImage,
   clearSelectedImage,
-  placeholder,
-  onTextareaFocus,
-  showCounter,
-  hasFocused = false
+  placeholder
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
 
@@ -37,16 +31,12 @@ export const WaveFormControl = ({
     <div className="flex items-start gap-4 flex-wrap py-4">
       <div className="w-full">
         <TextareaAutosize
-          className={clsx(
-            "w-full rounded-xl p-2 lg:p-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none",
-            hasFocused && "min-h-[8rem]"
-          )}
+          className="w-full rounded-xl p-2 lg:p-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none min-h-[6rem]"
           placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onFocus={onTextareaFocus}
         />
-        {showCounter && <div className="text-xs opacity-50 pb-2">{text?.length ?? 0}/255</div>}
+        <div className="text-xs opacity-50 pb-2">{text?.length ?? 0}/255</div>
       </div>
       <AnimatePresence>
         {selectedImage && (

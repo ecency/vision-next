@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetStatsQuery } from "@/api/queries";
+import {useClientActiveUser, useGetStatsQuery} from "@/api/queries";
 import { UilEye, UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { useMemo, useState } from "react";
 import { Button } from "@ui/button";
@@ -17,6 +17,7 @@ interface Props {
 }
 
 export function EntryStats({ entry }: Props) {
+  const activeUser = useClientActiveUser();
   const [showStats, setShowStats] = useState(false);
 
   const pathname = useMemo(
@@ -28,14 +29,18 @@ export function EntryStats({ entry }: Props) {
     [entry.created]
   );
 
-  const { data: stats } = useGetStatsQuery(pathname).useClientQuery();
-
+  const { data: stats } = useGetStatsQuery({
+    url: pathname,
+    enabled: !!activeUser
+  }).useClientQuery();
   const totalViews = useMemo(() => stats?.results?.[0].metrics[1] || 1, [stats?.results]);
   const totalVisitors = useMemo(() => stats?.results?.[0].metrics[0] || 0, [stats?.results]);
   const averageReadTime = useMemo(
     () => ((stats?.results?.[0].metrics[2] ?? 0) / totalViews).toFixed(1),
     [stats?.results, totalViews]
   );
+
+  if (!activeUser) return null;
 
   return (
     <>

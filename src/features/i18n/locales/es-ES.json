@@ -98,7 +98,14 @@
     "view": "Vista",
     "tomorrow": "Mañana",
     "import": "Importar",
-    "clear": "Limpiar"
+    "clear": "Limpiar",
+    "play": "Reproducir",
+    "pause": "Pausa"
+  },
+  "validation": {
+    "required": "Campo requerido",
+    "min-length": "Debe tener al menos {{n}} caracteres",
+    "max-length": "Debe tener como máximo {{n}} caracteres"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -760,8 +767,8 @@
     "cross-post-by": "Publicación cruzada por",
     "cross-post-community": "comunidad",
     "published": "Publicado en",
-    "post-word-count": "Palabras:",
-    "post-read-time": "Leyendo:",
+    "post-word-count": "Palabras",
+    "post-read-time": "Leyendo",
     "post-read-minutes": "min",
     "raw": "Ver formato RAW",
     "post-top-curator": "Top Curador:",
@@ -778,7 +785,8 @@
       "promotion-title": "¿Quieres más vistas y lecturas?",
       "promotion-subtitle": "Utilice las ventajas de Ecency (Ecency Perks) para promocionar su publicación y obtener una exposición más amplia.",
       "try-now": "Prueba ahora"
-    }
+    },
+    "listen": "Escuchar"
   },
   "edit-history": {
     "title": "Editar historial",
@@ -876,7 +884,7 @@
     "sort-new": "Nuevo",
     "no-results": "No se encontraron resultados",
     "create": "Crear comunidad",
-    "hint": "Las comunidades de Hive son una gran parte del ecosistema, desde deportes y empleos hasta las aficiones e intereses. ¡Descubra todos ellos y pase a formar parte de la experiencia Ecency y de Hive!",
+    "hint": "Las Comunidades de Hive son una parte enorme del ecosistema: hay comunidades de deportes, trabajos, pasatiempos, intereses y muchas más. ¡Explóralas todas, conviértete en parte de Ecency y de Hive!",
     "types": {
       "topic": "Tema",
       "journal": "Diario",
@@ -897,7 +905,7 @@
     "checkbox-validation": "Marque esta casilla si desea continuar.",
     "title-validation": "Por favor, rellene este campo.",
     "password": "Contraseña de la Comunidad",
-    "confirmation": "He guardado con seguridad el nombre de usuario propietario de la comunidad y la contraseña.",
+    "confirmation": "He guardado con seguridad mi contraseña generada.",
     "submit": "Crear comunidad",
     "progress-account": "Creando cuenta...",
     "progress-user": "Preparando datos...",
@@ -916,7 +924,11 @@
     "topic": "Tema - cualquiera puede publicar o comentar",
     "journal": "Diario - únicamente los miembros pueden publicar y los invitados solamente pueden comentar",
     "council": "Consejo - solamente los miembros pueden publicar o comentar",
-    "types-hint": "Aprende más sobre los tipos de comunidad"
+    "types-hint": "Aprende más sobre los tipos de comunidad",
+    "default-beneficiary": "beneficiario por defecto",
+    "default-beneficiary-username": "Nombre de usuario en Hive",
+    "default-beneficiary-reward": "Recompensa (en %)",
+    "default-beneficiary-docs": "Ver documentos"
   },
   "community-rewards-registration": {
     "body-text": "Registra tu comunidad para obtener POINTS de Ecency",
@@ -1622,7 +1634,7 @@
     "choose": "Elige una comunidad",
     "my-blog": "Mi blog",
     "search-placeholder": "Buscar comunidades",
-    "types-hint": "Hive y Ecency soportan diferentes tipos de comunidades — Temática, Revista y Consejo — cada una con características y propósitos únicos. Toca para aprender más."
+    "types-hint": "Ecency and Hive introduce diferentes categorías de comunidades: temática, revista y consejo."
   },
   "word-count": {
     "label": "{{n}} palabras",
@@ -2820,6 +2832,10 @@
       "subtitle": "En colaboración con WorldMapPin.com",
       "location-placeholder": "Escribir ubicación...",
       "selected-location": "Ubicación ya seleccionada"
+    },
+    "community-beneficiary": {
+      "reward": "Recompensa de la comunidad",
+      "hint": "Esta comunidad le pide ≥ 25% de las recompensas de publicación"
     }
   },
   "ecency-images": {
@@ -2829,5 +2845,12 @@
     "dropzone-realize": "Suelte el archivo aquí",
     "success-upload": "Imagen cargada con éxito",
     "uploading": "Subiendo..."
+  },
+  "tts-settings": {
+    "title": "Configuración de texto a voz",
+    "voice-updated": "Voz de texto a voz cambiada a {{n}}",
+    "hint": "Texto-a-voz utiliza las herramientas integradas en el navegador para convertir contenido de texto a voz. La lista de voces, su disponibilidad y calidad depende solamente de tu navegador y dispositivo.",
+    "playground": "Campo de juego",
+    "voices": "Voces"
   }
 }

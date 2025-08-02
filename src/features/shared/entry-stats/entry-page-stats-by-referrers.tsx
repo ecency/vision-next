@@ -9,8 +9,10 @@ interface Props {
 }
 
 export function EntryPageStatsByReferrers({ totalViews, cleanedPathname }: Props) {
-  const { data: stats } = useGetStatsQuery(cleanedPathname, ["visit:source"]).useClientQuery();
-
+  const { data: stats } = useGetStatsQuery({
+    url: cleanedPathname,
+    dimensions: ["visit:source"]
+  }).useClientQuery();
   const referrers = useMemo(
     () =>
       stats?.results?.reduce<Record<string, number>>((acc, result) => {
