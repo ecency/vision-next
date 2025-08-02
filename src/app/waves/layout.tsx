@@ -38,7 +38,7 @@ export default function WavesLayout(props: PropsWithChildren<Props>) {
               (width < getTailwindBreakpoint("xl") && (
                 <>
                   <WaveFollowsCard />
-                  <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 [&_.item-content]:!mr-0 [&_.top-communities-widget]:p-0 [&_.top-communities-widget]:m-0">
+                  <div className="rounded-2xl bg-white dark:bg-dark-200 px-4 pb-4 [&_.item-content]:!mr-0 [&_.top-communities-widget]:p-0 [&_.top-communities-widget]:m-0">
                     <TopCommunitiesWidget />
                   </div>
                 </>
