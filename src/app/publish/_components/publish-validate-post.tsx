@@ -89,7 +89,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="publish-page max-w-[1024px] mx-auto"
+      className="publish-page max-w-[1024px] mx-auto pb-20 sm:pb-0"
     >
       <div className="col-span-2 justify-end flex p-4">
         <Button
