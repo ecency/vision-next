@@ -25,11 +25,10 @@ export function WalletOperationsDialog({
       </div>
       <Modal centered={true} size="lg" show={show} onHide={() => setShow(false)}>
         <ModalHeader closeButton={true}>Wallet operation</ModalHeader>
-        <ModalBody>
-          {operation === AssetOperation.Transfer && (
-            <WalletOperationsTransfer asset={asset} username={activeUser?.username ?? ""} />
-          )}
-        </ModalBody>
+
+        {operation === AssetOperation.Transfer && (
+          <WalletOperationsTransfer asset={asset} username={activeUser?.username ?? ""} />
+        )}
       </Modal>
     </>
   );
