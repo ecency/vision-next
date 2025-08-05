@@ -25,18 +25,19 @@ export function entryCanonical(entry: Entry, isAmp = false): string | null {
 
   const app = appName(entry.json_metadata?.app);
   const identifier = app?.split("/")[0];
+
   if (!identifier || ["ecency", "esteem"].includes(identifier)) {
-    return null;
+    return `${defaults.base}${entry.url}`;
   }
 
   const appInfo = apps[identifier] as { url_scheme?: string };
   if (!appInfo?.url_scheme) {
-    return null;
+    return `${defaults.base}${entry.url}`;
   }
 
   return appInfo.url_scheme
-      .replace("{category}", entry.category)
-      .replace("{username}", entry.author)
-      .replace("{permlink}", entry.permlink);
+    .replace("{category}", entry.category)
+    .replace("{username}", entry.author)
+    .replace("{permlink}", entry.permlink);
 }
 
