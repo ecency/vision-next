@@ -57,7 +57,7 @@ export function WalletOperationCard({
         </AnimatePresence>
       </div>
 
-      <div className="border-b border-[--border-color]" />
+      {/* <div className="border-b border-[--border-color]" /> */}
 
       {username && (
         <motion.div

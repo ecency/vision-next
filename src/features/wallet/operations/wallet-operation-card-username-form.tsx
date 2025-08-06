@@ -39,6 +39,7 @@ export function WalletOperationCardUsernameForm({ onUsernameSubmit }: Props) {
           {...methods.register("username")}
           type="text"
           placeholder="Username"
+          onBlur={methods.handleSubmit(({ username }) => onUsernameSubmit?.(username))}
           aria-invalid={!!error}
         />
       </InputGroup>

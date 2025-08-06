@@ -4,11 +4,10 @@ import i18next from "i18next";
 import { useFormContext } from "react-hook-form";
 
 interface Props {
-  username: string;
-  asset: string;
+  readonly: boolean;
 }
 
-export function WalletOperationAmountForm({ username, asset }: Props) {
+export function WalletOperationAmountForm({ readonly }: Props) {
   const methods = useFormContext();
 
   const amountError = methods.formState.errors.amount?.message?.toString();
@@ -25,7 +24,9 @@ export function WalletOperationAmountForm({ username, asset }: Props) {
           <FormControl
             {...methods.register("amount")}
             type="number"
-            placeholder="Username"
+            step={0.001}
+            readOnly={readonly}
+            placeholder="0.01"
             aria-invalid={!!amountError}
           />
           {amountError && (
@@ -49,6 +50,7 @@ export function WalletOperationAmountForm({ username, asset }: Props) {
             <FormControl
               {...methods.register("memo")}
               type="text"
+              readOnly={readonly}
               placeholder="Memo"
               aria-invalid={!!memoError}
             />
