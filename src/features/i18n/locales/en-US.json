@@ -1368,7 +1368,9 @@
     "success-title": "Success",
     "success-sub-title": "Transaction completed",
     "sign-title": "Sign transaction",
-    "sign-sub-title": "Sign your transaction"
+    "sign-sub-title": "Sign your transaction",
+    "swap-title": "Swap Hive/HBD",
+    "swap-sub-title": "Swap your funds in few clicks"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",

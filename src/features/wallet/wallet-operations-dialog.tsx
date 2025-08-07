@@ -12,6 +12,7 @@ import {
   WalletOperationSuccess
 } from "./operations";
 import i18next from "i18next";
+import { MarketSwapForm } from "../market";
 
 interface Props {
   operation: AssetOperation;
@@ -90,6 +91,7 @@ export function WalletOperationsDialog({
             }}
           />
         )}
+        {[AssetOperation.Swap].includes(operation) && <MarketSwapForm />}
         <AnimatePresence>
           {step === "sign" && (
             <WalletOperationSign
