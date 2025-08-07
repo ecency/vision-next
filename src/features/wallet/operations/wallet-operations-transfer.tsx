@@ -16,10 +16,18 @@ interface Props {
   asset: string;
   username: string;
   showSubmit: boolean;
+  showMemo?: boolean;
   onSubmit: (data: { to: string; amount: string; memo?: string | undefined; from: string }) => void;
 }
 
-export function WalletOperationsTransfer({ data, asset, username, onSubmit, showSubmit }: Props) {
+export function WalletOperationsTransfer({
+  data,
+  asset,
+  username,
+  onSubmit,
+  showSubmit,
+  showMemo = false
+}: Props) {
   const [to, setTo] = useState<string>(data?.to ?? "");
 
   const { data: accountWallet } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
@@ -73,7 +81,7 @@ export function WalletOperationsTransfer({ data, asset, username, onSubmit, show
           )}
         >
           <div className="border-y border-[--border-color] flex flex-col py-4 gap-4 font-mono">
-            <WalletOperationAmountForm readonly={!showSubmit} />
+            <WalletOperationAmountForm readonly={!showSubmit} showMemo={showMemo} />
           </div>
 
           <div className="flex justify-between items-center p-4">

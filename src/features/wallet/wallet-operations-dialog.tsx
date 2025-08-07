@@ -3,7 +3,7 @@ import { AssetOperation } from "@ecency/wallets";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence } from "framer-motion";
-import { HTMLProps, PropsWithChildren, useState } from "react";
+import { HTMLProps, PropsWithChildren, useMemo, useState } from "react";
 import { Button, Modal, ModalHeader } from "../ui";
 import {
   WalletOperationError,
@@ -11,6 +11,7 @@ import {
   WalletOperationsTransfer,
   WalletOperationSuccess
 } from "./operations";
+import i18next from "i18next";
 
 interface Props {
   operation: AssetOperation;
@@ -28,6 +29,15 @@ export function WalletOperationsDialog({
   const [step, setStep] = useState<"form" | "sign" | "success" | "error">("form");
   const [data, setData] = useState<Record<string, unknown>>({});
   const [signError, setSignError] = useState<Error>();
+
+  const [titleKey, subTitleKey] = useMemo(() => {
+    const key =
+      operation === AssetOperation.Transfer && asset === AssetOperation.Gift
+        ? "transfer-title-point"
+        : `${operation}-title`;
+
+    return [key, `${operation}-sub-title`];
+  }, [asset, operation]);
 
   return (
     <>
@@ -54,16 +64,26 @@ export function WalletOperationsDialog({
               appearance="gray-link"
               onClick={() => setStep("form")}
             />
-            Wallet operation
+            <div className="font-normal">
+              <div>{i18next.t(`transfer.${titleKey}`)}</div>
+              <div className="text-sm opacity-50">{i18next.t(`transfer.${subTitleKey}`)}</div>
+            </div>
           </div>
         </ModalHeader>
 
-        {operation === AssetOperation.Transfer && (
+        {[
+          AssetOperation.Transfer,
+          AssetOperation.TransferToSavings,
+          AssetOperation.PowerUp
+        ].includes(operation) && (
           <WalletOperationsTransfer
             data={data}
             asset={asset}
             username={activeUser?.username ?? ""}
             showSubmit={step === "form"}
+            showMemo={[AssetOperation.Transfer, AssetOperation.TransferToSavings].includes(
+              operation
+            )}
             onSubmit={(d) => {
               setData(d);
               setStep("sign");

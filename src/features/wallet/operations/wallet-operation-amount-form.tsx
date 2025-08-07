@@ -5,9 +5,10 @@ import { useFormContext } from "react-hook-form";
 
 interface Props {
   readonly: boolean;
+  showMemo: boolean;
 }
 
-export function WalletOperationAmountForm({ readonly }: Props) {
+export function WalletOperationAmountForm({ readonly, showMemo }: Props) {
   const methods = useFormContext();
 
   const amountError = methods.formState.errors.amount?.message?.toString();
@@ -42,31 +43,33 @@ export function WalletOperationAmountForm({ readonly }: Props) {
           )}
         </div>
 
-        <div>
-          <div className="uppercase text-xs pb-2 font-semibold text-gray-600 dark:text-gray-400">
-            memo
+        {showMemo && (
+          <div>
+            <div className="uppercase text-xs pb-2 font-semibold text-gray-600 dark:text-gray-400">
+              memo
+            </div>
+            <StyledTooltip content={i18next.t("transfer.memo-help")}>
+              <FormControl
+                {...methods.register("memo")}
+                type="text"
+                readOnly={readonly}
+                placeholder="Memo"
+                aria-invalid={!!memoError}
+              />
+            </StyledTooltip>
+            {memoError && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                key={memoError}
+                className="text-red text-xs px-3 pt-0.5"
+              >
+                {memoError}
+              </motion.div>
+            )}
           </div>
-          <StyledTooltip content={i18next.t("transfer.memo-help")}>
-            <FormControl
-              {...methods.register("memo")}
-              type="text"
-              readOnly={readonly}
-              placeholder="Memo"
-              aria-invalid={!!memoError}
-            />
-          </StyledTooltip>
-          {memoError && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              key={memoError}
-              className="text-red text-xs px-3 pt-0.5"
-            >
-              {memoError}
-            </motion.div>
-          )}
-        </div>
+        )}
       </div>
     </AnimatePresence>
   );
