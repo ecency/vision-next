@@ -3,3 +3,4 @@ export * from "./wallet-operations-sign";
 export * from "./wallet-operations-signing";
 export * from "./wallet-operations-success";
 export * from "./wallet-operations-error";
+export * from "./wallet-operation-power-down";

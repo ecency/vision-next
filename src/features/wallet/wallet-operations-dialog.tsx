@@ -7,6 +7,7 @@ import { HTMLProps, PropsWithChildren, useMemo, useState } from "react";
 import { Button, Modal, ModalHeader } from "../ui";
 import {
   WalletOperationError,
+  WalletOperationPowerDown,
   WalletOperationSign,
   WalletOperationsTransfer,
   WalletOperationSuccess
@@ -75,16 +76,19 @@ export function WalletOperationsDialog({
         {[
           AssetOperation.Transfer,
           AssetOperation.TransferToSavings,
-          AssetOperation.PowerUp
+          AssetOperation.PowerUp,
+          AssetOperation.Delegate
         ].includes(operation) && (
           <WalletOperationsTransfer
             data={data}
             asset={asset}
             username={activeUser?.username ?? ""}
             showSubmit={step === "form"}
-            showMemo={[AssetOperation.Transfer, AssetOperation.TransferToSavings].includes(
-              operation
-            )}
+            showMemo={[
+              AssetOperation.Transfer,
+              AssetOperation.TransferToSavings,
+              AssetOperation.Delegate
+            ].includes(operation)}
             onSubmit={(d) => {
               setData(d);
               setStep("sign");
@@ -92,6 +96,17 @@ export function WalletOperationsDialog({
           />
         )}
         {[AssetOperation.Swap].includes(operation) && <MarketSwapForm />}
+        {[AssetOperation.PowerDown].includes(operation) && (
+          <WalletOperationPowerDown
+            asset={asset}
+            username={activeUser?.username ?? ""}
+            showSubmit={step === "form"}
+            onSubmit={() => {
+              setData({ from: activeUser?.username });
+              setStep("sign");
+            }}
+          />
+        )}
         <AnimatePresence>
           {step === "sign" && (
             <WalletOperationSign
