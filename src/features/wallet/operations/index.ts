@@ -4,3 +4,5 @@ export * from "./wallet-operations-signing";
 export * from "./wallet-operations-success";
 export * from "./wallet-operations-error";
 export * from "./wallet-operation-power-down";
+export * from "./wallet-operation-withdraw-routes";
+export * from "./wallet-operation-withdraw-routes-form";

@@ -10,7 +10,9 @@ import {
   WalletOperationPowerDown,
   WalletOperationSign,
   WalletOperationsTransfer,
-  WalletOperationSuccess
+  WalletOperationSuccess,
+  WalletOperationWithdrawRoutes,
+  WalletOperationWithdrawRoutesForm
 } from "./operations";
 import i18next from "i18next";
 import { MarketSwapForm } from "../market";
@@ -107,6 +109,19 @@ export function WalletOperationsDialog({
             }}
           />
         )}
+        {operation === AssetOperation.WithdrawRoutes && step === "form" && (
+          <WalletOperationWithdrawRoutesForm
+            onSubmit={(formData) => {
+              setData({
+                account: formData.account,
+                percent: formData.percent,
+                auto: formData.auto,
+                from: activeUser?.username
+              });
+              setStep("sign");
+            }}
+          />
+        )}
         <AnimatePresence>
           {step === "sign" && (
             <WalletOperationSign
@@ -123,6 +138,20 @@ export function WalletOperationsDialog({
           {step === "error" && <WalletOperationError error={signError} />}
           {step === "success" && <WalletOperationSuccess />}
         </AnimatePresence>
+
+        {operation === AssetOperation.WithdrawRoutes && (
+          <WalletOperationWithdrawRoutes
+            onDeleteRoute={(formData) => {
+              setData({
+                account: formData.account,
+                percent: formData.percent,
+                auto: formData.auto,
+                from: activeUser?.username
+              });
+              setStep("sign");
+            }}
+          />
+        )}
       </Modal>
     </>
   );
