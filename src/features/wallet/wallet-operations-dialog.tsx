@@ -79,7 +79,8 @@ export function WalletOperationsDialog({
           AssetOperation.Transfer,
           AssetOperation.TransferToSavings,
           AssetOperation.PowerUp,
-          AssetOperation.Delegate
+          AssetOperation.Delegate,
+          AssetOperation.Gift
         ].includes(operation) && (
           <WalletOperationsTransfer
             data={data}
@@ -89,7 +90,8 @@ export function WalletOperationsDialog({
             showMemo={[
               AssetOperation.Transfer,
               AssetOperation.TransferToSavings,
-              AssetOperation.Delegate
+              AssetOperation.Delegate,
+              AssetOperation.Gift
             ].includes(operation)}
             onSubmit={(d) => {
               setData(d);
@@ -112,12 +114,7 @@ export function WalletOperationsDialog({
         {operation === AssetOperation.WithdrawRoutes && step === "form" && (
           <WalletOperationWithdrawRoutesForm
             onSubmit={(formData) => {
-              setData({
-                account: formData.account,
-                percent: formData.percent,
-                auto: formData.auto,
-                from: activeUser?.username
-              });
+              setData(formData);
               setStep("sign");
             }}
           />
