@@ -46,7 +46,7 @@ export function MarketAdvancedPage() {
   return (
     <>
       <Feedback />
-      <div className={"flex justify-center market-page " + MarketMode.ADVANCED}>
+      <div className={"flex justify-center market-page mb-24 " + MarketMode.ADVANCED}>
         <div className="w-full">
           <div style={{ marginBottom: "6rem" }}>
             <Navbar />
