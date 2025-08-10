@@ -14,7 +14,7 @@ import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { useState } from "react";
 import { NavbarTextMenu } from "./navbar-text-menu";
-import {useClientActiveUser, useHydrated} from "@/api/queries";
+import { useClientActiveUser, useHydrated } from "@/api/queries";
 
 interface Props {
   step?: number;
@@ -52,7 +52,8 @@ export function NavbarDesktop({
           "ecency-navbar-desktop max-w-[1600px] w-full mx-auto flex items-center justify-between px-4 py-3":
             true,
           "bg-white dark:bg-dark-700 border-b border-[--border-color]": !experimental,
-          "rounded-2xl bg-white dark:bg-dark-200 md:border border-[--border-color]": experimental,
+          "ecency-navbar-desktop-experemental glass-box rounded-2xl bg-white/80 dark:bg-dark-200/80 backdrop-blur-sm dark:backdrop-blur-md":
+            experimental,
           transparent: !transparentVerify && step === 1
         })}
       >
