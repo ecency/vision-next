@@ -18,7 +18,7 @@ export default async function Discover() {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <div className="app-content discover-page"></div>
+      <div></div>
     </HydrationBoundary>
   );
 }

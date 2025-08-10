@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
       <Feedback />
       <Navbar experimental={true} />
 
-      <div className="container px-2 mx-auto mt-6 md:mt-8">
+      <div className="container mb-24 md:mb-0 px-2 mx-auto mt-6 md:mt-8">
         <div className="grid grid-cols-12 mb-10 items-center gap-4 md:gap-6 lg:gap-8 xl:gap-10">
           <div className="col-span-12 md:col-span-6">
             <h1 className="text-blue-dark-sky text-xl md:text-3xl font-bold md:leading-[3rem]">
