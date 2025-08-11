@@ -206,9 +206,12 @@ export const witnessProxy = (
     );
   });
 
-export function isKeychainInAppBrowser() {
-  const flag = window.__KEYCHAIN_WEBVIEW__?.app === "HiveKeychainApp";
-  const rn = typeof window.ReactNativeWebView?.postMessage === "function";
-  const api = typeof window.hive_keychain === "object";
-  return flag || (rn && api);
+export function isKeychainInAppBrowser(): boolean {
+  if (typeof window === "undefined") return false;
+
+  const flag = !!(window as any).__KEYCHAIN_WEBVIEW__?.app === "HiveKeychainApp";
+  const rn = typeof (window as any).ReactNativeWebView?.postMessage === "function";
+  const api = typeof (window as any).hive_keychain === "object";
+
+  return Boolean(flag || (rn && api));
 }
