@@ -205,3 +205,10 @@ export const witnessProxy = (
       rpc
     );
   });
+
+export function isKeychainInAppBrowser() {
+  const flag = window.__KEYCHAIN_WEBVIEW__?.app === "HiveKeychainApp";
+  const rn = typeof window.ReactNativeWebView?.postMessage === "function";
+  const api = typeof window.hive_keychain === "object";
+  return flag || (rn && api);
+}

@@ -4,6 +4,7 @@ import { UserAvatar } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
+import { isKeychainInAppBrowser } from "@/utils";
 import {
   UilEditAlt,
   UilHome,
@@ -15,6 +16,7 @@ import {
 import { Button } from "@ui/button";
 import clsx from "clsx";
 import i18next from "i18next";
+import { useMemo } from "react";
 
 interface Props {
   step?: number;
@@ -36,12 +38,15 @@ export function NavbarMobile({
   const activeUser = useClientActiveUser();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
+  const isInRn = useMemo(() => isKeychainInAppBrowser(), []);
+
   return (
     <div
       className={clsx(
         "flex items-center justify-between bg-white/80 dark:bg-dark-200/80 backdrop-blur-sm md:hidden m-2 rounded-xl p-3",
         "shadow-sm border border-[--border-color]",
-        step === 1 && "transparent"
+        step === 1 && "transparent",
+        isInRn && "mb-20"
       )}
     >
       <Button

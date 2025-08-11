@@ -1,11 +1,11 @@
+import { client } from "@/api/hive";
+import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import useMount from "react-use/lib/useMount";
+import { initI18next } from "@/features/i18n";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
-import { initI18next } from "@/features/i18n";
-import { getAccountFullQuery } from "@/api/queries";
 import { useEffect } from "react";
-import { client } from "@/api/hive";
+import useMount from "react-use/lib/useMount";
 
 export function ClientInit() {
   const activeUser = useGlobalStore((s) => s.activeUser);
