@@ -1,3 +1,5 @@
+"use client";
+
 import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
@@ -5,18 +7,11 @@ import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar"
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { isKeychainInAppBrowser } from "@/utils";
-import {
-  UilEditAlt,
-  UilHome,
-  UilHomeAlt,
-  UilLock,
-  UilWallet,
-  UilWater
-} from "@tooni/iconscout-unicons-react";
+import { UilEditAlt, UilHomeAlt, UilLock, UilWallet, UilWater } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
 import i18next from "i18next";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   step?: number;
@@ -36,9 +31,16 @@ export function NavbarMobile({
   setMainBarExpanded
 }: Props) {
   const activeUser = useClientActiveUser();
-  const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
+  const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
-  const isInRn = useMemo(() => isKeychainInAppBrowser(), []);
+  const [isInRn, setIsInRn] = useState(false);
+  useEffect(() => {
+    try {
+      setIsInRn(isKeychainInAppBrowser());
+    } catch {
+      setIsInRn(false);
+    }
+  }, []);
 
   return (
     <div
@@ -54,14 +56,13 @@ export function NavbarMobile({
         icon={<UilHomeAlt width={20} height={20} />}
         onClick={() => setMainBarExpanded(true)}
       />
-
       <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} />
       <Button href="/publish" appearance="gray-link" icon={<UilEditAlt width={20} height={20} />} />
 
-      {activeUser && (
+      {activeUser ? (
         <>
           <Button
-            href={`/@${activeUser?.username}/wallet`}
+            href={`/@${activeUser.username}/wallet`}
             appearance="gray-link"
             icon={<UilWallet width={20} height={20} />}
           />
@@ -69,8 +70,7 @@ export function NavbarMobile({
             <UserAvatar size="medium" username={activeUser.username} />
           </div>
         </>
-      )}
-      {!activeUser && (
+      ) : (
         <Button
           className="btn-login"
           onClick={() => toggleUIProp("login")}
@@ -82,11 +82,7 @@ export function NavbarMobile({
       )}
 
       {activeUser && <NavbarSide show={expanded} setShow={setExpanded} />}
-      <NavbarMainSidebar
-        setShow={setMainBarExpanded}
-        show={mainBarExpanded}
-        setStepOne={setStepOne}
-      />
+      <NavbarMainSidebar setShow={setMainBarExpanded} show={mainBarExpanded} setStepOne={setStepOne} />
     </div>
   );
 }

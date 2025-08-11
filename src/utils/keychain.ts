@@ -208,10 +208,11 @@ export const witnessProxy = (
 
 export function isKeychainInAppBrowser(): boolean {
   if (typeof window === "undefined") return false;
+  const w = window as any;
 
-  const flag = !!(window as any).__KEYCHAIN_WEBVIEW__?.app === "HiveKeychainApp";
-  const rn = typeof (window as any).ReactNativeWebView?.postMessage === "function";
-  const api = typeof (window as any).hive_keychain === "object";
+  const flag = w.__KEYCHAIN_WEBVIEW__?.app === "HiveKeychainApp";
+  const rn   = typeof w.ReactNativeWebView?.postMessage === "function";
+  const api  = typeof w.hive_keychain === "object";
 
-  return Boolean(flag || (rn && api));
+  return flag || (rn && api);
 }
