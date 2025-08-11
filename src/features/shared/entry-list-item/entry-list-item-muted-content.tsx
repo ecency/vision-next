@@ -22,6 +22,7 @@ interface Props {
 
 export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const globalNsfw = useGlobalStore((s) => s.nsfw);
   const { showNsfw } = EcencyClientServerBridge.useSafeContext(EntryListItemContext);
 
   const [showMuted, setShowMuted] = useState(false);
@@ -57,6 +58,10 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
     setShowModMuted(entry.stats?.gray ?? false);
   }, [entry]);
 
+  if (nsfw && !showNsfw && !globalNsfw) {
+    return <></>;
+  }
+
   return showModMuted && showMuted ? (
     <>
       <div className="item-image item-image-nsfw">
@@ -89,7 +94,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
     </>
   ) : (
     <>
-      {(!nsfw || showNsfw) && (
+      {(!nsfw || showNsfw || globalNsfw) && (
         <EntryListItemThumbnail
           entryProp={entryProp}
           isCrossPost={isCrossPost}
