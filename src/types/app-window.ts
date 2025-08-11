@@ -5,6 +5,8 @@ export interface AppWindow extends Window {
   nws?: WebSocket;
   comTag?: {};
   hive_keychain?: KeyChainImpl;
+  __KEYCHAIN_WEBVIEW__: any;
+  ReactNativeWebView: any;
   twttr: {
     widgets?: {
       load: () => void;
