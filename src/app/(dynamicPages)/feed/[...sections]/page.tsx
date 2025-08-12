@@ -4,6 +4,7 @@ import { getPromotedEntriesQuery, prefetchGetPostsFeedQuery } from "@/api/querie
 import { FeedContent } from "../_components";
 import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
+import { redirect } from "next/navigation";
 import { generateFeedMetadata } from "@/app/(dynamicPages)/feed/[...sections]/_helpers";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
@@ -19,12 +20,16 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 }
 
 export default async function FeedPage({ params, searchParams }: Props) {
-  const [filter = "hot", tag = ""] = (await params).sections;
+  const [filter = "hot", rawTag = ""] = (await params).sections;
+  const tag = rawTag === "global" ? "" : rawTag;
   const sParams = await searchParams;
 
   const cookiesStore = await cookies();
 
   const observer = cookiesStore.get(ACTIVE_USER_COOKIE_NAME)?.value;
+  if (!rawTag && observer && ["trending", "hot", "created"].includes(filter)) {
+    redirect(`/${filter}/my`);
+  }
   await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
   await getPromotedEntriesQuery().prefetch();
 

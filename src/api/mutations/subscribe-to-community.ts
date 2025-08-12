@@ -35,11 +35,13 @@ export function useSubscribeToCommunity(community: Community) {
       }
     },
     onSuccess: ([isSubscribe]) => {
-      queryClient.setQueryData<Subscription[]>(
-        [QueryIdentifiers.SUBSCRIPTIONS, activeUser?.username],
+      queryClient.setQueryData<Subscription[] | undefined>(
+        ["accounts", "subscriptions", activeUser?.username],
         (data) => {
           if (!data) {
-            return data;
+            return isSubscribe
+              ? [[community.name, community.title, "guest", ""]]
+              : data;
           }
 
           return isSubscribe
@@ -47,6 +49,9 @@ export function useSubscribeToCommunity(community: Community) {
             : data.filter(([u]) => u !== community.name);
         }
       );
+      queryClient.invalidateQueries({
+        queryKey: [QueryIdentifiers.COMMUNITY, community.name]
+      });
     },
     onError: (err) => error(...formatError(err))
   });
