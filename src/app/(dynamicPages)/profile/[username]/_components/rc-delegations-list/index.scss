@@ -25,25 +25,29 @@
       max-width: 300px;
       align-self: center;
     }
-    @include user-grid-list(1, 2, 3);
+    @include user-grid-list(1, 2, 2);
   }
-  .item-main{
-    width: max-content;
-    .actionable{
+  .item-main {
+    width: 100%;
+
+    .item-extra {
+      margin-top: 0;
+      margin-left: auto;
+      display: flex;
+      align-items: center;
       gap: 10px;
-      .actions{
+
+      .actions {
         display: flex;
         gap: 10px;
       }
-      span{
+
+      span {
         height: 20px;
       }
     }
   }
-  .item-extra {
-    display: flex;
-    justify-content: space-between;
-  }
+
   .load-more-btn {
     padding: 20px;
     text-align: center;
