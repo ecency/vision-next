@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { Modal, ModalBody, ModalHeader, Button } from "../ui";
 import { EcencyImagesUploadForm } from "./ecency-images-upload-form";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { UilCheck } from "@tooni/iconscout-unicons-react";
 import { Spinner } from "@ui/spinner";
 import { useUploadPostImage } from "@/api/mutations";
@@ -19,27 +19,52 @@ interface UploadItem {
 }
 
 export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
-    const [items, setItems] = useState<UploadItem[]>([]);
-    const { mutateAsync: upload } = useUploadPostImage();
+  const [items, setItems] = useState<UploadItem[]>([]);
+  const { mutateAsync: upload } = useUploadPostImage();
+  const cancelRef = useRef(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
-    const startUpload = async () => {
-      for (let i = 0; i < items.length; i++) {
-        setItems((prev) => {
-          const next = [...prev];
-          next[i].status = "uploading";
-          return next;
-        });
-        const { url } = await upload({ file: items[i].file });
-        onPick(url);
-        setItems((prev) => {
-          const next = [...prev];
-          next[i].status = "done";
-          return next;
-        });
+  const startUpload = async () => {
+    cancelRef.current = false;
+    for (let i = 0; i < items.length; i++) {
+      if (cancelRef.current) {
+        break;
       }
+
+      setItems((prev) => {
+        if (cancelRef.current || !prev[i]) {
+          return prev;
+        }
+        const next = [...prev];
+        next[i].status = "uploading";
+        return next;
+      });
+
+      const { url } = await upload({ file: items[i].file });
+      if (cancelRef.current) {
+        break;
+      }
+
+      onPick(url);
+
+      setItems((prev) => {
+        if (cancelRef.current || !prev[i]) {
+          return prev;
+        }
+        const next = [...prev];
+        next[i].status = "done";
+        return next;
+      });
+    }
+
+    if (!cancelRef.current) {
       setItems([]);
       setShow(false);
-    };
+    }
+
+    setIsCancelling(false);
+    cancelRef.current = false;
+  };
 
   return (
     <Modal
@@ -84,13 +109,24 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
               ))}
             </div>
             <div className="flex justify-end gap-4 mt-4">
-              <Button appearance="gray" size="sm" onClick={() => setItems([])}>
+              <Button
+                appearance="gray"
+                size="sm"
+                onClick={() => {
+                  if (items.some((it) => it.status === "uploading")) {
+                    cancelRef.current = true;
+                    setIsCancelling(true);
+                  }
+                  setItems([]);
+                }}
+              >
                 {i18next.t("g.cancel")}
               </Button>
               <Button
                 size="sm"
                 isLoading={items.some((it) => it.status === "uploading")}
                 onClick={startUpload}
+                disabled={isCancelling}
               >
                 {i18next.t("editor-toolbar.upload")}
               </Button>
