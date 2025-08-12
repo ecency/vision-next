@@ -1,8 +1,10 @@
+"use client";
+
 import { MessageNoData } from "@/features/shared";
 import i18next from "i18next";
 import { isCommunity } from "@/utils";
 import React from "react";
-import { useGlobalStore } from "@/core/global-store";
+import { useClientActiveUser } from "@/api/queries";
 
 interface Props {
   section: string;
@@ -11,7 +13,7 @@ interface Props {
 }
 
 export function EntryListContentNoData({ username, section, loading }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
   const isMyProfile =
     !!activeUser && username.includes("@") && activeUser.username === username.replace("@", "");
 
@@ -25,9 +27,9 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
   let description = "";
   let buttonText = "";
   let buttonTo = "";
-
+  console.log(username)
   if (isMyProfile && section !== "trail") {
-    if (section === "feed") {
+    if (["feed","trending","hot","created"].includes(section)) {
       title = `${t("g.nothing-found-in", "Nothing found in")} ${t("g.feed", "feed")}`;
       description = t(
         "g.fill-feed",
@@ -49,13 +51,13 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
     description = `${t("g.no", "No")} ${t(`g.${section}`, section)} ${t("g.found", "found")}.`;
     buttonText = t("profile-info.create-posts", "Create post");
     buttonTo = `/submit?cat=${username}`;
-  } else if (username === "my") {
+  } else if ( ["trending","hot","created"].includes(section) && !username) {
     title = t("g.no-matches", "Nothing found");
     description = t(
       "g.fill-community-feed",
       "You can join more communities to fill up this feed."
     );
-    buttonText = t("navbar.discover", "Discover");
+    buttonText = t("navbar.communities", "Discover");
     buttonTo = "/communities";
   } else {
     title = t("profile-info.no-posts-user", "No posts yet");
@@ -64,6 +66,8 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
         ? `${t("g.trail", "trail")} ${t("g.past-few-days", "past few days")}`
         : t(`g.${section}`, section)
     }.`;
+    buttonText = t("navbar.discover", "Discover");
+    buttonTo = "/discover";
     if (isMyProfile) {
       buttonText = t("profile-info.create-posts", "Create post");
       buttonTo = "/publish";
