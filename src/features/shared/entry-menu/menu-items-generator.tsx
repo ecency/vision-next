@@ -33,7 +33,8 @@ export function useMenuItemsGenerator(
   const activeUser = useGlobalStore((state) => state.activeUser);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
-  const { data: isPinned } = useCommunityPinCache(entry);
+  const { data: isPinnedCached } = useCommunityPinCache(entry);
+  const isPinned = entry.stats?.is_pinned ?? isPinnedCached;
 
   const [cross, setCross] = useState(false);
   const [share, setShare] = useState(false);
