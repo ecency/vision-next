@@ -3,7 +3,7 @@ import i18next from "i18next";
 import { MenuItem } from "@ui/dropdown";
 import { EntryFilter } from "@/enums";
 import { useGlobalStore } from "@/core/global-store";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getTrendingTagsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
 
@@ -18,7 +18,6 @@ export function useFeedMenu() {
     [filter = "hot", tag = ""] = params.sections;
   }
   const router = useRouter();
-  const pathname = usePathname();
 
   const { data: trendingTags } = getTrendingTagsQuery().useClientQuery();
   const allTrendingTags = useInfiniteDataFlow(trendingTags);
@@ -29,7 +28,6 @@ export function useFeedMenu() {
       ((activeUser.username === tag.replace("@", "") && filter === "feed") || tag === "my"),
     [activeUser, filter, tag]
   );
-  const isGlobal = useMemo(() => !pathname?.includes("/my"), [pathname]);
 
   const secondaryMenu = useMemo(
     () => [
@@ -71,21 +69,27 @@ export function useFeedMenu() {
             }
           ]
         : []),
-      ...[EntryFilter.trending, EntryFilter.hot, EntryFilter.created].map((x) => ({
-        onClick: () => router.push(`/${x}`),
-        label: i18next.t(`entry-filter.filter-${x}`),
-        href: activeUser
-          ? filter === "feed" && !isGlobal
-            ? `/${x}/my`
-            : `/${x}/${allTrendingTags.includes(tag) ? tag : ""}`
-          : tag[0] === "@"
-            ? `/${x}`
-            : `/${x}${tag ? `/${tag}` : ""}`,
-        selected: (filter as unknown as EntryFilter) === x || filter === x + "/my",
-        id: x
-      }))
+      ...[EntryFilter.trending, EntryFilter.hot, EntryFilter.created].map((x) => {
+        const tagSegment =
+          tag === "global"
+            ? "global"
+            : isMy || (activeUser && !tag)
+              ? "my"
+              : allTrendingTags.includes(tag)
+                ? tag
+                : "";
+        const href = `/${x}${tagSegment ? `/${tagSegment}` : ""}`;
+
+        return {
+          onClick: () => router.push(href),
+          label: i18next.t(`entry-filter.filter-${x}`),
+          href,
+          selected: (filter as unknown as EntryFilter) === x,
+          id: x
+        };
+      })
     ],
-    [activeUser, allTrendingTags, filter, isGlobal, router, tag]
+    [activeUser, allTrendingTags, filter, isMy, router, tag]
   );
 
   return useMemo(() => [menuItems, secondaryMenu, isMy] as const, [isMy, menuItems, secondaryMenu]);

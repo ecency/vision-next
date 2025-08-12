@@ -66,9 +66,11 @@ export function EntryIndexMenu() {
   const mobileItems: MenuItem[] = [...menuItems, ...secondaryMenu];
 
   const onChangeGlobal = (value: string) => {
-    setIsGlobal(!value);
+    setIsGlobal(value === "global");
     if (value === "my") {
       router.push(`/${filter}/my`);
+    } else if (value === "global") {
+      router.push(`/${filter}/global`);
     } else {
       router.push(`/${filter}/${value}`);
     }
