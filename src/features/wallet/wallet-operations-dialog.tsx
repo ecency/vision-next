@@ -7,6 +7,7 @@ import { HTMLProps, PropsWithChildren, useMemo, useState } from "react";
 import { Button, Modal, ModalHeader } from "../ui";
 import {
   WalletOperationError,
+  WalletOperationLock,
   WalletOperationPowerDown,
   WalletOperationSign,
   WalletOperationsTransfer,
@@ -100,6 +101,17 @@ export function WalletOperationsDialog({
           />
         )}
         {[AssetOperation.Swap].includes(operation) && <MarketSwapForm />}
+        {[AssetOperation.LockLiquidity].includes(operation) && (
+          <WalletOperationLock
+            asset={asset}
+            username={activeUser?.username ?? ""}
+            showSubmit={step === "form"}
+            onSubmit={() => {
+              setData({ from: activeUser?.username });
+              setStep("sign");
+            }}
+          />
+        )}
         {[AssetOperation.PowerDown].includes(operation) && (
           <WalletOperationPowerDown
             asset={asset}

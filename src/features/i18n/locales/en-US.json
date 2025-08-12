@@ -1372,7 +1372,8 @@
     "swap-title": "Swap Hive/HBD",
     "swap-sub-title": "Swap your funds in few clicks",
     "gift-title": "Gift",
-    "gift-sub-title": "Gift the Points to specific user"
+    "gift-sub-title": "Gift the Points to specific user",
+    "lock-sub-title": "Locking Larynx for liquidity reward"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",
@@ -2887,7 +2888,8 @@
       "gift": "Gift",
       "promote": "Promote",
       "claim": "Claim",
-      "buy": "Buy"
+      "buy": "Buy",
+      "lock": "Lock liquidity"
     }
   }
 }

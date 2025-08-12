@@ -10,6 +10,7 @@ import {
   UilChartBar,
   UilCodeBranch,
   UilGift,
+  UilLock,
   UilMoneybag,
   UilPlus,
   UilUserPlus
@@ -31,7 +32,8 @@ const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
   [AssetOperation.Gift]: <UilGift />,
   [AssetOperation.Promote]: <UilChartBar />,
   [AssetOperation.Claim]: <UilPlus />,
-  [AssetOperation.Buy]: <UilBoltAlt />
+  [AssetOperation.Buy]: <UilBoltAlt />,
+  [AssetOperation.LockLiquidity]: <UilLock />
 };
 
 export function ProfileWalletTokenActions() {
