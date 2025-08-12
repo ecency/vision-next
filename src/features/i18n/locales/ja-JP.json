@@ -168,7 +168,8 @@
     "address-placeholder": "enter url or search query",
     "home": "Home",
     "waves": "Waves",
-    "communities": "Communities"
+    "communities": "Communities",
+    "chats": "チャット"
   },
   "search": {
     "placeholder": "Search",
