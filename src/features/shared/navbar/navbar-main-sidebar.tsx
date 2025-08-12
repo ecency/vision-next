@@ -1,8 +1,8 @@
 import {
   UilCloudComputing,
   UilColumns,
+  UilCommentDots,
   UilCommentPlus,
-  UilEdit,
   UilEditAlt,
   UilHome,
   UilListUl,
@@ -108,6 +108,16 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           onClick={() => setShow(false)}
           icon={<UilUserSquare size={16} />}
         />
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.center.enabled}
+        >
+          <NavbarSideMainMenuItem
+            label={i18next.t("navbar.chats")}
+            to="/chats"
+            onClick={() => setShow(false)}
+            icon={<UilCommentDots size={16} />}
+          />
+        </EcencyConfigManager.Conditional>
         <EcencyConfigManager.Conditional
           condition={({ visionFeatures }) => visionFeatures.decks.enabled}
         >
