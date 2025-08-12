@@ -10,6 +10,8 @@ import clsx from "clsx";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useMount } from "react-use";
+import { useEffect } from "react";
+const processedBlobUrls = new Set<string>();
 
 export function PublishEditorImageViewer({
   node: {
@@ -48,15 +50,16 @@ export function PublishEditorImageViewer({
   const isBlob = typeof src === "string" && src.startsWith("blob");
   const isEcencyImage = typeof src === "string" && src.includes("https://images.ecency.com");
 
-  useMount(() => {
-    if (isBlob) {
+  useEffect(() => {
+    if (isBlob && !processedBlobUrls.has(src)) {
+      processedBlobUrls.add(src);
       fetch(src)
         .then((response) => response.blob())
         .then((blob) => new File([blob], alt, { type: blob.type }))
         .then((file) => uploadImage({ file }))
         .then(({ url }) => updateAttributes({ src: url }));
     }
-  });
+  }, [isBlob, src, alt, uploadImage, updateAttributes]);
 
   return (
     <NodeViewWrapper

@@ -394,7 +394,6 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               .focus()
               .insertContent([{ type: "image", attrs: { src: e } }, { type: "paragraph" }])
               .run();
-            setShowImageUpload(false);
           }}
         />
 
