@@ -76,6 +76,7 @@ export enum QueryIdentifiers {
   GET_SEARCH_FRIENDS = "get-search-friends",
   RC_ACCOUNTS = "rc-accounts",
   RC_OPERATORS = "rc-operators",
+  OUTGOING_RC_DELEGATIONS = "outgoing-rc-delegations",
   ACCOUNT_VOTES_HISTORY = "account-votes-history",
   WITHDRAW_ROUTES = "withdraw-routers",
   OPEN_ORDERS = "open-orders",

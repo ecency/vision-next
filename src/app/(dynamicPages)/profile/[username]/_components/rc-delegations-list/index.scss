@@ -17,8 +17,9 @@
   .list-container {
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
-    height: 80vh;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    max-height: 60vh;
 
     .search-box {
       max-width: 300px;
