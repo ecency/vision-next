@@ -74,7 +74,11 @@ export function useUploadPostImage() {
     mutationKey: ["uploadAndAddPostImage"],
     mutationFn: async ({ file }: { file: File }) => {
       const response = await upload({ file });
-      await add(response);
+      try {
+        await add(response);
+      } catch (e) {
+        // images-add failure shouldn't block using the uploaded image
+      }
       return response;
     },
     onSuccess: () => {

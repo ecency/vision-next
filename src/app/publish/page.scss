@@ -26,6 +26,15 @@
       .editor-link {
         @apply text-blue-dark-sky hover:text-blue-dark-sky-hover;
       }
+
+      table {
+        @apply block w-full overflow-x-auto;
+      }
+
+      td,
+      th {
+        @apply break-words;
+      }
     }
   }
 
