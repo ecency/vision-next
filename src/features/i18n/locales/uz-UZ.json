@@ -169,7 +169,7 @@
     "home": "Home",
     "waves": "Waves",
     "communities": "Communities",
-    "chats": "Chats"
+    "chats": "Chatlar"
   },
   "search": {
     "placeholder": "Search",
@@ -1150,20 +1150,20 @@
       "larynx-power": "LARYNX Power",
       "larynx-power-description": "Powered tokens used to mine SPK",
       "larynx-power-benefits": {
-        "title": "Benefits of LARYNX Power",
         "1": "Earns SPK governance tokens",
         "2": "Instant Lock | 4 Week Unlock",
         "3": "Delegate to node service accounts to build consensus (DPoS)",
         "4": "LARYNX POWER (LP) earns SPK tokens at {{rate}}%",
-        "5": "Delegated LP (DLP) earns SPK tokens for both delegator and delegate at {{rate}}%"
+        "5": "Delegated LP (DLP) earns SPK tokens for both delegator and delegate at {{rate}}%",
+        "title": "Benefits of LARYNX Power"
       },
       "larynx-locked-benefits": {
-        "title": "Benefits of LARYNX Locked",
         "1": "Proof of Stake Consensus",
         "2": "Collateral for DEX transactions",
         "3": "Instant Lock | 4 Week Unlock",
         "4": "Requires an operating LARYNX node",
-        "5": "Earns 0.100%"
+        "5": "Earns 0.100%",
+        "title": "Benefits of LARYNX Locked"
       },
       "account-value": "Estimated Account Value",
       "account-value-description": "The approximate US Dollar value for all SPK assets in your account",

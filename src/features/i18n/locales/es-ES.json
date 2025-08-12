@@ -1150,20 +1150,20 @@
       "larynx-power": "Poder LARYNX",
       "larynx-power-description": "Tokens en Poder usados para extraer SPK",
       "larynx-power-benefits": {
-        "title": "Beneficios de LARYNX Power",
         "1": "Gana tokens de gobernanza SPK",
         "2": "Bloqueo instantáneo | Desbloqueo de 4 semanas",
         "3": "Delegar a cuentas de nodo de servicio para crear consenso (DPoS)",
         "4": "POWER LARYNX (LP) gana tokens SPK al {{rate}}%",
-        "5": "El LP Delegado (DLP) gana las fichas SPK tanto para el delegador como para el delegado en {{rate}}%"
+        "5": "El LP Delegado (DLP) gana las fichas SPK tanto para el delegador como para el delegado en {{rate}}%",
+        "title": "Beneficios de LARYNX Power"
       },
       "larynx-locked-benefits": {
-        "title": "Beneficios de LARYNX bloqueado",
         "1": "Prueba del Consenso de Estaca",
         "2": "Collateral para transacciones DEX",
         "3": "Bloqueo instantáneo | Desbloqueo de 4 semanas",
         "4": "Requiere un nodo LARYNX operativo",
-        "5": "Gana 0.100%"
+        "5": "Gana 0.100%",
+        "title": "Beneficios de LARYNX bloqueado"
       },
       "account-value": "Valor de cuenta aproximado",
       "account-value-description": "El valor aproximado del dólar estadounidense para todos los activos de SPK en su cuenta",
