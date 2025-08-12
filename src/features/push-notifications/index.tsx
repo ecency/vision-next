@@ -10,6 +10,7 @@ import { playNotificationSound } from "@/utils";
 import { useUpdateNotificationsSettings } from "@/api/mutations";
 import usePrevious from "react-use/lib/usePrevious";
 import {NotificationsWebSocket} from "@/api/notifications-ws-api";
+import {ALL_NOTIFY_TYPES} from "@/enums";
 
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
@@ -52,14 +53,18 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
         ls.remove("notifications");
       }
 
-      if (permission === "granted" && oldToken !== token) {
+      const isMissingSettings = settingsData?.allows_notify === -1;
+      const tokenChanged = permission === "granted" && oldToken !== token;
+
+      if (isMissingSettings || tokenChanged) {
         ls.set("fb-notifications-token", token);
-        await updateNotificationsSettings.mutateAsync({
-          notifyTypes: settingsData?.notify_types ?? [],
-          isEnabled:
-              settingsData?.allows_notify === -1
-                  ? true
-                  : Boolean(settingsData?.allows_notify)
+        settingsData = await updateNotificationsSettings.mutateAsync({
+          notifyTypes: isMissingSettings
+            ? [...ALL_NOTIFY_TYPES]
+            : settingsData?.notify_types ?? [],
+          isEnabled: isMissingSettings
+            ? true
+            : Boolean(settingsData?.allows_notify)
         });
       }
 

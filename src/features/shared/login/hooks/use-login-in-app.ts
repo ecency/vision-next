@@ -54,19 +54,16 @@ export function useLoginInApp(username: string) {
       if (notifToken) {
         const { data: existingSettings } = await notificationsSettingsQuery.refetch();
 
-        if (existingSettings) {
-            await updateNotificationSettings({
-                notifyTypes: existingSettings.notify_types ?? [],
-                isEnabled:
-                    existingSettings.allows_notify === -1
-                        ? true
-                        : Boolean(existingSettings.allows_notify)
-            });
+        if (!existingSettings || existingSettings.allows_notify === -1) {
+          await updateNotificationSettings({
+            notifyTypes: [...ALL_NOTIFY_TYPES],
+            isEnabled: true
+          });
         } else {
-            await updateNotificationSettings({
-                notifyTypes: [...ALL_NOTIFY_TYPES],
-                isEnabled: true
-            });
+          await updateNotificationSettings({
+            notifyTypes: existingSettings.notify_types ?? [],
+            isEnabled: Boolean(existingSettings.allows_notify)
+          });
         }
       }
 
