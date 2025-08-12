@@ -48,6 +48,7 @@ export * from "./get-savings-withdraw-from-query";
 export * from "./get-collateralized-conversion-requests-query";
 export * from "./get-conversion-requests-query";
 export * from "./get-received-vesting-shares-query";
+export * from "./get-outgoing-rc-delegations-query";
 export * from "./get-referrals-query";
 export * from "./get-market-data-query";
 export * from "./get-followers-query";
