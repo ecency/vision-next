@@ -168,7 +168,8 @@
     "address-placeholder": "введите url или поисковый запрос",
     "home": "Главная",
     "waves": "Waves",
-    "communities": "Сообщества"
+    "communities": "Сообщества",
+    "chats": "Чаты"
   },
   "search": {
     "placeholder": "Поиск",
