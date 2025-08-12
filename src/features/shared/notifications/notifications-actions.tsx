@@ -73,7 +73,7 @@ export function NotificationsActions({ filter }: Props) {
       const isSame =
         enabledTypes.every((et) => notificationSettings?.notify_types?.every((nt) => et !== nt)) &&
         enabledTypes.length === notificationSettings?.notify_types?.length;
-      if (!isSame) {
+      if (!isSame && activeUser) {
         updateSettings.mutateAsync({
           notifyTypes: enabledTypes,
           isEnabled: enabledTypes.length > 0
@@ -81,7 +81,7 @@ export function NotificationsActions({ filter }: Props) {
       }
     },
     500,
-    [settings]
+    [settings, activeUser]
   );
 
   const getNotificationSettingsItem = (title: string, type: NotifyTypes) => (

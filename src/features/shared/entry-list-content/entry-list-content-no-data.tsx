@@ -27,7 +27,6 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
   let description = "";
   let buttonText = "";
   let buttonTo = "";
-  console.log(username)
   if (isMyProfile && section !== "trail") {
     if (["feed","trending","hot","created"].includes(section)) {
       title = `${t("g.nothing-found-in", "Nothing found in")} ${t("g.feed", "feed")}`;
