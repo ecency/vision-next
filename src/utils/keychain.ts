@@ -23,7 +23,7 @@ export const signBuffer = (
       authType,
       (resp) => {
         if (!resp.success) {
-          reject({ message: "Operation cancelled" });
+          reject(new Error("Operation cancelled"));
         }
 
         resolve(resp);
@@ -47,7 +47,7 @@ export const addAccountAuthority = (
       weight,
       (resp) => {
         if (!resp.success) {
-          reject({ message: "Operation cancelled" });
+          reject(new Error("Operation cancelled"));
         }
 
         resolve(resp);
@@ -69,7 +69,7 @@ export const removeAccountAuthority = (
       "Posting",
       (resp) => {
         if (!resp.success) {
-          reject({ message: "Operation cancelled" });
+          reject(new Error("Operation cancelled"));
         }
 
         resolve(resp);
@@ -96,7 +96,7 @@ export const transfer = (
       currency,
       (resp) => {
         if (!resp.success) {
-          reject({ message: "Operation cancelled" });
+          reject(new Error("Operation cancelled"));
         }
 
         resolve(resp);
@@ -123,7 +123,7 @@ export const customJson = (
       display_msg,
       (resp) => {
         if (!resp.success) {
-          reject({ message: "Operation cancelled" });
+          reject(new Error("Operation cancelled"));
         }
         resolve(resp);
       },
@@ -144,7 +144,7 @@ export const broadcast = (
       key,
       (resp) => {
         if (!resp.success) {
-          reject({ message: "Operation cancelled" });
+          reject(new Error("Operation cancelled"));
         }
 
         resolve(resp);
@@ -157,7 +157,7 @@ export const addAccount = (username: string, keys: Keys): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
     window.hive_keychain?.requestAddAccount(username, keys, (resp) => {
       if (!resp.success) {
-        reject({ message: "Operation cancelled" });
+        reject(new Error("Operation cancelled"));
       }
 
       resolve(resp);
@@ -177,7 +177,7 @@ export const witnessVote = (
       vote,
       (resp) => {
         if (!resp.success) {
-          reject({ message: "Operation cancelled" });
+          reject(new Error("Operation cancelled"));
         }
 
         resolve(resp);
@@ -197,7 +197,7 @@ export const witnessProxy = (
       proxy,
       (resp) => {
         if (!resp.success) {
-          reject({ message: "Operation cancelled" });
+          reject(new Error("Operation cancelled"));
         }
 
         resolve(resp);
