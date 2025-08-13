@@ -23,7 +23,8 @@ Sentry.init({
     "Wrong private key. Master or active or posting private key required.",
     "Network request failed",
     "Failed to read the 'localStorage' property from 'Window'",
-    "Invalid parameters"
+    "Invalid parameters",
+    "Failed to connect to MetaMask"
   ]
 });
 Sentry.setTag("source", "client");

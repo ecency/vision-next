@@ -23,7 +23,8 @@ Sentry.init({
     "AxiosError",
     "Wrong private key. Master or active or posting private key required.",
     "Network request failed",
-    "Invalid parameters"
+    "Invalid parameters",
+    "Failed to connect to MetaMask"
   ]
 });
 Sentry.setTag("source", "server");
