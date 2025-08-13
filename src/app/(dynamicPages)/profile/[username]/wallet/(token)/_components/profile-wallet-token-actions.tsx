@@ -13,6 +13,7 @@ import {
   UilLock,
   UilMoneybag,
   UilPlus,
+  UilUnlock,
   UilUserPlus
 } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
@@ -33,7 +34,9 @@ const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
   [AssetOperation.Promote]: <UilChartBar />,
   [AssetOperation.Claim]: <UilPlus />,
   [AssetOperation.Buy]: <UilBoltAlt />,
-  [AssetOperation.LockLiquidity]: <UilLock />
+  [AssetOperation.LockLiquidity]: <UilLock />,
+  [AssetOperation.Stake]: <UilLock />,
+  [AssetOperation.Unstake]: <UilUnlock />
 };
 
 export function ProfileWalletTokenActions() {

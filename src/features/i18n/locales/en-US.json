@@ -2889,7 +2889,10 @@
       "promote": "Promote",
       "claim": "Claim",
       "buy": "Buy",
-      "lock": "Lock liquidity"
+      "lock": "Lock liquidity",
+      "stake": "Stake",
+      "unstake": "Unstake",
+      "undelegate": "Undelegate"
     }
   }
 }
