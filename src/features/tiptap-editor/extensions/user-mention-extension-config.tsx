@@ -101,7 +101,7 @@ export const UserMentionExtensionConfig = {
   },
   render: () => {
     const placementArea = document.querySelector("#popper-container");
-    let reactRenderer: ReactRenderer<any>;
+    let reactRenderer: ReactRenderer<any> | null = null;
 
     return {
       onStart: (props: any) => {
@@ -128,6 +128,10 @@ export const UserMentionExtensionConfig = {
       },
 
       onUpdate(props: any) {
+        if (!reactRenderer) {
+          return;
+        }
+
         reactRenderer.updateProps(props);
 
         computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
@@ -142,7 +146,7 @@ export const UserMentionExtensionConfig = {
 
       onKeyDown(props: any) {
         if (props.event.key === "Escape") {
-          reactRenderer.element.classList.add("hidden");
+          reactRenderer?.element?.classList.add("hidden");
           return true;
         }
 
@@ -152,13 +156,14 @@ export const UserMentionExtensionConfig = {
       onExit() {
         if (reactRenderer) {
           if (
-              placementArea &&
-              reactRenderer.element &&
-              placementArea.contains(reactRenderer.element)
+            placementArea &&
+            reactRenderer.element &&
+            placementArea.contains(reactRenderer.element)
           ) {
             placementArea.removeChild(reactRenderer.element);
           }
           reactRenderer.destroy();
+          reactRenderer = null;
         }
       }
     };
