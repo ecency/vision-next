@@ -25,6 +25,8 @@ Sentry.init({
     "Failed to read the 'localStorage' property from 'Window'",
     "Invalid parameters",
     "Failed to connect to MetaMask"
-  ]
+  ],
+  // Filter out errors originating from browser extension
+  denyUrls: [/sui\.js/]
 });
 Sentry.setTag("source", "client");
