@@ -10,6 +10,7 @@ import {
   WalletOperationLock,
   WalletOperationPowerDown,
   WalletOperationSign,
+  WalletOperationsLpDelegate,
   WalletOperationsTransfer,
   WalletOperationSuccess,
   WalletOperationWithdrawRoutes,
@@ -76,13 +77,13 @@ export function WalletOperationsDialog({
           </div>
         </ModalHeader>
 
-        {[
+        {([
           AssetOperation.Transfer,
           AssetOperation.TransferToSavings,
           AssetOperation.PowerUp,
-          AssetOperation.Delegate,
           AssetOperation.Gift
-        ].includes(operation) && (
+        ].includes(operation) ||
+          (AssetOperation.Delegate === operation && asset !== "LP")) && (
           <WalletOperationsTransfer
             data={data}
             asset={asset}
@@ -101,6 +102,18 @@ export function WalletOperationsDialog({
           />
         )}
         {[AssetOperation.Swap].includes(operation) && <MarketSwapForm />}
+        {[AssetOperation.Delegate].includes(operation) && asset === "LP" && (
+          <WalletOperationsLpDelegate
+            data={data}
+            asset={asset}
+            username={activeUser?.username ?? ""}
+            showSubmit={step === "form"}
+            onSubmit={(d) => {
+              setData(d);
+              setStep("sign");
+            }}
+          />
+        )}
         {[AssetOperation.LockLiquidity].includes(operation) && (
           <WalletOperationLock
             asset={asset}
