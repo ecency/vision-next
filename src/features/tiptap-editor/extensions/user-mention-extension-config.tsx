@@ -103,6 +103,23 @@ export const UserMentionExtensionConfig = {
     const placementArea = document.querySelector("#popper-container");
     let reactRenderer: ReactRenderer<any> | null = null;
 
+    const updatePosition = (decorationNode: HTMLElement) => {
+      if (!reactRenderer) {
+        return;
+      }
+
+      const element = reactRenderer.element as HTMLElement;
+
+      computePosition(decorationNode, element, {
+        middleware: [flip()]
+      }).then(({ x, y }) => {
+        Object.assign(element.style, {
+          left: `${x}px`,
+          top: `${y}px`
+        });
+      });
+    };
+
     return {
       onStart: (props: any) => {
         if (!props.clientRect) {
@@ -117,14 +134,7 @@ export const UserMentionExtensionConfig = {
 
         placementArea?.appendChild(reactRenderer.element);
 
-        computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
-          middleware: [flip()]
-        }).then(({ x, y }) => {
-          Object.assign((reactRenderer.element as HTMLElement).style, {
-            left: `${x}px`,
-            top: `${y}px`
-          });
-        });
+        updatePosition(props.decorationNode as HTMLElement);
       },
 
       onUpdate(props: any) {
@@ -134,14 +144,7 @@ export const UserMentionExtensionConfig = {
 
         reactRenderer.updateProps(props);
 
-        computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
-          middleware: [flip()]
-        }).then(({ x, y }) => {
-          Object.assign((reactRenderer.element as HTMLElement).style, {
-            left: `${x}px`,
-            top: `${y}px`
-          });
-        });
+        updatePosition(props.decorationNode as HTMLElement);
       },
 
       onKeyDown(props: any) {
