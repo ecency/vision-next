@@ -71,10 +71,9 @@ export const HiveEngineChart = ({ symbol }: Props) => {
         useHTML: true,
         shadow: false,
         formatter: ({ chart }: any) => {
-          const time = format(
-            new Date((data?.[chart.hoverPoint.index].timestamp ?? 0) * 1000),
-            "dd/MM/yyyy HH:mm"
-          );
+          const timestamp =
+            data?.[chart.hoverPoint?.index ?? 0]?.timestamp ?? 0;
+          const time = format(new Date(timestamp * 1000), "dd/MM/yyyy HH:mm");
           return `
             <div>
               <div>
