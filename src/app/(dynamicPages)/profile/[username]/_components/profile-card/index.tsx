@@ -13,7 +13,7 @@ import { accountReputation, dateToFormatted, formattedNumber, isCommunity } from
 import { calendarRangeSvg, earthSvg, nearMeSvg, rssSvg } from "@ui/svg";
 import { Tooltip } from "@ui/tooltip";
 import { ResourceCreditsInfo } from "../rc-info";
-import { Skeleton, UserAvatar } from "@/features/shared";
+import { Skeleton, UserAvatar, HivePosh } from "@/features/shared";
 import { findRcAccounts, rcPower } from "@/api/hive";
 import { getRelationshipBetweenAccounts, getSubscriptions } from "@/api/bridge";
 import { useGlobalStore } from "@/core/global-store";
@@ -181,17 +181,22 @@ export const ProfileCard = ({ account }: Props) => {
                   {i18next.t("profile.following")}
                 </span>
               </Tooltip>
-            </div>
-          )}
         </div>
       )}
+    </div>
+  )}
 
-      <div className="extra-props">
-        {account.profile?.location && (
-          <div className="prop">
-            {nearMeSvg} {account.profile.location}
-          </div>
-        )}
+  <HivePosh
+    username={account.name}
+    className="mb-4"
+  />
+
+  <div className="extra-props">
+    {account.profile?.location && (
+      <div className="prop">
+        {nearMeSvg} {account.profile.location}
+      </div>
+    )}
 
         {account.profile?.website && (
           <div className="prop">

@@ -140,7 +140,9 @@
   }
 
   .stats,
-  .extra-props {
+  .extra-props,
+  .social-links,
+  .social-link {
     @apply text-gray-steel;
 
     a {
@@ -150,8 +152,16 @@
     svg {
       @apply text-silver;
       height: 16px;
-      margin-right: 6px;
       flex-shrink: 0;
+    }
+  }
+
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+
+    svg {
+      margin-right: 6px;
     }
   }
 
@@ -204,6 +214,7 @@
         text-overflow: ellipsis;
       }
     }
+
   }
   .com-props {
     grid-gap: 10px;
