@@ -21,10 +21,6 @@ jest.mock("@/api/queries", () => ({
   useGetBoostPlusAccountPricesQuery: jest.fn()
 }));
 
-jest.mock("i18next", () => ({
-  t: jest.fn((key) => key) // Mock translation to return the key
-}));
-
 jest.mock("@/api/operations", () => ({
   boostPlus: jest.fn(),
   boostPlusHot: jest.fn(),

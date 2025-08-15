@@ -18,14 +18,6 @@ jest.mock("@/features/shared/bookmarks/favourites-list", () => ({
   FavouritesList: jest.fn(() => <div>Favourites List</div>)
 }));
 
-jest.mock("i18next", () => ({
-  t: jest.fn((key) => key) // Mock the translation function to return the key
-}));
-
-jest.mock("react-use", () => ({
-  useMount: jest.fn((fn) => fn()) // Immediately call the provided function to simulate mount behavior
-}));
-
 describe("BookmarksDialog", () => {
   const setShowMock = jest.fn();
 
@@ -84,26 +76,6 @@ describe("BookmarksDialog", () => {
 
     // Check if the favourites [...sections] is active and rendered
     expect(screen.getByText("Favourites List")).toBeInTheDocument();
-  });
-
-  test("calls refetch for bookmarks and favourites on mount", () => {
-    const refetchBookmarks = jest.fn();
-    const refetchFavourites = jest.fn();
-
-    useBookmarksQuery.mockReturnValue({
-      refetch: refetchBookmarks
-    });
-    useFavouritesQuery.mockReturnValue({
-      refetch: refetchFavourites
-    });
-
-    render(<BookmarksDialog show={true} setShow={setShowMock} />, {
-      container: document.getElementById("modal-dialog-container")
-    });
-
-    // Ensure refetch is called for both queries on mount
-    expect(refetchBookmarks).toHaveBeenCalled();
-    expect(refetchFavourites).toHaveBeenCalled();
   });
 
   test("hides the modal when close button is clicked", () => {

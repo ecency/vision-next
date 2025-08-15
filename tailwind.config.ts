@@ -401,6 +401,7 @@ const config: Config = {
     },
     fontFamily: {
       sans: [
+        "var(--font-noto-sans)",
         "ui-sans-serif",
         "system-ui",
         "-apple-system",
@@ -409,7 +410,6 @@ const config: Config = {
         "Roboto",
         '"Helvetica Neue"',
         "Arial",
-        '"Noto Sans"',
         "sans-serif",
         '"Apple Color Emoji"',
         '"Segoe UI Emoji"',
@@ -417,7 +417,7 @@ const config: Config = {
         '"Noto Color Emoji"'
       ],
       serif: [
-        "Noto Serif",
+        "var(--font-noto-serif)",
         "ui-serif",
         "Georgia",
         "Cambria",

@@ -210,7 +210,7 @@
 
           .item-body {
             margin: 10px 0 14px 0;
-            font-family: Lora, Georgia, serif;
+            font-family: var(--font-lora), Georgia, serif;
 
             @include themify(day) {
               @apply text-tundora;
