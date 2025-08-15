@@ -25,6 +25,13 @@ jest.mock(
   { virtual: true }
 );
 
-jest.mock("@ecency/renderer", () => ({}), { virtual: true });
+jest.mock(
+  "@ecency/renderer",
+  () => ({
+    EcencyRenderer: () => null,
+    setupPostEnhancements: jest.fn()
+  }),
+  { virtual: true }
+);
 jest.mock("react-tweet", () => ({}), { virtual: true });
 jest.mock("@/utils", () => ({ random: jest.fn() }), { virtual: true });
