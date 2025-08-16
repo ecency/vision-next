@@ -55,7 +55,7 @@ export function ProfileWalletTokenActions() {
   );
 
   return (
-    <div className="grid grid-cols-3 gap-2 md:gap-4 grid-rows-2">
+    <div className="grid grid-cols-3 gap-2 md:gap-2 grid-rows-2">
       {operations?.map((operation) => (
         <>
           {[AssetOperation.Buy, AssetOperation.Promote, AssetOperation.Claim].includes(
@@ -68,7 +68,7 @@ export function ProfileWalletTokenActions() {
                   : "/perks/promote-post"
               }
               className={clsx(
-                " bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col sm:flex-row items-center text-center text-sm gap-2 cursor-pointer border border-white dark:border-dark-200 hover:border-blue-dark-sky dark:hover:border-blue-dark-sky hover:text-blue-dark-sky duration-300",
+                " bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col sm:flex-row items-center text-center text-sm gap-2 cursor-pointer border border-white dark:border-dark-200 hover:border-blue-dark-sky dark:hover:border-blue-dark-sky hover:text-blue-dark-sky duration-300 min-h-[66px]",
                 AssetOperation.Buy === operation && "text-blue-dark-sky border-blue-dark-sky"
               )}
             >
@@ -83,7 +83,7 @@ export function ProfileWalletTokenActions() {
             operation
           ) && (
             <WalletOperationsDialog
-              className=" bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col sm:flex-row items-center text-center text-sm gap-2 cursor-pointer border border-white dark:border-dark-200 hover:border-blue-dark-sky dark:hover:border-blue-dark-sky hover:text-blue-dark-sky duration-300"
+              className=" bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col sm:flex-row items-center text-center text-sm gap-2 cursor-pointer border border-white dark:border-dark-200 hover:border-blue-dark-sky dark:hover:border-blue-dark-sky hover:text-blue-dark-sky duration-300 min-h-[66px]"
               key={operation}
               asset={(token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase()}
               operation={operation}
@@ -98,7 +98,7 @@ export function ProfileWalletTokenActions() {
       ))}
       {new Array(6 - (operations?.length ?? 0)).fill(1).map((_, i) => (
         <div
-          className=" bg-white/60 dark:bg-dark-200/70 glass-box rounded-xl p-3 flex flex-col gap-4"
+          className=" bg-white/60 dark:bg-dark-200/70 glass-box rounded-xl p-3 flex flex-col gap-4 min-h-[66px]"
           key={i}
         />
       ))}

@@ -8,7 +8,6 @@ import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 import { format } from "date-fns";
 import i18next from "i18next";
 import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
@@ -18,7 +17,7 @@ export function HiveChart() {
   const theme = useGlobalStore((s) => s.theme);
 
   const { token } = useParams();
-  const { ref: chartContainerRef } = useResizeDetector();
+  const { ref: chartContainerRef, width, height } = useResizeDetector();
 
   const chartRef = useRef<IChartApi>();
   const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick">>();
@@ -107,6 +106,13 @@ export function HiveChart() {
       candleStickSeriesRef.current.setData(uniqueData);
     }
   }, [uniqueData]);
+
+  // Resize chart when container dimensions change
+  useEffect(() => {
+    if (chartRef.current && width && height) {
+      chartRef.current.resize(width, height);
+    }
+  }, [width, height]);
 
   return (
     <div className="bg-white rounded-xl mb-4">
