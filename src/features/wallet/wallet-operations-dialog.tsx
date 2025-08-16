@@ -81,7 +81,8 @@ export function WalletOperationsDialog({
           AssetOperation.Transfer,
           AssetOperation.TransferToSavings,
           AssetOperation.PowerUp,
-          AssetOperation.Gift
+          AssetOperation.Gift,
+          AssetOperation.Stake
         ].includes(operation) ||
           (AssetOperation.Delegate === operation && asset !== "LP")) && (
           <WalletOperationsTransfer

@@ -1373,7 +1373,11 @@
     "swap-sub-title": "Swap your funds in few clicks",
     "gift-title": "Gift",
     "gift-sub-title": "Gift the Points to specific user",
-    "lock-sub-title": "Locking Larynx for liquidity reward"
+    "lock-sub-title": "Locking Larynx for liquidity reward",
+    "stake-title": "Stake",
+    "stake-sub-title": "Stake token to earn passive rewards",
+    "unstake-title": "Unstake",
+    "unstake-sub-title": "Unstake token you will stop earning passive rewards"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",
