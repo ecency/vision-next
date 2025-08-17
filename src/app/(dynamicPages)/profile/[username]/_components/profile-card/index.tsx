@@ -6,7 +6,7 @@ import { EcencyConfigManager } from "@/config";
 import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults.json";
 import { Account } from "@/entities";
-import { FollowControls, UserAvatar } from "@/features/shared";
+import { FollowControls, HivePosh, UserAvatar } from "@/features/shared";
 import { FavouriteBtn } from "@/features/shared/favorite-btn";
 import { Badge } from "@/features/ui";
 import { accountReputation, dateToFormatted } from "@/utils";
@@ -129,6 +129,7 @@ export function ProfileCard({ account }: Props) {
           </div>
         </div>
       </div>
+      <HivePosh username={account.name} className="mb-4" />
 
       {showFollowers && data && <Followers account={data} onHide={() => setShowFollowers(false)} />}
       {showFollowing && data && <Following account={data} onHide={() => setShowFollowing(false)} />}

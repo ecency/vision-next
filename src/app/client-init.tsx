@@ -1,4 +1,3 @@
-import { client } from "@/api/hive";
 import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { initI18next } from "@/features/i18n";
@@ -8,6 +7,7 @@ import { useEffect } from "react";
 import { client } from "@/api/hive";
 import { ConfigManager } from "@ecency/sdk";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMount } from "react-use";
 
 export function ClientInit() {
   const activeUser = useGlobalStore((s) => s.activeUser);
