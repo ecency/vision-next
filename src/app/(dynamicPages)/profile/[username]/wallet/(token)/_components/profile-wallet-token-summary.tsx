@@ -46,7 +46,7 @@ export function ProfileWalletTokenSummary() {
       <div className="flex justify-between">
         <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
           <div className="mt-1">{logo}</div>
-          <StyledTooltip size="md" content={i18next.t("wallet.hive-description")}>
+          <div>
             <div className="text-xl font-bold">{data?.title}</div>
             <div className="flex items-center gap-1">
               <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
@@ -56,7 +56,7 @@ export function ProfileWalletTokenSummary() {
                 </Badge>
               )}
             </div>
-          </StyledTooltip>
+          </div>
         </div>
         <div className="text-blue-dark-sky">
           <FormattedCurrency value={data?.price ?? 0} fixAt={3} />

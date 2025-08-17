@@ -59,7 +59,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
       <div className="grid grid-cols-4 p-3 md:p-4">
         <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
           <div className="mt-1">{logo}</div>
-          <StyledTooltip size="md" content={i18next.t("wallet.hive-description")}>
+          <div>
             <div>{data?.title}</div>
             <div className="flex items-center gap-1">
               <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
@@ -69,7 +69,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
                 </Badge>
               )}
             </div>
-          </StyledTooltip>
+          </div>
         </div>
         <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
         <div className="text-blue-dark-sky">
