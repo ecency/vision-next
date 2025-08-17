@@ -147,7 +147,7 @@ export function ProfileCard({ account }: Props) {
           <ResourceCreditsInfo rcPercent={rcData ? rcPower(rcData[0]) : 100} account={data} />
         </div>
       )}
-      <div className="flex flex-col w-full gap-4 py-4">
+      <div className="grid grid-cols-2 lg:grid-cols-1 w-full gap-4 py-4">
         {data?.profile?.location && (
           <ProfileCardExtraProperty
             icon={<UilLocationPoint className="w-5 h-5" />}
