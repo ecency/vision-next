@@ -26,8 +26,8 @@ export const EntryIndexMenuDropdown = ({
   let dropDownItems: MenuItem[] = [
     {
       label: <span>{i18next.t("entry-filter.filter-global")}</span>,
-      selected: tag === "",
-      onClick: () => onTagValueClick("")
+      selected: tag === "" || tag === "global",
+      onClick: () => onTagValueClick("global")
     },
     {
       label: <span>{i18next.t("entry-filter.filter-community")}</span>,
@@ -132,7 +132,7 @@ export const EntryIndexMenuDropdown = ({
     <Dropdown>
       <DropdownToggle>
         <Button icon={menuDownSvg} appearance="gray-link" size="sm">
-          {tag === ""
+          {tag === "" || tag === "global"
             ? i18next.t("entry-filter.filter-global")
             : tag === "my"
               ? i18next.t("entry-filter.filter-community")

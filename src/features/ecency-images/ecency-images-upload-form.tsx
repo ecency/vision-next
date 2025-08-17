@@ -2,38 +2,41 @@ import { UilFileDownload, UilFileUpload } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import i18next from "i18next";
-import { use, useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 interface Props {
-  onFilePick: (file: File) => void;
+  onFilesPick: (files: File[]) => void;
 }
 
-export function EcencyImagesUploadForm({ onFilePick }: Props) {
+export function EcencyImagesUploadForm({ onFilesPick }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const onDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
+      const files: File[] = [];
       if (e.dataTransfer.items) {
-        Array.from(e.dataTransfer.items).forEach((item, i) => {
+        Array.from(e.dataTransfer.items).forEach((item) => {
           if (item.kind === "file") {
             const file = item.getAsFile();
             const fileExtension = file?.name.split(".").pop()?.toLowerCase();
             if (file && ["png", "svg", "jpg", "jpeg", "webp", "gif"].includes(fileExtension!)) {
-              onFilePick(file);
+              files.push(file);
             }
           }
         });
       } else {
-        Array.from(e.dataTransfer.files).forEach((file, i) => {
-          onFilePick(file);
+        Array.from(e.dataTransfer.files).forEach((file) => {
+          files.push(file);
         });
       }
-
+      if (files.length) {
+        onFilesPick(files);
+      }
       setIsDragging(false);
     },
-    [onFilePick]
+    [onFilesPick]
   );
 
   const onDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -45,10 +48,11 @@ export function EcencyImagesUploadForm({ onFilePick }: Props) {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
       if (files && files.length > 0) {
-        onFilePick(files[0]);
+        onFilesPick(Array.from(files));
+        e.target.value = "";
       }
     },
-    [onFilePick]
+    [onFilesPick]
   );
 
   return (
@@ -60,6 +64,7 @@ export function EcencyImagesUploadForm({ onFilePick }: Props) {
       <input
         accept="image/jpg, image/jpeg, image/webp, image/png, image/svg, image/gif"
         type="file"
+        multiple
         ref={fileInputRef}
         className="hidden"
         onChange={onInputChange}

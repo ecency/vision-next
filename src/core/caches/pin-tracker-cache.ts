@@ -26,7 +26,7 @@ export function useCommunityPinCache(entry: Entry) {
         (x) =>
           x.author === entry.author && x.permlink === entry.permlink && x.stats?.is_pinned === true
       ) !== undefined,
-    initialData: false
+    initialData: entry.stats?.is_pinned ?? false
   });
 }
 

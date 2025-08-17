@@ -101,7 +101,24 @@ export const UserMentionExtensionConfig = {
   },
   render: () => {
     const placementArea = document.querySelector("#popper-container");
-    let reactRenderer: ReactRenderer<any>;
+    let reactRenderer: ReactRenderer<any> | null = null;
+
+    const updatePosition = (decorationNode: HTMLElement) => {
+      if (!reactRenderer) {
+        return;
+      }
+
+      const element = reactRenderer.element as HTMLElement;
+
+      computePosition(decorationNode, element, {
+        middleware: [flip()]
+      }).then(({ x, y }) => {
+        Object.assign(element.style, {
+          left: `${x}px`,
+          top: `${y}px`
+        });
+      });
+    };
 
     return {
       onStart: (props: any) => {
@@ -117,32 +134,22 @@ export const UserMentionExtensionConfig = {
 
         placementArea?.appendChild(reactRenderer.element);
 
-        computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
-          middleware: [flip()]
-        }).then(({ x, y }) => {
-          Object.assign((reactRenderer.element as HTMLElement).style, {
-            left: `${x}px`,
-            top: `${y}px`
-          });
-        });
+        updatePosition(props.decorationNode as HTMLElement);
       },
 
       onUpdate(props: any) {
+        if (!reactRenderer) {
+          return;
+        }
+
         reactRenderer.updateProps(props);
 
-        computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
-          middleware: [flip()]
-        }).then(({ x, y }) => {
-          Object.assign((reactRenderer.element as HTMLElement).style, {
-            left: `${x}px`,
-            top: `${y}px`
-          });
-        });
+        updatePosition(props.decorationNode as HTMLElement);
       },
 
       onKeyDown(props: any) {
         if (props.event.key === "Escape") {
-          reactRenderer.element.classList.add("hidden");
+          reactRenderer?.element?.classList.add("hidden");
           return true;
         }
 
@@ -152,13 +159,14 @@ export const UserMentionExtensionConfig = {
       onExit() {
         if (reactRenderer) {
           if (
-              placementArea &&
-              reactRenderer.element &&
-              placementArea.contains(reactRenderer.element)
+            placementArea &&
+            reactRenderer.element &&
+            placementArea.contains(reactRenderer.element)
           ) {
             placementArea.removeChild(reactRenderer.element);
           }
           reactRenderer.destroy();
+          reactRenderer = null;
         }
       }
     };

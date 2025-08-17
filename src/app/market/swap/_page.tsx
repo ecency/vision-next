@@ -15,7 +15,7 @@ export function MarketSwapPage() {
   return (
     <>
       <Feedback />
-      <div className={"flex justify-center market-page " + MarketMode.SWAP}>
+      <div className={"flex justify-center market-page mb-24 " + MarketMode.SWAP}>
         <div className="sm:w-[75%] p-3 sm:p-0">
           <div style={{ marginBottom: "6rem" }}>
             <Navbar />

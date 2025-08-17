@@ -117,7 +117,14 @@ export function LandingPage() {
       <div className="sections second-section" id="earn-money" ref={earnMoneyRef}>
         <div className="part-top">
           <div className="inner">
-            <img src={EarnMoney} alt="earn-money" loading="lazy" className="mx-auto sm:m-0" />
+            <Image
+              src={EarnMoney}
+              alt="earn-money"
+              width={373}
+              height={442}
+              priority
+              className="mx-auto sm:m-0"
+            />
             <div className="text-group visible">
               <h2>{i18next.t("landing-page.earn-money")}</h2>
               <p className="mt-2 w-88 mb-5 sm:mb-0">

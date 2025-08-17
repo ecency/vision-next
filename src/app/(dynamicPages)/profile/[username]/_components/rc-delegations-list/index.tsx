@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
-import { List, ListItem } from "@ui/list";
-import { getAccount, getIncomingRc, getOutgoingRc } from "@/api/hive";
+import { getAccount, getIncomingRc } from "@/api/hive";
+import { getOutgoingRcDelegationsQuery } from "@/api/queries";
 import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { delegateRC } from "@/api/operations";
 import { useGlobalStore } from "@/core/global-store";
 import { rcFormatter } from "@/utils";
-import useMount from "react-use/lib/useMount";
 import { FullAccount } from "@/entities";
 
 interface Props {
@@ -36,40 +35,44 @@ export const RcDelegationsList = ({
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const [outGoingList, setOutGoingList]: any = useState([]);
-  const [otherUser, setOtherUser]: any = useState(account.name);
+  const otherUser = account.name;
+  const {
+    data: outgoingPages,
+    fetchNextPage,
+    hasNextPage,
+    isLoading: outgoingLoading,
+    isFetchingNextPage
+  } = getOutgoingRcDelegationsQuery(otherUser).useClientQuery();
+  const outGoingList = outgoingPages?.pages.flat() ?? [];
   const [incoming, setIncoming]: any = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [incomingLoading, setIncomingLoading] = useState(false);
   const [search, setsearch] = useState("");
   const [loadList, setLoadList] = useState(21);
 
-  useMount(() => {
-    getOutGoingRcList();
+  useEffect(() => {
     getIncomingRcList();
-  });
-
-  const getOutGoingRcList = async () => {
-    setLoading(true);
-    const delegationsOutList: any = await getOutgoingRc(otherUser, "");
-    const delegationsOutInfo = delegationsOutList.rc_direct_delegations;
-    setOutGoingList(delegationsOutInfo);
-    setLoading(false);
-  };
+  }, [otherUser]);
 
   const getIncomingRcList = async () => {
-    setLoading(true);
+    setIncomingLoading(true);
     const delegationsIn: any = await getIncomingRc(otherUser);
     const incomingInfo = delegationsIn.list;
     setIncoming(incomingInfo);
-    setLoading(false);
+    setIncomingLoading(false);
   };
 
-  const loadMore = () => {
+  const loading = outgoingLoading || incomingLoading || isFetchingNextPage;
+
+  const loadMore = async () => {
     const moreList = loadList + 7;
+    if (listMode === "out" && moreList > outGoingList.length && hasNextPage) {
+      await fetchNextPage();
+    }
     setLoadList(moreList);
   };
 
   const getToData = async (data: any) => getAccount(data);
+  const searchLower = search.toLowerCase();
 
   return (
     <div className="delgations-list">
@@ -91,17 +94,19 @@ export const RcDelegationsList = ({
         {listMode === "out" && (
           <>
             {outGoingList.length > 0 ? (
-              <List defer={true} inline={true}>
+              <div className="list-body">
                 {outGoingList
-                  ?.slice(0, loadList)
-                  .filter(
-                    (list: any) =>
-                      list.to.toLowerCase().startsWith(search) ||
-                      list.to.toLowerCase().includes(search)
-                  )
-                  .map((list: any, i: any) => (
-                    <ListItem styledDefer={true} key={list.to}>
-                      <div className="flex items-center gap-2">
+                  ?.filter((list: any) => {
+                    const toLower = list.to.toLowerCase();
+                    return (
+                      toLower.startsWith(searchLower) ||
+                      toLower.includes(searchLower)
+                    );
+                  })
+                  .slice(0, loadList)
+                  .map((list: any) => (
+                    <div className="list-item" key={list.to}>
+                      <div className="item-main">
                         <ProfileLink username={list.to}>
                           <UserAvatar username={list.to} size="small" />
                         </ProfileLink>
@@ -110,41 +115,41 @@ export const RcDelegationsList = ({
                             <span className="item-name notranslate">{list.to}</span>
                           </ProfileLink>
                         </div>
+                        <div className="item-extra actionable">
+                          <Tooltip content={list.delegated_rc}>
+                            <span>{rcFormatter(list.delegated_rc)}</span>
+                          </Tooltip>
+                          {activeUser && otherUser == activeUser.username && (
+                            <div className="actions">
+                              <a
+                                href="#"
+                                onClick={async () => {
+                                  showDelegation();
+                                  setShowDelegationsList(false);
+                                  setAmountFromList(list.delegated_rc);
+                                  setToFromList(list.to);
+                                  const data = await getToData(list.to);
+                                  setDelegateeData(data);
+                                }}
+                              >
+                                {i18next.t("rc-info.update")}
+                              </a>
+                              <a
+                                href="#"
+                                onClick={() => {
+                                  confirmDelete();
+                                  setToFromList(list.to);
+                                }}
+                              >
+                                {i18next.t("rc-info.delete")}
+                              </a>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3 mt-3">
-                        <Tooltip content={list.delegated_rc}>
-                          <span>{rcFormatter(list.delegated_rc)}</span>
-                        </Tooltip>
-                        {activeUser && otherUser == activeUser.username && (
-                          <>
-                            <a
-                              href="#"
-                              onClick={async () => {
-                                showDelegation();
-                                setShowDelegationsList(false);
-                                setAmountFromList(list.delegated_rc);
-                                setToFromList(list.to);
-                                const data = await getToData(list.to);
-                                setDelegateeData(data);
-                              }}
-                            >
-                              {i18next.t("rc-info.update")}
-                            </a>
-                            <a
-                              href="#"
-                              onClick={() => {
-                                confirmDelete();
-                                setToFromList(list.to);
-                              }}
-                            >
-                              {i18next.t("rc-info.delete")}
-                            </a>
-                          </>
-                        )}
-                      </div>
-                    </ListItem>
+                    </div>
                   ))}
-              </List>
+              </div>
             ) : (
               <p>{i18next.t("rc-info.no-outgoing")}</p>
             )}
@@ -156,12 +161,14 @@ export const RcDelegationsList = ({
             {incoming.length > 0 ? (
               <div className="list-body">
                 {incoming
-                  ?.slice(0, loadList)
-                  .filter(
-                    (list: any) =>
-                      list.sender.toLowerCase().startsWith(search) ||
-                      list.sender.toLowerCase().includes(search)
-                  )
+                  ?.filter((list: any) => {
+                    const sender = list.sender.toLowerCase();
+                    return (
+                      sender.startsWith(searchLower) ||
+                      sender.includes(searchLower)
+                    );
+                  })
+                  .slice(0, loadList)
                   .map((list: any, i: any) => (
                     <div className="list-item" key={list.sender}>
                       <div className="item-main">
@@ -188,8 +195,8 @@ export const RcDelegationsList = ({
           </>
         )}
 
-        {((listMode === "in" && incoming.length >= loadList) ||
-          (listMode === "out" && outGoingList.length >= loadList)) && (
+        {((listMode === "in" && incoming.length > loadList) ||
+          (listMode === "out" && (outGoingList.length > loadList || hasNextPage))) && (
           <div className="load-more-btn">
             <Button onClick={loadMore}>{i18next.t("g.load-more")}</Button>
           </div>

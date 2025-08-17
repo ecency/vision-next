@@ -23,7 +23,11 @@ Sentry.init({
     "Wrong private key. Master or active or posting private key required.",
     "Network request failed",
     "Failed to read the 'localStorage' property from 'Window'",
-    "Invalid parameters"
-  ]
+    "Invalid parameters",
+    "Failed to connect to MetaMask",
+    "Cannot set property tron of #<Window> which has only a getter"
+  ],
+  // Filter out errors originating from browser extension
+  denyUrls: [/sui\.js/]
 });
 Sentry.setTag("source", "client");

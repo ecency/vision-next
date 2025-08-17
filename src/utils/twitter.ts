@@ -20,7 +20,11 @@ export const injectScript = () => {
             js = d.createElement(s);
             js.id = id;
             js.src = "https://platform.twitter.com/widgets.js";
-            fjs.parentNode.insertBefore(js, fjs);
+            if (fjs && fjs.parentNode) {
+              fjs.parentNode.insertBefore(js, fjs);
+            } else {
+              (d.head || d.body).appendChild(js);
+            }
 
             t._e = [];
             t.ready = function(f) {

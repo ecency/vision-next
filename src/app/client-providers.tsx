@@ -4,7 +4,6 @@ import { ClientInit } from "@/app/client-init";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";
 import { Announcements } from "@/features/announcement";
-import { EcencyCenter } from "@/features/ecency-center";
 import { Tracker } from "@/features/monitoring";
 import { PushNotificationsProvider } from "@/features/push-notifications";
 import { UserActivityRecorder } from "@/features/user-activity";
@@ -28,11 +27,6 @@ export function ClientProviders(props: PropsWithChildren) {
         <PushNotificationsProvider>
           <ConditionalChatProvider>
             {props.children}
-            <EcencyConfigManager.Conditional
-              condition={({ visionFeatures }) => visionFeatures.center.enabled}
-            >
-              <EcencyCenter />
-            </EcencyConfigManager.Conditional>
           </ConditionalChatProvider>
         </PushNotificationsProvider>
         <Announcements />

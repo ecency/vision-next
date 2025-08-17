@@ -27,6 +27,12 @@ export function PublishEditor({ editor }: Props) {
         placeholder={i18next.t("publish.title-placeholder")}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === "Tab") {
+            e.preventDefault();
+            editor?.commands.focus("start");
+          }
+        }}
       />
       <div className="publish-page-editor-toolbar-container border-y border-[--border-color] sticky top-[60px] md:top-[76px] -mx-2 z-10 bg-white">
         <PublishEditorToolbar editor={editor} />

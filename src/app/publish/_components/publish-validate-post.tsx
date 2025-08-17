@@ -2,6 +2,7 @@
 
 import { TagSelector } from "@/app/submit/_components";
 import { Alert, Button, FormControl } from "@/features/ui";
+import { handleAndReportError } from "@/features/shared";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
@@ -48,17 +49,24 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
   const { mutateAsync: scheduleNow, isPending: isSchedulePending } = useScheduleApi();
 
   const submit = useCallback(async () => {
-    if (schedule) {
-      await scheduleNow();
+    try {
+      if (schedule) {
+        await scheduleNow();
 
-      onSuccess("scheduled");
-    } else {
-      await publishNow();
+        onSuccess("scheduled");
+      } else {
+        await publishNow();
 
-      onSuccess("published");
+        onSuccess("published");
+      }
+
+      clearAll();
+    } catch (err) {
+      const handled = handleAndReportError(err, "publish-post");
+      if (!handled) {
+        throw err;
+      }
     }
-
-    clearAll();
   }, [clearAll, onSuccess, publishNow, schedule, scheduleNow]);
 
   useMount(() => {
@@ -89,7 +97,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="publish-page max-w-[1024px] mx-auto"
+      className="publish-page max-w-[1024px] mx-auto pb-20 sm:pb-0"
     >
       <div className="col-span-2 justify-end flex p-4">
         <Button

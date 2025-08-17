@@ -168,7 +168,8 @@
     "address-placeholder": "enter url or search query",
     "home": "Home",
     "waves": "Waves",
-    "communities": "Communities"
+    "communities": "Communities",
+    "chats": "Chats"
   },
   "search": {
     "placeholder": "Search",
@@ -210,7 +211,7 @@
     "boost": "Boost",
     "submit": "Create a post",
     "chats": "Chats",
-    "perks": "Upgrade"
+    "perks": "Plus"
   },
   "intro": {
     "title": "Aspire to greatness",
