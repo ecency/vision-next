@@ -321,7 +321,7 @@
     "pay-fee": "Tarifa de Cuenta de Pago",
     "modal-title": "¿Estás seguro?",
     "modal-confirm": "Confirmar",
-    "file-warning": "Please handle your password and private keys with extra caution. Your account will no longer be accessible if you lose your password. We do not keep a copy of it; it is confidential and only you have access to it.",
+    "file-warning": "Por favor, maneje su contraseña y sus claves privadas con precaución extra. Su cuenta ya no será accesible si pierde su contraseña. No guardamos una copia de ella; es confidencial y sólo usted tiene acceso a ella.",
     "recommend": "Recomendamos que,",
     "recommend-print": "IMPRIMAS este archivo y lo almacenes de forma segura.",
     "recommend-use": "NUNCA uses tu clave o contraseña de propietario en aplicaciones no confiables.",
@@ -359,7 +359,7 @@
     "votes": "Votos:",
     "transfers": "Transferencias:",
     "reblogs-follows": "Reblogs / Seguidos:",
-    "rc-error": "You cannot delegate below 5bn RC"
+    "rc-error": "No puedes delegar debajo de 5bn RC"
   },
   "trending-tags": {
     "title": "Temas"
@@ -2756,7 +2756,7 @@
     "three-speak-upload": "Subir y pegar",
     "three-speak-gallery": "Desde 3Speak",
     "video-by-link": "Añadir vídeo por enlace",
-    "video-link-hint": "Paste the link below and we will try to identify it (YouTube, 3Speak, Twitch, Vimeo). Other videos may be added as a regular link.",
+    "video-link-hint": "Pegue el siguiente enlace e intentaremos identificarlo (YouTube, 3Speak, Twitch, Vimeo). Otros videos pueden ser añadidos como un enlace regular.",
     "video-link-label": "Enlace de video",
     "get-started": {
       "title": "Conoce la nueva experiencia de publicación",
@@ -2783,7 +2783,7 @@
       "success-description": "¡Eso es todo! Sigue haciendo contenido en Ecency",
       "success-text": "La publicación se publicará en pocos mintues o se programará para una fecha específica."
     },
-    "no-image-found": "Only image files are supported",
+    "no-image-found": "Solo se admiten archivos de imagen",
     "upload-started": "Subiendo imagen...",
     "back-to-old": "Volver a la vista clásica",
     "clear": "Restablecer",
@@ -2810,7 +2810,7 @@
     "loading-post-hint": "Sólo el título, el contenido, las etiquetas y la meta información pueden ser cambiadas después de la publicación",
     "upload-video-error-hint": "El vídeo sólo se puede subir mientras se crea la publicación sin editar",
     "no-post-title": "No hemos podido encontrar la publicación",
-    "no-post-hint": "It seems the post has an invalid link or doesn't exist. Please double-check the address.",
+    "no-post-hint": "Parece que el mensaje tiene un enlace no válido o no existe. Por favor, compruebe la dirección.",
     "go-to-post": "Abrir publicación original",
     "updated-title": "¡Publicación actualizada!",
     "updated-hint": "El contenido del mensaje ha sido actualizado. Los cambios serán visibles en pocos minutos.",
