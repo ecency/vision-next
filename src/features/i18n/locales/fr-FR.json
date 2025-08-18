@@ -321,7 +321,7 @@
     "pay-fee": "Pay Account Fee",
     "modal-title": "Are you sure?",
     "modal-confirm": "Confirm",
-    "file-warning": "Please handle your password and private keys with extra caution. Your account will no longer be accessible if you lose your password. We do not keep a copy of it; it is confidential and only you have access to it.",
+    "file-warning": "Veuillez gérer votre mot de passe et vos clés privées avec une plus grande prudence. Votre compte ne sera plus accessible si vous perdez votre mot de passe. Nous ne conservons pas une copie de celle-ci; elle est confidentielle et vous êtes le seul à y avoir accès.",
     "recommend": "We recommend that,",
     "recommend-print": "PRINT this file out and store it securely.",
     "recommend-use": "NEVER use your password/owner key on untrusted apps.",
@@ -359,7 +359,7 @@
     "votes": "Votes:",
     "transfers": "Transfers:",
     "reblogs-follows": "Reblogs/Follows:",
-    "rc-error": "You cannot delegate below 5bn RC"
+    "rc-error": "Vous ne pouvez pas déléguer en dessous de 5bn RC"
   },
   "trending-tags": {
     "title": "Topics"
@@ -2159,7 +2159,7 @@
       "can-change-username-header": "Can I change my username?",
       "can-change-username-body": "<p>Les noms des comptes clients sur Ecency et la blockchain Hive ne peuvent pas être changés. Si vous souhaitez un nouveau nom de compte, vous pouvez créer un nouveau compte.</p>",
       "can-delete-account-header": "Can I delete or deactivate my account?",
-      "can-delete-account-body": "<p>Accounts on Ecency cannot be deactivated or deleted. The account, along with all of its activity, is permanently stored in the Hive blockchain.</p>",
+      "can-delete-account-body": "<p>Les comptes Ecency ne peuvent pas être désactivés ou supprimés. Le compte, ainsi que toute son activité, est stocké en permanence dans la blockchain Hive.</p>",
       "different-reward-choices-header": "What are the differences in Reward types?",
       "different-reward-choices-body": "<p>In publishing settings section, you can see 3 different Reward types/choices.<ul><li>50%/50% - This rewards in half Hive Power, and half liquid HIVE / Hive Dollars. The ratio of liquid HIVE to Hive Dollars rewarded is based on network conditions at the time of payout. This is the default payout option.</li><li>Power Up 100% - This option rewards the post in 100% Hive Power.</li><li>Decline Payout - Use this option to receive no post rewards. Votes will affect the post's position on the trending ranking but no rewards are paid from Hive's reward pool. Replies made to the post are still eligible for rewards.</li></ul></p>",
       "how-exchange-work-header": "How token exchange works?",
@@ -2756,7 +2756,7 @@
     "three-speak-upload": "Upload and paste",
     "three-speak-gallery": "From 3Speak",
     "video-by-link": "Add video by link",
-    "video-link-hint": "Paste the link below and we will try to identify it (YouTube, 3Speak, Twitch, Vimeo). Other videos may be added as a regular link.",
+    "video-link-hint": "Collez le lien ci-dessous et nous essaierons de l'identifier (YouTube, 3Speak, Twitch, Vimeo). D'autres vidéos peuvent être ajoutées comme un lien régulier.",
     "video-link-label": "Video link",
     "get-started": {
       "title": "Meet new publishing experience",
@@ -2783,7 +2783,7 @@
       "success-description": "That's it! Keep making content on Ecency",
       "success-text": "Post will be published in few mintues or scheduled to specific date."
     },
-    "no-image-found": "Only image files are supported",
+    "no-image-found": "Seuls les fichiers image sont pris en charge",
     "upload-started": "Uploading image...",
     "back-to-old": "Back to Classic View",
     "clear": "Clear",
@@ -2810,7 +2810,7 @@
     "loading-post-hint": "Only title, content, tags and meta information could be changed after post publication",
     "upload-video-error-hint": "Video could be uploaded only while creating post not editing",
     "no-post-title": "Cannot find the post",
-    "no-post-hint": "It seems the post has an invalid link or doesn't exist. Please double-check the address.",
+    "no-post-hint": "Il semble que le message ait un lien invalide ou n'existe pas. Veuillez vérifier l'adresse.",
     "go-to-post": "Open original post",
     "updated-title": "Post has updated!",
     "updated-hint": "Post content has updated. Changes will be visible in few minutes.",
