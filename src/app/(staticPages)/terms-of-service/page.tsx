@@ -43,7 +43,7 @@ export default function TermsOfService() {
           <h2>2. Eligibility</h2>
           <p>
             The Service is not targeted toward, nor intended for use by, anyone under the age of 13.
-            You must be at least 13 years of age to access or use of the Service. If you are between
+            You must be at least 13 years of age to access or use the Service. If you are between
             13 and 18 years of age (or the age of legal majority where you reside), you may only
             access or use the Service under the supervision of a parent or legal guardian who agrees
             to be bound by this Agreement.
@@ -103,9 +103,9 @@ export default function TermsOfService() {
             or any website linked to by the Service.
           </p>
           <p>
-            5.3. We will not be responsible or liable to you for any loss and take no responsibility
-            for and will not be liable to you for any use of our Services, including but not limited
-            to any losses, damages or claims arising from: (a) User error such as forgotten
+            5.3. We take no responsibility and will not be liable to you for any use of our
+            Services, including but not limited to any losses, damages or claims arising from: (a)
+            User error such as forgotten
             passwords, incorrectly constructed transactions, or mistyped Hive blockchain addresses;
             (b) Server failure or data loss; (c) Corrupted Account files; (d) Unauthorized access to
             applications; (e) Any unauthorized third-party activities, including without limitation
@@ -192,9 +192,9 @@ export default function TermsOfService() {
           <p>
             9.2. Account and Private Keys. Should you agree to create an Account through our
             Service, we generate a cryptographic private and public key pair that are provided
-            solely to you and completely owned by you; provided however that we not store passwords
-            or Private Keys for our you. We never have access to your Private Key and do not custody
-            any Private Keys on your behalf, and therefore, assume no responsibility for the
+            solely to you and completely owned by you; provided however that we do not store
+            passwords or Private Keys for you. We never have access to your Private Key and do not
+            custody any Private Keys on your behalf, and therefore, assume no responsibility for the
             management of the Private Key tied to your Account. The Private Key uniquely match the
             Account name and must be used in connection with the Account to authorize the transfer
             of HIVE and Hive Dollars from that Account. You are solely responsible for maintaining
@@ -254,7 +254,7 @@ export default function TermsOfService() {
             9.9. Taxes. It is your responsibility to determine what, if any, taxes apply to the
             transactions for which you have submitted transaction details via the Services, and
             it is your responsibility to report and remit the correct tax to the appropriate tax
-            authority. You agree that the we are not responsible for determining whether taxes apply
+            authority. You agree that we are not responsible for determining whether taxes apply
             to your Hive blockchain transactions or for collecting, reporting, withholding, or
             remitting any taxes arising from any Hive blockchain transactions.
           </p>
@@ -279,18 +279,18 @@ export default function TermsOfService() {
           </p>
           <p>
             12.2. If you do not maintain a backup of your Account data outside of the Services, you
-            will be may not be able to access HIVE, Hive Dollars and Hive Power associated with any
-            Account maintained in your Account if we discontinue or deprecate the Services.
+            may not be able to access HIVE, Hive Dollars and Hive Power associated with any Account
+            maintained in your Account if we discontinue or deprecate the Services.
           </p>
           <h2>13. Suspension or Termination of Service.</h2>
           <p>
             13.1. We may suspend or terminate your access to the Services in our sole discretion,
-            immediately and without prior notice, and delete or deactivate your account and all
-            related information and files in such without cost to you, including, for instance, if
+            immediately and without prior notice, and may delete or deactivate your account along
+            with all related information and files without cost to you, including, for instance, if
             you breach any term of this Agreement. In the event of termination, your access to the
-            funds in your account will require you access to the Hive blockchain via the command
-            line API or third party tool, and will require you to have access to your backup of your
-            Account data including your Account and Private Keys.
+            funds in your account will require you to access the Hive blockchain via the command
+            line API or a third-party tool, and will require you to have access to your backup of
+            your Account data including your Account and Private Keys.
           </p>
           <h2>14. User Conduct</h2>
           <p>
@@ -323,7 +323,7 @@ export default function TermsOfService() {
           </p>
           <h2>15. Copyright Complaints, the DMCA, and Takedowns</h2>
           <p>
-            15.1 We will respond to legitimate requests under the Digital Millennium Copyright Act
+            15.1. We will respond to legitimate requests under the Digital Millennium Copyright Act
             (&quot;DMCA&quot;), and we retain the right to remove access to user content provided
             via the Service that we deem to be infringing the copyright of others. If you become
             aware of user content on the Service that infringes your copyright rights, you may
@@ -456,21 +456,23 @@ export default function TermsOfService() {
           <h2>19. Limitation of liability</h2>
           <p>
             To the fullest extent permitted by applicable law, in no event shall this site’s
-            operators or any related party, that includes but is not limited to, subsidiaries,
-            vendors, or contractors, be liable for any special, indirect, incidental, consequential,
-            exemplary or punitive damages, or any other damages of any kind, including, but not
-            limited to, loss of use, loss of profits or loss of data, whether in an action in
-            contract, tort (including, but not limited to, negligence) or otherwise, arising out of,
-            or in any way connected with, the use of, or inability to use, the Service or the Hive
-            Content. To the fullest extent permitted by applicable law, in no event shall the
-            aggregate liability of this site’s operators or any related party, whether in contract,
-            warranty, tort (including negligence, whether active, passive or imputed), product
-            liability, strict liability or other theory, arising out of or relating to the use of or
-            inability to use of the Service.
-            Ecency provides a platform for users to share content but does not guarantee the accuracy,
-            integrity, or quality of such content. Under no circumstances will Ecency be liable for any content,
-            including, but not limited to, any errors or omissions, or for any loss or damage incurred as a result
-            of the use of any content posted, emailed, transmitted, or otherwise made available through Ecency.
+            operators or any related party, including but not limited to subsidiaries, vendors, or
+            contractors, be liable for any special, indirect, incidental, consequential, exemplary
+            or punitive damages, or any other damages of any kind, including, but not limited to,
+            loss of use, loss of profits or loss of data, whether in an action in contract, tort
+            (including, but not limited to, negligence) or otherwise, arising out of or in any way
+            connected with the use of, or inability to use, the Service or the Hive Content. To the
+            fullest extent permitted by applicable law, the aggregate liability of this site’s
+            operators or any related party, whether in contract, warranty, tort (including
+            negligence, whether active, passive or imputed), product liability, strict liability or
+            other theory, arising out of or relating to the use of or inability to use the Service
+            shall not exceed the greater of one hundred US dollars (US $100) or the amount you have
+            paid to us, if any, in the twelve months preceding the event giving rise to the
+            liability. Ecency provides a platform for users to share content but does not guarantee
+            the accuracy, integrity, or quality of such content. Under no circumstances will Ecency
+            be liable for any content, including, but not limited to, any errors or omissions, or
+            for any loss or damage incurred as a result of the use of any content posted, emailed,
+            transmitted, or otherwise made available through Ecency.
           </p>
           <p>
             Some jurisdictions do not allow the exclusion or limitation of certain damages, so some
@@ -504,7 +506,23 @@ export default function TermsOfService() {
             archive. By continuing to use the Services after a change to this agreement, you agree
             to those changes.
           </p>
-          <h2>24. Contact Information</h2>
+          <h2>24. Force Majeure</h2>
+          <p>
+            We shall not be liable for any failure or delay in performance of any obligation
+            under this Agreement to the extent such failure or delay is caused by events beyond
+            our reasonable control, including but not limited to acts of God, war, terrorism,
+            government actions, labor conditions, internet failures, or the unavailability of the
+            Hive blockchain or any other network.
+          </p>
+          <h2>25. Governing Law and Dispute Resolution</h2>
+          <p>
+            This Agreement and any dispute arising out of or related to it shall be governed by
+            the laws of the jurisdiction in which the site’s operators are established, without
+            regard to conflict of law principles. Any dispute arising under this Agreement shall be
+            settled through binding arbitration on an individual basis, and you waive any right to
+            participate in a class action or class-wide arbitration.
+          </p>
+          <h2>26. Contact Information</h2>
           <p>
             Notices to this site’s operators should be directed to <code>info@ecency.com</code>.
           </p>
