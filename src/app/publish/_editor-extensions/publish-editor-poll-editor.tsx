@@ -21,7 +21,7 @@ import i18next from "i18next";
 import { useMemo, useRef, useState } from "react";
 import { usePublishState } from "../_hooks";
 import { PublishEditorPollEditorSettings } from "./publish-editor-poll-editor-settings";
-import {addHours, format} from "date-fns";
+import dayjs from "@/utils/dayjs";
 
 export function PublishEditorPollEditor() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -31,7 +31,7 @@ export function PublishEditorPollEditor() {
   const [tab, setTab] = useState<"details" | "settings">("details");
 
   const formattedEndTime = useMemo(
-    () => (poll ? format(poll.endTime, "dd.MM.yyyy HH:mm") : ""),
+    () => (poll ? dayjs(poll.endTime).format("DD.MM.YYYY HH:mm") : ""),
     [poll]
   );
 
@@ -101,7 +101,7 @@ export function PublishEditorPollEditor() {
             <ModalBody>
               <Datepicker
                 value={poll?.endTime}
-                minDate={addHours(new Date(), 1)}
+                minDate={dayjs().add(1, "hour").toDate()}
                 onChange={(e) =>
                   setPoll({
                     ...poll,

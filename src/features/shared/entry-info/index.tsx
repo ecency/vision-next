@@ -1,4 +1,3 @@
-import moment from "moment";
 import "./_index.scss";
 import { accountReputation, parseDate } from "@/utils";
 import { Entry } from "@/entities";
@@ -14,8 +13,6 @@ interface Props {
 
 export const EntryInfo = ({ entry }: Props) => {
   const reputation = accountReputation(entry.author_reputation);
-  const published = moment(parseDate(entry.created, false));
-
   return (
     <div className="entry-info">
       <ProfileLink username={entry.author}>

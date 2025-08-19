@@ -1,7 +1,7 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { client } from "@/api/hive";
 import { Follow, FriendSearchResult } from "@/entities";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 import {getProfiles} from "@/api/bridge";
@@ -25,7 +25,7 @@ export const getFriendsQuery = (
       const accountNames = response.map((e) => (mode === "following" ? e.following : e.follower));
       const accounts = await getProfiles(accountNames);
       return accounts?.map((a) => {
-        const lastActive = moment(a.active);
+        const lastActive = dayjs(a.active);
         return {
           name: a.name,
           reputation: a.reputation!,
@@ -75,7 +75,7 @@ export const getSearchFriendsQuery = (username: string, mode: string, query: str
           return friend;
         }
 
-        const lastActive = moment(isMatch.active);
+        const lastActive = dayjs(isMatch.active);
 
         return {
           ...friend,

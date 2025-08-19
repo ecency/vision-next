@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import "./_index.scss";
 import { useGlobalStore } from "@/core/global-store";
 import { appleSvg, desktopSvg, eyeBoldSvg, eyeSvg, googleSvg } from "@ui/svg";
@@ -20,8 +20,8 @@ export function MarketData() {
 
   const [visible, setVisible] = useState(false);
 
-  const fromTs = moment().subtract(2, "days").format("X");
-  const toTs = moment().format("X");
+  const fromTs = dayjs().subtract(2, "day").format("X");
+  const toTs = dayjs().format("X");
 
   return (
     <div className="market-data">

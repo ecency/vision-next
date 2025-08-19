@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
@@ -26,7 +26,7 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
   const vPower = votingPower(account);
   const vPowerFixed = vPower.toFixed(2);
   const vPowerRecharge = powerRechargeTime(vPower);
-  const vPowerRechargeDate = moment().add(vPowerRecharge, "seconds");
+  const vPowerRechargeDate = dayjs().add(vPowerRecharge, "second");
 
   // Voting value
   const vValue = votingValue(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS, vPower * 100).toFixed(
@@ -35,13 +35,13 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
   const vValueFull = votingValue(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS, 10000).toFixed(3);
 
   // Join date
-  const created = moment.utc(account.created).format("LL");
+  const created = dayjs.utc(account.created).format("LL");
 
   // Last active
-  const lastVoteDate = moment.utc(account.last_vote_time);
-  const lastPostDate = moment.utc(account.last_post);
-  const createdDate = moment.utc(account.created);
-  const lastActive = moment.max(lastVoteDate, lastPostDate, createdDate);
+  const lastVoteDate = dayjs.utc(account.last_vote_time);
+  const lastPostDate = dayjs.utc(account.last_post);
+  const createdDate = dayjs.utc(account.created);
+  const lastActive = dayjs.max(lastVoteDate, lastPostDate, createdDate);
 
   // Down vote power
   const dvPower = downVotingPower(account);
@@ -50,7 +50,7 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
   const rcp = rcPower(rcAccount);
   const rcpFixed = rcp.toFixed(2);
   const rcpRecharge = powerRechargeTime(rcp);
-  const rcpRechargeDate = moment().add(rcpRecharge, "seconds");
+  const rcpRechargeDate = dayjs().add(rcpRecharge, "second");
 
   return (
     <div className="profile-info-tooltip-content [&>p]:mb-0 text-sm">

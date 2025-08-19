@@ -2,7 +2,7 @@ import { Client, RCAPI } from "@hiveio/dhive";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import SERVERS from "@/servers.json";
 import { dataLimit } from "./bridge";
-import { formatISO, subHours } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import {
   AccountFollowStats,
   AccountProfile,
@@ -59,8 +59,8 @@ export const getOpenOrder = (user: string): Promise<OpenOrdersData[]> =>
 
 export const getTradeHistory = (limit: number = 1000): Promise<OrdersDataItem[]> =>
   client.call("condenser_api", "get_trade_history", [
-    formatISO(subHours(Date.now(), 10)).split("+")[0],
-    formatISO(Date.now()).split("+")[0],
+    dayjs().subtract(10, "hour").utc().format("YYYY-MM-DDTHH:mm:ss"),
+    dayjs().utc().format("YYYY-MM-DDTHH:mm:ss"),
     limit
   ]);
 
@@ -71,8 +71,8 @@ export const getMarketHistory = (
 ): Promise<MarketCandlestickDataItem[]> =>
   client.call("condenser_api", "get_market_history", [
     seconds,
-    formatISO(startDate).split("+")[0],
-    formatISO(endDate).split("+")[0]
+    dayjs(startDate).utc().format("YYYY-MM-DDTHH:mm:ss"),
+    dayjs(endDate).utc().format("YYYY-MM-DDTHH:mm:ss")
   ]);
 
 export const getActiveVotes = (author: string, permlink: string): Promise<Vote[]> =>

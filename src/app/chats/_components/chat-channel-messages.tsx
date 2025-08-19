@@ -15,7 +15,7 @@ import {
 } from "@ecency/ns-query";
 import { groupMessages } from "../_utils";
 import { ChatFloatingDate } from "./chat-floating-date";
-import { differenceInCalendarDays } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import useDebounce from "react-use/lib/useDebounce";
 import { ForwardMessageDialog } from "./forward-message-dialog";
 import { UilCommentAltMessage, UilMessage } from "@tooni/iconscout-unicons-react";
@@ -89,7 +89,11 @@ export function ChatsChannelMessages({ publicMessages, currentChannel, isPage }:
       <div className="channel-messages" ref={channelMessagesRef}>
         {groupedMessages.map(([date, group], i) => (
           <div className="relative" key={date.getTime()}>
-            {(i > 0 ? differenceInCalendarDays(date, groupedMessages[i - 1][0]) : 1) ? (
+            {(i > 0
+            ? dayjs(date)
+                .startOf("day")
+                .diff(dayjs(groupedMessages[i - 1][0]).startOf("day"), "day")
+            : 1) ? (
               <ChatFloatingDate key={date.getTime()} currentDate={date} isPage={isPage} />
             ) : (
               <></>

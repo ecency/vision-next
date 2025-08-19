@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Datetime from "react-datetime";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
@@ -8,8 +8,8 @@ import i18next from "i18next";
 import { closeSvg, timeSvg } from "@ui/svg";
 
 interface Props {
-  date: Moment | null;
-  onChange: (date: Moment | null) => void;
+  date: Dayjs | null;
+  onChange: (date: Dayjs | null) => void;
 }
 
 interface DialogBodyProps extends Props {
@@ -17,11 +17,11 @@ interface DialogBodyProps extends Props {
 }
 
 export const DialogBody = (props: DialogBodyProps) => {
-  const [date, setDate] = useState<Moment>(
-    props.date || moment(moment().add(2, "hour").toISOString(true))
+  const [date, setDate] = useState<Dayjs>(
+    props.date || dayjs().add(2, "hour")
   );
   const [error, setError] = useState(false);
-  const todayTs = moment().hour(0).minute(0).second(0).milliseconds(0).format("x");
+  const todayTs = dayjs().hour(0).minute(0).second(0).millisecond(0).format("x");
 
   const rend = () => {
     return (
@@ -36,11 +36,11 @@ export const DialogBody = (props: DialogBodyProps) => {
               return d.format("x") >= todayTs;
             }}
             onChange={(date) => {
-              if ((date as Moment).format("x") <= moment().format("x")) {
+              if ((date as Dayjs).format("x") <= dayjs().format("x")) {
                 setError(true);
               } else {
                 setError(false);
-                setDate(date as Moment);
+                setDate(date as Dayjs);
               }
             }}
           />

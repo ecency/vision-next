@@ -2,7 +2,7 @@ import { BeneficiaryRoute, Entry } from "@/entities";
 import { extractMetaData, useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
 import { postBodySummary } from "@ecency/render-helper";
-import { addDays } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { usePublishPollState } from "./use-publish-poll-state";
@@ -157,7 +157,7 @@ export function usePublishState() {
         filters: {
           accountAge: 1
         },
-        endTime: addDays(new Date(), 1),
+        endTime: dayjs().add(1, "day").toDate(),
         interpretation: "number_of_votes"
       }),
     [poll, setPoll]

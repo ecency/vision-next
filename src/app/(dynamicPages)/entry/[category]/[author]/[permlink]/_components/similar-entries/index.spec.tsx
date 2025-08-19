@@ -46,8 +46,11 @@ jest.mock("../../api/search-api", () => ({
     })
 }));
 
-jest.mock("moment", () => () => ({
-  fromNow: () => "3 days ago"
+jest.mock("@/utils/dayjs", () => ({
+  __esModule: true,
+  default: () => ({
+    fromNow: () => "3 days ago"
+  })
 }));
 
 it("(1) No data.", async () => {

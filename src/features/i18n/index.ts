@@ -1,7 +1,7 @@
 import i18n from "i18next";
 import i18next from "i18next";
 
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import * as ls from "@/utils/local-storage";
 
 export const langOptions = [
@@ -119,7 +119,7 @@ export async function initI18next() {
   await i18next.changeLanguage(ls.get("lang") || ls.get("current-language"));
 
   i18n.on("languageChanged", function (lang) {
-    moment.locale(lang);
+    dayjs.locale(lang);
   });
 }
 

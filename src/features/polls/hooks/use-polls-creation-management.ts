@@ -2,7 +2,7 @@
 
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { useEffect, useMemo, useState } from "react";
-import { addDays, isBefore } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import { PollSnapshot } from "../components";
 import { PREFIX } from "@/utils/local-storage";
 
@@ -11,7 +11,7 @@ export function usePollsCreationManagement(poll?: PollSnapshot) {
   const [endTime, setEndTime, clearEndTime] = useLocalStorage(PREFIX + "_plls_et", "00:00");
   const [endDate, setEndDate, clearEndDate] = useLocalStorage(
     PREFIX + "_plls_ed",
-    addDays(new Date(), 7),
+    dayjs().add(7, "day").toDate(),
     {
       raw: false,
       deserializer: (v: string) => new Date(v),
@@ -35,7 +35,7 @@ export function usePollsCreationManagement(poll?: PollSnapshot) {
     return choices.some((c) => !c) || hasDuplicates;
   }, [choices]);
   const isExpiredEndDate = useMemo(
-    () => (endDate ? isBefore(endDate, new Date()) : false),
+    () => (endDate ? dayjs(endDate).isBefore(dayjs()) : false),
     [endDate]
   );
 

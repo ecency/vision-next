@@ -1,4 +1,4 @@
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 
 type Identifiable = Omit<any, "id"> & Required<{ id: string | number }>;
 
@@ -11,6 +11,6 @@ export function newDataComingPaginatedCondition(
   const prevOne = (prevData ?? [])[0];
   return (
     prevData?.length === 0 ||
-    moment(newCame?.[dateProperty]).isBefore(moment(prevOne?.[dateProperty]))
+    dayjs(newCame?.[dateProperty]).isBefore(dayjs(prevOne?.[dateProperty]))
   );
 }

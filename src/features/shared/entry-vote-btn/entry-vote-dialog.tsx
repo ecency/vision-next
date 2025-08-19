@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import * as ls from "@/utils/local-storage";
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
@@ -85,10 +85,9 @@ export function EntryVoteDialog({
 
   const days = useMemo(() => {
     const createdDate = entry.created;
-    const past = moment(createdDate);
-    const now = moment(new Date());
-    const duration = moment.duration(now.diff(past));
-    return duration.asDays();
+    const past = dayjs(createdDate);
+    const now = dayjs();
+    return now.diff(past, "day", true);
   }, [entry]);
 
   const upSliderChanged = useCallback(
