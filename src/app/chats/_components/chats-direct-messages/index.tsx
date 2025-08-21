@@ -10,7 +10,7 @@ import {
   useKeysQuery
 } from "@ecency/ns-query";
 import { ChatFloatingDate } from "../chat-floating-date";
-import { differenceInCalendarDays } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import { groupMessages } from "../../_utils";
 import useDebounce from "react-use/lib/useDebounce";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu } from "@ui/dropdown";
@@ -57,9 +57,12 @@ export function ChatsDirectMessages(props: Props) {
   }, [directMessages, directMessagesQuery]);
 
   const getDifferenceInCalendarDays = useCallback(
-    (i: number, date: Date) => {
-      return i > 0 ? differenceInCalendarDays(date, groupedDirectMessages[i - 1][0]) : 1;
-    },
+    (i: number, date: Date) =>
+      i > 0
+        ? dayjs(date)
+            .startOf("day")
+            .diff(dayjs(groupedDirectMessages[i - 1][0]).startOf("day"), "day")
+        : 1,
     [groupedDirectMessages]
   );
 

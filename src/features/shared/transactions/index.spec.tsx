@@ -28,8 +28,11 @@ import {
   globalInstance
 } from "../../helper/test-helper";
 
-jest.mock("moment", () => () => ({
-  fromNow: () => "2 hours ago"
+jest.mock("@/utils/dayjs", () => ({
+  __esModule: true,
+  default: () => ({
+    fromNow: () => "2 hours ago"
+  })
 }));
 
 const defProps = {

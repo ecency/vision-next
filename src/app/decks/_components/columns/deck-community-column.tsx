@@ -10,7 +10,7 @@ import { DeckContentTypeColumnSettings } from "./deck-column-settings/deck-conte
 import usePrevious from "react-use/lib/usePrevious";
 import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import { Entry } from "@/entities";
 import { getPostsRanked } from "@/api/bridge";
 import i18next from "i18next";
@@ -57,7 +57,7 @@ export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
           .filter((e) => !e.stats?.is_pinned)
           .map((i) => ({ ...i, id: i.post_id }));
 
-        items = items.sort((a, b) => (moment(a.created).isAfter(moment(b.created)) ? -1 : 1));
+        items = items.sort((a, b) => (dayjs(a.created).isAfter(dayjs(b.created)) ? -1 : 1));
 
         if (items.length === 0) {
           setHasNextPage(false);

@@ -1,5 +1,5 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import moment, { Moment } from "moment/moment";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 import { search } from "@/api/search-api";
 import { SearchResponse } from "@/entities";
 
@@ -20,20 +20,20 @@ export const getControversialRisingQuery = (what: string, tag: string, enabled =
         };
       }
 
-      let sinceDate: Moment | undefined;
+      let sinceDate: Dayjs | undefined;
 
       switch (tag) {
         case "today":
-          sinceDate = moment().subtract("1", "day");
+          sinceDate = dayjs().subtract(1, "day");
           break;
         case "week":
-          sinceDate = moment().subtract("1", "week");
+          sinceDate = dayjs().subtract(1, "week");
           break;
         case "month":
-          sinceDate = moment().subtract("1", "month");
+          sinceDate = dayjs().subtract(1, "month");
           break;
         case "year":
-          sinceDate = moment().subtract("1", "year");
+          sinceDate = dayjs().subtract(1, "year");
           break;
         default:
           sinceDate = undefined;

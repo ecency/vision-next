@@ -1,15 +1,14 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { client } from "@/api/hive";
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 import { getPostQuery } from "@/api/queries/get-post-query";
 import { Entry } from "@/entities";
 
 const days = 7.0;
 const getDays = (createdDate: string): number => {
-  const past = moment(createdDate);
-  const now = moment(new Date());
-  const duration = moment.duration(now.diff(past));
-  return duration.asDays();
+  const past = dayjs(createdDate);
+  const now = dayjs();
+  return now.diff(past, "day", true);
 };
 
 export const getAccountVoteHistoryQuery = <F>(username: string, filters: F[] = [], limit = 20) =>

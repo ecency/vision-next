@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { addHours, setHours, setMinutes } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import { useCallback, useMemo } from "react";
 
 interface Props {
@@ -14,19 +14,19 @@ export function DatepickerCell({ day, value, calendarValue, onPick }: Props) {
     () => day.getMonth() !== calendarValue.getMonth(),
     [day, calendarValue]
   );
-  const isPast = useMemo(() => new Date().getTime() >= addHours(day, 1).getTime(), [day]);
+  const isPast = useMemo(() => dayjs().isAfter(dayjs(day).add(1, "hour")), [day]);
   const hasSelected = useMemo(
     () => value?.getDate() === day.getDate() && value?.getMonth() === day.getMonth(),
     [day, value]
   );
 
   const click = useCallback(() => {
-    if (new Date().getTime() <= addHours(day, 1).getTime()) {
+    if (dayjs().isBefore(dayjs(day).add(1, "hour"))) {
       onPick(
-        setMinutes(
-          setHours(day, (value ?? calendarValue).getHours()),
-          (value ?? calendarValue).getMinutes()
-        )
+        dayjs(day)
+          .hour((value ?? calendarValue).getHours())
+          .minute((value ?? calendarValue).getMinutes())
+          .toDate()
       );
     }
   }, [value, onPick, calendarValue, day]);

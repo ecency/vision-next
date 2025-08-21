@@ -13,8 +13,11 @@ import {
 import { ReactTestInstance } from "react-test-renderer";
 import { withStore } from "../../tests/with-store";
 
-jest.mock("moment", () => () => ({
-  fromNow: () => "in 5 days"
+jest.mock("@/utils/dayjs", () => ({
+  __esModule: true,
+  default: () => ({
+    fromNow: () => "in 5 days"
+  })
 }));
 
 const defProps = {

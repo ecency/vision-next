@@ -13,7 +13,7 @@ import {
   ThreadItemEntry,
   withDeckThreadsColumnManager
 } from "./deck-threads-manager";
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 import usePrevious from "react-use/lib/usePrevious";
 import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
@@ -96,7 +96,7 @@ const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
 
         let items = [...(sinceEntries ? data : []), ...response];
 
-        items.sort((a, b) => (moment(a.created).isAfter(b.created) ? -1 : 1));
+        items.sort((a, b) => (dayjs(a.created).isAfter(dayjs(b.created)) ? -1 : 1));
 
         const nextHostGroupedData = AVAILABLE_THREAD_HOSTS.reduce<Record<string, any>>(
           (acc, host) => ({

@@ -7,7 +7,7 @@ import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { Entry } from "@/entities";
-import { format, parseISO } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import { EntryPageStatsItem } from "./entry-page-stats-item";
 import { EntryPageStatsByDevices } from "./entry-page-stats-by-devices";
 import { EntryPageStatsByReferrers } from "./entry-page-stats-by-referrers";
@@ -25,7 +25,7 @@ export function EntryStats({ entry }: Props) {
     [entry.author, entry.permlink]
   );
   const createdDate = useMemo(
-    () => format(parseISO(entry.created), "dd MMM yyyy"),
+    () => dayjs(entry.created).format("DD MMM YYYY"),
     [entry.created]
   );
 

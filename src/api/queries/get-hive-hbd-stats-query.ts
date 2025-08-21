@@ -1,6 +1,6 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { getMarketHistory, getMarketStatistics } from "@/api/hive";
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 
 export const getHiveHbdStatsQuery = () =>
   EcencyQueriesManager.generateClientServerQuery({
@@ -9,7 +9,7 @@ export const getHiveHbdStatsQuery = () =>
       const stats = await getMarketStatistics();
       const dayChange = await getMarketHistory(
         86400,
-        moment().subtract(1, "days").toDate(),
+        dayjs().subtract(1, "day").toDate(),
         new Date()
       );
       return {

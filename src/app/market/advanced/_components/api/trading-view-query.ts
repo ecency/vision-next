@@ -1,4 +1,4 @@
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 import { MarketCandlestickDataItem } from "@/entities";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -30,13 +30,13 @@ export function useTradingViewQuery(bucketSeconds: number) {
         low: non_hive.low / hive.low,
         high: non_hive.high / hive.high,
         volume: hive.volume,
-        time: Math.floor(moment(open).toDate().getTime() / 1000) as Time
+        time: Math.floor(dayjs(open).toDate().getTime() / 1000) as Time
       }));
     },
     initialPageParam: [
       // Fetch at least 8 hours or given interval
-      moment().subtract(Math.max(100 * bucketSeconds, 28_800), "seconds"),
-      moment()
+      dayjs().subtract(Math.max(100 * bucketSeconds, 28_800), "second"),
+      dayjs()
     ],
     getNextPageParam: (_, __, [prevStartDate]) => [
       prevStartDate.clone().subtract(Math.max(100 * bucketSeconds, 28_800), "seconds"),

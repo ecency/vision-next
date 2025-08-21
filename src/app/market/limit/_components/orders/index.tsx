@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Pagination } from "@ui/pagination";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import { Table, Td, Th, Tr } from "@ui/table";
 import i18next from "i18next";
 import { OrdersDataItem, TradeDataItem } from "@/entities";
@@ -78,7 +78,7 @@ export const Orders = ({ type, loading, data, onPriceClick }: Props) => {
                 ? (item as TradeDataItem).current_pays.replace(" HIVE", "")
                 : (item as TradeDataItem).open_pays.replace(" HIVE", ""),
             key2: stringPrice,
-            key1: moment
+            key1: dayjs
               .utc((item as TradeDataItem).date)
               .local()
               .fromNow()

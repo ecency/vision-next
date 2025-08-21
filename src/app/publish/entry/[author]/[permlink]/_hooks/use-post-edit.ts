@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { comment, formatError } from "@/api/operations";
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { useGlobalStore } from "@/core/global-store";
 import { Entry } from "@/entities";
@@ -72,7 +72,7 @@ export function usePostEdit(entry: Entry | undefined) {
           body,
           category: tags[0],
           json_metadata: jsonMeta,
-          updated: correctIsoDate(moment().toISOString())
+          updated: correctIsoDate(dayjs().toISOString())
         }
       ]);
 

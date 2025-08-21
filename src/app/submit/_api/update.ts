@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { comment, formatError } from "@/api/operations";
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 import { useThreeSpeakManager } from "../_hooks";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { useGlobalStore } from "@/core/global-store";
@@ -85,7 +85,7 @@ export function useUpdateApi(onClear: () => void) {
           body: buildBody(body),
           category: tags[0],
           json_metadata: jsonMeta,
-          updated: correctIsoDate(moment().toISOString())
+          updated: correctIsoDate(dayjs().toISOString())
         };
         updateEntryQueryData([entry]);
 

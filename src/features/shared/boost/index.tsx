@@ -8,7 +8,7 @@ import { Button } from "@ui/button";
 import { PrivateKey } from "@hiveio/dhive";
 import { error } from "../feedback";
 import { SearchByUsername } from "../search-by-username";
-import { isAfter } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import {
   getBoostPlusPricesQuery,
   getPointsQuery,
@@ -51,7 +51,7 @@ export function BoostDialog({ onHide }: Props) {
   const isAlreadyBoosted = useMemo(
     () =>
       alreadyBoostAccount && alreadyBoostAccount.expires
-        ? isAfter(alreadyBoostAccount.expires, new Date())
+        ? dayjs(alreadyBoostAccount.expires).isAfter(dayjs())
         : false,
     [alreadyBoostAccount]
   );

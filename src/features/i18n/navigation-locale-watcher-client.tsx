@@ -8,7 +8,7 @@ import { useCallback, useMemo } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import useUnmount from "react-use/lib/useUnmount";
 import i18next from "i18next";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 
 export function NavigationLocaleWatcherClient() {
   const params = useSearchParams();
@@ -20,7 +20,7 @@ export function NavigationLocaleWatcherClient() {
   const lang = useGlobalStore((state) => state.lang);
   const setLang = useGlobalStore((state) => state.setLang);
 
-  const localeChanged = useCallback((lang: string) => moment.locale(lang), []);
+  const localeChanged = useCallback((lang: string) => dayjs.locale(lang), []);
 
   useMount(() => {
     if (languageFromList && lang !== languageFromList.code) {

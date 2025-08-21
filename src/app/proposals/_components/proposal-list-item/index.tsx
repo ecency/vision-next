@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import moment, { now } from "moment";
+import dayjs from "@/utils/dayjs";
 import numeral from "numeral";
 import "./_index.scss";
 import { Proposal } from "@/entities";
@@ -38,9 +38,9 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
     [params, votes]
   );
 
-  const startDate = moment(new Date(proposal.start_date));
-  const endDate = moment(new Date(proposal.end_date));
-  const duration = endDate.diff(startDate, "days");
+  const startDate = dayjs(proposal.start_date);
+  const endDate = dayjs(proposal.end_date);
+  const duration = endDate.diff(startDate, "day");
 
   const votesHP =
     (Number(proposal.total_votes) / 1e12) * (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
@@ -51,7 +51,7 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
 
   const allPayment = dailyPayment.amount * duration;
   const strAllPayment = numeral(allPayment).format("0.0a");
-  const diff = endDate.diff(moment(now()), "days");
+  const diff = endDate.diff(dayjs(), "day");
   const remaining = diff < 0 ? 0 : diff;
 
   return isLoading ? (

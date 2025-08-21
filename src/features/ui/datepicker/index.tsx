@@ -4,19 +4,7 @@ import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { clsx } from "clsx";
-import {
-  addDays,
-  addHours,
-  addMonths,
-  endOfMonth,
-  endOfWeek,
-  setDay,
-  setHours,
-  setMinutes,
-  startOfMonth,
-  startOfWeek,
-  subMonths
-} from "date-fns";
+import dayjs from "@/utils/dayjs";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
 import { DatepickerCell } from "./datepicker-cell";
@@ -28,7 +16,9 @@ interface Props {
 }
 
 export function Datepicker(props: Props) {
-  const [calendarValue, setCalendarValue] = useState<Date>(setDay(props.value ?? new Date(), 1));
+  const [calendarValue, setCalendarValue] = useState<Date>(
+    dayjs(props.value ?? new Date()).day(1).toDate()
+  );
 
   const monthFormat = useMemo(() => Intl.DateTimeFormat(i18next.language, { month: "long" }), []);
   const currentMonth = useMemo(
@@ -48,20 +38,21 @@ export function Datepicker(props: Props) {
     [weekdaysFormat]
   );
   const monthDays = useMemo(() => {
-    const monthStartDate = startOfMonth(calendarValue);
-    const monthEndDate = endOfMonth(calendarValue);
+    const monthStartDate = dayjs(calendarValue).startOf("month");
+    const monthEndDate = dayjs(calendarValue).endOf("month");
 
-    const weekStartDate = addDays(startOfWeek(monthStartDate), 1);
-    const endWeekDate = addDays(endOfWeek(monthEndDate), 1);
+    const weekStartDate = monthStartDate.startOf("week").add(1, "day");
+    const endWeekDate = monthEndDate.endOf("week").add(1, "day");
 
-    const allDates = [weekStartDate];
-    const now = new Date();
+    const allDates: Date[] = [];
+    const nowHour = dayjs().hour();
 
-    let temp = new Date(weekStartDate.toISOString());
-    while (temp.getDate() !== endWeekDate.getDate() || temp.getMonth() !== endWeekDate.getMonth()) {
-      temp = setHours(addDays(temp, 1), now.getHours());
-      allDates.push(temp);
+    let temp = weekStartDate.clone();
+    while (temp.date() !== endWeekDate.date() || temp.month() !== endWeekDate.month()) {
+      allDates.push(temp.toDate());
+      temp = temp.add(1, "day").hour(nowHour);
     }
+    allDates.push(temp.toDate());
     return allDates;
   }, [calendarValue]);
 
@@ -78,7 +69,7 @@ export function Datepicker(props: Props) {
           <Button
             size="xs"
             appearance="gray"
-            onClick={() => setCalendarValue(subMonths(calendarValue, 1))}
+            onClick={() => setCalendarValue(dayjs(calendarValue).subtract(1, "month").toDate())}
             icon={<UilArrowLeft />}
           />
           <Button size="xs" appearance="gray" onClick={() => setCalendarValue(new Date())}>
@@ -87,7 +78,7 @@ export function Datepicker(props: Props) {
           <Button
             size="xs"
             appearance="gray"
-            onClick={() => setCalendarValue(addMonths(calendarValue, 1))}
+            onClick={() => setCalendarValue(dayjs(calendarValue).add(1, "month").toDate())}
             icon={<UilArrowRight />}
           />
         </div>
@@ -116,9 +107,13 @@ export function Datepicker(props: Props) {
         <FormControl
           type="select"
           className="max-w-[100px]"
-          value={(props.value ?? calendarValue).getHours()}
+          value={dayjs(props.value ?? calendarValue).hour()}
           onChange={(e) =>
-            props.onChange(setHours(props.value ?? calendarValue, (e.target as any).value))
+            props.onChange(
+              dayjs(props.value ?? calendarValue)
+                .hour(parseInt((e.target as any).value))
+                .toDate()
+            )
           }
         >
           {hours.map((hour) => (
@@ -130,9 +125,13 @@ export function Datepicker(props: Props) {
         <FormControl
           type="select"
           className="max-w-[100px]"
-          value={(props.value ?? calendarValue).getMinutes()}
+          value={dayjs(props.value ?? calendarValue).minute()}
           onChange={(e) =>
-            props.onChange(setMinutes(props.value ?? calendarValue, (e.target as any).value))
+            props.onChange(
+              dayjs(props.value ?? calendarValue)
+                .minute(parseInt((e.target as any).value))
+                .toDate()
+            )
           }
         >
           {minutes.map((min) => (

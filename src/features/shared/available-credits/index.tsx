@@ -9,7 +9,7 @@ import { autoUpdate, flip, shift, useFloating } from "@floating-ui/react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { PurchaseQrDialog } from "../purchase-qr";
@@ -24,7 +24,7 @@ interface Props {
 export const AvailableCredits = ({ username, className }: Props) => {
   const [rcpFixed, setRcpFixed] = useState(0);
   const [rcp, setRcp] = useState(0);
-  const [rcpRechargeDate, setRcpRechargeDate] = useState<Moment>(moment());
+  const [rcpRechargeDate, setRcpRechargeDate] = useState<Dayjs>(dayjs());
   const [delegated, setDelegated] = useState("0");
   const [receivedDelegation, setReceivedDelegation] = useState("0");
   const [commentAmount, setCommentAmount] = useState(0);
@@ -55,7 +55,7 @@ export const AvailableCredits = ({ username, className }: Props) => {
 
     setRcp(client.rc.calculateRCMana(account).current_mana);
     setRcpFixed(Math.floor(+rcPower(account)));
-    setRcpRechargeDate(moment().add(powerRechargeTime(rcPower(account)), "seconds"));
+    setRcpRechargeDate(dayjs().add(powerRechargeTime(rcPower(account)), "second"));
 
     const outGoing = rcValues.map((a: any) => a.delegated_rc);
     const delegated = outGoing[0];
