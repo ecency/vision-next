@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Datetime from "react-datetime";
+import ReactDatePicker from "react-datepicker";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
@@ -21,28 +21,31 @@ export const DialogBody = (props: DialogBodyProps) => {
     props.date || dayjs().add(2, "hour")
   );
   const [error, setError] = useState(false);
-  const todayTs = dayjs().hour(0).minute(0).second(0).millisecond(0).format("x");
+  const today = dayjs().startOf("day");
 
   const rend = () => {
     return (
       <>
         <div className="picker">
-          <Datetime
-            open={true}
-            input={false}
-            initialValue={date}
-            timeFormat="HH:mm"
-            isValidDate={(d) => {
-              return d.format("x") >= todayTs;
-            }}
-            onChange={(date) => {
-              if ((date as Dayjs).format("x") <= dayjs().format("x")) {
+          <ReactDatePicker
+            selected={date.toDate()}
+            onChange={(d: Date | null) => {
+              if (!d) {
+                return;
+              }
+              const picked = dayjs(d);
+              if (picked.isSameOrBefore(dayjs())) {
                 setError(true);
               } else {
                 setError(false);
-                setDate(date as Dayjs);
+                setDate(picked);
               }
             }}
+            showTimeInput
+            timeInputLabel="Time:"
+            dateFormat="yyyy-MM-dd HH:mm"
+            minDate={today.toDate()}
+            inline
           />
         </div>
         {error && (
