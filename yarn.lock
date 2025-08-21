@@ -1279,10 +1279,10 @@
   dependencies:
     long "~3"
 
-"@ecency/ns-query@^1.2.11-next":
-  version "1.2.11-next"
-  resolved "https://registry.npmjs.org/@ecency/ns-query/-/ns-query-1.2.11-next.tgz"
-  integrity sha512-50+E6M7YS6bxKmP85WJCqPsLrS7iuKMWSYQuZapCHSzDsR5CyFSHy/8d4WfJjtihFDty406JBdNNIy1/ubiIKw==
+"@ecency/ns-query@^1.2.12-next":
+  version "1.2.12-next"
+  resolved "https://registry.yarnpkg.com/@ecency/ns-query/-/ns-query-1.2.12-next.tgz#da4502a895eaef4bdc498b435c2b7e60ddc43e44"
+  integrity sha512-KlbN394JWiJIPnwwLWt89ErHdJWb5xkNfrS28xN0CtgWp1/45UJbbjSHPcEJJIwqnsLm/z20pFzzvJkLAR2PfQ==
   dependencies:
     nostr-tools "^1.17.0"
 

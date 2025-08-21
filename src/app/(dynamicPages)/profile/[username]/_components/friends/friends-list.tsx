@@ -5,6 +5,7 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import { FormControl, InputGroup } from "@ui/input";
 import { Spinner } from "@ui/spinner";
+import { LinearProgress } from "@/features/shared";
 import { formatTimeDIfference } from "@/utils";
 import { FilterFriendsType } from "@/enums";
 import { FilterFriends } from "./filter-friends";
@@ -25,20 +26,20 @@ export const FriendsList = ({ account, mode }: Props) => {
 
   const {
     data,
-    isLoading: isFriendsLoading,
+    isFetching: isFriendsFetching,
     fetchNextPage
   } = getFriendsQuery(account.name, mode, {
     limit: loadLimit
   }).useClientQuery();
   const {
     data: searchData,
-    isLoading: isSearchLoading,
+    isFetching: isSearchFetching,
     refetch: fetchSearchResults
   } = getSearchFriendsQuery(account.name, mode, query).useClientQuery();
 
-  const isLoading = useMemo(
-    () => isFriendsLoading || isSearchLoading,
-    [isFriendsLoading, isSearchLoading]
+  const isFetching = useMemo(
+    () => isFriendsFetching || isSearchFetching,
+    [isFriendsFetching, isSearchFetching]
   );
   const dataFlow = useMemo(
     () =>
@@ -81,8 +82,8 @@ export const FriendsList = ({ account, mode }: Props) => {
         fetchSearchResults();
       }
     },
-    500,
-    [query]
+    2000,
+    [query, fetchSearchResults]
   );
 
   return (
@@ -91,9 +92,11 @@ export const FriendsList = ({ account, mode }: Props) => {
         <FilterFriends updateFilterType={(v) => setType(v)} />
       </div>
 
+      {isFetching && dataFlow.length === 0 && <LinearProgress />}
+
       <div className="friends-list">
         <div className="friend-search-box">
-          <InputGroup prepend={isLoading ? <Spinner className="w-3.5 h-3.5" /> : "@"}>
+          <InputGroup prepend={isFetching ? <Spinner className="w-3.5 h-3.5" /> : "@"}>
             <FormControl
               type="text"
               value={query}
@@ -109,7 +112,7 @@ export const FriendsList = ({ account, mode }: Props) => {
         </div>
 
         <div className="list-body">
-          {!isLoading && dataFlow?.length === 0 && (
+          {!isFetching && dataFlow?.length === 0 && (
             <div className="empty-list"> {i18next.t("g.empty-list")}</div>
           )}
 
@@ -129,9 +132,11 @@ export const FriendsList = ({ account, mode }: Props) => {
         </div>
       </div>
 
+      {isFetching && dataFlow.length > 0 && <LinearProgress />}
+
       {!query && dataFlow.length > 1 && (
         <div className="load-more">
-          <Button disabled={isLoading || !hasMore} onClick={() => fetchNextPage()}>
+          <Button disabled={isFetching || !hasMore} onClick={() => fetchNextPage()}>
             {i18next.t("g.load-more")}
           </Button>
         </div>
