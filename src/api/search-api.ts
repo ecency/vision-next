@@ -61,7 +61,7 @@ export const searchFollower = async (
       const lastActive = dayjs(a.active);
       return {
         name: a.name,
-        full_name: a.profile?.name || "",
+        full_name: a.metadata.profile?.name || "",
         reputation: a.reputation!,
         lastSeen: lastActive.fromNow()
       } as FriendSearchResult;
@@ -93,7 +93,7 @@ export const searchFollowing = async (
       const lastActive = dayjs(a.active);
       return {
         name: a.name,
-        full_name: a.profile?.name || "",
+        full_name: a.metadata.profile?.name || "",
         reputation: a.reputation!,
         lastSeen: lastActive.fromNow()
       } as FriendSearchResult;
