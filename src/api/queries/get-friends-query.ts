@@ -70,7 +70,7 @@ export const getSearchFriendsQuery = (username: string, mode: string, query: str
           const lastActive = dayjs(a.active);
           return {
             name: a.name,
-            full_name: a.profile?.name || "",
+            full_name: a.metadata.profile?.name || "",
             reputation: a.reputation!,
             lastSeen: lastActive.fromNow()
           } as FriendSearchResult;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ReactDatePicker from "react-datepicker";
+import { DayPicker } from "react-day-picker";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
@@ -27,13 +27,17 @@ export const DialogBody = (props: DialogBodyProps) => {
     return (
       <>
         <div className="picker">
-          <ReactDatePicker
+          <DayPicker
+            mode="single"
             selected={date.toDate()}
-            onChange={(d: Date | null) => {
+            onSelect={(d) => {
               if (!d) {
                 return;
               }
-              const picked = dayjs(d);
+              const picked = date
+                .set("year", d.getFullYear())
+                .set("month", d.getMonth())
+                .set("date", d.getDate());
               if (picked.isSameOrBefore(dayjs())) {
                 setError(true);
               } else {
@@ -41,11 +45,22 @@ export const DialogBody = (props: DialogBodyProps) => {
                 setDate(picked);
               }
             }}
-            showTimeInput
-            timeInputLabel="Time:"
-            dateFormat="yyyy-MM-dd HH:mm"
-            minDate={today.toDate()}
-            inline
+            disabled={{ before: today.toDate() }}
+            captionLayout="dropdown"
+          />
+          <input
+            type="time"
+            value={date.format("HH:mm")}
+            onChange={(e) => {
+              const [h, m] = e.target.value.split(":").map(Number);
+              const picked = date.set("hour", h).set("minute", m);
+              if (picked.isSameOrBefore(dayjs())) {
+                setError(true);
+              } else {
+                setError(false);
+                setDate(picked);
+              }
+            }}
           />
         </div>
         {error && (

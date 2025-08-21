@@ -195,30 +195,7 @@ a[target="_blank"] {
 // Additional libraries
 
 // Date picker
-@import "react-datepicker/dist/react-datepicker.css";
-// dark theme
-.dark {
-  .react-datepicker,
-  .react-datepicker__header {
-    @apply bg-blue-metallic;
-    border: 1px solid;
-    @apply border-dark-default;
-  }
-
-  .react-datepicker__day:hover,
-  .react-datepicker__time-list-item:hover {
-    @apply bg-blue-dusky;
-  }
-
-  .react-datepicker__day--outside-month {
-    @apply text-silver;
-  }
-
-  .react-datepicker__day--disabled,
-  .react-datepicker__time-list-item--disabled {
-    @apply text-gray-steel;
-  }
-}
+@import "react-day-picker/dist/style.css";
 
 .page-item {
   &.disabled .page-link {
