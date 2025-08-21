@@ -54,7 +54,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
     const createdAt = parseDate(entry.created ?? new Date().toISOString());
     const updatedAt = parseDate(entry.updated ?? entry.last_update ?? entry.created ?? new Date().toISOString());
     const canonical = entryCanonical(entry);
-    const finalCanonical = canonical && canonical !== fullUrl ? canonical : undefined;
+    const finalCanonical = canonical ?? fullUrl;
 
     return {
       title,
@@ -80,11 +80,9 @@ export async function generateEntryMetadata(username: string, permlink: string):
         "article:author": authorUrl,
         "og:updated_time": updatedAt.toISOString(),
       },
-      ...(finalCanonical && {
-        alternates: {
-          canonical: finalCanonical,
-        },
-      }),
+      alternates: {
+        canonical: finalCanonical,
+      },
     };
   } catch (e) {
     console.error("generateEntryMetadata failed:", e, { username, permlink });
