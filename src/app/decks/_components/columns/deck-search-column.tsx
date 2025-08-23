@@ -6,7 +6,7 @@ import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
 import { DeckGridContext } from "../deck-manager";
 import { DeckPostViewer } from "./content-viewer";
 import { DeckSearchColumnSettings } from "./deck-column-settings/deck-search-column-settings";
-import moment, { Moment } from "moment/moment";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 import { DateOpt } from "../consts";
 import usePrevious from "react-use/lib/usePrevious";
 import { search } from "@/api/search-api";
@@ -61,18 +61,18 @@ export const DeckSearchColumn = ({ id, settings, draggable }: Props) => {
     }
 
     try {
-      let sinceDate: undefined | Moment;
+      let sinceDate: undefined | Dayjs;
 
       if (settings.date) {
         switch (settings.date) {
           case DateOpt.W:
-            sinceDate = moment().subtract("1", "week");
+            sinceDate = dayjs().subtract(1, "week");
             break;
           case DateOpt.M:
-            sinceDate = moment().subtract("1", "month");
+            sinceDate = dayjs().subtract(1, "month");
             break;
           case DateOpt.Y:
-            sinceDate = moment().subtract("1", "year");
+            sinceDate = dayjs().subtract(1, "year");
             break;
           default:
             sinceDate = undefined;

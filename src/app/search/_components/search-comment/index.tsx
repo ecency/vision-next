@@ -1,6 +1,6 @@
 import React, { Fragment, useMemo, useState } from "react";
 import numeral from "numeral";
-import moment from "moment";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 import "./_index.scss";
 import { DetectBottom, LinearProgress, SearchListItem } from "@/features/shared";
 import i18next from "i18next";
@@ -33,16 +33,16 @@ export function SearchComment({ disableResults }: Props) {
   const params = useSearchParams();
 
   const since = useMemo(() => {
-    let sinceDate;
+    let sinceDate: Dayjs | undefined;
     switch (params?.get("date") ?? DateOpt.M) {
       case DateOpt.W:
-        sinceDate = moment().subtract("1", "week");
+        sinceDate = dayjs().subtract(1, "week");
         break;
       case DateOpt.M:
-        sinceDate = moment().subtract("1", "month");
+        sinceDate = dayjs().subtract(1, "month");
         break;
       case DateOpt.Y:
-        sinceDate = moment().subtract("1", "year");
+        sinceDate = dayjs().subtract(1, "year");
         break;
       default:
         sinceDate = undefined;

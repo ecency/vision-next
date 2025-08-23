@@ -13,17 +13,16 @@ import useLocalStorage from "react-use/lib/useLocalStorage";
 import { PREFIX } from "@/utils/local-storage";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 
-export interface Props {
+interface Props {
   entry: Entry;
-  isEdit: boolean;
 }
 
-export function EntryPageEdit({ entry: initialEntry, isEdit }: Props) {
+export function EntryPageEdit({ entry: initialEntry }: Props) {
   const router = useRouter();
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
 
   const [_, __, clearText] = useLocalStorage(PREFIX + "_c_t", "");
-  const { commentsInputRef } = useContext(EntryPageContext);
+  const { commentsInputRef, isEdit, setIsEdit } = useContext(EntryPageContext);
   const [isLoading, setIsLoading] = useState(false);
 
   const { mutateAsync: updateReplyApi, isPending } = useUpdateReply(entry, async () => {
@@ -58,7 +57,7 @@ export function EntryPageEdit({ entry: initialEntry, isEdit }: Props) {
           entry={entry!!}
           onSubmit={updateReply}
           cancellable={true}
-          onCancel={() => router.back()}
+          onCancel={() => setIsEdit(false)}
           inProgress={isLoading || isPending}
           autoFocus={true}
           inputRef={commentsInputRef}

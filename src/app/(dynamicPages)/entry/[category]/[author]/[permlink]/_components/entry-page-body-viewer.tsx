@@ -1,29 +1,27 @@
 "use client";
 
 import { Entry } from "@/entities";
-import { PollWidget, useEntryPollExtractor } from "@/features/polls";
-import { EntryPageEdit } from "./entry-page-edit";
 import { SelectionPopover } from "./selection-popover";
 import { EntryPageViewerManager } from "./entry-page-viewer-manager";
 import { setupPostEnhancements } from "@ecency/renderer";
 import { Tweet } from "react-tweet";
-import {useEffect, useState} from "react";
+import { useContext, useEffect, useState } from "react";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
+import { EntryPageContext } from "./context";
+import { EntryPageEdit } from "./entry-page-edit";
 
 interface Props {
   entry: Entry;
-  rawParam: string;
-  showIfNsfw: boolean;
-  isEdit: boolean;
 }
 
-export function EntryPageBodyViewer({ entry, rawParam, showIfNsfw, isEdit }: Props) {
-
+export function EntryPageBodyViewer({ entry }: Props) {
   const [signingOperation, setSigningOperation] = useState<string>();
-
-  const preparedEntryBody = entry.body.replace(/<a id="/g, '<a data-id="');
+  const { isRawContent, isEdit } = useContext(EntryPageContext);
 
   useEffect(() => {
+    if (isRawContent || isEdit) {
+      return;
+    }
     const el = document.getElementById("post-body");
     if (el) {
       setupPostEnhancements(el, {
@@ -33,23 +31,21 @@ export function EntryPageBodyViewer({ entry, rawParam, showIfNsfw, isEdit }: Pro
         TwitterComponent: Tweet,
       });
     }
-  }, []);
+  }, [isRawContent, isEdit]);
 
   return (
-      <EntryPageViewerManager entry={entry}>
-        {!isEdit && (
-            <>
-              <SelectionPopover postUrl={entry.url}>
-                {/* nothing here, SSR will render #post-body */}
-              </SelectionPopover>
-            </>
-        )}
-        <EntryPageEdit entry={entry} isEdit={isEdit} />
-        <TransactionSigner
-            show={!!signingOperation}
-            onHide={() => setSigningOperation(undefined)}
-            operation={signingOperation}
-        />
-      </EntryPageViewerManager>
+    <EntryPageViewerManager>
+      {!isEdit && (
+        <SelectionPopover postUrl={entry.url}>
+          {/* nothing here, SSR will render #post-body */}
+        </SelectionPopover>
+      )}
+      {isEdit && entry.parent_author && <EntryPageEdit entry={entry} />}
+      <TransactionSigner
+        show={!!signingOperation}
+        onHide={() => setSigningOperation(undefined)}
+        operation={signingOperation}
+      />
+    </EntryPageViewerManager>
   );
 }

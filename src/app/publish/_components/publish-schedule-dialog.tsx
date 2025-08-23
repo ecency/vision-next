@@ -2,7 +2,7 @@ import { usePublishState } from "@/app/publish/_hooks";
 import { Alert, Datepicker } from "@/features/ui";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
-import { addHours, format } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
 
@@ -17,7 +17,7 @@ export function PublishScheduleDialog({ show, setShow }: Props) {
   const [state, setState] = useState(schedule);
 
   const isInPast = useMemo(
-    () => (state ? state.getTime() <= addHours(new Date(), 1).getTime() : false),
+    () => (state ? dayjs(state).isSameOrBefore(dayjs().add(1, "hour")) : false),
     [state]
   );
 
@@ -27,10 +27,14 @@ export function PublishScheduleDialog({ show, setShow }: Props) {
       <ModalBody>
         <Alert className="mb-4">{i18next.t("publish.schedule-hint")}</Alert>
         <div className="p-2 md:p-4 border border-[--border-color] rounded-xl">
-          <Datepicker value={state} onChange={setState} minDate={addHours(new Date(), 1)} />
+          <Datepicker
+            value={state}
+            onChange={setState}
+            minDate={dayjs().add(1, "hour").toDate()}
+          />
         </div>
         <div className="py-4">
-          {state && i18next.t("publish.schedule-to", { n: format(state, "dd/MM/yyyy HH:mm") })}
+          {state && i18next.t("publish.schedule-to", { n: dayjs(state).format("DD/MM/YYYY HH:mm") })}
           {!state && i18next.t("publish.no-schedule")}
         </div>
         {isInPast && <Alert appearance="danger">{i18next.t("publish.schedule-error")}</Alert>}

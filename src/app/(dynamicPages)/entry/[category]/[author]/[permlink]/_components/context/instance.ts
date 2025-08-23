@@ -18,6 +18,9 @@ interface ContextState {
   isRawContent: boolean;
   setIsRawContent: (value: boolean) => void;
 
+  isEdit: boolean;
+  setIsEdit: (value: boolean) => void;
+
   selection: string;
   setSelection: (value: string) => void;
   commentsInputRef?: MutableRefObject<HTMLInputElement | null>;
@@ -34,6 +37,8 @@ export const DEFAULT_CONTEXT: ContextState = {
   setShowIfNsfw: () => {},
   isRawContent: false,
   setIsRawContent: () => {},
+  isEdit: false,
+  setIsEdit: () => {},
   selection: "",
   setSelection: () => {}
 };

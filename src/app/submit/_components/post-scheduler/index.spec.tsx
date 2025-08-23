@@ -1,6 +1,6 @@
 import React from "react";
 
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 
 import PostSchedulerDialog from "./index";
 
@@ -20,7 +20,7 @@ it("(1) Render with null date", () => {
 it("(2) Render with date", () => {
   const props = {
     ...defProps,
-    date: moment("2020-12-12T12:12:12")
+    date: dayjs("2020-12-12T12:12:12")
   };
   const renderer = TestRenderer.create(<PostSchedulerDialog {...props} />);
   expect(renderer.toJSON()).toMatchSnapshot();

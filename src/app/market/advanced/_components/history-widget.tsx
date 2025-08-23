@@ -1,6 +1,6 @@
 import { MarketAdvancedModeWidget } from "./market-advanced-mode-widget";
 import React, { useEffect, useState } from "react";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 import { AutoSizer, List } from "react-virtualized";
 import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
 import { OrdersData } from "@/entities";
@@ -19,7 +19,7 @@ interface Item {
   amount: number;
   price: number;
   action: "sell" | "buy";
-  date: Moment;
+  date: Dayjs;
 }
 
 export const HistoryWidget = ({
@@ -40,7 +40,7 @@ export const HistoryWidget = ({
         amount: ask.hive / 1000,
         price: ask.hbd / 1000,
         action: "sell",
-        date: moment(ask.created)
+        date: dayjs(ask.created)
       })
     );
     history.bids.forEach((bid) =>
@@ -48,7 +48,7 @@ export const HistoryWidget = ({
         amount: bid.hive / 1000,
         price: bid.hbd / 1000,
         action: "buy",
-        date: moment(bid.created)
+        date: dayjs(bid.created)
       })
     );
 
@@ -56,11 +56,11 @@ export const HistoryWidget = ({
     setItems(newItems);
   }, [history]);
 
-  const getDate = (date: Moment) => {
-    const now = moment(new Date());
-    const isSameDay = now.isSame(date, "days");
-    const isSameMonth = now.isSame(date, "months");
-    const isSameYear = now.isSame(date, "years");
+  const getDate = (date: Dayjs) => {
+    const now = dayjs();
+    const isSameDay = now.isSame(date, "day");
+    const isSameMonth = now.isSame(date, "month");
+    const isSameYear = now.isSame(date, "year");
 
     if (isSameDay && isSameMonth && isSameYear) {
       return date.format("HH:mm:ss");

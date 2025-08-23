@@ -13,7 +13,7 @@ import {
   UilTrashAlt
 } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
-import { format, setHours, setMinutes } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import i18next from "i18next";
 
 export interface PollSnapshot {
@@ -72,7 +72,10 @@ export function PollsCreation({
     clearAll
   } = usePollsCreationManagement(existingPoll);
 
-  const formatDate = useMemo(() => format(endDate ?? new Date(), "yyyy-MM-dd"), [endDate]);
+  const formatDate = useMemo(
+    () => dayjs(endDate ?? new Date()).format("YYYY-MM-DD"),
+    [endDate]
+  );
   const isInvalidEndTime = useMemo(
     () => !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(endTime ?? ""),
     [endTime]
@@ -291,7 +294,10 @@ export function PollsCreation({
 
                   onAdd({
                     title,
-                    endTime: setMinutes(setHours(endDate, +hours), +mins),
+                    endTime: dayjs(endDate)
+                      .hour(+hours)
+                      .minute(+mins)
+                      .toDate(),
                     choices,
                     voteChange: !!voteChange,
                     hideVotes: !!hideVotes,

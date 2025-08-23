@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
 import React from "react";
@@ -20,7 +20,7 @@ export function ChatMessageStatus({ message, showDate, currentContact, currentCh
     <>
       {message.sent == 1 && showDate && (
         <div className="text-gray-600 dark:text-gray-400 text-xs px-2">
-          {format(new Date(message.created * 1000), "HH:mm")}
+          {dayjs(message.created * 1000).format("HH:mm")}
         </div>
       )}
       {message.sent === 0 && <Spinner className="w-3 h-3 mx-2" />}

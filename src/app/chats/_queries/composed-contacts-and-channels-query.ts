@@ -5,7 +5,7 @@ import {
   useNostrGetUserProfileQuery
 } from "@ecency/ns-query";
 import { useMemo } from "react";
-import { isAfter } from "date-fns";
+import dayjs from "@/utils/dayjs";
 
 export function useComposedContactsAndChannelsQuery() {
   const { publicKey } = useKeysQuery();
@@ -52,7 +52,7 @@ export function useComposedContactsAndChannelsQuery() {
           if (
             lastSeenDateA instanceof Date &&
             lastSeenDateB instanceof Date &&
-            isAfter(lastSeenDateA, lastSeenDateB)
+            dayjs(lastSeenDateA).isAfter(lastSeenDateB)
           ) {
             return -1;
           }

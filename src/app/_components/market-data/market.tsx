@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import React, { useEffect, useMemo, useRef } from "react";
 import numeral from "numeral";
 import ReactHighcharts from "react-highcharts";
@@ -62,7 +62,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
       useHTML: true,
       shadow: false,
       formatter: (({ chart }: any) => {
-        let date = moment(chart.hoverPoint.options.x).calendar();
+        let date = dayjs(chart.hoverPoint.options.x).calendar();
         let rate = chart.hoverPoint.options.y;
         return `<div><div>${i18next.t("g.when")}: <b>${date}</b></div><div>${i18next.t(
           "g.price"
@@ -148,7 +148,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
     const item = prices[index];
 
     const strPrice = numeral(item.price).format(formatter);
-    const strDate = moment(item.time).format("YYYY-MM-DD HH:mm:ss");
+    const strDate = dayjs(item.time).format("YYYY-MM-DD HH:mm:ss");
     const html = `<strong>${strPrice}</strong> ${strDate}`;
 
     const tooltip = node.querySelector(".tooltip") as HTMLElement;

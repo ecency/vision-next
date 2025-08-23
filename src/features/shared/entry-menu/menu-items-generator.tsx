@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { success } from "../feedback";
 import { Community, Entry, FullAccount, ROLES } from "@/entities";
 import { useCommunityPinCache } from "@/core/caches";
@@ -7,7 +7,7 @@ import { bullHornSvg } from "@ui/svg";
 import i18next from "i18next";
 import { clipboard } from "@/utils/clipboard";
 import { useGlobalStore } from "@/core/global-store";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MenuItem } from "@ui/dropdown";
 import { isCommunity, safeSpread } from "@/utils";
 import {
@@ -22,12 +22,12 @@ import {
   UilVolumeOff
 } from "@tooni/iconscout-unicons-react";
 import { EcencyConfigManager } from "@/config";
+import { EntryPageContext, DEFAULT_CONTEXT } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 
 export function useMenuItemsGenerator(
   entry: Entry,
   community: Community | null | undefined,
   separatedSharing: boolean,
-  toggleEdit: (() => void) | undefined,
   extraMenuItems?: MenuItem[]
 ) {
   const activeUser = useGlobalStore((state) => state.activeUser);
@@ -38,7 +38,7 @@ export function useMenuItemsGenerator(
 
   const [cross, setCross] = useState(false);
   const [share, setShare] = useState(false);
-  const [editHistory, setEditHistory] = useState(false);
+  const [editHistoryLocal, setEditHistoryLocal] = useState(false);
   const [delete_, setDelete_] = useState(false);
   const [pin, setPin] = useState(false);
   const [pinKey, setPinKey] = useState("");
@@ -49,6 +49,30 @@ export function useMenuItemsGenerator(
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { setIsEdit, editHistory: ctxEditHistory, setEditHistory: setEditHistoryCtx } =
+    useContext(EntryPageContext);
+
+  const isEntryPage = setEditHistoryCtx !== DEFAULT_CONTEXT.setEditHistory;
+  const editHistory = isEntryPage ? ctxEditHistory : editHistoryLocal;
+
+  const toggleEditHistory = useCallback(() => {
+    const next = !editHistory;
+    if (isEntryPage) {
+      setEditHistoryCtx(next);
+    } else {
+      setEditHistoryLocal(next);
+      const params = new URLSearchParams(searchParams);
+      if (next) {
+        params.set("history", "");
+      } else {
+        params.delete("history");
+      }
+      const qs = params.toString().replace(/=(&|$)/g, "$1");
+      router.replace(qs ? `${pathname}?${qs}` : pathname);
+    }
+  }, [editHistory, isEntryPage, pathname, router, searchParams, setEditHistoryCtx]);
 
   useMount(() => {
     generate();
@@ -124,7 +148,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("g.edit"),
           onClick: isComment
-            ? () => router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`)
+            ? () => setIsEdit(true)
             : () => router.push(`/@${entry.author}/${entry.permlink}/edit`),
           icon: <UilPen />
         })
@@ -134,7 +158,7 @@ export function useMenuItemsGenerator(
         () => ({
           label: i18next.t("entry-menu.edit-classic"),
           onClick: isComment
-            ? () => router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`)
+            ? () => setIsEdit(true)
             : () => router.push(`/@${entry.author}/${entry.permlink}/edit-classic`),
           icon: <UilPen />
         })
@@ -163,7 +187,7 @@ export function useMenuItemsGenerator(
           ({ visionFeatures }) => visionFeatures.editHistory.enabled,
           () => ({
             label: i18next.t("entry-menu.edit-history"),
-            onClick: () => setEditHistory(!editHistory),
+            onClick: toggleEditHistory,
             icon: <UilHistoryAlt />
           })
         ),
@@ -256,7 +280,7 @@ export function useMenuItemsGenerator(
     router,
     separatedSharing,
     share,
-    toggleEdit,
+    toggleEditHistory,
     togglePin,
     toggleUIProp,
     toggleUnpin
@@ -273,7 +297,8 @@ export function useMenuItemsGenerator(
     share,
     setShare,
     editHistory,
-    setEditHistory,
+    toggleEditHistory,
+    showEditHistoryInMenu: !isEntryPage,
     delete_,
     setDelete_,
     pin,

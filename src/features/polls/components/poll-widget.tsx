@@ -8,7 +8,7 @@ import { PollOption } from "./poll-option";
 import { PollOptionWithResults } from "./poll-option-with-results";
 import { PollVotesListDialog } from "./poll-votes-list-dialog";
 import { UilClock, UilPanelAdd } from "@tooni/iconscout-unicons-react";
-import { format, isBefore, isDate, isValid } from "date-fns";
+import dayjs from "@/utils/dayjs";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { FormControl } from "@ui/input";
 import { useSet } from "react-use";
@@ -45,12 +45,12 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
 
   const endTimeFullDate = useMemo(
     () =>
-      isDate(poll.endTime) && isValid(poll.endTime)
-        ? format(poll.endTime, "dd.MM.yyyy HH:mm")
+      dayjs(poll.endTime).isValid()
+        ? dayjs(poll.endTime).format("DD.MM.YYYY HH:mm")
         : "Unset",
     [poll.endTime]
   );
-  const isFinished = useMemo(() => isBefore(poll.endTime, new Date()), [poll.endTime]);
+  const isFinished = useMemo(() => dayjs(poll.endTime).isBefore(dayjs()), [poll.endTime]);
   const showViewVotes = useMemo(
     () => (!poll.hideVotes && !resultsMode) || activeUser?.username === entry?.author,
     [poll.hideVotes, resultsMode, activeUser?.username, entry?.author]

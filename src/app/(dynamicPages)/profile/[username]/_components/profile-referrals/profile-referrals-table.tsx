@@ -1,5 +1,5 @@
 import { Table, Td, Th, Tr } from "@ui/table";
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 import React, { useCallback, useMemo, useState } from "react";
 import i18next from "i18next";
 import { ProfileLink, Transfer, TransferAsset, TransferMode, UserAvatar } from "@/features/shared";
@@ -55,7 +55,7 @@ export function ProfileReferralsTable({ account, pageSize, page }: Props) {
               <Td className="border p-3">
                 <div className="witness-rank">
                   <span className="rank-number">
-                    {moment(new Date(row.created)).format("YYYY/MM/DD")}
+                    {dayjs(row.created).format("YYYY/MM/DD")}
                   </span>
                 </div>
               </Td>

@@ -1,12 +1,17 @@
-import { dataLimit } from "./bridge";
+import { dataLimit, getProfiles } from "./bridge";
 import { apiBase } from "./helper";
 import {
   AccountSearchResult,
   FriendSearchResult,
   SearchResponse,
-  TagSearchResult
+  TagSearchResult,
+  Follow
 } from "@/entities";
 import { appAxios } from "@/api/axios";
+import { client } from "@/api/hive";
+import dayjs from "@/utils/dayjs";
+
+const searchLimit = 30;
 
 export const search = (
   q: string,
@@ -32,16 +37,68 @@ export const search = (
   return appAxios.post(apiBase(`/search-api/search`), data).then((resp) => resp.data);
 };
 
-export const searchFollower = (following: string, q: string): Promise<FriendSearchResult[]> => {
-  const data = { following, q };
+export const searchFollower = async (
+  following: string,
+  q: string
+): Promise<FriendSearchResult[]> => {
+  const start = q.slice(0, -1);
+  const response = (await client.database.call("get_followers", [
+    following,
+    start,
+    "blog",
+    1000
+  ])) as Follow[];
 
-  return appAxios.post(apiBase(`/search-api/search-follower`), data).then((resp) => resp.data);
+  const qLower = q.toLowerCase();
+  const accountNames = response
+    .map((e) => e.follower)
+    .filter((name) => name.toLowerCase().includes(qLower))
+    .slice(0, searchLimit);
+  const accounts = await getProfiles(accountNames);
+
+  return (
+    accounts?.map((a) => {
+      const lastActive = dayjs(a.active);
+      return {
+        name: a.name,
+        full_name: a.metadata.profile?.name || "",
+        reputation: a.reputation!,
+        lastSeen: lastActive.fromNow()
+      } as FriendSearchResult;
+    }) ?? []
+  );
 };
 
-export const searchFollowing = (follower: string, q: string): Promise<FriendSearchResult[]> => {
-  const data = { follower, q };
+export const searchFollowing = async (
+  follower: string,
+  q: string
+): Promise<FriendSearchResult[]> => {
+  const start = q.slice(0, -1);
+  const response = (await client.database.call("get_following", [
+    follower,
+    start,
+    "blog",
+    1000
+  ])) as Follow[];
 
-  return appAxios.post(apiBase(`/search-api/search-following`), data).then((resp) => resp.data);
+  const qLower = q.toLowerCase();
+  const accountNames = response
+    .map((e) => e.following)
+    .filter((name) => name.toLowerCase().includes(qLower))
+    .slice(0, searchLimit);
+  const accounts = await getProfiles(accountNames);
+
+  return (
+    accounts?.map((a) => {
+      const lastActive = dayjs(a.active);
+      return {
+        name: a.name,
+        full_name: a.metadata.profile?.name || "",
+        reputation: a.reputation!,
+        lastSeen: lastActive.fromNow()
+      } as FriendSearchResult;
+    }) ?? []
+  );
 };
 
 export const searchAccount = (

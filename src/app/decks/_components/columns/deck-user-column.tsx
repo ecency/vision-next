@@ -8,7 +8,7 @@ import { DeckGridContext } from "../deck-manager";
 import { DeckPostViewer } from "./content-viewer";
 import { DeckContentTypeColumnSettings } from "./deck-column-settings/deck-content-type-column-settings";
 import usePrevious from "react-use/lib/usePrevious";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
 import { Entry } from "@/entities";
@@ -53,7 +53,7 @@ export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
           since?.permlink
         );
         let items = response?.map((i) => ({ ...i, id: i.post_id })) ?? [];
-        items = items.sort((a, b) => (moment(a.created).isAfter(moment(b.created)) ? -1 : 1));
+        items = items.sort((a, b) => (dayjs(a.created).isAfter(dayjs(b.created)) ? -1 : 1));
 
         if (items.length === 0) {
           setHasNextPage(false);

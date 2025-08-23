@@ -11,9 +11,12 @@ import {
 } from "../../helper/test-helper";
 import { withStore } from "../../tests/with-store";
 
-jest.mock("moment", () => () => ({
-  fromNow: () => "in 4 days",
-  format: (f: string, s: string) => "2020-01-01 23:12:00"
+jest.mock("@/utils/dayjs", () => ({
+  __esModule: true,
+  default: () => ({
+    fromNow: () => "in 4 days",
+    format: () => "2020-01-01 23:12:00"
+  })
 }));
 
 it("(1) Default render", async () => {

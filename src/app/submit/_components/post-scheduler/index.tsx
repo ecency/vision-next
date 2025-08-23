@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Datetime from "react-datetime";
-import moment, { Moment } from "moment";
+import { DayPicker } from "react-day-picker";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
@@ -8,8 +8,8 @@ import i18next from "i18next";
 import { closeSvg, timeSvg } from "@ui/svg";
 
 interface Props {
-  date: Moment | null;
-  onChange: (date: Moment | null) => void;
+  date: Dayjs | null;
+  onChange: (date: Dayjs | null) => void;
 }
 
 interface DialogBodyProps extends Props {
@@ -17,30 +17,48 @@ interface DialogBodyProps extends Props {
 }
 
 export const DialogBody = (props: DialogBodyProps) => {
-  const [date, setDate] = useState<Moment>(
-    props.date || moment(moment().add(2, "hour").toISOString(true))
+  const [date, setDate] = useState<Dayjs>(
+    props.date || dayjs().add(2, "hour")
   );
   const [error, setError] = useState(false);
-  const todayTs = moment().hour(0).minute(0).second(0).milliseconds(0).format("x");
+  const today = dayjs().startOf("day");
 
   const rend = () => {
     return (
       <>
         <div className="picker">
-          <Datetime
-            open={true}
-            input={false}
-            initialValue={date}
-            timeFormat="HH:mm"
-            isValidDate={(d) => {
-              return d.format("x") >= todayTs;
-            }}
-            onChange={(date) => {
-              if ((date as Moment).format("x") <= moment().format("x")) {
+          <DayPicker
+            mode="single"
+            selected={date.toDate()}
+            onSelect={(d) => {
+              if (!d) {
+                return;
+              }
+              const picked = date
+                .set("year", d.getFullYear())
+                .set("month", d.getMonth())
+                .set("date", d.getDate());
+              if (picked.isSameOrBefore(dayjs())) {
                 setError(true);
               } else {
                 setError(false);
-                setDate(date as Moment);
+                setDate(picked);
+              }
+            }}
+            disabled={{ before: today.toDate() }}
+            captionLayout="dropdown"
+          />
+          <input
+            type="time"
+            value={date.format("HH:mm")}
+            onChange={(e) => {
+              const [h, m] = e.target.value.split(":").map(Number);
+              const picked = date.set("hour", h).set("minute", m);
+              if (picked.isSameOrBefore(dayjs())) {
+                setError(true);
+              } else {
+                setError(false);
+                setDate(picked);
               }
             }}
           />

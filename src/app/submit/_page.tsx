@@ -17,7 +17,7 @@ import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import usePrevious from "react-use/lib/usePrevious";
 import { checkSvg, informationSvg } from "@/assets/img/svg";
-import moment from "moment/moment";
+import dayjs from "@/utils/dayjs";
 import isEqual from "react-fast-compare";
 import { handleShortcuts } from "./_functions";
 import {
@@ -533,9 +533,9 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                         </div>
                         <div className="col-span-12 sm:col-span-9">
                           <PostSchedulerDialog
-                            date={schedule ? moment(schedule) : null}
+                            date={schedule ? dayjs(schedule) : null}
                             onChange={(d) => {
-                              setSchedule(d ? d.toISOString(true) : null);
+                              setSchedule(d ? d.format("YYYY-MM-DDTHH:mm:ssZ") : null);
                             }}
                           />
                           <div className="text-sm text-gray-600 dark:text-gray-400">

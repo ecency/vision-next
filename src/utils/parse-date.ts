@@ -1,8 +1,8 @@
-import moment from "moment";
+import dayjs from "./dayjs";
 
 export const dateToRelative = (d: string): string => {
   const normalized = d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`;
-  const dm = moment.utc(normalized).local();
+  const dm = dayjs.utc(normalized).local();
   const dd = dm.local().fromNow(true);
   return dd
     .replace("a few seconds", "~1s")
@@ -22,18 +22,18 @@ export const dateToRelative = (d: string): string => {
 export const dateToFullRelative = (d: string): string => {
   if (!d) return "";
 
-  // If it's not already ISO-like, try to coerce it using moment parsing
+  // If it's not already ISO-like, try to coerce it using dayjs parsing
   const isValidISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(d);
   const normalized = isValidISO
       ? (d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`)
-      : moment(d).toISOString(); // force valid ISO
+      : dayjs(d).toISOString(); // force valid ISO
 
-  return moment.utc(normalized).local().fromNow();
+  return dayjs.utc(normalized).local().fromNow();
 };
 
 export const dateToFormatted = (d: string, format: string = "LLLL"): string => {
   const normalized = d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`;
-  return moment.utc(normalized).local().format(format);
+  return dayjs.utc(normalized).local().format(format);
 };
 
 export const dayDiff = (d: string) => {
@@ -64,7 +64,7 @@ export const secondDiff = (d: string) => {
 export const parseDate = (d: string, dropTimezone = true): Date => {
   if (!d) return new Date();
   try {
-    const date = moment(d).isValid() ? moment(d).toDate() : new Date();
+    const date = dayjs(d).isValid() ? dayjs(d).toDate() : new Date();
     if (dropTimezone) {
       return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
     }

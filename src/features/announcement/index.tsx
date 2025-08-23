@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import * as ls from "@/utils/local-storage";
 import { Announcement, LaterAnnouncement } from "./types";
 import "./index.scss";
@@ -48,10 +48,9 @@ export const Announcements = () => {
 
           if (filteredAnnouncement[0] !== undefined) {
             let pastDateTime = filteredAnnouncement[0].dateTime;
-            const past = moment(pastDateTime);
-            const now = moment(new Date());
-            const duration = moment.duration(now.diff(past));
-            const hours = duration.asHours();
+            const past = dayjs(pastDateTime);
+            const now = dayjs();
+            const hours = now.diff(past, "hour");
 
             if (hours >= 24) {
               let i = 0;
@@ -129,7 +128,7 @@ export const Announcements = () => {
     setIndex(index);
     const newList = list.filter((x) => x.id !== clickedBanner.id);
     setList(newList);
-    const DateTime = moment(new Date());
+    const DateTime = dayjs();
     const laterAnnouncementDetail = ls.get("later_announcements_detail");
     if (laterAnnouncementDetail === null) {
       ls.set("later_announcements_detail", [{ id: list[bannerState - 1].id, dateTime: DateTime }]);

@@ -93,9 +93,12 @@ jest.mock("../../api/bridge", () => ({
     })
 }));
 
-jest.mock("moment", () => () => ({
-  fromNow: () => "3 days ago",
-  format: (f: string, s: string) => "2020-01-01 23:12:00"
+jest.mock("@/utils/dayjs", () => ({
+  __esModule: true,
+  default: () => ({
+    fromNow: () => "3 days ago",
+    format: () => "2020-01-01 23:12:00"
+  })
 }));
 
 const defProps = {

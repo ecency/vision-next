@@ -2,7 +2,6 @@ import { useGlobalStore } from "@/core/global-store";
 import { useCountdown } from "@/utils";
 import { getGameStatusCheckQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { intervalToDuration } from "date-fns";
 import i18next from "i18next";
 import { useEffect, useMemo } from "react";
 
@@ -16,7 +15,12 @@ export function PerksPointsSpinCountdown() {
 
   const [time, setTime] = useCountdown(0);
 
-  const duration = useMemo(() => intervalToDuration({ start: 0, end: time * 1000 }), [time]);
+  const duration = useMemo(() => {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = time % 60;
+    return { hours, minutes, seconds };
+  }, [time]);
 
   useEffect(() => {
     if (data?.wait_secs) {

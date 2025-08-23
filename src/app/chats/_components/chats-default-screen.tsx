@@ -1,6 +1,6 @@
 import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import React, { HTMLProps, useContext, useMemo } from "react";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { ChatContext } from "@ecency/ns-query";
@@ -19,7 +19,7 @@ export function ChatsDefaultScreen(props: HTMLProps<HTMLDivElement>) {
   const isLastKeysSavingTimeExpired = useMemo(
     () =>
       lastKeysSavingTime
-        ? moment(new Date(lastKeysSavingTime)).isBefore(moment().subtract(30, "days"))
+        ? dayjs(lastKeysSavingTime).isBefore(dayjs().subtract(30, "day"))
         : true,
     [lastKeysSavingTime]
   );
@@ -43,7 +43,7 @@ export function ChatsDefaultScreen(props: HTMLProps<HTMLDivElement>) {
             className="whitespace-nowrap"
             onClick={() => {
               setRevealPrivateKey(true);
-              setLastKeysSaving(moment().toDate().toISOString());
+              setLastKeysSaving(dayjs().toDate().toISOString());
             }}
           >
             {i18next.t("chat.view-and-save")}

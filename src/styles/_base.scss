@@ -195,73 +195,7 @@ a[target="_blank"] {
 // Additional libraries
 
 // Date picker
-@import "react-datetime/css/react-datetime.css";
-// dark theme
-.dark {
-  .rdtPicker {
-    @apply bg-blue-metallic;
-    border: 1px solid;
-    @apply border-dark-default;
-  }
-
-  .rdtPicker td.rdtDay:hover,
-  .rdtPicker td.rdtHour:hover,
-  .rdtPicker td.rdtMinute:hover,
-  .rdtPicker td.rdtSecond:hover,
-  .rdtPicker .rdtTimeToggle:hover {
-    @apply bg-blue-dusky;
-  }
-
-  .rdtPicker td.rdtOld,
-  .rdtPicker td.rdtNew {
-    @apply text-silver;
-  }
-
-  .rdtPicker td.rdtToday:before {
-    border-bottom: 7px solid #428bca;
-  }
-
-  .rdtPicker td.rdtActive,
-  .rdtPicker td.rdtActive:hover {
-    @apply text-blue-metallic;
-  }
-
-  .rdtPicker td.rdtActive.rdtToday:before {
-    @apply border-b-blue-metallic;
-  }
-
-  .rdtPicker td.rdtDisabled,
-  .rdtPicker td.rdtDisabled:hover {
-    @apply text-gray-steel;
-  }
-
-  .rdtPicker th {
-    border-bottom: 1px solid;
-    @apply border-dark-default;
-  }
-
-  .rdtPicker thead tr:first-of-type th:hover {
-    @apply bg-blue-dusky;
-  }
-
-  .rdtPicker tfoot {
-    border-top: 1px solid;
-    @apply border-dark-default;
-  }
-
-  .rdtPicker button:hover {
-    @apply bg-blue-dusky;
-  }
-
-  td.rdtMonth:hover,
-  td.rdtYear:hover {
-    @apply bg-blue-dusky;
-  }
-
-  .rdtCounter .rdtBtn:hover {
-    @apply bg-blue-dusky;
-  }
-}
+@import "react-day-picker/dist/style.css";
 
 .page-item {
   &.disabled .page-link {

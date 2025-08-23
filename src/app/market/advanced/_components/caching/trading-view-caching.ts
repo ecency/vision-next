@@ -2,12 +2,12 @@ import "use-indexeddb";
 import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
 import { useEffect } from "react";
 import { IndexedDBConfig } from "use-indexeddb/dist/interfaces";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "@/utils/dayjs";
 import { MarketCandlestickDataItem } from "@/entities";
 import { getMarketHistory } from "@/api/hive";
 
 interface MarketCandlestickDataRecord extends MarketCandlestickDataItem {
-  openDate: Moment;
+  openDate: Dayjs;
 }
 
 interface MarketDataRecord {
@@ -56,7 +56,7 @@ export function useTradingViewCache(ttl: number | "none" = "none", version: numb
    * @param startDate
    * @param endDate
    */
-  const getCached = async (seconds: number, startDate?: Moment, endDate?: Moment) => {
+  const getCached = async (seconds: number, startDate?: Dayjs, endDate?: Dayjs) => {
     // Fetch all records of current bucket
     const items = await getManyByKey("seconds", seconds);
 
@@ -65,7 +65,7 @@ export function useTradingViewCache(ttl: number | "none" = "none", version: numb
       .map((item) => JSON.parse(item.data) as MarketCandlestickDataRecord)
       .map((item) => ({
         ...item,
-        openDate: moment(item.open)
+        openDate: dayjs(item.open)
       }));
     candlestickRecords = candlestickRecords
       .sort((a, b) => (a.openDate.isBefore(b.openDate) ? -1 : 1))
@@ -101,13 +101,13 @@ export function useTradingViewCache(ttl: number | "none" = "none", version: numb
 
   const getCachedMarketHistory = async (
     seconds: number,
-    startDate: Moment,
-    endDate: Moment
+    startDate: Dayjs,
+    endDate: Dayjs
   ): Promise<MarketCandlestickDataItem[]> => {
     const cached = await getCached(seconds, startDate, endDate);
     if (cached.length > 0) {
       return cached;
-      // const isLookingForPast = endDate.isBefore(moment());
+      // const isLookingForPast = endDate.isBefore(dayjs());
       // const isFullCached = cached[0].openDate.isSame(startDate);
       // if (isLookingForPast) {
       //   if (isFullCached) {

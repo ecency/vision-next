@@ -1,4 +1,4 @@
-import moment from "moment";
+import dayjs from "@/utils/dayjs";
 import { Entry, FullAccount, JsonMetadata } from "@/entities";
 import appPackage from "../../package.json";
 
@@ -18,8 +18,8 @@ export interface TempEntryProps {
 export const correctIsoDate = (d: string): string => d.split(".")[0];
 
 export function tempEntry(p: TempEntryProps): Entry {
-  const now = moment(Date.now());
-  const payout = moment(Date.now()).add(7, "days");
+  const now = dayjs();
+  const payout = dayjs().add(7, "day");
 
   const category = p.tags[0];
 
