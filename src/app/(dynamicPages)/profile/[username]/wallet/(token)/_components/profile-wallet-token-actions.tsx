@@ -55,7 +55,7 @@ export function ProfileWalletTokenActions() {
   );
 
   return (
-    <div className="grid grid-cols-3 gap-2 md:gap-2 grid-rows-2">
+    <div className="grid grid-cols-2 gap-2 md:gap-2 grid-rows-2">
       {operations?.map((operation) => (
         <>
           {[AssetOperation.Buy, AssetOperation.Promote, AssetOperation.Claim].includes(
@@ -98,12 +98,6 @@ export function ProfileWalletTokenActions() {
             </WalletOperationsDialog>
           )}
         </>
-      ))}
-      {new Array(6 - (operations?.length ?? 0)).fill(1).map((_, i) => (
-        <div
-          className=" bg-white/60 dark:bg-dark-200/70 glass-box rounded-xl p-3 flex flex-col gap-4 min-h-[66px]"
-          key={i}
-        />
       ))}
     </div>
   );
