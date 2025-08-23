@@ -12,6 +12,7 @@ import { WalletOperationAmountForm } from "./wallet-operation-amount-form";
 import { formatNumber } from "@/utils";
 
 interface Props {
+  to?: string;
   data?: Record<string, any>;
   asset: string;
   username: string;
@@ -22,13 +23,14 @@ interface Props {
 
 export function WalletOperationsTransfer({
   data,
+  to: toProp,
   asset,
   username,
   onSubmit,
   showSubmit,
   showMemo = false
 }: Props) {
-  const [to, setTo] = useState<string>(data?.to ?? "");
+  const [to, setTo] = useState<string>(data?.to ?? toProp ?? "");
 
   const { data: accountWallet } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
 

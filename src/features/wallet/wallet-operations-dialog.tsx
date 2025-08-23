@@ -22,12 +22,14 @@ import { MarketSwapForm } from "../market";
 interface Props {
   operation: AssetOperation;
   asset: string;
+  to: string | undefined;
 }
 
 export function WalletOperationsDialog({
   children,
   operation,
   asset,
+  to,
   ...divProps
 }: PropsWithChildren<Props> & HTMLProps<HTMLDivElement>) {
   const activeUser = useClientActiveUser();
@@ -86,6 +88,7 @@ export function WalletOperationsDialog({
         ].includes(operation) ||
           (AssetOperation.Delegate === operation && asset !== "LP")) && (
           <WalletOperationsTransfer
+            to={to}
             data={data}
             asset={asset}
             username={activeUser?.username ?? ""}

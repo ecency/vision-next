@@ -87,6 +87,9 @@ export function ProfileWalletTokenActions() {
               key={operation}
               asset={(token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase()}
               operation={operation}
+              to={
+                cleanUsername && cleanUsername !== activeUser?.username ? cleanUsername : undefined
+              }
             >
               {operationsIcons[operation]}
               <div className="w-full font-bold">
