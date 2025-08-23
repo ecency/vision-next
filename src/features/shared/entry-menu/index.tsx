@@ -25,7 +25,6 @@ interface Props {
   extraMenuItems?: any[];
   separatedSharing?: boolean;
   alignBottom?: boolean;
-  toggleEdit?: () => void;
   pinEntry?: (entry: Entry | null) => void;
 }
 
@@ -34,7 +33,6 @@ export const EntryMenu = ({
   separatedSharing = false,
   alignBottom,
   extraMenuItems,
-  toggleEdit,
   pinEntry
 }: Props) => {
   const activeUser = useGlobalStore((state) => state.activeUser);
@@ -52,7 +50,8 @@ export const EntryMenu = ({
     share,
     setShare,
     editHistory,
-    setEditHistory,
+    toggleEditHistory,
+    showEditHistoryInMenu,
     delete_,
     setDelete_,
     pin,
@@ -65,7 +64,7 @@ export const EntryMenu = ({
     setMute,
     promote,
     setPromote
-  } = useMenuItemsGenerator(entry, community, separatedSharing, toggleEdit, extraMenuItems);
+  } = useMenuItemsGenerator(entry, community, separatedSharing, extraMenuItems);
 
   return (
     <div className="entry-menu">
@@ -97,7 +96,9 @@ export const EntryMenu = ({
         />
       )}
       {share && <EntryShare entry={entry} onHide={() => setShare(false)} />}
-      {editHistory && <EditHistory entry={entry} onHide={() => setEditHistory(false)} />}
+      {editHistory && showEditHistoryInMenu && (
+        <EditHistory entry={entry} onHide={toggleEditHistory} />
+      )}
       {delete_ && (
         <ModalConfirm
           onConfirm={() => {

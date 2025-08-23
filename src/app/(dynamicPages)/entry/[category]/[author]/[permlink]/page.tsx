@@ -31,10 +31,8 @@ export async function generateMetadata(
 
 export default async function EntryPage({ params, searchParams }: Props) {
   const { author: username, permlink, category } = await params;
-
-  const search = await searchParams;
-  const isRaw = search["raw"];
-  const isEdit = search["edit"];
+  const sParams = await searchParams;
+  const isRawContent = sParams.raw !== undefined;
 
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
@@ -79,13 +77,8 @@ export default async function EntryPage({ params, searchParams }: Props) {
           <div className="the-entry">
             <EntryPageCrossPostHeader entry={entry} />
             <span itemScope itemType="http://schema.org/Article">
-              <EntryPageContentSSR entry={entry} />
-              <EntryPageContentClient
-                entry={entry}
-                rawParam={isRaw ?? ""}
-                isEdit={isEdit === "true"}
-                category={category}
-              />
+              <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
+              <EntryPageContentClient entry={entry} category={category} />
             </span>
           </div>
         </div>

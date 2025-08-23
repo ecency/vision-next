@@ -15,9 +15,10 @@ import { EntryTags } from "./entry-tags";
 
 interface Props {
   entry: Entry;
+  isRawContent?: boolean;
 }
 
-export function EntryPageContentSSR({ entry }: Props) {
+export function EntryPageContentSSR({ entry, isRawContent }: Props) {
   const location = useEntryLocation(entry);
   const postPoll = useEntryPollExtractor(entry);
   const jsonLd = {
@@ -46,10 +47,20 @@ export function EntryPageContentSSR({ entry }: Props) {
         <EntryPageMainInfo entry={entry} />
       </div>
       {/* SSR static body */}
-      <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
-        <EntryPageStaticBody entry={entry} />
-        {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
-      </div>
+      {!isRawContent && (
+        <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
+          <EntryPageStaticBody entry={entry} />
+          {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
+        </div>
+      )}
+      {isRawContent && (
+        <pre
+          id="post-body"
+          className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900 whitespace-pre-wrap break-words"
+        >
+          {entry.body}
+        </pre>
+      )}
       <div className="entry-footer bg-white/80 dark:bg-dark-200/90 rounded-xl flex-wrap my-4 lg:mb-8">
         {location?.coordinates && (
           <Link

@@ -7,12 +7,14 @@ import { useSearchParams } from "next/navigation";
 export function EntryPageContextProvider(props: PropsWithChildren) {
   const commentsInputRef = useRef<HTMLInputElement>(null);
   const searchParams = useSearchParams();
-  const rawFromUrl = searchParams.get("raw") === "1";
+  const rawFromUrl = searchParams.has("raw");
+  const historyFromUrl = searchParams.has("history");
   const [showProfileBox, setShowProfileBox] = useState(false);
-  const [editHistory, setEditHistory] = useState(false);
+  const [editHistory, setEditHistory] = useState(historyFromUrl);
   const [loading, setLoading] = useState(false);
   const [showIfNsfw, setShowIfNsfw] = useState(false);
   const [isRawContent, setIsRawContent] = useState(rawFromUrl);
+  const [isEdit, setIsEdit] = useState(false);
   const [selection, setSelection] = useState("");
 
   return (
@@ -28,6 +30,8 @@ export function EntryPageContextProvider(props: PropsWithChildren) {
         setShowIfNsfw,
         isRawContent,
         setIsRawContent,
+        isEdit,
+        setIsEdit,
         setSelection,
         selection,
         commentsInputRef

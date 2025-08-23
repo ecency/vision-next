@@ -9,27 +9,20 @@ import { EntryPageContext } from "./context";
 import ClientEntryPageNsfwRevealing from "./client-entry-page-nsfwrevealing";
 
 interface Props {
-    entry: Entry;
-    rawParam: string;
-    isEdit: boolean;
-    category: string;
+  entry: Entry;
+  category: string;
 }
 
-export function EntryPageContentClient({ entry, rawParam, isEdit, category }: Props) {
-    const { showIfNsfw } = useContext(EntryPageContext);
+export function EntryPageContentClient({ entry, category }: Props) {
+  const { showIfNsfw } = useContext(EntryPageContext);
 
-    return (
-        <>
-            <ClientEntryPageNsfwRevealing entry={entry} showIfNsfw={showIfNsfw}>
-                <EntryPageBodyViewer
-                    entry={entry}
-                    rawParam={rawParam}
-                    isEdit={isEdit}
-                    showIfNsfw={showIfNsfw}
-                />
-            </ClientEntryPageNsfwRevealing>
-            <EntryPageDiscussions category={category} entry={entry} />
-            <EntryPageEditHistory entry={entry} />
-        </>
-    );
+  return (
+    <>
+      <ClientEntryPageNsfwRevealing entry={entry} showIfNsfw={showIfNsfw}>
+        <EntryPageBodyViewer entry={entry} />
+      </ClientEntryPageNsfwRevealing>
+      <EntryPageDiscussions category={category} entry={entry} />
+      <EntryPageEditHistory entry={entry} />
+    </>
+  );
 }
