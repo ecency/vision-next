@@ -15,6 +15,7 @@ export class NotificationsWebSocket {
   private onSuccessCallbacks: Function[] = [];
   private enabledNotifyTypes: NotifyTypes[] = [];
   private isConnected = false;
+  private onPlaySoundCallback: Function = () => {};
 
   private static getBody(data: WsNotification) {
     const { source } = data;
@@ -122,6 +123,11 @@ export class NotificationsWebSocket {
     return this;
   }
 
+  public withPlaySoundCallback(cb: Function) {
+    this.onPlaySoundCallback = cb;
+    return this;
+  }
+
   public getNotificationType(value: string): NotifyTypes | null {
     switch (value) {
       case "vote":
@@ -144,13 +150,7 @@ export class NotificationsWebSocket {
   private toggleUiProp: Function = () => {};
 
   private async playSound() {
-    if (!("Notification" in window)) {
-      return;
-    }
-    const permission = await requestNotificationPermission();
-    if (permission !== "granted") return;
-
-    playNotificationSound();
+    this.onPlaySoundCallback();
   }
 
   private async onMessageReceive(evt: MessageEvent) {

@@ -6,16 +6,21 @@ import { isSupported } from "@firebase/messaging";
 import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
 import * as ls from "@/utils/local-storage";
 import { useNotificationsSettingsQuery, useNotificationUnreadCountQuery } from "@/api/queries";
-import { playNotificationSound } from "@/utils";
 import { useUpdateNotificationsSettings } from "@/api/mutations";
 import usePrevious from "react-use/lib/usePrevious";
 import {NotificationsWebSocket} from "@/api/notifications-ws-api";
+import { NotificationSound, NotificationSoundRef } from "@/components/notification-sound";
 
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const previousActiveUsr = usePrevious(activeUser);
-  const wsRef = useRef(new NotificationsWebSocket());
+  const notificationSoundRef = useRef<NotificationSoundRef>(null);
+  const wsRef = useRef(
+    new NotificationsWebSocket().withPlaySoundCallback(() => {
+      notificationSoundRef.current?.playSound();
+    })
+  );
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
 
   const notificationsSettingsQuery = useNotificationsSettingsQuery();
@@ -65,7 +70,7 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
 
       if (isFbMessagingSupported && permission === "granted") {
         listenFCM(() => {
-          playNotificationSound();
+          notificationSoundRef.current?.playSound();
           notificationUnreadCountQuery.refetch();
         });
       } else {
@@ -107,5 +112,10 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
         };
     }, [activeUser?.username, previousActiveUsr?.username, init]);
 
-    return children;
+    return (
+      <>
+        <NotificationSound ref={notificationSoundRef} />
+        {children}
+      </>
+    );
 }
