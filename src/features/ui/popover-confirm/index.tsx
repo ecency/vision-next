@@ -32,7 +32,7 @@ export function PopoverConfirm({
   const [show, setShow] = useState(false);
 
   const confirm = () => {
-    setShow(true);
+    setShow(false);
     onConfirm?.();
   };
 

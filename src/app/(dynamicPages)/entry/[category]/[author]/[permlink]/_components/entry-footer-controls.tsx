@@ -13,12 +13,12 @@ import {
 import { Entry } from "@/entities";
 import { Tooltip } from "@ui/tooltip";
 import { useGlobalStore } from "@/core/global-store";
-import { useContext, useMemo, useRef } from "react";
+import { useContext, useMemo, useRef, useCallback } from "react";
 import { useDistanceDetector } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/distance-detector";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
-import { useRouter } from "next/navigation";
 import { Button } from "@ui/button";
 import { UilAlignAlt } from "@tooni/iconscout-unicons-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface Props {
   entry: Entry;
@@ -26,10 +26,26 @@ interface Props {
 
 export function EntryFooterControls({ entry }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   const { showProfileBox, setShowProfileBox, setIsRawContent, isRawContent } =
     useContext(EntryPageContext);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const toggleRaw = useCallback(() => {
+    const next = !isRawContent;
+    setIsRawContent(next);
+    const params = new URLSearchParams(searchParams);
+    if (next) {
+      params.set("raw", "");
+    } else {
+      params.delete("raw");
+    }
+    const qs = params.toString().replace(/=(&|$)/g, "$1");
+    router.replace(qs ? `${pathname}?${qs}` : pathname);
+  }, [isRawContent, pathname, router, searchParams, setIsRawContent]);
 
   const activeUser = useGlobalStore((s) => s.activeUser);
   const isOwnEntry = useMemo(
@@ -57,25 +73,13 @@ export function EntryFooterControls({ entry }: Props) {
           <Button
             size="sm"
             appearance="gray-link"
-            onClick={() => setIsRawContent(!isRawContent)}
+            onClick={toggleRaw}
             icon={<UilAlignAlt />}
           />
         </Tooltip>
         <BookmarkBtn entry={entry} />
         <div className="border-l border-[--border-color] h-6 mx-4 w-[1px]" />
-        <EntryMenu
-          entry={entry}
-          alignBottom={true}
-          separatedSharing={true}
-          toggleEdit={() => {
-            if (typeof entry.parent_author === "string") {
-              // It will trigger in-place editor
-              router.push(`/${entry.category}/@${entry.author}/${entry.permlink}?edit=true`);
-            } else {
-              router.push(`/${entry.url}/edit`);
-            }
-          }}
-        />
+        <EntryMenu entry={entry} alignBottom={true} separatedSharing={true} />
       </div>
     </div>
   );
