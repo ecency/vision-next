@@ -162,7 +162,7 @@ export function WalletOperationsDialog({
             />
           )}
           {step === "error" && <WalletOperationError error={signError} />}
-          {step === "success" && <WalletOperationSuccess />}
+          {step === "success" && <WalletOperationSuccess onClose={() => setShow(false)} />}
         </AnimatePresence>
 
         {operation === AssetOperation.WithdrawRoutes && (

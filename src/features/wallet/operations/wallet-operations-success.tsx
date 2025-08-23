@@ -1,8 +1,15 @@
-import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
+import { UilCheckCircle } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
+import { useTimeoutFn } from "react-use";
 
-export function WalletOperationSuccess() {
+interface Props {
+  onClose: () => void;
+}
+
+export function WalletOperationSuccess({ onClose }: Props) {
+  useTimeoutFn(onClose, 5000);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -14,7 +21,7 @@ export function WalletOperationSuccess() {
         <UilCheckCircle className="text-green w-10 h-10" />
         <div>
           <div className="font-bold">{i18next.t("g.success")}</div>
-          <div className="opacity-50 text-sm">{i18next.t("transactions.success-hint")}</div>
+          <div className="opacity-50 text-sm">{i18next.t("transactions.success-close-hint")}</div>
         </div>
       </div>
     </motion.div>

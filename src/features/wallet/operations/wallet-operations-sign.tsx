@@ -87,7 +87,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
             >
               <FormControl
                 value={signingKey ?? ""}
-                type="text"
+                type="password"
                 placeholder="Key"
                 onChange={(e) => setSigningKey(e.target.value)}
               />

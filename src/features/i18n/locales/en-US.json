@@ -1441,6 +1441,7 @@
     "broken-hint": "Operation link is broken or cannot be recognized",
     "signer-text": "Signing following transaction/operation",
     "success-hint": "Operation signed and transaction broadcasted",
+    "success-close-hint": "Operation signed and transaction broadcasted. Window will be closed in 5 seconds...",
     "error-hint": "Operation cannot be signed or transactions couldn't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
