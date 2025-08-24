@@ -13,7 +13,14 @@ import { client as hiveClient } from "./hive";
 import { usrActivity } from "./private-api";
 import { BuySellHiveTransactionType, ErrorTypes, OrderIdPrefix } from "@/enums";
 import i18next from "i18next";
-import {formatNumber, getAccessToken, getLoginType, getPostingKey, hotSign, parseAsset } from "@/utils";
+import {
+  formatNumber,
+  getAccessToken,
+  getLoginType,
+  getPostingKey,
+  hotSign,
+  parseAsset
+} from "@/utils";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
 
 const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
@@ -94,8 +101,10 @@ export const broadcastPostingJSON = (
 
   const loginType = getLoginType(username);
 
-  if (loginType && loginType == 'keychain') {
-    return keychain.customJson(username, id, "Posting", JSON.stringify(json), "Custom json").then((r: any) => r.result)
+  if (loginType && loginType == "keychain") {
+    return keychain
+      .customJson(username, id, "Posting", JSON.stringify(json), "Custom json")
+      .then((r: any) => r.result);
   }
 
   // With hivesigner access token
@@ -123,8 +132,8 @@ export const broadcastPostingOperations = (
   }
 
   const loginType = getLoginType(username);
-  if (loginType == 'keychain') {
-    return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result)
+  if (loginType == "keychain") {
+    return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result);
   }
 
   // With hivesigner access token
@@ -163,15 +172,15 @@ export const reblog = (
 };
 
 export const comment = async (
-    username: string,
-    parentAuthor: string,
-    parentPermlink: string,
-    permlink: string,
-    title: string,
-    body: string,
-    jsonMetadata: MetaData,
-    options: CommentOptions | null,
-    point: boolean = false
+  username: string,
+  parentAuthor: string,
+  parentPermlink: string,
+  permlink: string,
+  title: string,
+  body: string,
+  jsonMetadata: MetaData,
+  options: CommentOptions | null,
+  point: boolean = false
 ): Promise<TransactionConfirmation> => {
   const params = {
     parent_author: parentAuthor.trim(),

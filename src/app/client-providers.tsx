@@ -31,7 +31,7 @@ export function ClientProviders(props: PropsWithChildren) {
         </PushNotificationsProvider>
         <Announcements />
       </UIManager>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
