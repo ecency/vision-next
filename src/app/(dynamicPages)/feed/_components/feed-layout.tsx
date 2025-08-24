@@ -1,12 +1,15 @@
 "use client";
 
 import { ListStyle } from "@/enums";
-import { PropsWithChildren, useEffect, useRef, useState } from "react";
+import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry } from "@/entities";
 import { LinearProgress, UserAvatar, EntryListContent } from "@/features/shared";
 import { getPostsRanked } from "@/api/bridge";
+
+const MAX_PENDING = 20;
+const MAX_AVATARS = 5;
 
 interface Props {
   filter: string;
@@ -19,6 +22,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
   const { isLoading, data } = usePostsFeedQuery(props.filter, props.tag, props.observer);
   const [pending, setPending] = useState<Entry[]>([]);
   const [extra, setExtra] = useState<Entry[]>([]);
+  const [now, setNow] = useState(Date.now());
   const latest = useRef<Entry | null>(null);
 
   useEffect(() => {
@@ -33,7 +37,8 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
   useEffect(() => {
     if (!["trending", "hot", "created"].includes(props.filter)) return;
     const interval = setInterval(async () => {
-      const resp = await getPostsRanked(props.filter, "", "", 20, props.tag, props.observer ?? "");
+      const resp = await getPostsRanked(props.filter, "", "", MAX_PENDING, props.tag, props.observer ?? "");
+      setNow(Date.now());
       if (!resp || resp.length === 0) return;
       const last = latest.current;
       const fresh: Entry[] = [];
@@ -43,7 +48,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
         fresh.push(e);
       }
       if (fresh.length > 0) {
-        setPending(fresh);
+        setPending(fresh.slice(0, MAX_PENDING));
       }
     }, 30000);
     return () => clearInterval(interval);
@@ -62,7 +67,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
           onClick={revealNew}
         >
           <div className="flex -space-x-1">
-            {pending.slice(0, 5).map((e) => (
+            {pending.slice(0, MAX_AVATARS).map((e) => (
               <UserAvatar
                 key={`${e.author}-${e.permlink}`}
                 username={e.author}
@@ -84,9 +89,14 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
             sectionParam={props.filter}
             isPromoted={false}
             showEmptyPlaceholder={false}
+            now={now}
           />
         )}
-        {props.children}
+        {React.Children.map(props.children, (child) =>
+          React.isValidElement(child)
+            ? React.cloneElement(child as React.ReactElement<{ now?: number }>, { now })
+            : child
+        )}
       </div>
     </div>
   );
