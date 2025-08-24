@@ -26,7 +26,12 @@ export function CommunityRoles({ community }: Props) {
     [community, activeUser?.username]
   );
   const roleInTeam = useMemo(() => (role ? role[1] : null), [role]);
-  const roles = useMemo(() => (roleInTeam ? roleMap[roleInTeam] : []), [roleInTeam]);
+  const roles = useMemo(() => {
+    if (!roleInTeam) {
+      return [];
+    }
+    return roleMap[roleInTeam] ?? [];
+  }, [roleInTeam]);
 
   const showDialog = useCallback((user = "", role = "") => {
     setDialog(true);
