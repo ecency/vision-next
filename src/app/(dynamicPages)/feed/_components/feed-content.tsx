@@ -29,7 +29,7 @@ export function FeedContent({ filter, tag, observer, searchParams }: Props) {
   ).filter((item) => (noReblog ? !item.reblogged_by : true));
 
   return (
-    <FeedLayout tag={tag} filter={filter}>
+    <FeedLayout tag={tag} filter={filter} observer={observer}>
       <EntryListContent
         loading={false}
         entries={entryList}
