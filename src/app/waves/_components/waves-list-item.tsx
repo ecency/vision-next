@@ -27,6 +27,7 @@ interface Props {
   commentSlot?: ReactNode;
   onExpandReplies?: () => void;
   interactable?: boolean;
+  now?: number;
 }
 
 export function WavesListItem({
@@ -34,7 +35,8 @@ export function WavesListItem({
   i,
   commentSlot,
   onExpandReplies,
-  interactable = true
+  interactable = true,
+  now
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
@@ -122,6 +124,7 @@ export function WavesListItem({
         status={status}
         interactable={interactable}
         onViewFullThread={onClick}
+        now={now}
       />
       <div className="p-4" onClick={(e) => e.stopPropagation()}>
         {relations?.ignores ? (
