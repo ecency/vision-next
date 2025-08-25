@@ -3,6 +3,7 @@ import * as bridgeApi from "@/api/bridge";
 import { ProfileFilter } from "@/enums";
 import { Entry, WaveEntry } from "@/entities";
 import { client } from "@/api/hive";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 async function fetchLatestWaves(host: string) {
   let containers = (
@@ -68,6 +69,7 @@ export function useWavesAutoRefresh(latest?: WaveEntry) {
       }
 
       const items = await fetchLatestWaves(latest.host);
+      EcencyEntriesCacheManagement.updateEntryQueryData(items);
       const latestTime = new Date(latest.created).getTime();
       const fresh = items.filter(
         (i) => new Date(i.created).getTime() > latestTime

@@ -4,9 +4,11 @@ import { ListStyle } from "@/enums";
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
-import { Entry } from "@/entities";
+import { Entry, SearchResponse } from "@/entities";
 import { LinearProgress, UserAvatar, EntryListContent } from "@/features/shared";
 import { getPostsRanked } from "@/api/bridge";
+import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
+import { InfiniteData } from "@tanstack/react-query";
 
 const MAX_PENDING = 20;
 const MAX_AVATARS = 5;
@@ -35,11 +37,54 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
   }, [data, extra]);
 
   useEffect(() => {
-    if (!["trending", "hot", "created"].includes(props.filter)) return;
+    if (!props.observer || !["trending", "hot", "created"].includes(props.filter)) return;
+    const queryClient = getQueryClient();
+    const queryKey = [
+      QueryIdentifiers.GET_POSTS_RANKED,
+      props.filter,
+      props.tag,
+      20,
+      props.observer ?? ""
+    ];
     const interval = setInterval(async () => {
-      const resp = await getPostsRanked(props.filter, "", "", MAX_PENDING, props.tag, props.observer ?? "");
+      const resp = await getPostsRanked(
+        props.filter,
+        "",
+        "",
+        MAX_PENDING,
+        props.tag,
+        props.observer
+      );
       setNow(Date.now());
       if (!resp || resp.length === 0) return;
+
+      // Update existing entries with latest stats
+      queryClient.setQueryData<InfiniteData<Entry[] | SearchResponse>>(queryKey, (old) => {
+        if (!old) return old;
+        const map = new Map(resp.map((e) => [`${e.author}-${e.permlink}`, e]));
+        return {
+          ...old,
+          pages: old.pages.map((page) => {
+            if (Array.isArray(page)) {
+              return (page as Entry[]).map((item) => {
+                const updated = map.get(`${item.author}-${item.permlink}`);
+                return updated ? { ...item, ...updated } : item;
+              });
+            }
+            return page;
+          })
+        };
+      });
+
+      setExtra((p) =>
+        p.map((item) => {
+          const updated = resp.find(
+            (e) => e.author === item.author && e.permlink === item.permlink
+          );
+          return updated ? { ...item, ...updated } : item;
+        })
+      );
+
       const last = latest.current;
       const fresh: Entry[] = [];
       for (const e of resp) {
