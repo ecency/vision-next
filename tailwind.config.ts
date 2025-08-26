@@ -401,7 +401,7 @@ const config: Config = {
     },
     fontFamily: {
       sans: [
-        "var(--font-noto-sans)",
+        "var(--font-inter)",
         "ui-sans-serif",
         "system-ui",
         "-apple-system",
@@ -417,7 +417,7 @@ const config: Config = {
         '"Noto Color Emoji"'
       ],
       serif: [
-        "var(--font-noto-serif)",
+        "var(--font-lora)",
         "ui-serif",
         "Georgia",
         "Cambria",
