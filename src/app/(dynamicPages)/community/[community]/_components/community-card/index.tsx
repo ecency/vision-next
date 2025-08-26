@@ -54,7 +54,7 @@ export function CommunityCard({ community, account }: Props) {
         {canUpdatePic && (
           <CommunityCardEditPic
             account={account as FullAccount}
-            onUpdate={() => setUseNewImage(true)}
+            onUpdate={(url) => setUseNewImage(true)}
           />
         )}
         <UserAvatar

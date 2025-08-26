@@ -128,7 +128,10 @@ export const ProfileCard = ({ account }: Props) => {
       <div className="profile-avatar">
         <UserAvatar username={account?.name} size="xLarge" src={account.profile?.profile_image} />
         {isMyProfile && isSettings && (
-          <CommunityCardEditPic account={account as FullAccount} onUpdate={() => forceUpdate()} />
+          <CommunityCardEditPic
+            account={account as FullAccount}
+            onUpdate={(url) => forceUpdate()}
+          />
         )}
         {account.__loaded && (
           <div className="reputation">{accountReputation(account.reputation!)}</div>
