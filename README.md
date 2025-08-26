@@ -54,8 +54,8 @@ Feel free to test it out and submit improvements and pull requests.
 
 When setting up another service like Ecency with Vision software:
 
-1. You may leave `NEXT_PUBLIC_HS_CLIENT_ID` and `NEXT_PUBLIC_HS_CLIENT_SECRET` environment variables unset and optionally set USE_PRIVATE=1 and leave "base" in the constants/defaults.json set to "https://ecency.com". Your new site will contain more features as it will use Ecency's private API. This is by far the easiest option.
-2. You may change `base` to the URL of your own site, but you will have to set environment variables `NEXT_PUBLIC_HS_CLIENT_ID` and `NEXT_PUBLIC_HS_CLIENT_SECRET`; set USE_PRIVATE=0 as well as configure your the `HIVESIGNER_ID` account at the [Hivesigner website.](https://hivesigner.com/profile). Hivesigner will need a `secret`, in the form of a long lowercase hexadecimal number. The HIVESIGNER_SECRET should be set to this value.
+1. You may leave `NEXT_PUBLIC_HS_CLIENT_ID` and `NEXT_PUBLIC_HS_CLIENT_SECRET` environment variables unset and optionally set `USE_PRIVATE=1` and leave `NEXT_PUBLIC_APP_BASE` set to `https://ecency.com`. Your new site will contain more features as it will use Ecency's private API. This is by far the easiest option.
+2. You may change `NEXT_PUBLIC_APP_BASE` to the URL of your own site, but you will have to set environment variables `NEXT_PUBLIC_HS_CLIENT_ID` and `NEXT_PUBLIC_HS_CLIENT_SECRET`; set `USE_PRIVATE=0` as well as configure your the `HIVESIGNER_ID` account at the [Hivesigner website.](https://hivesigner.com/profile). Hivesigner will need a `secret`, in the form of a long lowercase hexadecimal number. The HIVESIGNER_SECRET should be set to this value.
 
 ###### Hivesigner Login Process
 
@@ -63,7 +63,20 @@ In order to validate a login, and do posting level operations, this software rel
 
 ##### Edit "default" values
 
-If you are setting up your own website other than Ecency.com, you can still leave the value `base` as "https://ecency.com". However, you should change `name`, `title` and `twitterHandle`. There are also a lot of static pages that are Ecency specific.
+Default branding values can now be customized via environment variables without editing source files. Override any of the following in your `.env` file:
+
+```
+NEXT_PUBLIC_APP_BASE
+NEXT_PUBLIC_APP_NAME
+NEXT_PUBLIC_APP_TITLE
+NEXT_PUBLIC_APP_DESCRIPTION
+NEXT_PUBLIC_TWITTER_HANDLE
+NEXT_PUBLIC_APP_LOGO
+NEXT_PUBLIC_IMAGE_SERVER
+NEXT_PUBLIC_NWS_SERVER
+```
+
+If you are setting up your own website other than Ecency.com, set these variables to match your brand. There are also a lot of static pages that are Ecency specific.
 
 ### Extended vision configuration
 

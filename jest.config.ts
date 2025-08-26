@@ -15,7 +15,8 @@ const config: Config = {
   roots: ["./src/specs"],
   moduleNameMapper: {
     "@/(.*)": "<rootDir>/src/$1",
-    "@ui/(.*)": "<rootDir>/src/features/ui/$1"
+    "@ui/(.*)": "<rootDir>/src/features/ui/$1",
+    "@/defaults.json": "<rootDir>/src/defaults.ts"
   },
   setupFilesAfterEnv: ["<rootDir>/src/specs/setup-any-spec.ts"]
 };

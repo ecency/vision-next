@@ -13,6 +13,7 @@ import { scrollDown } from "@ui/svg";
 import { handleInvalid, handleOnInput } from "@/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import defaults from "@/defaults.json";
 
 export function LandingPage() {
   const router = useRouter();
@@ -468,7 +469,7 @@ export function LandingPage() {
             </div>
             <div className="site-icon">
               <Link href="#">
-                <Image width={100} height={100} src="/assets/logo-circle.svg" alt="ecency logo" />
+                <Image width={100} height={100} src={defaults.logo} alt="ecency logo" />
               </Link>
               <p className="copy-right">{i18next.t("landing-page.copy-rights")}</p>
             </div>
