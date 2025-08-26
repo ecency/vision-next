@@ -8,22 +8,25 @@ import React from "react";
 import Script from "next/script";
 import localFont from "next/font/local";
 
-const notoSans = localFont({
+const inter = localFont({
   src: [
-    { path: "../../public/fonts/noto-sans/NotoSans-Regular.ttf", weight: "400", style: "normal" },
-    { path: "../../public/fonts/noto-sans/NotoSans-Bold.ttf", weight: "700", style: "normal" }
-  ],
-  variable: "--font-noto-sans",
-  display: "swap",
-});
+    { path: "../../public/fonts/inter/Inter-Regular.ttf", weight: "400", style: "normal" },
+    { path: "../../public/fonts/inter/Inter-Italic.ttf", weight: "400", style: "italic" },
 
-const notoSerif = localFont({
-  src: [
-    { path: "../../public/fonts/noto-serif/NotoSerif-Regular.ttf", weight: "400", style: "normal" },
-    { path: "../../public/fonts/noto-serif/NotoSerif-Bold.ttf", weight: "700", style: "normal" }
+    { path: "../../public/fonts/inter/Inter-Light.ttf", weight: "300", style: "normal" },
+    { path: "../../public/fonts/inter/Inter-LightItalic.ttf", weight: "300", style: "italic" },
+
+    { path: "../../public/fonts/inter/Inter-SemiBold.ttf", weight: "600", style: "normal" },
+    { path: "../../public/fonts/inter/Inter-SemiBoldItalic.ttf", weight: "600", style: "italic" },
+
+    { path: "../../public/fonts/inter/Inter-Bold.ttf", weight: "700", style: "normal" },
+    { path: "../../public/fonts/inter/Inter-BoldItalic.ttf", weight: "700", style: "italic" },
+
+    { path: "../../public/fonts/inter/Inter-Medium.ttf", weight: "500", style: "normal" },
+    { path: "../../public/fonts/inter/Inter-MediumItalic.ttf", weight: "500", style: "italic" }
   ],
-  variable: "--font-noto-serif",
-  display: "swap",
+  variable: "--font-inter",
+  display: "swap"
 });
 
 const lora = localFont({
@@ -32,14 +35,14 @@ const lora = localFont({
     { path: "../../public/fonts/lora/Lora-Bold.ttf", weight: "700", style: "normal" }
   ],
   variable: "--font-lora",
-  display: "swap",
+  display: "swap"
 });
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const theme = (await cookies()).get("theme")?.value;
 
   return (
-    <html lang="en" className={`${notoSans.variable} ${notoSerif.variable} ${lora.variable}`}>
+    <html lang="en" className={`${lora.variable} ${inter.variable}`}>
       <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
@@ -52,4 +55,3 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     </html>
   );
 }
-
