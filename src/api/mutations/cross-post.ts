@@ -36,10 +36,8 @@ export function useCrossPost(entry: Entry, onSuccess: () => void) {
         original_permlink: entry.permlink
       };
 
-      const options = {
-        ...(makeCommentOptions(author, permlink, "dp") || {}),
-        allow_curation_rewards: false
-      };
+      const options = makeCommentOptions(author, permlink, "dp")!;
+      options.allow_curation_rewards = false;
 
       return comment(author, "", community.id, permlink, title, body, jsonMeta, options);
     },
