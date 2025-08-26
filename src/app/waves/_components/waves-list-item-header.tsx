@@ -1,7 +1,6 @@
 import { UserAvatar } from "@/features/shared";
 import Link from "next/link";
 import i18next from "i18next";
-import { dateToRelative } from "@/utils";
 import { Spinner } from "@ui/spinner";
 import React from "react";
 import { useGlobalStore } from "@/core/global-store";
@@ -9,6 +8,7 @@ import { WaveEntry } from "@/entities";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
+import { TimeLabel } from "@/features/shared";
 
 interface Props {
   entry: WaveEntry;
@@ -17,6 +17,7 @@ interface Props {
   status: string;
   interactable: boolean;
   onViewFullThread?: (e: React.MouseEvent) => void;
+  now?: number;
 }
 
 export function WavesListItemHeader({
@@ -25,7 +26,8 @@ export function WavesListItemHeader({
   hasParent,
   pure,
   onViewFullThread,
-  interactable
+  interactable,
+  now
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
@@ -50,7 +52,7 @@ export function WavesListItemHeader({
           )}
 
           <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-40">
-            <div>{`${dateToRelative(entry.created)}`}</div>
+            <TimeLabel created={entry.created} refresh={now} />
             {entry.host && (
               <>
                 <span>in</span>

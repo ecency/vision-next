@@ -12,7 +12,9 @@ import {
   GetRecoveriesEmailResponse,
   PointTransaction,
   Recoveries,
-  Schedule
+  Schedule,
+  CommentOptions,
+  MetaData
 } from "@/entities";
 import { getAccessToken } from "@/utils";
 import { appAxios } from "@/api/axios";
@@ -196,21 +198,25 @@ export const addSchedule = (
   permlink: string,
   title: string,
   body: string,
-  meta: {},
-  options: {},
+  meta: MetaData,
+  options: CommentOptions | null,
   schedule: string,
   reblog: boolean
 ): Promise<any> => {
-  const data = {
+  const data: any = {
     code: getAccessToken(username),
     permlink,
     title,
     body,
     meta,
-    options,
     schedule,
     reblog
   };
+
+  if (options) {
+    data.options = options;
+  }
+
   return appAxios.post(apiBase(`/private-api/schedules-add`), data).then((resp) => resp.data);
 };
 

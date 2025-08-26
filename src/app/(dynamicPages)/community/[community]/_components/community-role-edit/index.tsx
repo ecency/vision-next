@@ -61,6 +61,7 @@ export function CommunityRoleEditDialog({
 
     if (!userData) {
       setUserError(i18next.t("community-role-edit.user-not-found"));
+      return;
     }
 
     await setUserRole({ user, role });

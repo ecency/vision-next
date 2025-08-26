@@ -2,20 +2,23 @@
 
 import { getWavesByHostQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
-import { Fragment, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { WaveEntry } from "@/entities";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { WavesListLoader } from "@/app/waves/_components/waves-list-loader";
 import { DetectBottom } from "@/features/shared";
 import { WavesFastReplyDialog } from "@/app/waves/_components/waves-fast-reply-dialog";
+import { useWavesAutoRefresh } from "@/app/waves/_hooks";
+import { WavesRefreshPopup } from "@/app/waves/_components";
 
 interface Props {
   host: string;
 }
 
 export function WavesMasonryView({ host }: Props) {
-  const { data, fetchNextPage, isError, hasNextPage } = getWavesByHostQuery(host).useClientQuery();
+  const { data, fetchNextPage, isError, hasNextPage, refetch } = getWavesByHostQuery(host).useClientQuery();
   const dataFlow = useInfiniteDataFlow(data);
+  const { newWaves, clear, now } = useWavesAutoRefresh(dataFlow[0]);
 
   const [replyingEntry, setReplyingEntry] = useState<WaveEntry>();
 
@@ -43,6 +46,16 @@ export function WavesMasonryView({ host }: Props) {
 
   return (
     <div>
+      {newWaves.length > 0 && (
+        <WavesRefreshPopup
+          entries={newWaves}
+          onClick={async () => {
+            await refetch();
+            clear();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
+      )}
       <div className="grid grid-cols-2 items-start gap-4 pb-8">
           {masonryDataFlow?.map((column, colIndex) => (
               <div className="flex flex-col gap-4" key={colIndex}>
@@ -52,6 +65,7 @@ export function WavesMasonryView({ host }: Props) {
                           i={index}
                           item={item}
                           onExpandReplies={() => setReplyingEntry(item)}
+                          now={now}
                       />
                   ))}
               </div>

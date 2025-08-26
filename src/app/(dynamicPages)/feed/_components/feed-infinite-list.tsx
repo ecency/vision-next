@@ -9,9 +9,10 @@ interface Props {
   filter: string;
   tag: string;
   observer?: string;
+  now?: number;
 }
 
-export function FeedInfiniteList({ filter, tag, observer }: Props) {
+export function FeedInfiniteList({ filter, tag, observer, now }: Props) {
   const { fetchNextPage, data } = usePostsFeedQuery(filter, tag, observer);
 
   const entryList = useMemo(
@@ -37,6 +38,7 @@ export function FeedInfiniteList({ filter, tag, observer }: Props) {
         sectionParam={filter}
         isPromoted={false}
         showEmptyPlaceholder={false}
+        now={now}
       />
       <DetectBottom onBottom={() => fetchNextPage()} />
     </>

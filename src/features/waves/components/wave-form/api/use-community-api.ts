@@ -66,8 +66,8 @@ export function useCommunityApi() {
           tags: [hostTag],
           description: ""
         }),
-        max_accepted_payout: options.max_accepted_payout,
-        percent_hbd: options.percent_hbd
+        max_accepted_payout: options?.max_accepted_payout ?? "1000000.000 HBD",
+        percent_hbd: options?.percent_hbd ?? 10000
       };
       updateEntryQueryData([entry]);
 

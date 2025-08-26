@@ -52,7 +52,9 @@ describe("Posting", () => {
 
   describe("makeCommentOptions", () => {
     it("(1) Default 50% / 50%", () => {
-      expect(makeCommentOptions("talhasch", "lorem-ipsum-1", "default")).toMatchSnapshot();
+      expect(
+        makeCommentOptions("talhasch", "lorem-ipsum-1", "default")
+      ).toBeNull();
     });
 
     it("(2) Power Up 100%", () => {
@@ -64,7 +66,9 @@ describe("Posting", () => {
     });
 
     it("(4) Empty beneficiary list", () => {
-      expect(makeCommentOptions("talhasch", "lorem-ipsum-1", "default", [])).toMatchSnapshot();
+      expect(
+        makeCommentOptions("talhasch", "lorem-ipsum-1", "default", [])
+      ).toBeNull();
     });
 
     it("(5) With beneficiary list", () => {

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { FullAccount } from "@/entities";
 import i18next from "i18next";
 import Image from "next/image";
+import defaults from "@/defaults.json";
 
 interface Props {
   isExpanded: boolean;
@@ -40,7 +41,7 @@ export const DeckToolbarUser = ({ isExpanded, items, setIsExpanded }: Props) => 
           <Image
             alt="logo"
             className="user-avatar medium"
-            src="/assets/logo-circle.svg"
+            src={defaults.logo}
             width={100}
             height={100}
           />

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useMemo } from "react";
 import { arrangeSunflowerSeeds } from "./utils/sunflower-seed-arrangement";
 import clsx from "clsx";
+import defaults from "@/defaults.json";
 
 interface Props {
   options: number[];
@@ -25,7 +26,7 @@ export function PointsSpin({ options, destination, startSpin }: Props) {
         }}
       >
         <Image
-          src="/assets/logo-circle.svg"
+          src={defaults.logo}
           width={96}
           height={96}
           alt=""

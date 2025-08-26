@@ -97,7 +97,7 @@ export function useScheduleApi() {
           schedule?.toISOString()!,
           isReblogToCommunity!
         );
-        recordActivity();
+        await recordActivity();
       } catch (e) {
         if (e instanceof AxiosError) {
           if (e.response?.data?.message) {

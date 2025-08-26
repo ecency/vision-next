@@ -27,3 +27,4 @@ export function ProfileLink({ afterClick, target, className, children, username 
     </Link>
   );
 }
+

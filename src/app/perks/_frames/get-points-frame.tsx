@@ -14,6 +14,7 @@ import { UilPlus } from "@tooni/iconscout-unicons-react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
+import defaults from "@/defaults.json";
 
 export function GetPointsFrame() {
   const ref = useRef<HTMLDivElement>(null);
@@ -52,7 +53,7 @@ export function GetPointsFrame() {
             <span className="w-[20px] h-[2px] bg-gray-400 dark:bg-gray-700"></span>
             <span className="w-[20px] h-[2px] bg-gray-400 dark:bg-gray-700"></span>
           </div>
-          <Image src="/assets/logo-circle.svg" width={32} height={32} alt="" />
+          <Image src={defaults.logo} width={32} height={32} alt="" />
         </div>
 
         <div className="bg-gray-100 border border-[--border-color] dark:bg-gray-900 p-4 rounded-lg m-4">

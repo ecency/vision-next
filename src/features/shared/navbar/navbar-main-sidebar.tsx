@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
 import { EcencyConfigManager } from "@/config";
+import defaults from "@/defaults.json";
 
 interface Props {
   show: boolean;
@@ -50,7 +51,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
         <div className="flex items-center gap-3">
           <div className="h-[40px] w-[40px] shrink-0 cursor-pointer">
             <Image
-              src="/assets/logo-circle.svg"
+              src={defaults.logo}
               alt="Logo"
               className="h-[40px] w-[40px]"
               onClick={onLogoClick}
@@ -109,7 +110,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           icon={<UilUserSquare size={16} />}
         />
         <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.center.enabled}
+          condition={({ visionFeatures }) => visionFeatures.chats.enabled}
         >
           <NavbarSideMainMenuItem
             label={i18next.t("navbar.chats")}

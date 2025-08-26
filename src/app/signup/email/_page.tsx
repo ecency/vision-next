@@ -23,6 +23,7 @@ import { appleSvg, checkSvg, googleSvg, hiveSvg } from "@ui/svg";
 import { Tsx } from "@/features/i18n/helper";
 import { useGlobalStore } from "@/core/global-store";
 import Link from "next/link";
+import defaults from "@/defaults.json";
 
 enum Stage {
   FORM = "form",
@@ -213,7 +214,7 @@ export function SignUp() {
                   <Image
                     width={100}
                     height={100}
-                    src="/assets/logo-circle.svg"
+                    src={defaults.logo}
                     alt="Ecency"
                     title="Ecency"
                   />

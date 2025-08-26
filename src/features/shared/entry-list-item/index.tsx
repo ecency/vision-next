@@ -40,6 +40,7 @@ interface Props {
   order: number;
   account?: Account;
   filter?: string;
+  now?: number;
 }
 
 export function EntryListItemComponent({
@@ -49,7 +50,8 @@ export function EntryListItemComponent({
   account,
   promoted = false,
   order,
-  filter
+  filter,
+  now
 }: Props) {
   const pageAccount = account as FullAccount;
 
@@ -99,7 +101,7 @@ export function EntryListItemComponent({
             <>{entry.community_title || entry.category}</>
           </TagLink>
           <span className="read-mark ml-2" />
-          <TimeLabel created={entry.created} />
+          <TimeLabel created={entry.created} refresh={now} />
 
           <EntryListItemPollIcon entry={entryProp} />
         </div>

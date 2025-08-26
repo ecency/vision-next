@@ -7,16 +7,18 @@ import { pencilOutlineSvg } from "@ui/svg";
 import { ImageUploadDialog } from "./community-image-upload-dialog";
 import { FullAccount } from "@/entities";
 import { useUpdateProfile } from "@/api/mutations";
+import { useGlobalStore } from "@/core/global-store";
 
 interface EditPicProps {
   account: FullAccount;
-  onUpdate: () => void;
+  onUpdate: (url: string) => void;
 }
 
 export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
   const [dialog, setDialog] = useState(false);
 
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile(account);
+  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
 
   const save = useCallback(
     async (url: string) => {
@@ -30,10 +32,20 @@ export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
           profile_image: url
         }
       });
+
+      account.profile = { ...(account.profile || {}), profile_image: url };
+      await updateActiveUser();
+
       setDialog(false);
-      onUpdate();
+      onUpdate(url);
     },
-    [account.profile?.profile_image, dialog, onUpdate, updateProfile]
+    [
+      account,
+      dialog,
+      onUpdate,
+      updateActiveUser,
+      updateProfile
+    ]
   );
 
   return (
