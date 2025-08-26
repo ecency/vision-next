@@ -37,7 +37,7 @@ export function useCrossPost(entry: Entry, onSuccess: () => void) {
       };
 
       const options = {
-        ...makeCommentOptions(author, permlink, "dp"),
+        ...(makeCommentOptions(author, permlink, "dp") || {}),
         allow_curation_rewards: false
       };
 

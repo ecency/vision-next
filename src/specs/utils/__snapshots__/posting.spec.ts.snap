@@ -1,0 +1,120 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Posting (1) extractMetadata 1`] = `
+{
+  "image": [
+    "http://www.xx.com/a.png",
+  ],
+  "thumbnails": [
+    "http://www.xx.com/a.png",
+  ],
+}
+`;
+
+exports[`Posting (2) extractMetadata 1`] = `
+{
+  "image": [
+    "http://www.xx.com/a.png",
+    "https://img.esteem.ws/h74zrad2fh.jpg",
+  ],
+  "thumbnails": [
+    "http://www.xx.com/a.png",
+    "https://img.esteem.ws/h74zrad2fh.jpg",
+  ],
+}
+`;
+
+exports[`Posting createPatch 1`] = `
+"@@ -6,16 +6,17 @@
+  ipsum d
++o
+ lor sit
+"
+`;
+
+exports[`Posting createPermlink 1`] = `"lorem-ipsum-dolor-sit-amet"`;
+
+exports[`Posting createPermlink non-latin chars 1`] = `"f38c58113ff7e"`;
+
+exports[`Posting createPermlink random 1`] = `"lorem-ipsum-dolor-sit-amet-f38c58113ff7e"`;
+
+exports[`Posting createReplyPermlink 1`] = `"re-good-karma-2018921t120500z"`;
+
+exports[`Posting makeCommentOptions (2) Power Up 100% 1`] = `
+{
+  "allow_curation_rewards": true,
+  "allow_votes": true,
+  "author": "talhasch",
+  "extensions": [],
+  "max_accepted_payout": "1000000.000 HBD",
+  "percent_hbd": 0,
+  "permlink": "lorem-ipsum-1",
+}
+`;
+
+exports[`Posting makeCommentOptions (3) Decline Payout 1`] = `
+{
+  "allow_curation_rewards": true,
+  "allow_votes": true,
+  "author": "talhasch",
+  "extensions": [],
+  "max_accepted_payout": "0.000 HBD",
+  "percent_hbd": 10000,
+  "permlink": "lorem-ipsum-1",
+}
+`;
+
+exports[`Posting makeCommentOptions (5) With beneficiary list 1`] = `
+{
+  "allow_curation_rewards": true,
+  "allow_votes": true,
+  "author": "talhasch",
+  "extensions": [
+    [
+      0,
+      {
+        "beneficiaries": [
+          {
+            "account": "bar",
+            "weight": 200,
+          },
+          {
+            "account": "foo",
+            "weight": 300,
+          },
+        ],
+      },
+    ],
+  ],
+  "max_accepted_payout": "1000000.000 HBD",
+  "percent_hbd": 10000,
+  "permlink": "lorem-ipsum-1",
+}
+`;
+
+exports[`Posting makeJsonMetaData 1`] = `
+{
+  "app": "ecency/2.0.0-vision",
+  "description": "",
+  "format": "markdown+html",
+  "image": [
+    "http://www.xx.com/a.png",
+    "https://img.esteem.ws/h74zrad2fh.jpg",
+  ],
+  "tags": [
+    "esteem",
+    "art",
+  ],
+}
+`;
+
+exports[`Posting makeJsonMetadataReply 1`] = `
+{
+  "app": "ecency/1.1-vision",
+  "format": "markdown+html",
+  "tags": [
+    "foo",
+    "bar",
+  ],
+}
+`;

@@ -86,8 +86,14 @@ export const makeCommentOptions = (
   permlink: string,
   rewardType: RewardType,
   beneficiaries?: BeneficiaryRoute[]
-): CommentOptions => {
+): CommentOptions | null => {
   beneficiaries?.forEach((b) => delete b.src);
+
+  const hasBeneficiaries = !!beneficiaries && beneficiaries.length > 0;
+
+  if (!hasBeneficiaries && rewardType === "default") {
+    return null;
+  }
 
   beneficiaries?.sort((a, b) => a.account.localeCompare(b.account));
   const opt: CommentOptions = {
@@ -97,8 +103,7 @@ export const makeCommentOptions = (
     permlink,
     max_accepted_payout: "1000000.000 HBD",
     percent_hbd: 10000,
-    extensions:
-      beneficiaries && beneficiaries.length > 0 ? [[0, { beneficiaries: beneficiaries }]] : []
+    extensions: hasBeneficiaries ? [[0, { beneficiaries }]] : []
   };
 
   switch (rewardType) {
