@@ -12,6 +12,7 @@ import Image from "next/image";
 import i18next from "i18next";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import { Alert } from "@ui/alert";
+import defaults from "@/defaults.json";
 
 export function AuthPage() {
   const searchParams = useSearchParams();
@@ -73,7 +74,7 @@ export function AuthPage() {
 
   return (
     <div className="flex gap-4 md:gap-8 lg:gap-12 items-center justify-start flex-col p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16 w-full dark:bg-black">
-      <Image src="/assets/logo-circle.svg" alt="logo" width={128} height={128} />
+      <Image src={defaults.logo} alt="logo" width={128} height={128} />
       <h1 className="text-xl md:text-3xl lg:text-4xl xl:text-6xl font-semibold text-blue-dark-sky">
         {i18next.t("hs-login.title")}
       </h1>
