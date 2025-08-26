@@ -110,7 +110,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           icon={<UilUserSquare size={16} />}
         />
         <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.center.enabled}
+          condition={({ visionFeatures }) => visionFeatures.chats.enabled}
         >
           <NavbarSideMainMenuItem
             label={i18next.t("navbar.chats")}

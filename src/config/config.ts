@@ -88,7 +88,7 @@ const CONFIG = {
       editHistory: {
         enabled: true
       },
-      center: {
+      chats: {
         enabled: true
       },
       plausible: {
