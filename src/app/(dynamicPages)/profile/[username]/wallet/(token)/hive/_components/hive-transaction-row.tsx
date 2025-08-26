@@ -10,11 +10,12 @@ import {
 } from "@/assets/img/svg";
 import { Transaction } from "@/entities";
 import { Tsx } from "@/features/i18n/helper";
-import { EntryLink, UserAvatar } from "@/features/shared";
+import { EntryLink, ProfileLink, UserAvatar } from "@/features/shared";
 import { TwoUserAvatar } from "@/features/shared/two-user-avatar";
 import { formattedNumber, parseAsset } from "@/utils";
 import { UilArrowRight, UilRefresh } from "@tooni/iconscout-unicons-react";
 import { ProfileWalletTokenHistoryHiveItem } from "../../_components";
+import { Badge } from "@/features/ui";
 
 interface Props {
   transaction: Transaction;
@@ -72,16 +73,24 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     icon = <UilArrowRight className="w-4 h-4" />;
 
     details = (
-      <span>
-        {tr.memo ? (
-          <>
-            {tr.memo} <br /> <br />
-          </>
-        ) : null}
-        <>
-          <strong>@{tr.from}</strong> -&gt; <strong>@{tr.to}</strong>
-        </>
-      </span>
+      <div>
+        <div className="flex gap-2 items-center">
+          <ProfileLink username={tr.from}>
+            <Badge className="flex gap-1 pl-0.5 items-center">
+              <UserAvatar username={tr.from} size="small" />
+              {tr.from}
+            </Badge>
+          </ProfileLink>
+          <UilArrowRight className="text-gray-400 dark:text-gray-600" />
+          <ProfileLink username={tr.to}>
+            <Badge className="flex gap-1 pl-0.5 items-center">
+              <UserAvatar username={tr.to} size="small" />
+              {tr.to}
+            </Badge>
+          </ProfileLink>
+        </div>
+        {tr.memo && <div className="text-sm opacity-75">{tr.memo}</div>}
+      </div>
     );
 
     numbers = <span className="number">{tr.amount}</span>;

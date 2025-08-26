@@ -2881,6 +2881,8 @@
     "asset-name": "Asset name",
     "price": "Price",
     "balance": "Balance",
+    "history": "History",
+    "market": "Market",
     "apr": "APR Rewards",
     "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe",
     "operations": {

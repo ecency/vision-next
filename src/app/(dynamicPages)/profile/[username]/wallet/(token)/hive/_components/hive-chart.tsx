@@ -8,7 +8,6 @@ import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 import { format } from "date-fns";
 import i18next from "i18next";
 import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
-import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import { useMount } from "react-use";
@@ -16,17 +15,12 @@ import { useMount } from "react-use";
 export function HiveChart() {
   const theme = useGlobalStore((s) => s.theme);
 
-  const { token } = useParams();
   const { ref: chartContainerRef, width, height } = useResizeDetector();
 
   const chartRef = useRef<IChartApi>();
   const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick">>();
 
-  const {
-    data: dataPages,
-    fetchNextPage,
-    isFetchingNextPage
-  } = useInfiniteQuery(getHiveAssetMetricQueryOptions());
+  const { data: dataPages } = useInfiniteQuery(getHiveAssetMetricQueryOptions());
 
   const data = useInfiniteDataFlow(dataPages);
   const uniqueData = useMemo(
@@ -117,7 +111,9 @@ export function HiveChart() {
   return (
     <div className="bg-white rounded-xl mb-4">
       <div className="p-4 flex justify-between">
-        <div className="text-sm text-gray-600 dark:text-gray-400">Market</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          {i18next.t("profile-wallet.market")}
+        </div>
 
         <Button
           href="/marked/advanced"
