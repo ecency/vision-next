@@ -52,7 +52,7 @@ Feel free to test it out and submit improvements and pull requests.
 
 ###### Hivesigner Variables
 
-When setting up another service like Ecency with Ecency-vision software:
+When setting up another service like Ecency with Vision software:
 
 1. You may leave `NEXT_PUBLIC_HS_CLIENT_ID` and `NEXT_PUBLIC_HS_CLIENT_SECRET` environment variables unset and optionally set USE_PRIVATE=1 and leave "base" in the constants/defaults.json set to "https://ecency.com". Your new site will contain more features as it will use Ecency's private API. This is by far the easiest option.
 2. You may change `base` to the URL of your own site, but you will have to set environment variables `NEXT_PUBLIC_HS_CLIENT_ID` and `NEXT_PUBLIC_HS_CLIENT_SECRET`; set USE_PRIVATE=0 as well as configure your the `HIVESIGNER_ID` account at the [Hivesigner website.](https://hivesigner.com/profile). Hivesigner will need a `secret`, in the form of a long lowercase hexadecimal number. The HIVESIGNER_SECRET should be set to this value.
@@ -111,7 +111,7 @@ docker stack deploy -c docker-compose.yml -c docker-compose.production.yml visio
 ***
 ## Contributors
 
-[![Contributors](https://contrib.rocks/image?repo=ecency/ecency-vision)](https://github.com/ecency/ecency-vision/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=ecency/vision-next)](https://github.com/ecency/vision-next/graphs/contributors)
 
 
 ***
@@ -143,4 +143,4 @@ We will evaluate the risk and make a patch available before filing the issue.
 [//]: # "LINKS"
 [ecency_vision]: https://ecency.com
 [ecency_alpha]: https://alpha.ecency.com
-[ecency_release]: https://github.com/ecency/ecency-vision/releases
+[ecency_release]: https://github.com/ecency/vision-next/releases
