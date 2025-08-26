@@ -30,9 +30,9 @@ Feel free to test it out and submit improvements and pull requests.
 
 ##### Clone
 
-`$ git clone https://github.com/ecency/ecency-vision`
+`$ git clone https://github.com/ecency/vision-next`
 
-`$ cd ecency-vision`
+`$ cd vision-next`
 
 ##### Install dependencies
 
