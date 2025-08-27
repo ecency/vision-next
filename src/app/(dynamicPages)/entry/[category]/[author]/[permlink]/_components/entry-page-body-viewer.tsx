@@ -4,11 +4,15 @@ import { Entry } from "@/entities";
 import { SelectionPopover } from "./selection-popover";
 import { EntryPageViewerManager } from "./entry-page-viewer-manager";
 import { setupPostEnhancements } from "@ecency/renderer";
-import { Tweet } from "react-tweet";
+import dynamic from "next/dynamic";
 import { useContext, useEffect, useState } from "react";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
 import { EntryPageContext } from "./context";
 import { EntryPageEdit } from "./entry-page-edit";
+
+const Tweet = dynamic(() => import("react-tweet").then((m) => m.Tweet), {
+  ssr: false,
+});
 
 interface Props {
   entry: Entry;
@@ -23,7 +27,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
     const el = document.getElementById("post-body");
-    if (el) {
+    if (el?.parentNode) {
       setupPostEnhancements(el, {
         onHiveOperationClick: (op) => {
           setSigningOperation(op);
