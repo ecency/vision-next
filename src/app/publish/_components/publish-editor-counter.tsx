@@ -27,7 +27,10 @@ export function PublishEditorCounter() {
       springValue.on("change", (latest) => {
         if (ref.current) {
           ref.current.textContent = i18next.t("word-count.label", {
-            n: Intl.NumberFormat("en-US").format(+latest.toFixed(0))
+            n:
+              typeof Intl !== "undefined" && typeof Intl.NumberFormat === "function"
+                ? Intl.NumberFormat("en-US").format(+latest.toFixed(0))
+                : (+latest.toFixed(0)).toString()
           });
         }
       }),
