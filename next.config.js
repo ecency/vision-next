@@ -72,6 +72,21 @@ const config = {
         source: "/:author(@.+)/feed",
         destination: "/feed/feed/:author"
       },
+
+      // Legacy pages
+      {
+        source: "/:author(@.+)/points",
+        destination: "/profile/:author/wallet/points"
+      },
+      {
+        source: "/:author(@.+)/spk",
+        destination: "/profile/:author/wallet/spk"
+      },
+      {
+        source: "/:author(@.+)/engine",
+        destination: "/profile/:author/wallet"
+      },
+
       {
         source: "/:author(@.+)/wallet/:token",
         destination: "/profile/:author/wallet/:token"
