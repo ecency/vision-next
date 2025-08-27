@@ -53,12 +53,13 @@ export function EntryTranslate({ entry, onHide }: Props) {
       dialogClassName="mt-0 rounded-xl"
     >
       <ModalHeader closeButton={true}>{i18next.t("entry-menu.translate")}</ModalHeader>
-      <ModalBody>
+      <ModalBody className="pb-12 min-h-[200px]">
         <div className="mb-3">
           <label className="block text-sm mb-1">
             {i18next.t("entry-translate.target-language")}
           </label>
           <Select
+            type={"select"}
             value={target}
             size="sm"
             onChange={(e) => setTarget(e.target.value)}
