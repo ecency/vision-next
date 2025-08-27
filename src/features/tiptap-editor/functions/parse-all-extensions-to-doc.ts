@@ -83,5 +83,14 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
       el.parentElement?.replaceChild(p, el);
     }
   });
+
+  // Ensure list items have a paragraph before nested lists to satisfy ProseMirror schema
+  (Array.from(tree.querySelectorAll("li")) as HTMLElement[]).forEach((li) => {
+    const first = li.firstElementChild;
+    if (first && (first.tagName === "OL" || first.tagName === "UL")) {
+      const p = document.createElement("p");
+      li.insertBefore(p, first);
+    }
+  });
   return tree.innerHTML;
 }
