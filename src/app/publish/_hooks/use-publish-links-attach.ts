@@ -19,7 +19,10 @@ export function usePublishLinksAttach(editor: Editor | null) {
         })
         ?.filter(
           ([author, permlink]) =>
-            postLinks?.every((post) => author !== post.author && permlink !== post.permlink)
+            postLinks?.every(
+              (post) =>
+                author !== post?.author && permlink !== post?.permlink
+            )
         )
         ?.forEach(async ([author, permlink]) => {
           const query = EcencyEntriesCacheManagement.getEntryQueryByPath(
@@ -34,7 +37,9 @@ export function usePublishLinksAttach(editor: Editor | null) {
           }
           setPostLinks([
             ...(postLinks?.filter(
-              (post) => post.author !== entryData?.author && post.permlink !== entryData?.permlink
+              (post) =>
+                post?.author !== entryData?.author &&
+                post?.permlink !== entryData?.permlink
             ) ?? []),
             entryData!
           ]);
