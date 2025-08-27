@@ -3,7 +3,7 @@ import Image from "next/image";
 import { catchPostImage } from "@ecency/render-helper";
 import { dateToFullRelative } from "@/utils";
 import { EntryLink } from "@/features/shared";
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import { SearchResult } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 
@@ -14,6 +14,7 @@ interface Props {
 
 export function SimilarEntryItem({ entry, i }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
+  const ref = useRef<HTMLDivElement>(null);
   const postImage = useMemo(
     () => catchPostImage(entry.img_url, 600, 500, canUseWebp ? "webp" : "match"),
     [canUseWebp, entry.img_url]
@@ -22,15 +23,14 @@ export function SimilarEntryItem({ entry, i }: Props) {
   return (
     <EntryLink entry={entry}>
       <motion.div
-        className="similar-entries-list-item bg-gray-100 hover:bg-blue-dark-sky-040 dark:bg-gray-900 rounded-2xl overflow-hidden"
-        whileHover={{
-          rotate: 1.5
-        }}
+        ref={ref}
+        className="similar-entries-list-item bg-gray-100 hover:bg-blue-dark-sky-040 dark:bg-gray-900 rounded-2xl overflow-hidden transform transition-transform duration-200 hover:rotate-[1.5deg]"
         initial={{
           opacity: 0,
           y: -24
         }}
         animate={{ opacity: 1, y: 0, transition: { delay: i * 0.2 } }}
+        onAnimationComplete={() => ref.current?.style.removeProperty("transform")}
       >
         {postImage && (
           <Image
