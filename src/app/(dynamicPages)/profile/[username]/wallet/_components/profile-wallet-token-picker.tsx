@@ -10,13 +10,14 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getAccountWalletListQueryOptions,
   getAllTokensListQueryOptions,
-  useChangeAssetsList
+  useSaveWalletInformationToMetadata
 } from "@ecency/wallets";
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
 import { useClientActiveUser } from "@/api/queries";
 import { TOKEN_LOGOS_MAP } from "@/features/wallet";
+import * as R from "remeda";
 
 export function ProfileWalletTokenPicker() {
   const { username } = useParams();
@@ -30,11 +31,14 @@ export function ProfileWalletTokenPicker() {
     getAccountWalletListQueryOptions((username as string).replace("%40", ""))
   );
 
-  const { mutateAsync: changeList } = useChangeAssetsList((username as string).replace("%40", ""));
+  const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(
+    (username as string).replace("%40", "")
+  );
 
   const update = useCallback(
     (token: string) => {
-      let list = [...walletList];
+      let list = [...(walletList ?? [])];
+
       if (list.includes(token)) {
         const index = list.indexOf(token);
         delete list[index];
@@ -43,13 +47,25 @@ export function ProfileWalletTokenPicker() {
       }
 
       list = list.filter((i) => !!i);
-      changeList([
-        ...(allTokens?.basic.filter((i) => list.includes(i)) ?? []),
-        ...(allTokens?.external.filter((i) => list.includes(i)) ?? []),
-        ...(allTokens?.layer2?.filter((i) => list.includes(i.symbol)).map((i) => i.symbol) ?? [])
+
+      // Meta could be empty because this mutation is merging metadata deeply
+      //      Even if the given meta is empty it will get meta from profile
+      updateWallet([
+        ...R.pipe(
+          allTokens?.basic.filter((i) => list.includes(i)) ?? [],
+          R.map((currency) => ({ currency, type: "HIVE" }))
+        ),
+        ...R.pipe(
+          allTokens?.external.filter((i) => list.includes(i)) ?? [],
+          R.map((currency) => ({ currency, type: "CHAIN" }))
+        ),
+        ...R.pipe(
+          allTokens?.layer2?.filter((i) => list.includes(i.symbol)) ?? [],
+          R.map(({ symbol: currency }) => ({ currency, type: "ENGINE" }))
+        )
       ]);
     },
-    [changeList, walletList, allTokens]
+    [updateWallet, walletList, allTokens]
   );
 
   if (activeUser?.username !== (username as string).replace("%40", "")) {
@@ -79,7 +95,7 @@ export function ProfileWalletTokenPicker() {
                     <FormControl
                       type="checkbox"
                       disabled={["POINTS", "HIVE", "HBD"].includes(token)}
-                      checked={walletList?.includes(token)}
+                      checked={walletList?.includes(token) ?? false}
                       onChange={() => !["POINTS", "HIVE", "HBD"].includes(token) && update(token)}
                     />
                     <div>{TOKEN_LOGOS_MAP[token]}</div>
@@ -98,7 +114,7 @@ export function ProfileWalletTokenPicker() {
                   <ListItem className="!flex items-center gap-2" key={token}>
                     <FormControl
                       type="checkbox"
-                      checked={walletList?.includes(token)}
+                      checked={walletList?.includes(token) ?? false}
                       onChange={() => update(token)}
                     />
                     {token}
@@ -116,7 +132,7 @@ export function ProfileWalletTokenPicker() {
                   <ListItem className="!flex items-center gap-2" key={token.name}>
                     <FormControl
                       type="checkbox"
-                      checked={walletList?.includes(token.symbol)}
+                      checked={walletList?.includes(token.symbol) ?? false}
                       onChange={() => update(token.symbol)}
                     />
                     <Image

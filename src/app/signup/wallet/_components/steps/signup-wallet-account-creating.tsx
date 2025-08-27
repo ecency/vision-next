@@ -5,7 +5,7 @@ import { Button } from "@/features/ui";
 import { delay } from "@/utils";
 import { EcencyAnalytics } from "@ecency/sdk";
 import {
-  EcencyCreateWalletInformation,
+  EcencyTokenMetadata,
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
   useHiveKeysQuery,
@@ -33,7 +33,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
 
   const { data: seed } = useSeedPhrase(username);
   const { data: accountKeys } = useHiveKeysQuery(username);
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
+  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
@@ -61,11 +61,11 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   useEffect(() => {
     if (accountKeys && wallet && !hasInitiated) {
       setHasInitiated(true);
-      createAccount({ currency: wallet.currency, address: wallet.address })
+      createAccount({ currency: wallet.currency!, address: wallet.address! })
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp())
-        .then(() => saveWalletInformationToMetadata({ wallets: wallets! }))
+        .then(() => saveWalletInformationToMetadata(Array.from(wallets?.values() ?? [])))
         .then(() => recordActivity());
     }
   }, [
@@ -76,7 +76,8 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     validateAccountIsCreated,
     hasInitiated,
     saveWalletInformationToMetadata,
-    wallets
+    wallets,
+    recordActivity
   ]);
 
   return (
