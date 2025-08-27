@@ -9,19 +9,18 @@ import { UilSpinner, UilTrash } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useMount } from "react-use";
 import { useEffect } from "react";
 const processedBlobUrls = new Set<string>();
 
 export function PublishEditorImageViewer({
   node: {
-    attrs: { src, alt }
+    attrs: { src, alt, class: alignClass }
   },
   updateAttributes,
   deleteNode,
   selected
 }: NodeViewProps) {
-  const editor = useEditor({
+  const captionEditor = useEditor({
     shouldRerenderOnTransaction: true,
     content: alt ?? "",
     extensions: [
@@ -63,10 +62,12 @@ export function PublishEditorImageViewer({
 
   return (
     <NodeViewWrapper
-      onClick={() => editor?.chain().selectTextblockEnd().focus().run()}
+      onClick={() => captionEditor?.chain().selectTextblockEnd().focus().run()}
       className={clsx(
         "publish-editor-image-viewer cursor-grab border hover:border-blue-dark-sky inline-flex relative",
-        selected ? "border-blue-dark-sky" : "border-transparent"
+        selected ? "border-blue-dark-sky" : "border-transparent",
+        alignClass === "pull-left" && "float-left mr-2",
+        alignClass === "pull-right" && "float-right ml-2"
       )}
       data-drag-handle
     >
@@ -94,7 +95,7 @@ export function PublishEditorImageViewer({
               alt={alt}
             />
             <div className="flex items-center justify-center text-sm font-sans text-center leading-relaxed py-4">
-              <EditorContent editor={editor} className="cursor-text" />
+              <EditorContent editor={captionEditor} className="cursor-text" />
             </div>
           </motion.div>
         }
@@ -147,9 +148,7 @@ export function PublishEditorImageViewer({
                 Original
               </Button>
             )}
-            {isEcencyImage && (
-              <div className="h-[36px] -my-2 w-[1px] bg-[--border-color]" />
-            )}
+            <div className="h-[36px] -my-2 w-[1px] bg-[--border-color]" />
             <Button
               noPadding={true}
               className="!h-auto"
