@@ -431,9 +431,13 @@
     "mute-success": "Пост заблокирован",
     "unmute": "Разблокировать",
     "unmute-success": "Пост разблокирован",
+    "translate": "Перевести",
     "promote": "Продвинуть",
     "boost": "Усилить",
     "edit-classic": "Классическое редактирование"
+  },
+  "entry-translate": {
+    "target-language": "Целевой язык"
   },
   "cross-post": {
     "title": "Кросс-пост",
