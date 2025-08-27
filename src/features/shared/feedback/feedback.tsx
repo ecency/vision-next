@@ -1,6 +1,7 @@
 "use client";
 
-import { FeedbackMessage, FeedbackObject } from "@/features/shared";
+import { FeedbackMessage } from "./feedback-message";
+import { FeedbackObject } from "./feedback-events";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useMemo } from "react";
 import { useMount, useSet, useUnmount } from "react-use";

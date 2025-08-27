@@ -2,7 +2,8 @@
 
 import { useGlobalStore } from "@/core/global-store";
 import { ErrorTypes } from "@/enums";
-import { ErrorFeedbackObject, FeedbackModal, FeedbackObject } from "@/features/shared";
+import { ErrorFeedbackObject, FeedbackObject } from "./feedback-events";
+import { FeedbackModal } from "./feedback-modal";
 import { UilCheckCircle, UilExclamationCircle, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
