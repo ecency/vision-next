@@ -90,6 +90,11 @@ export function HiveEngineChart() {
     if (candleStickSeriesRef.current && data) {
       candleStickSeriesRef.current.setData([]);
       candleStickSeriesRef.current.setData([...data]);
+
+      // Fit chart to data bounds
+      if (chartRef.current && data.length > 0) {
+        chartRef.current.timeScale().fitContent();
+      }
     }
   }, [data]);
 
