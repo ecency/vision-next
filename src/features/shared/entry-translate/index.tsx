@@ -62,7 +62,7 @@ export function EntryTranslate({ entry, onHide }: Props) {
             type={"select"}
             value={target}
             size="sm"
-            onChange={(e) => setTarget(e.target.value)}
+            onChange={(e) => setTarget(e.currentTarget.value)}
           >
             {languages.map((lang) => (
               <option key={lang.code} value={lang.code}>
