@@ -431,9 +431,13 @@
     "mute-success": "Post muted",
     "unmute": "Unmute",
     "unmute-success": "Post unmuted",
+    "translate": "Traduire",
     "promote": "Promote",
     "boost": "Boost",
     "edit-classic": "Edit in Classic Editor"
+  },
+  "entry-translate": {
+    "target-language": "Langue cible"
   },
   "cross-post": {
     "title": "Cross Post",
