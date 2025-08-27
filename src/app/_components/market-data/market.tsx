@@ -142,9 +142,21 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
     const node = nodeRef.current;
     if (!node) return;
 
-    const circle = e.currentTarget;
+    const circle = e.currentTarget as Element | null;
     const circles = node.querySelectorAll(".graph-bar");
-    const index = Array.prototype.indexOf.call(circles, circle);
+
+    let index = -1;
+    for (let i = 0; i < circles.length; i += 1) {
+      if (circles[i] === circle) {
+        index = i;
+        break;
+      }
+    }
+
+    if (index < 0) {
+      return;
+    }
+
     const item = prices[index];
 
     const strPrice = numeral(item.price).format(formatter);
