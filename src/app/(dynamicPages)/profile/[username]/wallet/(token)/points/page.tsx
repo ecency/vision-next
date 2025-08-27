@@ -1,25 +1,50 @@
 "use client";
 
 import { useClientActiveUser } from "@/api/queries";
-import { Button } from "@/features/ui";
-import { getPointsAssetTransactionsQueryOptions } from "@ecency/wallets";
+import { Button, FormControl } from "@/features/ui";
+import { getPointsAssetTransactionsQueryOptions, PointTransactionType } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { ProfileWalletPointsInfo } from "../../_components";
 import { ProfileWalletTokenHistory } from "../_components";
+import { useState } from "react";
+
+const OPTIONS = [
+  "all",
+  PointTransactionType.CHECKIN,
+  PointTransactionType.LOGIN,
+  PointTransactionType.CHECKIN_EXTRA,
+  PointTransactionType.POST,
+  PointTransactionType.COMMENT,
+  PointTransactionType.VOTE,
+  PointTransactionType.REBLOG,
+  PointTransactionType.DELEGATION,
+  PointTransactionType.REFERRAL,
+  PointTransactionType.COMMUNITY,
+  PointTransactionType.TRANSFER_SENT,
+  PointTransactionType.TRANSFER_INCOMING
+].map((value) => ({
+  value,
+  label: i18next.t(`points.filter-${value}`)
+}));
 
 export default function TokenPage() {
   const activeUser = useClientActiveUser();
   const { username } = useParams();
 
+  const [type, setType] = useState<"all" | PointTransactionType>("all");
+
   const { data } = useQuery(
-    getPointsAssetTransactionsQueryOptions((username as string).replace("%40", ""))
+    getPointsAssetTransactionsQueryOptions(
+      (username as string).replace("%40", ""),
+      type === "all" ? undefined : +type
+    )
   );
   return (
     <>
-      <div className=" bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl mb-4">
+      <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl mb-4">
         <div className="p-4 flex justify-between">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {i18next.t("points.earn-points")}
@@ -40,7 +65,22 @@ export default function TokenPage() {
           <ProfileWalletPointsInfo />
         </div>
       </div>
-      <ProfileWalletTokenHistory data={data ?? []} />
+      <ProfileWalletTokenHistory
+        data={data ?? []}
+        action={
+          <FormControl
+            value={type}
+            onChange={(e) => setType((e.target as any).value)}
+            type="select"
+          >
+            {OPTIONS.map(({ label, value }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </FormControl>
+        }
+      />
     </>
   );
 }

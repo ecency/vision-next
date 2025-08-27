@@ -3,14 +3,16 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { TRANSACTIONS_ICONS, TRANSACTIONS_LABELS } from "../_consts";
 import { ProfileWalletTokenHistoryCard } from "./profile-wallet-token-history-card";
+import { ReactNode } from "react";
 
 interface Props {
   data: GeneralAssetTransaction[];
+  action: ReactNode;
 }
 
-export function ProfileWalletTokenHistory({ data }: Props) {
+export function ProfileWalletTokenHistory({ data, action }: Props) {
   return (
-    <ProfileWalletTokenHistoryCard>
+    <ProfileWalletTokenHistoryCard action={action}>
       {data.map(({ created, type, results }) => (
         <motion.div
           className="flex items-start justify-between gap-4 px-4 py-2 md:py-4 border-b border-[--border-color] last:border-0"
