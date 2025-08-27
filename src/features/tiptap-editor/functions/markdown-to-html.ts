@@ -6,6 +6,7 @@ const CENTERED_TEXT_RULE_NODES = ["P", "H1", "H2", "H3", "H4", "H5", "H6"];
 const CENTERED_TEXT_RULE_STYLES = [
   "text-align: center",
   "text-align: right",
+  "text-align: left",
   "text-align: justify"
 ];
 
@@ -27,11 +28,34 @@ export function markdownToHtml(html: string | undefined) {
         );
       },
       replacement: function (_, node) {
-        const styles = (node as HTMLElement).getAttribute("style");
+        const element = node as HTMLElement;
+        const styles = element.getAttribute("style");
         const align = styles?.replace("text-align: ", "") ?? "auto";
 
-        (node as HTMLElement).setAttribute("dir", align);
-        return (node as HTMLElement).outerHTML;
+        const onlyImage =
+          element.childNodes.length === 1 &&
+          element.firstElementChild?.tagName === "IMG";
+
+        if (onlyImage) {
+          const img = element.firstElementChild as HTMLElement;
+
+          if (align === "center") {
+            return `<center>${img.outerHTML}</center>`;
+          }
+
+          if (align === "right") {
+            return `<div class="pull-right">${img.outerHTML}</div>`;
+          }
+
+          if (align === "left") {
+            return `<div class="pull-left">${img.outerHTML}</div>`;
+          }
+
+          return img.outerHTML;
+        }
+
+        element.setAttribute("dir", align);
+        return element.outerHTML;
       }
     })
     .addRule("table", {
@@ -45,6 +69,27 @@ export function markdownToHtml(html: string | undefined) {
         }
 
         return (node as HTMLElement).outerHTML;
+      }
+    })
+    .addRule("image", {
+      filter: "img",
+      replacement: function (_, node) {
+        const element = node as HTMLElement;
+        const src = element.getAttribute("src") ?? "";
+        const alt = element.getAttribute("alt") ?? "";
+        const cls = element.getAttribute("class");
+        const attrs = [
+          `src="${src}"`,
+          `alt="${alt}"`,
+          cls ? `class="${cls}"` : undefined
+        ].filter(Boolean);
+        const imgHtml = `<img ${attrs.join(" ")} />`;
+
+        if (cls === "pull-left" || cls === "pull-right") {
+          return `<div class="${cls}">${imgHtml}</div>`;
+        }
+
+        return imgHtml;
       }
     })
     .use(strikethrough)
