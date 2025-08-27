@@ -431,9 +431,13 @@
     "mute-success": "Post muted",
     "unmute": "Unmute",
     "unmute-success": "Post unmuted",
+    "translate": "Vertalen",
     "promote": "Promote",
     "boost": "Boost",
     "edit-classic": "Edit in Classic Editor"
+  },
+  "entry-translate": {
+    "target-language": "Taal van doel"
   },
   "cross-post": {
     "title": "Cross Post",
