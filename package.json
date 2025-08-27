@@ -73,6 +73,7 @@
     "hivesigner": "^3.3.4",
     "html-react-parser": "^5.0.7",
     "i18next": "^23.11.5",
+    "intl": "^1.2.5",
     "js-md5": "^0.7.3",
     "lightweight-charts": "^3.8.0",
     "lru-cache": "^11.0.2",
