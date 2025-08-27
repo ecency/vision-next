@@ -44,10 +44,12 @@ export function Dropdown(props: HTMLProps<HTMLDivElement> & Props) {
     return !!target;
   };
 
+  const isOpen = props.show ?? show;
+
   return (
     <DropdownContext.Provider
       value={{
-        show: props.show ?? show,
+        show: isOpen,
         setShow: (v) => {
           setShow(v);
           props.setShow?.(v);
@@ -59,6 +61,8 @@ export function Dropdown(props: HTMLProps<HTMLDivElement> & Props) {
         ref={ref}
         className={classNameObject({
           relative: true,
+          "z-[10]": isOpen,
+          "overflow-visible": isOpen,
           [props.className ?? ""]: !!props.className
         })}
       />
