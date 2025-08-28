@@ -5,7 +5,8 @@ import { RcOperation } from "@/entities";
 import { rcFormatter } from "@/utils";
 import { useMounted } from "@/utils/use-mounted";
 import { getAccountRcQueryOptions, getRcStatsQueryOptions } from "@ecency/sdk";
-import { autoUpdate, flip, shift, useFloating } from "@floating-ui/react-dom";
+import { flip, shift, useFloating } from "@floating-ui/react-dom";
+import { safeAutoUpdate } from "@ui/util";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -38,7 +39,7 @@ export const AvailableCredits = ({ username, className }: Props) => {
   const { data: rcStats } = useQuery(getRcStatsQueryOptions());
 
   const { refs, floatingStyles, update } = useFloating({
-    whileElementsMounted: autoUpdate,
+    whileElementsMounted: safeAutoUpdate,
     middleware: [flip(), shift()],
     placement: "top",
     transform: true

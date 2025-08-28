@@ -5,7 +5,8 @@ import { useCallback, useContext, useState } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { flip, shift } from "@floating-ui/dom";
-import { autoUpdate, useFloating } from "@floating-ui/react-dom";
+import { useFloating } from "@floating-ui/react-dom";
+import { safeAutoUpdate } from "@ui/util";
 import { UilClipboardAlt, UilComment, UilTwitter } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -47,7 +48,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
   const [selectedText, setSelectedText] = useState("");
 
   const { refs, floatingStyles } = useFloating({
-    whileElementsMounted: autoUpdate,
+    whileElementsMounted: safeAutoUpdate,
     middleware: [flip(), shift()],
     placement: "top",
     transform: true
