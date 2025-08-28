@@ -74,7 +74,7 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
             payload.data?.type ?? ""
           );
           const allowed =
-            notifyType && notificationsSettingsQuery.data?.notify_types
+            typeof notifyType === "number" && notificationsSettingsQuery.data?.notify_types
               ? notificationsSettingsQuery.data.notify_types.includes(notifyType)
               : true;
           if (allowed) {
