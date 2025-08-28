@@ -85,13 +85,15 @@ export function NotificationsActions({ filter }: Props) {
   );
 
   const getNotificationSettingsItem = (title: string, type: NotifyTypes) => (
-    <FormControl
-      label={i18next.t(title)}
-      type="checkbox"
-      isToggle={true}
-      checked={settings[type]}
-      onChange={() => setSettingItem(type, !settings[type])}
-    />
+    <div onClick={(e) => e.stopPropagation()}>
+      <FormControl
+        label={i18next.t(title)}
+        type="checkbox"
+        isToggle={true}
+        checked={settings[type]}
+        onChange={() => setSettingItem(type, !settings[type])}
+      />
+    </div>
   );
 
   const markAsRead = () => {

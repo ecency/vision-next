@@ -2,7 +2,7 @@
 
 import {PropsWithChildren, useCallback, useEffect, useRef} from "react";
 import { useGlobalStore } from "@/core/global-store";
-import { isSupported } from "@firebase/messaging";
+import { isSupported, MessagePayload } from "@firebase/messaging";
 import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
 import * as ls from "@/utils/local-storage";
 import { useNotificationsSettingsQuery, useNotificationUnreadCountQuery } from "@/api/queries";
@@ -69,8 +69,17 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
       }
 
       if (isFbMessagingSupported && permission === "granted") {
-        listenFCM(() => {
-          playNotificationSound();
+        listenFCM((payload: MessagePayload) => {
+          const notifyType = wsRef.current.getNotificationType(
+            payload.data?.type ?? ""
+          );
+          const allowed =
+            notifyType && notificationsSettingsQuery.data?.notify_types
+              ? notificationsSettingsQuery.data.notify_types.includes(notifyType)
+              : true;
+          if (allowed) {
+            playNotificationSound();
+          }
           notificationUnreadCountQuery.refetch();
         });
       } else {

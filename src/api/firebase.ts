@@ -62,10 +62,10 @@ export const getFcmToken = () =>
       "BA3SrGKAKMU_6PXOFwD9EQ1wIPzyYt90Q9ByWb3CkazBe8Isg7xr9Cgy0ka6SctHDW0VZLShTV_UDYNxewzWDjk"
   });
 
-export const listenFCM = (callback: Function) => {
+export const listenFCM = (callback: (p: MessagePayload) => void) => {
   onMessage(FCM, (p) => {
     //console.log('Received fg message', p);
     handleMessage(p);
-    callback();
+    callback(p);
   });
 };
