@@ -12,7 +12,10 @@ export function safeAutoUpdate(
   const cleanup = autoUpdate(reference, floating, update, options);
 
   const observer = new MutationObserver(() => {
-    if (!reference.isConnected || !floating.isConnected) {
+    if (
+      (reference instanceof Node && !reference.isConnected) ||
+      !floating.isConnected
+    ) {
       cleanup();
       observer.disconnect();
     }
