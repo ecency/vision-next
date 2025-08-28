@@ -147,7 +147,7 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
       </div>
       <div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {poll.choices.map((choice) =>
+          {(poll.choices ?? []).map((choice) =>
             resultsMode ? (
               <PollOptionWithResults
                 interpretation={interpretation}
