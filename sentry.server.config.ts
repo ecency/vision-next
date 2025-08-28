@@ -25,7 +25,8 @@ Sentry.init({
     "Network request failed",
     "Invalid parameters",
     "Failed to connect to MetaMask",
-    "window.ethereum._handleChainChanged is not a function"
+    "window.ethereum._handleChainChanged is not a function",
+    "Cannot destructure property 'register' of 'undefined' as it is undefined."
   ]
 });
 Sentry.setTag("source", "server");
