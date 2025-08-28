@@ -13,8 +13,9 @@ import { createPortal } from "react-dom";
 import { useFilteredProps } from "../util";
 import { useClickAway, useMountedState, useWindowSize } from "react-use";
 import { PopoverSheet } from "@ui/popover/popover-sheet";
-import { autoUpdate, flip, Placement, shift } from "@floating-ui/dom";
+import { flip, Placement, shift } from "@floating-ui/dom";
 import { useFloating } from "@floating-ui/react-dom";
+import { safeAutoUpdate } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 
@@ -49,7 +50,7 @@ export function Popover(
   ]);
 
   const { refs, floatingStyles } = useFloating({
-    whileElementsMounted: autoUpdate,
+    whileElementsMounted: safeAutoUpdate,
     middleware: [flip(), shift()],
     placement: props.placement,
     transform: true
