@@ -52,11 +52,17 @@ export function PublishEditorImageViewer({
   useEffect(() => {
     if (isBlob && !processedBlobUrls.has(src)) {
       processedBlobUrls.add(src);
-      fetch(src)
-        .then((response) => response.blob())
-        .then((blob) => new File([blob], alt, { type: blob.type }))
-        .then((file) => uploadImage({ file }))
-        .then(({ url }) => updateAttributes({ src: url }));
+      (async () => {
+        try {
+          const response = await fetch(src);
+          const blob = await response.blob();
+          const file = new File([blob], alt, { type: blob.type });
+          const { url } = await uploadImage({ file });
+          updateAttributes({ src: url });
+        } catch {
+          /* handled in mutation */
+        }
+      })();
     }
   }, [isBlob, src, alt, uploadImage, updateAttributes]);
 

@@ -205,7 +205,11 @@ export function EditorToolbar({
       e.preventDefault();
     }
 
-    files.forEach((file) => upload(file));
+    files.forEach((file) =>
+      upload(file).catch(() => {
+        /* handled in mutation */
+      })
+    );
 
     // reset input
     e.target.value = "";
@@ -215,9 +219,13 @@ export function EditorToolbar({
     const tempImgTag = `![Uploading ${file.name} #${Math.floor(Math.random() * 99)}]()\n\n`;
     insertText(tempImgTag);
 
-    const { url } = await uploadImage.mutateAsync({ file });
-    const imgTag = url.length > 0 && `![](${url})\n\n`;
-    imgTag && replaceText(tempImgTag, imgTag);
+    try {
+      const { url } = await uploadImage.mutateAsync({ file });
+      const imgTag = url.length > 0 && `![](${url})\n\n`;
+      imgTag && replaceText(tempImgTag, imgTag);
+    } catch {
+      replaceText(tempImgTag, "");
+    }
   };
 
   const checkFile = (filename: string) =>
