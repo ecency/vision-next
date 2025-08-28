@@ -9,5 +9,22 @@ export function safeAutoUpdate(
   if (!reference || !floating) {
     return () => {};
   }
-  return autoUpdate(reference, floating, update, options);
+  const cleanup = autoUpdate(reference, floating, update, options);
+
+  const observer = new MutationObserver(() => {
+    if (!reference.isConnected || !floating.isConnected) {
+      cleanup();
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(floating.ownerDocument ?? document, {
+    childList: true,
+    subtree: true,
+  });
+
+  return () => {
+    observer.disconnect();
+    cleanup();
+  };
 }
