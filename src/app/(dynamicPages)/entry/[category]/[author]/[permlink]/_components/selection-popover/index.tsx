@@ -74,11 +74,19 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
     }
   }, [refs]);
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? (document.querySelector("#popper-container") as HTMLElement | null)
+      : null;
+
   return (
     <div onMouseUp={handleSelection}>
       {children}
 
-      {isMounted() && selectedText && floatingStyles?.left != null &&
+      {isMounted() &&
+        selectedText &&
+        floatingStyles?.left != null &&
+        portalContainer &&
         createPortal(
           selectedText ? (
             <div ref={refs.setFloating} style={floatingStyles}>
@@ -128,7 +136,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
           ) : (
             <></>
           ),
-          document.querySelector("#popper-container") as HTMLElement
+          portalContainer
         )}
     </div>
   );

@@ -75,6 +75,11 @@ export function Popover(
     show !== props.show && props.setShow?.(show);
   }, [show]);
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? (document.querySelector("#popper-container") as HTMLElement | null)
+      : null;
+
   return (
     <div
       ref={refs.setReference}
@@ -89,6 +94,7 @@ export function Popover(
       {props.directContent}
       {isMounted() &&
         !isSheet &&
+        portalContainer &&
         createPortal(
           <AnimatePresence>
             {show && (
@@ -106,9 +112,10 @@ export function Popover(
               </div>
             )}
           </AnimatePresence>,
-          document.querySelector("#popper-container") ?? document.createElement("div")
+          portalContainer
         )}
       {isMounted() &&
+        portalContainer &&
         createPortal(
           isSheet ? (
             <PopoverSheet show={show} setShow={setShow}>
@@ -117,7 +124,7 @@ export function Popover(
           ) : (
             <></>
           ),
-          document.querySelector("#popper-container")!!
+          portalContainer
         )}
     </div>
   );
