@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import {
   getLanguages,
@@ -94,9 +94,10 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
   );
 
   const handleSelection = useCallback(
-    (e: Event) => {
+    (e?: Event) => {
       if (showTranslation) {
-        const target = e.target as HTMLElement | null;
+        const target =
+          (e?.target as HTMLElement | null) || document.activeElement;
         if (target?.closest(".selection-translate-modal")) {
           return;
         }
@@ -139,17 +140,33 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
     setPortalContainer(el);
   }, []);
 
-  useEffect(() => {
-    const events: Array<keyof DocumentEventMap> = [
-      "mouseup",
-      "keyup",
-      "touchend"
-    ];
+  const pointerDown = useRef(false);
 
-    events.forEach((evt) => document.addEventListener(evt, handleSelection));
+  useEffect(() => {
+    const onPointerDown = () => {
+      pointerDown.current = true;
+    };
+    const onPointerUp = (e: Event) => {
+      pointerDown.current = false;
+      handleSelection(e);
+    };
+    const onKeyUp = (e: Event) => handleSelection(e);
+    const onSelectionChange = (e: Event) => {
+      if (!pointerDown.current) {
+        handleSelection(e);
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("keyup", onKeyUp);
+    document.addEventListener("selectionchange", onSelectionChange);
 
     return () => {
-      events.forEach((evt) => document.removeEventListener(evt, handleSelection));
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("pointerup", onPointerUp);
+      document.removeEventListener("keyup", onKeyUp);
+      document.removeEventListener("selectionchange", onSelectionChange);
     };
   }, [handleSelection]);
 
