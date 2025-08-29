@@ -10,7 +10,7 @@ import { ProfileWalletTokenHistoryCard } from "../_components";
 import { HiveTransactionRow } from "./_components";
 import { HiveChart } from "../hive/_components";
 
-export default function Page() {
+export function HpPage() {
   const { username } = useParams();
   const { data, refetch } = useInfiniteQuery(
     getHivePowerAssetTransactionsQueryOptions((username as string).replace("%40", ""), 20, "")

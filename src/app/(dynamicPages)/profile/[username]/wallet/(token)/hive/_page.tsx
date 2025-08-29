@@ -1,18 +1,18 @@
 "use client";
 
 import { useInfiniteDataFlow } from "@/utils";
-import { getHbdAssetTransactionsQueryOptions } from "@ecency/wallets";
+import { getHiveAssetTransactionsQueryOptions } from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { useMount } from "react-use";
 import { ProfileWalletTokenHistoryCard } from "../_components";
-import { HiveTransactionRow } from "./_components";
+import { HiveChart, HiveTransactionRow } from "./_components";
 
-export function HbdPage() {
+export function HivePage() {
   const { username } = useParams();
   const { data, refetch } = useInfiniteQuery(
-    getHbdAssetTransactionsQueryOptions((username as string).replace("%40", ""), 20, "")
+    getHiveAssetTransactionsQueryOptions((username as string).replace("%40", ""), 20, "transfers")
   );
   const dataFlow = useInfiniteDataFlow(data);
 
@@ -24,10 +24,13 @@ export function HbdPage() {
   useMount(() => refetch());
 
   return (
-    <ProfileWalletTokenHistoryCard>
-      {uniqueTransactionsList.map((item, i) => (
-        <HiveTransactionRow transaction={item} key={i} />
-      ))}
-    </ProfileWalletTokenHistoryCard>
+    <>
+      <HiveChart />
+      <ProfileWalletTokenHistoryCard>
+        {uniqueTransactionsList.map((item, i) => (
+          <HiveTransactionRow transaction={item} key={i} />
+        ))}
+      </ProfileWalletTokenHistoryCard>
+    </>
   );
 }

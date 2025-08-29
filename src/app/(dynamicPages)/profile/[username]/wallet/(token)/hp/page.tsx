@@ -1,9 +1,16 @@
-"use client";
+import { Metadata, ResolvingMetadata } from "next";
+import { generateProfileMetadata } from "../../../_helpers";
+import { HpPage } from "./_page";
 
-import dynamic from "next/dynamic";
+interface Props {
+  params: Promise<{ username: string }>;
+}
 
-const HivePage = dynamic(() => import("./_page"), { ssr: false });
+export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+  const { username } = await props.params;
+  return generateProfileMetadata(username.replace("%40", ""), "wallet");
+}
 
 export default function Page() {
-  return <HivePage />;
+  return <HpPage />;
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import { useGlobalStore } from "@/core/global-store";
 import { getHiveEngineTokensMetricsQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";

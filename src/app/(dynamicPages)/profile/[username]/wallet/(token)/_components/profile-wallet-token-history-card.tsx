@@ -4,7 +4,7 @@ import { PropsWithChildren, ReactNode } from "react";
 export function ProfileWalletTokenHistoryCard({
   children,
   action
-}: PropsWithChildren<{ action: ReactNode }>) {
+}: PropsWithChildren<{ action?: ReactNode }>) {
   return (
     <div className=" bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl">
       <div className="flex justify-between items-start w-full">

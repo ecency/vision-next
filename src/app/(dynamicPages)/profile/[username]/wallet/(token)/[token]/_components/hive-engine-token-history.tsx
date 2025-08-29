@@ -1,3 +1,5 @@
+"use client";
+
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useInfiniteDataFlow } from "@/utils";
