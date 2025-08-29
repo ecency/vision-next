@@ -14,17 +14,25 @@ export const dataLimit = typeof window !== "undefined" && window.screen.width < 
 export const bridgeApiCall = <T>(endpoint: string, params: {}): Promise<T> =>
   bridgeServer.call("bridge", endpoint, params);
 
-export const resolvePost = async (post: Entry, observer: string, num?: number): Promise<Entry> => {
+export const resolvePost = async (
+  post: Entry,
+  observer: string,
+  num?: number
+): Promise<Entry> => {
   const { json_metadata: json } = post;
 
   if (
-    json.original_author &&
-    json.original_permlink &&
-    json.tags &&
-    json.tags[0] === "cross-post"
+    json?.original_author &&
+    json?.original_permlink &&
+    json.tags?.[0] === "cross-post"
   ) {
     try {
-      const resp = await getPost(json.original_author, json.original_permlink, observer, num);
+      const resp = await getPost(
+        json.original_author,
+        json.original_permlink,
+        observer,
+        num
+      );
       if (resp) {
         return {
           ...post,
