@@ -23,7 +23,7 @@ interface ContextState {
 
   selection: string;
   setSelection: (value: string) => void;
-  commentsInputRef?: MutableRefObject<HTMLInputElement | null>;
+  commentsInputRef?: MutableRefObject<HTMLTextAreaElement | null>;
 }
 
 export const DEFAULT_CONTEXT: ContextState = {

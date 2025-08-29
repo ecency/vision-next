@@ -23,6 +23,10 @@ export const DeckThreadItemBody = ({
   const [currentViewingImage, setCurrentViewingImage] = useState<string | null>(null);
   const [currentViewingImageRect, setCurrentViewingImageRect] = useState<DOMRect | null>(null);
   const [isCurrentViewingImageShowed, setIsCurrentViewingImageShowed] = useState(false);
+  const portalContainer =
+    typeof document !== "undefined"
+      ? document.querySelector("#deck-media-view-container") || document.body
+      : null;
 
   useEffect(() => {
     if (currentViewingImage) {
@@ -36,6 +40,7 @@ export const DeckThreadItemBody = ({
     <div className="thread-item-body">
       <PostContentRenderer value={entry.body} />
       {currentViewingImage &&
+        portalContainer &&
         createPortal(
           <div
             className={classNameObject({
@@ -64,7 +69,7 @@ export const DeckThreadItemBody = ({
               }}
             />
           </div>,
-          document.querySelector("#deck-media-view-container")!!
+          portalContainer
         )}
     </div>
   );

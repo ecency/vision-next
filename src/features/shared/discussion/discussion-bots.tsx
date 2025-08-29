@@ -41,7 +41,8 @@ export function DiscussionBots({ entries }: Props) {
   useClickAway(contentRef, () => setShow(false));
   useEffect(() => {
     setMounted(true);
-    setPortalContainer(document.querySelector("#popper-container"));
+    const el = document.querySelector("#popper-container") || document.body;
+    setPortalContainer(el);
   }, []);
 
   return (

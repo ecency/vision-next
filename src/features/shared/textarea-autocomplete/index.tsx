@@ -1,4 +1,9 @@
-import React, { forwardRef, useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  MutableRefObject,
+  useEffect,
+  useState
+} from "react";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "./_index.scss";
 import { searchPath } from "@/api/search-api";
@@ -13,7 +18,7 @@ const Loading = () => <div>{i18next.t("g.loading")}</div>;
 let timer: any = null;
 
 // eslint-disable-next-line react/display-name
-export const TextareaAutocomplete = forwardRef<any, any>((props, ref) => {
+export const TextareaAutocomplete = forwardRef<HTMLTextAreaElement, any>((props, ref) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const isMobile = useIsMobile();
 
@@ -62,7 +67,13 @@ export const TextareaAutocomplete = forwardRef<any, any>((props, ref) => {
   return (
     <ReactTextareaAutocomplete
       {...attrs}
-      ref={ref}
+      innerRef={(el) => {
+        if (typeof ref === "function") {
+          ref(el);
+        } else if (ref) {
+          (ref as MutableRefObject<HTMLTextAreaElement | null>).current = el;
+        }
+      }}
       loadingComponent={Loading}
       value={value}
       placeholder={props.placeholder}
