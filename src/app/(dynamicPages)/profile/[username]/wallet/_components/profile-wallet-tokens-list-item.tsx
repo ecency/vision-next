@@ -1,17 +1,16 @@
 import { FormattedCurrency } from "@/features/shared";
-import { Badge, StyledTooltip } from "@/features/ui";
+import { Badge } from "@/features/ui";
+import { TOKEN_LOGOS_MAP } from "@/features/wallet";
+import { proxifyImageSrc } from "@ecency/render-helper";
 import {
   getAccountWalletAssetInfoQueryOptions,
   getAllTokensListQueryOptions
 } from "@ecency/wallets";
-import i18next from "i18next";
-import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { proxifyImageSrc } from "@ecency/render-helper";
-import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
 import { useRouter } from "next/navigation";
-import { TOKEN_LOGOS_MAP } from "@/features/wallet";
+import { useMemo } from "react";
+import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
 
 interface Props {
   username: string;

@@ -2885,6 +2885,7 @@
     "market": "Market",
     "apr": "APR Rewards",
     "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe",
+    "delegations": "Delegations",
     "operations": {
       "transfer": "Transfer",
       "transfer-saving": "To Savings",
