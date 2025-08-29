@@ -1,16 +1,15 @@
-import { TradingViewQueryDataItem } from "@/app/market/advanced/_components/api";
 import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { useInfiniteDataFlow } from "@/utils";
 import { getHiveAssetMetricQueryOptions } from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
-import { format } from "date-fns";
 import i18next from "i18next";
 import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
 import { useEffect, useMemo, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import { useMount } from "react-use";
+import dayjs from "dayjs";
 
 export function HiveChart() {
   const theme = useGlobalStore((s) => s.theme);
@@ -20,23 +19,18 @@ export function HiveChart() {
   const chartRef = useRef<IChartApi>();
   const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick">>();
 
-  const { data: dataPages } = useInfiniteQuery(getHiveAssetMetricQueryOptions());
+  const { data: dataPages } = useInfiniteQuery(getHiveAssetMetricQueryOptions(3_600));
 
   const data = useInfiniteDataFlow(dataPages);
   const uniqueData = useMemo(
     () =>
-      Array.from(
-        data
-          .reduce(
-            (acc, item) =>
-              acc.set(format(item.time, "yyyy-MM-dd"), {
-                ...item,
-                time: format(item.time, "yyyy-MM-dd")
-              }),
-            new Map<Time, TradingViewQueryDataItem>()
-          )
-          .values()
-      ).sort((a, b) => Number(a.time) - Number(b.time)),
+      data
+        .sort((a, b) => Number(a.time) - Number(b.time))
+        .map(({ time, ...item }) => ({
+          ...item,
+          time: Math.floor(dayjs(time).toDate().getTime() / 1000) as Time
+        })),
+
     [data]
   );
 
@@ -54,7 +48,8 @@ export function HiveChart() {
         borderVisible: false
       },
       timeScale: {
-        timeVisible: true
+        timeVisible: true,
+        secondsVisible: true
       },
       layout: {
         background: {
@@ -97,7 +92,7 @@ export function HiveChart() {
   useEffect(() => {
     if (candleStickSeriesRef.current && uniqueData) {
       candleStickSeriesRef.current.setData([]);
-      candleStickSeriesRef.current.setData(uniqueData);
+      candleStickSeriesRef.current.setData([...uniqueData]);
 
       // Fit chart to data bounds
       if (chartRef.current && uniqueData.length > 0) {

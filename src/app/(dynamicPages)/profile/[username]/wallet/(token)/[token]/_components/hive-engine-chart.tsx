@@ -1,8 +1,8 @@
 import { useGlobalStore } from "@/core/global-store";
 import { getHiveEngineTokensMetricsQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { createChart, IChartApi, ISeriesApi } from "lightweight-charts";
+import dayjs from "dayjs";
+import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";
 import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
@@ -18,7 +18,7 @@ export function HiveEngineChart() {
   const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick">>();
 
   const { data } = useQuery({
-    ...getHiveEngineTokensMetricsQueryOptions(token as string),
+    ...getHiveEngineTokensMetricsQueryOptions(token as string, "hourly"),
     select: (items) =>
       items
         .map((item) => ({
@@ -27,7 +27,11 @@ export function HiveEngineChart() {
           high: +item.high,
           low: +item.low,
           volume: +item.quoteVolume,
-          time: format(new Date(item.timestamp * 1000), "yyyy-MM-dd")
+          time: Math.floor(
+            dayjs(item.timestamp * 1000)
+              .toDate()
+              .getTime() / 1000
+          ) as Time
         }))
         .sort((a, b) => Number(a.time) - Number(b.time))
   });
