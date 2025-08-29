@@ -5,7 +5,7 @@ import { EntryPageContext } from "./instance";
 import { useSearchParams } from "next/navigation";
 
 export function EntryPageContextProvider(props: PropsWithChildren) {
-  const commentsInputRef = useRef<HTMLInputElement>(null);
+  const commentsInputRef = useRef<HTMLTextAreaElement>(null);
   const searchParams = useSearchParams();
   const rawFromUrl = searchParams.has("raw");
   const historyFromUrl = searchParams.has("history");

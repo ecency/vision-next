@@ -81,7 +81,7 @@ export function BubbleMenu({ editor }: Props) {
 
   const portalContainer =
     typeof document !== "undefined"
-      ? (document.querySelector("#popper-container") as HTMLElement | null)
+      ? document.getElementById("popper-container") || document.body
       : null;
 
   return (

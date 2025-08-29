@@ -1,14 +1,28 @@
 "use client";
 
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
+import {
+  getLanguages,
+  getTranslation,
+  Language,
+} from "@/api/translation";
 import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { flip, shift } from "@floating-ui/dom";
 import { useFloating } from "@floating-ui/react-dom";
 import { safeAutoUpdate } from "@ui/util";
-import { UilClipboardAlt, UilComment, UilTwitter } from "@tooni/iconscout-unicons-react";
+import { Modal, ModalBody, ModalHeader } from "@ui/modal";
+import { Select } from "@ui/input/form-controls/select";
+import { Spinner } from "@ui/spinner";
+import {
+  UilClipboardAlt,
+  UilComment,
+  UilLanguage,
+  UilTwitter
+} from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
+import i18next from "i18next";
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useClickAway, useCopyToClipboard, useMountedState } from "react-use";
@@ -35,6 +49,7 @@ class VirtualSelectionReference {
       // Sanity check
       if (rect) return rect;
     }
+    return new DOMRect();
   }
 }
 
@@ -46,6 +61,12 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
   const isMounted = useMountedState();
 
   const [selectedText, setSelectedText] = useState("");
+  const [showQuote, setShowQuote] = useState(true);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [translation, setTranslation] = useState("");
+  const [translating, setTranslating] = useState(false);
+  const [languages, setLanguages] = useState<Language[]>([]);
+  const [target, setTarget] = useState(i18next.language.split("-")[0]);
 
   const { refs, floatingStyles } = useFloating({
     whileElementsMounted: safeAutoUpdate,
@@ -54,7 +75,15 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
     transform: true
   });
 
-  useClickAway(refs.floating, () => selectedText && setSelectedText(""));
+  useClickAway(refs.floating, (e: MouseEvent | TouchEvent) => {
+    if (showTranslation) {
+      const target = e.target as HTMLElement;
+      if (target.closest(".selection-translate-modal")) {
+        return;
+      }
+    }
+    selectedText && setSelectedText("");
+  });
 
   const onQuotesClick = useCallback(
     (text: string) => {
@@ -64,28 +93,93 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
     [commentsInputRef, setSelection]
   );
 
-  const handleSelection = useCallback(() => {
-    const selection = window.getSelection();
-    if (selection && !selection.isCollapsed) {
-      refs.setReference(new VirtualSelectionReference(selection) as any);
-      setSelectedText(selection.toString());
-    } else {
-      setSelectedText("");
-    }
-  }, [refs]);
+  const handleSelection = useCallback(
+    (e: Event) => {
+      if (showTranslation) {
+        const target = e.target as HTMLElement | null;
+        if (target?.closest(".selection-translate-modal")) {
+          return;
+        }
+      }
 
-  const portalContainer =
-    typeof document !== "undefined"
-      ? (document.querySelector("#popper-container") as HTMLElement | null)
-      : null;
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed) {
+        const anchorEl =
+          selection.anchorNode instanceof Element
+            ? selection.anchorNode
+            : selection.anchorNode?.parentElement;
+        const inComment = anchorEl?.closest(".comment-box, .discussion-item");
+        setShowQuote(!inComment);
+        refs.setReference(new VirtualSelectionReference(selection) as any);
+        setSelectedText(selection.toString());
+      } else {
+        setSelectedText("");
+        setShowQuote(true);
+      }
+    },
+    [refs, showTranslation]
+  );
+
+  useEffect(() => {
+    setShowTranslation(false);
+    setTranslation("");
+    setTarget(i18next.language.split("-")[0]);
+  }, [selectedText]);
+
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const el = document.getElementById("popper-container") || document.body;
+    setPortalContainer(el);
+  }, []);
+
+  useEffect(() => {
+    const events: Array<keyof DocumentEventMap> = [
+      "mouseup",
+      "keyup",
+      "touchend"
+    ];
+
+    events.forEach((evt) => document.addEventListener(evt, handleSelection));
+
+    return () => {
+      events.forEach((evt) => document.removeEventListener(evt, handleSelection));
+    };
+  }, [handleSelection]);
+
+  useEffect(() => {
+    if (showTranslation) {
+      getLanguages().then(setLanguages);
+    }
+  }, [showTranslation]);
+
+  useEffect(() => {
+    if (showTranslation) {
+      setTranslating(true);
+      setTranslation("");
+      getTranslation(selectedText, "auto", target)
+        .then((r) => setTranslation(r.translatedText))
+        .finally(() => setTranslating(false));
+    }
+  }, [showTranslation, selectedText, target]);
+
+  const onTranslateClick = useCallback(() => {
+    setTarget(i18next.language.split("-")[0]);
+    setShowTranslation(true);
+  }, []);
 
   return (
-    <div onMouseUp={handleSelection}>
+    <div>
       {children}
 
       {isMounted() &&
         selectedText &&
-        floatingStyles?.left != null &&
         portalContainer &&
         createPortal(
           selectedText ? (
@@ -117,7 +211,16 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
                   />
                 </Link>
 
-                {activeUser && (
+                {selectedText.length <= 300 && (
+                  <Button
+                    noPadding={true}
+                    icon={<UilLanguage />}
+                    appearance="gray-link"
+                    onClick={onTranslateClick}
+                  />
+                )}
+
+                {activeUser && showQuote && (
                   <Button
                     noPadding={true}
                     icon={<UilComment />}
@@ -138,6 +241,45 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
           ),
           portalContainer
         )}
+
+      {showTranslation && (
+        <Modal
+          show={true}
+          onHide={() => setShowTranslation(false)}
+          className="flex justify-center items-center pt-0"
+          dialogClassName="mt-0 rounded-xl selection-translate-modal"
+        >
+          <ModalHeader closeButton={true}>
+            {i18next.t("entry-menu.translate")}
+          </ModalHeader>
+          <ModalBody className="min-h-[120px] pb-6">
+            <div className="mb-3">
+              <label className="block text-sm mb-1">
+                {i18next.t("entry-translate.target-language")}
+              </label>
+              <Select
+                type="select"
+                value={target}
+                size="sm"
+                onChange={(e) => setTarget(e.currentTarget.value)}
+              >
+                {languages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            {translating ? (
+              <div className="flex justify-center p-3">
+                <Spinner className="w-4 h-4" />
+              </div>
+            ) : (
+              <p className="whitespace-pre-line text-sm">{translation}</p>
+            )}
+          </ModalBody>
+        </Modal>
+      )}
     </div>
   );
 };

@@ -83,7 +83,7 @@ export const AvailableCredits = ({ username, className }: Props) => {
 
   const portalContainer =
     typeof document !== "undefined"
-      ? (document.querySelector("#popper-container") as HTMLElement | null)
+      ? document.getElementById("popper-container") || document.body
       : null;
 
   return isMounted ? (
