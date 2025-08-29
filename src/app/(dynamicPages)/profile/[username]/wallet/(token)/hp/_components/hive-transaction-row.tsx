@@ -202,11 +202,21 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     );
 
     details = tr.delegatee ? (
-      <span>
-        <>
-          <strong>@{tr.delegator}</strong> -&gt; <strong>@{tr.delegatee}</strong>
-        </>
-      </span>
+      <div className="flex gap-2 items-center">
+        <ProfileLink username={tr.delegator}>
+          <Badge className="flex gap-1 pl-0.5 items-center">
+            <UserAvatar username={tr.delegator} size="small" />
+            {tr.delegator}
+          </Badge>
+        </ProfileLink>
+        <UilArrowRight className="text-gray-400 dark:text-gray-600" />
+        <ProfileLink username={tr.delegatee}>
+          <Badge className="flex gap-1 pl-0.5 items-center">
+            <UserAvatar username={tr.delegatee} size="small" />
+            {tr.delegatee}
+          </Badge>
+        </ProfileLink>
+      </div>
     ) : null;
   } else if (tr.type === "fill_vesting_withdraw") {
     icon = powerDownSvg;
@@ -214,11 +224,21 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     numbers = <span className="number">{tr.deposited}</span>;
 
     details = tr.from_account ? (
-      <span>
-        <strong>
-          @{tr.from_account} -&gt; @{tr.to_account}
-        </strong>
-      </span>
+      <div className="flex gap-2 items-center">
+        <ProfileLink username={tr.from_account}>
+          <Badge className="flex gap-1 pl-0.5 items-center">
+            <UserAvatar username={tr.from_account} size="small" />
+            {tr.from_account}
+          </Badge>
+        </ProfileLink>
+        <UilArrowRight className="text-gray-400 dark:text-gray-600" />
+        <ProfileLink username={tr.to_account}>
+          <Badge className="flex gap-1 pl-0.5 items-center">
+            <UserAvatar username={tr.to_account} size="small" />
+            {tr.to_account}
+          </Badge>
+        </ProfileLink>
+      </div>
     ) : null;
   } else if (tr.type === "producer_reward") {
     icon = pickAxeSvg;

@@ -334,24 +334,6 @@ export const ignore = (follower: string, following: string): Promise<Transaction
   return broadcastPostingJSON(follower, "follow", json);
 };
 
-export const claimRewardBalance = (
-  username: string,
-  rewardHive: string,
-  rewardHbd: string,
-  rewardVests: string
-): Promise<TransactionConfirmation> => {
-  const params = {
-    account: username,
-    reward_hive: rewardHive,
-    reward_hbd: rewardHbd,
-    reward_vests: rewardVests
-  };
-
-  const opArray: Operation[] = [["claim_reward_balance", params]];
-
-  return broadcastPostingOperations(username, opArray);
-};
-
 export const transfer = (
   from: string,
   key: PrivateKey,
