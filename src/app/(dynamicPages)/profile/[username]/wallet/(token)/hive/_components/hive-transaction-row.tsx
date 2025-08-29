@@ -113,9 +113,21 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
             >
               <span />
             </Tsx>
-            <br />
-            <br />
-            <strong>@{tr.from}</strong> -&gt; <strong>@{tr.to}</strong>
+            <div className="flex gap-2 items-center mt-4">
+              <ProfileLink username={tr.from}>
+                <Badge className="flex gap-1 pl-0.5 items-center">
+                  <UserAvatar username={tr.from} size="small" />
+                  {tr.from}
+                </Badge>
+              </ProfileLink>
+              <UilArrowRight className="text-gray-400 dark:text-gray-600" />
+              <ProfileLink username={tr.to}>
+                <Badge className="flex gap-1 pl-0.5 items-center">
+                  <UserAvatar username={tr.to} size="small" />
+                  {tr.to}
+                </Badge>
+              </ProfileLink>
+            </div>
           </>
         ) : (
           <>
@@ -125,9 +137,21 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
             >
               <span />
             </Tsx>
-            <br />
-            <br />
-            <strong>@{tr.from}</strong> -&gt; <strong>@{tr.to}</strong>
+            <div className="flex gap-2 items-center mt-4">
+              <ProfileLink username={tr.from}>
+                <Badge className="flex gap-1 pl-0.5 items-center">
+                  <UserAvatar username={tr.from} size="small" />
+                  {tr.from}
+                </Badge>
+              </ProfileLink>
+              <UilArrowRight className="text-gray-400 dark:text-gray-600" />
+              <ProfileLink username={tr.to}>
+                <Badge className="flex gap-1 pl-0.5 items-center">
+                  <UserAvatar username={tr.to} size="small" />
+                  {tr.to}
+                </Badge>
+              </ProfileLink>
+            </div>
           </>
         )}
       </span>
