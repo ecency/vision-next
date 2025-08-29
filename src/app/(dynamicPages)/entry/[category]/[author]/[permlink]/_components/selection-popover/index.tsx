@@ -25,8 +25,9 @@ import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useClickAway, useCopyToClipboard, useMountedState } from "react-use";
+import { useCopyToClipboard, useMountedState } from "react-use";
 import { EntryPageContext } from "../context";
+import { useIsMobile } from "@/utils";
 
 // https://github.com/FezVrasta/react-popper#usage-without-a-reference-htmlelement
 class VirtualSelectionReference {
@@ -59,6 +60,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
 
   const [_, copyToClipboard] = useCopyToClipboard();
   const isMounted = useMountedState();
+  const isMobile = useIsMobile();
 
   const [selectedText, setSelectedText] = useState("");
   const [showQuote, setShowQuote] = useState(true);
@@ -75,15 +77,32 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
     transform: true
   });
 
-  useClickAway(refs.floating, (e: MouseEvent | TouchEvent) => {
-    if (showTranslation) {
-      const target = e.target as HTMLElement;
-      if (target.closest(".selection-translate-modal")) {
+  useEffect(() => {
+    if (isMobile) {
+      return;
+    }
+    const handleClickAway = (e: MouseEvent | TouchEvent) => {
+      if (refs.floating.current?.contains(e.target as Node)) {
         return;
       }
-    }
-    selectedText && setSelectedText("");
-  });
+      if (showTranslation) {
+        const target = e.target as HTMLElement;
+        if (target.closest(".selection-translate-modal")) {
+          return;
+        }
+      }
+      if (selectedText) {
+        setSelectedText("");
+      }
+    };
+    const opts = { passive: true } as AddEventListenerOptions;
+    document.addEventListener("pointerdown", handleClickAway, opts);
+    document.addEventListener("touchstart", handleClickAway, opts);
+    return () => {
+      document.removeEventListener("pointerdown", handleClickAway, opts);
+      document.removeEventListener("touchstart", handleClickAway, opts);
+    };
+  }, [isMobile, showTranslation, selectedText, refs]);
 
   const onQuotesClick = useCallback(
     (text: string) => {
@@ -95,6 +114,9 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
 
   const handleSelection = useCallback(
     (e?: Event) => {
+      if (isMobile) {
+        return;
+      }
       if (showTranslation) {
         const target =
           (e?.target as HTMLElement | null) || document.activeElement;
@@ -109,7 +131,9 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
           selection.anchorNode instanceof Element
             ? selection.anchorNode
             : selection.anchorNode?.parentElement;
-        const inComment = anchorEl?.closest(".comment-box, .discussion-item");
+        const inComment = anchorEl?.closest(
+          ".comment-box, .discussion-item"
+        );
         setShowQuote(!inComment);
         refs.setReference(new VirtualSelectionReference(selection) as any);
         setSelectedText(selection.toString());
@@ -118,7 +142,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
         setShowQuote(true);
       }
     },
-    [refs, showTranslation]
+    [refs, showTranslation, isMobile]
   );
 
   useEffect(() => {
@@ -143,6 +167,9 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
   const pointerDown = useRef(false);
 
   useEffect(() => {
+    if (isMobile) {
+      return;
+    }
     const onPointerDown = () => {
       pointerDown.current = true;
     };
@@ -157,18 +184,19 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
       }
     };
 
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("pointerup", onPointerUp);
+    const opts = { passive: true } as AddEventListenerOptions;
+    document.addEventListener("pointerdown", onPointerDown, opts);
+    document.addEventListener("pointerup", onPointerUp, opts);
     document.addEventListener("keyup", onKeyUp);
     document.addEventListener("selectionchange", onSelectionChange);
 
     return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("pointerup", onPointerUp);
+      document.removeEventListener("pointerdown", onPointerDown, opts);
+      document.removeEventListener("pointerup", onPointerUp, opts);
       document.removeEventListener("keyup", onKeyUp);
       document.removeEventListener("selectionchange", onSelectionChange);
     };
-  }, [handleSelection]);
+  }, [handleSelection, isMobile]);
 
   useEffect(() => {
     if (showTranslation) {
@@ -190,6 +218,9 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
     setTarget(i18next.language.split("-")[0]);
     setShowTranslation(true);
   }, []);
+  if (isMobile) {
+    return <div>{children}</div>;
+  }
 
   return (
     <div>
