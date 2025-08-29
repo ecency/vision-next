@@ -34,6 +34,11 @@ export function StyledTooltip({ children, content, className, onHide }: StyledPr
     middleware: [flip(), offset({ mainAxis: 4 })]
   });
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? (document.querySelector("#popper-container") as HTMLElement | null)
+      : null;
+
   return (
     <div
       ref={refs.setReference}
@@ -52,7 +57,7 @@ export function StyledTooltip({ children, content, className, onHide }: StyledPr
       }}
     >
       {children}
-      {typeof document !== "undefined" &&
+      {portalContainer &&
         createPortal(
           <AnimatePresence>
             {show && content && (
@@ -72,7 +77,7 @@ export function StyledTooltip({ children, content, className, onHide }: StyledPr
               </motion.div>
             )}
           </AnimatePresence>,
-          document.querySelector("#popper-container") ?? document.createElement("div")
+          portalContainer
         )}
     </div>
   );

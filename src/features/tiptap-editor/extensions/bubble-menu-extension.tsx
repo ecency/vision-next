@@ -79,8 +79,13 @@ export function BubbleMenu({ editor }: Props) {
     };
   }, [editor, refs]);
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? (document.querySelector("#popper-container") as HTMLElement | null)
+      : null;
+
   return (
-    typeof document !== "undefined" &&
+    portalContainer &&
     createPortal(
       <AnimatePresence>
         {show && (
@@ -163,7 +168,7 @@ export function BubbleMenu({ editor }: Props) {
           </motion.div>
         )}
       </AnimatePresence>,
-      document.querySelector("#popper-container") ?? document.createElement("div")
+      portalContainer
     )
   );
 }

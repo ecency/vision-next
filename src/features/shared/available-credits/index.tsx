@@ -81,6 +81,11 @@ export const AvailableCredits = ({ username, className }: Props) => {
   const show = () => setIsShow(true);
   const hide = () => setIsShow(false);
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? (document.querySelector("#popper-container") as HTMLElement | null)
+      : null;
+
   return isMounted ? (
     <>
       <div className="available-credits flex items-center justify-between w-full pr-3">
@@ -114,62 +119,63 @@ export const AvailableCredits = ({ username, className }: Props) => {
           <></>
         )}
       </div>
-      {createPortal(
-        <div
-          ref={refs.setFloating}
-          className={"available-credits-bar-popper " + (isShow ? "show" : "")}
-          style={floatingStyles}
-        >
-          <div>
-            <div className="p-3">
-              <span className="opacity-75">{i18next.t("rc-info.resource-credits")}</span>
-              <div>
-                {rcFormatter(rcp)}({rcpFixed}%)
-              </div>
-              <div>
-                {rcpFixed !== 100 && (
-                  <small>
-                    {i18next.t("profile-info.recharge-time", { n: rcpRechargeDate.fromNow() })}
-                  </small>
-                )}
-              </div>
-            </div>
-            <div className="delegations flex flex-col p-3">
-              <span className="incoming mb-2">
-                <div className="opacity-75">{i18next.t("rc-info.received-delegations")}</div>
-                {receivedDelegation}
-              </span>
-              <span className="outgoing">
-                <div className="opacity-75">{i18next.t("rc-info.delegated")}</div>
-                {delegated}
-              </span>
-            </div>
-          </div>
-
-          <div className="extra-details p-2">
-            <span className="block mb-3 opacity-50">
-              {i18next.t("rc-info.extra-details-heading")}
-            </span>
-            <div className="extras">
-              <div className="mb-2">
-                <div className="opacity-75">{i18next.t("rc-info.extra-details-post")}</div>
-                {commentAmount}
-              </div>
-              <div className="two-col">
-                <div className="mb-2">
-                  <div className="opacity-75">{i18next.t("rc-info.extra-details-upvote")}</div>
-                  {voteAmount}
+      {portalContainer &&
+        createPortal(
+          <div
+            ref={refs.setFloating}
+            className={"available-credits-bar-popper " + (isShow ? "show" : "")}
+            style={floatingStyles}
+          >
+            <div>
+              <div className="p-3">
+                <span className="opacity-75">{i18next.t("rc-info.resource-credits")}</span>
+                <div>
+                  {rcFormatter(rcp)}({rcpFixed}%)
                 </div>
                 <div>
-                  <div className="opacity-75">{i18next.t("rc-info.extra-details-transfer")}</div>
-                  {transferAmount}
+                  {rcpFixed !== 100 && (
+                    <small>
+                      {i18next.t("profile-info.recharge-time", { n: rcpRechargeDate.fromNow() })}
+                    </small>
+                  )}
+                </div>
+              </div>
+              <div className="delegations flex flex-col p-3">
+                <span className="incoming mb-2">
+                  <div className="opacity-75">{i18next.t("rc-info.received-delegations")}</div>
+                  {receivedDelegation}
+                </span>
+                <span className="outgoing">
+                  <div className="opacity-75">{i18next.t("rc-info.delegated")}</div>
+                  {delegated}
+                </span>
+              </div>
+            </div>
+
+            <div className="extra-details p-2">
+              <span className="block mb-3 opacity-50">
+                {i18next.t("rc-info.extra-details-heading")}
+              </span>
+              <div className="extras">
+                <div className="mb-2">
+                  <div className="opacity-75">{i18next.t("rc-info.extra-details-post")}</div>
+                  {commentAmount}
+                </div>
+                <div className="two-col">
+                  <div className="mb-2">
+                    <div className="opacity-75">{i18next.t("rc-info.extra-details-upvote")}</div>
+                    {voteAmount}
+                  </div>
+                  <div>
+                    <div className="opacity-75">{i18next.t("rc-info.extra-details-transfer")}</div>
+                    {transferAmount}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>,
-        document.querySelector("#popper-container")!!
-      )}
+          </div>,
+          portalContainer
+        )}
       <PurchaseQrDialog show={showPurchaseDialog} setShow={(v) => setShowPurchaseDialog(v)} />
     </>
   ) : (
