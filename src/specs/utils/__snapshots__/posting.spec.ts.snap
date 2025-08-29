@@ -28,7 +28,7 @@ exports[`Posting createPatch 1`] = `
 "@@ -6,16 +6,17 @@
   ipsum d
 +o
- lor sit 
+ lor sit
 "
 `;
 
@@ -38,7 +38,7 @@ exports[`Posting createPermlink non-latin chars 1`] = `"f38c58113ff7e"`;
 
 exports[`Posting createPermlink random 1`] = `"lorem-ipsum-dolor-sit-amet-f38c58113ff7e"`;
 
-exports[`Posting createReplyPermlink 1`] = `"re-good-karma-2018921t150500z"`;
+exports[`Posting createReplyPermlink 1`] = `"re-good-karma-2018921t120500z"`;
 
 exports[`Posting makeCommentOptions (2) Power Up 100% 1`] = `
 {

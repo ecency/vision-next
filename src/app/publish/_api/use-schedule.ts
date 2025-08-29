@@ -1,7 +1,7 @@
 import { addSchedule } from "@/api/private-api";
 import { getPostHeaderQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import { Entry, FullAccount, RewardType } from "@/entities";
+import { CommentOptions, Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { error } from "@/features/shared";
 import { createPermlink, isCommunity, makeCommentOptions } from "@/utils";
@@ -23,7 +23,6 @@ export function useScheduleApi() {
     reward,
     beneficiaries,
     isReblogToCommunity,
-    schedule,
     poll,
     postLinks,
     location
@@ -36,7 +35,7 @@ export function useScheduleApi() {
 
   return useMutation({
     mutationKey: ["schedule-2.0"],
-    mutationFn: async () => {
+    mutationFn: async (schedule: Date) => {
       // const unpublished3SpeakVideo = Object.values(videos).find(
       //   (v) => v.status === "publish_manual"
       // );
@@ -81,7 +80,23 @@ export function useScheduleApi() {
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
-      const options = makeCommentOptions(author, permlink, reward as RewardType, beneficiaries);
+      let options: CommentOptions | null = makeCommentOptions(
+        author,
+        permlink,
+        reward as RewardType,
+        beneficiaries
+      );
+      if (!options) {
+        options = {
+          allow_curation_rewards: true,
+          allow_votes: true,
+          author,
+          permlink,
+          max_accepted_payout: "1000000.000 HBD",
+          percent_hbd: 10000,
+          extensions: []
+        };
+      }
 
       const reblog = isCommunity(tags?.[0]) && isReblogToCommunity;
 
@@ -94,7 +109,7 @@ export function useScheduleApi() {
           cleanBody,
           jsonMeta,
           options,
-          schedule?.toISOString()!,
+          schedule.toISOString(),
           isReblogToCommunity!
         );
         await recordActivity();
