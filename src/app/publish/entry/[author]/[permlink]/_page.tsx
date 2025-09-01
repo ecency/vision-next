@@ -37,7 +37,8 @@ export default function Publish() {
     setMetaDescription,
     setSelectedThumbnail,
     setLocation,
-    setEntryImages
+    setEntryImages,
+    clearAll
   } = usePublishState();
 
   useEntryDetector(
@@ -47,6 +48,7 @@ export default function Publish() {
       await delay(2000);
 
       if (entry) {
+        clearAll();
         setEnrty(entry);
         setStep("edit");
         setTitle(entry.title);
@@ -60,6 +62,7 @@ export default function Publish() {
 
         setEditorContent(entry.body);
       } else {
+        clearAll();
         setStep("no-post");
       }
     }
