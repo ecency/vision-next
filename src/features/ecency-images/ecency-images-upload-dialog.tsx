@@ -40,21 +40,25 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
         return next;
       });
 
-      const { url } = await upload({ file: items[i].file });
-      if (cancelRef.current) {
-        break;
-      }
-
-      onPick(url);
-
-      setItems((prev) => {
-        if (cancelRef.current || !prev[i]) {
-          return prev;
+      try {
+        const { url } = await upload({ file: items[i].file });
+        if (cancelRef.current) {
+          break;
         }
-        const next = [...prev];
-        next[i].status = "done";
-        return next;
-      });
+
+        onPick(url);
+
+        setItems((prev) => {
+          if (cancelRef.current || !prev[i]) {
+            return prev;
+          }
+          const next = [...prev];
+          next[i].status = "done";
+          return next;
+        });
+      } catch {
+        /* handled in mutation */
+      }
     }
 
     if (!cancelRef.current) {

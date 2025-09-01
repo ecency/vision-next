@@ -13,6 +13,7 @@ import { isCommunity, safeSpread } from "@/utils";
 import {
   UilHistory,
   UilHistoryAlt,
+  UilLanguage,
   UilLink,
   UilMapPin,
   UilPen,
@@ -45,6 +46,7 @@ export function useMenuItemsGenerator(
   const [unpin, setUnpin] = useState(false);
   const [mute, setMute] = useState(false);
   const [promote, setPromote] = useState(false);
+  const [translate, setTranslate] = useState(false);
   const [canMute, setCanMute] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
@@ -132,6 +134,9 @@ export function useMenuItemsGenerator(
 
   const generate = useCallback(() => {
     const isComment = !!entry.parent_author;
+    const isWave =
+      entry.permlink.startsWith("wave-") ||
+      (entry.permlink.startsWith("re-ecencywaves-") && entry.parent_author === "ecency.waves");
     const isOwn = !!activeUser && activeUser.username === entry.author;
     const isCross = activeUser && !isComment && isCommunity(entry.category);
     const isDeletable = isOwn && !(entry.children > 0 || entry.net_rshares > 0 || entry.is_paidout);
@@ -179,6 +184,14 @@ export function useMenuItemsGenerator(
             : i18next.t("entry-menu.mute"),
           onClick: () => setMute(!mute),
           icon: !!entry.stats?.gray ? <UilVolumeOff /> : <UilVolume />
+        })
+      ),
+      ...safeSpread(
+        () => isWave,
+        () => ({
+          label: i18next.t("entry-menu.translate"),
+          onClick: () => setTranslate(true),
+          icon: <UilLanguage />
         })
       ),
       ...(extraMenuItems ?? []),
@@ -310,6 +323,8 @@ export function useMenuItemsGenerator(
     mute,
     setMute,
     promote,
-    setPromote
+    setPromote,
+    translate,
+    setTranslate
   };
 }

@@ -24,7 +24,9 @@ Sentry.init({
     "Wrong private key. Master or active or posting private key required.",
     "Network request failed",
     "Invalid parameters",
-    "Failed to connect to MetaMask"
+    "Failed to connect to MetaMask",
+    "window.ethereum._handleChainChanged is not a function",
+    "Cannot destructure property 'register' of 'undefined' as it is undefined."
   ]
 });
 Sentry.setTag("source", "edge");

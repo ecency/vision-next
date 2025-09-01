@@ -26,7 +26,15 @@ export function useEditorDragDrop(editor: Editor | null) {
       info(i18next.t("publish.upload-started"));
       const { url } = await upload({ file });
 
-      editor?.chain().focus().setImage({ src: url }).run();
+      editor
+        ?.chain()
+        .focus()
+        .insertContent([
+          { type: "image", attrs: { src: url } },
+          { type: "paragraph" },
+          { type: "paragraph" }
+        ])
+        .run();
     },
     [editor, upload]
   );

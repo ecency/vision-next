@@ -3,7 +3,7 @@ import { InsufficientResourceCreditsDetails } from "./insufficient-resource-cred
 import { CommonDetails } from "./common-details";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
-import { ErrorFeedbackObject } from "@/features/shared";
+import { ErrorFeedbackObject } from "../feedback-events";
 import { ErrorTypes } from "@/enums";
 import i18next from "i18next";
 

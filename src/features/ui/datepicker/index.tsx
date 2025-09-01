@@ -20,14 +20,28 @@ export function Datepicker(props: Props) {
     dayjs(props.value ?? new Date()).day(1).toDate()
   );
 
-  const monthFormat = useMemo(() => Intl.DateTimeFormat(i18next.language, { month: "long" }), []);
+  const monthFormat = useMemo(
+    () =>
+      typeof Intl !== "undefined" && typeof Intl.DateTimeFormat === "function"
+        ? Intl.DateTimeFormat(i18next.language, { month: "long" })
+        : {
+            format: (date: Date) =>
+              date.toDateString().split(" ")[1] ?? ""
+          },
+    []
+  );
   const currentMonth = useMemo(
     () => monthFormat.format(calendarValue),
     [monthFormat, calendarValue]
   );
 
   const weekdaysFormat = useMemo(
-    () => Intl.DateTimeFormat(i18next.language, { weekday: "short" }),
+    () =>
+      typeof Intl !== "undefined" && typeof Intl.DateTimeFormat === "function"
+        ? Intl.DateTimeFormat(i18next.language, { weekday: "short" })
+        : {
+            format: (date: Date) => date.toDateString().substring(0, 3)
+          },
     []
   );
   const weekdays = useMemo(

@@ -13,8 +13,9 @@ import { createPortal } from "react-dom";
 import { useFilteredProps } from "../util";
 import { useClickAway, useMountedState, useWindowSize } from "react-use";
 import { PopoverSheet } from "@ui/popover/popover-sheet";
-import { autoUpdate, flip, Placement, shift } from "@floating-ui/dom";
+import { flip, Placement, shift } from "@floating-ui/dom";
 import { useFloating } from "@floating-ui/react-dom";
+import { safeAutoUpdate } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 
@@ -49,7 +50,7 @@ export function Popover(
   ]);
 
   const { refs, floatingStyles } = useFloating({
-    whileElementsMounted: autoUpdate,
+    whileElementsMounted: safeAutoUpdate,
     middleware: [flip(), shift()],
     placement: props.placement,
     transform: true
@@ -74,6 +75,11 @@ export function Popover(
     show !== props.show && props.setShow?.(show);
   }, [show]);
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? document.getElementById("popper-container") || document.body
+      : null;
+
   return (
     <div
       ref={refs.setReference}
@@ -88,6 +94,7 @@ export function Popover(
       {props.directContent}
       {isMounted() &&
         !isSheet &&
+        portalContainer &&
         createPortal(
           <AnimatePresence>
             {show && (
@@ -105,9 +112,10 @@ export function Popover(
               </div>
             )}
           </AnimatePresence>,
-          document.querySelector("#popper-container") ?? document.createElement("div")
+          portalContainer
         )}
       {isMounted() &&
+        portalContainer &&
         createPortal(
           isSheet ? (
             <PopoverSheet show={show} setShow={setShow}>
@@ -116,7 +124,7 @@ export function Popover(
           ) : (
             <></>
           ),
-          document.querySelector("#popper-container")!!
+          portalContainer
         )}
     </div>
   );

@@ -61,5 +61,36 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
         (match) => `<span data-type="tag" data-id=${match.replace("#", "")} /></span>`
       );
     });
+
+  // Handle image alignment wrappers
+  (Array.from(
+    tree.querySelectorAll("div.pull-left, div.pull-right")
+  ) as HTMLElement[]).forEach((el) => {
+    const img = el.querySelector("img");
+    if (img) {
+      const cls = el.classList.contains("pull-left") ? "pull-left" : "pull-right";
+      img.setAttribute("class", cls);
+      el.parentElement?.replaceChild(img, el);
+    }
+  });
+
+  (Array.from(tree.querySelectorAll("center")) as HTMLElement[]).forEach((el) => {
+    const img = el.querySelector("img");
+    if (img) {
+      const p = document.createElement("p");
+      p.style.textAlign = "center";
+      p.appendChild(img);
+      el.parentElement?.replaceChild(p, el);
+    }
+  });
+
+  // Ensure list items have a paragraph before nested lists to satisfy ProseMirror schema
+  (Array.from(tree.querySelectorAll("li")) as HTMLElement[]).forEach((li) => {
+    const first = li.firstElementChild;
+    if (first && (first.tagName === "OL" || first.tagName === "UL")) {
+      const p = document.createElement("p");
+      li.insertBefore(p, first);
+    }
+  });
   return tree.innerHTML;
 }

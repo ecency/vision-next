@@ -41,6 +41,12 @@ export default function Login() {
   const { mutateAsync: loginByKeychain, isPending: isLoginByKeychainPending } =
     useLoginByKeychain(username);
 
+  const handleKeychainLogin = () => {
+    loginByKeychain().catch(() => {
+      /* Already handled in onError of the mutation */
+    });
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">
       <div className="md:hidden -mx-4 border-b border-[--border-color] grid grid-cols-3 items-center text-center text-sm font-semibold">
@@ -139,7 +145,7 @@ export default function Login() {
                 outline={true}
                 full={true}
                 size="lg"
-                onClick={() => !!username && loginByKeychain()}
+                onClick={() => !!username && handleKeychainLogin()}
                 disabled={!username}
                 isLoading={isLoginByKeychainPending}
                 icon={

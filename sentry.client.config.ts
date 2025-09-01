@@ -25,7 +25,10 @@ Sentry.init({
     "Failed to read the 'localStorage' property from 'Window'",
     "Invalid parameters",
     "Failed to connect to MetaMask",
-    "Cannot set property tron of #<Window> which has only a getter"
+    "Cannot set property tron of #<Window> which has only a getter",
+    "Cannot set property ethereum of #<Window> which has only a getter",
+    "window.ethereum._handleChainChanged is not a function",
+    "Cannot destructure property 'register' of 'undefined' as it is undefined."
   ],
   // Filter out errors originating from browser extension
   denyUrls: [/sui\.js/]

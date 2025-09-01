@@ -1,5 +1,6 @@
 "use client";
 
+import "@/polyfills";
 import { ClientInit } from "@/app/client-init";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";

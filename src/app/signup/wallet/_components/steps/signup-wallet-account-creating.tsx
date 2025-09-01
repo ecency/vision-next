@@ -66,7 +66,10 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp())
         .then(() => saveWalletInformationToMetadata(Array.from(wallets?.values() ?? [])))
-        .then(() => recordActivity());
+        .then(() => recordActivity())
+        .catch(() => {
+          /* Errors are handled within respective mutation hooks */
+        });
     }
   }, [
     accountKeys,

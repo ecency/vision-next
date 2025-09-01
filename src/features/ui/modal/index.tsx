@@ -42,6 +42,11 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
 
   const isMounted = useMountedState();
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? document.querySelector("#modal-dialog-container") || document.body
+      : null;
+
   useMount(() => document.addEventListener("keyup", onKeyUp));
   useUnmount(() => {
     document.removeEventListener("keyup", onKeyUp);
@@ -75,6 +80,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   return (
     <ModalContext.Provider value={{ show, setShow }}>
       {isMounted() &&
+        portalContainer &&
         createPortal(
           <AnimatePresence>
             {show && (
@@ -96,10 +102,11 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
               />
             )}
           </AnimatePresence>,
-          document.querySelector("#modal-dialog-container")!!
+          portalContainer
         )}
 
       {show &&
+        portalContainer &&
         createPortal(
           <div
             {...nativeProps}
@@ -147,7 +154,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
               {props.children}
             </motion.div>
           </div>,
-          document.querySelector("#modal-dialog-container")!!
+          portalContainer
         )}
     </ModalContext.Provider>
   );

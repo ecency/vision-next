@@ -51,7 +51,7 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
   const submit = useCallback(async () => {
     try {
       if (schedule) {
-        await scheduleNow();
+        await scheduleNow(schedule!);
 
         onSuccess("scheduled");
       } else {

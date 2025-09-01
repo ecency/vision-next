@@ -2,7 +2,8 @@ import { Entry } from "@/entities";
 import { ProfileLink } from "@/features/shared";
 import { dateToRelative } from "@/utils";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
-import { autoUpdate, flip, shift, useFloating } from "@floating-ui/react-dom";
+import { flip, shift, useFloating } from "@floating-ui/react-dom";
+import { safeAutoUpdate } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -23,7 +24,7 @@ export function DiscussionBots({ entries }: Props) {
 
 
   const { refs, floatingStyles } = useFloating({
-    whileElementsMounted: autoUpdate,
+    whileElementsMounted: safeAutoUpdate,
     middleware: [flip(), shift()],
     placement: "top",
     transform: true
@@ -40,7 +41,8 @@ export function DiscussionBots({ entries }: Props) {
   useClickAway(contentRef, () => setShow(false));
   useEffect(() => {
     setMounted(true);
-    setPortalContainer(document.querySelector("#popper-container"));
+    const el = document.querySelector("#popper-container") || document.body;
+    setPortalContainer(el);
   }, []);
 
   return (

@@ -14,10 +14,17 @@ export class ClipboardPluginImageLinkStrategy implements ClipboardStrategy {
     ) {
       this.editor
         ?.chain()
-        .setImage({
-          src: uri,
-          alt: uri
-        })
+        .insertContent([
+          {
+            type: "image",
+            attrs: {
+              src: uri,
+              alt: uri
+            }
+          },
+          { type: "paragraph" },
+          { type: "paragraph" }
+        ])
         .run();
 
       event.preventDefault();

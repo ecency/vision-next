@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { success } from "../feedback";
 import "./_index.scss";
 import { useMenuItemsGenerator } from "./menu-items-generator";
@@ -19,6 +19,7 @@ import { Button, ModalConfirm } from "@/features/ui";
 import { MuteBtn } from "@/features/shared/mute-btn";
 import { Promote } from "@/features/shared/promote";
 import { UilShareAlt } from "@tooni/iconscout-unicons-react";
+import { EntryTranslate } from "@/features/shared/entry-translate";
 
 interface Props {
   entry: Entry;
@@ -37,6 +38,16 @@ export const EntryMenu = ({
 }: Props) => {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const router = useRouter();
+
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  useEffect(() => {
+    const parent = menuRef.current?.closest(".waves-list-item") as HTMLElement | null;
+    if (parent) {
+      parent.style.zIndex = dropdownOpen ? "10" : "";
+      parent.style.overflow = dropdownOpen ? "visible" : "";
+    }
+  }, [dropdownOpen]);
 
   const { data: community } = getCommunityCache(entry.category).useClientQuery();
   const { mutateAsync: pinToBlog } = usePinToBlog(entry, () => pinEntry?.(pin ? entry : null));
@@ -63,13 +74,15 @@ export const EntryMenu = ({
     mute,
     setMute,
     promote,
-    setPromote
+    setPromote,
+    translate,
+    setTranslate
   } = useMenuItemsGenerator(entry, community, separatedSharing, extraMenuItems);
 
   return (
-    <div className="entry-menu">
+    <div className="entry-menu" ref={menuRef}>
       <Button icon={<UilShareAlt />} appearance="gray-link" onClick={() => setShare(true)} />
-      <Dropdown>
+      <Dropdown show={dropdownOpen} setShow={setDropdownOpen}>
         <DropdownToggle>
           <Button appearance="gray-link" size="sm" icon={dotsHorizontal} />
         </DropdownToggle>
@@ -160,6 +173,9 @@ export const EntryMenu = ({
         />
       )}
       {activeUser && promote && <Promote entry={entry} onHide={() => setPromote(false)} />}
+      {translate && (
+        <EntryTranslate entry={entry} onHide={() => setTranslate(false)} />
+      )}
     </div>
   );
 };

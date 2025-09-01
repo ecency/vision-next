@@ -80,10 +80,13 @@ export function ManageChatKey() {
             onClick={() => {
               const blob = new Blob([ecencyKey], { type: "text/plain" });
               const a = document.createElement("a");
-              a.href = window.URL.createObjectURL(new File([blob], "ecency-key.txt"));
+              a.href = window.URL.createObjectURL(
+                new File([blob], "ecency-key.txt")
+              );
               a.download = "ecency-key.txt";
+              document.body.appendChild(a);
               a.click();
-              document.removeChild(a);
+              document.body.removeChild(a);
             }}
           >
             {i18next.t("g.download")}

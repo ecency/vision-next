@@ -1,5 +1,5 @@
 import React from "react";
-import { ErrorFeedbackObject } from "@/features/shared";
+import { ErrorFeedbackObject } from "../feedback-events";
 
 interface Props {
   instance: ErrorFeedbackObject;

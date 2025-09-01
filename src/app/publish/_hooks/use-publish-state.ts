@@ -194,7 +194,8 @@ export function usePublishState() {
     setMetaDescription("");
     setSchedule(undefined);
     setTags([]);
-    clearSelectedThumbnail();
+    setSelectedThumbnail("");
+    setSkipAutoThumbnailSelection(false);
     clearPoll();
     clearPublishingVideo();
     clearPostLinks();
@@ -207,9 +208,10 @@ export function usePublishState() {
     setMetaDescription,
     setReward,
     setSchedule,
-    clearSelectedThumbnail,
     setTags,
     setTitle,
+    setSelectedThumbnail,
+    setSkipAutoThumbnailSelection,
     clearPoll,
     clearPublishingVideo,
     clearPostLinks,

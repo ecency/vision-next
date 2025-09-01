@@ -14,10 +14,14 @@ export class ClipboardPluginImageStrategy implements ClipboardStrategy {
       .filter((file) => ["image/png", "image/jpeg", "image/jpg", "image/gif"].includes(file.type))
       .forEach(
         (file) =>
-          chain?.setImage({
-            alt: "",
-            src: URL.createObjectURL(file)
-          })
+          chain?.insertContent([
+            {
+              type: "image",
+              attrs: { alt: "", src: URL.createObjectURL(file) }
+            },
+            { type: "paragraph" },
+            { type: "paragraph" }
+          ])
       );
 
     chain?.run();

@@ -355,7 +355,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               editor
                 ?.chain()
                 .focus()
-                .insertContent([{ type: "image", attrs: { src: e } }, { type: "paragraph" }])
+                .insertContent([
+                  { type: "image", attrs: { src: e } },
+                  { type: "paragraph" },
+                  { type: "paragraph" }
+                ])
                 .run();
               setShowGallery(false);
             }}
@@ -368,7 +372,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             editor
               ?.chain()
               .focus()
-              .insertContent([{ type: "image", attrs: { src: url, alt } }, { type: "paragraph" }])
+              .insertContent([
+                { type: "image", attrs: { src: url, alt } },
+                { type: "paragraph" },
+                { type: "paragraph" }
+              ])
               .run();
             setShowGifPicker(false);
           }}
@@ -380,7 +388,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             editor
               ?.chain()
               .focus()
-              .insertContent([{ type: "image", attrs: { src: link, alt } }, { type: "paragraph" }])
+              .insertContent([
+                { type: "image", attrs: { src: link, alt } },
+                { type: "paragraph" },
+                { type: "paragraph" }
+              ])
               .run();
             setShowImageByLink(false);
           }}
@@ -392,7 +404,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             editor
               ?.chain()
               .focus()
-              .insertContent([{ type: "image", attrs: { src: e } }, { type: "paragraph" }])
+              .insertContent([
+                { type: "image", attrs: { src: e } },
+                { type: "paragraph" },
+                { type: "paragraph" }
+              ])
               .run();
           }}
         />

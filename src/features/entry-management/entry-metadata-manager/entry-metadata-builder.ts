@@ -65,14 +65,20 @@ export class EntryMetadataBuilder {
     ).withField(
       "links_meta",
       entries.reduce(
-        (acc, entry) => ({
-          ...acc,
-          [`https://ecency.comA${makeEntryPath(entry.category, entry.author, entry.permlink)}`]: {
-            title: entry.title,
-            summary: entry.json_metadata.description,
-            image: entry.json_metadata.image
+        (acc, entry) => {
+          if (!entry) {
+            return acc;
           }
-        }),
+
+          return {
+            ...acc,
+            [`https://ecency.com${makeEntryPath(entry.category, entry.author, entry.permlink)}`]: {
+              title: entry.title,
+              summary: entry.json_metadata?.description,
+              image: entry.json_metadata?.image
+            }
+          };
+        },
         {}
       )
     );

@@ -16,7 +16,7 @@ export function useLoginByKeychain(username: string) {
     mutationKey: ["login-by-keychain", username, account],
     mutationFn: async () => {
       if (!account) {
-        throw new Error("Account has not found");
+        throw new Error(i18next.t("login.error-user-not-found"));
       }
 
       const hasPostingPerm =

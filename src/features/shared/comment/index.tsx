@@ -10,7 +10,15 @@ import { PREFIX } from "@/utils/local-storage";
 import { setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import React, { Ref, useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  Ref,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { useDebounce, useMount } from "react-use";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import useUnmount from "react-use/lib/useUnmount";
@@ -23,6 +31,7 @@ import {
   getCommunityType
 } from "@ecency/sdk";
 import { isCommunity } from "@/utils";
+import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 
 setProxyBase(defaults.imageServer);
 
@@ -35,7 +44,7 @@ interface Props {
   autoFocus?: boolean;
   onSubmit: (text: string) => Promise<any>;
   onCancel?: () => void;
-  inputRef?: Ref<any>;
+  inputRef?: Ref<HTMLTextAreaElement>;
   clearOnSubmit?: boolean;
   isEdit?: boolean;
 }
@@ -54,6 +63,7 @@ export function Comment({
 }: Props) {
   const commentBodyRef = useRef<HTMLDivElement>(null);
   const activeUser = useClientActiveUser();
+  const { selection, setSelection } = useContext(EntryPageContext);
 
   const [text, setText] = useLocalStorage(
     PREFIX + `_reply_text_${entry.author}_${entry.permlink}`,
@@ -76,6 +86,24 @@ export function Comment({
   });
 
   const rows = useMemo(() => text!.split(/\r\n|\r|\n|<br>/).length, [text]);
+
+  useEffect(() => {
+    if (selection) {
+      setText((prev) => `${selection}${prev ?? ""}`);
+      const el = (inputRef as any)?.current as HTMLTextAreaElement | null;
+      if (el) {
+        let scHeight = el.scrollHeight;
+        const reduceScHeight = scHeight - 20 || scHeight - 24;
+        if (reduceScHeight) {
+          scHeight = reduceScHeight;
+        }
+        setInputHeight(scHeight);
+        const caret = selection.length;
+        requestAnimationFrame(() => el.setSelectionRange(caret, caret));
+      }
+      setSelection("");
+    }
+  }, [selection, setSelection, setText, inputRef]);
 
   useDebounce(
     () => {
@@ -101,30 +129,30 @@ export function Comment({
     commentBodyRef.current?.removeEventListener("drop", handleDrop);
   });
 
-  const textChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    const { value: text } = e.target;
-    let scHeight: number = e.target.scrollHeight;
-    let reduceScHeight: number = scHeight - 20 || scHeight - 24;
-    if (reduceScHeight) {
-      scHeight = reduceScHeight;
-    }
-    setText(text);
-    setInputHeight(scHeight);
-  }, []);
+    const textChanged = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+      const { value: text } = e.target;
+      let scHeight: number = e.target.scrollHeight;
+      let reduceScHeight: number = scHeight - 20 || scHeight - 24;
+      if (reduceScHeight) {
+        scHeight = reduceScHeight;
+      }
+      setText(text);
+      setInputHeight(scHeight);
+    }, [setText]);
 
-  const submit = useCallback(async () => {
-    try {
-      await onSubmit(text!);
-      if (clearOnSubmit) {
-        setText("");
+    const submit = useCallback(async () => {
+      try {
+        await onSubmit(text!);
+        if (clearOnSubmit) {
+          setText("");
+        }
+      } catch (err: any) {
+        const handled = handleAndReportError(err, "comment");
+        if (!handled) {
+          throw err; // ❌ only throw unexpected errors
+        }
       }
-    } catch (err: any) {
-      const handled = handleAndReportError(err, "comment");
-      if (!handled) {
-        throw err; // ❌ only throw unexpected errors
-      }
-    }
-  }, [onSubmit, text, clearOnSubmit]);
+    }, [onSubmit, text, clearOnSubmit, setText]);
 
   const cancel = useCallback(() => {
     if (onCancel) onCancel();

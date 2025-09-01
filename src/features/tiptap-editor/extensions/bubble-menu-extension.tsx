@@ -1,5 +1,6 @@
 import { Button, StyledTooltip } from "@/features/ui";
-import { autoUpdate, flip, shift, useFloating } from "@floating-ui/react-dom";
+import { flip, shift, useFloating } from "@floating-ui/react-dom";
+import { safeAutoUpdate } from "@ui/util";
 import { Editor, posToDOMRect } from "@tiptap/core";
 import {
   UilArrow,
@@ -34,7 +35,7 @@ export function BubbleMenu({ editor }: Props) {
   const [editingLink, setEditingLink] = useState<string>();
 
   const { refs, floatingStyles } = useFloating({
-    whileElementsMounted: autoUpdate,
+    whileElementsMounted: safeAutoUpdate,
     middleware: [flip(), shift()],
     placement: "top",
     transform: true
@@ -78,8 +79,13 @@ export function BubbleMenu({ editor }: Props) {
     };
   }, [editor, refs]);
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? document.getElementById("popper-container") || document.body
+      : null;
+
   return (
-    typeof document !== "undefined" &&
+    portalContainer &&
     createPortal(
       <AnimatePresence>
         {show && (
@@ -162,7 +168,7 @@ export function BubbleMenu({ editor }: Props) {
           </motion.div>
         )}
       </AnimatePresence>,
-      document.querySelector("#popper-container") ?? document.createElement("div")
+      portalContainer
     )
   );
 }

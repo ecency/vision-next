@@ -33,6 +33,12 @@ export function LoginUserByKey({ username }: Props) {
     isVerified
   );
 
+  const handleLogin = () => {
+    loginByKey().catch(() => {
+      /* Already handled in onError of the mutation */
+    });
+  };
+
   async function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
     try {
       const files = e.target.files;
@@ -76,7 +82,7 @@ export function LoginUserByKey({ username }: Props) {
             autoComplete="off"
             onChange={(e) => setKey(e.target.value.trim())}
             placeholder={i18next.t("login.key-placeholder")}
-            onKeyDown={(e) => e.key === "Enter" && loginByKey()}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
 
           <div className="pl-2 text-xs">
@@ -144,7 +150,7 @@ export function LoginUserByKey({ username }: Props) {
           icon={<UilArrowRight />}
           disabled={!isVerified}
           className="block"
-          onClick={() => loginByKey()}
+          onClick={handleLogin}
           isLoading={isPending}
         >
           {i18next.t("g.login")}
