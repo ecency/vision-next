@@ -65,8 +65,8 @@ export function useSaveDraftApi() {
       const meta = metaBuilder.build();
       const draftMeta: DraftMetadata = {
         ...meta,
-        beneficiaries,
-        rewardType: reward,
+        beneficiaries: beneficiaries ?? [],
+        rewardType: reward ?? "default",
         videos,
         poll: activePoll
       };

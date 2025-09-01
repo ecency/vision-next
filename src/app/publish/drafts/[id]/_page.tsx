@@ -26,7 +26,15 @@ export default function PublishPage() {
   const [showHtmlWarning, setShowHtmlWarning] = useState(false);
 
   const { editor, setEditorContent } = usePublishEditor(() => setShowHtmlWarning(true));
-  const { setTitle, setContent, setTags, setPublishingVideo, setLocation } = usePublishState();
+  const {
+    setTitle,
+    setContent,
+    setTags,
+    setPublishingVideo,
+    setLocation,
+    setReward,
+    setBeneficiaries
+  } = usePublishState();
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
 
@@ -40,6 +48,8 @@ export default function PublishPage() {
       setEditorContent(draft.body);
       setPublishingVideo(draft.meta?.video);
       setLocation(draft.meta?.location);
+      setReward(draft.meta?.rewardType ?? "default");
+      setBeneficiaries(draft.meta?.beneficiaries ?? []);
     },
     () => setStep("no-draft")
   );
