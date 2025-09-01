@@ -6,11 +6,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCopyToClipboard, useMount } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
-import {
-  EcencyCreateWalletInformation,
-  EcencyWalletCurrency,
-  useWalletCreate
-} from "@ecency/wallets";
+import { EcencyTokenMetadata, EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import i18next from "i18next";
@@ -20,7 +16,7 @@ interface Props {
   username: string;
   currency: EcencyWalletCurrency;
   selectable?: boolean;
-  onSelect: (wallet: EcencyCreateWalletInformation) => void;
+  onSelect: (wallet: EcencyTokenMetadata) => void;
 }
 
 export function SignupWalletValidationItem({
@@ -31,7 +27,7 @@ export function SignupWalletValidationItem({
   selectable = false
 }: Props) {
   const [_, copy] = useCopyToClipboard();
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
+  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
   const wallet = useMemo(() => wallets?.get(currency), [wallets, currency]);

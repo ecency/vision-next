@@ -39,7 +39,12 @@ export function SignupWalletValidateFunds({ username, onValid }: Props) {
               selectable={true}
               key={i}
               currency={currency}
-              onSelect={(wallet) => setSelectedWallet([wallet.currency, wallet.address])}
+              onSelect={(wallet) =>
+                setSelectedWallet([wallet.currency, wallet.address] as [
+                  EcencyWalletCurrency,
+                  string
+                ])
+              }
             />
           ))}
         </div>
