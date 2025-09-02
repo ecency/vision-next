@@ -112,7 +112,7 @@ export function WavesListItem({
       ref={rootRef}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: isMuted ? 0.5 : 1, scale: 1 }}
-      transition={{ delay: i * 0.2 }}
+      transition={{ delay: Math.min(i, 5) * 0.05 }}
       className={clsx(
         "waves-list-item bg-white dark:bg-dark-200 relative",
         grid === "feed" &&

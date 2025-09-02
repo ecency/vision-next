@@ -48,7 +48,7 @@ export function NotificationListItem({
   onInViewport
 }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
-  const { inViewport } = useInViewport(ref);
+  const { inViewport } = useInViewport(ref, { rootMargin: "0px 0px 200px 0px" });
 
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
