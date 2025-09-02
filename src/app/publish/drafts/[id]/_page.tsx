@@ -33,7 +33,10 @@ export default function PublishPage() {
     setPublishingVideo,
     setLocation,
     setReward,
-    setBeneficiaries
+    setBeneficiaries,
+    setMetaDescription,
+    setSelectedThumbnail,
+    setEntryImages
   } = usePublishState();
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
@@ -50,6 +53,9 @@ export default function PublishPage() {
       setLocation(draft.meta?.location);
       setReward(draft.meta?.rewardType ?? "default");
       setBeneficiaries(draft.meta?.beneficiaries ?? []);
+      setMetaDescription(draft.meta?.description ?? "");
+      setSelectedThumbnail(draft.meta?.image?.[0] ?? "");
+      setEntryImages(draft.meta?.image ?? []);
     },
     () => setStep("no-draft")
   );
