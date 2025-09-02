@@ -535,7 +535,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                           <PostSchedulerDialog
                             date={schedule ? dayjs(schedule) : null}
                             onChange={(d) => {
-                              setSchedule(d ? d.format("YYYY-MM-DDTHH:mm:ssZ") : null);
+                              setSchedule(d ? d.toISOString() : null);
                             }}
                           />
                           <div className="text-sm text-gray-600 dark:text-gray-400">
