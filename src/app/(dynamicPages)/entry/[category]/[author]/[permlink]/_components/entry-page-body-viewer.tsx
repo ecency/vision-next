@@ -26,15 +26,23 @@ export function EntryPageBodyViewer({ entry }: Props) {
     if (isRawContent || isEdit) {
       return;
     }
-    const el = document.getElementById("post-body");
-    if (el?.parentNode) {
-      setupPostEnhancements(el, {
-        onHiveOperationClick: (op) => {
-          setSigningOperation(op);
-        },
-        TwitterComponent: Tweet,
-      });
+
+    if (typeof document === "undefined") {
+      return;
     }
+
+    const el = document.getElementById("post-body");
+
+    if (!el || !el.parentNode) {
+      return;
+    }
+
+    setupPostEnhancements(el, {
+      onHiveOperationClick: (op) => {
+        setSigningOperation(op);
+      },
+      TwitterComponent: Tweet,
+    });
   }, [isRawContent, isEdit]);
 
   return (
