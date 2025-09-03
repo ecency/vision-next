@@ -36,7 +36,8 @@ export default function PublishPage() {
     setBeneficiaries,
     setMetaDescription,
     setSelectedThumbnail,
-    setEntryImages
+    setEntryImages,
+    clearAll
   } = usePublishState();
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
@@ -44,6 +45,7 @@ export default function PublishPage() {
   useApiDraftDetector(
     params?.id as string,
     (draft) => {
+      clearAll();
       setTitle(draft.title);
       setContent(draft.body);
       setTags(draft.tags_arr);
