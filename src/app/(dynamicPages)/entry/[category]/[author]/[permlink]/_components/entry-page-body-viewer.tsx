@@ -9,6 +9,7 @@ import { useContext, useEffect, useState } from "react";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
 import { EntryPageContext } from "./context";
 import { EntryPageEdit } from "./entry-page-edit";
+import { makeEntryPath } from "@/utils";
 
 const Tweet = dynamic(() => import("react-tweet").then((m) => m.Tweet), {
   ssr: false,
@@ -48,7 +49,9 @@ export function EntryPageBodyViewer({ entry }: Props) {
   return (
     <EntryPageViewerManager>
       {!isEdit && (
-        <SelectionPopover postUrl={entry.url}>
+        <SelectionPopover
+          postUrl={makeEntryPath(entry.category, entry.author, entry.permlink)}
+        >
           {/* nothing here, SSR will render #post-body */}
         </SelectionPopover>
       )}

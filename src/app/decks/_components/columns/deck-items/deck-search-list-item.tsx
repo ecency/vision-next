@@ -4,7 +4,7 @@ import { useInViewport } from "react-in-viewport";
 import { commentSvg, voteSvg } from "../../icons";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useGlobalStore } from "@/core/global-store";
-import { dateToRelative, transformMarkedContent } from "@/utils";
+import { dateToRelative, transformMarkedContent, makeEntryPath } from "@/utils";
 import {
   EntryLink,
   EntryMenu,
@@ -124,6 +124,8 @@ export const SearchListItem = ({
     );
   };
 
+  const safeUrl = makeEntryPath(entry.category, entry.author, entry.permlink);
+
   if (entry.msg) {
     let mentions = entry.msg.match(/@[\w.\d-]+/gi);
     if (!mentions) {
@@ -162,7 +164,10 @@ export const SearchListItem = ({
             />
           )}
           <div className="ml-3 deck-body">
-            <div onClick={() => router.push(url)} className="pointer text-dark">
+            <div
+              onClick={() => safeUrl !== "#" && router.push(safeUrl)}
+              className="pointer text-dark"
+            >
               <div className="flex items-start flex-grow-1 hot-item-link">{msg}</div>
             </div>
           </div>
@@ -248,7 +253,10 @@ export const SearchListItem = ({
           <EntryVoteBtn entry={entry} isPostSlider={false} />
           <EntryPayout entry={entry} />
           <EntryVotes entry={entry} icon={voteSvg} />
-          <Link href={`${url}#discussion`} className="text-gray-600 dark:text-gray-400">
+          <Link
+            href={safeUrl === "#" ? "#" : `${safeUrl}#discussion`}
+            className="text-gray-600 dark:text-gray-400"
+          >
             <div className="flex items-center comments">
               <div style={{ paddingRight: 4 }}>{commentSvg}</div>
               <div>{entry.children}</div>

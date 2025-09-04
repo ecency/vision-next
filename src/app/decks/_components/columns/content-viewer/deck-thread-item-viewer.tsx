@@ -13,6 +13,7 @@ import { useMounted } from "@/utils/use-mounted";
 import { useQueryClient } from "@tanstack/react-query";
 import { WaveEntry } from "@/entities";
 import { useWaveDiscussionsList } from "@/features/waves";
+import { makeEntryPath } from "@/utils";
 
 interface Props {
   entry: WaveEntry;
@@ -59,7 +60,7 @@ export const DeckThreadItemViewer = ({
           <Button
             className="flex pt-[0.35rem]"
             outline={true}
-            href={entry?.url}
+            href={entry ? makeEntryPath(entry.category, entry.author, entry.permlink) : "#"}
             target="_blank"
             size="sm"
           >

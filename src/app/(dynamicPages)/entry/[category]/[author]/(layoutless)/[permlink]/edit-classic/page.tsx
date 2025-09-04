@@ -8,6 +8,9 @@ interface Props {
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { author, permlink } = await props.params;
+  if (!permlink || permlink === "undefined") {
+    return {};
+  }
   const meta = await generateEntryMetadata(author.replace("%40", ""), permlink);
   return {
     ...meta,

@@ -9,6 +9,7 @@ import { deleteForeverSvg, pencilOutlineSvg } from "@ui/svg";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 import * as ls from "@/utils/local-storage";
 import { useRouter } from "next/navigation";
+import { makeEntryPath } from "@/utils";
 
 interface Props {
   entry: Entry;
@@ -26,16 +27,18 @@ export function EntryPageMainInfoMenu({ entry }: Props) {
     [activeUser?.username, entry.author]
   );
   const extraItems = useMemo(
-    () => [
-      ...(isOwnEntry && isComment
-        ? [
-            {
-              label: i18next.t("g.edit"),
-              onClick: () => router.push(`/${entry.url}/edit`),
-              icon: pencilOutlineSvg
-            }
-          ]
-        : []),
+    () => {
+      const path = makeEntryPath(entry.category, entry.author, entry.permlink);
+      return [
+        ...(isOwnEntry && isComment && path !== "#"
+          ? [
+              {
+                label: i18next.t("g.edit"),
+                onClick: () => router.push(`${path}/edit`),
+                icon: pencilOutlineSvg
+              }
+            ]
+          : []),
       ...(!(entry.children > 0 || entry.net_rshares > 0 || entry.is_paidout) &&
       isOwnEntry &&
       isComment
@@ -57,8 +60,9 @@ export function EntryPageMainInfoMenu({ entry }: Props) {
             }
           ]
         : [])
-    ],
-    []
+      ];
+    },
+    [entry, isOwnEntry, isComment, router, setLoading]
   );
 
   const deleted = () => {

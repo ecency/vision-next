@@ -9,6 +9,10 @@ interface Props {
 
 export function EntryPageIsCommentHeader({ entry }: Props) {
   const isComment = !!entry.parent_author;
+  const rootHref =
+    entry.url && !entry.url.includes("undefined")
+      ? entry.url
+      : makeEntryPath(entry.category, entry.author, entry.permlink);
 
   return isComment ? (
     <div className="comment-entry-header">
@@ -17,7 +21,7 @@ export function EntryPageIsCommentHeader({ entry }: Props) {
       <p className="comment-entry-root-title">{entry.title}</p>
       <ul className="comment-entry-opts">
         <li>
-          <Link href={entry.url}>{i18next.t("entry.comment-entry-go-root")}</Link>
+          <Link href={rootHref}>{i18next.t("entry.comment-entry-go-root")}</Link>
         </li>
         {entry.depth > 1 && (
           <li>

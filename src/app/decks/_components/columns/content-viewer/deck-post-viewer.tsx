@@ -15,6 +15,7 @@ import {
   EntryVotes,
   PostContentRenderer
 } from "@/features/shared";
+import { makeEntryPath } from "@/utils";
 
 interface Props {
   entry: Entry;
@@ -47,7 +48,7 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
           <Button
             className="flex pt-[0.35rem]"
             outline={true}
-            href={entry.url}
+            href={makeEntryPath(entry.category, entry.author, entry.permlink)}
             target="_blank"
             size="sm"
           >
