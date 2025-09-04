@@ -14,6 +14,7 @@ export function useDownloadKeys(username: string, accountKeys: any | undefined) 
 
     element.click();
 
-    document.body.removeChild(element);
+    // Ensure the temporary element is removed without errors
+    element.remove();
   }, [accountKeys, username]);
 }
