@@ -21,5 +21,9 @@ export function makeEntryPath(
   permlink: string,
   toReplies: boolean = false
 ) {
+  if (!author || !permlink) {
+    return "#";
+  }
+
   return `/${category}/@${author}/${permlink}${toReplies ? "#replies" : ""}`;
 }
