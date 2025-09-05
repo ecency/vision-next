@@ -2890,6 +2890,10 @@
     "apr": "APR Rewards",
     "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe",
     "delegations": "Delegations",
+    "external-wallets-offer": {
+      "title": "Bring your crypto to Ecency",
+      "description": "Create or import wallets for BTC, ETH, TRX, APT, and SOL directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem."
+    },
     "operations": {
       "transfer": "Transfer",
       "transfer-saving": "To Savings",

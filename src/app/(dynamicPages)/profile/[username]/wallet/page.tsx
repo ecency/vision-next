@@ -1,4 +1,5 @@
 import {
+  ProfileWalletExternalBanner,
   ProfileWalletSummary,
   ProfileWalletTokenPicker,
   ProfileWalletTokensList
@@ -17,6 +18,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 export default function WalletPage({ params }: Props) {
   return (
     <>
+      <ProfileWalletExternalBanner />
       <ProfileWalletSummary />
       <div className="flex justify-end mb-2">
         <ProfileWalletTokenPicker />
