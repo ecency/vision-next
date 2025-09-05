@@ -124,12 +124,13 @@ export const TagMentionExtensionConfig = {
           className: "absolute"
         });
 
-        placementArea?.appendChild(reactRenderer.element);
+        const element = reactRenderer.element as HTMLElement;
+        placementArea?.appendChild(element);
 
-        computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
+        computePosition(props.decorationNode as HTMLElement, element, {
           middleware: [flip()]
         }).then(({ x, y }) => {
-          Object.assign((reactRenderer.element as HTMLElement).style, {
+          Object.assign(element.style, {
             left: `${x}px`,
             top: `${y}px`
           });
@@ -143,12 +144,11 @@ export const TagMentionExtensionConfig = {
 
         reactRenderer.updateProps(props);
 
-        computePosition(
-          props.decorationNode as HTMLElement,
-          reactRenderer.element as HTMLElement,
-          { middleware: [flip()] }
-        ).then(({ x, y }) => {
-          Object.assign((reactRenderer.element as HTMLElement).style, {
+        const element = reactRenderer.element as HTMLElement;
+        computePosition(props.decorationNode as HTMLElement, element, {
+          middleware: [flip()]
+        }).then(({ x, y }) => {
+          Object.assign(element.style, {
             left: `${x}px`,
             top: `${y}px`
           });
