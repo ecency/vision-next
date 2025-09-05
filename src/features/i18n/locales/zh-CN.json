@@ -6,6 +6,7 @@
     "clone": "Clone",
     "copy": "Copy of",
     "clone-success": "Created new draft copy",
+    "delete-success": "草稿已成功删除",
     "continue": "Continue",
     "submit": "Write a post",
     "search": "Search",
