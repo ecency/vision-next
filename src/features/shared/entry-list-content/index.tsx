@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import "./_index.scss";
 import { Account, Community, Entry } from "@/entities";
