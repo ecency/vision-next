@@ -1,5 +1,5 @@
 import { CommunityCard } from "@/app/discover/@communities/_components/community-card";
-import { CommunityCardAnimated } from "@/app/discover/@communities/_components/community-card-animated";
+import CommunityCardAnimated from "@/app/discover/@communities/_components/community-card-animated-client";
 import { PrimaryCommunityCard } from "@/app/discover/@communities/_components/primary-community-card";
 import { getCommunityCache } from "@/core/caches";
 import { getQueryClient } from "@/core/react-query";
