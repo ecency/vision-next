@@ -40,7 +40,7 @@ export function useDeleteDraft(onSuccess: (id: string) => void) {
       return id;
     },
     onSuccess: (id) => {
-      success(i18next.t("g.clone-success"));
+      success(i18next.t("g.delete-success"));
       onSuccess(id);
       queryClient.setQueryData<Draft[]>(
         [QueryIdentifiers.DRAFTS, activeUser?.username],
