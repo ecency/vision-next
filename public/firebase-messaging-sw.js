@@ -21,11 +21,14 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function (payload) {
   //console.log('Received bg notification', payload);
-  const notificationTitle = payload.notification?.title || 'Ecency';
+  const notificationTitle =
+    (payload.notification && payload.notification.title) || 'Ecency';
 
   self.registration.showNotification(notificationTitle, {
-    body: payload.notification?.body,
-    icon: payload.notification?.image || 'https://ecency.com/static/media/logo-circle.2df6f251.svg',
+    body: payload.notification && payload.notification.body,
+    icon:
+      (payload.notification && payload.notification.image) ||
+      'https://ecency.com/static/media/logo-circle.2df6f251.svg',
     data: payload.data,
   });
 });
