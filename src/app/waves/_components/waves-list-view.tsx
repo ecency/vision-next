@@ -38,7 +38,7 @@ export function WavesListView({ host }: Props) {
         (acc, item, index) => [
           ...acc,
           item,
-          ...(index % 4 === 0 && tempPromoted.length > 0 ? [tempPromoted.shift()!] : [])
+          ...(index % 4 === 1 && tempPromoted.length > 0 ? [tempPromoted.shift()!] : [])
         ],
         [] as WaveEntry[]
       );
