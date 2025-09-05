@@ -1,7 +1,7 @@
 import { CommunitiesListSearch } from "@/app/communities/_components/communities-list-search";
 import { CommunitiesListSortSelector } from "@/app/communities/_components/communities-list-sort-selector";
 import { CommunityCard } from "@/app/discover/@communities/_components/community-card";
-import { CommunityCardAnimated } from "@/app/discover/@communities/_components/community-card-animated";
+import CommunityCardAnimated from "@/app/discover/@communities/_components/community-card-animated-client";
 import { getCommunityCache } from "@/core/caches";
 import { getQueryClient } from "@/core/react-query";
 import { Communities, getCommunitiesQueryOptions } from "@ecency/sdk";

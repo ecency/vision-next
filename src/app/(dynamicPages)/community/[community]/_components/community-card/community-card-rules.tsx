@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo } from "react";
 import { Community } from "@/entities";
 import { nl2list } from "@/utils";

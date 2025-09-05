@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { FormControl, InputGroup } from "@ui/input";

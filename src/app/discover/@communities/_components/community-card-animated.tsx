@@ -3,30 +3,36 @@
 import { motion } from "framer-motion";
 import { PropsWithChildren } from "react";
 
-export function CommunityCardAnimated(props: PropsWithChildren<{ i: number; className?: string }>) {
+export function CommunityCardAnimated({
+  i,
+  className,
+  children
+}: PropsWithChildren<{ i: number; className?: string }>) {
   return (
     <motion.article
       initial={{
         opacity: 0,
-        left: -16,
+        x: -16,
         scale: 0.95
       }}
       animate={{
         opacity: 1,
-        left: 0,
+        x: 0,
         scale: 1
       }}
       exit={{
         opacity: 0,
-        left: -16,
+        x: -16,
         scale: 0.95
       }}
       transition={{
-        delay: 0.1 * props.i
+        delay: 0.1 * i
       }}
-      className={props.className}
+      className={className}
     >
-      {props.children}
+      {children}
     </motion.article>
   );
 }
+
+export default CommunityCardAnimated;
