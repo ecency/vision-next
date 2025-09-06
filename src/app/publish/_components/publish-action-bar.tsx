@@ -38,7 +38,7 @@ export function PublishActionBar({
   children,
   onBackToClassic
 }: PropsWithChildren<Props>) {
-  const { schedule: scheduleDate, clearAll } = usePublishState();
+  const { schedule: scheduleDate, clearAll, title } = usePublishState();
 
   const [showReward, setShowReward] = useState(false);
   const [showBeneficiaries, setShowBeneficiaries] = useState(false);
@@ -61,14 +61,32 @@ export function PublishActionBar({
       className="container relative z-[11] justify-between gap-4 px-2 md:px-4 flex flex-col-reverse sm:flex-row sm:items-center max-w-[1024px] py-4 mx-auto publish-action-bar"
     >
       <PublishActionBarCommunity />
-      <div className="w-full sm:w-auto flex justify-end sm:justify-normal items-center gap-4">
+      <div className="w-full sm:w-auto flex justify-end sm:justify-normal items-center gap-2 sm:gap-4">
         <LoginRequired>
           <Button size="sm" appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
-            {scheduleDate && i18next.t("publish.continue-to-schedule")}
-            {!scheduleDate && i18next.t("publish.continue-to-publish")}
+            {i18next.t("g.continue")}
           </Button>
         </LoginRequired>
         {children}
+
+        <Button
+          size="sm"
+          disabled={isDraftPending || !title?.trim()}
+          appearance="gray-link"
+          onClick={() => saveToDraft()}
+        >
+          {pathname?.includes("drafts")
+            ? i18next.t("publish.update-draft")
+            : i18next.t("publish.save-draft")}
+        </Button>
+        <StyledTooltip content={i18next.t("publish.clear")}>
+          <Button
+            noPadding={true}
+            appearance="gray-link"
+            icon={<UilTrash />}
+            onClick={clearAll}
+          />
+        </StyledTooltip>
 
         <StyledTooltip content={i18next.t("publish.get-help")}>
           <Button
@@ -100,26 +118,10 @@ export function PublishActionBar({
             />
             <div className="border-b border-[--border-color] h-[1px] w-full" />
             <DropdownItemWithIcon
-              disabled={isDraftPending}
-              icon={<UilFileEditAlt />}
-              label={
-                pathname?.includes("drafts")
-                  ? i18next.t("publish.update-draft")
-                  : i18next.t("publish.save-draft")
-              }
-              onClick={() => saveToDraft()}
-            />
-            <DropdownItemWithIcon
               selected={!!scheduleDate}
               onClick={() => setSchedule(true)}
               icon={<UilClock />}
               label={i18next.t("publish.schedule")}
-            />
-            <DropdownItemWithIcon
-              className="!text-red"
-              icon={<UilTrash />}
-              label={i18next.t("publish.clear")}
-              onClick={clearAll}
             />
             <div className="border-b border-[--border-color] h-[1px] w-full" />
             <DropdownItemWithIcon

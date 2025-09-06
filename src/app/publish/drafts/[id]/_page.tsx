@@ -5,12 +5,10 @@ import "../../page.scss";
 import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publish/_components";
 import { usePublishEditor, usePublishState, useAutoSavePublishDraft } from "@/app/publish/_hooks";
 import { useApiDraftDetector } from "@/app/submit/_hooks";
-import { Button } from "@/features/ui";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useSaveDraftApi } from "../../_api";
 import { PublishEditorHtmlWarning } from "../../_components/publish-editor-html-warning";
 import { PublishSuccessState } from "../../_components/publish-success-state";
 import { PublishDraftsNoDraft } from "./_components";
@@ -33,14 +31,17 @@ export default function PublishPage() {
     setPublishingVideo,
     setLocation,
     setReward,
-    setBeneficiaries
+    setBeneficiaries,
+    setMetaDescription,
+    setSelectedThumbnail,
+    setEntryImages,
+    clearAll
   } = usePublishState();
-
-  const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
 
   useApiDraftDetector(
     params?.id as string,
     (draft) => {
+      clearAll();
       setTitle(draft.title);
       setContent(draft.body);
       setTags(draft.tags_arr);
@@ -50,6 +51,9 @@ export default function PublishPage() {
       setLocation(draft.meta?.location);
       setReward(draft.meta?.rewardType ?? "default");
       setBeneficiaries(draft.meta?.beneficiaries ?? []);
+      setMetaDescription(draft.meta?.description ?? "");
+      setSelectedThumbnail(draft.meta?.image?.[0] ?? "");
+      setEntryImages(draft.meta?.image ?? []);
     },
     () => setStep("no-draft")
   );
@@ -73,16 +77,7 @@ export default function PublishPage() {
             <PublishActionBar
               onPublish={() => setStep("validation")}
               onBackToClassic={() => router.push(`/draft/${params?.id}`)}
-            >
-              <Button
-                appearance="gray"
-                size="sm"
-                disabled={isDraftPending}
-                onClick={() => saveToDraft()}
-              >
-                {i18next.t("publish.update-draft")}
-              </Button>
-            </PublishActionBar>
+            />
             <PublishEditor editor={editor} />
           </>
         )}

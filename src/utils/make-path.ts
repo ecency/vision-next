@@ -18,8 +18,12 @@ export function makePath(filter: string, tag: string): string {
 export function makeEntryPath(
   category: string,
   author: string,
-  permlink: string,
+  permlink?: string,
   toReplies: boolean = false
 ) {
+  if (!author || !permlink || permlink === "undefined") {
+    return "#";
+  }
+
   return `/${category}/@${author}/${permlink}${toReplies ? "#replies" : ""}`;
 }

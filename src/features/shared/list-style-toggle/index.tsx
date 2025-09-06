@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import "./_index.scss";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
@@ -51,3 +53,5 @@ export function ListStyleToggle({ iconClass, float }: Props) {
     </div>
   );
 }
+
+export default ListStyleToggle;

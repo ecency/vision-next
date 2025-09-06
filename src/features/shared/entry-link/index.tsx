@@ -1,14 +1,12 @@
 import React, { PropsWithChildren } from "react";
 import { Entry } from "@/entities";
 import Link from "next/link";
-
-const makePath = (category: string, author: string, permlink: string, toReplies: boolean = false) =>
-  `/${category}/@${author}/${permlink}${toReplies ? "#replies" : ""}`;
+import { makeEntryPath } from "@/utils/make-path";
 
 export interface PartialEntry {
   category: string;
   author: string;
-  permlink: string;
+  permlink?: string;
 }
 
 interface Props {
@@ -18,7 +16,7 @@ interface Props {
 }
 
 export function EntryLink({ children, entry, target, className }: PropsWithChildren<Props>) {
-  const path = makePath(entry.category, entry.author, entry.permlink);
+  const path = makeEntryPath(entry.category, entry.author, entry.permlink);
 
   return (
     <Link legacyBehavior={true} href={path} target={target}>

@@ -5,7 +5,7 @@ import { UserAvatar } from "@/features/shared";
 import Link from "next/link";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
-import { dateToRelative } from "@/utils";
+import { dateToRelative, makeEntryPath } from "@/utils";
 
 interface Props {
   entry: ThreadItemEntry;
@@ -40,7 +40,10 @@ export const DeckThreadItemHeader = ({ entry, hasParent, pure, status }: Props) 
 
       <div className="date">
         {status === "default" && (
-          <Link target="_blank" href={`/@${entry.author}/${entry.permlink}`}>
+          <Link
+            target="_blank"
+            href={makeEntryPath(entry.category, entry.author, entry.permlink)}
+          >
             {`${dateToRelative(entry.created)}`}
           </Link>
         )}

@@ -1,3 +1,5 @@
+"use client";
+
 import { Entry, WaveEntry } from "@/entities";
 import { useWaveCreate } from "@/features/waves/components/wave-form/api";
 import { useWaveCreateReply } from "@/features/waves/components/wave-form/api/use-wave-create-reply";

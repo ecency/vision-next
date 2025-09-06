@@ -110,7 +110,7 @@ export const TagMentionExtensionConfig = {
   pluginKey: new PluginKey("tag"),
   render: () => {
     const placementArea = document.querySelector("#popper-container");
-    let reactRenderer: ReactRenderer<any>;
+    let reactRenderer: ReactRenderer<any> | null;
 
     return {
       onStart: (props: any) => {
@@ -124,12 +124,13 @@ export const TagMentionExtensionConfig = {
           className: "absolute"
         });
 
-        placementArea?.appendChild(reactRenderer.element);
+        const element = reactRenderer.element as HTMLElement;
+        placementArea?.appendChild(element);
 
-        computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
+        computePosition(props.decorationNode as HTMLElement, element, {
           middleware: [flip()]
         }).then(({ x, y }) => {
-          Object.assign((reactRenderer.element as HTMLElement).style, {
+          Object.assign(element.style, {
             left: `${x}px`,
             top: `${y}px`
           });
@@ -137,12 +138,17 @@ export const TagMentionExtensionConfig = {
       },
 
       onUpdate(props: any) {
+        if (!reactRenderer) {
+          return;
+        }
+
         reactRenderer.updateProps(props);
 
-        computePosition(props.decorationNode as HTMLElement, reactRenderer.element as HTMLElement, {
+        const element = reactRenderer.element as HTMLElement;
+        computePosition(props.decorationNode as HTMLElement, element, {
           middleware: [flip()]
         }).then(({ x, y }) => {
-          Object.assign((reactRenderer.element as HTMLElement).style, {
+          Object.assign(element.style, {
             left: `${x}px`,
             top: `${y}px`
           });
@@ -151,7 +157,7 @@ export const TagMentionExtensionConfig = {
 
       onKeyDown(props: any) {
         if (props.event.key === "Escape") {
-          reactRenderer.element.classList.add("hidden");
+          reactRenderer?.element.classList.add("hidden");
           return true;
         }
 
@@ -160,10 +166,12 @@ export const TagMentionExtensionConfig = {
 
       onExit() {
         if (reactRenderer) {
-          if (reactRenderer.element && placementArea?.contains(reactRenderer.element)) {
-            placementArea.removeChild(reactRenderer.element);
-          }
+          // ReactRenderer handles removing its element from the DOM on destroy.
+          // Manually removing the element can race with React's unmount logic
+          // and cause "The node to be removed is not a child of this node" errors.
           reactRenderer.destroy();
+          // reset the reference so a new renderer can be created next time
+          reactRenderer = null;
         }
       }
     };

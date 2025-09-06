@@ -26,6 +26,9 @@ export async function generateMetadata(
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { author, permlink } = await props.params;
+  if (!permlink || permlink === "undefined") {
+    return {};
+  }
   return generateEntryMetadata(author.replace("%40", ""), permlink);
 }
 

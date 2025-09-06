@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useState } from "react";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";

@@ -6,30 +6,34 @@ import {getContent} from "@/api/hive";
 import {getPostQuery} from "@/api/queries";
 
 
-export async function generateEntryMetadata(username: string, permlink: string): Promise<Metadata> {
-  if (!username || !isValidPermlink(permlink)) {
+export async function generateEntryMetadata(
+  username: string,
+  permlink: string
+): Promise<Metadata> {
+  const cleanPermlink = decodeURIComponent(permlink).trim();
+  if (!username || !cleanPermlink || cleanPermlink === "undefined" || !isValidPermlink(cleanPermlink)) {
     console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
     return {};
   }
   try {
     const cleanAuthor = username.replace("%40", "");
-    let entry = await getPostQuery(cleanAuthor, permlink).prefetch();
+    let entry = await getPostQuery(cleanAuthor, cleanPermlink).prefetch();
 
     if (!entry || !entry.body || !entry.created) {
       console.warn("generateEntryMetadata: incomplete, trying fallback getContent", {
         username,
-        permlink
+        permlink: cleanPermlink
       });
       try {
         // fallback to direct content API
-        entry = await getContent(cleanAuthor, permlink);
+        entry = await getContent(cleanAuthor, cleanPermlink);
       } catch (e) {
-        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, permlink, e);
+        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, cleanPermlink, e);
         return {};
       }
 
       if (!entry || !entry.body || !entry.created) {
-        console.warn("generateEntryMetadata: fallback also failed", { username, permlink });
+        console.warn("generateEntryMetadata: fallback also failed", { username, permlink: cleanPermlink });
         return {};
       }
     }
@@ -85,7 +89,7 @@ export async function generateEntryMetadata(username: string, permlink: string):
       },
     };
   } catch (e) {
-    console.error("generateEntryMetadata failed:", e, { username, permlink });
+    console.error("generateEntryMetadata failed:", e, { username, permlink: cleanPermlink });
     return {};
   }
 }

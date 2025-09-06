@@ -1,8 +1,7 @@
 "use client";
 
 import { useInViewport } from "react-in-viewport";
-import { useRef } from "react";
-import { useDebounce } from "react-use";
+import { useEffect, useRef } from "react";
 
 interface Props {
   onBottom: () => any;
@@ -10,17 +9,13 @@ interface Props {
 
 export function DetectBottom({ onBottom }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const { inViewport } = useInViewport(ref);
+  const { inViewport } = useInViewport(ref, { rootMargin: "0px 0px 200px 0px" });
 
-  useDebounce(
-    () => {
-      if (inViewport) {
-        onBottom();
-      }
-    },
-    500,
-    [inViewport]
-  );
+  useEffect(() => {
+    if (inViewport) {
+      onBottom();
+    }
+  }, [inViewport, onBottom]);
 
   return <div ref={ref} />;
 }

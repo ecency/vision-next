@@ -3,10 +3,10 @@ import { ProfileLink, UserAvatar } from "@/features/shared";
 import { SubscriptionBtn } from "@/app/communities/_components";
 import React from "react";
 import { Community } from "@/entities";
-import { CommunityCardAnimated } from "@/app/discover/@communities/_components/community-card-animated";
 import i18next from "i18next";
 import { formattedNumber } from "@/utils";
 import { Badge } from "@ui/badge";
+import CommunityCardAnimated from "./community-card-animated-client";
 
 interface Props {
   community: Community;

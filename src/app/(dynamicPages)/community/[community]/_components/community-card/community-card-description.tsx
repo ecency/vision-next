@@ -1,4 +1,6 @@
-import React, { memo, useMemo } from "react";
+"use client";
+
+import React, { useMemo } from "react";
 import { informationOutlineSvg } from "@ui/svg";
 import i18next from "i18next";
 import { Community } from "@/entities";

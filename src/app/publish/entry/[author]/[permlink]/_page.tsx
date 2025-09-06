@@ -73,8 +73,10 @@ export default function Publish() {
       <AnimatePresence>
         {step === "edit" && (
           <>
-            <div className="container text-right max-w-[1024px] mx-auto text-gray-600 dark:text-gray-400 text-xs p-2 md:p-0">
-              {i18next.t("publish.edit-mode")}
+            <div className="container max-w-[1024px] mx-auto text-xs text-gray-600 dark:text-gray-400 p-2 md:p-0">
+              <div className="flex flex-wrap justify-between items-center">
+                <span>{i18next.t("publish.edit-mode")}</span>
+              </div>
             </div>
             <PublishEntryActionBar onEdit={() => setStep("validation")} />
             <PublishEditor editor={editor} />

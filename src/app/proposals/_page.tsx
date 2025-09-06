@@ -100,7 +100,9 @@ export function ProposalsPage() {
     };
   }, [dailyBudget, proposals]);
 
-  const { inViewport } = useInViewport(infiniteLoadingAnchorRef);
+  const { inViewport } = useInViewport(infiniteLoadingAnchorRef, {
+    rootMargin: "0px 0px 200px 0px"
+  });
 
   useDebounce(
     () => {

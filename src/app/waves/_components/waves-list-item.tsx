@@ -67,6 +67,16 @@ export function WavesListItem({
     `@${item.author}/${item.permlink}`
   );
 
+  const isHidden = useMemo(
+    () =>
+      (entry?.net_rshares ?? 0) < -7000000000 &&
+      (entry?.active_votes?.length ?? 0) > 3,
+    [entry?.net_rshares, entry?.active_votes?.length]
+  );
+
+  const isCommunityMuted = entry?.stats?.gray;
+  const isMuted = relations?.ignores || isHidden || isCommunityMuted;
+
   useEffect(() => {
     if (inViewport) {
       collectPageView();
@@ -101,14 +111,14 @@ export function WavesListItem({
     <motion.div
       ref={rootRef}
       initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: relations?.ignores ? 0.5 : 1, scale: 1 }}
-      transition={{ delay: i * 0.2 }}
+      animate={{ opacity: isMuted ? 0.5 : 1, scale: 1 }}
+      transition={{ delay: Math.min(i, 5) * 0.05 }}
       className={clsx(
         "waves-list-item bg-white dark:bg-dark-200 relative",
         grid === "feed" &&
           "first:rounded-t-2xl last:rounded-b-2xl border-b border-[--border-color] last:border-b-0",
         grid === "masonry" && "rounded-2xl",
-        relations?.ignores && "grayscale",
+        isMuted && "grayscale",
         hasPromoted && grid === "masonry" && "border border-blue-dark-sky"
       )}
     >
@@ -127,7 +137,7 @@ export function WavesListItem({
         now={now}
       />
       <div className="p-4" onClick={(e) => e.stopPropagation()}>
-        {relations?.ignores ? (
+        {isMuted ? (
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {i18next.t("waves.muted-post")}
           </div>
@@ -135,7 +145,7 @@ export function WavesListItem({
           <PostContentRenderer value={entry?.body ?? ""} />
         )}
       </div>
-      {!relations?.ignores && (
+      {!isMuted && (
         <>
           {poll && (
             <div onClick={(e) => e.stopPropagation()} className="p-4">

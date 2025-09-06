@@ -9,6 +9,7 @@ import { useContext, useEffect, useState } from "react";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
 import { EntryPageContext } from "./context";
 import { EntryPageEdit } from "./entry-page-edit";
+import { makeEntryPath } from "@/utils";
 
 const Tweet = dynamic(() => import("react-tweet").then((m) => m.Tweet), {
   ssr: false,
@@ -26,21 +27,31 @@ export function EntryPageBodyViewer({ entry }: Props) {
     if (isRawContent || isEdit) {
       return;
     }
-    const el = document.getElementById("post-body");
-    if (el?.parentNode) {
-      setupPostEnhancements(el, {
-        onHiveOperationClick: (op) => {
-          setSigningOperation(op);
-        },
-        TwitterComponent: Tweet,
-      });
+
+    if (typeof document === "undefined") {
+      return;
     }
+
+    const el = document.getElementById("post-body");
+
+    if (!el || !el.parentNode) {
+      return;
+    }
+
+    setupPostEnhancements(el, {
+      onHiveOperationClick: (op) => {
+        setSigningOperation(op);
+      },
+      TwitterComponent: Tweet,
+    });
   }, [isRawContent, isEdit]);
 
   return (
     <EntryPageViewerManager>
       {!isEdit && (
-        <SelectionPopover postUrl={entry.url}>
+        <SelectionPopover
+          postUrl={makeEntryPath(entry.category, entry.author, entry.permlink)}
+        >
           {/* nothing here, SSR will render #post-body */}
         </SelectionPopover>
       )}

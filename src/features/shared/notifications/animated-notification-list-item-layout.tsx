@@ -7,7 +7,7 @@ export function AnimatedNotificationListItemLayout(props: PropsWithChildren<{ in
       initial={{ opacity: 0, y: 32 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 32 }}
-      transition={{ delay: props.index * 0.1 }}
+      transition={{ delay: Math.min(props.index, 5) * 0.05 }}
     >
       {props.children}
     </motion.div>

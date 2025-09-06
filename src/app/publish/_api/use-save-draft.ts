@@ -77,7 +77,7 @@ export function useSaveDraftApi(draftId?: string) {
 
         queryClient.setQueryData([QueryIdentifiers.DRAFTS, activeUser?.username], drafts);
 
-        router.push(`publish/drafts/${draft._id}`);
+        router.push(`/publish/drafts/${draft._id}`);
       }
 
       recordActivity();

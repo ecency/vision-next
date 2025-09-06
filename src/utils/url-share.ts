@@ -1,14 +1,23 @@
 import defaults from "@/defaults.json";
+import { makeEntryPath } from "./make-path";
 
-export const makeEcencyUrl = (cat: string, author: string, permlink: string): string =>
-  `${defaults.base}/${cat}/@${author}/${permlink}`;
+export const makeEcencyUrl = (cat: string, author: string, permlink: string): string => {
+  const path = makeEntryPath(cat, author, permlink);
+  if (path === "#") {
+    return "#";
+  }
+  return `${defaults.base}${path}`;
+};
 
 export const makeCopyAddress = (
   title: string,
   cat: string,
   author: string,
   permlink: string
-): string => `[${title}](/${cat}/@${author}/${permlink})`;
+): string => {
+  const path = makeEntryPath(cat, author, permlink);
+  return path === "#" ? "#" : `[${title}](${path})`;
+};
 
 export const makeShareUrlReddit = (
   cat: string,

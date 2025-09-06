@@ -1,6 +1,6 @@
 import { Entry } from "@/entities";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
-import { useEntryLocation } from "@/utils";
+import { useEntryLocation, makeEntryPath } from "@/utils";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import Link from "next/link";
@@ -21,6 +21,15 @@ interface Props {
 export function EntryPageContentSSR({ entry, isRawContent }: Props) {
   const location = useEntryLocation(entry);
   const postPoll = useEntryPollExtractor(entry);
+  const path = makeEntryPath(entry.category, entry.author, entry.permlink);
+  const isComment = !!entry.parent_author;
+  const urlParts = path.split("#");
+  const fullUrl =
+    path !== "#"
+      ? isComment && urlParts[1]
+        ? `https://ecency.com/${urlParts[1]}`
+        : `https://ecency.com${path}`
+      : undefined;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -34,7 +43,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
     dateModified: entry.updated ?? entry.created,
     image: catchPostImage(entry, 600, 500, "match") ?? undefined,
     description: entry.json_metadata?.description || postBodySummary(entry.body, 140),
-    mainEntityOfPage: `https://ecency.com${entry.url}`
+    mainEntityOfPage: fullUrl
   };
   return (
     <>

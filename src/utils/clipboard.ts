@@ -5,7 +5,8 @@ export function clipboard(str: string) {
   document.body.appendChild(i);
   i.select();
   document.execCommand("Copy");
-  document.body.removeChild(i);
+  // Use `remove()` to avoid `NotFoundError` if the input is already detached
+  i.remove();
 }
 
 export function readClipboard(): Promise<string> {

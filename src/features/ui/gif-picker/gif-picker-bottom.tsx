@@ -7,7 +7,9 @@ interface Props {
 
 export function GifPickerBottom({ onVisible }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const { inViewport } = useInViewport(ref);
+  const { inViewport } = useInViewport(ref, {
+    rootMargin: "0px 0px 200px 0px"
+  });
 
   useEffect(() => {
     if (inViewport) {

@@ -86,7 +86,8 @@ export function ManageChatKey() {
               a.download = "ecency-key.txt";
               document.body.appendChild(a);
               a.click();
-              document.body.removeChild(a);
+              // Remove the temporary anchor safely
+              a.remove();
             }}
           >
             {i18next.t("g.download")}

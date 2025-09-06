@@ -24,6 +24,7 @@ export function useDownloadSeed(username: string) {
 
     element.click();
 
-    document.body.removeChild(element);
+    // Ensure the temporary element is removed without errors
+    element.remove();
   }, [seed, username, accountKeys]);
 }
