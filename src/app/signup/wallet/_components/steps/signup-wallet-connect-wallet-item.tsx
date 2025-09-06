@@ -1,11 +1,7 @@
 "use client";
 
 import { Badge, Button, FormControl } from "@/features/ui";
-import {
-  EcencyCreateWalletInformation,
-  EcencyWalletCurrency,
-  useWalletCreate
-} from "@ecency/wallets";
+import { EcencyTokenMetadata, EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
@@ -33,16 +29,16 @@ export function SignupWalletConnectWalletItem({
   onClear,
   hasSelected
 }: Props) {
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
+  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
   const { createWallet } = useWalletCreate(username, currency);
 
-  const wallet = useMemo(() => wallets?.get(currency), [wallets]);
+  const wallet = useMemo(() => wallets?.get(currency), [currency, wallets]);
 
   useMount(async () => {
     const response = await createWallet.mutateAsync();
-    onSuccess(response);
+    onSuccess(response as SignupExternalWalletInformation);
   });
 
   return (
@@ -52,7 +48,9 @@ export function SignupWalletConnectWalletItem({
       exit={{ opacity: 0, y: 24 }}
       transition={{ delay: i * 0.1 }}
       className="bg-gray-100 dark:bg-dark-600-010 p-4 rounded-xl flex flex-col gap-4 cursor-pointer border border-transparent hover:border-[--border-color] relative overflow-hidden"
-      onClick={() => (hasSelected ? onClear() : onSuccess(createWallet.data!))}
+      onClick={() =>
+        hasSelected ? onClear() : onSuccess(createWallet.data as SignupExternalWalletInformation)
+      }
       key={currency}
     >
       <div className="flex items-center gap-4 justify-between">
@@ -60,7 +58,11 @@ export function SignupWalletConnectWalletItem({
           <FormControl
             checked={hasSelected}
             type="checkbox"
-            onChange={() => (hasSelected ? onClear() : onSuccess(createWallet.data!))}
+            onChange={() =>
+              hasSelected
+                ? onClear()
+                : onSuccess(createWallet.data as SignupExternalWalletInformation)
+            }
           />
           <Image
             className={clsx("w-[2rem] h-[2rem]", !hasSelected && "opacity-25")}

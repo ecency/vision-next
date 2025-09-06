@@ -37,6 +37,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       [BUTTON_SIZES[props.size ?? "md"]]: true,
 
       // Misc
+      "after:!hidden": (props as any).target === "_blank",
       [props.className ?? ""]: true,
       "!p-0": props.noPadding,
       "w-full": props.full ?? false

@@ -40,7 +40,7 @@ export function ClientProviders(props: PropsWithChildren) {
           <Announcements />
         </UIManager>
       </ProgressProvider>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

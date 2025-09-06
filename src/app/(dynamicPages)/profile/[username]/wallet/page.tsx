@@ -1,11 +1,11 @@
-import { getAccountFullQuery, getTransactionsQuery } from "@/api/queries";
-import { notFound } from "next/navigation";
-import { WalletHive } from "../_components";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
+import {
+  ProfileWalletExternalBanner,
+  ProfileWalletSummary,
+  ProfileWalletTokenPicker,
+  ProfileWalletTokensList
+} from "./_components";
 import { Metadata, ResolvingMetadata } from "next";
-import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
-
+import { generateProfileMetadata } from "../_helpers";
 interface Props {
   params: Promise<{ username: string }>;
 }
@@ -15,18 +15,15 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   return generateProfileMetadata(username.replace("%40", ""), "wallet");
 }
 
-export default async function EnginePage({ params }: Props) {
-  const { username } = await params;
-  const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
-  await getTransactionsQuery(username, 20).prefetch();
-
-  if (!account) {
-    return notFound();
-  }
-
+export default function WalletPage({ params }: Props) {
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <WalletHive account={account} />
-    </HydrationBoundary>
+    <>
+      <ProfileWalletExternalBanner />
+      <ProfileWalletSummary />
+      <div className="flex justify-end mb-2">
+        <ProfileWalletTokenPicker />
+      </div>
+      <ProfileWalletTokensList />
+    </>
   );
 }

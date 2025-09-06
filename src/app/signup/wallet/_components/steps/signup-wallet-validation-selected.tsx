@@ -1,11 +1,13 @@
-import {
-  EcencyWalletCurrency,
-  useGetExternalWalletBalanceQuery,
-  useCoinGeckoPriceQuery,
-  EcencyCreateWalletInformation
-} from "@ecency/wallets";
+import { success } from "@/features/shared";
 import { Button } from "@/features/ui";
+import {
+  EcencyTokenMetadata,
+  EcencyWalletCurrency,
+  useGetExternalWalletBalanceQuery
+} from "@ecency/wallets";
+import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
+import clsx from "clsx";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
@@ -13,10 +15,6 @@ import qrcode from "qrcode";
 import { useEffect, useMemo, useRef } from "react";
 import { useCopyToClipboard, useInterval } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
-import { SignupExternalWalletInformation } from "../../types";
-import { success } from "@/features/shared";
-import clsx from "clsx";
-import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   username: string;
@@ -28,7 +26,7 @@ interface Props {
 export function SignupWalletValiadtionSelected({ selected, username, onCancel, onValid }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
 
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
+  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
   const walletsList = useMemo(() => Array.from(wallets?.entries() ?? []), [wallets]);
