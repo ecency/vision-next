@@ -1,6 +1,5 @@
 import { getAccount } from "@/api/hive";
-import { useUpdateProfile } from "@/api/mutations";
-import { useLoginByKey, useLoginInApp } from "@/features/shared/login/hooks";
+import { useLoginByKey } from "@/features/shared/login/hooks";
 import { Button } from "@/features/ui";
 import { delay } from "@/utils";
 import { EcencyAnalytics } from "@ecency/sdk";
@@ -8,9 +7,9 @@ import {
   EcencyCreateWalletInformation,
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
-  useHiveKeysQuery,
   useSaveWalletInformationToMetadata,
-  useSeedPhrase
+  useSeedPhrase,
+  deriveHiveKeys
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -32,7 +31,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const [hasInitiated, setHasInitiated] = useState(false);
 
   const { data: seed } = useSeedPhrase(username);
-  const { data: accountKeys } = useHiveKeysQuery(username);
+  const accountKeys = useMemo(() => (seed ? deriveHiveKeys(seed) : undefined), [seed]);
   const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
