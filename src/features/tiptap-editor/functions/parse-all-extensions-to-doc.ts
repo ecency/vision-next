@@ -31,7 +31,11 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
 
   // Handle hive posts
   (Array.from(tree.querySelectorAll("a[href]").values()) as HTMLElement[])
-    .filter((el) => HIVE_POST_PURE_REGEX.test(el.getAttribute("href") ?? ""))
+    .filter((el) => {
+        const href = el.getAttribute("href") ?? "";
+        HIVE_POST_PURE_REGEX.lastIndex = 0;
+        return HIVE_POST_PURE_REGEX.test(href) && el.innerText.trim() === href;
+    })
     .forEach((el) => {
       const newEl = document.createElement("div");
       newEl.dataset.hivePost = "";
