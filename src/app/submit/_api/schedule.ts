@@ -67,7 +67,18 @@ export function useScheduleApi(onClear: () => void) {
         .withPoll(activePoll)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
-      const options = makeCommentOptions(author, permlink, reward, beneficiaries);
+      let options = makeCommentOptions(author, permlink, reward, beneficiaries);
+      if (!options) {
+        options = {
+          allow_curation_rewards: true,
+          allow_votes: true,
+          author,
+          permlink,
+          max_accepted_payout: "1000000.000 HBD",
+          percent_hbd: 10000,
+          extensions: []
+        };
+      }
 
       const reblog = isCommunity(tags[0]) && reblogSwitch;
 

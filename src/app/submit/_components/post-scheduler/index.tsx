@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { DayPicker } from "react-day-picker";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
+import { Datepicker } from "@/features/ui";
 import i18next from "i18next";
 import { closeSvg, timeSvg } from "@ui/svg";
 
@@ -16,78 +16,39 @@ interface DialogBodyProps extends Props {
   onHide: () => void;
 }
 
-export const DialogBody = (props: DialogBodyProps) => {
-  const [date, setDate] = useState<Dayjs>(
-    props.date || dayjs().add(2, "hour")
-  );
-  const [error, setError] = useState(false);
-  const today = dayjs().startOf("day");
+export const DialogBody = ({ date: initialDate, onChange, onHide }: DialogBodyProps) => {
+  const [date, setDate] = useState<Date | undefined>(initialDate?.toDate());
+  const isInPast = date ? dayjs(date).isSameOrBefore(dayjs().add(1, "hour")) : false;
 
-  const rend = () => {
-    return (
-      <>
-        <div className="picker">
-          <DayPicker
-            mode="single"
-            selected={date.toDate()}
-            onSelect={(d) => {
-              if (!d) {
-                return;
-              }
-              const picked = date
-                .set("year", d.getFullYear())
-                .set("month", d.getMonth())
-                .set("date", d.getDate());
-              if (picked.isSameOrBefore(dayjs())) {
-                setError(true);
-              } else {
-                setError(false);
-                setDate(picked);
-              }
-            }}
-            disabled={{ before: today.toDate() }}
-            captionLayout="dropdown"
-          />
-          <input
-            type="time"
-            value={date.format("HH:mm")}
-            onChange={(e) => {
-              const [h, m] = e.target.value.split(":").map(Number);
-              const picked = date.set("hour", h).set("minute", m);
-              if (picked.isSameOrBefore(dayjs())) {
-                setError(true);
-              } else {
-                setError(false);
-                setDate(picked);
-              }
-            }}
-          />
+  return (
+    <>
+      <div className="picker">
+        <Datepicker
+          value={date}
+          onChange={setDate}
+          minDate={dayjs().add(1, "hour").toDate()}
+        />
+      </div>
+      {isInPast && (
+        <div className="error">
+          <small className="error-info">{i18next.t("post-scheduler.error-message")}</small>
         </div>
-        {error && (
-          <div className="error">
-            <small className="error-info">{i18next.t("post-scheduler.error-message")}</small>
-          </div>
-        )}
-        <div className="text-center mt-4">
-          <Button
-            disabled={error}
-            onClick={() => {
-              if (error) {
-                return;
-              }
-              const { onChange, onHide } = props;
-              onChange(date);
+      )}
+      <div className="text-center mt-4">
+        <Button
+          disabled={isInPast}
+          onClick={() => {
+            if (!isInPast) {
+              onChange(date ? dayjs(date) : null);
               onHide();
-            }}
-          >
-            {i18next.t("g.apply")}
-          </Button>
-        </div>
-      </>
-    );
-  };
-
-  return rend();
+            }
+          }}
+        >
+          {i18next.t("g.apply")}
+        </Button>
+      </div>
+    </>
+  );
 };
 
 export const PostSchedulerDialog = (props: Props) => {

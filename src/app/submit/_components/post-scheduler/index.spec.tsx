@@ -2,7 +2,7 @@ import React from "react";
 
 import dayjs from "@/utils/dayjs";
 
-import PostSchedulerDialog from "./index";
+import { PostSchedulerDialog } from "./index";
 
 import TestRenderer from "react-test-renderer";
 
