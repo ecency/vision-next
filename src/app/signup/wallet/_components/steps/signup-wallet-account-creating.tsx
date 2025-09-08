@@ -4,12 +4,12 @@ import { Button } from "@/features/ui";
 import { delay } from "@/utils";
 import { EcencyAnalytics } from "@ecency/sdk";
 import {
-  EcencyCreateWalletInformation,
+  EcencyTokenMetadata,
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
   useSaveWalletInformationToMetadata,
   useSeedPhrase,
-  deriveHiveKeys
+  useHiveKeysQuery
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -31,13 +31,16 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const [hasInitiated, setHasInitiated] = useState(false);
 
   const { data: seed } = useSeedPhrase(username);
-  const accountKeys = useMemo(() => (seed ? deriveHiveKeys(seed) : undefined), [seed]);
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
+  // Provide seed to query so it can derive correct keys for both old and new seed formats
+  // @ts-expect-error Updated API accepts seed as second argument
+  const { data: hiveKeys } = useHiveKeysQuery(username, seed);
+  const loginKey = useMemo(() => hiveKeys?.posting, [hiveKeys]);
+  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
-  const { mutateAsync: loginInApp } = useLoginByKey(username, seed!, true);
+  const { mutateAsync: loginInApp } = useLoginByKey(username, loginKey ?? "", true);
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
@@ -58,27 +61,29 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   }, [username]);
 
   useEffect(() => {
-    if (accountKeys && wallet && !hasInitiated) {
+    if (hiveKeys && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
       setHasInitiated(true);
-      createAccount({ currency: wallet.currency, address: wallet.address })
+      const { currency, address } = wallet;
+      createAccount({ currency, address })
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp())
-        .then(() => saveWalletInformationToMetadata({ wallets: wallets! }))
+        .then(() => saveWalletInformationToMetadata(Array.from(wallets!.values())))
         .then(() => recordActivity())
         .catch(() => {
           /* Errors are handled within respective mutation hooks */
         });
     }
   }, [
-    accountKeys,
+    hiveKeys,
     wallet,
     createAccount,
     loginInApp,
     validateAccountIsCreated,
     hasInitiated,
     saveWalletInformationToMetadata,
-    wallets
+    wallets,
+    loginKey
   ]);
 
   return (

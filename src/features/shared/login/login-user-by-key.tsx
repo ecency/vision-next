@@ -13,6 +13,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useLoginByKey } from "./hooks";
 import clsx from "clsx";
 import { error } from "../feedback";
+import { useHiveKeysQuery } from "@ecency/wallets";
 
 interface Props {
   username: string;
@@ -27,9 +28,15 @@ export function LoginUserByKey({ username }: Props) {
   const [seed, setSeed] = useState<string>();
   const [seedFilename, setSeedfilename] = useState<string>();
 
+  // @ts-expect-error Updated API accepts seed as second argument
+  const { data: hiveKeys } = useHiveKeysQuery(username, seed);
+  const loginKey = useMemo(
+    () => (option === "seed" ? hiveKeys?.posting ?? "" : key),
+    [option, hiveKeys, key]
+  );
   const { mutateAsync: loginByKey, isPending } = useLoginByKey(
     username,
-    option === "seed" ? seed ?? "" : key,
+    loginKey,
     isVerified
   );
 

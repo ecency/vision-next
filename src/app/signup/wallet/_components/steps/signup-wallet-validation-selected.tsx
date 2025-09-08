@@ -2,7 +2,7 @@ import {
   EcencyWalletCurrency,
   useGetExternalWalletBalanceQuery,
   useCoinGeckoPriceQuery,
-  EcencyCreateWalletInformation
+  EcencyTokenMetadata
 } from "@ecency/wallets";
 import { Button } from "@/features/ui";
 import { UilCheckCircle, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
@@ -28,7 +28,7 @@ interface Props {
 export function SignupWalletValiadtionSelected({ selected, username, onCancel, onValid }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
 
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyCreateWalletInformation>>({
+  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
   const walletsList = useMemo(() => Array.from(wallets?.entries() ?? []), [wallets]);
