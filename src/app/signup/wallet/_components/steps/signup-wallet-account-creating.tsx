@@ -31,8 +31,8 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const [hasInitiated, setHasInitiated] = useState(false);
 
   const { data: seed } = useSeedPhrase(username);
-  // Provide seed to query so it can derive correct keys for both old and new seed formats
-  // @ts-expect-error Updated API accepts seed as second argument
+  // Provide seed to the query so it can derive correct keys for both old and new seed formats
+  // @ts-expect-error Updated API accepts seed as a second argument
   const { data: hiveKeys } = useHiveKeysQuery(username, seed);
   const loginKey = useMemo(() => hiveKeys?.posting, [hiveKeys]);
   const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
@@ -68,7 +68,10 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp())
-        .then(() => saveWalletInformationToMetadata(Array.from(wallets!.values())))
+        .then(() => delay(3000))
+        .then(() =>
+          saveWalletInformationToMetadata(Array.from(wallets!.values()))
+        )
         .then(() => recordActivity())
         .catch(() => {
           /* Errors are handled within respective mutation hooks */
@@ -83,7 +86,8 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     hasInitiated,
     saveWalletInformationToMetadata,
     wallets,
-    loginKey
+    loginKey,
+    recordActivity
   ]);
 
   return (
