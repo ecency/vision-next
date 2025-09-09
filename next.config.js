@@ -105,10 +105,6 @@ const config = {
         source: "/:category/:author(@.+)/:permlink",
         destination: "/entry/:category/:author/:permlink"
       },
-      {
-        source: '/:category/%40:author/:permlink',
-        destination: '/entry/:category/:author/:permlink'
-      },
 
       // PROFILE
       {

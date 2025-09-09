@@ -8,9 +8,16 @@ export function middleware(request: NextRequest) {
     return handleIndexRedirect(request);
   }
 
-  // block invalid permlinks with file extensions
+  // Decode URL and redirect if needed
   const path = request.nextUrl.pathname;
+  const decodedPath = decodeURIComponent(path);
+  if (decodedPath !== path) {
+    const url = request.nextUrl.clone();
+    url.pathname = decodedPath;
+    return NextResponse.redirect(url);
+  }
 
+  // block invalid permlinks with file extensions
   if (path.match(/^\/[^\/]+\/@[\w\d.-]+\/[a-z0-9-]+\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
     console.warn("Blocked invalid permlink with file extension:", path);
     return new NextResponse("Not found", { status: 404 });
