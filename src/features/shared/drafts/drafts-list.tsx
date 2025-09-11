@@ -26,7 +26,7 @@ export function DraftsList({ onHide, onPick }: Props) {
     () =>
       data
         ?.filter((x) => x.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1)
-        .sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1)) ??
+        .sort((a, b) => (new Date(b.modified).getTime() > new Date(a.modified).getTime() ? 1 : -1)) ??
       [],
     [data, filter]
   );

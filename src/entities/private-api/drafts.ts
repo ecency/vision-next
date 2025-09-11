@@ -12,6 +12,7 @@ export interface DraftMetadata extends MetaData {
 export interface Draft {
   body: string;
   created: string;
+  modified: string;
   post_type: string;
   tags_arr: string[];
   tags: string;
