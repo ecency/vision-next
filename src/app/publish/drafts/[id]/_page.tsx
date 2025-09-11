@@ -77,6 +77,7 @@ export default function PublishPage() {
             <PublishActionBar
               onPublish={() => setStep("validation")}
               onBackToClassic={() => router.push(`/draft/${params?.id}`)}
+              draftId={draftId}
             />
             <PublishEditor editor={editor} />
           </>

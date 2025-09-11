@@ -31,12 +31,14 @@ import { PublishActionBarCommunity } from "./publish-action-bar-community";
 interface Props {
   onPublish: () => void;
   onBackToClassic: () => void;
+  draftId?: string;
 }
 
 export function PublishActionBar({
   onPublish,
   children,
-  onBackToClassic
+  onBackToClassic,
+  draftId
 }: PropsWithChildren<Props>) {
   const { schedule: scheduleDate, clearAll, title } = usePublishState();
 
@@ -49,7 +51,7 @@ export function PublishActionBar({
 
   useDefaultBeneficiary();
 
-  const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi();
+  const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
   const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
 
   return (
@@ -79,14 +81,16 @@ export function PublishActionBar({
             ? i18next.t("publish.update-draft")
             : i18next.t("publish.save-draft")}
         </Button>
-        <StyledTooltip content={i18next.t("publish.clear")}>
-          <Button
-            noPadding={true}
-            appearance="gray-link"
-            icon={<UilTrash />}
-            onClick={clearAll}
-          />
-        </StyledTooltip>
+        {!pathname?.includes("drafts") && (
+          <StyledTooltip content={i18next.t("publish.clear")}>
+            <Button
+              noPadding={true}
+              appearance="gray-link"
+              icon={<UilTrash />}
+              onClick={clearAll}
+            />
+          </StyledTooltip>
+        )}
 
         <StyledTooltip content={i18next.t("publish.get-help")}>
           <Button
