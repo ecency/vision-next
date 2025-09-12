@@ -16,7 +16,7 @@ export function useDownloadSeed(username: string) {
     element.setAttribute(
       "href",
       "data:text/plain;charset=utf-8," +
-        encodeURIComponent(`\nSeed: ${seed}\n\nusername: ${username}\n${keys}`)
+        encodeURIComponent(`Seed: ${seed}\n\nusername: ${username}\n${keys}`)
     );
     element.setAttribute("download", `ecency-${username}-seed-${v4().split("-")[2]}.txt`);
 

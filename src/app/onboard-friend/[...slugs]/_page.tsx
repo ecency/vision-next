@@ -39,8 +39,9 @@ import {
 } from "@/api/operations";
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { onboardEmail } from "@/api/private-api";
-import { generateSeed, getKeysFromSeed } from "@/utils/onBoard-helper";
-import { useDownloadKeys } from "../_hooks";
+import { getKeysFromSeed } from "@/utils/onBoard-helper";
+import { useSeedPhrase } from "@ecency/wallets";
+import { useDownloadSeed } from "@/app/signup/wallet/_hooks";
 
 export interface AccountInfo {
   email: string;
@@ -61,6 +62,7 @@ export interface AccountInfo {
 export interface DecodeHash {
   email: string;
   username: string;
+  referral?: string;
   pubkeys: {
     ownerPublicKey: string;
     activePublicKey: string;
@@ -91,10 +93,12 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const queryParams = useSearchParams();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
-  const [seedPhrase, setSeedPhrase] = useState("");
   const [secret, setSecret] = useState("");
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();
   const [decodedInfo, setDecodedInfo] = useState<DecodeHash>();
+  const { data: seedPhrase = "", refetch: refetchSeed } = useSeedPhrase(
+    type === "asking" ? decodedInfo?.username ?? "" : ""
+  );
   const [showModal, setShowModal] = useState(false);
   const [accountCredit, setAccountCredit] = useState(0);
   const [createOption, setCreateOption] = useState("");
@@ -113,17 +117,15 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const [transferAmount, setTransferAmount] = useState(0);
   const [customJsonAmount, setCustomJsonAmount] = useState(0);
 
-  const downloadKeys = useDownloadKeys(
-    accountInfo?.username ?? "",
-    seedPhrase,
-    accountInfo?.keys
+  const downloadSeed = useDownloadSeed(
+    accountInfo?.username ?? decodedInfo?.username ?? ""
   );
 
   useMount(() => {
     setOnboardUrl(`${window.location.origin}/onboard-friend/creating/`);
     setInnerWidth(window.innerWidth);
     try {
-      if (paramSecret && type !== "asking") {
+      if (paramSecret) {
         const decodedHash = JSON.parse(b64uDec(paramSecret));
         setDecodedInfo(decodedHash);
       }
@@ -133,10 +135,10 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   });
 
   useEffect(() => {
-    if (type == "asking") {
+    if (type === "asking" && seedPhrase && decodedInfo) {
       initAccountKey();
     }
-  }, [accountInfo?.username]);
+  }, [type, seedPhrase, decodedInfo]);
 
   useEffect(() => {
     (activeUser?.data as FullAccount) &&
@@ -188,13 +190,13 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     setShortSeed(seed);
   };
 
-  const initAccountKey = async () => {
-    const urlInfo = paramSecret;
+  const initAccountKey = () => {
+    if (!decodedInfo) {
+      return;
+    }
+
     try {
-      const info = JSON.parse(b64uDec(urlInfo!));
-      const seedPhrase: string = await generateSeed();
       const keys: AccountInfo["keys"] = getKeysFromSeed(seedPhrase);
-      // prepare object to encode
       const pubkeys = {
         activePublicKey: keys.activePubkey,
         memoPublicKey: keys.memoPubkey,
@@ -203,26 +205,22 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
       };
 
       const dataToEncode = {
-        username: info.username,
-        email: info.email,
+        username: decodedInfo.username,
+        email: decodedInfo.email,
         pubkeys
       };
-      // stringify object to encode
       const stringifiedData = JSON.stringify(dataToEncode);
       const hashedPubKeys = b64uEnc(stringifiedData);
       setSecret(hashedPubKeys);
       const accInfo = {
-        username: formatUsername(info.username),
-        email: formatEmail(info.email),
-        referral: formatUsername(info.referral),
+        username: formatUsername(decodedInfo.username),
+        email: formatEmail(decodedInfo.email),
+        referral: formatUsername(decodedInfo.referral || ""),
         keys
       };
       setAccountInfo(accInfo);
-      setSeedPhrase(seedPhrase);
-      return seedPhrase;
     } catch (err: any) {
       error(err?.message);
-      return null;
     }
   };
 
@@ -590,7 +588,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
                     </span>
                   </Tooltip>
                   <Tooltip content={i18next.t("onboard.regenerate-password")}>
-                    <span className="onboard-svg" onClick={() => initAccountKey()}>
+                    <span className="onboard-svg" onClick={() => refetchSeed()}>
                       {regenerateSvg}
                     </span>
                   </Tooltip>
@@ -600,7 +598,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
                   disabled={!accountInfo?.username || !accountInfo.email}
                   onClick={() => {
                     setFileIsDownloaded(false);
-                    downloadKeys();
+                    downloadSeed();
                     setFileIsDownloaded(true);
                   }}
                   icon={downloadSvg}
