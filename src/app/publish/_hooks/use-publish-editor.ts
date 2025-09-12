@@ -92,19 +92,16 @@ export function usePublishEditor(onHtmlPaste: () => void) {
   const setEditorContent = useCallback(
     (content: string | undefined) => {
       try {
-        const sanitizedContent = content
-          ? parseAllExtensionsToDoc(
-              DOMPurify.sanitize(marked.parse(content) as string),
-              publishState.publishingVideo
-            )
+        const parsed = content ? marked.parse(content) : undefined;
+        const sanitized = parsed ? DOMPurify.sanitize(parsed) : undefined;
+        const doc = sanitized
+          ? parseAllExtensionsToDoc(sanitized, publishState.publishingVideo)
           : undefined;
-        editor
-          ?.chain()
-          .setContent(sanitizedContent ?? "")
-          .run();
+        editor?.chain().setContent(doc ?? "").run();
       } catch (e) {
-        error("Failed to laod local draft. We are working on it");
-        throw e;
+        error("Failed to load local draft. We are working on it");
+        console.error(e);
+        editor?.commands.setContent("");
       }
     },
     [editor, publishState.publishingVideo]
