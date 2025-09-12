@@ -16,6 +16,7 @@ export function EntryPageIsCommentHeader({ entry }: Props) {
 
   return isComment ? (
     <div className="comment-entry-header">
+      <div className="comment-entry-header-title">RE: {entry.title}</div>
       <div className="comment-entry-header-info">{i18next.t("entry.comment-entry-title")}</div>
       <p className="comment-entry-root-title">{entry.title}</p>
       <ul className="comment-entry-opts">
