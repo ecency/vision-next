@@ -42,7 +42,9 @@ export function PublishEditorGeoTagAutocomplete({
 
     return () => {
       autocomplete.removeEventListener("gmp-select", handler);
-      autocomplete.remove();
+      if (inputContainerRef.current?.contains(autocomplete)) {
+        inputContainerRef.current.removeChild(autocomplete);
+      }
     };
   }, [places]);
 

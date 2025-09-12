@@ -93,7 +93,7 @@ export function usePublishApi() {
         .withPoll(poll)
         .build();
 
-      // If post have one unpublished video need to modify
+      // If post has one unpublished video need to modify
       //    json metadata which matches to 3Speak
       if (publishingVideo) {
         // Permlink should be got from 3speak video metadata
@@ -130,7 +130,7 @@ export function usePublishApi() {
           true
         );
 
-        // Create entry object in store and cache
+        // Create an entry object in store and cache
         const entry = {
           ...tempEntry({
             author: authorData!,
