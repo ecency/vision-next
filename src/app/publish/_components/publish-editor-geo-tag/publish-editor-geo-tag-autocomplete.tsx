@@ -26,7 +26,7 @@ export function PublishEditorGeoTagAutocomplete({
 
     inputContainerRef.current.appendChild(autocomplete);
 
-    autocomplete.addEventListener("gmp-select", async ({ placePrediction }: any) => {
+    const handler = async ({ placePrediction }: any) => {
       const place = placePrediction.toPlace();
       await place.fetchFields({ fields: ["displayName", "formattedAddress", "location"] });
 
@@ -36,7 +36,14 @@ export function PublishEditorGeoTagAutocomplete({
         formatted_address: place.formattedAddress,
         geometry: { location: place.location }
       } as google.maps.places.PlaceResult);
-    });
+    };
+
+    autocomplete.addEventListener("gmp-select", handler);
+
+    return () => {
+      autocomplete.removeEventListener("gmp-select", handler);
+      autocomplete.remove();
+    };
   }, [places]);
 
   return (
