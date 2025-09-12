@@ -8,8 +8,7 @@ import {
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
   useSaveWalletInformationToMetadata,
-  useSeedPhrase,
-  useHiveKeysQuery
+  useSeedPhrase
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -31,16 +30,13 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const [hasInitiated, setHasInitiated] = useState(false);
 
   const { data: seed } = useSeedPhrase(username);
-  // Provide seed to the query so it can derive correct keys for both old and new seed formats
-  // @ts-expect-error Updated API accepts seed as a second argument
-  const { data: hiveKeys } = useHiveKeysQuery(username, seed);
-  const loginKey = useMemo(() => hiveKeys?.posting, [hiveKeys]);
+  const loginKey = useMemo(() => seed ?? "", [seed]);
   const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
-  const { mutateAsync: loginInApp } = useLoginByKey(username, loginKey ?? "", true);
+  const { mutateAsync: loginInApp } = useLoginByKey(username, loginKey, true);
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
@@ -61,7 +57,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   }, [username]);
 
   useEffect(() => {
-    if (hiveKeys && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
+    if (seed && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
       setHasInitiated(true);
       const { currency, address } = wallet;
       createAccount({ currency, address })
@@ -78,7 +74,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
         });
     }
   }, [
-    hiveKeys,
+    seed,
     wallet,
     createAccount,
     loginInApp,
