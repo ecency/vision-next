@@ -1,37 +1,11 @@
-import { KeyRole, PrivateKey } from "@hiveio/dhive";
-import { randomBytes } from "crypto";
+import { deriveHiveKeys } from "@ecency/wallets";
+import { generateMnemonic } from "bip39";
 
-export const getPrivateKeys = (username: any, password: any) => {
-  const roles: Array<KeyRole> = ["owner", "active", "posting", "memo"];
-  type keysType = {
-    owner: string;
-    active: string;
-    posting: string;
-    memo: string;
-    ownerPubkey: string;
-    activePubkey: string;
-    postingPubkey: string;
-    memoPubkey: string;
-  };
-
-  let privKeys: keysType = {
-    owner: "",
-    active: "",
-    posting: "",
-    memo: "",
-    ownerPubkey: "",
-    activePubkey: "",
-    postingPubkey: "",
-    memoPubkey: ""
-  };
-  roles.forEach((role) => {
-    privKeys[role] = PrivateKey.fromLogin(username, password, role).toString();
-    privKeys[`${role}Pubkey`] = PrivateKey.from(privKeys[role]).createPublic().toString();
-  });
-
-  return privKeys;
+export const getKeysFromSeed = (seed: string) => {
+  return deriveHiveKeys(seed);
 };
 
-export const generatePassword = async (length: number) => {
-  return `P${PrivateKey.fromSeed(randomBytes(length).toString("hex")).toString()}`;
+export const generateSeed = async () => {
+  return generateMnemonic(128);
 };
+

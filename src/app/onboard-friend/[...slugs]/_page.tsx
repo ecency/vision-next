@@ -39,7 +39,8 @@ import {
 } from "@/api/operations";
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { onboardEmail } from "@/api/private-api";
-import { generatePassword, getPrivateKeys } from "@/utils/onBoard-helper";
+import { generateSeed, getKeysFromSeed } from "@/utils/onBoard-helper";
+import { useDownloadKeys } from "../_hooks";
 
 export interface AccountInfo {
   email: string;
@@ -90,7 +91,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const queryParams = useSearchParams();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
-  const [masterPassword, setMasterPassword] = useState("");
+  const [seedPhrase, setSeedPhrase] = useState("");
   const [secret, setSecret] = useState("");
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();
   const [decodedInfo, setDecodedInfo] = useState<DecodeHash>();
@@ -99,7 +100,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const [createOption, setCreateOption] = useState("");
   const [fileIsDownloaded, setFileIsDownloaded] = useState(false);
   const [innerWidth, setInnerWidth] = useState(0);
-  const [shortPassword, setShortPassword] = useState("");
+  const [shortSeed, setShortSeed] = useState("");
   const [confirmDetails, setConfirmDetails] = useState<ConfirmDetails[]>();
   const [onboardUrl, setOnboardUrl] = useState("");
   const [step, setStep] = useState<string | number>(0);
@@ -111,6 +112,12 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const [voteAmount, setVoteAmount] = useState(0);
   const [transferAmount, setTransferAmount] = useState(0);
   const [customJsonAmount, setCustomJsonAmount] = useState(0);
+
+  const downloadKeys = useDownloadKeys(
+    accountInfo?.username ?? "",
+    seedPhrase,
+    accountInfo?.keys
+  );
 
   useMount(() => {
     setOnboardUrl(`${window.location.origin}/onboard-friend/creating/`);
@@ -158,7 +165,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [masterPassword]);
+  }, [seedPhrase]);
 
   useEffect(() => {
     rcOperationsCost();
@@ -172,24 +179,21 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
 
   const handleResize = () => {
     setInnerWidth(window.innerWidth);
-    let password: string = "";
+    let seed: string = "";
     if (window.innerWidth <= 768 && window.innerWidth > 577) {
-      password = masterPassword.substring(0, 32);
+      seed = seedPhrase.substring(0, 32);
     } else if (window.innerWidth <= 577) {
-      password = masterPassword.substring(0, 20);
+      seed = seedPhrase.substring(0, 20);
     }
-    setShortPassword(password);
+    setShortSeed(seed);
   };
 
   const initAccountKey = async () => {
     const urlInfo = paramSecret;
     try {
       const info = JSON.parse(b64uDec(urlInfo!));
-      const masterPassword: string = await generatePassword(32);
-      const keys: AccountInfo["keys"] = getPrivateKeys(
-        formatUsername(info?.username),
-        masterPassword
-      );
+      const seedPhrase: string = await generateSeed();
+      const keys: AccountInfo["keys"] = getKeysFromSeed(seedPhrase);
       // prepare object to encode
       const pubkeys = {
         activePublicKey: keys.activePubkey,
@@ -214,8 +218,8 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
         keys
       };
       setAccountInfo(accInfo);
-      setMasterPassword(masterPassword);
-      return masterPassword;
+      setSeedPhrase(seedPhrase);
+      return seedPhrase;
     } catch (err: any) {
       error(err?.message);
       return null;
@@ -232,52 +236,6 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
 
   const splitUrl = (url: string) => {
     return url.slice(0, 50);
-  };
-
-  const downloadKeys = async () => {
-    if (accountInfo) {
-      setFileIsDownloaded(false);
-      const { username, keys } = accountInfo;
-      const element = document.createElement("a");
-      const keysToFile = `
-          ${i18next.t("onboard.file-warning")}
-  
-          ${i18next.t("onboard.recommend")}
-          1. ${i18next.t("onboard.recommend-print")}
-          2. ${i18next.t("onboard.recommend-use")}
-          3. ${i18next.t("onboard.recommend-save")}
-          4. ${i18next.t("onboard.recommend-third-party")}
-
-          ${i18next.t("onboard.account-info")}
-
-          Username: ${username}
-
-          Password: ${masterPassword}
-
-          ${i18next.t("onboard.owner-private")} ${keys.owner}
-  
-          ${i18next.t("onboard.active-private")} ${keys.active}
-  
-          ${i18next.t("onboard.posting-private")} ${keys.posting}
-  
-          ${i18next.t("onboard.memo-private")} ${keys.memo}
-  
-  
-          ${i18next.t("onboard.keys-use")}
-          ${i18next.t("onboard.owner")} ${i18next.t("onboard.owner-use")}   
-          ${i18next.t("onboard.active")} ${i18next.t("onboard.active-use")}  
-          ${i18next.t("onboard.posting")} ${i18next.t("onboard.posting-use")} 
-          ${i18next.t("onboard.memo")} ${i18next.t("onboard.memo-use")}`;
-
-      const file = new Blob([keysToFile.replace(/\n/g, "\r\n")], {
-        type: "text/plain"
-      });
-      element.href = URL.createObjectURL(file);
-      element.download = `${username}_hive_keys.txt`;
-      document.body.appendChild(element);
-      element.click();
-      setFileIsDownloaded(true);
-    }
   };
 
   const formatUsername = (username: string) => {
@@ -619,13 +577,13 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
               <div className="mt-3 flex flex-col items-center">
                 <div className="flex">
                   <span className="mr-3 mt-1">
-                    {innerWidth <= 768 ? shortPassword + "..." : masterPassword}
+                  {innerWidth <= 768 ? shortSeed + "..." : seedPhrase}
                   </span>
                   <Tooltip content={i18next.t("onboard.copy-tooltip")}>
                     <span
                       className="onboard-svg mr-3"
                       onClick={() => {
-                        clipboard(masterPassword);
+                        clipboard(seedPhrase);
                         success(i18next.t("onboard.copy-password"));
                       }}
                     >
@@ -641,7 +599,11 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
                 <Button
                   className="self-center mt-3"
                   disabled={!accountInfo?.username || !accountInfo.email}
-                  onClick={() => downloadKeys()}
+                  onClick={() => {
+                    setFileIsDownloaded(false);
+                    downloadKeys();
+                    setFileIsDownloaded(true);
+                  }}
                   icon={downloadSvg}
                 >
                   {i18next.t("onboard.download-keys")}
