@@ -121,6 +121,8 @@ export function useScheduleApi() {
             error(i18next.t("g.server-error"));
           }
         }
+        // Rethrow so callers can handle failure correctly
+        throw e;
       }
     }
   });

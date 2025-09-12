@@ -8,7 +8,7 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { usePollsCreationManagement } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";
 import { createPermlink, isCommunity, makeCommentOptions } from "@/utils";
-import { error } from "highcharts";
+import { error } from "@/features/shared";
 import { AxiosError } from "axios";
 import i18next from "i18next";
 import { postBodySummary } from "@ecency/render-helper";
@@ -103,6 +103,8 @@ export function useScheduleApi(onClear: () => void) {
             error(i18next.t("g.server-error"));
           }
         }
+        // Propagate error so the mutation is rejected
+        throw e;
       }
     },
     onSuccess: () => {

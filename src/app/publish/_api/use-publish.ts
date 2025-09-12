@@ -166,11 +166,9 @@ export function usePublishApi() {
         // return [entry as Entry, activePoll] as const;
         return [entry, null as PollSnapshot | null] as const;
       } catch (e) {
-        const handled = handleAndReportError(e, "publish-post");
-        if (!handled) {
-          throw e;
-        }
-        return undefined as never; // Tell TypeScript: "I'm done, nothing else is returned"
+        // Report the error and rethrow so the mutation is marked as failed
+        handleAndReportError(e, "publish-post");
+        throw e;
       }
     },
     onSuccess([entry, poll]) {
