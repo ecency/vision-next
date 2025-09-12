@@ -93,7 +93,8 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     (content: string | undefined) => {
       try {
         const parsed = content ? marked.parse(content) : undefined;
-        const sanitized = parsed ? DOMPurify.sanitize(parsed) : undefined;
+        const sanitized =
+          typeof parsed === "string" ? DOMPurify.sanitize(parsed) : undefined;
         const doc = sanitized
           ? parseAllExtensionsToDoc(sanitized, publishState.publishingVideo)
           : undefined;
