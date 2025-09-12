@@ -503,9 +503,8 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
             </span>
           </div>
           <div className="flex justify-center">
-            <span className="hr-6px-btn-spacer" />
             <Link href={`/@${formatUsername(decodedInfo!.username)}`}>
-              <Button className="mt-3 w-[50%] align-self-center" onClick={finish}>
+              <Button className="mt-3" onClick={finish}>
                 {i18next.t("g.finish")}
               </Button>
             </Link>
@@ -611,30 +610,24 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
 
                 {fileIsDownloaded && (
                   <Alert className="flex flex-col self-center justify-center mt-3">
-                    {!activeUser && (
-                      <>
-                        <h4>{i18next.t("onboard.copy-info-message")}</h4>
-                        <div className="flex items-center">
-                          <span className="">{splitUrl(onboardUrl + secret)}...</span>
-                          <span
-                            style={{ width: "5%" }}
-                            className="onboard-svg"
-                            onClick={() => {
-                              clipboard(onboardUrl + secret);
-                              success(i18next.t("onboard.copy-link"));
-                            }}
-                          >
-                            {copyContent}
-                          </span>
-                        </div>
-                      </>
-                    )}
+                    <h4>{i18next.t("onboard.copy-info-message")}</h4>
+                    <div className="flex items-center">
+                      <span className="">{splitUrl(onboardUrl + secret)}...</span>
+                      <span
+                        style={{ width: "5%" }}
+                        className="onboard-svg"
+                        onClick={() => {
+                          clipboard(onboardUrl + secret);
+                          success(i18next.t("onboard.copy-link"));
+                        }}
+                      >
+                        {copyContent}
+                      </span>
+                    </div>
                     {activeUser && (
-                      <>
-                        <span>
-                          <a href={onboardUrl + secret}>{i18next.t("onboard.click-link")}</a>
-                        </span>
-                      </>
+                      <span className="mt-2">
+                        <a href={onboardUrl + secret}>{i18next.t("onboard.click-link")}</a>
+                      </span>
                     )}
                   </Alert>
                 )}
