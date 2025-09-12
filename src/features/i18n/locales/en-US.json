@@ -2894,7 +2894,19 @@
     "delegations": "Delegations",
     "external-wallets-offer": {
       "title": "Bring your crypto to Ecency",
-      "description": "Create or import wallets for BTC, ETH, TRX, APT, and SOL directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem."
+      "description": "Create or import wallets for BTC, ETH, TRX, APT, and SOL directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
+      "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata"
+    },
+    "external-wallets-signup": {
+      "create-wallet-title": "Create & link to Hive account",
+      "create-wallet-description": "Create a wallet for BTC, ETH, SOL, APT, and TRX. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
+      "import-wallet-title": "Import existing wallet",
+      "import-wallet-description": "Import your existing wallet from Trust, Exodus, or other compatible apps. Your assets will be connected to your Hive account, so you can easily manage your funds in Ecency.",
+      "create-wallet-tokens-description": "Check out your tokens addresses. Also you can see them later on wallet page",
+      "linking": "Linking tokens to your Hive account...",
+      "linking-hint": "Hive and Ecency uses only public addresses of your wallets. No private information will be stored.",
+      "linking-success": "Tokens have linked successfully",
+      "linking-success-hint": "You can find your tokens in a wallet page"
     },
     "operations": {
       "transfer": "Transfer",

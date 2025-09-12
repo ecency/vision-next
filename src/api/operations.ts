@@ -1420,11 +1420,6 @@ export const hiveNotifySetLastRead = (username: string): Promise<TransactionConf
   return broadcastPostingOperations(username, opArray);
 };
 
-export const updatePassword = (
-  update: AccountUpdateOperation[1],
-  ownerKey: PrivateKey
-): Promise<TransactionConfirmation> => hiveClient.broadcast.updateAccount(update, ownerKey);
-
 export const Revoke = (
   account: string,
   weight_threshold: number,

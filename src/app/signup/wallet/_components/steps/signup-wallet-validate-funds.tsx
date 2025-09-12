@@ -1,8 +1,8 @@
+import { WalletTokenAddressItem } from "@/features/wallet";
 import { EcencyWalletCurrency } from "@ecency/wallets";
 import i18next from "i18next";
 import { useState } from "react";
 import { SignupWalletConnectWalletImport } from "./signup-wallet-connect-wallet-import";
-import { SignupWalletValidationItem } from "./signup-wallet-validation-item";
 import { SignupWalletValiadtionSelected } from "./signup-wallet-validation-selected";
 
 interface Props {
@@ -33,7 +33,7 @@ export function SignupWalletValidateFunds({ username, onValid }: Props) {
       {!selectedWallet && (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {TOKENS.map((currency, i) => (
-            <SignupWalletValidationItem
+            <WalletTokenAddressItem
               username={username}
               i={i}
               selectable={true}
