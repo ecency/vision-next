@@ -16,6 +16,7 @@ import { EcencyAnalytics } from "@ecency/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { usePublishState } from "../_hooks";
+import * as Sentry from "@sentry/nextjs";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();
@@ -149,12 +150,18 @@ export function usePublishApi() {
       };
       updateEntryQueryData([entry]);
 
-      await validatePostCreating(entry.author, entry.permlink, 3);
+      try {
+        await validatePostCreating(entry.author, entry.permlink, 3);
+      } catch (e) {
+        Sentry.captureException(e, {
+          extra: { username: entry.author }
+        });
+      }
 
       // Record all user activity
-      await recordActivity();
+      recordActivity().catch(() => {});
       if (publishingVideo) {
-        await recordUploadVideoActivity();
+        recordUploadVideoActivity().catch(() => {});
       }
 
       success(i18next.t("submit.published"));
