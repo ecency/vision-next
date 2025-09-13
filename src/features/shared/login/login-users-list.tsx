@@ -4,7 +4,12 @@ import i18next from "i18next";
 import Image from "next/image";
 import { useMemo } from "react";
 import { LoginUserItem } from "./login-user-item";
-import { LoginUsersReorder } from "./login-users-reorder";
+import dynamic from "next/dynamic";
+
+const LoginUsersReorder = dynamic(
+  () => import("./login-users-reorder").then((m) => ({ default: m.LoginUsersReorder })),
+  { ssr: false }
+);
 
 interface Props {
   showOnMobile: boolean;
