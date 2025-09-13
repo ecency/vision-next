@@ -138,13 +138,30 @@ export const broadcast = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestBroadcast(
+    const keychain = window.hive_keychain;
+
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension not available"));
+      return;
+    }
+
+    let finished = false;
+    const timeout = setTimeout(() => {
+      if (!finished) {
+        reject(new Error("Hive Keychain response timeout"));
+      }
+    }, 10000);
+
+    keychain.requestBroadcast(
       account,
       operations,
       key,
       (resp) => {
+        finished = true;
+        clearTimeout(timeout);
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
+          return;
         }
 
         resolve(resp);

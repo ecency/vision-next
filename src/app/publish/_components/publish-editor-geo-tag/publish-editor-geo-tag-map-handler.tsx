@@ -25,12 +25,18 @@ export function PublishEditorGeoTagMapHandler({
 
   const [userLocation, setUserLocation] = useState<GeolocationCoordinates>();
 
-  useMount(() =>
-    navigator.geolocation.getCurrentPosition(
-      (e) => setUserLocation(e.coords),
-      (e) => console.error(e)
-    )
-  );
+  useMount(() => {
+    // Attempt to prefill the marker with user's location. If the user denies
+    // the permission or the API is unavailable we simply ignore the error.
+    if (navigator?.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (e) => setUserLocation(e.coords),
+        () => {
+          /* noop */
+        }
+      );
+    }
+  });
 
   useEffect(() => {
     if (!map || !place || !marker) return;
