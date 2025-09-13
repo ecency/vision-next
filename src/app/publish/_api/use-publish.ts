@@ -9,7 +9,7 @@ import { FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
-import { handleAndReportError, success } from "@/features/shared";
+import { success } from "@/features/shared";
 import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
@@ -116,60 +116,54 @@ export function usePublishApi() {
 
       const options = makeCommentOptions(author, permlink, reward as RewardType, beneficiaries);
 
-      try {
-        await comment(
-          author,
-          "",
-          parentPermlink,
+      await comment(
+        author,
+        "",
+        parentPermlink,
+        permlink,
+        title!,
+        //   buildBody(cleanBody),
+        cleanBody,
+        jsonMeta,
+        options,
+        true
+      );
+
+      // Create an entry object in store and cache
+      const entry = {
+        ...tempEntry({
+          author: authorData!,
           permlink,
-          title!,
-          //   buildBody(cleanBody),
-          cleanBody,
-          jsonMeta,
-          options,
-          true
-        );
+          parentAuthor: "",
+          parentPermlink,
+          title: title!,
+          // body: buildBody(body),
+          body: content!,
 
-        // Create an entry object in store and cache
-        const entry = {
-          ...tempEntry({
-            author: authorData!,
-            permlink,
-            parentAuthor: "",
-            parentPermlink,
-            title: title!,
-            // body: buildBody(body),
-            body: content!,
+          tags: tags!,
+          description: metaDescription || postBodySummary(cleanBody),
+          jsonMeta
+        }),
+        max_accepted_payout: options?.max_accepted_payout ?? "1000000.000 HBD",
+        percent_hbd: options?.percent_hbd ?? 10000
+      };
+      updateEntryQueryData([entry]);
 
-            tags: tags!,
-            description: metaDescription || postBodySummary(cleanBody),
-            jsonMeta
-          }),
-          max_accepted_payout: options?.max_accepted_payout ?? "1000000.000 HBD",
-          percent_hbd: options?.percent_hbd ?? 10000
-        };
-        updateEntryQueryData([entry]);
+      await validatePostCreating(entry.author, entry.permlink, 3);
 
-        await validatePostCreating(entry.author, entry.permlink, 3);
-
-        // Record all user activity
-        await recordActivity();
-        if (publishingVideo) {
-          await recordUploadVideoActivity();
-        }
-
-        success(i18next.t("submit.published"));
-        if (isCommunity(tags?.[0]) && isReblogToCommunity) {
-          await reblog(author, author, permlink);
-        }
-
-        // return [entry as Entry, activePoll] as const;
-        return [entry, null as PollSnapshot | null] as const;
-      } catch (e) {
-        // Report the error and rethrow so the mutation is marked as failed
-        handleAndReportError(e, "publish-post");
-        throw e;
+      // Record all user activity
+      await recordActivity();
+      if (publishingVideo) {
+        await recordUploadVideoActivity();
       }
+
+      success(i18next.t("submit.published"));
+      if (isCommunity(tags?.[0]) && isReblogToCommunity) {
+        await reblog(author, author, permlink);
+      }
+
+      // return [entry as Entry, activePoll] as const;
+      return [entry, null as PollSnapshot | null] as const;
     },
     onSuccess([entry, poll]) {
       queryClient.setQueryData<GetPollDetailsQueryResponse | undefined>(

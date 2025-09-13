@@ -2,7 +2,7 @@
 
 import { TagSelector } from "@/app/submit/_components";
 import { Alert, Button, FormControl } from "@/features/ui";
-import { handleAndReportError } from "@/features/shared";
+import { handleAndReportError, error as feedbackError } from "@/features/shared";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
@@ -63,7 +63,9 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
       clearAll();
     } catch (err) {
       const handled = handleAndReportError(err, "publish-post");
-      if (!handled) {
+      if (handled) {
+        feedbackError(i18next.t("g.server-error"));
+      } else {
         throw err;
       }
     }
