@@ -40,7 +40,6 @@ export const SignMethods = ({
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
-  const hasKeyChain = useGlobalStore((s) => s.hasKeyChain);
 
   const [showSignByKey, setShowSignByKey] = useState(false);
   const [isSignByKeyLoading, setIsSignByKeyLoading] = useState(false);
@@ -132,7 +131,7 @@ export const SignMethods = ({
           ) : (
             <></>
           )}
-          {hasKeyChain && MarketSwappingMethods[asset].includes(SwappingMethod.KC) ? (
+          {MarketSwappingMethods[asset].includes(SwappingMethod.KC) ? (
             <Button disabled={disabled} className="w-full mt-4 kc-button" onClick={onSwapByKc}>
               <i className="sign-logo mr-3">{kcLogoSvg}</i>
               {isSignByHsLoading

@@ -4,8 +4,13 @@ import { AppWindow, AuthorityTypes, Keys, TxResponse } from "@/types";
 declare var window: AppWindow;
 
 export const handshake = (): Promise<void> =>
-  new Promise<void>((resolve) => {
-    window.hive_keychain?.requestHandshake(() => {
+  new Promise<void>((resolve, reject) => {
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestHandshake(() => {
       resolve();
     });
   });
@@ -17,13 +22,19 @@ export const signBuffer = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestSignBuffer(
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestSignBuffer(
       account,
       message,
       authType,
       (resp) => {
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
+          return;
         }
 
         resolve(resp);
@@ -40,7 +51,12 @@ export const addAccountAuthority = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestAddAccountAuthority(
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestAddAccountAuthority(
       account,
       authorizedUsername,
       role,
@@ -48,6 +64,7 @@ export const addAccountAuthority = (
       (resp) => {
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
+          return;
         }
 
         resolve(resp);
@@ -63,13 +80,19 @@ export const removeAccountAuthority = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestRemoveAccountAuthority(
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestRemoveAccountAuthority(
       account,
       authorizedUsername,
       "Posting",
       (resp) => {
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
+          return;
         }
 
         resolve(resp);
@@ -88,7 +111,12 @@ export const transfer = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestTransfer(
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestTransfer(
       account,
       to,
       amount,
@@ -97,6 +125,7 @@ export const transfer = (
       (resp) => {
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
+          return;
         }
 
         resolve(resp);
@@ -115,7 +144,12 @@ export const customJson = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestCustomJson(
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestCustomJson(
       account,
       id,
       key,
@@ -124,6 +158,7 @@ export const customJson = (
       (resp) => {
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
+          return;
         }
         resolve(resp);
       },
@@ -141,7 +176,7 @@ export const broadcast = (
     const keychain = window.hive_keychain;
 
     if (!keychain) {
-      reject(new Error("Hive Keychain extension not available"));
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
       return;
     }
 
@@ -172,9 +207,15 @@ export const broadcast = (
 
 export const addAccount = (username: string, keys: Keys): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestAddAccount(username, keys, (resp) => {
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestAddAccount(username, keys, (resp) => {
       if (!resp.success) {
         reject(new Error("Operation cancelled"));
+        return;
       }
 
       resolve(resp);
@@ -188,13 +229,19 @@ export const witnessVote = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestWitnessVote(
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestWitnessVote(
       account,
       witness,
       vote,
       (resp) => {
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
+          return;
         }
 
         resolve(resp);
@@ -209,12 +256,18 @@ export const witnessProxy = (
   rpc: string | null = null
 ): Promise<TxResponse> =>
   new Promise<TxResponse>((resolve, reject) => {
-    window.hive_keychain?.requestProxy(
+    const keychain = window.hive_keychain;
+    if (!keychain) {
+      reject(new Error("Hive Keychain extension is unavailable or disabled."));
+      return;
+    }
+    keychain.requestProxy(
       account,
       proxy,
       (resp) => {
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
+          return;
         }
 
         resolve(resp);
