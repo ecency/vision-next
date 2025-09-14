@@ -21,10 +21,10 @@ interface Props {
 
 export function EntryPageBodyViewer({ entry }: Props) {
   const [signingOperation, setSigningOperation] = useState<string>();
-  const { isRawContent, isEdit } = useContext(EntryPageContext);
+  const { isRawContent, isEdit, editHistory } = useContext(EntryPageContext);
 
   useEffect(() => {
-    if (isRawContent || isEdit) {
+    if (isRawContent || isEdit || editHistory) {
       return;
     }
 
@@ -49,7 +49,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
       // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
       console.error("Failed to setup post enhancements", e);
     }
-  }, [isRawContent, isEdit]);
+  }, [isRawContent, isEdit, editHistory]);
 
   return (
     <EntryPageViewerManager>
