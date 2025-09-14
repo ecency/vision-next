@@ -19,7 +19,6 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 }
 
 export default async function PermissionsPage({ params }: Props) {
-  const { username } = await params;
   const isAuthenticated = (await cookies()).has(ACTIVE_USER_COOKIE_NAME);
 
   if (!isAuthenticated) {

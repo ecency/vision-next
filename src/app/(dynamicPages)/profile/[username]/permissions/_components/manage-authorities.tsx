@@ -1,22 +1,20 @@
 "use client";
 
-import { formatError, Revoke, RevokeHot, RevokeKc } from "@/api/operations";
 import { useClientActiveUser } from "@/api/queries";
-import { error, KeyOrHot, LinearProgress, UserAvatar } from "@/features/shared";
+import { error, KeyOrHot, UserAvatar } from "@/features/shared";
 import { ProfilePreview } from "@/features/shared/profile-popover/profile-preview";
 import { Popover } from "@/features/ui";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import { getAccountFullQueryOptions, useAccountRevokePosting } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export function ManageAuthorities() {
   const activeUser = useClientActiveUser();
 
-  const { data: accountData, refetch } = useQuery({
+  const { data: accountData } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username!),
     select: (resp) => ({
       postingsAuths: resp.posting.account_auths as [string, number][],
@@ -28,150 +26,26 @@ export function ManageAuthorities() {
     })
   });
 
-  const [newPostingsAuthority, setNewPostingsAuthority] = useState<[string, number][]>([]);
-  const [step, setStep] = useState(0);
+  const [revokingAccount, setRevokingAccount] = useState("");
   const [keyDialog, setKeyDialog] = useState(false);
-  const [targetAccount, setTargetAccount] = useState("");
-  const [inProgress, setInProgress] = useState(false);
 
-  const toggleKeyDialog = () => {
-    setKeyDialog(!keyDialog);
-  };
+  const { mutateAsync: revoke, isPending } = useAccountRevokePosting(activeUser?.username, {
+    onError: (err) => error((err as Error).message),
+    onSuccess: () => setKeyDialog(false)
+  });
 
-  const handleRevoke = (account: string) => {
-    setTargetAccount(account);
+  const handleRevoke = useCallback((account: string) => {
     setKeyDialog(true);
-    setStep(1);
-    setNewPostingsAuthority(accountData!.postingsAuths.filter((x: any) => x[0] !== account));
-  };
-
-  const onKey = async (key: PrivateKey) => {
-    try {
-      setInProgress(true);
-      const resp = await Revoke(
-        activeUser!.username,
-        accountData!.weight,
-        newPostingsAuthority,
-        [accountData!.posting],
-        accountData!.memokey,
-        key
-      );
-      if (resp.id) {
-        setKeyDialog(true);
-        setStep(2);
-      }
-    } catch (err) {
-      error(...formatError(err));
-    } finally {
-      setInProgress(false);
-    }
-  };
-
-  const onHot = () => {
-    RevokeHot(
-      activeUser!.username,
-      accountData!.weight,
-      newPostingsAuthority,
-      [accountData!.posting],
-      accountData!.memokey
-    );
-    setKeyDialog(false);
-  };
-
-  const onKc = () => {
-    RevokeKc(
-      activeUser!.username,
-      accountData!.weight,
-      newPostingsAuthority,
-      [accountData!.posting],
-      accountData!.memokey
-    );
-  };
-
-  const finish = () => {
-    setKeyDialog(false);
-    refetch();
-  };
-
-  const signkeyModal = () => {
-    return (
-      <>
-        <div className="sign-dialog-header border-b border-[--border-color]">
-          <div className="step-no">1</div>
-          <div className="sign-dialog-titles">
-            <div className="authority-main-title">{i18next.t("manage-authorities.sign-title")}</div>
-            <div className="authority-sub-title">
-              {i18next.t("manage-authorities.sign-sub-title")}
-            </div>
-          </div>
-        </div>
-        {inProgress && <LinearProgress />}
-        <KeyOrHot
-          inProgress={inProgress}
-          onKey={onKey}
-          onHot={() => {
-            toggleKeyDialog();
-            if (onHot) {
-              onHot();
-            }
-          }}
-          onKc={() => {
-            toggleKeyDialog();
-            if (onKc) {
-              onKc();
-            }
-          }}
-        />
-        <p className="text-center">
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setKeyDialog(false);
-            }}
-          >
-            {i18next.t("g.back")}
-          </a>
-        </p>
-      </>
-    );
-  };
-
-  const successModal = () => {
-    return (
-      <>
-        <div className="success-dialog-header border-b border-[--border-color]">
-          <div className="step-no">2</div>
-          <div className="success-dialog-titles">
-            <div className="authority-main-title">{i18next.t("trx-common.success-title")}</div>
-            <div className="authority-sub-title">{i18next.t("trx-common.success-sub-title")}</div>
-          </div>
-        </div>
-
-        <div className="success-dialog-body">
-          <div className="success-dialog-content">
-            <span>
-              {" "}
-              {i18next.t("manage-authorities.success-message")}{" "}
-              <a href={`https://ecency.com/@${targetAccount}`} target="_blank">
-                {targetAccount}
-              </a>{" "}
-            </span>
-          </div>
-          <div className="flex justify-center">
-            <span className="hr-6px-btn-spacer" />
-            <Button onClick={finish}>{i18next.t("g.finish")}</Button>
-          </div>
-        </div>
-      </>
-    );
-  };
+    setRevokingAccount(account);
+  }, []);
 
   return (
     <>
       {(accountData?.postingsAuths?.length ?? 0) > 0 && (
         <div className="rounded-xl bg-white bg-opacity-75">
-          <div className="p-4 text-sm md:text-lg font-bold">Posting active sessions</div>
+          <div className="p-4 text-sm md:text-lg font-bold">
+            {i18next.t("permissions.sessions.title")}
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 lg:gap-4 px-4 pb-4">
             {accountData?.postingsAuths?.map(([account, weight], i) => (
               <div
@@ -210,21 +84,23 @@ export function ManageAuthorities() {
         </div>
       )}
 
-      {keyDialog && (
-        <Modal
-          show={true}
-          centered={true}
-          onHide={toggleKeyDialog}
-          className="authorities-dialog"
-          size="lg"
-        >
-          <ModalHeader closeButton={true} />
-          <ModalBody>
-            {step === 1 && signkeyModal()}
-            {step === 2 && successModal()}
-          </ModalBody>
-        </Modal>
-      )}
+      <Modal
+        show={keyDialog}
+        centered={true}
+        onHide={() => setKeyDialog(false)}
+        className="authorities-dialog"
+        size="lg"
+      >
+        <ModalHeader closeButton={true}>{i18next.t("manage-authorities.sign-title")}</ModalHeader>
+        <ModalBody>
+          <KeyOrHot
+            inProgress={isPending}
+            onKey={(key) => revoke({ type: "key", accountName: revokingAccount, key })}
+            onHot={() => revoke({ type: "hivesigner", accountName: revokingAccount })}
+            onKc={() => revoke({ type: "keychain", accountName: revokingAccount })}
+          />
+        </ModalBody>
+      </Modal>
     </>
   );
 }

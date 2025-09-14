@@ -2925,5 +2925,17 @@
       "unstake": "Unstake",
       "undelegate": "Undelegate"
     }
+  },
+  "permissions": {
+    "sessions": {
+      "title": "Posting active sessions"
+    },
+    "keys": {
+      "title": "Keys"
+    },
+    "recovery": {
+      "title": "Account recovery",
+      "hint": "Account recovery is available only if your keys have been changed or compromised within the past 30 days. If you have lost your keys or password and more than 30 days have passed, recovery is not possible."
+    }
   }
 }

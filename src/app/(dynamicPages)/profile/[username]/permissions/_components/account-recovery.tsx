@@ -22,11 +22,35 @@ import {
   formatError
 } from "@/api/operations";
 import useMount from "react-use/lib/useMount";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useClientActiveUser } from "@/api/queries";
 
 const ECENCY = "ecency";
 
+const schema = yup.object({
+  isEcency: yup.boolean().optional(),
+  newRecoveryAccount: yup
+    .string()
+    .required(i18next.t("validation.required"))
+    .min(2, i18next.t("sign-up.username-max-length-error")),
+  recoveryEmail: yup.string().when("isEcency", {
+    is: true,
+    then: (s) =>
+      s.required(i18next.t("validation.required")).email(i18next.t("validation.invalid-email")),
+    otherwise: (s) => s.optional()
+  })
+});
+
+type FormValues = {
+  newRecoveryAccount: string;
+  recoveryEmail?: string;
+  isEcency?: boolean;
+};
+
 export function AccountRecovery() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientActiveUser();
 
   const [keyDialog, setKeyDialog] = useState(false);
   const [inProgress, setInProgress] = useState(false);
@@ -36,16 +60,28 @@ export function AccountRecovery() {
   const [step, setStep] = useState(1);
   const [toError, setToError] = useState("");
   const [accountData, setAccountData] = useState<FullAccount | undefined>();
-  const [recoveryEmail, setRecoveryEmail] = useState("");
   const [toWarning, setToWarning] = useState("");
   const [currRecoveryAccount, setCurrRecoveryAccount] = useState("");
-  const [newRecoveryAccount, setNewCurrRecoveryAccount] = useState("");
   const [pendingRecoveryAccount, setPendingRecoveryAccount] = useState("");
+
+  const methods = useForm<FormValues>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      newRecoveryAccount: "",
+      recoveryEmail: "",
+      isEcency: false
+    },
+    mode: "onChange"
+  });
+
+  const newRecoveryAccount = methods.watch("newRecoveryAccount");
+  const recoveryEmail = methods.watch("recoveryEmail");
+  const formErrors = methods.formState.errors;
 
   const fetchEmail = async () => {
     let response = await getRecoveries(activeUser?.username!);
     if (response[0]) {
-      setRecoveryEmail(response[0].email);
+      methods.setValue("recoveryEmail", response[0].email ?? "");
     }
   };
 
@@ -82,19 +118,24 @@ export function AccountRecovery() {
 
   useDebounce(
     async () => {
-      const resp = await getAccount(newRecoveryAccount);
+      const value = newRecoveryAccount;
+      if (!value) {
+        setDisabled(true);
+        setToError("");
+        return;
+      }
+
+      const resp = await getAccount(value);
       if (resp) {
-        const isECENCY = newRecoveryAccount === ECENCY;
+        const isECENCY = value === ECENCY;
         if (isECENCY) {
           setDisabled(true);
           return;
-        } else {
-          if (pendingRecoveryAccount) {
-            setPopOver(true);
-          }
+        } else if (pendingRecoveryAccount) {
+          setPopOver(true);
         }
 
-        if (newRecoveryAccount === activeUser?.username) {
+        if (value === activeUser?.username) {
           setDisabled(true);
           setToError(i18next.t("account-recovery.same-account-error"));
           return;
@@ -102,7 +143,7 @@ export function AccountRecovery() {
         setDisabled(false);
         setToError("");
       } else {
-        if (newRecoveryAccount.length > 0) {
+        if (value.length > 0) {
           setDisabled(true);
           setToError(i18next.t("account-recovery.to-not-found"));
         }
@@ -111,18 +152,6 @@ export function AccountRecovery() {
     1000,
     [newRecoveryAccount]
   );
-
-  const newRecoveryAccountChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.persist();
-    setIsEcency(e.target.value === ECENCY);
-    setNewCurrRecoveryAccount(e.target.value);
-
-    if (e.target.value.length === 0) {
-      setDisabled(true);
-      setToError("");
-      return;
-    }
-  };
 
   const update = () => {
     if (!popOver && !isEcency) {
@@ -192,9 +221,10 @@ export function AccountRecovery() {
 
   const finish = () => {
     setKeyDialog(false);
-    setNewCurrRecoveryAccount("");
+    methods.reset({ newRecoveryAccount: "", recoveryEmail: "" });
     setDisabled(true);
     setIsEcency(false);
+    setToError("");
   };
 
   const handleConfirm = () => {
@@ -344,90 +374,110 @@ export function AccountRecovery() {
   };
 
   return (
-    <>
-      <div className="account-recovery-form">
-        <Form
-          onSubmit={(e: React.FormEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
-            update();
-          }}
-        >
-          <div className="mb-4">
-            <label>{i18next.t("account-recovery.curr-recovery-acc")}</label>
-            <FormControl type="text" readOnly={true} value={currRecoveryAccount} />
-          </div>
-          {toWarning && <small className="suggestion-info">{toWarning}</small>}
-          <div className="mb-4">
-            <label>{i18next.t("account-recovery.new-recovery-acc")}</label>
-            <FormControl
-              value={newRecoveryAccount}
-              onChange={newRecoveryAccountChange}
-              required={!isEcency}
-              type="text"
-              autoFocus={true}
-              autoComplete="off"
-              className={toError ? "is-invalid" : ""}
-            />
-          </div>
-          {toError && <small className="error-info">{toError}</small>}
-          {isEcency && (
-            <div className="mb-4">
-              <label>{i18next.t("account-recovery.new-recovery-email")}</label>
-              <FormControl
-                value={recoveryEmail}
-                onChange={handleRecoveryEmail}
-                required={true}
-                type="text"
-                placeholder={i18next.t("account-recovery.email-placeholder")}
-                autoComplete="off"
-              />
-            </div>
-          )}
-          {inProgress && <LinearProgress />}
-
-          {popOver ? (
-            <div className="main">
-              <PopoverConfirm
-                placement="top"
-                trigger="click"
-                onConfirm={() => handleConfirm()}
-                titleText={i18next.t("account-recovery.info-message", {
-                  n: pendingRecoveryAccount
-                })}
-              >
-                <div onClick={(e) => e.stopPropagation()}>
-                  <Button disabled={disabled} type="submit">
-                    {i18next.t("g.update")}
-                  </Button>
-                </div>
-              </PopoverConfirm>
-            </div>
-          ) : (
-            <Button className="update-btn" disabled={disabled} type="submit">
-              {i18next.t("g.update")}
-            </Button>
-          )}
-        </Form>
-
-        {keyDialog && (
-          <Modal
-            show={true}
-            centered={true}
-            onHide={toggleKeyDialog}
-            className="recovery-dialog"
-            size="lg"
-          >
-            <ModalHeader thin={true} closeButton={true} />
-            <ModalBody>
-              {step === 1 && confirmationModal()}
-              {step === 2 && signkeyModal()}
-              {step === 3 && successModal()}
-              {step === 4 && emailUpdateModal()}
-            </ModalBody>
-          </Modal>
-        )}
+    <div className="rounded-xl bg-white bg-opacity-75">
+      <div className="md:col-span-2 px-4 pt-4 pb-1 text-sm md:text-lg font-bold">
+        {i18next.t("permissions.recovery.title")}
       </div>
-    </>
+      <div className="px-4 text-sm opacity-75 mb-4">{i18next.t("permissions.recovery.hint")}</div>
+      <Form
+        className="px-4 pb-4 block"
+        onSubmit={methods.handleSubmit(() => {
+          update();
+        })}
+      >
+        <div className="mb-4">
+          <label>{i18next.t("account-recovery.curr-recovery-acc")}</label>
+          <FormControl type="text" readOnly={true} value={currRecoveryAccount} />
+        </div>
+        {toWarning && <small className="suggestion-info">{toWarning}</small>}
+        <div className="mb-4">
+          <label>{i18next.t("account-recovery.new-recovery-acc")}</label>
+          <FormControl
+            {...methods.register("newRecoveryAccount", {
+              onChange: (e) => {
+                const v = e.target.value as string;
+                setIsEcency(v === ECENCY);
+              }
+            })}
+            required={!isEcency}
+            type="text"
+            autoFocus={true}
+            autoComplete="off"
+            className={toError || formErrors.newRecoveryAccount ? "is-invalid" : ""}
+            aria-invalid={!!(toError || formErrors.newRecoveryAccount)}
+          />
+        </div>
+        {(toError || formErrors.newRecoveryAccount) && (
+          <small className="error-info">
+            {toError || formErrors.newRecoveryAccount?.message?.toString()}
+          </small>
+        )}
+        {isEcency && (
+          <div className="mb-4">
+            <label>{i18next.t("account-recovery.new-recovery-email")}</label>
+            <FormControl
+              {...methods.register("recoveryEmail", {
+                onChange: (e) => {
+                  const val = e.target.value as string;
+                  const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+                  setDisabled(!emailRegex.test(val));
+                }
+              })}
+              required={true}
+              type="text"
+              placeholder={i18next.t("account-recovery.email-placeholder")}
+              autoComplete="off"
+              aria-invalid={!!formErrors.recoveryEmail}
+              className={formErrors.recoveryEmail ? "is-invalid" : ""}
+            />
+            {formErrors.recoveryEmail && (
+              <small className="error-info">{formErrors.recoveryEmail.message?.toString()}</small>
+            )}
+          </div>
+        )}
+        {inProgress && <LinearProgress />}
+
+        {popOver ? (
+          <div className="main">
+            <PopoverConfirm
+              placement="top"
+              trigger="click"
+              onConfirm={() => handleConfirm()}
+              titleText={i18next.t("account-recovery.info-message", {
+                n: pendingRecoveryAccount
+              })}
+            >
+              <div onClick={(e) => e.stopPropagation()}>
+                <Button disabled={disabled} type="submit">
+                  {i18next.t("g.update")}
+                </Button>
+              </div>
+            </PopoverConfirm>
+          </div>
+        ) : (
+          <Button className="update-btn" disabled={disabled} type="submit">
+            {i18next.t("g.update")}
+          </Button>
+        )}
+      </Form>
+
+      {keyDialog && (
+        <Modal
+          show={true}
+          centered={true}
+          onHide={toggleKeyDialog}
+          className="recovery-dialog"
+          size="lg"
+        >
+          <ModalHeader thin={true} closeButton={true} />
+          <ModalBody>
+            {step === 1 && confirmationModal()}
+            {step === 2 && signkeyModal()}
+            {step === 3 && successModal()}
+            {step === 4 && emailUpdateModal()}
+          </ModalBody>
+        </Modal>
+      )}
+    </div>
   );
 }
