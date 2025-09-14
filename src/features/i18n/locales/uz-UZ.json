@@ -1,11 +1,11 @@
 {
   "g": {
-    "all": "All",
-    "add": "Add",
-    "edit": "Edit",
-    "clone": "Clone",
-    "copy": "Copy of",
-    "clone-success": "Created new draft copy",
+    "all": "Hammasi",
+    "add": "Qo'shish",
+    "edit": "O'zgartirish",
+    "clone": "Nusxa",
+    "copy": "Nusxa",
+    "clone-success": "Yangi loyihadan nusxa yaratildi",
     "delete-success": "Draft deleted successfully",
     "continue": "Continue",
     "submit": "Write a post",
