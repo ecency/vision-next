@@ -38,12 +38,17 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    setupPostEnhancements(el, {
-      onHiveOperationClick: (op) => {
-        setSigningOperation(op);
-      },
-      TwitterComponent: Tweet,
-    });
+    try {
+      setupPostEnhancements(el, {
+        onHiveOperationClick: (op) => {
+          setSigningOperation(op);
+        },
+        TwitterComponent: Tweet,
+      });
+    } catch (e) {
+      // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
+      console.error("Failed to setup post enhancements", e);
+    }
   }, [isRawContent, isEdit]);
 
   return (
