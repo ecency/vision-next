@@ -2,7 +2,8 @@ import { ThreeSpeakVideo } from "@ecency/sdk";
 import {
   HIVE_POST_PURE_REGEX,
   TAG_MENTION_PURE_REGEX,
-  USER_MENTION_PURE_REGEX
+  USER_MENTION_PURE_REGEX,
+  YOUTUBE_REGEX
 } from "../extensions";
 
 export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeSpeakVideo) {
@@ -25,6 +26,28 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
       newEl.setAttribute("src", el.getAttribute("href") ?? "");
       newEl.setAttribute("thumbnail", image?.getAttribute("src") ?? "");
       newEl.setAttribute("status", isPublishingVideo ? "publish_manual" : "published");
+
+      el.parentElement?.replaceChild(newEl, el);
+    });
+
+  // Handle YouTube videos
+  (Array.from(tree.querySelectorAll("a[href]").values()) as HTMLElement[])
+    .filter((el) => {
+      const href = el.getAttribute("href") ?? "";
+      YOUTUBE_REGEX.lastIndex = 0;
+      return YOUTUBE_REGEX.test(href);
+    })
+    .forEach((el) => {
+      const image = el.querySelector("img");
+      const href = el.getAttribute("href") ?? "";
+      const id = href.match(YOUTUBE_REGEX)?.[1] ?? "";
+      const newEl = document.createElement("div");
+      newEl.dataset.youtubeVideo = "";
+      newEl.setAttribute("src", href);
+      newEl.setAttribute(
+        "thumbnail",
+        image?.getAttribute("src") ?? (id ? `https://img.youtube.com/vi/${id}/0.jpg` : "")
+      );
 
       el.parentElement?.replaceChild(newEl, el);
     });

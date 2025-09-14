@@ -7,6 +7,7 @@ import { error, GalleryDialog, LoginRequired } from "@/features/shared";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker, StyledTooltip } from "@/features/ui";
 import { useEditorState } from "@tiptap/react";
+import { YOUTUBE_REGEX } from "@/features/tiptap-editor";
 import {
   UilAlignCenter,
   UilAlignJustify,
@@ -438,7 +439,17 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           show={showVideoLink}
           setShow={setShowVideoLink}
           onAdd={(e) => {
-            clearChain().insertContent(`![](${e})`).run();
+            const match = e.match(YOUTUBE_REGEX);
+            if (match) {
+              clearChain()
+                .setYoutubeVideo({
+                  src: e,
+                  thumbnail: `https://img.youtube.com/vi/${match[1]}/0.jpg`
+                })
+                .run();
+            } else {
+              clearChain().insertContent(`![](${e})`).run();
+            }
             setShowVideoLink(false);
           }}
         />

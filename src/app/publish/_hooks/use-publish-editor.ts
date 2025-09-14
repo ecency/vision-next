@@ -5,6 +5,7 @@ import {
   Selection,
   TagMentionExtensionConfig,
   ThreeSpeakVideoExtension,
+  YoutubeVideoExtension,
   UserMentionExtensionConfig,
   clipboardPlugin,
   markdownToHtml,
@@ -77,6 +78,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
         suggestion: TagMentionExtensionConfig as any
       }),
       ThreeSpeakVideoExtension,
+      YoutubeVideoExtension,
       HivePostExtension
     ],
     onUpdate({ editor }) {
