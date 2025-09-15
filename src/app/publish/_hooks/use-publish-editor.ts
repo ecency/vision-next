@@ -43,7 +43,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
         placeholder: "Tell your story.."
       }),
       TextAlign.configure({
-        types: ["heading", "paragraph"]
+        types: ["heading", "paragraph", "youtubeVideo"]
       }),
       Selection,
       Table,

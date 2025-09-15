@@ -70,7 +70,10 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
     editor,
     selector: ({ editor }) => ({
       canAlign:
-        editor?.isActive("paragraph") || editor?.isActive("image") || editor?.isActive("heading")
+        editor?.isActive("paragraph") ||
+        editor?.isActive("image") ||
+        editor?.isActive("heading") ||
+        editor?.isActive("youtubeVideo")
     })
   });
 

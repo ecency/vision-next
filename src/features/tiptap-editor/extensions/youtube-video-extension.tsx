@@ -1,5 +1,5 @@
 import { Button, Popover, PopoverContent } from "@/features/ui";
-import { Node, nodePasteRule, NodeViewProps } from "@tiptap/core";
+import { Node, nodePasteRule, NodeViewProps, mergeAttributes } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
 
@@ -33,6 +33,7 @@ function YouTubeVideoViewer({
             width="560"
             height="315"
             src={toEmbedUrl(src)}
+            className="mx-auto"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
@@ -87,12 +88,11 @@ export const YoutubeVideoExtension = Node.create({
     ];
   },
   renderHTML({ HTMLAttributes }) {
+    const { src, thumbnail, ...rest } = HTMLAttributes;
     return [
-      "a",
-      {
-        href: HTMLAttributes.src
-      },
-      ["img", { src: HTMLAttributes.thumbnail, alt: "" }]
+      "p",
+      mergeAttributes(rest),
+      ["a", { href: src }, ["img", { src: thumbnail, alt: "" }]]
     ];
   },
 

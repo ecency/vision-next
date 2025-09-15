@@ -49,7 +49,16 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
         image?.getAttribute("src") ?? (id ? `https://img.youtube.com/vi/${id}/0.jpg` : "")
       );
 
-      el.parentElement?.replaceChild(newEl, el);
+      const parent = el.parentElement;
+      if (parent?.tagName === "CENTER") {
+        newEl.style.textAlign = "center";
+        parent.parentElement?.replaceChild(newEl, parent);
+      } else if (parent && parent.style.textAlign) {
+        newEl.style.textAlign = parent.style.textAlign;
+        parent.parentElement?.replaceChild(newEl, parent);
+      } else {
+        el.parentElement?.replaceChild(newEl, el);
+      }
     });
 
   // Handle hive posts
