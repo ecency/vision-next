@@ -75,7 +75,7 @@ export function ManageAuthorities() {
                   <ProfilePreview username={account} />
                 </Popover>
 
-                <Button appearance="gray" onClick={() => handleRevoke(account)}>
+                <Button size="sm" appearance="gray" onClick={() => handleRevoke(account)}>
                   {i18next.t("manage-authorities.revoke")}
                 </Button>
               </div>
