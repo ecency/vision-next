@@ -37,58 +37,58 @@ export function ManageKey({ keyName }: Props) {
 
   return (
     <>
-      <div className="p-4 flex flex-col gap-2">
-        <div className="font-semibold">{i18next.t(`manage-authorities.${keyName}`)}</div>
+      <div className="flex flex-col gap-2">
+        <div className="font-semibold capitalize">{i18next.t(`manage-authorities.${keyName}`)}</div>
         {accountData?.[keyName].map((key) => (
           <div
             className="bg-gray-100 w-full rounded-lg p-2 border border-[--border-color] flex items-center justify-between"
             key={key[0]}
           >
             <div className="flex flex-col gap-2 w-full">
-              <div>
-                <div className="text-sm opacity-75">Public</div>
-                <div className="grid grid-cols-[1fr_max-content] items-center font-mono truncate">
-                  <div className="truncate">{key[0]}</div>
-                  <Button
-                    appearance="gray-link"
-                    size="sm"
-                    icon={<UilCopy />}
-                    onClick={() => copy(key[0])}
-                  />
-                </div>
-              </div>
+              <StyledTooltip
+                content={i18next.t("chat.public-key")}
+                className="grid grid-cols-[1fr_max-content] items-center font-mono truncate"
+              >
+                <div className="truncate">{key[0]}</div>
+                <Button
+                  appearance="gray-link"
+                  size="sm"
+                  icon={<UilCopy />}
+                  onClick={() => copy(key[0])}
+                />
+              </StyledTooltip>
 
-              <div>
-                <div className="text-sm opacity-75">Private</div>
-                <div className="grid grid-cols-[1fr_max-content] items-center font-mono truncate">
-                  {keys[key[0]] && <div className="truncate">{keys[key[0]]}</div>}
-                  {!keys[key[0]] && (
-                    <div className="truncate">
-                      ************************************************************************
-                    </div>
+              <StyledTooltip
+                content={i18next.t("chat.private-key")}
+                className="grid grid-cols-[1fr_max-content] items-center font-mono truncate"
+              >
+                {keys[key[0]] && <div className="truncate">{keys[key[0]]}</div>}
+                {!keys[key[0]] && (
+                  <div className="truncate">
+                    ************************************************************************
+                  </div>
+                )}
+                <div className="flex">
+                  {keys[key[0]] && (
+                    <Button
+                      appearance="gray-link"
+                      size="sm"
+                      icon={<UilCopy />}
+                      onClick={() => copy(keys[keyName])}
+                    />
                   )}
-                  <div className="flex">
-                    {keys[key[0]] && (
+                  {!keys[key[0]] && (
+                    <StyledTooltip content={i18next.t("manage-authorities.reveal-private-key")}>
                       <Button
                         appearance="gray-link"
                         size="sm"
-                        icon={<UilCopy />}
-                        onClick={() => copy(keys[keyName])}
+                        icon={<UilEye />}
+                        onClick={() => setShowReveal(true)}
                       />
-                    )}
-                    {!keys[key[0]] && (
-                      <StyledTooltip content={i18next.t("manage-authorities.reveal-private-key")}>
-                        <Button
-                          appearance="gray-link"
-                          size="sm"
-                          icon={<UilEye />}
-                          onClick={() => setShowReveal(true)}
-                        />
-                      </StyledTooltip>
-                    )}
-                  </div>
+                    </StyledTooltip>
+                  )}
                 </div>
-              </div>
+              </StyledTooltip>
             </div>
           </div>
         ))}
