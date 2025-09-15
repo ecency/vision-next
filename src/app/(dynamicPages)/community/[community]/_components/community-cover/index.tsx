@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 import defaults from "@/defaults.json";
@@ -13,8 +14,7 @@ import { formattedNumber } from "@/utils";
 import { Button } from "@ui/button";
 import Link from "next/link";
 import { CommunityStatItem } from "@/app/(dynamicPages)/community/[community]/_components/community-cover/community-stat-item";
-import { JoinCommunityModal } from "@/app/(dynamicPages)/community/[community]/_components";
-import { useSearchParams } from "next/navigation";
+import { messageSendSvg } from "@/assets/img/svg";
 
 setProxyBase(defaults.imageServer);
 
@@ -28,6 +28,15 @@ export function CommunityCover({ community, account }: Props) {
   const users = useGlobalStore((state) => state.users);
   const theme = useGlobalStore((state) => state.theme);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
+
+  const { data: channelData } = useQuery({
+    queryKey: ["private-api", "get-community-channel", community.name],
+    queryFn: () =>
+      fetch(`${defaults.base}/private-api/channel/${community.name}`).then((resp) => resp.json()),
+    retry: false,
+    refetchOnMount: false,
+  });
+  const hasCommunityChannel = !!channelData?.channel_id;
 
   const style = useMemo(() => {
     let img =
@@ -55,8 +64,6 @@ export function CommunityCover({ community, account }: Props) {
     [activeUser, users, community.name]
   );
 
-  const searchParams = useSearchParams();
-
   return (
     <div className="relative overflow-hidden rounded-2xl lg:max-h-[210px]">
       <div
@@ -78,15 +85,18 @@ export function CommunityCover({ community, account }: Props) {
 
       <div className="controls-holder absolute z-10 right-0 top-4 flex gap-2 px-2 md:px-4">
         <SubscriptionBtn community={community} />
+        {hasCommunityChannel && (
+          <Link href={`/chats/${community.name}/channel`}>
+            <Button iconPlacement="left" icon={messageSendSvg}>
+              {i18next.t("chat.view-community-channel")}
+            </Button>
+          </Link>
+        )}
         <Link href={`/publish?com=${community.name}`}>
           <Button>{i18next.t("community.post")}</Button>
         </Link>
       </div>
       {canUpdateCoverImage && <CommunityCoverEditImage account={account as FullAccount} />}
-      <JoinCommunityModal
-        community={community}
-        communityId={searchParams?.get("communityid") ?? ""}
-      />
     </div>
   );
 }

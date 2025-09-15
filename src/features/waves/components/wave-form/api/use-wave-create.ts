@@ -10,7 +10,6 @@ import { useWavesApi } from "./use-waves-api";
 import { useCommunityApi } from "./use-community-api";
 import { WaveEntry } from "@/entities";
 import { QueryIdentifiers } from "@/core/react-query";
-import { InfiniteQueryDataUtil } from "@ecency/ns-query";
 
 export function useWaveCreate() {
   const queryClient = useQueryClient();
@@ -56,13 +55,16 @@ export function useWaveCreate() {
 
       queryClient.setQueryData<InfiniteData<WaveEntry[]>>(
         [QueryIdentifiers.THREADS, host],
-        (data) =>
-          InfiniteQueryDataUtil.safeDataUpdate(data, (data) => {
-            return {
-              ...data,
-              pages: data.pages.map((page, index) => (index === 0 ? [entry, ...page] : page))
-            };
-          })
+        (data) => {
+          if (!data) {
+            return data;
+          }
+
+          return {
+            ...data,
+            pages: data.pages.map((page, index) => (index === 0 ? [entry, ...page] : page))
+          };
+        }
       );
     },
     onError: (e) => error(...formatError(e))

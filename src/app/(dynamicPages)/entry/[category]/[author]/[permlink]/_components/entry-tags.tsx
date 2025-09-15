@@ -9,9 +9,9 @@ export function EntryTags({ entry }: Props) {
   //const tags = (entry.json_metadata.tags && Array.from(new Set(entry.json_metadata.tags)))?.filter(
   //  (t) => !!t
   //);
-  const tags = entry.json_metadata.tags instanceof Array ? Array.from(new Set(entry.json_metadata.tags))?.filter(
-    (t) => !!t
-  ) : ['ecency']
+  const tags = Array.isArray(entry?.json_metadata?.tags)
+    ? Array.from(new Set(entry.json_metadata.tags)).filter(Boolean)
+    : ["ecency"];
 
   return (
     <div className="entry-tags mb-4">

@@ -1,4 +1,3 @@
-export * from "./join-community-modal";
 export * from "./community-card";
 export * from "./community-menu";
 export * from "./community-cover";
