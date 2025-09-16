@@ -28,6 +28,7 @@ import { PublishEditorImageViewer } from "../_editor-extensions";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
 import { usePublishLinksAttach } from "./use-publish-links-attach";
+import i18next from "i18next";
 
 export function usePublishEditor(onHtmlPaste: () => void) {
   const editor = useEditor({
@@ -40,7 +41,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     extensions: [
       StarterKit.configure() as AnyExtension,
       Placeholder.configure({
-        placeholder: "Tell your story.."
+        placeholder: i18next.t("submit.body-placeholder")
       }),
       TextAlign.configure({
         types: ["heading", "paragraph", "youtubeVideo"]

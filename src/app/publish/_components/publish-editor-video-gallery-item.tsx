@@ -101,7 +101,7 @@ export function PublishEditorVideoGalleryItem({
               content={
                 hasAlreadyPublishingVideo &&
                 video.status === "publish_manual" &&
-                "Only one video can be published in one post"
+                i18next.t("video-gallery.only-one-video")
               }
             >
               <Button

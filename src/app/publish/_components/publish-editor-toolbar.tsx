@@ -275,9 +275,15 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             onSelect={(e) => editor?.chain().focus().insertContent(e).run()}
           />
         </div>
-        <Button appearance="gray-link" size="sm" onClick={() => setShowGifPicker(true)}>
-          GIF
-        </Button>
+        <StyledTooltip content={i18next.t("publish.action-bar.gif")}>
+          <Button
+            appearance="gray-link"
+            size="sm"
+            onClick={() => setShowGifPicker(true)}
+          >
+            {i18next.t("publish.action-bar.gif")}
+          </Button>
+        </StyledTooltip>
 
         <StyledTooltip content={i18next.t("publish.action-bar.video")}>
           <LoginRequired>

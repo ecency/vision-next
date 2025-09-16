@@ -61,14 +61,14 @@ export function PublishEditorPollEditor() {
           name="details"
           i={0}
           onSelect={() => setTab("details")}
-          title="Details"
+          title={i18next.t("polls.details")}
         />
         <TabItem
           isSelected={tab === "settings"}
           name="settings"
           i={1}
           onSelect={() => setTab("settings")}
-          title="Settings"
+          title={i18next.t("polls.settings")}
         />
       </div>
 
@@ -132,7 +132,7 @@ export function PublishEditorPollEditor() {
                   <FormControl
                     type="text"
                     value={choice}
-                    placeholder={"Choice " + index}
+                    placeholder={i18next.t("polls.choice-placeholder", { n: index + 1 })}
                     onChange={(e) => {
                       const temp = [...poll?.choices];
                       temp[index] = e.target.value;
@@ -165,7 +165,12 @@ export function PublishEditorPollEditor() {
               onClick={() =>
                 setPoll({
                   ...poll,
-                  choices: [...poll.choices, "Choice " + poll.choices.length]
+                  choices: [
+                    ...poll.choices,
+                    i18next.t("polls.choice-placeholder", {
+                      n: poll.choices.length + 1
+                    })
+                  ]
                 })
               }
             >

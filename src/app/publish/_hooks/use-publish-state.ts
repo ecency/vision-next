@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { usePublishPollState } from "./use-publish-poll-state";
 import { ThreeSpeakVideo } from "@ecency/sdk";
+import i18next from "i18next";
 
 export function usePublishState() {
   const params = useParams();
@@ -149,8 +150,11 @@ export function usePublishState() {
     () =>
       !poll &&
       setPoll({
-        title: "My poll",
-        choices: ["Choice 1", "Choice 2"],
+        title: i18next.t("polls.default-title"),
+        choices: [
+          i18next.t("polls.choice-placeholder", { n: 1 }),
+          i18next.t("polls.choice-placeholder", { n: 2 })
+        ],
         voteChange: true,
         hideVotes: false,
         maxChoicesVoted: 1,

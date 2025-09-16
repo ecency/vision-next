@@ -3,14 +3,14 @@ import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
-import { success } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { error } from "highcharts";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { formatError } from "@/api/operations";
 
 export function useSaveDraftApi(draftId?: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -82,6 +82,6 @@ export function useSaveDraftApi(draftId?: string) {
 
       recordActivity();
     },
-    onError: () => error(i18next.t("g.server-error"))
+    onError: (err) => error(...formatError(err))
   });
 }

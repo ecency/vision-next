@@ -1,4 +1,4 @@
-import { Button, StyledTooltip } from "@/features/ui";
+import { Button } from "@/features/ui";
 import { UilArrowLeft, UilArrowRight, UilBold } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 
@@ -16,7 +16,7 @@ export function PublishEditorTableToolbar({ editor }: Props) {
         onClick={() => editor.chain().focus().addColumnBefore().run()}
         disabled={!editor.can().addColumnBefore()}
       >
-        Add column before
+        {i18next.t("publish.table-toolbar.add-column-before")}
       </Button>
       <Button
         appearance="gray-link"
@@ -24,7 +24,7 @@ export function PublishEditorTableToolbar({ editor }: Props) {
         onClick={() => editor.chain().focus().addColumnAfter().run()}
         disabled={!editor.can().addColumnAfter()}
       >
-        Add column after
+        {i18next.t("publish.table-toolbar.add-column-after")}
       </Button>
       <Button
         appearance="gray-link"
@@ -32,7 +32,7 @@ export function PublishEditorTableToolbar({ editor }: Props) {
         onClick={() => editor.chain().focus().deleteColumn().run()}
         disabled={!editor.can().deleteColumn()}
       >
-        Delete column
+        {i18next.t("publish.table-toolbar.delete-column")}
       </Button>
       <Button
         appearance="gray-link"
@@ -40,7 +40,7 @@ export function PublishEditorTableToolbar({ editor }: Props) {
         onClick={() => editor.chain().focus().addRowBefore().run()}
         disabled={!editor.can().addRowBefore()}
       >
-        Add row before
+        {i18next.t("publish.table-toolbar.add-row-before")}
       </Button>
       <Button
         appearance="gray-link"
@@ -48,7 +48,7 @@ export function PublishEditorTableToolbar({ editor }: Props) {
         onClick={() => editor.chain().focus().addRowAfter().run()}
         disabled={!editor.can().addRowAfter()}
       >
-        Add row after
+        {i18next.t("publish.table-toolbar.add-row-after")}
       </Button>
       <Button
         appearance="gray-link"
@@ -56,7 +56,7 @@ export function PublishEditorTableToolbar({ editor }: Props) {
         onClick={() => editor.chain().focus().deleteRow().run()}
         disabled={!editor.can().deleteRow()}
       >
-        Delete row
+        {i18next.t("publish.table-toolbar.delete-row")}
       </Button>
 
       <Button
@@ -65,7 +65,7 @@ export function PublishEditorTableToolbar({ editor }: Props) {
         onClick={() => editor.chain().focus().deleteTable().run()}
         disabled={!editor.can().deleteTable()}
       >
-        Delete table
+        {i18next.t("publish.table-toolbar.delete-table")}
       </Button>
     </div>
   );
