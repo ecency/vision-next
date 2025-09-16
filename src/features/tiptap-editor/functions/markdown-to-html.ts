@@ -59,7 +59,8 @@ export function markdownToHtml(html: string | undefined) {
           return content;
         }
 
-        element.setAttribute("dir", align);
+        element.setAttribute("data-align", align);
+        element.removeAttribute("dir");
         return element.outerHTML;
       }
     })

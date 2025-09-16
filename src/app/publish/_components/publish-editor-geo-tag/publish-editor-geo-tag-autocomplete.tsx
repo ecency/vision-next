@@ -42,8 +42,15 @@ export function PublishEditorGeoTagAutocomplete({
 
     return () => {
       autocomplete.removeEventListener("gmp-select", handler);
-      if (inputContainerRef.current?.contains(autocomplete)) {
-        inputContainerRef.current.removeChild(autocomplete);
+
+      if (typeof autocomplete.remove === "function") {
+        autocomplete.remove();
+      } else {
+        const parent = (autocomplete as HTMLElement | null)?.parentNode;
+
+        if (parent instanceof Node) {
+          parent.removeChild(autocomplete);
+        }
       }
     };
   }, [places]);
