@@ -27,6 +27,7 @@ import { PropsWithChildren, useState } from "react";
 import { useSaveDraftApi } from "../_api";
 import { useDefaultBeneficiary, usePublishState } from "../_hooks";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
+import { hasPublishContent } from "../_utils/content";
 
 interface Props {
   onPublish: () => void;
@@ -40,7 +41,7 @@ export function PublishActionBar({
   onBackToClassic,
   draftId
 }: PropsWithChildren<Props>) {
-  const { schedule: scheduleDate, clearAll, title } = usePublishState();
+  const { schedule: scheduleDate, clearAll, title, content } = usePublishState();
 
   const [showReward, setShowReward] = useState(false);
   const [showBeneficiaries, setShowBeneficiaries] = useState(false);
@@ -50,6 +51,8 @@ export function PublishActionBar({
   const pathname = usePathname();
 
   useDefaultBeneficiary();
+
+  const canContinue = !!title?.trim() && hasPublishContent(content);
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
   const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
@@ -65,7 +68,12 @@ export function PublishActionBar({
       <PublishActionBarCommunity />
       <div className="w-full sm:w-auto flex justify-end sm:justify-normal items-center gap-2 sm:gap-4">
         <LoginRequired>
-          <Button size="sm" appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
+          <Button
+            size="sm"
+            appearance={scheduleDate ? "primary" : "success"}
+            onClick={onPublish}
+            disabled={!canContinue}
+          >
             {i18next.t("g.continue")}
           </Button>
         </LoginRequired>
@@ -76,7 +84,7 @@ export function PublishActionBar({
             size="sm"
             disabled={isDraftPending || !title?.trim()}
             appearance="gray-link"
-            onClick={() => saveToDraft()}
+            onClick={() => saveToDraft({ showToast: true })}
           >
             {pathname?.includes("drafts")
               ? i18next.t("publish.update-draft")

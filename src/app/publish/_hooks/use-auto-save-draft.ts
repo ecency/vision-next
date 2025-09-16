@@ -48,7 +48,7 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
             if (isEqual(prevSnapshotRef.current, snapshot)) return;
             prevSnapshotRef.current = snapshot;
 
-            saveToDraft()
+            saveToDraft({ showToast: false })
                 .then(() => {
                     setLastSaved(new Date());
                 })

@@ -12,6 +12,10 @@ import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { formatError } from "@/api/operations";
 
+type SaveDraftOptions = {
+  showToast?: boolean;
+};
+
 export function useSaveDraftApi(draftId?: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
@@ -39,7 +43,7 @@ export function useSaveDraftApi(draftId?: string) {
 
   return useMutation({
     mutationKey: ["saveDraft-2.0", draftId],
-    mutationFn: async () => {
+    mutationFn: async ({ showToast = true }: SaveDraftOptions = {}) => {
       if (!activeUser?.username) {
         throw new Error("[Draft] No active user");
       }
@@ -73,10 +77,14 @@ export function useSaveDraftApi(draftId?: string) {
 
       if (draftId) {
         await updateDraft(username, draftId, title!, content!, tagJ!, draftMeta);
-        success(i18next.t("submit.draft-updated"));
+        if (showToast) {
+          success(i18next.t("submit.draft-updated"));
+        }
       } else {
         const resp = await addDraft(username, title!, content!, tagJ!, draftMeta);
-        success(i18next.t("submit.draft-saved"));
+        if (showToast) {
+          success(i18next.t("submit.draft-saved"));
+        }
 
         const { drafts } = resp;
         const draft = drafts[drafts?.length - 1];

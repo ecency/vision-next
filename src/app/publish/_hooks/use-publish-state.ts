@@ -199,7 +199,7 @@ export function usePublishState() {
     setReward("default");
     setBeneficiaries([]);
     setMetaDescription("");
-    setSchedule(undefined);
+    clearSchedule();
     setTags([]);
     setSelectedThumbnail("");
     setSkipAutoThumbnailSelection(false);
@@ -214,7 +214,7 @@ export function usePublishState() {
     setContent,
     setMetaDescription,
     setReward,
-    setSchedule,
+    clearSchedule,
     setTags,
     setTitle,
     setSelectedThumbnail,
