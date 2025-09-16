@@ -91,9 +91,19 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const attachVideo = usePublishVideoAttach(editor);
 
   useEffect(() => {
-    editor?.on("selectionUpdate", ({ editor }: any) =>
-      setIsFocusingTable(editor.isActive("table"))
-    );
+    if (!editor) {
+      return;
+    }
+
+    const handleSelectionUpdate = ({ editor: currentEditor }: any) => {
+      setIsFocusingTable(currentEditor.isActive("table"));
+    };
+
+    editor.on("selectionUpdate", handleSelectionUpdate);
+
+    return () => {
+      editor.off("selectionUpdate", handleSelectionUpdate);
+    };
   }, [editor]);
 
   const clearChain = useCallback(() => editor?.chain().focus().setTextAlign("left"), [editor]);

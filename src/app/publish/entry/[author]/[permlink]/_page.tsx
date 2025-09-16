@@ -8,7 +8,9 @@ import { postBodySummary } from "@ecency/render-helper";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { normalizePollSnapshot } from "@/app/publish/_utils/poll";
+import { useEntryPollExtractor } from "@/features/polls";
 import {
   PublishEntryActionBar,
   PublishEntryLoadingPost,
@@ -37,8 +39,15 @@ export default function Publish() {
     setSelectedThumbnail,
     setLocation,
     setEntryImages,
+    setPoll,
     clearAll
   } = usePublishState();
+
+  const entryPoll = useEntryPollExtractor(entry);
+
+  useEffect(() => {
+    setPoll(normalizePollSnapshot(entryPoll));
+  }, [entryPoll, setPoll]);
 
   useEntryDetector(
     (params?.author as string).replace("%40", ""),

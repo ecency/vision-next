@@ -40,6 +40,7 @@ export interface JsonPollMetadata {
   hide_votes: boolean;
   filters: { account_age: number };
   end_time: number;
+  max_choices_voted?: number;
 }
 
 export interface Entry {

@@ -9,6 +9,7 @@ import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { normalizePollSnapshot } from "@/app/publish/_utils/poll";
 import { PublishEditorHtmlWarning } from "../../_components/publish-editor-html-warning";
 import { PublishSuccessState } from "../../_components/publish-success-state";
 import { PublishDraftsNoDraft } from "./_components";
@@ -35,6 +36,7 @@ export default function PublishPage() {
     setMetaDescription,
     setSelectedThumbnail,
     setEntryImages,
+    setPoll,
     clearAll
   } = usePublishState();
 
@@ -54,6 +56,7 @@ export default function PublishPage() {
       setMetaDescription(draft.meta?.description ?? "");
       setSelectedThumbnail(draft.meta?.image?.[0] ?? "");
       setEntryImages(draft.meta?.image ?? []);
+      setPoll(normalizePollSnapshot(draft.meta?.poll));
     },
     () => setStep("no-draft")
   );
