@@ -98,7 +98,7 @@ export function useScheduleApi() {
         };
       }
 
-      const reblog = isCommunity(tags?.[0]) && isReblogToCommunity;
+      const reblog = Boolean(isCommunity(tags?.[0]) && isReblogToCommunity);
 
       try {
         await addSchedule(
