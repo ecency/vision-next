@@ -37,11 +37,13 @@ export function ManageKey({ keyName }: Props) {
 
   return (
     <>
-      <div className="flex flex-col gap-2">
-        <div className="font-semibold capitalize">{i18next.t(`manage-authorities.${keyName}`)}</div>
+      <div className="bg-gray-100 border border-[--border-color] rounded-lg flex flex-col">
+        <div className="text-xs opacity-50 uppercase p-2">
+          {i18next.t(`manage-authorities.${keyName}`)}
+        </div>
         {accountData?.[keyName].map((key) => (
           <div
-            className="bg-gray-100 w-full rounded-lg p-2 border border-[--border-color] flex items-center justify-between"
+            className=" w-full p-2 border-b last:border-0 border-[--border-color] flex items-center justify-between"
             key={key[0]}
           >
             <div className="flex flex-col gap-2 w-full">

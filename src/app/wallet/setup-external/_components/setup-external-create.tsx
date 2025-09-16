@@ -22,6 +22,7 @@ import {
   UilCheckCircle,
   UilLock,
   UilSpinner,
+  UilTransaction,
   UilUser
 } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -44,6 +45,12 @@ const steps = [
     title: "Tokens",
     icon: <UilBitcoinSign />,
     description: "List of tokens to be added to your wallet"
+  },
+  {
+    step: "sign",
+    title: "Sign changes",
+    icon: <UilTransaction />,
+    description: "Sign changes to initiate linking"
   },
   {
     step: "create",

@@ -2931,7 +2931,8 @@
       "title": "Posting active sessions"
     },
     "keys": {
-      "title": "Keys"
+      "title": "Keys",
+      "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below. When changing your password, enter the specific password or key you wish to replace: that key will then be updated."
     },
     "recovery": {
       "title": "Account recovery",
