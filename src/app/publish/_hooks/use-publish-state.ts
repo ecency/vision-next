@@ -11,7 +11,10 @@ import i18next from "i18next";
 
 export function usePublishState() {
   const params = useParams();
-  const persistent = useMemo(() => !params?.id, [params]);
+  const persistent = useMemo(() => {
+    const routeParams = params ?? {};
+    return Object.keys(routeParams).length === 0;
+  }, [params]);
 
   const [title, setTitle] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_title",

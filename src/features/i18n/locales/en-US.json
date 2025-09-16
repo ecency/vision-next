@@ -2798,6 +2798,9 @@
     "upload-started": "Uploading image...",
     "back-to-old": "Back to Classic Editor",
     "clear": "Clear",
+    "reward-settings": "Reward settings",
+    "beneficiaries": "Beneficiaries",
+    "meta-information": "Meta information",
     "schedule": "Schedule settings",
     "action-bar": {
       "bold": "Bold",

@@ -1,4 +1,5 @@
 import { PublishMetaInfoDialog } from "@/app/publish/_components/publish-meta-info-dialog";
+import { usePublishState } from "@/app/publish/_hooks";
 import { LoginRequired } from "@/features/shared";
 import { Button, StyledTooltip } from "@/features/ui";
 import {
@@ -69,13 +70,7 @@ export function PublishEntryActionBar({ onEdit }: Props) {
             <DropdownItemWithIcon
               onClick={() => setShowMetaInfo(true)}
               icon={<UilDocumentInfo />}
-              label="Meta information"
-            />
-            <div className="border-b border-[--border-color] h-[1px] w-full" />
-            <DropdownItemWithIcon
-              className="!text-red"
-              icon={<UilTrash />}
-              label={i18next.t("publish.clear")}
+              label={i18next.t("publish.meta-information")}
             />
           </DropdownMenu>
         </Dropdown>

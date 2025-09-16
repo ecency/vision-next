@@ -4,7 +4,6 @@ import { PublishEditor } from "@/app/publish/_components";
 import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { useEntryDetector } from "@/app/submit/_hooks";
 import { Entry } from "@/entities";
-import { delay } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
@@ -45,8 +44,6 @@ export default function Publish() {
     (params?.author as string).replace("%40", ""),
     params?.permlink as string,
     async (entry) => {
-      await delay(2000);
-
       if (entry) {
         clearAll();
         setEnrty(entry);

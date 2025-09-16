@@ -108,17 +108,17 @@ export function PublishActionBar({
             <DropdownItemWithIcon
               onClick={() => setShowReward(true)}
               icon={<UilMoneybag />}
-              label="Reward settings"
+              label={i18next.t("publish.reward-settings")}
             />
             <DropdownItemWithIcon
               onClick={() => setShowBeneficiaries(true)}
               icon={<UilUsersAlt />}
-              label="Beneficiaries"
+              label={i18next.t("publish.beneficiaries")}
             />
             <DropdownItemWithIcon
               onClick={() => setShowMetaInfo(true)}
               icon={<UilDocumentInfo />}
-              label="Meta information"
+              label={i18next.t("publish.meta-information")}
             />
             <div className="border-b border-[--border-color] h-[1px] w-full" />
             <DropdownItemWithIcon
