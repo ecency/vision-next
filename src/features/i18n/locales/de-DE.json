@@ -1526,7 +1526,8 @@
   },
   "gif-picker": {
     "filter-placeholder": "Filter",
-    "credits": "Powered by GIPHY"
+    "credits": "Powered by GIPHY",
+    "alt-text": "Animierte GIF-Vorschau"
   },
   "submit": {
     "page-title": "Create a post",
@@ -1613,6 +1614,7 @@
     "info-size": "File size:",
     "insert-video": "Insert",
     "insert-nsfw": "Insert as NSFW",
+    "only-one-video": "Nur ein Video kann in einem Beitrag veröffentlicht werden",
     "refresh": "Refresh to get updated status",
     "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
   },
@@ -2556,10 +2558,13 @@
     "poll": "Poll",
     "title": "Create a poll",
     "edit-title": "Edit a poll",
+    "details": "Details",
+    "settings": "Einstellungen",
     "title-placeholder": "Poll question",
     "choices": "Choices",
     "post-poll": "Post's poll",
     "choice-placeholder": "Choice {{n}}",
+    "default-title": "Meine Umfrage",
     "add-choice": "Add choice",
     "attach": "Attach to post",
     "update": "Update",
@@ -2806,10 +2811,20 @@
       "image": "Image",
       "link": "Link",
       "emoji": "Emoji",
+      "gif": "GIF",
       "video": "Video",
       "poll": "Poll",
       "align-hint": ".",
       "geotag": "Geo-Tag"
+    },
+    "table-toolbar": {
+      "add-column-before": "Spalte vorher hinzufügen",
+      "add-column-after": "Spalte hinzufügen nach",
+      "delete-column": "Spalte löschen",
+      "add-row-before": "Zeile vorher hinzufügen",
+      "add-row-after": "Zeile hinzufügen nach",
+      "delete-row": "Zeile löschen",
+      "delete-table": "Tabelle löschen"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
