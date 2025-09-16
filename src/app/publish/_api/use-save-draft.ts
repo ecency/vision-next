@@ -40,6 +40,12 @@ export function useSaveDraftApi(draftId?: string) {
   return useMutation({
     mutationKey: ["saveDraft-2.0", draftId],
     mutationFn: async () => {
+      if (!activeUser?.username) {
+        throw new Error("[Draft] No active user");
+      }
+
+      const username = activeUser.username;
+
       const tagJ = tags?.join(" ");
 
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
@@ -66,16 +72,16 @@ export function useSaveDraftApi(draftId?: string) {
       };
 
       if (draftId) {
-        await updateDraft(activeUser?.username!, draftId, title!, content!, tagJ!, draftMeta);
+        await updateDraft(username, draftId, title!, content!, tagJ!, draftMeta);
         success(i18next.t("submit.draft-updated"));
       } else {
-        const resp = await addDraft(activeUser?.username!, title!, content!, tagJ!, draftMeta);
+        const resp = await addDraft(username, title!, content!, tagJ!, draftMeta);
         success(i18next.t("submit.draft-saved"));
 
         const { drafts } = resp;
         const draft = drafts[drafts?.length - 1];
 
-        queryClient.setQueryData([QueryIdentifiers.DRAFTS, activeUser?.username], drafts);
+        queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
 
         router.push(`/publish/drafts/${draft._id}`);
       }

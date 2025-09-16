@@ -73,9 +73,10 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
 
   useMount(() => {
     const computedTags = Array.from(content?.match(/#\w+/gm) ?? []).map((tag) =>
-      tag.replace("#", "")
+      tag.replace("#", "").toLowerCase()
     );
-    const uniqueTagsSet = new Set([...(tags ?? []), ...computedTags]);
+    const normalizedExistingTags = (tags ?? []).map((tag) => tag.toLowerCase());
+    const uniqueTagsSet = new Set([...normalizedExistingTags, ...computedTags]);
     setTags(Array.from(uniqueTagsSet).slice(0, 10));
   });
 

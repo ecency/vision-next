@@ -71,16 +71,18 @@ export function PublishActionBar({
         </LoginRequired>
         {children}
 
-        <Button
-          size="sm"
-          disabled={isDraftPending || !title?.trim()}
-          appearance="gray-link"
-          onClick={() => saveToDraft()}
-        >
-          {pathname?.includes("drafts")
-            ? i18next.t("publish.update-draft")
-            : i18next.t("publish.save-draft")}
-        </Button>
+        <LoginRequired>
+          <Button
+            size="sm"
+            disabled={isDraftPending || !title?.trim()}
+            appearance="gray-link"
+            onClick={() => saveToDraft()}
+          >
+            {pathname?.includes("drafts")
+              ? i18next.t("publish.update-draft")
+              : i18next.t("publish.save-draft")}
+          </Button>
+        </LoginRequired>
         {!pathname?.includes("drafts") && (
           <StyledTooltip content={i18next.t("publish.clear")}>
             <Button

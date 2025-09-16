@@ -110,7 +110,7 @@ export function useScheduleApi() {
           jsonMeta,
           options,
           schedule.toISOString(),
-          isReblogToCommunity!
+          reblog
         );
         await recordActivity();
       } catch (e) {

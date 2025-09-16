@@ -25,6 +25,7 @@ export function PublishEditorVideoGallery({
   filterOnly
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const username = activeUser?.username;
 
   const [tab, setTab] = useState("all");
   const [language, setLanguage] = useState(i18next.language);
@@ -69,8 +70,9 @@ export function PublishEditorVideoGallery({
   );
 
   const { data, refetch, isFetching } = useQuery({
-    ...ThreeSpeakIntegration.queries.getAccountVideosQueryOptions(activeUser?.username),
-    refetchInterval: 60000,
+    ...ThreeSpeakIntegration.queries.getAccountVideosQueryOptions(username),
+    enabled: !!username && show,
+    refetchInterval: show ? 60000 : false,
     select: useCallback(
       (data: ThreeSpeakVideo[]) =>
         data?.filter(({ status }) => (tab === "all" ? true : status === tab)),
@@ -108,7 +110,7 @@ export function PublishEditorVideoGallery({
             appearance="gray-link"
             icon={<UilSync className="-scale-x-[1]" />}
             size="sm"
-            disabled={isFetching}
+            disabled={!username || isFetching}
             className={isFetching ? "animate-spin" : ""}
             onClick={() => refetch()}
           />
