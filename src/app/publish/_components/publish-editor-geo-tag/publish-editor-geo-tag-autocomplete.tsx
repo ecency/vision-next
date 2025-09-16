@@ -19,12 +19,14 @@ export function PublishEditorGeoTagAutocomplete({
   const [placeAutocomplete, setPlaceAutocomplete] = useState<any>(null);
 
   useEffect(() => {
-    if (!places || !inputContainerRef.current) return;
+    const container = inputContainerRef.current;
+
+    if (!places || !container) return;
 
     const autocomplete = new (places as any).PlaceAutocompleteElement();
     setPlaceAutocomplete(autocomplete);
 
-    inputContainerRef.current.appendChild(autocomplete);
+    container.appendChild(autocomplete);
 
     const handler = async ({ placePrediction }: any) => {
       const place = placePrediction.toPlace();
@@ -44,13 +46,18 @@ export function PublishEditorGeoTagAutocomplete({
       autocomplete.removeEventListener("gmp-select", handler);
 
       if (typeof autocomplete.remove === "function") {
-        autocomplete.remove();
-      } else {
-        const parent = (autocomplete as HTMLElement | null)?.parentNode;
-
-        if (parent instanceof Node) {
-          parent.removeChild(autocomplete);
+        try {
+          autocomplete.remove();
+          return;
+        } catch (e) {
+          // If the element was already detached by the modal cleanup, fall back
+          // to removing it from the container manually below.
+          console.error("Failed to remove autocomplete element", e);
         }
+      }
+
+      if (container?.contains(autocomplete)) {
+        container.removeChild(autocomplete);
       }
     };
   }, [places]);
