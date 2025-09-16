@@ -718,13 +718,13 @@
     "calculating-in": "Hisoblanmoqda",
     "advanced": {
       "history": "Tarix",
-      "stake": "Order book",
-      "pairs": "Pairs",
-      "form": "Order form",
-      "open-orders": "Open",
-      "completed-orders": "Completed",
+      "stake": "Buyurtmalar kitobi",
+      "pairs": "Juftliklar",
+      "form": "Buyurtma shakli",
+      "open-orders": "Ochiq",
+      "completed-orders": "Yakunlangan",
       "status": "Status",
-      "all-orders": "All",
+      "all-orders": "Barchasi",
       "active": "Active",
       "view-details": "View details",
       "chart": "Chart",
@@ -788,66 +788,66 @@
       "devices": "Devices",
       "referrers": "Referrers",
       "warn": "Stats are collecting only in Ecency's applications",
-      "promotion-title": "Want more views and reads?",
-      "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
-      "try-now": "Try now"
+      "promotion-title": "Ko‘proq ko‘rishlar va o‘qishlarni xohlaysizmi?",
+      "promotion-subtitle": "Postingizni targ‘ib qilish va kengroq auditoriyaga yetib borish uchun Ecency Imtiyozlaridan foydalaning.",
+      "try-now": "Hoziroq sinab ko'rish"
     },
-    "listen": "Listen"
+    "listen": "Tinglash"
   },
   "edit-history": {
-    "title": "Edit History",
-    "show-diff": "Show Difference",
-    "version": "Version {{n}}"
+    "title": "Tarixni Tahrirlash",
+    "show-diff": "Farqni Ko'rsatish",
+    "version": "Variant {{n}}"
   },
   "similar-entries": {
-    "title": "Read next"
+    "title": "Keyingisini o'qish"
   },
   "comment": {
-    "body-placeholder": "Write your reply here",
-    "preview": "Preview",
-    "success": "Your reply created successfully!"
+    "body-placeholder": "Xabarni kiriting",
+    "preview": "Ko'rish",
+    "success": "Sizning javobingiz muvaffaqiyatli yaratildi!"
   },
   "discussion": {
-    "join": "Join the conversation now",
-    "btn-join": "Join",
-    "replies": "1 Comment",
-    "n-replies": "{{n}} Comments",
-    "order": "Sort Order",
-    "order-trending": "Trending",
-    "order-reputation": "Reputation",
-    "order-votes": "Votes",
-    "order-created": "Age",
-    "read-more": "...read more replies...",
-    "reveal-muted": "Muted author - Reveal comment",
-    "reveal-muted-long-description": "Show additional replies, including those that may contain offensive content",
-    "reveal": "Reveal comment",
-    "no-conversation": "No conversation yet, be first to reply",
-    "start-conversation": "Start conversation",
-    "join-hint": "Become part of huge Hive community and earn rewards for activity"
+    "join": "Suhbatga qo'shilish",
+    "btn-join": "Qo'shilish",
+    "replies": "1 Izoh",
+    "n-replies": "{{n}} izohlar",
+    "order": "Tartiblash tartibi",
+    "order-trending": "Trendda",
+    "order-reputation": "Reputatsiya",
+    "order-votes": "Ovozlar",
+    "order-created": "Yosh",
+    "read-more": "....javoblarni o'qish...",
+    "reveal-muted": "Bloklangan muallif- Izhohni ko'rsatish",
+    "reveal-muted-long-description": "Barcha jumladan nojo'ya javoblarni ham ko'rsatish",
+    "reveal": "Izhohni ko'rsatish",
+    "no-conversation": "Hali suhbat yo‘q, birinchi bo‘lib javob yozing",
+    "start-conversation": "Suhbatni boshlash",
+    "join-hint": "Katta Hive hamjamiyatining bir qismiga aylaning va faktivligingiz uchun mukofotlar oling"
   },
   "community": {
-    "page-description": "{{f}} topics",
-    "subscribe": "Join",
-    "subscribed": "Joined",
-    "unsubscribe": "Leave",
-    "post": "New Post",
-    "posts": "Posts",
-    "subscribers": "Members",
-    "activities": "Activities",
-    "roles-title": "User Roles",
-    "roles-account": "Account",
-    "roles-role": "Role",
-    "roles-account-title": "Title",
-    "roles-add": "Add User",
-    "already-joined-community": "You have already joined this community"
+    "page-description": "{{f}} mavzular",
+    "subscribe": "Qo'shilish",
+    "subscribed": "Qo'shildi",
+    "unsubscribe": "Chiqish",
+    "post": "Yangi post",
+    "posts": "Postlar",
+    "subscribers": "A'zolar",
+    "activities": "Faoliyatlar",
+    "roles-title": "Foydalanuvchi Rollari",
+    "roles-account": "Akkaunt",
+    "roles-role": "Rol",
+    "roles-account-title": "Sarlavha",
+    "roles-add": "Foydalanuvchi qo‘shish",
+    "already-joined-community": "Siz bu guruhga allaqachon qo'shilgansiz"
   },
   "community-cover": {
-    "rewards": "rewards",
-    "authors": "posters",
-    "lang": "language",
-    "cover-image": "Community cover image",
-    "cover-image-edit": "Edit cover image",
-    "cover-image-updated": "Cover image updated!"
+    "rewards": "mukofotlar",
+    "authors": "posterlar",
+    "lang": "til",
+    "cover-image": "Guruh sahifasidagi sur'at",
+    "cover-image-edit": "Sahifadagi rasmni tahrirlash",
+    "cover-image-updated": "Rasm yangilandi!"
   },
   "community-card": {
     "description": "Description",
