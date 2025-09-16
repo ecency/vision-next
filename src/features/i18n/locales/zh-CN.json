@@ -1526,7 +1526,8 @@
   },
   "gif-picker": {
     "filter-placeholder": "Filter",
-    "credits": "Powered by GIPHY"
+    "credits": "Powered by GIPHY",
+    "alt-text": "动画的 GIF 预览"
   },
   "submit": {
     "page-title": "Create a post",
@@ -1613,6 +1614,7 @@
     "info-size": "File size:",
     "insert-video": "Insert",
     "insert-nsfw": "Insert as NSFW",
+    "only-one-video": "只能在一个帖子中发布一个视频",
     "refresh": "Refresh to get updated status",
     "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
   },
@@ -2556,10 +2558,13 @@
     "poll": "Poll",
     "title": "Create a poll",
     "edit-title": "Edit a poll",
+    "details": "详细信息",
+    "settings": "设置",
     "title-placeholder": "Poll question",
     "choices": "Choices",
     "post-poll": "Post's poll",
     "choice-placeholder": "Choice {{n}}",
+    "default-title": "我的投票",
     "add-choice": "Add choice",
     "attach": "Attach to post",
     "update": "Update",
@@ -2806,10 +2811,20 @@
       "image": "Image",
       "link": "Link",
       "emoji": "Emoji",
+      "gif": "GIF",
       "video": "Video",
       "poll": "Poll",
       "align-hint": "Only paragraph and images can be aligned",
       "geotag": "Geo 标签"
+    },
+    "table-toolbar": {
+      "add-column-before": "在此之前添加列",
+      "add-column-after": "在此后添加列",
+      "delete-column": "删除列",
+      "add-row-before": "添加行前",
+      "add-row-after": "添加行后",
+      "delete-row": "删除行",
+      "delete-table": "删除表"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
