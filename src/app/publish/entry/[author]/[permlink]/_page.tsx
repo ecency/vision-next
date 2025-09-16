@@ -75,7 +75,7 @@ export default function Publish() {
                 <span>{i18next.t("publish.edit-mode")}</span>
               </div>
             </div>
-            <PublishEntryActionBar onEdit={() => setStep("validation")} />
+            <PublishEntryActionBar entry={entry} onEdit={() => setStep("validation")} />
             <PublishEditor editor={editor} />
           </>
         )}
@@ -88,7 +88,7 @@ export default function Publish() {
         )}
         {step === "no-post" && <PublishEntryNoPost />}
         {step === "loading" && <PublishEntryLoadingPost />}
-        {step === "updated" && <PublishEntrySuccessState />}
+        {step === "updated" && <PublishEntrySuccessState entry={entry} />}
       </AnimatePresence>
       <PublishEditorHtmlWarning show={showHtmlWarning} setShow={setShowHtmlWarning} />
     </>

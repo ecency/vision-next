@@ -12,6 +12,7 @@ interface Props {
 
 export function PublishSuccessState({ step, setEditStep }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const profileHref = activeUser ? `/@${activeUser.username}/posts` : "/";
 
   return (
     <motion.div
@@ -40,7 +41,7 @@ export function PublishSuccessState({ step, setEditStep }: Props) {
               {i18next.t("publish.back-to-editor")}
             </Button>
           </Link>
-          <Link href={`/@${activeUser?.username}/posts`}>
+          <Link href={profileHref}>
             <Button size="sm">{i18next.t("publish.go-to-posts")}</Button>
           </Link>
         </div>
