@@ -1526,7 +1526,8 @@
   },
   "gif-picker": {
     "filter-placeholder": "Filter",
-    "credits": "Powered by GIPHY"
+    "credits": "Powered by GIPHY",
+    "alt-text": "Geanimeerd GIF voorbeeld"
   },
   "submit": {
     "page-title": "Create a post",
@@ -1613,6 +1614,7 @@
     "info-size": "File size:",
     "insert-video": "Insert",
     "insert-nsfw": "Insert as NSFW",
+    "only-one-video": "Er kan slechts één video in één bericht worden gepubliceerd",
     "refresh": "Refresh to get updated status",
     "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
   },
@@ -2556,10 +2558,13 @@
     "poll": "Poll",
     "title": "Create a poll",
     "edit-title": "Edit a poll",
+    "details": "Beschrijving",
+    "settings": "Instellingen",
     "title-placeholder": "Poll question",
     "choices": "Choices",
     "post-poll": "Post's poll",
     "choice-placeholder": "Choice {{n}}",
+    "default-title": "Mijn peiling",
     "add-choice": "Add choice",
     "attach": "Attach to post",
     "update": "Update",
@@ -2806,10 +2811,20 @@
       "image": "Image",
       "link": "Link",
       "emoji": "Emoji",
+      "gif": "GIF",
       "video": "Video",
       "poll": "Poll",
       "align-hint": "Only paragraph and images can be aligned",
       "geotag": "Geo tag"
+    },
+    "table-toolbar": {
+      "add-column-before": "Kolom toevoegen vóór",
+      "add-column-after": "Kolom toevoegen na",
+      "delete-column": "Kolom verwijderen",
+      "add-row-before": "Rij toevoegen vóór",
+      "add-row-after": "Rij toevoegen na",
+      "delete-row": "Rij verwijderen",
+      "delete-table": "Tabel verwijderen"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
