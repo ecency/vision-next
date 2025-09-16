@@ -1526,7 +1526,8 @@
   },
   "gif-picker": {
     "filter-placeholder": "Filter",
-    "credits": "Powered by GIPHY"
+    "credits": "Powered by GIPHY",
+    "alt-text": "Visualização do GIF animada"
   },
   "submit": {
     "page-title": "Create a post",
@@ -1613,6 +1614,7 @@
     "info-size": "File size:",
     "insert-video": "Insert",
     "insert-nsfw": "Insert as NSFW",
+    "only-one-video": "Apenas um vídeo pode ser publicado em uma postagem",
     "refresh": "Refresh to get updated status",
     "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
   },
@@ -2556,10 +2558,13 @@
     "poll": "Poll",
     "title": "Create a poll",
     "edit-title": "Edit a poll",
+    "details": "detalhes",
+    "settings": "Confirgurações",
     "title-placeholder": "Poll question",
     "choices": "Choices",
     "post-poll": "Post's poll",
     "choice-placeholder": "Choice {{n}}",
+    "default-title": "Minha enquete",
     "add-choice": "Add choice",
     "attach": "Attach to post",
     "update": "Update",
@@ -2806,10 +2811,20 @@
       "image": "Image",
       "link": "Link",
       "emoji": "Emoji",
+      "gif": "GIF",
       "video": "Video",
       "poll": "Poll",
       "align-hint": "Only paragraph and images can be aligned",
       "geotag": "Tag Geo"
+    },
+    "table-toolbar": {
+      "add-column-before": "Adicionar coluna antes",
+      "add-column-after": "Adicionar coluna depois",
+      "delete-column": "Excluir coluna",
+      "add-row-before": "Adicionar linha antes",
+      "add-row-after": "Adicionar linha depois",
+      "delete-row": "Excluir linha",
+      "delete-table": "Apagar tabela"
     },
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
