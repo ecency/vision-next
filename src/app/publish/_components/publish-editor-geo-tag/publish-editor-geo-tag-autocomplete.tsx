@@ -56,8 +56,10 @@ export function PublishEditorGeoTagAutocomplete({
         }
       }
 
-      if (container?.contains(autocomplete)) {
-        container.removeChild(autocomplete);
+      const parentNode = autocomplete.parentNode as Node | null;
+
+      if (parentNode?.contains(autocomplete)) {
+        parentNode.removeChild(autocomplete);
       }
     };
   }, [places]);
