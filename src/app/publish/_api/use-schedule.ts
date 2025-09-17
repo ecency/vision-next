@@ -1,4 +1,5 @@
 import { addSchedule } from "@/api/private-api";
+import { formatError } from "@/api/operations";
 import { getPostHeaderQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { CommentOptions, Entry, FullAccount, RewardType } from "@/entities";
@@ -114,13 +115,12 @@ export function useScheduleApi() {
         );
         await recordActivity();
       } catch (e) {
-        if (e instanceof AxiosError) {
-          if (e.response?.data?.message) {
-            error(e.response?.data?.message);
-          } else {
-            error(i18next.t("g.server-error"));
-          }
-        }
+        const [formattedMessage] = formatError(e);
+        const message =
+          (e instanceof AxiosError && e.response?.data?.message) ||
+          formattedMessage ||
+          i18next.t("g.server-error");
+        error(message);
         // Rethrow so callers can handle failure correctly
         throw e;
       }
