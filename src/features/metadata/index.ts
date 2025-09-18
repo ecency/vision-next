@@ -48,6 +48,13 @@ export namespace PagesMetadataGenerator {
     };
   }
 
+  function buildForPublish(): Metadata {
+    return {
+      title: i18next.t("publish.get-started.title"),
+      description: i18next.t("publish.get-started.posting-text")
+    };
+  }
+
   function buildForSubmit(): Metadata {
     return {
       title: i18next.t("submit.page-title"),
@@ -122,6 +129,7 @@ export namespace PagesMetadataGenerator {
     if (name === "contributors") return buildForContributors();
     if (name === "decks") return buildForDecks();
     if (name === "discover") return buildForDiscover();
+    if (name === "publish") return buildForPublish();
     if (name === "draft") return buildForSubmit();
     if (name === "submit") return buildForSubmit();
     if (name === "faq") return buildForFaq();

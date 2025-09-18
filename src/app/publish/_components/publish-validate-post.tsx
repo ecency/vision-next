@@ -2,7 +2,8 @@
 
 import { TagSelector } from "@/app/submit/_components";
 import { Alert, Button, FormControl } from "@/features/ui";
-import { handleAndReportError } from "@/features/shared";
+import { formatError } from "@/api/operations";
+import { handleAndReportError, error as feedbackError } from "@/features/shared";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
@@ -15,6 +16,7 @@ import { PublishScheduleDialog } from "./publish-schedule-dialog";
 import { PublishValidatePostMeta } from "./publish-validate-post-meta";
 import { PublishValidatePostThumbnailPicker } from "./publish-validate-post-thumbnail-picker";
 import { isCommunity } from "@/utils";
+import { hasPublishContent } from "../_utils/content";
 
 interface Props {
   onClose: () => void;
@@ -32,7 +34,8 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     setMetaDescription,
     isReblogToCommunity,
     setIsReblogToCommunity,
-    beneficiaries
+    beneficiaries,
+    title
   } = usePublishState();
 
   const [showSchedule, setShowSchedule] = useState(false);
@@ -49,6 +52,16 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
   const { mutateAsync: scheduleNow, isPending: isSchedulePending } = useScheduleApi();
 
   const submit = useCallback(async () => {
+    if (!title?.trim()) {
+      feedbackError(i18next.t("submit.empty-title-alert"));
+      return;
+    }
+
+    if (!hasPublishContent(content)) {
+      feedbackError(i18next.t("submit.empty-body-alert"));
+      return;
+    }
+
     try {
       if (schedule) {
         await scheduleNow(schedule!);
@@ -62,18 +75,30 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
 
       clearAll();
     } catch (err) {
+      const [message] = formatError(err);
       const handled = handleAndReportError(err, "publish-post");
-      if (!handled) {
+      if (handled) {
+        feedbackError(message || i18next.t("g.server-error"));
+      } else {
         throw err;
       }
     }
-  }, [clearAll, onSuccess, publishNow, schedule, scheduleNow]);
+  }, [
+    clearAll,
+    content,
+    onSuccess,
+    publishNow,
+    schedule,
+    scheduleNow,
+    title
+  ]);
 
   useMount(() => {
-    const computedTags = Array.from(content?.match(/#\w+/gm) ?? []).map((tag) =>
-      tag.replace("#", "")
-    );
-    const uniqueTagsSet = new Set([...(tags ?? []), ...computedTags]);
+    const computedTags = Array.from(
+      content ? content.matchAll(/#([\p{L}\p{N}\p{M}_-]+)/gu) : []
+    ).map(([, tag]) => tag.toLowerCase());
+    const normalizedExistingTags = (tags ?? []).map((tag) => tag.toLowerCase());
+    const uniqueTagsSet = new Set([...normalizedExistingTags, ...computedTags]);
     setTags(Array.from(uniqueTagsSet).slice(0, 10));
   });
 

@@ -7,6 +7,7 @@ import { error, GalleryDialog, LoginRequired } from "@/features/shared";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker, StyledTooltip } from "@/features/ui";
 import { useEditorState } from "@tiptap/react";
+import { YOUTUBE_REGEX } from "@/features/tiptap-editor";
 import {
   UilAlignCenter,
   UilAlignJustify,
@@ -69,7 +70,10 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
     editor,
     selector: ({ editor }) => ({
       canAlign:
-        editor?.isActive("paragraph") || editor?.isActive("image") || editor?.isActive("heading")
+        editor?.isActive("paragraph") ||
+        editor?.isActive("image") ||
+        editor?.isActive("heading") ||
+        editor?.isActive("youtubeVideo")
     })
   });
 
@@ -87,9 +91,19 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const attachVideo = usePublishVideoAttach(editor);
 
   useEffect(() => {
-    editor?.on("selectionUpdate", ({ editor }: any) =>
-      setIsFocusingTable(editor.isActive("table"))
-    );
+    if (!editor) {
+      return;
+    }
+
+    const handleSelectionUpdate = ({ editor: currentEditor }: any) => {
+      setIsFocusingTable(currentEditor.isActive("table"));
+    };
+
+    editor.on("selectionUpdate", handleSelectionUpdate);
+
+    return () => {
+      editor.off("selectionUpdate", handleSelectionUpdate);
+    };
   }, [editor]);
 
   const clearChain = useCallback(() => editor?.chain().focus().setTextAlign("left"), [editor]);
@@ -271,9 +285,15 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             onSelect={(e) => editor?.chain().focus().insertContent(e).run()}
           />
         </div>
-        <Button appearance="gray-link" size="sm" onClick={() => setShowGifPicker(true)}>
-          GIF
-        </Button>
+        <StyledTooltip content={i18next.t("publish.action-bar.gif")}>
+          <Button
+            appearance="gray-link"
+            size="sm"
+            onClick={() => setShowGifPicker(true)}
+          >
+            {i18next.t("publish.action-bar.gif")}
+          </Button>
+        </StyledTooltip>
 
         <StyledTooltip content={i18next.t("publish.action-bar.video")}>
           <LoginRequired>
@@ -438,7 +458,17 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           show={showVideoLink}
           setShow={setShowVideoLink}
           onAdd={(e) => {
-            clearChain().insertContent(`![](${e})`).run();
+            const match = e.match(YOUTUBE_REGEX);
+            if (match) {
+              clearChain()
+                .setYoutubeVideo({
+                  src: e,
+                  thumbnail: `https://img.youtube.com/vi/${match[1]}/0.jpg`
+                })
+                .run();
+            } else {
+              clearChain().insertContent(`![](${e})`).run();
+            }
             setShowVideoLink(false);
           }}
         />

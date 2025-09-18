@@ -61,7 +61,7 @@ export function PublishGifPickerDialog({ show, setShow, onPick }: Props) {
                 width={200}
                 height={200}
                 src={gif?.images?.fixed_height?.url}
-                alt="can't fetch :("
+                alt={gif?.title || i18next.t("gif-picker.alt-text")}
                 onClick={() => itemClicked(gif)}
               />
             </div>

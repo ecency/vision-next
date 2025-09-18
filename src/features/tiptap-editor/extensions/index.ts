@@ -5,3 +5,4 @@ export * from "./three-speak-video-extension";
 export * from "./hive-post-extension";
 export * from "./bubble-menu-extension";
 export * from "./safe-link-extension";
+export * from "./youtube-video-extension";

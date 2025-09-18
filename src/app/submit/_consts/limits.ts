@@ -1,0 +1,3 @@
+export const SUBMIT_TITLE_MAX_LENGTH = 255;
+export const SUBMIT_TAG_MAX_LENGTH = 15;
+export const SUBMIT_DESCRIPTION_MAX_LENGTH = 350;

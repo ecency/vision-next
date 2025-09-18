@@ -1,11 +1,13 @@
+"use client";
+
 import defaults from "@/defaults.json";
 import { PropsWithChildren, useMemo } from "react";
 import { ChatContextProvider } from "@ecency/ns-query";
-import {getAccountFullQuery, useClientActiveUser} from "@/api/queries";
+import { getAccountFullQuery, useClientActiveUser } from "@/api/queries";
 import { getAccessToken } from "@/utils";
 
 export function ChatProvider(props: PropsWithChildren) {
-  const activeUser = useClientActiveUser()
+  const activeUser = useClientActiveUser();
 
   const { data: activeUserAccount } = getAccountFullQuery(activeUser?.username).useClientQuery();
   const accessToken = useMemo(

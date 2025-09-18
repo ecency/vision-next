@@ -6,20 +6,29 @@ export function useEntryPollExtractor(entry?: Entry | null) {
   return useMemo(() => {
     if (
       entry &&
+      entry.json_metadata &&
       typeof entry.json_metadata === "object" &&
-      "content_type" in entry.json_metadata &&
       (entry.json_metadata as JsonPollMetadata).content_type === "poll"
     ) {
+      const pollMetadata = entry.json_metadata as JsonPollMetadata;
+      const choices = Array.isArray(pollMetadata?.choices) ? pollMetadata.choices : [];
+      const endTime = new Date(Number(pollMetadata?.end_time) * 1000);
+      const maxChoices =
+        typeof pollMetadata?.max_choices_voted === "number" && pollMetadata.max_choices_voted > 0
+          ? pollMetadata.max_choices_voted
+          : Math.min(Math.max(1, choices.length), choices.length || 1);
+
       return {
-        title: (entry.json_metadata as JsonPollMetadata)?.question,
-        choices: (entry.json_metadata as JsonPollMetadata)?.choices,
-        endTime: new Date((entry.json_metadata as JsonPollMetadata)?.end_time * 1000),
-        interpretation: (entry.json_metadata as JsonPollMetadata)?.preferred_interpretation,
-        voteChange: (entry.json_metadata as JsonPollMetadata)?.vote_change ?? true,
-        hideVotes: (entry.json_metadata as JsonPollMetadata)?.hide_votes ?? false,
+        title: pollMetadata?.question ?? "",
+        choices,
+        endTime,
+        interpretation: pollMetadata?.preferred_interpretation as PollSnapshot["interpretation"],
+        voteChange: pollMetadata?.vote_change ?? true,
+        hideVotes: pollMetadata?.hide_votes ?? false,
         filters: {
-          accountAge: (entry.json_metadata as JsonPollMetadata)?.filters?.account_age
-        }
+          accountAge: pollMetadata?.filters?.account_age ?? 0
+        },
+        maxChoicesVoted: maxChoices
       } as PollSnapshot;
     }
     return undefined;

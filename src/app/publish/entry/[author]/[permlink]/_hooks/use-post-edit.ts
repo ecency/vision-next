@@ -12,6 +12,7 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 
 export function usePostEdit(entry: Entry | undefined) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -52,7 +53,7 @@ export function usePostEdit(entry: Entry | undefined) {
         .builder()
         .extend(entry)
         // It should select filled description or if its empty or null/undefined then get auto summary
-        .withSummary(description || postBodySummary(body))
+        .withSummary(description || postBodySummary(body, SUBMIT_DESCRIPTION_MAX_LENGTH))
         .withTags(tags)
         .withPoll()
         .withSelectedThumbnail(selectedThumbnail);

@@ -2,7 +2,9 @@ const { withSentryConfig } = require("@sentry/nextjs");
 
 const path = require("path");
 const withPWA = require("next-pwa")({
-  dest: "public"
+  dest: "public",
+  // Raise the max size to precache large chunks:
+  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");

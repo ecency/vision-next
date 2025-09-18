@@ -27,18 +27,21 @@ import { PropsWithChildren, useState } from "react";
 import { useSaveDraftApi } from "../_api";
 import { useDefaultBeneficiary, usePublishState } from "../_hooks";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
+import { hasPublishContent } from "../_utils/content";
 
 interface Props {
   onPublish: () => void;
   onBackToClassic: () => void;
+  draftId?: string;
 }
 
 export function PublishActionBar({
   onPublish,
   children,
-  onBackToClassic
+  onBackToClassic,
+  draftId
 }: PropsWithChildren<Props>) {
-  const { schedule: scheduleDate, clearAll, title } = usePublishState();
+  const { schedule: scheduleDate, clearAll, title, content } = usePublishState();
 
   const [showReward, setShowReward] = useState(false);
   const [showBeneficiaries, setShowBeneficiaries] = useState(false);
@@ -49,7 +52,9 @@ export function PublishActionBar({
 
   useDefaultBeneficiary();
 
-  const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi();
+  const canContinue = !!title?.trim() && hasPublishContent(content);
+
+  const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
   const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
 
   return (
@@ -63,30 +68,39 @@ export function PublishActionBar({
       <PublishActionBarCommunity />
       <div className="w-full sm:w-auto flex justify-end sm:justify-normal items-center gap-2 sm:gap-4">
         <LoginRequired>
-          <Button size="sm" appearance={scheduleDate ? "primary" : "success"} onClick={onPublish}>
+          <Button
+            size="sm"
+            appearance={scheduleDate ? "primary" : "success"}
+            onClick={onPublish}
+            disabled={!canContinue}
+          >
             {i18next.t("g.continue")}
           </Button>
         </LoginRequired>
         {children}
 
-        <Button
-          size="sm"
-          disabled={isDraftPending || !title?.trim()}
-          appearance="gray-link"
-          onClick={() => saveToDraft()}
-        >
-          {pathname?.includes("drafts")
-            ? i18next.t("publish.update-draft")
-            : i18next.t("publish.save-draft")}
-        </Button>
-        <StyledTooltip content={i18next.t("publish.clear")}>
+        <LoginRequired>
           <Button
-            noPadding={true}
+            size="sm"
+            disabled={isDraftPending || !title?.trim()}
             appearance="gray-link"
-            icon={<UilTrash />}
-            onClick={clearAll}
-          />
-        </StyledTooltip>
+            onClick={() => saveToDraft({ showToast: true })}
+          >
+            {pathname?.includes("drafts")
+              ? i18next.t("publish.update-draft")
+              : i18next.t("publish.save-draft")}
+          </Button>
+        </LoginRequired>
+        {!pathname?.includes("drafts") && (
+          <StyledTooltip content={i18next.t("publish.clear")}>
+            <Button
+              noPadding={true}
+              appearance="gray-link"
+              icon={<UilTrash />}
+              onClick={clearAll}
+            />
+          </StyledTooltip>
+        )}
 
         <StyledTooltip content={i18next.t("publish.get-help")}>
           <Button
@@ -104,17 +118,17 @@ export function PublishActionBar({
             <DropdownItemWithIcon
               onClick={() => setShowReward(true)}
               icon={<UilMoneybag />}
-              label="Reward settings"
+              label={i18next.t("publish.reward-settings")}
             />
             <DropdownItemWithIcon
               onClick={() => setShowBeneficiaries(true)}
               icon={<UilUsersAlt />}
-              label="Beneficiaries"
+              label={i18next.t("publish.beneficiaries")}
             />
             <DropdownItemWithIcon
               onClick={() => setShowMetaInfo(true)}
               icon={<UilDocumentInfo />}
-              label="Meta information"
+              label={i18next.t("publish.meta-information")}
             />
             <div className="border-b border-[--border-color] h-[1px] w-full" />
             <DropdownItemWithIcon

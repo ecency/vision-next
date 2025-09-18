@@ -20,7 +20,8 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
         selectedThumbnail,
         poll,
         postLinks,
-        publishingVideo
+        publishingVideo,
+        location
     } = usePublishState();
 
     const { mutateAsync: saveToDraft } = useSaveDraftApi(draftId);
@@ -40,13 +41,14 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
                 selectedThumbnail,
                 poll,
                 postLinks,
-                publishingVideo
+                publishingVideo,
+                location
             };
 
             if (isEqual(prevSnapshotRef.current, snapshot)) return;
             prevSnapshotRef.current = snapshot;
 
-            saveToDraft()
+            saveToDraft({ showToast: false })
                 .then(() => {
                     setLastSaved(new Date());
                 })
@@ -66,7 +68,8 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
             selectedThumbnail,
             poll,
             postLinks,
-            publishingVideo
+            publishingVideo,
+            location
         ]
     );
 

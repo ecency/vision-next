@@ -19,14 +19,16 @@ export function PublishEditorGeoTagAutocomplete({
   const [placeAutocomplete, setPlaceAutocomplete] = useState<any>(null);
 
   useEffect(() => {
-    if (!places || !inputContainerRef.current) return;
+    const container = inputContainerRef.current;
+
+    if (!places || !container) return;
 
     const autocomplete = new (places as any).PlaceAutocompleteElement();
     setPlaceAutocomplete(autocomplete);
 
-    inputContainerRef.current.appendChild(autocomplete);
+    container.appendChild(autocomplete);
 
-    autocomplete.addEventListener("gmp-select", async ({ placePrediction }: any) => {
+    const handler = async ({ placePrediction }: any) => {
       const place = placePrediction.toPlace();
       await place.fetchFields({ fields: ["displayName", "formattedAddress", "location"] });
 
@@ -36,7 +38,30 @@ export function PublishEditorGeoTagAutocomplete({
         formatted_address: place.formattedAddress,
         geometry: { location: place.location }
       } as google.maps.places.PlaceResult);
-    });
+    };
+
+    autocomplete.addEventListener("gmp-select", handler);
+
+    return () => {
+      autocomplete.removeEventListener("gmp-select", handler);
+
+      if (typeof autocomplete.remove === "function") {
+        try {
+          autocomplete.remove();
+          return;
+        } catch (e) {
+          // If the element was already detached by the modal cleanup, fall back
+          // to removing it from the container manually below.
+          console.error("Failed to remove autocomplete element", e);
+        }
+      }
+
+      const parentNode = autocomplete.parentNode as Node | null;
+
+      if (parentNode?.contains(autocomplete)) {
+        parentNode.removeChild(autocomplete);
+      }
+    };
   }, [places]);
 
   return (

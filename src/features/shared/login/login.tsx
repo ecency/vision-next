@@ -17,7 +17,6 @@ import clsx from "clsx";
 
 export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
-  const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
 
   const [step, setStep] = useState<"start" | "key">("start");
   const [username, setUsername] = useState("");
@@ -139,28 +138,26 @@ export default function Login() {
               Hivesigner
             </Button>
 
-            {hasKeyChain && (
-              <Button
-                appearance="secondary"
-                outline={true}
-                full={true}
-                size="lg"
-                onClick={() => !!username && handleKeychainLogin()}
-                disabled={!username}
-                isLoading={isLoginByKeychainPending}
-                icon={
-                  <Image
-                    width={100}
-                    height={100}
-                    src="/assets/keychain.png"
-                    alt="keychain"
-                    className="w-4 h-4"
-                  />
-                }
-              >
-                Keychain
-              </Button>
-            )}
+            <Button
+              appearance="secondary"
+              outline={true}
+              full={true}
+              size="lg"
+              onClick={() => !!username && handleKeychainLogin()}
+              disabled={!username}
+              isLoading={isLoginByKeychainPending}
+              icon={
+                <Image
+                  width={100}
+                  height={100}
+                  src="/assets/keychain.png"
+                  alt="keychain"
+                  className="w-4 h-4"
+                />
+              }
+            >
+              Keychain
+            </Button>
           </motion.div>
         )}
       </div>

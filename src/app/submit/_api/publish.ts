@@ -14,6 +14,7 @@ import { createPermlink, isCommunity, makeApp, makeCommentOptions, tempEntry } f
 import appPackage from "../../../../package.json";
 import i18next from "i18next";
 import { error, success } from "@/features/shared";
+import * as Sentry from "@sentry/nextjs";
 import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -154,8 +155,14 @@ export function usePublishApi(onClear: () => void) {
         };
         updateEntryQueryData([entry]);
 
-        await validatePostCreating(entry.author, entry.permlink, 3);
-        recordActivity();
+        try {
+          await validatePostCreating(entry.author, entry.permlink, 3);
+        } catch (e) {
+          Sentry.captureException(e, {
+            extra: { username: entry.author }
+          });
+        }
+        recordActivity().catch(() => {});
 
         success(i18next.t("submit.published"));
         onClear();

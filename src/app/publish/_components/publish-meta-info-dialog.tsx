@@ -5,6 +5,7 @@ import { usePublishState } from "@/app/publish/_hooks";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { Alert } from "@ui/alert";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 
 interface Props {
   show: boolean;
@@ -23,6 +24,7 @@ export function PublishMetaInfoDialog({ show, setShow }: Props) {
           type="textarea"
           value={metaDescription}
           onChange={(e) => setMetaDescription((e.target as any).value)}
+          maxLength={SUBMIT_DESCRIPTION_MAX_LENGTH}
         />
       </ModalBody>
       <ModalFooter className="justify-end flex">

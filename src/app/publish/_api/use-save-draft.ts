@@ -3,14 +3,19 @@ import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
-import { success } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { error } from "highcharts";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { formatError } from "@/api/operations";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
+
+type SaveDraftOptions = {
+  showToast?: boolean;
+};
 
 export function useSaveDraftApi(draftId?: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -39,7 +44,13 @@ export function useSaveDraftApi(draftId?: string) {
 
   return useMutation({
     mutationKey: ["saveDraft-2.0", draftId],
-    mutationFn: async () => {
+    mutationFn: async ({ showToast = true }: SaveDraftOptions = {}) => {
+      if (!activeUser?.username) {
+        throw new Error("[Draft] No active user");
+      }
+
+      const username = activeUser.username;
+
       const tagJ = tags?.join(" ");
 
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
@@ -48,7 +59,9 @@ export function useSaveDraftApi(draftId?: string) {
         .extractFromBody(content!)
         .withTags(tags)
         // It should select filled description or if its empty or null/undefined then get auto summary
-        .withSummary(metaDescription! || postBodySummary(content!))
+        .withSummary(
+          metaDescription! || postBodySummary(content!, SUBMIT_DESCRIPTION_MAX_LENGTH)
+        )
         .withPostLinks(postLinks)
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
@@ -66,22 +79,26 @@ export function useSaveDraftApi(draftId?: string) {
       };
 
       if (draftId) {
-        await updateDraft(activeUser?.username!, draftId, title!, content!, tagJ!, draftMeta);
-        success(i18next.t("submit.draft-updated"));
+        await updateDraft(username, draftId, title!, content!, tagJ!, draftMeta);
+        if (showToast) {
+          success(i18next.t("submit.draft-updated"));
+        }
       } else {
-        const resp = await addDraft(activeUser?.username!, title!, content!, tagJ!, draftMeta);
-        success(i18next.t("submit.draft-saved"));
+        const resp = await addDraft(username, title!, content!, tagJ!, draftMeta);
+        if (showToast) {
+          success(i18next.t("submit.draft-saved"));
+        }
 
         const { drafts } = resp;
         const draft = drafts[drafts?.length - 1];
 
-        queryClient.setQueryData([QueryIdentifiers.DRAFTS, activeUser?.username], drafts);
+        queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
 
         router.push(`/publish/drafts/${draft._id}`);
       }
 
       recordActivity();
     },
-    onError: () => error(i18next.t("g.server-error"))
+    onError: (err) => error(...formatError(err))
   });
 }

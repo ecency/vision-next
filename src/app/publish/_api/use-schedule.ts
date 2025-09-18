@@ -1,4 +1,5 @@
 import { addSchedule } from "@/api/private-api";
+import { formatError } from "@/api/operations";
 import { getPostHeaderQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { CommentOptions, Entry, FullAccount, RewardType } from "@/entities";
@@ -11,6 +12,7 @@ import { AxiosError } from "axios";
 import i18next from "i18next";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 
 export function useScheduleApi() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -74,7 +76,9 @@ export function useScheduleApi() {
         .extractFromBody(cleanBody)
         .withTags(tags)
         // It should select filled description or if its empty or null/undefined then get auto summary
-        .withSummary(metaDescription || postBodySummary(cleanBody))
+        .withSummary(
+          metaDescription || postBodySummary(cleanBody, SUBMIT_DESCRIPTION_MAX_LENGTH)
+        )
         .withPoll(poll)
         .withPostLinks(postLinks)
         .withLocation(location)
@@ -98,7 +102,7 @@ export function useScheduleApi() {
         };
       }
 
-      const reblog = isCommunity(tags?.[0]) && isReblogToCommunity;
+      const reblog = Boolean(isCommunity(tags?.[0]) && isReblogToCommunity);
 
       try {
         await addSchedule(
@@ -110,17 +114,18 @@ export function useScheduleApi() {
           jsonMeta,
           options,
           schedule.toISOString(),
-          isReblogToCommunity!
+          reblog
         );
         await recordActivity();
       } catch (e) {
-        if (e instanceof AxiosError) {
-          if (e.response?.data?.message) {
-            error(e.response?.data?.message);
-          } else {
-            error(i18next.t("g.server-error"));
-          }
-        }
+        const [formattedMessage] = formatError(e);
+        const message =
+          (e instanceof AxiosError && e.response?.data?.message) ||
+          formattedMessage ||
+          i18next.t("g.server-error");
+        error(message);
+        // Rethrow so callers can handle failure correctly
+        throw e;
       }
     }
   });

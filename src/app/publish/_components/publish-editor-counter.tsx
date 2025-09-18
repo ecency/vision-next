@@ -29,7 +29,9 @@ export function PublishEditorCounter() {
           ref.current.textContent = i18next.t("word-count.label", {
             n:
               typeof Intl !== "undefined" && typeof Intl.NumberFormat === "function"
-                ? Intl.NumberFormat("en-US").format(+latest.toFixed(0))
+                ? Intl.NumberFormat(i18next.language || undefined).format(
+                    +latest.toFixed(0)
+                  )
                 : (+latest.toFixed(0)).toString()
           });
         }

@@ -32,29 +32,35 @@ export function markdownToHtml(html: string | undefined) {
         const styles = element.getAttribute("style");
         const align = styles?.replace("text-align: ", "") ?? "auto";
 
+        const child = element.firstElementChild as HTMLElement | null;
         const onlyImage =
           element.childNodes.length === 1 &&
-          element.firstElementChild?.tagName === "IMG";
+          child &&
+          (child.tagName === "IMG" ||
+            (child.tagName === "A" &&
+              child.childNodes.length === 1 &&
+              (child.firstElementChild as HTMLElement | null)?.tagName === "IMG"));
 
-        if (onlyImage) {
-          const img = element.firstElementChild as HTMLElement;
+        if (onlyImage && child) {
+          const content = child.outerHTML;
 
           if (align === "center") {
-            return `<center>${img.outerHTML}</center>`;
+            return `<center>${content}</center>`;
           }
 
           if (align === "right") {
-            return `<div class="pull-right">${img.outerHTML}</div>`;
+            return `<div class="pull-right">${content}</div>`;
           }
 
           if (align === "left") {
-            return `<div class="pull-left">${img.outerHTML}</div>`;
+            return `<div class="pull-left">${content}</div>`;
           }
 
-          return img.outerHTML;
+          return content;
         }
 
-        element.setAttribute("dir", align);
+        element.setAttribute("data-align", align);
+        element.removeAttribute("dir");
         return element.outerHTML;
       }
     })
@@ -64,9 +70,7 @@ export function markdownToHtml(html: string | undefined) {
       },
       replacement: function (_, node) {
         const colgroup = (node as HTMLElement).querySelector("colgroup");
-        if (colgroup && node.contains(colgroup)) {
-          node.removeChild(colgroup);
-        }
+        colgroup?.remove();
 
         return (node as HTMLElement).outerHTML;
       }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { PostBase, VideoProps } from "./_types";
 import {
   BodyVersioningManager,
@@ -55,7 +55,12 @@ import { PREFIX } from "@/utils/local-storage";
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { EcencyConfigManager } from "@/config";
-import { SUBMIT_TOUR_ITEMS } from "@/app/submit/_consts";
+import {
+  SUBMIT_DESCRIPTION_MAX_LENGTH,
+  SUBMIT_TAG_MAX_LENGTH,
+  SUBMIT_TITLE_MAX_LENGTH,
+  SUBMIT_TOUR_ITEMS
+} from "@/app/submit/_consts";
 
 interface Props {
   path: string;
@@ -102,6 +107,27 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
 
   let _updateTimer: any; // todo think about it
 
+  const applyTitle = useCallback(
+    (value: string) => {
+      setTitle(value.slice(0, SUBMIT_TITLE_MAX_LENGTH));
+    },
+    [setTitle]
+  );
+
+  const sanitizeTags = useCallback((tagList: string[]) => {
+    const trimmed = tagList
+      .map((tag) => tag.slice(0, SUBMIT_TAG_MAX_LENGTH))
+      .filter((tag) => tag);
+    return trimmed.filter((tag, index) => trimmed.indexOf(tag) === index);
+  }, []);
+
+  const applyTags = useCallback(
+    (nextTags: string[]) => {
+      setTags(sanitizeTags(nextTags));
+    },
+    [sanitizeTags, setTags]
+  );
+
   const { setLocalDraft } = useLocalDraftManager(
     path,
     username,
@@ -109,8 +135,8 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     draftId,
     setIsDraftEmpty,
     (title, tags, body) => {
-      setTitle(title);
-      setTags(tags);
+      applyTitle(title);
+      applyTags(tags);
       setBody(body);
     }
   );
@@ -120,7 +146,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     reward,
     setReward,
     description,
-    setDescription,
+    setDescription: setAdvancedDescription,
     reblogSwitch,
     setReblogSwitch,
     beneficiaries,
@@ -131,19 +157,28 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     getHasAdvanced
   } = useAdvancedManager();
 
+  const setDescription = useCallback(
+    (value: string) => {
+      setAdvancedDescription(value.slice(0, SUBMIT_DESCRIPTION_MAX_LENGTH));
+    },
+    [setAdvancedDescription]
+  );
+
   useThreeSpeakMigrationAdapter({
     body,
     setBody
   });
 
-  useCommunityDetector((community) => setTags([...tags, community]));
+  useCommunityDetector((community) => setTags((prev) => sanitizeTags([...prev, community])));
 
   useEntryDetector(username, permlink, (entry) => {
     if (entry) {
-      setTitle(entry.title);
-      setTags(Array.from(new Set(entry.json_metadata?.tags ?? [])));
+      applyTitle(entry.title);
+      applyTags(Array.from(new Set(entry.json_metadata?.tags ?? [])));
       setBody(entry.body);
-      setDescription(entry.json_metadata?.description ?? postBodySummary(body, 200));
+      setDescription(
+        entry.json_metadata?.description ?? postBodySummary(body, SUBMIT_DESCRIPTION_MAX_LENGTH)
+      );
       entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
       setEditingEntry(entry);
       threeSpeakManager.setIsEditing(true);
@@ -158,8 +193,8 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   useApiDraftDetector(
     draftId,
     (draft) => {
-      setTitle(draft.title);
-      setTags(
+      applyTitle(draft.title);
+      applyTags(
         draft.tags
           .trim()
           .split(/[ ,]+/)
@@ -248,9 +283,9 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
 
   useEffect(() => {
     if (searchParams && typeof searchParams?.cat === "string" && searchParams.cat.length > 0) {
-      setTags((value) => Array.from(new Set(value).add(searchParams.cat!)));
+      setTags((value) => sanitizeTags(Array.from(new Set(value).add(searchParams.cat!))));
     }
-  }, [searchParams]);
+  }, [searchParams, sanitizeTags]);
 
   const clear = () => {
     setTitle("");
@@ -274,18 +309,20 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   };
 
   const tagsChanged = (nextTags: string[]): void => {
-    if (isEqual(tags, nextTags)) {
+    const sanitizedTags = sanitizeTags(nextTags);
+
+    if (isEqual(tags, sanitizedTags)) {
       // tag selector calls onchange event 2 times on each change.
       // one for add event one for sort event.
       // important to check if tags really changed.
       return;
     }
 
-    setTags(nextTags);
+    setTags(sanitizedTags);
 
     // Toggle off reblog switch if it is true and the first tag is not community tag.
     if (reblogSwitch) {
-      const isCommunityTag = tags?.length > 0 && isCommunity(tags[0]);
+      const isCommunityTag = sanitizedTags?.length > 0 && isCommunity(sanitizedTags[0]);
 
       if (!isCommunityTag) {
         setReblogSwitch(false);
@@ -394,7 +431,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               autoFocus={true}
               value={title}
               dir={"auto"}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => applyTitle(e.target.value)}
               spellCheck={true}
             />
           </div>
@@ -515,10 +552,12 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                         setDescription(e.target.value);
                       }}
                       rows={3}
-                      maxLength={200}
+                      maxLength={SUBMIT_DESCRIPTION_MAX_LENGTH}
                     />
                     <small className="text-gray-600 dark:text-gray-400">
-                      {description !== "" ? description : postBodySummary(body, 200)}
+                      {description !== ""
+                        ? description
+                        : postBodySummary(body, SUBMIT_DESCRIPTION_MAX_LENGTH)}
                     </small>
                   </div>
                 </div>

@@ -1,10 +1,11 @@
 import useLocalStorage from "react-use/lib/useLocalStorage";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Advanced } from "../_types";
 import useMount from "react-use/lib/useMount";
 import { useThreeSpeakManager } from "./three-speak-manager";
 import { PREFIX } from "@/utils/local-storage";
 import { BeneficiaryRoute, RewardType } from "@/entities";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 
 export function useAdvancedManager() {
   // @deprecated
@@ -33,6 +34,17 @@ export function useAdvancedManager() {
 
   const threeSpeakManager = useThreeSpeakManager();
 
+  const applyDescription = useCallback(
+    (value: string | null) => {
+      if (typeof value === "string") {
+        setDescription(value.slice(0, SUBMIT_DESCRIPTION_MAX_LENGTH));
+      } else {
+        setDescription(value);
+      }
+    },
+    [setDescription]
+  );
+
   const hasAdvanced = () =>
     reward !== "default" ||
     (beneficiaries ?? []).length > 0 ||
@@ -51,7 +63,7 @@ export function useAdvancedManager() {
       setBeneficiaries(localAdvanced.beneficiaries);
       setSchedule(localAdvanced.schedule);
       setReblogSwitch(localAdvanced.reblogSwitch);
-      setDescription(localAdvanced.description);
+      applyDescription(localAdvanced.description);
       threeSpeakManager.setIsNsfw(localAdvanced.isNsfw);
 
       removeLocalAdvanced();
@@ -66,7 +78,7 @@ export function useAdvancedManager() {
     beneficiaries: beneficiaries ?? [],
     setBeneficiaries,
     description: description ?? null,
-    setDescription,
+    setDescription: applyDescription,
     schedule: schedule!!,
     setSchedule,
     reblogSwitch: reblogSwitch!!,

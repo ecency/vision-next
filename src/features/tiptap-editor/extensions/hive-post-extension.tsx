@@ -7,7 +7,9 @@ import { memo } from "react";
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
 
-export const HIVE_POST_PURE_REGEX = /^https?:\/\/(.*)\/(.*)\/(@[\w.\d-]+)\/(.*)/gi;
+// Matches a Hive post URL and preserves any trailing query parameters
+export const HIVE_POST_PURE_REGEX =
+  /^https?:\/\/(.*)\/(.*)\/(@[\w.\d-]+)\/([^?\s]+)(?:\?[^\s]*)?/gi;
 
 function PostViewer({
   node: {
@@ -101,6 +103,7 @@ export const HivePostExtension = Node.create({
         type: this.type,
         getAttributes(match) {
           return {
+            // Preserve referral or other query params in the link
             href: match[0]
           };
         }

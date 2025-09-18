@@ -30,7 +30,11 @@ function MuteButton({ disabled, following }: ButtonProps) {
     activeUser?.username,
     following,
     (data) =>
-      success(data?.ignores === true ? i18next.t("events.unmuted") : i18next.t("events.muted")),
+      success(
+        data?.ignores === true
+          ? i18next.t("events.muted")
+          : i18next.t("events.unmuted")
+      ),
     (err) => error(...formatError(err))
   );
 

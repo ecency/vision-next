@@ -39,7 +39,9 @@ import {
 } from "@/api/operations";
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { onboardEmail } from "@/api/private-api";
-import { generatePassword, getPrivateKeys } from "@/utils/onBoard-helper";
+import { getKeysFromSeed } from "@/utils/onBoard-helper";
+import { useSeedPhrase } from "@ecency/wallets";
+import { useDownloadSeed } from "@/app/signup/wallet/_hooks";
 
 export interface AccountInfo {
   email: string;
@@ -60,6 +62,7 @@ export interface AccountInfo {
 export interface DecodeHash {
   email: string;
   username: string;
+  referral?: string;
   pubkeys: {
     ownerPublicKey: string;
     activePublicKey: string;
@@ -90,16 +93,18 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const queryParams = useSearchParams();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
-  const [masterPassword, setMasterPassword] = useState("");
   const [secret, setSecret] = useState("");
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();
   const [decodedInfo, setDecodedInfo] = useState<DecodeHash>();
+  const { data: seedPhrase = "", refetch: refetchSeed } = useSeedPhrase(
+    type === "asking" ? decodedInfo?.username ?? "" : ""
+  );
   const [showModal, setShowModal] = useState(false);
   const [accountCredit, setAccountCredit] = useState(0);
   const [createOption, setCreateOption] = useState("");
   const [fileIsDownloaded, setFileIsDownloaded] = useState(false);
   const [innerWidth, setInnerWidth] = useState(0);
-  const [shortPassword, setShortPassword] = useState("");
+  const [shortSeed, setShortSeed] = useState("");
   const [confirmDetails, setConfirmDetails] = useState<ConfirmDetails[]>();
   const [onboardUrl, setOnboardUrl] = useState("");
   const [step, setStep] = useState<string | number>(0);
@@ -112,11 +117,15 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const [transferAmount, setTransferAmount] = useState(0);
   const [customJsonAmount, setCustomJsonAmount] = useState(0);
 
+  const downloadSeed = useDownloadSeed(
+    accountInfo?.username ?? decodedInfo?.username ?? ""
+  );
+
   useMount(() => {
     setOnboardUrl(`${window.location.origin}/onboard-friend/creating/`);
     setInnerWidth(window.innerWidth);
     try {
-      if (paramSecret && type !== "asking") {
+      if (paramSecret) {
         const decodedHash = JSON.parse(b64uDec(paramSecret));
         setDecodedInfo(decodedHash);
       }
@@ -126,10 +135,10 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   });
 
   useEffect(() => {
-    if (type == "asking") {
+    if (type === "asking" && seedPhrase && decodedInfo) {
       initAccountKey();
     }
-  }, [accountInfo?.username]);
+  }, [type, seedPhrase, decodedInfo]);
 
   useEffect(() => {
     (activeUser?.data as FullAccount) &&
@@ -158,7 +167,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [masterPassword]);
+  }, [seedPhrase]);
 
   useEffect(() => {
     rcOperationsCost();
@@ -172,25 +181,22 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
 
   const handleResize = () => {
     setInnerWidth(window.innerWidth);
-    let password: string = "";
+    let seed: string = "";
     if (window.innerWidth <= 768 && window.innerWidth > 577) {
-      password = masterPassword.substring(0, 32);
+      seed = seedPhrase.substring(0, 32);
     } else if (window.innerWidth <= 577) {
-      password = masterPassword.substring(0, 20);
+      seed = seedPhrase.substring(0, 20);
     }
-    setShortPassword(password);
+    setShortSeed(seed);
   };
 
-  const initAccountKey = async () => {
-    const urlInfo = paramSecret;
+  const initAccountKey = () => {
+    if (!decodedInfo) {
+      return;
+    }
+
     try {
-      const info = JSON.parse(b64uDec(urlInfo!));
-      const masterPassword: string = await generatePassword(32);
-      const keys: AccountInfo["keys"] = getPrivateKeys(
-        formatUsername(info?.username),
-        masterPassword
-      );
-      // prepare object to encode
+      const keys: AccountInfo["keys"] = getKeysFromSeed(seedPhrase);
       const pubkeys = {
         activePublicKey: keys.activePubkey,
         memoPublicKey: keys.memoPubkey,
@@ -199,26 +205,22 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
       };
 
       const dataToEncode = {
-        username: info.username,
-        email: info.email,
+        username: decodedInfo.username,
+        email: decodedInfo.email,
         pubkeys
       };
-      // stringify object to encode
       const stringifiedData = JSON.stringify(dataToEncode);
       const hashedPubKeys = b64uEnc(stringifiedData);
       setSecret(hashedPubKeys);
       const accInfo = {
-        username: formatUsername(info.username),
-        email: formatEmail(info.email),
-        referral: formatUsername(info.referral),
+        username: formatUsername(decodedInfo.username),
+        email: formatEmail(decodedInfo.email),
+        referral: formatUsername(decodedInfo.referral || ""),
         keys
       };
       setAccountInfo(accInfo);
-      setMasterPassword(masterPassword);
-      return masterPassword;
     } catch (err: any) {
       error(err?.message);
-      return null;
     }
   };
 
@@ -232,52 +234,6 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
 
   const splitUrl = (url: string) => {
     return url.slice(0, 50);
-  };
-
-  const downloadKeys = async () => {
-    if (accountInfo) {
-      setFileIsDownloaded(false);
-      const { username, keys } = accountInfo;
-      const element = document.createElement("a");
-      const keysToFile = `
-          ${i18next.t("onboard.file-warning")}
-  
-          ${i18next.t("onboard.recommend")}
-          1. ${i18next.t("onboard.recommend-print")}
-          2. ${i18next.t("onboard.recommend-use")}
-          3. ${i18next.t("onboard.recommend-save")}
-          4. ${i18next.t("onboard.recommend-third-party")}
-
-          ${i18next.t("onboard.account-info")}
-
-          Username: ${username}
-
-          Password: ${masterPassword}
-
-          ${i18next.t("onboard.owner-private")} ${keys.owner}
-  
-          ${i18next.t("onboard.active-private")} ${keys.active}
-  
-          ${i18next.t("onboard.posting-private")} ${keys.posting}
-  
-          ${i18next.t("onboard.memo-private")} ${keys.memo}
-  
-  
-          ${i18next.t("onboard.keys-use")}
-          ${i18next.t("onboard.owner")} ${i18next.t("onboard.owner-use")}   
-          ${i18next.t("onboard.active")} ${i18next.t("onboard.active-use")}  
-          ${i18next.t("onboard.posting")} ${i18next.t("onboard.posting-use")} 
-          ${i18next.t("onboard.memo")} ${i18next.t("onboard.memo-use")}`;
-
-      const file = new Blob([keysToFile.replace(/\n/g, "\r\n")], {
-        type: "text/plain"
-      });
-      element.href = URL.createObjectURL(file);
-      element.download = `${username}_hive_keys.txt`;
-      document.body.appendChild(element);
-      element.click();
-      setFileIsDownloaded(true);
-    }
   };
 
   const formatUsername = (username: string) => {
@@ -545,9 +501,8 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
             </span>
           </div>
           <div className="flex justify-center">
-            <span className="hr-6px-btn-spacer" />
             <Link href={`/@${formatUsername(decodedInfo!.username)}`}>
-              <Button className="mt-3 w-[50%] align-self-center" onClick={finish}>
+              <Button className="mt-3" onClick={finish}>
                 {i18next.t("g.finish")}
               </Button>
             </Link>
@@ -619,13 +574,13 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
               <div className="mt-3 flex flex-col items-center">
                 <div className="flex">
                   <span className="mr-3 mt-1">
-                    {innerWidth <= 768 ? shortPassword + "..." : masterPassword}
+                  {innerWidth <= 768 ? shortSeed + "..." : seedPhrase}
                   </span>
                   <Tooltip content={i18next.t("onboard.copy-tooltip")}>
                     <span
                       className="onboard-svg mr-3"
                       onClick={() => {
-                        clipboard(masterPassword);
+                        clipboard(seedPhrase);
                         success(i18next.t("onboard.copy-password"));
                       }}
                     >
@@ -633,7 +588,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
                     </span>
                   </Tooltip>
                   <Tooltip content={i18next.t("onboard.regenerate-password")}>
-                    <span className="onboard-svg" onClick={() => initAccountKey()}>
+                    <span className="onboard-svg" onClick={() => refetchSeed()}>
                       {regenerateSvg}
                     </span>
                   </Tooltip>
@@ -641,7 +596,11 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
                 <Button
                   className="self-center mt-3"
                   disabled={!accountInfo?.username || !accountInfo.email}
-                  onClick={() => downloadKeys()}
+                  onClick={() => {
+                    setFileIsDownloaded(false);
+                    downloadSeed();
+                    setFileIsDownloaded(true);
+                  }}
                   icon={downloadSvg}
                 >
                   {i18next.t("onboard.download-keys")}
@@ -649,30 +608,24 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
 
                 {fileIsDownloaded && (
                   <Alert className="flex flex-col self-center justify-center mt-3">
-                    {!activeUser && (
-                      <>
-                        <h4>{i18next.t("onboard.copy-info-message")}</h4>
-                        <div className="flex items-center">
-                          <span className="">{splitUrl(onboardUrl + secret)}...</span>
-                          <span
-                            style={{ width: "5%" }}
-                            className="onboard-svg"
-                            onClick={() => {
-                              clipboard(onboardUrl + secret);
-                              success(i18next.t("onboard.copy-link"));
-                            }}
-                          >
-                            {copyContent}
-                          </span>
-                        </div>
-                      </>
-                    )}
+                    <h4>{i18next.t("onboard.copy-info-message")}</h4>
+                    <div className="flex items-center">
+                      <span className="">{splitUrl(onboardUrl + secret)}...</span>
+                      <span
+                        style={{ width: "5%" }}
+                        className="onboard-svg"
+                        onClick={() => {
+                          clipboard(onboardUrl + secret);
+                          success(i18next.t("onboard.copy-link"));
+                        }}
+                      >
+                        {copyContent}
+                      </span>
+                    </div>
                     {activeUser && (
-                      <>
-                        <span>
-                          <a href={onboardUrl + secret}>{i18next.t("onboard.click-link")}</a>
-                        </span>
-                      </>
+                      <span className="mt-2">
+                        <a href={onboardUrl + secret}>{i18next.t("onboard.click-link")}</a>
+                      </span>
                     )}
                   </Alert>
                 )}

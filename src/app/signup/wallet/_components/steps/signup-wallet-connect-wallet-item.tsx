@@ -3,9 +3,8 @@
 import { Badge, Button, FormControl } from "@/features/ui";
 import { EcencyTokenMetadata, EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
 import { motion } from "framer-motion";
-import i18next from "i18next";
 import Image from "next/image";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useMount } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
@@ -35,6 +34,18 @@ export function SignupWalletConnectWalletItem({
   const { createWallet } = useWalletCreate(username, currency);
 
   const wallet = useMemo(() => wallets?.get(currency), [currency, wallets]);
+
+  const walletInfo = useMemo<SignupExternalWalletInformation | undefined>(() => {
+    const data = createWallet.data;
+    if (!data?.address || !data?.privateKey || !data?.publicKey) {
+      return undefined;
+    }
+    return {
+      address: data.address,
+      privateKey: data.privateKey,
+      publicKey: data.publicKey
+    };
+  }, [createWallet.data]);
 
   useMount(async () => {
     const response = await createWallet.mutateAsync();

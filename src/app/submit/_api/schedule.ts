@@ -8,7 +8,7 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { usePollsCreationManagement } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";
 import { createPermlink, isCommunity, makeCommentOptions } from "@/utils";
-import { error } from "highcharts";
+import { error } from "@/features/shared";
 import { AxiosError } from "axios";
 import i18next from "i18next";
 import { postBodySummary } from "@ecency/render-helper";
@@ -67,7 +67,18 @@ export function useScheduleApi(onClear: () => void) {
         .withPoll(activePoll)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
-      const options = makeCommentOptions(author, permlink, reward, beneficiaries);
+      let options = makeCommentOptions(author, permlink, reward, beneficiaries);
+      if (!options) {
+        options = {
+          allow_curation_rewards: true,
+          allow_votes: true,
+          author,
+          permlink,
+          max_accepted_payout: "1000000.000 HBD",
+          percent_hbd: 10000,
+          extensions: []
+        };
+      }
 
       const reblog = isCommunity(tags[0]) && reblogSwitch;
 
@@ -92,6 +103,8 @@ export function useScheduleApi(onClear: () => void) {
             error(i18next.t("g.server-error"));
           }
         }
+        // Propagate error so the mutation is rejected
+        throw e;
       }
     },
     onSuccess: () => {

@@ -1,26 +1,27 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
-import { PropsWithChildren, useMemo } from "react";
+import { PropsWithChildren, Suspense, lazy, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { ChatProvider } from "@/app/chat-provider";
+
+const ChatProvider = lazy(() =>
+    import("@/app/chat-provider").then((m) => ({ default: m.ChatProvider }))
+);
 
 export function ConditionalChatProvider(props: PropsWithChildren) {
-    const activeUser = useClientActiveUser();
     const pathname = usePathname();
 
-    const shouldMountChat = useMemo(() => {
-        if (activeUser) return true;
-        return !!pathname?.startsWith("/chats");
-    }, [activeUser, pathname]);
+    const shouldMountChat = useMemo(
+        () => !!pathname?.startsWith("/chats"),
+        [pathname]
+    );
 
     if (!shouldMountChat) {
         return props.children;
     }
 
     return (
-        <ChatProvider>
-            {props.children}
-        </ChatProvider>
+        <Suspense fallback={props.children}>
+            <ChatProvider>{props.children}</ChatProvider>
+        </Suspense>
     );
 }

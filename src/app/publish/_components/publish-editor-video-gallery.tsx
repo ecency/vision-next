@@ -4,7 +4,7 @@ import { ThreeSpeakIntegration, ThreeSpeakVideo } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilMinusCircle, UilPlus, UilSync } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PublishEditorVideoGalleryItem } from "./publish-editor-video-gallery-item";
 
 interface Props {
@@ -16,33 +16,6 @@ interface Props {
   filterOnly?: string;
 }
 
-const TABS = [
-  {
-    label: i18next.t("video-gallery.all"),
-    value: "all"
-  },
-  {
-    label: i18next.t("video-gallery.published"),
-    value: "published"
-  },
-  {
-    label: i18next.t("video-gallery.encoding"),
-    value: "encoding"
-  },
-  {
-    label: i18next.t("video-gallery.encoded"),
-    value: "publish_manual"
-  },
-  {
-    label: i18next.t("video-gallery.failed"),
-    value: "failed"
-  },
-  {
-    label: i18next.t("video-gallery.status-deleted"),
-    value: "deleted"
-  }
-];
-
 export function PublishEditorVideoGallery({
   show,
   setShow,
@@ -52,12 +25,54 @@ export function PublishEditorVideoGallery({
   filterOnly
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const username = activeUser?.username;
 
   const [tab, setTab] = useState("all");
+  const [language, setLanguage] = useState(i18next.language);
+
+  useEffect(() => {
+    const handleLanguageChange = (lng: string) => setLanguage(lng);
+    i18next.on("languageChanged", handleLanguageChange);
+
+    return () => {
+      i18next.off("languageChanged", handleLanguageChange);
+    };
+  }, []);
+
+  const tabs = useMemo(
+    () => [
+      {
+        label: i18next.t("video-gallery.all"),
+        value: "all"
+      },
+      {
+        label: i18next.t("video-gallery.published"),
+        value: "published"
+      },
+      {
+        label: i18next.t("video-gallery.encoding"),
+        value: "encoding"
+      },
+      {
+        label: i18next.t("video-gallery.encoded"),
+        value: "publish_manual"
+      },
+      {
+        label: i18next.t("video-gallery.failed"),
+        value: "failed"
+      },
+      {
+        label: i18next.t("video-gallery.status-deleted"),
+        value: "deleted"
+      }
+    ],
+    [language]
+  );
 
   const { data, refetch, isFetching } = useQuery({
-    ...ThreeSpeakIntegration.queries.getAccountVideosQueryOptions(activeUser?.username),
-    refetchInterval: 60000,
+    ...ThreeSpeakIntegration.queries.getAccountVideosQueryOptions(username),
+    enabled: !!username && show,
+    refetchInterval: show ? 60000 : false,
     select: useCallback(
       (data: ThreeSpeakVideo[]) =>
         data?.filter(({ status }) => (tab === "all" ? true : status === tab)),
@@ -77,7 +92,7 @@ export function PublishEditorVideoGallery({
       <ModalBody>
         <div className="flex items-center justify-between border-b border-[--border-color] -mx-3 px-3">
           <div className="flex overflow-x-auto no-scrollbar text-sm font-semibold">
-            {TABS.filter((tab) => (filterOnly ? filterOnly === tab.value : true)).map(
+            {tabs.filter((tab) => (filterOnly ? filterOnly === tab.value : true)).map(
               ({ label, value }, i) => (
                 <TabItem
                   title={label}
@@ -95,7 +110,7 @@ export function PublishEditorVideoGallery({
             appearance="gray-link"
             icon={<UilSync className="-scale-x-[1]" />}
             size="sm"
-            disabled={isFetching}
+            disabled={!username || isFetching}
             className={isFetching ? "animate-spin" : ""}
             onClick={() => refetch()}
           />

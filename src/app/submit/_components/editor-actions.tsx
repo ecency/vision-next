@@ -1,4 +1,4 @@
-import { LoginRequired } from "@/features/shared";
+import { LoginRequired, error } from "@/features/shared";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { contentLoadSvg, contentSaveSvg } from "@/assets/img/svg";
@@ -7,6 +7,7 @@ import { DraftsDialog } from "@/features/shared/drafts";
 import React, { useCallback } from "react";
 import { usePublishApi, useSaveDraftApi, useScheduleApi, useUpdateApi } from "@/app/submit/_api";
 import { makeEntryPath } from "@/utils";
+import { formatError } from "@/api/operations";
 import { BeneficiaryRoute, Draft, Entry, RewardType } from "@/entities";
 import { useRouter } from "next/navigation";
 import { useGlobalStore } from "@/core/global-store";
@@ -81,17 +82,17 @@ export function EditorActions({
               return;
             }
 
-            doSchedule({
-              title,
-              tags,
-              body,
-              reward,
-              reblogSwitch,
-              beneficiaries,
-              schedule,
-              description,
-              selectedThumbnail
-            });
+              doSchedule({
+                title,
+                tags,
+                body,
+                reward,
+                reblogSwitch,
+                beneficiaries,
+                schedule,
+                description,
+                selectedThumbnail
+              }).catch((err) => error(...formatError(err)));
           }}
         >
           {i18next.t("submit.schedule")}
@@ -144,7 +145,7 @@ export function EditorActions({
                     editingDraft,
                     beneficiaries,
                     reward
-                  });
+                  }).catch((err) => error(...formatError(err)));
                 }}
               >
                 {editingDraft === null
@@ -173,7 +174,7 @@ export function EditorActions({
                   reward,
                   beneficiaries,
                   selectedThumbnail
-                });
+                }).catch((err) => error(...formatError(err)));
               }}
             >
               {i18next.t("submit.publish")}
@@ -205,7 +206,7 @@ export function EditorActions({
                   body,
                   description,
                   selectedThumbnail
-                });
+                }).catch((err) => error(...formatError(err)));
               }}
             >
               {i18next.t("submit.update")}

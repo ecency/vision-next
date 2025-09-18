@@ -1,18 +1,34 @@
+import { usePublishState } from "@/app/publish/_hooks";
 import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
+import { makeEntryPath } from "@/utils";
+import { Entry } from "@/entities";
 import { UilCheckCircle } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-export function PublishEntrySuccessState() {
+interface Props {
+  entry?: Entry;
+}
+
+export function PublishEntrySuccessState({ entry }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
+  const { tags } = usePublishState();
 
   const params = useParams();
 
   const author = params?.author ?? "";
   const permlink = params?.permlink ?? "";
+
+  const sanitizedAuthor = (author as string).replace("%40", "");
+  const category = tags?.[0] ?? entry?.category;
+  const entryHref =
+    category && sanitizedAuthor && permlink
+      ? makeEntryPath(category, sanitizedAuthor, permlink as string)
+      : "#";
+  const profileHref = activeUser ? `/@${activeUser.username}/posts` : "/";
 
   return (
     <motion.div
@@ -31,12 +47,18 @@ export function PublishEntrySuccessState() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href={`/created/${(author as string).replace("%40", "")}/${permlink}`}>
-            <Button appearance="gray" size="sm">
+          {entryHref !== "#" ? (
+            <Link href={entryHref}>
+              <Button appearance="gray" size="sm">
+                {i18next.t("publish.back-to-post")}
+              </Button>
+            </Link>
+          ) : (
+            <Button appearance="gray" size="sm" disabled={true}>
               {i18next.t("publish.back-to-post")}
             </Button>
-          </Link>
-          <Link href={`/@${activeUser?.username}/posts`}>
+          )}
+          <Link href={profileHref}>
             <Button size="sm">{i18next.t("publish.go-to-posts")}</Button>
           </Link>
         </div>

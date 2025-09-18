@@ -20,7 +20,7 @@ export function PublishEditorHtmlWarning({ show, setShow }: Props) {
         </div>
       </ModalBody>
       <ModalFooter className="flex justify-end gap-2">
-        <Link href="/submit" target="external">
+        <Link href="/submit" target="_blank" rel="noreferrer">
           <Button size="sm">{i18next.t("publish.back-to-old")}</Button>
         </Link>
         <Button size="sm" appearance="gray" onClick={() => setShow(false)}>

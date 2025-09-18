@@ -4,12 +4,14 @@ import { PublishEditor } from "@/app/publish/_components";
 import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { useEntryDetector } from "@/app/submit/_hooks";
 import { Entry } from "@/entities";
-import { delay } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { normalizePollSnapshot } from "@/app/publish/_utils/poll";
+import { useEntryPollExtractor } from "@/features/polls";
 import {
   PublishEntryActionBar,
   PublishEntryLoadingPost,
@@ -38,15 +40,20 @@ export default function Publish() {
     setSelectedThumbnail,
     setLocation,
     setEntryImages,
+    setPoll,
     clearAll
   } = usePublishState();
+
+  const entryPoll = useEntryPollExtractor(entry);
+
+  useEffect(() => {
+    setPoll(normalizePollSnapshot(entryPoll));
+  }, [entryPoll, setPoll]);
 
   useEntryDetector(
     (params?.author as string).replace("%40", ""),
     params?.permlink as string,
     async (entry) => {
-      await delay(2000);
-
       if (entry) {
         clearAll();
         setEnrty(entry);
@@ -54,7 +61,10 @@ export default function Publish() {
         setTitle(entry.title);
         setTags(Array.from(new Set(entry.json_metadata?.tags ?? [])));
         setContent(entry.body); // todo
-        setMetaDescription(entry.json_metadata?.description ?? postBodySummary(entry.body, 200));
+        setMetaDescription(
+          entry.json_metadata?.description ??
+            postBodySummary(entry.body, SUBMIT_DESCRIPTION_MAX_LENGTH)
+        );
         entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
         entry?.json_metadata?.image &&
           setEntryImages(Array.from(new Set(entry.json_metadata?.image)));
@@ -78,7 +88,7 @@ export default function Publish() {
                 <span>{i18next.t("publish.edit-mode")}</span>
               </div>
             </div>
-            <PublishEntryActionBar onEdit={() => setStep("validation")} />
+            <PublishEntryActionBar entry={entry} onEdit={() => setStep("validation")} />
             <PublishEditor editor={editor} />
           </>
         )}
@@ -91,7 +101,7 @@ export default function Publish() {
         )}
         {step === "no-post" && <PublishEntryNoPost />}
         {step === "loading" && <PublishEntryLoadingPost />}
-        {step === "updated" && <PublishEntrySuccessState />}
+        {step === "updated" && <PublishEntrySuccessState entry={entry} />}
       </AnimatePresence>
       <PublishEditorHtmlWarning show={showHtmlWarning} setShow={setShowHtmlWarning} />
     </>

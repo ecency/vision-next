@@ -76,23 +76,19 @@ export function usePostsFeedQuery(what: string, tag: string, observer?: string, 
   const isControversialPosts = !isUser && isControversial;
   const isPromotedSection = what === "promoted";
 
-  if (isPromotedSection) {
-    return getPromotedEntriesInfiniteQuery().useClientQuery();
-  }
+  const query = isPromotedSection
+    ? getPromotedEntriesInfiniteQuery()
+    : isAccountPosts
+      ? getAccountPostsQuery(
+          tag.replace("@", "").replace("%40", ""),
+          what,
+          limit,
+          observer ?? "",
+          true
+        )
+      : isControversialPosts
+        ? getControversialRisingQuery(what, tag)
+        : getPostsRankedQuery(what, tag, limit, observer ?? "");
 
-  if (isAccountPosts) {
-    return getAccountPostsQuery(
-      tag.replace("@", "").replace("%40", ""),
-      what,
-      limit,
-      observer ?? "",
-      true
-    ).useClientQuery();
-  }
-
-  if (isControversialPosts) {
-    return getControversialRisingQuery(what, tag).useClientQuery();
-  }
-
-  return getPostsRankedQuery(what, tag, limit, observer??"").useClientQuery();
+  return query.useClientQuery();
 }

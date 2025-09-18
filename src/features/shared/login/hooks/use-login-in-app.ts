@@ -71,9 +71,10 @@ export function useLoginInApp(username: string) {
       await recordActivity({ty: 20});
 
       // redirection based on path name
-      if (pathname?.startsWith("/signup/email")) {
-        const u = `/@${token.username}/feed`;
-        router.push(u);
+      if (pathname?.startsWith("/signup/wallet")) {
+        router.push(`/@${token.username}`);
+      } else if (pathname?.startsWith("/signup/email")) {
+        router.push(`/@${token.username}/feed`);
       }
 
       handleTutorial();

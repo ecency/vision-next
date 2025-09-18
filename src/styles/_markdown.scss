@@ -91,19 +91,23 @@
     }
   }
 
-  p[dir="left"] {
+  p[dir="left"],
+  p[data-align="left"] {
     text-align: left;
   }
 
-  p[dir="center"] {
+  p[dir="center"],
+  p[data-align="center"] {
     text-align: center;
   }
 
-  p[dir="right"] {
+  p[dir="right"],
+  p[data-align="right"] {
     text-align: right;
   }
 
-  p[dir="justify"] {
+  p[dir="justify"],
+  p[data-align="justify"] {
     text-align: justify;
   }
 

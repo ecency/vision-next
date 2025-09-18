@@ -27,9 +27,13 @@ export function LoginUserByKey({ username }: Props) {
   const [seed, setSeed] = useState<string>();
   const [seedFilename, setSeedfilename] = useState<string>();
 
+  const loginKey = useMemo(
+    () => (option === "seed" ? seed ?? "" : key),
+    [option, seed, key]
+  );
   const { mutateAsync: loginByKey, isPending } = useLoginByKey(
     username,
-    option === "seed" ? seed ?? "" : key,
+    loginKey,
     isVerified
   );
 

@@ -106,13 +106,19 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
   };
 
   const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement | any>) => {
-    const file: any = e?.target?.files[0];
+    const file: File | undefined = e?.target?.files?.[0];
+    if (!file) {
+      return;
+    }
     onChange(e, "thumbnail");
     setCoverImage(URL?.createObjectURL(file));
   };
 
   const handleVideoChange = (e: ChangeEvent<HTMLInputElement | any>) => {
-    const file: any = e?.target?.files[0];
+    const file: File | undefined = e?.target?.files?.[0];
+    if (!file) {
+      return;
+    }
     onChange(e, "video");
     setSelectedFile(URL?.createObjectURL(file));
   };

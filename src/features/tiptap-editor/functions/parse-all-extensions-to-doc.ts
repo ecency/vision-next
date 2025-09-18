@@ -2,7 +2,8 @@ import { ThreeSpeakVideo } from "@ecency/sdk";
 import {
   HIVE_POST_PURE_REGEX,
   TAG_MENTION_PURE_REGEX,
-  USER_MENTION_PURE_REGEX
+  USER_MENTION_PURE_REGEX,
+  YOUTUBE_REGEX
 } from "../extensions";
 
 export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeSpeakVideo) {
@@ -29,9 +30,44 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
       el.parentElement?.replaceChild(newEl, el);
     });
 
+  // Handle YouTube videos
+  (Array.from(tree.querySelectorAll("a[href]").values()) as HTMLElement[])
+    .filter((el) => {
+      const href = el.getAttribute("href") ?? "";
+      YOUTUBE_REGEX.lastIndex = 0;
+      return YOUTUBE_REGEX.test(href);
+    })
+    .forEach((el) => {
+      const image = el.querySelector("img");
+      const href = el.getAttribute("href") ?? "";
+      const id = href.match(YOUTUBE_REGEX)?.[1] ?? "";
+      const newEl = document.createElement("div");
+      newEl.dataset.youtubeVideo = "";
+      newEl.setAttribute("src", href);
+      newEl.setAttribute(
+        "thumbnail",
+        image?.getAttribute("src") ?? (id ? `https://img.youtube.com/vi/${id}/0.jpg` : "")
+      );
+
+      const parent = el.parentElement;
+      if (parent?.tagName === "CENTER") {
+        newEl.style.textAlign = "center";
+        parent.parentElement?.replaceChild(newEl, parent);
+      } else if (parent && parent.style.textAlign) {
+        newEl.style.textAlign = parent.style.textAlign;
+        parent.parentElement?.replaceChild(newEl, parent);
+      } else {
+        el.parentElement?.replaceChild(newEl, el);
+      }
+    });
+
   // Handle hive posts
   (Array.from(tree.querySelectorAll("a[href]").values()) as HTMLElement[])
-    .filter((el) => HIVE_POST_PURE_REGEX.test(el.getAttribute("href") ?? ""))
+    .filter((el) => {
+        const href = el.getAttribute("href") ?? "";
+        HIVE_POST_PURE_REGEX.lastIndex = 0;
+        return HIVE_POST_PURE_REGEX.test(href) && el.innerText.trim() === href;
+    })
     .forEach((el) => {
       const newEl = document.createElement("div");
       newEl.dataset.hivePost = "";

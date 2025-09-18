@@ -5,6 +5,7 @@ import {
   Selection,
   TagMentionExtensionConfig,
   ThreeSpeakVideoExtension,
+  YoutubeVideoExtension,
   UserMentionExtensionConfig,
   clipboardPlugin,
   markdownToHtml,
@@ -27,6 +28,7 @@ import { PublishEditorImageViewer } from "../_editor-extensions";
 import { useEditorDragDrop } from "./use-editor-drag-drop";
 import { usePublishState } from "./use-publish-state";
 import { usePublishLinksAttach } from "./use-publish-links-attach";
+import i18next from "i18next";
 
 export function usePublishEditor(onHtmlPaste: () => void) {
   const editor = useEditor({
@@ -39,10 +41,10 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     extensions: [
       StarterKit.configure() as AnyExtension,
       Placeholder.configure({
-        placeholder: "Tell your story.."
+        placeholder: i18next.t("submit.body-placeholder")
       }),
       TextAlign.configure({
-        types: ["heading", "paragraph"]
+        types: ["heading", "paragraph", "youtubeVideo"]
       }),
       Selection,
       Table,
@@ -77,6 +79,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
         suggestion: TagMentionExtensionConfig as any
       }),
       ThreeSpeakVideoExtension,
+      YoutubeVideoExtension,
       HivePostExtension
     ],
     onUpdate({ editor }) {
@@ -92,19 +95,17 @@ export function usePublishEditor(onHtmlPaste: () => void) {
   const setEditorContent = useCallback(
     (content: string | undefined) => {
       try {
-        const sanitizedContent = content
-          ? parseAllExtensionsToDoc(
-              DOMPurify.sanitize(marked.parse(content) as string),
-              publishState.publishingVideo
-            )
+        const parsed = content ? marked.parse(content) : undefined;
+        const sanitized =
+          typeof parsed === "string" ? DOMPurify.sanitize(parsed) : undefined;
+        const doc = sanitized
+          ? parseAllExtensionsToDoc(sanitized, publishState.publishingVideo)
           : undefined;
-        editor
-          ?.chain()
-          .setContent(sanitizedContent ?? "")
-          .run();
+        editor?.chain().setContent(doc ?? "").run();
       } catch (e) {
-        error("Failed to laod local draft. We are working on it");
-        throw e;
+        error("Failed to load local draft. We are working on it");
+        console.error(e);
+        editor?.commands.setContent("");
       }
     },
     [editor, publishState.publishingVideo]

@@ -4,7 +4,7 @@ import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
 import dayjs from "@/utils/dayjs";
 import i18next from "i18next";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface Props {
   show: boolean;
@@ -15,6 +15,14 @@ export function PublishScheduleDialog({ show, setShow }: Props) {
   const { schedule, setSchedule, clearSchedule } = usePublishState();
 
   const [state, setState] = useState(schedule);
+
+  useEffect(() => {
+    if (show) {
+      setState(schedule);
+    } else if (!show && schedule === undefined) {
+      setState(undefined);
+    }
+  }, [schedule, show]);
 
   const isInPast = useMemo(
     () => (state ? dayjs(state).isSameOrBefore(dayjs().add(1, "hour")) : false),
@@ -43,7 +51,10 @@ export function PublishScheduleDialog({ show, setShow }: Props) {
         <Button
           className="!w-full sm:!w-auto"
           appearance="gray"
-          onClick={() => setState(undefined)}
+          onClick={() => {
+            setState(undefined);
+            clearSchedule();
+          }}
           size="sm"
         >
           {i18next.t("submit.clear")}
@@ -54,7 +65,11 @@ export function PublishScheduleDialog({ show, setShow }: Props) {
           disabled={isInPast}
           onClick={() => {
             if (!isInPast) {
-              setSchedule(state);
+              if (state) {
+                setSchedule(state);
+              } else {
+                clearSchedule();
+              }
               setShow(false);
             }
           }}

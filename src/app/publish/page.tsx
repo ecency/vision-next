@@ -6,7 +6,7 @@ export async function generateMetadata(
   props: unknown,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  return PagesMetadataGenerator.getForPage("submit");
+  return PagesMetadataGenerator.getForPage("publish");
 }
 
 export default function PublishPage() {

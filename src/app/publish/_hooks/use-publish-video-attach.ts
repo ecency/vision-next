@@ -3,24 +3,39 @@ import { Editor } from "@tiptap/core";
 import { useCallback, useEffect } from "react";
 import { usePublishState } from "./use-publish-state";
 
-export function usePublishVideoAttach(editor: Editor) {
+export function usePublishVideoAttach(editor: Editor | null) {
   const { setPublishingVideo, clearPublishingVideo } = usePublishState();
 
   // Whenever editor content is changing need to check if any videos has attached but removed from content
   // In this case it should clear video state explicitly
   useEffect(() => {
-    editor?.on("update", (e) => {
+    if (!editor) {
+      return;
+    }
+
+    const handler = () => {
       const videos = editor.$nodes("threeSpeakVideo");
-      const hasNoPublishingVideos = videos?.every((v) => v.attributes.status !== "publish_manual");
+      const hasNoPublishingVideos =
+        videos?.every((v) => v.attributes.status !== "publish_manual") ?? true;
 
       if (hasNoPublishingVideos) {
         clearPublishingVideo();
       }
-    });
-  }, [editor]);
+    };
+
+    editor.on("update", handler);
+
+    return () => {
+      editor.off("update", handler);
+    };
+  }, [editor, clearPublishingVideo]);
 
   return useCallback(
     (video: ThreeSpeakVideo, isNsfw: boolean) => {
+      if (!editor) {
+        return;
+      }
+
       if (video.status === "publish_manual") {
         setPublishingVideo(video);
       } else if (video.status === "published") {
@@ -37,6 +52,6 @@ export function usePublishVideoAttach(editor: Editor) {
         })
         .run();
     },
-    [editor]
+    [editor, clearPublishingVideo, setPublishingVideo]
   );
 }

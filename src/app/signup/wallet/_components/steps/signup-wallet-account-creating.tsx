@@ -1,6 +1,5 @@
 import { getAccount } from "@/api/hive";
-import { useUpdateProfile } from "@/api/mutations";
-import { useLoginByKey, useLoginInApp } from "@/features/shared/login/hooks";
+import { useLoginByKey } from "@/features/shared/login/hooks";
 import { Button } from "@/features/ui";
 import { delay } from "@/utils";
 import { EcencyAnalytics } from "@ecency/sdk";
@@ -8,7 +7,6 @@ import {
   EcencyTokenMetadata,
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
-  useHiveKeysQuery,
   useSaveWalletInformationToMetadata,
   useSeedPhrase
 } from "@ecency/wallets";
@@ -38,7 +36,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   });
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
-  const { mutateAsync: loginInApp } = useLoginByKey(username, seed!, true);
+  const { mutateAsync: loginInApp } = useLoginByKey(username, loginKey, true);
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
@@ -59,7 +57,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   }, [username]);
 
   useEffect(() => {
-    if (accountKeys && wallet && !hasInitiated) {
+    if (seed && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
       setHasInitiated(true);
       createAccount({ currency: wallet.currency!, address: wallet.address! })
         .then(() => delay(5000))
@@ -72,7 +70,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
         });
     }
   }, [
-    accountKeys,
+    seed,
     wallet,
     createAccount,
     loginInApp,
