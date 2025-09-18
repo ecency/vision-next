@@ -1630,7 +1630,7 @@
     "suggestion-header": "Etiquetas",
     "error-max": "Máximo de {{n}} etiquetas",
     "limited_tags": "Sólo 10 etiquetas permitidas, remueve algunas",
-    "limited_length": "La longitud máxima de cada etiqueta debe ser de 24 caracteres",
+    "limited_length": "La longitud máxima de cada etiqueta debe ser 15",
     "limited_dash": "Usar un guión en cada etiqueta",
     "limited_space": "Usa espacios para separar las etiquetas",
     "limited_lowercase": "Usa solo letras minusculas en la etiqueta",
