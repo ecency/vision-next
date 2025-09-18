@@ -1,9 +1,10 @@
 "use client";
 
 import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publish/_components";
-import { usePublishEditor } from "@/app/publish/_hooks";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import { isCommunity } from "@/utils";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { PublishEditorHtmlWarning } from "./_components/publish-editor-html-warning";
 import { PublishSuccessState } from "./_components/publish-success-state";
@@ -14,6 +15,36 @@ export default function Publish() {
 
   const { editor } = usePublishEditor(() => setShowHtmlWarning(true));
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { tags, setTags } = usePublishState();
+  const appliedCommunityRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const communityParam = searchParams?.get("com");
+
+    if (!communityParam || !isCommunity(communityParam)) {
+      appliedCommunityRef.current = null;
+      return;
+    }
+
+    const normalizedCommunity = communityParam.toLowerCase();
+
+    if (appliedCommunityRef.current === normalizedCommunity) {
+      return;
+    }
+
+    if (tags?.[0]?.toLowerCase() === normalizedCommunity) {
+      appliedCommunityRef.current = normalizedCommunity;
+      return;
+    }
+
+    const remainingTags = (tags ?? [])
+      .filter((tag) => tag.toLowerCase() !== normalizedCommunity)
+      .filter((tag) => !isCommunity(tag));
+
+    setTags([normalizedCommunity, ...remainingTags]);
+    appliedCommunityRef.current = normalizedCommunity;
+  }, [searchParams, setTags, tags]);
 
   return (
     <>
