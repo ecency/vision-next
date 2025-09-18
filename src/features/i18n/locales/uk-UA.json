@@ -1630,7 +1630,7 @@
     "suggestion-header": "Tags",
     "error-max": "Max {{n}} tags",
     "limited_tags": "Only 10 tags allowed, remove some",
-    "limited_length": "Maximum length of each tag should be 24",
+    "limited_length": "Максимальна довжина кожного тегу має бути 15",
     "limited_dash": "Use one dash in each tag",
     "limited_space": "Use space to separate tags",
     "limited_lowercase": "Only use lower letters in tag",
