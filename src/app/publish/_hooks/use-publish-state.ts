@@ -8,6 +8,12 @@ import { useCallback, useEffect, useMemo } from "react";
 import { usePublishPollState } from "./use-publish-poll-state";
 import { ThreeSpeakVideo } from "@ecency/sdk";
 import i18next from "i18next";
+import {
+  SUBMIT_DESCRIPTION_MAX_LENGTH,
+  SUBMIT_TAG_MAX_LENGTH,
+  SUBMIT_TITLE_MAX_LENGTH
+} from "@/app/submit/_consts";
+import isEqual from "react-fast-compare";
 
 export function usePublishState() {
   const params = useParams();
@@ -16,7 +22,7 @@ export function usePublishState() {
     return Object.keys(routeParams).length === 0;
   }, [params]);
 
-  const [title, setTitle] = useSynchronizedLocalStorage<string>(
+  const [title, setStoredTitle] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_title",
     "",
     undefined,
@@ -40,7 +46,7 @@ export function usePublishState() {
     undefined,
     persistent
   );
-  const [metaDescription, setMetaDescription] = useSynchronizedLocalStorage<string>(
+  const [metaDescription, setStoredMetaDescription] = useSynchronizedLocalStorage<string>(
     PREFIX + "_pub_meta_desc",
     "",
     undefined,
@@ -62,7 +68,7 @@ export function usePublishState() {
     },
     persistent
   );
-  const [tags, setTags] = useSynchronizedLocalStorage<string[]>(
+  const [tags, setStoredTags] = useSynchronizedLocalStorage<string[]>(
     PREFIX + "_pub_tags",
     [],
     undefined,
@@ -132,6 +138,50 @@ export function usePublishState() {
   );
   const [poll, setPoll, clearPoll] = usePublishPollState(persistent);
 
+  const setTitle = useCallback(
+    (value: string) => setStoredTitle(value.slice(0, SUBMIT_TITLE_MAX_LENGTH)),
+    [setStoredTitle]
+  );
+
+  const setMetaDescription = useCallback(
+    (value: string) =>
+      setStoredMetaDescription(value.slice(0, SUBMIT_DESCRIPTION_MAX_LENGTH)),
+    [setStoredMetaDescription]
+  );
+
+  const sanitizeTags = useCallback((tagList: string[]) => {
+    const trimmed = tagList
+      .map((tag) => tag.slice(0, SUBMIT_TAG_MAX_LENGTH))
+      .filter((tag) => tag);
+    return Array.from(new Set(trimmed));
+  }, []);
+
+  const setTags = useCallback(
+    (nextTags: string[]) => {
+      setStoredTags(sanitizeTags(nextTags));
+    },
+    [sanitizeTags, setStoredTags]
+  );
+
+  useEffect(() => {
+    if (title.length > SUBMIT_TITLE_MAX_LENGTH) {
+      setTitle(title);
+    }
+  }, [setTitle, title]);
+
+  useEffect(() => {
+    if (metaDescription.length > SUBMIT_DESCRIPTION_MAX_LENGTH) {
+      setMetaDescription(metaDescription);
+    }
+  }, [metaDescription, setMetaDescription]);
+
+  useEffect(() => {
+    const sanitized = sanitizeTags(tags);
+    if (!isEqual(sanitized, tags)) {
+      setStoredTags(sanitized);
+    }
+  }, [sanitizeTags, setStoredTags, tags]);
+
   //const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
   const metadata = useMemo(() => {
     const initialImage = selectedThumbnail
@@ -172,7 +222,7 @@ export function usePublishState() {
 
   useEffect(() => {
     if (!metaDescription) {
-      setMetaDescription(postBodySummary(content!));
+      setMetaDescription(postBodySummary(content!, SUBMIT_DESCRIPTION_MAX_LENGTH));
     }
   }, [content, metaDescription, setMetaDescription]);
 

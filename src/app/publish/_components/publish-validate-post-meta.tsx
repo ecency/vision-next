@@ -1,6 +1,7 @@
 import { FormControl } from "@/features/ui";
 import { usePublishState } from "../_hooks";
 import i18next from "i18next";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 
 export function PublishValidatePostMeta() {
   const { title, metaDescription, setMetaDescription } = usePublishState();
@@ -14,6 +15,7 @@ export function PublishValidatePostMeta() {
         type="textarea"
         value={metaDescription}
         onChange={(e) => setMetaDescription((e.target as HTMLTextAreaElement).value)}
+        maxLength={SUBMIT_DESCRIPTION_MAX_LENGTH}
       />
     </div>
   );

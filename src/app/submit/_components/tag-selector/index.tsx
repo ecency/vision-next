@@ -7,6 +7,7 @@ import { closeSvg, poundSvg } from "@ui/svg";
 import { ItemInterface, ReactSortable } from "react-sortablejs";
 import { getTrendingTagsQuery } from "@/api/queries";
 import usePrevious from "react-use/lib/usePrevious";
+import { SUBMIT_TAG_MAX_LENGTH } from "@/app/submit/_consts";
 
 interface Props {
   tags: string[];
@@ -38,6 +39,7 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
     () =>
       value
         ? trendingTags
+            .filter((x: string) => x.length <= SUBMIT_TAG_MAX_LENGTH)
             .filter((x: string) => x.toLowerCase().indexOf(value.toLowerCase()) === 0)
             .filter((x: string) => !tags.includes(x))
             .slice(0, 40)
@@ -53,7 +55,7 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
   const filter = useCallback((cats: string[]) => {
     cats.length > 10
       ? setWarning(i18next.t("tag-selector.limited_tags"))
-      : cats.find((c) => c.length > 24)
+      : cats.find((c) => c.length > SUBMIT_TAG_MAX_LENGTH)
         ? setWarning(i18next.t("tag-selector.limited_length"))
         : cats.find((c) => c.split("-").length > 2)
           ? setWarning(i18next.t("tag-selector.limited_dash"))
@@ -75,7 +77,13 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
         return false;
       }
 
-      if (tags.includes(value)) {
+      const trimmedValue = value.slice(0, SUBMIT_TAG_MAX_LENGTH);
+
+      if (trimmedValue === "") {
+        return false;
+      }
+
+      if (tags.includes(trimmedValue)) {
         return false;
       }
 
@@ -84,36 +92,44 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
         return false;
       }
 
-      const newTags = [...tags, value];
+      const newTags = [...tags, trimmedValue];
       onChange(newTags);
       setValue("");
       return true;
     },
     [maxItem, onChange, tags]
   );
-    const handlePaste = useCallback(
-        (e: React.ClipboardEvent<HTMLInputElement>) => {
-            e.preventDefault();
-            const pastedText = e.clipboardData.getData("Text").trim();
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      const pastedText = e.clipboardData.getData("Text").trim();
 
-            // Normalize delimiters to space, then split
-            const rawTags = pastedText.replace(/,/g, " ").split(/\s+/);
-            const newTags = rawTags
-                .map((tag) => tag.toLowerCase().replace(/#/g, ""))
-                .filter((tag) => !!tag && !tags.includes(tag));
+      // Normalize delimiters to space, then split
+      const rawTags = pastedText.replace(/,/g, " ").split(/\s+/);
+      const newTags = rawTags
+        .map((tag) => tag.toLowerCase().replace(/#/g, ""))
+        .map((tag) => tag.slice(0, SUBMIT_TAG_MAX_LENGTH))
+        .filter((tag) => !!tag);
 
-            const finalTags = [...tags];
+      const finalTags = [...tags];
 
-            for (const tag of newTags) {
-                if (finalTags.length >= maxItem) break;
-                finalTags.push(tag);
-            }
+      for (const tag of newTags) {
+        if (finalTags.length >= maxItem) {
+          break;
+        }
 
-            onChange(finalTags.slice(0, maxItem));
-            setValue(""); // clear input
-        },
-        [tags, maxItem, onChange]
-    );
+        if (finalTags.includes(tag)) {
+          continue;
+        }
+
+        finalTags.push(tag);
+      }
+
+      onChange(finalTags.slice(0, maxItem));
+      setValue(""); // clear input
+    },
+    [tags, maxItem, onChange]
+  );
 
     const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -146,8 +162,9 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
       const value = e.target.value.toLocaleLowerCase().trim().replace(/,/g, " ").replace(/#/g, "");
       let cats = value.split(" ");
       if (cats.length > 0) {
-        filter(cats);
-        setValue(cats.join(""));
+        const normalizedCats = cats.map((cat) => cat.slice(0, SUBMIT_TAG_MAX_LENGTH));
+        filter(normalizedCats);
+        setValue(normalizedCats.join(""));
       }
 
       const rawValue = e.target.value.toLocaleLowerCase();

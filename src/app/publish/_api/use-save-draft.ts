@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { formatError } from "@/api/operations";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 
 type SaveDraftOptions = {
   showToast?: boolean;
@@ -58,7 +59,9 @@ export function useSaveDraftApi(draftId?: string) {
         .extractFromBody(content!)
         .withTags(tags)
         // It should select filled description or if its empty or null/undefined then get auto summary
-        .withSummary(metaDescription! || postBodySummary(content!))
+        .withSummary(
+          metaDescription! || postBodySummary(content!, SUBMIT_DESCRIPTION_MAX_LENGTH)
+        )
         .withPostLinks(postLinks)
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);

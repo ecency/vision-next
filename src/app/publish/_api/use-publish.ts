@@ -17,6 +17,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { usePublishState } from "../_hooks";
 import * as Sentry from "@sentry/nextjs";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();
@@ -84,7 +85,9 @@ export function usePublishApi() {
         .default()
         .extractFromBody(content!)
         // It should select filled description or if its empty or null/undefined then get auto summary
-        .withSummary(metaDescription || postBodySummary(cleanBody))
+        .withSummary(
+          metaDescription || postBodySummary(cleanBody, SUBMIT_DESCRIPTION_MAX_LENGTH)
+        )
         .withTags(tags)
         .withPostLinks(postLinks)
         .withLocation(location)
@@ -142,7 +145,8 @@ export function usePublishApi() {
           body: content!,
 
           tags: tags!,
-          description: metaDescription || postBodySummary(cleanBody),
+          description:
+            metaDescription || postBodySummary(cleanBody, SUBMIT_DESCRIPTION_MAX_LENGTH),
           jsonMeta
         }),
         max_accepted_payout: options?.max_accepted_payout ?? "1000000.000 HBD",

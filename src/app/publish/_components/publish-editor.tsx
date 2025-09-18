@@ -3,6 +3,7 @@ import { Editor, EditorContent } from "@tiptap/react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import TextareaAutosize from "react-textarea-autosize";
+import { SUBMIT_TITLE_MAX_LENGTH } from "@/app/submit/_consts";
 import { PublishEditorPollEditor } from "../_editor-extensions";
 import { usePublishState } from "../_hooks";
 import { PublishEditorCounter } from "./publish-editor-counter";
@@ -27,6 +28,7 @@ export function PublishEditor({ editor }: Props) {
         placeholder={i18next.t("publish.title-placeholder")}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        maxLength={SUBMIT_TITLE_MAX_LENGTH}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === "Tab") {
             e.preventDefault();

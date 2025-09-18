@@ -5,6 +5,7 @@ import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { useEntryDetector } from "@/app/submit/_hooks";
 import { Entry } from "@/entities";
 import { postBodySummary } from "@ecency/render-helper";
+import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
@@ -60,7 +61,10 @@ export default function Publish() {
         setTitle(entry.title);
         setTags(Array.from(new Set(entry.json_metadata?.tags ?? [])));
         setContent(entry.body); // todo
-        setMetaDescription(entry.json_metadata?.description ?? postBodySummary(entry.body, 200));
+        setMetaDescription(
+          entry.json_metadata?.description ??
+            postBodySummary(entry.body, SUBMIT_DESCRIPTION_MAX_LENGTH)
+        );
         entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
         entry?.json_metadata?.image &&
           setEntryImages(Array.from(new Set(entry.json_metadata?.image)));
