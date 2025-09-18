@@ -164,19 +164,19 @@ export function usePublishState() {
   );
 
   useEffect(() => {
-    if (title.length > SUBMIT_TITLE_MAX_LENGTH) {
-      setTitle(title);
+    if ((title?.length ?? 0) > SUBMIT_TITLE_MAX_LENGTH) {
+      setTitle(title ?? "");
     }
   }, [setTitle, title]);
 
   useEffect(() => {
-    if (metaDescription.length > SUBMIT_DESCRIPTION_MAX_LENGTH) {
-      setMetaDescription(metaDescription);
+    if ((metaDescription?.length ?? 0) > SUBMIT_DESCRIPTION_MAX_LENGTH) {
+      setMetaDescription(metaDescription ?? "");
     }
   }, [metaDescription, setMetaDescription]);
 
   useEffect(() => {
-    const sanitized = sanitizeTags(tags);
+    const sanitized = sanitizeTags(tags ?? []);
     if (!isEqual(sanitized, tags)) {
       setStoredTags(sanitized);
     }
