@@ -83,7 +83,7 @@ export function WavesListItemHeader({
           appearance="gray-link"
           size="sm"
           icon={<UilMultiply />}
-          onClick={(e) => {
+          onClick={(e: { stopPropagation: () => void; }) => {
             e.stopPropagation();
             onClose();
           }}
