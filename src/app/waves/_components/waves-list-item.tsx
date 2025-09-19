@@ -89,8 +89,15 @@ export function WavesListItem({
   const status = "default";
 
   const isFromInteractiveElement = useCallback(
-    (target: EventTarget | null) =>
-      target instanceof HTMLElement ? target.closest(INTERACTIVE_SELECTOR) !== null : false,
+    (target: EventTarget | null) => {
+      if (!(target instanceof HTMLElement)) {
+        return false;
+      }
+
+      const closestInteractive = target.closest(INTERACTIVE_SELECTOR);
+
+      return closestInteractive !== null && closestInteractive !== rootRef.current;
+    },
     []
   );
 
@@ -239,7 +246,7 @@ export function WavesListItem({
         onViewFullThread={onHeaderClick}
         now={now}
       />
-      <div className="p-4" onClick={()=>onExpandReplies?.()}>
+      <div className="p-4">
         {isMuted ? (
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {i18next.t("waves.muted-post")}
