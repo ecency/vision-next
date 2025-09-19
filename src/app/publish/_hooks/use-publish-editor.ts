@@ -40,11 +40,11 @@ import i18next from "i18next";
 
 const PublishTextStyle = TextStyle.extend({
   addAttributes() {
-    const parent = this.parent?.();
-    const parentColor = parent?.color ?? {};
+    const parentAttributes = (this.parent?.() ?? {}) as Record<string, unknown>;
+    const parentColor = (parentAttributes.color ?? {}) as Record<string, unknown>;
 
     return {
-      ...parent,
+      ...parentAttributes,
       color: {
         ...parentColor,
         parseHTML: (element) => {
@@ -72,8 +72,14 @@ const PublishTextStyle = TextStyle.extend({
             return normalizedInlineColor;
           }
 
-          if (typeof parentColor.parseHTML === "function") {
-            const parsed = parentColor.parseHTML(element);
+          const parentParseHTML =
+            typeof (parentColor as { parseHTML?: unknown }).parseHTML === "function"
+              ? ((parentColor as { parseHTML: (element: HTMLElement) => unknown })
+                  .parseHTML)
+              : null;
+
+          if (parentParseHTML) {
+            const parsed = parentParseHTML(element);
 
             if (typeof parsed === "string") {
               const normalized = normalizeTextColor(parsed);
