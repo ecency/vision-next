@@ -130,18 +130,26 @@ export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
     return filtered.length > 0 ? filtered : combinedResults;
   }, [combinedResults, hasSearchQuery, matchableQuery]);
 
-  const normalizedSubscriptions = useMemo(
-    () =>
-      hasSearchQuery
-        ? (subscriptions ?? [])
-            .filter(
-              ([name, title]) =>
-                matchesQuery(name, matchableQuery) || matchesQuery(title, matchableQuery)
-            )
-            .map(([name, title]) => ({ name, title }))
-        : [],
-    [subscriptions, hasSearchQuery, matchableQuery]
-  );
+  const normalizedSubscriptions = useMemo(() => {
+    if (!hasSearchQuery || !subscriptions) {
+      return [];
+    }
+
+    const tuples = (subscriptions as unknown[]).filter(
+      (subscription): subscription is [string, string] =>
+        Array.isArray(subscription) &&
+        subscription.length >= 2 &&
+        typeof subscription[0] === "string" &&
+        typeof subscription[1] === "string"
+    );
+
+    return tuples
+      .filter(
+        ([name, title]) =>
+          matchesQuery(name, matchableQuery) || matchesQuery(title, matchableQuery)
+      )
+      .map(([name, title]) => ({ name, title }));
+  }, [subscriptions, hasSearchQuery, matchableQuery]);
 
   const searchResults = useMemo<SearchResult[]>(() => {
     if (!hasSearchQuery) {
