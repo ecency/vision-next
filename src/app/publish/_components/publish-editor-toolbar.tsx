@@ -57,6 +57,7 @@ import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
 import { PublishEditorGeoTagDialog } from "./publish-editor-geo-tag/publish-editor-geo-tag-dialog";
 import clsx from "clsx";
+import { TEXT_COLORS, normalizeTextColor } from "../_constants/text-colors";
 
 interface Props {
   editor: any | null;
@@ -64,25 +65,13 @@ interface Props {
 }
 
 const headings = [1, 2, 3, 4, 5, 6];
-const colorPalette = [
-  "#000000",
-  "#1F2937",
-  "#4B5563",
-  "#64748B",
-  "#16A34A",
-  "#22C55E",
-  "#0EA5E9",
-  "#2563EB",
-  "#7C3AED",
-  "#F97316",
-  "#F59E0B",
-  "#DC2626",
-  "#EC4899"
-];
+const colorPalette = TEXT_COLORS;
 
 function PublishEditorToolbarColorPalette({ editor }: { editor: any | null }) {
   const { setShow } = useContext(DropdownContext);
-  const activeColor = editor?.getAttributes("textStyle")?.color as string | undefined;
+  const activeColor = normalizeTextColor(
+    editor?.getAttributes("textStyle")?.color as string | undefined
+  );
 
   return (
     <div className="flex flex-col gap-3 px-3 py-2">
