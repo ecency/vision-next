@@ -1,8 +1,8 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import * as bridgeApi from "@/api/bridge";
+import { getDiscussionsQuery } from "@/api/queries";
 import { ProfileFilter } from "@/enums";
 import { Entry, WaveEntry } from "@/entities";
-import { client } from "@/api/hive";
 
 async function getThreads(host: string, pageParam?: WaveEntry) {
   let nextThreadContainers = (
@@ -23,18 +23,37 @@ async function getThreads(host: string, pageParam?: WaveEntry) {
     return [];
   }
 
-  const items = (await client.call("condenser_api", "get_content_replies", [
-    host,
-    nextThreadContainers[0].permlink
-  ])) as Entry[];
-  // const threadItems = await bridgeApi.getDiscussion(host, nextThreadContainers[0].permlink);
+  const [nextThreadContainer] = nextThreadContainers;
 
-  // If no discussion need to fetch next container
-  if (items.length === 0) {
-    return getThreads(host, nextThreadContainers[0]);
+  if (nextThreadContainer?.stats?.gray) {
+    return getThreads(host, nextThreadContainer);
   }
 
-  return [items, nextThreadContainers] as const;
+  const container = nextThreadContainers[0];
+  const discussionItems =
+    (await getDiscussionsQuery(container).fetchAndGet()) ?? [];
+
+  // If no discussion need to fetch next container
+  if (discussionItems.length <= 1) {
+    return getThreads(host, container);
+  }
+
+  const firstLevelItems = discussionItems.filter(
+    ({ parent_author, parent_permlink }) =>
+      parent_author === container.author && parent_permlink === container.permlink
+  );
+
+  if (firstLevelItems.length === 0) {
+    return getThreads(host, container);
+  }
+
+  const visibleItems = firstLevelItems.filter((item) => !item.stats?.gray);
+
+  if (visibleItems.length === 0) {
+    return getThreads(host, container);
+  }
+
+  return [visibleItems, nextThreadContainers] as const;
 }
 
 export const getWavesByHostQuery = (host: string) =>
