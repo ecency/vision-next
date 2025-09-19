@@ -639,7 +639,7 @@
       "create-regular-post": "Create long post",
       "input-placeholder": "What's happening?",
       "select-thread-host": "Select a waves host",
-      "thread-host": "Veröffentlichen in",
+      "thread-host": "Will be published in",
       "no-threads-host": "This account is not a waves host",
       "publishing": "Waving 🌊...",
       "successfully-created": "Published successfully!",
