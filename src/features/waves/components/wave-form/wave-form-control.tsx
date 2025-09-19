@@ -26,17 +26,29 @@ export const WaveFormControl = ({
   placeholder
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
+  const characterLimit = 255;
+  const textLength = text?.length ?? 0;
+  const counterClassName = clsx(
+    "text-xs pb-2 transition-colors",
+    textLength > characterLimit
+      ? "text-red-500"
+      : textLength > characterLimit - 35
+        ? "text-amber-500"
+        : "text-gray-500 dark:text-gray-300"
+  );
 
   return (
     <div className="flex items-start gap-4 flex-wrap py-4">
       <div className="w-full">
         <TextareaAutosize
-          className="w-full rounded-xl p-2 lg:p-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none min-h-[6rem]"
+          className="w-full rounded-xl px-3 py-2 lg:px-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none min-h-[3.5rem] text-[0.95rem] leading-6 focus-visible:ring-2 focus-visible:ring-blue-dark-sky"
           placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
-        <div className="text-xs opacity-50 pb-2">{text?.length ?? 0}/255</div>
+        <div className={counterClassName} aria-live="polite">
+          {textLength}/{characterLimit}
+        </div>
       </div>
       <AnimatePresence>
         {selectedImage && (
