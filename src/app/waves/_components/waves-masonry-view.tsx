@@ -66,6 +66,7 @@ export function WavesMasonryView({ host }: Props) {
                           item={item}
                           onExpandReplies={() => setReplyingEntry(item)}
                           now={now}
+                          currentHost={host}
                       />
                   ))}
               </div>

@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery, getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
 import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
+import { WAVES_FEED_SCROLL_STORAGE_KEY, WavesFeedScrollState } from "@/app/waves/_constants";
 
 const INTERACTIVE_SELECTOR =
   "a,button,input,textarea,select,[role='button'],[role='link'],[role='menuitem'],[contenteditable='true']";
@@ -31,6 +32,7 @@ interface Props {
   onExpandReplies?: () => void;
   interactable?: boolean;
   now?: number;
+  currentHost?: string;
 }
 
 export function WavesListItem({
@@ -39,7 +41,8 @@ export function WavesListItem({
   commentSlot,
   onExpandReplies,
   interactable = true,
-  now
+  now,
+  currentHost
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
@@ -115,10 +118,26 @@ export function WavesListItem({
       if (openInNewTab) {
         window.open(wavePath, "_blank", "noopener,noreferrer");
       } else {
+        if (typeof window !== "undefined") {
+          const scrollState: WavesFeedScrollState = {
+            scrollY: window.scrollY,
+            grid,
+            host: currentHost,
+            url: `${window.location.pathname}${window.location.search}`,
+            timestamp: Date.now()
+          };
+
+          try {
+            sessionStorage.setItem(WAVES_FEED_SCROLL_STORAGE_KEY, JSON.stringify(scrollState));
+          } catch (err) {
+            // Ignore storage errors
+          }
+        }
+
         router.push(wavePath);
       }
     },
-    [interactable, router, wavePath]
+    [currentHost, grid, interactable, router, wavePath]
   );
 
   const hasTextSelection = useCallback(() => {
