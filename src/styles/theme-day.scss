@@ -27,6 +27,9 @@ body {
   --card-border-color: theme('colors.light.300');
   --card-cap-bg: theme('colors.light.200');
   --border-color: theme('colors.gray.300');
+  --scrollbar-thumb-color: theme('colors.blue.dark-sky');
+  --scrollbar-thumb-hover-color: theme('colors.blue.dusk');
+  --scrollbar-track-color: theme('colors.light.300');
 
   background: theme('colors.white');
   color: theme('colors.gray.charcoal-100');

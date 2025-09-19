@@ -4,7 +4,7 @@ import { getWavesByHostQuery } from "@/api/queries";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { DetectBottom } from "@/features/shared";
 import { WavesListLoader } from "@/app/waves/_components/waves-list-loader";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useInfiniteDataFlow } from "@/utils";
 import { useWavesAutoRefresh } from "@/app/waves/_hooks";
 import { WavesRefreshPopup } from "@/app/waves/_components";
@@ -12,6 +12,8 @@ import { WavesFastReplyDialog } from "@/app/waves/_components/waves-fast-reply-d
 import { WaveEntry } from "@/entities";
 import { useQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
+import { WAVES_FEED_SCROLL_STORAGE_KEY, WavesFeedScrollState } from "@/app/waves/_constants";
+import { useWavesGrid } from "@/app/waves/_hooks";
 
 interface Props {
   host: string;
@@ -21,6 +23,7 @@ export function WavesListView({ host }: Props) {
   const { data, fetchNextPage, isError, hasNextPage, refetch } = getWavesByHostQuery(host).useClientQuery();
   const { data: promoted } = useQuery(getPromotedPostsQuery<WaveEntry>("waves"));
   const dataFlow = useInfiniteDataFlow(data);
+  const [grid] = useWavesGrid();
   const combinedDataFlow = useMemo(() => {
     if (!promoted) {
       return dataFlow;
@@ -46,6 +49,54 @@ export function WavesListView({ host }: Props) {
 
   const [replyingEntry, setReplyingEntry] = useState<WaveEntry>();
   const { newWaves, clear, now } = useWavesAutoRefresh(dataFlow[0]);
+  const [pendingScroll, setPendingScroll] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storedValue = sessionStorage.getItem(WAVES_FEED_SCROLL_STORAGE_KEY);
+
+    if (!storedValue) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(storedValue) as WavesFeedScrollState;
+      const currentUrl = `${window.location.pathname}${window.location.search}`;
+      const hostMatches = !parsed.host || parsed.host === host;
+      const gridMatches = !parsed.grid || parsed.grid === grid;
+      const urlMatches = !parsed.url || parsed.url === currentUrl;
+
+      if (hostMatches && gridMatches && typeof parsed.scrollY === "number" && urlMatches) {
+        setPendingScroll(parsed.scrollY);
+      }
+    } catch (e) {
+      // Ignore malformed state
+    } finally {
+      sessionStorage.removeItem(WAVES_FEED_SCROLL_STORAGE_KEY);
+    }
+  }, [grid, host]);
+
+  useEffect(() => {
+    if (pendingScroll === null) {
+      return;
+    }
+
+    if (combinedDataFlow.length === 0) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: pendingScroll });
+      setPendingScroll(null);
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [combinedDataFlow.length, pendingScroll]);
 
   return (
     <div className="flex flex-col pb-8">
@@ -66,6 +117,7 @@ export function WavesListView({ host }: Props) {
           item={item}
           onExpandReplies={() => setReplyingEntry(item)}
           now={now}
+          currentHost={host}
         />
       ))}
 

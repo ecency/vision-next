@@ -7,8 +7,9 @@ import { useGlobalStore } from "@/core/global-store";
 import { WaveEntry } from "@/entities";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
-import { UilArrowRight } from "@tooni/iconscout-unicons-react";
+import { UilArrowRight, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { TimeLabel } from "@/features/shared";
+import clsx from "clsx";
 
 interface Props {
   entry: WaveEntry;
@@ -18,6 +19,8 @@ interface Props {
   interactable: boolean;
   onViewFullThread?: (e: React.MouseEvent) => void;
   now?: number;
+  className?: string;
+  onClose?: () => void;
 }
 
 export function WavesListItemHeader({
@@ -27,12 +30,17 @@ export function WavesListItemHeader({
   pure,
   onViewFullThread,
   interactable,
-  now
+  now,
+  className,
+  onClose
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
   return (
-    <div className="flex justify-between px-4 pt-4 pointer" onClick={onViewFullThread}>
+    <div
+      className={clsx("flex justify-between px-4 pt-4 pointer", className)}
+      onClick={onViewFullThread}
+    >
       <div className="flex items-center gap-4">
         <UserAvatar size="deck-item" username={entry.author} />
         <div className="flex flex-col truncate">
@@ -69,14 +77,30 @@ export function WavesListItemHeader({
         </div>
       </div>
 
-      {status === "default" && interactable && (
+      {onClose ? (
         <Button
           noPadding={true}
           appearance="gray-link"
-          icon={<UilArrowRight />}
-          iconPlacement="right"
           size="sm"
+          icon={<UilMultiply />}
+          onClick={(e: { stopPropagation: () => void; }) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          aria-label={i18next.t("g.close")}
+          title={i18next.t("g.close")}
         />
+      ) : (
+        status === "default" &&
+        interactable && (
+          <Button
+            noPadding={true}
+            appearance="gray-link"
+            icon={<UilArrowRight />}
+            iconPlacement="right"
+            size="sm"
+          />
+        )
       )}
       {status === "pending" && <Spinner className="w-4 h-4" />}
     </div>

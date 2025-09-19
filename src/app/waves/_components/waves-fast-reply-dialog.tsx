@@ -3,6 +3,7 @@ import i18next from "i18next";
 import { WaveEntry } from "@/entities";
 import { WaveForm } from "@/features/waves";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
+import { WaveViewDiscussion } from "@/app/waves/[author]/[permlink]/_components/wave-view-discussion";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 
@@ -31,6 +32,11 @@ export function WavesFastReplyDialog({ show, onHide, entry }: Props) {
         replySource={entry}
         onSuccess={() => router.push(`/waves/${entry?.author}/${entry?.permlink}`)}
       />
+      {entry &&
+        <div className="flex flex-col gap-4">
+            <WaveViewDiscussion entry={entry} />
+        </div>
+      }
     </Modal>
   );
 }

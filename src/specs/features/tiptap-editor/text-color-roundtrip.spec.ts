@@ -1,0 +1,112 @@
+import DOMPurify from "dompurify";
+import { marked } from "marked";
+
+import { TEXT_COLOR_CLASS_PREFIX } from "@/app/publish/_constants/text-colors";
+import { markdownToHtml } from "@/features/tiptap-editor/functions/markdown-to-html";
+import { parseAllExtensionsToDoc } from "@/features/tiptap-editor/functions/parse-all-extensions-to-doc";
+
+type RoundTripResult = {
+  markdownAfterSave: string;
+  reopenedHtml: string;
+  markdownAfterPublishing: string;
+  postEditHtml: string;
+};
+
+async function parseMarkdownToEditorHtml(markdown: string) {
+  const parsed = await marked.parse(markdown);
+  const sanitized = DOMPurify.sanitize(typeof parsed === "string" ? parsed : "");
+  return parseAllExtensionsToDoc(sanitized);
+}
+
+async function runEditorRoundTrip(initialHtml: string): Promise<RoundTripResult> {
+  const markdownAfterSave = markdownToHtml(initialHtml);
+  const reopenedHtml = await parseMarkdownToEditorHtml(markdownAfterSave);
+  const markdownAfterPublishing = markdownToHtml(reopenedHtml);
+  const postEditHtml = await parseMarkdownToEditorHtml(markdownAfterPublishing);
+
+  return {
+    markdownAfterSave,
+    reopenedHtml,
+    markdownAfterPublishing,
+    postEditHtml
+  };
+}
+
+describe("editor formatting persistence", () => {
+  it("keeps class-based colors when saving, reopening, publishing, and editing", async () => {
+    const colorSuffix = "f97316";
+    const colorClass = `${TEXT_COLOR_CLASS_PREFIX}${colorSuffix}`;
+    const initialHtml = `<p><span class="${colorClass}">Colored text</span></p>`;
+
+    const {
+      markdownAfterSave,
+      reopenedHtml,
+      markdownAfterPublishing,
+      postEditHtml
+    } = await runEditorRoundTrip(initialHtml);
+
+    [markdownAfterSave, reopenedHtml, markdownAfterPublishing, postEditHtml].forEach(
+      (content) => {
+        expect(content).toContain(colorClass);
+      }
+    );
+  });
+
+  it("keeps bold text formatting across the editor lifecycle", async () => {
+    const initialHtml = "<p><strong>Bold text</strong></p>";
+
+    const {
+      markdownAfterSave,
+      reopenedHtml,
+      markdownAfterPublishing,
+      postEditHtml
+    } = await runEditorRoundTrip(initialHtml);
+
+    expect(markdownAfterSave).toContain("**Bold text**");
+    expect(reopenedHtml).toContain("<strong>Bold text</strong>");
+    expect(markdownAfterPublishing).toContain("**Bold text**");
+    expect(postEditHtml).toContain("<strong>Bold text</strong>");
+  });
+
+  it("keeps paragraph alignment metadata for non-image content", async () => {
+    const initialHtml = '<p style="text-align: right">Aligned text</p>';
+
+    const {
+      markdownAfterSave,
+      reopenedHtml,
+      markdownAfterPublishing,
+      postEditHtml
+    } = await runEditorRoundTrip(initialHtml);
+
+    [markdownAfterSave, reopenedHtml, markdownAfterPublishing, postEditHtml].forEach(
+      (content) => {
+        expect(content).toContain('data-align="right"');
+      }
+    );
+  });
+
+  it("keeps centered image alignment wrappers across the editor lifecycle", async () => {
+    const initialHtml =
+      '<p style="text-align: center"><img src="https://example.com/image.png" alt="Example" /></p>';
+
+    const {
+      markdownAfterSave,
+      reopenedHtml,
+      markdownAfterPublishing,
+      postEditHtml
+    } = await runEditorRoundTrip(initialHtml);
+
+    expect(markdownAfterSave).toContain("<center><img");
+    expect(markdownAfterSave).toContain('src="https://example.com/image.png"');
+    expect(markdownAfterSave).toContain('alt="Example"');
+    expect(markdownAfterSave).toContain("</center>");
+    expect(reopenedHtml).toContain('style="text-align: center;"');
+    expect(reopenedHtml).toContain('src="https://example.com/image.png"');
+    expect(markdownAfterPublishing).toContain("<center><img");
+    expect(markdownAfterPublishing).toContain('src="https://example.com/image.png"');
+    expect(markdownAfterPublishing).toContain('alt="Example"');
+    expect(markdownAfterPublishing).toContain("</center>");
+    expect(postEditHtml).toContain('style="text-align: center;"');
+    expect(postEditHtml).toContain('src="https://example.com/image.png"');
+  });
+});

@@ -53,7 +53,10 @@ const WaveFormComponent = ({
 
   useEffect(() => {
     if (entry) {
-      let nextText = entry.body.replace("<br>", "\n").replace("<p>", "").replace("</p>", "");
+      const body = entry.body ?? "";
+      let nextText = body
+        .replace(/<br\s*\/?>(\n)?/gi, "\n")
+        .replace(/<\/?p[^>]*>/gi, "");
       const nextImage = entry.body.match(/\!\[.*\]\(.+\)/g)?.[0];
       if (nextImage) {
         setImage(
