@@ -64,6 +64,29 @@ export function markdownToHtml(html: string | undefined) {
         return element.outerHTML;
       }
     })
+    .addRule("textColor", {
+      filter: function (node) {
+        if (node.nodeName !== "SPAN") {
+          return false;
+        }
+
+        const element = node as HTMLElement;
+        return !!element.style.color;
+      },
+      replacement: function (_, node) {
+        const element = node as HTMLElement;
+        const color = element.style.color;
+        const clone = element.cloneNode(true) as HTMLElement;
+
+        if (color) {
+          clone.setAttribute("style", `color: ${color}`);
+        } else {
+          clone.removeAttribute("style");
+        }
+
+        return clone.outerHTML;
+      }
+    })
     .addRule("table", {
       filter: function (node) {
         return node.nodeName === "TABLE";

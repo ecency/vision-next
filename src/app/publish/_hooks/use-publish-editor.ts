@@ -19,6 +19,8 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import TextAlign from "@tiptap/extension-text-align";
+import Color from "@tiptap/extension-color";
+import TextStyle from "@tiptap/extension-text-style";
 import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import DOMPurify from "dompurify";
@@ -43,6 +45,8 @@ export function usePublishEditor(onHtmlPaste: () => void) {
       Placeholder.configure({
         placeholder: i18next.t("submit.body-placeholder")
       }),
+      TextStyle,
+      Color,
       TextAlign.configure({
         types: ["heading", "paragraph", "youtubeVideo"]
       }),

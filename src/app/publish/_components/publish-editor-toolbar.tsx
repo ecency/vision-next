@@ -27,6 +27,7 @@ import {
   UilMap,
   UilMapPin,
   UilMapPinAlt,
+  UilPalette,
   UilPanelAdd,
   UilParagraph,
   UilSmile,
@@ -44,8 +45,9 @@ import {
   DropdownMenu,
   DropdownToggle
 } from "@ui/dropdown";
+import { DropdownContext } from "@ui/dropdown/dropdown-context";
 import i18next from "i18next";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { usePublishState, usePublishVideoAttach } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
 import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
@@ -62,6 +64,72 @@ interface Props {
 }
 
 const headings = [1, 2, 3, 4, 5, 6];
+const colorPalette = [
+  "#000000",
+  "#1F2937",
+  "#4B5563",
+  "#64748B",
+  "#16A34A",
+  "#22C55E",
+  "#0EA5E9",
+  "#2563EB",
+  "#7C3AED",
+  "#F97316",
+  "#F59E0B",
+  "#DC2626",
+  "#EC4899"
+];
+
+function PublishEditorToolbarColorPalette({ editor }: { editor: any | null }) {
+  const { setShow } = useContext(DropdownContext);
+  const activeColor = editor?.getAttributes("textStyle")?.color as string | undefined;
+
+  return (
+    <div className="flex flex-col gap-3 px-3 py-2">
+      <div className="grid grid-cols-7 gap-2">
+        {colorPalette.map((color) => {
+          const isActive = editor?.isActive("textStyle", { color });
+
+          return (
+            <button
+              key={color}
+              type="button"
+              onClick={() => {
+                editor?.chain().focus().setColor(color).run();
+                setShow(false);
+              }}
+              className={clsx(
+                "h-6 w-6 rounded-full border border-[--border-color] transition-all",
+                isActive && "ring-2 ring-offset-2 ring-blue-dark-sky"
+              )}
+              style={{ backgroundColor: color }}
+            >
+              <span className="sr-only">{color}</span>
+            </button>
+          );
+        })}
+      </div>
+      <Button
+        size="sm"
+        appearance="gray-link"
+        onClick={() => {
+          editor?.chain().focus().unsetColor().run();
+          setShow(false);
+        }}
+      >
+        {i18next.t("publish.action-bar.clear-color", { defaultValue: "Clear color" })}
+      </Button>
+      {activeColor && (
+        <div className="text-xs text-gray-500">
+          {i18next.t("publish.action-bar.selected-color", {
+            defaultValue: "Selected color: {{color}}",
+            color: activeColor
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Props) {
   const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
@@ -89,6 +157,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [isFocusingTable, setIsFocusingTable] = useState(false);
 
   const attachVideo = usePublishVideoAttach(editor);
+
+  const activeTextColor = editor?.getAttributes("textStyle")?.color as string | undefined;
 
   useEffect(() => {
     if (!editor) {
@@ -285,6 +355,32 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             onSelect={(e) => editor?.chain().focus().insertContent(e).run()}
           />
         </div>
+
+        <StyledTooltip
+            content={i18next.t("publish.action-bar.color", { defaultValue: "Text color" })}
+        >
+          <Dropdown>
+            <DropdownToggle>
+              <Button
+                  appearance={activeTextColor ? "link" : "gray-link"}
+                  size="sm"
+                  icon={
+                    <span className="relative flex items-center justify-center">
+                    <UilPalette />
+                    <span
+                        className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-white shadow"
+                        style={{ backgroundColor: activeTextColor ?? "transparent" }}
+                    />
+                  </span>
+                  }
+              />
+            </DropdownToggle>
+            <DropdownMenu size="small" className="!min-w-[200px] gap-3">
+              <PublishEditorToolbarColorPalette editor={editor} />
+            </DropdownMenu>
+          </Dropdown>
+        </StyledTooltip>
+
         <StyledTooltip content={i18next.t("publish.action-bar.gif")}>
           <Button
             appearance="gray-link"
