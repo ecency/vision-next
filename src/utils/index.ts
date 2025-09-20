@@ -12,7 +12,6 @@ export * from "./format-number";
 export * from "./make-path";
 export * from "./rnd";
 export * from "./encoder";
-export * from "./generate-private-keys";
 export * from "./account-reputation";
 export * from "./hive-wallet";
 export * from "./parse-date";

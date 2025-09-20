@@ -13,7 +13,14 @@ import { client as hiveClient } from "./hive";
 import { usrActivity } from "./private-api";
 import { BuySellHiveTransactionType, ErrorTypes, OrderIdPrefix } from "@/enums";
 import i18next from "i18next";
-import {formatNumber, getAccessToken, getLoginType, getPostingKey, hotSign, parseAsset } from "@/utils";
+import {
+  formatNumber,
+  getAccessToken,
+  getLoginType,
+  getPostingKey,
+  hotSign,
+  parseAsset
+} from "@/utils";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
 
 const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
@@ -94,8 +101,10 @@ export const broadcastPostingJSON = (
 
   const loginType = getLoginType(username);
 
-  if (loginType && loginType == 'keychain') {
-    return keychain.customJson(username, id, "Posting", JSON.stringify(json), "Custom json").then((r: any) => r.result)
+  if (loginType && loginType == "keychain") {
+    return keychain
+      .customJson(username, id, "Posting", JSON.stringify(json), "Custom json")
+      .then((r: any) => r.result);
   }
 
   // With hivesigner access token
@@ -123,8 +132,8 @@ export const broadcastPostingOperations = (
   }
 
   const loginType = getLoginType(username);
-  if (loginType == 'keychain') {
-    return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result)
+  if (loginType == "keychain") {
+    return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result);
   }
 
   // With hivesigner access token
@@ -163,15 +172,15 @@ export const reblog = (
 };
 
 export const comment = async (
-    username: string,
-    parentAuthor: string,
-    parentPermlink: string,
-    permlink: string,
-    title: string,
-    body: string,
-    jsonMetadata: MetaData,
-    options: CommentOptions | null,
-    point: boolean = false
+  username: string,
+  parentAuthor: string,
+  parentPermlink: string,
+  permlink: string,
+  title: string,
+  body: string,
+  jsonMetadata: MetaData,
+  options: CommentOptions | null,
+  point: boolean = false
 ): Promise<TransactionConfirmation> => {
   const params = {
     parent_author: parentAuthor.trim(),
@@ -234,58 +243,6 @@ export const vote = (
   });
 };
 
-export const changeRecoveryAccount = (
-  account_to_recover: string,
-  new_recovery_account: string,
-  extensions: [],
-  key: PrivateKey
-): Promise<TransactionConfirmation> => {
-  const op: Operation = [
-    "change_recovery_account",
-    {
-      account_to_recover,
-      new_recovery_account,
-      extensions
-    }
-  ];
-  return hiveClient.broadcast.sendOperations([op], key);
-};
-
-export const changeRecoveryAccountHot = (
-  account_to_recover: string,
-  new_recovery_account: string,
-  extensions: []
-) => {
-  const op: Operation = [
-    "change_recovery_account",
-    {
-      account_to_recover,
-      new_recovery_account,
-      extensions
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${account_to_recover}/permissions` };
-  return hs.sendOperation(op, params, () => {});
-};
-
-export const changeRecoveryAccountKc = (
-  account_to_recover: string,
-  new_recovery_account: string,
-  extensions: []
-) => {
-  const op: Operation = [
-    "change_recovery_account",
-    {
-      account_to_recover,
-      new_recovery_account,
-      extensions
-    }
-  ];
-
-  return keychain.broadcast(account_to_recover, [op], "Owner");
-};
-
 export const follow = (follower: string, following: string): Promise<TransactionConfirmation> => {
   const json = [
     "follow",
@@ -323,24 +280,6 @@ export const ignore = (follower: string, following: string): Promise<Transaction
   ];
 
   return broadcastPostingJSON(follower, "follow", json);
-};
-
-export const claimRewardBalance = (
-  username: string,
-  rewardHive: string,
-  rewardHbd: string,
-  rewardVests: string
-): Promise<TransactionConfirmation> => {
-  const params = {
-    account: username,
-    reward_hive: rewardHive,
-    reward_hbd: rewardHbd,
-    reward_vests: rewardVests
-  };
-
-  const opArray: Operation[] = [["claim_reward_balance", params]];
-
-  return broadcastPostingOperations(username, opArray);
 };
 
 export const transfer = (
@@ -1427,87 +1366,6 @@ export const hiveNotifySetLastRead = (username: string): Promise<TransactionConf
   ];
 
   return broadcastPostingOperations(username, opArray);
-};
-
-export const updatePassword = (
-  update: AccountUpdateOperation[1],
-  ownerKey: PrivateKey
-): Promise<TransactionConfirmation> => hiveClient.broadcast.updateAccount(update, ownerKey);
-
-export const Revoke = (
-  account: string,
-  weight_threshold: number,
-  account_auths: [string, number][],
-  key_auths: any[],
-  memo_key: string,
-  key: PrivateKey
-): Promise<TransactionConfirmation> => {
-  const newPosting = {
-    weight_threshold,
-    account_auths,
-    key_auths
-  };
-
-  const op: Operation = [
-    "account_update",
-    {
-      account,
-      posting: newPosting,
-      memo_key,
-      json_metadata: ""
-    }
-  ];
-  return hiveClient.broadcast.sendOperations([op], key);
-};
-
-export const RevokeHot = (
-  account: string,
-  weight_threshold: number,
-  account_auths: [string, number][],
-  key_auths: any[],
-  memo_key: string
-) => {
-  const newPosting = {
-    weight_threshold,
-    account_auths,
-    key_auths
-  };
-  const op: Operation = [
-    "account_update",
-    {
-      account,
-      posting: newPosting,
-      memo_key,
-      json_metadata: ""
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${account}/permissions` };
-  return hs.sendOperation(op, params, () => {});
-};
-
-export const RevokeKc = (
-  account: string,
-  weight_threshold: number,
-  account_auths: [string, number][],
-  key_auths: any[],
-  memo_key: string
-) => {
-  const newPosting = {
-    weight_threshold,
-    account_auths,
-    key_auths
-  };
-  const op: Operation = [
-    "account_update",
-    {
-      account,
-      posting: newPosting,
-      memo_key,
-      json_metadata: ""
-    }
-  ];
-  return keychain.broadcast(account, [op], "Active");
 };
 
 // Create account with hive keychain

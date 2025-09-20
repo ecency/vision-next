@@ -30,7 +30,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const [hasInitiated, setHasInitiated] = useState(false);
 
   const { data: seed } = useSeedPhrase(username);
-  const loginKey = useMemo(() => seed ?? "", [seed]);
+  const { data: accountKeys } = useHiveKeysQuery(username);
   const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
   });
@@ -59,15 +59,11 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   useEffect(() => {
     if (seed && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
       setHasInitiated(true);
-      const { currency, address } = wallet;
-      createAccount({ currency, address })
+      createAccount({ currency: wallet.currency!, address: wallet.address! })
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp())
-        .then(() => delay(3000))
-        .then(() =>
-          saveWalletInformationToMetadata(Array.from(wallets!.values()))
-        )
+        .then(() => saveWalletInformationToMetadata(Array.from(wallets?.values() ?? [])))
         .then(() => recordActivity())
         .catch(() => {
           /* Errors are handled within respective mutation hooks */
@@ -82,7 +78,6 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     hasInitiated,
     saveWalletInformationToMetadata,
     wallets,
-    loginKey,
     recordActivity
   ]);
 

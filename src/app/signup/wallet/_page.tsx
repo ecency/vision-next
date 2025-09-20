@@ -6,11 +6,10 @@ import {
   SignupByWalletStepperSteps,
   SignupWalletAccountCreating,
   SignupWalletIntro,
-  SignupWalletSeedPhrase,
-  SignupWalletStepper,
-  SignupWalletValidation
+  SignupWalletStepper
 } from "./_components";
 import { SignupWalletValidateFunds } from "./_components/steps/signup-wallet-validate-funds";
+import { WalletSeedPhrase, WalletSeedValidation } from "@/features/wallet";
 
 /**
  * TODO add account to keychain if there is keychain available
@@ -34,13 +33,13 @@ export default function SignupByWalletPage() {
           />
         )}
         {step === SignupByWalletStepperSteps.SEED && (
-          <SignupWalletSeedPhrase
+          <WalletSeedPhrase
             username={username}
             onValidated={() => setStep(SignupByWalletStepperSteps.VALIDATION)}
           />
         )}
         {step === SignupByWalletStepperSteps.VALIDATION && (
-          <SignupWalletValidation
+          <WalletSeedValidation
             username={username}
             onValidated={() => setStep(SignupByWalletStepperSteps.VALIDATE_FUNDS)}
           />

@@ -1,11 +1,7 @@
 "use client";
 
-import { FormControl } from "@/features/ui";
-import {
-  EcencyTokenMetadata,
-  EcencyWalletCurrency,
-  useWalletCreate
-} from "@ecency/wallets";
+import { Badge, Button, FormControl } from "@/features/ui";
+import { EcencyTokenMetadata, EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useMemo } from "react";
@@ -37,7 +33,7 @@ export function SignupWalletConnectWalletItem({
   });
   const { createWallet } = useWalletCreate(username, currency);
 
-  const wallet = useMemo(() => wallets?.get(currency), [wallets]);
+  const wallet = useMemo(() => wallets?.get(currency), [currency, wallets]);
 
   const walletInfo = useMemo<SignupExternalWalletInformation | undefined>(() => {
     const data = createWallet.data;
@@ -53,13 +49,7 @@ export function SignupWalletConnectWalletItem({
 
   useMount(async () => {
     const response = await createWallet.mutateAsync();
-    if (response.address && response.privateKey && response.publicKey) {
-      onSuccess({
-        address: response.address,
-        privateKey: response.privateKey,
-        publicKey: response.publicKey
-      });
-    }
+    onSuccess(response as SignupExternalWalletInformation);
   });
 
   return (
@@ -67,18 +57,24 @@ export function SignupWalletConnectWalletItem({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 24 }}
-        transition={{ delay: i * 0.1 }}
-        className="bg-gray-100 dark:bg-dark-600-010 p-4 rounded-xl flex flex-col gap-4 cursor-pointer border border-transparent hover:border-[--border-color] relative overflow-hidden"
-        onClick={() => (hasSelected ? onClear() : walletInfo && onSuccess(walletInfo))}
-        key={currency}
-      >
+      transition={{ delay: i * 0.1 }}
+      className="bg-gray-100 dark:bg-dark-600-010 p-4 rounded-xl flex flex-col gap-4 cursor-pointer border border-transparent hover:border-[--border-color] relative overflow-hidden"
+      onClick={() =>
+        hasSelected ? onClear() : onSuccess(createWallet.data as SignupExternalWalletInformation)
+      }
+      key={currency}
+    >
       <div className="flex items-center gap-4 justify-between">
         <div className="flex items-center gap-4">
-            <FormControl
-              checked={hasSelected}
-              type="checkbox"
-              onChange={() => (hasSelected ? onClear() : walletInfo && onSuccess(walletInfo))}
-            />
+          <FormControl
+            checked={hasSelected}
+            type="checkbox"
+            onChange={() =>
+              hasSelected
+                ? onClear()
+                : onSuccess(createWallet.data as SignupExternalWalletInformation)
+            }
+          />
           <Image
             className={clsx("w-[2rem] h-[2rem]", !hasSelected && "opacity-25")}
             src={CURRENCIES_META_DATA[currency].icon.src}

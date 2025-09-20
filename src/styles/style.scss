@@ -35,7 +35,24 @@
   }
 
   /* Optional: Hide UI elements don't want printed */
-  .entry-payout, .ecency-center, .similar-entries-list, #sticky-container, #word-count, #avatar-fixed-container {
+  .entry-payout,
+  .ecency-center,
+  .similar-entries-list,
+  #sticky-container,
+  #word-count,
+  #avatar-fixed-container {
     display: none !important;
+  }
+}
+
+.glass-box {
+  box-shadow:
+    inset 2px 2px 0px -2px rgba(255, 255, 255, 0.9),
+    inset 0 0 3px 1px rgba(255, 255, 255, 0.9);
+
+  @include themify(night) {
+    box-shadow:
+      inset 2px 2px 0px -2px rgba(0, 0, 0, 0.05),
+      inset 0 0 3px 1px rgba(0, 0, 0, 0.05);
   }
 }

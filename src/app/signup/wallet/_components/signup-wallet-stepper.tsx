@@ -1,13 +1,11 @@
+import { Stepper } from "@/features/shared";
 import {
   UilLock,
-  UilMoneyBill,
   UilMoneyInsert,
   UilUnlock,
   UilUser,
   UilWallet
 } from "@tooni/iconscout-unicons-react";
-import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 
 export enum SignupByWalletStepperSteps {
   INTRO,
@@ -53,29 +51,8 @@ const steps = [
     icon: <UilUser />,
     description: "Finalize Hive account creation"
   }
-] as const;
+];
 
 export function SignupWalletStepper({ step: stepProp }: Props) {
-  return (
-    <div className="grid-cols-1 gap-4 lg:gap-6 hidden md:grid xl:gap-8 pt-8">
-      <AnimatePresence>
-        {steps.map(({ step, title, icon, description }, index) => (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: step === stepProp ? 1 : 0.5 }}
-            exit={{ opacity: 0 }}
-            transition={{ delay: 0.1 * index }}
-            className={clsx("flex text-sm items-start gap-2 md:gap-4")}
-            key={step}
-          >
-            <div className="bg-white dark:bg-dark-default p-2 rounded-xl">{icon}</div>
-            <div>
-              <div className="font-bold">{title}</div>
-              <div className="opacity-75">{description}</div>
-            </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </div>
-  );
+  return <Stepper steps={steps} currentStep={stepProp} />;
 }

@@ -1,1 +1,1 @@
-export * from "./use-download-seed";
+export * from "./use-download-keys";

@@ -52,7 +52,9 @@ export function Search({ containerClassName }: Props) {
         value={query}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value.toLowerCase())}
         onKeyDown={onKeyDown}
-        autoComplete="off"
+        autoComplete="non-autocomplete-field"
+        name="non-autocomplete-field"
+        id="non-autocomplete-field"
       />
     </SearchSuggester>
   );
