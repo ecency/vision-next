@@ -28,9 +28,10 @@ interface Props {
   username: string;
   onValidated: () => void;
   showTitle?: boolean;
+  size?: "md" | "sm";
 }
 
-export function WalletSeedPhrase({ username, onValidated, showTitle = true }: Props) {
+export function WalletSeedPhrase({ username, onValidated, showTitle = true, size = "md" }: Props) {
   const [hasRevealed, setHasRevealed] = useState(false);
 
   const { data: seed, refetch } = useSeedPhrase(username);
@@ -47,7 +48,19 @@ export function WalletSeedPhrase({ username, onValidated, showTitle = true }: Pr
         </div>
       )}
       <div className="mt-4 flex justify-end">
-        <Button icon={<UilCopyAlt />} appearance="gray-link" size="sm" />
+        <Button
+          icon={<UilCopyAlt />}
+          appearance="gray-link"
+          size="sm"
+          onClick={() => {
+            if (hasRevealed) {
+              copy(seed!);
+              success(i18next.t("signup-wallets.seed.copied"));
+            } else {
+              setHasRevealed(true);
+            }
+          }}
+        />
         <Button
           icon={<UilSync />}
           appearance="gray-link"
@@ -85,8 +98,10 @@ export function WalletSeedPhrase({ username, onValidated, showTitle = true }: Pr
           (word: string, index: number) => (
             <div
               className={clsx(
-                "duration-300 font-mono bg-gray-200 p-2 rounded-xl dark:bg-dark-default text-xl",
-                hasRevealed ? "blur-none" : "blur-sm"
+                "duration-300 font-mono bg-gray-200 p-2 rounded-xl dark:bg-dark-default",
+                hasRevealed ? "blur-none" : "blur-sm",
+                size === "md" && "text-xl",
+                size === "sm" && "text-sm"
               )}
               key={index}
             >

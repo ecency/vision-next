@@ -1904,7 +1904,7 @@
     "form-body": "Body"
   },
   "password-update": {
-    "title": "Change Password",
+    "title": "Create new keys",
     "account": "Account",
     "cur-pass": "Current password",
     "new-pass": "New password",
@@ -1914,7 +1914,8 @@
     "label-check": "I have securely saved my generated password",
     "validation-password": "Password is invalid.",
     "validation-label": "Please tick this box to proceed.",
-    "updated": "Password updated successfully!"
+    "updated": "Password updated successfully!",
+    "hint": "At this time, you can generate keys only by setting a new seed phrase. Updating to any other type of password is not supported. It helps us to keep Ecency and Hive accounts in a standards of Web 3.0."
   },
   "view-keys": {
     "title": "View Private keys",
@@ -2949,8 +2950,10 @@
       "title": "Posting active sessions"
     },
     "keys": {
-      "title": "Keys",
-      "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below. When changing your password, enter the specific password or key you wish to replace: that key will then be updated."
+      "title": "Keys & Passwords",
+      "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below",
+      "add-key": "Add new keys",
+      "key-created": "Keys have created and assigned successfully."
     },
     "recovery": {
       "title": "Account recovery",

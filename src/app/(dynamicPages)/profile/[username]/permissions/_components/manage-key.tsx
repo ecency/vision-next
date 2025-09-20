@@ -2,12 +2,13 @@ import { useClientActiveUser } from "@/api/queries";
 import { Button, StyledTooltip } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { UilCopy, UilEye } from "@tooni/iconscout-unicons-react";
+import { UilCopy, UilEye, UilTrash } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useState } from "react";
 import { useCopyToClipboard } from "react-use";
 import { ManageKeyPasswordDialog } from "./manage-key-password-dialog";
 import { useRevealedKeysStore } from "../_hooks";
+import { ManageKeyRevokeDialog } from "./manage-key-revoke-dialog";
 
 type Keys = Record<string, [string, number][]>;
 
@@ -34,6 +35,8 @@ export function ManageKey({ keyName }: Props) {
   const [_, copy] = useCopyToClipboard();
 
   const [showReveal, setShowReveal] = useState(false);
+  const [showRevoke, setShowRevoke] = useState(false);
+  const [revokingKey, setRevokingKey] = useState("");
 
   return (
     <>
@@ -49,10 +52,11 @@ export function ManageKey({ keyName }: Props) {
             <div className="flex flex-col gap-2 w-full">
               <StyledTooltip
                 content={i18next.t("chat.public-key")}
-                className="grid grid-cols-[1fr_max-content] items-center font-mono truncate"
+                className="grid grid-cols-[1fr_max-content] items-center font-mono gap-2 truncate"
               >
                 <div className="truncate">{key[0]}</div>
                 <Button
+                  noPadding={true}
                   appearance="gray-link"
                   size="sm"
                   icon={<UilCopy />}
@@ -60,19 +64,16 @@ export function ManageKey({ keyName }: Props) {
                 />
               </StyledTooltip>
 
-              <StyledTooltip
-                content={i18next.t("chat.private-key")}
-                className="grid grid-cols-[1fr_max-content] items-center font-mono truncate"
-              >
-                {keys[key[0]] && <div className="truncate">{keys[key[0]]}</div>}
-                {!keys[key[0]] && (
-                  <div className="truncate">
-                    ************************************************************************
-                  </div>
-                )}
-                <div className="flex">
+              <div className="grid grid-cols-[1fr_max-content] gap-2 items-center font-mono truncate">
+                <StyledTooltip className="truncate" content={i18next.t("chat.private-key")}>
+                  {keys[key[0]]
+                    ? keys[key[0]]
+                    : "************************************************************************"}
+                </StyledTooltip>
+                <div className="flex gap-2">
                   {keys[key[0]] && (
                     <Button
+                      noPadding={true}
                       appearance="gray-link"
                       size="sm"
                       icon={<UilCopy />}
@@ -82,6 +83,7 @@ export function ManageKey({ keyName }: Props) {
                   {!keys[key[0]] && (
                     <StyledTooltip content={i18next.t("manage-authorities.reveal-private-key")}>
                       <Button
+                        noPadding={true}
                         appearance="gray-link"
                         size="sm"
                         icon={<UilEye />}
@@ -89,13 +91,26 @@ export function ManageKey({ keyName }: Props) {
                       />
                     </StyledTooltip>
                   )}
+                  <StyledTooltip content={i18next.t("manage-authorities.revoke")}>
+                    <Button
+                      noPadding={true}
+                      appearance="gray-link"
+                      size="sm"
+                      icon={<UilTrash />}
+                      onClick={() => {
+                        setShowRevoke(true);
+                        setRevokingKey(keys[key[0]]);
+                      }}
+                    />
+                  </StyledTooltip>
                 </div>
-              </StyledTooltip>
+              </div>
             </div>
           </div>
         ))}
       </div>
       <ManageKeyPasswordDialog show={showReveal} setShow={setShowReveal} />
+      <ManageKeyRevokeDialog show={showRevoke} setShow={setShowRevoke} revokingKey={revokingKey} />
     </>
   );
 }

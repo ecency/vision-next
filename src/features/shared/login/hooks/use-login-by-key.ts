@@ -63,10 +63,7 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
         !isPlainPassword &&
         account.posting.key_auths.some(([pub]) => {
           try {
-            return (
-              pub ===
-              PrivateKey.fromString(keyOrSeed).createPublic().toString()
-            );
+            return pub === PrivateKey.fromString(keyOrSeed).createPublic().toString();
           } catch {
             return false;
           }
@@ -81,11 +78,7 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
         // Login with master password, BIP44 seed or active private key
         // Get active and posting private keys from user entered code
         if (isPlainPassword) {
-          const derivation = await detectHiveKeyDerivation(
-            account.name,
-            keyOrSeed,
-            hiveClient
-          );
+          const derivation = await detectHiveKeyDerivation(account.name, keyOrSeed);
 
           const candidates: { active: PrivateKey; posting: PrivateKey }[] = [];
           const addBip44Candidates = (mnemonic: string, max = 10) => {
@@ -122,18 +115,14 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
           for (const c of candidates) {
             if (
               !activeMatch &&
-              account.active.key_auths.some(
-                ([pub]) => pub === c.active.createPublic().toString()
-              )
+              account.active.key_auths.some(([pub]) => pub === c.active.createPublic().toString())
             ) {
               activeMatch = c;
             }
 
             if (
               !postingMatch &&
-              account.posting.key_auths.some(
-                ([pub]) => pub === c.posting.createPublic().toString()
-              )
+              account.posting.key_auths.some(([pub]) => pub === c.posting.createPublic().toString())
             ) {
               postingMatch = c;
             }
@@ -165,9 +154,7 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
         const activePublicInput = privateKey.createPublic().toString();
 
         // Compare keys against all active authorities
-        const hasActiveKey = account.active.key_auths.some(
-          ([pub]) => pub === activePublicInput
-        );
+        const hasActiveKey = account.active.key_auths.some(([pub]) => pub === activePublicInput);
 
         if (!hasActiveKey && !withPostingKey) {
           throw new Error(i18next.t("login.error-authenticate")); // enter master or active key
