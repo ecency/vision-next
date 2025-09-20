@@ -8,7 +8,8 @@ import {
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
   useSaveWalletInformationToMetadata,
-  useSeedPhrase
+  useSeedPhrase,
+  useHiveKeysQuery
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
@@ -36,7 +37,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   });
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
-  const { mutateAsync: loginInApp } = useLoginByKey(username, loginKey, true);
+  const { mutateAsync: loginInApp } = useLoginByKey(username, accountKeys?.masterPassword!, true);
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
@@ -57,7 +58,13 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   }, [username]);
 
   useEffect(() => {
-    if (seed && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
+    if (
+      seed &&
+      wallet?.currency &&
+      wallet.address &&
+      accountKeys?.masterPassword &&
+      !hasInitiated
+    ) {
       setHasInitiated(true);
       createAccount({ currency: wallet.currency!, address: wallet.address! })
         .then(() => delay(5000))
@@ -78,7 +85,8 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     hasInitiated,
     saveWalletInformationToMetadata,
     wallets,
-    recordActivity
+    recordActivity,
+    accountKeys
   ]);
 
   return (
