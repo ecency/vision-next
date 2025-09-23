@@ -38,17 +38,33 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    try {
-      setupPostEnhancements(el, {
-        onHiveOperationClick: (op) => {
-          setSigningOperation(op);
-        },
-        TwitterComponent: Tweet,
-      });
-    } catch (e) {
-      // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
-      console.error("Failed to setup post enhancements", e);
-    }
+    // Add a small delay to ensure DOM is fully rendered and stable
+    const timer = setTimeout(() => {
+      try {
+        // Verify the element still exists and is properly attached to the DOM
+        if (!el.isConnected || !el.parentNode) {
+          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
+          return;
+        }
+
+        setupPostEnhancements(el, {
+          onHiveOperationClick: (op) => {
+            setSigningOperation(op);
+          },
+          TwitterComponent: Tweet,
+        });
+      } catch (e) {
+        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
+        console.error("Failed to setup post enhancements", e);
+        
+        // Log additional context for debugging
+        if (e instanceof TypeError && e.message.includes("parentNode")) {
+          console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [isRawContent, isEdit, editHistory]);
 
   return (
