@@ -112,8 +112,9 @@ export function SearchSuggester({ changed, value, children, containerClassName }
       setLoading(true);
       try {
         const r = await getAccountReputations(name, 20);
-        r.sort((a, b) => (a.reputation > b.reputation ? -1 : 1));
-        const suggestions = r.map((x) => `${x.account}`);
+        const validReputations = r || [];
+        validReputations.sort((a, b) => (a.reputation > b.reputation ? -1 : 1));
+        const suggestions = validReputations.map((x) => `${x.account}`);
         const suggestionWithMode = [
           {
             header: i18next.t("search.header-account"),
@@ -127,7 +128,7 @@ export function SearchSuggester({ changed, value, children, containerClassName }
               );
             },
             onSelect: (i: Reputations) => accountSelected(i.account),
-            items: r
+            items: validReputations
           }
         ];
         setMode("account");
@@ -174,7 +175,7 @@ export function SearchSuggester({ changed, value, children, containerClassName }
           .slice(0, 2);
         // account
         const lookup_accounts = await getAccountReputations(value, 20);
-        const accountsug = lookup_accounts
+        const accountsug = (lookup_accounts || [])
           .sort((a, b) => (a.reputation > b.reputation ? -1 : 1))
           .slice(0, 3);
         // Community
