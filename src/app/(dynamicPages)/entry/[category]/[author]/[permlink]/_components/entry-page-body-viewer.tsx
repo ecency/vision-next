@@ -42,8 +42,21 @@ export function EntryPageBodyViewer({ entry }: Props) {
     const timer = setTimeout(() => {
       try {
         // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
+        if (!el || !el.isConnected || !el.parentNode) {
           console.warn("Post body element is not properly connected to DOM, skipping enhancements");
+          return;
+        }
+
+        // Additional safety checks for DOM element integrity
+        const parent = el.parentNode;
+        if (!parent || typeof parent.contains !== "function") {
+          console.warn("Parent node is invalid, skipping enhancements");
+          return;
+        }
+
+        // Verify the element is still contained in its parent
+        if (!parent.contains(el)) {
+          console.warn("Element is no longer contained in its parent, skipping enhancements");
           return;
         }
 
@@ -60,6 +73,21 @@ export function EntryPageBodyViewer({ entry }: Props) {
         // Log additional context for debugging
         if (e instanceof TypeError && e.message.includes("parentNode")) {
           console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          console.error("Element state:", {
+            elementExists: !!el,
+            isConnected: el?.isConnected,
+            hasParent: !!el?.parentNode,
+            parentNodeType: el?.parentNode?.nodeType
+          });
+        }
+
+        // If this is a chunk-related error, let the global error handler catch it
+        if (e instanceof TypeError && (
+          e.message.includes("Cannot read properties of null") ||
+          e.message.includes("parentNode")
+        )) {
+          // Re-throw chunk-related errors to be caught by ErrorBoundary
+          throw e;
         }
       }
     }, 100);
