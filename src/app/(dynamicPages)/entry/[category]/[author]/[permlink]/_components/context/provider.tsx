@@ -7,8 +7,8 @@ import { useSearchParams } from "next/navigation";
 export function EntryPageContextProvider(props: PropsWithChildren) {
   const commentsInputRef = useRef<HTMLTextAreaElement>(null);
   const searchParams = useSearchParams();
-  const rawFromUrl = searchParams.has("raw");
-  const historyFromUrl = searchParams.has("history");
+  const rawFromUrl = searchParams.get("raw") !== null;
+  const historyFromUrl = searchParams.get("history") !== null;
   const [showProfileBox, setShowProfileBox] = useState(false);
   const [editHistory, setEditHistory] = useState(historyFromUrl);
   const [loading, setLoading] = useState(false);

@@ -35,7 +35,7 @@ export async function generateMetadata(
 export default async function EntryPage({ params, searchParams }: Props) {
   const { author: username, permlink, category } = await params;
   const sParams = await searchParams;
-  const isRawContent = sParams.raw !== undefined;
+  const isRawContent = sParams.hasOwnProperty("raw");
 
   const author = username.replace("%40", "");
   const entry = await getPostQuery(author, permlink).prefetch();
