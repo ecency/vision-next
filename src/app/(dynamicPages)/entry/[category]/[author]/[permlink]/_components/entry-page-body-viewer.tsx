@@ -21,10 +21,17 @@ interface Props {
 
 export function EntryPageBodyViewer({ entry }: Props) {
   const [signingOperation, setSigningOperation] = useState<string>();
+  const [isMounted, setIsMounted] = useState(false);
   const { isRawContent, isEdit, editHistory } = useContext(EntryPageContext);
 
+  // Ensure this component is fully mounted and hydrated before proceeding
   useEffect(() => {
-    if (isRawContent || isEdit || editHistory) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Only proceed if component is mounted (hydration complete) and not in special modes
+    if (!isMounted || isRawContent || isEdit || editHistory) {
       return;
     }
 
@@ -32,40 +39,69 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    const setupEnhancements = () => {
+      const el = document.getElementById("post-body");
 
-    if (!el || !el.parentNode) {
-      return;
-    }
+      // Comprehensive DOM element validation
+      if (!el) {
+        console.warn("Post body element not found, skipping enhancements");
+        return false;
+      }
 
-    // Add a small delay to ensure DOM is fully rendered and stable
-    const timer = setTimeout(() => {
+      if (!el.isConnected) {
+        console.warn("Post body element is not connected to DOM, skipping enhancements");
+        return false;
+      }
+
+      if (!el.parentNode) {
+        console.warn("Post body element has no parent node, skipping enhancements");
+        return false;
+      }
+
+      // Additional stability check - ensure element has content
+      if (!el.innerHTML.trim()) {
+        console.warn("Post body element is empty, skipping enhancements");
+        return false;
+      }
+
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
-          return;
-        }
-
         setupPostEnhancements(el, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
           TwitterComponent: Tweet,
         });
+        return true;
       } catch (e) {
-        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
+        // Avoid breaking the page if enhancements fail
         console.error("Failed to setup post enhancements", e);
         
-        // Log additional context for debugging
+        // Log detailed diagnostic information
         if (e instanceof TypeError && e.message.includes("parentNode")) {
-          console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          console.error("DOM structure issue detected during enhancement setup:", {
+            elementExists: !!el,
+            elementConnected: el?.isConnected,
+            parentExists: !!el?.parentNode,
+            elementHTML: el?.innerHTML?.substring(0, 100) + "...",
+            error: e.message
+          });
         }
+        return false;
       }
-    }, 100);
+    };
 
-    return () => clearTimeout(timer);
-  }, [isRawContent, isEdit, editHistory]);
+    // Use requestAnimationFrame to ensure DOM has fully settled after hydration
+    const rafId = requestAnimationFrame(() => {
+      // Additional frame delay to ensure React has completed all DOM updates
+      const rafId2 = requestAnimationFrame(() => {
+        setupEnhancements();
+      });
+      
+      return () => cancelAnimationFrame(rafId2);
+    });
+
+    return () => cancelAnimationFrame(rafId);
+  }, [isMounted, isRawContent, isEdit, editHistory]);
 
   return (
     <EntryPageViewerManager>
