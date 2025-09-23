@@ -32,21 +32,34 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    const setupEnhancements = () => {
+      const el = document.getElementById("post-body");
 
-    if (!el || !el.parentNode) {
-      return;
-    }
-
-    // Add a small delay to ensure DOM is fully rendered and stable
-    const timer = setTimeout(() => {
-      try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
-          return;
+      if (!el) {
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(setupEnhancements, 100 * retryCount); // Progressive delay
+        } else {
+          console.warn("Post body element not found after retries, skipping enhancements");
         }
+        return;
+      }
 
+      // More comprehensive DOM connection check to handle hydration timing issues
+      if (!el.isConnected || !el.parentNode || !document.body.contains(el)) {
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(setupEnhancements, 100 * retryCount); // Progressive delay
+        } else {
+          console.warn("Post body element is not properly connected to DOM after retries, skipping enhancements");
+        }
+        return;
+      }
+
+      try {
         setupPostEnhancements(el, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
@@ -62,7 +75,10 @@ export function EntryPageBodyViewer({ entry }: Props) {
           console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
         }
       }
-    }, 100);
+    };
+
+    // Initial delay to ensure hydration is complete, then start setup
+    const timer = setTimeout(setupEnhancements, 250);
 
     return () => clearTimeout(timer);
   }, [isRawContent, isEdit, editHistory]);
