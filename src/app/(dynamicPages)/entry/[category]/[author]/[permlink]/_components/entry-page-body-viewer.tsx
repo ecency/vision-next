@@ -32,21 +32,53 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    const enhancePostContent = (attempt = 1, maxAttempts = 3) => {
+      const el = document.getElementById("post-body");
 
-    if (!el || !el.parentNode) {
-      return;
-    }
-
-    // Add a small delay to ensure DOM is fully rendered and stable
-    const timer = setTimeout(() => {
-      try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
-          return;
+      if (!el || !el.parentNode) {
+        if (attempt < maxAttempts) {
+          // Retry with exponential backoff to handle hydration timing issues
+          console.warn(`Post body element not found or not properly attached on attempt ${attempt}, retrying...`);
+          setTimeout(() => enhancePostContent(attempt + 1, maxAttempts), attempt * 200);
+        } else {
+          console.warn("Post body element not found or not properly attached after multiple attempts");
         }
+        return;
+      }
 
+      // Verify the element still exists and is properly attached to the DOM
+      if (!el.isConnected || !el.parentNode) {
+        if (attempt < maxAttempts) {
+          console.warn(`Post body element not properly connected to DOM on attempt ${attempt}, retrying...`);
+          setTimeout(() => enhancePostContent(attempt + 1, maxAttempts), attempt * 200);
+        } else {
+          console.warn("Post body element is not properly connected to DOM after multiple attempts, skipping enhancements");
+        }
+        return;
+      }
+
+      // Additional check: ensure all child elements have valid parentNode references
+      const childElements = el.querySelectorAll("*");
+      let hasOrphanedElements = false;
+      for (let i = 0; i < childElements.length; i++) {
+        const child = childElements[i];
+        if (!child.parentNode || !child.isConnected) {
+          hasOrphanedElements = true;
+          break;
+        }
+      }
+
+      if (hasOrphanedElements) {
+        if (attempt < maxAttempts) {
+          console.warn(`DOM contains orphaned elements on attempt ${attempt}, retrying...`);
+          setTimeout(() => enhancePostContent(attempt + 1, maxAttempts), attempt * 200);
+        } else {
+          console.warn("DOM contains orphaned elements after multiple attempts, proceeding with caution");
+        }
+        return;
+      }
+
+      try {
         setupPostEnhancements(el, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
@@ -60,8 +92,20 @@ export function EntryPageBodyViewer({ entry }: Props) {
         // Log additional context for debugging
         if (e instanceof TypeError && e.message.includes("parentNode")) {
           console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          console.error("This is likely due to a hydration mismatch causing DOM instability");
+          
+          // If this is a parentNode error and we haven't exhausted attempts, try once more
+          if (attempt < maxAttempts) {
+            console.warn("Retrying enhancement setup due to parentNode error...");
+            setTimeout(() => enhancePostContent(attempt + 1, maxAttempts), 500);
+          }
         }
       }
+    };
+
+    // Add a small delay to ensure DOM is fully rendered and stable, then start enhancement process
+    const timer = setTimeout(() => {
+      enhancePostContent();
     }, 100);
 
     return () => clearTimeout(timer);
