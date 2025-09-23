@@ -15,10 +15,15 @@ export function EntryPageNsfwRevealing({ entry, showIfNsfw, children }: Props) {
   const globalNsfw = useGlobalStore((s) => s.nsfw);
 
   const showNsfwWarning =
-      Array.isArray(entry.json_metadata.tags) &&
+      Array.isArray(entry.json_metadata?.tags) &&
       entry.json_metadata.tags.includes("nsfw") &&
       !showIfNsfw &&
       !globalNsfw;
 
-  return showNsfwWarning ? <EntryPageNsfwWarning /> : children;
+  return (
+    <>
+      {showNsfwWarning && <EntryPageNsfwWarning />}
+      {!showNsfwWarning && children}
+    </>
+  );
 }

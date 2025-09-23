@@ -32,28 +32,39 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    // Add a small delay to ensure DOM is fully hydrated
+    const timeoutId = setTimeout(() => {
+      try {
+        const el = document.getElementById("post-body");
 
-    if (!el || !el.parentNode) {
-      return;
-    }
+        if (!el) {
+          console.warn("Post body element not found during hydration");
+          return;
+        }
 
-    try {
-      setupPostEnhancements(el, {
-        onHiveOperationClick: (op) => {
-          setSigningOperation(op);
-        },
-        TwitterComponent: Tweet,
-      });
-    } catch (e) {
-      // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
-      console.error("Failed to setup post enhancements", e);
-    }
+        if (!el.parentNode) {
+          console.warn("Post body element has no parent during hydration");
+          return;
+        }
+
+        setupPostEnhancements(el, {
+          onHiveOperationClick: (op) => {
+            setSigningOperation(op);
+          },
+          TwitterComponent: Tweet,
+        });
+      } catch (e) {
+        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
+        console.error("Failed to setup post enhancements", e);
+      }
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [isRawContent, isEdit, editHistory]);
 
   return (
     <EntryPageViewerManager>
-      {!isEdit && (
+      {!isEdit && !isRawContent && (
         <SelectionPopover
           postUrl={makeEntryPath(entry.category, entry.author, entry.permlink)}
         >
