@@ -20,5 +20,12 @@ export function EntryPageNsfwRevealing({ entry, showIfNsfw, children }: Props) {
       !showIfNsfw &&
       !globalNsfw;
 
-  return showNsfwWarning ? <EntryPageNsfwWarning /> : children;
+  return (
+    <>
+      {showNsfwWarning && <EntryPageNsfwWarning />}
+      <div style={{ display: showNsfwWarning ? 'none' : 'block' }}>
+        {children}
+      </div>
+    </>
+  );
 }

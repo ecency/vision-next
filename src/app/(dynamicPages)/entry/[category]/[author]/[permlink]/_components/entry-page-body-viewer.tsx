@@ -32,22 +32,53 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
+    // Function to safely check if element is ready for enhancement
+    const isElementReady = (element: HTMLElement | null): element is HTMLElement => {
+      if (!element) {
+        return false;
+      }
+      
+      // Check if element is connected to the DOM
+      if (!element.isConnected) {
+        return false;
+      }
+      
+      // Check if parentNode exists and is not null
+      if (!element.parentNode) {
+        return false;
+      }
+      
+      // Additional safety check: ensure parentNode is also connected
+      if (element.parentNode && 'isConnected' in element.parentNode && !element.parentNode.isConnected) {
+        return false;
+      }
+      
+      return true;
+    };
+
     const el = document.getElementById("post-body");
 
-    if (!el || !el.parentNode) {
+    if (!isElementReady(el)) {
+      console.warn("Post body element is not ready for enhancements", {
+        elementExists: !!el,
+        isConnected: el?.isConnected,
+        hasParentNode: !!el?.parentNode,
+        parentNodeConnected: el?.parentNode && 'isConnected' in el.parentNode ? el.parentNode.isConnected : 'unknown'
+      });
       return;
     }
 
     // Add a small delay to ensure DOM is fully rendered and stable
     const timer = setTimeout(() => {
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
+        // Re-verify the element is still ready before proceeding
+        const currentEl = document.getElementById("post-body");
+        if (!isElementReady(currentEl)) {
+          console.warn("Post body element became unavailable during timeout, skipping enhancements");
           return;
         }
 
-        setupPostEnhancements(el, {
+        setupPostEnhancements(currentEl, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
@@ -59,7 +90,12 @@ export function EntryPageBodyViewer({ entry }: Props) {
         
         // Log additional context for debugging
         if (e instanceof TypeError && e.message.includes("parentNode")) {
-          console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup", {
+            error: e.message,
+            stack: e.stack,
+            currentElement: document.getElementById("post-body"),
+            timestamp: new Date().toISOString()
+          });
         }
       }
     }, 100);
