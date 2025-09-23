@@ -3,7 +3,7 @@
 import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
-import { Tsx } from "@/features/i18n/helper";
+import { NsfwSignupMessage } from "@/features/i18n/nsfw-signup-message";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 import { useContext } from "react";
 
@@ -47,9 +47,7 @@ export function EntryPageNsfwWarning() {
         )}
         {!activeUser && (
           <>
-            <Tsx k="nsfw.signup">
-              <span />
-            </Tsx>
+            <NsfwSignupMessage />
             {"."}
           </>
         )}
