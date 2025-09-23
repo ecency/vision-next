@@ -32,23 +32,80 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    let mounted = true;
+    let retryCount = 0;
+    const maxRetries = 10;
+    const retryDelay = 50; // Start with 50ms delay
+    let timeoutId: NodeJS.Timeout | null = null;
 
-    if (!el || !el.parentNode) {
-      return;
-    }
+    const setupEnhancements = () => {
+      if (!mounted) return;
 
-    try {
-      setupPostEnhancements(el, {
-        onHiveOperationClick: (op) => {
-          setSigningOperation(op);
-        },
-        TwitterComponent: Tweet,
+      const el = document.getElementById("post-body");
+
+      // More robust null checking to handle race conditions
+      if (!el) {
+        if (retryCount < maxRetries) {
+          retryCount++;
+          timeoutId = setTimeout(setupEnhancements, retryDelay * retryCount);
+        }
+        return;
+      }
+
+      // Check if element is connected to the DOM and has parentNode
+      if (!el.parentNode || !el.isConnected) {
+        if (retryCount < maxRetries) {
+          retryCount++;
+          timeoutId = setTimeout(setupEnhancements, retryDelay * retryCount);
+        }
+        return;
+      }
+
+      // Additional check to ensure the element is stable in the DOM
+      requestAnimationFrame(() => {
+        if (!mounted) return;
+        
+        // Double-check the element is still valid after the animation frame
+        const currentEl = document.getElementById("post-body");
+        if (!currentEl || !currentEl.parentNode || !currentEl.isConnected) {
+          if (retryCount < maxRetries) {
+            retryCount++;
+            timeoutId = setTimeout(setupEnhancements, retryDelay * retryCount);
+          }
+          return;
+        }
+
+        try {
+          setupPostEnhancements(currentEl, {
+            onHiveOperationClick: (op) => {
+              setSigningOperation(op);
+            },
+            TwitterComponent: Tweet,
+          });
+        } catch (e) {
+          // Avoid breaking the page if enhancements fail
+          console.error("Failed to setup post enhancements", e);
+          
+          // If it's specifically a parentNode error and we have retries left, try again
+          if (e instanceof TypeError && 
+              e.message.includes("parentNode") && 
+              retryCount < maxRetries) {
+            retryCount++;
+            timeoutId = setTimeout(setupEnhancements, retryDelay * retryCount);
+          }
+        }
       });
-    } catch (e) {
-      // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
-      console.error("Failed to setup post enhancements", e);
-    }
+    };
+
+    // Use a small initial delay to let React finish hydration
+    timeoutId = setTimeout(setupEnhancements, 10);
+
+    return () => {
+      mounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [isRawContent, isEdit, editHistory]);
 
   return (
