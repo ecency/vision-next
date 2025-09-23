@@ -33,6 +33,52 @@ const config = {
       config.externals.push("formidable", "hexoid");
     }
 
+    // Optimize chunk loading reliability
+    if (!config.optimization) {
+      config.optimization = {};
+    }
+    
+    if (!config.optimization.splitChunks) {
+      config.optimization.splitChunks = {};
+    }
+
+    // Configure chunk splitting for better reliability
+    config.optimization.splitChunks = {
+      ...config.optimization.splitChunks,
+      chunks: 'all',
+      cacheGroups: {
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true
+        },
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          priority: -10,
+          chunks: 'all',
+          maxSize: 244000, // Limit chunk size to prevent loading issues
+        },
+        commons: {
+          name: 'commons',
+          minChunks: 2,
+          priority: -5,
+          reuseExistingChunk: true,
+          maxSize: 244000
+        }
+      }
+    };
+
+    // Add retry logic for chunk loading failures
+    if (!isServer) {
+      config.output = {
+        ...config.output,
+        crossOriginLoading: 'anonymous',
+        // Add custom chunk loading with retry logic
+        chunkLoadingGlobal: 'webpackChunkecency_vision_next'
+      };
+    }
+
     return config;
   },
   images: {

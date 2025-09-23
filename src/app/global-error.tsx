@@ -15,6 +15,20 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // Check if this is a chunk-related error
+  const isChunkError = 
+    error.name === "ChunkLoadError" ||
+    error.message?.includes("Loading chunk") ||
+    error.message?.includes("ChunkLoadError") ||
+    error.message?.includes("Cannot read properties of null (reading 'parentNode')");
+
+  // For chunk errors, automatically reload the page
+  if (isChunkError && typeof window !== "undefined") {
+    console.error("Chunk-related error detected in global error handler:", error);
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  }
   return (
     // global-error must include html and body tags
     <html>
@@ -33,11 +47,24 @@ export default function GlobalError({
                 <Image src={defaults.logo} alt="logo" width={72} height={72} />
                 <h1 className="text-8xl font-black text-blue-dark-sky">500</h1>
               </div>
-              <h2 className="text-2xl font-semibold">{i18next.t("global-error.description")}</h2>
+              <h2 className="text-2xl font-semibold">
+                {isChunkError 
+                  ? "Loading Error - Page will refresh automatically" 
+                  : i18next.t("global-error.description")
+                }
+              </h2>
+              {isChunkError && (
+                <p className="text-gray-600 dark:text-gray-400">
+                  A loading error occurred. The page will refresh in a moment to resolve this issue.
+                </p>
+              )}
               <div className="flex items-center gap-4">
                 <Link href="/">
                   <Button>{i18next.t("not-found.back-home")}</Button>
                 </Link>
+                <Button onClick={() => window.location.reload()}>
+                  Refresh Page
+                </Button>
                 <SentryIssueReporterDialog error={error} />
               </div>
             </div>
