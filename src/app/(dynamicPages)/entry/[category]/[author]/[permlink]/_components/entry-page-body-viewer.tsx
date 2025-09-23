@@ -38,16 +38,19 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    // Add a small delay to ensure DOM is fully rendered and stable
+    // Add a small delay to ensure DOM is fully rendered and stable after React hydration
     const timer = setTimeout(() => {
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
+        // Get a fresh reference to the element in case it was replaced during hydration
+        const freshEl = document.getElementById("post-body");
+        
+        // Verify the element exists and is properly attached to the DOM
+        if (!freshEl || !freshEl.isConnected || !freshEl.parentNode) {
           console.warn("Post body element is not properly connected to DOM, skipping enhancements");
           return;
         }
 
-        setupPostEnhancements(el, {
+        setupPostEnhancements(freshEl, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
@@ -62,7 +65,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
           console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
         }
       }
-    }, 100);
+    }, 150);
 
     return () => clearTimeout(timer);
   }, [isRawContent, isEdit, editHistory]);
