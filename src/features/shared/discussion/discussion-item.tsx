@@ -90,7 +90,7 @@ export const DiscussionItem = memo(function DiscussionItem({
   const canEdit = useMemo(() => activeUser?.username === entry.author, [activeUser, entry]);
   const anchorId = useMemo(() => `anchor-@${entry.author}/${entry.permlink}`, [entry]);
   const isPinned = useMemo(
-    () => root.json_metadata.pinned_reply === `${entry.author}/${entry.permlink}`,
+    () => root.json_metadata?.pinned_reply === `${entry.author}/${entry.permlink}`,
     [root, entry]
   );
   const selected = useMemo(() => location.hash === `#@${entry.author}/${entry.permlink}`, [entry]);
@@ -178,7 +178,7 @@ export const DiscussionItem = memo(function DiscussionItem({
     const permlink = createReplyPermlink(entry.author);
     await createReply({
       text,
-      jsonMeta: makeJsonMetaDataReply(entry.json_metadata.tags || ["ecency"], appPackage.version),
+      jsonMeta: makeJsonMetaDataReply(entry.json_metadata?.tags || ["ecency"], appPackage.version),
       permlink,
       point: true
     });
@@ -189,7 +189,7 @@ export const DiscussionItem = memo(function DiscussionItem({
     updateReply({
       text,
       point: true,
-      jsonMeta: makeJsonMetaDataReply(entry.json_metadata.tags || ["ecency"], appPackage.version)
+      jsonMeta: makeJsonMetaDataReply(entry.json_metadata?.tags || ["ecency"], appPackage.version)
     });
 
   return (

@@ -10,7 +10,7 @@ export function EntryTags({ entry }: Props) {
   //  (t) => !!t
   //);
   const tags = Array.isArray(entry?.json_metadata?.tags)
-    ? Array.from(new Set(entry.json_metadata.tags)).filter(Boolean)
+    ? Array.from(new Set(entry.json_metadata?.tags)).filter(Boolean)
     : ["ecency"];
 
   return (

@@ -63,7 +63,7 @@ export interface Entry {
   curator_payout_value: string;
   depth: number;
   is_paidout: boolean;
-  json_metadata: JsonMetadata;
+  json_metadata: JsonMetadata | null;
   max_accepted_payout: string;
   net_rshares: number;
   parent_author?: string;
