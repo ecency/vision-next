@@ -91,18 +91,20 @@ export function ManageKey({ keyName }: Props) {
                       />
                     </StyledTooltip>
                   )}
-                  <StyledTooltip content={i18next.t("manage-authorities.revoke")}>
-                    <Button
-                      noPadding={true}
-                      appearance="gray-link"
-                      size="sm"
-                      icon={<UilTrash />}
-                      onClick={() => {
-                        setShowRevoke(true);
-                        setRevokingKey(keys[key[0]]);
-                      }}
-                    />
-                  </StyledTooltip>
+                  {accountData?.[keyName].length > 1 && (
+                    <StyledTooltip content={i18next.t("manage-authorities.revoke")}>
+                      <Button
+                        noPadding={true}
+                        appearance="gray-link"
+                        size="sm"
+                        icon={<UilTrash />}
+                        onClick={() => {
+                          setShowRevoke(true);
+                          setRevokingKey(keys[key[0]]);
+                        }}
+                      />
+                    </StyledTooltip>
+                  )}
                 </div>
               </div>
             </div>

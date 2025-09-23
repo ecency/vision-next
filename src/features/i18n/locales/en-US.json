@@ -2958,6 +2958,10 @@
     "recovery": {
       "title": "Account recovery",
       "hint": "Account recovery is available only if your keys have been changed or compromised within the past 30 days. If you have lost your keys or password and more than 30 days have passed, recovery is not possible."
+    },
+    "revoke-key": {
+      "title": "Revoke Hive key",
+      "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
     }
   }
 }
