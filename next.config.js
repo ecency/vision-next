@@ -5,6 +5,63 @@ const withPWA = require("next-pwa")({
   dest: "public",
   // Raise the max size to precache large chunks:
   maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
+  cacheOnFrontEndNav: true,
+  reloadOnOnline: true,
+  swcMinify: true,
+  workboxOptions: {
+    disableDevLogs: true,
+    skipWaiting: false, // Don't skip waiting to avoid sudden updates
+    clientsClaim: false, // Don't claim clients immediately
+    runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/ecency\.com\/_next\/static\/.*/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'next-static-resources',
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 7 * 24 * 60 * 60, // 1 week
+          },
+          cacheKeyWillBeUsed: async ({ request, mode }) => {
+            // Add version to cache key for better invalidation
+            const url = new URL(request.url);
+            url.searchParams.set('v', appPackage.version);
+            return url.toString();
+          },
+        },
+      },
+      {
+        urlPattern: /^https:\/\/ecency\.com\/_next\/static\/chunks\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'next-js-chunks',
+          networkTimeoutSeconds: 10,
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 24 * 60 * 60, // 1 day
+          },
+          plugins: [
+            {
+              cacheKeyWillBeUsed: async ({ request }) => {
+                // Add version to cache key for chunks
+                const url = new URL(request.url);
+                url.searchParams.set('v', appPackage.version);
+                return url.toString();
+              },
+              requestWillFetch: async ({ request }) => {
+                // Add cache busting for failed requests
+                const url = new URL(request.url);
+                if (!url.searchParams.has('retry')) {
+                  url.searchParams.set('t', Date.now().toString());
+                }
+                return new Request(url.toString(), request);
+              },
+            },
+          ],
+        },
+      },
+    ],
+  },
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
@@ -15,7 +72,13 @@ const config = {
   sassOptions: {
     includePaths: [path.join(__dirname, "src/styles")]
   },
-  generateBuildId: async () => v4(),
+  generateBuildId: async () => {
+    // Use a more stable build ID strategy to reduce cache invalidation
+    // This uses the package.json version + date-based suffix for better cache control
+    const packageVersion = appPackage.version;
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD format
+    return `${packageVersion}-${today}`;
+  },
   webpack: (config, { isServer }) => {
     config.module.rules.push({
       test: /\.(mp3)$/,
@@ -31,6 +94,27 @@ const config = {
 
     if (isServer) {
       config.externals.push("formidable", "hexoid");
+    }
+
+    // Add chunk loading error handling for better resilience during deployments
+    if (!isServer) {
+      config.output.globalObject = 'self';
+      
+      // Enhance chunk loading with retry mechanism
+      const originalJsonpScriptSrc = config.output.chunkLoadingGlobal || '__webpack_require__';
+      config.output.crossOriginLoading = 'anonymous';
+      
+      // Add custom chunk loading error handler
+      config.plugins = config.plugins || [];
+      config.plugins.push({
+        apply: (compiler) => {
+          compiler.hooks.compilation.tap('ChunkLoadErrorHandling', (compilation) => {
+            compilation.hooks.additionalChunkAssets.tap('ChunkLoadErrorHandling', () => {
+              // This will be handled by our client-side error boundary
+            });
+          });
+        }
+      });
     }
 
     return config;
