@@ -32,37 +32,96 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
-
-    if (!el || !el.parentNode) {
-      return;
-    }
-
-    // Add a small delay to ensure DOM is fully rendered and stable
+    // Add a longer delay to wait for the client-side rendering to complete
     const timer = setTimeout(() => {
+      const el = document.getElementById("post-body");
+
+      if (!el) {
+        console.warn("Post body element not found, retrying...");
+        // Retry after additional delay if element is not found
+        const retryTimer = setTimeout(() => {
+          const retryEl = document.getElementById("post-body");
+          if (retryEl) {
+            attemptEnhancementSetup(retryEl);
+          } else {
+            console.warn("Post body element still not found after retry, skipping enhancements");
+          }
+        }, 200);
+        return () => clearTimeout(retryTimer);
+      }
+
+      attemptEnhancementSetup(el);
+    }, 250); // Increased delay to allow for client-side rendering
+
+    const attemptEnhancementSetup = (element: HTMLElement) => {
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
+        // Comprehensive DOM stability checks
+        if (!element.isConnected) {
+          console.warn("Post body element is not connected to DOM, skipping enhancements");
           return;
         }
 
-        setupPostEnhancements(el, {
+        if (!element.parentNode) {
+          console.warn("Post body element has no parent, skipping enhancements");
+          return;
+        }
+
+        // Check if the element has actual content (not just loading placeholder)
+        const hasContent = element.innerHTML && 
+          element.innerHTML.trim().length > 0 && 
+          !element.innerHTML.includes('loading-content') &&
+          !element.innerHTML.includes('Loading full content');
+
+        if (!hasContent) {
+          console.warn("Post body element has no content yet, skipping enhancements");
+          return;
+        }
+
+        // Additional check: ensure the element is visible and has dimensions
+        const rect = element.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) {
+          console.warn("Post body element has no dimensions, skipping enhancements");
+          return;
+        }
+
+        // Final safety check: validate all child elements before enhancement
+        const childElements = element.querySelectorAll('*');
+        let hasInvalidElements = false;
+        
+        childElements.forEach((child) => {
+          if (!child.isConnected || !child.parentNode) {
+            hasInvalidElements = true;
+            console.warn("Found disconnected child element during enhancement setup");
+          }
+        });
+
+        if (hasInvalidElements) {
+          console.warn("Post body contains disconnected child elements, skipping enhancements");
+          return;
+        }
+
+        setupPostEnhancements(element, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
           TwitterComponent: Tweet,
         });
       } catch (e) {
-        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
+        // Avoid breaking the page if enhancements fail
         console.error("Failed to setup post enhancements", e);
         
         // Log additional context for debugging
-        if (e instanceof TypeError && e.message.includes("parentNode")) {
+        if (e instanceof TypeError && (e.message.includes("parentNode") || e.message.includes("null"))) {
           console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          console.error("Element state:", {
+            exists: !!element,
+            isConnected: element?.isConnected,
+            hasParent: !!element?.parentNode,
+            hasContent: element?.innerHTML?.length > 0
+          });
         }
       }
-    }, 100);
+    };
 
     return () => clearTimeout(timer);
   }, [isRawContent, isEdit, editHistory]);

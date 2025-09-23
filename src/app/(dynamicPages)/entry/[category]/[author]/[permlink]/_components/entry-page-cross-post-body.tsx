@@ -1,12 +1,14 @@
+"use client";
+
 import {BookmarkBtn, EntryMenu, ProfileLink, TimeLabel, UserAvatar} from "@/features/shared";
 import i18next from "i18next";
 import { accountReputation } from "@/utils";
 import { Entry } from "@/entities";
-import {renderPostBody, setProxyBase} from "@ecency/render-helper";
+import {renderPostBody, setProxyBase, postBodySummary} from "@ecency/render-helper";
 import { useGlobalStore } from "@/core/global-store";
 import { TagLink } from "@/features/shared/tag";
 import { EcencyConfigManager } from "@/config";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import defaults from "@/defaults.json";
 
 interface Props {
@@ -15,15 +17,32 @@ interface Props {
 setProxyBase(defaults.imageServer);
 export function EntryPageCrossPostBody({ entry }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
+  const [renderedBody, setRenderedBody] = useState<string>("");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    if (entry.original_entry) {
+      const timer = setTimeout(() => {
+        try {
+          const rendered = renderPostBody(entry.original_entry.body, false, canUseWebp);
+          setRenderedBody(rendered);
+        } catch (error) {
+          console.error("Error rendering cross-post body:", error);
+          // Fallback to safe content
+          setRenderedBody(`<div class="markdown-fallback">${entry.original_entry.body.replace(/\n/g, '<br>')}</div>`);
+        }
+      }, 50);
+
+      return () => clearTimeout(timer);
+    }
+  }, [entry.original_entry, canUseWebp]);
 
   if (!entry.original_entry) {
     return <></>;
   }
 
   const reputation = accountReputation(entry.original_entry.author_reputation);
-  const renderedBody = {
-    __html: renderPostBody(entry.original_entry.body, false, canUseWebp)
-  };
 
   return (
     <>
@@ -75,11 +94,24 @@ export function EntryPageCrossPostBody({ entry }: Props) {
           <EntryMenu entry={entry} separatedSharing={true} />
         </div>
       </div>
-      <div
-        itemProp="articleBody"
-        className="entry-body markdown-view user-selectable"
-        dangerouslySetInnerHTML={renderedBody}
-      />
+      {!isClient || !renderedBody ? (
+        <div
+          itemProp="articleBody"
+          className="entry-body markdown-view user-selectable"
+        >
+          <div className="loading-content text-gray-600 dark:text-gray-400">
+            {entry.original_entry.json_metadata?.description || 
+             (typeof postBodySummary === 'function' ? postBodySummary(entry.original_entry.body, 300) : null) || 
+             entry.original_entry.body.substring(0, 300) + '...'}
+          </div>
+        </div>
+      ) : (
+        <div
+          itemProp="articleBody"
+          className="entry-body markdown-view user-selectable"
+          dangerouslySetInnerHTML={{ __html: renderedBody }}
+        />
+      )}
     </>
   );
 }
