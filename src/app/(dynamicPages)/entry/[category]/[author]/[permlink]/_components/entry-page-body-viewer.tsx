@@ -47,25 +47,124 @@ export function EntryPageBodyViewer({ entry }: Props) {
           return;
         }
 
-        setupPostEnhancements(el, {
-          onHiveOperationClick: (op) => {
-            setSigningOperation(op);
-          },
-          TwitterComponent: Tweet,
-        });
+        // Create a safer wrapper around setupPostEnhancements to handle DOM race conditions
+        const safeSetupPostEnhancements = () => {
+          // Store original DOM methods that might be problematic during enhancement
+          const originalRemoveChild = Node.prototype.removeChild;
+          const originalAppendChild = Node.prototype.appendChild;
+          const originalInsertBefore = Node.prototype.insertBefore;
+          const originalReplaceChild = Node.prototype.replaceChild;
+          
+          // Track if enhancement is active to prevent operations after cleanup
+          let enhancementActive = true;
+          
+          // Safe wrapper for DOM operations that checks for null parentNode
+          const safeNodeOperation = (operation: () => any, context: string, node?: Node) => {
+            try {
+              if (!enhancementActive) {
+                console.debug(`Skipping ${context} - enhancement no longer active`);
+                return null;
+              }
+              return operation();
+            } catch (e) {
+              if (e instanceof TypeError && (e.message.includes("parentNode") || e.message.includes("null"))) {
+                console.warn(`Prevented ${context} operation on detached node:`, e.message);
+                // Log additional context for debugging specific posts
+                if (entry.permlink) {
+                  console.debug(`Post context: ${entry.author}/${entry.permlink}`);
+                }
+                return null;
+              }
+              throw e;
+            }
+          };
+
+          // Patch DOM methods with null-safety checks
+          Node.prototype.removeChild = function(child) {
+            return safeNodeOperation(() => {
+              if (this && child && child.parentNode === this) {
+                return originalRemoveChild.call(this, child);
+              }
+              console.debug("Prevented removeChild on detached or mismatched node");
+              return null;
+            }, "removeChild", child);
+          };
+
+          Node.prototype.appendChild = function(child) {
+            return safeNodeOperation(() => {
+              if (this && child) {
+                return originalAppendChild.call(this, child);
+              }
+              console.debug("Prevented appendChild on null node");
+              return child;
+            }, "appendChild", child);
+          };
+
+          Node.prototype.insertBefore = function(newNode, referenceNode) {
+            return safeNodeOperation(() => {
+              if (this && newNode) {
+                return originalInsertBefore.call(this, newNode, referenceNode);
+              }
+              console.debug("Prevented insertBefore on null node");
+              return newNode;
+            }, "insertBefore", newNode);
+          };
+
+          Node.prototype.replaceChild = function(newChild, oldChild) {
+            return safeNodeOperation(() => {
+              if (this && newChild && oldChild && oldChild.parentNode === this) {
+                return originalReplaceChild.call(this, newChild, oldChild);
+              }
+              console.debug("Prevented replaceChild on detached or mismatched node");
+              return oldChild;
+            }, "replaceChild", oldChild);
+          };
+
+          try {
+            // Final verification before enhancement
+            if (!el.isConnected || !el.parentNode) {
+              console.warn("Element disconnected just before enhancement, aborting");
+              return;
+            }
+
+            setupPostEnhancements(el, {
+              onHiveOperationClick: (op) => {
+                setSigningOperation(op);
+              },
+              TwitterComponent: Tweet,
+            });
+
+            console.debug("Post enhancements setup completed successfully");
+          } finally {
+            // Always restore original methods to prevent memory leaks and side effects
+            enhancementActive = false;
+            Node.prototype.removeChild = originalRemoveChild;
+            Node.prototype.appendChild = originalAppendChild;
+            Node.prototype.insertBefore = originalInsertBefore;
+            Node.prototype.replaceChild = originalReplaceChild;
+          }
+        };
+
+        safeSetupPostEnhancements();
       } catch (e) {
         // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
         console.error("Failed to setup post enhancements", e);
         
-        // Log additional context for debugging
+        // Enhanced logging for debugging with post context
         if (e instanceof TypeError && e.message.includes("parentNode")) {
           console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          console.error("Post details:", {
+            author: entry.author,
+            permlink: entry.permlink,
+            category: entry.category,
+            timestamp: new Date().toISOString()
+          });
         }
       }
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [isRawContent, isEdit, editHistory]);
+  }, [isRawContent, isEdit, editHistory, entry.author, entry.permlink, entry.category]);
 
   return (
     <EntryPageViewerManager>
