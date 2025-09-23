@@ -38,7 +38,26 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
+    // Additional defensive checks for content validation
     try {
+      // Validate that the element contains valid HTML content
+      if (!el.innerHTML || el.innerHTML.trim() === "") {
+        console.warn("Post body element is empty, skipping enhancements");
+        return;
+      }
+
+      // Check if the element has any child nodes to work with
+      if (!el.hasChildNodes()) {
+        console.warn("Post body element has no child nodes, skipping enhancements");
+        return;
+      }
+
+      // Validate that the element is properly attached to the DOM
+      if (!document.contains(el)) {
+        console.warn("Post body element is not attached to document, skipping enhancements");
+        return;
+      }
+
       setupPostEnhancements(el, {
         onHiveOperationClick: (op) => {
           setSigningOperation(op);
@@ -46,8 +65,28 @@ export function EntryPageBodyViewer({ entry }: Props) {
         TwitterComponent: Tweet,
       });
     } catch (e) {
-      // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
-      console.error("Failed to setup post enhancements", e);
+      // Enhanced error handling with more detailed logging for debugging
+      const error = e as Error;
+      const errorContext = {
+        message: error.message,
+        stack: error.stack,
+        elementId: el?.id,
+        elementExists: !!el,
+        elementAttached: el ? document.contains(el) : false,
+        elementHasParent: el ? !!el.parentNode : false,
+        elementHasContent: el ? el.innerHTML.length > 0 : false,
+        elementHasChildren: el ? el.hasChildNodes() : false,
+        url: window.location.href
+      };
+      
+      console.error("Failed to setup post enhancements:", errorContext);
+      
+      // Log additional details for specific error types
+      if (error.message.includes("parentNode")) {
+        console.error("Detected parentNode access error - this may be due to malformed HTML content");
+      }
+      
+      // Still avoid breaking the page by not re-throwing the error
     }
   }, [isRawContent, isEdit, editHistory]);
 
