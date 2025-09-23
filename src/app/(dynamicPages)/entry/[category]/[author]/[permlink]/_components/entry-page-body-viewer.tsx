@@ -32,16 +32,31 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
+    // Use a flag to track if this effect is still valid
+    let isEffectActive = true;
+    
+    // Get the element and verify it's connected to the DOM
     const el = document.getElementById("post-body");
 
-    if (!el || !el.parentNode) {
+    if (!el || !el.parentNode || !el.isConnected) {
       return;
     }
 
+    // Store the element reference to check later
+    const currentElement = el;
+
     try {
-      setupPostEnhancements(el, {
+      // Double-check the element is still connected before enhancement
+      if (!isEffectActive || !currentElement.isConnected || !currentElement.parentNode) {
+        return;
+      }
+
+      setupPostEnhancements(currentElement, {
         onHiveOperationClick: (op) => {
-          setSigningOperation(op);
+          // Only handle the operation if the effect is still active
+          if (isEffectActive) {
+            setSigningOperation(op);
+          }
         },
         TwitterComponent: Tweet,
       });
@@ -49,6 +64,11 @@ export function EntryPageBodyViewer({ entry }: Props) {
       // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
       console.error("Failed to setup post enhancements", e);
     }
+
+    // Cleanup function to invalidate the effect
+    return () => {
+      isEffectActive = false;
+    };
   }, [isRawContent, isEdit, editHistory]);
 
   return (
