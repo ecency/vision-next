@@ -9,7 +9,7 @@ import { EntryFooterInfo } from "./entry-footer-info";
 import { EntryPageIsCommentHeader } from "./entry-page-is-comment-header";
 import { EntryPageMainInfo } from "./entry-page-main-info";
 import { EntryPageSimilarEntries } from "./entry-page-similar-entries";
-import { EntryPageStaticBody } from "./entry-page-static-body";
+import { EntryPageSSRBody } from "./entry-page-ssr-body";
 import { EntryPageWarnings } from "./entry-page-warnings";
 import { EntryTags } from "./entry-tags";
 
@@ -59,7 +59,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
       {/* SSR static body */}
       {!isRawContent && (
         <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
-          <EntryPageStaticBody entry={entry} />
+          <EntryPageSSRBody entry={entry} />
           {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
         </div>
       )}
