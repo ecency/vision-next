@@ -3,6 +3,7 @@
 import { useGlobalStore } from "@/core/global-store";
 import { Entry } from "@/entities";
 import { EntryPageNsfwWarning } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-nsfw-warning";
+import { NoSSRWrapper } from "./no-ssr-wrapper";
 import React from "react";
 
 interface Props {
@@ -20,5 +21,9 @@ export function EntryPageNsfwRevealing({ entry, showIfNsfw, children }: Props) {
       !showIfNsfw &&
       !globalNsfw;
 
-  return showNsfwWarning ? <EntryPageNsfwWarning /> : children;
+  return (
+    <NoSSRWrapper fallback={children}>
+      {showNsfwWarning ? <EntryPageNsfwWarning /> : children}
+    </NoSSRWrapper>
+  );
 }
