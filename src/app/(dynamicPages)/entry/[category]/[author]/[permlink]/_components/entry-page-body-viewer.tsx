@@ -38,7 +38,19 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
+    // Additional check to ensure element is still connected to the DOM
+    if (!el.isConnected) {
+      console.warn("Element #post-body is not connected to the DOM, skipping enhancements");
+      return;
+    }
+
     try {
+      // Final check right before calling setupPostEnhancements to handle race conditions
+      if (!el.isConnected || !el.parentNode) {
+        console.warn("Element became disconnected before enhancement setup, aborting");
+        return;
+      }
+
       setupPostEnhancements(el, {
         onHiveOperationClick: (op) => {
           setSigningOperation(op);
@@ -46,8 +58,13 @@ export function EntryPageBodyViewer({ entry }: Props) {
         TwitterComponent: Tweet,
       });
     } catch (e) {
-      // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
-      console.error("Failed to setup post enhancements", e);
+      // Enhanced error handling to detect parentNode race condition
+      if (e instanceof TypeError && e.message.includes("parentNode")) {
+        console.warn("Element parentNode became null during enhancement setup (React hydration race condition)", e);
+      } else {
+        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
+        console.error("Failed to setup post enhancements", e);
+      }
     }
   }, [isRawContent, isEdit, editHistory]);
 
