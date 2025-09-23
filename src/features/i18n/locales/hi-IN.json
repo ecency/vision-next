@@ -1094,29 +1094,29 @@
     "power-up": "पावर उप करे",
     "withdraw-hive": "हाइव निकालें",
     "withdraw-hbd": "हाइव डॉलर निकालें",
-    "delegate": "प्रतिनिधि",
+    "delegate": "डेलीगेट​",
     "power-down": "पावर नीचे करे",
     "withdraw-routes": "निकाशी मार्ग",
     "calculating": "गिना जा रहा है",
     "converting-hbd-amount": "हाइव में परिवर्तित हो रहा हैं",
     "converting-hive-amount": "एचबीडी में कनवर्ट हो रहा है",
     "withdrawing-amount": "बचत से निकासी",
-    "reserved-amount": "Reserved for Open order in Market",
+    "reserved-amount": "बाजार में खुले आदेश के लिए आरक्षित",
     "spk": {
       "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Unclaimed rewards"
+        "title": "दावा करें",
+        "unclaimed-rewards": "दावा न किए गए पुरस्कार"
       },
       "delegate": {
-        "title": "Delegate",
-        "subtitle": "Delegate tokens",
-        "node-operator-placeholder": "Select a node operator",
+        "title": "डेलीगेट​",
+        "subtitle": "डेलीगेट​ टोकनस",
+        "node-operator-placeholder": "एक नोड ऑपरेटर चुनें",
         "delegated-larynx-power": {
-          "title": "Delegated LARYNX Power"
+          "title": "प्रत्यायोजित लारेंक्स शक्ति"
         }
       },
       "power-up": {
-        "title": "Power up",
+        "title": "पावर उप",
         "subtitle": "Power up to earn passive rewards"
       },
       "power-down": {
