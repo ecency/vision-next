@@ -20,7 +20,7 @@ export function EntryReplySection({ entry }: Props) {
 
     const replySubmitted = async (text: string) => {
         const permlink = createReplyPermlink(entry.author);
-        const tags = entry.json_metadata.tags || ["ecency"];
+        const tags = entry.json_metadata?.tags || ["ecency"];
 
         const response = await createReply({
             jsonMeta: makeJsonMetaDataReply(tags, appPackage.version),

@@ -30,7 +30,7 @@ export const DeckPostViewerCommentBox = ({ entry, onReplied }: Props) => {
     }
 
     const permlink = createReplyPermlink(entry.author);
-    const tags = entry.json_metadata.tags || ["ecency"];
+    const tags = entry.json_metadata?.tags || ["ecency"];
 
     const jsonMeta = makeJsonMetaDataReply(tags, appPackage.version);
 

@@ -35,7 +35,7 @@ export function EntryPageEdit({ entry: initialEntry }: Props) {
       return updateReplyApi({
         text,
         point: true,
-        jsonMeta: makeJsonMetaDataReply(entry.json_metadata.tags || ["ecency"], appPackage.version)
+        jsonMeta: makeJsonMetaDataReply(entry.json_metadata?.tags || ["ecency"], appPackage.version)
       });
     }
     return;
