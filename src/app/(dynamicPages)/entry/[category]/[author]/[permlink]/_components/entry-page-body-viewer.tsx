@@ -32,23 +32,44 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    const setupEnhancements = () => {
+      const el = document.getElementById("post-body");
 
-    if (!el || !el.parentNode) {
+      // Add robust null checks to prevent TypeError
+      if (!el) {
+        return false;
+      }
+      
+      if (!el.parentNode) {
+        return false;
+      }
+
+      try {
+        setupPostEnhancements(el, {
+          onHiveOperationClick: (op) => {
+            setSigningOperation(op);
+          },
+          TwitterComponent: Tweet,
+        });
+        return true;
+      } catch (e) {
+        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
+        console.error("Failed to setup post enhancements", e);
+        return false;
+      }
+    };
+
+    // Try immediately first
+    if (setupEnhancements()) {
       return;
     }
 
-    try {
-      setupPostEnhancements(el, {
-        onHiveOperationClick: (op) => {
-          setSigningOperation(op);
-        },
-        TwitterComponent: Tweet,
-      });
-    } catch (e) {
-      // Avoid breaking the page if enhancements fail, e.g. due to missing embeds
-      console.error("Failed to setup post enhancements", e);
-    }
+    // If element not found, wait a bit for SSR to complete and try again
+    const timeoutId = setTimeout(() => {
+      setupEnhancements();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [isRawContent, isEdit, editHistory]);
 
   return (
