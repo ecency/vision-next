@@ -21,10 +21,17 @@ interface Props {
 
 export function EntryPageBodyViewer({ entry }: Props) {
   const [signingOperation, setSigningOperation] = useState<string>();
+  const [isHydrated, setIsHydrated] = useState(false);
   const { isRawContent, isEdit, editHistory } = useContext(EntryPageContext);
 
+  // Hydration-safe state management
   useEffect(() => {
-    if (isRawContent || isEdit || editHistory) {
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    // Only proceed after hydration is complete to prevent timing conflicts
+    if (!isHydrated || isRawContent || isEdit || editHistory) {
       return;
     }
 
@@ -32,40 +39,111 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    // Enhanced DOM validation function
+    const validatePostBodyElement = (el: HTMLElement | null): boolean => {
+      if (!el) {
+        return false;
+      }
 
-    if (!el || !el.parentNode) {
-      return;
-    }
+      // Check if element exists and is connected to DOM
+      if (!el.isConnected || !el.parentNode || !document.body.contains(el)) {
+        return false;
+      }
 
-    // Add a small delay to ensure DOM is fully rendered and stable
-    const timer = setTimeout(() => {
+      // Check if the element has expected structure and isn't empty
+      if (el.children.length === 0 && el.innerHTML.trim() === "") {
+        return false;
+      }
+
+      // Verify the element has expected classes indicating proper hydration
+      if (!el.classList.contains("entry-body")) {
+        return false;
+      }
+
+      // Additional stability check - ensure parent is stable
+      const parent = el.parentNode as HTMLElement;
+      if (!parent || !parent.isConnected) {
+        return false;
+      }
+
+      return true;
+    };
+
+    // Setup enhancements with comprehensive error handling
+    const setupEnhancements = (): boolean => {
+      const el = document.getElementById("post-body");
+
+      if (!validatePostBodyElement(el)) {
+        return false;
+      }
+
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
-          return;
-        }
-
-        setupPostEnhancements(el, {
+        setupPostEnhancements(el!, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
           TwitterComponent: Tweet,
         });
+        return true;
       } catch (e) {
-        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
-        console.error("Failed to setup post enhancements", e);
+        // Enhanced error logging for debugging hydration issues
+        console.error("Failed to setup post enhancements", {
+          error: e,
+          elementId: el?.id,
+          elementConnected: el?.isConnected,
+          elementParent: !!el?.parentNode,
+          elementClasses: el?.className,
+          elementChildCount: el?.children.length,
+          timestamp: new Date().toISOString()
+        });
         
-        // Log additional context for debugging
+        // Specific handling for parentNode errors
         if (e instanceof TypeError && e.message.includes("parentNode")) {
-          console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup", {
+            elementHTML: el?.outerHTML?.substring(0, 200) + "...",
+            parentNodeType: el?.parentNode?.nodeType,
+            parentNodeName: el?.parentNode?.nodeName
+          });
         }
+        return false;
       }
-    }, 100);
+    };
 
-    return () => clearTimeout(timer);
-  }, [isRawContent, isEdit, editHistory]);
+    let attempts = 0;
+    const maxAttempts = 5;
+    const baseDelay = 150;
+    let timeoutId: NodeJS.Timeout;
+
+    const attemptSetup = () => {
+      attempts++;
+      
+      if (setupEnhancements()) {
+        return; // Success, no need to retry
+      }
+
+      if (attempts < maxAttempts) {
+        // Exponential backoff with jitter to avoid thundering herd
+        const delay = baseDelay * Math.pow(2, attempts - 1) + Math.random() * 50;
+        timeoutId = setTimeout(attemptSetup, delay);
+      } else {
+        console.warn(`Failed to setup post enhancements after ${maxAttempts} attempts`, {
+          finalElementId: document.getElementById("post-body")?.id,
+          finalElementExists: !!document.getElementById("post-body"),
+          finalElementConnected: document.getElementById("post-body")?.isConnected,
+          timestamp: new Date().toISOString()
+        });
+      }
+    };
+
+    // Initial delay to allow for hydration completion
+    timeoutId = setTimeout(attemptSetup, 100);
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isHydrated, isRawContent, isEdit, editHistory]);
 
   return (
     <EntryPageViewerManager>

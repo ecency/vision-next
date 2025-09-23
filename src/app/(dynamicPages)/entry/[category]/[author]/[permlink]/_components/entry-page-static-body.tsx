@@ -12,6 +12,7 @@ export function EntryPageStaticBody({ entry }: Props) {
       id="post-body"
       className="entry-body markdown-view user-selectable client"
       itemProp="articleBody"
+      suppressHydrationWarning={true}
       dangerouslySetInnerHTML={{ __html: renderPostBody(entry.body, false) }}
     />
   );
