@@ -32,18 +32,25 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
-
-    if (!el || !el.parentNode) {
-      return;
-    }
-
-    // Add a small delay to ensure DOM is fully rendered and stable
+    // Add a small delay to ensure DOM is fully rendered and hydration is complete
     const timer = setTimeout(() => {
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
+        // Re-check conditions after delay in case they changed during hydration
+        if (isRawContent || isEdit || editHistory) {
+          return;
+        }
+
+        const el = document.getElementById("post-body");
+
+        // Enhanced safety checks - verify element exists and is properly connected
+        if (!el || !el.parentNode || !el.isConnected) {
+          console.warn("Post body element is not available or not properly connected to DOM, skipping enhancements");
+          return;
+        }
+
+        // Additional check to ensure the element is in the document
+        if (!document.body.contains(el)) {
+          console.warn("Post body element is not in the document, skipping enhancements");
           return;
         }
 
