@@ -32,39 +32,106 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    // Enhanced DOM stability checking function
+    const isDomElementStable = (element: HTMLElement): boolean => {
+      // Check if element exists and is connected to the DOM
+      if (!element || !element.isConnected) {
+        return false;
+      }
 
-    if (!el || !el.parentNode) {
-      return;
-    }
+      // Check if element has a parent node
+      if (!element.parentNode || !element.parentElement) {
+        return false;
+      }
 
-    // Add a small delay to ensure DOM is fully rendered and stable
-    const timer = setTimeout(() => {
+      // Verify the element is actually in the document
+      if (!document.contains(element)) {
+        return false;
+      }
+
+      // Check if the element has the expected properties for post body
+      if (!element.id || element.id !== "post-body") {
+        return false;
+      }
+
+      return true;
+    };
+
+    // Robust enhancement setup function with comprehensive checks
+    const setupEnhancements = (): boolean => {
+      const el = document.getElementById("post-body");
+
+      if (!el) {
+        console.warn("Post body element not found, skipping enhancements");
+        return false;
+      }
+
+      if (!isDomElementStable(el)) {
+        console.warn("Post body element is not stable or properly connected to DOM, skipping enhancements");
+        return false;
+      }
+
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
-          return;
-        }
-
         setupPostEnhancements(el, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
           TwitterComponent: Tweet,
         });
+        console.debug("Post enhancements setup successfully");
+        return true;
       } catch (e) {
-        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
+        // Avoid breaking the page if enhancements fail
         console.error("Failed to setup post enhancements", e);
         
-        // Log additional context for debugging
+        // Log additional context for debugging hydration issues
         if (e instanceof TypeError && e.message.includes("parentNode")) {
           console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          console.error("Element state:", {
+            exists: !!el,
+            isConnected: el?.isConnected,
+            hasParentNode: !!el?.parentNode,
+            hasParentElement: !!el?.parentElement,
+            inDocument: el ? document.contains(el) : false
+          });
         }
+        return false;
       }
-    }, 100);
+    };
 
-    return () => clearTimeout(timer);
+    // Retry mechanism with exponential backoff to handle hydration timing
+    let retryCount = 0;
+    const maxRetries = 5;
+    const initialDelay = 100;
+    let timeoutId: NodeJS.Timeout;
+
+    const attemptSetup = () => {
+      if (setupEnhancements()) {
+        return; // Success, no need to retry
+      }
+
+      retryCount++;
+      if (retryCount < maxRetries) {
+        // Exponential backoff with jitter to handle hydration timing issues
+        const backoffDelay = initialDelay * Math.pow(1.5, retryCount);
+        const jitter = Math.random() * 50; // Add randomness to avoid thundering herd
+        const totalDelay = backoffDelay + jitter;
+        
+        console.debug(`Retrying post enhancement setup (attempt ${retryCount}/${maxRetries}) in ${Math.round(totalDelay)}ms`);
+        timeoutId = setTimeout(attemptSetup, totalDelay);
+      } else {
+        console.warn(`Failed to setup post enhancements after ${maxRetries} attempts - DOM may be unstable due to hydration mismatch`);
+      }
+    };
+
+    // Start the initial attempt after allowing time for hydration
+    timeoutId = setTimeout(attemptSetup, initialDelay);
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [isRawContent, isEdit, editHistory]);
 
   return (
