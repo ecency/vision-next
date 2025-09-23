@@ -42,10 +42,19 @@ export const EntryMenu = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   useEffect(() => {
-    const parent = menuRef.current?.closest(".waves-list-item") as HTMLElement | null;
-    if (parent) {
-      parent.style.zIndex = dropdownOpen ? "10" : "";
-      parent.style.overflow = dropdownOpen ? "visible" : "";
+    // Only apply z-index and overflow styles if we're within a waves context
+    // This prevents errors on category pages and other contexts where .waves-list-item doesn't exist
+    if (!menuRef.current) return;
+    
+    const parent = menuRef.current.closest(".waves-list-item") as HTMLElement | null;
+    if (parent && parent.style) {
+      try {
+        parent.style.zIndex = dropdownOpen ? "10" : "";
+        parent.style.overflow = dropdownOpen ? "visible" : "";
+      } catch (error) {
+        // Silently handle any style assignment errors
+        console.warn("EntryMenu: Could not apply styles to parent element", error);
+      }
     }
   }, [dropdownOpen]);
 
