@@ -3,7 +3,7 @@
 import Image from "next/image";
 import i18next from "i18next";
 import Link from "next/link";
-import { Tsx } from "@/features/i18n/helper";
+import { NsfwSignupMessage } from "@/features/i18n/nsfw-signup-message";
 import React, { useMemo } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { Entry } from "@/entities";
@@ -64,9 +64,7 @@ export function EntryListItemNsfwContent({ entry }: Props) {
           )}
           {!activeUser && (
             <>
-              <Tsx k="nsfw.signup">
-                <span />
-              </Tsx>
+              <NsfwSignupMessage />
               {"."}
             </>
           )}
