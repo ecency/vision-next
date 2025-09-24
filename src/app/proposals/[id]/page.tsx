@@ -1,4 +1,5 @@
 import {catchPostImage, renderPostBody, setProxyBase} from "@ecency/render-helper";
+import { sanitizePostBody } from "@/utils/sanitize-content";
 import React from "react";
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import i18next from "i18next";
@@ -51,7 +52,8 @@ export default async function ProposalDetailsPage({ params }: Props) {
     return notFound();
   }
 
-  const renderedBody = { __html: renderPostBody(entry?.body ?? "", false, canUseWebp) };
+  const renderedContent = renderPostBody(entry?.body ?? "", false, canUseWebp);
+  const renderedBody = { __html: sanitizePostBody(renderedContent) };
 
   return (
     <>

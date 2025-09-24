@@ -2,6 +2,7 @@ import { Entry } from "@/entities";
 import { ProfileLink } from "@/features/shared";
 import { dateToRelative } from "@/utils";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
+import { sanitizeContent } from "@/utils/sanitize-content";
 import { flip, shift, useFloating } from "@floating-ui/react-dom";
 import { safeAutoUpdate } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
@@ -87,7 +88,7 @@ export function DiscussionBots({ entries }: Props) {
                           <div className="text-gray-400 text-xs">{dateToRelative(e.created)}</div>
                         </EntryLink>
                       </div>
-                      <div dangerouslySetInnerHTML={{ __html: renderPostBody(e) }} />
+                      <div dangerouslySetInnerHTML={{ __html: sanitizeContent(renderPostBody(e)) }} />
                     </div>
                   ))}
                 </div>

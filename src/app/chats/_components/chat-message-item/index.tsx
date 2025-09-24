@@ -1,6 +1,7 @@
 import { isMessageGif } from "../../_utils";
 import React, { useMemo, useRef, useState } from "react";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
+import { sanitizeContent } from "@/utils/sanitize-content";
 import { ChatMessageChannelItemExtension } from "../chat-message-channel-item-extension";
 import useMount from "react-use/lib/useMount";
 import useDebounce from "react-use/lib/useDebounce";
@@ -62,10 +63,12 @@ export function ChatMessageItem({
   const isImage = useMemo(() => isMessageImage(message.content), [message]);
   const isEmoji = useMemo(() => isSingleEmoji(message.content), [message]);
   const renderedPreview = useMemo(
-    () =>
-      renderPostBody(message.content, false, canUseWebp)
+    () => {
+      const rendered = renderPostBody(message.content, false, canUseWebp)
         .replace(/<p[^>]*>/g, "")
-        .replace(/<\/p>/g, ""),
+        .replace(/<\/p>/g, "");
+      return sanitizeContent(rendered);
+    },
     [message, canUseWebp]
   );
 
