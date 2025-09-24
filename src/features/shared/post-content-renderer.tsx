@@ -22,7 +22,7 @@ export function PostContentRenderer({
   return (
     <>
       <MemoizedEcencyRenderer
-        value={value}
+        value={value || ""}
         {...(props as any)}
         onHiveOperationClick={handleHiveOperationClick}
         TwitterComponent={Tweet}
