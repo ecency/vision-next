@@ -25,9 +25,8 @@ export function NsfwSignupMessage({ className }: Props) {
     return (
       <span className={className}>
         <Link href="/signup" className="push-link">
-          create an account
-        </Link>{" "}
-        to save your preferences
+          {i18next.t("nsfw.signup")}
+        </Link>
       </span>
     );
   }
@@ -37,9 +36,8 @@ export function NsfwSignupMessage({ className }: Props) {
   return (
     <span className={className}>
       <Link href="/signup" className="push-link">
-        create an account
-      </Link>{" "}
-      to save your preferences
+        {i18next.t("nsfw.signup")}
+      </Link>
     </span>
   );
 }
