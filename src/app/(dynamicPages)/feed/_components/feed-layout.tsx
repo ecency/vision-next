@@ -29,8 +29,8 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
 
   useEffect(() => {
     const top =
-      extra.find((e) => !e.stats.is_pinned) ||
-      ((data?.pages?.[0] as Entry[] | undefined)?.find((e) => !e.stats.is_pinned) ?? null);
+      extra.find((e) => !e.stats?.is_pinned) ||
+      ((data?.pages?.[0] as Entry[] | undefined)?.find((e) => !e.stats?.is_pinned) ?? null);
     if (top) {
       latest.current = top;
     }
@@ -88,7 +88,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
       const last = latest.current;
       const fresh: Entry[] = [];
       for (const e of resp) {
-        if (e.stats.is_pinned) continue;
+        if (e.stats?.is_pinned) continue;
         if (last && e.author === last.author && e.permlink === last.permlink) break;
         fresh.push(e);
       }
