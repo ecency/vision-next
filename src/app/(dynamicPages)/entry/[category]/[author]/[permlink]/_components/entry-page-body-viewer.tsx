@@ -34,11 +34,15 @@ export function EntryPageBodyViewer({ entry }: Props) {
 
     const el = document.getElementById("post-body");
 
+    if (!(el instanceof HTMLElement)) {
+      return;
+    }
+
     // Enhanced null-safe checking for iOS Safari compatibility
-    const isElementSafe = (element: Element | null): boolean => {
+    const isElementSafe = (element: HTMLElement | null): boolean => {
       try {
         if (!element) return false;
-        
+
         // Safe parentNode access with try-catch for iOS Safari iframe security errors
         const hasParent = (() => {
           try {
@@ -49,12 +53,12 @@ export function EntryPageBodyViewer({ entry }: Props) {
             return false;
           }
         })();
-        
+
         if (!hasParent) return false;
-        
+
         // Additional safety check for isConnected property
         try {
-          return element.isConnected === true;
+          return element.isConnected;
         } catch (securityError) {
           // Fallback if isConnected check also fails due to security restrictions
           console.warn("isConnected check failed, assuming element is connected");
@@ -88,7 +92,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
       } catch (e) {
         // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
         console.error("Failed to setup post enhancements", e);
-        
+
         // Enhanced error handling for iOS Safari specific issues
         if (e instanceof TypeError) {
           if (e.message.includes("parentNode")) {
