@@ -91,15 +91,32 @@ export function Comment({
     if (selection) {
       setText((prev) => `${selection}${prev ?? ""}`);
       const el = (inputRef as any)?.current as HTMLTextAreaElement | null;
-      if (el) {
-        let scHeight = el.scrollHeight;
-        const reduceScHeight = scHeight - 20 || scHeight - 24;
-        if (reduceScHeight) {
-          scHeight = reduceScHeight;
+      
+      // Enhanced validation to ensure element is fully initialized
+      if (el && el.scrollHeight !== undefined && typeof el.scrollHeight === 'number') {
+        try {
+          // Safely access DOM properties with additional validation
+          let scHeight = el.scrollHeight;
+          const reduceScHeight = scHeight - 20 || scHeight - 24;
+          if (reduceScHeight) {
+            scHeight = reduceScHeight;
+          }
+          setInputHeight(scHeight);
+          const caret = selection.length;
+          
+          // Re-validate element existence and method availability in requestAnimationFrame
+          requestAnimationFrame(() => {
+            const currentEl = (inputRef as any)?.current as HTMLTextAreaElement | null;
+            if (currentEl && 
+                typeof currentEl.setSelectionRange === 'function' && 
+                currentEl.isConnected) {
+              currentEl.setSelectionRange(caret, caret);
+            }
+          });
+        } catch (error) {
+          // Gracefully handle any DOM access errors during hydration
+          console.debug('Error accessing textarea during hydration:', error);
         }
-        setInputHeight(scHeight);
-        const caret = selection.length;
-        requestAnimationFrame(() => el.setSelectionRange(caret, caret));
       }
       setSelection("");
     }
