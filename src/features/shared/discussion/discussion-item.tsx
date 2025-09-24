@@ -108,11 +108,11 @@ export const DiscussionItem = memo(function DiscussionItem({
     [entry]
   );
   const isMuted = useMemo(
-    () => entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation >= 0,
+    () => entry.stats?.gray === true && entry.net_rshares >= 0 && entry.author_reputation >= 0,
     [entry]
   );
   const isLowReputation = useMemo(
-    () => entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation < 0,
+    () => entry.stats?.gray === true && entry.net_rshares >= 0 && entry.author_reputation < 0,
     [entry]
   );
   const mightContainMutedComments = useMemo(

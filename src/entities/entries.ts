@@ -80,7 +80,7 @@ export interface Entry {
   reblogs?: number;
   reblogged_by?: string[] | any;
   replies: any[];
-  stats: EntryStat;
+  stats: EntryStat | null;
   title: string;
   updated: string;
   url: string;
