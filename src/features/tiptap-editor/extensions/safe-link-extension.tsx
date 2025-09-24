@@ -23,8 +23,7 @@ export const SafeLink = Link.configure({
         mergeAttributes(this.options.HTMLAttributes, {
           ...HTMLAttributes,
           href: "",
-          class: "editor-link keychainify-checked",
-          title: ""
+          class: "editor-link keychainify-checked"
         }),
         0
       ];
@@ -34,8 +33,7 @@ export const SafeLink = Link.configure({
       "a",
       mergeAttributes(this.options.HTMLAttributes, {
         ...HTMLAttributes,
-        class: "editor-link keychainify-checked",
-        title: HTMLAttributes.href
+        class: "editor-link keychainify-checked"
       }),
       0
     ];
