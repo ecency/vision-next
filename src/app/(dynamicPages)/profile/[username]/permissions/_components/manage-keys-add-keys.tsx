@@ -1,23 +1,22 @@
 import { formatError } from "@/api/operations";
 import { useClientActiveUser } from "@/api/queries";
 import { error, success } from "@/features/shared";
-import { FormControl, InputGroup } from "@/features/ui";
+import { KeyInput, KeyInputImperativeHandle } from "@/features/ui";
 import { WalletSeedPhrase } from "@/features/wallet";
 import { useAccountUpdateKeyAuths } from "@ecency/sdk";
 import { useHiveKeysQuery } from "@ecency/wallets";
-import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
-import { UilLock } from "@tooni/iconscout-unicons-react";
+import { PrivateKey } from "@hiveio/dhive";
 import i18next from "i18next";
-import { useState } from "react";
+import { useCallback, useRef } from "react";
 
 interface Props {
   onSuccess: () => void;
 }
 
 export function ManageKeysAddKeys({ onSuccess }: Props) {
-  const activeUser = useClientActiveUser();
+  const keyInputRef = useRef<KeyInputImperativeHandle>(null);
 
-  const [currentPassword, setCurrentPassword] = useState("");
+  const activeUser = useClientActiveUser();
 
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
 
@@ -31,43 +30,37 @@ export function ManageKeysAddKeys({ onSuccess }: Props) {
     }
   });
 
+  const handleSaveKeys = useCallback(async () => {
+    if (keys) {
+      const { privateKey } = await keyInputRef.current!.handleSign();
+      saveKeys({
+        keepCurrent: true,
+        currentKey: privateKey,
+        keys: [
+          {
+            owner: PrivateKey.fromString(keys.owner),
+            active: PrivateKey.fromString(keys.active),
+            posting: PrivateKey.fromString(keys.posting),
+            memo_key: PrivateKey.fromString(keys.memo)
+          }
+        ]
+      });
+    } else {
+      throw new Error("[AddKeys] – no keys found");
+    }
+  }, [keys, saveKeys]);
+
   return (
     <div>
       <div className="text-sm opacity-75 mb-4">{i18next.t("password-update.hint")}</div>
-      <div>
-        <label className="text-sm px-2">{i18next.t("password-update.cur-pass")}</label>
-        <InputGroup prepend={<UilLock />}>
-          <FormControl
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            type="password"
-            autoFocus={true}
-            autoComplete="off"
-          />
-        </InputGroup>
-      </div>
+
+      <KeyInput ref={keyInputRef} />
 
       <WalletSeedPhrase
         size="sm"
         showTitle={false}
         username={activeUser?.username!}
-        onValidated={() =>
-          keys &&
-          saveKeys({
-            keepCurrent: true,
-            currentKey: cryptoUtils.isWif(currentPassword)
-              ? PrivateKey.fromString(currentPassword)
-              : PrivateKey.fromLogin(activeUser?.username!, currentPassword, "owner"),
-            keys: [
-              {
-                owner: PrivateKey.fromString(keys.owner),
-                active: PrivateKey.fromString(keys.active),
-                posting: PrivateKey.fromString(keys.posting),
-                memo_key: PrivateKey.fromString(keys.memo)
-              }
-            ]
-          })
-        }
+        onValidated={handleSaveKeys}
       />
     </div>
   );

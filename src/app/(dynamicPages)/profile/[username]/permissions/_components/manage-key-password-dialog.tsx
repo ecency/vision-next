@@ -2,8 +2,8 @@ import { useClientActiveUser } from "@/api/queries";
 import { error } from "@/features/shared";
 import {
   Button,
-  FormControl,
-  InputGroup,
+  KeyInput,
+  KeyInputImperativeHandle,
   Modal,
   ModalBody,
   ModalFooter,
@@ -11,11 +11,10 @@ import {
 } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { deriveHiveMasterPasswordKeys } from "@ecency/wallets";
-import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
+import { cryptoUtils, PublicKey } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
-import { UilLock } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRevealedKeysStore } from "../_hooks";
 
 interface Props {
@@ -25,6 +24,8 @@ interface Props {
 
 export function ManageKeyPasswordDialog({ show, setShow }: Props) {
   const activeUser = useClientActiveUser();
+
+  const keyInputRef = useRef<KeyInputImperativeHandle>(null);
 
   const { data } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username ?? ""),
@@ -39,24 +40,24 @@ export function ManageKeyPasswordDialog({ show, setShow }: Props) {
   });
   const { updateKeys } = useRevealedKeysStore();
 
-  const [key, setKey] = useState("");
+  const handleSubmit = useCallback(async () => {
+    const { raw } = await keyInputRef.current!.handleSign();
 
-  const handleSubmit = useCallback(() => {
-    if (!key.length) {
+    if (!raw.length) {
       error(i18next.t("manage-authorities.error-fields-required"));
       return;
     }
 
     try {
-      PublicKey.fromString(key);
+      PublicKey.fromString(raw);
       error(i18next.t("login.error-public-key"));
       return;
     } catch (e) {}
 
-    if (cryptoUtils.isWif(key)) {
-      // TODO
+    if (cryptoUtils.isWif(raw)) {
+      error(i18next.t("permissions.keys.error-private-key-reveal"));
     } else {
-      const keys = deriveHiveMasterPasswordKeys(activeUser!.username, key);
+      const keys = deriveHiveMasterPasswordKeys(activeUser!.username, raw);
 
       if (!data?.publicKeys.owner.includes(keys.ownerPubkey)) {
         error(i18next.t("login.error-authenticate")); // enter master or active key
@@ -72,7 +73,7 @@ export function ManageKeyPasswordDialog({ show, setShow }: Props) {
     }
 
     setShow(false);
-  }, [activeUser, data?.publicKeys, key, setShow, updateKeys]);
+  }, [activeUser, data?.publicKeys, setShow, updateKeys]);
 
   return (
     <Modal show={show} onHide={() => setShow(false)} centered={true}>
@@ -82,16 +83,7 @@ export function ManageKeyPasswordDialog({ show, setShow }: Props) {
           {i18next.t("manage-authorities.password-sub-title")}
         </div>
 
-        <InputGroup prepend={<UilLock />}>
-          <FormControl
-            value={key}
-            type="password"
-            autoFocus={true}
-            autoComplete="off"
-            placeholder={i18next.t("manage-authorities.placeholder")}
-            onChange={(e) => setKey(e.target.value)}
-          />
-        </InputGroup>
+        <KeyInput ref={keyInputRef} autoFocus={true} autoComplete="off" />
       </ModalBody>
       <ModalFooter className="flex justify-end">
         <Button onClick={handleSubmit}>{i18next.t("g.continue")}</Button>

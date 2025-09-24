@@ -1451,7 +1451,7 @@
   },
   "key-or-hot": {
     "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master private key or seed",
+    "key-placeholder": "Private key, master password or seed",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain"
   },
@@ -2953,7 +2953,8 @@
       "title": "Keys & Passwords",
       "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below",
       "add-key": "Add new keys",
-      "key-created": "Keys have created and assigned successfully."
+      "key-created": "Keys have created and assigned successfully.",
+      "error-private-key-reveal": "Private key can be revealed only with master password or seed phrase"
     },
     "recovery": {
       "title": "Account recovery",

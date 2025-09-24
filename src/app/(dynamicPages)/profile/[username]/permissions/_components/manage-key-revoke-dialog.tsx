@@ -1,19 +1,17 @@
 import { useClientActiveUser } from "@/api/queries";
 import {
   Button,
-  FormControl,
-  InputGroup,
+  KeyInput,
+  KeyInputImperativeHandle,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader
 } from "@/features/ui";
 import { useAccountRevokeKey } from "@ecency/sdk";
-import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
-import { PrivateKey, PublicKey } from "@hiveio/dhive";
-import { UilLock } from "@tooni/iconscout-unicons-react";
+import { PublicKey } from "@hiveio/dhive";
 import i18next from "i18next";
-import { useCallback, useState } from "react";
+import { useCallback, useRef } from "react";
 
 interface Props {
   revokingKey: string;
@@ -24,29 +22,18 @@ interface Props {
 export function ManageKeyRevokeDialog({ revokingKey, show, setShow }: Props) {
   const activeUser = useClientActiveUser();
 
-  const [key, setKey] = useState("");
+  const keyInputRef = useRef<KeyInputImperativeHandle>(null);
 
   const { mutateAsync: revoke } = useAccountRevokeKey(activeUser?.username);
 
   const handleRevoke = useCallback(async () => {
-    const currentKeyType = await detectHiveKeyDerivation(activeUser?.username!, key, "owner");
-    let currentKey: PrivateKey;
-
-    switch (currentKeyType) {
-      case "bip44":
-        currentKey = PrivateKey.from(deriveHiveKeys(key).owner);
-        break;
-      case "master-password":
-        currentKey = PrivateKey.fromLogin(activeUser?.username!, key, "owner");
-      default:
-        currentKey = PrivateKey.from(key);
-    }
+    const { privateKey } = await keyInputRef.current!.handleSign();
 
     return revoke({
-      currentKey,
+      currentKey: privateKey,
       revokingKey: PublicKey.from(revokingKey)
     });
-  }, [revokingKey, key, activeUser, revoke]);
+  }, [revoke, revokingKey]);
 
   return (
     <Modal centered={true} show={show} onHide={() => setShow(false)}>
@@ -54,16 +41,7 @@ export function ManageKeyRevokeDialog({ revokingKey, show, setShow }: Props) {
       <ModalBody>
         <div className="text-sm opacity-75 mb-4">{i18next.t("permissions.revoke-key.hint")}</div>
 
-        <InputGroup prepend={<UilLock />}>
-          <FormControl
-            value={key}
-            type="password"
-            autoFocus={true}
-            autoComplete="off"
-            placeholder={i18next.t("manage-authorities.placeholder")}
-            onChange={(e) => setKey(e.target.value)}
-          />
-        </InputGroup>
+        <KeyInput ref={keyInputRef} />
       </ModalBody>
       <ModalFooter className="flex justify-end">
         <Button onClick={handleRevoke}>{i18next.t("g.continue")}</Button>
