@@ -55,7 +55,11 @@ export function useCommunityPin(entry: Entry, community: Community | null | unde
             return data;
           }
 
-          return { ...clone(data), stats: { ...clone(data.stats), is_pinned: pin } };
+          const updatedStats: Entry["stats"] = data.stats
+            ? { ...clone(data.stats), is_pinned: pin }
+            : data.stats;
+
+          return { ...clone(data), stats: updatedStats };
         }
       );
     }
