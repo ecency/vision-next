@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "Reveal this post",
-    "signup": "<a href=\"/signup\" class=\"push-link\">create an account</a> to save your preferences",
+    "signup": "maak een account aan om je voorkeuren op te slaan",
     "settings-1": "adjust your",
     "settings-2": "display preferences"
   },
