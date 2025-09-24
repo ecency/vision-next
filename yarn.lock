@@ -1328,10 +1328,10 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@^1.2.7":
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.2.7.tgz#48157e6a19acb3e0aa9e50bd5443e4b4bb6bc144"
-  integrity sha512-dJI71Zx9098NvG3lRvGGDaod9rYtjzTwffi3VQwreWlrkcielAXl9IBlnudP+KuG6ZTbxIKAmQS6ZCh32vhjNQ==
+"@ecency/renderer@^1.2.8":
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.2.8.tgz#b0fc6d794c2795aedf1e6cc3e9305ddb3d78eb91"
+  integrity sha512-pgQU/1MksaVFik+GqM0XZKEuDagNkw6ZQw35ITXHtefxTk4XeTmkPYmLRsGGUDNuEo2TcKgLu2o4ZPbjAIei+g==
   dependencies:
     "@testing-library/react" "14"
     medium-zoom "^1.1.0"
