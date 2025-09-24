@@ -12,8 +12,8 @@ export function ProfileWalletExternalBanner() {
         <div className="opacity-75">
           {i18next.t("profile-wallet.external-wallets-offer.description")}
         </div>
-        <Button href="/wallet/setup-external" size="lg" icon={<UilArrowRight />}>
-          {i18next.t("g.continue")}
+        <Button disabled={true} size="lg" icon={<UilArrowRight />}>
+          {i18next.t("waves.promote.coming-soon")}
         </Button>
       </div>
     </div>
