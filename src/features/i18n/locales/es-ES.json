@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "Revelar este post",
-    "signup": "<a href=\"/signup\" class=\"push-link\">crea una cuenta</a> para guardar tus preferencias",
+    "signup": "crear una cuenta para guardar sus preferencias",
     "settings-1": "tu ajuste",
     "settings-2": "preferencias de visualización"
   },
