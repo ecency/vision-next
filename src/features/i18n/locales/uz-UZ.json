@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "Ushbu postni ko‘rsatish",
-    "signup": "<a href=\"/signup\" class=\"push-link\">akkaunt yarating</a>, sozlamalaringizni saqlash uchun",
+    "signup": "create an account to save your preferences",
     "settings-1": "sozlamalaringizni moslang",
     "settings-2": "ko‘rinish sozlamalari"
   },
