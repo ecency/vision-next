@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "इस पोस्ट को प्रकट करें",
-    "signup": "अपनी प्राथमिकताएँ सहेजने के लिए <a href=\"/signup\" class=\"push-link\">खाता बनाएँ</a>",
+    "signup": "create an account to save your preferences",
     "settings-1": "अपने को समायोजित करें",
     "settings-2": "प्रदर्शन प्राथमिकताएँ"
   },
