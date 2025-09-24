@@ -34,16 +34,48 @@ export function EntryPageBodyViewer({ entry }: Props) {
 
     const el = document.getElementById("post-body");
 
-    if (!el || !el.parentNode) {
+    // Enhanced null-safe checking for iOS Safari compatibility
+    const isElementSafe = (element: Element | null): boolean => {
+      try {
+        if (!element) return false;
+        
+        // Safe parentNode access with try-catch for iOS Safari iframe security errors
+        const hasParent = (() => {
+          try {
+            return !!element.parentNode;
+          } catch (securityError) {
+            // iOS Safari throws SecurityError when trying to access parentNode in cross-origin contexts
+            console.warn("Cross-origin security restriction detected, treating as disconnected element");
+            return false;
+          }
+        })();
+        
+        if (!hasParent) return false;
+        
+        // Additional safety check for isConnected property
+        try {
+          return element.isConnected === true;
+        } catch (securityError) {
+          // Fallback if isConnected check also fails due to security restrictions
+          console.warn("isConnected check failed, assuming element is connected");
+          return true;
+        }
+      } catch (error) {
+        console.warn("Element safety check failed:", error);
+        return false;
+      }
+    };
+
+    if (!isElementSafe(el)) {
       return;
     }
 
     // Add a small delay to ensure DOM is fully rendered and stable
     const timer = setTimeout(() => {
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
+        // Re-verify the element is still safe before proceeding
+        if (!isElementSafe(el)) {
+          console.warn("Post body element is not safely accessible, skipping enhancements");
           return;
         }
 
@@ -57,9 +89,15 @@ export function EntryPageBodyViewer({ entry }: Props) {
         // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
         console.error("Failed to setup post enhancements", e);
         
-        // Log additional context for debugging
-        if (e instanceof TypeError && e.message.includes("parentNode")) {
-          console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+        // Enhanced error handling for iOS Safari specific issues
+        if (e instanceof TypeError) {
+          if (e.message.includes("parentNode")) {
+            console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+          } else if (e.message.includes("null is not an object")) {
+            console.error("iOS Safari cross-origin security error detected - iframe embeds may be restricted");
+          }
+        } else if (e instanceof Error && e.name === "SecurityError") {
+          console.error("Cross-origin security error detected - this is common on iOS Safari with iframe embeds");
         }
       }
     }, 100);
