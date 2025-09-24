@@ -4,6 +4,8 @@ import { HiringConsoleLog } from "@/app/_components";
 import { cookies } from "next/headers";
 import { Theme } from "@/enums";
 import { BannerManager } from "@/features/banners";
+import { ChunkLoadErrorHandler } from "@/features/error-handling/chunk-load-error-handler";
+import { ServiceWorkerManager } from "@/features/error-handling/service-worker-manager";
 import React from "react";
 import Script from "next/script";
 import localFont from "next/font/local";
@@ -47,6 +49,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
         <HiringConsoleLog />
+        <ChunkLoadErrorHandler />
+        <ServiceWorkerManager />
         <Providers>{children}</Providers>
         <div id="modal-overlay-container" />
         <div id="modal-dialog-container" />
