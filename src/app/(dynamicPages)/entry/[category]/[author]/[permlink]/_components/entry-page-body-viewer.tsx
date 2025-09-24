@@ -32,19 +32,44 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    const el = document.getElementById("post-body");
+    // Function to safely check if element is ready for enhancement
+    const isElementReady = (element: HTMLElement | null): element is HTMLElement => {
+      if (!element) {
+        return false;
+      }
+      
+      // Check if element is connected to the DOM
+      if (!element.isConnected) {
+        return false;
+      }
+      
+      // Check if element has a parent node
+      if (!element.parentNode) {
+        return false;
+      }
+      
+      // Additional check to ensure the element is not being modified
+      // by checking if it has the expected structure
+      if (!element.classList.contains("entry-body")) {
+        return false;
+      }
+      
+      return true;
+    };
 
-    if (!el || !el.parentNode) {
-      return;
-    }
+    // Function to attempt post enhancement with retry logic
+    const enhancePost = () => {
+      const el = document.getElementById("post-body");
+      
+      if (!isElementReady(el)) {
+        return false;
+      }
 
-    // Add a small delay to ensure DOM is fully rendered and stable
-    const timer = setTimeout(() => {
       try {
-        // Verify the element still exists and is properly attached to the DOM
-        if (!el.isConnected || !el.parentNode) {
-          console.warn("Post body element is not properly connected to DOM, skipping enhancements");
-          return;
+        // Double-check element state right before enhancement
+        if (!isElementReady(el)) {
+          console.warn("Post body element became unstable during enhancement setup");
+          return false;
         }
 
         setupPostEnhancements(el, {
@@ -53,14 +78,30 @@ export function EntryPageBodyViewer({ entry }: Props) {
           },
           TwitterComponent: Tweet,
         });
+        
+        return true;
       } catch (e) {
-        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
+        // Avoid breaking the page if enhancements fail
         console.error("Failed to setup post enhancements", e);
         
         // Log additional context for debugging
-        if (e instanceof TypeError && e.message.includes("parentNode")) {
+        if (e instanceof TypeError && (e.message.includes("parentNode") || e.message.includes("null"))) {
           console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
         }
+        
+        return false;
+      }
+    };
+
+    // Initial attempt with a delay to ensure DOM is stable
+    const timer = setTimeout(() => {
+      if (!enhancePost()) {
+        // If first attempt fails, try again after a longer delay
+        const retryTimer = setTimeout(() => {
+          enhancePost();
+        }, 300);
+        
+        return () => clearTimeout(retryTimer);
       }
     }, 100);
 
