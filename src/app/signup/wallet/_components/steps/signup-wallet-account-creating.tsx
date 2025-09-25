@@ -7,6 +7,7 @@ import {
   EcencyTokenMetadata,
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
+  useHiveKeysQuery,
   useSaveWalletInformationToMetadata,
   useSeedPhrase
 } from "@ecency/wallets";
@@ -30,6 +31,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const [hasInitiated, setHasInitiated] = useState(false);
 
   const { data: seed } = useSeedPhrase(username);
+  const { data: hiveKeys } = useHiveKeysQuery(username);
   const loginKey = useMemo(() => seed ?? "", [seed]);
   const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
     queryKey: ["ecency-wallets", "wallets", username]
@@ -57,7 +59,14 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   }, [username]);
 
   useEffect(() => {
-    if (seed && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
+    if (
+      seed &&
+      hiveKeys &&
+      wallet?.currency &&
+      wallet.address &&
+      loginKey &&
+      !hasInitiated
+    ) {
       setHasInitiated(true);
       const { currency, address } = wallet;
       createAccount({ currency, address })
@@ -75,6 +84,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     }
   }, [
     seed,
+    hiveKeys,
     wallet,
     createAccount,
     loginInApp,
