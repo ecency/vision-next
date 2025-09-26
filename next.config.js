@@ -5,6 +5,86 @@ const withPWA = require("next-pwa")({
   dest: "public",
   // Raise the max size to precache large chunks:
   maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
+  // Improved cache handling
+  skipWaiting: true,
+  clientsClaim: true,
+  // Custom worker to handle stale cache scenarios
+  sw: "sw.js",
+  // Disable default runtimeCaching for better control over cache invalidation
+  disable: process.env.NODE_ENV === "development",
+  // Custom cache strategies
+  runtimeCaching: [
+    {
+      urlPattern: /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "google-fonts-webfonts",
+        expiration: {
+          maxEntries: 4,
+          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
+        }
+      }
+    },
+    {
+      urlPattern: /^https:\/\/fonts\.(?:googleapis)\.com\/.*/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "google-fonts-stylesheets",
+        expiration: {
+          maxEntries: 4,
+          maxAgeSeconds: 7 * 24 * 60 * 60 // 7 days
+        }
+      }
+    },
+    {
+      urlPattern: /\/_next\/static\/.+\.js$/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "next-static-js",
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+        },
+        cacheKeyWillBeUsed: async ({ request, mode }) => {
+          // Include build ID in cache key to prevent stale chunk issues
+          return `${request.url}?buildId=${process.env.BUILD_ID || 'unknown'}`;
+        }
+      }
+    },
+    {
+      urlPattern: /\/_next\/static\/.+\.css$/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "next-static-css",
+        expiration: {
+          maxEntries: 32,
+          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+        }
+      }
+    },
+    {
+      urlPattern: /\/_next\/image\?url=.+$/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "next-image",
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+        }
+      }
+    },
+    {
+      urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "static-image-assets",
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+        }
+      }
+    }
+  ]
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
@@ -15,7 +95,13 @@ const config = {
   sassOptions: {
     includePaths: [path.join(__dirname, "src/styles")]
   },
-  generateBuildId: async () => v4(),
+  generateBuildId: async () => {
+    // Generate a unique build ID for cache busting
+    const buildId = v4();
+    // Make build ID available for cache key generation
+    process.env.BUILD_ID = buildId;
+    return buildId;
+  },
   webpack: (config, { isServer }) => {
     config.module.rules.push({
       test: /\.(mp3)$/,
