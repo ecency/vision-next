@@ -1311,10 +1311,10 @@
   dependencies:
     nostr-tools "^1.17.0"
 
-"@ecency/render-helper@^2.3.15":
-  version "2.3.15"
-  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.15.tgz#36eb76ca6616bd8b20486a74b1f114607f3b1404"
-  integrity sha512-g02bGg7CPEi6bzI79gN1oh4x7V/RQhR5F6rtX26f0tIQ3XEnbDlE1+DUX+BiHjIZWJYM6xm3UwUk35OU2judGA==
+"@ecency/render-helper@^2.3.16":
+  version "2.3.16"
+  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.16.tgz#f46f990d98a14967471b479ea8f34107a42eb133"
+  integrity sha512-L+LOEIUCy0AAGl0IvXEtqzU7MsKm+or5cecoPzopPrxd5/aZ5pALtZv0sihTzannbwaDyZdCVj0FzbNNM3pSow==
   dependencies:
     he "^1.2.0"
     lolight "^1.4.0"
