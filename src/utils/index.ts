@@ -41,4 +41,5 @@ export * from "./username-validation";
 export * from "./use-entry-location";
 export * from "./get-pure-post-text";
 export * from "./speech";
+export * from "./normalize-beneficiary-weight";
 export { default as dayjs } from "./dayjs";

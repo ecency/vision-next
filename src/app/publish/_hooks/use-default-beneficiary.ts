@@ -1,4 +1,4 @@
-import { isCommunity } from "@/utils";
+import { isCommunity, normalizeBeneficiaryWeight } from "@/utils";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
@@ -19,27 +19,39 @@ export function useDefaultBeneficiary() {
   const { data: beneficiary } = useQuery({
     ...getAccountFullQueryOptions(tags?.[0] ?? ""),
     enabled: isCommunity(tags?.[0]),
-    select: (data) => data.profile.beneficiary
+    select: (data) => data.profile.beneficiary ?? undefined
   });
+
+  const beneficiaryWeight = useMemo(
+    () => normalizeBeneficiaryWeight(beneficiary?.weight),
+    [beneficiary?.weight]
+  );
 
   const hasSetBeneficiary = useMemo(
     () =>
-      beneficiaries?.some((ben) => ben.account === tags?.[0] && ben.weight === beneficiary?.weight),
-    [beneficiaries, beneficiary, tags]
+      beneficiaryWeight !== undefined &&
+      beneficiaries?.some((ben) => ben.account === tags?.[0] && ben.weight === beneficiaryWeight),
+    [beneficiaries, beneficiaryWeight, tags]
   );
 
   // In case of existing default beneficiary settings in community account it should be populated and never removed
   useEffect(() => {
-    if (beneficiary && !hasSetBeneficiary) {
+    if (beneficiaryWeight !== undefined && isCommunity(tags?.[0]) && !hasSetBeneficiary) {
       setBeneficiaries([
         ...(beneficiaries?.filter((b) => b.account !== tags?.[0]) ?? []),
         {
           account: tags?.[0] ?? "",
-          weight: beneficiary.weight
+          weight: beneficiaryWeight
         }
       ]);
     }
-  }, [beneficiaries, beneficiary, hasSetBeneficiary, setBeneficiaries, tags]);
+  }, [
+    beneficiaryWeight,
+    beneficiaries,
+    hasSetBeneficiary,
+    setBeneficiaries,
+    tags
+  ]);
 
   // In case of removing community tag and there is some beneficiary with this community
   //    it should be cleared to avoid any unnecessary beneficiaries
