@@ -70,6 +70,98 @@ export function EntryPageBodyViewer({ entry }: Props) {
       }
     };
 
+    // iOS Safari specific DOM protection wrapper
+    const safeSetupPostEnhancements = (element: HTMLElement, options: any) => {
+      try {
+        // Pre-scan for potentially problematic elements (iframes, embeds) that might cause cross-origin issues
+        const iframes = element.querySelectorAll('iframe');
+        const embeds = element.querySelectorAll('embed, object');
+        
+        if (iframes.length > 0 || embeds.length > 0) {
+          console.log(`Found ${iframes.length} iframes and ${embeds.length} embeds - applying enhanced iOS Safari protections`);
+          
+          // Detect iOS Safari
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+          
+          if (isIOS && isSafari) {
+            // Apply iOS Safari specific protections
+            return setupPostEnhancementsWithIOSProtection(element, options);
+          }
+        }
+        
+        // Standard setup for other browsers or when no problematic elements are detected
+        setupPostEnhancements(element, options);
+        
+      } catch (error) {
+        // Re-throw to be handled by outer catch block
+        throw error;
+      }
+    };
+
+    // iOS Safari specific enhancement setup with cross-origin protection
+    const setupPostEnhancementsWithIOSProtection = (element: HTMLElement, options: any) => {
+      // Store original DOM methods
+      const originalQuerySelector = element.querySelector.bind(element);
+      const originalQuerySelectorAll = element.querySelectorAll.bind(element);
+      
+      // Create safer versions of DOM access methods
+      const safeQuerySelector = function(selector: string): Element | null {
+        try {
+          const result = originalQuerySelector(selector);
+          if (result) {
+            // Test if we can safely access the element's parentNode
+            try {
+              const _ = result.parentNode;
+              return result;
+            } catch (securityError) {
+              console.warn('Element filtered out due to cross-origin restrictions:', selector);
+              return null;
+            }
+          }
+          return result;
+        } catch (error) {
+          console.warn('querySelector blocked due to cross-origin restrictions:', selector, error);
+          return null;
+        }
+      };
+      
+      const safeQuerySelectorAll = function(selector: string): NodeListOf<Element> {
+        try {
+          const results = originalQuerySelectorAll(selector);
+          // Filter out elements that might cause cross-origin issues
+          const safeResults = Array.from(results).filter(el => {
+            try {
+              // Test if we can safely access the element
+              const _ = el.parentNode;
+              return true;
+            } catch (securityError) {
+              console.warn('Element filtered out due to cross-origin restrictions');
+              return false;
+            }
+          });
+          
+          // Return a NodeList-like object
+          return safeResults as any;
+        } catch (error) {
+          console.warn('querySelectorAll blocked due to cross-origin restrictions:', selector, error);
+          return [] as any;
+        }
+      };
+      
+      // Temporarily replace the DOM methods
+      element.querySelector = safeQuerySelector as any;
+      element.querySelectorAll = safeQuerySelectorAll as any;
+      
+      try {
+        setupPostEnhancements(element, options);
+      } finally {
+        // Always restore original methods
+        element.querySelector = originalQuerySelector as any;
+        element.querySelectorAll = originalQuerySelectorAll as any;
+      }
+    };
+
     if (!isElementSafe(el)) {
       return;
     }
@@ -83,7 +175,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
           return;
         }
 
-        setupPostEnhancements(el, {
+        safeSetupPostEnhancements(el, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
