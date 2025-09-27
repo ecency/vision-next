@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "Mostra questo post",
-    "signup": "<a href=\"/signup\" class=\"push-link\">crea un account</a> per salvare le tue preferenze",
+    "signup": "crea un account per salvare le tue preferenze",
     "settings-1": "modifica le tue",
     "settings-2": "preferenze di visualizzazione"
   },
@@ -639,7 +639,7 @@
       "create-regular-post": "Crea post lungo",
       "input-placeholder": "Che cosa sta succedendo?",
       "select-thread-host": "Seleziona un host di onde",
-      "thread-host": "Pubblicazione in",
+      "thread-host": "Verrà pubblicato in",
       "no-threads-host": "Questo account non è un host waves",
       "publishing": "Onde 🌊...",
       "successfully-created": "Pubblicato con successo!",
