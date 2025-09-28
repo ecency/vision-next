@@ -1,0 +1,23 @@
+# Browser compatibility targets for transpilation
+# Excludes Safari versions below 14.1 to avoid private class field issues
+
+# Modern browsers with proper private class field support
+chrome >= 84
+edge >= 84
+firefox >= 90
+safari >= 14.1
+
+# Mobile browsers
+and_chr >= 84
+and_ff >= 90
+ios_saf >= 14.5
+
+# Exclude problematic Safari versions
+not safari < 14.1
+not ios_saf < 14.5
+
+# General fallbacks
+> 0.5%
+last 2 versions
+not dead
+not ie 11
