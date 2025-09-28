@@ -16,6 +16,13 @@ const config = {
     includePaths: [path.join(__dirname, "src/styles")]
   },
   generateBuildId: async () => v4(),
+  // SWC Configuration for better private class field handling
+  swcMinify: true,
+  experimental: {
+    swcTraceProfiling: false,
+  },
+  // Transpile specific packages that use modern JavaScript features
+  transpilePackages: ['@ecency/renderer'],
   webpack: (config, { isServer }) => {
     config.module.rules.push({
       test: /\.(mp3)$/,
@@ -24,6 +31,49 @@ const config = {
         filename: "static/chunks/[path][name].[hash][ext]"
       }
     });
+    
+    // Add rule to properly transpile node_modules packages with modern JS features
+    config.module.rules.push({
+      test: /\.m?js$/,
+      include: /node_modules\/@ecency\/renderer/,
+      use: {
+        loader: 'swc-loader',
+        options: {
+          jsc: {
+            target: 'es5',
+            parser: {
+              syntax: 'ecmascript',
+              privateMethod: true,
+              decorators: false,
+              dynamicImport: true
+            },
+            transform: {
+              optimizer: {
+                globals: {
+                  vars: {
+                    "__DEBUG__": "false"
+                  }
+                }
+              }
+            },
+            loose: false,
+            externalHelpers: false
+          },
+          env: {
+            targets: {
+              chrome: "84",
+              edge: "84",
+              firefox: "90", 
+              safari: "14.1",
+              ios: "14.5"
+            },
+            mode: "usage",
+            coreJs: "3.22"
+          }
+        }
+      }
+    });
+    
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false
