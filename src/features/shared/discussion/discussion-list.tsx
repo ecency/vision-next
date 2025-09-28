@@ -7,6 +7,7 @@ import { Community, Entry, ROLES } from "@/entities";
 import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
 import {getBotsQuery, useClientActiveUser} from "@/api/queries";
 import i18next from "i18next";
+import { htmlPositionManager } from "@/utils/html-position-manager";
 
 interface Props {
     hideControls: boolean;
@@ -80,8 +81,12 @@ export function DiscussionList({
         [botsList, data]
     );
 
-    useMount(() => (document.getElementsByTagName("html")[0].style.position = "relative"));
-    useUnmount(() => (document.getElementsByTagName("html")[0].style.position = "unset"));
+    useMount(() => {
+        htmlPositionManager.addReference();
+    });
+    useUnmount(() => {
+        htmlPositionManager.removeReference();
+    });
 
     useEffect(() => {
         if (!location.hash) return;
