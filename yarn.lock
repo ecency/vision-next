@@ -1311,10 +1311,10 @@
   dependencies:
     nostr-tools "^1.17.0"
 
-"@ecency/render-helper@^2.3.13":
-  version "2.3.13"
-  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.13.tgz#df481325af77464fccc5f466e9a577ed03d10712"
-  integrity sha512-NCrewOcsh/uMYFJN4cntUitCArzBdxfPHgzyOXqTWwMjdhO2+ulbwt9KhcfOMlfDaoUOfWuSqyDPOZgDxqMVzw==
+"@ecency/render-helper@^2.3.16":
+  version "2.3.16"
+  resolved "https://registry.yarnpkg.com/@ecency/render-helper/-/render-helper-2.3.16.tgz#f46f990d98a14967471b479ea8f34107a42eb133"
+  integrity sha512-L+LOEIUCy0AAGl0IvXEtqzU7MsKm+or5cecoPzopPrxd5/aZ5pALtZv0sihTzannbwaDyZdCVj0FzbNNM3pSow==
   dependencies:
     he "^1.2.0"
     lolight "^1.4.0"
@@ -1328,10 +1328,10 @@
     xmldom "^0.5.0"
     xss "^1.0.9"
 
-"@ecency/renderer@^1.2.7":
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.2.7.tgz#48157e6a19acb3e0aa9e50bd5443e4b4bb6bc144"
-  integrity sha512-dJI71Zx9098NvG3lRvGGDaod9rYtjzTwffi3VQwreWlrkcielAXl9IBlnudP+KuG6ZTbxIKAmQS6ZCh32vhjNQ==
+"@ecency/renderer@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@ecency/renderer/-/renderer-1.3.0.tgz#55f614be20dc0db1d91227140e522fa49519fc16"
+  integrity sha512-PkDOizbK4lCgE4lnqbajzDIQA3CLVhMY7Lw2034bB7ULmH7FRLZqlPUsQQn8bNcLmAOguiJltAEGlll8VwOk4A==
   dependencies:
     "@testing-library/react" "14"
     medium-zoom "^1.1.0"
@@ -3478,6 +3478,11 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-code/-/extension-code-2.9.1.tgz#5652c379cbdf06f95c90f93085256b24d421d9d9"
   integrity sha512-WQqcVGe7i/E+yO3wz5XQteU1ETNZ00euUEl4ylVVmH2NM4Dh0KDjEhbhHlCM0iCfLUo7jhjC7dmS+hMdPUb+Tg==
 
+"@tiptap/extension-color@^2.11.5":
+  version "2.26.1"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-color/-/extension-color-2.26.1.tgz#075386150a4457d03c85371a88205c838fc2bfae"
+  integrity sha512-lsPw3qpQNes1rHpxBtsV9XniN1dEjYd2nVTpQHGE4XLNwfE5+ejm6ySs8qVLM7+EXWcjANLLh4UA3zqkX6t6HA==
+
 "@tiptap/extension-document@^2.11.5":
   version "2.12.0"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-document/-/extension-document-2.12.0.tgz#8a0765ca0401f30c501dea7c115b680435b73ee6"
@@ -3606,6 +3611,11 @@
   version "2.12.0"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-text-align/-/extension-text-align-2.12.0.tgz#6b316c14d0fd30d99b8cc90277c71b09d23f7601"
   integrity sha512-ntGjHFPrb9iQ+QGVUr6U53/wcWI/qaAwDyApW7F7GcTpQbmimwUqvUHti1RsSh9nTrQmZD6g8SdRbIR/Y31gOw==
+
+"@tiptap/extension-text-style@^2.11.5":
+  version "2.26.1"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-text-style/-/extension-text-style-2.26.1.tgz#a6be329ff881df9da37d9a8c353b2b2e7b8508b3"
+  integrity sha512-t9Nc/UkrbCfnSHEUi1gvUQ2ZPzvfdYFT5TExoV2DTiUCkhG6+mecT5bTVFGW3QkPmbToL+nFhGn4ZRMDD0SP3Q==
 
 "@tiptap/extension-text-style@^2.9.1":
   version "2.9.1"

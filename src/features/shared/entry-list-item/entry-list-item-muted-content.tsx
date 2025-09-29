@@ -119,7 +119,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
         )}
         <EntryLink entry={isCrossPost ? entryProp : entry}>
           <div className="item-body">
-            {entry.json_metadata.description || postBodySummary(entry, 200)}
+            {entry.json_metadata?.description || postBodySummary(entry, 200)}
           </div>
         </EntryLink>
       </div>

@@ -212,40 +212,30 @@ a[target="_blank"] {
   }
 }
 
-/* width */
+html {
+  scrollbar-width: auto;
+  scrollbar-color: var(--scrollbar-thumb-color, auto) var(--scrollbar-track-color, transparent);
+}
+
+/* WebKit browsers */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: initial;
+  height: initial;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 5px grey;
-  border-radius: 10px;
+  background-color: var(--scrollbar-track-color, transparent);
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  @apply bg-blue-dark-sky;
-  @include themify(day) {
-    @apply bg-blue-dark-sky;
-  }
-
-  @include themify(night) {
-    @apply bg-blue-dark-sky;
-  }
-  border-radius: 10px;
+  background-color: var(--scrollbar-thumb-color, auto);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  @include themify(day) {
-    @apply bg-blue-dusk;
-  }
-
-  @include themify(night) {
-    @apply bg-blue-dusk;
-  }
+  background-color: var(--scrollbar-thumb-hover-color, var(--scrollbar-thumb-color, auto));
 }
 
 .text-underline {

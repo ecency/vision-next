@@ -38,10 +38,9 @@ export const getPostsRankedQuery = (
           sort === "hot"
             ? data
             : data.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
-        return [
-          sorted.find((s) => s.stats.is_pinned),
-          ...sorted.filter((s) => !s.stats.is_pinned)
-        ].filter((s) => !!s) as Entry[];
+        const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
+        const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
+        return [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s) as Entry[];
       }
 
       return [];

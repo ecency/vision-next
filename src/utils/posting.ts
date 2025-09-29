@@ -87,15 +87,22 @@ export const makeCommentOptions = (
   rewardType: RewardType,
   beneficiaries?: BeneficiaryRoute[]
 ): CommentOptions | null => {
-  beneficiaries?.forEach((b) => delete b.src);
+  const sanitizedBeneficiaries = beneficiaries?.map(({ src: _src, ...route }) => ({
+    ...route
+  }));
 
-  const hasBeneficiaries = !!beneficiaries && beneficiaries.length > 0;
+  const hasBeneficiaries =
+    !!sanitizedBeneficiaries && sanitizedBeneficiaries.length > 0;
 
   if (!hasBeneficiaries && rewardType === "default") {
     return null;
   }
 
-  beneficiaries?.sort((a, b) => a.account.localeCompare(b.account));
+  const sortedBeneficiaries = sanitizedBeneficiaries
+    ? [...sanitizedBeneficiaries].sort((a, b) =>
+        a.account.localeCompare(b.account)
+      )
+    : undefined;
   const opt: CommentOptions = {
     allow_curation_rewards: true,
     allow_votes: true,
@@ -103,7 +110,7 @@ export const makeCommentOptions = (
     permlink,
     max_accepted_payout: "1000000.000 HBD",
     percent_hbd: 10000,
-    extensions: hasBeneficiaries ? [[0, { beneficiaries }]] : []
+    extensions: hasBeneficiaries ? [[0, { beneficiaries: sortedBeneficiaries! }]] : []
   };
 
   switch (rewardType) {

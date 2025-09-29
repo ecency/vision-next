@@ -27,7 +27,7 @@ export function MuteBtn({ entry, community, onSuccess, onCancel, onlyDialog }: P
   const submit = useCallback(
     async (mute: boolean, notes: string) => {
       await mutePost({ notes, mute });
-      const nStats: EntryStat = { ...clone(entry.stats), gray: mute };
+      const nStats: EntryStat = { ...clone(entry.stats || { flag_weight: 0, gray: false, hide: false, total_votes: 0 }), gray: mute };
       const nEntry: Entry = { ...clone(entry), stats: nStats };
       onSuccess(nEntry, mute);
     },

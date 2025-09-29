@@ -63,7 +63,7 @@ export interface Entry {
   curator_payout_value: string;
   depth: number;
   is_paidout: boolean;
-  json_metadata: JsonMetadata;
+  json_metadata: JsonMetadata | null;
   max_accepted_payout: string;
   net_rshares: number;
   parent_author?: string;
@@ -80,7 +80,7 @@ export interface Entry {
   reblogs?: number;
   reblogged_by?: string[] | any;
   replies: any[];
-  stats: EntryStat;
+  stats: EntryStat | null;
   title: string;
   updated: string;
   url: string;

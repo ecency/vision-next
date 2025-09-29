@@ -92,22 +92,70 @@
   }
 
   p[dir="left"],
-  p[data-align="left"] {
+  p[data-align="left"],
+  h1[dir="left"],
+  h1[data-align="left"],
+  h2[dir="left"],
+  h2[data-align="left"],
+  h3[dir="left"],
+  h3[data-align="left"],
+  h4[dir="left"],
+  h4[data-align="left"],
+  h5[dir="left"],
+  h5[data-align="left"],
+  h6[dir="left"],
+  h6[data-align="left"] {
     text-align: left;
   }
 
   p[dir="center"],
-  p[data-align="center"] {
+  p[data-align="center"],
+  h1[dir="center"],
+  h1[data-align="center"],
+  h2[dir="center"],
+  h2[data-align="center"],
+  h3[dir="center"],
+  h3[data-align="center"],
+  h4[dir="center"],
+  h4[data-align="center"],
+  h5[dir="center"],
+  h5[data-align="center"],
+  h6[dir="center"],
+  h6[data-align="center"] {
     text-align: center;
   }
 
   p[dir="right"],
-  p[data-align="right"] {
+  p[data-align="right"],
+  h1[dir="right"],
+  h1[data-align="right"],
+  h2[dir="right"],
+  h2[data-align="right"],
+  h3[dir="right"],
+  h3[data-align="right"],
+  h4[dir="right"],
+  h4[data-align="right"],
+  h5[dir="right"],
+  h5[data-align="right"],
+  h6[dir="right"],
+  h6[data-align="right"] {
     text-align: right;
   }
 
   p[dir="justify"],
-  p[data-align="justify"] {
+  p[data-align="justify"],
+  h1[dir="justify"],
+  h1[data-align="justify"],
+  h2[dir="justify"],
+  h2[data-align="justify"],
+  h3[dir="justify"],
+  h3[data-align="justify"],
+  h4[dir="justify"],
+  h4[data-align="justify"],
+  h5[dir="justify"],
+  h5[data-align="justify"],
+  h6[dir="justify"],
+  h6[data-align="justify"] {
     text-align: justify;
   }
 

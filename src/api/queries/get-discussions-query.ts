@@ -12,7 +12,7 @@ export function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOr
     parseAsset(c.curator_payout_value).amount;
 
   const absNegative = (a: Entry) => a.net_rshares < 0;
-  const isPinned = (a: Entry) => entry.json_metadata.pinned_reply === `${a.author}/${a.permlink}`;
+  const isPinned = (a: Entry) => entry.json_metadata?.pinned_reply === `${a.author}/${a.permlink}`;
 
   const sortOrders = {
     trending: (a: Entry, b: Entry) => {

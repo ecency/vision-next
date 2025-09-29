@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "Reveal this post",
-    "signup": "<a href=\"/signup\" class=\"push-link\">create an account</a> to save your preferences",
+    "signup": "create an account to save your preferences",
     "settings-1": "adjust your",
     "settings-2": "display preferences"
   },
@@ -639,7 +639,7 @@
       "create-regular-post": "Create long post",
       "input-placeholder": "What's happening?",
       "select-thread-host": "Select a waves host",
-      "thread-host": "Will be published in",
+      "thread-host": "Publishing in",
       "no-threads-host": "This account is not a waves host",
       "publishing": "Waving 🌊...",
       "successfully-created": "Published successfully!",
@@ -1650,7 +1650,7 @@
     "suggestion-header": "Tags",
     "error-max": "Max {{n}} tags",
     "limited_tags": "Only 10 tags allowed, remove some",
-    "limited_length": "Maximum length of each tag should be 15",
+    "limited_length": "Maximum length of each tag should be 24",
     "limited_dash": "Use one dash in each tag",
     "limited_space": "Use space to separate tags",
     "limited_lowercase": "Only use lower letters in tag",

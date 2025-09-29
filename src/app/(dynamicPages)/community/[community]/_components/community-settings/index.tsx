@@ -1,6 +1,7 @@
 import { useUpdateCommunity } from "@/api/mutations";
 import { useClientActiveUser } from "@/api/queries";
 import { Community } from "@/entities";
+import { normalizeBeneficiaryWeight } from "@/utils";
 import { getAccountFullQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
@@ -61,9 +62,16 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
     if (communityOwnerAccount) {
       try {
         const meta = JSON.parse(communityOwnerAccount.posting_json_metadata);
-        const beneficiary = meta.beneficiary;
-        methods.setValue("defaultBeneficiaryUsername", beneficiary.account);
-        methods.setValue("defaultBeneficiaryReward", beneficiary.weight / 100);
+        const beneficiary = (meta?.profile ?? meta)?.beneficiary;
+        const weight = normalizeBeneficiaryWeight(beneficiary?.weight);
+
+        if (typeof beneficiary?.account === "string") {
+          methods.setValue("defaultBeneficiaryUsername", beneficiary.account);
+        }
+
+        if (weight !== undefined) {
+          methods.setValue("defaultBeneficiaryReward", weight / 100);
+        }
       } catch (e) {
         console.error(e);
       }

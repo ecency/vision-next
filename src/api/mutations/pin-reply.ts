@@ -15,7 +15,7 @@ export function usePinReply(reply?: Entry, parent?: Entry) {
       }
 
       const meta = makeJsonMetaDataReply(
-        parent.json_metadata.tags || ["ecency"],
+        parent.json_metadata?.tags || ["ecency"],
         pack.version
       ) as MetaData;
       meta.pinned_reply = pin ? `${reply.author}/${reply.permlink}` : undefined;

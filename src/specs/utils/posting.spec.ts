@@ -79,6 +79,26 @@ describe("Posting", () => {
         ])
       ).toMatchSnapshot();
     });
+
+    it("(6) Keeps source metadata untouched", () => {
+      const beneficiaries = [
+        { account: "foo", weight: 300, src: "ENCODER_PAY" },
+        { account: "bar", weight: 200 }
+      ];
+
+      const options = makeCommentOptions(
+        "talhasch",
+        "lorem-ipsum-1",
+        "default",
+        beneficiaries
+      );
+
+      expect(beneficiaries[0].src).toBe("ENCODER_PAY");
+      expect(options?.extensions[0][1].beneficiaries).toEqual([
+        { account: "bar", weight: 200 },
+        { account: "foo", weight: 300 }
+      ]);
+    });
   });
 
   it("makeJsonMetadataReply", () => {
