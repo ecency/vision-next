@@ -14,10 +14,10 @@ import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useInViewport } from "react-in-viewport";
 import { useCollectPageViewEvent } from "@/api/mutations";
-import { useWavesGrid } from "@/app/waves/_hooks";
+import { useMutedUsers, useWavesGrid } from "@/app/waves/_hooks";
 import { PostContentRenderer } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
-import { getPromotedPostsQuery, getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
+import { getPromotedPostsQuery } from "@ecency/sdk";
 import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
 import { WAVES_FEED_SCROLL_STORAGE_KEY, WavesFeedScrollState } from "@/app/waves/_constants";
@@ -56,9 +56,7 @@ export function WavesListItem({
 
   const { data: entry } =
     EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(item).useClientQuery();
-  const { data: relations } = useQuery(
-    getRelationshipBetweenAccountsQueryOptions(activeUser?.username, item.author)
-  );
+  const { data: mutedUsers = [] } = useMutedUsers();
   const { data: promoted } = useQuery(getPromotedPostsQuery<Entry>("waves"));
   const hasPromoted = useMemo(
     () =>
@@ -81,7 +79,8 @@ export function WavesListItem({
   );
 
   const isCommunityMuted = entry?.stats?.gray;
-  const isMuted = relations?.ignores || isHidden || isCommunityMuted;
+  const isMuted =
+    mutedUsers.includes(item.author) || isHidden || isCommunityMuted;
 
   useEffect(() => {
     if (inViewport) {
