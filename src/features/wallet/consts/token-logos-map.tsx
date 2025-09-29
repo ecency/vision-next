@@ -2,15 +2,19 @@ import { hiveSvg, spkSvg } from "@/features/ui/svg";
 import { PropsWithChildren, ReactNode } from "react";
 import Image from "next/image";
 import clsx from "clsx";
+import { CURRENCIES_META_DATA } from "./currencies-meta-data";
 
 function LogoBox({
   children,
   size,
   className
-}: PropsWithChildren<{ size: number; className: string }>) {
+}: PropsWithChildren<{ size: number; className?: string }>) {
   return (
     <div
-      className={clsx("rounded-lg p-1 flex items-center justify-center", className)}
+      className={clsx(
+        "rounded-lg p-1 flex items-center justify-center",
+        className ?? "border border-[--border-color]"
+      )}
       style={{
         minWidth: size,
         maxWidth: size,
@@ -67,7 +71,42 @@ export const TOKEN_LOGOS_MAP: Record<string, ReactNode> = {
   SPK: getSizedTokenLogo("SPK", 32),
   LARYNX: getSizedTokenLogo("LARYNX", 32),
   LP: getSizedTokenLogo("LP", 32),
-  POINTS: getSizedTokenLogo("POINTS", 32)
+  POINTS: getSizedTokenLogo("POINTS", 32),
+  APT: (
+    <LogoBox size={32}>
+      <Image width={24} height={24} src={CURRENCIES_META_DATA.APT.icon} alt="" />
+    </LogoBox>
+  ),
+  ATOM: (
+    <LogoBox size={32}>
+      <Image width={24} height={24} src={CURRENCIES_META_DATA.ATOM.icon} alt="" />
+    </LogoBox>
+  ),
+  BTC: (
+    <LogoBox size={32}>
+      <Image width={32} height={32} src={CURRENCIES_META_DATA.BTC.icon} alt="" />
+    </LogoBox>
+  ),
+  ETH: (
+    <LogoBox size={32}>
+      <Image width={24} height={24} src={CURRENCIES_META_DATA.ETH.icon} alt="" className="h-6" />
+    </LogoBox>
+  ),
+  SOL: (
+    <LogoBox size={32}>
+      <Image width={24} height={24} src={CURRENCIES_META_DATA.SOL.icon} alt="" />
+    </LogoBox>
+  ),
+  TON: (
+    <LogoBox size={32}>
+      <Image width={24} height={24} src={CURRENCIES_META_DATA.TON.icon} alt="" />
+    </LogoBox>
+  ),
+  TRX: (
+    <LogoBox size={32}>
+      <Image width={24} height={24} src={CURRENCIES_META_DATA.TRX.icon} alt="" />
+    </LogoBox>
+  )
 };
 
 export const TOKEN_COLORS_MAP: Record<string, string> = {
