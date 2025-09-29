@@ -67,7 +67,9 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
     return <></>;
   }
 
-  return showModMuted && showMuted ? (
+  const shouldShowMutedOverlay = showModMuted || showMuted;
+
+  return shouldShowMutedOverlay ? (
     <>
       <div className="item-image item-image-nsfw">
         <Image
