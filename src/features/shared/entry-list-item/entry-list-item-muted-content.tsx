@@ -37,6 +37,11 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   );
   const entry = useMemo(() => entryProp.original_entry || entryProp, [entryProp]);
   const isCrossPost = useMemo(() => !!entry.original_entry, [entry.original_entry]);
+  const entryActiveVotesLength = entry.active_votes?.length ?? 0;
+  const isHidden = useMemo(
+    () => (entry.net_rshares ?? 0) < -7000000000 && entryActiveVotesLength > 3,
+    [entry.net_rshares, entryActiveVotesLength]
+  );
   const nsfw = useMemo(
     () =>
       entry.json_metadata &&
@@ -55,8 +60,8 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   }, [isPostMuted]);
 
   useEffect(() => {
-    setShowModMuted(entry.stats?.gray ?? false);
-  }, [entry]);
+    setShowModMuted((entry.stats?.gray ?? false) || isHidden);
+  }, [entry, isHidden]);
 
   if (nsfw && !showNsfw && !globalNsfw) {
     return <></>;
