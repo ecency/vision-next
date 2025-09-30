@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { useLocation, useMount, useUnmount } from "react-use";
+import { useLocation } from "react-use";
 import { DiscussionItem } from "./discussion-item";
 import { Community, Entry, ROLES } from "@/entities";
 import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
@@ -79,9 +79,6 @@ export function DiscussionList({
             ),
         [botsList, data]
     );
-
-    useMount(() => (document.getElementsByTagName("html")[0].style.position = "relative"));
-    useUnmount(() => (document.getElementsByTagName("html")[0].style.position = "unset"));
 
     useEffect(() => {
         if (!location.hash) return;

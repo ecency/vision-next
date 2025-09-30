@@ -14,6 +14,7 @@ import { UIManager } from "@ui/core";
 import { PropsWithChildren } from "react";
 import { ConditionalChatProvider } from "@/app/conditional-chat-provider";
 import { ProgressProvider } from "@bprogress/next/app";
+import { HtmlPositionManager } from "@/features/shared/html-position-manager";
 
 export function ClientProviders(props: PropsWithChildren) {
   return (
@@ -26,6 +27,7 @@ export function ClientProviders(props: PropsWithChildren) {
       >
         <UIManager>
           <ClientInit />
+          <HtmlPositionManager />
           <EcencyConfigManager.Conditional
             condition={({ visionFeatures }) => visionFeatures.userActivityTracking.enabled}
           >
