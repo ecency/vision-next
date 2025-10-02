@@ -99,7 +99,7 @@ export function ProfileWalletTokenActions() {
           )}
         </>
       ))}
-      {new Array(4 - (operations?.length ?? 0)).fill(1).map((_, i) => (
+      {new Array(Math.max(0, 4 - (operations?.length ?? 0))).fill(1).map((_, i) => (
         <div
           className=" bg-white/40 dark:bg-dark-200/40 rounded-xl p-3 flex flex-col gap-4 min-h-[66px]"
           key={i}

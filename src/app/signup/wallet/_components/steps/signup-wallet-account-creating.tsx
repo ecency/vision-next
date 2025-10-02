@@ -38,7 +38,11 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   });
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
-  const { mutateAsync: loginInApp } = useLoginByKey(username, accountKeys?.masterPassword!, true);
+  const { mutateAsync: loginInApp } = useLoginByKey(
+    username,
+    hiveKeys?.masterPassword ?? "",
+    true
+  );
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
@@ -88,8 +92,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     hasInitiated,
     saveWalletInformationToMetadata,
     wallets,
-    recordActivity,
-    accountKeys
+    recordActivity
   ]);
 
   return (
