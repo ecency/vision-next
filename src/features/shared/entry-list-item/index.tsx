@@ -26,7 +26,6 @@ import { EntryListItemCrossPost } from "@/features/shared/entry-list-item/entry-
 import { EntryListItemMutedContent } from "@/features/shared/entry-list-item/entry-list-item-muted-content";
 import { EntryListItemProvider } from "@/features/shared/entry-list-item/entry-list-item-context";
 import { EntryListItemNsfwContent } from "@/features/shared/entry-list-item/entry-list-item-nsfw-content";
-import { EntryListItemClientInit } from "@/features/shared/entry-list-item/entry-list-item-client-init";
 import { EntryListItemPollIcon } from "@/features/shared/entry-list-item/entry-list-item-poll-icon";
 import { UilComment } from "@tooni/iconscout-unicons-react";
 
@@ -75,7 +74,6 @@ export function EntryListItemComponent({
       })}
       id={(entry.author + entry.permlink).replace(/[0-9]/g, "")}
     >
-      <EntryListItemClientInit />
       <EntryListItemCrossPost entry={entryProp} />
       <div className="item-header">
         <div className="item-header-main">
