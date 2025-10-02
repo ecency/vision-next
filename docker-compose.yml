@@ -9,6 +9,7 @@ services:
       - HIVESIGNER_SECRET
       - SEARCH_API_ADDR
       - SEARCH_API_SECRET
+      - CHAINSTACK_API_KEY
     restart: always
     ports:
       - "4000:4000"
