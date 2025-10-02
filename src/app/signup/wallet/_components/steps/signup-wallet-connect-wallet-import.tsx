@@ -14,8 +14,7 @@ const CURRENCIES = [
   EcencyWalletCurrency.ETH,
   EcencyWalletCurrency.SOL,
   EcencyWalletCurrency.TRON,
-  EcencyWalletCurrency.APT,
-  EcencyWalletCurrency.ATOM
+  EcencyWalletCurrency.APT
 ];
 
 interface Props {

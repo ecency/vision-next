@@ -15,8 +15,7 @@ const TOKENS = [
   EcencyWalletCurrency.ETH,
   EcencyWalletCurrency.SOL,
   EcencyWalletCurrency.TRON,
-  EcencyWalletCurrency.APT,
-  EcencyWalletCurrency.ATOM
+  EcencyWalletCurrency.APT
 ];
 
 export function SignupWalletValidateFunds({ username, onValid }: Props) {

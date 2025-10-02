@@ -10,7 +10,6 @@ const CURRENCIES = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
   EcencyWalletCurrency.SOL,
-  EcencyWalletCurrency.ATOM,
   EcencyWalletCurrency.APT,
   EcencyWalletCurrency.TRON
 ];

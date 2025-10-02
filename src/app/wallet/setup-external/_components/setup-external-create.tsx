@@ -65,8 +65,7 @@ const TOKENS = [
   EcencyWalletCurrency.ETH,
   EcencyWalletCurrency.SOL,
   EcencyWalletCurrency.TRON,
-  EcencyWalletCurrency.APT,
-  EcencyWalletCurrency.ATOM
+  EcencyWalletCurrency.APT
 ];
 
 export function SetupExternalCreate({ onBack }: Props) {
