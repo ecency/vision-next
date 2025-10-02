@@ -13,7 +13,9 @@ interface Props {
 const TOKENS = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.BNB,
   EcencyWalletCurrency.SOL,
+  EcencyWalletCurrency.TON,
   EcencyWalletCurrency.TRON,
   EcencyWalletCurrency.APT
 ];

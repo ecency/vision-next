@@ -12,7 +12,9 @@ import { formatError } from "@/api/operations";
 const CURRENCIES = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.BNB,
   EcencyWalletCurrency.SOL,
+  EcencyWalletCurrency.TON,
   EcencyWalletCurrency.TRON,
   EcencyWalletCurrency.APT
 ];

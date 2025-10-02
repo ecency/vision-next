@@ -1,5 +1,5 @@
 import aptSvg from "@/assets/img/currencies/apt.svg";
-import atomSvg from "@/assets/img/currencies/atom.svg";
+import bnbSvg from "@/assets/img/currencies/bnb.svg";
 import btcSvg from "@/assets/img/currencies/btc.svg";
 import ethSvg from "@/assets/img/currencies/eth.svg";
 import solSvg from "@/assets/img/currencies/solana.svg";
@@ -32,6 +32,11 @@ export const CURRENCIES_META_DATA = {
     title: "Solana",
     icon: solSvg,
     name: "SOL"
+  },
+  [EcencyWalletCurrency.BNB]: {
+    title: "BNB Chain",
+    icon: bnbSvg,
+    name: "BNB"
   },
   [EcencyWalletCurrency.APT]: {
     title: "Aptos",
