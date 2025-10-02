@@ -9,8 +9,7 @@ import {
   EcencyWalletsPrivateApi,
   useHiveKeysQuery,
   useSaveWalletInformationToMetadata,
-  useSeedPhrase,
-  useHiveKeysQuery
+  useSeedPhrase
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
