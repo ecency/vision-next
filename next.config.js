@@ -12,6 +12,32 @@ const { v4 } = require("uuid");
 const config = {
   productionBrowserSourceMaps: true,
   htmlLimitedBots: /Mediapartners-Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/,
+  // Transpile TipTap packages to ensure Safari 14.1.2 compatibility with private class fields
+  transpilePackages: [
+    '@tiptap/core',
+    '@tiptap/extension-color',
+    '@tiptap/extension-document',
+    '@tiptap/extension-highlight',
+    '@tiptap/extension-image',
+    '@tiptap/extension-link',
+    '@tiptap/extension-mention',
+    '@tiptap/extension-paragraph',
+    '@tiptap/extension-placeholder',
+    '@tiptap/extension-table',
+    '@tiptap/extension-table-cell',
+    '@tiptap/extension-table-header',
+    '@tiptap/extension-table-row',
+    '@tiptap/extension-text',
+    '@tiptap/extension-text-align',
+    '@tiptap/extension-text-style',
+    '@tiptap/extension-typography',
+    '@tiptap/pm',
+    '@tiptap/react',
+    '@tiptap/starter-kit',
+    '@tiptap/suggestion'
+  ],
+  // Disable SWC minification as fallback to prevent Safari 14.1.2 compatibility issues
+  swcMinify: false,
   sassOptions: {
     includePaths: [path.join(__dirname, "src/styles")]
   },

@@ -1,0 +1,8 @@
+# Browsers that we support
+# This configuration ensures proper transpilation for Safari 14.1+
+> 0.25%
+not dead
+not ie 11
+not chrome < 60
+not firefox < 60
+not safari < 14.1
