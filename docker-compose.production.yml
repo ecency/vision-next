@@ -10,6 +10,7 @@ services:
       - SEARCH_API_ADDR
       - SEARCH_API_SECRET
       - CHAINSTACK_API_KEY
+      - BITQUERY_ACCESS_TOKEN
     restart: always
     ports:
       - "4000:4000"
