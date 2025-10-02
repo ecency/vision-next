@@ -38,7 +38,11 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   });
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
-  const { mutateAsync: loginInApp } = useLoginByKey(username, loginKey, true);
+  const { mutateAsync: loginInApp } = useLoginByKey(
+    username,
+    hiveKeys?.masterPassword ?? "",
+    true
+  );
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
@@ -68,15 +72,11 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
       !hasInitiated
     ) {
       setHasInitiated(true);
-      const { currency, address } = wallet;
-      createAccount({ currency, address })
+      createAccount({ currency: wallet.currency!, address: wallet.address! })
         .then(() => delay(5000))
         .then(() => validateAccountIsCreated())
         .then(() => loginInApp())
-        .then(() => delay(3000))
-        .then(() =>
-          saveWalletInformationToMetadata(Array.from(wallets!.values()))
-        )
+        .then(() => saveWalletInformationToMetadata(Array.from(wallets?.values() ?? [])))
         .then(() => recordActivity())
         .catch(() => {
           /* Errors are handled within respective mutation hooks */
@@ -92,7 +92,6 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     hasInitiated,
     saveWalletInformationToMetadata,
     wallets,
-    loginKey,
     recordActivity
   ]);
 

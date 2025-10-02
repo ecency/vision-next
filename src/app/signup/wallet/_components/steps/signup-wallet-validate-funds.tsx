@@ -1,8 +1,8 @@
+import { WalletTokenAddressItem } from "@/features/wallet";
 import { EcencyWalletCurrency } from "@ecency/wallets";
 import i18next from "i18next";
 import { useState } from "react";
 import { SignupWalletConnectWalletImport } from "./signup-wallet-connect-wallet-import";
-import { SignupWalletValidationItem } from "./signup-wallet-validation-item";
 import { SignupWalletValiadtionSelected } from "./signup-wallet-validation-selected";
 
 interface Props {
@@ -13,10 +13,11 @@ interface Props {
 const TOKENS = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.BNB,
   EcencyWalletCurrency.SOL,
+  EcencyWalletCurrency.TON,
   EcencyWalletCurrency.TRON,
-  EcencyWalletCurrency.APT,
-  EcencyWalletCurrency.ATOM
+  EcencyWalletCurrency.APT
 ];
 
 export function SignupWalletValidateFunds({ username, onValid }: Props) {
@@ -33,20 +34,18 @@ export function SignupWalletValidateFunds({ username, onValid }: Props) {
       {!selectedWallet && (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {TOKENS.map((currency, i) => (
-            <SignupWalletValidationItem
+            <WalletTokenAddressItem
               username={username}
               i={i}
               selectable={true}
               key={i}
               currency={currency}
-              onSelect={(wallet) => {
-                if (wallet.currency && wallet.address) {
-                  setSelectedWallet([
-                    wallet.currency as EcencyWalletCurrency,
-                    wallet.address
-                  ]);
-                }
-              }}
+              onSelect={(wallet) =>
+                setSelectedWallet([wallet.currency, wallet.address] as [
+                  EcencyWalletCurrency,
+                  string
+                ])
+              }
             />
           ))}
         </div>

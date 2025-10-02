@@ -990,7 +990,8 @@
     "no-posts-community": "Join and post in this community",
     "create-posts": "Let's create a new post",
     "link-copied": "Search link copied to clipboard",
-    "no-posts-found": "Found nothing!"
+    "no-posts-found": "Found nothing!",
+    "subscribe": "Subscribe"
   },
   "rc-info": {
     "available": "Available",
@@ -1221,6 +1222,7 @@
     "checkin-extra-desc": "Consistent use of app gives you extra chances to earn more 10 points, be more active and earn more.",
     "delegation-desc": "You can earn ~100 points per day for each 1000HP delegation.",
     "community-desc": "Register your community to get 20 points for per post published with Ecency applications.",
+    "referral-desc": "Invite friends and earn Points",
     "history": "History",
     "post-list-desc": "Points for post",
     "comment-list-desc": "Points for comment",
@@ -1372,7 +1374,16 @@
     "success-title": "Success",
     "success-sub-title": "Transaction completed",
     "sign-title": "Sign transaction",
-    "sign-sub-title": "Sign your transaction"
+    "sign-sub-title": "Sign your transaction",
+    "swap-title": "Swap Hive/HBD",
+    "swap-sub-title": "Swap your funds in few clicks",
+    "gift-title": "Gift",
+    "gift-sub-title": "Gift the Points to specific user",
+    "lock-sub-title": "Locking Larynx for liquidity reward",
+    "stake-title": "Stake",
+    "stake-sub-title": "Stake token to earn passive rewards",
+    "unstake-title": "Unstake",
+    "unstake-sub-title": "Unstake token you will stop earning passive rewards"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",
@@ -1391,9 +1402,17 @@
     "group-rewards": "Rewards",
     "type-curation_reward": "Curation reward",
     "type-author_reward": "Author reward",
+    "type-comments_authorReward": "Author reward",
+    "type-comments_curationReward": "Curation reward",
+    "type-comments_authorReward_stake": "Stake author reward",
+    "type-comments_curationReward_stake": "Stake curation reward",
     "type-comment_benefactor_reward": "Comment benefactor reward",
+    "type-tokens_stake": "Stake tokens",
+    "type-tokens_issue": "Issue tokens",
+    "type-comments_beneficiaryReward": "Beneficiary reward",
     "type-claim_reward_balance": "Claim rewards",
     "type-transfer": "Transfer",
+    "type-tokens_transfer": "Transfer",
     "type-transfer_to_vesting": "Power up",
     "type-withdraw_vesting": "Power down",
     "type-set_withdraw_vesting_route": "Withdraw route changed",
@@ -1427,11 +1446,12 @@
     "broken-hint": "Operation link is broken or cannot be recognized",
     "signer-text": "Signing following transaction/operation",
     "success-hint": "Operation signed and transaction broadcasted",
+    "success-close-hint": "Operation signed and transaction broadcasted. Window will be closed in 5 seconds...",
     "error-hint": "Operation cannot be signed or transactions couldn't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
     "sign": "Sign",
-    "key-placeholder": "Enter active/owner/master private key or seed",
+    "key-placeholder": "Private key, master password or seed",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain"
   },
@@ -1884,7 +1904,7 @@
     "form-body": "Body"
   },
   "password-update": {
-    "title": "Change Password",
+    "title": "Create new keys",
     "account": "Account",
     "cur-pass": "Current password",
     "new-pass": "New password",
@@ -1894,7 +1914,8 @@
     "label-check": "I have securely saved my generated password",
     "validation-password": "Password is invalid.",
     "validation-label": "Please tick this box to proceed.",
-    "updated": "Password updated successfully!"
+    "updated": "Password updated successfully!",
+    "hint": "At this time, you can generate keys only by setting a new seed phrase. Updating to any other type of password is not supported. It helps us to keep Ecency and Hive accounts in a standards of Web 3.0."
   },
   "view-keys": {
     "title": "View Private keys",
@@ -2877,5 +2898,71 @@
     "hint": "Text-to-Speech uses browser`s built-in tools for converting text content to speech. Voices list, availability and quality depends only on your browser and device.",
     "playground": "Playground",
     "voices": "Voices"
+  },
+  "profile-wallet": {
+    "pick-tokens": "Pick tokens to show",
+    "search-token": "Search token",
+    "setup-tokens": "Setup assets",
+    "asset-name": "Asset name",
+    "price": "Price",
+    "balance": "Balance",
+    "history": "History",
+    "market": "Market",
+    "apr": "APR Rewards",
+    "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe",
+    "delegations": "Delegations",
+    "external-wallets-offer": {
+      "title": "Bring your crypto to Ecency",
+      "description": "Create or import wallets for BTC, ETH, TRX, APT, and SOL directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
+      "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata"
+    },
+    "external-wallets-signup": {
+      "create-wallet-title": "Create & link to Hive account",
+      "create-wallet-description": "Create a wallet for BTC, ETH, SOL, APT, and TRX. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
+      "import-wallet-title": "Import existing wallet",
+      "import-wallet-description": "Import your existing wallet from Trust, Exodus, or other compatible apps. Your assets will be connected to your Hive account, so you can easily manage your funds in Ecency.",
+      "create-wallet-tokens-description": "Check out your tokens addresses. Also you can see them later on wallet page",
+      "linking": "Linking tokens to your Hive account...",
+      "linking-hint": "Hive and Ecency uses only public addresses of your wallets. No private information will be stored.",
+      "linking-success": "Tokens have linked successfully",
+      "linking-success-hint": "You can find your tokens in a wallet page"
+    },
+    "operations": {
+      "transfer": "Transfer",
+      "transfer-saving": "To Savings",
+      "power-up": "Power Up",
+      "power-down": "Power Down",
+      "swap": "Swap",
+      "delegate": "Delegate",
+      "withdraw-saving": "Withdraw routes",
+      "gift": "Gift",
+      "promote": "Promote",
+      "claim": "Claim",
+      "buy": "Buy",
+      "lock": "Lock liquidity",
+      "stake": "Stake",
+      "unstake": "Unstake",
+      "undelegate": "Undelegate"
+    }
+  },
+  "permissions": {
+    "sessions": {
+      "title": "Posting active sessions"
+    },
+    "keys": {
+      "title": "Keys & Passwords",
+      "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below",
+      "add-key": "Add new keys",
+      "key-created": "Keys have created and assigned successfully.",
+      "error-private-key-reveal": "Private key can be revealed only with master password or seed phrase"
+    },
+    "recovery": {
+      "title": "Account recovery",
+      "hint": "Account recovery is available only if your keys have been changed or compromised within the past 30 days. If you have lost your keys or password and more than 30 days have passed, recovery is not possible."
+    },
+    "revoke-key": {
+      "title": "Revoke Hive key",
+      "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
+    }
   }
 }

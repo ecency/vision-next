@@ -1,11 +1,13 @@
-import { client } from "@/api/hive";
 import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { initI18next } from "@/features/i18n";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
-import useMount from "react-use/lib/useMount";
+import { client } from "@/api/hive";
+import { ConfigManager } from "@ecency/sdk";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMount } from "react-use";
 
 export function ClientInit() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -14,9 +16,13 @@ export function ClientInit() {
   const initKeychain = useGlobalStore((state) => state.initKeychain);
   const loadUsers = useGlobalStore((state) => state.loadUsers);
 
+  const queryClient = useQueryClient();
+
   const { data } = getAccountFullQuery(activeUser?.username).useClientQuery();
 
   useMount(() => {
+    ConfigManager.setQueryClient(queryClient as any);
+
     initKeychain();
     initI18next();
     loadUsers();

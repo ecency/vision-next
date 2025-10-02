@@ -133,7 +133,14 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
 
   return (
     <div>
-      <div className="cursor-pointer flex flex-col mb-1" onClick={showModal}>
+      <div
+        className="cursor-pointer hover:text-blue-dark-sky duration-300 flex flex-col gap-2"
+        onClick={showModal}
+      >
+        <div className="text-sm opacity-50">
+          <span className="cursor-pointer">{i18next.t("rc-info.resource-credits")}</span>
+        </div>
+
         <div className="bg-gray-200 h-[1rem] text-white rounded-lg flex overflow-hidden">
           <div
             className="flex duration-300 justify-center overflow-hidden text-xs bg-blue-dark-sky"
@@ -149,9 +156,6 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
           >
             {i18next.t("rc-info.used")}
           </div>
-        </div>
-        <div className="rc-percentage mt-2 align-self-center">
-          <span className="cursor-pointer">{i18next.t("rc-info.resource-credits")}</span>
         </div>
       </div>
 

@@ -9,8 +9,9 @@ import { useMemo } from "react";
 const CURRENCIES = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.BNB,
   EcencyWalletCurrency.SOL,
-  EcencyWalletCurrency.ATOM,
+  EcencyWalletCurrency.TON,
   EcencyWalletCurrency.APT,
   EcencyWalletCurrency.TRON
 ];

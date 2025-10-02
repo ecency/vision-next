@@ -10,9 +10,10 @@ import i18next from "i18next";
 import { hiveSvg } from "@ui/svg";
 import { StyledTooltip } from "@ui/tooltip";
 import { Spinner } from "@ui/spinner";
-import { UilInfo } from "@tooni/iconscout-unicons-react";
+import { UilInfo, UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountRcQueryOptions } from "@ecency/sdk";
+import { Button } from "@/features/ui";
 
 interface ContentProps {
   account: FullAccount;
@@ -97,12 +98,15 @@ export function ProfileInfo({ account }: Props) {
   const isLoaded = account?.__loaded && rcAccount;
 
   return (
-    <span className="profile-info">
-      <StyledTooltip
-        content={isLoaded ? <ProfileInfoContent account={account} rcAccount={rcAccount} /> : <></>}
-      >
-        {isLoaded ? <UilInfo width={20} height={20} /> : <Spinner className="w-3.5 h-3.5" />}
-      </StyledTooltip>
-    </span>
+    <StyledTooltip
+      content={isLoaded ? <ProfileInfoContent account={account} rcAccount={rcAccount} /> : <></>}
+    >
+      <Button
+        isLoading={!isLoaded}
+        icon={<UilInfoCircle width={20} height={20} />}
+        size="xs"
+        appearance="gray"
+      />
+    </StyledTooltip>
   );
 }

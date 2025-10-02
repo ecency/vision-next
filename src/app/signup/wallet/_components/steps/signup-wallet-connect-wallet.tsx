@@ -11,8 +11,8 @@ import { SignupWalletConnectWalletImport } from "./signup-wallet-connect-wallet-
 const CURRENCIES = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.BNB,
   EcencyWalletCurrency.SOL,
-  EcencyWalletCurrency.ATOM,
   EcencyWalletCurrency.TON,
   EcencyWalletCurrency.TRON
 ];

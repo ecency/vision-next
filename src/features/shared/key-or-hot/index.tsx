@@ -1,16 +1,13 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
-import { OrDivider } from "../or-divider";
-import "./index.scss";
-import { FormControl, InputGroup } from "@ui/input";
-import { Button } from "@ui/button";
-import { Form } from "@ui/form";
-import { keySvg } from "@ui/svg";
 import { useGlobalStore } from "@/core/global-store";
+import { PrivateKey } from "@hiveio/dhive";
+import { Button } from "@ui/button";
+import { KeyInput } from "@ui/input";
 import i18next from "i18next";
 import Image from "next/image";
+import { OrDivider } from "../or-divider";
+import "./index.scss";
 
 interface Props {
   inProgress: boolean;
@@ -22,48 +19,11 @@ interface Props {
 
 export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
-  const signingKey = useGlobalStore((state) => state.signingKey);
-  const setSigningKey = useGlobalStore((state) => state.setSigningKey);
-
-  const [keyInput, setKeyInput] = useState(signingKey ?? "");
-
-  const keyEntered = useCallback(() => {
-    if (!activeUser) {
-      throw new Error("Cannot sign operation with anon user");
-    }
-
-    let privateKey: PrivateKey;
-    if (cryptoUtils.isWif(keyInput)) {
-      privateKey = PrivateKey.fromString(keyInput);
-    } else {
-      privateKey = PrivateKey.fromLogin(activeUser.username, keyInput);
-    }
-
-    setSigningKey(keyInput);
-
-    onKey(privateKey);
-  }, [activeUser, keyInput, onKey, setSigningKey]);
 
   return (
     <>
       <div className="key-or-hot">
-        <InputGroup
-          prepend={keySvg}
-          append={
-            <Button disabled={inProgress} onClick={keyEntered}>
-              {i18next.t("key-or-hot.sign")}
-            </Button>
-          }
-        >
-          <FormControl
-            value={keyInput}
-            type="password"
-            autoFocus={true}
-            autoComplete="off"
-            placeholder={i18next.t("key-or-hot.key-placeholder")}
-            onChange={(e) => setKeyInput(e.target.value)}
-          />
-        </InputGroup>
+        <KeyInput onSign={onKey} />
         {!keyOnly && (
           <>
             <OrDivider />

@@ -41,7 +41,7 @@ import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { onboardEmail } from "@/api/private-api";
 import { getKeysFromSeed } from "@/utils/onBoard-helper";
 import { useSeedPhrase } from "@ecency/wallets";
-import { useDownloadSeed } from "@/app/signup/wallet/_hooks";
+import { useDownloadSeed } from "@/features/wallet";
 
 export interface AccountInfo {
   email: string;
@@ -117,9 +117,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const [transferAmount, setTransferAmount] = useState(0);
   const [customJsonAmount, setCustomJsonAmount] = useState(0);
 
-  const downloadSeed = useDownloadSeed(
-    accountInfo?.username ?? decodedInfo?.username ?? ""
-  );
+  const downloadSeed = useDownloadSeed(accountInfo?.username ?? decodedInfo?.username ?? "");
 
   useMount(() => {
     setOnboardUrl(`${window.location.origin}/onboard-friend/creating/`);
@@ -574,7 +572,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
               <div className="mt-3 flex flex-col items-center">
                 <div className="flex">
                   <span className="mr-3 mt-1">
-                  {innerWidth <= 768 ? shortSeed + "..." : seedPhrase}
+                    {innerWidth <= 768 ? shortSeed + "..." : seedPhrase}
                   </span>
                   <Tooltip content={i18next.t("onboard.copy-tooltip")}>
                     <span

@@ -22,10 +22,11 @@ interface StyledProps {
   children: ReactNode;
   content: ReactNode;
   className?: string;
+  size?: "sm" | "md";
   onHide?: () => void;
 }
 
-export function StyledTooltip({ children, content, className, onHide }: StyledProps) {
+export function StyledTooltip({ children, content, className, size = "sm", onHide }: StyledProps) {
   const [show, setShow] = useState(false);
 
   const { refs, floatingStyles } = useFloating({
@@ -70,7 +71,11 @@ export function StyledTooltip({ children, content, className, onHide }: StyledPr
                   initial={{ opacity: 0, scale: 0.75 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.75 }}
-                  className="hidden sm:block bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky p-1 rounded-lg text-xs font-semibold"
+                  className={clsx(
+                    "bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky rounded-lg ",
+                    size === "sm" && "p-1 text-xs font-semibold",
+                    size === "md" && "p-2 text-xs"
+                  )}
                 >
                   {content}
                 </motion.div>
