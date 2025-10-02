@@ -33,7 +33,10 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
   const { data: externalWalletBalance, refetch: refetchExternalWalletBalance } =
     useGetExternalWalletBalanceQuery(selected[0], selected[1]);
 
-  const hasValidated = useMemo(() => (externalWalletBalance ?? 0) > 0, [externalWalletBalance]);
+  const hasValidated = useMemo(
+    () => Number(externalWalletBalance ?? 0) > 0,
+    [externalWalletBalance]
+  );
   //const hasValidated = true;
 
   const [_, copy] = useCopyToClipboard();
