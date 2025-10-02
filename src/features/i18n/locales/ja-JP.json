@@ -212,7 +212,7 @@
     "boost": "Boost",
     "submit": "Create a post",
     "chats": "Chats",
-    "perks": "Upgrade"
+    "perks": "Buy perks"
   },
   "intro": {
     "title": "Aspire to greatness",
@@ -322,10 +322,10 @@
     "pay-fee": "Pay Account Fee",
     "modal-title": "Are you sure?",
     "modal-confirm": "Confirm",
-    "file-warning": "シードフレーズと秘密鍵を扱ってください。シードフレーズを紛失した場合、アカウントにアクセスできなくなります。 私たちはそれのコピーを保持しません; それは機密であり、あなただけがそれにアクセスすることができます。",
+    "file-warning": "パスワードと秘密鍵を扱ってください。パスワードを紛失した場合、アカウントにアクセスできなくなります。 私たちはそれのコピーを保持しません; それは機密であり、あなただけがそれにアクセスすることができます。",
     "recommend": "We recommend that,",
     "recommend-print": "PRINT this file out and store it securely.",
-    "recommend-use": "信頼できないアプリでシードフレーズ/オーナーキーを使用しないでください。",
+    "recommend-use": "NEVER use your password/owner key on untrusted apps.",
     "recommend-save": "Save all your keys within a password manager and/or Ecency mobile wallet, as you will need them frequently.",
     "recommend-third-party": "Don't keep this file within the reach of a third party.",
     "account-info": "Your Hive Account Information;",
@@ -342,9 +342,9 @@
     "active-use": "Transfer Funds, Power up/down, Voting Witnesses/Proposals",
     "posting-use": "Post, Comment, Vote, Reblog, Follow, Profile updates",
     "memo-use": "Send/View encrypted messages on transfers",
-    "copy-tooltip": "シードフレーズをコピー",
-    "regenerate-password": "シードフレーズを再生成",
-    "copy-password": "シードフレーズが正常にコピーされました",
+    "copy-tooltip": "Copy password",
+    "regenerate-password": "Regenerate password",
+    "copy-password": "Password copied successfully",
     "copy-info-message": "Copy Link below and SEND to a friend",
     "success-message": "You successfully created the account ",
     "sign-title": "Sign transaction with ",
@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "Reveal this post",
-    "signup": "設定を保存するためにアカウントを作成します",
+    "signup": "<a href=\"/signup\" class=\"push-link\">create an account</a> to save your preferences",
     "settings-1": "adjust your",
     "settings-2": "display preferences"
   },
@@ -990,7 +990,8 @@
     "no-posts-community": "Join and post in this community",
     "create-posts": "Let's create a new post",
     "link-copied": "Search link copied to clipboard",
-    "no-posts-found": "Found nothing!"
+    "no-posts-found": "Found nothing!",
+    "subscribe": "購読する"
   },
   "rc-info": {
     "available": "Available",
@@ -1221,6 +1222,7 @@
     "checkin-extra-desc": "Consistent use of app gives you extra chances to earn more 10 points, be more active and earn more.",
     "delegation-desc": "You can earn ~100 points per day for each 1000HP delegation.",
     "community-desc": "Register your community to get 20 points for per post published with Ecency applications.",
+    "referral-desc": "友達を招待してポイントを獲得",
     "history": "History",
     "post-list-desc": "Points for post",
     "comment-list-desc": "Points for comment",
@@ -1372,7 +1374,16 @@
     "success-title": "Success",
     "success-sub-title": "Transaction completed",
     "sign-title": "Sign transaction",
-    "sign-sub-title": "Sign your transaction"
+    "sign-sub-title": "Sign your transaction",
+    "swap-title": "ハイブ/HBD交換",
+    "swap-sub-title": "数回のクリックで資金を入れ替え",
+    "gift-title": "ギフト",
+    "gift-sub-title": "特定のユーザーにポイントを贈りましょう",
+    "lock-sub-title": "流動性報酬のためのLarynxのロック",
+    "stake-title": "ステーク（ステーク）",
+    "stake-sub-title": "ステークトークンで受動的な報酬を獲得する",
+    "unstake-title": "ステーク解除",
+    "unstake-sub-title": "トークンのステークを解除すると、受動的な報酬の獲得を停止します"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",
@@ -1391,9 +1402,17 @@
     "group-rewards": "Rewards",
     "type-curation_reward": "Curation reward",
     "type-author_reward": "Author reward",
+    "type-comments_authorReward": "著者報酬",
+    "type-comments_curationReward": "キュレーション報酬",
+    "type-comments_authorReward_stake": "ステーク著者報酬",
+    "type-comments_curationReward_stake": "ステークキュレーション報酬",
     "type-comment_benefactor_reward": "Comment benefactor reward",
+    "type-tokens_stake": "ステークトークン",
+    "type-tokens_issue": "課題トークン",
+    "type-comments_beneficiaryReward": "受取人の報酬",
     "type-claim_reward_balance": "Claim rewards",
     "type-transfer": "Transfer",
+    "type-tokens_transfer": "送金",
     "type-transfer_to_vesting": "Power up",
     "type-withdraw_vesting": "Power down",
     "type-set_withdraw_vesting_route": "Withdraw route changed",
@@ -1427,6 +1446,7 @@
     "broken-hint": "Operation link is broken or cannot be recognized",
     "signer-text": "Signing following transaction/operation",
     "success-hint": "Operation signed and transaction broadcasted",
+    "success-close-hint": "署名された操作とトランザクションがブロードキャストされました。ウィンドウは5秒後に閉じられます...",
     "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
@@ -1894,7 +1914,8 @@
     "label-check": "I have securely saved my generated password",
     "validation-password": "Password is invalid.",
     "validation-label": "Please tick this box to proceed.",
-    "updated": "Password updated successfully!"
+    "updated": "Password updated successfully!",
+    "hint": "現時点では、新しいシードフレーズを設定するだけでキーを生成できます。他の種類のパスワードへの更新はサポートされていません。 Web 3.0の標準でEcencyとHiveのアカウントを維持するのに役立ちます。"
   },
   "view-keys": {
     "title": "View Private keys",
@@ -2140,7 +2161,7 @@
       "where-tokens-come-header": "Where do the tokens come from?",
       "where-tokens-come-body": "<p>The Hive network continually creates new digital tokens to reward content creators and curators. Some of the newly-created tokens are transferred to users who add value to platform by posting, commenting, and voting on other people's posts. The remainder is distributed to holders of HIVE POWER and the witnesses that secures the blockchain.</p>",
       "how-promotion-work-header": "How content promotion works?",
-      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple. Select content, period of promotion 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in Ecency mobile app, website. There are no limits or restrictions, any post can be promoted to get more exposure and engagement. Ecency has right to remove posts from promotion list if it violates certain internet etiquette and norms.</p>",
+      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple and easy. Ecency Points are used to promote content for 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in mobile app, desktop app and website. There is no limit or restrictions, any post can be promoted to get more exposure and engagement. We hold right to remove posts from promotion list if it violates certain internet etiquette.</p>",
       "how-to-transfer-header": "How to transfer blockchain tokens?",
       "how-to-transfer-body": "<p>After login, you will find Wallet page in top header on website and desktop app or in Profile page, bottom navigation bar on mobile app. In wallet page you can initiate transfer of any token you hold to another user or exchange accounts, click on arrow next to your balance and find transfer operations. Transfers are irreversible because they are registered on blockchain, make sure to send correct recipient.</p>",
       "how-see-rewards-header": "How do I see my post rewards?",
@@ -2505,15 +2526,15 @@
     "points-description": "Jump start to improve engagement on your content by purchasing Points with Ecency Mobile",
     "points-buy-hive-title": "Buy points with HIVE/HBD",
     "points-buy-hive-description": "Simply swap your HIVE/HBD to POINTS",
-    "account-boost-title": "Out of Resource credits? Get more using Ecency mobile app",
+    "account-boost-title": "Account boosting",
     "account-boost-action": "Boost now!",
     "account-boost-description": "Use In-App purchase to acquire extra powers",
     "promote-title": "Promote your post",
     "promote-action": "Promote",
     "promote-description": "Impressions boost that will increase eyeballs on your content",
-    "boost-plus-title": "Get more Resources (Boost+)",
+    "boost-plus-title": "Boost+",
     "boost-plus-action": "Boost+",
-    "boost-plus-description": "Swap your POINTS to acquire Resource credits and Hive power with few clicks.",
+    "boost-plus-description": "Boost your account with your points in few clicks",
     "no-post": "No post selected",
     "go-to-perks": "Go to Perks",
     "buy-points-qr-title": "Buy points with QR",
@@ -2759,8 +2780,8 @@
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
     "new-content": "New content",
-    "draft-mode": "ドラフト編集モード",
-    "edit-mode": "ポスト編集モード",
+    "draft-mode": "You are in a draft editing mode",
+    "edit-mode": "You are in a post editing mode",
     "auto-save": "自動保存",
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
@@ -2877,5 +2898,71 @@
     "hint": "テキスト読み上げツールは、テキストコンテンツを音声に変換するためのブラウザ内蔵ツールを使用します。音声リスト、可用性、および品質は、お使いのブラウザとデバイスにのみ依存します。",
     "playground": "Playground",
     "voices": "声"
+  },
+  "profile-wallet": {
+    "pick-tokens": "表示するトークンを選択",
+    "search-token": "検索トークン",
+    "setup-tokens": "アセットをセットアップする",
+    "asset-name": "資産名",
+    "price": "価格",
+    "balance": "残高",
+    "history": "沿革",
+    "market": "市場",
+    "apr": "Recompensas da Aprão",
+    "apr-hint": "年間割合 - 選択した期間にわたってCryptocurrencyで獲得する報酬の推定値",
+    "delegations": "委任事項",
+    "external-wallets-offer": {
+      "title": "暗号通貨をEcencyに届けよう",
+      "description": "BTC、ETH、TRX、APT、SOL用ウォレットを、TrustやExodusなどのアプリから直接作成またはインポートします。 Hiveエコシステム内でシームレスに使用し始めます。",
+      "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます"
+    },
+    "external-wallets-signup": {
+      "create-wallet-title": "Hiveアカウントの作成とリンク",
+      "create-wallet-description": "BTC、ETH、SOL、APT、TRX用ウォレットを作成します。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
+      "import-wallet-title": "既存のウォレットをインポート",
+      "import-wallet-description": "Trust、Exodus、または他の互換性のあるアプリから既存のウォレットをインポートします。 アセットはHiveアカウントに接続されるため、Ecanceで簡単に資金を管理できます。",
+      "create-wallet-tokens-description": "トークンアドレスを確認してください。ウォレットページで後で確認できます。",
+      "linking": "Hiveアカウントにトークンをリンクしています...",
+      "linking-hint": "HiveとEcencyはあなたの財布の公開アドレスのみを使用します。個人情報は保存されません。",
+      "linking-success": "トークンが正常にリンクされました",
+      "linking-success-hint": "ウォレットページでトークンを見つけることができます"
+    },
+    "operations": {
+      "transfer": "送金",
+      "transfer-saving": "貯蓄へ",
+      "power-up": "パワーアップ",
+      "power-down": "パワーダウン",
+      "swap": "入れ替え",
+      "delegate": "Delegate",
+      "withdraw-saving": "ルートを引き出します",
+      "gift": "ギフト",
+      "promote": "プロモート",
+      "claim": "Claim",
+      "buy": "購入",
+      "lock": "流動性をロック",
+      "stake": "ステーク（ステーク）",
+      "unstake": "ステーク解除",
+      "undelegate": "委任解除"
+    }
+  },
+  "permissions": {
+    "sessions": {
+      "title": "アクティブなセッションを投稿中"
+    },
+    "keys": {
+      "title": "キーとパスワード",
+      "hint": "Hiveアカウントは複数のキーを同時に保持することができ、そのすべてが以下にリストされています。",
+      "add-key": "新しい鍵を追加",
+      "key-created": "キーが作成され、割り当てられました。",
+      "error-private-key-reveal": "秘密鍵はマスターパスワードまたはシードフレーズでのみ表示できます"
+    },
+    "recovery": {
+      "title": "アカウントの回復",
+      "hint": "アカウントの復旧は、過去30日以内にキーが変更または侵害された場合にのみ利用できます。 キーまたはパスワードを紛失し、30日以上経過した場合、復元はできません。"
+    },
+    "revoke-key": {
+      "title": "ハイブキーを取り消す",
+      "hint": "所有者キー/マスターパスワード/シードを使用して、任意のハイブキーを取り消すことができます"
+    }
   }
 }
