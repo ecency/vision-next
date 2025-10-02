@@ -39,5 +39,9 @@ export async function POST(request: NextRequest) {
     cache: "default"
   });
 
-  return NextResponse.json(await response.json());
+  try {
+    return NextResponse.json(await response.json());
+  } catch (e) {
+    return NextResponse.json({}, { status: 400 });
+  }
 }
