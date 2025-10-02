@@ -1380,10 +1380,10 @@
     "gift-title": "Regalo",
     "gift-sub-title": "Regalar los puntos a un usuario específico",
     "lock-sub-title": "Bloquear Larynx por recompensa de liquidez",
-    "stake-title": "Tomar",
-    "stake-sub-title": "Toma el token para ganar recompensas pasivas",
-    "unstake-title": "Desestacionar",
-    "unstake-sub-title": "Desestacionar token dejarás de ganar recompensas pasivas"
+    "stake-title": "Estaca",
+    "stake-sub-title": "Pon Tokens en estaca para ganar recompensas pasivas",
+    "unstake-title": "Retirar de Estaca",
+    "unstake-sub-title": "Retirar Tokens en estaca detiene la obtención de recompensas pasivas"
   },
   "trx-common": {
     "insufficient-funds": "Fondos insuficientes",
@@ -1404,10 +1404,10 @@
     "type-author_reward": "Recompensa de autor",
     "type-comments_authorReward": "Recompensa de autor",
     "type-comments_curationReward": "Recompensa de curación",
-    "type-comments_authorReward_stake": "Recompensa del autor",
-    "type-comments_curationReward_stake": "Recompensa de Stake curation",
+    "type-comments_authorReward_stake": "Recompensa del autor a estaca",
+    "type-comments_curationReward_stake": "Recompensa de curación a estaca",
     "type-comment_benefactor_reward": "Recompensa del benefactor del comentario",
-    "type-tokens_stake": "Tokens de Stake",
+    "type-tokens_stake": "Estacar Token",
     "type-tokens_issue": "Tokens de emisión",
     "type-comments_beneficiaryReward": "Recompensa del beneficiario",
     "type-claim_reward_balance": "Reclamar recompensas",
@@ -1446,12 +1446,12 @@
     "broken-hint": "El enlace de la operación está roto o no puede ser reconocido",
     "signer-text": "Firmando la siguiente transacción/operación",
     "success-hint": "Operación firmada y transaccionada",
-    "success-close-hint": "Operación firmada y transaccionada por transacción. La ventana se cerrará en 5 segundos...",
+    "success-close-hint": "Operación firmada y transaccionada por trasmisión. La ventana se cerrará en 5 segundos...",
     "error-hint": "La operación no puede ser firmada o las transacciones no pudieron ser transmitidas. Por favor, compruebe la operación y vuelva a intentarlo"
   },
   "key-or-hot": {
     "sign": "Firmar",
-    "key-placeholder": "Introducir clave privada activa/propietaria/maestra, o frase semilla",
+    "key-placeholder": "Clave privada, contraseña maestra o semilla",
     "with-hivesigner": "Iniciar Sesión con hivesigner",
     "with-keychain": "Iniciar sesión con KeyChain"
   },
@@ -1904,7 +1904,7 @@
     "form-body": "Cuerpo del mensaje"
   },
   "password-update": {
-    "title": "Cambiar la contraseña",
+    "title": "Crear nuevas claves",
     "account": "Cuenta",
     "cur-pass": "Contraseña actual",
     "new-pass": "Nueva contraseña",
@@ -1915,7 +1915,7 @@
     "validation-password": "Contraseña no válida.",
     "validation-label": "Marque esta casilla para continuar.",
     "updated": "¡Contraseña actualizada correctamente!",
-    "hint": "En este momento, sólo puede generar claves configurando una nueva frase de semilla. No se admite la actualización de cualquier otro tipo de contraseña. Nos ayuda a mantener las cuentas de Ecency and Hive en un estándar de Web 3.0."
+    "hint": "En este momento, solamente puede generar claves configurando una nueva frase de semilla. No se admite ninguna otra forma de actualización de contraseña. Esto nos ayuda a mantener las cuentas de Ecency y de Hive en un estándar de Web 3.0."
   },
   "view-keys": {
     "title": "Ver claves privadas",
@@ -2901,20 +2901,20 @@
   },
   "profile-wallet": {
     "pick-tokens": "Elegir tokens para mostrar",
-    "search-token": "Token de búsqueda",
+    "search-token": "Buscar tokens",
     "setup-tokens": "Configurar recursos",
     "asset-name": "Nombre del recurso",
     "price": "Precio",
-    "balance": "Saldo",
+    "balance": "Balance",
     "history": "Historial",
     "market": "Mercado",
     "apr": "Recompensas APR",
     "apr-hint": "Tasa de Porcentaje Anual – una estimación de recompensas que ganarás en la Criptomoneda durante el periodo de tiempo seleccionado",
     "delegations": "Delegaciones",
     "external-wallets-offer": {
-      "title": "Trae tu criptomoneda a la Ecencia",
-      "description": "Crear o importar carteras para BTC, ETH, TRX, API y SOL directamente desde aplicaciones como Trust o Exodus, y empiece a usarlos sin problemas dentro del ecosistema de la colmena.",
-      "hint": "La información del token creada e importada se almacenará en una metadata de la cuenta de Ecencia y Hive"
+      "title": "Trae tu criptomoneda a Ecency",
+      "description": "Crear o importar carteras para BTC, ETH, TRX, APT y SOL directamente desde apps como Trust o Exodus, y empiece a usarlos sin problemas dentro del ecosistema de Hive.",
+      "hint": "La información del token creada e importada se almacenará en metadatos de la cuenta de Ecency y de Hive"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Crear y vincular a la cuenta de Hive",
@@ -2923,26 +2923,26 @@
       "import-wallet-description": "Importa tu cartera existente de Trust, Exodus u otras aplicaciones compatibles. Tus activos se conectarán a tu cuenta de Hive, para que puedas administrar fácilmente tus fondos en Ecency.",
       "create-wallet-tokens-description": "Revisa tus direcciones de tokens. También puedes verlas más tarde en la página de cartera",
       "linking": "Enlazando tokens a tu cuenta de Hive...",
-      "linking-hint": "Hive y Ecencia utiliza sólo direcciones públicas de sus carteras. No se almacenará información privada.",
+      "linking-hint": "Hive y Ecency utiliza solamente las direcciones públicas de tus carteras. No se almacenará información privada.",
       "linking-success": "Las fichas se han vinculado con éxito",
       "linking-success-hint": "Puede encontrar sus tokens en una página de cartera"
     },
     "operations": {
       "transfer": "Transferir",
       "transfer-saving": "A ahorros",
-      "power-up": "Potenciar",
-      "power-down": "Apagar energía",
+      "power-up": "Power Up (Potenciar)",
+      "power-down": "Power Down (Apagado)",
       "swap": "Intercambiar",
       "delegate": "Delegado",
-      "withdraw-saving": "Retirar rutas",
+      "withdraw-saving": "Rutas de Retiro",
       "gift": "Regalo",
       "promote": "Promover",
-      "claim": "Claim",
+      "claim": "Reclamar",
       "buy": "Comprar",
       "lock": "Bloquear liquidez",
-      "stake": "Tomar",
-      "unstake": "Desestacionar",
-      "undelegate": "Desdelegar"
+      "stake": "Estaca",
+      "unstake": "Retirar de Estaca",
+      "undelegate": "Retirar delegación"
     }
   },
   "permissions": {
@@ -2961,7 +2961,7 @@
       "hint": "La recuperación de la cuenta sólo está disponible si sus claves han sido cambiadas o comprometidas en los últimos 30 días. Si ha perdido sus claves o contraseña y han pasado más de 30 días, la recuperación no es posible."
     },
     "revoke-key": {
-      "title": "Revocar clave de colmena",
+      "title": "Revocar clave de Hive",
       "hint": "Puede revocar cualquier clave de Hive usando una de las claves/contraseña maestra/semilla"
     }
   }
