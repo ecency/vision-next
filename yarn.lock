@@ -1225,22 +1225,6 @@
   resolved "https://registry.yarnpkg.com/@cmdcode/tapscript/-/tapscript-1.5.3.tgz#3acc4d24edf419171edee4dfecac61b19831e02c"
   integrity sha512-WCTtZsp5aXk7IKM9DpCSkDjx9eW9WrPxfmFPyfLcYnwEqnEvd+6iAjp8A5elkVfepMZ1e69OHO2qULYlH4TUWA==
 
-"@cosmjs/encoding@^0.32.3":
-  version "0.32.4"
-  resolved "https://registry.yarnpkg.com/@cosmjs/encoding/-/encoding-0.32.4.tgz#646e0e809f7f4f1414d8fa991fb0ffe6c633aede"
-  integrity sha512-tjvaEy6ZGxJchiizzTn7HVRiyTg1i4CObRRaTRPknm5EalE13SV+TCHq38gIDfyUeden4fCuaBVEdBR5+ti7Hw==
-  dependencies:
-    base64-js "^1.3.0"
-    bech32 "^1.1.4"
-    readonly-date "^1.0.0"
-
-"@cosmjs/math@^0.32.3":
-  version "0.32.4"
-  resolved "https://registry.yarnpkg.com/@cosmjs/math/-/math-0.32.4.tgz#87ac9eadc06696e30a30bdb562a495974bfd0a1a"
-  integrity sha512-++dqq2TJkoB8zsPVYCvrt88oJWsy1vMOuSOKcdlnXuOA/ASheTJuYy4+oZlTQ3Fr8eALDLGGPhJI02W2HyAQaw==
-  dependencies:
-    bn.js "^5.2.0"
-
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.npmjs.org/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz"
@@ -1336,20 +1320,19 @@
     "@testing-library/react" "14"
     medium-zoom "^1.1.0"
 
-"@ecency/sdk@^1.1.15":
-  version "1.1.15"
-  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.1.15.tgz#608b7ce6679a788812caebaa2b20958447e0003c"
-  integrity sha512-ahTMckFp1JnbMZExegXmqW4kX8tt3amoETe6iTygvyusNWWLhdfEIcafYh/Qayj7Bd1rSNGUyVq/bI68Dklpig==
+"@ecency/sdk@^1.1.17":
+  version "1.1.17"
+  resolved "https://registry.yarnpkg.com/@ecency/sdk/-/sdk-1.1.17.tgz#5ba10ca91f9ccf02ae978ddbc65545d9dc706037"
+  integrity sha512-V3Zt8I7++PtUVivh8rgVX5YjlPyMhzWyWjc1PJjWnEHFJrd0FhEpsCkgkr6uU4T5yRFnXyKMI8B0mIG5/Nwzkg==
 
-"@ecency/wallets@^1.3.14":
-  version "1.3.14"
-  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.3.14.tgz#f9ca5652847c91249dbbb3f561def18c72f69406"
-  integrity sha512-cjTCDLf78NmOWRmzhMlTEQH2Lxr4a4qYWWxG2HV2fFTeVbE8OS8PxrAqBGMedBNke8SHFShrtEDUfDXzgUkm2g==
+"@ecency/wallets@^1.3.17":
+  version "1.3.17"
+  resolved "https://registry.yarnpkg.com/@ecency/wallets/-/wallets-1.3.17.tgz#e4c34cddbd46870ddc463e9589fbbcccdc976875"
+  integrity sha512-fB89SG6rcmQ58Pnvw26mIpovIW//HzGA4LbjI5qrF9HzrEdEMerE3La1vQeZSBWlqAlAUpd/pud4mEXV5juQlA==
   dependencies:
     "@okxweb3/coin-aptos" "^1.2.0"
     "@okxweb3/coin-base" "^1.1.2"
     "@okxweb3/coin-bitcoin" "^1.2.0"
-    "@okxweb3/coin-cosmos" "^1.1.0"
     "@okxweb3/coin-ethereum" "^1.0.12"
     "@okxweb3/coin-solana" "^1.1.0"
     "@okxweb3/coin-ton" "^1.1.1-beta.1"
@@ -2178,16 +2161,6 @@
     big-integer "1.6.36"
     decimal.js "10.4.3"
     scrypt-ts "1.4.3"
-
-"@okxweb3/coin-cosmos@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@okxweb3/coin-cosmos/-/coin-cosmos-1.1.0.tgz#8aa779873537a62f0f00fee9e6a8838624348023"
-  integrity sha512-oA0OHNJGoyt0hMFtwa+1NhZOiKh64VxdF1lwAEXrOo7id5Gs/MZ1jDX58HCcane/3acDN0395M5KmL/6VyI1GQ==
-  dependencies:
-    "@cosmjs/encoding" "^0.32.3"
-    "@cosmjs/math" "^0.32.3"
-    "@okxweb3/coin-base" "^1.1.0"
-    "@okxweb3/crypto-lib" "^1.0.10"
 
 "@okxweb3/coin-ethereum@1.0.10":
   version "1.0.10"
@@ -4782,7 +4755,7 @@ base-x@^3.0.2, base-x@^3.0.6:
   dependencies:
     safe-buffer "^5.0.1"
 
-base64-js@^1.3.0, base64-js@^1.3.1:
+base64-js@^1.3.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
@@ -4791,11 +4764,6 @@ bech32@=2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/bech32/-/bech32-2.0.0.tgz#078d3686535075c8c79709f054b1b226a133b355"
   integrity sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==
-
-bech32@^1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/bech32/-/bech32-1.1.4.tgz#e38c9f37bf179b8eb16ae3a772b40c356d4832e9"
-  integrity sha512-s0IrSOzLlbvX7yp4WBfPITzpAU8sqQcpsmwXDiKwrG4r491vwCO/XpejasRNl0piBMe/DvP4Tz0mIS/X1DPJBQ==
 
 big-integer@1.6.36:
   version "1.6.36"
@@ -10241,11 +10209,6 @@ readdirp@~3.6.0:
   integrity sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==
   dependencies:
     picomatch "^2.2.1"
-
-readonly-date@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/readonly-date/-/readonly-date-1.0.0.tgz#5af785464d8c7d7c40b9d738cbde8c646f97dcd9"
-  integrity sha512-tMKIV7hlk0h4mO3JTmmVuIlJVXjKk3Sep9Bf5OH0O+758ruuVkUy2J9SttDLm91IEX/WHlXPSpxMGjPj4beMIQ==
 
 redent@^3.0.0:
   version "3.0.0"
