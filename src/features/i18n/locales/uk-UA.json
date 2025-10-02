@@ -212,7 +212,7 @@
     "boost": "Boost",
     "submit": "Create a post",
     "chats": "Чати",
-    "perks": "Upgrade"
+    "perks": "Buy perks"
   },
   "intro": {
     "title": "Aspire to greatness",
@@ -322,10 +322,10 @@
     "pay-fee": "Pay Account Fee",
     "modal-title": "Are you sure?",
     "modal-confirm": "Confirm",
-    "file-warning": "Будь ласка, обробте вашу фразу-пароль (seed) і приватні ключі. Ваш обліковий запис більше не буде доступний, якщо ви втратите фразу-пароль seed). Ми не зберігаємо копію його — це конфіденційна і лише ви маєте до нього доступ.",
+    "file-warning": "Будь ласка, обробте ваш пароль і особисті ключі з додатковою обережністю. Ваш обліковий запис більше не буде доступний, якщо ви втратите пароль. Ми не зберігаємо копію його — це конфіденційна і лише ви маєте до нього доступ.",
     "recommend": "We recommend that,",
     "recommend-print": "PRINT this file out and store it securely.",
-    "recommend-use": "НІКОЛИ не використовуйте фразу-пароль/власник в ненадійних програмах.",
+    "recommend-use": "NEVER use your password/owner key on untrusted apps.",
     "recommend-save": "Save all your keys within a password manager and/or Ecency mobile wallet, as you will need them frequently.",
     "recommend-third-party": "Don't keep this file within the reach of a third party.",
     "account-info": "Your Hive Account Information;",
@@ -342,9 +342,9 @@
     "active-use": "Transfer Funds, Power up/down, Voting Witnesses/Proposals",
     "posting-use": "Post, Comment, Vote, Reblog, Follow, Profile updates",
     "memo-use": "Send/View encrypted messages on transfers",
-    "copy-tooltip": "Копіювати фразу-пароль",
-    "regenerate-password": "Оновлювати фразу-ключ",
-    "copy-password": "Фраза успішно скопійована",
+    "copy-tooltip": "Copy password",
+    "regenerate-password": "Regenerate password",
+    "copy-password": "Password copied successfully",
     "copy-info-message": "Copy Link below and SEND to a friend",
     "success-message": "You successfully created the account ",
     "sign-title": "Sign transaction with ",
@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "Reveal this post",
-    "signup": "створити обліковий запис для збереження ваших налаштувань",
+    "signup": "<a href=\"/signup\" class=\"push-link\">create an account</a> to save your preferences",
     "settings-1": "adjust your",
     "settings-2": "display preferences"
   },
@@ -990,7 +990,8 @@
     "no-posts-community": "Join and post in this community",
     "create-posts": "Let's create a new post",
     "link-copied": "Search link copied to clipboard",
-    "no-posts-found": "Found nothing!"
+    "no-posts-found": "Found nothing!",
+    "subscribe": "Підписатися"
   },
   "rc-info": {
     "available": "Available",
@@ -1221,6 +1222,7 @@
     "checkin-extra-desc": "Consistent use of app gives you extra chances to earn more 10 points, be more active and earn more.",
     "delegation-desc": "You can earn ~100 points per day for each 1000HP delegation.",
     "community-desc": "Register your community to get 20 points for per post published with Ecency applications.",
+    "referral-desc": "Запросіть друзів і отримайте Бали",
     "history": "History",
     "post-list-desc": "Points for post",
     "comment-list-desc": "Points for comment",
@@ -1372,7 +1374,16 @@
     "success-title": "Success",
     "success-sub-title": "Transaction completed",
     "sign-title": "Sign transaction",
-    "sign-sub-title": "Sign your transaction"
+    "sign-sub-title": "Sign your transaction",
+    "swap-title": "Поміняти місцями хід/HBD",
+    "swap-sub-title": "Поміняй свої кошти за декілька кліків",
+    "gift-title": "Подарунок",
+    "gift-sub-title": "Подаруйте очки конкретному користувачу",
+    "lock-sub-title": "Блокування Lynx для винагороди за ліквідність",
+    "stake-title": "Сума ставки",
+    "stake-sub-title": "Токен ставки щоб отримати пасивні нагороди",
+    "unstake-title": "Недовірений",
+    "unstake-sub-title": "Маркер Пакту перестане заробляти пасивні нагороди"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",
@@ -1391,9 +1402,17 @@
     "group-rewards": "Rewards",
     "type-curation_reward": "Curation reward",
     "type-author_reward": "Author reward",
+    "type-comments_authorReward": "Авторська винагорода",
+    "type-comments_curationReward": "Кураторська винагорода",
+    "type-comments_authorReward_stake": "Винагорода вищого автора",
+    "type-comments_curationReward_stake": "Винагорода за ставки",
     "type-comment_benefactor_reward": "Comment benefactor reward",
+    "type-tokens_stake": "Маркери",
+    "type-tokens_issue": "Токени проблем",
+    "type-comments_beneficiaryReward": "Винагорода одержувача",
     "type-claim_reward_balance": "Claim rewards",
     "type-transfer": "Transfer",
+    "type-tokens_transfer": "Переказ",
     "type-transfer_to_vesting": "Power up",
     "type-withdraw_vesting": "Power down",
     "type-set_withdraw_vesting_route": "Withdraw route changed",
@@ -1427,6 +1446,7 @@
     "broken-hint": "Operation link is broken or cannot be recognized",
     "signer-text": "Signing following transaction/operation",
     "success-hint": "Operation signed and transaction broadcasted",
+    "success-close-hint": "Операція підписана та трансляція будуть закриті. Вікно буде закрито через 5 секунд...",
     "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
@@ -1894,7 +1914,8 @@
     "label-check": "I have securely saved my generated password",
     "validation-password": "Password is invalid.",
     "validation-label": "Please tick this box to proceed.",
-    "updated": "Password updated successfully!"
+    "updated": "Password updated successfully!",
+    "hint": "У цей час ви можете генерувати ключі, встановивши новий seed фраза. Оновлення будь-якого іншого типу пароля не підтримується. Це допомагає нам зберігати Ecency та Hive за стандартами Web 3.0."
   },
   "view-keys": {
     "title": "View Private keys",
@@ -2140,7 +2161,7 @@
       "where-tokens-come-header": "Where do the tokens come from?",
       "where-tokens-come-body": "<p>The Hive network continually creates new digital tokens to reward content creators and curators. Some of the newly-created tokens are transferred to users who add value to platform by posting, commenting, and voting on other people's posts. The remainder is distributed to holders of HIVE POWER and the witnesses that secures the blockchain.</p>",
       "how-promotion-work-header": "How content promotion works?",
-      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple. Select content, period of promotion 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in Ecency mobile app, website. There are no limits or restrictions, any post can be promoted to get more exposure and engagement. Ecency has right to remove posts from promotion list if it violates certain internet etiquette and norms.</p>",
+      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple and easy. Ecency Points are used to promote content for 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in mobile app, desktop app and website. There is no limit or restrictions, any post can be promoted to get more exposure and engagement. We hold right to remove posts from promotion list if it violates certain internet etiquette.</p>",
       "how-to-transfer-header": "How to transfer blockchain tokens?",
       "how-to-transfer-body": "<p>After login, you will find Wallet page in top header on website and desktop app or in Profile page, bottom navigation bar on mobile app. In wallet page you can initiate transfer of any token you hold to another user or exchange accounts, click on arrow next to your balance and find transfer operations. Transfers are irreversible because they are registered on blockchain, make sure to send correct recipient.</p>",
       "how-see-rewards-header": "How do I see my post rewards?",
@@ -2505,15 +2526,15 @@
     "points-description": "Jump start to improve engagement on your content by purchasing Points with Ecency Mobile",
     "points-buy-hive-title": "Buy points with HIVE/HBD",
     "points-buy-hive-description": "Simply swap your HIVE/HBD to POINTS",
-    "account-boost-title": "Out of Resource credits? Get more using Ecency mobile app",
+    "account-boost-title": "Account boosting",
     "account-boost-action": "Boost now!",
     "account-boost-description": "Use In-App purchase to acquire extra powers",
     "promote-title": "Promote your post",
     "promote-action": "Promote",
     "promote-description": "Impressions boost that will increase eyeballs on your content",
-    "boost-plus-title": "Get more Resources (Boost+)",
+    "boost-plus-title": "Boost+",
     "boost-plus-action": "Boost+",
-    "boost-plus-description": "Swap your POINTS to acquire Resource credits and Hive power with few clicks.",
+    "boost-plus-description": "Boost your account with your points in few clicks",
     "no-post": "No post selected",
     "go-to-perks": "Go to Perks",
     "buy-points-qr-title": "Buy points with QR",
@@ -2759,8 +2780,8 @@
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
     "new-content": "Новий контент",
-    "draft-mode": "Режим редагування чернетки",
-    "edit-mode": "Режим редагування повідомлення",
+    "draft-mode": "You are in a draft editing mode",
+    "edit-mode": "You are in a post editing mode",
     "auto-save": "Збережено автоматично",
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
@@ -2877,5 +2898,71 @@
     "hint": "Text-to-Speech використовує вбудовані інструменти для перетворення тексту в мовлення. Список голосів, наявність і якість залежить лише від вашого браузера і пристрою.",
     "playground": "Ігровий майданчик",
     "voices": "Голоси"
+  },
+  "profile-wallet": {
+    "pick-tokens": "Вибрати токени для відображення",
+    "search-token": "Пошук маркер",
+    "setup-tokens": "Налаштування активів",
+    "asset-name": "Назва активу",
+    "price": "Ціна",
+    "balance": "Баланс",
+    "history": "Історія",
+    "market": "Ринок",
+    "apr": "Нагороди APR",
+    "apr-hint": "Щорічний відсоток - оцінка нагород, яку ви отримаєте в Криптовалюті за обраний термін",
+    "delegations": "Делегації",
+    "external-wallets-offer": {
+      "title": "Принесіть свою криптовалюту до території",
+      "description": "Створення чи імпорт гаманців для BTC, ETH, TRX, APT та SOL прямо з таких додатків, як Trust чи Exodus, і починайте використовувати їх безперешкодно в екосистемі вулив.",
+      "hint": "Інформація про створені і імпортовані токени буде збережена в метаданих Ecency і Hive акаунту"
+    },
+    "external-wallets-signup": {
+      "create-wallet-title": "Створити обліковий запис Hive",
+      "create-wallet-description": "Створити гаманець для BTC, ETH, SOL, APT і TRX. Ці активи будуть прив'язані до вашого вуличного рахунку, що дозволяє вам легко керувати вашими коштами на поставленні.",
+      "import-wallet-title": "Імпортувати наявний гаманець",
+      "import-wallet-description": "Імпортуйте ваш наявний гаманець з Trust, Exodus та інших сумісних додатків. Ваші активи будуть прив'язані до вашого вуличного рахунку, щоб ви могли легко керувати вашими коштами на поставленні.",
+      "create-wallet-tokens-description": "Перевірте адреси токенів. Також ви можете побачити їх пізніше на сторінці гаманця",
+      "linking": "Приєднання токенів до вашого вуличного облікового запису...",
+      "linking-hint": "Hive і Ecency використовує тільки публічні адреси ваших гаманців. Ніяка приватна інформація не буде збережена.",
+      "linking-success": "Токени успішно зв'язані",
+      "linking-success-hint": "Ви можете знайти свої токени на сторінці гаманця"
+    },
+    "operations": {
+      "transfer": "Переказ",
+      "transfer-saving": "В збереження",
+      "power-up": "Збільшення Силу Голосу",
+      "power-down": "Зменшення Сили Голосу",
+      "swap": "Поміняти",
+      "delegate": "Делегат",
+      "withdraw-saving": "Маршрути зняття",
+      "gift": "Подарунок",
+      "promote": "Підвищити",
+      "claim": "Claim",
+      "buy": "Купити",
+      "lock": "Блокування ліквідності",
+      "stake": "Сума ставки",
+      "unstake": "Недовірений",
+      "undelegate": "Унделегат"
+    }
+  },
+  "permissions": {
+    "sessions": {
+      "title": "Постинг активних сеансів"
+    },
+    "keys": {
+      "title": "Ключі й паролі",
+      "hint": "Відвідувач може тримати декілька ключів одночасно, всі з яких перераховані нижче",
+      "add-key": "Додати нові ключі",
+      "key-created": "Ключі успішно створені та призначені.",
+      "error-private-key-reveal": "Приватний ключ можна розкрити лише за допомогою майстер-паролю або фрази фрази-паролю"
+    },
+    "recovery": {
+      "title": "Відновлення облікового запису",
+      "hint": "Відновлення облікового запису доступне лише в тому випадку, якщо ваші ключі були змінені або компрометовані протягом останніх 30 днів. Якщо ви втратили свої ключі або пароль, і пройшло більше 30 днів, відновлення неможливе."
+    },
+    "revoke-key": {
+      "title": "Відкликати ключ Hive",
+      "hint": "Ви можете відкликати ключ Hive за допомогою одного з ключів власника/головного пароля/фрази-паролю"
+    }
   }
 }
