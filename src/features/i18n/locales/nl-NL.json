@@ -212,7 +212,7 @@
     "boost": "Boost",
     "submit": "Create a post",
     "chats": "Chats",
-    "perks": "Upgrade"
+    "perks": "Buy perks"
   },
   "intro": {
     "title": "Aspire to greatness",
@@ -322,10 +322,10 @@
     "pay-fee": "Pay Account Fee",
     "modal-title": "Are you sure?",
     "modal-confirm": "Confirm",
-    "file-warning": "Gelieve uw herstelzin en private keys met extra voorzichtigheid te beheren. Uw account zal niet langer toegankelijk zijn als u uw herstelzin verliest. We houden er geen kopie van; het is vertrouwelijk en alleen u hebt er toegang toe.",
+    "file-warning": "Behandel uw wachtwoord en privésleutels met extra voorzichtigheid. Uw account zal niet meer toegankelijk zijn als u uw wachtwoord verliest. We houden er geen kopie van; het is vertrouwelijk en alleen u hebt er toegang toe.",
     "recommend": "We recommend that,",
     "recommend-print": "PRINT this file out and store it securely.",
-    "recommend-use": "NEVER gebruikt uw herstelzin/eigenaar sleutel op niet-vertrouwde apps.",
+    "recommend-use": "NEVER use your password/owner key on untrusted apps.",
     "recommend-save": "Save all your keys within a password manager and/or Ecency mobile wallet, as you will need them frequently.",
     "recommend-third-party": "Don't keep this file within the reach of a third party.",
     "account-info": "Your Hive Account Information;",
@@ -342,9 +342,9 @@
     "active-use": "Transfer Funds, Power up/down, Voting Witnesses/Proposals",
     "posting-use": "Post, Comment, Vote, Reblog, Follow, Profile updates",
     "memo-use": "Send/View encrypted messages on transfers",
-    "copy-tooltip": "Herstelzin kopiëren",
-    "regenerate-password": "Hergenereer herstelzin",
-    "copy-password": "Seed zin gekopieerd",
+    "copy-tooltip": "Copy password",
+    "regenerate-password": "Regenerate password",
+    "copy-password": "Password copied successfully",
     "copy-info-message": "Copy Link below and SEND to a friend",
     "success-message": "You successfully created the account ",
     "sign-title": "Sign transaction with ",
@@ -390,7 +390,7 @@
   },
   "nsfw": {
     "reveal": "Reveal this post",
-    "signup": "maak een account aan om je voorkeuren op te slaan",
+    "signup": "<a href=\"/signup\" class=\"push-link\">create an account</a> to save your preferences",
     "settings-1": "adjust your",
     "settings-2": "display preferences"
   },
@@ -990,7 +990,8 @@
     "no-posts-community": "Join and post in this community",
     "create-posts": "Let's create a new post",
     "link-copied": "Search link copied to clipboard",
-    "no-posts-found": "Found nothing!"
+    "no-posts-found": "Found nothing!",
+    "subscribe": "Abonneren"
   },
   "rc-info": {
     "available": "Available",
@@ -1221,6 +1222,7 @@
     "checkin-extra-desc": "Consistent use of app gives you extra chances to earn more 10 points, be more active and earn more.",
     "delegation-desc": "You can earn ~100 points per day for each 1000HP delegation.",
     "community-desc": "Register your community to get 20 points for per post published with Ecency applications.",
+    "referral-desc": "Nodig vrienden uit en verdien Punten",
     "history": "History",
     "post-list-desc": "Points for post",
     "comment-list-desc": "Points for comment",
@@ -1372,7 +1374,16 @@
     "success-title": "Success",
     "success-sub-title": "Transaction completed",
     "sign-title": "Sign transaction",
-    "sign-sub-title": "Sign your transaction"
+    "sign-sub-title": "Sign your transaction",
+    "swap-title": "Wissel hive/HBD",
+    "swap-sub-title": "Wissel je geld in enkele klikken",
+    "gift-title": "Geschenk",
+    "gift-sub-title": "Geef de punten aan een specifieke gebruiker",
+    "lock-sub-title": "Vergrendelen van Larynx voor liquiditeitsbeloning",
+    "stake-title": "Uitzetten",
+    "stake-sub-title": "Stake token om passieve beloningen te verdienen",
+    "unstake-title": "Onbelangrijk",
+    "unstake-sub-title": "Unstake token zal u stoppen met het verdienen van passieve beloningen"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",
@@ -1391,9 +1402,17 @@
     "group-rewards": "Rewards",
     "type-curation_reward": "Curation reward",
     "type-author_reward": "Author reward",
+    "type-comments_authorReward": "Auteur beloning",
+    "type-comments_curationReward": "Curatie beloning",
+    "type-comments_authorReward_stake": "Stake auteur beloning",
+    "type-comments_curationReward_stake": "Uitzet curatie beloning",
     "type-comment_benefactor_reward": "Comment benefactor reward",
+    "type-tokens_stake": "Tokens uitzetten",
+    "type-tokens_issue": "Issue tokens",
+    "type-comments_beneficiaryReward": "Beloning begunstigde",
     "type-claim_reward_balance": "Claim rewards",
     "type-transfer": "Transfer",
+    "type-tokens_transfer": "Overschrijving",
     "type-transfer_to_vesting": "Power up",
     "type-withdraw_vesting": "Power down",
     "type-set_withdraw_vesting_route": "Withdraw route changed",
@@ -1427,6 +1446,7 @@
     "broken-hint": "Operation link is broken or cannot be recognized",
     "signer-text": "Signing following transaction/operation",
     "success-hint": "Operation signed and transaction broadcasted",
+    "success-close-hint": "Operatie ondertekend en transactie uitzenden. Venster zal gesloten worden over 5 seconden...",
     "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
@@ -1894,7 +1914,8 @@
     "label-check": "I have securely saved my generated password",
     "validation-password": "Password is invalid.",
     "validation-label": "Please tick this box to proceed.",
-    "updated": "Password updated successfully!"
+    "updated": "Password updated successfully!",
+    "hint": "Op dit moment kunt u sleutels alleen genereren door het instellen van een nieuwe herstelzin. Het bijwerken van een ander soort wachtwoord wordt niet ondersteund. Het helpt ons om rekeningen van Ecency en Hive in een standaard van Web 3.0 te houden."
   },
   "view-keys": {
     "title": "View Private keys",
@@ -2140,7 +2161,7 @@
       "where-tokens-come-header": "Where do the tokens come from?",
       "where-tokens-come-body": "<p>The Hive network continually creates new digital tokens to reward content creators and curators. Some of the newly-created tokens are transferred to users who add value to platform by posting, commenting, and voting on other people's posts. The remainder is distributed to holders of HIVE POWER and the witnesses that secures the blockchain.</p>",
       "how-promotion-work-header": "How content promotion works?",
-      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple. Select content, period of promotion 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in Ecency mobile app, website. There are no limits or restrictions, any post can be promoted to get more exposure and engagement. Ecency has right to remove posts from promotion list if it violates certain internet etiquette and norms.</p>",
+      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple and easy. Ecency Points are used to promote content for 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in mobile app, desktop app and website. There is no limit or restrictions, any post can be promoted to get more exposure and engagement. We hold right to remove posts from promotion list if it violates certain internet etiquette.</p>",
       "how-to-transfer-header": "How to transfer blockchain tokens?",
       "how-to-transfer-body": "<p>After login, you will find Wallet page in top header on website and desktop app or in Profile page, bottom navigation bar on mobile app. In wallet page you can initiate transfer of any token you hold to another user or exchange accounts, click on arrow next to your balance and find transfer operations. Transfers are irreversible because they are registered on blockchain, make sure to send correct recipient.</p>",
       "how-see-rewards-header": "How do I see my post rewards?",
@@ -2505,15 +2526,15 @@
     "points-description": "Jump start to improve engagement on your content by purchasing Points with Ecency Mobile",
     "points-buy-hive-title": "Buy points with HIVE/HBD",
     "points-buy-hive-description": "Simply swap your HIVE/HBD to POINTS",
-    "account-boost-title": "Out of Resource credits? Get more using Ecency mobile app",
+    "account-boost-title": "Account boosting",
     "account-boost-action": "Boost now!",
     "account-boost-description": "Use In-App purchase to acquire extra powers",
     "promote-title": "Promote your post",
     "promote-action": "Promote",
     "promote-description": "Impressions boost that will increase eyeballs on your content",
-    "boost-plus-title": "Get more Resources (Boost+)",
+    "boost-plus-title": "Boost+",
     "boost-plus-action": "Boost+",
-    "boost-plus-description": "Swap your POINTS to acquire Resource credits and Hive power with few clicks.",
+    "boost-plus-description": "Boost your account with your points in few clicks",
     "no-post": "No post selected",
     "go-to-perks": "Go to Perks",
     "buy-points-qr-title": "Buy points with QR",
@@ -2759,8 +2780,8 @@
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
     "new-content": "New content",
-    "draft-mode": "Concept bewerkingsmodus",
-    "edit-mode": "Post bewerkingsmodus",
+    "draft-mode": "You are in a draft editing mode",
+    "edit-mode": "You are in a post editing mode",
     "auto-save": "Automatisch opgeslagen",
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
@@ -2877,5 +2898,71 @@
     "hint": "Text-to-Speech maakt gebruik van browser`s ingebouwde tools voor het omzetten van tekst naar speech. Voiceslijst, beschikbaarheid en kwaliteit zijn alleen afhankelijk van uw browser en apparaat.",
     "playground": "Speelplaats",
     "voices": "Stemmen"
+  },
+  "profile-wallet": {
+    "pick-tokens": "Kies tokens om te tonen",
+    "search-token": "Zoek token",
+    "setup-tokens": "Assets instellen",
+    "asset-name": "Naam element",
+    "price": "Prijs",
+    "balance": "Saldo",
+    "history": "Geschiedenis",
+    "market": "Markt",
+    "apr": "APR beloningen",
+    "apr-hint": "Jaarlijkse Percentage – een schatting van de beloningen die u in Cryptocurrency zult verdienen over de geselecteerde periode",
+    "delegations": "Overdrachten",
+    "external-wallets-offer": {
+      "title": "Breng uw crypto naar Ecency",
+      "description": "Maken of importeren van portemonnees voor BTC, ETH, TRX, APT, en SOL direct vanuit apps zoals Trust of Exodus, en gebruik ze naadloos binnen het ecosysteem van de Hive.",
+      "hint": "Gemaakte en geïmporteerde token's informatie wordt opgeslagen in een Ecency en Hive account metadata"
+    },
+    "external-wallets-signup": {
+      "create-wallet-title": "Maak een account aan en link naar Hive",
+      "create-wallet-description": "Maak een portemonnee voor BTC, ETH, SOL, APT en TRX. Deze activa worden gekoppeld aan je Hive account, zodat je makkelijk je bedragen in Ecency.",
+      "import-wallet-title": "Importeer bestaande portemonnee",
+      "import-wallet-description": "Importeer uw bestaande portemonnee vanuit Trust, Exodus of andere compatibele apps. Je assets worden verbonden met je Hive account, zodat je makkelijk je bedragen in Ecency.",
+      "create-wallet-tokens-description": "Bekijk uw tokens adressen. Ook kunt u ze later op de portefeuille pagina zien",
+      "linking": "Tokens koppelen aan je Hive account...",
+      "linking-hint": "Hive en Ecency gebruiken alleen openbare adressen van je portemonnees. Geen privé informatie zal worden opgeslagen.",
+      "linking-success": "Tokens zijn met succes gekoppeld",
+      "linking-success-hint": "U kunt uw tokens vinden op een portefeuille pagina"
+    },
+    "operations": {
+      "transfer": "Overschrijving",
+      "transfer-saving": "Naar spaargeld",
+      "power-up": "Power Up",
+      "power-down": "Power down",
+      "swap": "Wisselen",
+      "delegate": "Overdragen",
+      "withdraw-saving": "Routeopname maken",
+      "gift": "Geschenk",
+      "promote": "Promoveren",
+      "claim": "Claim",
+      "buy": "Kopen",
+      "lock": "Vergrendel liquiditeit",
+      "stake": "Uitzetten",
+      "unstake": "Onbelangrijk",
+      "undelegate": "Ontdelegeren"
+    }
+  },
+  "permissions": {
+    "sessions": {
+      "title": "Plaatsen van actieve sessies"
+    },
+    "keys": {
+      "title": "Sleutels & wachtwoorden",
+      "hint": "Een Hive account kan meerdere sleutels tegelijk vastleggen, die allemaal hieronder worden weergegeven",
+      "add-key": "Voeg nieuwe sleutels toe",
+      "key-created": "Toetsen hebben met succes gemaakt en toegewezen.",
+      "error-private-key-reveal": "Privé sleutel kan alleen worden onthuld met hoofdwachtwoord of herstelzin"
+    },
+    "recovery": {
+      "title": "Account herstellen",
+      "hint": "Accountherstel is alleen beschikbaar als je sleutels de afgelopen 30 dagen zijn veranderd of gecompromitteerd. Als u uw sleutels of wachtwoord verloren heeft en meer dan 30 dagen zijn verstreken, is herstel niet mogelijk."
+    },
+    "revoke-key": {
+      "title": "Intrekken Hive key",
+      "hint": "U kunt elke Hive sleutel intrekken met behulp van een van de eigenaarssleutels/hoofdwachtwoord/seed"
+    }
   }
 }
