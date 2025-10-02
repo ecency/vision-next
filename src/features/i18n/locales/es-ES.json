@@ -325,7 +325,7 @@
     "file-warning": "Por favor, maneje su frase de semilla y llaves privadas con precaución extra. Su cuenta ya no será accesible si pierde su frase de semilla. No guardamos una copia de ella; es confidencial y sólo usted tiene acceso a ella.",
     "recommend": "Recomendamos que,",
     "recommend-print": "IMPRIMAS este archivo y lo almacenes de forma segura.",
-    "recommend-use": "NUNCA uses tu frase de semilla o clave de propietario en aplicaciones no confiables.",
+    "recommend-use": "NUNCA uses tu clave o contraseña de propietario en aplicaciones no confiables.",
     "recommend-save": "Guarda todas sus claves dentro de un gestor de contraseñas y/o monedero móvil Ecency, ya que las necesitarás con frecuencia.",
     "recommend-third-party": "No mantengas este archivo al alcance de terceros.",
     "account-info": "Información de su cuenta de Hive;",
@@ -343,8 +343,8 @@
     "posting-use": "Publicación, Comentario, Voto, Reblog, Seguimiento, Actualizaciones del Perfil",
     "memo-use": "Enviar/Ver mensajes cifrados en transferencias",
     "copy-tooltip": "Copiar frase semilla",
-    "regenerate-password": "Regenerar frase semilla",
-    "copy-password": "Frase semilla copiada correctamente",
+    "regenerate-password": "Regeneración de la contraseña",
+    "copy-password": "Contraseña copiada correctamente",
     "copy-info-message": "Copiar enlace de abajo y ENVIAR a un amigo",
     "success-message": "Has creado correctamente la cuenta ",
     "sign-title": "Firmar transacción con ",
@@ -990,7 +990,8 @@
     "no-posts-community": "Únete y publica en esta comunidad",
     "create-posts": "Vamos a crear una nueva publicación",
     "link-copied": "Enlace de búsqueda copiado al portapapeles",
-    "no-posts-found": "¡No se encontró nada!"
+    "no-posts-found": "¡No se encontró nada!",
+    "subscribe": "Suscribirse"
   },
   "rc-info": {
     "available": "Disponible",
@@ -1221,6 +1222,7 @@
     "checkin-extra-desc": "El uso consistente de la aplicación te otorga más posibilidades de generar más de 10 puntos, se más activo y gana más.",
     "delegation-desc": "Puedes ganar ~100 puntos por día por cada delegación de 1000HP.",
     "community-desc": "Registra tu comunidad para obtener 20 puntos por cada publicación publicada con aplicaciones de Ecency.",
+    "referral-desc": "Invita a amigos y gana puntos",
     "history": "Historial",
     "post-list-desc": "Puntos por publicar",
     "comment-list-desc": "Puntos por comentar",
@@ -1372,7 +1374,16 @@
     "success-title": "Completado",
     "success-sub-title": "Transacción completada",
     "sign-title": "Firmar transacción",
-    "sign-sub-title": "Firmar tu transacción"
+    "sign-sub-title": "Firmar tu transacción",
+    "swap-title": "Intercambiar Hive/HBD",
+    "swap-sub-title": "Cambia tus fondos en pocos clics",
+    "gift-title": "Regalo",
+    "gift-sub-title": "Regalar los puntos a un usuario específico",
+    "lock-sub-title": "Bloquear Larynx por recompensa de liquidez",
+    "stake-title": "Tomar",
+    "stake-sub-title": "Toma el token para ganar recompensas pasivas",
+    "unstake-title": "Desestacionar",
+    "unstake-sub-title": "Desestacionar token dejarás de ganar recompensas pasivas"
   },
   "trx-common": {
     "insufficient-funds": "Fondos insuficientes",
@@ -1391,9 +1402,17 @@
     "group-rewards": "Recompensas",
     "type-curation_reward": "Recompensa de curación",
     "type-author_reward": "Recompensa de autor",
+    "type-comments_authorReward": "Recompensa de autor",
+    "type-comments_curationReward": "Recompensa de curación",
+    "type-comments_authorReward_stake": "Recompensa del autor",
+    "type-comments_curationReward_stake": "Recompensa de Stake curation",
     "type-comment_benefactor_reward": "Recompensa del benefactor del comentario",
+    "type-tokens_stake": "Tokens de Stake",
+    "type-tokens_issue": "Tokens de emisión",
+    "type-comments_beneficiaryReward": "Recompensa del beneficiario",
     "type-claim_reward_balance": "Reclamar recompensas",
     "type-transfer": "Transferir",
+    "type-tokens_transfer": "Transferir",
     "type-transfer_to_vesting": "Power up (Encender)",
     "type-withdraw_vesting": "Power Down (Apagar)",
     "type-set_withdraw_vesting_route": "Se ha cambiado la ruta de retirada",
@@ -1427,6 +1446,7 @@
     "broken-hint": "El enlace de la operación está roto o no puede ser reconocido",
     "signer-text": "Firmando la siguiente transacción/operación",
     "success-hint": "Operación firmada y transaccionada",
+    "success-close-hint": "Operación firmada y transaccionada por transacción. La ventana se cerrará en 5 segundos...",
     "error-hint": "La operación no puede ser firmada o las transacciones no pudieron ser transmitidas. Por favor, compruebe la operación y vuelva a intentarlo"
   },
   "key-or-hot": {
@@ -1894,7 +1914,8 @@
     "label-check": "He guardado con seguridad mi contraseña generada",
     "validation-password": "Contraseña no válida.",
     "validation-label": "Marque esta casilla para continuar.",
-    "updated": "¡Contraseña actualizada correctamente!"
+    "updated": "¡Contraseña actualizada correctamente!",
+    "hint": "En este momento, sólo puede generar claves configurando una nueva frase de semilla. No se admite la actualización de cualquier otro tipo de contraseña. Nos ayuda a mantener las cuentas de Ecency and Hive en un estándar de Web 3.0."
   },
   "view-keys": {
     "title": "Ver claves privadas",
@@ -2760,7 +2781,7 @@
     "no-draft-hint": "No tienes borrador con el ID dado. Por favor, comprueba tus borradores.",
     "new-content": "Nuevo contenido",
     "draft-mode": "Edición de borrador",
-    "edit-mode": "Edición de la publicación",
+    "edit-mode": "Estás en modo de edición de posts",
     "auto-save": "Auto guardado",
     "save-draft": "Guardar borrador",
     "update-draft": "Actualizar borrador",
@@ -2877,5 +2898,71 @@
     "hint": "Texto-a-voz utiliza las herramientas integradas en el navegador para convertir contenido de texto a voz. La lista de voces, su disponibilidad y calidad depende solamente de tu navegador y dispositivo.",
     "playground": "Campo de juego",
     "voices": "Voces"
+  },
+  "profile-wallet": {
+    "pick-tokens": "Elegir tokens para mostrar",
+    "search-token": "Token de búsqueda",
+    "setup-tokens": "Configurar recursos",
+    "asset-name": "Nombre del recurso",
+    "price": "Precio",
+    "balance": "Saldo",
+    "history": "Historial",
+    "market": "Mercado",
+    "apr": "Recompensas APR",
+    "apr-hint": "Tasa de Porcentaje Anual – una estimación de recompensas que ganarás en la Criptomoneda durante el periodo de tiempo seleccionado",
+    "delegations": "Delegaciones",
+    "external-wallets-offer": {
+      "title": "Trae tu criptomoneda a la Ecencia",
+      "description": "Crear o importar carteras para BTC, ETH, TRX, API y SOL directamente desde aplicaciones como Trust o Exodus, y empiece a usarlos sin problemas dentro del ecosistema de la colmena.",
+      "hint": "La información del token creada e importada se almacenará en una metadata de la cuenta de Ecencia y Hive"
+    },
+    "external-wallets-signup": {
+      "create-wallet-title": "Crear y vincular a la cuenta de Hive",
+      "create-wallet-description": "Crear una cartera para BTC, ETH, SOL, APT y TRX. Estos activos se vincularán a su cuenta de Hive, lo que le permitirá administrar fácilmente sus fondos en Ecency.",
+      "import-wallet-title": "Importar cartera existente",
+      "import-wallet-description": "Importa tu cartera existente de Trust, Exodus u otras aplicaciones compatibles. Tus activos se conectarán a tu cuenta de Hive, para que puedas administrar fácilmente tus fondos en Ecency.",
+      "create-wallet-tokens-description": "Revisa tus direcciones de tokens. También puedes verlas más tarde en la página de cartera",
+      "linking": "Enlazando tokens a tu cuenta de Hive...",
+      "linking-hint": "Hive y Ecencia utiliza sólo direcciones públicas de sus carteras. No se almacenará información privada.",
+      "linking-success": "Las fichas se han vinculado con éxito",
+      "linking-success-hint": "Puede encontrar sus tokens en una página de cartera"
+    },
+    "operations": {
+      "transfer": "Transferir",
+      "transfer-saving": "A ahorros",
+      "power-up": "Potenciar",
+      "power-down": "Apagar energía",
+      "swap": "Intercambiar",
+      "delegate": "Delegado",
+      "withdraw-saving": "Retirar rutas",
+      "gift": "Regalo",
+      "promote": "Promover",
+      "claim": "Claim",
+      "buy": "Comprar",
+      "lock": "Bloquear liquidez",
+      "stake": "Tomar",
+      "unstake": "Desestacionar",
+      "undelegate": "Desdelegar"
+    }
+  },
+  "permissions": {
+    "sessions": {
+      "title": "Publicando sesiones activas"
+    },
+    "keys": {
+      "title": "Claves y contraseñas",
+      "hint": "Una cuenta de Hive puede contener varias claves simultáneamente, todas las cuales están listadas a continuación",
+      "add-key": "Añadir nuevas claves",
+      "key-created": "Las claves se han creado y asignado correctamente.",
+      "error-private-key-reveal": "La clave privada sólo puede ser revelada con contraseña maestra o frase de semilla"
+    },
+    "recovery": {
+      "title": "Recuperación de cuenta",
+      "hint": "La recuperación de la cuenta sólo está disponible si sus claves han sido cambiadas o comprometidas en los últimos 30 días. Si ha perdido sus claves o contraseña y han pasado más de 30 días, la recuperación no es posible."
+    },
+    "revoke-key": {
+      "title": "Revocar clave de colmena",
+      "hint": "Puede revocar cualquier clave de Hive usando una de las claves/contraseña maestra/semilla"
+    }
   }
 }
