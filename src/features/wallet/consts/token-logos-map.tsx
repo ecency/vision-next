@@ -77,14 +77,14 @@ export const TOKEN_LOGOS_MAP: Record<string, ReactNode> = {
       <Image width={24} height={24} src={CURRENCIES_META_DATA.APT.icon} alt="" />
     </LogoBox>
   ),
-  ATOM: (
-    <LogoBox size={32}>
-      <Image width={24} height={24} src={CURRENCIES_META_DATA.ATOM.icon} alt="" />
-    </LogoBox>
-  ),
   BTC: (
     <LogoBox size={32}>
       <Image width={32} height={32} src={CURRENCIES_META_DATA.BTC.icon} alt="" />
+    </LogoBox>
+  ),
+  BNB: (
+    <LogoBox size={32}>
+      <Image width={32} height={32} src={CURRENCIES_META_DATA.BNB.icon} alt="" />
     </LogoBox>
   ),
   ETH: (

@@ -33,10 +33,10 @@ export const CURRENCIES_META_DATA = {
     icon: solSvg,
     name: "SOL"
   },
-  [EcencyWalletCurrency.ATOM]: {
-    title: "ATOM Cosmos",
+  [EcencyWalletCurrency.BNB]: {
+    title: "BNB Chain",
     icon: atomSvg,
-    name: "ATOM"
+    name: "BNB"
   },
   [EcencyWalletCurrency.APT]: {
     title: "Aptos",
