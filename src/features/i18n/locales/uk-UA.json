@@ -973,7 +973,9 @@
     "proposals": "Proposals",
     "referrals": "Referrals",
     "go-community": "Community page",
-    "com-mod": "Moderator of these communities"
+    "com-mod": "Moderator of these communities",
+    "empty-communities": "Немає спільнот тут",
+    "empty-communities-hint": "Користувач ще не є учасником будь-якого спільноти. Приєднуйтесь до одного з спільнотств або створіть власний"
   },
   "profile-info": {
     "joined": "Joined",
