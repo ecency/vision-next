@@ -973,7 +973,9 @@
     "proposals": "प्रस्ताव",
     "referrals": "रेफरलस",
     "go-community": "समुदाय पृष्ठ",
-    "com-mod": "इन समुदायों के मॉडरेटर"
+    "com-mod": "इन समुदायों के मॉडरेटर",
+    "empty-communities": "No communities here",
+    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own"
   },
   "profile-info": {
     "joined": "शामिल हो गए हैं",
