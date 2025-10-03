@@ -1,5 +1,5 @@
 import { useGlobalStore } from "@/core/global-store";
-import { ImageUploadButton } from "@/features/shared";
+import { ImageUploadButton, success } from "@/features/shared";
 import { getAccountFullQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +7,7 @@ import { UilSave, UilUser } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { FormControl, InputGroup } from "@ui/input";
 import i18next from "i18next";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -64,22 +64,6 @@ export function ProfileEdit() {
 
   const { mutateAsync: updateAccount, isPending } = useAccountUpdate(activeUser?.username ?? "");
 
-  const onSubmit = useCallback(
-    () => (values: Record<string, string>) =>
-      updateAccount({
-        profile: {
-          name: values.name,
-          about: values.about,
-          cover_image: values.cover_image,
-          profile_image: values.profile_image,
-          website: values.website,
-          location: values.location,
-          pinned: profile?.pinned
-        }
-      }),
-    [profile, updateAccount]
-  );
-
   useEffect(() => {
     if (profile) {
       setValue("name", profile.name ?? "");
@@ -97,7 +81,23 @@ export function ProfileEdit() {
         <UilUser className="w-4 h-4" />
         {i18next.t("profile-edit.title")}
       </div>
-      <form className="flex flex-col gap-4 items-start" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="flex flex-col gap-4 items-start"
+        onSubmit={handleSubmit(async (values) => {
+          await updateAccount({
+            profile: {
+              name: values.name,
+              about: values.about,
+              cover_image: values.cover_image ?? undefined,
+              profile_image: values.profile_image ?? undefined,
+              website: values.website ?? undefined,
+              location: values.location,
+              pinned: profile?.pinned
+            }
+          });
+          success(i18next.t("g.success"));
+        })}
+      >
         <div className="grid w-full grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm px-2">{i18next.t("profile-edit.name")}</label>
@@ -108,7 +108,7 @@ export function ProfileEdit() {
               maxLength={30}
               aria-invalid={!!errors.name}
             />
-            {errors.name && <div className="text-red-500 text-sm mt-1">{errors.name.message}</div>}
+            {errors.name && <div className="text-red text-xs px-2 mt-1">{errors.name.message}</div>}
           </div>
 
           <div>
@@ -121,7 +121,7 @@ export function ProfileEdit() {
               aria-invalid={!!errors.about}
             />
             {errors.about && (
-              <div className="text-red-500 text-sm mt-1">{errors.about.message}</div>
+              <div className="text-red text-xs px-2 mt-1">{errors.about.message}</div>
             )}
           </div>
           <div>
@@ -148,7 +148,7 @@ export function ProfileEdit() {
               />
             </InputGroup>
             {errors.profile_image && (
-              <div className="text-red-500 text-sm mt-1">{errors.profile_image.message}</div>
+              <div className="text-red text-xs px-2 mt-1">{errors.profile_image.message}</div>
             )}
           </div>
           <div>
@@ -175,7 +175,7 @@ export function ProfileEdit() {
               />
             </InputGroup>
             {errors.cover_image && (
-              <div className="text-red-500 text-sm mt-1">{errors.cover_image.message}</div>
+              <div className="text-red text-xs px-2 mt-1">{errors.cover_image.message}</div>
             )}
           </div>
           <div>
@@ -189,7 +189,7 @@ export function ProfileEdit() {
               aria-invalid={!!errors.website}
             />
             {errors.website && (
-              <div className="text-red-500 text-sm mt-1">{errors.website.message}</div>
+              <div className="text-red text-xs px-2 mt-1">{errors.website.message}</div>
             )}
           </div>
           <div>
@@ -199,10 +199,10 @@ export function ProfileEdit() {
               type="text"
               disabled={isPending}
               maxLength={30}
-              aria-invalid={!!errors.website}
+              aria-invalid={!!errors.location}
             />
             {errors.location && (
-              <div className="text-red-500 text-sm mt-1">{errors.location.message}</div>
+              <div className="text-red text-xs px-2 mt-1">{errors.location.message}</div>
             )}
           </div>
         </div>
