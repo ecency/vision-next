@@ -973,7 +973,9 @@
     "proposals": "Takliflar",
     "referrals": "Yo'llanmalar",
     "go-community": "Guruh sahifasi",
-    "com-mod": "Moderator of these communities"
+    "com-mod": "Moderator of these communities",
+    "empty-communities": "No communities here",
+    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own"
   },
   "profile-info": {
     "joined": "Joined",
