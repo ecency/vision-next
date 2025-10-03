@@ -66,13 +66,13 @@ jobs:
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
         PLAUSIBLE_API_KEY: ${{secrets.PLAUSIBLE_API_KEY}}
         CHAINSTACK_API_KEY: ${{secrets.CHAINSTACK_API_KEY}}
-        BITQUERY_ACCESS_TOKEN: ${{secrets.BITQUERY_ACCESS_TOKEN}}
+        CHAINZ_API_KEY: ${{secrets.CHAINZ_API_KEY}}
       with:
         host: ${{ secrets.SSH_HOST_EU }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY,CHAINSTACK_API_KEY,BITQUERY_ACCESS_TOKEN
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY,CHAINSTACK_API_KEY,CHAINZ_API_KEY
         script: |
           export USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
@@ -82,7 +82,7 @@ jobs:
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export PLAUSIBLE_API_KEY=$PLAUSIBLE_API_KEY
           export CHAINSTACK_API_KEY=$CHAINSTACK_API_KEY
-          export BITQUERY_ACCESS_TOKEN=$BITQUERY_ACCESS_TOKEN
+          export CHAINZ_API_KEY=$CHAINZ_API_KEY
           cd ~/vision-next
           git pull origin main
           docker system prune -f
@@ -106,13 +106,13 @@ jobs:
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
         PLAUSIBLE_API_KEY: ${{secrets.PLAUSIBLE_API_KEY}}
         CHAINSTACK_API_KEY: ${{secrets.CHAINSTACK_API_KEY}}
-        BITQUERY_ACCESS_TOKEN: ${{secrets.BITQUERY_ACCESS_TOKEN}}
+        CHAINZ_API_KEY: ${{secrets.CHAINZ_API_KEY}}
       with:
         host: ${{ secrets.SSH_HOST_US }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY,CHAINSTACK_API_KEY,BITQUERY_ACCESS_TOKEN
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY,CHAINSTACK_API_KEY,CHAINZ_API_KEY
         script: |
           export USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
@@ -122,7 +122,7 @@ jobs:
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export PLAUSIBLE_API_KEY=$PLAUSIBLE_API_KEY
           export CHAINSTACK_API_KEY=$CHAINSTACK_API_KEY
-          export BITQUERY_ACCESS_TOKEN=$BITQUERY_ACCESS_TOKEN
+          export CHAINZ_API_KEY=$CHAINZ_API_KEY
           cd ~/vision-next
           git pull origin main
           docker system prune -f
@@ -146,13 +146,13 @@ jobs:
         SEARCH_API_SECRET: ${{secrets.SEARCH_API_SECRET}}
         PLAUSIBLE_API_KEY: ${{secrets.PLAUSIBLE_API_KEY}}
         CHAINSTACK_API_KEY: ${{secrets.CHAINSTACK_API_KEY}}
-        BITQUERY_ACCESS_TOKEN: ${{secrets.BITQUERY_ACCESS_TOKEN}}
+        CHAINZ_API_KEY: ${{secrets.CHAINZ_API_KEY}}
       with:
         host: ${{ secrets.SSH_HOST_SG }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY,CHAINSTACK_API_KEY,BITQUERY_ACCESS_TOKEN
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY,CHAINSTACK_API_KEY,CHAINZ_API_KEY
         script: |
           export USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR
@@ -162,7 +162,7 @@ jobs:
           export SEARCH_API_SECRET=$SEARCH_API_SECRET
           export PLAUSIBLE_API_KEY=$PLAUSIBLE_API_KEY
           export CHAINSTACK_API_KEY=$CHAINSTACK_API_KEY
-          export BITQUERY_ACCESS_TOKEN=$BITQUERY_ACCESS_TOKEN
+          export CHAINZ_API_KEY=$CHAINZ_API_KEY
           cd ~/vision-next
           git pull origin main
           docker system prune -f
