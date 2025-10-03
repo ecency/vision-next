@@ -83,12 +83,85 @@ export function EntryPageBodyViewer({ entry }: Props) {
           return;
         }
 
+        // Pre-sanitize the DOM tree to remove or isolate problematic elements
+        // that could cause Safari security errors during enhancement processing
+        const sanitizeForSafariSecurity = (element: HTMLElement): void => {
+          try {
+            // Find all iframes and cross-origin elements that might cause issues
+            const potentiallyProblematicElements = element.querySelectorAll('iframe, embed, object, [src*="://"], [href*="://"]');
+            
+            potentiallyProblematicElements.forEach((problematicEl) => {
+              try {
+                // Test if we can safely access parentNode on this element
+                const testAccess = problematicEl.parentNode;
+                // If we can access it without error, test isConnected as well
+                const testConnected = problematicEl.isConnected;
+              } catch (securityError) {
+                // If we get a security error, mark this element for safe handling
+                try {
+                  // Add a data attribute to flag elements that cause security errors
+                  // This helps the renderer library skip these elements
+                  (problematicEl as HTMLElement).dataset.safariSecurityRestricted = 'true';
+                  console.warn('Marked element as Safari security restricted:', problematicEl.tagName);
+                } catch (markingError) {
+                  // If we can't even mark the element, we need to isolate it
+                  try {
+                    // Create a safe wrapper div around problematic elements
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'safari-restricted-content';
+                    wrapper.dataset.originalTag = problematicEl.tagName.toLowerCase();
+                    wrapper.style.cssText = 'position: relative; display: block; opacity: 0.8;';
+                    
+                    // Insert wrapper before the problematic element
+                    if (problematicEl.parentNode) {
+                      problematicEl.parentNode.insertBefore(wrapper, problematicEl);
+                      // Move the problematic element into the wrapper
+                      wrapper.appendChild(problematicEl);
+                    }
+                  } catch (isolationError) {
+                    console.warn('Could not isolate problematic element, removing from enhancement scope');
+                    // As a last resort, temporarily hide the element during enhancement
+                    try {
+                      (problematicEl as HTMLElement).style.visibility = 'hidden';
+                      (problematicEl as HTMLElement).dataset.temporarilyHidden = 'true';
+                    } catch (hideError) {
+                      // Cannot even hide it, log and continue
+                      console.warn('Element completely inaccessible due to security restrictions');
+                    }
+                  }
+                }
+              }
+            });
+          } catch (sanitizationError) {
+            console.warn('DOM sanitization failed, proceeding with basic setup:', sanitizationError);
+          }
+        };
+
+        // Perform pre-sanitization to handle Safari security issues
+        sanitizeForSafariSecurity(el);
+
         setupPostEnhancements(el, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
           TwitterComponent: Tweet,
         });
+
+        // Restore any temporarily hidden elements after enhancement
+        try {
+          const temporarilyHiddenElements = el.querySelectorAll('[data-temporarily-hidden="true"]');
+          temporarilyHiddenElements.forEach((hiddenEl) => {
+            try {
+              (hiddenEl as HTMLElement).style.visibility = '';
+              (hiddenEl as HTMLElement).removeAttribute('data-temporarily-hidden');
+            } catch (restoreError) {
+              console.warn('Could not restore temporarily hidden element');
+            }
+          });
+        } catch (restoreError) {
+          console.warn('Error during element restoration:', restoreError);
+        }
+
       } catch (e) {
         // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
         console.error("Failed to setup post enhancements", e);
@@ -102,6 +175,21 @@ export function EntryPageBodyViewer({ entry }: Props) {
           }
         } else if (e instanceof Error && e.name === "SecurityError") {
           console.error("Cross-origin security error detected - this is common on iOS Safari with iframe embeds");
+        }
+
+        // Restore any temporarily hidden elements even if enhancement failed
+        try {
+          const temporarilyHiddenElements = el.querySelectorAll('[data-temporarily-hidden="true"]');
+          temporarilyHiddenElements.forEach((hiddenEl) => {
+            try {
+              (hiddenEl as HTMLElement).style.visibility = '';
+              (hiddenEl as HTMLElement).removeAttribute('data-temporarily-hidden');
+            } catch (restoreError) {
+              console.warn('Could not restore temporarily hidden element after enhancement failure');
+            }
+          });
+        } catch (restoreError) {
+          console.warn('Error during cleanup after enhancement failure:', restoreError);
         }
       }
     }, 100);
