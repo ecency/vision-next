@@ -1,10 +1,10 @@
-import { getAccountFullQuery } from "@/api/queries";
 import { notFound } from "next/navigation";
-import { ProfileCommunities } from "../_components";
+import { ProfileCommunities } from "./_page";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -17,7 +17,10 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 
 export default async function ProfileCommunitiesPage({ params }: Props) {
   const { username } = await params;
-  const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
+
+  const query = getAccountFullQueryOptions(username.replace("%40", ""));
+  await getQueryClient().prefetchQuery(query);
+  const account = getQueryClient().getQueryData(query.queryKey);
 
   if (!account) {
     return notFound();
@@ -25,7 +28,7 @@ export default async function ProfileCommunitiesPage({ params }: Props) {
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ProfileCommunities account={account} />
+      <ProfileCommunities />
     </HydrationBoundary>
   );
 }

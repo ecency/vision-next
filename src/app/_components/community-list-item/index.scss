@@ -3,7 +3,6 @@
 .community-list-item {
   display: flex;
   flex-direction: column;
-  margin-top: 26px;
   line-height: 1.7;
   word-break: break-word;
 
@@ -24,7 +23,7 @@
     }
 
     .item-content {
-      @apply flex flex-col gap-1 mr-0 mb-4;
+      @apply flex flex-col gap-1;
     }
 
     .item-stats {
@@ -34,12 +33,6 @@
 
   .item-content {
     flex-grow: 1;
-    margin-bottom: 6px;
-
-    @media (min-width: $md-break) {
-      margin-right: 30px;
-      margin-bottom: 0;
-    }
 
     .item-details {
       display: flex;
@@ -54,7 +47,7 @@
       display: flex;
       align-items: center;
 
-      .user-avatar{
+      .user-avatar {
         margin-right: 6px;
       }
     }
