@@ -973,7 +973,9 @@
     "proposals": "Propositi",
     "referrals": "Referências",
     "go-community": "Pagina della Comunità",
-    "com-mod": "Moderatore di queste comunità"
+    "com-mod": "Moderatore di queste comunità",
+    "empty-communities": "Nessuna comunità qui",
+    "empty-communities-hint": "L'utente non è ancora un membro di nessuna comunità. Unisciti a una delle comunità o crea la tua stessa"
   },
   "profile-info": {
     "joined": "Iscritto",
