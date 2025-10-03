@@ -91,7 +91,27 @@ export function EntryPageBodyViewer({ entry }: Props) {
         });
       } catch (e) {
         // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
-        console.error("Failed to setup post enhancements", e);
+        
+        // Check if this is a Safari cross-origin security error that should be suppressed
+        const isSafariCrossOriginError = e instanceof Error && (
+          e.name === "SecurityError" ||
+          (e instanceof TypeError && (
+            e.message.includes("parentNode") ||
+            e.message.includes("null is not an object") ||
+            e.message.includes("insertBefore") ||
+            e.message.includes("removeChild") ||
+            e.message.includes("appendChild")
+          )) ||
+          e.message.includes("The operation is insecure")
+        );
+
+        if (isSafariCrossOriginError) {
+          // Log but don't report these known Safari cross-origin errors to Sentry
+          console.warn("Safari cross-origin security restriction detected - this is expected with embedded content:", e.message);
+        } else {
+          // For other errors, log them normally
+          console.error("Failed to setup post enhancements", e);
+        }
 
         // Enhanced error handling for iOS Safari specific issues
         if (e instanceof TypeError) {

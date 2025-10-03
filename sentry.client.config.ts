@@ -28,7 +28,17 @@ Sentry.init({
     "Cannot set property tron of #<Window> which has only a getter",
     "Cannot set property ethereum of #<Window> which has only a getter",
     "window.ethereum._handleChainChanged is not a function",
-    "Cannot destructure property 'register' of 'undefined' as it is undefined."
+    "Cannot destructure property 'register' of 'undefined' as it is undefined.",
+    // Safari cross-origin security errors for embedded content
+    "The operation is insecure",
+    /null is not an object \(evaluating '.*\.parentNode'\)/,
+    /null is not an object \(evaluating '.*\.insertBefore'\)/,
+    /null is not an object \(evaluating '.*\.removeChild'\)/,
+    /null is not an object \(evaluating '.*\.appendChild'\)/,
+    "SecurityError: The operation is insecure",
+    // Additional Safari DOM access errors related to cross-origin iframes
+    /Cannot read propert(y|ies) .* of null/,
+    /Cannot set propert(y|ies) .* of null/
   ],
   // Filter out errors originating from browser extension
   denyUrls: [/sui\.js/]
