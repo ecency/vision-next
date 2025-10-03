@@ -973,7 +973,9 @@
     "proposals": "Proposals",
     "referrals": "Referrals",
     "go-community": "Community page",
-    "com-mod": "Moderator of these communities"
+    "com-mod": "Moderator of these communities",
+    "empty-communities": "Nenhuma comunidade aqui",
+    "empty-communities-hint": "Usuário ainda não é membro de qualquer comunidade. Junte-se a uma das comunidades ou crie sua própria comunidade"
   },
   "profile-info": {
     "joined": "Joined",
