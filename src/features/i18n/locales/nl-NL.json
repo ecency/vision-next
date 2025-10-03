@@ -973,7 +973,9 @@
     "proposals": "Proposals",
     "referrals": "Referrals",
     "go-community": "Community page",
-    "com-mod": "Moderator of these communities"
+    "com-mod": "Moderator of these communities",
+    "empty-communities": "Geen gemeenschappen hier",
+    "empty-communities-hint": "Gebruiker is nog geen lid van een gemeenschap. Word lid van een van de gemeenschappen of maak je eigen"
   },
   "profile-info": {
     "joined": "Joined",
