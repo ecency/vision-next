@@ -973,7 +973,9 @@
     "proposals": "Proposals",
     "referrals": "Referrals",
     "go-community": "Community page",
-    "com-mod": "Moderator of these communities"
+    "com-mod": "Moderator of these communities",
+    "empty-communities": "ここにコミュニティはありません",
+    "empty-communities-hint": "ユーザーはまだどのコミュニティのメンバーでもありません。いずれかのコミュニティに参加するか、独自のコミュニティを作成してください。"
   },
   "profile-info": {
     "joined": "Joined",
