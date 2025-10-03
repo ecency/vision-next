@@ -973,7 +973,9 @@
     "proposals": "Proposals",
     "referrals": "Referrals",
     "go-community": "Community page",
-    "com-mod": "Moderator of these communities"
+    "com-mod": "Moderator of these communities",
+    "empty-communities": "这里没有社区",
+    "empty-communities-hint": "用户还不是任何社区的成员。加入一个社区或创建你自己的社区"
   },
   "profile-info": {
     "joined": "Joined",
