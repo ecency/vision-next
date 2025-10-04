@@ -106,7 +106,8 @@
   "validation": {
     "required": "Required field",
     "min-length": "Must be at least {{n}} characters",
-    "max-length": "Must be at most {{n}} characters"
+    "max-length": "Must be at most {{n}} characters",
+    "url": "Invalid URL format"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -1057,11 +1058,15 @@
     "language": "Language",
     "nsfw": "Show NSFW content",
     "referral-link": "Referral link",
+    "referral-link-hint": "Invite your friends with referral link and earn 100 points",
     "theme": "Theme Settings",
     "theme-system-default": "System Default",
     "theme-day": "Day mode",
     "theme-night": "Night mode",
-    "updated": "Preference updated!"
+    "updated": "Preference updated!",
+    "permissions-title": "Keys & permissions",
+    "permissions-hint": "Manage your keys, control permissions over applications",
+    "permissions": "Open permissions"
   },
   "wallet": {
     "unclaimed-rewards": "Unclaimed rewards",
