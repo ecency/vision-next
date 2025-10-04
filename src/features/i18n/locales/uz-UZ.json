@@ -106,7 +106,8 @@
   "validation": {
     "required": "To'ldirish shart",
     "min-length": "Kamida {{n}} ta belgi bo‘lishi kerak",
-    "max-length": "Maksimal {{n}} ta belgi bo‘lishi kerak"
+    "max-length": "Maksimal {{n}} ta belgi bo‘lishi kerak",
+    "url": "Invalid URL format"
   },
   "confirm": {
     "title": "Aminmisiz?",
@@ -1057,11 +1058,15 @@
     "language": "Til",
     "nsfw": "NSFW kontentni ko'rsatish",
     "referral-link": "Taklif ssilkasi",
+    "referral-link-hint": "Invite your friends with referral link and earn 100 points",
     "theme": "Mavzu Sozlamalari",
     "theme-system-default": "Tizim boʻyicha",
     "theme-day": "Kunduzgi rejim",
     "theme-night": "Tungi rejim",
-    "updated": "Sozlamalar yangilandi!"
+    "updated": "Sozlamalar yangilandi!",
+    "permissions-title": "Keys & permissions",
+    "permissions-hint": "Manage your keys, control permissions over applications",
+    "permissions": "Open permissions"
   },
   "wallet": {
     "unclaimed-rewards": "Olinmagan mukofotlar",
