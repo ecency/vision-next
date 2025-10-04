@@ -106,7 +106,8 @@
   "validation": {
     "required": "Verplicht veld",
     "min-length": "Moet ten minste {{n}} tekens bevatten",
-    "max-length": "Moet maximaal {{n}} tekens bevatten"
+    "max-length": "Moet maximaal {{n}} tekens bevatten",
+    "url": "Ongeldige URL-formaat"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -1057,11 +1058,15 @@
     "language": "Language",
     "nsfw": "Show NSFW content",
     "referral-link": "Referral link",
+    "referral-link-hint": "Nodig je vrienden uit met referral link en verdien 100 punten",
     "theme": "Theme Settings",
     "theme-system-default": "System Default",
     "theme-day": "Day mode",
     "theme-night": "Night mode",
-    "updated": "Preference updated!"
+    "updated": "Preference updated!",
+    "permissions-title": "Sleutels & machtigingen",
+    "permissions-hint": "Beheer uw sleutels, beheer machtigingen over applicaties",
+    "permissions": "Open permissies"
   },
   "wallet": {
     "unclaimed-rewards": "Unclaimed rewards",
