@@ -1,9 +1,13 @@
+"use client";
+
 import React, { forwardRef } from "react";
 import { ButtonProps } from "./props";
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
 import { BUTTON_OUTLINE_STYLES, BUTTON_SIZES, BUTTON_STYLES } from "@/features/ui/button/styles";
 import Link from "next/link";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
+import { motion } from "framer-motion";
+import clsx from "clsx";
 
 export * from "./props";
 
@@ -23,7 +27,8 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
 
     const className = classNameObject({
       // Basic
-      "cursor-pointer rounded-xl duration-300 no-wrap active:scale-95": true,
+      "cursor-pointer rounded-xl duration-300 no-wrap active:scale-95 overflow-hidden relative":
+        true,
       "!cursor-not-allowed": props.disabled === true,
       // Outline basics
       "border-[1.25px] border-solid": props.outline ?? false,
@@ -32,7 +37,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       "flex-row-reverse": props.iconPlacement === "left",
 
       // Styles
-      [BUTTON_STYLES[props.appearance ?? "primary"]]: !props.outline ?? true,
+      [BUTTON_STYLES[props.appearance ?? "primary"]]: !props.outline,
       [BUTTON_OUTLINE_STYLES[props.appearance ?? "primary"]]: props.outline ?? false,
       [BUTTON_SIZES[props.size ?? "md"]]: true,
 
@@ -53,7 +58,24 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
             "w-5 h-5 [&>svg]:w-5 [&>svg]:h-5": props.size !== "xs"
           })}
         >
-          {props.isLoading ? <UilSpinner className="w-5 h-5 animate-spin" /> : props.icon}
+          {props.isLoading ? (
+            <motion.span
+              initial={{ opacity: 0, y: 16 }}
+              animate={{
+                opacity: props.isLoading ? 1 : 0,
+                y: props.isLoading ? 0 : 16
+              }}
+              className={clsx(
+                props.isLoading &&
+                  !props.loadingText &&
+                  "absolute top-0 left-0 flex items-center justify-center w-full z-[1] h-full"
+              )}
+            >
+              <UilSpinner className="w-5 h-5 animate-spin" />
+            </motion.span>
+          ) : (
+            props.icon
+          )}
         </div>
       ) : (
         <></>
@@ -77,7 +99,9 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
         className={className}
         ref={ref as any}
       >
-        {props.isLoading && props.loadingText ? props.loadingText : children}
+        <span className={clsx(props.isLoading && !props.loadingText && "hidden")}>
+          {props.isLoading && props.loadingText ? props.loadingText : children}
+        </span>
         {icon}
       </button>
     );

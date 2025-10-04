@@ -98,7 +98,7 @@ export function WalletSeedPhrase({ username, onValidated, showTitle = true, size
           (word: string, index: number) => (
             <div
               className={clsx(
-                "duration-300 font-mono bg-gray-200 p-2 rounded-xl dark:bg-dark-default",
+                "duration-300 font-mono bg-gray-200 p-2 rounded-xl dark:bg-dark-default truncate",
                 hasRevealed ? "blur-none" : "blur-sm",
                 size === "md" && "text-xl",
                 size === "sm" && "text-sm"

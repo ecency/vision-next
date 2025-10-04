@@ -26,7 +26,7 @@ export function WalletSeedValidationWordItem({ word, i }: Props) {
     >
       <div
         className={clsx(
-          "duration-300 font-mono bg-gray-200 p-2 rounded-xl dark:bg-dark-default",
+          "duration-300 font-mono bg-gray-200 p-2 rounded-xl dark:bg-dark-default truncate",
           attributes["aria-pressed"] && "rotate-6 scale-105 shadow-xl"
         )}
       >
