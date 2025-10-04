@@ -106,7 +106,8 @@
   "validation": {
     "required": "Campo requerido",
     "min-length": "Debe tener al menos {{n}} caracteres",
-    "max-length": "Debe tener como máximo {{n}} caracteres"
+    "max-length": "Debe tener como máximo {{n}} caracteres",
+    "url": "Formato de URL inválido"
   },
   "confirm": {
     "title": "¿Estás seguro?",
@@ -1057,11 +1058,15 @@
     "language": "Idioma",
     "nsfw": "Mostrar contenido NSFW",
     "referral-link": "Enlace de referido",
+    "referral-link-hint": "Invita a tus amigos con el enlace de referencia y gana 100 puntos",
     "theme": "Configuración del Tema",
     "theme-system-default": "Valores por defecto del sistema",
     "theme-day": "Modo Día",
     "theme-night": "Modo Noche",
-    "updated": "¡Preferencias actualizadas!"
+    "updated": "¡Preferencias actualizadas!",
+    "permissions-title": "Claves y permisos",
+    "permissions-hint": "Administra tus claves, controla los permisos sobre las aplicaciones",
+    "permissions": "Permisos abiertos"
   },
   "wallet": {
     "unclaimed-rewards": "Recompensas no reclamadas",
