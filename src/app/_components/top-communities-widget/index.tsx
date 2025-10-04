@@ -36,14 +36,12 @@ export const TopCommunitiesWidget = () => {
   return (
     <div className="mt-4">
       <div className="font-semibold">{i18next.t("top-communities.title")}</div>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-2 lg:gap-4">
         {list.length === 0 && !loading && (
           <div className="no-results">{i18next.t("communities.no-results")}</div>
         )}
         {list.map((x, i) => (
-          <Fragment key={i}>
-            <CommunityListItem community={x} small={true} />
-          </Fragment>
+          <CommunityListItem key={i} community={x} small={true} />
         ))}
         {loading &&
           new Array(5).fill(1).map((_, i) => <CommunityListItemLoading small={true} key={i} />)}

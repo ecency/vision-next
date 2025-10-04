@@ -10,6 +10,7 @@ services:
       - SEARCH_API_ADDR
       - SEARCH_API_SECRET
       - CHAINSTACK_API_KEY
+      - CHAINZ_API_KEY
     restart: always
     ports:
       - "4000:4000"
