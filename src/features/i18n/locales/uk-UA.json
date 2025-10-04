@@ -106,7 +106,8 @@
   "validation": {
     "required": "Обов'язкове поле",
     "min-length": "Must be at least {{n}} characters",
-    "max-length": "Must be at most {{n}} characters"
+    "max-length": "Must be at most {{n}} characters",
+    "url": "Неприпустимий формат URL"
   },
   "confirm": {
     "title": "Ви впевнені?",
@@ -1057,11 +1058,15 @@
     "language": "Language",
     "nsfw": "Show NSFW content",
     "referral-link": "Referral link",
+    "referral-link-hint": "Запрошуй своїх друзів через посилання на залучення та отримуй 100 балів",
     "theme": "Налаштування теми",
     "theme-system-default": "System Default",
     "theme-day": "Day mode",
     "theme-night": "Night mode",
-    "updated": "Preference updated!"
+    "updated": "Preference updated!",
+    "permissions-title": "Ключі і права доступу",
+    "permissions-hint": "Керуйте вашими ключами, керуйте дозволами над програмами",
+    "permissions": "Відкриті дозволи"
   },
   "wallet": {
     "unclaimed-rewards": "Unclaimed rewards",
