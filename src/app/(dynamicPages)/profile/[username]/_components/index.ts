@@ -5,7 +5,5 @@ export * from "./profile-cover";
 export * from "./profile-entries-list";
 export * from "./curation-trail";
 export * from "./profile-referrals";
-export * from "./profile-communities";
-export * from "./profile-settings";
 export * from "./profile-search";
 export * from "./profile-search-content";
