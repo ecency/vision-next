@@ -106,7 +106,8 @@
   "validation": {
     "required": "必須項目",
     "min-length": "少なくとも {{n}} 文字以上でなければなりません",
-    "max-length": "{{n}} 文字以上でなければなりません"
+    "max-length": "{{n}} 文字以上でなければなりません",
+    "url": "無効な URL 形式です"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -1057,11 +1058,15 @@
     "language": "Language",
     "nsfw": "Show NSFW content",
     "referral-link": "Referral link",
+    "referral-link-hint": "紹介リンクで友達を招待して100ポイント獲得する",
     "theme": "Theme Settings",
     "theme-system-default": "System Default",
     "theme-day": "Day mode",
     "theme-night": "Night mode",
-    "updated": "Preference updated!"
+    "updated": "Preference updated!",
+    "permissions-title": "キーと権限",
+    "permissions-hint": "キーを管理し、アプリケーションに対する権限を制御します",
+    "permissions": "権限を開く"
   },
   "wallet": {
     "unclaimed-rewards": "Unclaimed rewards",
