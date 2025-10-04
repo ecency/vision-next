@@ -106,7 +106,8 @@
   "validation": {
     "required": "आवश्यक क्षेत्र",
     "min-length": "कम से कम {{n}} अक्षर होने चाहिए",
-    "max-length": "अधिकतम {{n}} वर्ण होने चाहिए"
+    "max-length": "अधिकतम {{n}} वर्ण होने चाहिए",
+    "url": "Invalid URL format"
   },
   "confirm": {
     "title": "क्या आपको यकीन है?",
@@ -1057,11 +1058,15 @@
     "language": "Language",
     "nsfw": "Show NSFW content",
     "referral-link": "Referral link",
+    "referral-link-hint": "Invite your friends with referral link and earn 100 points",
     "theme": "Theme Settings",
     "theme-system-default": "प्रणालीगत चूक",
     "theme-day": "दिन मोड",
     "theme-night": "रात्रि मोड",
-    "updated": "वरीयता अपडेट की गई!"
+    "updated": "वरीयता अपडेट की गई!",
+    "permissions-title": "Keys & permissions",
+    "permissions-hint": "Manage your keys, control permissions over applications",
+    "permissions": "Open permissions"
   },
   "wallet": {
     "unclaimed-rewards": "दावा न किए गए पुरस्कार",
