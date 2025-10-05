@@ -10,6 +10,25 @@ type Props = any;
 
 export function SearchBox({ showcopybutton, value, username, filter, ...other }: Props) {
   const [_, copy] = useCopyToClipboard();
+  const searchValue =
+    typeof value === "string"
+      ? value
+      : typeof value === "number"
+        ? value.toString()
+        : value ?? "";
+
+  const buildCopyUrl = () => {
+    const normalizedUsername =
+      typeof username === "string" && username.length > 0 ? username.replace(/^\//, "") : "";
+    const normalizedFilter =
+      typeof filter === "string" && filter.length > 0 ? filter.replace(/^\//, "") : "";
+
+    const pathSegments = [normalizedUsername, normalizedFilter].filter(Boolean);
+    const basePath = pathSegments.length > 0 ? `/${pathSegments.join("/")}` : "";
+    const query = searchValue.length > 0 ? `?q=${encodeURIComponent(searchValue)}` : "";
+
+    return `https://ecency.com${basePath}${query}`;
+  };
 
   return (
     <div className="search-box">
@@ -18,8 +37,8 @@ export function SearchBox({ showcopybutton, value, username, filter, ...other }:
           <InputGroup
             append={
               <Button
-                disabled={value.length === 0}
-                onClick={() => copy(`https://ecency.com/${username}/${filter}?q=${value}`)}
+                disabled={searchValue.length === 0}
+                onClick={() => copy(buildCopyUrl())}
               >
                 <div className="w-4 flex">{copyContent}</div>
               </Button>
@@ -27,7 +46,7 @@ export function SearchBox({ showcopybutton, value, username, filter, ...other }:
           >
             <FormControl
               type="text"
-              {...{ ...other, value, username, filter }}
+              {...{ ...other, value: searchValue, username, filter }}
               className={"input-with-copy rounded-r"}
               autoComplete="off"
             />
@@ -35,7 +54,7 @@ export function SearchBox({ showcopybutton, value, username, filter, ...other }:
         </div>
       ) : (
         <InputGroup prepend={searchIconSvg}>
-          <FormControl type="text" {...{ ...other, value, username, filter }} />
+          <FormControl type="text" {...{ ...other, value: searchValue, username, filter }} />
         </InputGroup>
       )}
     </div>
