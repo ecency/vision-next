@@ -49,7 +49,7 @@ export function PostBodyLazyRenderer({ rawBody, className }: Props) {
   return (
     <div className={className}>
       {lines.map(({ element, hash }) => (
-        <div key={hash} dangerouslySetInnerHTML={{ __html: element.outerHTML }} />
+        <div key={hash} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: element.outerHTML }} />
       ))}
     </div>
   );

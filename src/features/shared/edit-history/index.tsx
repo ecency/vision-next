@@ -118,6 +118,7 @@ export function EditHistory({ onHide, entry }: Props) {
               </div>
               <div
                 className="entry-body markdown-view"
+                suppressHydrationWarning
                 dangerouslySetInnerHTML={{
                   __html: showDiff ? selectedItem.bodyDiff! : renderPostBody(selectedItem.body)
                 }}

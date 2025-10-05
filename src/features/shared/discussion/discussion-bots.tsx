@@ -87,7 +87,7 @@ export function DiscussionBots({ entries }: Props) {
                           <div className="text-gray-400 text-xs">{dateToRelative(e.created)}</div>
                         </EntryLink>
                       </div>
-                      <div dangerouslySetInnerHTML={{ __html: renderPostBody(e) }} />
+                      <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: renderPostBody(e) }} />
                     </div>
                   ))}
                 </div>

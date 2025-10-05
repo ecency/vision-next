@@ -22,6 +22,7 @@ export function CommentPreview({ text }: Props) {
       </div>
       <div
         className="preview-body markdown-view"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: renderPostBody(text, false, canUseWebp) }}
       />
     </div>

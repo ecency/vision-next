@@ -45,7 +45,7 @@ export const DeletedPostScreen = ({ username, permlink, staticNav, deletedEntry 
                 <div className="cross-post">
                   <h1 className="entry-title">{deletedEntry!.title}</h1>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: renderPostBody(deletedEntry!.body) }} />
+                <div suppressHydrationWarning dangerouslySetInnerHTML={{ __html: renderPostBody(deletedEntry!.body) }} />
                 {editHistory && (
                   <EditHistory
                     entry={
