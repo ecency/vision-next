@@ -11,6 +11,6 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   return generateProfileMetadata(username.replace("%40", ""), "wallet");
 }
 
-export default function WalletPage({ params }: Props) {
+export default function WalletPage() {
   return <PointsTokenPage />;
 }

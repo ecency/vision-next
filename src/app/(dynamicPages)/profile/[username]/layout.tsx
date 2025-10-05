@@ -9,13 +9,8 @@ import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import clsx from "clsx";
 import { ProfileCardLoading } from "./_components/profile-card/profile-card-loading";
-import Image from "next/image";
 
-interface Props {
-  params: Promise<{ username: string }>;
-}
-
-export default function ProfileLayout({ params, children }: PropsWithChildren<Props>) {
+export default function ProfileLayout({ children }: PropsWithChildren) {
   const { username } = useParams();
 
   const [showSidebar, setShowSidebar] = useState(true);

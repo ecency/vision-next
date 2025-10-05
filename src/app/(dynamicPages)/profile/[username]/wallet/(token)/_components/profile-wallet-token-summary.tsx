@@ -1,9 +1,8 @@
 import { FormattedCurrency } from "@/features/shared";
-import { Badge, StyledTooltip } from "@/features/ui";
+import { Badge } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
 import { getAccountWalletAssetInfoQueryOptions } from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
-import i18next from "i18next";
 import { useParams, usePathname } from "next/navigation";
 
 function format(value: number) {
@@ -13,19 +12,19 @@ function format(value: number) {
 
 export function ProfileWalletTokenSummary() {
   const { token, username } = useParams();
+
   const pathname = usePathname();
+  const tokenWithFallback =
+    (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase();
 
   const { data, isFetching } = useQuery(
     getAccountWalletAssetInfoQueryOptions(
       (username as string).replace("%40", ""),
-      (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase()
+      tokenWithFallback
     )
   );
 
-  const logo = useGetTokenLogoImage(
-    (username as string).replace("%40", ""),
-    (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase()
-  );
+  const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
 
   if (isFetching) {
     <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
