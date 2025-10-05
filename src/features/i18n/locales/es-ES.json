@@ -2638,7 +2638,7 @@
   "not-found": {
     "title": "No encontrado",
     "description": "Oops! It seems there isn`t page related to URL:(",
-    "back-home": "Volver"
+    "back-home": "Regresar"
   },
   "global-error": {
     "description": "Something went wrong. Please, try again or report an issue"
@@ -2920,7 +2920,7 @@
     "delegations": "Delegaciones",
     "external-wallets-offer": {
       "title": "Trae tu criptomoneda a Ecency",
-      "description": "Crear o importar carteras para BTC, ETH, BNB, SOL, TRX y APT directamente desde aplicaciones como Trust o Exodus, y empiece a usarlos sin problemas dentro del ecosistema de la colmena.",
+      "description": "Crea o importa carteras para BTC, ETH, BNB, SOL, TRX y APT directamente desde aplicaciones como Trust o Exodus, y empieza a usarlos sin problemas dentro del ecosistema de Hive.",
       "hint": "La información del token creada e importada se almacenará en metadatos de la cuenta de Ecency y de Hive"
     },
     "external-wallets-signup": {
