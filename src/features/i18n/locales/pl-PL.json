@@ -2920,7 +2920,7 @@
     "delegations": "Delegatury",
     "external-wallets-offer": {
       "title": "Przynieś swoją kryptowalutę do ecencji",
-      "description": "Utwórz lub zaimportuj portfele dla BTC, ETH, TRX, APT i SOL bezpośrednio z aplikacji takich jak Zaufanie lub Exodus, i zacząć płynnie z nich korzystać w ekosystemie ulowym.",
+      "description": "Tworzenie lub importowanie portfeli dla BTC, ETH, BNB, SOL, TRX i APT bezpośrednio z aplikacji takich jak Trust lub Exodus, i zacząć płynnie z nich korzystać w ekosystemie ulowym.",
       "hint": "Utworzone i importowane informacje o tokenie będą przechowywane w metadanych konta Ecency i Uli"
     },
     "external-wallets-signup": {
