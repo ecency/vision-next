@@ -2920,7 +2920,7 @@
     "delegations": "Delegationen",
     "external-wallets-offer": {
       "title": "Bring deine Krypto zu Ecency",
-      "description": "Erstellen oder importieren Sie Wallets für BTC, ETH, TRX, APT und SOL direkt aus Apps wie Trust oder Exodus, und fangen Sie an, sie nahtlos innerhalb des Hive-Ökosystems zu verwenden.",
+      "description": "Erstellen oder importieren Sie Wallets für BTC, ET, BNB, SOL, TRX und APT direkt aus Apps wie Trust oder Exodus, und fangen Sie an, sie nahtlos innerhalb des Hive-Ökosystems zu verwenden.",
       "hint": "Erstellte und importierte Token-Informationen werden in einer Ecency and Hive-Account-Metadaten gespeichert"
     },
     "external-wallets-signup": {
