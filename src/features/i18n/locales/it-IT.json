@@ -2638,7 +2638,7 @@
   "not-found": {
     "title": "Non trovato",
     "description": "Oops! It seems there isn`t page related to URL:(",
-    "back-home": "Ritorna alla home"
+    "back-home": "Torna Indietro"
   },
   "global-error": {
     "description": "Something went wrong. Please, try again or report an issue"
