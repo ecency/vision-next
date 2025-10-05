@@ -4,7 +4,7 @@ const path = require("path");
 const withPWA = require("next-pwa")({
   dest: "public",
   // Raise the max size to precache large chunks:
-  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
+  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024 // 8MB
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
@@ -51,6 +51,26 @@ const config = {
       }
     ]
   },
+  async redirects() {
+    return [
+      // Legacy pages
+      {
+        source: "/:author(@[^/]+)/points",
+        destination: "/:author/wallet/points",
+        permanent: false
+      },
+      {
+        source: "/:author(@[^/]+)/spk",
+        destination: "/:author/wallet/spk",
+        permanent: false
+      },
+      {
+        source: "/:author(@[^/]+)/engine",
+        destination: "/:author/wallet",
+        permanent: false
+      }
+    ];
+  },
   // Warn: Rewrites applies in order
   async rewrites() {
     return [
@@ -75,18 +95,9 @@ const config = {
         destination: "/feed/feed/:author"
       },
 
-      // Legacy pages
       {
-        source: "/:author(@.+)/points",
+        source: "/:author(@.+)/wallet/points",
         destination: "/profile/:author/wallet/points"
-      },
-      {
-        source: "/:author(@.+)/spk",
-        destination: "/profile/:author/wallet/spk"
-      },
-      {
-        source: "/:author(@.+)/engine",
-        destination: "/profile/:author/wallet"
       },
       {
         source: "/:author(@.+)/wallet/:token",
@@ -94,7 +105,7 @@ const config = {
       },
       {
         source:
-          "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|wallet|engine|points|spk|settings|referrals|permissions|rss|rss.xml)",
+          "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|wallet|settings|referrals|permissions|rss|rss.xml)",
         destination: "/profile/:author/:section"
       },
       {
