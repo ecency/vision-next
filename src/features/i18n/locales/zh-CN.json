@@ -2920,7 +2920,7 @@
     "delegations": "A. 代表团",
     "external-wallets-offer": {
       "title": "将您的加密带到生态环境",
-      "description": "直接从信任或Exodus等应用创建或导入BTC、ETH、TRX、APT和SOL的钱包 并开始在Hive 生态系统内无缝使用它们。",
+      "description": "直接从 Trust 或 Exodus 等应用程序创建或导入BTC、ETH 、BNB、SOL、TRX 和 APT 的钱包 并开始在Hive 生态系统内无缝使用它们。",
       "hint": "创建和导入令牌的信息将存储在 Ecency 和 Hive 账户元数据中"
     },
     "external-wallets-signup": {
