@@ -61,6 +61,54 @@ export function getSizedTokenLogo(token: string, size = 32) {
           <Image src="/assets/logo.svg" alt="" width={20} height={20} />
         </LogoBox>
       );
+    case "APT":
+      return (
+        <LogoBox size={size}>
+          <Image width={24} height={24} src={CURRENCIES_META_DATA.APT.icon} alt="" />
+        </LogoBox>
+      );
+    case "BTC":
+      return (
+        <LogoBox size={size}>
+          <Image width={32} height={32} src={CURRENCIES_META_DATA.BTC.icon} alt="" />
+        </LogoBox>
+      );
+    case "BNB":
+      return (
+        <LogoBox size={size}>
+          <Image width={32} height={32} src={CURRENCIES_META_DATA.BNB.icon} alt="" />
+        </LogoBox>
+      );
+    case "ETH":
+      return (
+        <LogoBox size={size}>
+          <Image
+            width={24}
+            height={24}
+            src={CURRENCIES_META_DATA.ETH.icon}
+            alt=""
+            className="h-6"
+          />
+        </LogoBox>
+      );
+    case "SOL":
+      return (
+        <LogoBox size={size}>
+          <Image width={24} height={24} src={CURRENCIES_META_DATA.SOL.icon} alt="" />
+        </LogoBox>
+      );
+    case "TON":
+      return (
+        <LogoBox size={size}>
+          <Image width={24} height={24} src={CURRENCIES_META_DATA.TON.icon} alt="" />
+        </LogoBox>
+      );
+    case "TRX":
+      return (
+        <LogoBox size={size}>
+          <Image width={24} height={24} src={CURRENCIES_META_DATA.TRX.icon} alt="" />
+        </LogoBox>
+      );
   }
 }
 
@@ -72,41 +120,13 @@ export const TOKEN_LOGOS_MAP: Record<string, ReactNode> = {
   LARYNX: getSizedTokenLogo("LARYNX", 32),
   LP: getSizedTokenLogo("LP", 32),
   POINTS: getSizedTokenLogo("POINTS", 32),
-  APT: (
-    <LogoBox size={32}>
-      <Image width={24} height={24} src={CURRENCIES_META_DATA.APT.icon} alt="" />
-    </LogoBox>
-  ),
-  BTC: (
-    <LogoBox size={32}>
-      <Image width={32} height={32} src={CURRENCIES_META_DATA.BTC.icon} alt="" />
-    </LogoBox>
-  ),
-  BNB: (
-    <LogoBox size={32}>
-      <Image width={32} height={32} src={CURRENCIES_META_DATA.BNB.icon} alt="" />
-    </LogoBox>
-  ),
-  ETH: (
-    <LogoBox size={32}>
-      <Image width={24} height={24} src={CURRENCIES_META_DATA.ETH.icon} alt="" className="h-6" />
-    </LogoBox>
-  ),
-  SOL: (
-    <LogoBox size={32}>
-      <Image width={24} height={24} src={CURRENCIES_META_DATA.SOL.icon} alt="" />
-    </LogoBox>
-  ),
-  TON: (
-    <LogoBox size={32}>
-      <Image width={24} height={24} src={CURRENCIES_META_DATA.TON.icon} alt="" />
-    </LogoBox>
-  ),
-  TRX: (
-    <LogoBox size={32}>
-      <Image width={24} height={24} src={CURRENCIES_META_DATA.TRX.icon} alt="" />
-    </LogoBox>
-  )
+  APT: getSizedTokenLogo("APT", 32),
+  BTC: getSizedTokenLogo("BTC", 32),
+  BNB: getSizedTokenLogo("BNB", 32),
+  ETH: getSizedTokenLogo("ETH", 32),
+  SOL: getSizedTokenLogo("SOL", 32),
+  TON: getSizedTokenLogo("TON", 32),
+  TRX: getSizedTokenLogo("TRX", 32)
 };
 
 export const TOKEN_COLORS_MAP: Record<string, string> = {
