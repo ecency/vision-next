@@ -25,6 +25,11 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       "loadingText"
     ]);
 
+    const showLoadingText = Boolean(props.isLoading && props.loadingText);
+    const hasChildrenContent = React.Children.count(props.children) > 0;
+    const hasTextContent = showLoadingText || hasChildrenContent;
+    const shouldHideText = props.isLoading && !props.loadingText;
+
     const className = classNameObject({
       // Basic
       "cursor-pointer rounded-xl duration-300 no-wrap active:scale-95 overflow-hidden relative":
@@ -33,7 +38,8 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       // Outline basics
       "border-[1.25px] border-solid": props.outline ?? false,
       // With icon
-      "flex items-center justify-center gap-2": !!props.icon || props.isLoading,
+      "flex items-center justify-center": !!props.icon || props.isLoading,
+      "gap-2": (props.icon || props.isLoading) && hasTextContent,
       "flex-row-reverse": props.iconPlacement === "left",
 
       // Styles
@@ -80,11 +86,15 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       ) : (
         <></>
       );
-    const children = props.children ? <div>{props.children}</div> : <></>;
+    const textContent = hasTextContent ? (
+      <span className={clsx(shouldHideText && "hidden")}>
+        {showLoadingText ? props.loadingText : props.children}
+      </span>
+    ) : null;
 
     return "href" in props ? (
       <Link {...nativeProps} className={className} ref={ref as any}>
-        {props.isLoading && props.loadingText ? props.loadingText : children}
+        {textContent}
         {icon}
       </Link>
     ) : (
@@ -99,9 +109,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
         className={className}
         ref={ref as any}
       >
-        <span className={clsx(props.isLoading && !props.loadingText && "hidden")}>
-          {props.isLoading && props.loadingText ? props.loadingText : children}
-        </span>
+        {textContent}
         {icon}
       </button>
     );

@@ -88,7 +88,10 @@ const config = {
         source: "/:author(@.+)/engine",
         destination: "/profile/:author/wallet"
       },
-
+      {
+        source: "/:author(@.+)/wallet/points",
+        destination: "/profile/:author/wallet/points"
+      },
       {
         source: "/:author(@.+)/wallet/:token",
         destination: "/profile/:author/wallet/:token"

@@ -1,13 +1,12 @@
-import { Button } from "@ui/button";
 import i18next from "i18next";
 import Image from "next/image";
-import Link from "next/link";
 import { initI18next } from "@/features/i18n";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
 import { SentryIssueReporterDialog } from "@/features/issue-reporter";
 import { Feedback } from "@/features/shared";
 import defaults from "@/defaults.json";
+import { NotFoundBackButton } from "./not-found-back-button";
 
 export async function generateMetadata(
   props: unknown,
@@ -36,9 +35,9 @@ export default async function NotFoundPage() {
           </div>
           <h2 className="text-2xl font-semibold">{i18next.t("not-found.description")}</h2>
           <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button>{i18next.t("not-found.back-home")}</Button>
-            </Link>
+            <NotFoundBackButton fallbackHref="/">
+              {i18next.t("not-found.back-home")}
+            </NotFoundBackButton>
             <SentryIssueReporterDialog />
           </div>
         </div>

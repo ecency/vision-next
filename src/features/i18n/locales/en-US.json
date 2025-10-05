@@ -2638,7 +2638,7 @@
   "not-found": {
     "title": "Not found",
     "description": "Oops! Lost in ocean...",
-    "back-home": "Back to home"
+    "back-home": "Go Back"
   },
   "global-error": {
     "description": "Please, try again or report an issue..."

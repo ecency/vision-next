@@ -91,7 +91,7 @@ export function ProfileWalletSummary() {
           )}
         </div>
       </div>
-      <div className="flex w-full text-sm text-white rounded-lg overflow-hidden gap-1">
+      <div className="flex w-full text-sm text-gray-400 dark:text-white rounded-lg overflow-hidden gap-1">
         {assetsParts.length === 0 && (
           <>
             <div className="w-[40%] rounded-lg animate-pulse h-[36px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
