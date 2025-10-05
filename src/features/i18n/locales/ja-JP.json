@@ -2920,7 +2920,7 @@
     "delegations": "委任事項",
     "external-wallets-offer": {
       "title": "暗号通貨をEcencyに届けよう",
-      "description": "BTC、ETH、TRX、APT、SOL用ウォレットを、TrustやExodusなどのアプリから直接作成またはインポートします。 Hiveエコシステム内でシームレスに使用し始めます。",
+      "description": "BTC、ETH、BNB、SOL、TRX、APT用のウォレットを、TrustやExodusなどのアプリから直接作成またはインポートします Hiveエコシステム内でシームレスに使用し始めます。",
       "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます"
     },
     "external-wallets-signup": {
