@@ -4,7 +4,7 @@ import { error, success } from "@/features/shared";
 import { KeyInput, KeyInputImperativeHandle } from "@/features/ui";
 import { WalletSeedPhrase } from "@/features/wallet";
 import { useAccountUpdateKeyAuths } from "@ecency/sdk";
-import { useHiveKeysQuery } from "@ecency/wallets";
+import { useHiveKeysQuery } from "@/features/wallet/sdk";
 import { PrivateKey } from "@hiveio/dhive";
 import i18next from "i18next";
 import { useCallback, useRef } from "react";

@@ -1,9 +1,11 @@
+"use client";
+
 import { Button } from "@/features/ui";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Image from "next/image";
 
-export function ProfileWalletExternalBanner() {
+function ProfileWalletExternalBanner() {
   return (
     <div className="bg-white rounded-xl p-3 mb-4 flex items-center gap-4 lg:gap-6">
       <Image src="/assets/undraw-digital-currency.svg" alt="" width={300} height={300} />
@@ -19,3 +21,6 @@ export function ProfileWalletExternalBanner() {
     </div>
   );
 }
+
+export { ProfileWalletExternalBanner };
+export default ProfileWalletExternalBanner;

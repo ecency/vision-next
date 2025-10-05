@@ -2,7 +2,7 @@ import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { List, ListItem } from "@/features/ui/list";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-import { getHivePowerDelegatingsQueryOptions } from "@ecency/wallets";
+import { getHivePowerDelegatingsQueryOptions } from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { Pagination } from "@ui/index";
 import { FormControl } from "@ui/input";

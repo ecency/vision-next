@@ -1,16 +1,18 @@
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { TOKEN_LOGOS_MAP } from "@/features/wallet";
+import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import {
   getAccountWalletAssetInfoQueryOptions,
   getAllTokensListQueryOptions
-} from "@ecency/wallets";
+} from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
+import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
 
 interface Props {
   username: string;
@@ -19,36 +21,46 @@ interface Props {
 
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const { data } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
-  const { data: allTokens } = useQuery(getAllTokensListQueryOptions(username));
+  const { data: allTokens } = useQuery(getAllTokensListQueryOptions(""));
 
   const router = useRouter();
 
   const logo = useMemo(() => {
     const layer2Token = allTokens?.layer2?.find((token) => token.symbol === asset);
     if (layer2Token) {
+      const icon = getLayer2TokenIcon(layer2Token.metadata);
+
+      if (icon) {
+        return (
+          <Image
+            alt=""
+            src={proxifyImageSrc(icon, 32, 32, "match")}
+            width={32}
+            height={32}
+            className="rounded-lg p-1 object-cover min-w-[32px] max-w-[32px] h-[32px] border border-[--border-color]"
+          />
+        );
+      }
+
       return (
-        <Image
-          alt=""
-          src={proxifyImageSrc(JSON.parse(layer2Token.metadata)?.icon, 32, 32, "match")}
-          width={32}
-          height={32}
-          className="rounded-lg p-1 object-cover min-w-[32px] max-w-[32px] h-[32px] border border-[--border-color]"
-        />
+        <div className="rounded-lg min-w-[32px] max-w-[32px] h-[32px] border border-[--border-color] flex items-center justify-center bg-gray-100 dark:bg-gray-900 text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-200">
+          {layer2Token.symbol.slice(0, 3)}
+        </div>
       );
     }
     if (data) {
       return TOKEN_LOGOS_MAP[data.name];
     }
+
+    return undefined;
   }, [allTokens?.layer2, asset, data]);
 
   if (!data) {
-    <div className="border-b last:border-0 border-[--border-color] grid grid-cols-4 gap-4 p-3 md:p-4">
-      <div className="w-full rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-      <div className="w-full rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-      <div className="w-full rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-      <div className="w-full rounded-lg animate-pulse h-[44px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-    </div>;
+    return <ProfileWalletTokensListItemLoading />;
   }
+
+  const formattedAccountBalance = data.accountBalance.toFixed(3);
+  const totalBalanceValue = (data.accountBalance ?? 0) * (data.price ?? 0);
 
   return (
     <div
@@ -75,7 +87,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
           <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
         </div>
         <div>
-          <div>{data?.accountBalance.toFixed(3)}</div>
+          <div>{formattedAccountBalance}</div>
           {data?.parts?.map(({ name, balance }) => (
             <div
               key={name}
@@ -86,7 +98,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
             </div>
           ))}
           <div className="text-gray-600 dark:text-gray-400 text-sm">
-            <FormattedCurrency value={(data?.accountBalance ?? 0) * (data?.price ?? 0)} fixAt={2} />
+            <FormattedCurrency value={totalBalanceValue} fixAt={2} />
           </div>
         </div>
       </div>

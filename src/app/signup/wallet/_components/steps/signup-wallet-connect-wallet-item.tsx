@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge, Button, FormControl } from "@/features/ui";
-import { EcencyTokenMetadata, EcencyWalletCurrency, useWalletCreate } from "@ecency/wallets";
+import { EcencyTokenMetadata, EcencyWalletCurrency, useWalletCreate } from "@/features/wallet/sdk";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useMemo } from "react";

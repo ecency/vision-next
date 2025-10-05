@@ -1,5 +1,5 @@
 import { useClientActiveUser } from "@/api/queries";
-import { AssetOperation } from "@ecency/wallets";
+import { AssetOperation } from "@/features/wallet/sdk";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence } from "framer-motion";

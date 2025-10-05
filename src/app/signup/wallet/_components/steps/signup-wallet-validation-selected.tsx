@@ -4,7 +4,7 @@ import {
   EcencyTokenMetadata,
   EcencyWalletCurrency,
   useGetExternalWalletBalanceQuery
-} from "@ecency/wallets";
+} from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilCheckCircle, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";

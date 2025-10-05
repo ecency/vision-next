@@ -1,7 +1,7 @@
 import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { Button, FormControl, InputGroup } from "@/features/ui";
-import { AssetOperation, useWalletOperation } from "@ecency/wallets";
+import { AssetOperation, useWalletOperation } from "@/features/wallet/sdk";
 import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
 import { UilLock } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";

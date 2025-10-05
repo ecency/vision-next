@@ -1,4 +1,4 @@
-import { deriveHiveKeys } from "@ecency/wallets";
+import { deriveHiveKeys } from "@/features/wallet/sdk";
 import { generateMnemonic } from "bip39";
 
 export const getKeysFromSeed = (seed: string) => {

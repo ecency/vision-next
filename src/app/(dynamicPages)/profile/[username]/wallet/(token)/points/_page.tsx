@@ -2,7 +2,7 @@
 
 import { useClientActiveUser } from "@/api/queries";
 import { Button, FormControl } from "@/features/ui";
-import { getPointsAssetTransactionsQueryOptions, PointTransactionType } from "@ecency/wallets";
+import { getPointsAssetTransactionsQueryOptions, PointTransactionType } from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";

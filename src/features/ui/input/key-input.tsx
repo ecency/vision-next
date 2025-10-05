@@ -15,7 +15,7 @@ import {
 } from "react";
 import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
+import { deriveHiveKeys, detectHiveKeyDerivation } from "@/features/wallet/sdk";
 import { error } from "@/features/shared";
 
 interface Props {

@@ -4,7 +4,7 @@ import { ProfileLink, UserAvatar } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useInfiniteDataFlow } from "@/utils";
 import { EcencyRenderer } from "@ecency/renderer";
-import { getHiveEngineTokenTransactionsQueryOptions } from "@ecency/wallets";
+import { getHiveEngineTokenTransactionsQueryOptions } from "@/features/wallet/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import { useParams } from "next/navigation";

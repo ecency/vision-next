@@ -1,7 +1,7 @@
 import { FormattedCurrency } from "@/features/shared";
 import { Badge, StyledTooltip } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { getAccountWalletAssetInfoQueryOptions } from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useParams, usePathname } from "next/navigation";

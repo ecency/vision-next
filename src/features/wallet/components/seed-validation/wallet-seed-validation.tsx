@@ -1,5 +1,5 @@
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { useSeedPhrase } from "@ecency/wallets";
+import { useSeedPhrase } from "@/features/wallet/sdk";
 import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { WalletSeedValidationDroppableItem } from "./wallet-seed-validation-droppable-item";

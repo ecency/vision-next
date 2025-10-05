@@ -1,7 +1,7 @@
 "use client";
 
 import { useGlobalStore } from "@/core/global-store";
-import { getHiveEngineTokensMetricsQueryOptions } from "@ecency/wallets";
+import { getHiveEngineTokensMetricsQueryOptions } from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { createChart, IChartApi, ISeriesApi, Time } from "lightweight-charts";

@@ -11,7 +11,7 @@ import {
   EcencyWalletCurrency,
   useHiveKeysQuery,
   useSaveWalletInformationToMetadata
-} from "@ecency/wallets";
+} from "@/features/wallet/sdk";
 import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
 import {

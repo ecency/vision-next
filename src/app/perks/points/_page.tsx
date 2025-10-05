@@ -2,7 +2,7 @@
 
 import { useGlobalStore } from "@/core/global-store";
 import { error, LoginRequired, PurchaseQrDialog, PurchaseTypes, success } from "@/features/shared";
-import { getPointsQueryOptions, useClaimPoints } from "@ecency/wallets";
+import { getPointsQueryOptions, useClaimPoints } from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";

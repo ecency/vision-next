@@ -11,12 +11,13 @@ import {
   getAccountWalletListQueryOptions,
   getAllTokensListQueryOptions,
   useSaveWalletInformationToMetadata
-} from "@ecency/wallets";
+} from "@/features/wallet/sdk";
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
 import { useClientActiveUser } from "@/api/queries";
 import { TOKEN_LOGOS_MAP } from "@/features/wallet";
+import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import * as R from "remeda";
 
 export function ProfileWalletTokenPicker() {
@@ -128,23 +129,33 @@ export function ProfileWalletTokenPicker() {
             <>
               <div className="text-sm opacity-50 mt-4 mb-2">Hive engine</div>
               <List>
-                {allTokens.layer2.map((token) => (
-                  <ListItem className="!flex items-center gap-2" key={token.name}>
-                    <FormControl
-                      type="checkbox"
-                      checked={walletList?.includes(token.symbol) ?? false}
-                      onChange={() => update(token.symbol)}
-                    />
-                    <Image
-                      alt=""
-                      src={proxifyImageSrc(JSON.parse(token.metadata)?.icon, 32, 32, "match")}
-                      width={32}
-                      height={32}
-                      className="rounded-lg object-cover min-w-[32px] max-w-[32px] h-[32px] border border-[--border-color]"
-                    />
-                    {token.name}
-                  </ListItem>
-                ))}
+                {allTokens.layer2.map((token) => {
+                  const icon = getLayer2TokenIcon(token.metadata);
+
+                  return (
+                    <ListItem className="!flex items-center gap-2" key={token.name}>
+                      <FormControl
+                        type="checkbox"
+                        checked={walletList?.includes(token.symbol) ?? false}
+                        onChange={() => update(token.symbol)}
+                      />
+                      {icon ? (
+                        <Image
+                          alt=""
+                          src={proxifyImageSrc(icon, 32, 32, "match")}
+                          width={32}
+                          height={32}
+                          className="rounded-lg object-cover min-w-[32px] max-w-[32px] h-[32px] border border-[--border-color]"
+                        />
+                      ) : (
+                        <div className="rounded-lg min-w-[32px] max-w-[32px] h-[32px] border border-[--border-color] flex items-center justify-center bg-gray-100 dark:bg-gray-900 text-[10px] font-semibold uppercase text-gray-600 dark:text-gray-200">
+                          {token.symbol.slice(0, 3)}
+                        </div>
+                      )}
+                      {token.name}
+                    </ListItem>
+                  );
+                })}
               </List>
             </>
           )}

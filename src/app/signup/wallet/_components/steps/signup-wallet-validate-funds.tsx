@@ -1,5 +1,5 @@
 import { WalletTokenAddressItem } from "@/features/wallet";
-import { EcencyWalletCurrency } from "@ecency/wallets";
+import { EcencyWalletCurrency } from "@/features/wallet/sdk";
 import i18next from "i18next";
 import { useState } from "react";
 import { SignupWalletConnectWalletImport } from "./signup-wallet-connect-wallet-import";

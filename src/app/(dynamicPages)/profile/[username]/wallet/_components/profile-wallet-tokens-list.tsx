@@ -1,10 +1,14 @@
 "use client";
 
 import { StyledTooltip } from "@/features/ui";
-import { getAccountWalletListQueryOptions } from "@ecency/wallets";
+import {
+  getAccountWalletListQueryOptions,
+  getAllTokensListQueryOptions,
+} from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 import { ProfileWalletTokensListItem } from "./profile-wallet-tokens-list-item";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
@@ -14,6 +18,28 @@ export function ProfileWalletTokensList() {
   const { data } = useQuery(
     getAccountWalletListQueryOptions((username as string).replace("%40", ""))
   );
+  const { data: availableTokens } = useQuery(getAllTokensListQueryOptions(""));
+
+  const visibleTokens = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+
+    if (!availableTokens) {
+      return data;
+    }
+
+    const supportedTokens = new Set<string>([
+      ...(availableTokens.basic ?? []),
+      ...(availableTokens.external ?? []),
+      ...(availableTokens.spk ?? []),
+      ...(availableTokens.layer2 ?? []).map((token) => token.symbol),
+    ]);
+
+    return data.filter((token) => supportedTokens.has(token));
+  }, [availableTokens, data]);
+
+  const shouldRenderEmptyState = Array.isArray(data) && visibleTokens.length === 0;
 
   return (
     <div className="bg-white rounded-xl">
@@ -30,14 +56,14 @@ export function ProfileWalletTokensList() {
         <div>{i18next.t("profile-wallet.price")}</div>
         <div>{i18next.t("profile-wallet.balance")}</div>
       </div>
-      {data?.map((item: string) => (
+      {visibleTokens.map((item: string) => (
         <ProfileWalletTokensListItem
           asset={item}
           key={item}
           username={(username as string).replace("%40", "")}
         />
       ))}
-      {data?.length === 0 &&
+      {shouldRenderEmptyState &&
         new Array(6).fill(1).map((_, i) => <ProfileWalletTokensListItemLoading key={i} />)}
     </div>
   );

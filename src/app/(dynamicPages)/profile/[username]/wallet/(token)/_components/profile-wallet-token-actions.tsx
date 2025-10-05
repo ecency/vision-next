@@ -1,6 +1,6 @@
 import { useClientActiveUser } from "@/api/queries";
 import { WalletOperationsDialog } from "@/features/wallet";
-import { AssetOperation, getTokenOperationsQueryOptions } from "@ecency/wallets";
+import { AssetOperation, getTokenOperationsQueryOptions } from "@/features/wallet/sdk";
 import { useQuery } from "@tanstack/react-query";
 import {
   UilArrowDownRight,
