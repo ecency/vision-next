@@ -24,9 +24,17 @@ interface StyledProps {
   className?: string;
   size?: "sm" | "md";
   onHide?: () => void;
+  style?: any;
 }
 
-export function StyledTooltip({ children, content, className, size = "sm", onHide }: StyledProps) {
+export function StyledTooltip({
+  children,
+  content,
+  className,
+  size = "sm",
+  onHide,
+  style
+}: StyledProps) {
   const [show, setShow] = useState(false);
 
   const { refs, floatingStyles } = useFloating({
@@ -56,6 +64,7 @@ export function StyledTooltip({ children, content, className, size = "sm", onHid
           onHide?.();
         }
       }}
+      style={style}
     >
       {children}
       {portalContainer &&
