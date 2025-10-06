@@ -136,5 +136,12 @@ export const TOKEN_COLORS_MAP: Record<string, string> = {
   SPK: "bg-gradient-to-r from-[#14a2b8] to-[#14a2b8]/60",
   LARYNX: "bg-gradient-to-r from-[#1c8798] to-[#1c8798]/60",
   LP: "bg-gradient-to-r from-[#529fab] to-[#529fab]/60",
-  POINTS: "bg-gradient-to-r from-[#357ce6] to-[#357ce6]/60"
+  POINTS: "bg-gradient-to-r from-[#357ce6] to-[#357ce6]/60",
+  APT: "bg-gradient-to-r from-[#06F7F7] to-[#06F7F7]/60",
+  BNB: "bg-gradient-to-r from-[#f7931a] to-[#f7931a]/60",
+  BTC: "bg-gradient-to-r from-[#F0B90B] to-[#F0B90B]/60",
+  ETH: "bg-gradient-to-r from-[#c6c5d4] to-[#c6c5d4]/60",
+  SOL: "bg-gradient-to-r from-[#9945FF] to-[#14F195]/60",
+  TON: "bg-gradient-to-r from-[#0098EA] to-[#0098EA]/60",
+  TRX: "bg-gradient-to-r from-[#dd2200] to-[#dd2200]/60"
 };

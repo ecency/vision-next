@@ -13,6 +13,7 @@ import { useMemo } from "react";
 
 import clsx from "clsx";
 import { TOKEN_COLORS_MAP } from "@/features/wallet";
+import { StyledTooltip } from "@/features/ui";
 
 export function ProfileWalletSummary() {
   const { username } = useParams();
@@ -91,7 +92,7 @@ export function ProfileWalletSummary() {
           )}
         </div>
       </div>
-      <div className="flex w-full text-sm text-gray-400 dark:text-white rounded-lg overflow-hidden gap-1">
+      <div className="flex w-full text-sm text-gray-400 dark:text-white rounded-lg overflow-hidden gap-0.5">
         {assetsParts.length === 0 && (
           <>
             <div className="w-[40%] rounded-lg animate-pulse h-[36px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
@@ -100,15 +101,41 @@ export function ProfileWalletSummary() {
           </>
         )}
         {assetsParts.map(({ asset, percent, usdValue }) => (
+          <StyledTooltip
+            style={{ width: `${percent}%` }}
+            key={asset}
+            content={
+              <>
+                {usdValue && `$ ${usdValue.toFixed(2)} – `}
+                {asset}
+              </>
+            }
+          >
+            <motion.div
+              className={clsx(
+                "p-2",
+                TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
+              )}
+              initial={{ opacity: 0, width: "0%" }}
+              animate={{ opacity: 1, width: "100%" }}
+            />
+          </StyledTooltip>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {assetsParts.map(({ asset, percent, usdValue }, i) => (
           <motion.div
-            className={clsx(
-              "p-2",
-              TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
-            )}
-            initial={{ opacity: 0, width: "0%" }}
-            animate={{ opacity: 1, width: `${percent}%` }}
+            className="flex items-center gap-1 text-xs"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0, transition: { delay: i * 0.1 } }}
             key={asset}
           >
+            <div
+              className={clsx(
+                "w-3 h-3 rounded-full",
+                TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
+              )}
+            />
             {usdValue && `$ ${usdValue.toFixed(2)} – `}
             {asset}
           </motion.div>
