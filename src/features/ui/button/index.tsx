@@ -39,7 +39,7 @@ const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Button
       "border-[1.25px] border-solid": props.outline ?? false,
       // With icon
       "flex items-center justify-center": !!props.icon || props.isLoading,
-      "gap-2": (props.icon || props.isLoading) && hasTextContent,
+      "gap-2": Boolean((props.icon || props.isLoading) && hasTextContent),
       "flex-row-reverse": props.iconPlacement === "left",
 
       // Styles
