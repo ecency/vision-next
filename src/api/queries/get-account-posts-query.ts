@@ -43,7 +43,7 @@ export const getAccountPostsQuery = (
 
                 const resp = await bridgeApiCall<Entry[] | null>("get_account_posts", rpcParams);
 
-                if (resp) {
+                if (resp && Array.isArray(resp)) {
                     return await Promise.all(resp.map((p) => resolvePost(p, observer)));
                 }
 
