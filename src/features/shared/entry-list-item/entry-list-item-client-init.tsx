@@ -1,14 +1,15 @@
 "use client";
 
 import { useMount, useUnmount } from "react-use";
+import { htmlPositionManager } from "@/utils/html-position-manager";
 
 export function EntryListItemClientInit() {
   useMount(() => {
-    document.getElementsByTagName("html")[0].style.position = "relative";
+    htmlPositionManager.addReference();
   });
 
   useUnmount(() => {
-    document.getElementsByTagName("html")[0].style.position = "unset";
+    htmlPositionManager.removeReference();
   });
 
   return <></>;
