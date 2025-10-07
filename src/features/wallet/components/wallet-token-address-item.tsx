@@ -69,7 +69,7 @@ export function WalletTokenAddressItem({
       </div>
 
       <div
-        className="flex items-center gap-1 mt-6 cursor-pointer"
+        className="grid grid-cols-[1fr_max-content] gap-1 mt-6 cursor-pointer"
         onClick={(e) => {
           copy(wallet?.address ?? "");
           success(i18next.t("signup-wallets.validate-funds.address-copied"));

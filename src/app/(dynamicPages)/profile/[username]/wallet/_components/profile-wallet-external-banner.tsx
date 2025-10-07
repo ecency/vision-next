@@ -1,11 +1,26 @@
 "use client";
 
 import { Button } from "@/features/ui";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { EcencyWalletCurrency } from "@ecency/wallets";
+import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 
-function ProfileWalletExternalBanner() {
+export function ProfileWalletExternalBanner() {
+  const { username } = useParams();
+  const { data } = useQuery(getAccountFullQueryOptions((username as string).replace("%40", "")));
+
+  if (
+    data?.profile?.tokens?.some(({ symbol }) =>
+      Object.values(EcencyWalletCurrency).includes(symbol as any)
+    )
+  ) {
+    return <></>;
+  }
+
   return (
     <div className="bg-white rounded-xl p-3 mb-4 flex flex-col md:flex-row items-center gap-4 lg:gap-6">
       <Image src="/assets/undraw-digital-currency.svg" alt="" width={300} height={300} />
@@ -14,13 +29,10 @@ function ProfileWalletExternalBanner() {
         <div className="opacity-75">
           {i18next.t("profile-wallet.external-wallets-offer.description")}
         </div>
-        <Button disabled={true} size="lg" icon={<UilArrowRight />}>
-          {i18next.t("waves.promote.coming-soon")}
+        <Button href="/wallet/setup-external" size="lg" icon={<UilArrowRight />}>
+          {i18next.t("g.continue")}
         </Button>
       </div>
     </div>
   );
 }
-
-export { ProfileWalletExternalBanner };
-export default ProfileWalletExternalBanner;

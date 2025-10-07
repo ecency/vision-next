@@ -28,8 +28,9 @@ export default function WalletSetupExternalPage() {
               description: i18next.t(
                 "profile-wallet.external-wallets-signup.import-wallet-description"
               ),
-              buttonText: i18next.t("g.continue"),
-              onClick: () => setStep("import")
+              buttonText: i18next.t("waves.promote.coming-soon"),
+              onClick: () => setStep("import"),
+              disabled: true
             }
           ]
         : [],
@@ -47,7 +48,7 @@ export default function WalletSetupExternalPage() {
       <div className="container mx-auto px-2 pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">
         <SetupExternalHeader />
         <div className="grid grid-cols-2 gap-4">
-          {options.map(({ title, description, buttonText, onClick }, i) => (
+          {options.map(({ title, description, buttonText, onClick, disabled }, i) => (
             <LoginRequired key={title}>
               <motion.div
                 initial={{ opacity: 0, y: -16 }}
@@ -58,7 +59,7 @@ export default function WalletSetupExternalPage() {
                 <div className="text-xl font-bold">{title}</div>
                 <div className="text-gray-600 dark:text-gray-400">{description}</div>
 
-                <Button size="lg" icon={<UilArrowRight />}>
+                <Button disabled={disabled} size="lg" icon={!disabled && <UilArrowRight />}>
                   {buttonText}
                 </Button>
               </motion.div>
