@@ -4,23 +4,33 @@ import { getDiscussionsQuery } from "@/api/queries";
 import { ProfileFilter } from "@/enums";
 import { Entry, WaveEntry } from "@/entities";
 
-async function getThreads(host: string, pageParam?: WaveEntry) {
-    let nextThreadContainers = (
-        (await bridgeApi.getAccountPosts(
-            ProfileFilter.posts,
-            host,
-            pageParam?.author,
-            pageParam?.permlink,
-            1
-        )) as WaveEntry[]
-    )?.map((c) => {
+type ThreadsResult = readonly [Entry[], WaveEntry[]];
+
+// runtime guard for discussions
+function toEntryArray(x: unknown): Entry[] {
+    return Array.isArray(x) ? (x as Entry[]) : [];
+}
+
+async function getThreads(
+    host: string,
+    pageParam?: WaveEntry
+): Promise<ThreadsResult | null> {
+    const containers = (await bridgeApi.getAccountPosts(
+        ProfileFilter.posts,
+        host,
+        pageParam?.author,
+        pageParam?.permlink,
+        1
+    )) as WaveEntry[]; // API shape is known
+
+    let nextThreadContainers = containers?.map((c) => {
         c.id = c.post_id;
         c.host = host;
         return c;
     });
 
     if (!nextThreadContainers || nextThreadContainers.length === 0) {
-        return [];
+        return null;
     }
 
     const [nextThreadContainer] = nextThreadContainers;
@@ -30,7 +40,10 @@ async function getThreads(host: string, pageParam?: WaveEntry) {
     }
 
     const container = nextThreadContainers[0];
-    const discussionItems = (await getDiscussionsQuery(container).fetchAndGet()) ?? [];
+
+    // ⬇️ Narrow unknown -> Entry[]
+    const discussionItemsRaw = await getDiscussionsQuery(container).fetchAndGet();
+    const discussionItems = toEntryArray(discussionItemsRaw);
 
     if (discussionItems.length <= 1) {
         return getThreads(host, container);
@@ -50,7 +63,7 @@ async function getThreads(host: string, pageParam?: WaveEntry) {
         return getThreads(host, container);
     }
 
-    return [visibleItems, nextThreadContainers] as const; // [Entry[], WaveEntry[]]
+    return [visibleItems, nextThreadContainers] as const;
 }
 
 // Page = array of WaveEntry; Cursor = WaveEntry (container) or undefined
@@ -63,32 +76,34 @@ export const getWavesByHostQuery = (host: string) =>
         initialData: { pages: [], pageParams: [] },
         initialPageParam: undefined as WavesCursor,
 
-        // 👇 type the destructured param to avoid implicit-any
         queryFn: async ({ pageParam }: { pageParam: WavesCursor }) => {
-            const [items, nextThreadContainers] = await getThreads(host, pageParam);
+            const res = await getThreads(host, pageParam);
+            if (!res) return []; // no items to show for this page
+
+            const [items, nextThreadContainers] = res;
 
             return items
-                .map(
-                    (item) =>
-                        ({
-                            ...item,
-                            id: item.post_id,
-                            host,
-                            container: nextThreadContainers[0],
-                            parent: items.find(
-                                (i) =>
-                                    i.author === item.parent_author &&
-                                    i.permlink === item.parent_permlink &&
-                                    i.author !== host
-                            ),
-                        }) as WaveEntry
-                )
+                .map((item) => {
+                    const container = nextThreadContainers[0];
+                    const parent = items.find(
+                        (i) =>
+                            i.author === item.parent_author &&
+                            i.permlink === item.parent_permlink &&
+                            i.author !== host
+                    );
+
+                    // Build WaveEntry from Entry + extras
+                    return {
+                        ...item,
+                        id: item.post_id,
+                        host,
+                        container,
+                        parent,
+                    } as WaveEntry;
+                })
                 .filter((i) => i.container.post_id !== i.post_id)
-                .sort(
-                    (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
-                );
+                .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
         },
 
-        getNextPageParam: (lastPage: WavesPage): WavesCursor =>
-            lastPage?.[0]?.container,
+        getNextPageParam: (lastPage: WavesPage): WavesCursor => lastPage?.[0]?.container,
     });

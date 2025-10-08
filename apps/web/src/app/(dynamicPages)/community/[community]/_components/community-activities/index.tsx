@@ -9,6 +9,7 @@ import i18next from "i18next";
 import { Community } from "@/entities";
 import { AccountNotification } from "@/api/bridge";
 import { dateToFullRelative } from "@/utils";
+import type { InfiniteData } from "@tanstack/react-query";
 
 interface ListItemProps {
   notification: AccountNotification;
@@ -16,107 +17,113 @@ interface ListItemProps {
 
 export function NListItem({ notification }: ListItemProps) {
   const mentions = useMemo(() => notification.msg.match(/@[\w.\d-]+/gi), [notification]);
-  const username = useMemo(() => mentions?.[0].replace("@", ""), [mentions]);
+
+  // Avoid building a RegExp with an empty pattern list
   const patterns = useMemo(() => {
-    let formatPatterns = [];
+    const ps: string[] = [];
+    if (notification.url.startsWith("@")) ps.push(notification.url);
+    if (mentions?.length) ps.push(...mentions);
+    return ps;
+  }, [notification.url, mentions]);
 
-    // @username/permlink
-    if (notification.url.startsWith("@")) {
-      formatPatterns.push(notification.url);
-    }
+  const username = useMemo(() => mentions?.[0]?.replace("@", ""), [mentions]);
 
-    // @usernames
-    return [...formatPatterns, ...(mentions ?? [])];
-  }, [notification, mentions]);
-  const parts = useMemo(
-    () => notification.msg.split(new RegExp(`(${patterns.join("|")})`, "gi")),
-    [notification, patterns]
-  );
+  const parts = useMemo(() => {
+    if (!patterns.length) return [notification.msg];
+    const re = new RegExp(`(${patterns.join("|")})`, "gi");
+    return notification.msg.split(re);
+  }, [notification.msg, patterns]);
 
   return mentions ? (
-    <div className="activity-list-item">
-      <div className="activity-user">
-        <ProfileLink username={username ?? ""}>
-          <UserAvatar username={username ?? ""} size="medium" />
-        </ProfileLink>
-      </div>
-      <div className="activity-content">
-        <div className="activity-msg">
-          {parts
-            .filter((part) => part.trim() !== "")
-            .map((part, i) => {
-              if (patterns.includes(part.toLowerCase())) {
-                // post link
-                if (part.includes("/")) {
-                  const s = part.split("/");
-                  return (
-                    <Fragment key={i}>
-                      <EntryLink
-                        entry={{
-                          category: "post",
-                          author: s[0].replace("@", ""),
-                          permlink: s[1]
-                        }}
-                      >
-                        {part}
-                      </EntryLink>
-                    </Fragment>
-                  );
-                }
-
-                // user link
-                return (
-                  <Fragment key={i}>
-                    <ProfileLink username={part.replace("@", "")}>
-                      <>{part ?? ""}</>
-                    </ProfileLink>
-                  </Fragment>
-                );
-              }
-
-              return <span key={i}>{part}</span>;
-            })}
+      <div className="activity-list-item">
+        <div className="activity-user">
+          <ProfileLink username={username ?? ""}>
+            <UserAvatar username={username ?? ""} size="medium" />
+          </ProfileLink>
         </div>
-        <div className="activity-date">{dateToFullRelative(notification.date)}</div>
+        <div className="activity-content">
+          <div className="activity-msg">
+            {parts
+                .filter((part) => part.trim() !== "")
+                .map((part, i) => {
+                  if (patterns.some((p) => p.toLowerCase() === part.toLowerCase())) {
+                    if (part.includes("/")) {
+                      const [u, permlink] = part.split("/");
+                      return (
+                          <Fragment key={i}>
+                            <EntryLink
+                                entry={{ category: "post", author: u.replace("@", ""), permlink }}
+                            >
+                              {part}
+                            </EntryLink>
+                          </Fragment>
+                      );
+                    }
+                    return (
+                        <Fragment key={i}>
+                          <ProfileLink username={part.replace("@", "")}>{part}</ProfileLink>
+                        </Fragment>
+                    );
+                  }
+                  return <span key={i}>{part}</span>;
+                })}
+          </div>
+          <div className="activity-date">{dateToFullRelative(notification.date)}</div>
+        </div>
       </div>
-    </div>
-  ) : (
-    <></>
-  );
+  ) : null;
 }
 
 interface Props {
   community: Community;
 }
 
+// ---- helper: detect InfiniteData at runtime & narrow for TS
+type NotifPage = AccountNotification[];
+
+function isInfinite<TPage>(d: unknown): d is InfiniteData<TPage, unknown> {
+  return !!d && typeof d === "object" && "pages" in (d as any);
+}
+
 export function CommunityActivities({ community }: Props) {
-  const { fetchNextPage, isLoading, data } =
-      getAccountNotificationsQuery(community, 50).useClientQuery();
+  const result = getAccountNotificationsQuery(community, 50).useClientQuery();
+  const { isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = result;
+
+  // Narrow `data` safely
+  const pagesArr: NotifPage[] = useMemo(() => {
+    const d = result.data as unknown;
+    return isInfinite<NotifPage>(d) ? d.pages : [];
+  }, [result.data]);
 
   const hasMore = useMemo(() => {
-    if (!data?.pages?.length) return false;
-    const last = data.pages[data.pages.length - 1];
+    if (typeof hasNextPage === "boolean") return hasNextPage;
+    const last = pagesArr[pagesArr.length - 1];
     return Array.isArray(last) && last.length === 50;
-  }, [data?.pages]);
+  }, [hasNextPage, pagesArr]);
 
-  const items = useMemo(() => {
-    if (!data?.pages) return [] as AccountNotification[];
-    return data.pages.flatMap((p) => (Array.isArray(p) ? p : []));
-  }, [data?.pages]);
+  const items = useMemo(
+      () => pagesArr.flatMap((p) => (Array.isArray(p) ? p : [])),
+      [pagesArr]
+  );
 
   return (
       <div className="community-activities">
-        {isLoading && <LinearProgress />}
+        {(isLoading || isFetchingNextPage) && <LinearProgress />}
+
         <div className="activity-list">
           <div className="activity-list-body">
             {items.map((item, i) => (
-                <NListItem key={i} notification={item} />
+                <NListItem key={`${item.date}-${i}`} notification={item} />
             ))}
           </div>
         </div>
+
         {hasMore && (
             <div className="load-more">
-              <Button disabled={isLoading || !hasMore} onClick={() => fetchNextPage()}>
+              <Button
+                  disabled={isLoading || isFetchingNextPage}
+                  onClick={() => fetchNextPage()}
+              >
                 {i18next.t("g.load-more")}
               </Button>
             </div>
