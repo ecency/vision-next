@@ -26,7 +26,7 @@ jobs:
       env:
         CI: true
     - name: Build web app
-      run: pnpm --filter vision-web... build
+      run: pnpm --filter @ecency/web build
       env:
         CI: true
   build:

@@ -4,6 +4,11 @@ export default defineConfig({
     entry: ["src/index.ts"],
     dts: true,
     format: ["esm", "cjs"],
+    outExtension({ format }) {
+        return {
+            js: format === "esm" ? ".mjs" : ".cjs",
+        };
+    },
     sourcemap: true,
     clean: true,
     treeshake: true,
