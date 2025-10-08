@@ -11,21 +11,26 @@ interface Payload<T extends HiveBasedAssetSignType> {
 export async function powerDownHive<T extends HiveBasedAssetSignType>(
   payload: T extends "key" ? Payload<T> & { key: PrivateKey } : Payload<T>
 ) {
+  const operationPayload = {
+    account: payload.from,
+    vesting_shares: payload.amount,
+  };
+
   if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
+    const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["withdraw_vesting", params]],
+      [["withdraw_vesting", operationPayload]],
       key
     );
   } else if (payload.type === "keychain") {
     return Keychain.broadcast(
       payload.from,
-      [["withdraw_vesting", payload]],
+      [["withdraw_vesting", operationPayload]],
       "Active"
     ) as Promise<unknown>;
   } else {
     return hs.sendOperation(
-      ["withdraw_vesting", payload],
+      ["withdraw_vesting", operationPayload],
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {}
     );
