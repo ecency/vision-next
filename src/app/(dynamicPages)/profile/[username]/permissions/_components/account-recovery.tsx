@@ -12,8 +12,9 @@ import {
 import { PrivateKey } from "@hiveio/dhive";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
+import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
-import { FormControl } from "@ui/input";
+import { FormControl, InputGroup } from "@ui/input";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useCallback, useEffect, useState } from "react";
@@ -41,10 +42,8 @@ export function AccountRecovery() {
 
   const { data } = useQuery(getAccountFullQueryOptions(activeUser?.username));
   const { data: recoveries } = useQuery(getAccountRecoveriesQueryOptions(activeUser?.username));
-  const { data: pendingRecovery } = useQuery(
-    getAccountPendingRecoveryQueryOptions(activeUser?.username)
-  );
 
+  const [formInitiated, setFormInitiated] = useState(false);
   const [keyDialog, setKeyDialog] = useState(false);
 
   const methods = useForm({
@@ -113,13 +112,26 @@ export function AccountRecovery() {
           <label className="mb-2 text-sm opacity-50 px-2">
             {i18next.t("account-recovery.curr-recovery-acc")}
           </label>
-          <FormControl
-            {...methods.register("newRecoveryAccount")}
-            type="text"
-            autoFocus={true}
-            autoComplete="off"
-            aria-invalid={!!methods.formState.errors.newRecoveryAccount}
-          />
+          <InputGroup
+            append={
+              !formInitiated && (
+                <Button
+                  appearance="gray"
+                  icon={<UilEditAlt />}
+                  onClick={() => setFormInitiated(true)}
+                />
+              )
+            }
+          >
+            <FormControl
+              {...methods.register("newRecoveryAccount")}
+              disabled={!formInitiated}
+              type="text"
+              autoFocus={true}
+              autoComplete="off"
+              aria-invalid={!!methods.formState.errors.newRecoveryAccount}
+            />
+          </InputGroup>
           <div className="text-sm px-2 text-red">
             {methods.formState.errors.newRecoveryAccount?.message}
           </div>
@@ -149,9 +161,11 @@ export function AccountRecovery() {
         )}
 
         <div className="w-full flex flex-end">
-          <Button size="sm" type="submit">
-            {i18next.t("g.update")}
-          </Button>
+          {formInitiated && (
+            <Button size="sm" type="submit">
+              {i18next.t("g.update")}
+            </Button>
+          )}
         </div>
       </form>
 
