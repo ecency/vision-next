@@ -11,28 +11,53 @@ const getDays = (createdDate: string): number => {
   return now.diff(past, "day", true);
 };
 
+interface VoteOperationDetails {
+  voter: string;
+  author: string;
+  permlink: string;
+  weight: number;
+}
+
+interface AccountVoteHistoryItem {
+  timestamp: string;
+  op: [string, VoteOperationDetails];
+}
+
+type AccountVoteHistoryRecord = [number, AccountVoteHistoryItem];
+
+interface AccountVoteHistoryPage {
+  lastDate: number;
+  lastItemFetched: number;
+  entries: Entry[];
+}
+
+interface VoteHistoryResult extends VoteOperationDetails {
+  num: number;
+  timestamp: string;
+}
+
 export const getAccountVoteHistoryQuery = <F>(username: string, filters: F[] = [], limit = 20) =>
   EcencyQueriesManager.generateClientServerInfiniteQuery({
     queryKey: [QueryIdentifiers.ACCOUNT_VOTES_HISTORY, username],
-    queryFn: async ({ pageParam: { start } }) => {
-      const response = await client.call("condenser_api", "get_account_history", [
-        username,
-        start,
-        limit,
-        ...filters
-      ]);
-      const result = response
-        .map((historyObj: any) => ({
-          ...historyObj[1].op[1],
-          num: historyObj[0],
-          timestamp: historyObj[1].timestamp
-        }))
-        .filter(
-          (filtered: any) =>
-            filtered.voter === username &&
-            filtered.weight != 0 &&
-            getDays(filtered.timestamp) <= days
-        );
+    queryFn: async ({ pageParam: { start } }: { pageParam: { start: number } }): Promise<AccountVoteHistoryPage> => {
+      const response = await client.call<AccountVoteHistoryRecord[]>(
+        "condenser_api",
+        "get_account_history",
+        [username, start, limit, ...filters]
+      );
+
+      const mappedResults: VoteHistoryResult[] = response.map(([num, historyObj]) => ({
+        ...historyObj.op[1],
+        num,
+        timestamp: historyObj.timestamp
+      }));
+
+      const result = mappedResults.filter(
+        (filtered) =>
+          filtered.voter === username &&
+          filtered.weight !== 0 &&
+          getDays(filtered.timestamp) <= days
+      );
       const entries: Entry[] = [];
 
       for (const obj of result) {
@@ -42,14 +67,16 @@ export const getAccountVoteHistoryQuery = <F>(username: string, filters: F[] = [
         }
       }
 
+      const [firstHistory] = response;
+
       return {
-        lastDate: getDays(response[0][1].timestamp),
-        lastItemFetched: response[0][0],
+        lastDate: firstHistory ? getDays(firstHistory[1].timestamp) : 0,
+        lastItemFetched: firstHistory ? firstHistory[0] : start,
         entries
       };
     },
     initialPageParam: { start: -1 },
-    getNextPageParam: (lastPage) => ({
+    getNextPageParam: (lastPage: AccountVoteHistoryPage) => ({
       start: lastPage.entries.length - 1
     })
   });

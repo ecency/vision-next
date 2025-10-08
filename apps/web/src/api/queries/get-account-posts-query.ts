@@ -25,16 +25,23 @@ export const getAccountPostsQuery = (
                 return [];
             }
 
-            const rpcParams: Record<string, any> = Object.fromEntries(
-                Object.entries({
-                    sort: filter,
-                    account: username,
-                    limit,
-                    observer,
-                    start_author: pageParam.author,
-                    start_permlink: pageParam.permlink
-                }).filter(([_, v]) => v !== undefined)
-            );
+            interface AccountPostsParams {
+                sort: string;
+                account: string;
+                limit: number;
+                observer?: string;
+                start_author?: string;
+                start_permlink?: string;
+            }
+
+            const rpcParams: AccountPostsParams = {
+                sort: filter,
+                account: username,
+                limit,
+                ...(observer !== undefined ? { observer } : {}),
+                ...(pageParam.author ? { start_author: pageParam.author } : {}),
+                ...(pageParam.permlink ? { start_permlink: pageParam.permlink } : {})
+            };
 
             try {
                 if (dmca_accounts.includes(username)) {

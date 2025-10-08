@@ -34,6 +34,17 @@ import {
 import { delay, isCommunity, parseAsset, vestsToRshares } from "@/utils";
 import { OrdersDataItem } from "@/entities/hive/orders-data-item";
 
+export interface RcDirectDelegation {
+  from: string;
+  to: string;
+  delegated_rc: string;
+}
+
+export interface RcDirectDelegationsResponse {
+  rc_direct_delegations: RcDirectDelegation[];
+  next_start?: [string, string] | null;
+}
+
 export const client = new Client(SERVERS, {
   timeout: 2000,
   failoverThreshold: 2,
@@ -252,8 +263,12 @@ export const getVestingDelegations = (
 ): Promise<DelegatedVestingShare[]> =>
   client.database.call("get_vesting_delegations", [username, from, limit]);
 
-export const getOutgoingRc = (from: string, to: string = "", limit: number = 50): Promise<any[]> =>
-  client.call("rc_api", "list_rc_direct_delegations", {
+export const getOutgoingRc = (
+  from: string,
+  to: string = "",
+  limit: number = 50
+): Promise<RcDirectDelegationsResponse> =>
+  client.call<RcDirectDelegationsResponse>("rc_api", "list_rc_direct_delegations", {
     start: [from, to],
     limit: limit
   });

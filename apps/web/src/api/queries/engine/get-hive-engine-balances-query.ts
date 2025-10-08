@@ -25,27 +25,48 @@ export function useGetHiveEngineBalancesQuery(account?: string) {
       const balances = await getTokenBalances(account);
       const tokens = await getTokens(balances.map((t) => t.symbol));
 
+      type HiveEngineTokenProps = ConstructorParameters<typeof HiveEngineToken>[0];
+
       return balances.map((balance) => {
-        const token = tokens.find((t) => t.symbol == balance.symbol);
-        const tokenMetadata = token && (JSON.parse(token!.metadata) as TokenMetadata);
+        const token = tokens.find((t) => t.symbol === balance.symbol);
+        let tokenMetadata: TokenMetadata | undefined;
+
+        if (token?.metadata) {
+          try {
+            tokenMetadata = JSON.parse(token.metadata) as TokenMetadata;
+          } catch (error) {
+            tokenMetadata = undefined;
+          }
+        }
 
         const pricePerHive =
           (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base /
           (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).quote;
         const metric = allTokens?.find((m) => m.symbol === balance.symbol);
-        const lastPrice = +(metric?.lastPrice ?? "0");
+        const lastPrice = Number(metric?.lastPrice ?? "0");
+        const balanceAmount = Number(balance.balance);
+        const usdValue =
+          balance.symbol === "SWAP.HIVE"
+            ? pricePerHive * balanceAmount
+            : lastPrice === 0
+              ? 0
+              : Number((lastPrice * pricePerHive * balanceAmount).toFixed(10));
 
-        return new HiveEngineToken({
-          ...balance,
-          ...token,
-          ...tokenMetadata,
-          usdValue:
-            balance.symbol === "SWAP.HIVE"
-              ? Number(pricePerHive * +balance.balance)
-              : lastPrice === 0
-                ? 0
-                : Number(lastPrice * pricePerHive * +balance.balance).toFixed(10)
-        } as any);
+        const tokenProps: HiveEngineTokenProps = {
+          symbol: balance.symbol,
+          name: token?.name ?? balance.symbol,
+          icon: tokenMetadata?.icon ?? "",
+          precision: token?.precision ?? 0,
+          stakingEnabled: token?.stakingEnabled ?? false,
+          delegationEnabled: token?.delegationEnabled ?? false,
+          balance: balance.balance,
+          stake: balance.stake,
+          delegationsIn: balance.delegationsIn,
+          delegationsOut: balance.delegationsOut,
+          usdValue
+        };
+
+        return new HiveEngineToken(tokenProps);
       });
     },
     enabled: !!account

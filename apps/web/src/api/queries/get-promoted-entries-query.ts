@@ -4,36 +4,41 @@ import { apiBase } from "@/api/helper";
 import { Entry } from "@/entities";
 
 export const getPromotedEntriesQuery = () =>
-  EcencyQueriesManager.generateConfiguredClientServerQuery(
-    ({ visionFeatures }) => visionFeatures.promotions.enabled,
-    {
-      queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "list"],
-      queryFn: async () => {
-        const response = await appAxios.get<Entry[]>(apiBase(`/private-api/promoted-entries`));
-        return response.data;
-      }
-    }
-  );
-
-/**
- * Use this query for fetching promotion entries as single list in SSR
- * Because SSR feed page requires paginated response
- */
-export const getPromotedEntriesInfiniteQuery = () =>
-  EcencyQueriesManager.generateConfiguredClientServerInfiniteQuery(
-    ({ visionFeatures }) => visionFeatures.promotions.enabled,
-    {
-      queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "infinite"],
-      queryFn: async ({ pageParam }) => {
-        if (pageParam === "fetched") {
-          return [];
+    EcencyQueriesManager.generateConfiguredClientServerQuery(
+        ({ visionFeatures }) => visionFeatures.promotions.enabled,
+        {
+            queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "list"],
+            queryFn: async () => {
+                const response = await appAxios.get<Entry[]>(apiBase(`/private-api/promoted-entries`));
+                return response.data;
+            },
         }
+    );
 
-        const response = await appAxios.get<Entry[]>(apiBase(`/private-api/promoted-entries`));
-        return response.data;
-      },
-      initialData: { pages: [], pageParams: [] },
-      initialPageParam: "empty",
-      getNextPageParam: () => "fetched"
-    }
-  );
+/** Use this for SSR where the page expects an infinite shape */
+type PromotedPage = Entry[];
+type PromotedCursor = "empty" | "fetched";
+
+export const getPromotedEntriesInfiniteQuery = () =>
+    EcencyQueriesManager.generateConfiguredClientServerInfiniteQuery<PromotedPage, PromotedCursor>(
+        ({ visionFeatures }) => visionFeatures.promotions.enabled,
+        {
+            queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "infinite"],
+            initialData: { pages: [], pageParams: [] },
+            initialPageParam: "empty" as PromotedCursor,
+
+            // ⬇️ annotate pageParam
+            queryFn: async ({ pageParam }: { pageParam: PromotedCursor }) => {
+                if (pageParam === "fetched") return [];
+                const response = await appAxios.get<Entry[]>(apiBase(`/private-api/promoted-entries`));
+                return response.data;
+            },
+
+            // ⬇️ optional full typing of args
+            getNextPageParam: (
+                _lastPage: PromotedPage,
+                _allPages: PromotedPage[],
+                _lastPageParam: PromotedCursor
+            ): PromotedCursor => "fetched",
+        }
+    );

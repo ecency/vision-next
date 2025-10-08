@@ -90,35 +90,38 @@ interface Props {
 }
 
 export function CommunityActivities({ community }: Props) {
-  const { fetchNextPage, isLoading, data } = getAccountNotificationsQuery(
-    community,
-    50
-  ).useClientQuery();
+  const { fetchNextPage, isLoading, data } =
+      getAccountNotificationsQuery(community, 50).useClientQuery();
 
+  // pages: AccountNotification[][]
   const hasMore = useMemo(
-    () => data?.pages && data.pages[data.pages?.length - 1]?.length === 50,
-    [data?.pages]
+      () => !!data?.pages?.length && data.pages.at(-1)!.length === 50,
+      [data?.pages]
   );
+
+  // Flatten pages safely
   const items = useMemo(
-    () => data?.pages?.reduce((acc, page) => [...acc, ...page], []),
-    [data?.pages]
+      () => data?.pages?.flat() ?? [],
+      [data?.pages]
   );
 
   return (
-    <div className="community-activities">
-      {isLoading && <LinearProgress />}
-      <div className="activity-list">
-        <div className="activity-list-body">
-          {items?.map((item, i) => <NListItem key={i} notification={item} />)}
+      <div className="community-activities">
+        {isLoading && <LinearProgress />}
+        <div className="activity-list">
+          <div className="activity-list-body">
+            {items.map((item, i) => (
+                <NListItem key={i} notification={item} />
+            ))}
+          </div>
         </div>
+        {hasMore && (
+            <div className="load-more">
+              <Button disabled={isLoading || !hasMore} onClick={() => fetchNextPage()}>
+                {i18next.t("g.load-more")}
+              </Button>
+            </div>
+        )}
       </div>
-      {hasMore && (
-        <div className="load-more">
-          <Button disabled={isLoading || !hasMore} onClick={() => fetchNextPage()}>
-            {i18next.t("g.load-more")}
-          </Button>
-        </div>
-      )}
-    </div>
   );
 }

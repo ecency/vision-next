@@ -5,12 +5,15 @@ import { InfiniteData } from "@tanstack/react-query";
 import { Entry, SearchResponse } from "@/entities";
 import { getPromotedEntriesInfiniteQuery } from "@/api/queries/get-promoted-entries-query";
 
+type EntryInfiniteData = InfiniteData<Entry[]>;
+type SearchInfiniteData = InfiniteData<SearchResponse>;
+
 export async function prefetchGetPostsFeedQuery(
   what: string,
   tag = "",
   limit = 20,
   observer?: string
-): Promise<InfiniteData<Entry[] | SearchResponse> | unknown | undefined> {
+): Promise<EntryInfiniteData | SearchInfiniteData | undefined> {
   const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
 
@@ -39,7 +42,12 @@ export async function prefetchGetPostsFeedQuery(
   return getPostsRankedQuery(what, tag, limit, observer ?? "").prefetch();
 }
 
-export function getPostsFeedQueryData(what: string, tag: string, limit = 20, observer?: string) {
+export function getPostsFeedQueryData(
+  what: string,
+  tag: string,
+  limit = 20,
+  observer?: string
+): EntryInfiniteData | SearchInfiniteData | undefined {
   const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
 

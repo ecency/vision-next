@@ -16,11 +16,11 @@ export const getTransactionsQuery = (
 ) =>
   EcencyQueriesManager.generateClientServerInfiniteQuery({
     queryKey: [QueryIdentifiers.TRANSACTIONS, username, group],
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam }: { pageParam: number }) => {
       if (!username) {
         return [];
       }
-      let filters: any[];
+      let filters: number[] | undefined;
       switch (group) {
         case "transfers":
           filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
@@ -40,30 +40,38 @@ export const getTransactionsQuery = (
         default:
           filters = utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS); // all
       }
-      const response = (await (filters
-        ? client.call("condenser_api", "get_account_history", [
+      type TransactionDetails = Omit<Transaction, "num" | "type" | "timestamp" | "trx_id">;
+      interface AccountHistoryOperation {
+        timestamp: string;
+        trx_id: string;
+        op: [Transaction["type"], TransactionDetails];
+      }
+      type AccountHistoryRecord = [number, AccountHistoryOperation];
+
+      const response = await (filters
+        ? client.call<AccountHistoryRecord[]>("condenser_api", "get_account_history", [
             username,
             pageParam,
             limit,
             ...filters
           ])
-        : client.call("condenser_api", "get_account_history", [
+        : client.call<AccountHistoryRecord[]>("condenser_api", "get_account_history", [
             username,
             pageParam,
             limit
-          ]))) as Transaction[];
-      const mapped: Transaction[] = response.map((x: any) => ({
-        num: x[0],
-        type: x[1].op[0],
-        timestamp: x[1].timestamp,
-        trx_id: x[1].trx_id,
-        ...x[1].op[1]
+          ]));
+      const mapped = response.map<Transaction>(([num, operation]) => ({
+        num,
+        type: operation.op[0],
+        timestamp: operation.timestamp,
+        trx_id: operation.trx_id,
+        ...operation.op[1]
       }));
 
-      return mapped.filter((x) => x !== null).sort((a: any, b: any) => b.num - a.num);
+      return mapped.filter((transaction) => transaction !== null).sort((a, b) => b.num - a.num);
     },
     initialData: { pages: [], pageParams: [] },
     initialPageParam: -1,
-    getNextPageParam: (lastPage, __) =>
+    getNextPageParam: (lastPage: Transaction[] | undefined) =>
       lastPage ? (lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1
   });

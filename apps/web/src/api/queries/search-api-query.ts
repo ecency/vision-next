@@ -13,13 +13,28 @@ export const getSearchApiQuery = (
   EcencyQueriesManager.generateClientServerInfiniteQuery({
     queryKey: [QueryIdentifiers.SEARCH_API, q, sort, hideLow, since, votes],
     queryFn: async ({ pageParam }: { pageParam: string | undefined }) => {
-      const data: Record<string, any> = { q, sort, hide_low: hideLow };
+      interface SearchApiPayload {
+        q: string;
+        sort: string;
+        hide_low: boolean;
+        since?: string;
+        scroll_id?: string;
+        votes?: number;
+      }
 
-      if (since) data.since = since;
-      if (pageParam) data.scroll_id = pageParam;
-      if (votes) data.votes = votes;
+      const payload: SearchApiPayload = { q, sort, hide_low: hideLow };
 
-      const response = await axios.post<SearchResponse>(apiBase(`/search-api/search`), data);
+      if (since) {
+        payload.since = since;
+      }
+      if (pageParam) {
+        payload.scroll_id = pageParam;
+      }
+      if (votes !== undefined) {
+        payload.votes = votes;
+      }
+
+      const response = await axios.post<SearchResponse>(apiBase(`/search-api/search`), payload);
       return response.data;
     },
     initialData: { pages: [], pageParams: [] },
