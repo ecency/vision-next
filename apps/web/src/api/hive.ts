@@ -264,14 +264,16 @@ export const getVestingDelegations = (
   client.database.call("get_vesting_delegations", [username, from, limit]);
 
 export const getOutgoingRc = (
-  from: string,
-  to: string = "",
-  limit: number = 50
+    from: string,
+    to: string = "",
+    limit: number = 50
 ): Promise<RcDirectDelegationsResponse> =>
-  client.call<RcDirectDelegationsResponse>("rc_api", "list_rc_direct_delegations", {
-    start: [from, to],
-    limit: limit
-  });
+    client
+        .call("rc_api", "list_rc_direct_delegations", {
+          start: [from, to],
+          limit,
+        })
+        .then((r: any) => r as RcDirectDelegationsResponse);
 
 export const getIncomingRc = async (user: string): Promise<any[]> => {
   const data = await fetch(`https://ecency.com/private-api/received-rc/${user}`)

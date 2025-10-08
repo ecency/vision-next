@@ -3,37 +3,42 @@
 import { DetectBottom, EntryListContent, EntryListContentLoading } from "@/features/shared";
 import React, { useMemo } from "react";
 import { usePostsFeedQuery } from "@/api/queries";
-import { Community, Entry } from "@/entities";
+import { Community, Entry, SearchResponse } from "@/entities";
+import type { UseInfiniteQueryResult } from "@tanstack/react-query";
 
 interface Props {
-  community: Community;
-  section: string;
+    community: Community;
+    section: string;
 }
 
+type Page = Entry[] | SearchResponse;
+
 export function CommunityContentInfiniteList({ section, community }: Props) {
-  const { fetchNextPage, data, isFetching } = usePostsFeedQuery(section, community.name);
+    const { fetchNextPage, data, isFetching } =
+        usePostsFeedQuery(section, community.name) as UseInfiniteQueryResult<Page, Error>;
 
-  const entryList = useMemo(
-    () =>
-      // Drop first page as it has loaded in a server and shown in RSC
-      data?.pages?.slice(1)?.reduce<Entry[]>((acc, page) => [...acc, ...(page as Entry[])], []) ??
-      [],
-    [data?.pages]
-  );
+    const pageToEntries = (p: Page): Entry[] =>
+        Array.isArray(p) ? p : ((p as any).items ?? (p as any).results ?? []);
 
-  return (
-    <>
-      <EntryListContent
-        username={community.name}
-        loading={false}
-        entries={entryList}
-        sectionParam={section}
-        isPromoted={false}
-        showEmptyPlaceholder={false}
-      />
-      <DetectBottom onBottom={() => fetchNextPage()} />
+    const entryList = useMemo(
+        () =>
+            // Drop first page as it has loaded in a server and shown in RSC
+            (data?.pages?.slice(1)?.flatMap(pageToEntries) ?? []),
+        [data?.pages]
+    );
 
-      {isFetching && <EntryListContentLoading />}
-    </>
-  );
+    return (
+        <>
+            <EntryListContent
+                username={community.name}
+                loading={false}
+                entries={entryList}
+                sectionParam={section}
+                isPromoted={false}
+                showEmptyPlaceholder={false}
+            />
+            <DetectBottom onBottom={() => fetchNextPage()} />
+            {isFetching && <EntryListContentLoading />}
+        </>
+    );
 }

@@ -10,6 +10,7 @@ type PageParam = {
     permlink: string | undefined;
     hasNextPage: boolean;
 };
+type Page = Entry[];
 
 export const getAccountPostsQuery = (
     username: string | undefined,
@@ -18,12 +19,19 @@ export const getAccountPostsQuery = (
     observer = "",
     enabled = true
 ) =>
-    EcencyQueriesManager.generateClientServerInfiniteQuery({
+    EcencyQueriesManager.generateClientServerInfiniteQuery<Page, PageParam>({
         queryKey: [QueryIdentifiers.GET_POSTS, username, filter, limit],
-        queryFn: async ({ pageParam }) => {
-            if (!pageParam.hasNextPage || !username) {
-                return [];
-            }
+        enabled: !!username && enabled,
+        initialData: { pages: [], pageParams: [] },
+        initialPageParam: {
+            author: undefined,
+            permlink: undefined,
+            hasNextPage: true,
+        } as PageParam,
+
+        // 👇 type the destructured arg
+        queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
+            if (!pageParam.hasNextPage || !username) return [];
 
             interface AccountPostsParams {
                 sort: string;
@@ -40,24 +48,19 @@ export const getAccountPostsQuery = (
                 limit,
                 ...(observer !== undefined ? { observer } : {}),
                 ...(pageParam.author ? { start_author: pageParam.author } : {}),
-                ...(pageParam.permlink ? { start_permlink: pageParam.permlink } : {})
+                ...(pageParam.permlink ? { start_permlink: pageParam.permlink } : {}),
             };
 
             try {
-                if (dmca_accounts.includes(username)) {
-                    return [];
-                }
+                if (dmca_accounts.includes(username)) return [];
 
                 const resp = await bridgeApiCall<Entry[] | null>("get_account_posts", rpcParams);
-
                 if (resp && Array.isArray(resp)) {
-                    return await Promise.all(resp.map((p) => resolvePost(p, observer)));
+                    return Promise.all(resp.map((p) => resolvePost(p, observer)));
                 }
-
                 return [];
             } catch (err) {
                 const rpcError = err as RPCError;
-
                 const readableMessage = parseRpcInfo(rpcError.jse_info);
 
                 Sentry.captureException(rpcError, {
@@ -65,29 +68,25 @@ export const getAccountPostsQuery = (
                         rpcMethod: "get_account_posts",
                         username,
                         parsedRpcError: readableMessage ?? undefined,
-                        params: rpcParams
+                        params: rpcParams,
                     },
                     tags: {
-                        rpc_category: readableMessage?.includes("does not exist") ? "account_missing" : "other"
-                    }
+                        rpc_category: readableMessage?.includes("does not exist")
+                            ? "account_missing"
+                            : "other",
+                    },
                 });
 
                 return [];
             }
         },
-        enabled: !!username && enabled,
-        initialData: { pages: [], pageParams: [] },
-        initialPageParam: {
-            author: undefined,
-            permlink: undefined,
-            hasNextPage: true
-        } as PageParam,
-        getNextPageParam: (lastPage: Entry[]) => {
+
+        getNextPageParam: (lastPage: Page): PageParam => {
             const last = lastPage?.[lastPage.length - 1];
             return {
                 author: last?.author,
                 permlink: last?.permlink,
-                hasNextPage: (lastPage?.length ?? 0) > 0
+                hasNextPage: (lastPage?.length ?? 0) > 0,
             };
-        }
+        },
     });

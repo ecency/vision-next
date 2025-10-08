@@ -93,17 +93,16 @@ export function CommunityActivities({ community }: Props) {
   const { fetchNextPage, isLoading, data } =
       getAccountNotificationsQuery(community, 50).useClientQuery();
 
-  // pages: AccountNotification[][]
-  const hasMore = useMemo(
-      () => !!data?.pages?.length && data.pages.at(-1)!.length === 50,
-      [data?.pages]
-  );
+  const hasMore = useMemo(() => {
+    if (!data?.pages?.length) return false;
+    const last = data.pages[data.pages.length - 1];
+    return Array.isArray(last) && last.length === 50;
+  }, [data?.pages]);
 
-  // Flatten pages safely
-  const items = useMemo(
-      () => data?.pages?.flat() ?? [],
-      [data?.pages]
-  );
+  const items = useMemo(() => {
+    if (!data?.pages) return [] as AccountNotification[];
+    return data.pages.flatMap((p) => (Array.isArray(p) ? p : []));
+  }, [data?.pages]);
 
   return (
       <div className="community-activities">
