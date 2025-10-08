@@ -1,0 +1,85 @@
+name: Publish Packages to NPM
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10.15.1
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Create .env file
+        run: |
+          echo "VITE_HELIUS_API_KEY=${{ secrets.VITE_HELIUS_API_KEY }}" >> .env
+          echo "VITE_BITQUERY_API_KEY=${{ secrets.VITE_BITQUERY_API_KEY }}" >> .env
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: |
+          pnpm --filter @ecency/sdk build
+          pnpm --filter @ecency/wallets build
+
+      - name: Detect changes in @ecency/sdk
+        id: detect_sdk
+        run: |
+          PREV_COMMIT=$(git rev-parse HEAD^ || echo "")
+          if [ -z "$PREV_COMMIT" ]; then
+            echo "No previous commit. Skipping publish."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            if git diff --quiet "$PREV_COMMIT" HEAD -- packages/sdk; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Detect changes in @ecency/wallets
+        id: detect_wallets
+        run: |
+          PREV_COMMIT=$(git rev-parse HEAD^ || echo "")
+          if [ -z "$PREV_COMMIT" ]; then
+            echo "No previous commit. Skipping publish."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            if git diff --quiet "$PREV_COMMIT" HEAD -- packages/wallets; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Set up .npmrc
+        run: |
+          echo "@ecency:registry=https://registry.npmjs.org/" > .npmrc
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+
+      - name: Publish @ecency/sdk
+        if: steps.detect_sdk.outputs.changed == 'true'
+        run: |
+          cd packages/sdk
+          npm publish --access public
+
+      - name: Publish @ecency/wallets
+        if: steps.detect_wallets.outputs.changed == 'true'
+        run: |
+          cd packages/wallets
+          npm publish --access public

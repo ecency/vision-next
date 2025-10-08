@@ -1,0 +1,50 @@
+{
+  "name": "@ecency/sdk",
+  "private": false,
+  "version": "1.2.0",
+  "type": "module",
+  "license": "MIT",
+  "files": ["dist"],
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "@tanstack/react-query": ">=5"
+  },
+  "devDependencies": {
+    "@hiveio/dhive": "^1.3.2",
+    "@tanstack/react-query": "^5.74.4",
+    "@types/node": "^22.13.8",
+    "@types/react": "^19.0.10",
+    "bip39": "^3.1.0",
+    "eslint": "^9.21.0",
+    "hivesigner": "3.3.4",
+    "lru-cache": "^11.0.2",
+    "prettier": "^3.5.2",
+    "react": "^19.0.0",
+    "remeda": "^2.30.0",
+    "tsup": "^8",
+    "typescript": "^5.6"
+  },
+  "dependencies": {},
+  "publishConfig": { "access": "public" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ecency/vision-next.git",
+    "directory": "packages/sdk"
+  }
+}

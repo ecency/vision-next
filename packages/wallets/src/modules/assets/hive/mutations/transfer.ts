@@ -1,0 +1,71 @@
+import { CONFIG } from "@ecency/sdk";
+import { PrivateKey } from "@hiveio/dhive";
+import hs from "hivesigner";
+import { HiveBasedAssetSignType } from "../../types";
+import { parseAsset } from "../../utils";
+
+export interface TransferPayload<T extends HiveBasedAssetSignType> {
+  from: string;
+  to: string;
+  amount: string;
+  memo: string;
+  type: T;
+}
+
+export async function transferHive<T extends HiveBasedAssetSignType>(
+  payload: T extends "key"
+    ? TransferPayload<T> & { key: PrivateKey }
+    : TransferPayload<T>
+) {
+  const parsedAsset = parseAsset(payload.amount);
+  const token = parsedAsset.symbol;
+
+  if (payload.type === "key" && "key" in payload) {
+    const { key, type, ...params } = payload;
+    // params contains from, to, amount (with correct token string), memo
+    // broadcast.transfer expects amount string like "1.000 HIVE" or "1.000 HBD"
+    return CONFIG.hiveClient.broadcast.transfer(
+      {
+        from: params.from,
+        to: params.to,
+        amount: params.amount,
+        memo: params.memo,
+      },
+      key
+    );
+  } else if (payload.type === "keychain") {
+    return new Promise((resolve, reject) =>
+      (window as any).hive_keychain?.requestTransfer(
+        payload.from,
+        payload.to,
+        payload.amount,
+        payload.memo,
+        token,
+        (resp: { success: boolean }) => {
+          if (!resp.success) {
+            reject({ message: "Operation cancelled" });
+          }
+
+          resolve(resp);
+        },
+        true,
+        null
+      )
+    );
+  } else {
+    // For hivesigner, include the same payload fields; amount already contains token denomination
+    return hs.sendOperation(
+      [
+        "transfer",
+        {
+          from: payload.from,
+          to: payload.to,
+          amount: payload.amount,
+          memo: payload.memo,
+        },
+      ],
+      { callback: `https://ecency.com/@${payload.from}/wallet` },
+      () => {}
+    );
+  }
+}

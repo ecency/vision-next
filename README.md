@@ -26,7 +26,7 @@ Feel free to test it out and submit improvements and pull requests.
 ##### Requirements
 
 - `node ^18.17.x`
-- `yarn`
+- [`pnpm`](https://pnpm.io/) (the repo is configured with `packageManager: pnpm@10.15.1`)
 
 ##### Clone
 
@@ -34,9 +34,50 @@ Feel free to test it out and submit improvements and pull requests.
 
 `$ cd vision-next`
 
+### Working with pnpm
+
+This repository is organised as a [pnpm workspace](https://pnpm.io/workspaces) with the web
+application living in `apps/web` and shared packages located under `packages/*`. pnpm keeps a
+single lockfile (`pnpm-lock.yaml`) at the workspace root and all commands should be run from this
+directory unless noted otherwise.
+
 ##### Install dependencies
 
-`$ yarn`
+```bash
+pnpm install
+```
+
+pnpm will create a workspace-wide virtual store and automatically link local packages between
+`apps/*` and `packages/*`.
+
+##### Running scripts
+
+You can execute scripts that are defined in each workspace package. Some useful commands are:
+
+| Task | Command                           | Notes |
+| --- |-----------------------------------| --- |
+| Install dependencies | `pnpm install`                    | Installs all workspace packages.
+| Start development server | `pnpm --filter @ecency/web dev`   | Runs the Next.js dev server for the web app.
+| Build for production | `pnpm --filter @ecency/web build` | Builds the web app only.
+| Start production server | `pnpm --filter @ecency/web start` | Runs the built web app.
+| Lint all packages | `pnpm lint`                       | Executes `pnpm -r lint` defined in the root `package.json`.
+| Test all packages | `pnpm test`                       | Executes `pnpm -r test` defined in the root `package.json`.
+
+To run a script in every workspace package (for example, to build all libraries and apps), use the
+recursive flag defined in the root scripts: `pnpm build` will run `pnpm -r build` across the
+workspace.
+
+##### Publishing packages
+
+Packages in `packages/*` can be published individually. Use pnpm's filtering to target a specific
+package:
+
+```bash
+pnpm --filter <package-name> publish --access public
+```
+
+Replace `<package-name>` with the actual package name declared in that package's `package.json`.
+Make sure the package is built before publishing (`pnpm --filter <package-name> build`).
 
 ##### Edit config file or define environment variables
 
@@ -132,14 +173,14 @@ docker stack deploy -c docker-compose.yml -c docker-compose.production.yml visio
 ## Pushing new code / Pull requests
 
 - Make sure to branch off your changes from `development` branch.
-- Make sure to run `yarn test` and add tests to your changes.
+- Make sure to run `pnpm test` and add tests to your changes.
 - Make sure new text, strings are added into `en-US.json` file only.
 - Code on!
 
 ### Note to developers
 
 - Make PRs more clear with description, screenshots or videos, linking to issues, if no issue exist create one that describes PR and mention in PR. Reviewers may or may not run code, but PR should be reviewable even without running, visials helps there.
-- PR should have title WIP, if it is not ready yet. Once ready, run yarn test and update all tests, make sure linting also done before requesting for review.
+- PR should have title WIP, if it is not ready yet. Once ready, run `pnpm test` and update all tests, make sure linting (`pnpm lint`) also done before requesting for review.
 - Creating component?! Make sure to create simple tests, you can check other components for examples.
 - Always make sure component and pages stay fast without unnecessary re-renders because those will slow down app/performance.
 -
