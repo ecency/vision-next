@@ -11,8 +11,10 @@ import {
 } from "@/api/queries";
 import { useQuery } from "@tanstack/react-query";
 
+type DynamicProps = typeof DEFAULT_DYNAMIC_PROPS;
+
 export function useGetHiveEngineBalancesQuery(account?: string) {
-  const { data: dynamicProps = DEFAULT_DYNAMIC_PROPS } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
   const { data: allTokens } = getAllHiveEngineTokensQuery().useClientQuery();
 
   return useQuery({
@@ -34,23 +36,25 @@ export function useGetHiveEngineBalancesQuery(account?: string) {
         if (token?.metadata) {
           try {
             tokenMetadata = JSON.parse(token.metadata) as TokenMetadata;
-          } catch (error) {
+          } catch {
             tokenMetadata = undefined;
           }
         }
 
-        const pricePerHive =
-          (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base /
-          (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).quote;
+        // ✅ Narrow dynamic props to the right shape and guard divide-by-zero
+        const dp = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS) as DynamicProps;
+        const pricePerHive = dp.quote ? dp.base / dp.quote : 0;
+
         const metric = allTokens?.find((m) => m.symbol === balance.symbol);
         const lastPrice = Number(metric?.lastPrice ?? "0");
         const balanceAmount = Number(balance.balance);
+
         const usdValue =
-          balance.symbol === "SWAP.HIVE"
-            ? pricePerHive * balanceAmount
-            : lastPrice === 0
-              ? 0
-              : Number((lastPrice * pricePerHive * balanceAmount).toFixed(10));
+            balance.symbol === "SWAP.HIVE"
+                ? pricePerHive * balanceAmount
+                : lastPrice === 0
+                    ? 0
+                    : Number((lastPrice * pricePerHive * balanceAmount).toFixed(10));
 
         const tokenProps: HiveEngineTokenProps = {
           symbol: balance.symbol,
@@ -76,6 +80,5 @@ export function useGetHiveEngineBalancesQuery(account?: string) {
 export function useHiveEngineAssetWallet(asset: string) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const { data: wallets } = useGetHiveEngineBalancesQuery(activeUser?.username);
-
   return useMemo(() => wallets?.find((w) => w.symbol === asset), [wallets, asset]);
 }
