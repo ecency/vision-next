@@ -3,7 +3,7 @@
 var reactQuery = require('@tanstack/react-query');
 var dhive = require('@hiveio/dhive');
 var hs = require('hivesigner');
-var R2 = require('remeda');
+var R = require('remeda');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
@@ -26,7 +26,7 @@ function _interopNamespace(e) {
 }
 
 var hs__default = /*#__PURE__*/_interopDefault(hs);
-var R2__namespace = /*#__PURE__*/_interopNamespace(R2);
+var R__namespace = /*#__PURE__*/_interopNamespace(R);
 
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
@@ -77,7 +77,7 @@ var CONFIG = {
       consoleOnFailover: true
     }
   ),
-  heliusApiKey: undefined.VITE_HELIUS_API_KEY,
+  heliusApiKey: process.env.VITE_HELIUS_API_KEY,
   queryClient: new reactQuery.QueryClient(),
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz"
@@ -272,9 +272,6 @@ function makeQueryClient() {
   return new reactQuery.QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-        // staleTime: 60 * 1000,
         refetchOnWindowFocus: false,
         refetchOnMount: false
       }
@@ -617,9 +614,9 @@ function getBuiltProfile({
   tokens,
   data
 }) {
-  const metadata = R2__namespace.pipe(
+  const metadata = R__namespace.pipe(
     JSON.parse(data?.posting_json_metadata || "{}").profile,
-    R2__namespace.mergeDeep(profile ?? {})
+    R__namespace.mergeDeep(profile ?? {})
   );
   if (tokens && tokens.length > 0) {
     metadata.tokens = tokens;
@@ -657,7 +654,7 @@ function useAccountUpdate(username) {
         if (!data2) {
           return data2;
         }
-        const obj = R2__namespace.clone(data2);
+        const obj = R__namespace.clone(data2);
         obj.profile = getBuiltProfile({ ...variables, data: data2 });
         return obj;
       }
@@ -829,15 +826,14 @@ function useAccountFavouriteDelete(username, onSuccess, onError) {
   });
 }
 function dedupeAndSortKeyAuths(existing, additions) {
-  const map = R2__namespace.fromEntries(
-    existing.map(([key, weight]) => [key.toString(), weight])
-  );
-  return R2__namespace.pipe(
-    map,
-    R2__namespace.merge(R2__namespace.fromEntries(additions)),
-    R2__namespace.entries(),
-    R2__namespace.sortBy(([key]) => key)
-  );
+  const map = /* @__PURE__ */ new Map();
+  for (const [key, weight] of existing) {
+    map.set(key.toString(), weight);
+  }
+  for (const [key, weight] of additions) {
+    map.set(key, weight);
+  }
+  return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([key, weight]) => [key, weight]);
 }
 function useAccountUpdateKeyAuths(username, options) {
   const { data: accountData } = reactQuery.useQuery(getAccountFullQueryOptions(username));
@@ -850,7 +846,7 @@ function useAccountUpdateKeyAuths(username, options) {
         );
       }
       const prepareAuth = (keyName) => {
-        const auth = R2__namespace.clone(accountData[keyName]);
+        const auth = R__namespace.clone(accountData[keyName]);
         auth.key_auths = dedupeAndSortKeyAuths(
           keepCurrent ? auth.key_auths : [],
           keys.map(
@@ -921,9 +917,9 @@ function useAccountRevokePosting(username, options) {
           "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
         );
       }
-      const posting = R2__namespace.pipe(
+      const posting = R__namespace.pipe(
         {},
-        R2__namespace.mergeDeep(data.posting)
+        R__namespace.mergeDeep(data.posting)
       );
       posting.account_auths = posting.account_auths.filter(
         ([account]) => account !== accountName
@@ -1039,7 +1035,7 @@ function useAccountRevokeKey(username, options) {
         );
       }
       const prepareAuth = (keyName) => {
-        const auth = R2__namespace.clone(accountData[keyName]);
+        const auth = R__namespace.clone(accountData[keyName]);
         auth.key_auths = auth.key_auths.filter(
           ([key]) => key !== revokingKey.toString()
         );

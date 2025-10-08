@@ -3,7 +3,12 @@ import {
   getAccountFullQueryOptions,
   useAccountUpdate,
 } from "@ecency/sdk";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationOptions,
+} from "@tanstack/react-query";
 import { EcencyTokenMetadata } from "../types";
 import * as R from "remeda";
 import { getAccountWalletListQueryOptions } from "../queries";
@@ -42,9 +47,14 @@ function getGroupedChainTokens(
  *
  * Basically, this mutation is a convenient wrapper for update profile operation
  */
+type SaveWalletInformationOptions = Pick<
+  UseMutationOptions<unknown, Error, EcencyTokenMetadata[]>,
+  "onSuccess" | "onError"
+>;
+
 export function useSaveWalletInformationToMetadata(
   username: string,
-  options?: Pick<Parameters<typeof useMutation>[0], "onSuccess" | "onError">
+  options?: SaveWalletInformationOptions
 ) {
   const queryClient = useQueryClient();
 
@@ -103,7 +113,9 @@ export function useSaveWalletInformationToMetadata(
     },
     onError: options?.onError,
     onSuccess: (response, vars, context) => {
-      options?.onSuccess?.(response, vars, context);
+      (options?.onSuccess as
+        | ((data: unknown, variables: EcencyTokenMetadata[], context: unknown) => unknown)
+        | undefined)?.(response, vars, context);
       queryClient.invalidateQueries({
         queryKey: getAccountWalletListQueryOptions(username).queryKey,
       });

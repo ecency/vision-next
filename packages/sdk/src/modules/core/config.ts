@@ -27,7 +27,7 @@ export const CONFIG = {
       consoleOnFailover: true,
     }
   ),
-  heliusApiKey: import.meta.env.VITE_HELIUS_API_KEY,
+  heliusApiKey: process.env.VITE_HELIUS_API_KEY,
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz",

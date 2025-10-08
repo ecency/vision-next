@@ -1,7 +1,7 @@
 import { QueryClient, useQuery, useInfiniteQuery, useMutation, queryOptions, useQueryClient, infiniteQueryOptions } from '@tanstack/react-query';
 import { Client, PrivateKey, cryptoUtils, RCAPI } from '@hiveio/dhive';
 import hs from 'hivesigner';
-import * as R2 from 'remeda';
+import * as R from 'remeda';
 
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
@@ -52,7 +52,7 @@ var CONFIG = {
       consoleOnFailover: true
     }
   ),
-  heliusApiKey: import.meta.env.VITE_HELIUS_API_KEY,
+  heliusApiKey: process.env.VITE_HELIUS_API_KEY,
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz"
@@ -247,9 +247,6 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-        // staleTime: 60 * 1000,
         refetchOnWindowFocus: false,
         refetchOnMount: false
       }
@@ -592,9 +589,9 @@ function getBuiltProfile({
   tokens,
   data
 }) {
-  const metadata = R2.pipe(
+  const metadata = R.pipe(
     JSON.parse(data?.posting_json_metadata || "{}").profile,
-    R2.mergeDeep(profile ?? {})
+    R.mergeDeep(profile ?? {})
   );
   if (tokens && tokens.length > 0) {
     metadata.tokens = tokens;
@@ -632,7 +629,7 @@ function useAccountUpdate(username) {
         if (!data2) {
           return data2;
         }
-        const obj = R2.clone(data2);
+        const obj = R.clone(data2);
         obj.profile = getBuiltProfile({ ...variables, data: data2 });
         return obj;
       }
@@ -804,15 +801,14 @@ function useAccountFavouriteDelete(username, onSuccess, onError) {
   });
 }
 function dedupeAndSortKeyAuths(existing, additions) {
-  const map = R2.fromEntries(
-    existing.map(([key, weight]) => [key.toString(), weight])
-  );
-  return R2.pipe(
-    map,
-    R2.merge(R2.fromEntries(additions)),
-    R2.entries(),
-    R2.sortBy(([key]) => key)
-  );
+  const map = /* @__PURE__ */ new Map();
+  for (const [key, weight] of existing) {
+    map.set(key.toString(), weight);
+  }
+  for (const [key, weight] of additions) {
+    map.set(key, weight);
+  }
+  return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([key, weight]) => [key, weight]);
 }
 function useAccountUpdateKeyAuths(username, options) {
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
@@ -825,7 +821,7 @@ function useAccountUpdateKeyAuths(username, options) {
         );
       }
       const prepareAuth = (keyName) => {
-        const auth = R2.clone(accountData[keyName]);
+        const auth = R.clone(accountData[keyName]);
         auth.key_auths = dedupeAndSortKeyAuths(
           keepCurrent ? auth.key_auths : [],
           keys.map(
@@ -896,9 +892,9 @@ function useAccountRevokePosting(username, options) {
           "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
         );
       }
-      const posting = R2.pipe(
+      const posting = R.pipe(
         {},
-        R2.mergeDeep(data.posting)
+        R.mergeDeep(data.posting)
       );
       posting.account_auths = posting.account_auths.filter(
         ([account]) => account !== accountName
@@ -1014,7 +1010,7 @@ function useAccountRevokeKey(username, options) {
         );
       }
       const prepareAuth = (keyName) => {
-        const auth = R2.clone(accountData[keyName]);
+        const auth = R.clone(accountData[keyName]);
         auth.key_auths = auth.key_auths.filter(
           ([key]) => key !== revokingKey.toString()
         );

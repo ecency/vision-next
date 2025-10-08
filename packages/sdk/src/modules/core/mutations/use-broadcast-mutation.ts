@@ -1,4 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import {
+  useMutation,
+  type MutationKey,
+  type UseMutationOptions,
+} from "@tanstack/react-query";
 import { getAccessToken, getLoginType, getPostingKey } from "../storage";
 import { Operation, PrivateKey } from "@hiveio/dhive";
 import { CONFIG } from "@/modules/core/config";
@@ -6,12 +10,10 @@ import hs from "hivesigner";
 import { Keychain } from "@/modules/keychain";
 
 export function useBroadcastMutation<T>(
-  mutationKey: Parameters<typeof useMutation>[0]["mutationKey"] = [],
+  mutationKey: MutationKey = [],
   username: string | undefined,
   operations: (payload: T) => Operation[],
-  onSuccess: Parameters<
-    typeof useMutation<unknown, unknown, T>
-  >[0]["onSuccess"] = () => {}
+  onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {}
 ) {
   return useMutation({
     onSuccess,

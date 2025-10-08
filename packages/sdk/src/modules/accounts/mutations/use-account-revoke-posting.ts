@@ -1,6 +1,11 @@
 import { CONFIG } from "@/modules/core";
 import { PrivateKey } from "@hiveio/dhive";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationOptions,
+} from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
 import * as R from "remeda";
 import { FullAccount } from "../types";
@@ -15,9 +20,14 @@ interface CommonPayload {
   key?: PrivateKey;
 }
 
+type RevokePostingOptions = Pick<
+  UseMutationOptions<unknown, Error, CommonPayload>,
+  "onSuccess" | "onError"
+>;
+
 export function useAccountRevokePosting(
   username: string | undefined,
-  options: Pick<Parameters<typeof useMutation>[0], "onSuccess" | "onError">
+  options: RevokePostingOptions
 ) {
   const queryClient = useQueryClient();
 
@@ -69,7 +79,9 @@ export function useAccountRevokePosting(
     },
     onError: options.onError,
     onSuccess: (resp, payload, ctx) => {
-      options.onSuccess?.(resp, payload, ctx);
+      (options.onSuccess as
+        | ((data: unknown, variables: CommonPayload, context: unknown) => unknown)
+        | undefined)?.(resp, payload, ctx);
       queryClient.setQueryData<FullAccount>(
         getAccountFullQueryOptions(username).queryKey,
         (data) =>

@@ -3,12 +3,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getHivePowerAssetGeneralInfoQueryOptions } from "../queries";
 import { delay } from "@/modules/wallets/utils";
 
-export function useClaimRewards(username: string, onSuccess: () => void) {
+export function useClaimRewards(
+  username: string,
+  onSuccess: () => void
+): ReturnType<typeof useBroadcastMutation<void>> {
   const { data } = useQuery(getAccountFullQueryOptions(username));
 
   const queryClient = useQueryClient();
 
-  return useBroadcastMutation(
+  return useBroadcastMutation<void>(
     ["assets", "hive", "claim-rewards", data?.name],
     username,
     () => {

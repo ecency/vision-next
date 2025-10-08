@@ -1,7 +1,11 @@
 import { CONFIG, getAccessToken } from "@/modules/core";
 import { Keychain } from "@/modules/keychain";
 import { PrivateKey } from "@hiveio/dhive";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  type UseMutationOptions,
+} from "@tanstack/react-query";
 import hs from "hivesigner";
 import { getAccountFullQueryOptions } from "../queries";
 
@@ -14,9 +18,14 @@ interface CommonPayload {
   email?: string;
 }
 
+type UpdateRecoveryOptions = Pick<
+  UseMutationOptions<unknown, Error, CommonPayload>,
+  "onSuccess" | "onError"
+>;
+
 export function useAccountUpdateRecovery(
   username: string | undefined,
-  options: Pick<Parameters<typeof useMutation>[0], "onSuccess" | "onError">
+  options: UpdateRecoveryOptions
 ) {
   const { data } = useQuery(getAccountFullQueryOptions(username));
 

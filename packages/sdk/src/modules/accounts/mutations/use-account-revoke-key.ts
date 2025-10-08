@@ -1,5 +1,9 @@
 import { AuthorityType, PrivateKey, PublicKey } from "@hiveio/dhive";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  type UseMutationOptions,
+} from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
 import * as R from "remeda";
 import { CONFIG } from "@/modules/core";
@@ -21,9 +25,14 @@ interface Payload {
  * @returns The mutation object from `useMutation`, including methods to trigger the key
  *          revocation and access its state (e.g., loading, success, error).
  */
+type RevokeKeyOptions = Pick<
+  UseMutationOptions<unknown, Error, Payload>,
+  "onSuccess" | "onError"
+>;
+
 export function useAccountRevokeKey(
   username: string | undefined,
-  options?: Pick<Parameters<typeof useMutation>[0], "onSuccess" | "onError">
+  options?: RevokeKeyOptions
 ) {
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
 

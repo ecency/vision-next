@@ -43,7 +43,13 @@ export namespace EcencyQueriesManager {
   }
 
   export async function prefetchInfiniteQuery<T, P>(
-    options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, T, QueryKey, P>
+    options: UseInfiniteQueryOptions<
+      T,
+      Error,
+      InfiniteData<T>,
+      QueryKey,
+      P
+    >
   ) {
     const queryClient = getQueryClient();
     await queryClient.prefetchInfiniteQuery(options);
@@ -60,7 +66,13 @@ export namespace EcencyQueriesManager {
   }
 
   export function generateClientServerInfiniteQuery<T, P>(
-    options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, T, QueryKey, P>
+    options: UseInfiniteQueryOptions<
+      T,
+      Error,
+      InfiniteData<T>,
+      QueryKey,
+      P
+    >
   ) {
     return {
       prefetch: () => prefetchInfiniteQuery(options),

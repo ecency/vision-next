@@ -1,6 +1,10 @@
 import { CONFIG } from "@/modules/core";
 import { AuthorityType, PrivateKey } from "@hiveio/dhive";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  type UseMutationOptions,
+} from "@tanstack/react-query";
 import * as R from "remeda";
 import { getAccountFullQueryOptions } from "../queries";
 
@@ -20,21 +24,30 @@ interface Payload {
 export function dedupeAndSortKeyAuths(
   existing: AuthorityType["key_auths"],
   additions: [string, number][]
-) {
-  const map = R.fromEntries(
-    existing.map(([key, weight]) => [key.toString(), weight])
-  );
-  return R.pipe(
-    map,
-    R.merge(R.fromEntries(additions)),
-    R.entries(),
-    R.sortBy(([key]) => key)
-  );
+): AuthorityType["key_auths"] {
+  const merged = new Map<string, number>();
+
+  existing.forEach(([key, weight]) => {
+    merged.set(key.toString(), weight);
+  });
+
+  additions.forEach(([key, weight]) => {
+    merged.set(key.toString(), weight);
+  });
+
+  return Array.from(merged.entries())
+    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+    .map(([key, weight]) => [key, weight] as [string, number]);
 }
+
+type UpdateKeyAuthsOptions = Pick<
+  UseMutationOptions<unknown, Error, Payload>,
+  "onSuccess" | "onError"
+>;
 
 export function useAccountUpdateKeyAuths(
   username: string,
-  options?: Pick<Parameters<typeof useMutation>[0], "onSuccess" | "onError">
+  options?: UpdateKeyAuthsOptions
 ) {
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
 

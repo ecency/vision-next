@@ -1,5 +1,9 @@
 import { PrivateKey } from "@hiveio/dhive";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  type UseMutationOptions,
+} from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
 import { useAccountUpdateKeyAuths } from "./use-account-update-key-auths";
 
@@ -13,9 +17,14 @@ interface Payload {
  * Only native Hive and custom passwords could be updated here
  * Seed based password cannot be updated here, it will be in an account always for now
  */
+type UpdatePasswordOptions = Pick<
+  UseMutationOptions<unknown, Error, Payload>,
+  "onSuccess" | "onError"
+>;
+
 export function useAccountUpdatePassword(
   username: string,
-  options?: Pick<Parameters<typeof useMutation>[0], "onSuccess" | "onError">
+  options?: UpdatePasswordOptions
 ) {
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
 
