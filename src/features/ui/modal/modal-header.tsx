@@ -33,7 +33,7 @@ export function ModalHeader(props: HTMLProps<HTMLDivElement> & Props) {
           aria-label="Close"
           noPadding={true}
           size="sm"
-          className="absolute top-3 right-3 w-8"
+          className="absolute top-0 right-0 w-8"
           onClick={() => context.setShow(false)}
           icon={<UilMultiply className="!w-4 !h-4" />}
         />
