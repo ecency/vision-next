@@ -38,6 +38,14 @@ interface VoteHistoryResult extends VoteOperationDetails {
   timestamp: string;
 }
 
+function isEntry(x: unknown): x is Entry {
+  return !!x
+      && typeof x === "object"
+      && "author" in x
+      && "permlink" in x
+      && "active_votes" in x; // pick a few stable Entry keys
+}
+
 export const getAccountVoteHistoryQuery = <F>(
     username: string,
     filters: F[] = [],
@@ -74,7 +82,7 @@ export const getAccountVoteHistoryQuery = <F>(
         const entries: Entry[] = [];
         for (const obj of result) {
           const post = await getPostQuery(obj.author, obj.permlink).fetchAndGet();
-          if (post) entries.push(post);
+          if (isEntry(post)) entries.push(post);
         }
 
         const [firstHistory] = response;

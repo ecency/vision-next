@@ -12,6 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 type DynamicProps = typeof DEFAULT_DYNAMIC_PROPS;
+type TokenMetric = { symbol: string; lastPrice?: string | number };
 
 export function useGetHiveEngineBalancesQuery(account?: string) {
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
@@ -29,6 +30,11 @@ export function useGetHiveEngineBalancesQuery(account?: string) {
 
       type HiveEngineTokenProps = ConstructorParameters<typeof HiveEngineToken>[0];
 
+      // ✅ Narrow query results
+      const dp = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS) as DynamicProps;
+      const metrics: ReadonlyArray<TokenMetric> = Array.isArray(allTokens) ? (allTokens as TokenMetric[]) : [];
+      const pricePerHive = dp.quote ? dp.base / dp.quote : 0;
+
       return balances.map((balance) => {
         const token = tokens.find((t) => t.symbol === balance.symbol);
         let tokenMetadata: TokenMetadata | undefined;
@@ -41,11 +47,7 @@ export function useGetHiveEngineBalancesQuery(account?: string) {
           }
         }
 
-        // ✅ Narrow dynamic props to the right shape and guard divide-by-zero
-        const dp = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS) as DynamicProps;
-        const pricePerHive = dp.quote ? dp.base / dp.quote : 0;
-
-        const metric = allTokens?.find((m) => m.symbol === balance.symbol);
+        const metric = metrics.find((m) => m.symbol === balance.symbol);
         const lastPrice = Number(metric?.lastPrice ?? "0");
         const balanceAmount = Number(balance.balance);
 

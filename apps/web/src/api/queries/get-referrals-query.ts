@@ -3,50 +3,41 @@ import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 import { ReferralItem, ReferralStat } from "@/entities";
 
+// ---- Infinite referrals list ----
+type PageParam = { maxId?: number };
+
 export const getReferralsQuery = (username: string) =>
-  EcencyQueriesManager.generateClientServerInfiniteQuery({
-    queryKey: [QueryIdentifiers.REFERRALS, username],
-    queryFn: async ({ pageParam: { maxId } }: { pageParam: { maxId?: number } }) => {
-      const response = await appAxios.get<ReferralItem[]>(
-        apiBase(`/private-api/referrals/${username}`),
-        {
-          params: {
-            max_id: maxId
-          }
+    EcencyQueriesManager.generateClientServerInfiniteQuery<ReferralItem[], PageParam>({
+        queryKey: [QueryIdentifiers.REFERRALS, username],
+        initialPageParam: { maxId: undefined }, // ✅ satisfies PageParam
+        queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
+            const { maxId } = pageParam ?? {};
+            const response = await appAxios.get<ReferralItem[]>(
+                apiBase(`/private-api/referrals/${username}`),
+                { params: { max_id: maxId } }
+            );
+            return response.data;
+        },
+        getNextPageParam: (lastPage: ReferralItem[]) => {
+            const nextMaxId = lastPage?.[lastPage.length - 1]?.id;
+            // ✅ returning undefined tells React Query there’s no next page
+            return typeof nextMaxId === "number" ? { maxId: nextMaxId } as PageParam : undefined;
         }
-      );
-      return response.data;
-    },
-    initialPageParam: {},
-    getNextPageParam: (lastPage: ReferralItem[]) => ({
-      maxId: lastPage?.[lastPage.length - 1]?.id
-    })
-  });
+    });
 
+// ---- Stats (unchanged, just tidy) ----
 export const getReferralsStatsQuery = (username: string) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.REFERRALS_STATS, username],
-    queryFn: async () => {
-      try {
-        interface ReferralStatsResponse {
-          total?: number;
-          rewarded?: number;
+    EcencyQueriesManager.generateClientServerQuery<ReferralStat>({
+        queryKey: [QueryIdentifiers.REFERRALS_STATS, username],
+        queryFn: async () => {
+            interface ReferralStatsResponse { total?: number; rewarded?: number; }
+            const res = await appAxios.get<ReferralStatsResponse>(
+                apiBase(`/private-api/referrals/${username}/stats`)
+            );
+            if (!res.data) throw new Error("No Referrals for this user!");
+            return {
+                total: res.data.total ?? 0,
+                rewarded: res.data.rewarded ?? 0
+            };
         }
-
-        const res = await appAxios.get<ReferralStatsResponse>(
-          apiBase(`/private-api/referrals/${username}/stats`)
-        );
-        if (!res.data) {
-          throw new Error("No Referrals for this user!");
-        }
-        const convertReferralStat = (rawData: ReferralStatsResponse): ReferralStat => ({
-          total: rawData.total ?? 0,
-          rewarded: rawData.rewarded ?? 0
-        });
-        return convertReferralStat(res.data);
-      } catch (error) {
-        console.warn(error);
-        throw error;
-      }
-    }
-  });
+    });
