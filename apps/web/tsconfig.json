@@ -21,9 +21,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "@ui/*": ["./src/features/ui/*"],
-      "@/defaults.json": ["./src/defaults.ts"]
+      "@/defaults.json": ["./src/defaults.ts"],
+      "@sentry/core": ["./src/utils/sentry-core-compat"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.d.ts", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts", "**/*.spec.tsx"]
 }

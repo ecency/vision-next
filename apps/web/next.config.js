@@ -18,6 +18,8 @@ const config = {
   },
   generateBuildId: async () => v4(),
   webpack: (config, { isServer }) => {
+    config.infrastructureLogging = { level: "error" };
+    config.stats = "errors-only";
     config.module.rules.push({
       test: /\.(mp3)$/,
       type: "asset/resource",
@@ -28,6 +30,11 @@ const config = {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false
+    };
+
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@sentry/core$": path.join(__dirname, "src/utils/sentry-core-compat.js")
     };
 
     if (isServer) {

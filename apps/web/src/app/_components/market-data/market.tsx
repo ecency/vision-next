@@ -1,7 +1,8 @@
 import dayjs from "@/utils/dayjs";
 import React, { useEffect, useMemo, useRef } from "react";
 import numeral from "numeral";
-import ReactHighcharts from "react-highcharts";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 import { Theme } from "@/enums";
 import { useGlobalStore } from "@/core/global-store";
 import { getMarketDataQuery } from "@/api/queries";
@@ -188,7 +189,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
   return (
     <div className="market-graph" ref={nodeRef}>
       <div className="graph">
-        <ReactHighcharts config={config} />
+        <HighchartsReact highcharts={Highcharts} options={config} />
       </div>
       <div className="info">
         <div className="price">
