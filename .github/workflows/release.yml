@@ -3,8 +3,7 @@ name: Publish Packages to NPM
 on:
   push:
     branches:
-      - main
-      - app
+      - develop
 
 jobs:
   publish:
