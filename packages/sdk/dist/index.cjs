@@ -272,6 +272,9 @@ function makeQueryClient() {
   return new reactQuery.QueryClient({
     defaultOptions: {
       queries: {
+        // With SSR, we usually want to set some default staleTime
+        // above 0 to avoid refetching immediately on the client
+        // staleTime: 60 * 1000,
         refetchOnWindowFocus: false,
         refetchOnMount: false
       }
@@ -826,14 +829,14 @@ function useAccountFavouriteDelete(username, onSuccess, onError) {
   });
 }
 function dedupeAndSortKeyAuths(existing, additions) {
-  const map = /* @__PURE__ */ new Map();
-  for (const [key, weight] of existing) {
-    map.set(key.toString(), weight);
-  }
-  for (const [key, weight] of additions) {
-    map.set(key, weight);
-  }
-  return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([key, weight]) => [key, weight]);
+  const merged = /* @__PURE__ */ new Map();
+  existing.forEach(([key, weight]) => {
+    merged.set(key.toString(), weight);
+  });
+  additions.forEach(([key, weight]) => {
+    merged.set(key.toString(), weight);
+  });
+  return Array.from(merged.entries()).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)).map(([key, weight]) => [key, weight]);
 }
 function useAccountUpdateKeyAuths(username, options) {
   const { data: accountData } = reactQuery.useQuery(getAccountFullQueryOptions(username));
