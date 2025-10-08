@@ -8,40 +8,44 @@ import { Community, SearchResult } from "@/entities";
 import useMount from "react-use/lib/useMount";
 
 interface Props {
-  community: Community;
-  query?: string;
+    community: Community;
+    query?: string;
 }
 
 export function CommunityContentSearchData({ query, community }: Props) {
-  const { data, fetchNextPage, refetch } = getSearchApiQuery(
-    query ? `${query} category:${community.name}` ?? "" : "",
-    "newest",
-    false
-  ).useClientQuery();
-  const searchData = useMemo(
-    () =>
-      data?.pages.reduce<SearchResult[]>(
-        (acc, page) =>
-          [...acc, ...page.results].sort(
-            (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-          ),
-        []
-      ) ?? [],
-    [data?.pages]
-  );
+    const q = query ? `${query} category:${community.name}` : "";
 
-  useMount(() => refetch());
+    const { data, fetchNextPage, refetch } = getSearchApiQuery(
+        q,
+        "newest",
+        false
+    ).useClientQuery();
 
-  return searchData.length > 0 ? (
-    <div className="search-list">
-      {searchData.map((res) => (
-        <SearchListItem key={`${res.author}-${res.permlink}-${res.id}`} res={res} />
-      ))}
-      <DetectBottom onBottom={() => fetchNextPage()} />
-    </div>
-  ) : searchData.length === 0 && query ? (
-    i18next.t("g.no-matches")
-  ) : (
-    <></>
-  );
+    const searchData = useMemo(
+        () =>
+            data?.pages?.reduce<SearchResult[]>(
+                (acc, page: any) =>
+                    acc
+                        .concat(page?.results ?? [])
+                        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)),
+                []
+            ) ?? [],
+        [data?.pages]
+    );
+
+    useMount(() => {
+        // only refetch if there's an actual query
+        if (q) refetch();
+    });
+
+    return searchData.length > 0 ? (
+        <div className="search-list">
+            {searchData.map((res) => (
+                <SearchListItem key={`${res.author}-${res.permlink}-${res.id}`} res={res} />
+            ))}
+            <DetectBottom onBottom={() => fetchNextPage()} />
+        </div>
+    ) : searchData.length === 0 && query ? (
+        i18next.t("g.no-matches")
+    ) : null;
 }

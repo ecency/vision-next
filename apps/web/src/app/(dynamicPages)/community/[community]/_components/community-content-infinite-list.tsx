@@ -4,25 +4,31 @@ import { DetectBottom, EntryListContent, EntryListContentLoading } from "@/featu
 import React, { useMemo } from "react";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Community, Entry, SearchResponse } from "@/entities";
-import type { UseInfiniteQueryResult } from "@tanstack/react-query";
+import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
 
 interface Props {
     community: Community;
     section: string;
 }
 
-type Page = Entry[] | SearchResponse;
+type FeedPage = Entry[] | SearchResponse;
 
 export function CommunityContentInfiniteList({ section, community }: Props) {
-    const { fetchNextPage, data, isFetching } =
-        usePostsFeedQuery(section, community.name) as UseInfiniteQueryResult<Page, Error>;
+    // ⚠️ Don't destructure the cast; assign first, then read props.
+    const result = usePostsFeedQuery(section, community.name) as UseInfiniteQueryResult<FeedPage, Error>;
 
-    const pageToEntries = (p: Page): Entry[] =>
+    const fetchNextPage = result.fetchNextPage;
+    const isFetching = result.isFetching;
+
+    // Make 'data' explicit: it's InfiniteData<FeedPage, unknown> | undefined
+    const data = result.data as InfiniteData<FeedPage, unknown> | undefined;
+
+    const pageToEntries = (p: FeedPage): Entry[] =>
         Array.isArray(p) ? p : ((p as any).items ?? (p as any).results ?? []);
 
     const entryList = useMemo(
         () =>
-            // Drop first page as it has loaded in a server and shown in RSC
+            // Drop the first page (already rendered on the server)
             (data?.pages?.slice(1)?.flatMap(pageToEntries) ?? []),
         [data?.pages]
     );

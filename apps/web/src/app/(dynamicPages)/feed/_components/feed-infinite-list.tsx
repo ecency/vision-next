@@ -3,44 +3,46 @@
 import { DetectBottom, EntryListContent } from "@/features/shared";
 import React, { useMemo } from "react";
 import { usePostsFeedQuery } from "@/api/queries";
-import { Entry } from "@/entities";
+import { Entry, SearchResponse } from "@/entities";
+import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
 
 interface Props {
-  filter: string;
-  tag: string;
-  observer?: string;
-  now?: number;
+    filter: string;
+    tag: string;
+    observer?: string;
+    now?: number;
 }
 
+type Page = Entry[] | SearchResponse;
+
 export function FeedInfiniteList({ filter, tag, observer, now }: Props) {
-  const { fetchNextPage, data } = usePostsFeedQuery(filter, tag, observer);
+    // Cast the hook result to an infinite query over Page
+    const result = usePostsFeedQuery(filter, tag, observer) as UseInfiniteQueryResult<Page, Error>;
+    const { fetchNextPage } = result;
+    const data = result.data as InfiniteData<Page, unknown> | undefined;
 
-  const entryList = useMemo(
-    () =>
-      // Drop first page as it has loaded in a server and shown in RSC
-      data?.pages?.slice(1).reduce<Entry[]>((acc, p) => {
-        if (p instanceof Array) {
-          return [...acc, ...(p as Entry[])];
-        }
+    const pageToEntries = (p: Page): Entry[] =>
+        Array.isArray(p) ? p : ((p as any).items ?? (p as any).results ?? []);
 
-        // @ts-ignore
-        return [...acc, ...(p as { results: Entry[] }).results];
-      }, []) ?? [],
-    [data?.pages]
-  );
+    const entryList = useMemo(
+        () =>
+            // Drop first page (already rendered via RSC)
+            data?.pages?.slice(1).flatMap(pageToEntries) ?? [],
+        [data?.pages]
+    );
 
-  return (
-    <>
-      <EntryListContent
-        username=""
-        loading={false}
-        entries={entryList}
-        sectionParam={filter}
-        isPromoted={false}
-        showEmptyPlaceholder={false}
-        now={now}
-      />
-      <DetectBottom onBottom={() => fetchNextPage()} />
-    </>
-  );
+    return (
+        <>
+            <EntryListContent
+                username=""
+                loading={false}
+                entries={entryList}
+                sectionParam={filter}
+                isPromoted={false}
+                showEmptyPlaceholder={false}
+                now={now}
+            />
+            <DetectBottom onBottom={() => fetchNextPage()} />
+        </>
+    );
 }

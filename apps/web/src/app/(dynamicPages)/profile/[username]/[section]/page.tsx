@@ -7,6 +7,8 @@ import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { SearchResult } from "@/entities";
+import type { InfiniteData } from "@tanstack/react-query";
+import type { SearchResponse } from "@/entities";
 
 interface Props {
   params: Promise<{ username: string; section: string }>;
@@ -31,14 +33,21 @@ export default async function Page({ params, searchParams }: Props) {
 
   let searchData: SearchResult[] | undefined = undefined;
   if (searchParam && searchParam !== "") {
-    const searchPages = await getSearchApiQuery(
-      `${searchParam} author:${username} type:post`,
-      "newest",
-      false
-    ).prefetch();
-    searchData = searchPages!!.pages[0].results.sort(
-      (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-    );
+    const searchPages = (await getSearchApiQuery(
+        `${searchParam} author:${username} type:post`,
+        "newest",
+        false
+    ).prefetch()) as InfiniteData<SearchResponse, unknown> | undefined;
+
+    const firstPage: SearchResponse | undefined = searchPages?.pages?.[0];
+    const results: SearchResult[] =
+        (firstPage as any)?.results ??
+        (firstPage as any)?.items ??
+        [];
+
+    searchData = results
+        .slice()
+        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
   } else {
     await prefetchGetPostsFeedQuery(section, `@${username}`);
   }

@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  typescript: 5.9.3
+  typescript: ^5
   source-map: ^0.7.4
 
 importers:
@@ -22,7 +22,7 @@ importers:
         specifier: ^8.5.0
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5
         version: 5.9.3
       vitest:
         specifier: ^3.2.4
@@ -467,7 +467,7 @@ importers:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@20.19.19)(typescript@5.9.3)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5
         version: 5.9.3
 
   packages/sdk:
@@ -509,7 +509,7 @@ importers:
         specifier: ^8
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5
         version: 5.9.3
 
   packages/wallets:
@@ -582,7 +582,7 @@ importers:
         specifier: ^8
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)
       typescript:
-        specifier: 5.9.3
+        specifier: ^5
         version: 5.9.3
 
 packages:
@@ -4587,7 +4587,7 @@ packages:
     resolution: {integrity: sha512-IKPhpLdpSUyKofmsXUfrvBC49JMUTdeaD8ZIH4v9Vk0sC1X6URTuTJCLtA0Vwuj7V/CQh0oISuSTvNn5//Buew==}
     peerDependencies:
       eslint: ^7.23.0 || ^8.0.0
-      typescript: 5.9.3
+      typescript: ^5
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -6170,7 +6170,7 @@ packages:
   nostr-tools@1.17.0:
     resolution: {integrity: sha512-LZmR8GEWKZeElbFV5Xte75dOeE9EFUW/QLI1Ncn3JKn0kFddDKEfBbFN8Mu4TMs+L4HR/WTPha2l+PPuRnJcMw==}
     peerDependencies:
-      typescript: 5.9.3
+      typescript: ^5
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -7529,7 +7529,7 @@ packages:
     resolution: {integrity: sha512-i3eMG77UTMD0hZhgRS562pv83RC6ukSAC2GMNWc+9dieh/+jDM5u5YG+NHX6VNDRHQcHwmsTHctP9LhbC3WxVw==}
     engines: {node: '>=16'}
     peerDependencies:
-      typescript: 5.9.3
+      typescript: ^5
 
   ts-easing@0.2.0:
     resolution: {integrity: sha512-Z86EW+fFFh/IFB1fqQ3/+7Zpf9t2ebOAxNI/V6Wo7r5gqiqtxmgTlQ1qbqQcjLKYeSHPTsEmvlJUDg/EuL0uHQ==}
@@ -7549,7 +7549,7 @@ packages:
       esbuild: '*'
       jest: ^29.0.0 || ^30.0.0
       jest-util: ^29.0.0 || ^30.0.0
-      typescript: 5.9.3
+      typescript: ^5
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -7571,7 +7571,7 @@ packages:
       '@swc/core': '>=1.2.50'
       '@swc/wasm': '>=1.2.50'
       '@types/node': '*'
-      typescript: 5.9.3
+      typescript: ^5
     peerDependenciesMeta:
       '@swc/core':
         optional: true
@@ -7592,7 +7592,7 @@ packages:
       '@microsoft/api-extractor': ^7.36.0
       '@swc/core': ^1
       postcss: ^8.4.12
-      typescript: 5.9.3
+      typescript: ^5
     peerDependenciesMeta:
       '@microsoft/api-extractor':
         optional: true
