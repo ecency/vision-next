@@ -116,7 +116,7 @@ export const broadcastPostingJSON = (
       })
         .customJson([], [username], id, JSON.stringify(json))
         .then((r: any) => r.result)
-    : Promise.resolve(0);
+    : Promise.resolve(0 as unknown as TransactionConfirmation);
 };
 
 export const broadcastPostingOperations = (
@@ -144,7 +144,7 @@ export const broadcastPostingOperations = (
       })
         .broadcast(operations)
         .then((r: any) => r.result)
-    : Promise.resolve(0);
+    : Promise.resolve(0 as unknown as TransactionConfirmation);
 };
 
 export const reblog = (

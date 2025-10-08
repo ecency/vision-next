@@ -9,7 +9,7 @@ export const bridgeServer = new Client(SERVERS, {
   failoverThreshold: 2,
   consoleOnFailover: false
 });
-export const dataLimit = typeof window !== "undefined" && window.screen.width < 540 ? 5 : 20 || 20;
+export const dataLimit = typeof window !== "undefined" && window.screen.width < 540 ? 5 : 20;
 
 export const bridgeApiCall = <T>(endpoint: string, params: {}): Promise<T> =>
   bridgeServer.call("bridge", endpoint, params);
@@ -116,7 +116,7 @@ const validateEntry = (entry: Entry): Entry => {
   // List of required string properties that must not be null/undefined
   const requiredStringProps: (keyof Entry)[] = [
     'author',
-    'title', 
+    'title',
     'body',
     'created',
     'category',
@@ -222,7 +222,7 @@ export const getPost = async (
     // Validate and fix the entry before processing
     const validatedEntry = validateEntry(resp);
     const post = await resolvePost(validatedEntry, observer, num);
-    
+
     if (dmca.some((rx) => new RegExp(rx).test(`@${post.author}/${post.permlink}`))) {
       post.body = "This post is not available due to a copyright/fraudulent claim.";
       post.title = "";

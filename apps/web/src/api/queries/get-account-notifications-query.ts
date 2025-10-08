@@ -22,6 +22,6 @@ export function getAccountNotificationsQuery(community: Community, limit: number
       }
     },
     initialPageParam: null,
-    getNextPageParam: (lastPage) => (lastPage?.length > 0 ? lastPage[lastPage.length - 1].id : null)
+    getNextPageParam: (lastPage: AccountNotification[]) => (lastPage?.length > 0 ? lastPage[lastPage.length - 1].id : null)
   });
 }

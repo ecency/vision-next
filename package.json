@@ -20,6 +20,7 @@
   },
   "pnpm": {
     "overrides": {
+      "typescript": "5.9.3",
       "source-map": "^0.7.4"
     }
   }

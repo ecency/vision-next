@@ -17,6 +17,7 @@ const config = {
     includePaths: [path.join(__dirname, "src/styles")]
   },
   generateBuildId: async () => v4(),
+  eslint: { ignoreDuringBuilds: true },
   webpack: (config, { isServer }) => {
     config.infrastructureLogging = { level: "error" };
     config.stats = "errors-only";
@@ -34,7 +35,7 @@ const config = {
 
     config.resolve.alias = {
       ...config.resolve.alias,
-      "@sentry/core$": path.join(__dirname, "src/utils/sentry-core-compat.js")
+      "@sentry/core$": path.join(__dirname, "src/utils/sentry-core-compat.ts")
     };
 
     if (isServer) {

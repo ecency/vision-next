@@ -10,7 +10,7 @@ export async function prefetchGetPostsFeedQuery(
   tag = "",
   limit = 20,
   observer?: string
-): Promise<InfiniteData<Entry[] | SearchResponse> | undefined> {
+): Promise<InfiniteData<Entry[] | SearchResponse> | unknown | undefined> {
   const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
 
