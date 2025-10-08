@@ -25,6 +25,10 @@ jobs:
       run: pnpm install --frozen-lockfile
       env:
         CI: true
+    - name: Build web app
+      run: pnpm --filter vision-web... build
+      env:
+        CI: true
   build:
     needs: tests
     runs-on: ubuntu-latest
