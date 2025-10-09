@@ -20,7 +20,7 @@ RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install --frozen-lockfile --no-optional
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
@@ -29,7 +29,7 @@ RUN pnpm build
 ### REMOVE DEV DEPENDENCIES ##
 FROM base as dependencies
 
-RUN pnpm install --frozen-lockfile --no-optional --prod
+RUN pnpm install --frozen-lockfile --prod
 
 ### BUILD MINIFIED PRODUCTION ##
 FROM node:20.12 as production
