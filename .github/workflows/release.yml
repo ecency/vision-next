@@ -14,23 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 10.15.1
-          run_install: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Create .env file
-        run: |
-          echo "VITE_HELIUS_API_KEY=${{ secrets.VITE_HELIUS_API_KEY }}" >> .env
-          echo "VITE_BITQUERY_API_KEY=${{ secrets.VITE_BITQUERY_API_KEY }}" >> .env
-
       - name: Determine base commit
         id: diff_base
         run: |
@@ -60,18 +43,49 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check if any package changed
+        id: packages_changed
+        run: |
+          if [ "${{ steps.detect_sdk.outputs.changed }}" = "true" ] || [ "${{ steps.detect_wallets.outputs.changed }}" = "true" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: pnpm/action-setup@v3
+        if: steps.packages_changed.outputs.changed == 'true'
+        with:
+          version: 10.15.1
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        if: steps.packages_changed.outputs.changed == 'true'
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Create .env file
+        if: steps.packages_changed.outputs.changed == 'true'
+        run: |
+          echo "VITE_HELIUS_API_KEY=${{ secrets.VITE_HELIUS_API_KEY }}" >> .env
+          echo "VITE_BITQUERY_API_KEY=${{ secrets.VITE_BITQUERY_API_KEY }}" >> .env
+
       - name: Install dependencies
-        if: steps.detect_sdk.outputs.changed == 'true' || steps.detect_wallets.outputs.changed == 'true'
+        if: steps.packages_changed.outputs.changed == 'true'
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        if: steps.detect_sdk.outputs.changed == 'true' || steps.detect_wallets.outputs.changed == 'true'
-        run: |
-          pnpm --filter @ecency/sdk build
-          pnpm --filter @ecency/wallets build
+      - name: Build @ecency/sdk
+        if: steps.detect_sdk.outputs.changed == 'true'
+        run: pnpm --filter @ecency/sdk build
+
+      - name: Build @ecency/wallets
+        if: steps.detect_wallets.outputs.changed == 'true'
+        run: pnpm --filter @ecency/wallets build
 
       - name: Set up .npmrc
-        if: steps.detect_sdk.outputs.changed == 'true' || steps.detect_wallets.outputs.changed == 'true'
+        if: steps.packages_changed.outputs.changed == 'true'
         run: |
           echo "@ecency:registry=https://registry.npmjs.org/" > .npmrc
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc

@@ -1,8 +1,8 @@
-name: Any build for packages
+name: Test Web Build
 on:
   push:
     branches:
-      - '*'
+      - 'develop'
 jobs:
   build:
     if: github.ref_name != 'main'
