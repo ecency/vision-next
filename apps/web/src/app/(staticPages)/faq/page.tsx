@@ -1,10 +1,8 @@
-import { apiBase } from "@/api/helper";
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import { Metadata, ResolvingMetadata } from "next";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
-import Image from "next/image";
 import {
+  FaqHeroImage,
   FaqSearchBar,
   FaqSearchBarResultInfo,
   FaqSearchListener
@@ -30,8 +28,6 @@ interface Props {
 
 export default async function FAQ({ searchParams }: Props) {
   const params = await searchParams;
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-  const faqImage = apiBase(`/assets/ecency-faq.${canUseWebp ? "webp" : "jpg"}`);
 
   const searchResult = searchWithinFaq(params["q"] ?? "");
 
@@ -51,7 +47,7 @@ export default async function FAQ({ searchParams }: Props) {
       >
         <div className="static-content">
           <div className="relative rounded" style={{ marginBottom: "8%" }}>
-            <Image alt="FAQ-image" width={1000} height={1000} src={faqImage} className="rounded" />
+            <FaqHeroImage />
             <div className="absolute search-container flex justify-center items-center flex-col rounded p-3">
               <h1 className="text-white faq-title text-center mb-3">
                 {i18next.t("static.faq.page-title")}

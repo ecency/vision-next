@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WaveViewPage({ params }: Props) {
-  const isWavesEnabled = EcencyConfigManager.useConfig(
+  const isWavesEnabled = EcencyConfigManager.selector(
     ({ visionFeatures }) => visionFeatures.waves.enabled
   );
 

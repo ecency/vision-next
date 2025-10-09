@@ -4,26 +4,38 @@ import useMount from "react-use/lib/useMount";
 import * as ls from "@/utils/local-storage";
 import { useSearchParams } from "next/navigation";
 import { langOptions } from "@/features/i18n/index";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import useUnmount from "react-use/lib/useUnmount";
 import i18next from "i18next";
 import dayjs from "@/utils/dayjs";
 
-export function NavigationLocaleWatcherClient() {
+interface Props {
+  targetLanguage?: string | null;
+}
+
+export function NavigationLocaleWatcherClient({ targetLanguage }: Props) {
   const params = useSearchParams();
   const languageFromList = useMemo(
     () => langOptions.find((item) => item.code.split("-")[0] === params?.get("lang")),
     [params]
   );
+  const derivedLanguage = targetLanguage ?? languageFromList?.code;
 
   const lang = useGlobalStore((state) => state.lang);
   const setLang = useGlobalStore((state) => state.setLang);
 
   const localeChanged = useCallback((lang: string) => dayjs.locale(lang), []);
 
+  useEffect(() => {
+    if (derivedLanguage && lang !== derivedLanguage) {
+      setLang(derivedLanguage);
+      void i18next.changeLanguage(derivedLanguage);
+    }
+  }, [derivedLanguage, lang, setLang]);
+
   useMount(() => {
-    if (languageFromList && lang !== languageFromList.code) {
+    if (derivedLanguage && lang !== derivedLanguage) {
       ls.set("current-language", lang);
     }
 

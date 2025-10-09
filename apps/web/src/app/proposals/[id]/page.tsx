@@ -9,7 +9,6 @@ import Head from "next/head";
 import { notFound } from "next/navigation";
 import { getProposalQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
 import "../_page.scss";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
@@ -39,7 +38,6 @@ export async function generateMetadata(
 
 export default async function ProposalDetailsPage({ params }: Props) {
   const { id } = await params;
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
   const proposal = await getProposalQuery(+id).prefetch();
   const entry = await EcencyEntriesCacheManagement.getEntryQueryByPath(
@@ -51,7 +49,7 @@ export default async function ProposalDetailsPage({ params }: Props) {
     return notFound();
   }
 
-  const renderedBody = { __html: renderPostBody(entry?.body ?? "", false, canUseWebp) };
+  const renderedBody = { __html: renderPostBody(entry?.body ?? "", false, false) };
 
   return (
     <>
@@ -64,10 +62,7 @@ export default async function ProposalDetailsPage({ params }: Props) {
         />
         <meta property="og:description" content={`${proposal?.subject} by @${proposal?.creator}`} />
         {entry && (
-          <meta
-            property="og:image"
-            content={catchPostImage(entry.body, 600, 500, canUseWebp ? "webp" : "match")}
-          />
+          <meta property="og:image" content={catchPostImage(entry.body, 600, 500, "match")} />
         )}
         <meta property="og:url" content={`/proposals/${proposal?.id}`} />
         {entry && (

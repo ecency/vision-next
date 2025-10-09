@@ -1,6 +1,5 @@
 import i18next from "i18next";
 import { langOptions } from "@/features/i18n";
-import { useGlobalStore } from "@/core/global-store";
 import { NavigationLocaleWatcherClient } from "@/features/i18n/navigation-locale-watcher-client";
 
 interface Props {
@@ -11,17 +10,11 @@ export async function NavigationLocaleWatcher({ searchParams }: Props) {
   const languageFromList = langOptions.find(
     (item) => item.code.split("-")[0] === searchParams["lang"]
   );
+  const nextLanguage = languageFromList?.code;
 
-  const setLang = useGlobalStore((state) => state.setLang);
-
-  if (languageFromList) {
-    await i18next.changeLanguage(languageFromList.code);
-    setLang(languageFromList.code);
+  if (nextLanguage) {
+    await i18next.changeLanguage(nextLanguage);
   }
 
-  return (
-    <>
-      <NavigationLocaleWatcherClient />
-    </>
-  );
+  return <NavigationLocaleWatcherClient targetLanguage={nextLanguage} />;
 }
