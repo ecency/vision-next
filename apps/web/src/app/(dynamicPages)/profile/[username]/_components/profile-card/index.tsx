@@ -66,12 +66,12 @@ export function ProfileCard({ account }: Props) {
       className="rounded-xl w-full overflow-hidden relative p-4"
     >
       <Image
-        className="absolute top-0 left-0 w-full h-[96px] object-cover"
-        src={imageSrc ?? data?.profile.cover_image ?? ""}
-        onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
-        alt=""
-        width={300}
-        height={200}
+          className="absolute top-0 left-0 w-full h-[96px] object-cover"
+          src={imageSrc ?? (data?.profile?.cover_image?.trim() || "/assets/promote-wave-bg.jpg")}
+          alt=""
+          width={300}
+          height={200}
+          onError={() => setImageSrc("/assets/promote-wave-bg.jpg")}
       />
 
       <AnimatePresence>

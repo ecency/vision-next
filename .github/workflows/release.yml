@@ -11,6 +11,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v3
         with:
@@ -29,57 +31,55 @@ jobs:
           echo "VITE_HELIUS_API_KEY=${{ secrets.VITE_HELIUS_API_KEY }}" >> .env
           echo "VITE_BITQUERY_API_KEY=${{ secrets.VITE_BITQUERY_API_KEY }}" >> .env
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build packages
+      - name: Determine base commit
+        id: diff_base
         run: |
-          pnpm --filter @ecency/sdk build
-          pnpm --filter @ecency/wallets build
+          BEFORE_SHA="${{ github.event.before }}"
+          if [ -n "$BEFORE_SHA" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            BASE="$BEFORE_SHA"
+          else
+            BASE=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
 
       - name: Detect changes in @ecency/sdk
         id: detect_sdk
         run: |
-          PREV_COMMIT=$(git rev-parse HEAD^ || echo "")
-          if [ -z "$PREV_COMMIT" ]; then
-            echo "No previous commit. Skipping publish."
+          if git diff --quiet "${{ steps.diff_base.outputs.base }}" HEAD -- packages/sdk; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            if git diff --quiet "$PREV_COMMIT" HEAD -- packages/sdk; then
-              echo "changed=false" >> "$GITHUB_OUTPUT"
-            else
-              echo "changed=true" >> "$GITHUB_OUTPUT"
-            fi
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Detect changes in @ecency/wallets
         id: detect_wallets
         run: |
-          PREV_COMMIT=$(git rev-parse HEAD^ || echo "")
-          if [ -z "$PREV_COMMIT" ]; then
-            echo "No previous commit. Skipping publish."
+          if git diff --quiet "${{ steps.diff_base.outputs.base }}" HEAD -- packages/wallets; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            if git diff --quiet "$PREV_COMMIT" HEAD -- packages/wallets; then
-              echo "changed=false" >> "$GITHUB_OUTPUT"
-            else
-              echo "changed=true" >> "$GITHUB_OUTPUT"
-            fi
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Install dependencies
+        if: steps.detect_sdk.outputs.changed == 'true' || steps.detect_wallets.outputs.changed == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        if: steps.detect_sdk.outputs.changed == 'true' || steps.detect_wallets.outputs.changed == 'true'
+        run: |
+          pnpm --filter @ecency/sdk build
+          pnpm --filter @ecency/wallets build
+
       - name: Set up .npmrc
+        if: steps.detect_sdk.outputs.changed == 'true' || steps.detect_wallets.outputs.changed == 'true'
         run: |
           echo "@ecency:registry=https://registry.npmjs.org/" > .npmrc
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
 
       - name: Publish @ecency/sdk
         if: steps.detect_sdk.outputs.changed == 'true'
-        run: |
-          cd packages/sdk
-          npm publish --access public
+        run: pnpm publish:sdk
 
       - name: Publish @ecency/wallets
         if: steps.detect_wallets.outputs.changed == 'true'
-        run: |
-          cd packages/wallets
-          npm publish --access public
+        run: pnpm publish:wallets
