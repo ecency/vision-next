@@ -10,10 +10,11 @@ import { useWavesAutoRefresh } from "@/app/waves/_hooks";
 import { WavesRefreshPopup } from "@/app/waves/_components";
 import { WavesFastReplyDialog } from "@/app/waves/_components/waves-fast-reply-dialog";
 import { WaveEntry } from "@/entities";
-import { useQuery } from "@tanstack/react-query";
+import { InfiniteData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
 import { WAVES_FEED_SCROLL_STORAGE_KEY, WavesFeedScrollState } from "@/app/waves/_constants";
 import { useWavesGrid } from "@/app/waves/_hooks";
+import { QueryIdentifiers } from "@/core/react-query";
 
 interface Props {
   host: string;
@@ -24,6 +25,8 @@ export function WavesListView({ host }: Props) {
   const { data: promoted } = useQuery(getPromotedPostsQuery<WaveEntry>("waves"));
   const dataFlow = useInfiniteDataFlow(data);
   const [grid] = useWavesGrid();
+  const queryClient = useQueryClient();
+  const wavesQueryKey = useMemo(() => [QueryIdentifiers.THREADS, host] as const, [host]);
   const combinedDataFlow = useMemo(() => {
     if (!promoted) {
       return dataFlow;
@@ -103,10 +106,48 @@ export function WavesListView({ host }: Props) {
       {newWaves.length > 0 && (
         <WavesRefreshPopup
           entries={newWaves}
-          onClick={async () => {
-            await refetch();
+          onClick={() => {
+            const wavesToInsert = [...newWaves];
+
+            if (wavesToInsert.length === 0) {
+              clear();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              void refetch();
+              return;
+            }
+
+            queryClient.setQueryData<
+              InfiniteData<WaveEntry[], WaveEntry | undefined>
+            >(wavesQueryKey, (prev) => {
+              if (!prev) {
+                return {
+                  pages: [wavesToInsert],
+                  pageParams: [undefined]
+                };
+              }
+
+              const existingIds = new Set(
+                prev.pages.flatMap((page) => page.map((entry) => entry.id))
+              );
+              const deduped = wavesToInsert.filter(
+                (entry) => !existingIds.has(entry.id)
+              );
+
+              if (deduped.length === 0) {
+                return prev;
+              }
+
+              const [firstPage = [], ...restPages] = prev.pages;
+
+              return {
+                ...prev,
+                pages: [[...deduped, ...firstPage], ...restPages]
+              };
+            });
+
             clear();
             window.scrollTo({ top: 0, behavior: "smooth" });
+            void refetch();
           }}
         />
       )}
