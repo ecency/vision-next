@@ -35,8 +35,12 @@ RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
     export SENTRY_AUTH_TOKEN="$(cat /run/secrets/SENTRY_AUTH_TOKEN 2>/dev/null || true)" && \
     pnpm --filter @ecency/web build
 
-# prune dev deps for runtime
-RUN pnpm prune --prod
+# prune dev deps for runtime. "pnpm deploy" creates a trimmed node_modules for just
+# the web workspace, preventing the root workspace prune from stripping Next.js.
+RUN pnpm deploy --filter @ecency/web --prod --legacy /var/app/.deploy-workdir \
+    && rm -rf apps/web/node_modules \
+    && mv /var/app/.deploy-workdir/node_modules apps/web/node_modules \
+    && rm -rf /var/app/.deploy-workdir
 
 # ---------- production ----------
 FROM node:20.12 AS production
