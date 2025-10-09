@@ -35,6 +35,18 @@ const config = {
       fs: false
     };
 
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@tanstack/react-query": path.resolve(
+        __dirname,
+        "node_modules/@tanstack/react-query"
+      ),
+      "@tanstack/query-core": path.resolve(
+        __dirname,
+        "node_modules/@tanstack/query-core"
+      )
+    };
+
     if (isServer) {
       config.externals.push("formidable", "hexoid");
     }
