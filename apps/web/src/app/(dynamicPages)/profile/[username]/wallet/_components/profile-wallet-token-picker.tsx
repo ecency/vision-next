@@ -57,6 +57,10 @@ export function ProfileWalletTokenPicker() {
           R.map((currency) => ({ currency, type: "HIVE" }))
         ),
         ...R.pipe(
+          allTokens?.spk.filter((i) => list.includes(i)) ?? [],
+          R.map((currency) => ({ currency, type: "SPK" }))
+        ),
+        ...R.pipe(
           allTokens?.external.filter((i) => list.includes(i)) ?? [],
           R.map((currency) => ({ currency, type: "CHAIN" }))
         ),
@@ -98,6 +102,25 @@ export function ProfileWalletTokenPicker() {
                       disabled={["POINTS", "HIVE", "HBD"].includes(token)}
                       checked={walletList?.includes(token) ?? false}
                       onChange={() => !["POINTS", "HIVE", "HBD"].includes(token) && update(token)}
+                    />
+                    <div>{TOKEN_LOGOS_MAP[token]}</div>
+                    {token}
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          )}
+
+          {allTokens && allTokens.spk.length > 0 && (
+            <>
+              <div className="text-sm opacity-50 mt-4 mb-2">Basic</div>
+              <List>
+                {allTokens.spk.map((token) => (
+                  <ListItem className="!flex items-center gap-2" key={token}>
+                    <FormControl
+                      type="checkbox"
+                      checked={walletList?.includes(token) ?? false}
+                      onChange={() => update(token)}
                     />
                     <div>{TOKEN_LOGOS_MAP[token]}</div>
                     {token}
