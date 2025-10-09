@@ -6,14 +6,22 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "pnpm -r build",
+    "dev": "pnpm --filter @ecency/web dev",
+    "build": "pnpm --filter @ecency/web build",
+    "start": "pnpm --filter @ecency/web start",
     "lint": "pnpm -r lint",
-    "test": "pnpm -r test"
+    "test": "pnpm --filter @ecency/web test",
+    "typecheck": "tsc --build --verbose",
+    "build:packages": "pnpm -F @ecency/sdk,@ecency/wallets build",
+    "dev:sdk": "pnpm --filter @ecency/sdk dev",
+    "dev:wallets": "pnpm --filter @ecency/wallets dev",
+    "publish:sdk": "pnpm --filter @ecency/sdk publish",
+    "publish:wallets": "pnpm --filter @ecency/wallets publish"
   },
   "packageManager": "pnpm@10.15.1",
   "devDependencies": {
-    "@types/node": "^24.7.0",
-    "eslint": "^9.37.0",
+    "@types/node": "^20",
+    "eslint": "^8",
     "tsup": "^8.5.0",
     "typescript": "^5",
     "vitest": "^3.2.4"
@@ -22,6 +30,23 @@
     "overrides": {
       "typescript": "^5",
       "source-map": "^0.7.4"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ],
+    "onlyBuiltDependencies": [
+      "@firebase/util",
+      "@parcel/watcher",
+      "@sentry/cli",
+      "@sentry/profiling-node",
+      "bigint-buffer",
+      "core-js",
+      "esbuild",
+      "keccak",
+      "protobufjs",
+      "scryptlib",
+      "secp256k1"
+    ]
   }
 }

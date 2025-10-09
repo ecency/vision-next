@@ -13,11 +13,11 @@ importers:
   .:
     devDependencies:
       '@types/node':
-        specifier: ^24.7.0
-        version: 24.7.0
+        specifier: ^20
+        version: 20.19.19
       eslint:
-        specifier: ^9.37.0
-        version: 9.37.0(jiti@1.21.7)
+        specifier: ^8
+        version: 8.57.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@1.21.7)(postcss@8.5.6)(typescript@5.9.3)
@@ -26,7 +26,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.2.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.0)(jiti@1.21.7)(jsdom@20.0.3)(sass@1.93.2)(terser@5.44.0)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.19)(jiti@1.21.7)(jsdom@20.0.3)(sass@1.93.2)(terser@5.44.0)
 
   apps/web:
     dependencies:
@@ -94,11 +94,8 @@ importers:
         specifier: ^9.7.3
         version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@sentry/browser':
-        specifier: ^8.33.1
-        version: 8.55.0
-      '@sentry/nextjs':
         specifier: ^8.36.0
-        version: 8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.93.2))(react@18.3.1)(webpack@5.102.1(esbuild@0.25.10))
+        version: 8.55.0
       '@sentry/profiling-node':
         specifier: ^8.36.0
         version: 8.55.0
@@ -339,6 +336,9 @@ importers:
       uuid:
         specifier: ^9.0.0
         version: 9.0.1
+      webpack:
+        specifier: ^5.102.1
+        version: 5.102.1(esbuild@0.25.10)
       yup:
         specifier: ^1.6.1
         version: 1.7.1
@@ -346,6 +346,9 @@ importers:
         specifier: ^4.4.7
         version: 4.5.7(@types/react@18.3.26)(react@18.3.1)
     devDependencies:
+      '@sentry/nextjs':
+        specifier: ^8.36.0
+        version: 8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.3(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.93.2))(react@18.3.1)(webpack@5.102.1(esbuild@0.25.10))
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.1
@@ -3162,9 +3165,6 @@ packages:
 
   '@types/node@22.18.8':
     resolution: {integrity: sha512-pAZSHMiagDR7cARo/cch1f3rXy0AEXwsVsVH09FcyeJVAzCnGgmYis7P3JidtTUjyadhTeSo8TgRPswstghDaw==}
-
-  '@types/node@24.7.0':
-    resolution: {integrity: sha512-IbKooQVqUBrlzWTi79E8Fw78l8k1RNtlDDNWsFZs7XonuQSJ8oNYfEeclhprUldXISRMLzBpILuKgPlIxm+/Yw==}
 
   '@types/numeral@2.0.5':
     resolution: {integrity: sha512-kH8I7OSSwQu9DS9JYdFWbuvhVzvFRoCPCkGxNwoGgaPeDfEPJlcxNvEOypZhQ3XXHsGbfIuYcxcJxKUfJHnRfw==}
@@ -7693,9 +7693,6 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
-  undici-types@7.14.0:
-    resolution: {integrity: sha512-QQiYxHuyZ9gQUIrmPo3IA+hUl4KYk8uSA7cHrcKd/l3p1OTpZcM0Tbp9x7FAtXdAYhlasd60ncPpgu6ihG6TOA==}
-
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
     engines: {node: '>=4'}
@@ -11263,10 +11260,6 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@24.7.0':
-    dependencies:
-      undici-types: 7.14.0
-
   '@types/numeral@2.0.5': {}
 
   '@types/path-to-regexp@1.7.0':
@@ -11492,13 +11485,13 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(vite@7.1.9(@types/node@24.7.0)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0))':
+  '@vitest/mocker@3.2.4(vite@7.1.9(@types/node@20.19.19)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.19
     optionalDependencies:
-      vite: 7.1.9(@types/node@24.7.0)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0)
+      vite: 7.1.9(@types/node@20.19.19)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -15648,7 +15641,7 @@ snapshots:
     dependencies:
       debug: 4.4.3
       module-details-from-path: 1.0.4
-      resolve: 1.22.8
+      resolve: 1.22.10
     transitivePeerDependencies:
       - supports-color
 
@@ -16657,8 +16650,6 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  undici-types@7.14.0: {}
-
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
   unicode-match-property-ecmascript@2.0.0:
@@ -16800,13 +16791,13 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.4.1
 
-  vite-node@3.2.4(@types/node@24.7.0)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0):
+  vite-node@3.2.4(@types/node@20.19.19)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 7.1.9(@types/node@24.7.0)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0)
+      vite: 7.1.9(@types/node@20.19.19)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -16821,7 +16812,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite@7.1.9(@types/node@24.7.0)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0):
+  vite@7.1.9(@types/node@20.19.19)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0):
     dependencies:
       esbuild: 0.25.10
       fdir: 6.5.0(picomatch@4.0.3)
@@ -16830,17 +16821,17 @@ snapshots:
       rollup: 4.52.4
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 24.7.0
+      '@types/node': 20.19.19
       fsevents: 2.3.3
       jiti: 1.21.7
       sass: 1.93.2
       terser: 5.44.0
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.7.0)(jiti@1.21.7)(jsdom@20.0.3)(sass@1.93.2)(terser@5.44.0):
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@20.19.19)(jiti@1.21.7)(jsdom@20.0.3)(sass@1.93.2)(terser@5.44.0):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.1.9(@types/node@24.7.0)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0))
+      '@vitest/mocker': 3.2.4(vite@7.1.9(@types/node@20.19.19)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4
@@ -16858,12 +16849,12 @@ snapshots:
       tinyglobby: 0.2.15
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.1.9(@types/node@24.7.0)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0)
-      vite-node: 3.2.4(@types/node@24.7.0)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0)
+      vite: 7.1.9(@types/node@20.19.19)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0)
+      vite-node: 3.2.4(@types/node@20.19.19)(jiti@1.21.7)(sass@1.93.2)(terser@5.44.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/debug': 4.1.12
-      '@types/node': 24.7.0
+      '@types/node': 20.19.19
       jsdom: 20.0.3
     transitivePeerDependencies:
       - jiti

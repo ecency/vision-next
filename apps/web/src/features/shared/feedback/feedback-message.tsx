@@ -11,7 +11,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { useMount } from "react-use";
-import * as Sentry from "@sentry/browser";
+import * as Sentry from "@sentry/nextjs";
 
 interface Props {
   feedback: FeedbackObject;
