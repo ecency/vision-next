@@ -18,7 +18,7 @@
     "publish:sdk": "pnpm --filter @ecency/sdk publish --no-git-checks",
     "publish:wallets": "pnpm --filter @ecency/wallets publish --no-git-checks"
   },
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.18.1",
   "devDependencies": {
     "@types/node": "^20",
     "eslint": "^8",

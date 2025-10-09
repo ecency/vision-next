@@ -15,7 +15,7 @@ ENV NEXT_PUBLIC_GMAPS_MAP_ID ${NEXT_PUBLIC_GMAPS_MAP_ID}
 # Pin pnpm to the same version used to create the lockfile
 # (set this to whatever you committed in package.json `"packageManager": "pnpm@X.Y.Z"`)
 
-ARG PNPM_VERSION=10.15.1
+ARG PNPM_VERSION=10.18.1
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 COPY package.json pnpm-lock.yaml ./
@@ -46,7 +46,7 @@ ENTRYPOINT ["/tini", "--"]
 WORKDIR /var/app
 
 # Activate the same pnpm for runtime "pnpm start"
-ARG PNPM_VERSION=10.15.1
+ARG PNPM_VERSION=10.18.1
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 COPY --from=dependencies /var/app/package.json /var/app/package.json

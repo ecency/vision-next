@@ -26,7 +26,7 @@ Feel free to test it out and submit improvements and pull requests.
 ##### Requirements
 
 - `node ^18.17.x`
-- [`pnpm`](https://pnpm.io/) (the repo is configured with `packageManager: pnpm@10.15.1`)
+- [`pnpm`](https://pnpm.io/) (the repo is configured with `packageManager: pnpm@10.18.1`)
 
 ##### Clone
 
