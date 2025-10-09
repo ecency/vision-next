@@ -1,62 +1,66 @@
-FROM node:20.12 as base
-
+# syntax=docker/dockerfile:1.7
+FROM node:20.12 AS base
 WORKDIR /var/app
 
-# Pin pnpm to the same version used to create the lockfile
-# (set this to whatever you committed in package.json `"packageManager": "pnpm@X.Y.Z"`)
-
+# Pin pnpm to match lockfile
 ARG PNPM_VERSION=10.18.1
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 ENV CI=true
 
-# The SENTRY_AUTH_TOKEN is used to upload the source maps to Sentry
-ARG SENTRY_AUTH_TOKEN
-ENV SENTRY_AUTH_TOKEN ${SENTRY_AUTH_TOKEN}
+# ---- copy workspace manifests first (for better caching) ----
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-ARG NEXT_PUBLIC_GMAPS_API_KEY
-ENV NEXT_PUBLIC_GMAPS_API_KEY ${NEXT_PUBLIC_GMAPS_API_KEY}
+# copy only package.jsons from workspaces for dependency graph resolution
+COPY apps/web/package.json apps/web/package.json
+COPY packages/sdk/package.json packages/sdk/package.json
+COPY packages/wallets/package.json packages/wallets/package.json
+# (add more workspace package.json files as needed)
 
-ARG NEXT_PUBLIC_GMAPS_MAP_ID
-ENV NEXT_PUBLIC_GMAPS_MAP_ID ${NEXT_PUBLIC_GMAPS_MAP_ID}
+# install deps using the root lockfile
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
-COPY package.json pnpm-lock.yaml ./
-
-RUN pnpm install --frozen-lockfile
-
+# ---- now bring the full source ----
 COPY . .
 
-RUN pnpm build
+# public build-time envs
+ARG NEXT_PUBLIC_GMAPS_API_KEY
+ENV NEXT_PUBLIC_GMAPS_API_KEY=${NEXT_PUBLIC_GMAPS_API_KEY}
+ARG NEXT_PUBLIC_GMAPS_MAP_ID
+ENV NEXT_PUBLIC_GMAPS_MAP_ID=${NEXT_PUBLIC_GMAPS_MAP_ID}
 
-### REMOVE DEV DEPENDENCIES ##
-FROM base as dependencies
+# If we need Sentry token during build
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
+    export SENTRY_AUTH_TOKEN="$(cat /run/secrets/SENTRY_AUTH_TOKEN 2>/dev/null || true)" && \
+    pnpm --filter @ecency/web build
 
-RUN pnpm install --frozen-lockfile --prod
+# prune dev deps for runtime
+RUN pnpm prune --prod
 
-### BUILD MINIFIED PRODUCTION ##
-FROM node:20.12 as production
-
-# Add Tini
-ENV TINI_VERSION v0.18.0
-ENV NEXT_SHARP_PATH=/app/node_modules/sharp
-
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static /tini
-RUN chmod +x /tini
-
-ENTRYPOINT ["/tini", "--"]
-
+# ---------- production ----------
+FROM node:20.12 AS production
 WORKDIR /var/app
 
-# Activate the same pnpm for runtime "pnpm start"
+# tini
+ENV TINI_VERSION=v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static /tini
+RUN chmod +x /tini
+ENTRYPOINT ["/tini", "--"]
+
+ENV NODE_ENV=production
+ENV NEXT_SHARP_PATH=/var/app/node_modules/sharp
+
+# same pnpm version for runtime "pnpm start"
 ARG PNPM_VERSION=10.18.1
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
-COPY --from=dependencies /var/app/package.json /var/app/package.json
-COPY --from=dependencies /var/app/healthCheck.js /var/app/healthCheck.js
-COPY --from=dependencies /var/app/public /var/app/public
-COPY --from=dependencies /var/app/.next /var/app/.next
-COPY --from=dependencies /var/app/node_modules /var/app/node_modules
+# copy runtime artifacts
+COPY --from=base /var/app/package.json ./package.json
+COPY --from=base /var/app/healthCheck.js ./healthCheck.js
+COPY --from=base /var/app/public ./public
+COPY --from=base /var/app/.next ./.next
+COPY --from=base /var/app/node_modules ./node_modules
 
 HEALTHCHECK --interval=15s --timeout=5s CMD node /var/app/healthCheck.js
-
-CMD [ "pnpm", "start" ]
+CMD ["pnpm", "start"]
