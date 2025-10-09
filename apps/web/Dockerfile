@@ -12,7 +12,11 @@ ENV NEXT_PUBLIC_GMAPS_API_KEY ${NEXT_PUBLIC_GMAPS_API_KEY}
 ARG NEXT_PUBLIC_GMAPS_MAP_ID
 ENV NEXT_PUBLIC_GMAPS_MAP_ID ${NEXT_PUBLIC_GMAPS_MAP_ID}
 
-RUN corepack enable
+# Pin pnpm to the same version used to create the lockfile
+# (set this to whatever you committed in package.json `"packageManager": "pnpm@X.Y.Z"`)
+
+ARG PNPM_VERSION=10.15.1
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 COPY package.json pnpm-lock.yaml ./
 
@@ -41,6 +45,10 @@ ENTRYPOINT ["/tini", "--"]
 
 WORKDIR /var/app
 
+# Activate the same pnpm for runtime "pnpm start"
+ARG PNPM_VERSION=10.15.1
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
+
 COPY --from=dependencies /var/app/package.json /var/app/package.json
 COPY --from=dependencies /var/app/healthCheck.js /var/app/healthCheck.js
 COPY --from=dependencies /var/app/public /var/app/public
@@ -48,7 +56,5 @@ COPY --from=dependencies /var/app/.next /var/app/.next
 COPY --from=dependencies /var/app/node_modules /var/app/node_modules
 
 HEALTHCHECK --interval=15s --timeout=5s CMD node /var/app/healthCheck.js
-
-RUN corepack enable
 
 CMD [ "pnpm", "start" ]
