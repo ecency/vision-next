@@ -92,8 +92,8 @@ jobs:
 
       - name: Publish @ecency/sdk
         if: steps.detect_sdk.outputs.changed == 'true'
-        run: pnpm publish:sdk
+        run: pnpm publish:sdk -- --no-git-checks
 
       - name: Publish @ecency/wallets
         if: steps.detect_wallets.outputs.changed == 'true'
-        run: pnpm publish:wallets
+        run: pnpm publish:wallets -- --no-git-checks

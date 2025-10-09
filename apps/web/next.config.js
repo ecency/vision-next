@@ -15,7 +15,7 @@ const config = {
     /Mediapartners-Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/,
   sassOptions: {
     includePaths: [path.join(__dirname), path.join(__dirname, "src/styles")],
-    silenceDeprecations: ["import", "global-builtin", "color-functions"]
+    silenceDeprecations: ["legacy-js-api", "import", "global-builtin", "color-functions"]
   },
   generateBuildId: async () => v4(),
   eslint: { ignoreDuringBuilds: true },
