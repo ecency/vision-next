@@ -48,12 +48,12 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
         with:
-          context: ./
+          context: ./apps/web
           build-args: |
             "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}"
             "NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}"
             "NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}"
-          file: ./Dockerfile
+          file: ./apps/web/Dockerfile
           push: true
           tags: ecency/vision-next:develop
 
@@ -94,5 +94,6 @@ jobs:
           export CHAINZ_API_KEY=$CHAINZ_API_KEY
           cd ~/vision-next
           git pull origin develop
+          cd apps/web
           docker pull ecency/vision-next:develop
           docker stack deploy -c <(docker-compose config) vision
