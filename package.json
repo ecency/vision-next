@@ -29,11 +29,13 @@
   "pnpm": {
     "overrides": {
       "typescript": "^5",
-      "source-map": "^0.7.4"
+      "source-map": "^0.7.4",
+      "@sentry/core": "^8.55.0",
+      "@sentry/types": "^8.55.0",
+      "@sentry/utils": "^8.55.0"
     },
     "ignoredBuiltDependencies": [
-      "sharp",
-      "unrs-resolver"
+      "sharp"
     ],
     "onlyBuiltDependencies": [
       "@firebase/util",
@@ -46,7 +48,8 @@
       "keccak",
       "protobufjs",
       "scryptlib",
-      "secp256k1"
+      "secp256k1",
+      "unrs-resolver"
     ]
   }
 }
