@@ -66,34 +66,34 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Create .env file
-        if: steps.packages_changed.outputs.changed == 'true'
-        run: |
-          echo "VITE_HELIUS_API_KEY=${{ secrets.VITE_HELIUS_API_KEY }}" >> .env
-          echo "VITE_BITQUERY_API_KEY=${{ secrets.VITE_BITQUERY_API_KEY }}" >> .env
-
       - name: Install dependencies
         if: steps.packages_changed.outputs.changed == 'true'
         run: pnpm install --frozen-lockfile
+        env:
+          VITE_HELIUS_API_KEY: ${{ secrets.VITE_HELIUS_API_KEY }}
 
       - name: Build @ecency/sdk
         if: steps.detect_sdk.outputs.changed == 'true'
         run: pnpm --filter @ecency/sdk build
+        env:
+          VITE_HELIUS_API_KEY: ${{ secrets.VITE_HELIUS_API_KEY }}
 
       - name: Build @ecency/wallets
         if: steps.detect_wallets.outputs.changed == 'true'
         run: pnpm --filter @ecency/wallets build
-
-      - name: Set up .npmrc
-        if: steps.packages_changed.outputs.changed == 'true'
-        run: |
-          echo "@ecency:registry=https://registry.npmjs.org/" > .npmrc
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+        env:
+          VITE_HELIUS_API_KEY: ${{ secrets.VITE_HELIUS_API_KEY }}
 
       - name: Publish @ecency/sdk
         if: steps.detect_sdk.outputs.changed == 'true'
-        run: pnpm publish:sdk -- --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PNPM_CONFIG_GIT_CHECKS: "false"
+        run: pnpm publish:sdk
 
       - name: Publish @ecency/wallets
         if: steps.detect_wallets.outputs.changed == 'true'
-        run: pnpm publish:wallets -- --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PNPM_CONFIG_GIT_CHECKS: "false"
+        run: pnpm publish:wallets

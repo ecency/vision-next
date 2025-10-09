@@ -15,8 +15,8 @@
     "build:packages": "pnpm -F @ecency/sdk,@ecency/wallets build",
     "dev:sdk": "pnpm --filter @ecency/sdk dev",
     "dev:wallets": "pnpm --filter @ecency/wallets dev",
-    "publish:sdk": "pnpm --filter @ecency/sdk publish",
-    "publish:wallets": "pnpm --filter @ecency/wallets publish"
+    "publish:sdk": "pnpm --filter @ecency/sdk publish --no-git-checks",
+    "publish:wallets": "pnpm --filter @ecency/wallets publish --no-git-checks"
   },
   "packageManager": "pnpm@10.15.1",
   "devDependencies": {

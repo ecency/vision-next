@@ -871,7 +871,7 @@ interface StatsResponse {
         site_id: string;
         metrics: string[];
         date_range: string[];
-        filters: unknown[];
+        filters: string[];
     };
 }
 interface UseStatsQueryOptions {

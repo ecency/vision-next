@@ -35,16 +35,17 @@ const config = {
       fs: false
     };
 
+    const reactQueryPackagePath = path.dirname(
+      require.resolve("@tanstack/react-query/package.json")
+    );
+    const queryCorePackagePath = path.dirname(
+      require.resolve("@tanstack/query-core/package.json")
+    );
+
     config.resolve.alias = {
       ...config.resolve.alias,
-      "@tanstack/react-query": path.resolve(
-        __dirname,
-        "node_modules/@tanstack/react-query"
-      ),
-      "@tanstack/query-core": path.resolve(
-        __dirname,
-        "node_modules/@tanstack/query-core"
-      )
+      "@tanstack/react-query": reactQueryPackagePath,
+      "@tanstack/query-core": queryCorePackagePath
     };
 
     if (isServer) {
