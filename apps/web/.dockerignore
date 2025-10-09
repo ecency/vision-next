@@ -1,0 +1,15 @@
+node_modules
+.pnpm-store
+.next
+.git
+.gitignore
+.env
+.env.*
+Dockerfile
+*.log
+
+# pnpm artifacts
+pnpm-debug.log
+
+# macOS
+.DS_Store

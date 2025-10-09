@@ -12,18 +12,20 @@ ENV NEXT_PUBLIC_GMAPS_API_KEY ${NEXT_PUBLIC_GMAPS_API_KEY}
 ARG NEXT_PUBLIC_GMAPS_MAP_ID
 ENV NEXT_PUBLIC_GMAPS_MAP_ID ${NEXT_PUBLIC_GMAPS_MAP_ID}
 
-COPY package.json yarn.lock ./
+RUN corepack enable
 
-RUN yarn install --non-interactive --frozen-lockfile --ignore-optional
+COPY package.json pnpm-lock.yaml ./
+
+RUN pnpm install --frozen-lockfile --no-optional
 
 COPY . .
 
-RUN yarn build
+RUN pnpm build
 
 ### REMOVE DEV DEPENDENCIES ##
 FROM base as dependencies
 
-RUN yarn install --non-interactive --frozen-lockfile --ignore-optional --production
+RUN pnpm install --frozen-lockfile --no-optional --prod
 
 ### BUILD MINIFIED PRODUCTION ##
 FROM node:20.12 as production
@@ -47,4 +49,6 @@ COPY --from=dependencies /var/app/node_modules /var/app/node_modules
 
 HEALTHCHECK --interval=15s --timeout=5s CMD node /var/app/healthCheck.js
 
-CMD [ "yarn", "start" ]
+RUN corepack enable
+
+CMD [ "pnpm", "start" ]
