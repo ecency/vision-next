@@ -57,10 +57,14 @@ RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # copy runtime artifacts
 COPY --from=base /var/app/package.json ./package.json
-COPY --from=base /var/app/healthCheck.js ./healthCheck.js
-COPY --from=base /var/app/public ./public
-COPY --from=base /var/app/.next ./.next
+COPY --from=base /var/app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=base /var/app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=base /var/app/apps/web/package.json ./apps/web/package.json
+COPY --from=base /var/app/apps/web/healthCheck.js ./apps/web/healthCheck.js
+COPY --from=base /var/app/apps/web/public ./apps/web/public
+COPY --from=base /var/app/apps/web/.next ./apps/web/.next
 COPY --from=base /var/app/node_modules ./node_modules
+COPY --from=base /var/app/apps/web/node_modules ./apps/web/node_modules
 
-HEALTHCHECK --interval=15s --timeout=5s CMD node /var/app/healthCheck.js
+HEALTHCHECK --interval=15s --timeout=5s CMD node /var/app/apps/web/healthCheck.js
 CMD ["pnpm", "start"]
