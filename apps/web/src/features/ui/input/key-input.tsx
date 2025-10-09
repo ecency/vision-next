@@ -17,6 +17,7 @@ import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { deriveHiveKeys, detectHiveKeyDerivation } from "@/features/wallet/sdk";
 import { error } from "@/features/shared";
+import clsx from "clsx";
 
 interface Props {
   isLoading?: boolean;
@@ -86,7 +87,10 @@ export const KeyInput = forwardRef<
 
   return (
     <div
-      className="border-2 border-[--border-color] rounded-xl p-2 cursor-text flex flex-col items-start"
+      className={clsx(
+        "border-2 border-[--border-color] rounded-xl p-2 cursor-text flex flex-col items-start",
+        props.className
+      )}
       onClick={() => inputRef.current?.focus()}
     >
       <span className="text-sm font-semibold text-gray-500 -mt-5 px-1 bg-white">

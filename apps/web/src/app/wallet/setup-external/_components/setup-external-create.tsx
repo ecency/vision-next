@@ -3,16 +3,16 @@
 import { formatError } from "@/api/operations";
 import { useClientActiveUser } from "@/api/queries";
 import { error, Stepper } from "@/features/shared";
-import { Button, FormControl, InputGroup } from "@/features/ui";
+import { Button, KeyInput, KeyInputImperativeHandle } from "@/features/ui";
 import { WalletSeedPhrase, WalletTokenAddressItem } from "@/features/wallet";
-import { useAccountUpdateKeyAuths } from "@ecency/sdk";
 import {
   EcencyTokenMetadata,
   EcencyWalletCurrency,
   useHiveKeysQuery,
   useSaveWalletInformationToMetadata
 } from "@/features/wallet/sdk";
-import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
+import { useAccountUpdateKeyAuths } from "@ecency/sdk";
+import { PrivateKey } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
 import {
   UilArrowLeft,
@@ -27,7 +27,7 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 interface Props {
   onBack: () => void;
@@ -71,7 +71,7 @@ const TOKENS = [
 export function SetupExternalCreate({ onBack }: Props) {
   const activeUser = useClientActiveUser();
 
-  const [keyInput, setKeyInput] = useState("");
+  const keyInputRef = useRef<KeyInputImperativeHandle>(null);
   const [step, setStep] = useState<"seed" | "tokens" | "create" | "success" | "sign">("seed");
 
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
@@ -92,16 +92,13 @@ export function SetupExternalCreate({ onBack }: Props) {
     }
   });
 
-  const handleLink = useCallback(async () => {
+  const handleLinkByKey = useCallback(async () => {
     if (!keys) {
       return;
     }
-
-    const currentKey = cryptoUtils.isWif(keyInput)
-      ? PrivateKey.fromString(keyInput)
-      : PrivateKey.fromLogin(activeUser?.username!, keyInput, "owner");
-
     setStep("create");
+
+    const { privateKey: currentKey } = await keyInputRef.current!.handleSign();
     await saveTokens(Array.from(tokens?.values() ?? []));
     await saveKeys({
       keepCurrent: true,
@@ -116,7 +113,7 @@ export function SetupExternalCreate({ onBack }: Props) {
       ]
     });
     setStep("success");
-  }, [activeUser?.username, keyInput, keys, saveKeys, saveTokens, tokens]);
+  }, [activeUser?.username, keys, saveKeys, saveTokens, tokens]);
 
   return (
     <div className="w-full col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
@@ -191,24 +188,10 @@ export function SetupExternalCreate({ onBack }: Props) {
             </motion.div>
           )}
           {step === "sign" && (
-            <InputGroup
-              className="my-4"
-              prepend={<UilLock />}
-              append={
-                <Button disabled={isPending} onClick={handleLink}>
-                  {i18next.t("key-or-hot.sign")}
-                </Button>
-              }
-            >
-              <FormControl
-                value={keyInput}
-                type="password"
-                autoFocus={true}
-                autoComplete="off"
-                placeholder={i18next.t("key-or-hot.key-placeholder")}
-                onChange={(e) => setKeyInput(e.target.value)}
-              />
-            </InputGroup>
+            <div className="pt-4 lg:pt-6 w-full flex flex-col items-start gap-4">
+              <KeyInput className="w-full" ref={keyInputRef} />
+              <Button size="lg">{i18next.t("g.continue")}</Button>
+            </div>
           )}
           {step === "success" && (
             <motion.div
