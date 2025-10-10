@@ -3,14 +3,15 @@
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
 import { WaveActions, WaveForm } from "@/features/waves";
 import { WaveEntry } from "@/entities";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import useMount from "react-use/lib/useMount";
 import { PostContentRenderer } from "@/features/shared";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useOptionalWavesTagFilter } from "@/app/waves/_context";
 
 interface Props {
   entry: WaveEntry;
@@ -21,12 +22,29 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
 
   const [showEditModal, setShowEditModal] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const tagFilter = useOptionalWavesTagFilter();
 
   const poll = useEntryPollExtractor(entry);
 
   const status = "default";
 
   useMount(() => window.scrollTo(0, 0));
+
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      if (!tagFilter) {
+        return;
+      }
+
+      tagFilter.setSelectedTag(tag);
+
+      if (pathname !== "/waves") {
+        router.push("/waves");
+      }
+    },
+    [pathname, router, tagFilter]
+  );
 
   return (
     <div className="relative z-10 rounded-2xl bg-white dark:bg-dark-200 cursor-pointer">
@@ -42,7 +60,10 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
         />
       </div>
       <div className="p-4">
-        <PostContentRenderer value={entry?.body ?? ""} />
+        <PostContentRenderer
+          value={entry?.body ?? ""}
+          onTagClick={tagFilter ? handleTagClick : undefined}
+        />
         {poll && <PollWidget entry={entry} poll={poll} isReadOnly={false} />}
       </div>
       <WaveActions

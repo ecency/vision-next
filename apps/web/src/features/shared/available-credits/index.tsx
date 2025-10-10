@@ -112,7 +112,12 @@ export const AvailableCredits = ({ username, className }: Props) => {
           </div>
         </div>
         {commentAmount <= 5 ? (
-          <Button noPadding={true} appearance="link" onClick={() => setShowPurchaseDialog(true)}>
+          <Button
+            noPadding={true}
+            appearance="link"
+            className="!overflow-visible"
+            onClick={() => setShowPurchaseDialog(true)}
+          >
             {i18next.t("rc-info.boost")}
           </Button>
         ) : (

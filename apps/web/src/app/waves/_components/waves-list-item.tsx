@@ -7,7 +7,7 @@ import { WaveActions, WaveForm } from "@/features/waves";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { motion } from "framer-motion";
 import "./waves-list-item.scss";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { classNameObject } from "@ui/util";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 import { Modal, ModalHeader } from "@ui/modal";
@@ -21,6 +21,7 @@ import { getPromotedPostsQuery } from "@ecency/sdk";
 import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
 import { WAVES_FEED_SCROLL_STORAGE_KEY, WavesFeedScrollState } from "@/app/waves/_constants";
+import { useOptionalWavesTagFilter } from "@/app/waves/_context";
 
 const INTERACTIVE_SELECTOR =
   "a,button,input,textarea,select,[role='button'],[role='link'],[role='menuitem'],[contenteditable='true']";
@@ -50,7 +51,25 @@ export function WavesListItem({
 
   const rootRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const { inViewport } = useInViewport(rootRef);
+
+  const tagFilter = useOptionalWavesTagFilter();
+
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      if (!tagFilter) {
+        return;
+      }
+
+      tagFilter.setSelectedTag(tag);
+
+      if (pathname !== "/waves") {
+        router.push("/waves");
+      }
+    },
+    [pathname, router, tagFilter]
+  );
 
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -270,7 +289,10 @@ export function WavesListItem({
             {i18next.t("waves.muted-post")}
           </div>
         ) : (
-          <PostContentRenderer value={entry?.body ?? ""} />
+          <PostContentRenderer
+            value={entry?.body ?? ""}
+            onTagClick={tagFilter ? handleTagClick : undefined}
+          />
         )}
       </div>
       {!isMuted && (

@@ -8,3 +8,8 @@ export interface ThreadItemEntry extends Entry {
 }
 
 export type WaveEntry = ThreadItemEntry & Required<Pick<Entry, "id">>;
+
+export interface WaveTrendingTag {
+  tag: string;
+  posts: number;
+}

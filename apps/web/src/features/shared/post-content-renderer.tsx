@@ -9,21 +9,69 @@ const MemoizedEcencyRenderer = memo(EcencyRenderer);
 
 interface Props {
   value: string;
+  onTagClick?: (tag: string) => void;
 }
 
 export function PostContentRenderer({
   value,
+  onTagClick,
   ...props
 }: Props & Omit<HTMLProps<HTMLDivElement>, "value">) {
   const [signingOperation, setSigningOperation] = useState<string>();
 
   const handleHiveOperationClick = useCallback((e: string) => setSigningOperation(e), []);
 
+  const { onClick, ...restProps } = props;
+
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (onTagClick) {
+        const target = event.target as HTMLElement | null;
+        const anchor = target?.closest<HTMLAnchorElement>(
+          ".markdown-tag-link, .ecency-renderer-tag-extension-link"
+        );
+
+        if (anchor) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const textTag = anchor.textContent?.trim() ?? "";
+          const hrefTag = anchor.getAttribute("href") ?? "";
+
+          let resolvedTag = textTag.replace(/^#+/, "").replace(/\s+/g, "");
+
+          if (!resolvedTag) {
+            try {
+              const url = new URL(
+                hrefTag,
+                typeof window === "undefined" ? "https://ecency.com" : window.location.origin
+              );
+              const segments = url.pathname.split("/").filter(Boolean);
+              resolvedTag = segments.pop() ?? "";
+            } catch (err) {
+              resolvedTag = hrefTag.replace(/^#+/, "").replace(/\s+/g, "");
+            }
+          }
+
+          const normalizedTag = resolvedTag.replace(/^#+/, "").replace(/\s+/g, "");
+
+          if (normalizedTag) {
+            onTagClick(normalizedTag.toLowerCase());
+          }
+        }
+      }
+
+      onClick?.(event);
+    },
+    [onClick, onTagClick]
+  );
+
   return (
     <>
       <MemoizedEcencyRenderer
         value={value || ""}
-        {...(props as any)}
+        {...(restProps as any)}
+        onClick={handleClick}
         onHiveOperationClick={handleHiveOperationClick}
         TwitterComponent={Tweet}
       />

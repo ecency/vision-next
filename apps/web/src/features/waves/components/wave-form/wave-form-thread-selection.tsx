@@ -3,7 +3,7 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { UserAvatar } from "@/features/shared";
-import { AVAILABLE_THREAD_HOSTS } from "@/features/waves";
+import { AVAILABLE_THREAD_HOSTS, WAVE_HOST_LABELS } from "@/features/waves";
 import { WaveHosts } from "@/features/waves/enums";
 
 interface Props {
@@ -12,17 +12,7 @@ interface Props {
 }
 
 export const WaveFormThreadSelection = ({ host, setHost }: Props) => {
-  const labels = useMemo(
-    () =>
-      ({
-        [WaveHosts.Waves]: "Waves",
-        [WaveHosts.Leo]: "Threads",
-        [WaveHosts.Dbuzz]: "Buzz",
-        [WaveHosts.Liketu]: "Moments",
-        [WaveHosts.PeakSnaps]: "Snaps"
-      }) as Record<string, string>,
-    []
-  );
+  const labels = useMemo(() => WAVE_HOST_LABELS, []);
   return (
     <div className="flex items-center gap-1">
       <div className="text-sm opacity-50">{i18next.t("decks.threads-form.thread-host")}</div>
@@ -33,7 +23,7 @@ export const WaveFormThreadSelection = ({ host, setHost }: Props) => {
           </Button>
         </DropdownToggle>
         <DropdownMenu>
-          {AVAILABLE_THREAD_HOSTS.filter((v) => v !== "leothreads").map((v) => (
+          {AVAILABLE_THREAD_HOSTS.filter((v) => v !== WaveHosts.Leo).map((v) => (
             <DropdownItemWithIcon
               key={v}
               onClick={() => setHost(v)}
