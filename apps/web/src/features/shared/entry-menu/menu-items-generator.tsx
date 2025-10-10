@@ -7,7 +7,7 @@ import { bullHornSvg } from "@ui/svg";
 import i18next from "i18next";
 import { clipboard } from "@/utils/clipboard";
 import { useGlobalStore } from "@/core/global-store";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { MenuItem } from "@ui/dropdown";
 import { isCommunity, safeSpread } from "@/utils";
 import {
@@ -51,8 +51,6 @@ export function useMenuItemsGenerator(
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { setIsEdit, editHistory: ctxEditHistory, setEditHistory: setEditHistoryCtx } =
     useContext(EntryPageContext);
 
@@ -65,16 +63,8 @@ export function useMenuItemsGenerator(
       setEditHistoryCtx(next);
     } else {
       setEditHistoryLocal(next);
-      const params = new URLSearchParams(searchParams);
-      if (next) {
-        params.set("history", "");
-      } else {
-        params.delete("history");
-      }
-      const qs = params.toString().replace(/=(&|$)/g, "$1");
-      router.replace(qs ? `${pathname}?${qs}` : pathname);
     }
-  }, [editHistory, isEntryPage, pathname, router, searchParams, setEditHistoryCtx]);
+  }, [editHistory, isEntryPage, setEditHistoryCtx, setEditHistoryLocal]);
 
   useMount(() => {
     generate();
