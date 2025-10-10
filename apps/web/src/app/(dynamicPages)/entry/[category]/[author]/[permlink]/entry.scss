@@ -44,6 +44,8 @@
 }
 
 .entry-page {
+  margin-bottom: 0 !important;
+  @apply pb-24;
   max-width: 100% !important;
 
   @apply font-sans;
