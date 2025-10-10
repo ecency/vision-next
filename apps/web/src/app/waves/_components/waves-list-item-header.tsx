@@ -61,18 +61,6 @@ export function WavesListItemHeader({
 
           <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-40">
             <TimeLabel created={entry.created} refresh={now} />
-            {entry.host && (
-              <>
-                <span>in</span>
-                <Link
-                  target="_blank"
-                  className="after:!content-none hover:underline"
-                  href={`/created/${entry.category}`}
-                >
-                  #{entry.host}
-                </Link>
-              </>
-            )}
           </div>
         </div>
       </div>

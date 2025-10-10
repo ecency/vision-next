@@ -14,6 +14,7 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form-toolbar";
 import { useWaveSubmit } from "@/features/waves";
+import { useOptionalWavesHost } from "@/app/waves/_context";
 import { useClientActiveUser } from "@/api/queries";
 
 interface Props {
@@ -37,6 +38,7 @@ const WaveFormComponent = ({
   const rootRef = useRef<HTMLDivElement>(null);
   const { clearActivePoll, setActivePoll } = useContext(PollsContext);
 
+  const wavesHostContext = useOptionalWavesHost();
   const [threadHost, setThreadHost] = useLocalStorage(PREFIX + "_wf_th", "ecency.waves");
   const [text, setText, clearText] = useLocalStorage(PREFIX + "_wf_t", "");
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
@@ -71,6 +73,22 @@ const WaveFormComponent = ({
     }
   }, [entry, setImage, setText]);
 
+  const contextHost = wavesHostContext?.host;
+
+  useEffect(() => {
+    if (contextHost && contextHost !== threadHost) {
+      setThreadHost(contextHost);
+    }
+  }, [contextHost, setThreadHost, threadHost]);
+
+  const handleThreadHostChange = useCallback(
+    (nextHost: string) => {
+      setThreadHost(nextHost);
+      wavesHostContext?.setHost(nextHost);
+    },
+    [setThreadHost, wavesHostContext]
+  );
+
   const clear = useCallback(() => {
     setText("");
     clearImage();
@@ -101,7 +119,7 @@ const WaveFormComponent = ({
             </ProfileLink>
           </div>
         ) : (
-          <WaveFormThreadSelection host={threadHost} setHost={setThreadHost} />
+          <WaveFormThreadSelection host={threadHost} setHost={handleThreadHostChange} />
         )}
         <WaveFormControl
           video={video}
