@@ -66,6 +66,7 @@ export enum QueryIdentifiers {
   POST_HEADER = "post-header",
   SCHEDULES = "schedules",
   TRENDING_TAGS = "trending-tags",
+  WAVES_TRENDING_TAGS = "waves-trending-tags",
   DISCOVER_LEADERBOARD = "discover-leaderboard",
   DISCOVER_CURATION = "discover-curation",
   CONTRIBUTORS = "contributors",

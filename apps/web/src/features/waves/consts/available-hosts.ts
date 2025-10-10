@@ -5,6 +5,5 @@ export const AVAILABLE_THREAD_HOSTS = [
   WaveHosts.Waves,
   WaveHosts.Liketu,
   WaveHosts.Leo,
-  WaveHosts.Dbuzz,
   WaveHosts.PeakSnaps
 ];

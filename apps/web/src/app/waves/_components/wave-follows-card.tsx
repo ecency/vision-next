@@ -59,7 +59,7 @@ export function WaveFollowsCard() {
               <div>@{item._id}</div>
             </ProfileLink>
             <div className="flex gap-2">
-              <FollowControls targetUsername={item._id} where="chat-box" />
+              <FollowControls targetUsername={item._id} where="chat-box" showMute={false} />
             </div>
           </motion.div>
         ))}

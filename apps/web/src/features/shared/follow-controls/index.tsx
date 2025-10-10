@@ -13,6 +13,7 @@ import i18next from "i18next";
 interface Props {
   targetUsername: string;
   where?: string;
+  showMute?: boolean;
 }
 
 interface ButtonProps {
@@ -93,7 +94,7 @@ function FollowButton({ disabled, following }: ButtonProps) {
   );
 }
 
-export function FollowControls({ targetUsername }: Props) {
+export function FollowControls({ targetUsername, showMute = true }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
   const { isPending } = useQuery(
@@ -103,7 +104,7 @@ export function FollowControls({ targetUsername }: Props) {
   return (
     <>
       <FollowButton disabled={isPending} following={targetUsername} />
-      <MuteButton disabled={isPending} following={targetUsername} />
+      {showMute && <MuteButton disabled={isPending} following={targetUsername} />}
     </>
   );
 }

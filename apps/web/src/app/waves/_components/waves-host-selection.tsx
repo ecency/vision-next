@@ -1,10 +1,9 @@
 import { useMemo } from "react";
-import { AVAILABLE_THREAD_HOSTS } from "@/features/waves";
+import { AVAILABLE_THREAD_HOSTS, WAVE_HOST_LABELS } from "@/features/waves";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { Button } from "@ui/button";
 import { UilApps } from "@tooni/iconscout-unicons-react";
 import { UserAvatar } from "@/features/shared";
-import { WaveHosts } from "@/features/waves/enums";
 
 interface Props {
   host: string;
@@ -13,17 +12,7 @@ interface Props {
 
 export function WavesHostSelection({ host, setHost }: Props) {
   const availableHosts = useMemo(() => [...AVAILABLE_THREAD_HOSTS], []);
-  const labels = useMemo(
-    () =>
-      ({
-        [WaveHosts.Waves]: "Waves",
-        [WaveHosts.Leo]: "Threads",
-        [WaveHosts.Dbuzz]: "Buzz",
-        [WaveHosts.Liketu]: "Moments",
-        [WaveHosts.PeakSnaps]: "Snaps"
-      }) as Record<string, string>,
-    []
-  );
+  const labels = useMemo(() => WAVE_HOST_LABELS, []);
 
   return (
     <Dropdown>
