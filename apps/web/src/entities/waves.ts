@@ -13,33 +13,3 @@ export interface WaveTrendingTag {
   tag: string;
   posts: number;
 }
-
-export interface WaveTrendingTag {
-  tag: string;
-  posts: number;
-}
-
-export interface WaveTrendingTag {
-  tag: string;
-  posts: number;
-}
-
-export interface WaveTrendingTag {
-  tag: string;
-  posts: number;
-}
-
-export interface WaveTrendingTag {
-  tag: string;
-  posts: number;
-}
-
-export interface WaveTrendingTag {
-  tag: string;
-  posts: number;
-}
-
-export interface WaveTrendingTag {
-  tag: string;
-  posts: number;
-}
