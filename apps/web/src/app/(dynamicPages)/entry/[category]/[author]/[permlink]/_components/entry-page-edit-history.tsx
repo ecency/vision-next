@@ -18,14 +18,19 @@ export function EntryPageEditHistory({ entry }: Props) {
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
-    if (editHistory && !searchParams.has("history")) {
-      params.set("history", "");
-      const qs = params.toString().replace(/=(&|$)/g, "$1");
-      router.replace(`${pathname}?${qs}`);
+
+    if (editHistory) {
+      if (!searchParams.has("history")) {
+        params.set("history", "1");
+        const qs = params.toString();
+        router.replace(qs ? `${pathname}?${qs}` : pathname);
+      }
+      return;
     }
-    if (!editHistory && searchParams.has("history")) {
+
+    if (searchParams.has("history")) {
       params.delete("history");
-      const qs = params.toString().replace(/=(&|$)/g, "$1");
+      const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname);
     }
   }, [editHistory, pathname, router, searchParams]);
