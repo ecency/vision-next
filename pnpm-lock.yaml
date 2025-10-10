@@ -10,10 +10,18 @@ overrides:
   '@sentry/core': ^8.55.0
   '@sentry/types': ^8.55.0
   '@sentry/utils': ^8.55.0
+  '@ecency/wallets': link:../../Library/pnpm/global/5/node_modules/@ecency/wallets
 
 importers:
 
   .:
+    dependencies:
+      '@ecency/wallets':
+        specifier: link:../../Library/pnpm/global/5/node_modules/@ecency/wallets
+        version: link:../../Library/pnpm/global/5/node_modules/@ecency/wallets
+      vision-next:
+        specifier: 'link:'
+        version: 'link:'
     devDependencies:
       '@types/node':
         specifier: ^20
@@ -61,8 +69,8 @@ importers:
         specifier: ^1.1.22
         version: 1.1.22
       '@ecency/wallets':
-        specifier: ^1.4.1
-        version: 1.4.1
+        specifier: link:../../../../Library/pnpm/global/5/node_modules/@ecency/wallets
+        version: link:../../../../Library/pnpm/global/5/node_modules/@ecency/wallets
       '@emoji-mart/data':
         specifier: ^1.1.2
         version: 1.2.1
@@ -1313,9 +1321,6 @@ packages:
 
   '@ecency/sdk@1.1.22':
     resolution: {integrity: sha512-aLZxBJ9VToUbFUKRkxP9Dsiw4hkpFFBqKDINFGInbH6rt4YCEOd+HgB8CvImAmzPRpP3+W94QWGhywIjSJHKGg==}
-
-  '@ecency/wallets@1.4.1':
-    resolution: {integrity: sha512-Z5/OuObnZOjPmG0IRE6QAwoQGTzwz/OZ77xHq1Dqv1AuaBOWYNJwQnNx4wfOtEhfjClO6vb/N35HSIxmfpLCWA==}
 
   '@emnapi/core@1.5.0':
     resolution: {integrity: sha512-sbP8GzB1WDzacS8fgNPpHlp6C9VZe+SJP3F90W9rLemaQj2PzIuTEl1qDOYQf58YIpyjViI24y9aPWCjEzY2cg==}
@@ -9186,22 +9191,6 @@ snapshots:
       - react-dom
 
   '@ecency/sdk@1.1.22': {}
-
-  '@ecency/wallets@1.4.1':
-    dependencies:
-      '@okxweb3/coin-aptos': 1.2.2
-      '@okxweb3/coin-base': 1.1.6
-      '@okxweb3/coin-bitcoin': 1.2.1
-      '@okxweb3/coin-ethereum': 1.1.2
-      '@okxweb3/coin-solana': 1.1.0
-      '@okxweb3/coin-ton': 1.1.1
-      '@okxweb3/coin-tron': 1.1.0
-      '@okxweb3/crypto-lib': 1.0.13
-      bip39: 3.1.0
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
 
   '@emnapi/core@1.5.0':
     dependencies:

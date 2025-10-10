@@ -2,14 +2,15 @@
 
 import { formatError } from "@/api/operations";
 import { useClientActiveUser } from "@/api/queries";
-import { error, Stepper } from "@/features/shared";
-import { Button, KeyInput, KeyInputImperativeHandle } from "@/features/ui";
+import { error, KeyOrHot, Stepper } from "@/features/shared";
+import { Button } from "@/features/ui";
 import { WalletSeedPhrase, WalletTokenAddressItem } from "@/features/wallet";
 import {
   EcencyTokenMetadata,
   EcencyWalletCurrency,
   useHiveKeysQuery,
-  useSaveWalletInformationToMetadata
+  useSaveWalletInformationToMetadata,
+  EcencyWalletsPrivateApi
 } from "@/features/wallet/sdk";
 import { useAccountUpdateKeyAuths } from "@ecency/sdk";
 import { PrivateKey } from "@hiveio/dhive";
@@ -27,7 +28,7 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 interface Props {
   onBack: () => void;
@@ -71,7 +72,6 @@ const TOKENS = [
 export function SetupExternalCreate({ onBack }: Props) {
   const activeUser = useClientActiveUser();
 
-  const keyInputRef = useRef<KeyInputImperativeHandle>(null);
   const [step, setStep] = useState<"seed" | "tokens" | "create" | "success" | "sign">("seed");
 
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
@@ -91,29 +91,50 @@ export function SetupExternalCreate({ onBack }: Props) {
       setStep("sign");
     }
   });
+  const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
+    activeUser?.username!
+  );
 
-  const handleLinkByKey = useCallback(async () => {
-    if (!keys) {
-      return;
-    }
-    setStep("create");
+  const handleLinkByKey = useCallback(
+    async (currentKey: PrivateKey) => {
+      if (!keys) {
+        return;
+      }
+      setStep("create");
 
-    const { privateKey: currentKey } = await keyInputRef.current!.handleSign();
-    await saveTokens(Array.from(tokens?.values() ?? []));
-    await saveKeys({
-      keepCurrent: true,
-      currentKey,
-      keys: [
-        {
-          owner: PrivateKey.fromString(keys.owner),
-          active: PrivateKey.fromString(keys.active),
-          posting: PrivateKey.fromString(keys.posting),
-          memo_key: PrivateKey.fromString(keys.memo)
+      await saveTokens(Array.from(tokens?.values() ?? []));
+      await saveKeys({
+        keepCurrent: true,
+        currentKey,
+        keys: [
+          {
+            owner: PrivateKey.fromString(keys.owner),
+            active: PrivateKey.fromString(keys.active),
+            posting: PrivateKey.fromString(keys.posting),
+            memo_key: PrivateKey.fromString(keys.memo)
+          }
+        ]
+      });
+      await saveToPrivateApi({
+        tokens:
+          tokens?.entries().reduce(
+            (acc, [token, info]) => ({
+              ...acc,
+              [token as string]: info.address!
+            }),
+            {} as Record<string, string>
+          ) ?? {},
+        hiveKeys: {
+          ownerPublicKey: PrivateKey.fromString(keys.owner).createPublic().toString(),
+          activePublicKey: PrivateKey.fromString(keys.active).createPublic().toString(),
+          postingPublicKey: PrivateKey.fromString(keys.posting).createPublic().toString(),
+          memoPublicKey: PrivateKey.fromString(keys.memo).createPublic().toString()
         }
-      ]
-    });
-    setStep("success");
-  }, [activeUser?.username, keys, saveKeys, saveTokens, tokens]);
+      });
+      setStep("success");
+    },
+    [activeUser?.username, keys, saveKeys, saveTokens, tokens]
+  );
 
   return (
     <div className="w-full col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
@@ -189,8 +210,7 @@ export function SetupExternalCreate({ onBack }: Props) {
           )}
           {step === "sign" && (
             <div className="pt-4 lg:pt-6 w-full flex flex-col items-start gap-4">
-              <KeyInput className="w-full" ref={keyInputRef} />
-              <Button size="lg">{i18next.t("g.continue")}</Button>
+              <KeyOrHot inProgress={isPending} onKey={handleLinkByKey} />
             </div>
           )}
           {step === "success" && (

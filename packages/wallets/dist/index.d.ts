@@ -72,22 +72,34 @@ declare function useWalletCreate(username: string, currency: EcencyWalletCurrenc
     importWallet: () => void;
 };
 
-interface Payload$7 {
+interface Payload$8 {
     currency: string;
     address: string;
 }
-declare function useCreateAccountWithWallets(username: string): _tanstack_react_query.UseMutationResult<Response, Error, Payload$7, unknown>;
+declare function useCreateAccountWithWallets(username: string): _tanstack_react_query.UseMutationResult<Response, Error, Payload$8, unknown>;
 
-interface Payload$6 {
+interface Payload$7 {
     address: string;
     currency: EcencyWalletCurrency;
 }
-declare function useCheckWalletExistence(): _tanstack_react_query.UseMutationResult<boolean, Error, Payload$6, unknown>;
+declare function useCheckWalletExistence(): _tanstack_react_query.UseMutationResult<boolean, Error, Payload$7, unknown>;
+
+interface Payload$6 {
+    tokens: Record<string, string>;
+    hiveKeys: {
+        ownerPublicKey: string;
+        activePublicKey: string;
+        postingPublicKey: string;
+        memoPublicKey: string;
+    };
+}
+declare function useUpdateAccountWithWallets(username: string): _tanstack_react_query.UseMutationResult<Response, Error, Payload$6, unknown>;
 
 declare const index_useCheckWalletExistence: typeof useCheckWalletExistence;
 declare const index_useCreateAccountWithWallets: typeof useCreateAccountWithWallets;
+declare const index_useUpdateAccountWithWallets: typeof useUpdateAccountWithWallets;
 declare namespace index {
-  export { index_useCheckWalletExistence as useCheckWalletExistence, index_useCreateAccountWithWallets as useCreateAccountWithWallets };
+  export { index_useCheckWalletExistence as useCheckWalletExistence, index_useCreateAccountWithWallets as useCreateAccountWithWallets, index_useUpdateAccountWithWallets as useUpdateAccountWithWallets };
 }
 
 interface Payload$5 {

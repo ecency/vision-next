@@ -14,7 +14,6 @@ import { cryptoUtils } from '@hiveio/dhive/lib/crypto';
 import { Memo } from '@hiveio/dhive/lib/memo';
 import dayjs from 'dayjs';
 import hs from 'hivesigner';
-import { useCallback } from 'react';
 import * as R from 'remeda';
 
 var __defProp = Object.defineProperty;
@@ -210,7 +209,7 @@ function getCoinGeckoPriceQueryOptions(currency) {
       let curr = currency;
       switch (currency) {
         case "BTC" /* BTC */:
-          curr = "binance-wrapped-btc";
+          curr = "bitcoin";
           break;
         case "ETH" /* ETH */:
           curr = "ethereum";
@@ -1150,21 +1149,26 @@ async function powerUpHive(payload) {
   }
 }
 async function delegateHive(payload) {
+  const operationPayload = {
+    delegator: payload.from,
+    delegatee: payload.to,
+    vesting_shares: payload.amount
+  };
   if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
+    const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["delegate_vesting_shares", params]],
+      [["delegate_vesting_shares", operationPayload]],
       key
     );
   } else if (payload.type === "keychain") {
     return Keychain.broadcast(
       payload.from,
-      [["delegate_vesting_shares", payload]],
+      [["delegate_vesting_shares", operationPayload]],
       "Active"
     );
   } else {
     return hs.sendOperation(
-      ["delegate_vesting_shares", payload],
+      ["delegate_vesting_shares", operationPayload],
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -1172,21 +1176,25 @@ async function delegateHive(payload) {
   }
 }
 async function powerDownHive(payload) {
+  const operationPayload = {
+    account: payload.from,
+    vesting_shares: payload.amount
+  };
   if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
+    const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["withdraw_vesting", params]],
+      [["withdraw_vesting", operationPayload]],
       key
     );
   } else if (payload.type === "keychain") {
     return Keychain.broadcast(
       payload.from,
-      [["withdraw_vesting", payload]],
+      [["withdraw_vesting", operationPayload]],
       "Active"
     );
   } else {
     return hs.sendOperation(
-      ["withdraw_vesting", payload],
+      ["withdraw_vesting", operationPayload],
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -2964,8 +2972,8 @@ function useWalletCreate(username, currency) {
       );
     }
   });
-  const importWallet = useCallback(() => {
-  }, []);
+  const importWallet = () => {
+  };
   return {
     createWallet,
     importWallet
@@ -2976,7 +2984,8 @@ function useWalletCreate(username, currency) {
 var private_api_exports = {};
 __export(private_api_exports, {
   useCheckWalletExistence: () => useCheckWalletExistence,
-  useCreateAccountWithWallets: () => useCreateAccountWithWallets
+  useCreateAccountWithWallets: () => useCreateAccountWithWallets,
+  useUpdateAccountWithWallets: () => useUpdateAccountWithWallets
 });
 function useCreateAccountWithWallets(username) {
   const { data } = useQuery({
@@ -3031,6 +3040,31 @@ function useCheckWalletExistence() {
       const data = await response.json();
       return data.length === 0;
     }
+  });
+}
+function useUpdateAccountWithWallets(username) {
+  return useMutation({
+    mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
+    mutationFn: ({ tokens, hiveKeys }) => fetch(CONFIG.privateApiHost + "/private-api/wallets-add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username,
+        code: getAccessToken(username),
+        token: "BTC",
+        address: tokens.BTC,
+        status: 3,
+        meta: {
+          ...tokens,
+          ownerPublicKey: hiveKeys.ownerPublicKey,
+          activePublicKey: hiveKeys.activePublicKey,
+          postingPublicKey: hiveKeys.postingPublicKey,
+          memoPublicKey: hiveKeys.memoPublicKey
+        }
+      })
+    })
   });
 }
 
@@ -3160,18 +3194,15 @@ function useSaveWalletInformationToMetadata(username, options2) {
       const profileChainTokens = getGroupedChainTokens(
         accountData.profile?.tokens
       );
-      console.log("profile tokens are ", profileChainTokens);
       const payloadTokens = tokens.map(({ currency, type, privateKey, username: username2, ...meta }) => ({
         symbol: currency,
-        type: type ?? Object.values(EcencyWalletCurrency).includes(currency) ? "CHAIN" : void 0,
+        type: type ?? (Object.values(EcencyWalletCurrency).includes(currency) ? "CHAIN" : void 0),
         meta
       })) ?? [];
       const payloadChainTokens = getGroupedChainTokens(payloadTokens, true);
       const payloadNonChainTokens = payloadTokens.filter(
         ({ type, symbol }) => type !== "CHAIN" && !Object.values(EcencyWalletCurrency).includes(symbol)
       );
-      console.log("payload tokens are ", payloadChainTokens);
-      console.log("payload non-chain tokens are ", payloadNonChainTokens);
       const mergedChainTokens = R.pipe(
         profileChainTokens,
         R.mergeDeep(payloadChainTokens),

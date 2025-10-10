@@ -20,7 +20,7 @@
     "@ecency/render-helper": "^2.3.17",
     "@ecency/renderer": "^1.3.0",
     "@ecency/sdk": "^1.1.22",
-    "@ecency/wallets": "^1.4.1",
+    "@ecency/wallets": "^1.4.2",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@firebase/analytics": "^0.10.0",

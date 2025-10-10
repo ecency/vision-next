@@ -3,7 +3,6 @@ import { useSeedPhrase } from "@/modules/wallets/queries";
 import { EcencyTokenMetadata } from "@/modules/wallets/types";
 import { delay, getWallet } from "@/modules/wallets/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
 
 const PATHS = {
   [EcencyWalletCurrency.BTC]: "m/44'/0'/0'/0/0", // Bitcoin (BIP44)
@@ -62,7 +61,7 @@ export function useWalletCreate(
       );
     },
   });
-  const importWallet = useCallback(() => {}, []);
+  const importWallet = () => {};
 
   return {
     createWallet,

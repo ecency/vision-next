@@ -32,7 +32,8 @@
       "source-map": "^0.7.4",
       "@sentry/core": "^8.55.0",
       "@sentry/types": "^8.55.0",
-      "@sentry/utils": "^8.55.0"
+      "@sentry/utils": "^8.55.0",
+      "@ecency/wallets": "link:../../Library/pnpm/global/5/node_modules/@ecency/wallets"
     },
     "ignoredBuiltDependencies": [
       "sharp"
@@ -51,5 +52,9 @@
       "secp256k1",
       "unrs-resolver"
     ]
+  },
+  "dependencies": {
+    "@ecency/wallets": "link:packages/wallets",
+    "vision-next": "link:"
   }
 }
