@@ -32,6 +32,11 @@ export interface KeyInputImperativeHandle {
   }>;
 }
 
+function capitalizeFirstLetter(str) {
+    if (typeof str !== 'string' || str.length === 0) return '';
+    return str[0].toUpperCase() + str.slice(1);
+}
+
 export const KeyInput = forwardRef<
   KeyInputImperativeHandle,
   Props & Omit<HTMLProps<HTMLInputElement>, "ref" | "type">
@@ -103,7 +108,7 @@ export const KeyInput = forwardRef<
       onClick={() => inputRef.current?.focus()}
     >
       <span className="text-sm font-semibold text-gray-500 -mt-5 px-1 bg-white">
-        {i18next.t("key-or-hot.key-placeholder")}
+        {capitalizeFirstLetter(keyType)} {i18next.t("key-or-hot.key-placeholder")}
       </span>
       <div className="w-full grid gap-2 grid-cols-[max-content_1fr_max-content] items-center h-8">
         <UilLock className="w-5 h-5 text-gray-500" />

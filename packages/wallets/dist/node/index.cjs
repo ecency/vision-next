@@ -373,28 +373,18 @@ function deriveHiveMasterPasswordKeys(username, masterPassword) {
   };
 }
 async function detectHiveKeyDerivation(username, seed, type = "active") {
-  await sdk.CONFIG.queryClient.prefetchQuery(sdk.getAccountFullQueryOptions(username));
-  const account = sdk.CONFIG.queryClient.getQueryData(
-    sdk.getAccountFullQueryOptions(username).queryKey
+  const uname = username.trim().toLowerCase();
+  const account = await sdk.CONFIG.queryClient.fetchQuery(
+    sdk.getAccountFullQueryOptions(uname)
   );
-  if (!account) {
-    throw new Error(`[Ecency][Wallets] - account ${username} not found`);
-  }
+  const auth = account[type];
   const bip44 = deriveHiveKeys(seed);
-  const bip44Active = bip44.activePubkey;
-  const matchBip44 = account.active.key_auths.some(
-    ([pub]) => pub.toString() === bip44Active
-  );
-  if (matchBip44) {
-    return "bip44";
-  }
-  const legacyActive = dhive.PrivateKey.fromLogin(username, seed, type).createPublic().toString();
-  const matchLegacy = account[type].key_auths.some(
-    ([pub]) => pub.toString() === legacyActive
-  );
-  if (matchLegacy) {
-    return "master-password";
-  }
+  const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
+  const matchBip44 = auth.key_auths.some(([pub]) => String(pub) === bip44Pub);
+  if (matchBip44) return "bip44";
+  const legacyPub = dhive.PrivateKey.fromLogin(uname, seed, type).createPublic().toString();
+  const matchLegacy = auth.key_auths.some(([pub]) => String(pub) === legacyPub);
+  if (matchLegacy) return "master-password";
   return "unknown";
 }
 function signDigest(digest, privateKey) {

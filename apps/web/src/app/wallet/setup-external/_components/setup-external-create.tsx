@@ -64,9 +64,11 @@ const steps = [
 const TOKENS = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.BNB,
   EcencyWalletCurrency.SOL,
   EcencyWalletCurrency.TRON,
-  EcencyWalletCurrency.APT
+  EcencyWalletCurrency.APT,
+  EcencyWalletCurrency.TON
 ];
 
 export function SetupExternalCreate({ onBack }: Props) {
@@ -208,7 +210,7 @@ export function SetupExternalCreate({ onBack }: Props) {
           )}
           {step === "sign" && (
             <div className="pt-4 lg:pt-6 w-full flex flex-col items-start gap-4">
-              <KeyOrHot inProgress={isPending} onKey={handleLinkByKey} />
+              <KeyOrHot inProgress={isPending} onKey={handleLinkByKey} authority={"owner"} />
             </div>
           )}
           {step === "success" && (
