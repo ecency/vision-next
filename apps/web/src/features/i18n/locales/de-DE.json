@@ -2926,12 +2926,12 @@
     "delegations": "Delegationen",
     "external-wallets-offer": {
       "title": "Bring deine Krypto zu Ecency",
-      "description": "Erstellen oder importieren Sie Wallets für BTC, ET, BNB, SOL, TRX und APT direkt aus Apps wie Trust oder Exodus, und fangen Sie an, sie nahtlos innerhalb des Hive-Ökosystems zu verwenden.",
+      "description": "Erstellen oder importieren Sie Brieftaschen für BTC, ET, BNB, SOL, TRX, APT und TON direkt aus Apps wie Trust oder Exodus, und fangen Sie an, sie nahtlos innerhalb des Hive-Ökosystems zu verwenden.",
       "hint": "Erstellte und importierte Token-Informationen werden in einer Ecency and Hive-Account-Metadaten gespeichert"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Erstellen & Verlinken zum Hive-Konto",
-      "create-wallet-description": "Eine Brieftasche für BTC, ETH, SOL, APT und TRX erstellen. Diese Assets werden mit Ihrem Hive-Konto verknüpft, so dass Sie leicht Ihr Guthaben in Ecency verwalten können.",
+      "create-wallet-description": "Erstellen Sie eine Brieftasche für BTC, ET, BNB, SOL, TRX, APT und TON. Diese Assets werden mit Ihrem Hive-Konto verknüpft, so dass Sie leicht Ihr Guthaben in Ecency verwalten können.",
       "import-wallet-title": "Vorhandene Brieftasche importieren",
       "import-wallet-description": "Importieren Sie Ihre bestehende Brieftasche aus Trust, Exodus oder anderen kompatiblen Apps. Ihre Assets werden mit Ihrem Hive-Konto verknüpft, so dass Sie Ihr Guthaben einfach in Ecency verwalten können.",
       "create-wallet-tokens-description": "Überprüfen Sie Ihre Tokens Adressen. Sie können sie auch später auf der Wallet-Seite sehen",
