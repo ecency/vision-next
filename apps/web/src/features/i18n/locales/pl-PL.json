@@ -2926,12 +2926,12 @@
     "delegations": "Delegatury",
     "external-wallets-offer": {
       "title": "Przynieś swoją kryptowalutę do ecencji",
-      "description": "Tworzenie lub importowanie portfeli dla BTC, ETH, BNB, SOL, TRX i APT bezpośrednio z aplikacji takich jak Trust lub Exodus, i zacząć płynnie z nich korzystać w ekosystemie ulowym.",
+      "description": "Tworzenie lub importowanie portfeli dla BTC, ETH, BNB, SOL, TRX, APT i TON bezpośrednio z aplikacji takich jak Trust lub Exodus, i zacząć płynnie z nich korzystać w ekosystemie ulowym.",
       "hint": "Utworzone i importowane informacje o tokenie będą przechowywane w metadanych konta Ecency i Uli"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Utwórz konto UL i link do konta UL",
-      "create-wallet-description": "Utwórz portfel dla BTC, ETH, SOL, APT i TRX. Te aktywa zostaną połączone z Twoim kontem Uli, co pozwoli Ci z łatwością zarządzać swoimi środkami w Ecency.",
+      "create-wallet-description": "Utwórz portfel dla BTC, ETH, BNB, SOL, TRX, APT i TON. Te aktywa zostaną połączone z Twoim kontem Uli, co pozwoli Ci z łatwością zarządzać swoimi środkami w Ecency.",
       "import-wallet-title": "Importuj istniejące portfele",
       "import-wallet-description": "Importuj swój istniejący portfel z Trust, Exodus lub innych kompatybilnych aplikacji. Twoje aktywa zostaną połączone z kontem Uli, dzięki czemu możesz z łatwością zarządzać swoimi środkami w Ecency.",
       "create-wallet-tokens-description": "Sprawdź swoje adresy tokenów. Możesz również zobaczyć je później na stronie portfela",
