@@ -1,29 +1,23 @@
 import { defineConfig } from "tsup";
 
-export default defineConfig({
+const shared = {
     entry: ["src/index.ts"],
-    dts: true,
-    format: ["esm", "cjs"],
-    outExtension({ format }) {
-        return {
-            js: format === "esm" ? ".mjs" : ".cjs",
-        };
-    },
+    splitting: false,
     sourcemap: true,
-    clean: true,
     treeshake: true,
-    splitting: false, // libraries often keep this off for simpler exports
-    target: "es2022",
-    // Mark big/peer things external so they don’t get bundled
     external: [
-        "crypto",
         "react",
-        "@hiveio/dhive",
+        "react-dom",
+        "react/jsx-runtime",
         "@tanstack/react-query",
         "@ecency/sdk",
+        "@hiveio/dhive",
+        "hivesigner",
         "lru-cache",
         "scheduler",
-        "react/jsx-runtime",
+        "dayjs",
+        "remeda",
+        "bip39",
         "@okxweb3/coin-aptos",
         "@okxweb3/coin-base",
         "@okxweb3/coin-bitcoin",
@@ -32,9 +26,42 @@ export default defineConfig({
         "@okxweb3/coin-ton",
         "@okxweb3/coin-tron",
         "@okxweb3/crypto-lib",
-        "bip39",
-        "hivesigner",
-        "dayjs",
-        "remeda",
-    ]
-});
+        // keep these out of browser bundle
+        "node-fetch",
+        "undici",
+        // allow app/bundler to handle builtins
+        "crypto",
+        "buffer",
+    ] as const,
+    shims: false,
+} as const;
+
+export default defineConfig([
+    // Browser build
+    {
+        ...shared,
+        dts: true,                 // emit types once
+        format: ["esm"],
+        platform: "browser",
+        target: "es2020",
+        outDir: "dist/browser",
+        clean: true,
+        minify: false,
+        outExtension: () => ({ js: ".js" }),
+        define: {
+            "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? "production"),
+        },
+    },
+    // Node build
+    {
+        ...shared,
+        dts: false,
+        format: ["esm", "cjs"],
+        platform: "node",
+        target: "node18",
+        outDir: "dist/node",
+        clean: false,
+        minify: false,
+        outExtension: ({ format }) => ({ js: format === "esm" ? ".mjs" : ".cjs" }),
+    },
+]);
