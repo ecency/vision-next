@@ -1,7 +1,12 @@
 "use client";
 
 import { Badge, Button, FormControl } from "@/features/ui";
-import { EcencyTokenMetadata, EcencyWalletCurrency, useWalletCreate } from "@/features/wallet/sdk";
+import {
+  EcencyTokenMetadata,
+  EcencyWalletCurrency,
+  useWalletCreate,
+  useWalletsCacheQuery
+} from "@ecency/wallets";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useMemo } from "react";
@@ -9,7 +14,6 @@ import { useMount } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { SignupExternalWalletInformation } from "../../types";
 import clsx from "clsx";
-import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   i: number;
@@ -28,9 +32,7 @@ export function SignupWalletConnectWalletItem({
   onClear,
   hasSelected
 }: Props) {
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
-    queryKey: ["ecency-wallets", "wallets", username]
-  });
+  const { data: wallets } = useWalletsCacheQuery(username);
   const { createWallet } = useWalletCreate(username, currency);
 
   const wallet = useMemo(() => wallets?.get(currency), [currency, wallets]);

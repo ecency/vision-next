@@ -9,9 +9,9 @@ import {
   EcencyWalletsPrivateApi,
   useHiveKeysQuery,
   useSaveWalletInformationToMetadata,
-  useSeedPhrase
-} from "@/features/wallet/sdk";
-import { useQuery } from "@tanstack/react-query";
+  useSeedPhrase,
+  useWalletsCacheQuery
+} from "@ecency/wallets";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
@@ -33,9 +33,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const { data: seed } = useSeedPhrase(username);
   const { data: hiveKeys } = useHiveKeysQuery(username);
   const loginKey = useMemo(() => seed ?? "", [seed]);
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
-    queryKey: ["ecency-wallets", "wallets", username]
-  });
+  const { data: wallets } = useWalletsCacheQuery(username);
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
   const { mutateAsync: loginInApp } = useLoginByKey(

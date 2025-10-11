@@ -1,6 +1,6 @@
 import { success } from "@/features/shared";
 import { Button } from "@/features/ui";
-import { useSeedPhrase } from "@/features/wallet/sdk";
+import { useSeedPhrase } from "@ecency/wallets";
 import { UilArrowRight, UilCopyAlt, UilSync } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";

@@ -14,7 +14,6 @@ import { cryptoUtils } from '@hiveio/dhive/lib/crypto';
 import { Memo } from '@hiveio/dhive/lib/memo';
 import dayjs from 'dayjs';
 import hs from 'hivesigner';
-import { useCallback } from 'react';
 import * as R from 'remeda';
 
 var __defProp = Object.defineProperty;
@@ -210,7 +209,7 @@ function getCoinGeckoPriceQueryOptions(currency) {
       let curr = currency;
       switch (currency) {
         case "BTC" /* BTC */:
-          curr = "binance-wrapped-btc";
+          curr = "bitcoin";
           break;
         case "ETH" /* ETH */:
           curr = "ethereum";
@@ -525,6 +524,18 @@ function buildExternalTx(currency, tx) {
     default:
       throw new Error("Unsupported currency");
   }
+}
+
+// src/modules/wallets/utils/get-bound-fetch.ts
+var cachedFetch;
+function getBoundFetch() {
+  if (!cachedFetch) {
+    if (typeof globalThis.fetch !== "function") {
+      throw new Error("[Ecency][Wallets] - global fetch is not available");
+    }
+    cachedFetch = globalThis.fetch.bind(globalThis);
+  }
+  return cachedFetch;
 }
 
 // src/modules/wallets/queries/use-hive-keys-query.ts
@@ -1150,21 +1161,26 @@ async function powerUpHive(payload) {
   }
 }
 async function delegateHive(payload) {
+  const operationPayload = {
+    delegator: payload.from,
+    delegatee: payload.to,
+    vesting_shares: payload.amount
+  };
   if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
+    const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["delegate_vesting_shares", params]],
+      [["delegate_vesting_shares", operationPayload]],
       key
     );
   } else if (payload.type === "keychain") {
     return Keychain.broadcast(
       payload.from,
-      [["delegate_vesting_shares", payload]],
+      [["delegate_vesting_shares", operationPayload]],
       "Active"
     );
   } else {
     return hs.sendOperation(
-      ["delegate_vesting_shares", payload],
+      ["delegate_vesting_shares", operationPayload],
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -1172,21 +1188,25 @@ async function delegateHive(payload) {
   }
 }
 async function powerDownHive(payload) {
+  const operationPayload = {
+    account: payload.from,
+    vesting_shares: payload.amount
+  };
   if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
+    const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["withdraw_vesting", params]],
+      [["withdraw_vesting", operationPayload]],
       key
     );
   } else if (payload.type === "keychain") {
     return Keychain.broadcast(
       payload.from,
-      [["withdraw_vesting", payload]],
+      [["withdraw_vesting", operationPayload]],
       "Active"
     );
   } else {
     return hs.sendOperation(
-      ["withdraw_vesting", payload],
+      ["withdraw_vesting", operationPayload],
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -2212,6 +2232,7 @@ function useClaimPoints(username, onSuccess, onError) {
     username,
     "points-claimed"
   );
+  const fetchApi = getBoundFetch();
   return useMutation({
     mutationFn: async () => {
       if (!username) {
@@ -2219,7 +2240,7 @@ function useClaimPoints(username, onSuccess, onError) {
           "[SDK][Wallets][Assets][Points][Claim] \u2013 username wasn`t provided"
         );
       }
-      return fetch(CONFIG.privateApiHost + "/private-api/points-claim", {
+      return fetchApi(CONFIG.privateApiHost + "/private-api/points-claim", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -2912,6 +2933,19 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
     }
   });
 }
+function useWalletsCacheQuery(username) {
+  const queryClient = useQueryClient();
+  const queryKey = ["ecency-wallets", "wallets", username];
+  const getCachedWallets = () => queryClient.getQueryData(queryKey);
+  const createEmptyWalletMap = () => /* @__PURE__ */ new Map();
+  return useQuery({
+    queryKey,
+    enabled: Boolean(username),
+    initialData: () => getCachedWallets() ?? createEmptyWalletMap(),
+    queryFn: async () => getCachedWallets() ?? createEmptyWalletMap(),
+    staleTime: Infinity
+  });
+}
 var PATHS = {
   ["BTC" /* BTC */]: "m/44'/0'/0'/0/0",
   // Bitcoin (BIP44)
@@ -2964,8 +2998,8 @@ function useWalletCreate(username, currency) {
       );
     }
   });
-  const importWallet = useCallback(() => {
-  }, []);
+  const importWallet = () => {
+  };
   return {
     createWallet,
     importWallet
@@ -2976,16 +3010,16 @@ function useWalletCreate(username, currency) {
 var private_api_exports = {};
 __export(private_api_exports, {
   useCheckWalletExistence: () => useCheckWalletExistence,
-  useCreateAccountWithWallets: () => useCreateAccountWithWallets
+  useCreateAccountWithWallets: () => useCreateAccountWithWallets,
+  useUpdateAccountWithWallets: () => useUpdateAccountWithWallets
 });
 function useCreateAccountWithWallets(username) {
-  const { data } = useQuery({
-    queryKey: ["ecency-wallets", "wallets", username]
-  });
+  const { data } = useWalletsCacheQuery(username);
   const { data: hiveKeys } = useHiveKeysQuery(username);
+  const fetchApi = getBoundFetch();
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ currency, address }) => fetch(CONFIG.privateApiHost + "/private-api/wallets-add", {
+    mutationFn: ({ currency, address }) => fetchApi(CONFIG.privateApiHost + "/private-api/wallets-add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -3030,6 +3064,39 @@ function useCheckWalletExistence() {
       );
       const data = await response.json();
       return data.length === 0;
+    }
+  });
+}
+function useUpdateAccountWithWallets(username) {
+  const fetchApi = getBoundFetch();
+  return useMutation({
+    mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
+    mutationFn: async ({ tokens, hiveKeys }) => {
+      const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
+      if (entries.length === 0) {
+        return new Response(null, { status: 204 });
+      }
+      const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
+      return fetchApi(CONFIG.privateApiHost + "/private-api/wallets-add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          code: getAccessToken(username),
+          token: primaryToken,
+          address: primaryAddress,
+          status: 3,
+          meta: {
+            ...Object.fromEntries(entries),
+            ownerPublicKey: hiveKeys.ownerPublicKey,
+            activePublicKey: hiveKeys.activePublicKey,
+            postingPublicKey: hiveKeys.postingPublicKey,
+            memoPublicKey: hiveKeys.memoPublicKey
+          }
+        })
+      });
     }
   });
 }
@@ -3160,18 +3227,15 @@ function useSaveWalletInformationToMetadata(username, options2) {
       const profileChainTokens = getGroupedChainTokens(
         accountData.profile?.tokens
       );
-      console.log("profile tokens are ", profileChainTokens);
       const payloadTokens = tokens.map(({ currency, type, privateKey, username: username2, ...meta }) => ({
         symbol: currency,
-        type: type ?? Object.values(EcencyWalletCurrency).includes(currency) ? "CHAIN" : void 0,
+        type: type ?? (Object.values(EcencyWalletCurrency).includes(currency) ? "CHAIN" : void 0),
         meta
       })) ?? [];
       const payloadChainTokens = getGroupedChainTokens(payloadTokens, true);
       const payloadNonChainTokens = payloadTokens.filter(
         ({ type, symbol }) => type !== "CHAIN" && !Object.values(EcencyWalletCurrency).includes(symbol)
       );
-      console.log("payload tokens are ", payloadChainTokens);
-      console.log("payload non-chain tokens are ", payloadNonChainTokens);
       const mergedChainTokens = R.pipe(
         profileChainTokens,
         R.mergeDeep(payloadChainTokens),
@@ -3269,6 +3333,6 @@ function useWalletOperation(username, asset, operation) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getCoinGeckoPriceQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferHive, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, vestsToHp, withdrawVestingRouteHive };
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getCoinGeckoPriceQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferHive, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

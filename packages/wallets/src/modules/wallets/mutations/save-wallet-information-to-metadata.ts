@@ -77,15 +77,15 @@ export function useSaveWalletInformationToMetadata(
       const profileChainTokens = getGroupedChainTokens(
         accountData.profile?.tokens
       );
-      console.log("profile tokens are ", profileChainTokens);
+
       const payloadTokens =
         (tokens.map(({ currency, type, privateKey, username, ...meta }) => ({
           symbol: currency!,
           type:
-            (type ??
-            Object.values(EcencyWalletCurrency).includes(currency as any))
+            type ??
+            (Object.values(EcencyWalletCurrency).includes(currency as any)
               ? "CHAIN"
-              : undefined,
+              : undefined),
           meta,
         })) as AccountProfile["tokens"]) ?? [];
 
@@ -95,8 +95,6 @@ export function useSaveWalletInformationToMetadata(
           type !== "CHAIN" &&
           !Object.values(EcencyWalletCurrency).includes(symbol as any)
       );
-      console.log("payload tokens are ", payloadChainTokens);
-      console.log("payload non-chain tokens are ", payloadNonChainTokens);
 
       const mergedChainTokens = R.pipe(
         profileChainTokens,
@@ -113,9 +111,15 @@ export function useSaveWalletInformationToMetadata(
     },
     onError: options?.onError,
     onSuccess: (response, vars, context) => {
-      (options?.onSuccess as
-        | ((data: unknown, variables: EcencyTokenMetadata[], context: unknown) => unknown)
-        | undefined)?.(response, vars, context);
+      (
+        options?.onSuccess as
+          | ((
+              data: unknown,
+              variables: EcencyTokenMetadata[],
+              context: unknown
+            ) => unknown)
+          | undefined
+      )?.(response, vars, context);
       queryClient.invalidateQueries({
         queryKey: getAccountWalletListQueryOptions(username).queryKey,
       });

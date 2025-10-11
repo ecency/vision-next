@@ -1,4 +1,4 @@
-import { GeneralAssetTransaction } from "@/features/wallet/sdk";
+import { GeneralAssetTransaction } from "@ecency/wallets";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { TRANSACTIONS_ICONS, TRANSACTIONS_LABELS } from "../_consts";

@@ -1,30 +1,58 @@
 import { defineConfig } from "tsup";
 
-export default defineConfig({
+const shared = {
     entry: ["src/index.ts"],
-    dts: true,
-    format: ["esm", "cjs"],
-    outExtension({ format }) {
-        return {
-            js: format === "esm" ? ".mjs" : ".cjs",
-        };
-    },
+    splitting: false,
     sourcemap: true,
-    clean: true,
     treeshake: true,
-    splitting: false, // libraries often keep this off for simpler exports
-    target: "es2022",
-    // Mark big/peer things external so they don’t get bundled
     external: [
-        "crypto",
         "react",
-        "@hiveio/dhive",
+        "react-dom",
+        "react/jsx-runtime",
         "@tanstack/react-query",
+        "@hiveio/dhive",
+        "hivesigner",
         "lru-cache",
         "scheduler",
-        "react/jsx-runtime",
         "bip39",
-        "hivesigner",
         "remeda",
-    ]
-});
+        "node-fetch",
+        "undici",
+        "crypto"
+    ] as const,
+    shims: false,
+} as const;
+
+export default defineConfig([
+    // Browser build
+    {
+        ...shared,
+        dts: true,
+        format: ["esm"],
+        platform: "browser",
+        target: "es2020",
+        outDir: "dist/browser",
+        clean: true,
+        minify: false,
+        outExtension() {
+            return { js: ".js" };
+        },
+        define: {
+            "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? "production"),
+        },
+    },
+    // Node build (SSR, scripts, CLI)
+    {
+        ...shared,
+        dts: false,
+        format: ["esm", "cjs"],
+        platform: "node",
+        target: "node18",
+        outDir: "dist/node",
+        clean: false,
+        minify: false,
+        outExtension({ format }) {
+            return { js: format === "esm" ? ".mjs" : ".cjs" };
+        },
+    },
+]);

@@ -6,7 +6,7 @@ import { proxifyImageSrc } from "@ecency/render-helper";
 import {
   getAccountWalletAssetInfoQueryOptions,
   getAllTokensListQueryOptions
-} from "@/features/wallet/sdk";
+} from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";

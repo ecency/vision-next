@@ -15,15 +15,16 @@ interface Props {
   onHot?: () => void;
   onKc?: () => void;
   keyOnly?: boolean;
+  authority: "owner" | "active";
 }
 
-export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly }: Props) {
+export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="active" }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
 
   return (
     <>
       <div className="key-or-hot">
-        <KeyInput onSign={onKey} />
+        <KeyInput onSign={onKey} keyType={authority}/>
         {!keyOnly && (
           <>
             <OrDivider />

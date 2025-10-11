@@ -1,5 +1,5 @@
 import { Badge, Button } from "@/features/ui";
-import { EcencyWalletCurrency } from "@/features/wallet/sdk";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 import Image from "next/image";
 import { SignupWalletChooseUsername } from "./signup-wallet-choose-username";
 import i18next from "i18next";

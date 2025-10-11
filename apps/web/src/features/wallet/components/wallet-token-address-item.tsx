@@ -6,8 +6,12 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCopyToClipboard, useMount } from "react-use";
 import { CURRENCIES_META_DATA } from "../consts";
-import { EcencyTokenMetadata, EcencyWalletCurrency, useWalletCreate } from "@/features/wallet/sdk";
-import { useQuery } from "@tanstack/react-query";
+import {
+  EcencyTokenMetadata,
+  EcencyWalletCurrency,
+  useWalletCreate,
+  useWalletsCacheQuery
+} from "@ecency/wallets";
 import { useMemo } from "react";
 import i18next from "i18next";
 
@@ -27,9 +31,7 @@ export function WalletTokenAddressItem({
   selectable = false
 }: Props) {
   const [_, copy] = useCopyToClipboard();
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
-    queryKey: ["ecency-wallets", "wallets", username]
-  });
+  const { data: wallets } = useWalletsCacheQuery(username);
   const wallet = useMemo(() => wallets?.get(currency), [wallets, currency]);
 
   const { createWallet } = useWalletCreate(username, currency);

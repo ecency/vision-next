@@ -1,6 +1,6 @@
 import { Button, FormControl, Modal, ModalBody, ModalHeader } from "@/features/ui";
 import { List, ListItem } from "@/features/ui/list";
-import { EcencyWalletCurrency, useImportWallet } from "@/features/wallet/sdk";
+import { EcencyWalletCurrency, useImportWallet } from "@ecency/wallets";
 import { UilArrowLeft, UilDownloadAlt } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Image from "next/image";

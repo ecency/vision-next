@@ -1,4 +1,4 @@
-import { PointTransactionType } from "@/features/wallet/sdk";
+import { PointTransactionType } from "@ecency/wallets";
 import i18next from "i18next";
 
 export const TRANSACTIONS_LABELS: Record<string, (...args: string[]) => string> = {

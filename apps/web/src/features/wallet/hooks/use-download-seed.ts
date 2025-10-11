@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useSeedPhrase, deriveHiveKeys } from "@/features/wallet/sdk";
+import { useSeedPhrase, deriveHiveKeys } from "@ecency/wallets";
 import { v4 } from "uuid";
 
 export function useDownloadSeed(username: string) {

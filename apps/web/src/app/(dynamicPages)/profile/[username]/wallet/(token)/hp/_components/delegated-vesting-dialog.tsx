@@ -6,7 +6,7 @@ import { KeyOrHotDialog, LinearProgress, ProfileLink, UserAvatar } from "@/featu
 import { List, ListItem } from "@/features/ui/list";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-import { getHivePowerDelegatesInfiniteQueryOptions } from "@/features/wallet/sdk";
+import { getHivePowerDelegatesInfiniteQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { Pagination, Tooltip } from "@ui/index";
 import { FormControl } from "@ui/input";

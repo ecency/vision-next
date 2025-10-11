@@ -1,4 +1,4 @@
-import { CONFIG, getAccessToken } from "@/modules/core";
+import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { GetRecoveriesEmailResponse } from "../types";
 
@@ -7,7 +7,8 @@ export function getAccountRecoveriesQueryOptions(username: string | undefined) {
     enabled: !!username,
     queryKey: ["accounts", "recoveries", username],
     queryFn: async () => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/recoveries",
         {
           method: "POST",

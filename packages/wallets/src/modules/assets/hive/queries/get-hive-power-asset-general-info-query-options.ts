@@ -7,7 +7,7 @@ import {
 import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { parseAsset, vestsToHp } from "../../utils";
-import { FullAccount } from "@ecency/sdk/dist/modules/accounts/types";
+import { type FullAccount } from "@ecency/sdk";
 
 function getAPR(dynamicProps: DynamicProps) {
   // The inflation was set to 9.5% at block 7m

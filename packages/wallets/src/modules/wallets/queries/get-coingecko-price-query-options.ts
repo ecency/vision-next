@@ -36,7 +36,7 @@ export function getCoinGeckoPriceQueryOptions(currency?: string) {
       let curr = currency as string;
       switch (currency) {
         case EcencyWalletCurrency.BTC:
-          curr = "binance-wrapped-btc";
+          curr = "bitcoin";
           break;
         case EcencyWalletCurrency.ETH:
           curr = "ethereum";

@@ -5,7 +5,7 @@ import ethSvg from "@/assets/img/currencies/eth.svg";
 import solSvg from "@/assets/img/currencies/solana.svg";
 import tonSvg from "@/assets/img/currencies/ton.svg";
 import tronSvg from "@/assets/img/currencies/tron.svg";
-import { EcencyWalletCurrency } from "@/features/wallet/sdk";
+import { EcencyWalletCurrency } from "@ecency/wallets";
 
 export const CURRENCIES_META_DATA = {
   [EcencyWalletCurrency.BTC]: {

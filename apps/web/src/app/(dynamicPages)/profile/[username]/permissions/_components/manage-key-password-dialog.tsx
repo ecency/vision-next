@@ -10,7 +10,7 @@ import {
   ModalHeader
 } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { deriveHiveMasterPasswordKeys } from "@/features/wallet/sdk";
+import { deriveHiveMasterPasswordKeys } from "@ecency/wallets";
 import { cryptoUtils, PublicKey } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";

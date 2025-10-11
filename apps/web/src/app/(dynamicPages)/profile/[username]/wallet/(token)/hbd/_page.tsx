@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteDataFlow } from "@/utils";
-import { getHbdAssetTransactionsQueryOptions } from "@/features/wallet/sdk";
+import { getHbdAssetTransactionsQueryOptions } from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";

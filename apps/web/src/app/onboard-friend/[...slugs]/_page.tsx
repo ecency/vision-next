@@ -40,7 +40,7 @@ import {
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { onboardEmail } from "@/api/private-api";
 import { getKeysFromSeed } from "@/utils/onBoard-helper";
-import { useSeedPhrase } from "@/features/wallet/sdk";
+import { useSeedPhrase } from "@ecency/wallets";
 import { useDownloadSeed } from "@/features/wallet";
 
 export interface AccountInfo {

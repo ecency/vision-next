@@ -1,11 +1,12 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 export function checkUsernameWalletsPendingQueryOptions(username: string) {
   return queryOptions({
     queryKey: ["accounts", "check-wallet-pending", username],
     queryFn: async () => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/wallets-chkuser",
         {
           method: "POST",

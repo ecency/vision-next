@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { error } from "../../feedback";
 import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
-import { deriveHiveKeys, detectHiveKeyDerivation } from "@/features/wallet/sdk";
+import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { FullAccount } from "@/entities";
 import { useMutation } from "@tanstack/react-query";
 import { client as hiveClient, getAccount } from "@/api/hive";

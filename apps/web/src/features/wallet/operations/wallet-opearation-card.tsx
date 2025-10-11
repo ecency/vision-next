@@ -1,6 +1,6 @@
 import { UserAvatar } from "@/features/shared";
 import { Button } from "@/features/ui";
-import { getAccountWalletAssetInfoQueryOptions } from "@/features/wallet/sdk";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";

@@ -2,18 +2,19 @@
 
 import { formatError } from "@/api/operations";
 import { useClientActiveUser } from "@/api/queries";
-import { error, Stepper } from "@/features/shared";
-import { Button, FormControl, InputGroup } from "@/features/ui";
+import { error, KeyOrHot, Stepper } from "@/features/shared";
+import { Button } from "@/features/ui";
 import { WalletSeedPhrase, WalletTokenAddressItem } from "@/features/wallet";
-import { useAccountUpdateKeyAuths } from "@ecency/sdk";
 import {
   EcencyTokenMetadata,
   EcencyWalletCurrency,
   useHiveKeysQuery,
-  useSaveWalletInformationToMetadata
-} from "@/features/wallet/sdk";
-import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
-import { useQuery } from "@tanstack/react-query";
+  useSaveWalletInformationToMetadata,
+  EcencyWalletsPrivateApi,
+  useWalletsCacheQuery
+} from "@ecency/wallets";
+import { useAccountUpdateKeyAuths } from "@ecency/sdk";
+import { PrivateKey } from "@hiveio/dhive";
 import {
   UilArrowLeft,
   UilArrowRight,
@@ -63,21 +64,20 @@ const steps = [
 const TOKENS = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.BNB,
   EcencyWalletCurrency.SOL,
   EcencyWalletCurrency.TRON,
-  EcencyWalletCurrency.APT
+  EcencyWalletCurrency.APT,
+  EcencyWalletCurrency.TON
 ];
 
 export function SetupExternalCreate({ onBack }: Props) {
   const activeUser = useClientActiveUser();
 
-  const [keyInput, setKeyInput] = useState("");
   const [step, setStep] = useState<"seed" | "tokens" | "create" | "success" | "sign">("seed");
 
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
-  const { data: tokens } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
-    queryKey: ["ecency-wallets", "wallets", activeUser?.username]
-  });
+  const { data: tokens } = useWalletsCacheQuery(activeUser?.username);
 
   const { mutateAsync: saveKeys, isPending } = useAccountUpdateKeyAuths(activeUser?.username!, {
     onError: (err) => {
@@ -91,32 +91,50 @@ export function SetupExternalCreate({ onBack }: Props) {
       setStep("sign");
     }
   });
+  const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
+    activeUser?.username!
+  );
 
-  const handleLink = useCallback(async () => {
-    if (!keys) {
-      return;
-    }
+  const handleLinkByKey = useCallback(
+    async (currentKey: PrivateKey) => {
+      if (!keys) {
+        return;
+      }
+      setStep("create");
 
-    const currentKey = cryptoUtils.isWif(keyInput)
-      ? PrivateKey.fromString(keyInput)
-      : PrivateKey.fromLogin(activeUser?.username!, keyInput, "owner");
+      const tokenEntries = Array.from(tokens?.entries() ?? []);
+      const walletAddresses = Object.fromEntries(
+        tokenEntries
+          .filter(([, info]) => Boolean(info.address))
+          .map(([token, info]) => [token as string, info.address!])
+      ) as Record<string, string>;
 
-    setStep("create");
-    await saveTokens(Array.from(tokens?.values() ?? []));
-    await saveKeys({
-      keepCurrent: true,
-      currentKey,
-      keys: [
-        {
-          owner: PrivateKey.fromString(keys.owner),
-          active: PrivateKey.fromString(keys.active),
-          posting: PrivateKey.fromString(keys.posting),
-          memo_key: PrivateKey.fromString(keys.memo)
+      await saveTokens(tokenEntries.map(([, info]) => info));
+      await saveKeys({
+        keepCurrent: true,
+        currentKey,
+        keys: [
+          {
+            owner: PrivateKey.fromString(keys.owner),
+            active: PrivateKey.fromString(keys.active),
+            posting: PrivateKey.fromString(keys.posting),
+            memo_key: PrivateKey.fromString(keys.memo)
+          }
+        ]
+      });
+      await saveToPrivateApi({
+        tokens: walletAddresses,
+        hiveKeys: {
+          ownerPublicKey: PrivateKey.fromString(keys.owner).createPublic().toString(),
+          activePublicKey: PrivateKey.fromString(keys.active).createPublic().toString(),
+          postingPublicKey: PrivateKey.fromString(keys.posting).createPublic().toString(),
+          memoPublicKey: PrivateKey.fromString(keys.memo).createPublic().toString()
         }
-      ]
-    });
-    setStep("success");
-  }, [activeUser?.username, keyInput, keys, saveKeys, saveTokens, tokens]);
+      });
+      setStep("success");
+    },
+    [activeUser?.username, keys, saveKeys, saveToPrivateApi, saveTokens, tokens]
+  );
 
   return (
     <div className="w-full col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
@@ -191,24 +209,9 @@ export function SetupExternalCreate({ onBack }: Props) {
             </motion.div>
           )}
           {step === "sign" && (
-            <InputGroup
-              className="my-4"
-              prepend={<UilLock />}
-              append={
-                <Button disabled={isPending} onClick={handleLink}>
-                  {i18next.t("key-or-hot.sign")}
-                </Button>
-              }
-            >
-              <FormControl
-                value={keyInput}
-                type="password"
-                autoFocus={true}
-                autoComplete="off"
-                placeholder={i18next.t("key-or-hot.key-placeholder")}
-                onChange={(e) => setKeyInput(e.target.value)}
-              />
-            </InputGroup>
+            <div className="pt-4 lg:pt-6 w-full flex flex-col items-start gap-4">
+              <KeyOrHot inProgress={isPending} onKey={handleLinkByKey} authority={"owner"} />
+            </div>
           )}
           {step === "success" && (
             <motion.div

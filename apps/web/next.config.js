@@ -20,6 +20,10 @@ const config = {
   generateBuildId: async () => v4(),
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
+  experimental: {
+    // Allow Next.js to import workspace packages that live outside of apps/web
+    externalDir: true
+  },
   webpack: (config, { isServer }) => {
     config.infrastructureLogging = { level: "error" };
     config.stats = "errors-only";

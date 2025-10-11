@@ -5,13 +5,13 @@ import { Button, FormControl, Modal, ModalBody, ModalHeader } from "@/features/u
 import { List, ListItem } from "@/features/ui/list";
 import { UilCog, UilTimesCircle } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useState, ChangeEvent, useCallback } from "react";
+import { useState, ChangeEvent, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   getAccountWalletListQueryOptions,
   getAllTokensListQueryOptions,
   useSaveWalletInformationToMetadata
-} from "@/features/wallet/sdk";
+} from "@ecency/wallets";
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
@@ -30,6 +30,10 @@ export function ProfileWalletTokenPicker() {
   const { data: allTokens } = useQuery(getAllTokensListQueryOptions(query));
   const { data: walletList } = useQuery(
     getAccountWalletListQueryOptions((username as string).replace("%40", ""))
+  );
+  const externalTokens = useMemo(
+    () => allTokens?.external.filter((token) => walletList?.includes(token)) ?? [],
+    [allTokens]
   );
 
   const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(
@@ -55,6 +59,10 @@ export function ProfileWalletTokenPicker() {
         ...R.pipe(
           allTokens?.basic.filter((i) => list.includes(i)) ?? [],
           R.map((currency) => ({ currency, type: "HIVE" }))
+        ),
+        ...R.pipe(
+          allTokens?.spk.filter((i) => list.includes(i)) ?? [],
+          R.map((currency) => ({ currency, type: "SPK" }))
         ),
         ...R.pipe(
           allTokens?.external.filter((i) => list.includes(i)) ?? [],
@@ -107,17 +115,36 @@ export function ProfileWalletTokenPicker() {
             </>
           )}
 
-          {allTokens && allTokens.external.length > 0 && (
+          {externalTokens.length > 0 && (
             <>
               <div className="text-sm opacity-50 mt-4 mb-2">External</div>
               <List>
-                {allTokens.external.map((token) => (
+                {externalTokens.map((token) => (
                   <ListItem className="!flex items-center gap-2" key={token}>
                     <FormControl
                       type="checkbox"
                       checked={walletList?.includes(token) ?? false}
                       onChange={() => update(token)}
                     />
+                    {token}
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          )}
+
+          {allTokens && allTokens.spk.length > 0 && (
+            <>
+              <div className="text-sm opacity-50 mt-4 mb-2">SPK</div>
+              <List>
+                {allTokens.spk.map((token) => (
+                  <ListItem className="!flex items-center gap-2" key={token}>
+                    <FormControl
+                      type="checkbox"
+                      checked={walletList?.includes(token) ?? false}
+                      onChange={() => update(token)}
+                    />
+                    <div>{TOKEN_LOGOS_MAP[token]}</div>
                     {token}
                   </ListItem>
                 ))}
