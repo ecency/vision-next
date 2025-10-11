@@ -16,12 +16,10 @@ const shared = {
         "scheduler",
         "bip39",
         "remeda",
-        // avoid pulling these into browser bundles by accident
         "node-fetch",
         "undici",
-        "crypto" // fine to keep external – bundlers know what to do
+        "crypto"
     ] as const,
-    // avoid node shims in either target
     shims: false,
 } as const;
 
@@ -29,7 +27,7 @@ export default defineConfig([
     // Browser build
     {
         ...shared,
-        dts: true,                   // emit types once here
+        dts: true,
         format: ["esm"],
         platform: "browser",
         target: "es2020",
@@ -37,17 +35,16 @@ export default defineConfig([
         clean: true,
         minify: false,
         outExtension() {
-            return { js: ".js" };      // .js is friendlier for "browser" condition
+            return { js: ".js" };
         },
         define: {
             "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? "production"),
         },
     },
-
     // Node build (SSR, scripts, CLI)
     {
         ...shared,
-        dts: false,                  // already emitted above
+        dts: false,
         format: ["esm", "cjs"],
         platform: "node",
         target: "node18",

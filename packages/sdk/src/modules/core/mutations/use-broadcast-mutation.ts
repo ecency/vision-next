@@ -5,16 +5,10 @@ import {
 } from "@tanstack/react-query";
 import { getAccessToken, getLoginType, getPostingKey } from "../storage";
 import { Operation, PrivateKey } from "@hiveio/dhive";
-import { CONFIG } from "@/modules/core/config";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 //import hs from "hivesigner";
 import { Keychain } from "@/modules/keychain";
 
-const getBoundFetch = (): typeof fetch => {
-  if (typeof window !== "undefined" && typeof window.fetch === "function") {
-    return window.fetch.bind(window);
-  }
-  return globalThis.fetch;
-};
 export function useBroadcastMutation<T>(
   mutationKey: MutationKey = [],
   username: string | undefined,

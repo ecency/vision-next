@@ -26,10 +26,8 @@ const shared = {
         "@okxweb3/coin-ton",
         "@okxweb3/coin-tron",
         "@okxweb3/crypto-lib",
-        // keep these out of browser bundle
         "node-fetch",
         "undici",
-        // allow app/bundler to handle builtins
         "crypto",
         "buffer",
     ] as const,
@@ -40,7 +38,7 @@ export default defineConfig([
     // Browser build
     {
         ...shared,
-        dts: true,                 // emit types once
+        dts: true,
         format: ["esm"],
         platform: "browser",
         target: "es2020",
