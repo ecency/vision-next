@@ -14,8 +14,16 @@ interface Payload {
 export function useUpdateAccountWithWallets(username: string) {
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ tokens, hiveKeys }: Payload) =>
-      fetch(CONFIG.privateApiHost + "/private-api/wallets-add", {
+    mutationFn: ({ tokens, hiveKeys }: Payload) => {
+      const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
+
+      if (entries.length === 0) {
+        return Promise.resolve();
+      }
+
+      const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
+
+      return fetch(CONFIG.privateApiHost + "/private-api/wallets-add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -23,17 +31,18 @@ export function useUpdateAccountWithWallets(username: string) {
         body: JSON.stringify({
           username,
           code: getAccessToken(username),
-          token: "BTC",
-          address: tokens.BTC,
+          token: primaryToken,
+          address: primaryAddress,
           status: 3,
           meta: {
-            ...tokens,
+            ...Object.fromEntries(entries),
             ownerPublicKey: hiveKeys.ownerPublicKey,
             activePublicKey: hiveKeys.activePublicKey,
             postingPublicKey: hiveKeys.postingPublicKey,
             memoPublicKey: hiveKeys.memoPublicKey,
           },
         }),
-      }),
+      });
+    },
   });
 }

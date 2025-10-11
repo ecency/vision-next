@@ -10,18 +10,10 @@ overrides:
   '@sentry/core': ^8.55.0
   '@sentry/types': ^8.55.0
   '@sentry/utils': ^8.55.0
-  '@ecency/wallets': link:../../Library/pnpm/global/5/node_modules/@ecency/wallets
 
 importers:
 
   .:
-    dependencies:
-      '@ecency/wallets':
-        specifier: link:../../Library/pnpm/global/5/node_modules/@ecency/wallets
-        version: link:../../Library/pnpm/global/5/node_modules/@ecency/wallets
-      vision-next:
-        specifier: 'link:'
-        version: 'link:'
     devDependencies:
       '@types/node':
         specifier: ^20
@@ -66,11 +58,11 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@ecency/sdk':
-        specifier: ^1.1.22
-        version: 1.1.22
+        specifier: workspace:*
+        version: link:../../packages/sdk
       '@ecency/wallets':
-        specifier: link:../../../../Library/pnpm/global/5/node_modules/@ecency/wallets
-        version: link:../../../../Library/pnpm/global/5/node_modules/@ecency/wallets
+        specifier: workspace:*
+        version: link:../../packages/wallets
       '@emoji-mart/data':
         specifier: ^1.1.2
         version: 1.2.1
@@ -600,8 +592,8 @@ importers:
         version: 18.3.1
     devDependencies:
       '@ecency/sdk':
-        specifier: ^1.1.3
-        version: 1.1.22
+        specifier: workspace:*
+        version: link:../sdk
       '@hiveio/dhive':
         specifier: ^1.3.2
         version: 1.3.2
@@ -1318,9 +1310,6 @@ packages:
 
   '@ecency/renderer@1.3.0':
     resolution: {integrity: sha512-PkDOizbK4lCgE4lnqbajzDIQA3CLVhMY7Lw2034bB7ULmH7FRLZqlPUsQQn8bNcLmAOguiJltAEGlll8VwOk4A==}
-
-  '@ecency/sdk@1.1.22':
-    resolution: {integrity: sha512-aLZxBJ9VToUbFUKRkxP9Dsiw4hkpFFBqKDINFGInbH6rt4YCEOd+HgB8CvImAmzPRpP3+W94QWGhywIjSJHKGg==}
 
   '@emnapi/core@1.5.0':
     resolution: {integrity: sha512-sbP8GzB1WDzacS8fgNPpHlp6C9VZe+SJP3F90W9rLemaQj2PzIuTEl1qDOYQf58YIpyjViI24y9aPWCjEzY2cg==}
@@ -9190,8 +9179,6 @@ snapshots:
       - react
       - react-dom
 
-  '@ecency/sdk@1.1.22': {}
-
   '@emnapi/core@1.5.0':
     dependencies:
       '@emnapi/wasi-threads': 1.1.0
@@ -13066,7 +13053,7 @@ snapshots:
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1)
@@ -13096,7 +13083,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -13111,7 +13098,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9

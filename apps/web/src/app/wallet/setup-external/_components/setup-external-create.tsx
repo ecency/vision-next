@@ -102,7 +102,14 @@ export function SetupExternalCreate({ onBack }: Props) {
       }
       setStep("create");
 
-      await saveTokens(Array.from(tokens?.values() ?? []));
+      const tokenEntries = Array.from(tokens?.entries() ?? []);
+      const walletAddresses = Object.fromEntries(
+        tokenEntries
+          .filter(([, info]) => Boolean(info.address))
+          .map(([token, info]) => [token as string, info.address!])
+      ) as Record<string, string>;
+
+      await saveTokens(tokenEntries.map(([, info]) => info));
       await saveKeys({
         keepCurrent: true,
         currentKey,
@@ -116,14 +123,7 @@ export function SetupExternalCreate({ onBack }: Props) {
         ]
       });
       await saveToPrivateApi({
-        tokens:
-          tokens?.entries().reduce(
-            (acc, [token, info]) => ({
-              ...acc,
-              [token as string]: info.address!
-            }),
-            {} as Record<string, string>
-          ) ?? {},
+        tokens: walletAddresses,
         hiveKeys: {
           ownerPublicKey: PrivateKey.fromString(keys.owner).createPublic().toString(),
           activePublicKey: PrivateKey.fromString(keys.active).createPublic().toString(),
@@ -133,7 +133,7 @@ export function SetupExternalCreate({ onBack }: Props) {
       });
       setStep("success");
     },
-    [activeUser?.username, keys, saveKeys, saveTokens, tokens]
+    [activeUser?.username, keys, saveKeys, saveToPrivateApi, saveTokens, tokens]
   );
 
   return (
