@@ -2926,12 +2926,12 @@
     "delegations": "A. 代表团",
     "external-wallets-offer": {
       "title": "将您的加密带到生态环境",
-      "description": "直接从 Trust 或 Exodus 等应用程序创建或导入BTC、ETH 、BNB、SOL、TRX 和 APT 的钱包 并开始在Hive 生态系统内无缝使用它们。",
+      "description": "直接从 Trust 或 Exodus 等应用创建或导入BTC、ETH 、BNB、SOL、TRX、APT 和 TON 的钱包 并开始在Hive 生态系统内无缝使用它们。",
       "hint": "创建和导入令牌的信息将存储在 Ecency 和 Hive 账户元数据中"
     },
     "external-wallets-signup": {
       "create-wallet-title": "创建并链接到Hive 帐户",
-      "create-wallet-description": "为 BTC, ETH, SOL, APT 和 TRX 创建一个钱包。 这些资产将链接到您的 Hive 帐户，使您能够轻松地管理您的 Ecity。",
+      "create-wallet-description": "为BTC, ETH, BNB, SOL, TRX, APT 和 TON创建一个钱包。 这些资产将链接到您的 Hive 帐户，使您能够轻松地管理您的 Ecity。",
       "import-wallet-title": "导入现有钱包",
       "import-wallet-description": "从Trust、Exodus或其他兼容的应用导入您现有的钱包。 您的资产将连接到您的 Hive 帐户，这样您就可以轻松地管理您在 Ecity 中的资金。",
       "create-wallet-tokens-description": "查看您的代币地址。您也可以在钱包页面稍后看到这些地址",
