@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { ThreeSpeakVideo } from "../types";
-import { getQueryClient } from "@/modules/core";
+import { getBoundFetch, getQueryClient } from "@/modules/core";
 import { getAccountTokenQueryOptions } from "./get-account-token-query-options";
 
 export function getAccountVideosQueryOptions(username: string | undefined) {
@@ -15,7 +15,8 @@ export function getAccountVideosQueryOptions(username: string | undefined) {
         getAccountTokenQueryOptions(username).queryKey
       );
 
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         `https://studio.3speak.tv/mobile/api/my-videos`,
         {
           headers: {

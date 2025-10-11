@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 
 type ActivityType =
@@ -38,7 +38,9 @@ export function useRecordActivity(
       if (!activityType) {
         throw new Error("[SDK][Analytics] – no activity type provided");
       }
-      await fetch(CONFIG.plausibleHost + "/api/event", {
+      const fetchApi = getBoundFetch();
+
+      await fetchApi(CONFIG.plausibleHost + "/api/event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

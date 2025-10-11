@@ -1,7 +1,7 @@
 import {
   getAccountWalletAssetInfoQueryOptions,
   getAllTokensListQueryOptions
-} from "@/features/wallet/sdk";
+} from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import Image from "next/image";

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { HiveSignerIntegration } from "../../hivesigner";
-import { getQueryClient } from "@/modules/core";
+import { getBoundFetch, getQueryClient } from "@/modules/core";
 
 export function getAccountTokenQueryOptions(username: string | undefined) {
   return queryOptions({
@@ -11,7 +11,8 @@ export function getAccountTokenQueryOptions(username: string | undefined) {
         throw new Error("[SDK][Integrations][3Speak] – anon user");
       }
 
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         `https://studio.3speak.tv/mobile/login?username=${username}&hivesigner=true`,
         {
           headers: {

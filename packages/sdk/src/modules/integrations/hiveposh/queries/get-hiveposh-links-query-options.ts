@@ -1,10 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
+import { getBoundFetch } from "@/modules/core";
 
 export function getHivePoshLinksQueryOptions(username: string | undefined) {
   return queryOptions({
     queryKey: ["integrations", "hiveposh", "links", username],
     queryFn: async () => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         `https://hiveposh.com/api/v0/linked-accounts/${username}`,
         {
           headers: {

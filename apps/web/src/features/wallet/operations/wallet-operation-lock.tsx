@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
-import { getAccountWalletAssetInfoQueryOptions } from "@/features/wallet/sdk";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { motion } from "framer-motion";
 
 interface Props {

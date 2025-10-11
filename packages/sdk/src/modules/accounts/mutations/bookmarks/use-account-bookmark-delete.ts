@@ -1,4 +1,9 @@
-import { CONFIG, getAccessToken, getQueryClient } from "@/modules/core";
+import {
+  CONFIG,
+  getAccessToken,
+  getBoundFetch,
+  getQueryClient,
+} from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 
 export function useBookmarkDelete(
@@ -13,7 +18,8 @@ export function useBookmarkDelete(
         throw new Error("[SDK][Account][Bookmarks] – no active user");
       }
 
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/bookmarks-delete",
         {
           method: "POST",

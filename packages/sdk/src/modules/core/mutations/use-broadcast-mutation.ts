@@ -6,9 +6,15 @@ import {
 import { getAccessToken, getLoginType, getPostingKey } from "../storage";
 import { Operation, PrivateKey } from "@hiveio/dhive";
 import { CONFIG } from "@/modules/core/config";
-import hs from "hivesigner";
+//import hs from "hivesigner";
 import { Keychain } from "@/modules/keychain";
 
+const getBoundFetch = (): typeof fetch => {
+  if (typeof window !== "undefined" && typeof window.fetch === "function") {
+    return window.fetch.bind(window);
+  }
+  return globalThis.fetch;
+};
 export function useBroadcastMutation<T>(
   mutationKey: MutationKey = [],
   username: string | undefined,
@@ -47,10 +53,27 @@ export function useBroadcastMutation<T>(
       // With hivesigner access token
       let token = getAccessToken(username);
       if (token) {
-        const response = await new hs.Client({
-          accessToken: token,
-        }).broadcast(operations(payload));
-        return response.result;
+        const f = getBoundFetch();
+        const res = await f("https://hivesigner.com/api/broadcast", {
+          method: "POST",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ operations: operations(payload) }),
+        });
+
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`[Hivesigner] ${res.status} ${res.statusText} ${txt}`);
+        }
+
+        const json = await res.json();
+        if (json?.errors) {
+          throw new Error(`[Hivesigner] ${JSON.stringify(json.errors)}`);
+        }
+        return json.result;
       }
 
       throw new Error(

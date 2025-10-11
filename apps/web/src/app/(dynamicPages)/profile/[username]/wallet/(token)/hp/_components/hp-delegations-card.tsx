@@ -1,6 +1,6 @@
 import i18next from "i18next";
 import { ProfileWalletTokenHistoryCard } from "../../_components";
-import { getAccountWalletAssetInfoQueryOptions } from "@/features/wallet/sdk";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { ReceivedVesting } from "./received-vesting-dialog";
 import { useState } from "react";

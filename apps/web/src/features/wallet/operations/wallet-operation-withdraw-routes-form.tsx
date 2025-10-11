@@ -6,7 +6,7 @@ import { InferType } from "yup";
 import i18next from "i18next";
 import { Button, FormControl } from "@/features/ui";
 import { motion } from "framer-motion";
-import { withdrawVestingRouteHive } from "@/features/wallet/sdk";
+import { withdrawVestingRouteHive } from "@ecency/wallets";
 import { useClientActiveUser } from "@/api/queries";
 
 // Define schema outside the component to prevent recreation on each render

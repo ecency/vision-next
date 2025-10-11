@@ -1,4 +1,4 @@
-import { CONFIG, getAccessToken } from "@/modules/core";
+import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 import { GameClaim } from "../types";
 import { useRecordActivity } from "@/modules/analytics/mutations";
@@ -20,7 +20,8 @@ export function useGameClaim(
         throw new Error("[SDK][Games] – anon user in game post");
       }
 
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/post-game",
         {
           method: "POST",

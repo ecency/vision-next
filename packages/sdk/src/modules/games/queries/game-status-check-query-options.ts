@@ -1,4 +1,4 @@
-import { CONFIG, getAccessToken } from "@/modules/core";
+import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { GetGameStatus } from "../types";
 
@@ -13,7 +13,8 @@ export function getGameStatusCheckQueryOptions(
       if (!username) {
         throw new Error("[SDK][Games] – anon user in status check");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/get-game",
         {
           method: "POST",

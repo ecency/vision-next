@@ -1,7 +1,7 @@
 import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { useInfiniteDataFlow } from "@/utils";
-import { getHiveAssetMetricQueryOptions } from "@/features/wallet/sdk";
+import { getHiveAssetMetricQueryOptions } from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";

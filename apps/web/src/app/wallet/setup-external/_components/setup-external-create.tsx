@@ -10,11 +10,11 @@ import {
   EcencyWalletCurrency,
   useHiveKeysQuery,
   useSaveWalletInformationToMetadata,
-  EcencyWalletsPrivateApi
-} from "@/features/wallet/sdk";
+  EcencyWalletsPrivateApi,
+  useWalletsCacheQuery
+} from "@ecency/wallets";
 import { useAccountUpdateKeyAuths } from "@ecency/sdk";
 import { PrivateKey } from "@hiveio/dhive";
-import { useQuery } from "@tanstack/react-query";
 import {
   UilArrowLeft,
   UilArrowRight,
@@ -75,9 +75,7 @@ export function SetupExternalCreate({ onBack }: Props) {
   const [step, setStep] = useState<"seed" | "tokens" | "create" | "success" | "sign">("seed");
 
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
-  const { data: tokens } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
-    queryKey: ["ecency-wallets", "wallets", activeUser?.username]
-  });
+  const { data: tokens } = useWalletsCacheQuery(activeUser?.username);
 
   const { mutateAsync: saveKeys, isPending } = useAccountUpdateKeyAuths(activeUser?.username!, {
     onError: (err) => {

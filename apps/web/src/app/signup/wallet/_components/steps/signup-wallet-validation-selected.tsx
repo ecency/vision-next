@@ -3,9 +3,9 @@ import { Button } from "@/features/ui";
 import {
   EcencyTokenMetadata,
   EcencyWalletCurrency,
-  useGetExternalWalletBalanceQuery
-} from "@/features/wallet/sdk";
-import { useQuery } from "@tanstack/react-query";
+  useGetExternalWalletBalanceQuery,
+  useWalletsCacheQuery
+} from "@ecency/wallets";
 import { UilCheckCircle, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
@@ -26,9 +26,7 @@ interface Props {
 export function SignupWalletValiadtionSelected({ selected, username, onCancel, onValid }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
 
-  const { data: wallets } = useQuery<Map<EcencyWalletCurrency, EcencyTokenMetadata>>({
-    queryKey: ["ecency-wallets", "wallets", username]
-  });
+  const { data: wallets } = useWalletsCacheQuery(username);
   const walletsList = useMemo(() => Array.from(wallets?.entries() ?? []), [wallets]);
   const { data: externalWalletBalance, refetch: refetchExternalWalletBalance } =
     useGetExternalWalletBalanceQuery(selected[0], selected[1]);

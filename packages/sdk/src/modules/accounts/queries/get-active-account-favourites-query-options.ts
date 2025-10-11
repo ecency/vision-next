@@ -1,4 +1,4 @@
-import { CONFIG, getAccessToken } from "@/modules/core";
+import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { AccountFavorite } from "../types";
 
@@ -12,7 +12,8 @@ export function getActiveAccountFavouritesQueryOptions(
       if (!activeUsername) {
         throw new Error("[SDK][Accounts][Favourites] – no active user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/favorites",
         {
           method: "POST",

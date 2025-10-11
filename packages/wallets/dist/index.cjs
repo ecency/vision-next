@@ -553,6 +553,18 @@ function buildExternalTx(currency, tx) {
   }
 }
 
+// src/modules/wallets/utils/get-bound-fetch.ts
+var cachedFetch;
+function getBoundFetch() {
+  if (!cachedFetch) {
+    if (typeof globalThis.fetch !== "function") {
+      throw new Error("[Ecency][Wallets] - global fetch is not available");
+    }
+    cachedFetch = globalThis.fetch.bind(globalThis);
+  }
+  return cachedFetch;
+}
+
 // src/modules/wallets/queries/use-hive-keys-query.ts
 function useHiveKeysQuery(username) {
   const { data: seed } = useSeedPhrase(username);
@@ -2247,6 +2259,7 @@ function useClaimPoints(username, onSuccess, onError) {
     username,
     "points-claimed"
   );
+  const fetchApi = getBoundFetch();
   return reactQuery.useMutation({
     mutationFn: async () => {
       if (!username) {
@@ -2254,7 +2267,7 @@ function useClaimPoints(username, onSuccess, onError) {
           "[SDK][Wallets][Assets][Points][Claim] \u2013 username wasn`t provided"
         );
       }
-      return fetch(sdk.CONFIG.privateApiHost + "/private-api/points-claim", {
+      return fetchApi(sdk.CONFIG.privateApiHost + "/private-api/points-claim", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -2947,6 +2960,19 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
     }
   });
 }
+function useWalletsCacheQuery(username) {
+  const queryClient = reactQuery.useQueryClient();
+  const queryKey = ["ecency-wallets", "wallets", username];
+  const getCachedWallets = () => queryClient.getQueryData(queryKey);
+  const createEmptyWalletMap = () => /* @__PURE__ */ new Map();
+  return reactQuery.useQuery({
+    queryKey,
+    enabled: Boolean(username),
+    initialData: () => getCachedWallets() ?? createEmptyWalletMap(),
+    queryFn: async () => getCachedWallets() ?? createEmptyWalletMap(),
+    staleTime: Infinity
+  });
+}
 var PATHS = {
   ["BTC" /* BTC */]: "m/44'/0'/0'/0/0",
   // Bitcoin (BIP44)
@@ -3015,13 +3041,12 @@ __export(private_api_exports, {
   useUpdateAccountWithWallets: () => useUpdateAccountWithWallets
 });
 function useCreateAccountWithWallets(username) {
-  const { data } = reactQuery.useQuery({
-    queryKey: ["ecency-wallets", "wallets", username]
-  });
+  const { data } = useWalletsCacheQuery(username);
   const { data: hiveKeys } = useHiveKeysQuery(username);
+  const fetchApi = getBoundFetch();
   return reactQuery.useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ currency, address }) => fetch(sdk.CONFIG.privateApiHost + "/private-api/wallets-add", {
+    mutationFn: ({ currency, address }) => fetchApi(sdk.CONFIG.privateApiHost + "/private-api/wallets-add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -3070,6 +3095,7 @@ function useCheckWalletExistence() {
   });
 }
 function useUpdateAccountWithWallets(username) {
+  const fetchApi = getBoundFetch();
   return reactQuery.useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
     mutationFn: async ({ tokens, hiveKeys }) => {
@@ -3078,7 +3104,7 @@ function useUpdateAccountWithWallets(username) {
         return new Response(null, { status: 204 });
       }
       const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
-      return fetch(sdk.CONFIG.privateApiHost + "/private-api/wallets-add", {
+      return fetchApi(sdk.CONFIG.privateApiHost + "/private-api/wallets-add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -3363,6 +3389,7 @@ exports.encryptMemoWithKeys = encryptMemoWithKeys;
 exports.getAccountWalletAssetInfoQueryOptions = getAccountWalletAssetInfoQueryOptions;
 exports.getAccountWalletListQueryOptions = getAccountWalletListQueryOptions;
 exports.getAllTokensListQueryOptions = getAllTokensListQueryOptions;
+exports.getBoundFetch = getBoundFetch;
 exports.getCoinGeckoPriceQueryOptions = getCoinGeckoPriceQueryOptions;
 exports.getHbdAssetGeneralInfoQueryOptions = getHbdAssetGeneralInfoQueryOptions;
 exports.getHbdAssetTransactionsQueryOptions = getHbdAssetTransactionsQueryOptions;
@@ -3419,6 +3446,7 @@ exports.useSaveWalletInformationToMetadata = useSaveWalletInformationToMetadata;
 exports.useSeedPhrase = useSeedPhrase;
 exports.useWalletCreate = useWalletCreate;
 exports.useWalletOperation = useWalletOperation;
+exports.useWalletsCacheQuery = useWalletsCacheQuery;
 exports.vestsToHp = vestsToHp;
 exports.withdrawVestingRouteHive = withdrawVestingRouteHive;
 //# sourceMappingURL=index.cjs.map

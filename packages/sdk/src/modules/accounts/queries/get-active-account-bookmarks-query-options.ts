@@ -1,4 +1,4 @@
-import { CONFIG, getAccessToken } from "@/modules/core";
+import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { AccountBookmark } from "../types";
 
@@ -12,7 +12,8 @@ export function getActiveAccountBookmarksQueryOptions(
       if (!activeUsername) {
         throw new Error("[SDK][Accounts][Bookmarks] – no active user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/bookmarks",
         {
           method: "POST",

@@ -91,6 +91,9 @@ exports.ConfigManager = void 0;
 })(exports.ConfigManager || (exports.ConfigManager = {}));
 
 // src/modules/core/utils/decoder-encoder.ts
+function encodeObj(o) {
+  return btoa(JSON.stringify(o));
+}
 function decodeObj(o) {
   let dataToParse = atob(o);
   if (dataToParse[0] !== "{") {
@@ -128,6 +131,18 @@ function parseAsset(sval) {
       symbol: NaiMap[sval.nai]
     };
   }
+}
+
+// src/modules/core/utils/get-bound-fetch.ts
+var cachedFetch;
+function getBoundFetch() {
+  if (!cachedFetch) {
+    if (typeof globalThis.fetch !== "function") {
+      throw new Error("[Ecency][SDK] - global fetch is not available");
+    }
+    cachedFetch = globalThis.fetch.bind(globalThis);
+  }
+  return cachedFetch;
 }
 
 // src/modules/core/storage.ts
@@ -193,6 +208,12 @@ var customJson = (account, id, key, json, display_msg, rpc = null) => new Promis
 });
 
 // src/modules/core/mutations/use-broadcast-mutation.ts
+var getBoundFetch2 = () => {
+  if (typeof window !== "undefined" && typeof window.fetch === "function") {
+    return window.fetch.bind(window);
+  }
+  return globalThis.fetch;
+};
 function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
 }) {
   return reactQuery.useMutation({
@@ -222,10 +243,25 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
       }
       let token = getAccessToken(username);
       if (token) {
-        const response = await new hs__default.default.Client({
-          accessToken: token
-        }).broadcast(operations(payload));
-        return response.result;
+        const f = getBoundFetch2();
+        const res = await f("https://hivesigner.com/api/broadcast", {
+          method: "POST",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+            Accept: "application/json"
+          },
+          body: JSON.stringify({ operations: operations(payload) })
+        });
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`[Hivesigner] ${res.status} ${res.statusText} ${txt}`);
+        }
+        const json = await res.json();
+        if (json?.errors) {
+          throw new Error(`[Hivesigner] ${JSON.stringify(json.errors)}`);
+        }
+        return json.result;
       }
       throw new Error(
         "[SDK][Broadcast] \u2013 cannot broadcast w/o posting key or token"
@@ -480,7 +516,8 @@ function checkUsernameWalletsPendingQueryOptions(username) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "check-wallet-pending", username],
     queryFn: async () => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/wallets-chkuser",
         {
           method: "POST",
@@ -537,7 +574,8 @@ function getActiveAccountBookmarksQueryOptions(activeUsername) {
       if (!activeUsername) {
         throw new Error("[SDK][Accounts][Bookmarks] \u2013 no active user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/bookmarks",
         {
           method: "POST",
@@ -559,7 +597,8 @@ function getActiveAccountFavouritesQueryOptions(activeUsername) {
       if (!activeUsername) {
         throw new Error("[SDK][Accounts][Favourites] \u2013 no active user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/favorites",
         {
           method: "POST",
@@ -578,7 +617,8 @@ function getAccountRecoveriesQueryOptions(username) {
     enabled: !!username,
     queryKey: ["accounts", "recoveries", username],
     queryFn: async () => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/recoveries",
         {
           method: "POST",
@@ -710,7 +750,8 @@ function useBookmarkAdd(username, onSuccess, onError) {
       if (!username) {
         throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/bookmarks-add",
         {
           method: "POST",
@@ -742,7 +783,8 @@ function useBookmarkDelete(username, onSuccess, onError) {
       if (!username) {
         throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/bookmarks-delete",
         {
           method: "POST",
@@ -773,7 +815,8 @@ function useAccountFavouriteAdd(username, onSuccess, onError) {
       if (!username) {
         throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/favorites-add",
         {
           method: "POST",
@@ -804,7 +847,8 @@ function useAccountFavouriteDelete(username, onSuccess, onError) {
       if (!username) {
         throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/favorites-delete",
         {
           method: "POST",
@@ -987,7 +1031,8 @@ function useAccountUpdateRecovery(username, options) {
         extensions: []
       };
       if (type === "ecency") {
-        return fetch(CONFIG.privateApiHost + "/private-api/recoveries-add", {
+        const fetchApi = getBoundFetch();
+        return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
           method: "POST",
           body: JSON.stringify({
             code: getAccessToken(data.name),
@@ -1132,7 +1177,8 @@ function getFragmentsQueryOptions(username) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "fragments", username],
     queryFn: async () => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/fragments",
         {
           method: "POST",
@@ -1159,7 +1205,8 @@ function getPromotedPostsQuery(type = "feed") {
       if (type === "waves") {
         url.searchParams.append("short_content", "1");
       }
-      const response = await fetch(url.toString(), {
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(url.toString(), {
         method: "GET",
         headers: {
           "Content-Type": "application/json"
@@ -1174,7 +1221,8 @@ function useAddFragment(username) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "add-fragment", username],
     mutationFn: async ({ title, body }) => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/fragments-add",
         {
           method: "POST",
@@ -1202,7 +1250,8 @@ function useEditFragment(username, fragmentId) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "edit-fragment", username, fragmentId],
     mutationFn: async ({ title, body }) => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/fragments-update",
         {
           method: "POST",
@@ -1239,16 +1288,19 @@ function useEditFragment(username, fragmentId) {
 function useRemoveFragment(username, fragmentId) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "remove-fragment", username],
-    mutationFn: async () => fetch(CONFIG.privateApiHost + "/private-api/fragments-delete", {
-      method: "POST",
-      body: JSON.stringify({
-        code: getAccessToken(username),
-        id: fragmentId
-      }),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    }),
+    mutationFn: async () => {
+      const fetchApi = getBoundFetch();
+      return fetchApi(CONFIG.privateApiHost + "/private-api/fragments-delete", {
+        method: "POST",
+        body: JSON.stringify({
+          code: getAccessToken(username),
+          id: fragmentId
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+    },
     onSuccess() {
       getQueryClient().setQueryData(
         getFragmentsQueryOptions(username).queryKey,
@@ -1270,7 +1322,8 @@ function useRecordActivity(username, activityType) {
       if (!activityType) {
         throw new Error("[SDK][Analytics] \u2013 no activity type provided");
       }
-      await fetch(CONFIG.plausibleHost + "/api/event", {
+      const fetchApi = getBoundFetch();
+      await fetchApi(CONFIG.plausibleHost + "/api/event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -1329,7 +1382,8 @@ function getAccountTokenQueryOptions(username) {
       if (!username) {
         throw new Error("[SDK][Integrations][3Speak] \u2013\xA0anon user");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         `https://studio.3speak.tv/mobile/login?username=${username}&hivesigner=true`,
         {
           headers: {
@@ -1360,7 +1414,8 @@ function getAccountVideosQueryOptions(username) {
       const token = getQueryClient().getQueryData(
         getAccountTokenQueryOptions(username).queryKey
       );
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         `https://studio.3speak.tv/mobile/api/my-videos`,
         {
           headers: {
@@ -1382,7 +1437,8 @@ function getHivePoshLinksQueryOptions(username) {
   return reactQuery.queryOptions({
     queryKey: ["integrations", "hiveposh", "links", username],
     queryFn: async () => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         `https://hiveposh.com/api/v0/linked-accounts/${username}`,
         {
           headers: {
@@ -1413,7 +1469,8 @@ function getStatsQueryOptions({
   return reactQuery.queryOptions({
     queryKey: ["integrations", "plausible", url, dimensions, metrics],
     queryFn: async () => {
-      const response = await fetch(`https://ecency.com/api/stats`, {
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(`https://ecency.com/api/stats`, {
         method: "POST",
         body: JSON.stringify({
           metrics,
@@ -1460,7 +1517,8 @@ function getGameStatusCheckQueryOptions(username, gameType) {
       if (!username) {
         throw new Error("[SDK][Games] \u2013 anon user in status check");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/get-game",
         {
           method: "POST",
@@ -1488,7 +1546,8 @@ function useGameClaim(username, gameType, key) {
       if (!username) {
         throw new Error("[SDK][Games] \u2013 anon user in game post");
       }
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/post-game",
         {
           method: "POST",
@@ -1613,11 +1672,15 @@ exports.CONFIG = CONFIG;
 exports.EcencyAnalytics = mutations_exports;
 exports.HiveSignerIntegration = HiveSignerIntegration;
 exports.Keychain = keychain_exports;
+exports.NaiMap = NaiMap;
 exports.ROLES = ROLES;
+exports.Symbol = Symbol2;
 exports.ThreeSpeakIntegration = ThreeSpeakIntegration;
 exports.broadcastJson = broadcastJson;
 exports.checkUsernameWalletsPendingQueryOptions = checkUsernameWalletsPendingQueryOptions;
+exports.decodeObj = decodeObj;
 exports.dedupeAndSortKeyAuths = dedupeAndSortKeyAuths;
+exports.encodeObj = encodeObj;
 exports.getAccessToken = getAccessToken;
 exports.getAccountFullQueryOptions = getAccountFullQueryOptions;
 exports.getAccountPendingRecoveryQueryOptions = getAccountPendingRecoveryQueryOptions;
@@ -1626,6 +1689,7 @@ exports.getAccountRecoveriesQueryOptions = getAccountRecoveriesQueryOptions;
 exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOptions;
 exports.getActiveAccountBookmarksQueryOptions = getActiveAccountBookmarksQueryOptions;
 exports.getActiveAccountFavouritesQueryOptions = getActiveAccountFavouritesQueryOptions;
+exports.getBoundFetch = getBoundFetch;
 exports.getChainPropertiesQueryOptions = getChainPropertiesQueryOptions;
 exports.getCommunitiesQueryOptions = getCommunitiesQueryOptions;
 exports.getCommunityContextQueryOptions = getCommunityContextQueryOptions;
@@ -1647,6 +1711,7 @@ exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
 exports.getUser = getUser;
 exports.makeQueryClient = makeQueryClient;
+exports.parseAsset = parseAsset;
 exports.roleMap = roleMap;
 exports.useAccountFavouriteAdd = useAccountFavouriteAdd;
 exports.useAccountFavouriteDelete = useAccountFavouriteDelete;

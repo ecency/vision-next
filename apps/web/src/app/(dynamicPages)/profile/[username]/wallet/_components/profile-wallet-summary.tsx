@@ -5,7 +5,7 @@ import {
   GeneralAssetInfo,
   getAccountWalletAssetInfoQueryOptions,
   getAccountWalletListQueryOptions
-} from "@/features/wallet/sdk";
+} from "@ecency/wallets";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";

@@ -15,7 +15,7 @@ import {
 } from "react";
 import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import { deriveHiveKeys, detectHiveKeyDerivation } from "@/features/wallet/sdk";
+import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { error } from "@/features/shared";
 import clsx from "clsx";
 
@@ -35,7 +35,10 @@ export interface KeyInputImperativeHandle {
 export const KeyInput = forwardRef<
   KeyInputImperativeHandle,
   Props & Omit<HTMLProps<HTMLInputElement>, "ref" | "type">
->((props, ref) => {
+>((
+  { onSign, isLoading, keyType, className, ...inputProps },
+  ref
+) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const activeUser = useClientActiveUser();
@@ -53,32 +56,38 @@ export const KeyInput = forwardRef<
 
       if (!key) {
         error(i18next.t("validation.required"));
+        throw new Error("Cannot sign operation without a key");
       }
 
       let privateKey: PrivateKey;
-      const derivation = await detectHiveKeyDerivation(activeUser.username, key, props.keyType);
-      if (derivation === "bip44") {
-        const keys = deriveHiveKeys(key);
-        privateKey = PrivateKey.from(keys.owner);
-      } else if (derivation === "master-password") {
-        privateKey = PrivateKey.fromLogin(activeUser.username, key, props.keyType);
-      } else {
-        privateKey = PrivateKey.from(key);
-      }
 
       if (cryptoUtils.isWif(key)) {
         privateKey = PrivateKey.fromString(key);
       } else {
-        privateKey = PrivateKey.fromLogin(activeUser.username, key);
+        const derivation = await detectHiveKeyDerivation(
+          activeUser.username,
+          key,
+          keyType
+        );
+
+        if (derivation === "bip44") {
+          const keys = deriveHiveKeys(key);
+          const derivedKey = keyType === "active" ? keys.active : keys.owner;
+          privateKey = PrivateKey.fromString(derivedKey);
+        } else if (derivation === "master-password") {
+          privateKey = PrivateKey.fromLogin(activeUser.username, key, keyType);
+        } else {
+          privateKey = PrivateKey.from(key);
+        }
       }
 
       setSigningKey(key);
 
-      props.onSign?.(privateKey);
+      onSign?.(privateKey);
 
       return { privateKey, raw: key };
     },
-    [activeUser, key, props, setSigningKey]
+    [activeUser, key, keyType, onSign, setSigningKey]
   );
 
   useImperativeHandle(ref, () => ({
@@ -89,7 +98,7 @@ export const KeyInput = forwardRef<
     <div
       className={clsx(
         "border-2 border-[--border-color] rounded-xl p-2 cursor-text flex flex-col items-start",
-        props.className
+        className
       )}
       onClick={() => inputRef.current?.focus()}
     >
@@ -102,13 +111,13 @@ export const KeyInput = forwardRef<
         <input
           ref={inputRef}
           className="outline-none"
-          {...props}
+          {...inputProps}
           value={key}
           type="password"
           onChange={(e) => setKey(e.target.value)}
         />
-        {props.onSign && (
-          <Button size="sm" disabled={props.isLoading} onClick={handleSign}>
+        {onSign && (
+          <Button size="sm" disabled={isLoading} onClick={handleSign}>
             {i18next.t("key-or-hot.sign")}
           </Button>
         )}

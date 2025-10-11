@@ -1,4 +1,9 @@
-import { CONFIG, getAccessToken, getQueryClient } from "@/modules/core";
+import {
+  CONFIG,
+  getAccessToken,
+  getBoundFetch,
+  getQueryClient,
+} from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 import { Fragment } from "../types";
 import { getFragmentsQueryOptions } from "../queries";
@@ -7,7 +12,8 @@ export function useEditFragment(username: string, fragmentId: string) {
   return useMutation({
     mutationKey: ["posts", "edit-fragment", username, fragmentId],
     mutationFn: async ({ title, body }: { title: string; body: string }) => {
-      const response = await fetch(
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/fragments-update",
         {
           method: "POST",

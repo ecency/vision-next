@@ -3,7 +3,7 @@ import { ProfileWalletTokenHistoryCard } from "../../_components";
 import { UilPlusCircle } from "@tooni/iconscout-unicons-react";
 import { Button } from "@/features/ui";
 import { success } from "@/features/shared";
-import { useClaimRewards } from "@/features/wallet/sdk";
+import { useClaimRewards } from "@ecency/wallets";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useClientActiveUser } from "@/api/queries";

@@ -1,5 +1,6 @@
 import { CONFIG, EcencyAnalytics, getAccessToken } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
+import { getBoundFetch } from "@/modules/wallets/utils";
 import { getPointsQueryOptions } from "../queries";
 import { Points } from "../types";
 
@@ -12,6 +13,7 @@ export function useClaimPoints(
     username,
     "points-claimed"
   );
+  const fetchApi = getBoundFetch();
   return useMutation({
     mutationFn: async () => {
       if (!username) {
@@ -20,7 +22,7 @@ export function useClaimPoints(
         );
       }
 
-      return fetch(CONFIG.privateApiHost + "/private-api/points-claim", {
+      return fetchApi(CONFIG.privateApiHost + "/private-api/points-claim", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
