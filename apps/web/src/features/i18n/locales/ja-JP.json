@@ -2926,12 +2926,12 @@
     "delegations": "委任事項",
     "external-wallets-offer": {
       "title": "暗号通貨をEcencyに届けよう",
-      "description": "BTC、ETH、BNB、SOL、TRX、APT用のウォレットを、TrustやExodusなどのアプリから直接作成またはインポートします Hiveエコシステム内でシームレスに使用し始めます。",
+      "description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットをTrustやExodusなどのアプリから直接作成またはインポートします Hiveエコシステム内でシームレスに使用し始めます。",
       "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Hiveアカウントの作成とリンク",
-      "create-wallet-description": "BTC、ETH、SOL、APT、TRX用ウォレットを作成します。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
+      "create-wallet-description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットを作成します。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
       "import-wallet-title": "既存のウォレットをインポート",
       "import-wallet-description": "Trust、Exodus、または他の互換性のあるアプリから既存のウォレットをインポートします。 アセットはHiveアカウントに接続されるため、Ecanceで簡単に資金を管理できます。",
       "create-wallet-tokens-description": "トークンアドレスを確認してください。ウォレットページで後で確認できます。",
