@@ -93,6 +93,7 @@ export default async function ProposalDetailsPage({ params }: Props) {
         <div className="the-entry">
           <div
             className="entry-body markdown-view user-selectable"
+            suppressHydrationWarning
             dangerouslySetInnerHTML={renderedBody}
           />
         </div>

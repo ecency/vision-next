@@ -78,6 +78,7 @@ export function EntryPageCrossPostBody({ entry }: Props) {
       <div
         itemProp="articleBody"
         className="entry-body markdown-view user-selectable"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={renderedBody}
       />
     </>
