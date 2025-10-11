@@ -2,14 +2,11 @@ import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default function WalletPage() {
-  const cookieStore = cookies();
-  const observer = cookieStore.get(ACTIVE_USER_COOKIE_NAME)?.value;
+export default async function WalletPage() {
+  const cookiesStore = await cookies();
 
-  if (!observer) {
-    // fallback
-    redirect("/");
-  }
+  const observer = cookiesStore.get(ACTIVE_USER_COOKIE_NAME)?.value;
+  const destination = observer ? `/@${observer}/wallet` : "/signup";
 
-  redirect(`/@${encodeURIComponent(observer)}/wallet`);
+  redirect(destination);
 }
