@@ -4,7 +4,7 @@ import {
   getDynamicPropsQueryOptions,
   getQueryClient,
 } from "@ecency/sdk";
-import { FullAccount } from "@ecency/sdk/dist/modules/accounts/types";
+import { type FullAccount } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { parseAsset } from "../../utils";

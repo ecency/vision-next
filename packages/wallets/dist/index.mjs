@@ -3045,26 +3045,33 @@ function useCheckWalletExistence() {
 function useUpdateAccountWithWallets(username) {
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ tokens, hiveKeys }) => fetch(CONFIG.privateApiHost + "/private-api/wallets-add", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username,
-        code: getAccessToken(username),
-        token: "BTC",
-        address: tokens.BTC,
-        status: 3,
-        meta: {
-          ...tokens,
-          ownerPublicKey: hiveKeys.ownerPublicKey,
-          activePublicKey: hiveKeys.activePublicKey,
-          postingPublicKey: hiveKeys.postingPublicKey,
-          memoPublicKey: hiveKeys.memoPublicKey
-        }
-      })
-    })
+    mutationFn: async ({ tokens, hiveKeys }) => {
+      const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
+      if (entries.length === 0) {
+        return new Response(null, { status: 204 });
+      }
+      const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
+      return fetch(CONFIG.privateApiHost + "/private-api/wallets-add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          code: getAccessToken(username),
+          token: primaryToken,
+          address: primaryAddress,
+          status: 3,
+          meta: {
+            ...Object.fromEntries(entries),
+            ownerPublicKey: hiveKeys.ownerPublicKey,
+            activePublicKey: hiveKeys.activePublicKey,
+            postingPublicKey: hiveKeys.postingPublicKey,
+            memoPublicKey: hiveKeys.memoPublicKey
+          }
+        })
+      });
+    }
   });
 }
 

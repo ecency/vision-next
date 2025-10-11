@@ -7,7 +7,7 @@ import {
 import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { parseAsset } from "../../utils";
-import { FullAccount } from "@ecency/sdk/dist/modules/accounts/types";
+import { type FullAccount } from "@ecency/sdk";
 
 export function getHiveAssetGeneralInfoQueryOptions(username: string) {
   return queryOptions({

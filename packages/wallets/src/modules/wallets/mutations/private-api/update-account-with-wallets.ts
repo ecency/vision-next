@@ -14,11 +14,11 @@ interface Payload {
 export function useUpdateAccountWithWallets(username: string) {
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ tokens, hiveKeys }: Payload) => {
+    mutationFn: async ({ tokens, hiveKeys }: Payload) => {
       const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
 
       if (entries.length === 0) {
-        return Promise.resolve();
+        return new Response(null, { status: 204 });
       }
 
       const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
