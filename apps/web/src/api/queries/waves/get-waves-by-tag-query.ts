@@ -2,14 +2,14 @@ import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { apiBase } from "@/api/helper";
 import { appAxios } from "@/api/axios";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import * as bridgeApi from "@/api/bridge";
-import { WaveEntry } from "@/entities";
+import { Entry, WaveEntry } from "@/entities";
+import { normalizeWaveEntryFromApi } from "./waves-helpers";
 
-interface WavesTagEntryResponse {
-  id: number;
-  author: string;
-  permlink: string;
-}
+type WavesTagEntryResponse = Entry & {
+  post_id: number;
+  container?: (Entry & { post_id: number }) | null;
+  parent?: (Entry & { post_id: number }) | null;
+};
 
 const DEFAULT_TAG_FEED_LIMIT = 40;
 
@@ -30,59 +30,19 @@ export const getWavesByTagQuery = (host: string, tag: string, limit = DEFAULT_TA
           }
         );
 
-        const containerCache = new Map<string, WaveEntry>();
-        const entries = await Promise.all(
-          data
-            .slice(0, limit)
-            .map(async ({ author, permlink }) => {
-              const entry = await bridgeApi.getPost(author, permlink);
-
-              if (!entry) {
-                return undefined;
-              }
-
-              let container: WaveEntry | undefined;
-              const containerKey = `${entry.parent_author}/${entry.parent_permlink}`;
-
-              if (entry.parent_author && entry.parent_permlink) {
-                container = containerCache.get(containerKey);
-
-                if (!container) {
-                  const containerEntry = await bridgeApi.getPost(
-                    entry.parent_author,
-                    entry.parent_permlink
-                  );
-
-                  if (containerEntry) {
-                    container = {
-                      ...containerEntry,
-                      id: containerEntry.post_id,
-                      host
-                    } as WaveEntry;
-                    containerCache.set(containerKey, container);
-                  }
-                }
-              }
-
-              const waveEntry: WaveEntry = {
-                ...entry,
-                id: entry.post_id,
-                host,
-                container: container ?? ({ ...entry, id: entry.post_id, host } as WaveEntry)
-              };
-
-              return waveEntry;
-            })
-        );
-
-        const result = entries.filter((entry): entry is WaveEntry => Boolean(entry));
+        const result = data
+          .slice(0, limit)
+          .map((entry) => normalizeWaveEntryFromApi(entry, host))
+          .filter((entry): entry is WaveEntry => Boolean(entry));
 
         if (result.length > 0) {
           EcencyEntriesCacheManagement.updateEntryQueryData(result);
-          const containers = Array.from(containerCache.values());
-          if (containers.length > 0) {
-            EcencyEntriesCacheManagement.updateEntryQueryData(containers);
-          }
+          const containers = Array.from(
+            new Map<string, WaveEntry>(
+              result.map((item) => [`${item.container.author}/${item.container.permlink}`, item.container])
+            ).values()
+          );
+          EcencyEntriesCacheManagement.updateEntryQueryData(containers);
         }
 
         return result.sort(

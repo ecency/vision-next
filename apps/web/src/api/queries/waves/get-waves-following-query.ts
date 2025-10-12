@@ -1,18 +1,15 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { apiBase } from "@/api/helper";
 import { appAxios } from "@/api/axios";
-import * as bridgeApi from "@/api/bridge";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { WaveEntry } from "@/entities";
-import {
-  getVisibleFirstLevelThreadItems,
-  mapThreadItemsToWaveEntries
-} from "./waves-helpers";
+import { Entry, WaveEntry } from "@/entities";
+import { normalizeWaveEntryFromApi } from "./waves-helpers";
 
-interface WavesFollowingEntry {
-  author: string;
-  permlink: string;
-}
+type WavesFollowingEntry = Entry & {
+  post_id: number;
+  container?: (Entry & { post_id: number }) | null;
+  parent?: (Entry & { post_id: number }) | null;
+};
 
 export const getWavesFollowingQuery = (host: string, username?: string) => {
   const normalizedUsername = username?.trim().toLowerCase();
@@ -47,31 +44,9 @@ export const getWavesFollowingQuery = (host: string, username?: string) => {
           return [];
         }
 
-        const entries = await Promise.all(
-          data.map(async ({ author, permlink }) => {
-            const containerEntry = await bridgeApi.getPost(author, permlink);
-
-            if (!containerEntry || containerEntry.stats?.gray) {
-              return [] as WaveEntry[];
-            }
-
-            const container = {
-              ...containerEntry,
-              id: containerEntry.post_id,
-              host
-            } as WaveEntry;
-
-            const visibleItems = await getVisibleFirstLevelThreadItems(container);
-
-            if (visibleItems.length === 0) {
-              return [] as WaveEntry[];
-            }
-
-            return mapThreadItemsToWaveEntries(visibleItems, container, host);
-          })
-        );
-
-        const flattened = entries.flat();
+        const flattened = data
+          .map((entry) => normalizeWaveEntryFromApi(entry, host))
+          .filter((entry): entry is WaveEntry => Boolean(entry));
 
         if (flattened.length === 0) {
           return [];

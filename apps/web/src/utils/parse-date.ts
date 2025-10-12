@@ -1,7 +1,24 @@
 import dayjs from "./dayjs";
 
-export const dateToRelative = (d: string): string => {
-  const normalized = d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`;
+const normalizeDateString = (input?: string) => {
+  if (!input) {
+    return undefined;
+  }
+
+  const trimmed = input.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  return /Z|[+-]\d{2}:\d{2}$/.test(trimmed) ? trimmed : `${trimmed}Z`;
+};
+
+export const dateToRelative = (d?: string): string => {
+  const normalized = normalizeDateString(d);
+  if (!normalized) {
+    return "";
+  }
+
   const dm = dayjs.utc(normalized).local();
   const dd = dm.local().fromNow(true);
   return dd
@@ -19,20 +36,28 @@ export const dateToRelative = (d: string): string => {
     .replace("a year", "1y");
 };
 
-export const dateToFullRelative = (d: string): string => {
+export const dateToFullRelative = (d?: string): string => {
   if (!d) return "";
 
   // If it's not already ISO-like, try to coerce it using dayjs parsing
   const isValidISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(d);
   const normalized = isValidISO
-      ? (d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`)
+      ? normalizeDateString(d)
       : dayjs(d).toISOString(); // force valid ISO
+
+  if (!normalized) {
+    return "";
+  }
 
   return dayjs.utc(normalized).local().fromNow();
 };
 
-export const dateToFormatted = (d: string, format: string = "LLLL"): string => {
-  const normalized = d.match(/Z|[+-]\d{2}:\d{2}$/) ? d : `${d}Z`;
+export const dateToFormatted = (d?: string, format: string = "LLLL"): string => {
+  const normalized = normalizeDateString(d);
+  if (!normalized) {
+    return "";
+  }
+
   return dayjs.utc(normalized).local().format(format);
 };
 

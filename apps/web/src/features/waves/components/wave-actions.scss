@@ -27,6 +27,10 @@
     @apply opacity-100 m-0 mr-2;
   }
 
+  .wave-actions__comment-count--hidden {
+    visibility: hidden;
+  }
+
   svg {
     @apply w-4 h-4;
   }

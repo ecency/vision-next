@@ -1,6 +1,48 @@
 import { Entry, WaveEntry } from "@/entities";
 import { getDiscussionsQuery } from "@/api/queries/get-discussions-query";
 
+type EntryWithPostId = Entry & { post_id: number };
+
+function normalizeContainer(entry: EntryWithPostId, host: string): WaveEntry {
+  return {
+    ...entry,
+    id: entry.id ?? entry.post_id,
+    host
+  } as WaveEntry;
+}
+
+function normalizeParent(entry: EntryWithPostId): Entry {
+  return {
+    ...entry,
+    id: entry.id ?? entry.post_id
+  } as Entry;
+}
+
+export function normalizeWaveEntryFromApi(
+  entry:
+    | (Entry & { post_id: number; container?: EntryWithPostId | null; parent?: EntryWithPostId | null })
+    | null
+    | undefined,
+  host: string
+): WaveEntry | null {
+  if (!entry) {
+    return null;
+  }
+
+  const containerSource = entry.container ?? entry;
+  const container = normalizeContainer(containerSource, host);
+
+  const parent = entry.parent ? normalizeParent(entry.parent) : undefined;
+
+  return {
+    ...entry,
+    id: entry.id ?? entry.post_id,
+    host,
+    container,
+    parent
+  } as WaveEntry;
+}
+
 export function toEntryArray(x: unknown): Entry[] {
   return Array.isArray(x) ? (x as Entry[]) : [];
 }

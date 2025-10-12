@@ -16,9 +16,10 @@ type SortOption = "reward" | "timestamp" | "voter" | "percent";
 interface Props {
   entry: Entry;
   icon?: ReactNode;
+  hideCount?: boolean;
 }
 
-export function EntryVotes({ entry: initialEntry, icon }: Props) {
+export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Props) {
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
   const previousEntry = usePrevious(entry);
 
@@ -59,6 +60,8 @@ export function EntryVotes({ entry: initialEntry, icon }: Props) {
     ({ voter }) => voter === activeUser?.username
   );
 
+  const countClassName = `entry-votes__count${hideCount ? " entry-votes__count--hidden" : ""}`;
+
   const child = (
     <>
       <div
@@ -68,7 +71,9 @@ export function EntryVotes({ entry: initialEntry, icon }: Props) {
       >
         {icon ?? heartSvg}
       </div>
-      {totalVotes}
+      <span className={countClassName} aria-hidden={hideCount}>
+        {totalVotes}
+      </span>
     </>
   );
 

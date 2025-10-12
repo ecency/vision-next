@@ -43,7 +43,7 @@ export function WaveActions({
           <div>
             <EntryVoteBtn entry={entry!} isPostSlider={false} />
             {showStats && <EntryStats entry={entry!} />}
-            {showVoteSummary && <EntryVotes entry={entry!} icon={voteSvg} />}
+            <EntryVotes entry={entry!} icon={voteSvg} hideCount={!showVoteSummary} />
             <Button
               iconPlacement="left"
               size="sm"
@@ -53,7 +53,12 @@ export function WaveActions({
               aria-label={i18next.t("waves.reply")}
               title={i18next.t("waves.reply")}
             >
-              {showCommentCount && <div>{commentsSlot ?? entry?.children}</div>}
+              <div
+                className={`wave-actions__comment-count${showCommentCount ? "" : " wave-actions__comment-count--hidden"}`}
+                aria-hidden={!showCommentCount}
+              >
+                {commentsSlot ?? entry?.children}
+              </div>
             </Button>
           </div>
           <div>
