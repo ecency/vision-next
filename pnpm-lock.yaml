@@ -500,6 +500,9 @@ importers:
       prettier:
         specifier: ^3.1.0
         version: 3.6.2
+      sass:
+        specifier: ^1.69.5
+        version: 1.93.2
       tailwindcss:
         specifier: ^3.3.0
         version: 3.4.18
@@ -17244,7 +17247,6 @@ snapshots:
       source-map-js: 1.2.1
     optionalDependencies:
       '@parcel/watcher': 2.5.1
-    optional: true
 
   saxes@6.0.0:
     dependencies:
