@@ -1,0 +1,51 @@
+.ecency-renderer-hive-post-extension {
+  padding: 0.125rem 0;
+
+  &-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: #357ce6;
+    border: 1px solid var(--border-color, #dee2e6);
+    padding: 0.5rem;
+    border-radius: 1rem;
+    font-size: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+    &::after {
+      content: none !important;
+    }
+
+    &:hover {
+      color: #1b68da;
+    }
+
+    &-type {
+      font-size: 0.675rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      color: #8d8d8d;
+    }
+
+    &-text-content {
+      line-clamp: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &-description {
+      color: #8d8d8d;
+      font-size: 0.875rem;
+    }
+
+    &-image {
+      min-width: 4rem;
+      min-height: 4rem;
+      border-radius: 1rem;
+      background-size: cover;
+      background-position: center;
+    }
+  }
+
+}

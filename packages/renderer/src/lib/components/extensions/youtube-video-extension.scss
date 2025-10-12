@@ -1,0 +1,35 @@
+.markdown-video-link-youtube {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding-bottom: 56.25%; // 16:9 aspect ratio
+  height: 0;
+  cursor: pointer;
+  overflow: hidden;
+
+  .video-thumbnail,
+  .markdown-video-play,
+  .ecency-renderer-youtube-extension-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .video-thumbnail {
+    z-index: 1;
+    object-fit: cover;
+  }
+
+  .markdown-video-play {
+    z-index: 2;
+    background: url(play-icon.svg) center center no-repeat;
+    background-size: 64px;
+    pointer-events: none;
+  }
+
+  .ecency-renderer-youtube-extension-frame {
+    z-index: 3; // on top of everything when video plays
+  }
+}
