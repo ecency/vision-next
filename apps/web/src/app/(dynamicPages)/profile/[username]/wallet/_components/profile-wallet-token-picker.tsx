@@ -8,6 +8,7 @@ import i18next from "i18next";
 import { useState, ChangeEvent, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
+  EcencyWalletCurrency,
   getAccountWalletListQueryOptions,
   getAllTokensListQueryOptions,
   useSaveWalletInformationToMetadata
@@ -19,6 +20,7 @@ import { useClientActiveUser } from "@/api/queries";
 import { TOKEN_LOGOS_MAP } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import * as R from "remeda";
+import { AccountProfile, getAccountFullQueryOptions } from "@ecency/sdk";
 
 export function ProfileWalletTokenPicker() {
   const { username } = useParams();
@@ -27,18 +29,70 @@ export function ProfileWalletTokenPicker() {
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
 
-  const { data: allTokens } = useQuery(getAllTokensListQueryOptions(query));
-  const { data: walletList } = useQuery(
-    getAccountWalletListQueryOptions((username as string).replace("%40", ""))
-  );
-  const externalTokens = useMemo(
-    () => allTokens?.external.filter((token) => walletList?.includes(token)) ?? [],
-    [allTokens]
+  const profileUsername = useMemo(
+    () => ((username as string) ?? "").replace("%40", ""),
+    [username]
   );
 
-  const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(
-    (username as string).replace("%40", "")
+  const { data: allTokens } = useQuery(getAllTokensListQueryOptions(query));
+  const { data: walletList } = useQuery(
+    getAccountWalletListQueryOptions(profileUsername)
   );
+  const { data: account } = useQuery(
+    getAccountFullQueryOptions(profileUsername)
+  );
+
+  const availableChainTokens = useMemo(() => {
+    if (!account?.profile?.tokens || !Array.isArray(account.profile.tokens)) {
+      return [] as NonNullable<AccountProfile["tokens"]>;
+    }
+
+    return account.profile.tokens.filter(
+      ({ symbol, type }) =>
+        type === "CHAIN" ||
+        Object.values(EcencyWalletCurrency).includes(symbol as EcencyWalletCurrency)
+    );
+  }, [account?.profile?.tokens]);
+
+  const availableExternalTokenSymbols = useMemo(() => {
+    return new Set(
+      availableChainTokens
+        .map((token) => token.symbol)
+        .filter((symbol): symbol is string => typeof symbol === "string")
+    );
+  }, [availableChainTokens]);
+
+  const externalTokens = useMemo(() => {
+    if (!allTokens?.external || availableExternalTokenSymbols.size === 0) {
+      return [];
+    }
+
+    return allTokens.external.filter((token) =>
+      availableExternalTokenSymbols.has(token)
+    );
+  }, [allTokens?.external, availableExternalTokenSymbols]);
+
+  const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(
+    profileUsername
+  );
+
+  const chainTokensBySymbol = useMemo(() => {
+    return new Map(
+      availableChainTokens
+        .filter((token) => typeof token.symbol === "string")
+        .map((token) => [token.symbol as string, token])
+    );
+  }, [availableChainTokens]);
+
+  const togglableTokenSymbols = useMemo(() => {
+    return new Set(
+      [
+        ...externalTokens,
+        ...(allTokens?.spk ?? []),
+        ...(allTokens?.layer2?.map((token) => token.symbol) ?? [])
+      ].filter(Boolean)
+    );
+  }, [externalTokens, allTokens?.spk, allTokens?.layer2]);
 
   const update = useCallback(
     (token: string) => {
@@ -53,31 +107,61 @@ export function ProfileWalletTokenPicker() {
 
       list = list.filter((i) => !!i);
 
-      // Meta could be empty because this mutation is merging metadata deeply
-      //      Even if the given meta is empty it will get meta from profile
+      const nextListSet = new Set(list);
+      const previousListSet = new Set(walletList ?? []);
+      const hiddenTokens = new Set(
+        [...previousListSet].filter(
+          (symbol) => togglableTokenSymbols.has(symbol) && !nextListSet.has(symbol)
+        )
+      );
+
       updateWallet([
         ...R.pipe(
-          allTokens?.basic.filter((i) => list.includes(i)) ?? [],
-          R.map((currency) => ({ currency, type: "HIVE" }))
+          allTokens?.basic ?? [],
+          R.map((currency) => ({ currency, type: "HIVE", show: true }))
+        ),
+        ...Array.from(chainTokensBySymbol.values()).map((chainToken) => ({
+          currency: chainToken.symbol!,
+          type: chainToken.type ?? "CHAIN",
+          ...(chainToken.meta ?? {}),
+          show: nextListSet.has(chainToken.symbol as string),
+        })),
+        ...R.pipe(
+          allTokens?.spk ?? [],
+          R.filter(
+            (currency) =>
+              nextListSet.has(currency) || hiddenTokens.has(currency)
+          ),
+          R.map((currency) => ({
+            currency,
+            type: "SPK",
+            show: nextListSet.has(currency),
+          }))
         ),
         ...R.pipe(
-          allTokens?.spk.filter((i) => list.includes(i)) ?? [],
-          R.map((currency) => ({ currency, type: "SPK" }))
-        ),
-        ...R.pipe(
-          allTokens?.external.filter((i) => list.includes(i)) ?? [],
-          R.map((currency) => ({ currency, type: "CHAIN" }))
-        ),
-        ...R.pipe(
-          allTokens?.layer2?.filter((i) => list.includes(i.symbol)) ?? [],
-          R.map(({ symbol: currency }) => ({ currency, type: "ENGINE" }))
+          allTokens?.layer2 ?? [],
+          R.filter(
+            ({ symbol }) =>
+              nextListSet.has(symbol) || hiddenTokens.has(symbol)
+          ),
+          R.map(({ symbol: currency }) => ({
+            currency,
+            type: "ENGINE",
+            show: nextListSet.has(currency),
+          }))
         )
       ]);
     },
-    [updateWallet, walletList, allTokens]
+    [
+      updateWallet,
+      walletList,
+      allTokens,
+      chainTokensBySymbol,
+      togglableTokenSymbols
+    ]
   );
 
-  if (activeUser?.username !== (username as string).replace("%40", "")) {
+  if (activeUser?.username !== profileUsername) {
     return <></>;
   }
 
@@ -103,9 +187,8 @@ export function ProfileWalletTokenPicker() {
                   <ListItem className="!flex items-center gap-2" key={token}>
                     <FormControl
                       type="checkbox"
-                      disabled={["POINTS", "HIVE", "HBD"].includes(token)}
+                      disabled={true}
                       checked={walletList?.includes(token) ?? false}
-                      onChange={() => !["POINTS", "HIVE", "HBD"].includes(token) && update(token)}
                     />
                     <div>{TOKEN_LOGOS_MAP[token]}</div>
                     {token}
@@ -117,7 +200,7 @@ export function ProfileWalletTokenPicker() {
 
           {externalTokens.length > 0 && (
             <>
-              <div className="text-sm opacity-50 mt-4 mb-2">External</div>
+              <div className="text-sm opacity-50 mt-4 mb-2">Chain</div>
               <List>
                 {externalTokens.map((token) => (
                   <ListItem className="!flex items-center gap-2" key={token}>
