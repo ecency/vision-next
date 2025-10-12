@@ -39,6 +39,7 @@ export function getSpkAssetGeneralInfoQueryOptions(username: string) {
       if (!wallet || !market) {
         return {
           name: "SPK",
+          layer: "SPK",
           title: "SPK Network",
           price: 1,
           accountBalance: 0,
@@ -69,6 +70,7 @@ export function getSpkAssetGeneralInfoQueryOptions(username: string) {
 
       return {
         name: "SPK",
+        layer: "SPK",
         title: "SPK Network",
         price: price / accountBalance,
         accountBalance,
