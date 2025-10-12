@@ -83,11 +83,11 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
           </div>
         </div>
         <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
-        <div className="text-blue-dark-sky">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
           <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
         </div>
-        <div>
-          <div>{formattedAccountBalance}</div>
+        <div className="text-gray-900 dark:text-white">
+          <div className="text-base font-semibold">{formattedAccountBalance}</div>
           {data?.parts?.map(({ name, balance }) => (
             <div
               key={name}
@@ -97,7 +97,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
               <div>{balance}</div>
             </div>
           ))}
-          <div className="text-gray-600 dark:text-gray-400 text-sm">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             <FormattedCurrency value={totalBalanceValue} fixAt={2} />
           </div>
         </div>
