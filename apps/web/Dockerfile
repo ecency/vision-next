@@ -15,6 +15,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/package.json
 COPY packages/sdk/package.json packages/sdk/package.json
 COPY packages/wallets/package.json packages/wallets/package.json
+COPY packages/renderer/package.json packages/renderer/package.json
 # (add more workspace package.json files as needed)
 
 # install deps using the root lockfile
