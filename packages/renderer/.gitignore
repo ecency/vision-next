@@ -6,9 +6,6 @@
 # testing
 /coverage
 
-# component build
-/dist
-
 # misc
 .DS_Store
 .env.local
