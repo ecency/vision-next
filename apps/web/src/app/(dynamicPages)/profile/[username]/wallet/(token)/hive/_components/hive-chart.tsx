@@ -116,7 +116,7 @@ export function HiveChart() {
         </div>
 
         <Button
-          href="/marked/advanced"
+          href="/market/advanced"
           target="_blank"
           appearance="gray"
           size="sm"
