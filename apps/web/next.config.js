@@ -20,7 +20,7 @@ const config = {
   generateBuildId: async () => v4(),
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-  transpilePackages: ["@ecency/renderer", "@ecency/render-helper"],
+  transpilePackages: ["@ecency/sdk", "@ecency/wallets", "@ecency/renderer"],
   experimental: {
     externalDir: true
   },

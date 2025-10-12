@@ -34,7 +34,7 @@ ENV NEXT_PUBLIC_GMAPS_MAP_ID=${NEXT_PUBLIC_GMAPS_MAP_ID}
 # If we need Sentry token during build
 RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
     export SENTRY_AUTH_TOKEN="$(cat /run/secrets/SENTRY_AUTH_TOKEN 2>/dev/null || true)" && \
-    pnpm --filter @ecency/web build
+    pnpm -r build
 
 # prune dev deps for runtime. "pnpm deploy" creates a trimmed node_modules for just
 # the web workspace, preventing the root workspace prune from stripping Next.js.

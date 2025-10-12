@@ -5,7 +5,6 @@ node_modules
 .gitignore
 .env
 .env.*
-Dockerfile
 *.log
 
 # pnpm artifacts
