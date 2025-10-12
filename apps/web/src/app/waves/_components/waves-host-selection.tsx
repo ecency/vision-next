@@ -17,8 +17,15 @@ export function WavesHostSelection({ host, setHost }: Props) {
   return (
     <Dropdown>
       <DropdownToggle>
-        <Button icon={<UilApps />} appearance="gray-link">
-          {labels[host] ?? host}
+        <Button
+          icon={<UilApps />}
+          appearance="gray-link"
+          size="sm"
+          aria-label={labels[host] ?? host}
+          title={labels[host] ?? host}
+          className="!px-1"
+        >
+          <span className="sr-only">{labels[host] ?? host}</span>
         </Button>
       </DropdownToggle>
       <DropdownMenu align="right">

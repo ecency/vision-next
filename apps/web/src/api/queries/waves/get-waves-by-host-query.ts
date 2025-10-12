@@ -1,15 +1,13 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import * as bridgeApi from "@/api/bridge";
-import { getDiscussionsQuery } from "@/api/queries";
 import { ProfileFilter } from "@/enums";
 import { Entry, WaveEntry } from "@/entities";
+import {
+  getVisibleFirstLevelThreadItems,
+  mapThreadItemsToWaveEntries
+} from "./waves-helpers";
 
 type ThreadsResult = readonly [Entry[], WaveEntry[]];
-
-// runtime guard for discussions
-function toEntryArray(x: unknown): Entry[] {
-    return Array.isArray(x) ? (x as Entry[]) : [];
-}
 
 async function getThreads(
     host: string,
@@ -41,24 +39,7 @@ async function getThreads(
 
     const container = nextThreadContainers[0];
 
-    // ⬇️ Narrow unknown -> Entry[]
-    const discussionItemsRaw = await getDiscussionsQuery(container).fetchAndGet();
-    const discussionItems = toEntryArray(discussionItemsRaw);
-
-    if (discussionItems.length <= 1) {
-        return getThreads(host, container);
-    }
-
-    const firstLevelItems = discussionItems.filter(
-        ({ parent_author, parent_permlink }) =>
-            parent_author === container.author && parent_permlink === container.permlink
-    );
-
-    if (firstLevelItems.length === 0) {
-        return getThreads(host, container);
-    }
-
-    const visibleItems = firstLevelItems.filter((item) => !item.stats?.gray);
+    const visibleItems = await getVisibleFirstLevelThreadItems(container);
     if (visibleItems.length === 0) {
         return getThreads(host, container);
     }
@@ -82,27 +63,9 @@ export const getWavesByHostQuery = (host: string) =>
 
             const [items, nextThreadContainers] = res;
 
-            return items
-                .map((item) => {
-                    const container = nextThreadContainers[0];
-                    const parent = items.find(
-                        (i) =>
-                            i.author === item.parent_author &&
-                            i.permlink === item.parent_permlink &&
-                            i.author !== host
-                    );
+            const container = nextThreadContainers[0];
 
-                    // Build WaveEntry from Entry + extras
-                    return {
-                        ...item,
-                        id: item.post_id,
-                        host,
-                        container,
-                        parent,
-                    } as WaveEntry;
-                })
-                .filter((i) => i.container.post_id !== i.post_id)
-                .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+            return mapThreadItemsToWaveEntries(items, container, host);
         },
 
         getNextPageParam: (lastPage: WavesPage): WavesCursor => lastPage?.[0]?.container,

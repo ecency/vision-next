@@ -1,6 +1,10 @@
 "use client";
 
-import { getWavesByHostQuery, getWavesByTagQuery } from "@/api/queries";
+import {
+  getWavesByHostQuery,
+  getWavesByTagQuery,
+  getWavesFollowingQuery
+} from "@/api/queries";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { DetectBottom } from "@/features/shared";
 import { WavesListLoader } from "@/app/waves/_components/waves-list-loader";
@@ -12,39 +16,57 @@ import { WavesFastReplyDialog } from "@/app/waves/_components/waves-fast-reply-d
 import { WaveEntry } from "@/entities";
 import { InfiniteData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
-import { WAVES_FEED_SCROLL_STORAGE_KEY, WavesFeedScrollState } from "@/app/waves/_constants";
+import {
+  WAVES_FEED_SCROLL_STORAGE_KEY,
+  WavesFeedScrollState,
+  WavesFeedType
+} from "@/app/waves/_constants";
 import { useWavesGrid } from "@/app/waves/_hooks";
 import { QueryIdentifiers } from "@/core/react-query";
 import { useWavesTagFilter } from "@/app/waves/_context";
 
 interface Props {
   host: string;
+  feedType: WavesFeedType;
+  username?: string;
 }
 
-export function WavesListView({ host }: Props) {
+export function WavesListView({ host, feedType, username }: Props) {
   const { selectedTag } = useWavesTagFilter();
-  const query = useMemo(
-    () => (selectedTag ? getWavesByTagQuery(host, selectedTag) : getWavesByHostQuery(host)),
-    [host, selectedTag]
-  );
+  const tag = feedType === "for-you" ? selectedTag : null;
+  const query = useMemo(() => {
+    if (tag) {
+      return getWavesByTagQuery(host, tag);
+    }
+
+    if (feedType === "following") {
+      return getWavesFollowingQuery(host, username);
+    }
+
+    return getWavesByHostQuery(host);
+  }, [feedType, host, tag, username]);
 
   const { data, fetchNextPage, isError, hasNextPage, refetch } = query.useClientQuery();
   const { data: promoted } = useQuery({
     ...getPromotedPostsQuery<WaveEntry>("waves"),
-    enabled: !selectedTag
+    enabled: !tag
   });
   const dataFlow = useInfiniteDataFlow(data);
   const [grid] = useWavesGrid();
   const queryClient = useQueryClient();
-  const wavesQueryKey = useMemo(
-    () =>
-      selectedTag
-        ? ([QueryIdentifiers.THREADS, host, "tag", selectedTag] as const)
-        : ([QueryIdentifiers.THREADS, host] as const),
-    [host, selectedTag]
-  );
+  const wavesQueryKey = useMemo(() => {
+    if (tag) {
+      return [QueryIdentifiers.THREADS, host, "tag", tag] as const;
+    }
+
+    if (feedType === "following") {
+      return [QueryIdentifiers.THREADS, host, "following", username ?? ""] as const;
+    }
+
+    return [QueryIdentifiers.THREADS, host] as const;
+  }, [feedType, host, tag, username]);
   const combinedDataFlow = useMemo(() => {
-    if (!promoted || selectedTag) {
+    if (!promoted || tag) {
       return dataFlow;
     }
 
@@ -64,10 +86,13 @@ export function WavesListView({ host }: Props) {
         ],
         [] as WaveEntry[]
       );
-  }, [dataFlow, promoted]);
+  }, [dataFlow, promoted, tag]);
 
   const [replyingEntry, setReplyingEntry] = useState<WaveEntry>();
-  const { newWaves, clear, now } = useWavesAutoRefresh(selectedTag ? undefined : dataFlow[0]);
+  const shouldAutoRefresh = feedType === "for-you" && !tag;
+  const { newWaves, clear, now } = useWavesAutoRefresh(
+    shouldAutoRefresh ? dataFlow[0] : undefined
+  );
   const [pendingScroll, setPendingScroll] = useState<number | null>(null);
 
   useEffect(() => {
@@ -85,10 +110,17 @@ export function WavesListView({ host }: Props) {
       const parsed = JSON.parse(storedValue) as WavesFeedScrollState;
       const currentUrl = `${window.location.pathname}${window.location.search}`;
       const hostMatches = !parsed.host || parsed.host === host;
+      const feedMatches = !parsed.feedType || parsed.feedType === feedType;
       const gridMatches = !parsed.grid || parsed.grid === grid;
       const urlMatches = !parsed.url || parsed.url === currentUrl;
 
-      if (hostMatches && gridMatches && typeof parsed.scrollY === "number" && urlMatches) {
+      if (
+        hostMatches &&
+        gridMatches &&
+        typeof parsed.scrollY === "number" &&
+        urlMatches &&
+        feedMatches
+      ) {
         setPendingScroll(parsed.scrollY);
       }
     } catch (e) {
@@ -96,7 +128,7 @@ export function WavesListView({ host }: Props) {
     } finally {
       sessionStorage.removeItem(WAVES_FEED_SCROLL_STORAGE_KEY);
     }
-  }, [grid, host]);
+  }, [feedType, grid, host]);
 
   useEffect(() => {
     if (pendingScroll === null) {
@@ -117,9 +149,11 @@ export function WavesListView({ host }: Props) {
     };
   }, [combinedDataFlow.length, pendingScroll]);
 
+  const shouldShowDetectBottom = feedType === "for-you" && !tag && hasNextPage;
+
   return (
     <div className="flex flex-col pb-8">
-      {!selectedTag && newWaves.length > 0 && (
+      {shouldAutoRefresh && newWaves.length > 0 && (
         <WavesRefreshPopup
           entries={newWaves}
           onClick={() => {
@@ -175,11 +209,12 @@ export function WavesListView({ host }: Props) {
           onExpandReplies={() => setReplyingEntry(item)}
           now={now}
           currentHost={host}
+          feedType={feedType}
         />
       ))}
 
       <WavesListLoader data={dataFlow} failed={isError} isEndReached={!hasNextPage} />
-      {!selectedTag && <DetectBottom onBottom={() => fetchNextPage()} />}
+      {shouldShowDetectBottom && <DetectBottom onBottom={() => fetchNextPage()} />}
 
       <WavesFastReplyDialog
         show={!!replyingEntry}
