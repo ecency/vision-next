@@ -55,7 +55,7 @@ jobs:
       - name: Check if any package changed
         id: packages_changed
         run: |
-          if [ "${{ steps.detect_sdk.outputs.changed }}" = "true" ] || [ "${{ steps.detect_wallets.outputs.changed }}" = "true" ] || || [ "${{ steps.detect_renderer.outputs.changed }}" = "true" ]; then
+          if [ "${{ steps.detect_sdk.outputs.changed }}" = "true" ] || [ "${{ steps.detect_wallets.outputs.changed }}" = "true" ] || [ "${{ steps.detect_renderer.outputs.changed }}" = "true" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
