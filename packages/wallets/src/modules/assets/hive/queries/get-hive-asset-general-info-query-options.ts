@@ -1,4 +1,5 @@
 import {
+  CONFIG,
   DynamicProps,
   getAccountFullQueryOptions,
   getDynamicPropsQueryOptions,
@@ -27,10 +28,20 @@ export function getHiveAssetGeneralInfoQueryOptions(username: string) {
         getAccountFullQueryOptions(username).queryKey
       );
 
+      const marketTicker = await CONFIG.hiveClient
+        .call("condenser_api", "get_ticker", [])
+        .catch(() => undefined) as { latest?: string } | undefined;
+
+      const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
+
       return {
         name: "HIVE",
         title: "Hive",
-        price: dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
+        price: Number.isFinite(marketPrice)
+          ? marketPrice
+          : dynamicProps
+            ? dynamicProps.base / dynamicProps.quote
+            : 0,
         accountBalance: accountData
           ? parseAsset(accountData.balance).amount
           : 0,

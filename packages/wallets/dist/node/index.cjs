@@ -668,10 +668,12 @@ function getHiveAssetGeneralInfoQueryOptions(username) {
       const accountData = sdk.getQueryClient().getQueryData(
         sdk.getAccountFullQueryOptions(username).queryKey
       );
+      const marketTicker = await sdk.CONFIG.hiveClient.call("condenser_api", "get_ticker", []).catch(() => void 0);
+      const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
       return {
         name: "HIVE",
         title: "Hive",
-        price: dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
+        price: Number.isFinite(marketPrice) ? marketPrice : dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
         accountBalance: accountData ? parseAsset(accountData.balance).amount : 0
       };
     }
