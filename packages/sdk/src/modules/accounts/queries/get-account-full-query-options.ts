@@ -22,8 +22,11 @@ export function getAccountFullQueryOptions(username: string | undefined) {
         throw new Error("[SDK] No account with given username");
       }
 
-      const profile = JSON.parse(response[0].posting_json_metadata!)
-        .profile as AccountProfile;
+      let profile: AccountProfile = {};
+      try {
+        profile = JSON.parse(response[0].posting_json_metadata!)
+          .profile as AccountProfile;
+      } catch (e) {}
 
       let follow_stats: AccountFollowStats | undefined;
       try {

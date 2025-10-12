@@ -1,10 +1,9 @@
-import { getAccount } from "@/api/hive";
+import { getQueryClient } from "@/core/react-query";
 import { useLoginByKey } from "@/features/shared/login/hooks";
 import { Button } from "@/features/ui";
 import { delay } from "@/utils";
-import { EcencyAnalytics } from "@ecency/sdk";
+import { EcencyAnalytics, getAccountFullQueryOptions } from "@ecency/sdk";
 import {
-  EcencyTokenMetadata,
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
   useHiveKeysQuery,
@@ -36,11 +35,7 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const { data: wallets } = useWalletsCacheQuery(username);
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
-  const { mutateAsync: loginInApp } = useLoginByKey(
-    username,
-    hiveKeys?.masterPassword ?? "",
-    true
-  );
+  const { mutateAsync: loginInApp } = useLoginByKey(username, hiveKeys?.active ?? "", true);
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
@@ -54,21 +49,16 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     let account;
     while (!account) {
       await delay(5000);
-      account = await getAccount(username);
+      await getQueryClient().refetchQueries(getAccountFullQueryOptions(username));
+      account = getQueryClient().getQueryData(getAccountFullQueryOptions(username).queryKey);
+      console.log(account);
     }
 
     setHasValidated(true);
   }, [username]);
 
   useEffect(() => {
-    if (
-      seed &&
-      hiveKeys &&
-      wallet?.currency &&
-      wallet.address &&
-      loginKey &&
-      !hasInitiated
-    ) {
+    if (seed && hiveKeys && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
       setHasInitiated(true);
       createAccount({ currency: wallet.currency!, address: wallet.address! })
         .then(() => delay(5000))
