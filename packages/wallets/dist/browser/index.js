@@ -693,10 +693,13 @@ function getHivePowerAssetGeneralInfoQueryOptions(username) {
           accountBalance: 0
         };
       }
+      const marketTicker = await CONFIG.hiveClient.call("condenser_api", "get_ticker", []).catch(() => void 0);
+      const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
+      const price = Number.isFinite(marketPrice) ? marketPrice : dynamicProps.base / dynamicProps.quote;
       return {
         name: "HP",
         title: "Hive Power",
-        price: dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
+        price,
         accountBalance: +vestsToHp(
           parseAsset(accountData.vesting_shares).amount,
           // parseAsset(accountData.delegated_vesting_shares).amount +

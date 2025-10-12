@@ -1,4 +1,5 @@
 import {
+  CONFIG,
   DynamicProps,
   getAccountFullQueryOptions,
   getDynamicPropsQueryOptions,
@@ -70,6 +71,15 @@ export function getHivePowerAssetGeneralInfoQueryOptions(username: string) {
         };
       }
 
+      const marketTicker = await CONFIG.hiveClient
+        .call("condenser_api", "get_ticker", [])
+        .catch(() => undefined) as { latest?: string } | undefined;
+
+      const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
+      const price = Number.isFinite(marketPrice)
+        ? marketPrice
+        : dynamicProps.base / dynamicProps.quote;
+
       // const nextVestingSharesWithdrawal = !isEmptyDate(
       //   accountData.next_vesting_withdrawal
       // )
@@ -83,7 +93,7 @@ export function getHivePowerAssetGeneralInfoQueryOptions(username: string) {
       return {
         name: "HP",
         title: "Hive Power",
-        price: dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
+        price,
         accountBalance: +vestsToHp(
           parseAsset(accountData.vesting_shares).amount,
           // parseAsset(accountData.delegated_vesting_shares).amount +
