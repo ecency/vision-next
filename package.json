@@ -12,16 +12,19 @@
     "lint": "pnpm -r lint",
     "test": "pnpm --filter @ecency/web test",
     "typecheck": "tsc --build --verbose",
-    "build:packages": "pnpm -F @ecency/sdk,@ecency/wallets build",
+    "build:packages": "pnpm -F @ecency/sdk,@ecency/wallets,@ecency/renderer build",
     "dev:sdk": "pnpm --filter @ecency/sdk dev",
     "dev:wallets": "pnpm --filter @ecency/wallets dev",
+    "dev:renderer": "pnpm --filter @ecency/renderer dev",
     "publish:sdk": "pnpm --filter @ecency/sdk publish --no-git-checks",
-    "publish:wallets": "pnpm --filter @ecency/wallets publish --no-git-checks"
+    "publish:wallets": "pnpm --filter @ecency/wallets publish --no-git-checks",
+    "publish:renderer": "pnpm --filter @ecency/renderer publish --no-git-checks"
   },
   "packageManager": "pnpm@10.18.1",
   "devDependencies": {
     "@types/node": "^20",
     "eslint": "^8",
+    "sass-embedded": "^1.93.2",
     "tsup": "^8.5.0",
     "typescript": "^5",
     "vitest": "^3.2.4"
@@ -30,6 +33,7 @@
     "overrides": {
       "typescript": "^5",
       "source-map": "^0.7.4",
+      "sass-embedded": "1.93.2",
       "@sentry/core": "^8.55.0",
       "@sentry/types": "^8.55.0",
       "@sentry/utils": "^8.55.0"

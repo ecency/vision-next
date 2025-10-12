@@ -43,10 +43,19 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Detect changes in @ecency/renderer
+        id: detect_renderer
+        run: |
+          if git diff --quiet "${{ steps.diff_base.outputs.base }}" HEAD -- packages/renderer; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Check if any package changed
         id: packages_changed
         run: |
-          if [ "${{ steps.detect_sdk.outputs.changed }}" = "true" ] || [ "${{ steps.detect_wallets.outputs.changed }}" = "true" ]; then
+          if [ "${{ steps.detect_sdk.outputs.changed }}" = "true" ] || [ "${{ steps.detect_wallets.outputs.changed }}" = "true" ] || [ "${{ steps.detect_renderer.outputs.changed }}" = "true" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -84,6 +93,10 @@ jobs:
         env:
           VITE_HELIUS_API_KEY: ${{ secrets.VITE_HELIUS_API_KEY }}
 
+      - name: Build @ecency/renderer
+        if: steps.detect_renderer.outputs.changed == 'true'
+        run: pnpm --filter @ecency/renderer build
+
       - name: Publish @ecency/sdk
         if: steps.detect_sdk.outputs.changed == 'true'
         env:
@@ -97,3 +110,10 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PNPM_CONFIG_GIT_CHECKS: "false"
         run: pnpm publish:wallets
+
+      - name: Publish @ecency/renderer
+        if: steps.detect_renderer.outputs.changed == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PNPM_CONFIG_GIT_CHECKS: "false"
+        run: pnpm publish:renderer
