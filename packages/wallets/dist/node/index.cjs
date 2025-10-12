@@ -771,18 +771,30 @@ function getHbdAssetGeneralInfoQueryOptions(username) {
       const dynamicProps = sdk.getQueryClient().getQueryData(
         sdk.getDynamicPropsQueryOptions().queryKey
       );
+      let price = 1;
+      try {
+        const response = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=hive_dollar&vs_currencies=usd"
+        );
+        const data = await response.json();
+        const marketPrice = data.hive_dollar?.usd;
+        if (typeof marketPrice === "number" && Number.isFinite(marketPrice)) {
+          price = marketPrice;
+        }
+      } catch {
+      }
       if (!accountData) {
         return {
           name: "HBD",
           title: "Hive-based dollar",
-          price: 1,
+          price,
           accountBalance: 0
         };
       }
       return {
         name: "HBD",
         title: "Hive-based dollar",
-        price: 1,
+        price,
         accountBalance: parseAsset(accountData.hbd_balance).amount + parseAsset(accountData?.savings_hbd_balance).amount,
         apr: ((dynamicProps?.hbdInterestRate ?? 0) / 100).toFixed(3),
         parts: [

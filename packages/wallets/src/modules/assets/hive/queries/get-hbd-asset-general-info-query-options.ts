@@ -27,11 +27,28 @@ export function getHbdAssetGeneralInfoQueryOptions(username: string) {
         getDynamicPropsQueryOptions().queryKey
       );
 
+      let price = 1;
+      try {
+        const response = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=hive_dollar&vs_currencies=usd"
+        );
+        const data = (await response.json()) as {
+          hive_dollar?: { usd?: number };
+        };
+        const marketPrice = data.hive_dollar?.usd;
+
+        if (typeof marketPrice === "number" && Number.isFinite(marketPrice)) {
+          price = marketPrice;
+        }
+      } catch {
+        // Ignore Coingecko failures and fall back to the peg value.
+      }
+
       if (!accountData) {
         return {
           name: "HBD",
           title: "Hive-based dollar",
-          price: 1,
+          price,
           accountBalance: 0,
         };
       }
@@ -39,7 +56,7 @@ export function getHbdAssetGeneralInfoQueryOptions(username: string) {
       return {
         name: "HBD",
         title: "Hive-based dollar",
-        price: 1,
+        price,
         accountBalance:
           parseAsset(accountData.hbd_balance).amount +
           parseAsset(accountData?.savings_hbd_balance).amount,
