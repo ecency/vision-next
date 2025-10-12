@@ -33,7 +33,8 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
 
   useEffect(() => {
     const [_, __, ___, username, permlink] = new URL(
-      `https://ecency.com/${link}`,
+      link,
+      "https://ecency.com",
     ).pathname.split("/");
     getCachedPost(username.replace("@", ""), permlink)
       .then((resp) => {
@@ -42,11 +43,19 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
       .catch((e) => console.error(e));
   }, []);
 
-  return post ? (
-    <a
-      href={`/waves/${post.author}/${post.permlink}`}
-      className="ecency-renderer-wave-like-post-extension-renderer"
-    >
+  if (!post) {
+    return <></>;
+  }
+
+  const waveLink = `/waves/${post.author}/${post.permlink}`;
+
+  return (
+    <article className="ecency-renderer-wave-like-post-extension-renderer">
+      <a
+        href={waveLink}
+        aria-label={`Open wave by @${post.author}`}
+        className="ecency-renderer-wave-like-post-extension-renderer__overlay"
+      />
       <div className="ecency-renderer-wave-like-post-extension-renderer--author">
         <img
           src={`https://images.ecency.com/u/${post.author}/avatar/small`}
@@ -64,18 +73,16 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
             #{host}
           </div>
         </div>
-        <a
-          href="https://ecency.com"
-          className="ecency-renderer-wave-like-post-extension-renderer--logo"
-          dangerouslySetInnerHTML={{ __html: Logo }}
-        />
       </div>
+      <a
+        href="https://ecency.com"
+        className="ecency-renderer-wave-like-post-extension-renderer--logo"
+        dangerouslySetInnerHTML={{ __html: Logo }}
+      />
       <div className="ecency-renderer-wave-like-post-extension-renderer--body">
         <EcencyRenderer value={post.body} />
       </div>
-    </a>
-  ) : (
-    <></>
+    </article>
   );
 }
 
