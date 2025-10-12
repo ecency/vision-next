@@ -21,9 +21,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "pnpm run build:lib",
-    "build:lib": "vite build",
-    "prepare": "node ./scripts/prepare.mjs",
+    "build": "vite build",
     "test": "vitest run",
     "watch": "vitest",
     "coverage": "vitest run --coverage",
