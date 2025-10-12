@@ -40,6 +40,17 @@ export async function prefetchGetPostsFeedQuery(
     return getControversialRisingQuery(what, tag).prefetch() as Promise<FeedInfinite | undefined>;
   }
 
+  if (what === "feed") {
+    return getPostsRankedQuery(
+        what,
+        tag,
+        limit,
+        observer ?? "",
+        true,
+        { resolvePosts: false }
+    ).prefetch() as Promise<FeedInfinite | undefined>;
+  }
+
   return getPostsRankedQuery(what, tag, limit, observer ?? "").prefetch() as Promise<
       FeedInfinite | undefined
   >;
@@ -76,6 +87,17 @@ export function getPostsFeedQueryData(
     return getControversialRisingQuery(what, tag).getData() as FeedInfinite | undefined;
   }
 
+  if (what === "feed") {
+    return getPostsRankedQuery(
+        what,
+        tag,
+        limit,
+        observer ?? "",
+        true,
+        { resolvePosts: false }
+    ).getData() as FeedInfinite | undefined;
+  }
+
   return getPostsRankedQuery(what, tag, limit, observer ?? "").getData() as
       | FeedInfinite
       | undefined;
@@ -107,7 +129,14 @@ export function usePostsFeedQuery(
               )
               : isControversialPosts
                   ? getControversialRisingQuery(what, tag)
-                  : getPostsRankedQuery(what, tag, limit, observer ?? "");
+                  : getPostsRankedQuery(
+                        what,
+                        tag,
+                        limit,
+                        observer ?? "",
+                        true,
+                        what === "feed" ? { resolvePosts: false } : undefined
+                    );
 
   // unify result type for callers
   return query.useClientQuery() as unknown as UseInfiniteQueryResult<Page, Error>;

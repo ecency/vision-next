@@ -1,72 +1,117 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
+import {
+  EcencyQueriesManager,
+  QueryIdentifiers
+} from "@/core/react-query";
 import * as bridgeApi from "@/api/bridge";
 import { ProfileFilter } from "@/enums";
-import { Entry, WaveEntry } from "@/entities";
+import { WaveEntry } from "@/entities";
 import {
   getVisibleFirstLevelThreadItems,
   mapThreadItemsToWaveEntries
 } from "./waves-helpers";
 
-type ThreadsResult = readonly [Entry[], WaveEntry[]];
+const THREAD_CONTAINER_BATCH_SIZE = 5;
+const MAX_CONTAINERS_TO_SCAN = 50;
+
+interface ThreadsResult {
+  entries: WaveEntry[];
+}
 
 async function getThreads(
-    host: string,
-    pageParam?: WaveEntry
+  host: string,
+  pageParam?: WaveEntry
 ): Promise<ThreadsResult | null> {
+  let startAuthor = pageParam?.author;
+  let startPermlink = pageParam?.permlink;
+  let scannedContainers = 0;
+  let skipContainerId = pageParam?.post_id;
+
+  while (scannedContainers < MAX_CONTAINERS_TO_SCAN) {
     const containers = (await bridgeApi.getAccountPosts(
-        ProfileFilter.posts,
-        host,
-        pageParam?.author,
-        pageParam?.permlink,
-        1
+      ProfileFilter.posts,
+      host,
+      startAuthor,
+      startPermlink,
+      THREAD_CONTAINER_BATCH_SIZE
     )) as WaveEntry[]; // API shape is known
 
-    let nextThreadContainers = containers?.map((c) => {
-        c.id = c.post_id;
-        c.host = host;
-        return c;
+    if (!containers || containers.length === 0) {
+      return null;
+    }
+
+    const normalizedContainers = containers.map((container) => {
+      container.id = container.post_id;
+      container.host = host;
+      return container;
     });
 
-    if (!nextThreadContainers || nextThreadContainers.length === 0) {
-        return null;
+    for (const container of normalizedContainers) {
+      if (skipContainerId && container.post_id === skipContainerId) {
+        skipContainerId = undefined;
+        continue;
+      }
+
+      scannedContainers += 1;
+
+      if (container.stats?.gray) {
+        startAuthor = container.author;
+        startPermlink = container.permlink;
+        continue;
+      }
+
+      const visibleItems = await getVisibleFirstLevelThreadItems(container);
+
+      if (visibleItems.length === 0) {
+        startAuthor = container.author;
+        startPermlink = container.permlink;
+        continue;
+      }
+
+      return {
+        entries: mapThreadItemsToWaveEntries(visibleItems, container, host)
+      };
     }
 
-    const [nextThreadContainer] = nextThreadContainers;
+    const lastContainer = normalizedContainers[normalizedContainers.length - 1];
 
-    if (nextThreadContainer?.stats?.gray) {
-        return getThreads(host, nextThreadContainer);
+    if (!lastContainer) {
+      return null;
     }
 
-    const container = nextThreadContainers[0];
+    startAuthor = lastContainer.author;
+    startPermlink = lastContainer.permlink;
+  }
 
-    const visibleItems = await getVisibleFirstLevelThreadItems(container);
-    if (visibleItems.length === 0) {
-        return getThreads(host, container);
-    }
-
-    return [visibleItems, nextThreadContainers] as const;
+  return null;
 }
 
 // Page = array of WaveEntry; Cursor = WaveEntry (container) or undefined
 type WavesPage = WaveEntry[];
 type WavesCursor = WaveEntry | undefined;
 
-export const getWavesByHostQuery = (host: string) =>
-    EcencyQueriesManager.generateClientServerInfiniteQuery<WavesPage, WavesCursor>({
-        queryKey: [QueryIdentifiers.THREADS, host],
-        initialData: { pages: [], pageParams: [] },
-        initialPageParam: undefined as WavesCursor,
+export const getWavesByHostQuery = (host: string) => {
+  const queryKey = [QueryIdentifiers.THREADS, host] as const;
+  const cached =
+    EcencyQueriesManager.getInfiniteQueryData<WavesPage, WavesCursor>(queryKey);
 
-        queryFn: async ({ pageParam }: { pageParam: WavesCursor }) => {
-            const res = await getThreads(host, pageParam);
-            if (!res) return []; // no items to show for this page
+  return EcencyQueriesManager.generateClientServerInfiniteQuery<
+    WavesPage,
+    WavesCursor
+  >({
+    queryKey,
+    initialData: cached ?? { pages: [], pageParams: [] },
+    placeholderData: () => cached,
+    refetchOnMount: cached ? "always" : true,
+    initialPageParam: undefined as WavesCursor,
 
-            const [items, nextThreadContainers] = res;
+    queryFn: async ({ pageParam }: { pageParam: WavesCursor }) => {
+      const result = await getThreads(host, pageParam);
+      if (!result) return []; // no items to show for this page
 
-            const container = nextThreadContainers[0];
+      return result.entries;
+    },
 
-            return mapThreadItemsToWaveEntries(items, container, host);
-        },
-
-        getNextPageParam: (lastPage: WavesPage): WavesCursor => lastPage?.[0]?.container,
-    });
+    getNextPageParam: (lastPage: WavesPage): WavesCursor =>
+      lastPage?.[0]?.container
+  });
+};

@@ -5,12 +5,17 @@ import dmca from "@/dmca-tags.json";
 
 type PageParam = { author: string | undefined; permlink: string | undefined; hasNextPage: boolean };
 
+interface GetPostsRankedOptions {
+  resolvePosts?: boolean;
+}
+
 export const getPostsRankedQuery = (
   sort: string,
   tag: string,
   limit = 20,
   observer = "",
-  enabled = true
+  enabled = true,
+  options: GetPostsRankedOptions = {}
 ) =>
   EcencyQueriesManager.generateClientServerInfiniteQuery({
     queryKey: [QueryIdentifiers.GET_POSTS_RANKED, sort, tag, limit, observer],
@@ -33,7 +38,10 @@ export const getPostsRankedQuery = (
       });
 
       if (response) {
-        const data = await Promise.all(response.map((item) => resolvePost(item, observer)));
+        const shouldResolvePosts = options.resolvePosts ?? true;
+        const data = shouldResolvePosts
+          ? await Promise.all(response.map((item) => resolvePost(item, observer)))
+          : response;
         const sorted =
           sort === "hot"
             ? data
