@@ -20,7 +20,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
 import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
-import { WAVES_FEED_SCROLL_STORAGE_KEY, WavesFeedScrollState } from "@/app/waves/_constants";
+import {
+  WAVES_FEED_SCROLL_STORAGE_KEY,
+  WavesFeedScrollState,
+  WavesFeedType
+} from "@/app/waves/_constants";
 import { useOptionalWavesTagFilter } from "@/app/waves/_context";
 
 const INTERACTIVE_SELECTOR =
@@ -34,6 +38,7 @@ interface Props {
   interactable?: boolean;
   now?: number;
   currentHost?: string;
+  feedType?: WavesFeedType;
 }
 
 export function WavesListItem({
@@ -43,7 +48,8 @@ export function WavesListItem({
   onExpandReplies,
   interactable = true,
   now,
-  currentHost
+  currentHost,
+  feedType
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
@@ -55,6 +61,8 @@ export function WavesListItem({
   const { inViewport } = useInViewport(rootRef);
 
   const tagFilter = useOptionalWavesTagFilter();
+  const isTagFiltered = feedType === "for-you" && !!tagFilter?.selectedTag;
+  const shouldHideEngagementCounts = feedType === "following" || isTagFiltered;
 
   const handleTagClick = useCallback(
     (tag: string) => {
@@ -142,7 +150,8 @@ export function WavesListItem({
             grid,
             host: currentHost,
             url: `${window.location.pathname}${window.location.search}`,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            feedType
           };
 
           try {
@@ -155,7 +164,7 @@ export function WavesListItem({
         router.push(wavePath);
       }
     },
-    [currentHost, grid, interactable, router, wavePath]
+    [currentHost, feedType, grid, interactable, router, wavePath]
   );
 
   const hasTextSelection = useCallback(() => {
@@ -310,6 +319,8 @@ export function WavesListItem({
             pure={false}
             onEdit={() => setShowEditModal(true)}
             commentsSlot={commentSlot}
+            showVoteSummary={!shouldHideEngagementCounts}
+            showCommentCount={!shouldHideEngagementCounts}
           />
 
           <Modal centered={true} show={showEditModal} onHide={() => setShowEditModal(false)}>

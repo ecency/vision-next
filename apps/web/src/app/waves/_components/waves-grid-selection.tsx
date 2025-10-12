@@ -7,11 +7,21 @@ import { useWavesGrid } from "@/app/waves/_hooks";
 export function WavesGridSelection() {
   const [grid, setGrid] = useWavesGrid();
 
+  const viewLabel = i18next.t("g.view");
+  const activeLabel = grid === "masonry" ? "Masonry" : i18next.t("g.feed");
+
   return (
     <Dropdown className="hidden lg:block">
       <DropdownToggle>
-        <Button icon={grid === "masonry" ? <UilGrid /> : <UilListUiAlt />} appearance="gray-link">
-          {i18next.t("g.view")}
+        <Button
+          icon={grid === "masonry" ? <UilGrid /> : <UilListUiAlt />}
+          appearance="gray-link"
+          size="sm"
+          aria-label={`${viewLabel}: ${activeLabel}`}
+          title={`${viewLabel}: ${activeLabel}`}
+          className="!px-1"
+        >
+          <span className="sr-only">{`${viewLabel}: ${activeLabel}`}</span>
         </Button>
       </DropdownToggle>
       <DropdownMenu align="right">

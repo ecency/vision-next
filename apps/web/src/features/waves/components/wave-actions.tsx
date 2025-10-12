@@ -17,6 +17,8 @@ interface Props {
   onEdit: (entry: WaveEntry) => void;
   onSeeFullThread?: () => void;
   showStats?: boolean;
+  showVoteSummary?: boolean;
+  showCommentCount?: boolean;
 }
 
 export function WaveActions({
@@ -28,7 +30,9 @@ export function WaveActions({
   pure,
   hasParent,
   onEdit,
-  showStats = false
+  showStats = false,
+  showVoteSummary = true,
+  showCommentCount = true
 }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
@@ -39,15 +43,17 @@ export function WaveActions({
           <div>
             <EntryVoteBtn entry={entry!} isPostSlider={false} />
             {showStats && <EntryStats entry={entry!} />}
-            <EntryVotes entry={entry!} icon={voteSvg} />
+            {showVoteSummary && <EntryVotes entry={entry!} icon={voteSvg} />}
             <Button
               iconPlacement="left"
               size="sm"
               appearance="gray-link"
               icon={commentSvg}
               onClick={() => onEntryView()}
+              aria-label={i18next.t("waves.reply")}
+              title={i18next.t("waves.reply")}
             >
-              <div>{commentsSlot ?? entry?.children}</div>
+              {showCommentCount && <div>{commentsSlot ?? entry?.children}</div>}
             </Button>
           </div>
           <div>
