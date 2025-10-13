@@ -931,7 +931,7 @@ function getHiveAssetTransactionsQueryOptions(username, limit = 20, group) {
             case "transfer_to_savings":
             case "transfer_to_vesting":
             case "recurrent_transfer":
-              return ["HIVE"].includes(item.amount);
+              return parseAsset(item.amount).symbol === "HIVE";
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["HIVE"].includes(asset.symbol);
@@ -981,11 +981,14 @@ function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, group) 
                 item.reward_vests
               );
               return rewardVests.amount > 0;
+            case "transfer_to_vesting":
+              return true;
             case "transfer":
             case "transfer_to_savings":
-            case "transfer_to_vesting":
             case "recurrent_transfer":
-              return ["VESTS", "HP"].includes(item.amount);
+              return ["VESTS", "HP"].includes(
+                parseAsset(item.amount).symbol
+              );
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["VESTS", "HP"].includes(asset.symbol);
@@ -1027,7 +1030,7 @@ function getHbdAssetTransactionsQueryOptions(username, limit = 20, group) {
             case "transfer_to_savings":
             case "transfer_to_vesting":
             case "recurrent_transfer":
-              return ["HBD"].includes(item.amount);
+              return parseAsset(item.amount).symbol === "HBD";
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["HBD"].includes(asset.symbol);
@@ -1792,12 +1795,23 @@ function getHiveEngineTokenGeneralInfoQueryOptions(username, symbol) {
       const balance = balanceList?.find((i) => i.symbol === symbol);
       const market = marketList?.find((i) => i.symbol === symbol);
       const lastPrice = +(market?.lastPrice ?? "0");
+      const liquidBalance = parseFloat(balance?.balance ?? "0");
+      const stakedBalance = parseFloat(balance?.stake ?? "0");
+      const unstakingBalance = parseFloat(balance?.pendingUnstake ?? "0");
+      const parts = [
+        { name: "liquid", balance: liquidBalance },
+        { name: "staked", balance: stakedBalance }
+      ];
+      if (unstakingBalance > 0) {
+        parts.push({ name: "unstaking", balance: unstakingBalance });
+      }
       return {
         name: symbol,
         title: metadata?.name ?? "",
         price: lastPrice === 0 ? 0 : Number(lastPrice * (hiveData?.price ?? 0)),
-        accountBalance: parseFloat(balance?.balance ?? "0"),
-        layer: "ENGINE"
+        accountBalance: liquidBalance + stakedBalance,
+        layer: "ENGINE",
+        parts
       };
     }
   });
@@ -2253,6 +2267,9 @@ function getPointsAssetTransactionsQueryOptions(username, type) {
         `${sdk.CONFIG.privateApiHost}/private-api/point-list`,
         {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({
             username,
             type: type ?? 0

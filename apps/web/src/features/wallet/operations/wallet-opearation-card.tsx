@@ -14,17 +14,19 @@ interface Props {
   editable?: boolean;
   onUsernameSubmit?: (username: string | undefined) => void;
   onBalanceClick?: (value: number) => void;
+  balance?: number;
 }
 
 export function WalletOperationCard({
   label,
   asset,
   username,
+  balance,
   onUsernameSubmit,
   editable,
   onBalanceClick
 }: Props) {
-  const { data, isFetching } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
+  const { data } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
 
   const userContent = username ? (
     <motion.div
@@ -56,7 +58,7 @@ export function WalletOperationCard({
       label={label}
       asset={asset}
       username={username}
-      balance={data?.accountBalance}
+      balance={balance ?? data?.accountBalance}
       onBalanceClick={onBalanceClick}
       userContent={userContent}
       formContent={formContent}

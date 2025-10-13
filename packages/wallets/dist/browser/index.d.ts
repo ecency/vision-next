@@ -1055,12 +1055,20 @@ declare function getHiveEngineTokenGeneralInfoQueryOptions(username?: string, sy
     price: number;
     accountBalance: number;
     layer: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
 }, Error, {
     name: string;
     title: string;
     price: number;
     accountBalance: number;
     layer: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
 }, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         name: string;
@@ -1068,6 +1076,10 @@ declare function getHiveEngineTokenGeneralInfoQueryOptions(username?: string, sy
         price: number;
         accountBalance: number;
         layer: string;
+        parts: {
+            name: string;
+            balance: number;
+        }[];
     }, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1077,6 +1089,10 @@ declare function getHiveEngineTokenGeneralInfoQueryOptions(username?: string, sy
             price: number;
             accountBalance: number;
             layer: string;
+            parts: {
+                name: string;
+                balance: number;
+            }[];
         };
         [dataTagErrorSymbol]: Error;
     };

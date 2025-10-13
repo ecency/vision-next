@@ -58,12 +58,26 @@ export function getHiveEngineTokenGeneralInfoQueryOptions(
 
       const lastPrice = +(market?.lastPrice ?? "0");
 
+      const liquidBalance = parseFloat(balance?.balance ?? "0");
+      const stakedBalance = parseFloat(balance?.stake ?? "0");
+      const unstakingBalance = parseFloat(balance?.pendingUnstake ?? "0");
+
+      const parts: GeneralAssetInfo["parts"] = [
+        { name: "liquid", balance: liquidBalance },
+        { name: "staked", balance: stakedBalance },
+      ];
+
+      if (unstakingBalance > 0) {
+        parts.push({ name: "unstaking", balance: unstakingBalance });
+      }
+
       return {
         name: symbol,
         title: metadata?.name ?? "",
         price: lastPrice === 0 ? 0 : Number(lastPrice * (hiveData?.price ?? 0)),
-        accountBalance: parseFloat(balance?.balance ?? "0"),
+        accountBalance: liquidBalance + stakedBalance,
         layer: "ENGINE",
+        parts,
       } satisfies GeneralAssetInfo;
     },
   });

@@ -34,11 +34,14 @@ export function getHivePowerAssetTransactionsQueryOptions(
               );
               return rewardVests.amount > 0;
 
+            case "transfer_to_vesting":
+              return true;
             case "transfer":
             case "transfer_to_savings":
-            case "transfer_to_vesting":
             case "recurrent_transfer":
-              return ["VESTS", "HP"].includes(item.amount);
+              return ["VESTS", "HP"].includes(
+                parseAsset(item.amount).symbol
+              );
 
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
