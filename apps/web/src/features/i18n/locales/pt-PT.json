@@ -2958,6 +2958,17 @@
       "stake": "Implantar",
       "unstake": "Desinteressar",
       "undelegate": "Desdelegar"
+    },
+    "external": {
+      "receive-button": "Receber",
+      "transfer-soon": "Transferência (em breve)",
+      "receive-title": "Receber {{token}}",
+      "receive-description": "Escaneie o código QR ou copie o endereço para receber o {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "Não foi possível gerar um código QR. Por favor, copie o endereço.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "Endereço {{token}}",
+      "receive-no-address": "Nós não conseguimos encontrar um endereço para este token ainda. Configure-o a partir da página de configuração da sua carteira para começar a receber."
     }
   },
   "permissions": {
