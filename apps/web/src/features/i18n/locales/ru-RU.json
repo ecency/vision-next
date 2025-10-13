@@ -2958,6 +2958,17 @@
       "stake": "Разбивка",
       "unstake": "Не поставлено",
       "undelegate": "Снять делегата"
+    },
+    "external": {
+      "receive-button": "Получить",
+      "transfer-soon": "Перевод (скоро)",
+      "receive-title": "Получить {{token}}",
+      "receive-description": "Сканируйте QR-код или скопируйте адрес, чтобы получить {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "Мы не смогли сгенерировать QR-код. Пожалуйста, скопируйте адрес.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "{{token}} адрес",
+      "receive-no-address": "Мы пока не смогли найти адрес для этого токена. Настройте его на странице установки вашего кошелька, чтобы начать получение."
     }
   },
   "permissions": {
