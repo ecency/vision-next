@@ -1,6 +1,13 @@
+import { formatError } from "@/api/operations";
 import { useClientActiveUser } from "@/api/queries";
+import { error, success } from "@/features/shared";
 import { WalletOperationsDialog } from "@/features/wallet";
-import { AssetOperation, getTokenOperationsQueryOptions } from "@ecency/wallets";
+import {
+  AssetOperation,
+  getPointsQueryOptions,
+  getTokenOperationsQueryOptions,
+  useClaimPoints
+} from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import {
   UilArrowDownRight,
@@ -13,6 +20,7 @@ import {
   UilLock,
   UilMoneybag,
   UilPlus,
+  UilSpinner,
   UilUnlock,
   UilUserPlus
 } from "@tooni/iconscout-unicons-react";
@@ -20,7 +28,7 @@ import clsx from "clsx";
 import i18next from "i18next";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 
 const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
   [AssetOperation.Transfer]: <UilArrowRight />,
@@ -46,6 +54,7 @@ export function ProfileWalletTokenActions() {
 
   const cleanUsername = (username as string).replace("%40", "");
 
+  const { data: activeUserPoints } = useQuery(getPointsQueryOptions(activeUser?.username));
   const { data: operations } = useQuery(
     getTokenOperationsQueryOptions(
       (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase(),
@@ -54,13 +63,22 @@ export function ProfileWalletTokenActions() {
     )
   );
 
+  const canClaim = useMemo(
+    () => activeUserPoints?.uPoints && parseInt(activeUserPoints?.uPoints) !== 0,
+    [activeUserPoints]
+  );
+
+  const { mutateAsync: claim, isPending: isClaiming } = useClaimPoints(
+    activeUser?.username,
+    () => success(i18next.t("points.claim-ok")),
+    (err) => error(...formatError(err))
+  );
+
   return (
     <div className="grid grid-cols-2 gap-2 md:gap-2 grid-rows-2">
       {operations?.map((operation) => (
         <>
-          {[AssetOperation.Buy, AssetOperation.Promote, AssetOperation.Claim].includes(
-            operation
-          ) && (
+          {[AssetOperation.Buy].includes(operation) && (
             <Link
               href={
                 [AssetOperation.Buy, AssetOperation.Claim].includes(operation)
@@ -77,6 +95,29 @@ export function ProfileWalletTokenActions() {
                 {i18next.t(`profile-wallet.operations.${operation}`)}
               </div>
             </Link>
+          )}
+
+          {operation === AssetOperation.Claim && pathname.includes("points") && (
+            <div
+              key={operation}
+              className={clsx(
+                " bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col sm:flex-row items-center text-center text-sm gap-2 cursor-pointer",
+                "border border-white dark:border-dark-200 hover:border-blue-dark-sky dark:hover:border-blue-dark-sky hover:text-blue-dark-sky duration-300 min-h-[66px] pointer",
+                !canClaim && "opacity-50"
+              )}
+              onClick={() => canClaim && claim({})}
+            >
+              {isClaiming ? <UilSpinner className="animate-spin" /> : operationsIcons[operation]}
+              <div className="w-full font-bold">
+                {!canClaim && i18next.t("perks.claim-points-nothing")}
+                {canClaim && i18next.t("perks.claim-points-button")}
+                {canClaim && (
+                  <span className="font-bold ml-1">
+                    {`(+${parseInt(activeUserPoints?.uPoints).toFixed(0)})`}
+                  </span>
+                )}
+              </div>
+            </div>
           )}
 
           {![AssetOperation.Buy, AssetOperation.Promote, AssetOperation.Claim].includes(
