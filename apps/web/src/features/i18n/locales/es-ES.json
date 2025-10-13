@@ -2958,6 +2958,17 @@
       "stake": "Estaca",
       "unstake": "Retirar de Estaca",
       "undelegate": "Retirar delegación"
+    },
+    "external": {
+      "receive-button": "Recibir",
+      "transfer-soon": "Transferir (pronto)",
+      "receive-title": "Recibir {{token}}",
+      "receive-description": "Escanea el código QR o copia la dirección para recibir {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "No pudimos generar un código QR. Copie la dirección en su lugar.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "Dirección {{token}}",
+      "receive-no-address": "No pudimos encontrar una dirección para este token aún. Configure la página de configuración de su cartera para empezar a recibir."
     }
   },
   "permissions": {
