@@ -2958,6 +2958,17 @@
       "stake": "Stake",
       "unstake": "Unstake",
       "undelegate": "Undelegate"
+    },
+    "external": {
+      "receive-button": "Receive",
+      "transfer-soon": "Transfer (soon)",
+      "receive-title": "Receive {{token}}",
+      "receive-description": "Scan the QR code or copy the address to receive {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "We couldn't generate a QR code. Please copy the address instead.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "{{token}} address",
+      "receive-no-address": "We couldn't find an address for this token yet. Set it up from your wallet setup page to start receiving."
     }
   },
   "permissions": {
