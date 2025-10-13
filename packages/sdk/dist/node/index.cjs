@@ -208,12 +208,6 @@ var customJson = (account, id, key, json, display_msg, rpc = null) => new Promis
 });
 
 // src/modules/core/mutations/use-broadcast-mutation.ts
-var getBoundFetch2 = () => {
-  if (typeof window !== "undefined" && typeof window.fetch === "function") {
-    return window.fetch.bind(window);
-  }
-  return globalThis.fetch;
-};
 function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
 }) {
   return reactQuery.useMutation({
@@ -243,7 +237,7 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
       }
       let token = getAccessToken(username);
       if (token) {
-        const f = getBoundFetch2();
+        const f = getBoundFetch();
         const res = await f("https://hivesigner.com/api/broadcast", {
           method: "POST",
           headers: {
@@ -433,7 +427,11 @@ function getAccountFullQueryOptions(username) {
       if (!response[0]) {
         throw new Error("[SDK] No account with given username");
       }
-      const profile = JSON.parse(response[0].posting_json_metadata).profile;
+      let profile = {};
+      try {
+        profile = JSON.parse(response[0].posting_json_metadata).profile;
+      } catch (e) {
+      }
       let follow_stats;
       try {
         follow_stats = await CONFIG.hiveClient.database.call(
@@ -442,11 +440,16 @@ function getAccountFullQueryOptions(username) {
         );
       } catch (e) {
       }
-      const reputation = await CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_account_reputations",
-        [username, 1]
-      );
+      let reputationValue = 0;
+      try {
+        const reputation = await CONFIG.hiveClient.call(
+          "condenser_api",
+          "get_account_reputations",
+          [username, 1]
+        );
+        reputationValue = reputation[0]?.reputation ?? 0;
+      } catch (e) {
+      }
       return {
         name: response[0].name,
         owner: response[0].owner,
@@ -486,11 +489,8 @@ function getAccountFullQueryOptions(username) {
         voting_power: response[0].voting_power,
         downvote_manabar: response[0].downvote_manabar,
         follow_stats,
-        reputation: reputation[0].reputation,
-        profile: {
-          ...profile,
-          reputation: reputation[0].reputation
-        }
+        reputation: reputationValue,
+        profile
       };
     },
     enabled: !!username,

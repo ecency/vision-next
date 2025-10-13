@@ -1,10 +1,9 @@
-import { Metadata, ResolvingMetadata } from "next";
-import Image from "next/image";
 import { PagesMetadataGenerator } from "@/features/metadata";
-import { Feedback, Navbar } from "@/features/shared";
-import i18next from "i18next";
 import { Button } from "@/features/ui";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
+import i18next from "i18next";
+import { Metadata, ResolvingMetadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -16,28 +15,28 @@ export async function generateMetadata(
   return PagesMetadataGenerator.getForPage("signup");
 }
 
-export default function Page() {
-  const options = [
-    {
-      title: i18next.t("signup-email.title"),
-      description: i18next.t("signup-email.description"),
-      buttonText: i18next.t("signup-email.buttonText"),
-      image: "/assets/undraw-mailbox.svg",
-      href: "/signup/email",
-      label: i18next.t("signup-email.label")
-    },
-    {
-      title: i18next.t("signup-wallets.title"),
-      description: i18next.t("signup-wallets.description"),
-      image: "/assets/undraw-crypto-wallet.svg",
-      buttonText: i18next.t("signup-wallets.buttonText"),
-      href: "/signup/wallet",
-      label: i18next.t("signup-wallets.label")
-    }
-  ];
+const options = [
+  {
+    title: i18next.t("signup-email.title"),
+    description: i18next.t("signup-email.description"),
+    buttonText: i18next.t("signup-email.buttonText"),
+    image: "/assets/undraw-mailbox.svg",
+    href: "/signup/email",
+    label: i18next.t("signup-email.label")
+  },
+  {
+    title: i18next.t("signup-wallets.title"),
+    description: i18next.t("signup-wallets.description"),
+    image: "/assets/undraw-crypto-wallet.svg",
+    buttonText: i18next.t("signup-wallets.buttonText"),
+    href: "/signup/wallet",
+    label: i18next.t("signup-wallets.label")
+  }
+];
 
+export default function Page() {
   return (
-    <div className="grid gric-cols-1 md:grid-cols-2 gap-6 py-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
       {options.map((option) => (
         <div key={option.title} className="bg-white rounded-2xl p-6 flex flex-col justify-between">
           <div className="uppercase opacity-50 font-bold text-sm">{option.label}</div>
