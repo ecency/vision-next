@@ -2958,6 +2958,17 @@
       "stake": "Сума ставки",
       "unstake": "Недовірений",
       "undelegate": "Унделегат"
+    },
+    "external": {
+      "receive-button": "Отримання",
+      "transfer-soon": "Передача (скоро)",
+      "receive-title": "Отримати {{token}}",
+      "receive-description": "Відскануйте QR-код або скопіюйте адресу, щоб отримати {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "Ми не змогли створити QR-код. Будь ласка, скопіюйте адресу натомість.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "Адреса {{token}}",
+      "receive-no-address": "Ми не змогли знайти адресу для цього токену. Встановіть його зі сторінки налаштування вашого гаманця, щоб почати отримувати."
     }
   },
   "permissions": {
