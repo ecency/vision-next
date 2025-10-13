@@ -1096,7 +1096,7 @@
     "savings": "AHORROS",
     "savings-description": "El balance está sujeto a 3 días de espera para la retirada.",
     "next-power-down": "El siguiente apagado es {{time}}, (~{{amount}}, {{weeks}} semanas restantes)",
-    "power-down-total": "Poder total restante: {{amount}}",
+    "power-down-total": "Apagado de poder total restante: {{amount}}",
     "transfer": "Transferir",
     "transfer-to-savings": "Transferir a ahorros",
     "convert": "Convertir",
@@ -1209,7 +1209,7 @@
   },
   "withdraw-routes": {
     "title": "Cuentas de retirada",
-    "description": "Distribuir automáticamente pagos de apagón a cuentas preferidas",
+    "description": "Distribuir automáticamente pagos de apagado a cuentas preferidas",
     "account": "Cuenta",
     "percent": "Porcentaje",
     "validation-account": "Se requiere una cuenta.",
@@ -1430,7 +1430,7 @@
     "type-market_buy": "Compra de mercado",
     "type-market_placeOrder": "Orden de mercado realizada",
     "type-market_closeOrder": "Orden de mercado cerrada",
-    "type-distribution_pending": "Revisión de distribución pendiente",
+    "type-distribution_pending": "Chequeo de distribución pendiente de distribuciones",
     "type-producer_reward": "Recompensa del productor",
     "type-interest": "Interés",
     "type-transfer_to_savings": "Transferir a ahorros",
@@ -2932,7 +2932,7 @@
     "delegations": "Delegaciones",
     "external-wallets-offer": {
       "title": "Trae tu criptomoneda a Ecency",
-      "description": "Crear o importar carteras para BTC, ETH, BNB, SOL, TRX, APT y TON directamente desde aplicaciones como Trust o Exodus, y empiece a usarlos sin problemas dentro del ecosistema de la colmena.",
+      "description": "Crear o importar carteras para BTC, ETH, BNB, SOL, TRX, APT y TON directamente desde aplicaciones como Trust o Exodus, y empiece a usarlos sin problemas dentro del ecosistema de Hive.",
       "hint": "La información del token creada e importada se almacenará en metadatos de la cuenta de Ecency y de Hive"
     },
     "external-wallets-signup": {
@@ -2968,9 +2968,9 @@
       "transfer-soon": "Transferir (pronto)",
       "receive-title": "Recibir {{token}}",
       "receive-description": "Escanea el código QR o copia la dirección para recibir {{token}}.",
-      "receive-loading": "Generating QR code...",
+      "receive-loading": "Generando código QR...",
       "receive-qr-error": "No pudimos generar un código QR. Copie la dirección en su lugar.",
-      "receive-qr-alt": "{{token}} deposit QR code",
+      "receive-qr-alt": "Código QR de depósito de {{token}}",
       "address-label": "Dirección {{token}}",
       "receive-no-address": "No pudimos encontrar una dirección para este token aún. Configure la página de configuración de su cartera para empezar a recibir."
     }
