@@ -36,11 +36,15 @@ export function getAccountFullQueryOptions(username: string | undefined) {
         );
       } catch (e) {}
 
-      const reputation: AccountReputation[] = await CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_account_reputations",
-        [username, 1]
-      );
+      let reputationValue = 0;
+      try {
+        const reputation = (await CONFIG.hiveClient.call(
+          "condenser_api",
+          "get_account_reputations",
+          [username, 1]
+        )) as AccountReputation[];
+        reputationValue = reputation[0]?.reputation ?? 0;
+      } catch (e) {}
 
       return {
         name: response[0].name,
@@ -83,11 +87,8 @@ export function getAccountFullQueryOptions(username: string | undefined) {
         voting_power: response[0].voting_power,
         downvote_manabar: response[0].downvote_manabar,
         follow_stats,
-        reputation: reputation[0].reputation,
-        profile: {
-          ...profile,
-          reputation: reputation[0].reputation,
-        },
+        reputation: reputationValue,
+        profile,
       } satisfies FullAccount;
     },
     enabled: !!username,

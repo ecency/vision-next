@@ -15,7 +15,7 @@ interface Props {
 export function ProfilePreviewUsername({ username }: Props) {
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const { data: profile, isLoading: isProfileLoading } =
+  const { data: account, isLoading: isProfileLoading } =
     getAccountFullQuery(username).useClientQuery();
 
   const { data: relationsBetweenAccounts, isLoading: followsActiveUserLoading } = useQuery(
@@ -26,12 +26,15 @@ export function ProfilePreviewUsername({ username }: Props) {
     () => relationsBetweenAccounts?.follows ?? false,
     [relationsBetweenAccounts?.follows]
   );
-  const reputation = useMemo(() => profile && accountReputation(profile.reputation), [profile]);
+  const reputation = useMemo(
+    () => account && accountReputation(account.reputation),
+    [account]
+  );
 
   return (
     <>
       <div>
-        {isProfileLoading ? <Skeleton className="loading-md" /> : profile && profile.profile?.name}
+        {isProfileLoading ? <Skeleton className="loading-md" /> : account && account.profile?.name}
       </div>
       <Link href={`/@${username}`}>
         {isProfileLoading ? (

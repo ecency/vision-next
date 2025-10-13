@@ -36,7 +36,7 @@ const options = [
 
 export default function Page() {
   return (
-    <div className="grid gric-cols-1 md:grid-cols-2 gap-6 py-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
       {options.map((option) => (
         <div key={option.title} className="bg-white rounded-2xl p-6 flex flex-col justify-between">
           <div className="uppercase opacity-50 font-bold text-sm">{option.label}</div>

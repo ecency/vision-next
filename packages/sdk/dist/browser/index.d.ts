@@ -245,25 +245,7 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
     downvote_manabar: any;
     follow_stats: AccountFollowStats | undefined;
     reputation: number;
-    profile: {
-        reputation: number;
-        about?: string;
-        cover_image?: string;
-        location?: string;
-        name?: string;
-        profile_image?: string;
-        website?: string;
-        pinned?: string;
-        beneficiary?: {
-            account: string;
-            weight: number;
-        };
-        tokens?: {
-            symbol: string;
-            type: string;
-            meta: Record<string, any>;
-        }[];
-    };
+    profile: AccountProfile;
 }, Error, {
     name: any;
     owner: any;
@@ -304,25 +286,7 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
     downvote_manabar: any;
     follow_stats: AccountFollowStats | undefined;
     reputation: number;
-    profile: {
-        reputation: number;
-        about?: string;
-        cover_image?: string;
-        location?: string;
-        name?: string;
-        profile_image?: string;
-        website?: string;
-        pinned?: string;
-        beneficiary?: {
-            account: string;
-            weight: number;
-        };
-        tokens?: {
-            symbol: string;
-            type: string;
-            meta: Record<string, any>;
-        }[];
-    };
+    profile: AccountProfile;
 }, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         name: any;
@@ -364,25 +328,7 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
         downvote_manabar: any;
         follow_stats: AccountFollowStats | undefined;
         reputation: number;
-        profile: {
-            reputation: number;
-            about?: string;
-            cover_image?: string;
-            location?: string;
-            name?: string;
-            profile_image?: string;
-            website?: string;
-            pinned?: string;
-            beneficiary?: {
-                account: string;
-                weight: number;
-            };
-            tokens?: {
-                symbol: string;
-                type: string;
-                meta: Record<string, any>;
-            }[];
-        };
+        profile: AccountProfile;
     }, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -426,25 +372,7 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
             downvote_manabar: any;
             follow_stats: AccountFollowStats | undefined;
             reputation: number;
-            profile: {
-                reputation: number;
-                about?: string;
-                cover_image?: string;
-                location?: string;
-                name?: string;
-                profile_image?: string;
-                website?: string;
-                pinned?: string;
-                beneficiary?: {
-                    account: string;
-                    weight: number;
-                };
-                tokens?: {
-                    symbol: string;
-                    type: string;
-                    meta: Record<string, any>;
-                }[];
-            };
+            profile: AccountProfile;
         };
         [dataTagErrorSymbol]: Error;
     };

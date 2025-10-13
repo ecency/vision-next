@@ -3,6 +3,7 @@ import { useLoginByKey } from "@/features/shared/login/hooks";
 import { Button } from "@/features/ui";
 import { delay } from "@/utils";
 import { EcencyAnalytics, getAccountFullQueryOptions } from "@ecency/sdk";
+import type { FullAccount as FullAccountEntity } from "@/entities";
 import {
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
@@ -16,7 +17,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
   username: string;
@@ -27,15 +28,18 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const params = useSearchParams();
 
   const [hasValidated, setHasValidated] = useState(false);
-  const [hasInitiated, setHasInitiated] = useState(false);
+  const hasInitiatedRef = useRef(false);
 
   const { data: seed } = useSeedPhrase(username);
   const { data: hiveKeys } = useHiveKeysQuery(username);
-  const loginKey = useMemo(() => seed ?? "", [seed]);
+  const loginKey = useMemo(
+    () => hiveKeys?.posting ?? hiveKeys?.active ?? seed ?? "",
+    [hiveKeys, seed]
+  );
   const { data: wallets } = useWalletsCacheQuery(username);
   const wallet = useMemo(() => wallets?.get(validatedWallet), [wallets, validatedWallet]);
 
-  const { mutateAsync: loginInApp } = useLoginByKey(username, hiveKeys?.active ?? "", true);
+  const { mutateAsync: loginByKey } = useLoginByKey(username, loginKey, true);
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
@@ -45,42 +49,99 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
     "signed-up-with-wallets"
   );
 
-  const validateAccountIsCreated = useCallback(async () => {
-    let account;
-    while (!account) {
-      await delay(5000);
-      await getQueryClient().refetchQueries(getAccountFullQueryOptions(username));
-      account = getQueryClient().getQueryData(getAccountFullQueryOptions(username).queryKey);
-      console.log(account);
-    }
+  const validateAccountIsCreated = useCallback(
+    async (shouldStop?: () => boolean): Promise<FullAccountEntity> => {
+      const accountQueryOptions = getAccountFullQueryOptions(username);
+      const queryClient = getQueryClient();
 
-    setHasValidated(true);
-  }, [username]);
+      // Poll until the account is available on-chain.
+      // Return the fetched account so the login mutation can reuse it and avoid
+      // hitting a different RPC node that might not yet be in sync.
+      while (!shouldStop?.()) {
+        try {
+          const account = await accountQueryOptions.queryFn();
+
+          if (account) {
+            queryClient.setQueryData(accountQueryOptions.queryKey, account);
+            setHasValidated(true);
+            return account as unknown as FullAccountEntity;
+          }
+        } catch (e) {
+          /* Account might not yet exist; retry */
+        }
+
+        await delay(5000);
+      }
+
+      const abortError = new Error("Account validation aborted");
+      abortError.name = "AbortError";
+      throw abortError;
+    },
+    [username]
+  );
 
   useEffect(() => {
-    if (seed && hiveKeys && wallet?.currency && wallet.address && loginKey && !hasInitiated) {
-      setHasInitiated(true);
-      createAccount({ currency: wallet.currency!, address: wallet.address! })
-        .then(() => delay(5000))
-        .then(() => validateAccountIsCreated())
-        .then(() => loginInApp())
-        .then(() => saveWalletInformationToMetadata(Array.from(wallets?.values() ?? [])))
-        .then(() => recordActivity())
-        .catch(() => {
-          /* Errors are handled within respective mutation hooks */
-        });
+    if (
+      !(
+        seed &&
+        hiveKeys &&
+        wallet?.currency &&
+        wallet.address &&
+        loginKey &&
+        !hasInitiatedRef.current
+      )
+    ) {
+      return;
     }
+
+    hasInitiatedRef.current = true;
+
+    let cancelled = false;
+    const shouldStop = () => cancelled;
+
+    (async () => {
+      try {
+        await createAccount({ currency: wallet.currency!, address: wallet.address! });
+        await delay(5000);
+        const account = await validateAccountIsCreated(shouldStop);
+        if (shouldStop()) {
+          return;
+        }
+
+        await loginByKey(account);
+        if (shouldStop()) {
+          return;
+        }
+
+        await saveWalletInformationToMetadata(Array.from(wallets?.values() ?? []));
+        if (shouldStop()) {
+          return;
+        }
+
+        await recordActivity();
+      } catch (err) {
+        if ((err as Error)?.name === "AbortError") {
+          return;
+        }
+
+        /* Errors are handled within respective mutation hooks */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     seed,
     hiveKeys,
     wallet,
     createAccount,
-    loginInApp,
+    loginByKey,
     validateAccountIsCreated,
-    hasInitiated,
     saveWalletInformationToMetadata,
     wallets,
-    recordActivity
+    recordActivity,
+    loginKey
   ]);
 
   return (

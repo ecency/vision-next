@@ -32,8 +32,8 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
     useGetExternalWalletBalanceQuery(selected[0], selected[1]);
 
   const hasValidated = useMemo(
-    () => Number(externalWalletBalance ?? 0) > 0,
-    [externalWalletBalance]
+    () => (externalWalletBalance?.balanceBigInt ?? 0n) > 0n,
+    [externalWalletBalance?.balanceBigInt]
   );
   // const hasValidated = true;
 

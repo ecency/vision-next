@@ -16,13 +16,17 @@ async function signer(message: string, privateKey: PrivateKey) {
   return new Promise<string>((resolve) => resolve(privateKey.sign(hash).toString()));
 }
 
-export function useLoginByKey(username: string, keyOrSeed: string, isVerified: boolean) {
+export function useLoginByKey(
+  username: string,
+  keyOrSeed: string,
+  isVerified: boolean
+) {
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
   const loginInApp = useLoginInApp(username);
 
   return useMutation({
     mutationKey: ["login-by-key", username, keyOrSeed, isVerified],
-    mutationFn: async () => {
+    mutationFn: async (prefetchedAccount?: FullAccount) => {
       if (username === "" || keyOrSeed === "") {
         throw new Error(i18next.t("login.error-fields-required"));
       }
@@ -37,14 +41,16 @@ export function useLoginByKey(username: string, keyOrSeed: string, isVerified: b
         throw new Error(i18next.t("login.error-public-key"));
       } catch (e) {}
 
-      let account: FullAccount;
+      let account: FullAccount | undefined = prefetchedAccount;
 
-      try {
-        account = await getAccount(username);
-      } catch (err) {
-        const wrapped = new Error(i18next.t("login.error-user-fetch"));
-        (wrapped as any).cause = err;
-        throw wrapped;
+      if (!account) {
+        try {
+          account = await getAccount(username);
+        } catch (err) {
+          const wrapped = new Error(i18next.t("login.error-user-fetch"));
+          (wrapped as any).cause = err;
+          throw wrapped;
+        }
       }
 
       if (!account || account.name !== username) {
