@@ -2958,6 +2958,17 @@
       "stake": "Absteckung",
       "unstake": "Entsetzen",
       "undelegate": "Entfernen"
+    },
+    "external": {
+      "receive-button": "Erhalten",
+      "transfer-soon": "Überweisung (bald)",
+      "receive-title": "Erhalte {{token}}",
+      "receive-description": "Scannen Sie den QR-Code oder kopieren Sie die Adresse, um {{token}} zu erhalten.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "Wir konnten keinen QR-Code generieren. Bitte kopieren Sie stattdessen die Adresse.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "{{token}} Adresse",
+      "receive-no-address": "Wir konnten noch keine Adresse für dieses Token finden. Richten Sie es von Ihrer Wallet-Seite aus ein, um es zu erhalten."
     }
   },
   "permissions": {
