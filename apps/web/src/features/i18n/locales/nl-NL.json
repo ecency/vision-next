@@ -2958,6 +2958,17 @@
       "stake": "Uitzetten",
       "unstake": "Onbelangrijk",
       "undelegate": "Ontdelegeren"
+    },
+    "external": {
+      "receive-button": "Ontvangen",
+      "transfer-soon": "Overdracht (binnenkort)",
+      "receive-title": "Ontvang {{token}}",
+      "receive-description": "Scan de QR-code of kopieer het adres om {{token}} te ontvangen.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "We konden geen QR-code genereren. Kopieer het adres in plaats daarvan.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "{{token}} adres",
+      "receive-no-address": "We konden nog geen adres voor dit token vinden. Stel het in op uw portemonnee setup pagina om te beginnen met het ontvangen."
     }
   },
   "permissions": {
