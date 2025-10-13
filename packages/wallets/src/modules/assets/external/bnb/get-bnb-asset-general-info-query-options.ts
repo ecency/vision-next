@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { CONFIG } from "@ecency/sdk";
 import { getBnbAssetBalanceQueryOptions } from "./get-bnb-asset-balance-query-options";
-import { getCoinGeckoPriceQueryOptions } from "@/modules/wallets";
+import { getTokenPriceQueryOptions } from "@/modules/wallets";
 import { getAddressFromAccount } from "../common";
 
 export function getBnbAssetGeneralInfoQueryOptions(username: string) {
@@ -22,11 +22,11 @@ export function getBnbAssetGeneralInfoQueryOptions(username: string) {
         ) ?? 0) / 1e18;
 
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("BNB")
+        getTokenPriceQueryOptions("BNB")
       );
       const price =
         CONFIG.queryClient.getQueryData<number>(
-          getCoinGeckoPriceQueryOptions("BNB").queryKey
+          getTokenPriceQueryOptions("BNB").queryKey
         ) ?? 0;
 
       return {

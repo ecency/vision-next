@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { CONFIG } from "@ecency/sdk";
 import { getEthAssetBalanceQueryOptions } from "./get-eth-asset-balance-query-options";
-import { getCoinGeckoPriceQueryOptions } from "@/modules/wallets";
+import { getTokenPriceQueryOptions } from "@/modules/wallets";
 import { getAddressFromAccount } from "../common";
 
 export function getEthAssetGeneralInfoQueryOptions(username: string) {
@@ -22,11 +22,11 @@ export function getEthAssetGeneralInfoQueryOptions(username: string) {
         ) ?? 0) / 1e18;
 
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("ETH")
+        getTokenPriceQueryOptions("ETH")
       );
       const price =
         CONFIG.queryClient.getQueryData<number>(
-          getCoinGeckoPriceQueryOptions("ETH").queryKey
+          getTokenPriceQueryOptions("ETH").queryKey
         ) ?? 0;
 
       return {

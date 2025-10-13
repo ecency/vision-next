@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { CONFIG } from "@ecency/sdk";
 import { getAptAssetBalanceQueryOptions } from "./get-apt-asset-balance-query-options";
-import { getCoinGeckoPriceQueryOptions } from "@/modules/wallets";
+import { getTokenPriceQueryOptions } from "@/modules/wallets";
 import { getAddressFromAccount } from "../common";
 
 export function getAptAssetGeneralInfoQueryOptions(username: string) {
@@ -22,11 +22,11 @@ export function getAptAssetGeneralInfoQueryOptions(username: string) {
         ) ?? 0) / 1e8;
 
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("APT")
+        getTokenPriceQueryOptions("APT")
       );
       const price =
         CONFIG.queryClient.getQueryData<number>(
-          getCoinGeckoPriceQueryOptions("APT").queryKey
+          getTokenPriceQueryOptions("APT").queryKey
         ) ?? 0;
 
       return {

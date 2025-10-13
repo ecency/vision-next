@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { CONFIG } from "@ecency/sdk";
 import { getTronAssetBalanceQueryOptions } from "./get-tron-asset-balance-query-options";
-import { getCoinGeckoPriceQueryOptions } from "@/modules/wallets";
+import { getTokenPriceQueryOptions } from "@/modules/wallets";
 import { getAddressFromAccount } from "../common";
 
 export function getTronAssetGeneralInfoQueryOptions(username: string) {
@@ -21,11 +21,11 @@ export function getTronAssetGeneralInfoQueryOptions(username: string) {
         ) ?? 0) / 1e6;
 
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("TRX")
+        getTokenPriceQueryOptions("TRX")
       );
       const price =
         CONFIG.queryClient.getQueryData<number>(
-          getCoinGeckoPriceQueryOptions("TRX").queryKey
+          getTokenPriceQueryOptions("TRX").queryKey
         ) ?? 0;
 
       return {

@@ -202,55 +202,67 @@ var cacheGet = (key) => {
   const v = cache.get(key);
   return v === undefinedValue ? void 0 : v;
 };
-function getCoinGeckoPriceQueryOptions(currency) {
+var CURRENCY_TO_TOKEN_MAP = {
+  ["BTC" /* BTC */]: "btc",
+  ["ETH" /* ETH */]: "eth",
+  ["SOL" /* SOL */]: "sol",
+  ["TON" /* TON */]: "ton",
+  ["TRX" /* TRON */]: "trx",
+  ["APT" /* APT */]: "apt",
+  ["BNB" /* BNB */]: "bnb",
+  HBD: "hbd",
+  HIVE: "hive"
+};
+var MARKET_DATA_CACHE_KEY = "market-data/latest";
+var normalizeCurrencyToToken = (currency) => {
+  const upperCased = currency.toUpperCase();
+  return CURRENCY_TO_TOKEN_MAP[upperCased] ?? currency.toLowerCase();
+};
+function getTokenPriceQueryOptions(currency) {
   return queryOptions({
-    queryKey: ["ecency-wallets", "coingecko-price", currency],
+    queryKey: ["ecency-wallets", "market-data", currency],
     queryFn: async () => {
-      let curr = currency;
-      switch (currency) {
-        case "BTC" /* BTC */:
-          curr = "bitcoin";
-          break;
-        case "ETH" /* ETH */:
-          curr = "ethereum";
-          break;
-        case "SOL" /* SOL */:
-          curr = "solana";
-          break;
-        case "TON" /* TON */:
-          curr = "ton";
-          break;
-        case "TRX" /* TRON */:
-          curr = "tron";
-          break;
-        case "APT" /* APT */:
-          curr = "aptos";
-          break;
-        case "BNB" /* BNB */:
-          curr = "binancecoin";
-          break;
-        case "TON" /* TON */:
-          curr = "the-open-network";
-          break;
-        default:
-          curr = currency;
+      if (!currency) {
+        throw new Error(
+          "[SDK][Wallets][MarketData] \u2013 currency wasn`t provided"
+        );
       }
-      let rate = cacheGet("gecko");
-      let response;
-      if (rate) {
-        response = rate;
-      } else {
+      if (!CONFIG.privateApiHost) {
+        throw new Error(
+          "[SDK][Wallets][MarketData] \u2013 privateApiHost isn`t configured"
+        );
+      }
+      const token = normalizeCurrencyToToken(currency);
+      let marketData = cacheGet(MARKET_DATA_CACHE_KEY);
+      if (!marketData) {
         const httpResponse = await fetch(
-          `https://api.coingecko.com/api/v3/simple/price?ids=${curr}&vs_currencies=usd`,
+          `${CONFIG.privateApiHost}/private-api/market-data/latest`,
           {
             method: "GET"
           }
         );
+        if (!httpResponse.ok) {
+          throw new Error(
+            `[SDK][Wallets][MarketData] \u2013 failed to fetch latest market data (${httpResponse.status})`
+          );
+        }
         const data = await httpResponse.json();
-        cacheSet("gecko", data === void 0 ? undefinedValue : data);
-        response = data;
+        cacheSet(MARKET_DATA_CACHE_KEY, data);
+        marketData = data;
       }
-      return +response[curr].usd;
+      const tokenData = marketData[token];
+      if (!tokenData) {
+        throw new Error(
+          `[SDK][Wallets][MarketData] \u2013 missing market data for token: ${token}`
+        );
+      }
+      const usdQuote = tokenData.quotes?.usd;
+      if (!usdQuote) {
+        throw new Error(
+          `[SDK][Wallets][MarketData] \u2013 missing USD quote for token: ${token}`
+        );
+      }
+      return Number(usdQuote.price);
     },
     enabled: !!currency
   });
@@ -746,11 +758,12 @@ function getHbdAssetGeneralInfoQueryOptions(username) {
       );
       let price = 1;
       try {
-        const response = await fetch(
-          "https://api.coingecko.com/api/v3/simple/price?ids=hive_dollar&vs_currencies=usd"
+        await CONFIG.queryClient.prefetchQuery(
+          getTokenPriceQueryOptions("HBD")
         );
-        const data = await response.json();
-        const marketPrice = data.hive_dollar?.usd;
+        const marketPrice = CONFIG.queryClient.getQueryData(
+          getTokenPriceQueryOptions("HBD").queryKey
+        ) ?? 0;
         if (typeof marketPrice === "number" && Number.isFinite(marketPrice)) {
           price = marketPrice;
         }
@@ -2486,10 +2499,10 @@ function getAptAssetGeneralInfoQueryOptions(username) {
         getAptAssetBalanceQueryOptions(address).queryKey
       ) ?? 0) / 1e8;
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("APT")
+        getTokenPriceQueryOptions("APT")
       );
       const price = CONFIG.queryClient.getQueryData(
-        getCoinGeckoPriceQueryOptions("APT").queryKey
+        getTokenPriceQueryOptions("APT").queryKey
       ) ?? 0;
       return {
         name: "APT",
@@ -2537,10 +2550,10 @@ function getBnbAssetGeneralInfoQueryOptions(username) {
         getBnbAssetBalanceQueryOptions(address).queryKey
       ) ?? 0) / 1e18;
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("BNB")
+        getTokenPriceQueryOptions("BNB")
       );
       const price = CONFIG.queryClient.getQueryData(
-        getCoinGeckoPriceQueryOptions("BNB").queryKey
+        getTokenPriceQueryOptions("BNB").queryKey
       ) ?? 0;
       return {
         name: "BNB",
@@ -2588,10 +2601,10 @@ function getBtcAssetGeneralInfoQueryOptions(username) {
         getBtcAssetBalanceQueryOptions(address).queryKey
       ) ?? 0) / 1e8;
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("BTC")
+        getTokenPriceQueryOptions("BTC")
       );
       const price = CONFIG.queryClient.getQueryData(
-        getCoinGeckoPriceQueryOptions("BTC").queryKey
+        getTokenPriceQueryOptions("BTC").queryKey
       ) ?? 0;
       return {
         name: "BTC",
@@ -2639,10 +2652,10 @@ function getEthAssetGeneralInfoQueryOptions(username) {
         getEthAssetBalanceQueryOptions(address).queryKey
       ) ?? 0) / 1e18;
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("ETH")
+        getTokenPriceQueryOptions("ETH")
       );
       const price = CONFIG.queryClient.getQueryData(
-        getCoinGeckoPriceQueryOptions("ETH").queryKey
+        getTokenPriceQueryOptions("ETH").queryKey
       ) ?? 0;
       return {
         name: "ETH",
@@ -2690,10 +2703,10 @@ function getSolAssetGeneralInfoQueryOptions(username) {
         getSolAssetBalanceQueryOptions(address).queryKey
       ) ?? 0) / 1e9;
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("SOL")
+        getTokenPriceQueryOptions("SOL")
       );
       const price = CONFIG.queryClient.getQueryData(
-        getCoinGeckoPriceQueryOptions("SOL").queryKey
+        getTokenPriceQueryOptions("SOL").queryKey
       ) ?? 0;
       return {
         name: "SOL",
@@ -2741,10 +2754,10 @@ function getTonAssetGeneralInfoQueryOptions(username) {
         getTonAssetBalanceQueryOptions(address).queryKey
       ) ?? 0) / 1e9;
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("TON")
+        getTokenPriceQueryOptions("TON")
       );
       const price = CONFIG.queryClient.getQueryData(
-        getCoinGeckoPriceQueryOptions("TON").queryKey
+        getTokenPriceQueryOptions("TON").queryKey
       ) ?? 0;
       return {
         name: "TON",
@@ -2792,10 +2805,10 @@ function getTronAssetGeneralInfoQueryOptions(username) {
         getTronAssetBalanceQueryOptions(address).queryKey
       ) ?? 0) / 1e6;
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("TRX")
+        getTokenPriceQueryOptions("TRX")
       );
       const price = CONFIG.queryClient.getQueryData(
-        getCoinGeckoPriceQueryOptions("TRX").queryKey
+        getTokenPriceQueryOptions("TRX").queryKey
       ) ?? 0;
       return {
         name: "TRX",
@@ -3342,6 +3355,6 @@ function useWalletOperation(username, asset, operation) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getCoinGeckoPriceQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferHive, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferHive, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

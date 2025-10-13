@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { CONFIG } from "@ecency/sdk";
 import { getSolAssetBalanceQueryOptions } from "./get-sol-asset-balance-query-options";
-import { getCoinGeckoPriceQueryOptions } from "@/modules/wallets";
+import { getTokenPriceQueryOptions } from "@/modules/wallets";
 import { getAddressFromAccount } from "../common";
 
 export function getSolAssetGeneralInfoQueryOptions(username: string) {
@@ -22,11 +22,11 @@ export function getSolAssetGeneralInfoQueryOptions(username: string) {
         ) ?? 0) / 1e9;
 
       await CONFIG.queryClient.prefetchQuery(
-        getCoinGeckoPriceQueryOptions("SOL")
+        getTokenPriceQueryOptions("SOL")
       );
       const price =
         CONFIG.queryClient.getQueryData<number>(
-          getCoinGeckoPriceQueryOptions("SOL").queryKey
+          getTokenPriceQueryOptions("SOL").queryKey
         ) ?? 0;
 
       return {

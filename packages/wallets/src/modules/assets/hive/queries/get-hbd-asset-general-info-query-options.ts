@@ -3,11 +3,13 @@ import {
   getAccountFullQueryOptions,
   getDynamicPropsQueryOptions,
   getQueryClient,
+  CONFIG,
 } from "@ecency/sdk";
 import { type FullAccount } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
 import { parseAsset } from "../../utils";
+import { getTokenPriceQueryOptions } from "@/modules/wallets";
 
 export function getHbdAssetGeneralInfoQueryOptions(username: string) {
   return queryOptions({
@@ -29,19 +31,19 @@ export function getHbdAssetGeneralInfoQueryOptions(username: string) {
 
       let price = 1;
       try {
-        const response = await fetch(
-          "https://api.coingecko.com/api/v3/simple/price?ids=hive_dollar&vs_currencies=usd"
+        await CONFIG.queryClient.prefetchQuery(
+            getTokenPriceQueryOptions("HBD")
         );
-        const data = (await response.json()) as {
-          hive_dollar?: { usd?: number };
-        };
-        const marketPrice = data.hive_dollar?.usd;
+        const marketPrice =
+            CONFIG.queryClient.getQueryData<number>(
+                getTokenPriceQueryOptions("HBD").queryKey
+            ) ?? 0;
 
         if (typeof marketPrice === "number" && Number.isFinite(marketPrice)) {
           price = marketPrice;
         }
       } catch {
-        // Ignore Coingecko failures and fall back to the peg value.
+        // Ignore private API failures and fall back to the peg value.
       }
 
       if (!accountData) {
