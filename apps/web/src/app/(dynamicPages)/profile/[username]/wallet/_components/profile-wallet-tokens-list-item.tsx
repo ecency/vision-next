@@ -88,13 +88,13 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         </div>
         <div className="text-gray-900 dark:text-white">
           <div className="text-base font-semibold">{formattedAccountBalance}</div>
-          {data?.parts?.map(({ name, balance }) => (
+          {data?.parts?.map(({ name, balance }, index) => (
             <div
-              key={name}
+              key={name || `part-${index}`}
               className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500"
             >
               <div>{name}:</div>
-              <div>{balance}</div>
+              <div>{Number(balance).toFixed(3)}</div>
             </div>
           ))}
           <div className="text-sm text-gray-600 dark:text-gray-400">

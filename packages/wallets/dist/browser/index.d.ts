@@ -1055,12 +1055,20 @@ declare function getHiveEngineTokenGeneralInfoQueryOptions(username?: string, sy
     price: number;
     accountBalance: number;
     layer: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
 }, Error, {
     name: string;
     title: string;
     price: number;
     accountBalance: number;
     layer: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
 }, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         name: string;
@@ -1068,6 +1076,10 @@ declare function getHiveEngineTokenGeneralInfoQueryOptions(username?: string, sy
         price: number;
         accountBalance: number;
         layer: string;
+        parts: {
+            name: string;
+            balance: number;
+        }[];
     }, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1077,6 +1089,10 @@ declare function getHiveEngineTokenGeneralInfoQueryOptions(username?: string, sy
             price: number;
             accountBalance: number;
             layer: string;
+            parts: {
+                name: string;
+                balance: number;
+            }[];
         };
         [dataTagErrorSymbol]: Error;
     };
@@ -1149,10 +1165,10 @@ interface HiveEngineMetric {
     timestamp: number;
 }
 
-declare function getHiveEngineTokensMetadataQueryOptions(tokens: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenMetadataResponse[], Error, HiveEngineTokenMetadataResponse[], (string | string[])[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenMetadataResponse[], (string | string[])[], never> | undefined;
+declare function getHiveEngineTokensMetadataQueryOptions(tokens: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenMetadataResponse[], Error, HiveEngineTokenMetadataResponse[], readonly ["assets", "hive-engine", "metadata-list", string[]]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenMetadataResponse[], readonly ["assets", "hive-engine", "metadata-list", string[]], never> | undefined;
 } & {
-    queryKey: (string | string[])[] & {
+    queryKey: readonly ["assets", "hive-engine", "metadata-list", string[]] & {
         [dataTagSymbol]: HiveEngineTokenMetadataResponse[];
         [dataTagErrorSymbol]: Error;
     };
@@ -1185,10 +1201,10 @@ declare function getHiveEngineTokensMarketQueryOptions(): _tanstack_react_query.
     };
 };
 
-declare function getHiveEngineTokensBalancesQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenBalance[], Error, HiveEngineTokenBalance[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenBalance[], string[], never> | undefined;
+declare function getHiveEngineTokensBalancesQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenBalance[], Error, HiveEngineTokenBalance[], readonly ["assets", "hive-engine", "balances", string]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenBalance[], readonly ["assets", "hive-engine", "balances", string], never> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: readonly ["assets", "hive-engine", "balances", string] & {
         [dataTagSymbol]: HiveEngineTokenBalance[];
         [dataTagErrorSymbol]: Error;
     };

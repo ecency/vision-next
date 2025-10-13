@@ -85,7 +85,7 @@ export function getHiveAssetTransactionsQueryOptions(
             case "transfer_to_savings":
             case "transfer_to_vesting":
             case "recurrent_transfer":
-              return ["HIVE"].includes(item.amount);
+              return parseAsset(item.amount).symbol === "HIVE";
 
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);

@@ -1,10 +1,10 @@
 import { Button } from "@/features/ui";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { AssetOperation, getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { WalletOperationCard } from "./wallet-opearation-card";
@@ -18,6 +18,7 @@ interface Props {
   username: string;
   showSubmit: boolean;
   showMemo?: boolean;
+  operation: AssetOperation;
   onSubmit: (data: { to: string; amount: string; memo?: string | undefined; from: string }) => void;
 }
 
@@ -26,13 +27,72 @@ export function WalletOperationsTransfer({
   to: toProp,
   asset,
   username,
+  operation,
   onSubmit,
   showSubmit,
   showMemo = false
 }: Props) {
-  const [to, setTo] = useState<string>(data?.to ?? toProp ?? "");
+  const [to, setTo] = useState<string>(
+    data?.to ??
+      toProp ??
+      ([AssetOperation.Stake, AssetOperation.Unstake].includes(operation) ? username : "")
+  );
 
   const { data: accountWallet } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
+
+  useEffect(() => {
+    if (data?.to) {
+      setTo(data.to);
+      return;
+    }
+
+    if (toProp) {
+      setTo(toProp);
+      return;
+    }
+
+    if ([AssetOperation.Stake, AssetOperation.Unstake].includes(operation)) {
+      setTo(username);
+    }
+  }, [data?.to, operation, toProp, username]);
+
+  const isEngineToken = accountWallet?.layer === "ENGINE";
+  const liquidBalance = useMemo(
+    () => accountWallet?.parts?.find((part) => part.name === "liquid")?.balance ?? 0,
+    [accountWallet?.parts]
+  );
+  const stakedBalance = useMemo(
+    () => accountWallet?.parts?.find((part) => part.name === "staked")?.balance ?? 0,
+    [accountWallet?.parts]
+  );
+
+  const operationBalance = useMemo(() => {
+    if (!accountWallet) {
+      return undefined;
+    }
+
+    if (!isEngineToken) {
+      return accountWallet.accountBalance ?? 0;
+    }
+
+    if ([AssetOperation.Transfer, AssetOperation.Stake].includes(operation)) {
+      return liquidBalance;
+    }
+
+    if (
+      [AssetOperation.Unstake, AssetOperation.Delegate, AssetOperation.Undelegate].includes(
+        operation
+      )
+    ) {
+      return stakedBalance;
+    }
+
+    return accountWallet.accountBalance ?? 0;
+  }, [accountWallet, isEngineToken, liquidBalance, operation, stakedBalance]);
+
+  const maxAmount = operationBalance ?? 0;
+
+  const validationMax = maxAmount || 0.001;
 
   const methods = useForm({
     resolver: yupResolver(
@@ -41,7 +101,7 @@ export function WalletOperationsTransfer({
           .number()
           .required(i18next.t("validation.required"))
           .min(0.001)
-          .max(accountWallet?.accountBalance ?? 0.001),
+          .max(validationMax),
         memo: yup.string()
       })
     ),
@@ -57,16 +117,21 @@ export function WalletOperationsTransfer({
         <WalletOperationCard
           label="from"
           asset={asset}
+          balance={operationBalance}
           username={username}
-          onBalanceClick={(v) => methods.setValue("amount", v)}
+          onBalanceClick={() =>
+            methods.setValue("amount", +formatNumber(maxAmount || 0, 3) || 0)
+          }
         />
         <WalletOperationCard
           label="to"
           asset={asset}
           username={to ?? ""}
           onUsernameSubmit={(v) => setTo(v ?? "")}
-          editable={showSubmit}
-          onBalanceClick={(v) => methods.setValue("amount", v)}
+          editable={showSubmit && operation !== AssetOperation.Unstake}
+          onBalanceClick={() =>
+            methods.setValue("amount", +formatNumber(maxAmount || 0, 3) || 0)
+          }
         />
       </div>
 
@@ -94,7 +159,11 @@ export function WalletOperationsTransfer({
               <div className="text-black dark:text-white font-semibold">0.0%</div>
             </div>
             {showSubmit && (
-              <Button type="submit" disabled={!to} icon={<UilArrowRight />}>
+              <Button
+                type="submit"
+                disabled={!to || maxAmount <= 0}
+                icon={<UilArrowRight />}
+              >
                 {i18next.t("g.continue")}
               </Button>
             )}

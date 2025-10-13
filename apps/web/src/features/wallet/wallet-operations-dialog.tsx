@@ -88,7 +88,8 @@ export function WalletOperationsDialog({
           AssetOperation.TransferToSavings,
           AssetOperation.PowerUp,
           AssetOperation.Gift,
-          AssetOperation.Stake
+          AssetOperation.Stake,
+          AssetOperation.Unstake
         ].includes(operation) ||
           (AssetOperation.Delegate === operation && asset !== "LP")) && (
           <WalletOperationsTransfer
@@ -96,6 +97,7 @@ export function WalletOperationsDialog({
             data={data}
             asset={asset}
             username={activeUser?.username ?? ""}
+            operation={operation}
             showSubmit={step === "form"}
             showMemo={[
               AssetOperation.Transfer,

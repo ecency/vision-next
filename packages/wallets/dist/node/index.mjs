@@ -904,7 +904,7 @@ function getHiveAssetTransactionsQueryOptions(username, limit = 20, group) {
             case "transfer_to_savings":
             case "transfer_to_vesting":
             case "recurrent_transfer":
-              return ["HIVE"].includes(item.amount);
+              return parseAsset(item.amount).symbol === "HIVE";
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["HIVE"].includes(asset.symbol);
@@ -954,11 +954,14 @@ function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, group) 
                 item.reward_vests
               );
               return rewardVests.amount > 0;
+            case "transfer_to_vesting":
+              return true;
             case "transfer":
             case "transfer_to_savings":
-            case "transfer_to_vesting":
             case "recurrent_transfer":
-              return ["VESTS", "HP"].includes(item.amount);
+              return ["VESTS", "HP"].includes(
+                parseAsset(item.amount).symbol
+              );
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["VESTS", "HP"].includes(asset.symbol);
@@ -1000,7 +1003,7 @@ function getHbdAssetTransactionsQueryOptions(username, limit = 20, group) {
             case "transfer_to_savings":
             case "transfer_to_vesting":
             case "recurrent_transfer":
-              return ["HBD"].includes(item.amount);
+              return parseAsset(item.amount).symbol === "HBD";
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["HBD"].includes(asset.symbol);
@@ -1765,12 +1768,23 @@ function getHiveEngineTokenGeneralInfoQueryOptions(username, symbol) {
       const balance = balanceList?.find((i) => i.symbol === symbol);
       const market = marketList?.find((i) => i.symbol === symbol);
       const lastPrice = +(market?.lastPrice ?? "0");
+      const liquidBalance = parseFloat(balance?.balance ?? "0");
+      const stakedBalance = parseFloat(balance?.stake ?? "0");
+      const unstakingBalance = parseFloat(balance?.pendingUnstake ?? "0");
+      const parts = [
+        { name: "liquid", balance: liquidBalance },
+        { name: "staked", balance: stakedBalance }
+      ];
+      if (unstakingBalance > 0) {
+        parts.push({ name: "unstaking", balance: unstakingBalance });
+      }
       return {
         name: symbol,
         title: metadata?.name ?? "",
         price: lastPrice === 0 ? 0 : Number(lastPrice * (hiveData?.price ?? 0)),
-        accountBalance: parseFloat(balance?.balance ?? "0"),
-        layer: "ENGINE"
+        accountBalance: liquidBalance + stakedBalance,
+        layer: "ENGINE",
+        parts
       };
     }
   });
@@ -2226,6 +2240,9 @@ function getPointsAssetTransactionsQueryOptions(username, type) {
         `${CONFIG.privateApiHost}/private-api/point-list`,
         {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({
             username,
             type: type ?? 0
@@ -2929,22 +2946,30 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
         case "TRX":
           return [];
       }
+      if (!username) {
+        return ["transfer" /* Transfer */];
+      }
+      const queryClient = getQueryClient();
       const balancesListQuery = getHiveEngineTokensBalancesQueryOptions(username);
-      await getQueryClient().prefetchQuery(balancesListQuery);
-      const balances = getQueryClient().getQueryData(
-        balancesListQuery.queryKey
-      );
+      const balances = await queryClient.ensureQueryData(balancesListQuery);
       const tokensQuery = getHiveEngineTokensMetadataQueryOptions(
-        balances?.map((b) => b.symbol) ?? []
+        balances.map((b) => b.symbol)
       );
-      await getQueryClient().prefetchQuery(tokensQuery);
-      const tokens = getQueryClient().getQueryData(tokensQuery.queryKey);
-      const balanceInfo = balances?.find((m) => m.symbol === token);
-      const tokenInfo = tokens?.find((t) => t.symbol === token);
+      const tokens = await queryClient.ensureQueryData(tokensQuery);
+      const balanceInfo = balances.find((m) => m.symbol === token);
+      const tokenInfo = tokens.find((t) => t.symbol === token);
       const canDelegate = isForOwner && tokenInfo?.delegationEnabled && balanceInfo && parseFloat(balanceInfo.delegationsOut) !== parseFloat(balanceInfo.balance);
       const canUndelegate = isForOwner && parseFloat(balanceInfo?.delegationsOut ?? "0") > 0;
-      const canStake = isForOwner && tokenInfo?.stakingEnabled;
-      const canUnstake = isForOwner && parseFloat(balanceInfo?.stake ?? "0") > 0;
+      const stakeBalance = parseFloat(balanceInfo?.stake ?? "0");
+      const pendingUnstakeBalance = parseFloat(
+        balanceInfo?.pendingUnstake ?? "0"
+      );
+      const supportsStakingFeature = Boolean(
+        tokenInfo?.stakingEnabled || (tokenInfo?.unstakingCooldown ?? 0) > 0 || parseFloat(tokenInfo?.totalStaked ?? "0") > 0
+      );
+      const hasStakingBalances = stakeBalance > 0 || pendingUnstakeBalance > 0;
+      const canStake = isForOwner && Boolean(tokenInfo?.stakingEnabled);
+      const canUnstake = isForOwner && (supportsStakingFeature || hasStakingBalances);
       return [
         "transfer" /* Transfer */,
         ...canDelegate ? ["delegate" /* Delegate */] : [],

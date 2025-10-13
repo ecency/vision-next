@@ -26,6 +26,44 @@ export function ProfileWalletTokenSummary() {
 
   const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
 
+  const liquidBalance = data?.parts?.find((part) => part.name === "liquid")?.balance ?? data?.accountBalance ?? 0;
+  const stakedBalance = data?.parts?.find((part) => part.name === "staked")?.balance ?? 0;
+  const hasStakedBalance = data?.parts?.some((part) => part.name === "staked");
+
+  const cards = [
+    {
+      label: hasStakedBalance ? "Liquid Balance" : "Balance",
+      value: format(liquidBalance),
+    },
+    ...(hasStakedBalance
+      ? [
+          {
+            label: "Staked Balance",
+            value: format(stakedBalance),
+          },
+        ]
+      : []),
+    {
+      label: "USD Balance",
+      value: format((data?.accountBalance ?? 0) * (data?.price ?? 0)),
+    },
+    ...(data?.apr
+      ? [
+          {
+            label: "APR",
+            value: `${+data.apr}%`,
+          },
+        ]
+      : []),
+  ];
+
+  const gridClassName =
+    cards.length === 4
+      ? "grid-cols-2 md:grid-cols-4"
+      : cards.length === 3
+      ? "grid-cols-3"
+      : "grid-cols-2";
+
   if (isFetching) {
     <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
       <div className="flex justify-between">
@@ -61,23 +99,13 @@ export function ProfileWalletTokenSummary() {
           <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-2 md:gap-4">
-        <div className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl">
-          <div className="text-sm text-gray-600 dark:text-gray-400">Balance</div>
-          <div className="text-xl font-bold">{format(data?.accountBalance ?? 0)}</div>
-        </div>
-        <div className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl">
-          <div className="text-sm text-gray-600 dark:text-gray-400">USD Balance</div>
-          <div className="text-xl font-bold">
-            {format((data?.accountBalance ?? 0) * (data?.price ?? 0))}
+      <div className={`grid ${gridClassName} gap-2 md:gap-4`}>
+        {cards.map((card) => (
+          <div key={card.label} className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl">
+            <div className="text-sm text-gray-600 dark:text-gray-400">{card.label}</div>
+            <div className="text-xl font-bold">{card.value}</div>
           </div>
-        </div>
-        {data?.apr && (
-          <div className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl">
-            <div className="text-sm text-gray-600 dark:text-gray-400">APR</div>
-            <div className="text-xl font-bold">{+data.apr}%</div>
-          </div>
-        )}
+        ))}
       </div>
     </div>
   );

@@ -77,6 +77,7 @@ export function ProfileCard({ account }: Props) {
       <AnimatePresence>
         {!isMyProfile && relationshipBetweenAccounts?.follows && (
           <motion.div
+            key="follows-badge"
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
@@ -84,7 +85,7 @@ export function ProfileCard({ account }: Props) {
             <Badge className="relative z-10">{i18next.t("profile.follows-you")}</Badge>
           </motion.div>
         )}
-        <div className="absolute z-10 right-4 top-4">
+        <div key="profile-info" className="absolute z-10 right-4 top-4">
           <ProfileInfo account={account} />
         </div>
       </AnimatePresence>
