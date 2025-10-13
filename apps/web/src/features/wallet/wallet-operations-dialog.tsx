@@ -38,13 +38,17 @@ export function WalletOperationsDialog({
   const [data, setData] = useState<Record<string, unknown>>({});
   const [signError, setSignError] = useState<Error>();
 
-  const [titleKey, subTitleKey] = useMemo(() => {
+  const [titleNamespace, titleKey, subTitleKey] = useMemo(() => {
+    if (operation === AssetOperation.WithdrawRoutes) {
+      return ["withdraw-routes", "title", "description"] as const;
+    }
+
     const key =
       operation === AssetOperation.Transfer && asset === AssetOperation.Gift
         ? "transfer-title-point"
         : `${operation}-title`;
 
-    return [key, `${operation}-sub-title`];
+    return ["transfer", key, `${operation}-sub-title`] as const;
   }, [asset, operation]);
 
   return (
@@ -73,8 +77,8 @@ export function WalletOperationsDialog({
               onClick={() => setStep("form")}
             />
             <div className="font-normal">
-              <div>{i18next.t(`transfer.${titleKey}`)}</div>
-              <div className="text-sm opacity-50">{i18next.t(`transfer.${subTitleKey}`)}</div>
+              <div>{i18next.t(`${titleNamespace}.${titleKey}`)}</div>
+              <div className="text-sm opacity-50">{i18next.t(`${titleNamespace}.${subTitleKey}`)}</div>
             </div>
           </div>
         </ModalHeader>
@@ -134,8 +138,8 @@ export function WalletOperationsDialog({
             asset={asset}
             username={activeUser?.username ?? ""}
             showSubmit={step === "form"}
-            onSubmit={() => {
-              setData({ from: activeUser?.username });
+            onSubmit={(formData) => {
+              setData(formData);
               setStep("sign");
             }}
           />

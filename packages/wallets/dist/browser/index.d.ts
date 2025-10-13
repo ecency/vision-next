@@ -908,17 +908,20 @@ declare function getLarynxAssetGeneralInfoQueryOptions(username: string): _tanst
 
 declare function getSpkAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     name: string;
+    layer: string;
     title: string;
     price: number;
     accountBalance: number;
 }, Error, {
     name: string;
+    layer: string;
     title: string;
     price: number;
     accountBalance: number;
 }, string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         name: string;
+        layer: string;
         title: string;
         price: number;
         accountBalance: number;
@@ -927,6 +930,7 @@ declare function getSpkAssetGeneralInfoQueryOptions(username: string): _tanstack
     queryKey: string[] & {
         [dataTagSymbol]: {
             name: string;
+            layer: string;
             title: string;
             price: number;
             accountBalance: number;

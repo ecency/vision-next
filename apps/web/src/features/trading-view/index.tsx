@@ -15,7 +15,9 @@ const Symbols: Record<string, string> = {
   [EcencyWalletCurrency.ETH]: "COINBASE:ETHUSD",
   [EcencyWalletCurrency.SOL]: "COINBASE:SOLUSD",
   [EcencyWalletCurrency.TON]: "CRYPTO:TONUSD",
-  [EcencyWalletCurrency.TRON]: "TRADENATION:TRONUSD"
+  [EcencyWalletCurrency.TRON]: "CRYPTO:TRXUSD",
+  HIVE: "CRYPTO:HIVEUSD",
+  HBD: "CRYPTO:HBDUSD"
 };
 
 export function TradingViewWidget({ symbol }: Props) {
@@ -24,7 +26,17 @@ export function TradingViewWidget({ symbol }: Props) {
   const locale = useGlobalStore((s) => s.lang);
   const theme = useGlobalStore((s) => s.theme);
 
+  const tradingViewSymbol = Symbols[symbol];
+  const [exchange, ticker] = tradingViewSymbol?.split(":") ?? [];
+  const tradingViewHref = ticker && exchange
+    ? `https://www.tradingview.com/symbols/${ticker}/?exchange=${exchange}`
+    : undefined;
+
   useEffect(() => {
+    if (!tradingViewSymbol) {
+      return;
+    }
+
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
@@ -43,7 +55,7 @@ export function TradingViewWidget({ symbol }: Props) {
           "locale": "${locale}",
           "save_image": true,
           "style": "1",
-          "symbol": "${Symbols[symbol]}",
+          "symbol": "${tradingViewSymbol}",
           "theme": "${theme === "day" ? "light" : "dark"}",
           "timezone": "Etc/UTC",
           "backgroundColor": "#ffffff",
@@ -58,7 +70,11 @@ export function TradingViewWidget({ symbol }: Props) {
       container.current.innerHTML = "";
     }
     container.current?.appendChild(script);
-  }, [locale, symbol, theme]);
+  }, [locale, theme, tradingViewSymbol]);
+
+  if (!tradingViewSymbol) {
+    return null;
+  }
 
   return (
     <div
@@ -70,16 +86,14 @@ export function TradingViewWidget({ symbol }: Props) {
         className="tradingview-widget-container__widget"
         style={{ height: "calc(100% - 32px)", width: "100%" }}
       ></div>
-      <div className="tradingview-widget-copyright">
-        <a
-          href="https://www.tradingview.com/symbols/BTCUSD/?exchange=COINBASE"
-          rel="noopener nofollow"
-          target="_blank"
-        >
-          <span className="blue-text">BTCUSD chart</span>
-        </a>
-        <span className="trademark"> by TradingView</span>
-      </div>
+      {tradingViewHref && (
+        <div className="tradingview-widget-copyright">
+          <a href={tradingViewHref} rel="noopener nofollow" target="_blank">
+            <span className="blue-text">{ticker} chart</span>
+          </a>
+          <span className="trademark"> by TradingView</span>
+        </div>
+      )}
     </div>
   );
 }
