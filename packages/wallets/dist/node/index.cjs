@@ -3372,7 +3372,7 @@ function useWalletOperation(username, asset, operation) {
   return reactQuery.useMutation({
     mutationKey: ["ecency-wallets", asset, operation],
     mutationFn: async (payload) => {
-      const operationFn = operationToFunctionMap[asset][operation];
+      const operationFn = operationToFunctionMap[asset]?.[operation];
       if (operationFn) {
         return operationFn(payload);
       }
