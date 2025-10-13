@@ -13,7 +13,10 @@ import {
   ProfileWalletTokenHistoryCard,
   ProfileWalletTokenHistoryHiveItem
 } from "../../_components";
-import { HiveEngineOperationIcon } from "../_consts";
+import {
+  DEFAULT_HIVE_ENGINE_OPERATION_ICON,
+  HiveEngineOperationIcon
+} from "../_consts";
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
 
@@ -30,10 +33,17 @@ export function HiveEngineTokenHistory() {
 
   return (
     <ProfileWalletTokenHistoryCard>
-      {dataFlow.map(({ _id, operation, timestamp, quantity, from, to, authorperm }) => (
+      {dataFlow.map(({ _id, operation, timestamp, quantity, from, to, authorperm }, index) => (
         <ProfileWalletTokenHistoryHiveItem
-          key={_id}
-          icon={HiveEngineOperationIcon[operation]}
+          key={
+            _id ||
+            `${operation}-${timestamp}-${quantity}-${from ?? ""}-${to ?? ""}-${
+              authorperm ?? ""
+            }-${index}`
+          }
+          icon={
+            HiveEngineOperationIcon[operation] ?? DEFAULT_HIVE_ENGINE_OPERATION_ICON
+          }
           type={operation}
           timestamp={timestamp * 1000}
           numbers={quantity}
@@ -47,7 +57,7 @@ export function HiveEngineTokenHistory() {
                 </Badge>
               </ProfileLink>
               <UilArrowRight className="text-gray-400 dark:text-gray-600" />
-              <ProfileLink username={from}>
+              <ProfileLink username={to}>
                 <Badge className="flex gap-1 pl-0.5 items-center">
                   <UserAvatar username={to} size="small" />
                   {to}

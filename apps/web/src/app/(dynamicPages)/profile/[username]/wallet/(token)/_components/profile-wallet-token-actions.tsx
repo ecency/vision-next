@@ -224,77 +224,84 @@ export function ProfileWalletTokenActions() {
             </button>
           </>
         )}
-      {operations?.map((operation) => (
-        <>
-          {[AssetOperation.Buy].includes(operation) && (
-            <Link
-              href={
-                [AssetOperation.Buy, AssetOperation.Claim].includes(operation)
-                  ? "/perks/points"
-                  : "/perks/promote-post"
-              }
-              className={clsx(
-                actionCardClass,
-                interactiveActionCardClass,
-                AssetOperation.Buy === operation && "text-blue-dark-sky border-blue-dark-sky"
-              )}
-            >
-              {operationsIcons[operation]}
-              <div className="w-full font-bold">
-                {i18next.t(`profile-wallet.operations.${operation}`)}
-              </div>
-            </Link>
-          )}
+        {operations?.map((operation, index) => {
+          const key = `operation-${operation}-${index}`;
 
-          {operation === AssetOperation.Claim && pathname.includes("points") && (
-            <div
-              key={operation}
-              className={clsx(
-                actionCardClass,
-                interactiveActionCardClass,
-                !canClaim && "opacity-50"
-              )}
-              onClick={() => canClaim && claim({})}
-            >
-              {isClaiming ? <UilSpinner className="animate-spin" /> : operationsIcons[operation]}
-              <div className="w-full font-bold">
-                {!canClaim && i18next.t("perks.claim-points-nothing")}
-                {canClaim && i18next.t("perks.claim-points-button")}
-                {canClaim && (
-                  <span className="font-bold ml-1">
-                    {`(+${parseInt(activeUserPoints?.uPoints).toFixed(0)})`}
-                  </span>
+          if ([AssetOperation.Buy, AssetOperation.Promote].includes(operation)) {
+            return (
+              <Link
+                key={key}
+                href={
+                  [AssetOperation.Buy, AssetOperation.Claim].includes(operation)
+                    ? "/perks/points"
+                    : "/perks/promote-post"
+                }
+                className={clsx(
+                  actionCardClass,
+                  interactiveActionCardClass,
+                  AssetOperation.Buy === operation && "text-blue-dark-sky border-blue-dark-sky"
                 )}
-              </div>
-            </div>
-          )}
+              >
+                {operationsIcons[operation]}
+                <div className="w-full font-bold">
+                  {i18next.t(`profile-wallet.operations.${operation}`)}
+                </div>
+              </Link>
+            );
+          }
 
-          {![AssetOperation.Buy, AssetOperation.Promote, AssetOperation.Claim].includes(
-            operation
-          ) && (
-            <WalletOperationsDialog
-              className={clsx(actionCardClass, interactiveActionCardClass)}
-              key={operation}
-              asset={tokenSymbol}
-              operation={operation}
-              to={
-                cleanUsername && cleanUsername !== activeUser?.username ? cleanUsername : undefined
-              }
-            >
-              {operationsIcons[operation]}
-              <div className="w-full font-bold">
-                {i18next.t(`profile-wallet.operations.${operation}`)}
+          if (operation === AssetOperation.Claim && pathname.includes("points")) {
+            return (
+              <div
+                key={key}
+                className={clsx(
+                  actionCardClass,
+                  interactiveActionCardClass,
+                  !canClaim && "opacity-50"
+                )}
+                onClick={() => canClaim && claim({})}
+              >
+                {isClaiming ? <UilSpinner className="animate-spin" /> : operationsIcons[operation]}
+                <div className="w-full font-bold">
+                  {!canClaim && i18next.t("perks.claim-points-nothing")}
+                  {canClaim && i18next.t("perks.claim-points-button")}
+                  {canClaim && (
+                    <span className="font-bold ml-1">
+                      {`(+${parseInt(activeUserPoints?.uPoints).toFixed(0)})`}
+                    </span>
+                  )}
+                </div>
               </div>
-            </WalletOperationsDialog>
-          )}
-        </>
-      ))}
+            );
+          }
+
+          if (![AssetOperation.Buy, AssetOperation.Promote, AssetOperation.Claim].includes(operation)) {
+            return (
+              <WalletOperationsDialog
+                key={key}
+                className={clsx(actionCardClass, interactiveActionCardClass)}
+                asset={tokenSymbol}
+                operation={operation}
+                to={
+                  cleanUsername && cleanUsername !== activeUser?.username ? cleanUsername : undefined
+                }
+              >
+                {operationsIcons[operation]}
+                <div className="w-full font-bold">
+                  {i18next.t(`profile-wallet.operations.${operation}`)}
+                </div>
+              </WalletOperationsDialog>
+            );
+          }
+
+          return null;
+        })}
         {Array.from({ length: Math.max(0, 4 - totalActionsCount) }).map((_, i) => (
-        <div
-            className=" bg-white/40 dark:bg-dark-200/40 rounded-xl p-3 flex flex-col gap-4 min-h-[66px]"
+          <div
+            className="bg-white/40 dark:bg-dark-200/40 rounded-xl p-3 flex flex-col gap-4 min-h-[66px]"
             key={`placeholder-${i}`}
-        />
-      ))}
+          />
+        ))}
       </div>
 
       <Modal

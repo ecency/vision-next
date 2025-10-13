@@ -1,6 +1,28 @@
 import { format } from "date-fns";
 import i18next from "i18next";
-import { PropsWithChildren, ReactNode } from "react";
+import { PropsWithChildren, ReactNode, useMemo } from "react";
+
+const HIVE_ENGINE_OPERATION_FALLBACK_LABELS: Record<string, string> = {
+  market_buy: "Market buy",
+  market_placeOrder: "Market order placed",
+  market_closeOrder: "Market order closed",
+  distribution_pending: "Distribution check pending distributions",
+};
+
+function getOperationFallbackLabel(type: string) {
+  const specificLabel = HIVE_ENGINE_OPERATION_FALLBACK_LABELS[type];
+
+  if (specificLabel) {
+    return specificLabel;
+  }
+
+  const withSpaces = type
+    .replace(/_/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .toLowerCase();
+
+  return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
+}
 
 interface Props {
   icon: ReactNode;
@@ -16,13 +38,21 @@ export function ProfileWalletTokenHistoryHiveItem({
   children,
   numbers
 }: PropsWithChildren<Props>) {
+  const operationLabel = useMemo(
+    () =>
+      i18next.t(`transactions.type-${type}`, {
+        defaultValue: getOperationFallbackLabel(type),
+      }),
+    [type]
+  );
+
   return (
     <div className="leading-[1] border-b border-[--border-color] p-4 grid items-start gap-4 grid-cols-[32px_2fr_2fr_1fr] last:border-0">
       <div className="text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-dark-grey flex items-center justify-center p-2 rounded-lg">
         {icon}
       </div>
       <div className="transaction-title">
-        <div>{i18next.t(`transactions.type-${type}`)}</div>
+        <div>{operationLabel}</div>
         <div className="text-sm mt-1 text-gray-600 dark:text-gray-400">
           {format(new Date(timestamp), "dd.MM.yyyy hh:mm")}
         </div>

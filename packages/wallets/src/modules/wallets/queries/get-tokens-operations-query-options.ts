@@ -2,8 +2,6 @@ import {
   AssetOperation,
   getHiveEngineTokensBalancesQueryOptions,
   getHiveEngineTokensMetadataQueryOptions,
-  HiveEngineTokenBalance,
-  HiveEngineTokenMetadataResponse,
 } from "@/modules/assets";
 import { getQueryClient } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
@@ -78,23 +76,23 @@ export function getTokenOperationsQueryOptions(
           return [];
       }
 
+      if (!username) {
+        return [AssetOperation.Transfer];
+      }
+
+      const queryClient = getQueryClient();
+
       const balancesListQuery =
         getHiveEngineTokensBalancesQueryOptions(username);
-      await getQueryClient().prefetchQuery(balancesListQuery);
-      const balances = getQueryClient().getQueryData<HiveEngineTokenBalance[]>(
-        balancesListQuery.queryKey
-      );
+      const balances = await queryClient.ensureQueryData(balancesListQuery);
 
       const tokensQuery = getHiveEngineTokensMetadataQueryOptions(
-        balances?.map((b) => b.symbol) ?? []
+        balances.map((b) => b.symbol)
       );
-      await getQueryClient().prefetchQuery(tokensQuery);
-      const tokens = getQueryClient().getQueryData<
-        HiveEngineTokenMetadataResponse[]
-      >(tokensQuery.queryKey);
+      const tokens = await queryClient.ensureQueryData(tokensQuery);
 
-      const balanceInfo = balances?.find((m) => m.symbol === token);
-      const tokenInfo = tokens?.find((t) => t.symbol === token);
+      const balanceInfo = balances.find((m) => m.symbol === token);
+      const tokenInfo = tokens.find((t) => t.symbol === token);
 
       const canDelegate =
         isForOwner &&
@@ -105,9 +103,23 @@ export function getTokenOperationsQueryOptions(
       const canUndelegate =
         isForOwner && parseFloat(balanceInfo?.delegationsOut ?? "0") > 0;
 
-      const canStake = isForOwner && tokenInfo?.stakingEnabled;
+      const stakeBalance = parseFloat(balanceInfo?.stake ?? "0");
+      const pendingUnstakeBalance = parseFloat(
+        balanceInfo?.pendingUnstake ?? "0"
+      );
+
+      const supportsStakingFeature = Boolean(
+        tokenInfo?.stakingEnabled ||
+          (tokenInfo?.unstakingCooldown ?? 0) > 0 ||
+          parseFloat(tokenInfo?.totalStaked ?? "0") > 0
+      );
+      const hasStakingBalances =
+        stakeBalance > 0 || pendingUnstakeBalance > 0;
+
+      const canStake = isForOwner && Boolean(tokenInfo?.stakingEnabled);
       const canUnstake =
-        isForOwner && parseFloat(balanceInfo?.stake ?? "0") > 0;
+        isForOwner &&
+        (supportsStakingFeature || hasStakingBalances);
       return [
         AssetOperation.Transfer,
         ...(canDelegate ? [AssetOperation.Delegate] : []),
