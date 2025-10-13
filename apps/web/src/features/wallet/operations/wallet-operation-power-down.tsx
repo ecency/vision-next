@@ -11,7 +11,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { WalletOperationCard } from "./wallet-opearation-card";
@@ -39,16 +39,28 @@ export function WalletOperationPowerDown({ username, asset, onSubmit, showSubmit
     [account, hivePerMVests]
   );
 
+  const maxAccountBalanceRef = useRef(accountWallet?.accountBalance ?? 0.001);
+
+  useEffect(() => {
+    maxAccountBalanceRef.current = accountWallet?.accountBalance ?? 0.001;
+  }, [accountWallet?.accountBalance]);
+
+  const resolver = useCallback(
+    (...args: Parameters<ReturnType<typeof yupResolver>>) =>
+      yupResolver(
+        yup.object({
+          amount: yup
+            .number()
+            .required(i18next.t("validation.required"))
+            .min(0.001)
+            .max(maxAccountBalanceRef.current),
+        })
+      )(...args),
+    []
+  );
+
   const methods = useForm({
-    resolver: yupResolver(
-      yup.object({
-        amount: yup
-          .number()
-          .required(i18next.t("validation.required"))
-          .min(0.001)
-          .max(accountWallet?.accountBalance ?? 0.001),
-      })
-    ),
+    resolver,
     defaultValues: {
       amount: accountWallet?.accountBalance ?? 0,
     },
