@@ -47,7 +47,7 @@ export function getHbdAssetGeneralInfoQueryOptions(username: string) {
       if (!accountData) {
         return {
           name: "HBD",
-          title: "Hive-based dollar",
+          title: "Hive Dollar",
           price,
           accountBalance: 0,
         };
@@ -55,7 +55,7 @@ export function getHbdAssetGeneralInfoQueryOptions(username: string) {
 
       return {
         name: "HBD",
-        title: "Hive-based dollar",
+        title: "Hive Dollar",
         price,
         accountBalance:
           parseAsset(accountData.hbd_balance).amount +

@@ -786,14 +786,14 @@ function getHbdAssetGeneralInfoQueryOptions(username) {
       if (!accountData) {
         return {
           name: "HBD",
-          title: "Hive-based dollar",
+          title: "Hive Dollar",
           price,
           accountBalance: 0
         };
       }
       return {
         name: "HBD",
-        title: "Hive-based dollar",
+        title: "Hive Dollar",
         price,
         accountBalance: parseAsset(accountData.hbd_balance).amount + parseAsset(accountData?.savings_hbd_balance).amount,
         apr: ((dynamicProps?.hbdInterestRate ?? 0) / 100).toFixed(3),
@@ -1543,6 +1543,7 @@ function getSpkAssetGeneralInfoQueryOptions(username) {
       if (!wallet || !market) {
         return {
           name: "SPK",
+          layer: "SPK",
           title: "SPK Network",
           price: 1,
           accountBalance: 0
@@ -1567,6 +1568,7 @@ function getSpkAssetGeneralInfoQueryOptions(username) {
       );
       return {
         name: "SPK",
+        layer: "SPK",
         title: "SPK Network",
         price: price / accountBalance,
         accountBalance

@@ -7,9 +7,11 @@ import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useMount } from "react-use";
 import { ProfileWalletTokenHistoryCard } from "../_components";
-import { HiveChart, HiveTransactionRow } from "./_components";
-import { FormControl } from "@/features/ui";
+import { HiveTransactionRow } from "./_components";
+import { Button, FormControl } from "@/features/ui";
+import { TradingViewWidget } from "@/features/trading-view";
 import i18next from "i18next";
+import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 
 const OPTIONS = ["rewards", "transfers", "stake-operations", "market-orders", "interests"].map(
   (value) => ({
@@ -24,7 +26,7 @@ export function HivePage() {
   const [type, setType] = useState("transfers");
 
   const { data, refetch } = useInfiniteQuery(
-    getHiveAssetTransactionsQueryOptions((username as string).replace("%40", ""), 20, type as any)
+    getHiveAssetTransactionsQueryOptions((username as string).replace("%40", ""), 1000, type as any)
   );
   const dataFlow = useInfiniteDataFlow(data);
 
@@ -33,11 +35,37 @@ export function HivePage() {
     [dataFlow]
   );
 
+  const sortedTransactions = useMemo(
+    () =>
+      [...uniqueTransactionsList].sort(
+        (a, b) => Number(b.num) - Number(a.num)
+      ),
+    [uniqueTransactionsList]
+  );
+
   useMount(() => refetch());
 
   return (
     <>
-      <HiveChart />
+      <div className="bg-white rounded-xl mb-4">
+        <div className="p-4 flex justify-between">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {i18next.t("profile-wallet.market")}
+          </div>
+          <Button
+            href="/market/advanced"
+            target="_blank"
+            appearance="gray"
+            size="sm"
+            icon={<UilArrowUpRight />}
+          >
+            {i18next.t("market-data.trade")}
+          </Button>
+        </div>
+        <div className="px-4 pb-4 h-[300px]">
+          <TradingViewWidget symbol="HIVE" />
+        </div>
+      </div>
       <ProfileWalletTokenHistoryCard
         action={
           <FormControl
@@ -53,7 +81,7 @@ export function HivePage() {
           </FormControl>
         }
       >
-        {uniqueTransactionsList.map((item, i) => (
+        {sortedTransactions.map((item, i) => (
           <HiveTransactionRow transaction={item} key={i} />
         ))}
       </ProfileWalletTokenHistoryCard>

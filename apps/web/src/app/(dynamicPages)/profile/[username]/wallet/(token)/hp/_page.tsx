@@ -2,32 +2,68 @@
 
 import { useInfiniteDataFlow } from "@/utils";
 import { getHivePowerAssetTransactionsQueryOptions } from "@ecency/wallets";
+import type { HiveOperationGroup } from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useMount } from "react-use";
 import { ProfileWalletTokenHistoryCard } from "../_components";
-import { HiveChart } from "../hive/_components";
 import { HiveTransactionRow, HpAboutCard, HpDelegationsCard } from "./_components";
 import i18next from "i18next";
-import { FormControl } from "@/features/ui";
+import { Button, FormControl } from "@/features/ui";
+import { TradingViewWidget } from "@/features/trading-view";
+import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 
-const OPTIONS = ["rewards", "transfers", "stake-operations", "market-orders", "interests"].map(
-  (value) => ({
-    value,
-    label: i18next.t(`transactions.group-${value}`)
-  })
+const OPTIONS = [
+  {
+    value: "rewards-stake",
+    label: `${i18next.t("transactions.group-rewards")} & ${i18next.t("transactions.group-stake-operations")}`,
+  },
+  "rewards",
+  "transfers",
+  "stake-operations",
+  "market-orders",
+  "interests",
+].map((value) =>
+  typeof value === "string"
+    ? { value, label: i18next.t(`transactions.group-${value}`) }
+    : value
 );
+
+const REWARD_TYPES = new Set([
+  "author_reward",
+  "comment_benefactor_reward",
+  "curation_reward",
+  "producer_reward",
+  "claim_reward_balance",
+]);
+
+const STAKE_OPERATION_TYPES = new Set([
+  "withdraw_vesting",
+  "transfer_to_vesting",
+  "delegate_vesting_shares",
+  "fill_vesting_withdraw",
+  "return_vesting_delegation",
+  "set_withdraw_vesting_route",
+]);
+
+type HpFilter = "rewards-stake" | HiveOperationGroup;
 
 export function HpPage() {
   const { username } = useParams();
 
-  const [type, setType] = useState("transfers");
+  const [type, setType] = useState<HpFilter>("rewards-stake");
 
   const cleanUsername = (username as string).replace("%40", "");
 
+  const queryGroup: HiveOperationGroup = type === "rewards-stake" ? "" : type;
+
   const { data, refetch } = useInfiniteQuery(
-    getHivePowerAssetTransactionsQueryOptions(cleanUsername, 20, type as any)
+    getHivePowerAssetTransactionsQueryOptions(
+      cleanUsername,
+      1000,
+      queryGroup
+    )
   );
   const dataFlow = useInfiniteDataFlow(data);
 
@@ -35,6 +71,24 @@ export function HpPage() {
     () => Array.from(new Map(dataFlow.map((item) => [item["num"], item])).values()),
     [dataFlow]
   );
+
+  const sortedTransactions = useMemo(
+    () =>
+      [...uniqueTransactionsList].sort(
+        (a, b) => Number(b.num) - Number(a.num)
+      ),
+    [uniqueTransactionsList]
+  );
+
+  const filteredTransactions = useMemo(() => {
+    if (type !== "rewards-stake") {
+      return sortedTransactions;
+    }
+
+    return sortedTransactions.filter((item) =>
+      REWARD_TYPES.has(item.type) || STAKE_OPERATION_TYPES.has(item.type)
+    );
+  }, [type, sortedTransactions]);
 
   useMount(() => refetch());
 
@@ -45,12 +99,30 @@ export function HpPage() {
         <HpDelegationsCard username={cleanUsername} />
       </div>
 
-      <HiveChart />
+      <div className="bg-white rounded-xl mb-4">
+        <div className="p-4 flex justify-between">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {i18next.t("profile-wallet.market")}
+          </div>
+          <Button
+            href="/market/advanced"
+            target="_blank"
+            appearance="gray"
+            size="sm"
+            icon={<UilArrowUpRight />}
+          >
+            {i18next.t("market-data.trade")}
+          </Button>
+        </div>
+        <div className="px-4 pb-4 h-[300px]">
+          <TradingViewWidget symbol="HIVE" />
+        </div>
+      </div>
       <ProfileWalletTokenHistoryCard
         action={
           <FormControl
             value={type}
-            onChange={(e) => setType((e.target as any).value)}
+            onChange={(e) => setType((e.target as any).value as HpFilter)}
             type="select"
           >
             {OPTIONS.map(({ label, value }) => (
@@ -61,7 +133,7 @@ export function HpPage() {
           </FormControl>
         }
       >
-        {uniqueTransactionsList.map((item, i) => (
+        {filteredTransactions.map((item, i) => (
           <HiveTransactionRow transaction={item} key={i} />
         ))}
       </ProfileWalletTokenHistoryCard>
