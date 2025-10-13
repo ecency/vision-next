@@ -2958,6 +2958,17 @@
       "stake": "Stake",
       "unstake": "Retirer",
       "undelegate": "Ne plus déléguer"
+    },
+    "external": {
+      "receive-button": "Recevoir",
+      "transfer-soon": "Transfert (bientôt)",
+      "receive-title": "Recevoir {{token}}",
+      "receive-description": "Scannez le code QR ou copiez l'adresse pour recevoir {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "Nous n'avons pas pu générer de code QR. Veuillez copier l'adresse à la place.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "Adresse {{token}}",
+      "receive-no-address": "Nous n'avons pas encore trouvé d'adresse pour ce jeton. Configurez-le à partir de la page de configuration de votre portefeuille pour commencer à recevoir."
     }
   },
   "permissions": {
