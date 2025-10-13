@@ -2958,6 +2958,17 @@
       "stake": "ステーク（ステーク）",
       "unstake": "ステーク解除",
       "undelegate": "委任解除"
+    },
+    "external": {
+      "receive-button": "受信する",
+      "transfer-soon": "転送 (近日)",
+      "receive-title": "{{token}}を受け取る",
+      "receive-description": "QRコードをスキャンするか、 {{token}}を受信するアドレスをコピーしてください。",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "QRコードを生成できませんでした。代わりにアドレスをコピーしてください。",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "{{token}} アドレス",
+      "receive-no-address": "このトークンのアドレスが見つかりませんでした。受信を開始するにはウォレットのセットアップページから設定してください。"
     }
   },
   "permissions": {
