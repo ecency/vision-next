@@ -2958,6 +2958,17 @@
       "stake": "Tycz",
       "unstake": "Bez stawki",
       "undelegate": "Usuń delegat"
+    },
+    "external": {
+      "receive-button": "Odbierz",
+      "transfer-soon": "Przelew (wkrótce)",
+      "receive-title": "Odbierz {{token}}",
+      "receive-description": "Zeskanuj kod QR lub skopiuj adres, aby otrzymać {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "Nie mogliśmy wygenerować kodu QR. Zamiast tego skopiuj adres.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "Adres {{token}}",
+      "receive-no-address": "Nie mogliśmy jeszcze znaleźć adresu dla tego tokenu. Ustaw go ze strony konfiguracji portfela, aby zacząć odbierać."
     }
   },
   "permissions": {
