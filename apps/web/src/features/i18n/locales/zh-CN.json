@@ -2958,6 +2958,17 @@
       "stake": "拉克",
       "unstake": "取消利害关系",
       "undelegate": "取消授权"
+    },
+    "external": {
+      "receive-button": "接收",
+      "transfer-soon": "转让(即将)",
+      "receive-title": "Receive {{token}}",
+      "receive-description": "Scan the QR code or copy the address to receive {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "我们无法生成二维码。请复制地址。",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "{{token}} address",
+      "receive-no-address": "我们尚未找到此令牌的地址。从你的钱包设置页面设置它来开始接收。"
     }
   },
   "permissions": {
