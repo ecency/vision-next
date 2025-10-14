@@ -106,7 +106,8 @@
   "validation": {
     "required": "Required field",
     "min-length": "Must be at least {{n}} characters",
-    "max-length": "Must be at most {{n}} characters"
+    "max-length": "Must be at most {{n}} characters",
+    "url": "Invalid URL format"
   },
   "confirm": {
     "title": "Are you sure?",
@@ -212,7 +213,7 @@
     "boost": "Boost",
     "submit": "Create a post",
     "chats": "Chats",
-    "perks": "Upgrade"
+    "perks": "Buy perks"
   },
   "intro": {
     "title": "Aspire to greatness",
@@ -322,10 +323,10 @@
     "pay-fee": "Pay Account Fee",
     "modal-title": "Are you sure?",
     "modal-confirm": "Confirm",
-    "file-warning": "Please handle your seed phrase and private keys with extra caution. Your account will no longer be accessible if you lose your seed phrase. We do not keep a copy of it; it is confidential and only you have access to it.",
+    "file-warning": "Please handle your password and private keys with extra caution. Your account will no longer be accessible if you lose your password. We do not keep a copy of it; it is confidential and only you have access to it.",
     "recommend": "We recommend that,",
     "recommend-print": "PRINT this file out and store it securely.",
-    "recommend-use": "NEVER use your seed phrase/owner key on untrusted apps.",
+    "recommend-use": "NEVER use your password/owner key on untrusted apps.",
     "recommend-save": "Save all your keys within a password manager and/or Ecency mobile wallet, as you will need them frequently.",
     "recommend-third-party": "Don't keep this file within the reach of a third party.",
     "account-info": "Your Hive Account Information;",
@@ -342,9 +343,9 @@
     "active-use": "Transfer Funds, Power up/down, Voting Witnesses/Proposals",
     "posting-use": "Post, Comment, Vote, Reblog, Follow, Profile updates",
     "memo-use": "Send/View encrypted messages on transfers",
-    "copy-tooltip": "Copy seed phrase",
-    "regenerate-password": "Regenerate seed phrase",
-    "copy-password": "Seed phrase copied successfully",
+    "copy-tooltip": "Copy password",
+    "regenerate-password": "Regenerate password",
+    "copy-password": "Password copied successfully",
     "copy-info-message": "Copy Link below and SEND to a friend",
     "success-message": "You successfully created the account ",
     "sign-title": "Sign transaction with ",
@@ -639,7 +640,7 @@
       "create-regular-post": "Create long post",
       "input-placeholder": "What's happening?",
       "select-thread-host": "Select a waves host",
-      "thread-host": "Publishing in",
+      "thread-host": "Will be published in",
       "no-threads-host": "This account is not a waves host",
       "publishing": "Waving 🌊...",
       "successfully-created": "Published successfully!",
@@ -973,7 +974,9 @@
     "proposals": "Proposals",
     "referrals": "Referrals",
     "go-community": "Community page",
-    "com-mod": "Moderator of these communities"
+    "com-mod": "Moderator of these communities",
+    "empty-communities": "No communities here",
+    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own"
   },
   "profile-info": {
     "joined": "Joined",
@@ -990,7 +993,8 @@
     "no-posts-community": "Join and post in this community",
     "create-posts": "Let's create a new post",
     "link-copied": "Search link copied to clipboard",
-    "no-posts-found": "Found nothing!"
+    "no-posts-found": "Found nothing!",
+    "subscribe": "Subscribe"
   },
   "rc-info": {
     "available": "Available",
@@ -1054,11 +1058,15 @@
     "language": "Language",
     "nsfw": "Show NSFW content",
     "referral-link": "Referral link",
+    "referral-link-hint": "Invite your friends with referral link and earn 100 points",
     "theme": "Theme Settings",
     "theme-system-default": "System Default",
     "theme-day": "Day mode",
     "theme-night": "Night mode",
-    "updated": "Preference updated!"
+    "updated": "Preference updated!",
+    "permissions-title": "Keys & permissions",
+    "permissions-hint": "Manage your keys, control permissions over applications",
+    "permissions": "Open permissions"
   },
   "wallet": {
     "unclaimed-rewards": "Unclaimed rewards",
@@ -1088,6 +1096,7 @@
     "savings": "SAVINGS",
     "savings-description": "Balance subject to 3 day withdraw waiting period.",
     "next-power-down": "The next power down is {{time}}, (~{{amount}}, {{weeks}} weeks remaining)",
+    "power-down-total": "Total power down remaining: {{amount}}",
     "transfer": "Transfer",
     "transfer-to-savings": "Transfer to savings",
     "convert": "Convert",
@@ -1200,6 +1209,7 @@
   },
   "withdraw-routes": {
     "title": "Withdraw accounts",
+    "description": "Automatically distribute power-down payouts to preferred accounts",
     "account": "Account",
     "percent": "Percent",
     "validation-account": "Account is required.",
@@ -1221,6 +1231,7 @@
     "checkin-extra-desc": "Consistent use of app gives you extra chances to earn more 10 points, be more active and earn more.",
     "delegation-desc": "You can earn ~100 points per day for each 1000HP delegation.",
     "community-desc": "Register your community to get 20 points for per post published with Ecency applications.",
+    "referral-desc": "Invite friends and earn Points",
     "history": "History",
     "post-list-desc": "Points for post",
     "comment-list-desc": "Points for comment",
@@ -1360,7 +1371,7 @@
     "powerup-summary": "Power up completed successfully",
     "powerdown-summary": "Power down completed successfully",
     "reset": "Reset",
-    "powering-down": "You are currently powering down.",
+    "powering-down": "Currently powering down.",
     "stop-power-down": "Stop",
     "claim-title": "Claim",
     "powerup-title": "Power Up",
@@ -1372,7 +1383,16 @@
     "success-title": "Success",
     "success-sub-title": "Transaction completed",
     "sign-title": "Sign transaction",
-    "sign-sub-title": "Sign your transaction"
+    "sign-sub-title": "Sign your transaction",
+    "swap-title": "Swap Hive/HBD",
+    "swap-sub-title": "Swap your funds in few clicks",
+    "gift-title": "Gift",
+    "gift-sub-title": "Gift the Points to specific user",
+    "lock-sub-title": "Locking Larynx for liquidity reward",
+    "stake-title": "Stake",
+    "stake-sub-title": "Stake token to earn passive rewards",
+    "unstake-title": "Unstake",
+    "unstake-sub-title": "Unstake token you will stop earning passive rewards"
   },
   "trx-common": {
     "insufficient-funds": "Insufficient funds",
@@ -1391,14 +1411,26 @@
     "group-rewards": "Rewards",
     "type-curation_reward": "Curation reward",
     "type-author_reward": "Author reward",
+    "type-comments_authorReward": "Author reward",
+    "type-comments_curationReward": "Curation reward",
+    "type-comments_authorReward_stake": "Stake author reward",
+    "type-comments_curationReward_stake": "Stake curation reward",
     "type-comment_benefactor_reward": "Comment benefactor reward",
+    "type-tokens_stake": "Stake tokens",
+    "type-tokens_issue": "Issue tokens",
+    "type-comments_beneficiaryReward": "Beneficiary reward",
     "type-claim_reward_balance": "Claim rewards",
     "type-transfer": "Transfer",
+    "type-tokens_transfer": "Transfer",
     "type-transfer_to_vesting": "Power up",
     "type-withdraw_vesting": "Power down",
     "type-set_withdraw_vesting_route": "Withdraw route changed",
     "type-fill_vesting_withdraw": "Partial Power down occurred",
     "type-fill_order": "Open trade filled",
+    "type-market_buy": "Market buy",
+    "type-market_placeOrder": "Market order placed",
+    "type-market_closeOrder": "Market order closed",
+    "type-distribution_pending": "Distribution check pending distributions",
     "type-producer_reward": "Producer reward",
     "type-interest": "Interest",
     "type-transfer_to_savings": "Transfer to savings",
@@ -1427,6 +1459,7 @@
     "broken-hint": "Operation link is broken or cannot be recognized",
     "signer-text": "Signing following transaction/operation",
     "success-hint": "Operation signed and transaction broadcasted",
+    "success-close-hint": "Operation signed and transaction broadcasted. Window will be closed in 5 seconds...",
     "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
@@ -1630,7 +1663,7 @@
     "suggestion-header": "Tags",
     "error-max": "Max {{n}} tags",
     "limited_tags": "Only 10 tags allowed, remove some",
-    "limited_length": "Maximum length of each tag should be 24",
+    "limited_length": "Maximum length of each tag should be 15",
     "limited_dash": "Use one dash in each tag",
     "limited_space": "Use space to separate tags",
     "limited_lowercase": "Only use lower letters in tag",
@@ -1894,7 +1927,8 @@
     "label-check": "I have securely saved my generated password",
     "validation-password": "Password is invalid.",
     "validation-label": "Please tick this box to proceed.",
-    "updated": "Password updated successfully!"
+    "updated": "Password updated successfully!",
+    "hint": "At this time, you can generate keys only by setting a new seed phrase. Updating to any other type of password is not supported. It helps us to keep Ecency and Hive accounts in a standards of Web 3.0."
   },
   "view-keys": {
     "title": "View Private keys",
@@ -2140,7 +2174,7 @@
       "where-tokens-come-header": "Where do the tokens come from?",
       "where-tokens-come-body": "<p>The Hive network continually creates new digital tokens to reward content creators and curators. Some of the newly-created tokens are transferred to users who add value to platform by posting, commenting, and voting on other people's posts. The remainder is distributed to holders of HIVE POWER and the witnesses that secures the blockchain.</p>",
       "how-promotion-work-header": "How content promotion works?",
-      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple. Select content, period of promotion 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in Ecency mobile app, website. There are no limits or restrictions, any post can be promoted to get more exposure and engagement. Ecency has right to remove posts from promotion list if it violates certain internet etiquette and norms.</p>",
+      "how-promotion-work-body": "<p>Promoting content on Ecency is very simple and easy. Ecency Points are used to promote content for 1, 2, 3, 7 or 14 days to get more exposure. Promoted posts are shuffled across the feeds to all users in mobile app, desktop app and website. There is no limit or restrictions, any post can be promoted to get more exposure and engagement. We hold right to remove posts from promotion list if it violates certain internet etiquette.</p>",
       "how-to-transfer-header": "How to transfer blockchain tokens?",
       "how-to-transfer-body": "<p>After login, you will find Wallet page in top header on website and desktop app or in Profile page, bottom navigation bar on mobile app. In wallet page you can initiate transfer of any token you hold to another user or exchange accounts, click on arrow next to your balance and find transfer operations. Transfers are irreversible because they are registered on blockchain, make sure to send correct recipient.</p>",
       "how-see-rewards-header": "How do I see my post rewards?",
@@ -2505,15 +2539,15 @@
     "points-description": "Jump start to improve engagement on your content by purchasing Points with Ecency Mobile",
     "points-buy-hive-title": "Buy points with HIVE/HBD",
     "points-buy-hive-description": "Simply swap your HIVE/HBD to POINTS",
-    "account-boost-title": "Out of Resource credits? Get more using Ecency mobile app",
+    "account-boost-title": "Account boosting",
     "account-boost-action": "Boost now!",
     "account-boost-description": "Use In-App purchase to acquire extra powers",
     "promote-title": "Promote your post",
     "promote-action": "Promote",
     "promote-description": "Impressions boost that will increase eyeballs on your content",
-    "boost-plus-title": "Get more Resources (Boost+)",
+    "boost-plus-title": "Boost+",
     "boost-plus-action": "Boost+",
-    "boost-plus-description": "Swap your POINTS to acquire Resource credits and Hive power with few clicks.",
+    "boost-plus-description": "Boost your account with your points in few clicks",
     "no-post": "No post selected",
     "go-to-perks": "Go to Perks",
     "buy-points-qr-title": "Buy points with QR",
@@ -2610,7 +2644,7 @@
   "not-found": {
     "title": "Not found",
     "description": "Oops! It seems there isn`t page related to URL:(",
-    "back-home": "Back to home"
+    "back-home": "Go Back"
   },
   "global-error": {
     "description": "Something went wrong. Please, try again or report an issue"
@@ -2647,6 +2681,12 @@
     },
     "who-to-follow": "Who to follow",
     "who-to-follow-hint": "Want to be here too? Be active and track yourself in Discover/Leaderboards.",
+    "whats-happening": "What's happening",
+    "whats-happening-subtitle": "Trending hashtags from the last {{hours}} hours",
+    "whats-happening-empty": "No trending hashtags yet.",
+    "whats-happening-error": "Unable to load trending hashtags right now.",
+    "tag-feed-indicator": "Surfing #{{tag}}",
+    "tag-feed-clear": "Clear filter",
     "reply-to": "Replying to",
     "edit-wave": "Edit wave",
     "reply": "Reply",
@@ -2759,8 +2799,8 @@
     "no-draft-title": "No draft found",
     "no-draft-hint": "You don't have draft with given ID. Please, check your drafts.",
     "new-content": "New content",
-    "draft-mode": "Draft editing mode",
-    "edit-mode": "Post editing mode",
+    "draft-mode": "You are in a draft editing mode",
+    "edit-mode": "You are in a post editing mode",
     "auto-save": "Auto saved",
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
@@ -2877,5 +2917,82 @@
     "hint": "Text-to-Speech uses browser`s built-in tools for converting text content to speech. Voices list, availability and quality depends only on your browser and device.",
     "playground": "Playground",
     "voices": "Voices"
+  },
+  "profile-wallet": {
+    "pick-tokens": "Pick tokens to show",
+    "search-token": "Search token",
+    "setup-tokens": "Setup assets",
+    "asset-name": "Asset name",
+    "price": "Price",
+    "balance": "Balance",
+    "history": "History",
+    "market": "Market",
+    "apr": "APR Rewards",
+    "apr-hint": "Annual Percentage Rate – an estimate of rewards you will earn in Cryptocurrency over the selected timeframe",
+    "delegations": "Delegations",
+    "external-wallets-offer": {
+      "title": "Bring your crypto to Ecency",
+      "description": "Create or import wallets for BTC, ETH, BNB, SOL, TRX, APT and TON directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
+      "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata"
+    },
+    "external-wallets-signup": {
+      "create-wallet-title": "Create & link to Hive account",
+      "create-wallet-description": "Create a wallet for BTC, ETH, BNB, SOL, TRX, APT and TON. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
+      "import-wallet-title": "Import existing wallet",
+      "import-wallet-description": "Import your existing wallet from Trust, Exodus, or other compatible apps. Your assets will be connected to your Hive account, so you can easily manage your funds in Ecency.",
+      "create-wallet-tokens-description": "Check out your tokens addresses. Also you can see them later on wallet page",
+      "linking": "Linking tokens to your Hive account...",
+      "linking-hint": "Hive and Ecency uses only public addresses of your wallets. No private information will be stored.",
+      "linking-success": "Tokens have linked successfully",
+      "linking-success-hint": "You can find your tokens in a wallet page"
+    },
+    "operations": {
+      "transfer": "Transfer",
+      "transfer-saving": "To Savings",
+      "power-up": "Power Up",
+      "power-down": "Power Down",
+      "swap": "Swap",
+      "delegate": "Delegate",
+      "withdraw-saving": "Withdraw routes",
+      "gift": "Gift",
+      "promote": "Promote",
+      "claim": "Claim",
+      "buy": "Buy",
+      "lock": "Lock liquidity",
+      "stake": "Stake",
+      "unstake": "Unstake",
+      "undelegate": "Undelegate"
+    },
+    "external": {
+      "receive-button": "Receive",
+      "transfer-soon": "Transfer (soon)",
+      "receive-title": "Receive {{token}}",
+      "receive-description": "Scan the QR code or copy the address to receive {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "We couldn't generate a QR code. Please copy the address instead.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "{{token}} address",
+      "receive-no-address": "We couldn't find an address for this token yet. Set it up from your wallet setup page to start receiving."
+    }
+  },
+  "permissions": {
+    "sessions": {
+      "title": "Posting active sessions"
+    },
+    "keys": {
+      "title": "Keys & Passwords",
+      "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below",
+      "add-key": "Add new keys",
+      "key-created": "Keys have created and assigned successfully.",
+      "error-private-key-reveal": "Private key can be revealed only with master password or seed phrase"
+    },
+    "recovery": {
+      "title": "Account recovery",
+      "hint": "Account recovery is available only if your keys have been changed or compromised within the past 30 days. If you have lost your keys or password and more than 30 days have passed, recovery is not possible."
+    },
+    "revoke-key": {
+      "title": "Revoke Hive key",
+      "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
+    }
   }
 }
