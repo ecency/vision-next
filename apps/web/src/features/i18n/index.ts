@@ -14,8 +14,20 @@ export const langOptions = [
     name: "Español"
   },
   {
+    code: "fr-FR",
+    name: "Français"
+  },
+  {
+    code: "de-DE",
+    name: "Deutsch"
+  },
+  {
     code: "hi-IN",
     name: "हिन्दी"
+  },
+  {
+    code: "ja-JP",
+    name: "日本語"
   },
   {
     code: "it-IT",
@@ -30,8 +42,16 @@ export const langOptions = [
     name: "Português"
   },
   {
+    code: "nl-NL",
+    name: "Nederlands"
+  },
+  {
     code: "sr-CS",
     name: "Srpski"
+  },
+  {
+    code: "pl-PL",
+    name: "Polski"
   },
   {
     code: "uk-UA",
@@ -57,11 +77,16 @@ export const langOptions = [
 
 const enUs = require("./locales/en-US.json");
 const esES = require("./locales/es-ES.json");
+const frFR = require("./locales/fr-FR.json");
+const deDE = require("./locales/de-DE.json");
 const hiIN = require("./locales/hi-IN.json");
+const jaJP = require("./locales/ja-JP.json");
 const itIT = require("./locales/it-IT.json");
 const idID = require("./locales/id-ID.json");
 const ptPT = require("./locales/pt-PT.json");
+const nlNL = require("./locales/nl-NL.json");
 const srCS = require("./locales/sr-CS.json");
+const plPL = require("./locales/pl-PL.json");
 const ukUA = require("./locales/uk-UA.json");
 const bgBG = require("./locales/bg-BG.json");
 const ruRU = require("./locales/ru-RU.json");
@@ -76,8 +101,17 @@ export async function initI18next() {
     ["es-ES"]: {
       translation: esES
     },
+    ["fr-FR"]: {
+      translation: frFR
+    },
+    ["de-DE"]: {
+      translation: deDE
+    },
     ["hi-IN"]: {
       translation: hiIN
+    },
+    ["ja-JP"]: {
+      translation: jaJP
     },
     ["it-IT"]: {
       translation: itIT
@@ -88,8 +122,14 @@ export async function initI18next() {
     ["pt-PT"]: {
       translation: ptPT
     },
+    ["nl-NL"]: {
+      translation: nlNL
+    },
     ["sr-CS"]: {
       translation: srCS
+    },
+    ["pl-PL"]: {
+      translation: plPL
     },
     ["uk-UA"]: {
       translation: ukUA
