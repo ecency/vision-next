@@ -15,10 +15,17 @@ import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list
 
 export function ProfileWalletTokensList() {
   const { username } = useParams();
-  const { data } = useQuery(
-    getAccountWalletListQueryOptions((username as string).replace("%40", ""))
+  const sanitizedUsername = useMemo(
+    () => (username as string).replace("%40", ""),
+    [username]
   );
-  const { data: availableTokens } = useQuery(getAllTokensListQueryOptions(""));
+
+  const { data } = useQuery(
+    getAccountWalletListQueryOptions(sanitizedUsername)
+  );
+  const { data: availableTokens } = useQuery(
+    getAllTokensListQueryOptions(sanitizedUsername)
+  );
 
   const visibleTokens = useMemo(() => {
     if (!data) {
@@ -60,7 +67,7 @@ export function ProfileWalletTokensList() {
         <ProfileWalletTokensListItem
           asset={item}
           key={item}
-          username={(username as string).replace("%40", "")}
+          username={sanitizedUsername}
         />
       ))}
       {shouldRenderEmptyState &&

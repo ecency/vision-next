@@ -106,6 +106,8 @@ export function ProfileWalletTokenPicker() {
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
 
+  const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
+
   const profileUsername = useMemo(
     () => ((username as string) ?? "").replace("%40", ""),
     [username]
@@ -114,7 +116,9 @@ export function ProfileWalletTokenPicker() {
   const isOwnProfile = activeUser?.username === profileUsername;
   const accessToken = isOwnProfile ? getAccessToken(profileUsername) : undefined;
 
-  const { data: allTokens } = useQuery(getAllTokensListQueryOptions(query));
+  const { data: allTokens } = useQuery(
+    getAllTokensListQueryOptions(profileUsername)
+  );
   const { data: walletList } = useQuery(getAccountWalletListQueryOptions(profileUsername));
   const { data: account } = useQuery(getAccountFullQueryOptions(profileUsername));
   const { data: walletCheck } = useQuery({
@@ -208,24 +212,72 @@ export function ProfileWalletTokenPicker() {
       return [];
     }
 
+    const matchesQuery = (value: string) =>
+      !normalizedQuery || value.toLowerCase().includes(normalizedQuery);
+
+    const availableSymbols = Array.from(availableExternalTokenSymbols).filter((symbol) =>
+      matchesQuery(symbol)
+    );
+
+    if (availableSymbols.length === 0) {
+      return [];
+    }
+
     const orderedTokens: string[] = [];
 
     if (Array.isArray(allTokens?.external)) {
-      orderedTokens.push(
-        ...allTokens.external.filter((token) =>
-          availableExternalTokenSymbols.has(token)
-        )
-      );
+      allTokens.external.forEach((token) => {
+        if (availableSymbols.includes(token) && !orderedTokens.includes(token)) {
+          orderedTokens.push(token);
+        }
+      });
     }
 
-    availableExternalTokenSymbols.forEach((symbol) => {
+    availableSymbols.forEach((symbol) => {
       if (!orderedTokens.includes(symbol)) {
         orderedTokens.push(symbol);
       }
     });
 
     return orderedTokens;
-  }, [allTokens?.external, availableExternalTokenSymbols]);
+  }, [allTokens?.external, availableExternalTokenSymbols, normalizedQuery]);
+
+  const filteredBasicTokens = useMemo(() => {
+    const tokens = allTokens?.basic ?? [];
+
+    if (!normalizedQuery) {
+      return tokens;
+    }
+
+    return tokens.filter((token) => token.toLowerCase().includes(normalizedQuery));
+  }, [allTokens?.basic, normalizedQuery]);
+
+  const filteredSpkTokens = useMemo(() => {
+    const tokens = allTokens?.spk ?? [];
+
+    if (!normalizedQuery) {
+      return tokens;
+    }
+
+    return tokens.filter((token) => token.toLowerCase().includes(normalizedQuery));
+  }, [allTokens?.spk, normalizedQuery]);
+
+  const filteredLayer2Tokens = useMemo(() => {
+    const tokens = allTokens?.layer2 ?? [];
+
+    if (!normalizedQuery) {
+      return tokens;
+    }
+
+    return tokens.filter((token) => {
+      const symbolMatches = token.symbol
+        ?.toLowerCase()
+        .includes(normalizedQuery);
+      const nameMatches = token.name?.toLowerCase().includes(normalizedQuery);
+
+      return Boolean(symbolMatches || nameMatches);
+    });
+  }, [allTokens?.layer2, normalizedQuery]);
 
   const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(profileUsername);
 
@@ -240,12 +292,16 @@ export function ProfileWalletTokenPicker() {
   const togglableTokenSymbols = useMemo(() => {
     return new Set(
       [
-        ...externalTokens,
+        ...Array.from(availableExternalTokenSymbols.values()),
         ...(allTokens?.spk ?? []),
-        ...(allTokens?.layer2?.map((token) => token.symbol) ?? [])
+        ...(allTokens?.layer2?.map((token) => token.symbol) ?? []),
       ].filter(Boolean)
     );
-  }, [externalTokens, allTokens?.spk, allTokens?.layer2]);
+  }, [
+    availableExternalTokenSymbols,
+    allTokens?.spk,
+    allTokens?.layer2,
+  ]);
 
   const update = useCallback(
     (token: string) => {
@@ -317,14 +373,14 @@ export function ProfileWalletTokenPicker() {
           <SearchBox
             placeholder={i18next.t("profile-wallet.search-token")}
             value={query}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value.toLowerCase())}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
             autoComplete="off"
           />
-          {allTokens && allTokens.basic.length > 0 && (
+          {filteredBasicTokens.length > 0 && (
             <>
               <div className="text-sm opacity-50 mt-4 mb-2">Basic</div>
               <List>
-                {allTokens.basic.map((token) => (
+                {filteredBasicTokens.map((token) => (
                   <ListItem className="!flex items-center gap-2" key={token}>
                     <FormControl
                       type="checkbox"
@@ -358,11 +414,11 @@ export function ProfileWalletTokenPicker() {
             </>
           )}
 
-          {allTokens && allTokens.spk.length > 0 && (
+          {filteredSpkTokens.length > 0 && (
             <>
               <div className="text-sm opacity-50 mt-4 mb-2">SPK</div>
               <List>
-                {allTokens.spk.map((token) => (
+                {filteredSpkTokens.map((token) => (
                   <ListItem className="!flex items-center gap-2" key={token}>
                     <FormControl
                       type="checkbox"
@@ -377,11 +433,11 @@ export function ProfileWalletTokenPicker() {
             </>
           )}
 
-          {allTokens?.layer2 && allTokens.layer2.length > 0 && (
+          {filteredLayer2Tokens.length > 0 && (
             <>
               <div className="text-sm opacity-50 mt-4 mb-2">Hive engine</div>
               <List>
-                {allTokens.layer2.map((token) => {
+                {filteredLayer2Tokens.map((token) => {
                   const icon = getLayer2TokenIcon(token.metadata);
 
                   return (
@@ -415,9 +471,10 @@ export function ProfileWalletTokenPicker() {
               </List>
             </>
           )}
-          {allTokens?.basic.length === 0 &&
-            allTokens?.external.length === 0 &&
-            allTokens?.layer2?.length === 0 && (
+          {filteredBasicTokens.length === 0 &&
+            externalTokens.length === 0 &&
+            filteredLayer2Tokens.length === 0 &&
+            filteredSpkTokens.length === 0 && (
               <div className="flex flex-col gap-2 items-center justify-center p-4 text-sm opacity-50">
                 <UilTimesCircle className="w-8 h-8" />
                 <span>No tokens found</span>

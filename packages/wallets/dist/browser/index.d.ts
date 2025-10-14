@@ -1440,30 +1440,30 @@ declare function getTokenPriceQueryOptions(currency?: string): _tanstack_react_q
 
 declare function useHiveKeysQuery(username: string): _tanstack_react_query.UseQueryResult<EcencyHiveKeys, Error>;
 
-declare function getAllTokensListQueryOptions(query: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+declare function getAllTokensListQueryOptions(username?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     basic: EcencyWalletBasicTokens[];
     external: EcencyWalletCurrency[];
     spk: string[];
-    layer2: HiveEngineTokenMetadataResponse[] | undefined;
+    layer2: HiveEngineTokenMetadataResponse[];
 }, Error, {
     basic: EcencyWalletBasicTokens[];
     external: EcencyWalletCurrency[];
     spk: string[];
-    layer2: HiveEngineTokenMetadataResponse[] | undefined;
-}, string[]>, "queryFn"> & {
+    layer2: HiveEngineTokenMetadataResponse[];
+}, (string | null)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         basic: EcencyWalletBasicTokens[];
         external: EcencyWalletCurrency[];
         spk: string[];
-        layer2: HiveEngineTokenMetadataResponse[] | undefined;
-    }, string[], never> | undefined;
+        layer2: HiveEngineTokenMetadataResponse[];
+    }, (string | null)[], never> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: (string | null)[] & {
         [dataTagSymbol]: {
             basic: EcencyWalletBasicTokens[];
             external: EcencyWalletCurrency[];
             spk: string[];
-            layer2: HiveEngineTokenMetadataResponse[] | undefined;
+            layer2: HiveEngineTokenMetadataResponse[];
         };
         [dataTagErrorSymbol]: Error;
     };

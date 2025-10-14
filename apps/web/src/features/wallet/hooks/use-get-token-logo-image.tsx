@@ -9,13 +9,18 @@ import { proxifyImageSrc } from "@ecency/render-helper";
 import { getSizedTokenLogo } from "../consts";
 
 export function useGetTokenLogoImage(username: string, token: string) {
+  const sanitizedUsername = useMemo(
+    () => (username as string).replace("%40", ""),
+    [username]
+  );
+
   const { data: allTokens } = useQuery(
-    getAllTokensListQueryOptions((username as string).replace("%40", ""))
+    getAllTokensListQueryOptions(sanitizedUsername)
   );
 
   const { data } = useQuery(
     getAccountWalletAssetInfoQueryOptions(
-      (username as string).replace("%40", ""),
+      sanitizedUsername,
       (token as string)?.toUpperCase()
     )
   );

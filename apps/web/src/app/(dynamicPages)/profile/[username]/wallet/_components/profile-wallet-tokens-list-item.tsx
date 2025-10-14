@@ -21,7 +21,9 @@ interface Props {
 
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const { data } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
-  const { data: allTokens } = useQuery(getAllTokensListQueryOptions(""));
+  const { data: allTokens } = useQuery(
+    getAllTokensListQueryOptions(username)
+  );
 
   const router = useRouter();
 

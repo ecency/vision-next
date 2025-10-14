@@ -2387,26 +2387,73 @@ var PointTransactionType = /* @__PURE__ */ ((PointTransactionType2) => {
   PointTransactionType2[PointTransactionType2["MINTED"] = 991] = "MINTED";
   return PointTransactionType2;
 })(PointTransactionType || {});
-function getAllTokensListQueryOptions(query) {
+function createFallbackTokenMetadata(symbol) {
+  return {
+    issuer: "",
+    symbol,
+    name: symbol,
+    metadata: "{}",
+    precision: 0,
+    maxSupply: "0",
+    supply: "0",
+    circulatingSupply: "0",
+    stakingEnabled: false,
+    unstakingCooldown: 0,
+    delegationEnabled: false,
+    undelegationCooldown: 0,
+    numberTransactions: 0,
+    totalStaked: "0"
+  };
+}
+async function getLayer2TokensMetadata(username) {
+  if (!username) {
+    return [];
+  }
+  let balances = [];
+  try {
+    balances = await sdk.getQueryClient().fetchQuery(
+      getHiveEngineTokensBalancesQueryOptions(username)
+    );
+  } catch {
+    balances = [];
+  }
+  const uniqueSymbols = Array.from(
+    new Set(
+      balances.map((balance) => balance.symbol).filter((symbol) => Boolean(symbol))
+    )
+  );
+  if (uniqueSymbols.length === 0) {
+    return [];
+  }
+  let metadataList = [];
+  try {
+    metadataList = await sdk.getQueryClient().fetchQuery(
+      getHiveEngineTokensMetadataQueryOptions(uniqueSymbols)
+    );
+  } catch {
+    metadataList = [];
+  }
+  const metadataBySymbol = new Map(
+    metadataList.map((token) => [token.symbol, token])
+  );
+  return uniqueSymbols.map(
+    (symbol) => metadataBySymbol.get(symbol) ?? createFallbackTokenMetadata(symbol)
+  );
+}
+function getAllTokensListQueryOptions(username) {
   return reactQuery.queryOptions({
-    queryKey: ["ecency-wallets", "all-tokens-list", query],
+    queryKey: ["ecency-wallets", "all-tokens-list", username ?? null],
     queryFn: async () => {
-      await sdk.getQueryClient().prefetchQuery(
-        getHiveEngineTokensMetadataQueryOptions(HiveEngineTokens)
-      );
-      const metadataList = sdk.getQueryClient().getQueryData(getHiveEngineTokensMetadataQueryOptions(HiveEngineTokens).queryKey);
       return {
         basic: [
           "POINTS" /* Points */,
           "HIVE" /* Hive */,
           "HP" /* HivePower */,
           "HBD" /* HiveDollar */
-        ].filter((token) => token.toLowerCase().includes(query.toLowerCase())),
-        external: Object.values(EcencyWalletCurrency).filter(
-          (token) => token.toLowerCase().includes(query.toLowerCase())
-        ),
+        ],
+        external: Object.values(EcencyWalletCurrency),
         spk: ["SPK" /* Spk */, "LARYNX", "LP"],
-        layer2: metadataList
+        layer2: await getLayer2TokensMetadata(username)
       };
     }
   });
