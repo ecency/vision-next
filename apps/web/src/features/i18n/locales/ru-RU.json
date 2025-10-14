@@ -1704,7 +1704,7 @@
     "mention-post": "{{source}} упомянул вас в посте",
     "mention-comment": "{{source}} упомянул вас в комментарии",
     "favorite": "{{source}} опубликовал новый пост",
-    "bookmark": "ответил на содержимое закладок",
+    "bookmark": "{{source}} ответил на содержимое закладок",
     "followed": "{{source}} подписался на вас",
     "replied": "{{source}} ответил вам",
     "reblogged": "{{source}} сделал репост вашего поста",
