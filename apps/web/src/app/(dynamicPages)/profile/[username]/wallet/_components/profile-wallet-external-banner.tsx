@@ -1,5 +1,6 @@
 "use client";
 
+import { useClientActiveUser } from "@/api/queries";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { EcencyWalletCurrency } from "@ecency/wallets";
@@ -11,7 +12,20 @@ import { useParams } from "next/navigation";
 
 export function ProfileWalletExternalBanner() {
   const { username } = useParams();
-  const { data } = useQuery(getAccountFullQueryOptions((username as string).replace("%40", "")));
+  const usernameParam = typeof username === "string" ? username : "";
+  const cleanUsername = usernameParam.replace("%40", "");
+
+  const activeUser = useClientActiveUser();
+  const isOwnProfile = activeUser?.username === cleanUsername;
+
+  const { data } = useQuery({
+    ...getAccountFullQueryOptions(cleanUsername),
+    enabled: isOwnProfile && Boolean(cleanUsername)
+  });
+
+  if (!isOwnProfile) {
+    return <></>;
+  }
 
   if (
     data?.profile?.tokens?.some(({ symbol }) =>
