@@ -24,6 +24,13 @@ export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
   const [imagePickInitiated, setImagePickInitiated] = useState(false);
   const [galleryPickInitiated, setGalleryPickInitiated] = useState(false);
 
+  const handleImagePick = useCallback(
+    (text: string, url: string) => {
+      onAddImage(url, text);
+    },
+    [onAddImage]
+  );
+
   const checkFile = useCallback((filename: string) => {
     const filenameLow = filename.toLowerCase();
     return ["jpg", "jpeg", "gif", "png", "webp"].some((el) => filenameLow.endsWith(el));
@@ -119,7 +126,7 @@ export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
         <AddImage
           onHide={() => setImagePickInitiated(false)}
           onSubmit={(text: string, link: string) => {
-            onAddImage?.(text, link);
+            handleImagePick(text, link);
             setImagePickInitiated(false);
           }}
         />
@@ -129,7 +136,7 @@ export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
           show={galleryPickInitiated}
           setShow={setGalleryPickInitiated}
           onPick={(url) => {
-            onAddImage?.(url, url);
+            handleImagePick("", url);
             setGalleryPickInitiated(false);
           }}
         />
