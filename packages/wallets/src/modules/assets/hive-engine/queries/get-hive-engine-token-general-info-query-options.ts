@@ -2,12 +2,6 @@ import { queryOptions } from "@tanstack/react-query";
 import { getQueryClient } from "@ecency/sdk";
 import { GeneralAssetInfo } from "../../types";
 import { getHiveEngineTokensMetadataQueryOptions } from "./get-hive-engine-tokens-metadata-query-options";
-import { HiveEngineTokens } from "@/modules/wallets/consts";
-import {
-  HiveEngineMarketResponse,
-  HiveEngineTokenBalance,
-  HiveEngineTokenMetadataResponse,
-} from "../types";
 import { getHiveEngineTokensBalancesQueryOptions } from "./get-hive-engine-tokens-balances-query-options";
 import { getHiveEngineTokensMarketQueryOptions } from "./get-hive-engine-tokens-market-query-options";
 import { getHiveAssetGeneralInfoQueryOptions } from "../../hive/queries";
@@ -27,30 +21,24 @@ export function getHiveEngineTokenGeneralInfoQueryOptions(
           "[SDK][Wallets] – hive engine token or username missed"
         );
       }
+      const queryClient = getQueryClient();
       const hiveQuery = getHiveAssetGeneralInfoQueryOptions(username);
-      await getQueryClient().prefetchQuery(hiveQuery);
-      const hiveData = getQueryClient().getQueryData<GeneralAssetInfo>(
+      await queryClient.prefetchQuery(hiveQuery);
+      const hiveData = queryClient.getQueryData<GeneralAssetInfo>(
         hiveQuery.queryKey
       );
 
-      const metadataQuery =
-        getHiveEngineTokensMetadataQueryOptions(HiveEngineTokens);
-      await getQueryClient().prefetchQuery(metadataQuery);
-      const metadataList = getQueryClient().getQueryData<
-        HiveEngineTokenMetadataResponse[]
-      >(metadataQuery.queryKey);
+      const metadataList = await queryClient.ensureQueryData(
+        getHiveEngineTokensMetadataQueryOptions([symbol])
+      );
 
-      const balancesQuery = getHiveEngineTokensBalancesQueryOptions(username);
-      await getQueryClient().prefetchQuery(balancesQuery);
-      const balanceList = getQueryClient().getQueryData<
-        HiveEngineTokenBalance[]
-      >(balancesQuery.queryKey);
+      const balanceList = await queryClient.ensureQueryData(
+        getHiveEngineTokensBalancesQueryOptions(username)
+      );
 
-      const marketQuery = getHiveEngineTokensMarketQueryOptions();
-      await getQueryClient().prefetchQuery(marketQuery);
-      const marketList = getQueryClient().getQueryData<
-        HiveEngineMarketResponse[]
-      >(marketQuery.queryKey);
+      const marketList = await queryClient.ensureQueryData(
+        getHiveEngineTokensMarketQueryOptions()
+      );
 
       const metadata = metadataList?.find((i) => i.symbol === symbol);
       const balance = balanceList?.find((i) => i.symbol === symbol);

@@ -2,6 +2,7 @@ import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { TOKEN_LOGOS_MAP } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
+import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-username";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import {
   getAccountWalletAssetInfoQueryOptions,
@@ -20,9 +21,16 @@ interface Props {
 }
 
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
-  const { data } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
+  const sanitizedUsername = useMemo(
+    () => sanitizeWalletUsername(username),
+    [username]
+  );
+
+  const { data } = useQuery(
+    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset)
+  );
   const { data: allTokens } = useQuery(
-    getAllTokensListQueryOptions(username)
+    getAllTokensListQueryOptions(sanitizedUsername)
   );
 
   const router = useRouter();
@@ -67,7 +75,9 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
   return (
     <div
       className="border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900"
-      onClick={() => router.push(`/@${username}/wallet/${asset.toLowerCase()}`)}
+      onClick={() =>
+        router.push(`/@${sanitizedUsername}/wallet/${asset.toLowerCase()}`)
+      }
     >
       <div className="grid grid-cols-4 p-3 md:p-4">
         <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
@@ -104,7 +114,9 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
           </div>
         </div>
       </div>
-      {asset === "POINTS" && <ProfileWalletTokensListItemPoints username={username} />}
+      {asset === "POINTS" && (
+        <ProfileWalletTokensListItemPoints username={sanitizedUsername} />
+      )}
     </div>
   );
 }

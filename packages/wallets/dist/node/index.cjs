@@ -1677,34 +1677,6 @@ function getHiveEngineTokensMetadataQueryOptions(tokens) {
     }
   });
 }
-
-// src/modules/wallets/consts/hive-engine-tokens.ts
-var HiveEngineTokens = [
-  "LEO",
-  "ARCHON",
-  "WAIV",
-  "CHOISM",
-  "CCC",
-  "POB",
-  "PHOTO",
-  "LUV",
-  "ALIVE",
-  "LOLZ",
-  "CENT",
-  "FUN",
-  "VYB",
-  "VKBT",
-  "BUIDL",
-  "NEOXAG",
-  "BEE",
-  "PIMP",
-  "PEPE",
-  "PAY",
-  "SPT",
-  "ONEUP",
-  "SPORTS",
-  "CURE"
-];
 function getHiveEngineTokensBalancesQueryOptions(username) {
   return reactQuery.queryOptions({
     queryKey: ["assets", "hive-engine", "balances", username],
@@ -1777,20 +1749,21 @@ function getHiveEngineTokenGeneralInfoQueryOptions(username, symbol) {
           "[SDK][Wallets] \u2013 hive engine token or username missed"
         );
       }
+      const queryClient = sdk.getQueryClient();
       const hiveQuery = getHiveAssetGeneralInfoQueryOptions(username);
-      await sdk.getQueryClient().prefetchQuery(hiveQuery);
-      const hiveData = sdk.getQueryClient().getQueryData(
+      await queryClient.prefetchQuery(hiveQuery);
+      const hiveData = queryClient.getQueryData(
         hiveQuery.queryKey
       );
-      const metadataQuery = getHiveEngineTokensMetadataQueryOptions(HiveEngineTokens);
-      await sdk.getQueryClient().prefetchQuery(metadataQuery);
-      const metadataList = sdk.getQueryClient().getQueryData(metadataQuery.queryKey);
-      const balancesQuery = getHiveEngineTokensBalancesQueryOptions(username);
-      await sdk.getQueryClient().prefetchQuery(balancesQuery);
-      const balanceList = sdk.getQueryClient().getQueryData(balancesQuery.queryKey);
-      const marketQuery = getHiveEngineTokensMarketQueryOptions();
-      await sdk.getQueryClient().prefetchQuery(marketQuery);
-      const marketList = sdk.getQueryClient().getQueryData(marketQuery.queryKey);
+      const metadataList = await queryClient.ensureQueryData(
+        getHiveEngineTokensMetadataQueryOptions([symbol])
+      );
+      const balanceList = await queryClient.ensureQueryData(
+        getHiveEngineTokensBalancesQueryOptions(username)
+      );
+      const marketList = await queryClient.ensureQueryData(
+        getHiveEngineTokensMarketQueryOptions()
+      );
       const metadata = metadataList?.find((i) => i.symbol === symbol);
       const balance = balanceList?.find((i) => i.symbol === symbol);
       const market = marketList?.find((i) => i.symbol === symbol);
@@ -2913,15 +2886,14 @@ function getTronAssetGeneralInfoQueryOptions(username) {
 
 // src/modules/wallets/queries/get-account-wallet-asset-info-query-options.ts
 function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { refetch: false }) {
+  const queryClient = sdk.getQueryClient();
   const fetchQuery = async (queryOptions39) => {
     if (options2.refetch) {
-      await sdk.getQueryClient().fetchQuery(queryOptions39);
+      await queryClient.fetchQuery(queryOptions39);
     } else {
-      await sdk.getQueryClient().prefetchQuery(queryOptions39);
+      await queryClient.prefetchQuery(queryOptions39);
     }
-    return sdk.getQueryClient().getQueryData(
-      queryOptions39.queryKey
-    );
+    return queryClient.getQueryData(queryOptions39.queryKey);
   };
   return reactQuery.queryOptions({
     queryKey: ["ecency-wallets", "asset-info", username, asset],
@@ -2954,7 +2926,11 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
         return fetchQuery(getTonAssetGeneralInfoQueryOptions(username));
       } else if (asset === "TRX") {
         return fetchQuery(getTronAssetGeneralInfoQueryOptions(username));
-      } else if (HiveEngineTokens.includes(asset)) {
+      }
+      const balances = await queryClient.ensureQueryData(
+        getHiveEngineTokensBalancesQueryOptions(username)
+      );
+      if (balances.some((balance) => balance.symbol === asset)) {
         return await fetchQuery(
           getHiveEngineTokenGeneralInfoQueryOptions(username, asset)
         );

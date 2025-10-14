@@ -27,6 +27,7 @@ import {
   checkUsernameWalletsPendingQueryOptions,
   getAccountFullQueryOptions
 } from "@ecency/sdk";
+import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-username";
 
 type AccountProfileToken = NonNullable<AccountProfile["tokens"]>[number];
 
@@ -109,7 +110,7 @@ export function ProfileWalletTokenPicker() {
   const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
 
   const profileUsername = useMemo(
-    () => ((username as string) ?? "").replace("%40", ""),
+    () => sanitizeWalletUsername(username),
     [username]
   );
 

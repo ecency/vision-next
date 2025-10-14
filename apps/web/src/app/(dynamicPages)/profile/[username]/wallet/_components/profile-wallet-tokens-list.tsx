@@ -12,11 +12,12 @@ import { useMemo } from "react";
 import { ProfileWalletTokensListItem } from "./profile-wallet-tokens-list-item";
 import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
+import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-username";
 
 export function ProfileWalletTokensList() {
   const { username } = useParams();
   const sanitizedUsername = useMemo(
-    () => (username as string).replace("%40", ""),
+    () => sanitizeWalletUsername(username),
     [username]
   );
 

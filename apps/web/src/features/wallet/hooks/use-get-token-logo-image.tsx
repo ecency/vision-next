@@ -7,10 +7,11 @@ import { useMemo } from "react";
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { getSizedTokenLogo } from "../consts";
+import { sanitizeWalletUsername } from "../utils/sanitize-username";
 
 export function useGetTokenLogoImage(username: string, token: string) {
   const sanitizedUsername = useMemo(
-    () => (username as string).replace("%40", ""),
+    () => sanitizeWalletUsername(username),
     [username]
   );
 

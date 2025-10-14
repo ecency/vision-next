@@ -3,6 +3,7 @@ import {
   getHbdAssetGeneralInfoQueryOptions,
   getHiveAssetGeneralInfoQueryOptions,
   getHiveEngineTokenGeneralInfoQueryOptions,
+  getHiveEngineTokensBalancesQueryOptions,
   getHivePowerAssetGeneralInfoQueryOptions,
   getLarynxAssetGeneralInfoQueryOptions,
   getLarynxPowerAssetGeneralInfoQueryOptions,
@@ -11,7 +12,6 @@ import {
 } from "@/modules/assets";
 import { getQueryClient } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
-import { HiveEngineTokens } from "../consts";
 import {
   getAptAssetGeneralInfoQueryOptions,
   getBnbAssetGeneralInfoQueryOptions,
@@ -32,15 +32,14 @@ export function getAccountWalletAssetInfoQueryOptions(
   options: Options = { refetch: false }
 ) {
   // Helper function to handle both prefetch and refetch cases
+  const queryClient = getQueryClient();
   const fetchQuery = async (queryOptions: any) => {
     if (options.refetch) {
-      await getQueryClient().fetchQuery(queryOptions);
+      await queryClient.fetchQuery(queryOptions);
     } else {
-      await getQueryClient().prefetchQuery(queryOptions);
+      await queryClient.prefetchQuery(queryOptions);
     }
-    return getQueryClient().getQueryData<GeneralAssetInfo>(
-      queryOptions.queryKey
-    );
+    return queryClient.getQueryData<GeneralAssetInfo>(queryOptions.queryKey);
   };
 
   return queryOptions({
@@ -74,7 +73,13 @@ export function getAccountWalletAssetInfoQueryOptions(
         return fetchQuery(getTonAssetGeneralInfoQueryOptions(username));
       } else if (asset === "TRX") {
         return fetchQuery(getTronAssetGeneralInfoQueryOptions(username));
-      } else if (HiveEngineTokens.includes(asset)) {
+      }
+
+      const balances = await queryClient.ensureQueryData(
+        getHiveEngineTokensBalancesQueryOptions(username)
+      );
+
+      if (balances.some((balance) => balance.symbol === asset)) {
         return await fetchQuery(
           getHiveEngineTokenGeneralInfoQueryOptions(username, asset)
         );
