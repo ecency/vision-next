@@ -58,11 +58,13 @@ export function WalletOperationsTransfer({
 
   const isEngineToken = accountWallet?.layer === "ENGINE";
   const liquidBalance = useMemo(
-    () => accountWallet?.parts?.find((part) => part.name === "liquid")?.balance ?? 0,
+    () =>
+      Number(accountWallet?.parts?.find((part) => part.name === "liquid")?.balance ?? 0),
     [accountWallet?.parts]
   );
   const stakedBalance = useMemo(
-    () => accountWallet?.parts?.find((part) => part.name === "staked")?.balance ?? 0,
+    () =>
+      Number(accountWallet?.parts?.find((part) => part.name === "staked")?.balance ?? 0),
     [accountWallet?.parts]
   );
 
@@ -93,6 +95,22 @@ export function WalletOperationsTransfer({
   const maxAmount = operationBalance ?? 0;
 
   const validationMax = maxAmount || 0.001;
+
+  const recipientBalance = useMemo(() => {
+    if (!accountWallet || !isEngineToken) {
+      return undefined;
+    }
+
+    if (to !== username) {
+      return undefined;
+    }
+
+    if ([AssetOperation.Stake, AssetOperation.Unstake].includes(operation)) {
+      return stakedBalance;
+    }
+
+    return undefined;
+  }, [accountWallet, isEngineToken, operation, stakedBalance, to, username]);
 
   const methods = useForm({
     resolver: yupResolver(
@@ -126,6 +144,7 @@ export function WalletOperationsTransfer({
         <WalletOperationCard
           label="to"
           asset={asset}
+          balance={recipientBalance}
           username={to ?? ""}
           onUsernameSubmit={(v) => setTo(v ?? "")}
           editable={showSubmit && operation !== AssetOperation.Unstake}
