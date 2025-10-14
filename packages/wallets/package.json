@@ -1,15 +1,15 @@
 {
   "name": "@ecency/wallets",
   "private": false,
-  "version": "1.4.9",
+  "version": "1.4.10",
   "type": "module",
   "license": "MIT",
-  "files": ["dist"],
-
+  "files": [
+    "dist"
+  ],
   "main": "dist/node/index.cjs",
   "module": "dist/node/index.mjs",
   "types": "dist/browser/index.d.ts",
-
   "exports": {
     ".": {
       "types": "./dist/browser/index.d.ts",
@@ -19,20 +19,16 @@
       "default": "./dist/node/index.mjs"
     }
   },
-
   "browser": {
     "node-fetch": false,
     "undici": false
   },
-
   "sideEffects": false,
-
   "scripts": {
     "build": "tsup",
     "lint": "eslint .",
     "test": "vitest run"
   },
-
   "peerDependencies": {
     "react": ">=18",
     "@tanstack/react-query": ">=5",
@@ -41,10 +37,13 @@
     "hivesigner": "^3.3.4"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true },
-    "@tanstack/react-query": { "optional": true }
+    "react": {
+      "optional": true
+    },
+    "@tanstack/react-query": {
+      "optional": true
+    }
   },
-
   "dependencies": {
     "@okxweb3/coin-aptos": "^1.2.0",
     "@okxweb3/coin-base": "^1.1.2",
@@ -59,7 +58,6 @@
     "lru-cache": "^11.0.2",
     "remeda": "^2.30.0"
   },
-
   "devDependencies": {
     "@types/node": "^22.13.8",
     "eslint": "^9.21.0",
@@ -69,8 +67,9 @@
     "typescript-eslint": "^8.18.2",
     "vitest": "^2.0.0"
   },
-
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ecency/vision-next.git",

@@ -35,12 +35,8 @@ export function ProfileWalletTokenPicker() {
   );
 
   const { data: allTokens } = useQuery(getAllTokensListQueryOptions(query));
-  const { data: walletList } = useQuery(
-    getAccountWalletListQueryOptions(profileUsername)
-  );
-  const { data: account } = useQuery(
-    getAccountFullQueryOptions(profileUsername)
-  );
+  const { data: walletList } = useQuery(getAccountWalletListQueryOptions(profileUsername));
+  const { data: account } = useQuery(getAccountFullQueryOptions(profileUsername));
 
   const availableChainTokens = useMemo(() => {
     if (!account?.profile?.tokens || !Array.isArray(account.profile.tokens)) {
@@ -67,14 +63,10 @@ export function ProfileWalletTokenPicker() {
       return [];
     }
 
-    return allTokens.external.filter((token) =>
-      availableExternalTokenSymbols.has(token)
-    );
+    return allTokens.external.filter((token) => availableExternalTokenSymbols.has(token));
   }, [allTokens?.external, availableExternalTokenSymbols]);
 
-  const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(
-    profileUsername
-  );
+  const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(profileUsername);
 
   const chainTokensBySymbol = useMemo(() => {
     return new Map(
@@ -110,7 +102,7 @@ export function ProfileWalletTokenPicker() {
       const nextListSet = new Set(list);
       const previousListSet = new Set(walletList ?? []);
       const hiddenTokens = new Set(
-        [...previousListSet].filter(
+        [...Array.from(previousListSet.values())].filter(
           (symbol) => togglableTokenSymbols.has(symbol) && !nextListSet.has(symbol)
         )
       );
@@ -124,41 +116,29 @@ export function ProfileWalletTokenPicker() {
           currency: chainToken.symbol!,
           type: chainToken.type ?? "CHAIN",
           ...(chainToken.meta ?? {}),
-          show: nextListSet.has(chainToken.symbol as string),
+          show: nextListSet.has(chainToken.symbol as string)
         })),
         ...R.pipe(
           allTokens?.spk ?? [],
-          R.filter(
-            (currency) =>
-              nextListSet.has(currency) || hiddenTokens.has(currency)
-          ),
+          R.filter((currency) => nextListSet.has(currency) || hiddenTokens.has(currency)),
           R.map((currency) => ({
             currency,
             type: "SPK",
-            show: nextListSet.has(currency),
+            show: nextListSet.has(currency)
           }))
         ),
         ...R.pipe(
           allTokens?.layer2 ?? [],
-          R.filter(
-            ({ symbol }) =>
-              nextListSet.has(symbol) || hiddenTokens.has(symbol)
-          ),
+          R.filter(({ symbol }) => nextListSet.has(symbol) || hiddenTokens.has(symbol)),
           R.map(({ symbol: currency }) => ({
             currency,
             type: "ENGINE",
-            show: nextListSet.has(currency),
+            show: nextListSet.has(currency)
           }))
         )
       ]);
     },
-    [
-      updateWallet,
-      walletList,
-      allTokens,
-      chainTokensBySymbol,
-      togglableTokenSymbols
-    ]
+    [updateWallet, walletList, allTokens, chainTokensBySymbol, togglableTokenSymbols]
   );
 
   if (activeUser?.username !== profileUsername) {
@@ -189,6 +169,7 @@ export function ProfileWalletTokenPicker() {
                       type="checkbox"
                       disabled={true}
                       checked={walletList?.includes(token) ?? false}
+                      onChange={() => {}}
                     />
                     <div>{TOKEN_LOGOS_MAP[token]}</div>
                     {token}
@@ -262,7 +243,11 @@ export function ProfileWalletTokenPicker() {
                           {token.symbol.slice(0, 3)}
                         </div>
                       )}
-                      {token.name}
+
+                      <div>
+                        {token.name}
+                        <div className="text-sm opacity-75">{token.symbol}</div>
+                      </div>
                     </ListItem>
                   );
                 })}

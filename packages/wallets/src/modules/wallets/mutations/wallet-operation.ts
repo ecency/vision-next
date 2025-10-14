@@ -73,7 +73,7 @@ export function useWalletOperation(
   return useMutation({
     mutationKey: ["ecency-wallets", asset, operation],
     mutationFn: async (payload: Record<string, unknown>) => {
-      const operationFn = operationToFunctionMap[asset][operation];
+      const operationFn = operationToFunctionMap[asset]?.[operation];
       if (operationFn) {
         return operationFn(payload);
       }
