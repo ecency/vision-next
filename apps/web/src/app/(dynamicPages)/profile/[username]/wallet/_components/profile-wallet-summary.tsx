@@ -45,38 +45,51 @@ export function ProfileWalletSummary() {
       queriesResult
         .map((query) => query.data as GeneralAssetInfo | undefined)
         .filter((data) => data)
-        .map((data) => ({
-          asset: data!.name,
-          percent: Math.round(
-            ((isNaN(data!.accountBalance) ? 0 : data!.accountBalance) *
-              (data && isNaN(data.price) ? 0 : data!.price) *
-              100) /
-              totalBalance
-          ),
-          usdValue:
+        .map((data) => {
+          const usdValue =
             (isNaN(data!.accountBalance) ? 0 : data!.accountBalance) *
-            (data && isNaN(data.price) ? 0 : data!.price)
-        }))
+            (data && isNaN(data.price) ? 0 : data!.price);
+
+          return {
+            asset: data!.name,
+            percent:
+              totalBalance > 0
+                ? Math.round((usdValue * 100) / totalBalance)
+                : 0,
+            usdValue
+          };
+        })
         .reduce(
           (acc, item) => {
-            const otherSection = acc.find(({ asset }) => asset === "Other") ?? {
-              asset: "Other",
-              percent: 0,
-              usdValue: undefined
-            };
+            const otherSection =
+              acc.find(({ asset }) => asset === "Other") ?? {
+                asset: "Other",
+                percent: 0,
+                usdValue: 0
+              };
 
-            if (item.percent < 10) {
+            const shouldAggregateToOther =
+              item.asset !== "POINTS" && (item.usdValue ?? 0) < 75;
+
+            if (shouldAggregateToOther) {
               otherSection.percent += item.percent;
+              otherSection.usdValue += item.usdValue ?? 0;
+
+              return [
+                ...acc.filter(({ asset }) => asset !== "Other"),
+                otherSection
+              ];
             }
 
             return [
               ...acc.filter(({ asset }) => asset !== "Other"),
-              ...(item.percent >= 10 ? [item] : []),
+              item,
               otherSection
             ];
           },
           [] as { asset: string; percent: number; usdValue: number | undefined }[]
-        ),
+        )
+        .filter((item) => item.asset !== "Other" || item.percent > 0),
     [totalBalance, queriesResult]
   );
 
