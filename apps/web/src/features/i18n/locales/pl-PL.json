@@ -1356,7 +1356,7 @@
     "confirm-sub-title": "Sprawdź, czy wszystko jest poprawne",
     "confirm": "Zatwierdź",
     "recent-transfers": "Ostatnie transfery",
-    "transfer-summary": "Przetransferowano <span class=\"amount\">{amount}</span> Z <span class=\"from-user\">{from}</span> do <span class=\"to-user\">{to}</span>",
+    "transfer-summary": "Przetransferowano <span class=\"amount\">{{amount}}</span> Z <span class=\"from-user\">{{from}}</span> do <span class=\"to-user\">{{to}}</span>",
     "transfer-saving-summary": "Przetransferowano <span class=\"amount\">{{amount}}</span> Z <span class=\"from-user\">{{from}}</span> do <span class=\"to-user\">{{to}}</span>",
     "withdraw-saving-summary": "Przetransferowano <span class=\"amount\">{{amount}}</span> Z <span class=\"from-user\">{{from}}</span> do <span class=\"to-user\">{{to}}</span>",
     "convert-summary": "<span class=\"amount\">{{amount}}</span> jest konwertowany",
