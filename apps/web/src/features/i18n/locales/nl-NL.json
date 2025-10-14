@@ -498,7 +498,7 @@
     "reload": "Vernieuwen",
     "add": "Toevoegen",
     "remove": "Verwijderen",
-    "removed": "succesvol verwijderd.",
+    "removed": "{{deck}} succesvol verwijderd.",
     "payout": "Uitbetalingen",
     "created": "Nieuw",
     "go-back": "Terug",
