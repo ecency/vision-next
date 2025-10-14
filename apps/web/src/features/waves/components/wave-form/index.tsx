@@ -36,6 +36,7 @@ const WaveFormComponent = ({
   const activeUser = useClientActiveUser();
 
   const rootRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { clearActivePoll, setActivePoll } = useContext(PollsContext);
 
   const wavesHostContext = useOptionalWavesHost();
@@ -115,6 +116,39 @@ const WaveFormComponent = ({
     onSuccess?.(item);
   });
 
+  const handleEmojiPick = useCallback(
+    (emoji: string) => {
+      const input = textareaRef.current;
+      const currentText = text ?? "";
+
+      if (!input) {
+        setText(`${currentText}${emoji}`);
+        return;
+      }
+
+      const selectionStart = input.selectionStart ?? currentText.length;
+      const selectionEnd = input.selectionEnd ?? selectionStart;
+
+      const nextValue =
+        currentText.slice(0, selectionStart) + emoji + currentText.slice(selectionEnd);
+
+      setText(nextValue);
+
+      const restoreCaret = () => {
+        const caretPosition = selectionStart + emoji.length;
+        input.setSelectionRange(caretPosition, caretPosition);
+        input.focus();
+      };
+
+      if (typeof window !== "undefined") {
+        window.requestAnimationFrame(restoreCaret);
+      } else {
+        restoreCaret();
+      }
+    },
+    [setText, text]
+  );
+
   return (
     <div ref={rootRef} className="wave-form relative flex items-start px-4 pt-4 w-full">
       {!hideAvatar && activeUser?.username && (
@@ -138,6 +172,7 @@ const WaveFormComponent = ({
           video={video}
           text={text!!}
           setText={setText}
+          textareaRef={textareaRef}
           selectedImage={image}
           clearSelectedImage={clearImage}
           placeholder={placeholder}
@@ -153,7 +188,7 @@ const WaveFormComponent = ({
             setImage(url);
             setImageName(name);
           }}
-          onEmojiPick={(v) => setText(`${text}${v}`)}
+          onEmojiPick={handleEmojiPick}
           onAddVideo={setVideo}
           submit={
             <Button

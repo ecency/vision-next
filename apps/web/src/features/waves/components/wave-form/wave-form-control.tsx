@@ -12,6 +12,7 @@ import { clsx } from "clsx";
 interface Props {
   text: string;
   setText: (v: string) => void;
+  textareaRef: React.RefObject<HTMLTextAreaElement>;
   video: string | undefined;
   selectedImage: string | undefined;
   clearSelectedImage: () => void;
@@ -24,8 +25,9 @@ export const WaveFormControl = ({
   setText,
   selectedImage,
   clearSelectedImage,
+  characterLimit,
   placeholder,
-  characterLimit
+  textareaRef
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
   const textLength = text?.length ?? 0;
@@ -46,6 +48,7 @@ export const WaveFormControl = ({
           placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}
           value={text}
           onChange={(e) => setText(e.target.value)}
+          ref={textareaRef}
         />
         <div className={counterClassName} aria-live="polite">
           {textLength}/{characterLimit}
