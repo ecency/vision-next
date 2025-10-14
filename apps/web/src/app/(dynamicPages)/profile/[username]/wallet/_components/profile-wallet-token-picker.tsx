@@ -223,60 +223,72 @@ export function ProfileWalletTokenPicker() {
       return [];
     }
 
-    const orderedTokens: string[] = [];
+    const orderedTokens = new Set<string>();
 
     if (Array.isArray(allTokens?.external)) {
       allTokens.external.forEach((token) => {
-        if (availableSymbols.includes(token) && !orderedTokens.includes(token)) {
-          orderedTokens.push(token);
+        if (availableSymbols.includes(token)) {
+          orderedTokens.add(token);
         }
       });
     }
 
     availableSymbols.forEach((symbol) => {
-      if (!orderedTokens.includes(symbol)) {
-        orderedTokens.push(symbol);
+      if (!orderedTokens.has(symbol)) {
+        orderedTokens.add(symbol);
       }
     });
 
-    return orderedTokens;
+    return R.sortBy(Array.from(orderedTokens), (token) => token.toLowerCase());
   }, [allTokens?.external, availableExternalTokenSymbols, normalizedQuery]);
 
   const filteredBasicTokens = useMemo(() => {
     const tokens = allTokens?.basic ?? [];
 
     if (!normalizedQuery) {
-      return tokens;
+      return R.sortBy(tokens, (token) => token.toLowerCase());
     }
 
-    return tokens.filter((token) => token.toLowerCase().includes(normalizedQuery));
+    return R.sortBy(
+      tokens.filter((token) => token.toLowerCase().includes(normalizedQuery)),
+      (token) => token.toLowerCase()
+    );
   }, [allTokens?.basic, normalizedQuery]);
 
   const filteredSpkTokens = useMemo(() => {
     const tokens = allTokens?.spk ?? [];
 
     if (!normalizedQuery) {
-      return tokens;
+      return R.sortBy(tokens, (token) => token.toLowerCase());
     }
 
-    return tokens.filter((token) => token.toLowerCase().includes(normalizedQuery));
+    return R.sortBy(
+      tokens.filter((token) => token.toLowerCase().includes(normalizedQuery)),
+      (token) => token.toLowerCase()
+    );
   }, [allTokens?.spk, normalizedQuery]);
 
   const filteredLayer2Tokens = useMemo(() => {
     const tokens = allTokens?.layer2 ?? [];
 
     if (!normalizedQuery) {
-      return tokens;
+      return R.sortBy(
+        tokens,
+        (token) => token.symbol?.toLowerCase() ?? token.name?.toLowerCase() ?? ""
+      );
     }
 
-    return tokens.filter((token) => {
-      const symbolMatches = token.symbol
-        ?.toLowerCase()
-        .includes(normalizedQuery);
-      const nameMatches = token.name?.toLowerCase().includes(normalizedQuery);
+    return R.sortBy(
+      tokens.filter((token) => {
+        const symbolMatches = token.symbol
+          ?.toLowerCase()
+          .includes(normalizedQuery);
+        const nameMatches = token.name?.toLowerCase().includes(normalizedQuery);
 
-      return Boolean(symbolMatches || nameMatches);
-    });
+        return Boolean(symbolMatches || nameMatches);
+      }),
+      (token) => token.symbol?.toLowerCase() ?? token.name?.toLowerCase() ?? ""
+    );
   }, [allTokens?.layer2, normalizedQuery]);
 
   const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(profileUsername);
