@@ -7,7 +7,7 @@ import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
 import { useGlobalStore } from "@/core/global-store";
 import { useMutation } from "@tanstack/react-query";
-import { success } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import i18next from "i18next";
 
 interface Body {
@@ -44,6 +44,10 @@ export function useWaveSubmit(
 
       let content = text!!;
 
+      const isReply = Boolean(replySource || editingEntry?.depth || editingEntry?.parent_author);
+      const characterLimit = isReply ? 750 : 250;
+      const textLength = text!!.length;
+
       if (image) {
         content = `${content}<br>![${imageName ?? ""}](${image})`;
       }
@@ -53,12 +57,17 @@ export function useWaveSubmit(
       }
 
       // Push to draft built content with attachments
-      if (text!!.length > 255) {
+      if (!isReply && textLength > characterLimit) {
         setLocalDraft({
           ...localDraft,
           body: content
         });
         window.open("/publish", "_blank");
+        return;
+      }
+
+      if (isReply && textLength > characterLimit) {
+        error(i18next.t("decks.threads-form.max-length"));
         return;
       }
 

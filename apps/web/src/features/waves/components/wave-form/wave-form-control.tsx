@@ -16,6 +16,7 @@ interface Props {
   selectedImage: string | undefined;
   clearSelectedImage: () => void;
   placeholder?: string;
+  characterLimit: number;
 }
 
 export const WaveFormControl = ({
@@ -23,10 +24,10 @@ export const WaveFormControl = ({
   setText,
   selectedImage,
   clearSelectedImage,
-  placeholder
+  placeholder,
+  characterLimit
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
-  const characterLimit = 255;
   const textLength = text?.length ?? 0;
   const counterClassName = clsx(
     "text-xs pb-2 transition-colors",

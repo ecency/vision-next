@@ -45,7 +45,20 @@ const WaveFormComponent = ({
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
 
-  const disabled = useMemo(() => !text || !threadHost, [text, threadHost]);
+  const entryDepth = entry?.depth;
+  const entryParentAuthor = entry?.parent_author;
+  const isReply = useMemo(
+    () => Boolean(replySource || entryDepth || entryParentAuthor),
+    [entryDepth, entryParentAuthor, replySource]
+  );
+  const characterLimit = isReply ? 750 : 250;
+  const textLength = text?.length ?? 0;
+  const exceedsCharacterLimit = textLength > characterLimit;
+
+  const disabled = useMemo(
+    () => !text || !threadHost || (isReply && exceedsCharacterLimit),
+    [exceedsCharacterLimit, isReply, text, threadHost]
+  );
   const poll = useEntryPollExtractor(entry);
   useEffect(() => {
     if (poll) {
@@ -128,6 +141,7 @@ const WaveFormComponent = ({
           selectedImage={image}
           clearSelectedImage={clearImage}
           placeholder={placeholder}
+          characterLimit={characterLimit}
         />
         {activeUser && (
           <AvailableCredits username={activeUser.username} operation="comment_operation" />
@@ -160,22 +174,23 @@ const WaveFormComponent = ({
             >
               {!activeUser &&
                 !entry &&
-                (text?.length ?? 0) <= 255 &&
+                !exceedsCharacterLimit &&
                 i18next.t("decks.threads-form.login-and-publish")}
               {activeUser &&
                 !replySource &&
                 !entry &&
-                (text?.length ?? 0) <= 255 &&
+                !exceedsCharacterLimit &&
                 (isPending
                   ? i18next.t("decks.threads-form.publishing")
                   : i18next.t("decks.threads-form.publish"))}
               {activeUser &&
                 replySource &&
                 !entry &&
-                (text?.length ?? 0) <= 255 &&
+                !exceedsCharacterLimit &&
                 (isPending ? i18next.t("waves.replying") : i18next.t("waves.reply"))}
-              {(text?.length ?? 0) > 255 &&
+              {exceedsCharacterLimit &&
                 !entry &&
+                !isReply &&
                 i18next.t("decks.threads-form.create-regular-post")}
               {entry && i18next.t("decks.threads-form.save")}
             </Button>
