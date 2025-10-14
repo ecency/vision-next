@@ -1,16 +1,18 @@
 "use client";
 
-import {useClientActiveUser, useGetStatsQuery} from "@/api/queries";
+import { useClientActiveUser } from "@/api/queries";
+import { Entry } from "@/entities";
+import dayjs from "@/utils/dayjs";
+import { getStatsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { UilEye, UilInfoCircle } from "@tooni/iconscout-unicons-react";
-import { useMemo, useState } from "react";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
-import { Entry } from "@/entities";
-import dayjs from "@/utils/dayjs";
-import { EntryPageStatsItem } from "./entry-page-stats-item";
+import { useMemo, useState } from "react";
 import { EntryPageStatsByDevices } from "./entry-page-stats-by-devices";
 import { EntryPageStatsByReferrers } from "./entry-page-stats-by-referrers";
+import { EntryPageStatsItem } from "./entry-page-stats-item";
 
 interface Props {
   entry: Entry;
@@ -24,15 +26,14 @@ export function EntryStats({ entry }: Props) {
     () => `${entry.author}/${entry.permlink}`,
     [entry.author, entry.permlink]
   );
-  const createdDate = useMemo(
-    () => dayjs(entry.created).format("DD MMM YYYY"),
-    [entry.created]
-  );
+  const createdDate = useMemo(() => dayjs(entry.created).format("DD MMM YYYY"), [entry.created]);
 
-  const { data: stats } = useGetStatsQuery({
-    url: pathname,
-    enabled: !!activeUser
-  }).useClientQuery();
+  const { data: stats } = useQuery(
+    getStatsQueryOptions({
+      url: pathname,
+      enabled: !!activeUser
+    })
+  );
   const totalViews = useMemo(() => stats?.results?.[0].metrics[1] || 1, [stats?.results]);
   const totalVisitors = useMemo(() => stats?.results?.[0].metrics[0] || 0, [stats?.results]);
   const averageReadTime = useMemo(
