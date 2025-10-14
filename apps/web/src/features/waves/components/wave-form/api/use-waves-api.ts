@@ -63,7 +63,14 @@ export function useWavesApi() {
         null,
         true
       );
-      await validatePostCreating(activeUser?.username, permlink);
+      if (!editingEntry) {
+        // For newly created waves we still confirm blockchain propagation but
+        // with shorter retry delays so the UI is not blocked for several
+        // seconds when the post appears quickly.
+        await validatePostCreating(activeUser.username, permlink, 0, {
+          delays: [750, 1500, 2250]
+        });
+      }
 
       const tempReply = editingEntry
         ? {

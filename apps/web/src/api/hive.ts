@@ -401,10 +401,23 @@ export const getContentReplies = (author: string, permlink: string): Promise<Ent
 /**
  * Helps to validate if post was really created on Blockchain
  */
-export async function validatePostCreating(author: string, permlink: string, attempts = 0) {
-  if (attempts === 3) {
-    return;
-  }
+export type ValidatePostCreatingOptions = {
+  /**
+   * A list of delays (in milliseconds) applied before each retry. The number of
+   * attempts equals the length of this array plus the initial immediate check.
+   */
+  delays?: number[];
+};
+
+const DEFAULT_VALIDATE_POST_DELAYS = [3000, 3000, 3000];
+
+export async function validatePostCreating(
+  author: string,
+  permlink: string,
+  attempts = 0,
+  options?: ValidatePostCreatingOptions
+) {
+  const delays = options?.delays ?? DEFAULT_VALIDATE_POST_DELAYS;
 
   let response: Entry | undefined;
   try {
@@ -412,9 +425,15 @@ export async function validatePostCreating(author: string, permlink: string, att
   } catch (e) {
     response = undefined;
   }
-  if (!response) {
-    await delay(3000);
-    attempts += 1;
-    return validatePostCreating(author, permlink, attempts);
+
+  if (response || attempts >= delays.length) {
+    return;
   }
+
+  const waitMs = delays[attempts];
+  if (waitMs > 0) {
+    await delay(waitMs);
+  }
+
+  return validatePostCreating(author, permlink, attempts + 1, options);
 }
