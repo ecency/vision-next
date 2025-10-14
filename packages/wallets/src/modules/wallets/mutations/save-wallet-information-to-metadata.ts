@@ -16,7 +16,7 @@ import { EcencyWalletCurrency } from "../enums";
 
 function getGroupedChainTokens(
   tokens?: AccountProfile["tokens"],
-  show = false
+  defaultShow?: boolean
 ) {
   if (!tokens) {
     return {};
@@ -30,8 +30,18 @@ function getGroupedChainTokens(
         Object.values(EcencyWalletCurrency).includes(symbol as any)
     ),
     R.map((item) => {
-      item.meta.show = show;
-      return item;
+      const meta = {
+        ...(item.meta ?? {}),
+      } as Record<string, unknown>;
+
+      if (typeof meta.show !== "boolean" && typeof defaultShow === "boolean") {
+        meta.show = defaultShow;
+      }
+
+      return {
+        ...item,
+        meta,
+      };
     }),
     // Chain tokens are unique by symbol, so indexing by symbol
     // gives a direct lookup map instead of an array-based grouping.

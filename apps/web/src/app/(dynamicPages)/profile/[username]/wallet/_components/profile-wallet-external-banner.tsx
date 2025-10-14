@@ -1,8 +1,12 @@
 "use client";
 
 import { useClientActiveUser } from "@/api/queries";
+import { getAccessToken } from "@/utils/user-token";
 import { Button } from "@/features/ui";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import {
+  checkUsernameWalletsPendingQueryOptions,
+  getAccountFullQueryOptions,
+} from "@ecency/sdk";
 import { EcencyWalletCurrency } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
@@ -17,13 +21,23 @@ export function ProfileWalletExternalBanner() {
 
   const activeUser = useClientActiveUser();
   const isOwnProfile = activeUser?.username === cleanUsername;
+  const accessToken = isOwnProfile ? getAccessToken(cleanUsername) : undefined;
 
   const { data } = useQuery({
     ...getAccountFullQueryOptions(cleanUsername),
     enabled: isOwnProfile && Boolean(cleanUsername)
   });
 
+  const { data: walletCheckData } = useQuery({
+    ...checkUsernameWalletsPendingQueryOptions(cleanUsername, accessToken),
+    enabled: isOwnProfile && Boolean(cleanUsername) && Boolean(accessToken)
+  });
+
   if (!isOwnProfile) {
+    return <></>;
+  }
+
+  if (walletCheckData?.exist) {
     return <></>;
   }
 

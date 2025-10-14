@@ -109,7 +109,7 @@ export const DeckThreadsForm = ({
       }
 
       // Push to draft built content with attachments
-      if (text!!.length > 255) {
+      if (text!!.length > 250) {
         setLocalDraft({
           ...localDraft,
           body: content
@@ -161,15 +161,15 @@ export const DeckThreadsForm = ({
     >
       {!activeUser &&
         !entry &&
-        (text?.length ?? 0) <= 255 &&
+        (text?.length ?? 0) <= 250 &&
         i18next.t("decks.threads-form.login-and-publish")}
       {activeUser &&
         !entry &&
-        (text?.length ?? 0) <= 255 &&
+        (text?.length ?? 0) <= 250 &&
         (loading
           ? i18next.t("decks.threads-form.publishing")
           : i18next.t("decks.threads-form.publish"))}
-      {(text?.length ?? 0) > 255 && !entry && i18next.t("decks.threads-form.create-regular-post")}
+      {(text?.length ?? 0) > 250 && !entry && i18next.t("decks.threads-form.create-regular-post")}
       {entry && i18next.t("decks.threads-form.save")}
     </Button>
   );
@@ -227,12 +227,12 @@ export const DeckThreadsForm = ({
             )}
           </div>
         </div>
-        {inline && (text?.length ?? 0) > 255 && (
+        {inline && (text?.length ?? 0) > 250 && (
           <Alert appearance="warning">{i18next.t("decks.threads-form.max-length")}</Alert>
         )}
         {!inline && (
           <div className="deck-toolbar-threads-form-bottom">
-            {(text?.length ?? 0) > 255 && (
+            {(text?.length ?? 0) > 250 && (
               <Alert appearance="warning">{i18next.t("decks.threads-form.max-length")}</Alert>
             )}
             <DeckThreadsCreatedRecently

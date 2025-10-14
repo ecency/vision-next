@@ -387,19 +387,25 @@ declare function getSearchAccountsByUsernameQueryOptions(query: string, limit?: 
     };
 };
 
-declare function checkUsernameWalletsPendingQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+type AccountProfileToken = NonNullable<AccountProfile["tokens"]>[number];
+type WalletMetadataCandidate = Partial<AccountProfileToken> & {
+    currency?: string;
+    show?: boolean;
+    address?: string;
+    publicKey?: string;
+    privateKey?: string;
+    username?: string;
+};
+interface CheckUsernameWalletsPendingResponse {
     exist: boolean;
-}, Error, {
-    exist: boolean;
-}, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<{
-        exist: boolean;
-    }, string[], never> | undefined;
+    tokens?: WalletMetadataCandidate[];
+    wallets?: WalletMetadataCandidate[];
+}
+declare function checkUsernameWalletsPendingQueryOptions(username: string, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<CheckUsernameWalletsPendingResponse, Error, CheckUsernameWalletsPendingResponse, readonly unknown[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<CheckUsernameWalletsPendingResponse, readonly unknown[], never> | undefined;
 } & {
-    queryKey: string[] & {
-        [dataTagSymbol]: {
-            exist: boolean;
-        };
+    queryKey: readonly unknown[] & {
+        [dataTagSymbol]: CheckUsernameWalletsPendingResponse;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1022,4 +1028,4 @@ declare function getCommunityPermissions({ communityType, userRole, subscribed, 
     isModerator: boolean;
 };
 
-export { type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type Asset, CONFIG, type CantAfford, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, keychain as Keychain, type Keys, NaiMap, type Payer, ROLES, type RcStats, type Recoveries, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, broadcastJson, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type Asset, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, keychain as Keychain, type Keys, NaiMap, type Payer, ROLES, type RcStats, type Recoveries, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type WalletMetadataCandidate, broadcastJson, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };

@@ -487,26 +487,99 @@ function getSearchAccountsByUsernameQueryOptions(query, limit = 5, excludeList =
     }
   });
 }
-function checkUsernameWalletsPendingQueryOptions(username) {
+var RESERVED_META_KEYS = /* @__PURE__ */ new Set([
+  "ownerPublicKey",
+  "activePublicKey",
+  "postingPublicKey",
+  "memoPublicKey"
+]);
+function checkUsernameWalletsPendingQueryOptions(username, code) {
   return queryOptions({
-    queryKey: ["accounts", "check-wallet-pending", username],
+    queryKey: [
+      "accounts",
+      "check-wallet-pending",
+      username,
+      code ?? null
+    ],
     queryFn: async () => {
+      if (!username || !code) {
+        return { exist: false };
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/wallets-chkuser",
+        CONFIG.privateApiHost + "/private-api/wallets",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            username
+            username,
+            code
           })
         }
       );
-      return await response.json();
+      if (!response.ok) {
+        return { exist: false };
+      }
+      const payload = await response.json();
+      const wallets = Array.isArray(payload) ? payload.flatMap((item) => {
+        if (!item || typeof item !== "object") {
+          return [];
+        }
+        const walletItem = item;
+        const symbol = typeof walletItem.token === "string" ? walletItem.token : void 0;
+        if (!symbol) {
+          return [];
+        }
+        const meta = walletItem.meta && typeof walletItem.meta === "object" ? { ...walletItem.meta } : {};
+        const sanitizedMeta = {};
+        const address = typeof walletItem.address === "string" && walletItem.address ? walletItem.address : void 0;
+        const statusShow = typeof walletItem.status === "number" ? walletItem.status === 3 : void 0;
+        const showFlag = statusShow ?? false;
+        if (address) {
+          sanitizedMeta.address = address;
+        }
+        sanitizedMeta.show = showFlag;
+        const baseCandidate = {
+          symbol,
+          currency: symbol,
+          address,
+          show: showFlag,
+          type: "CHAIN",
+          meta: sanitizedMeta
+        };
+        const metaTokenCandidates = [];
+        for (const [metaSymbol, metaValue] of Object.entries(meta)) {
+          if (typeof metaSymbol !== "string") {
+            continue;
+          }
+          if (RESERVED_META_KEYS.has(metaSymbol)) {
+            continue;
+          }
+          if (typeof metaValue !== "string" || !metaValue) {
+            continue;
+          }
+          if (!/^[A-Z0-9]{2,10}$/.test(metaSymbol)) {
+            continue;
+          }
+          metaTokenCandidates.push({
+            symbol: metaSymbol,
+            currency: metaSymbol,
+            address: metaValue,
+            show: showFlag,
+            type: "CHAIN",
+            meta: { address: metaValue, show: showFlag }
+          });
+        }
+        return [baseCandidate, ...metaTokenCandidates];
+      }) : [];
+      return {
+        exist: wallets.length > 0,
+        tokens: wallets.length ? wallets : void 0,
+        wallets: wallets.length ? wallets : void 0
+      };
     },
-    enabled: !!username,
     refetchOnMount: true
   });
 }

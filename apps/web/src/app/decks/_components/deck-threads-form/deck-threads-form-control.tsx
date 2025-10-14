@@ -42,7 +42,7 @@ export const DeckThreadsFormControl = ({
             onChange={(e) => setText(e.target.value)}
             onFocus={onTextareaFocus}
           />
-          <div className="length-prompt">{text?.length}/255</div>
+          <div className="length-prompt">{text?.length}/250</div>
         </div>
         {selectedImage && (
           <div className="deck-threads-form-selected-image border border-[--border-color] my-3">

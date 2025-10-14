@@ -17,10 +17,87 @@ import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
 import { useClientActiveUser } from "@/api/queries";
+import { getAccessToken } from "@/utils/user-token";
 import { TOKEN_LOGOS_MAP } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import * as R from "remeda";
-import { AccountProfile, getAccountFullQueryOptions } from "@ecency/sdk";
+import {
+  AccountProfile,
+  WalletMetadataCandidate,
+  checkUsernameWalletsPendingQueryOptions,
+  getAccountFullQueryOptions
+} from "@ecency/sdk";
+
+type AccountProfileToken = NonNullable<AccountProfile["tokens"]>[number];
+
+function normalizeChainTokenCandidate(
+  candidate: WalletMetadataCandidate | AccountProfileToken | undefined
+): AccountProfileToken | undefined {
+  if (!candidate || typeof candidate !== "object") {
+    return;
+  }
+
+  const normalizedCandidate = candidate as Record<string, unknown>;
+
+  const symbol =
+    typeof normalizedCandidate.symbol === "string"
+      ? (normalizedCandidate.symbol as string)
+      : typeof normalizedCandidate.currency === "string"
+      ? (normalizedCandidate.currency as string)
+      : undefined;
+
+  if (!symbol) {
+    return;
+  }
+
+  const type =
+    typeof normalizedCandidate.type === "string"
+      ? (normalizedCandidate.type as string)
+      : undefined;
+
+  const metaSource =
+    normalizedCandidate.meta && typeof normalizedCandidate.meta === "object"
+      ? {
+          ...(normalizedCandidate.meta as Record<string, unknown>),
+        }
+      : {};
+
+  if (typeof normalizedCandidate.address === "string" && normalizedCandidate.address) {
+    (metaSource as Record<string, unknown>).address = normalizedCandidate.address;
+  }
+
+  const showValue =
+    typeof normalizedCandidate.show === "boolean"
+      ? (normalizedCandidate.show as boolean)
+      : typeof metaSource.show === "boolean"
+      ? (metaSource.show as boolean)
+      : false;
+
+  const metaWithShow = {
+    ...metaSource,
+    show: showValue,
+  };
+
+  const sanitizedMeta = Object.fromEntries(
+    Object.entries(metaWithShow).filter(([key, value]) => {
+      if (key === "address") {
+        return typeof value === "string" && Boolean(value);
+      }
+
+      if (key === "show") {
+        return typeof value === "boolean";
+      }
+
+      return false;
+    })
+  );
+
+  return {
+    symbol,
+    type: type ?? "CHAIN",
+    meta: sanitizedMeta as Record<string, any>
+  } satisfies AccountProfileToken;
+}
 
 export function ProfileWalletTokenPicker() {
   const { username } = useParams();
@@ -34,21 +111,89 @@ export function ProfileWalletTokenPicker() {
     [username]
   );
 
+  const isOwnProfile = activeUser?.username === profileUsername;
+  const accessToken = isOwnProfile ? getAccessToken(profileUsername) : undefined;
+
   const { data: allTokens } = useQuery(getAllTokensListQueryOptions(query));
   const { data: walletList } = useQuery(getAccountWalletListQueryOptions(profileUsername));
   const { data: account } = useQuery(getAccountFullQueryOptions(profileUsername));
+  const { data: walletCheck } = useQuery({
+    ...checkUsernameWalletsPendingQueryOptions(profileUsername, accessToken),
+    enabled:
+      isOwnProfile && Boolean(profileUsername) && Boolean(accessToken),
+  });
 
-  const availableChainTokens = useMemo(() => {
-    if (!account?.profile?.tokens || !Array.isArray(account.profile.tokens)) {
-      return [] as NonNullable<AccountProfile["tokens"]>;
+  const supportedChainSymbols = useMemo(
+    () => new Set<string>(Object.values(EcencyWalletCurrency)),
+    []
+  );
+
+  const pendingChainTokens = useMemo(() => {
+    if (!walletCheck) {
+      return [] as AccountProfileToken[];
     }
 
-    return account.profile.tokens.filter(
-      ({ symbol, type }) =>
-        type === "CHAIN" ||
-        Object.values(EcencyWalletCurrency).includes(symbol as EcencyWalletCurrency)
-    );
-  }, [account?.profile?.tokens]);
+    const candidates: (
+      | WalletMetadataCandidate
+      | AccountProfileToken
+      | undefined
+    )[] = [];
+
+    if (Array.isArray(walletCheck.tokens)) {
+      candidates.push(...walletCheck.tokens);
+    }
+
+    if (Array.isArray(walletCheck.wallets)) {
+      candidates.push(...walletCheck.wallets);
+    }
+
+    const normalized = candidates
+      .map((candidate) => normalizeChainTokenCandidate(candidate))
+      .filter((token): token is AccountProfileToken => Boolean(token));
+
+    const unique = new Map<string, AccountProfileToken>();
+    normalized.forEach((token) => {
+      if (token && !unique.has(token.symbol)) {
+        unique.set(token.symbol, token);
+      }
+    });
+
+    return Array.from(unique.values());
+  }, [walletCheck]);
+
+  const availableChainTokens = useMemo(() => {
+    const tokensMap = new Map<string, AccountProfileToken>();
+
+    const addToken = (token?: AccountProfileToken) => {
+      if (!token || typeof token.symbol !== "string") {
+        return;
+      }
+
+      if (token.type !== "CHAIN" && !supportedChainSymbols.has(token.symbol)) {
+        return;
+      }
+
+      tokensMap.set(token.symbol, {
+        symbol: token.symbol,
+        type: token.type ?? "CHAIN",
+        meta: token.meta ?? {}
+      });
+    };
+
+    if (Array.isArray(account?.profile?.tokens)) {
+      account.profile.tokens.forEach((token) =>
+        addToken(token as AccountProfileToken)
+      );
+    }
+
+    pendingChainTokens.forEach((token) => {
+      if (!tokensMap.has(token.symbol)) {
+        addToken(token);
+      }
+    });
+
+    return Array.from(tokensMap.values());
+  }, [account?.profile?.tokens, pendingChainTokens, supportedChainSymbols]);
 
   const availableExternalTokenSymbols = useMemo(() => {
     return new Set(
@@ -59,11 +204,27 @@ export function ProfileWalletTokenPicker() {
   }, [availableChainTokens]);
 
   const externalTokens = useMemo(() => {
-    if (!allTokens?.external || availableExternalTokenSymbols.size === 0) {
+    if (availableExternalTokenSymbols.size === 0) {
       return [];
     }
 
-    return allTokens.external.filter((token) => availableExternalTokenSymbols.has(token));
+    const orderedTokens: string[] = [];
+
+    if (Array.isArray(allTokens?.external)) {
+      orderedTokens.push(
+        ...allTokens.external.filter((token) =>
+          availableExternalTokenSymbols.has(token)
+        )
+      );
+    }
+
+    availableExternalTokenSymbols.forEach((symbol) => {
+      if (!orderedTokens.includes(symbol)) {
+        orderedTokens.push(symbol);
+      }
+    });
+
+    return orderedTokens;
   }, [allTokens?.external, availableExternalTokenSymbols]);
 
   const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(profileUsername);

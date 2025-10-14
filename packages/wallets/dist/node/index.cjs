@@ -3264,7 +3264,7 @@ function useImportWallet(username, currency) {
     }
   });
 }
-function getGroupedChainTokens(tokens, show = false) {
+function getGroupedChainTokens(tokens, defaultShow) {
   if (!tokens) {
     return {};
   }
@@ -3274,8 +3274,16 @@ function getGroupedChainTokens(tokens, show = false) {
       ({ type, symbol }) => type === "CHAIN" || Object.values(EcencyWalletCurrency).includes(symbol)
     ),
     R__namespace.map((item) => {
-      item.meta.show = show;
-      return item;
+      const meta = {
+        ...item.meta ?? {}
+      };
+      if (typeof meta.show !== "boolean" && typeof defaultShow === "boolean") {
+        meta.show = defaultShow;
+      }
+      return {
+        ...item,
+        meta
+      };
     }),
     // Chain tokens are unique by symbol, so indexing by symbol
     // gives a direct lookup map instead of an array-based grouping.
