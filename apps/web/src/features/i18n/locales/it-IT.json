@@ -2,7 +2,7 @@
   "g": {
     "all": "Tutte",
     "add": "Aggiungi",
-    "edit": "Modifica",
+    "edit": "g -> modifica",
     "clone": "Clona",
     "copy": "Copia di",
     "clone-success": "Creato una nuova copia bozza",
@@ -106,7 +106,8 @@
   "validation": {
     "required": "Campo obbligatorio",
     "min-length": "Deve contenere almeno min {{n}} caratteri",
-    "max-length": "Deve contenere almeno max {{n}} caratteri"
+    "max-length": "Deve contenere almeno max {{n}} caratteri",
+    "url": "Formato URL non valido"
   },
   "confirm": {
     "title": "Sei sicuro?",
@@ -322,10 +323,10 @@
     "pay-fee": "Pagamento Tassa Account",
     "modal-title": "Sei sicuro?",
     "modal-confirm": "Conferma",
-    "file-warning": "Gestisci la tua seed phrase e le chiavi private con maggiore cautela. Il tuo account non sarà più accessibile se perdi la tua seed phrase. Non ne teniamo una copia; è confidenziale e solo tu hai accesso ad essa.",
+    "file-warning": "Si prega di gestire la password e le chiavi private con maggiore cautela. Il tuo account non sarà più accessibile se perdi la password. Non ne teniamo una copia; è confidenziale e solo tu hai accesso ad essa.",
     "recommend": "Si consiglia di,",
     "recommend-print": "PRINT questo file e memorizzarlo in modo sicuro.",
-    "recommend-use": "Non utilizzare MAI la tua frase seme/chiave proprietario su app non attendibili.",
+    "recommend-use": "Non utilizzare MAI la chiave di password/proprietario su app non attendibili.",
     "recommend-save": "Salvare tutte le chiavi all'interno di un gestore di password e/o Ecency portafoglio mobile, come avrete bisogno di loro frequentemente.",
     "recommend-third-party": "Non tenere questo file alla portata di una terza parte.",
     "account-info": "Informazioni Sul Tuo Account Hive;",
@@ -342,9 +343,9 @@
     "active-use": "Trasferimento fondi, Potere su/giù, Votazione testimoni/Proposte",
     "posting-use": "Post, Commento, Voto, Reblog, Segui, Aggiornamenti sul profilo",
     "memo-use": "Invia/Visualizza messaggi cifrati nei trasferimenti",
-    "copy-tooltip": "Copia frase seed",
-    "regenerate-password": "Rigenera frase seed",
-    "copy-password": "Frase del seme copiata con successo",
+    "copy-tooltip": "Copia password",
+    "regenerate-password": "Rigenera password",
+    "copy-password": "Password copiata con successo",
     "copy-info-message": "Copia il link qui sotto e INVIA ad un amico",
     "success-message": "Hai creato con successo l'account ",
     "sign-title": "Firma transazione con ",
@@ -639,7 +640,7 @@
       "create-regular-post": "Crea post lungo",
       "input-placeholder": "Che cosa sta succedendo?",
       "select-thread-host": "Seleziona un host di onde",
-      "thread-host": "Pubblicazione in",
+      "thread-host": "Will be published in",
       "no-threads-host": "Questo account non è un host waves",
       "publishing": "Onde 🌊...",
       "successfully-created": "Pubblicato con successo!",
@@ -973,7 +974,9 @@
     "proposals": "Propositi",
     "referrals": "Referências",
     "go-community": "Pagina della Comunità",
-    "com-mod": "Moderatore di queste comunità"
+    "com-mod": "Moderatore di queste comunità",
+    "empty-communities": "Nessuna comunità qui",
+    "empty-communities-hint": "L'utente non è ancora un membro di nessuna comunità. Unisciti a una delle comunità o crea la tua stessa"
   },
   "profile-info": {
     "joined": "Iscritto",
@@ -990,7 +993,8 @@
     "no-posts-community": "Entra e post in questa comunità",
     "create-posts": "Inizia a creare un nuovo post",
     "link-copied": "Link di ricerca copiato negli appunti",
-    "no-posts-found": "Non abbiamo trovato nulla!"
+    "no-posts-found": "Non abbiamo trovato nulla!",
+    "subscribe": "Abbonati"
   },
   "rc-info": {
     "available": "Disponibile",
@@ -1054,11 +1058,15 @@
     "language": "Lingua",
     "nsfw": "Mostra Contenuti NSFW",
     "referral-link": "Link di affiliazione",
+    "referral-link-hint": "Invita i tuoi amici con link di segnalazione e guadagna 100 punti",
     "theme": "Impostazioni tema",
     "theme-system-default": "Predefinita di Sistema",
     "theme-day": "Modalità diurna",
     "theme-night": "Modalità notturna",
-    "updated": "Preferenza aggiornata!"
+    "updated": "Preferenza aggiornata!",
+    "permissions-title": "Chiavi e permessi",
+    "permissions-hint": "Gestisci le tue chiavi, controlla i permessi sulle applicazioni",
+    "permissions": "Autorizzazioni aperte"
   },
   "wallet": {
     "unclaimed-rewards": "Ricompense non riscosse",
@@ -1088,6 +1096,7 @@
     "savings": "RISPARMI",
     "savings-description": "Bilancio soggetto a tempo di attesa prima del pagamento di 3 giorni.",
     "next-power-down": "Il prossimo power down è {{time}}, (~{{amount}}, {{weeks}} settimane rimanenti)",
+    "power-down-total": "Potenza totale giù rimanente: {{amount}}",
     "transfer": "Trasferisci",
     "transfer-to-savings": "Trasferisci nei risparmi",
     "convert": "Converti",
@@ -1200,6 +1209,7 @@
   },
   "withdraw-routes": {
     "title": "Account beneficianti delle ricompense assegnate",
+    "description": "Distribuisci automaticamente i pagamenti power-down agli account preferiti",
     "account": "Account",
     "percent": "Percentuale",
     "validation-account": "Un account è obbligatorio.",
@@ -1221,6 +1231,7 @@
     "checkin-extra-desc": "Un uso costante dell'app ti da ulteriori possibilità di guadagnare altri 10 punti, essere più attivo e guadagnare di più.",
     "delegation-desc": "Puoi guadagnare ~100 punti al giorno ogni 1000HP delegati.",
     "community-desc": "Registra la tua community per ottenere 20 punti per ogni post pubblicato dalle applicazioni Ecency.",
+    "referral-desc": "Invita amici e guadagna Punti",
     "history": "Cronologia",
     "post-list-desc": "Punti per post",
     "comment-list-desc": "Punti per commento",
@@ -1323,7 +1334,7 @@
     "claim-interest-sub-title": "Prelievo piccolo importo che verrà annullato subito",
     "from": "Da",
     "to": "A",
-    "to-placeholder": "nome utente",
+    "to-placeholder": "nome Utente",
     "to-not-found": "L'utente a cui stai tentando di trasferire fondi non esiste!",
     "to-bad-actor": "Usa cautela nell'invio a questo account. Per favore controlla la tua ortografia per un possibile phishing.",
     "amount": "Importo",
@@ -1360,7 +1371,7 @@
     "powerup-summary": "Accensione completata con successo",
     "powerdown-summary": "Accensione completata con successo",
     "reset": "Ripristina",
-    "powering-down": "Depotenziamento attualmente in atto.",
+    "powering-down": "Corrente di spegnimento.",
     "stop-power-down": "Interrompi",
     "claim-title": "Riscuoti",
     "powerup-title": "Power Up",
@@ -1372,7 +1383,16 @@
     "success-title": "Successo",
     "success-sub-title": "Transazione completata",
     "sign-title": "Firma la transazione",
-    "sign-sub-title": "Firma la tua transazione"
+    "sign-sub-title": "Firma la tua transazione",
+    "swap-title": "Swap Hive/HBD",
+    "swap-sub-title": "Scambia i tuoi fondi con pochi clic",
+    "gift-title": "Regalo",
+    "gift-sub-title": "Regala i punti a un utente specifico",
+    "lock-sub-title": "Bloccare Larynx per la ricompensa di liquidità",
+    "stake-title": "Stake",
+    "stake-sub-title": "Token di puntata per guadagnare premi passivi",
+    "unstake-title": "Spostare",
+    "unstake-sub-title": "Unstake token si smetterà di guadagnare premi passivi"
   },
   "trx-common": {
     "insufficient-funds": "Fondi insufficienti",
@@ -1391,14 +1411,26 @@
     "group-rewards": "Ricompense",
     "type-curation_reward": "Ricompensa da curatore",
     "type-author_reward": "Ricompensa d'autore",
+    "type-comments_authorReward": "Ricompensa autore",
+    "type-comments_curationReward": "Ricompensa della curazione",
+    "type-comments_authorReward_stake": "Ricompensa autore puntato",
+    "type-comments_curationReward_stake": "Ricompensa cura puntata",
     "type-comment_benefactor_reward": "Ricompense come beneficiario del commento",
+    "type-tokens_stake": "Token di puntata",
+    "type-tokens_issue": "Problema token",
+    "type-comments_beneficiaryReward": "Premio del beneficiario",
     "type-claim_reward_balance": "Richiedi ricompense",
     "type-transfer": "Trasferisci",
+    "type-tokens_transfer": "Trasferisci",
     "type-transfer_to_vesting": "Potenzia",
     "type-withdraw_vesting": "Depotenzia",
     "type-set_withdraw_vesting_route": "Ritira percorso cambiato",
     "type-fill_vesting_withdraw": "Si è verificato un consumo parziale",
     "type-fill_order": "Open trade filled",
+    "type-market_buy": "Acquisto di mercato",
+    "type-market_placeOrder": "Ordine di mercato effettuato",
+    "type-market_closeOrder": "Ordine di mercato chiuso",
+    "type-distribution_pending": "Controllo della distribuzione in attesa di distribuzioni",
     "type-producer_reward": "Premio produttore",
     "type-interest": "Interessi",
     "type-transfer_to_savings": "Trasferisci nei risparmi",
@@ -1427,6 +1459,7 @@
     "broken-hint": "Il collegamento all'operazione è rotto o non può essere riconosciuto",
     "signer-text": "Firma dopo la transazione/operazione",
     "success-hint": "Operazione firmata e transazione trasmessa",
+    "success-close-hint": "Operazione firmata e transazione trasmessa. La finestra verrà chiusa in 5 secondi...",
     "error-hint": "Operation cannot be signed or transactions could't be broadcasted. Please, check operation and try again"
   },
   "key-or-hot": {
@@ -1894,7 +1927,8 @@
     "label-check": "Ho salvato correttamente e in maniera sicura la mia chiave d'accesso",
     "validation-password": "Password non valida.",
     "validation-label": "Spunta questo riquadro per procedere.",
-    "updated": "Chiave d'accesso aggiornata con successo!"
+    "updated": "Chiave d'accesso aggiornata con successo!",
+    "hint": "In questo momento, è possibile generare chiavi solo impostando una nuova frase di seme. L'aggiornamento a qualsiasi altro tipo di password non è supportato. Ci aiuta a mantenere Ecency e Hive account in uno standard di Web 3.0."
   },
   "view-keys": {
     "title": "Mostra le chiavi private",
@@ -2610,7 +2644,7 @@
   "not-found": {
     "title": "Non trovato",
     "description": "Oops! It seems there isn`t page related to URL:(",
-    "back-home": "Ritorna alla home"
+    "back-home": "Torna Indietro"
   },
   "global-error": {
     "description": "Something went wrong. Please, try again or report an issue"
@@ -2647,6 +2681,12 @@
     },
     "who-to-follow": "Chi seguire",
     "who-to-follow-hint": "Vuoi essere qui troppo? Sii attivo e tieni traccia in Discover/Leaderboards.",
+    "whats-happening": "Cosa sta succedendo",
+    "whats-happening-subtitle": "Trending hashtags from the last {{hours}} hours",
+    "whats-happening-empty": "Ancora nessun hashtag di tendenza.",
+    "whats-happening-error": "Impossibile caricare gli hashtag di tendenza in questo momento.",
+    "tag-feed-indicator": "Navigazione #{{tag}}",
+    "tag-feed-clear": "Cancella filtro",
     "reply-to": "Rispondendo a",
     "edit-wave": "Modifica onda",
     "reply": "Rispondi",
@@ -2877,5 +2917,82 @@
     "hint": "Text-to-Speech utilizza gli strumenti integrati del browser per convertire contenuti di testo in voce. L'elenco vocali, la disponibilità e la qualità dipendono solo dal browser e dal dispositivo.",
     "playground": "Playground",
     "voices": "Voci"
+  },
+  "profile-wallet": {
+    "pick-tokens": "Scegli i token da mostrare",
+    "search-token": "Token di ricerca",
+    "setup-tokens": "Imposta asset",
+    "asset-name": "Nome asset",
+    "price": "Prezzo",
+    "balance": "Saldo",
+    "history": "Storico",
+    "market": "Mercato",
+    "apr": "Ricompense APR",
+    "apr-hint": "Tasso percentuale annuale – una stima dei premi che otterrai in Criptovaluta nel periodo di tempo selezionato",
+    "delegations": "Delegazioni",
+    "external-wallets-offer": {
+      "title": "Porta le tue criptovalute in Ecenza",
+      "description": "Crea o importa portafogli per BTC, ETH, BNB, SOL, TRX, APT e TON direttamente da app come Trust o Exodus, e iniziare a usarli senza soluzione di continuità all'interno dell'ecosistema Hive.",
+      "hint": "Le informazioni di token create e importate saranno memorizzate in un account Ecency e Hive metadati"
+    },
+    "external-wallets-signup": {
+      "create-wallet-title": "Crea un & collegamento ad un account Hive",
+      "create-wallet-description": "Crea un portafoglio per BTC, ETH, BNB, SOL, TRX, APT e TON. Questi beni saranno collegati al tuo conto Hive, consentendo di gestire facilmente i tuoi fondi in Ecency.",
+      "import-wallet-title": "Importa portafoglio esistente",
+      "import-wallet-description": "Importa il tuo portafoglio esistente da Trust, Exodus, o altre app compatibili. Il tuo patrimonio sarà collegato al tuo conto Hive, in modo da poter gestire facilmente i tuoi fondi in Ecency.",
+      "create-wallet-tokens-description": "Dai un'occhiata agli indirizzi dei tuoi gettoni. Inoltre puoi vederli più tardi nella pagina del portafoglio",
+      "linking": "Collegamento dei token al tuo account Hive...",
+      "linking-hint": "Hive ed Ecency utilizzano solo indirizzi pubblici dei vostri portafogli. Nessuna informazione privata sarà memorizzata.",
+      "linking-success": "I token sono collegati con successo",
+      "linking-success-hint": "Puoi trovare i tuoi token in una pagina di portafoglio"
+    },
+    "operations": {
+      "transfer": "Trasferisci",
+      "transfer-saving": "Al Risparmio",
+      "power-up": "Power Up",
+      "power-down": "Power Down",
+      "swap": "Scambia",
+      "delegate": "Delega",
+      "withdraw-saving": "Preleva percorsi",
+      "gift": "Regalo",
+      "promote": "Promuovi",
+      "claim": "Claim",
+      "buy": "Acquista",
+      "lock": "Blocca liquidità",
+      "stake": "Stake",
+      "unstake": "Spostare",
+      "undelegate": "Undelegate"
+    },
+    "external": {
+      "receive-button": "Ricevi",
+      "transfer-soon": "Trasferimento (prossimo)",
+      "receive-title": "Ricevi {{token}}",
+      "receive-description": "Scansiona il codice QR o copia l'indirizzo per ricevere {{token}}.",
+      "receive-loading": "Generating QR code...",
+      "receive-qr-error": "Non è stato possibile generare un codice QR. Si prega di copiare l'indirizzo invece.",
+      "receive-qr-alt": "{{token}} deposit QR code",
+      "address-label": "{{token}} address",
+      "receive-no-address": "Non abbiamo ancora trovato un indirizzo per questo token. Impostalo dalla pagina di configurazione del tuo portafoglio per iniziare a ricevere."
+    }
+  },
+  "permissions": {
+    "sessions": {
+      "title": "Pubblicazione delle sessioni attive"
+    },
+    "keys": {
+      "title": "Chiavi E Password",
+      "hint": "Un account Hive può contenere più chiavi contemporaneamente, tutte elencate di seguito",
+      "add-key": "Aggiungi nuove chiavi",
+      "key-created": "Le chiavi hanno creato e assegnato con successo.",
+      "error-private-key-reveal": "La chiave privata può essere rivelata solo con la password principale o la seed phrase"
+    },
+    "recovery": {
+      "title": "Recupero account",
+      "hint": "Il recupero dell'account è disponibile solo se le chiavi sono state modificate o compromesse negli ultimi 30 giorni. Se hai perso le chiavi o la password e sono passati più di 30 giorni, il recupero non è possibile."
+    },
+    "revoke-key": {
+      "title": "Revoca chiave Hive",
+      "hint": "È possibile revocare qualsiasi chiave Hive utilizzando una delle chiavi proprietarie/password principale/seed"
+    }
   }
 }
