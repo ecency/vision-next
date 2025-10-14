@@ -763,7 +763,7 @@
     "comment-entry-go-parent": "Kalon ureung chik langsong",
     "hidden-warning": "This content got low rating by people.",
     "delete-disabled": "Content after their payout cannot be deleted.",
-    "muted-warning": "Konten nyoe ka ipeu im le Moderator {{Komunitas}} Karna hana ipateh haba komunitas.",
+    "muted-warning": "Konten nyoe ka ipeu im le Moderator {{community}} Karna hana ipateh haba komunitas.",
     "lowrep-warning": "Author of this content has low reputation.",
     "deleted-content-warning": "This content was deleted by the author. You can see it from Blockchain ",
     "comments-hidden": "Author of this post is muted by you.",
