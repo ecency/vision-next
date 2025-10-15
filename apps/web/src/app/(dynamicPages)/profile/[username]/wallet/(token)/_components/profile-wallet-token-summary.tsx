@@ -5,6 +5,15 @@ import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, usePathname } from "next/navigation";
 import { HiveEngineClaimRewardsButton } from "../[token]/_components/hive-engine-claim-rewards-button";
+import {
+  ProfileWalletClaimPointsButton,
+  useProfileWalletPointsClaimState,
+} from "./profile-wallet-claim-points-button";
+import {
+  ProfileWalletHpClaimRewardsButton,
+  useProfileWalletHpClaimState,
+} from "./profile-wallet-hp-claim-rewards-button";
+import i18next from "i18next";
 
 function format(value: number) {
   const formatter = new Intl.NumberFormat();
@@ -18,11 +27,22 @@ export function ProfileWalletTokenSummary() {
   const tokenWithFallback =
     (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase();
 
+  const cleanUsername = (username as string).replace("%40", "");
+
+  const { hasPendingPoints } =
+    useProfileWalletPointsClaimState(
+      cleanUsername,
+      tokenWithFallback === "POINTS"
+    );
+
+  const { hasRewards: hasHpRewards } =
+    useProfileWalletHpClaimState(
+      cleanUsername,
+      tokenWithFallback === "HP"
+    );
+
   const { data, isFetching } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(
-      (username as string).replace("%40", ""),
-      tokenWithFallback
-    )
+    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback)
   );
 
   const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
@@ -101,6 +121,28 @@ export function ProfileWalletTokenSummary() {
             <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
           </div>
           <HiveEngineClaimRewardsButton className="w-full sm:w-auto" />
+          {tokenWithFallback === "POINTS" && hasPendingPoints && (
+            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {i18next.t("wallet.unclaimed-rewards")}
+              </div>
+              <ProfileWalletClaimPointsButton
+                username={cleanUsername}
+                className="w-full sm:w-auto"
+              />
+            </div>
+          )}
+          {tokenWithFallback === "HP" && hasHpRewards && (
+            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {i18next.t("wallet.unclaimed-rewards")}
+              </div>
+              <ProfileWalletHpClaimRewardsButton
+                username={cleanUsername}
+                className="w-full sm:w-auto"
+              />
+            </div>
+          )}
         </div>
       </div>
       <div className={`grid ${gridClassName} gap-2 md:gap-4`}>

@@ -1,13 +1,9 @@
-import { formatError } from "@/api/operations";
 import { useClientActiveUser } from "@/api/queries";
-import { error, success } from "@/features/shared";
 import { WalletOperationsDialog } from "@/features/wallet";
 import {
   AssetOperation,
   EcencyWalletCurrency,
-  getPointsQueryOptions,
   getTokenOperationsQueryOptions,
-  useClaimPoints
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -67,7 +63,6 @@ export function ProfileWalletTokenActions() {
     (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase();
   const cleanUsername = (username as string).replace("%40", "");
 
-  const { data: activeUserPoints } = useQuery(getPointsQueryOptions(activeUser?.username));
   const { data: operations } = useQuery(
     getTokenOperationsQueryOptions(
       tokenSymbol,
@@ -82,6 +77,15 @@ export function ProfileWalletTokenActions() {
         tokenSymbol ?? ""
       ),
     [tokenSymbol]
+  );
+
+  const filteredOperations = useMemo(
+    () =>
+      (operations ?? []).filter(
+        (operation) =>
+          !(pathname.includes("points") && operation === AssetOperation.Claim)
+      ),
+    [operations, pathname]
   );
 
   const { data: account } = useQuery({
@@ -177,18 +181,7 @@ export function ProfileWalletTokenActions() {
   const interactiveActionCardClass =
     " cursor-pointer hover:border-blue-dark-sky dark:hover:border-blue-dark-sky hover:text-blue-dark-sky";
 
-  const totalActionsCount = (operations?.length ?? 0) + (isExternalToken ? 2 : 0);
-
-  const canClaim = useMemo(
-    () => activeUserPoints?.uPoints && parseInt(activeUserPoints?.uPoints) !== 0,
-    [activeUserPoints]
-  );
-
-  const { mutateAsync: claim, isPending: isClaiming } = useClaimPoints(
-    activeUser?.username,
-    () => success(i18next.t("points.claim-ok")),
-    (err) => error(...formatError(err))
-  );
+  const totalActionsCount = filteredOperations.length + (isExternalToken ? 2 : 0);
 
   return (
     <>
@@ -224,7 +217,7 @@ export function ProfileWalletTokenActions() {
             </button>
           </>
         )}
-        {operations?.map((operation, index) => {
+        {filteredOperations.map((operation, index) => {
           const key = `operation-${operation}-${index}`;
 
           if ([AssetOperation.Buy, AssetOperation.Promote].includes(operation)) {
@@ -247,31 +240,6 @@ export function ProfileWalletTokenActions() {
                   {i18next.t(`profile-wallet.operations.${operation}`)}
                 </div>
               </Link>
-            );
-          }
-
-          if (operation === AssetOperation.Claim && pathname.includes("points")) {
-            return (
-              <div
-                key={key}
-                className={clsx(
-                  actionCardClass,
-                  interactiveActionCardClass,
-                  !canClaim && "opacity-50"
-                )}
-                onClick={() => canClaim && claim({})}
-              >
-                {isClaiming ? <UilSpinner className="animate-spin" /> : operationsIcons[operation]}
-                <div className="w-full font-bold">
-                  {!canClaim && i18next.t("perks.claim-points-nothing")}
-                  {canClaim && i18next.t("perks.claim-points-button")}
-                  {canClaim && (
-                    <span className="font-bold ml-1">
-                      {`(+${parseInt(activeUserPoints?.uPoints).toFixed(0)})`}
-                    </span>
-                  )}
-                </div>
-              </div>
             );
           }
 
