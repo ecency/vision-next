@@ -2296,7 +2296,7 @@ function getPointsAssetTransactionsQueryOptions(username, type) {
         type: type2,
         results: [
           {
-            amount: parseInt(amount),
+            amount: parseFloat(amount),
             asset: "POINTS"
           }
         ],

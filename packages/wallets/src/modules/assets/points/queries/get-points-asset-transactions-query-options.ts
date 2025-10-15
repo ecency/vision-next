@@ -29,7 +29,7 @@ export function getPointsAssetTransactionsQueryOptions(
         type,
         results: [
           {
-            amount: parseInt(amount),
+            amount: parseFloat(amount),
             asset: "POINTS",
           },
         ],
