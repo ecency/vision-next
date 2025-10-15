@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "表示するトークンを選択",
     "search-token": "検索トークン",
-    "setup-tokens": "アセットをセットアップする",
+    "setup-tokens": "トークンの管理",
     "asset-name": "資産名",
     "price": "価格",
     "balance": "残高",
