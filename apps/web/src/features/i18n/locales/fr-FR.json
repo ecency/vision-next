@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Choisir les jetons à afficher",
     "search-token": "Jeton de recherche",
-    "setup-tokens": "Configuration des ressources",
+    "setup-tokens": "Manage tokens",
     "asset-name": "Nom de l'actif",
     "price": "Prix",
     "balance": "Solde",

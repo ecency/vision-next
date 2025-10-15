@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Выберите жетоны, чтобы показать",
     "search-token": "Поиск по токену",
-    "setup-tokens": "Настроить медиафайлы",
+    "setup-tokens": "Управление токенами",
     "asset-name": "Название актива",
     "price": "Цена",
     "balance": "Баланс",
