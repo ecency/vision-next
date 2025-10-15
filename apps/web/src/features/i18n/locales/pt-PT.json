@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Escolher tokens para mostrar",
     "search-token": "Pesquisar token",
-    "setup-tokens": "Configuração de arquivos",
+    "setup-tokens": "Gerenciar tokens",
     "asset-name": "Nome do equipamento",
     "price": "Quantidade",
     "balance": "Saldo",
