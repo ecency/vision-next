@@ -2963,6 +2963,10 @@
       "unstake": "ステーク解除",
       "undelegate": "委任解除"
     },
+    "claim-rewards": "報酬を要求する",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "請求しています...",
+    "claim-rewards-success": "{{amount}} {{token}} の請求に成功しました",
     "external": {
       "receive-button": "受信する",
       "transfer-soon": "転送 (近日)",
