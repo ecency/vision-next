@@ -2963,6 +2963,10 @@
       "unstake": "Spostare",
       "undelegate": "Undelegate"
     },
+    "claim-rewards": "Richiedi ricompense",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Rivendicazione...",
+    "claim-rewards-success": "{{amount}} {{token}} rivendicato con successo",
     "external": {
       "receive-button": "Ricevi",
       "transfer-soon": "Trasferimento (prossimo)",

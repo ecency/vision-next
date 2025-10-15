@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Elegir tokens para mostrar",
     "search-token": "Buscar tokens",
-    "setup-tokens": "Manage tokens",
+    "setup-tokens": "Administrar tokens",
     "asset-name": "Nombre del recurso",
     "price": "Precio",
     "balance": "Balance",
@@ -2963,6 +2963,10 @@
       "unstake": "Retirar de Estaca",
       "undelegate": "Retirar delegación"
     },
+    "claim-rewards": "Reclamar recompensas",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Reclamando...",
+    "claim-rewards-success": "{{amount}} {{token}} reclamado con éxito",
     "external": {
       "receive-button": "Recibir",
       "transfer-soon": "Transferir (pronto)",
