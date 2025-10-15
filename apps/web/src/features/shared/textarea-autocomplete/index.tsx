@@ -37,7 +37,7 @@ export const TextareaAutocomplete = forwardRef<HTMLTextAreaElement, any>((props,
 
   useEffect(() => {
     setValue(props.value);
-  }, [props.value, value]);
+  }, [props.value]);
 
   const handleChange = (event: any) => {
     const isMobile = typeof window !== "undefined" && window.innerWidth < 570;

@@ -13,6 +13,14 @@ import {
   ProfileWalletHpClaimRewardsButton,
   useProfileWalletHpClaimState,
 } from "./profile-wallet-hp-claim-rewards-button";
+import {
+  ProfileWalletHbdClaimRewardsButton,
+  useProfileWalletHbdClaimState,
+} from "./profile-wallet-hbd-claim-rewards-button";
+import {
+  ProfileWalletHiveClaimRewardsButton,
+  useProfileWalletHiveClaimState,
+} from "./profile-wallet-hive-claim-rewards-button";
 import i18next from "i18next";
 
 function format(value: number) {
@@ -39,6 +47,18 @@ export function ProfileWalletTokenSummary() {
     useProfileWalletHpClaimState(
       cleanUsername,
       tokenWithFallback === "HP"
+    );
+
+  const { hasRewards: hasHbdRewards } =
+    useProfileWalletHbdClaimState(
+      cleanUsername,
+      tokenWithFallback === "HBD"
+    );
+
+  const { hasRewards: hasHiveRewards } =
+    useProfileWalletHiveClaimState(
+      cleanUsername,
+      tokenWithFallback === "HIVE"
     );
 
   const { data, isFetching } = useQuery(
@@ -138,6 +158,28 @@ export function ProfileWalletTokenSummary() {
                 {i18next.t("wallet.unclaimed-rewards")}
               </div>
               <ProfileWalletHpClaimRewardsButton
+                username={cleanUsername}
+                className="w-full sm:w-auto"
+              />
+            </div>
+          )}
+          {tokenWithFallback === "HBD" && hasHbdRewards && (
+            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {i18next.t("wallet.unclaimed-rewards")}
+              </div>
+              <ProfileWalletHbdClaimRewardsButton
+                username={cleanUsername}
+                className="w-full sm:w-auto"
+              />
+            </div>
+          )}
+          {tokenWithFallback === "HIVE" && hasHiveRewards && (
+            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {i18next.t("wallet.unclaimed-rewards")}
+              </div>
+              <ProfileWalletHiveClaimRewardsButton
                 username={cleanUsername}
                 className="w-full sm:w-auto"
               />
