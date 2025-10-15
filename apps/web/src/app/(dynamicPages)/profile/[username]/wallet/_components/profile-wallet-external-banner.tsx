@@ -58,7 +58,7 @@ export function ProfileWalletExternalBanner() {
           {i18next.t("profile-wallet.external-wallets-offer.description")}
         </div>
         <Button href="/wallet/setup-external" size="lg" icon={<UilArrowRight />}>
-          {i18next.t("g.continue")}
+          {i18next.t("intro.c2a")}
         </Button>
       </div>
     </div>
