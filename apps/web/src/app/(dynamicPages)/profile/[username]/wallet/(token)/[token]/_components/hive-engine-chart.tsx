@@ -14,13 +14,16 @@ export function HiveEngineChart() {
   const theme = useGlobalStore((s) => s.theme);
 
   const { token } = useParams();
+  const tokenSymbol = (token as string)?.toUpperCase();
+  const isSpkLayerToken = tokenSymbol === "SPK" || tokenSymbol === "LARYNX";
   const { ref: chartContainerRef } = useResizeDetector();
 
   const chartRef = useRef<IChartApi>();
   const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick">>();
 
   const { data } = useQuery({
-    ...getHiveEngineTokensMetricsQueryOptions(token as string, "hourly"),
+    ...getHiveEngineTokensMetricsQueryOptions(tokenSymbol ?? "", "hourly"),
+    enabled: Boolean(tokenSymbol) && !isSpkLayerToken,
     select: (items) =>
       items
         .map((item) => ({
@@ -103,6 +106,17 @@ export function HiveEngineChart() {
       }
     }
   }, [data]);
+
+  if (isSpkLayerToken) {
+    return (
+      <div className="bg-white rounded-xl mb-4">
+        <div className="p-4 text-sm text-gray-600 dark:text-gray-400">Market</div>
+        <div className="px-4 pb-4 text-sm text-gray-600 dark:text-gray-400">
+          Market data is currently unavailable for this token.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl mb-4">
