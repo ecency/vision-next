@@ -17,7 +17,7 @@ import { Button } from "@/features/ui";
 
 interface ContentProps {
   account: FullAccount;
-  rcAccount: RCAccount;
+  rcAccount?: RCAccount;
 }
 
 function ProfileInfoContent({ account, rcAccount }: ContentProps) {
@@ -47,11 +47,21 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
   // Down vote power
   const dvPower = downVotingPower(account);
 
-  // Resource credits
-  const rcp = rcPower(rcAccount);
-  const rcpFixed = rcp.toFixed(2);
-  const rcpRecharge = powerRechargeTime(rcp);
-  const rcpRechargeDate = dayjs().add(rcpRecharge, "second");
+  const rcInfo = useMemo(() => {
+    if (!rcAccount) {
+      return null;
+    }
+
+    const rcp = rcPower(rcAccount);
+    const rcpFixed = rcp.toFixed(2);
+    const rcpRecharge = powerRechargeTime(rcp);
+    const rcpRechargeDate = dayjs().add(rcpRecharge, "second");
+
+    return {
+      rcpFixed,
+      rcpRechargeDate,
+    };
+  }, [rcAccount]);
 
   return (
     <div className="profile-info-tooltip-content [&>p]:mb-0 text-sm">
@@ -78,12 +88,14 @@ function ProfileInfoContent({ account, rcAccount }: ContentProps) {
         )}
       </p>
       <p>{i18next.t("profile-info.down-vote-power", { n: dvPower.toFixed(2) })}</p>
-      <p>
-        {i18next.t("profile-info.rc-power", { n: rcpFixed })}
-        {rcpFixed !== "100.00" && (
-          <small>{i18next.t("profile-info.recharge-time", { n: rcpRechargeDate.fromNow() })}</small>
-        )}
-      </p>
+      {rcInfo && (
+        <p>
+          {i18next.t("profile-info.rc-power", { n: rcInfo.rcpFixed })}
+          {rcInfo.rcpFixed !== "100.00" && (
+            <small>{i18next.t("profile-info.recharge-time", { n: rcInfo.rcpRechargeDate.fromNow() })}</small>
+          )}
+        </p>
+      )}
     </div>
   );
 }
@@ -93,9 +105,9 @@ interface Props {
 }
 
 export function ProfileInfo({ account }: Props) {
-  const { data } = useQuery(getAccountRcQueryOptions(account.name));
+  const { data, isLoading: isRcLoading } = useQuery(getAccountRcQueryOptions(account.name));
   const rcAccount = useMemo(() => data?.[0], [data]);
-  const isLoaded = account?.__loaded && rcAccount;
+  const isLoaded = Boolean(account?.__loaded) && !isRcLoading;
 
   return (
     <StyledTooltip
