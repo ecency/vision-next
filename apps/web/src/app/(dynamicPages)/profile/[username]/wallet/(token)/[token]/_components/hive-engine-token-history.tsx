@@ -23,11 +23,11 @@ const MemoEcencyRenderer = memo(EcencyRenderer);
 export function HiveEngineTokenHistory() {
   const { token, username } = useParams();
 
+  const cleanUsername = (username as string).replace("%40", "");
+  const tokenSymbol = (token as string).toUpperCase();
+
   const { data } = useInfiniteQuery(
-    getHiveEngineTokenTransactionsQueryOptions(
-      (username as string).replace("%40", ""),
-      (token as string).toUpperCase()
-    )
+    getHiveEngineTokenTransactionsQueryOptions(cleanUsername, tokenSymbol)
   );
   const dataFlow = useInfiniteDataFlow(data);
 

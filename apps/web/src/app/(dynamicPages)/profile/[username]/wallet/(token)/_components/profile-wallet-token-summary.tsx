@@ -4,6 +4,7 @@ import { useGetTokenLogoImage } from "@/features/wallet";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, usePathname } from "next/navigation";
+import { HiveEngineClaimRewardsButton } from "../[token]/_components/hive-engine-claim-rewards-button";
 
 function format(value: number) {
   const formatter = new Intl.NumberFormat();
@@ -80,7 +81,7 @@ export function ProfileWalletTokenSummary() {
 
   return (
     <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
-      <div className="flex justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
         <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
           <div className="mt-1">{logo}</div>
           <div>
@@ -95,8 +96,11 @@ export function ProfileWalletTokenSummary() {
             </div>
           </div>
         </div>
-        <div className="text-blue-dark-sky">
-          <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+        <div className="flex flex-col gap-2 sm:items-end sm:text-right">
+          <div className="text-blue-dark-sky">
+            <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+          </div>
+          <HiveEngineClaimRewardsButton className="w-full sm:w-auto" />
         </div>
       </div>
       <div className={`grid ${gridClassName} gap-2 md:gap-4`}>
