@@ -2,7 +2,7 @@ import { useRef as $, useEffect as l, useState as x, useMemo as b, useCallback a
 import { renderPostBody as j } from "@ecency/render-helper";
 import { clsx as z } from "clsx";
 import P from "medium-zoom";
-import { jsx as c, Fragment as y, jsxs as u } from "react/jsx-runtime";
+import { jsx as i, Fragment as y, jsxs as m } from "react/jsx-runtime";
 import { createRoot as f, hydrateRoot as N } from "react-dom/client";
 function D({
   containerRef: a
@@ -11,26 +11,26 @@ function D({
   return l(() => {
     var n, t, o;
     return Array.from(((n = a.current) == null ? void 0 : n.querySelectorAll(".markdown-view:not(.markdown-view-pure) img")) ?? []).filter((s) => {
-      var i;
-      return ((i = s.parentNode) == null ? void 0 : i.nodeName) !== "A" && !s.classList.contains("medium-zoom-image") && !s.closest(".markdown-image-container");
+      var c;
+      return ((c = s.parentNode) == null ? void 0 : c.nodeName) !== "A" && !s.classList.contains("medium-zoom-image") && !s.closest(".markdown-image-container");
     }).forEach((s) => {
       var g, k, R, T;
-      const i = document.createElement("div");
-      i.classList.add("markdown-image-container");
-      const d = s.cloneNode(!0), p = (g = s.getAttribute("title")) == null ? void 0 : g.trim(), m = (k = s.getAttribute("data-caption")) == null ? void 0 : k.trim(), h = (R = s.getAttribute("alt")) == null ? void 0 : R.trim(), v = h ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(h) : !1, w = p || m || (v ? "" : h);
+      const c = document.createElement("div");
+      c.classList.add("markdown-image-container");
+      const d = s.cloneNode(!0), p = (g = s.getAttribute("title")) == null ? void 0 : g.trim(), u = (k = s.getAttribute("data-caption")) == null ? void 0 : k.trim(), h = (R = s.getAttribute("alt")) == null ? void 0 : R.trim(), v = h ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(h) : !1, w = p || u || (v ? "" : h);
       if (w) {
         const A = document.createElement("div");
-        A.classList.add("markdown-img-caption"), A.innerText = w, i.appendChild(d), i.appendChild(A);
+        A.classList.add("markdown-img-caption"), A.innerText = w, c.appendChild(d), c.appendChild(A);
       } else
-        i.appendChild(d);
-      (T = s.parentElement) == null || T.replaceChild(i, s);
+        c.appendChild(d);
+      (T = s.parentElement) == null || T.replaceChild(c, s);
     }), r.current = P(((t = a.current) == null ? void 0 : t.querySelectorAll(".markdown-view:not(.markdown-view-pure) img")) ?? []), (o = r.current) == null || o.update({
       background: "#131111"
     }), () => {
       var s;
       (s = r.current) == null || s.detach();
     };
-  }, []), /* @__PURE__ */ c(y, {});
+  }, []), /* @__PURE__ */ i(y, {});
 }
 function E(a) {
   try {
@@ -55,9 +55,13 @@ function L(a) {
   return Array.from(
     a.querySelectorAll(F)
   ).filter((e) => {
+    if ((e.dataset.isInline ?? "").toLowerCase() === "true")
+      return !1;
     if (e.dataset.postLinkChecked === "true")
       return e.classList.contains("markdown-post-link");
-    if (e.dataset.postLinkChecked = "true", e.classList.contains("markdown-post-link"))
+    if (e.dataset.postLinkChecked = "true", (e.dataset.isInline ?? "").toLowerCase() === "true")
+      return !1;
+    if (e.classList.contains("markdown-post-link"))
       return !0;
     const n = e.getAttribute("href") ?? "";
     if (!n)
@@ -69,18 +73,18 @@ function L(a) {
       const o = t.pathname.split("/").filter(Boolean);
       if (o.length < 2)
         return !1;
-      const s = decodeURIComponent(o.pop() ?? ""), i = decodeURIComponent(o.pop() ?? "");
-      if (!i.startsWith("@") || !s || !(o.length === 0 || o.length === 1 && o[0].toLowerCase().startsWith("hive-")))
+      const s = decodeURIComponent(o.pop() ?? ""), c = decodeURIComponent(o.pop() ?? "");
+      if (!c.startsWith("@") || !s || !(o.length === 0 || o.length === 1 && o[0].toLowerCase().startsWith("hive-")))
         return !1;
-      const p = Y(e.innerText), m = `${i}/${s}`.toLowerCase(), h = o.length === 1 ? decodeURIComponent(o[0]).toLowerCase() : void 0, v = /* @__PURE__ */ new Set([m]);
-      return h && v.add(`${h}/${m}`), e.innerText.trim() === n.trim() || v.has(p) ? (e.classList.add("markdown-post-link"), !0) : !1;
+      const p = Y(e.innerText), u = `${c}/${s}`.toLowerCase(), h = o.length === 1 ? decodeURIComponent(o[0]).toLowerCase() : void 0, v = /* @__PURE__ */ new Set([u]);
+      return h && v.add(`${h}/${u}`), e.innerText.trim() === n.trim() || v.has(p) ? (e.classList.add("markdown-post-link"), !0) : !1;
     } catch {
       return !1;
     }
   });
 }
 const S = /* @__PURE__ */ new Map();
-function q(a) {
+function I(a) {
   try {
     const r = new URL(`https://ecency.com${a}`).pathname.split("/"), e = decodeURIComponent(r[3] || ""), n = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(e), t = /[?#]/.test(e);
     return !/^[a-z0-9-]+$/.test(e) || n || t;
@@ -88,16 +92,16 @@ function q(a) {
     return !0;
   }
 }
-function _({
+function q({
   link: a
 }) {
   const [r, e] = x(), n = b(() => new URL(a, "https://ecency.com"), [a]), t = n.pathname.toLowerCase(), o = O(async () => {
-    var i, d, p, m;
+    var c, d, p, u;
     if (S.has(t)) {
       e(S.get(t));
       return;
     }
-    if (q(t)) {
+    if (I(t)) {
       console.warn("[Ecency Renderer] Skipping invalid post link:", t);
       return;
     }
@@ -106,12 +110,12 @@ function _({
         method: "GET"
       })).text(), w = document.createElement("html");
       w.innerHTML = v;
-      const g = (i = w.querySelector('meta[property="og:title"]')) == null ? void 0 : i.getAttribute("content");
+      const g = (c = w.querySelector('meta[property="og:title"]')) == null ? void 0 : c.getAttribute("content");
       if (g) {
         const k = {
           title: g,
           description: ((p = (d = w.querySelector('meta[property="og:description"]')) == null ? void 0 : d.getAttribute("content")) == null ? void 0 : p.substring(0, 71)) ?? void 0,
-          image: ((m = w.querySelector('meta[property="og:image"]')) == null ? void 0 : m.getAttribute("content")) ?? void 0
+          image: ((u = w.querySelector('meta[property="og:image"]')) == null ? void 0 : u.getAttribute("content")) ?? void 0
         };
         S.set(t, k), e(k);
       }
@@ -123,29 +127,29 @@ function _({
     o();
   }, [o]);
   const s = b(() => {
-    const i = new URL(n.href), d = i.searchParams.get("referral");
-    return `${i.pathname}${d ? `?referral=${d}` : ""}${i.hash}`;
+    const c = new URL(n.href), d = c.searchParams.get("referral");
+    return `${c.pathname}${d ? `?referral=${d}` : ""}${c.hash}`;
   }, [n]);
-  return /* @__PURE__ */ c("a", {
+  return /* @__PURE__ */ i("a", {
     href: s,
     className: "ecency-renderer-hive-post-extension-link",
     target: "_blank",
     rel: "noopener",
-    children: r ? /* @__PURE__ */ u(y, {
-      children: [/* @__PURE__ */ c("div", {
+    children: r ? /* @__PURE__ */ m(y, {
+      children: [/* @__PURE__ */ i("div", {
         className: "ecency-renderer-hive-post-extension-link-image",
         style: {
           backgroundImage: `url(${r.image})`
         }
-      }), /* @__PURE__ */ u("div", {
+      }), /* @__PURE__ */ m("div", {
         className: "ecency-renderer-hive-post-extension-link-text-content",
-        children: [/* @__PURE__ */ c("div", {
+        children: [/* @__PURE__ */ i("div", {
           className: "ecency-renderer-hive-post-extension-link-type",
           children: "Hive post"
-        }), /* @__PURE__ */ c("div", {
+        }), /* @__PURE__ */ i("div", {
           className: "ecency-renderer-hive-post-extension-link-title",
           children: r.title
-        }), /* @__PURE__ */ c("div", {
+        }), /* @__PURE__ */ i("div", {
           className: "ecency-renderer-hive-post-extension-link-description",
           children: r.description + "..."
         })]
@@ -161,7 +165,7 @@ function Z({
     r && L(r).filter((e) => !E(e.getAttribute("href") ?? "")).filter((e) => {
       try {
         const n = new URL(e.getAttribute("href") ?? "", "https://ecency.com");
-        return !q(n.pathname);
+        return !I(n.pathname);
       } catch {
         return !1;
       }
@@ -172,27 +176,27 @@ function Z({
       const n = document.createElement("div");
       n.classList.add("ecency-renderer-hive-post-extension");
       const t = e.getAttribute("href") ?? "";
-      f(n).render(/* @__PURE__ */ c(_, {
+      f(n).render(/* @__PURE__ */ i(q, {
         link: t
       })), (s = e.parentElement) == null || s.replaceChild(n, e);
     });
   }, []), null;
 }
-function I({
+function _({
   author: a
 }) {
   const r = `https://images.ecency.com/u${a.toLowerCase().replace("@", "")}/avatar/small`;
-  return /* @__PURE__ */ u(y, {
-    children: [/* @__PURE__ */ c("img", {
+  return /* @__PURE__ */ m(y, {
+    children: [/* @__PURE__ */ i("img", {
       src: r,
       className: "ecency-renderer-author-extension-link-image",
       alt: a
-    }), /* @__PURE__ */ u("div", {
+    }), /* @__PURE__ */ m("div", {
       className: "ecency-renderer-author-extension-link-content",
-      children: [/* @__PURE__ */ c("span", {
+      children: [/* @__PURE__ */ i("span", {
         className: "ecency-renderer-author-extension-link-content-label",
         children: "Hive account"
-      }), /* @__PURE__ */ c("span", {
+      }), /* @__PURE__ */ i("span", {
         children: a.toLowerCase().replace("/", "")
       })]
     })]
@@ -204,21 +208,21 @@ function K({
   return l(() => {
     var e;
     Array.from(((e = a.current) == null ? void 0 : e.querySelectorAll(".markdown-view:not(.markdown-view-pure) .markdown-author-link")) ?? []).forEach((n) => {
-      var i;
+      var c;
       if (n.dataset.enhanced === "true") return;
       const t = n.getAttribute("href");
       if (!t) return;
       const o = document.createElement("a");
-      o.setAttribute("href", t), o.setAttribute("target", "_blank"), o.setAttribute("rel", "noopener"), o.classList.add("ecency-renderer-author-extension"), o.classList.add("ecency-renderer-author-extension-link"), f(o).render(/* @__PURE__ */ c(I, {
+      o.setAttribute("href", t), o.setAttribute("target", "_blank"), o.setAttribute("rel", "noopener"), o.classList.add("ecency-renderer-author-extension"), o.classList.add("ecency-renderer-author-extension-link"), f(o).render(/* @__PURE__ */ i(_, {
         author: t
-      })), (i = n.parentElement) == null || i.replaceChild(o, n), o.dataset.enhanced = "true";
+      })), (c = n.parentElement) == null || c.replaceChild(o, n), o.dataset.enhanced = "true";
     });
   }, []), null;
 }
 function G({
   tag: a
 }) {
-  return /* @__PURE__ */ c("span", {
+  return /* @__PURE__ */ i("span", {
     children: a.replace("/", "")
   });
 }
@@ -230,7 +234,7 @@ function J({
     Array.from(((e = a.current) == null ? void 0 : e.querySelectorAll(".markdown-view:not(.markdown-view-pure) .markdown-tag-link")) ?? []).forEach((n) => {
       var s;
       const t = document.createElement("a");
-      t.setAttribute("href", n.getAttribute("href") ?? ""), t.setAttribute("target", "_blank"), t.setAttribute("rel", "noopener"), t.classList.add("ecency-renderer-tag-extension"), t.classList.add("ecency-renderer-tag-extension-link"), f(t).render(/* @__PURE__ */ c(G, {
+      t.setAttribute("href", n.getAttribute("href") ?? ""), t.setAttribute("target", "_blank"), t.setAttribute("rel", "noopener"), t.classList.add("ecency-renderer-tag-extension"), t.classList.add("ecency-renderer-tag-extension-link"), f(t).render(/* @__PURE__ */ i(G, {
         tag: n.innerText
       })), (s = n.parentElement) == null || s.replaceChild(t, n);
     });
@@ -244,8 +248,8 @@ function W(a) {
       return "";
     const n = new URLSearchParams(), t = r.searchParams.get("t") || r.searchParams.get("start") || r.searchParams.get("time_continue");
     if (t) {
-      const i = Q(t);
-      i && n.set("start", i.toString());
+      const c = Q(t);
+      c && n.set("start", c.toString());
     }
     const o = r.searchParams.get("list");
     o && n.set("list", o), n.set("rel", "0"), n.set("modestbranding", "1");
@@ -277,7 +281,7 @@ function H({
       const t = r.querySelector(".video-thumbnail"), o = r.querySelector(".markdown-video-play");
       t && (t.style.display = "none"), o && (o.style.display = "none");
     }
-  }, [e]), e ? /* @__PURE__ */ c("iframe", {
+  }, [e]), e ? /* @__PURE__ */ i("iframe", {
     className: "youtube-shorts-iframe",
     src: a,
     title: "Video player",
@@ -295,12 +299,12 @@ function X({
       const t = n.dataset.embedSrc || W(n.getAttribute("href") ?? "");
       n.dataset.embedSrc = t;
       const o = document.createElement("div");
-      o.classList.add("ecency-renderer-youtube-extension-frame"), n.classList.add("ecency-renderer-youtube-extension"), N(o, /* @__PURE__ */ c(H, {
+      o.classList.add("ecency-renderer-youtube-extension-frame"), n.classList.add("ecency-renderer-youtube-extension"), N(o, /* @__PURE__ */ i(H, {
         embedSrc: t,
         container: n
       })), n.appendChild(o);
     });
-  }, []), /* @__PURE__ */ c(y, {});
+  }, []), /* @__PURE__ */ i(y, {});
 }
 const C = /* @__PURE__ */ new Map();
 async function ee(a, r) {
@@ -318,49 +322,49 @@ function U({
   link: a
 }) {
   const [r, e] = x(), n = b(() => {
-    var o, s, i, d;
-    return (o = r == null ? void 0 : r.permlink) != null && o.startsWith("re-ecencywaves") || (s = r == null ? void 0 : r.permlink) != null && s.startsWith("wave-") ? "ecency.waves" : (i = r == null ? void 0 : r.permlink) != null && i.startsWith("re-leothreads") ? "threads" : (d = r == null ? void 0 : r.permlink) != null && d.startsWith("re-liketu-moments") ? "moments" : "";
+    var o, s, c, d;
+    return (o = r == null ? void 0 : r.permlink) != null && o.startsWith("re-ecencywaves") || (s = r == null ? void 0 : r.permlink) != null && s.startsWith("wave-") ? "ecency.waves" : (c = r == null ? void 0 : r.permlink) != null && c.startsWith("re-leothreads") ? "threads" : (d = r == null ? void 0 : r.permlink) != null && d.startsWith("re-liketu-moments") ? "moments" : "";
   }, [r]);
   if (l(() => {
-    const [o, s, i, d, p] = new URL(a, "https://ecency.com").pathname.split("/");
-    ee(d.replace("@", ""), p).then((m) => {
-      e(m);
-    }).catch((m) => console.error(m));
+    const [o, s, c, d, p] = new URL(a, "https://ecency.com").pathname.split("/");
+    ee(d.replace("@", ""), p).then((u) => {
+      e(u);
+    }).catch((u) => console.error(u));
   }, []), !r)
-    return /* @__PURE__ */ c(y, {});
+    return /* @__PURE__ */ i(y, {});
   const t = `/waves/${r.author}/${r.permlink}`;
-  return /* @__PURE__ */ u("article", {
+  return /* @__PURE__ */ m("article", {
     className: "ecency-renderer-wave-like-post-extension-renderer",
-    children: [/* @__PURE__ */ c("a", {
+    children: [/* @__PURE__ */ i("a", {
       href: t,
       "aria-label": `Open wave by @${r.author}`,
       className: "ecency-renderer-wave-like-post-extension-renderer__overlay"
-    }), /* @__PURE__ */ u("div", {
+    }), /* @__PURE__ */ m("div", {
       className: "ecency-renderer-wave-like-post-extension-renderer--author",
-      children: [/* @__PURE__ */ c("img", {
+      children: [/* @__PURE__ */ i("img", {
         src: `https://images.ecency.com/u/${r.author}/avatar/small`,
         alt: r.author,
         className: "ecency-renderer-wave-like-post-extension-renderer--author-avatar"
-      }), /* @__PURE__ */ u("div", {
+      }), /* @__PURE__ */ m("div", {
         className: "ecency-renderer-wave-like-post-extension-renderer--author-content",
-        children: [/* @__PURE__ */ u("a", {
+        children: [/* @__PURE__ */ m("a", {
           className: "ecency-renderer-wave-like-post-extension-renderer--author-content-link",
           href: `/@${r.author}/posts`,
           children: ["@", r.author]
-        }), /* @__PURE__ */ u("div", {
+        }), /* @__PURE__ */ m("div", {
           className: "ecency-renderer-wave-like-post-extension-renderer--author-content-host",
           children: ["#", n]
         })]
       })]
-    }), /* @__PURE__ */ c("a", {
+    }), /* @__PURE__ */ i("a", {
       href: "https://ecency.com",
       className: "ecency-renderer-wave-like-post-extension-renderer--logo",
       dangerouslySetInnerHTML: {
         __html: te
       }
-    }), /* @__PURE__ */ c("div", {
+    }), /* @__PURE__ */ i("div", {
       className: "ecency-renderer-wave-like-post-extension-renderer--body",
-      children: /* @__PURE__ */ c(se, {
+      children: /* @__PURE__ */ i(se, {
         value: r.body
       })
     })]
@@ -374,11 +378,11 @@ function re({
     r && L(r).filter((e) => E(e.getAttribute("href") ?? "")).forEach((e) => {
       var t;
       const n = document.createElement("div");
-      n.classList.add("ecency-renderer-wave-like-extension"), N(n, /* @__PURE__ */ c(U, {
+      n.classList.add("ecency-renderer-wave-like-extension"), N(n, /* @__PURE__ */ i(U, {
         link: e.getAttribute("href") ?? ""
       })), (t = e.parentElement) == null || t.replaceChild(n, e);
     });
-  }, []), /* @__PURE__ */ c(y, {});
+  }, []), /* @__PURE__ */ i(y, {});
 }
 function M({
   op: a
@@ -391,28 +395,28 @@ function M({
       return;
     }
   }, [a]), e = b(() => r == null ? void 0 : r[0].split("_").join(" "), [r]);
-  return /* @__PURE__ */ u(y, {
-    children: [/* @__PURE__ */ c("span", {
+  return /* @__PURE__ */ m(y, {
+    children: [/* @__PURE__ */ i("span", {
       className: "ecency-renderer-hive-operation-extension-label",
       children: "Hive operation, click to Sign"
-    }), !r && a, /* @__PURE__ */ c("div", {
+    }), !r && a, /* @__PURE__ */ i("div", {
       className: "ecency-renderer-hive-operation-extension-content",
-      children: r && /* @__PURE__ */ u(y, {
-        children: [/* @__PURE__ */ c("div", {
+      children: r && /* @__PURE__ */ m(y, {
+        children: [/* @__PURE__ */ i("div", {
           className: "ecency-renderer-hive-operation-extension-type",
           children: e
-        }), e === "transfer" && /* @__PURE__ */ u("div", {
+        }), e === "transfer" && /* @__PURE__ */ m("div", {
           className: "ecency-renderer-hive-operation-extension-transfer",
-          children: [/* @__PURE__ */ c("span", {
+          children: [/* @__PURE__ */ i("span", {
             className: "ecency-renderer-hive-operation-extension-transfer-highlight",
             children: r[1].amount
-          }), /* @__PURE__ */ c("span", {
+          }), /* @__PURE__ */ i("span", {
             children: " to"
-          }), /* @__PURE__ */ c("img", {
+          }), /* @__PURE__ */ i("img", {
             src: `https://images.ecency.com/u/${r[1].to}/avatar/small`,
             className: "ecency-renderer-hive-operation-extension-transfer-image",
             alt: ""
-          }), /* @__PURE__ */ c("span", {
+          }), /* @__PURE__ */ i("span", {
             className: "ecency-renderer-hive-operation-extension-transfer-highlight",
             children: r[1].to
           })]
@@ -431,13 +435,13 @@ function ne({
       var t;
       return (t = n.innerText) == null ? void 0 : t.startsWith("hive://sign/op/");
     }).forEach((n) => {
-      var i;
+      var c;
       const t = document.createElement("div");
       t.classList.add("ecency-renderer-hive-operation-extension");
       const o = n.innerText.replace("hive://sign/op/", "");
-      t.addEventListener("click", () => r == null ? void 0 : r(o)), f(t).render(/* @__PURE__ */ c(M, {
+      t.addEventListener("click", () => r == null ? void 0 : r(o)), f(t).render(/* @__PURE__ */ i(M, {
         op: o
-      })), (i = n.parentElement) == null || i.replaceChild(t, n);
+      })), (c = n.parentElement) == null || c.replaceChild(t, n);
     });
   }, [a, r]), null;
 }
@@ -454,11 +458,11 @@ function ae({
       try {
         const o = t.getAttribute("href");
         if (!o) return;
-        const i = new URL(o).pathname.split("/").pop();
-        if (!i) return;
+        const c = new URL(o).pathname.split("/").pop();
+        if (!c) return;
         const d = document.createElement("div");
-        d.classList.add("ecency-renderer-twitter-extension-frame"), t.classList.add("ecency-renderer-twitter-extension"), t.innerHTML = "", t.appendChild(d), f(d).render(/* @__PURE__ */ c(r, {
-          id: i
+        d.classList.add("ecency-renderer-twitter-extension-frame"), t.classList.add("ecency-renderer-twitter-extension"), t.innerHTML = "", t.appendChild(d), f(d).render(/* @__PURE__ */ i(r, {
+          id: c
         }));
       } catch (o) {
         console.warn("TwitterExtension failed to render tweet:", o);
@@ -479,7 +483,7 @@ function B({
       const t = r.querySelector(".video-thumbnail"), o = r.querySelector(".markdown-video-play");
       t && (t.style.display = "none"), o && (o.style.display = "none");
     }
-  }, [e]), e ? /* @__PURE__ */ c("iframe", {
+  }, [e]), e ? /* @__PURE__ */ i("iframe", {
     className: "speak-iframe",
     src: a,
     title: "3Speak video",
@@ -495,25 +499,25 @@ function oe({
     var e;
     Array.from(((e = a.current) == null ? void 0 : e.querySelectorAll(".markdown-view:not(.markdown-view-pure) .markdown-video-link-speak:not(.ecency-renderer-speak-extension)")) ?? []).forEach((n) => {
       const t = document.createElement("div");
-      t.classList.add("ecency-renderer-speak-extension-frame"), n.classList.add("ecency-renderer-speak-extension"), N(t, /* @__PURE__ */ c(B, {
+      t.classList.add("ecency-renderer-speak-extension-frame"), n.classList.add("ecency-renderer-speak-extension"), N(t, /* @__PURE__ */ i(B, {
         embedSrc: n.dataset.embedSrc ?? "",
         container: n
       })), n.appendChild(t);
     });
-  }, []), /* @__PURE__ */ c(y, {});
+  }, []), /* @__PURE__ */ i(y, {});
 }
 function se({
   value: a,
   pure: r = !1,
   onHiveOperationClick: e,
-  TwitterComponent: n = () => /* @__PURE__ */ c("div", {
+  TwitterComponent: n = () => /* @__PURE__ */ i("div", {
     children: "No twitter component"
   }),
   ...t
 }) {
   const o = $(null);
-  return /* @__PURE__ */ u(y, {
-    children: [/* @__PURE__ */ c("div", {
+  return /* @__PURE__ */ m(y, {
+    children: [/* @__PURE__ */ i("div", {
       ...t,
       ref: o,
       itemProp: "articleBody",
@@ -521,32 +525,32 @@ function se({
       dangerouslySetInnerHTML: {
         __html: j(a, !1)
       }
-    }), !r && /* @__PURE__ */ u(y, {
-      children: [/* @__PURE__ */ c(D, {
+    }), !r && /* @__PURE__ */ m(y, {
+      children: [/* @__PURE__ */ i(D, {
         containerRef: o
-      }), /* @__PURE__ */ c(Z, {
+      }), /* @__PURE__ */ i(Z, {
         containerRef: o
-      }), /* @__PURE__ */ c(K, {
+      }), /* @__PURE__ */ i(K, {
         containerRef: o
-      }), /* @__PURE__ */ c(J, {
+      }), /* @__PURE__ */ i(J, {
         containerRef: o
-      }), /* @__PURE__ */ c(X, {
+      }), /* @__PURE__ */ i(X, {
         containerRef: o
-      }), /* @__PURE__ */ c(oe, {
+      }), /* @__PURE__ */ i(oe, {
         containerRef: o
-      }), /* @__PURE__ */ c(re, {
+      }), /* @__PURE__ */ i(re, {
         containerRef: o
-      }), /* @__PURE__ */ c(ae, {
+      }), /* @__PURE__ */ i(ae, {
         containerRef: o,
         ComponentInstance: n
-      }), /* @__PURE__ */ c(ne, {
+      }), /* @__PURE__ */ i(ne, {
         containerRef: o,
         onClick: e
       })]
     })]
   });
 }
-function ce(a) {
+function ie(a) {
   Array.from(
     a.querySelectorAll(
       ".markdown-view:not(.markdown-view-pure) img"
@@ -560,10 +564,10 @@ function ce(a) {
     var h, v, w, g;
     const t = document.createElement("div");
     t.classList.add("markdown-image-container");
-    const o = n.cloneNode(!0), s = (h = n.getAttribute("title")) == null ? void 0 : h.trim(), i = (v = n.getAttribute("data-caption")) == null ? void 0 : v.trim(), d = (w = n.getAttribute("alt")) == null ? void 0 : w.trim(), p = d ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(d) : !1, m = s || i || (p ? "" : d);
-    if (m) {
+    const o = n.cloneNode(!0), s = (h = n.getAttribute("title")) == null ? void 0 : h.trim(), c = (v = n.getAttribute("data-caption")) == null ? void 0 : v.trim(), d = (w = n.getAttribute("alt")) == null ? void 0 : w.trim(), p = d ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(d) : !1, u = s || c || (p ? "" : d);
+    if (u) {
       const k = document.createElement("div");
-      k.classList.add("markdown-img-caption"), k.innerText = m, t.appendChild(o), t.appendChild(k);
+      k.classList.add("markdown-img-caption"), k.innerText = u, t.appendChild(o), t.appendChild(k);
     } else
       t.appendChild(o);
     (g = n.parentElement) == null || g.replaceChild(t, n);
@@ -573,13 +577,13 @@ function ce(a) {
     )
   ).update({ background: "#131111" });
 }
-function ie(a, r = L(a)) {
+function ce(a, r = L(a)) {
   r.filter((e) => e.dataset.isInline !== "true").filter((e) => !E(e.getAttribute("href") ?? "")).forEach((e) => {
     var s;
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.getAttribute("href") ?? "", t = document.createElement("div");
-    t.classList.add("ecency-renderer-hive-post-extension"), f(t).render(/* @__PURE__ */ c(_, {
+    t.classList.add("ecency-renderer-hive-post-extension"), f(t).render(/* @__PURE__ */ i(q, {
       link: n
     })), (s = e.parentElement) == null || s.replaceChild(t, e);
   });
@@ -590,7 +594,7 @@ function de(a, r) {
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.innerText.replace("hive://sign/op/", ""), t = document.createElement("div");
-    t.classList.add("ecency-renderer-hive-operation-extension"), t.addEventListener("click", () => r == null ? void 0 : r(n)), f(t).render(/* @__PURE__ */ c(M, {
+    t.classList.add("ecency-renderer-hive-operation-extension"), t.addEventListener("click", () => r == null ? void 0 : r(n)), f(t).render(/* @__PURE__ */ i(M, {
       op: n
     })), (s = e.parentElement) == null || s.replaceChild(t, e);
   });
@@ -603,26 +607,26 @@ function le(a) {
     const n = e.getAttribute("href");
     if (!n) return;
     const t = document.createElement("a");
-    t.href = n, t.target = "_blank", t.rel = "noopener", t.classList.add("ecency-renderer-author-extension", "ecency-renderer-author-extension-link"), f(t).render(/* @__PURE__ */ c(I, {
+    t.href = n, t.target = "_blank", t.rel = "noopener", t.classList.add("ecency-renderer-author-extension", "ecency-renderer-author-extension-link"), f(t).render(/* @__PURE__ */ i(_, {
       author: n
     })), (s = e.parentElement) == null || s.replaceChild(t, e);
   });
 }
-function me(a) {
+function ue(a) {
   a.querySelectorAll(
     ".markdown-view:not(.markdown-view-pure) .markdown-tag-link"
   ).forEach((e) => {
     e.classList.add("ecency-renderer-tag-link-enhanced");
   });
 }
-function ue(a) {
+function me(a) {
   Array.from(a.querySelectorAll(".markdown-view:not(.markdown-view-pure) .markdown-video-link-youtube:not(.ecency-renderer-youtube-extension)")).forEach((e) => {
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.dataset.embedSrc || W(e.getAttribute("href") ?? "");
     e.dataset.embedSrc = n;
     const t = document.createElement("div");
-    t.classList.add("ecency-renderer-youtube-extension-frame"), f(t).render(/* @__PURE__ */ c(H, {
+    t.classList.add("ecency-renderer-youtube-extension-frame"), f(t).render(/* @__PURE__ */ i(H, {
       embedSrc: n,
       container: e
     })), e.appendChild(t);
@@ -633,7 +637,7 @@ function pe(a) {
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.dataset.embedSrc ?? "", t = document.createElement("div");
-    t.classList.add("ecency-renderer-speak-extension-frame"), f(t).render(/* @__PURE__ */ c(B, {
+    t.classList.add("ecency-renderer-speak-extension-frame"), f(t).render(/* @__PURE__ */ i(B, {
       embedSrc: n,
       container: e
     })), e.appendChild(t);
@@ -656,11 +660,11 @@ function he(a, r) {
       n.dataset.enhanced = "true";
       const t = n.getAttribute("href");
       if (!t) return;
-      const i = new URL(t).pathname.split("/").filter(Boolean)[2];
-      if (!i) return;
+      const c = new URL(t).pathname.split("/").filter(Boolean)[2];
+      if (!c) return;
       const d = document.createElement("div");
-      d.classList.add("ecency-renderer-twitter-extension-frame"), n.innerHTML = "", n.appendChild(d), f(d).render(/* @__PURE__ */ c(r, {
-        id: i
+      d.classList.add("ecency-renderer-twitter-extension-frame"), n.innerHTML = "", n.appendChild(d), f(d).render(/* @__PURE__ */ i(r, {
+        id: c
       }));
     } catch (t) {
       console.warn("applyTwitterEmbeds failed to render tweet:", t);
@@ -673,15 +677,15 @@ function fe(a, r = L(a)) {
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.getAttribute("href") ?? "", t = document.createElement("div");
-    t.classList.add("ecency-renderer-wave-like-extension"), f(t).render(/* @__PURE__ */ c(U, {
+    t.classList.add("ecency-renderer-wave-like-extension"), f(t).render(/* @__PURE__ */ i(U, {
       link: n
     })), (s = e.parentElement) == null || s.replaceChild(t, e);
   });
 }
 function Le(a, r) {
-  ce(a);
+  ie(a);
   const e = L(a);
-  ie(a, e), le(a), de(a, r == null ? void 0 : r.onHiveOperationClick), me(a), ue(a), pe(a), fe(a, e), he(a, (r == null ? void 0 : r.TwitterComponent) ?? (() => "<div>Failed to render Twitter</div>"));
+  ce(a, e), le(a), de(a, r == null ? void 0 : r.onHiveOperationClick), ue(a), me(a), pe(a), fe(a, e), he(a, (r == null ? void 0 : r.TwitterComponent) ?? (() => "<div>Failed to render Twitter</div>"));
 }
 export {
   se as EcencyRenderer,
