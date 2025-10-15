@@ -1384,6 +1384,9 @@ declare function getPointsAssetTransactionsQueryOptions(username: string | undef
         asset: string;
     }[];
     id: number;
+    from: string | undefined;
+    to: string | undefined;
+    memo: string | undefined;
 }[], Error, {
     created: Date;
     type: PointTransactionType;
@@ -1392,6 +1395,9 @@ declare function getPointsAssetTransactionsQueryOptions(username: string | undef
         asset: string;
     }[];
     id: number;
+    from: string | undefined;
+    to: string | undefined;
+    memo: string | undefined;
 }[], (string | PointTransactionType | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         created: Date;
@@ -1401,6 +1407,9 @@ declare function getPointsAssetTransactionsQueryOptions(username: string | undef
             asset: string;
         }[];
         id: number;
+        from: string | undefined;
+        to: string | undefined;
+        memo: string | undefined;
     }[], (string | PointTransactionType | undefined)[], never> | undefined;
 } & {
     queryKey: (string | PointTransactionType | undefined)[] & {
@@ -1412,6 +1421,9 @@ declare function getPointsAssetTransactionsQueryOptions(username: string | undef
                 asset: string;
             }[];
             id: number;
+            from: string | undefined;
+            to: string | undefined;
+            memo: string | undefined;
         }[];
         [dataTagErrorSymbol]: Error;
     };

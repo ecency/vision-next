@@ -18,6 +18,7 @@ type Props = {
 type ClaimState = {
   isOwnProfile: boolean;
   rewardBalance: string;
+  rewardAmount: number;
   hasRewards: boolean;
 };
 
@@ -34,7 +35,7 @@ export function useProfileWalletHpClaimState(
   });
 
   const rewardBalance = useMemo(
-    () => accountData?.reward_vesting_hive ?? "0.000 HIVE",
+    () => accountData?.reward_vesting_hive ?? "0.000 HP",
     [accountData?.reward_vesting_hive]
   );
 
@@ -49,12 +50,13 @@ export function useProfileWalletHpClaimState(
   return {
     isOwnProfile,
     rewardBalance,
+    rewardAmount,
     hasRewards,
   };
 }
 
 export function ProfileWalletHpClaimRewardsButton({ username, className }: Props) {
-  const { isOwnProfile, rewardBalance, hasRewards } =
+  const { isOwnProfile, rewardBalance, rewardAmount, hasRewards } =
     useProfileWalletHpClaimState(username);
 
   const { mutateAsync: claimRewards, isPending } = useClaimRewards(
@@ -75,7 +77,7 @@ export function ProfileWalletHpClaimRewardsButton({ username, className }: Props
       isLoading={isPending}
       onClick={() => isOwnProfile && claimRewards()}
     >
-      {rewardBalance}
+      {`${rewardAmount} HP`}
     </Button>
   );
 }

@@ -2291,7 +2291,7 @@ function getPointsAssetTransactionsQueryOptions(username, type) {
         }
       );
       const data = await response.json();
-      return data.map(({ created, type: type2, amount, id }) => ({
+      return data.map(({ created, type: type2, amount, id, sender, receiver, memo }) => ({
         created: new Date(created),
         type: type2,
         results: [
@@ -2300,7 +2300,10 @@ function getPointsAssetTransactionsQueryOptions(username, type) {
             asset: "POINTS"
           }
         ],
-        id
+        id,
+        from: sender ?? void 0,
+        to: receiver ?? void 0,
+        memo: memo ?? void 0
       }));
     }
   });
