@@ -2963,10 +2963,10 @@
       "unstake": "Retirer",
       "undelegate": "Ne plus déléguer"
     },
-    "claim-rewards": "Claim rewards",
+    "claim-rewards": "Réclamer les récompenses",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "Claiming...",
-    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "claim-rewards-loading": "Revendication...",
+    "claim-rewards-success": "Réclamé avec succès {{amount}} {{token}}",
     "external": {
       "receive-button": "Recevoir",
       "transfer-soon": "Transfert (bientôt)",
