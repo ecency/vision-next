@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Wybierz tokeny do pokazania",
     "search-token": "Szukaj tokenu",
-    "setup-tokens": "Skonfiguruj zasoby",
+    "setup-tokens": "Zarządzaj tokenami",
     "asset-name": "Nazwa zasobu",
     "price": "Cena",
     "balance": "Saldo",
