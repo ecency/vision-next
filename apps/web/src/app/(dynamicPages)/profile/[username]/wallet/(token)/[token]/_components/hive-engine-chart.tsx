@@ -42,7 +42,7 @@ export function HiveEngineChart() {
   });
 
   useMount(() => {
-    if (!chartContainerRef.current || chartRef.current) {
+    if (isSpkLayerToken || !chartContainerRef.current || chartRef.current) {
       return;
     }
 
@@ -96,6 +96,10 @@ export function HiveEngineChart() {
   });
 
   useEffect(() => {
+    if (isSpkLayerToken) {
+      return;
+    }
+
     if (candleStickSeriesRef.current && data) {
       candleStickSeriesRef.current.setData([]);
       candleStickSeriesRef.current.setData([...data]);
@@ -108,14 +112,7 @@ export function HiveEngineChart() {
   }, [data]);
 
   if (isSpkLayerToken) {
-    return (
-      <div className="bg-white rounded-xl mb-4">
-        <div className="p-4 text-sm text-gray-600 dark:text-gray-400">Market</div>
-        <div className="px-4 pb-4 text-sm text-gray-600 dark:text-gray-400">
-          Market data is currently unavailable for this token.
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
