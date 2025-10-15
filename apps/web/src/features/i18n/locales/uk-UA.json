@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Вибрати токени для відображення",
     "search-token": "Пошук маркер",
-    "setup-tokens": "Налаштування активів",
+    "setup-tokens": "Керувати токенами",
     "asset-name": "Назва активу",
     "price": "Ціна",
     "balance": "Баланс",
