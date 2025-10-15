@@ -52,7 +52,7 @@ export function getTokenOperationsQueryOptions(
                 ]
               : []),
           ];
-        case EcencyWalletBasicTokens.Spk:
+        case "SPK":
           return [AssetOperation.Transfer];
         case "LARYNX":
           return [

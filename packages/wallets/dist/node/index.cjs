@@ -85,7 +85,6 @@ var EcencyWalletBasicTokens = /* @__PURE__ */ ((EcencyWalletBasicTokens2) => {
   EcencyWalletBasicTokens2["HivePower"] = "HP";
   EcencyWalletBasicTokens2["Hive"] = "HIVE";
   EcencyWalletBasicTokens2["HiveDollar"] = "HBD";
-  EcencyWalletBasicTokens2["Spk"] = "SPK";
   return EcencyWalletBasicTokens2;
 })(EcencyWalletBasicTokens || {});
 var currencyChainMap = {
@@ -2467,7 +2466,7 @@ function getAllTokensListQueryOptions(username) {
           "HBD" /* HiveDollar */
         ],
         external: Object.values(EcencyWalletCurrency),
-        spk: ["SPK" /* Spk */, "LARYNX", "LP"],
+        spk: ["SPK", "LARYNX", "LP"],
         layer2: await getLayer2TokensMetadata(username)
       };
     }
@@ -2499,8 +2498,7 @@ function getAccountWalletListQueryOptions(username) {
         "POINTS" /* Points */,
         "HIVE" /* Hive */,
         "HP" /* HivePower */,
-        "HBD" /* HiveDollar */,
-        "SPK" /* Spk */
+        "HBD" /* HiveDollar */
       ];
     }
   });
@@ -3017,7 +3015,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
               "buy" /* Buy */
             ] : []
           ];
-        case "SPK" /* Spk */:
+        case "SPK":
           return ["transfer" /* Transfer */];
         case "LARYNX":
           return [

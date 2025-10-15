@@ -36,8 +36,7 @@ export function getAccountWalletListQueryOptions(username: string) {
         EcencyWalletBasicTokens.Points,
         EcencyWalletBasicTokens.Hive,
         EcencyWalletBasicTokens.HivePower,
-        EcencyWalletBasicTokens.HiveDollar,
-        EcencyWalletBasicTokens.Spk,
+        EcencyWalletBasicTokens.HiveDollar
       ];
     },
   });

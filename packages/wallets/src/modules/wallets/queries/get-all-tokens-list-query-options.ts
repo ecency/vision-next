@@ -87,7 +87,7 @@ export function getAllTokensListQueryOptions(username?: string) {
           EcencyWalletBasicTokens.HiveDollar,
         ],
         external: Object.values(EcencyWalletCurrency),
-        spk: [EcencyWalletBasicTokens.Spk, "LARYNX", "LP"],
+        spk: ["SPK", "LARYNX", "LP"],
         layer2: await getLayer2TokensMetadata(username),
       };
     },
