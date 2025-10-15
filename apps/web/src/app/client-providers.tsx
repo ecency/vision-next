@@ -14,10 +14,12 @@ import { UIManager } from "@ui/core";
 import { PropsWithChildren } from "react";
 import { ConditionalChatProvider } from "@/app/conditional-chat-provider";
 import { ProgressProvider } from "@bprogress/next/app";
+import { ChunkErrorHandler } from "@/app/chunk-error-handler";
 
 export function ClientProviders(props: PropsWithChildren) {
   return (
     <QueryClientProvider client={getQueryClient()}>
+      <ChunkErrorHandler />
       <ProgressProvider
         height="3px"
         color="#357ce6"
