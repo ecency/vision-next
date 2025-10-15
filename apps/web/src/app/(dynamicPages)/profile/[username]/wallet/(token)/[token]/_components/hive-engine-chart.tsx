@@ -9,13 +9,14 @@ import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import { useMount } from "react-use";
+import { normalizeTokenSymbol, isSpkLayerTokenSymbol } from "../_helpers/token-symbol";
 
 export function HiveEngineChart() {
   const theme = useGlobalStore((s) => s.theme);
 
   const { token } = useParams();
-  const tokenSymbol = (token as string)?.toUpperCase();
-  const isSpkLayerToken = tokenSymbol === "SPK" || tokenSymbol === "LARYNX";
+  const tokenSymbol = normalizeTokenSymbol(token as string);
+  const isSpkLayerToken = isSpkLayerTokenSymbol(tokenSymbol);
   const { ref: chartContainerRef } = useResizeDetector();
 
   const chartRef = useRef<IChartApi>();
