@@ -17,6 +17,7 @@ import {
   unstakeEngineToken,
   withdrawVestingRouteHive,
   powerUpLarynx,
+  transferLarynx,
 } from "@/modules/assets";
 import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
@@ -47,6 +48,7 @@ const operationToFunctionMap: Record<
     [AssetOperation.Transfer]: transferSpk,
   },
   LARYNX: {
+    [AssetOperation.Transfer]: transferLarynx,
     [AssetOperation.LockLiquidity]: lockLarynx,
     [AssetOperation.PowerUp]: powerUpLarynx,
   },

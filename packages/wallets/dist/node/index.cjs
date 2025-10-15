@@ -1349,11 +1349,11 @@ var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
 async function transferSpk(payload) {
   const json = JSON.stringify({
     to: payload.to,
-    amount: +payload.amount * 1e3,
+    amount: parseAsset(payload.amount).amount * 1e3,
     ...typeof payload.memo === "string" ? { memo: payload.memo } : {}
   });
   const op = {
-    id: payload.id,
+    id: "spkcc_spk_send",
     json,
     required_auths: [payload.from],
     required_posting_auths: []
@@ -1364,7 +1364,7 @@ async function transferSpk(payload) {
   } else if (payload.type === "keychain") {
     return sdk.Keychain.customJson(
       payload.from,
-      payload.id,
+      "spkcc_spk_send",
       "Active",
       json,
       payload.to
@@ -1377,7 +1377,7 @@ async function transferSpk(payload) {
         authority: "active",
         required_auths: `["${payload.from}"]`,
         required_posting_auths: "[]",
-        id: payload.id,
+        id: "spkcc_spk_send",
         json: JSON.stringify({
           to: payload.to,
           amount: +amount * 1e3,
@@ -1451,6 +1451,48 @@ async function powerUpLarynx(payload) {
         required_posting_auths: "[]",
         id: `spkcc_power_${payload.mode}`,
         json: JSON.stringify({ amount: +amount * 1e3 })
+      },
+      `https://ecency.com/@${payload.from}/wallet`
+    );
+  }
+}
+async function transferLarynx(payload) {
+  const json = JSON.stringify({
+    to: payload.to,
+    amount: parseAsset(payload.amount).amount * 1e3,
+    ...typeof payload.memo === "string" ? { memo: payload.memo } : {}
+  });
+  const op = {
+    id: "spkcc_send",
+    json,
+    required_auths: [payload.from],
+    required_posting_auths: []
+  };
+  if (payload.type === "key" && "key" in payload) {
+    const { key } = payload;
+    return sdk.CONFIG.hiveClient.broadcast.json(op, key);
+  } else if (payload.type === "keychain") {
+    return sdk.Keychain.customJson(
+      payload.from,
+      "spkcc_send",
+      "Active",
+      json,
+      payload.to
+    );
+  } else {
+    const { amount } = parseAsset(payload.amount);
+    return hs__default.default.sign(
+      "custom_json",
+      {
+        authority: "active",
+        required_auths: `["${payload.from}"]`,
+        required_posting_auths: "[]",
+        id: "spkcc_send",
+        json: JSON.stringify({
+          to: payload.to,
+          amount: +amount * 1e3,
+          ...typeof payload.memo === "string" ? { memo: payload.memo } : {}
+        })
       },
       `https://ecency.com/@${payload.from}/wallet`
     );
@@ -3384,6 +3426,7 @@ var operationToFunctionMap = {
     ["transfer" /* Transfer */]: transferSpk
   },
   LARYNX: {
+    ["transfer" /* Transfer */]: transferLarynx,
     ["lock" /* LockLiquidity */]: lockLarynx,
     ["power-up" /* PowerUp */]: powerUpLarynx
   }
@@ -3510,6 +3553,7 @@ exports.signTxAndBroadcast = signTxAndBroadcast;
 exports.stakeEngineToken = stakeEngineToken;
 exports.transferEngineToken = transferEngineToken;
 exports.transferHive = transferHive;
+exports.transferLarynx = transferLarynx;
 exports.transferPoint = transferPoint;
 exports.transferSpk = transferSpk;
 exports.transferToSavingsHive = transferToSavingsHive;

@@ -4,7 +4,7 @@ import { CONFIG, Keychain } from "@ecency/sdk";
 import hs from "hivesigner";
 import { parseAsset } from "../../utils";
 
-interface SpkTransferPayload<T extends HiveBasedAssetSignType> {
+interface LarynxTransferPayload<T extends HiveBasedAssetSignType> {
   from: string;
   to: string;
   amount: string;
@@ -12,10 +12,10 @@ interface SpkTransferPayload<T extends HiveBasedAssetSignType> {
   type: T;
 }
 
-export async function transferSpk<T extends HiveBasedAssetSignType>(
+export async function transferLarynx<T extends HiveBasedAssetSignType>(
   payload: T extends "key"
-    ? SpkTransferPayload<T> & { key: PrivateKey }
-    : SpkTransferPayload<T>
+    ? LarynxTransferPayload<T> & { key: PrivateKey }
+    : LarynxTransferPayload<T>
 ) {
   const json = JSON.stringify({
     to: payload.to,
@@ -24,7 +24,7 @@ export async function transferSpk<T extends HiveBasedAssetSignType>(
   });
 
   const op = {
-    id: "spkcc_spk_send",
+    id: "spkcc_send",
     json,
     required_auths: [payload.from],
     required_posting_auths: [],
@@ -36,7 +36,7 @@ export async function transferSpk<T extends HiveBasedAssetSignType>(
   } else if (payload.type === "keychain") {
     return Keychain.customJson(
       payload.from,
-      "spkcc_spk_send",
+      "spkcc_send",
       "Active",
       json,
       payload.to
@@ -49,7 +49,7 @@ export async function transferSpk<T extends HiveBasedAssetSignType>(
         authority: "active",
         required_auths: `["${payload.from}"]`,
         required_posting_auths: "[]",
-        id: "spkcc_spk_send",
+        id: "spkcc_send",
         json: JSON.stringify({
           to: payload.to,
           amount: +amount * 1000,
