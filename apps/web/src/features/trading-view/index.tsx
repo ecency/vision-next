@@ -51,7 +51,7 @@ export function TradingViewWidget({ symbol }: Props) {
           "hide_legend": false,
           "hide_volume": false,
           "hotlist": false,
-          "interval": "D",
+          "interval": "4H",
           "locale": "${locale}",
           "save_image": true,
           "style": "1",
