@@ -22,15 +22,28 @@ function sanitizeTokens(
   });
 }
 
+function getExistingProfile(data: FullAccount): AccountProfile {
+  try {
+    const parsed = JSON.parse(data?.posting_json_metadata || "{}");
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      parsed.profile &&
+      typeof parsed.profile === "object"
+    ) {
+      return parsed.profile as AccountProfile;
+    }
+  } catch (e) {}
+
+  return {} as AccountProfile;
+}
+
 function getBuiltProfile({
   profile,
   tokens,
   data,
 }: Partial<Payload> & { data: FullAccount }) {
-  const metadata = R.pipe(
-    JSON.parse(data?.posting_json_metadata || "{}").profile as AccountProfile,
-    R.mergeDeep(profile ?? {})
-  );
+  const metadata = R.mergeDeep(getExistingProfile(data), profile ?? {});
 
   if (tokens && tokens.length > 0) {
     metadata.tokens = tokens;
