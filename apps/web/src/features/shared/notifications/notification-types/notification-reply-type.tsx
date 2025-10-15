@@ -3,6 +3,7 @@ import React, { ReactElement } from "react";
 import { ApiReplyNotification } from "@/entities";
 import i18next from "i18next";
 import { EntryLink } from "@/features/shared";
+import { getNotificationEntryCategory } from "../utils";
 
 interface Props {
   sourceLink: ReactElement;
@@ -32,7 +33,7 @@ export function NotificationReplyType({
         ) : (
           <EntryLink
             entry={{
-              category: "category",
+              category: getNotificationEntryCategory(notification) ?? "created",
               author: notification.parent_author,
               permlink: notification.parent_permlink
             }}
@@ -53,7 +54,7 @@ export function NotificationReplyType({
           postBodySummary(notification.body, 100) && (
             <EntryLink
               entry={{
-                category: "category",
+                category: getNotificationEntryCategory(notification) ?? "created",
                 author: notification.author,
                 permlink: notification.permlink
               }}
