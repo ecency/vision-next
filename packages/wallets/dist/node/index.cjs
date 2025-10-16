@@ -2013,6 +2013,30 @@ function getHiveEngineTokensMetricsQueryOptions(symbol, interval = "daily") {
     }
   });
 }
+function getHiveEngineUnclaimedRewardsQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-engine", "unclaimed", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    enabled: !!username,
+    queryFn: async () => {
+      try {
+        const response = await fetch(
+          sdk.CONFIG.privateApiHost + `/private-api/engine-reward-api/${username}?hive=1`
+        );
+        if (!response.ok) {
+          return [];
+        }
+        const data = await response.json();
+        return Object.values(data).filter(
+          ({ pending_token }) => pending_token > 0
+        );
+      } catch (e) {
+        return [];
+      }
+    }
+  });
+}
 async function delegateEngineToken(payload) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
@@ -3068,13 +3092,13 @@ function getTronAssetGeneralInfoQueryOptions(username) {
 // src/modules/wallets/queries/get-account-wallet-asset-info-query-options.ts
 function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { refetch: false }) {
   const queryClient = sdk.getQueryClient();
-  const fetchQuery = async (queryOptions39) => {
+  const fetchQuery = async (queryOptions40) => {
     if (options2.refetch) {
-      await queryClient.fetchQuery(queryOptions39);
+      await queryClient.fetchQuery(queryOptions40);
     } else {
-      await queryClient.prefetchQuery(queryOptions39);
+      await queryClient.prefetchQuery(queryOptions40);
     }
-    return queryClient.getQueryData(queryOptions39.queryKey);
+    return queryClient.getQueryData(queryOptions40.queryKey);
   };
   return reactQuery.queryOptions({
     queryKey: ["ecency-wallets", "asset-info", username, asset],
@@ -3725,6 +3749,7 @@ exports.getHiveEngineTokensBalancesQueryOptions = getHiveEngineTokensBalancesQue
 exports.getHiveEngineTokensMarketQueryOptions = getHiveEngineTokensMarketQueryOptions;
 exports.getHiveEngineTokensMetadataQueryOptions = getHiveEngineTokensMetadataQueryOptions;
 exports.getHiveEngineTokensMetricsQueryOptions = getHiveEngineTokensMetricsQueryOptions;
+exports.getHiveEngineUnclaimedRewardsQueryOptions = getHiveEngineUnclaimedRewardsQueryOptions;
 exports.getHivePowerAssetGeneralInfoQueryOptions = getHivePowerAssetGeneralInfoQueryOptions;
 exports.getHivePowerAssetTransactionsQueryOptions = getHivePowerAssetTransactionsQueryOptions;
 exports.getHivePowerDelegatesInfiniteQueryOptions = getHivePowerDelegatesInfiniteQueryOptions;
