@@ -2930,10 +2930,14 @@
     "apr": "APR 奖励",
     "apr-hint": "每年的百分比率 — — 您将在选定的时间框架内以Cryptocurency方式获得的奖励的估计",
     "delegations": "A. 代表团",
+    "hp-total-balance": "HP总余额",
+    "delegations-outgoing": "发出的代表团",
+    "delegations-incoming": "来到的代表团",
     "external-wallets-offer": {
       "title": "将您的加密带到生态环境",
       "description": "直接从 Trust 或 Exodus 等应用创建或导入BTC、ETH 、BNB、SOL、TRX、APT 和 TON 的钱包 并开始在Hive 生态系统内无缝使用它们。",
-      "hint": "创建和导入令牌的信息将存储在 Ecency 和 Hive 账户元数据中"
+      "hint": "创建和导入令牌的信息将存储在 Ecency 和 Hive 账户元数据中",
+      "dismiss": "稍后再说"
     },
     "external-wallets-signup": {
       "create-wallet-title": "创建并链接到Hive 帐户",
