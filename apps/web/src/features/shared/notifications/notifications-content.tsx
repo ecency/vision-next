@@ -54,7 +54,7 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
             </DropdownMenu>
           </Dropdown>
         </div>
-        <NotificationsActions filter={filter ?? null} />
+        <NotificationsActions filter={filter ?? undefined} />
       </div>
 
       <NotificationsStatusButtons
@@ -79,7 +79,7 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
       <NotificationList
         openLinksInNewTab={openLinksInNewTab}
         select={select}
-        filter={filter ?? null}
+        filter={filter ?? undefined}
         currentStatus={status!}
         selectNotification={selectNotification}
       />

@@ -1028,4 +1028,261 @@ declare function getCommunityPermissions({ communityType, userRole, subscribed, 
     isModerator: boolean;
 };
 
-export { type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type Asset, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, keychain as Keychain, type Keys, NaiMap, type Payer, ROLES, type RcStats, type Recoveries, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type WalletMetadataCandidate, broadcastJson, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+declare function getNotificationsUnreadCountQueryOptions(activeUsername: string | undefined): Omit<_tanstack_react_query.UseQueryOptions<number, Error, number, (string | undefined)[]>, "queryFn"> & {
+    initialData: number | (() => number);
+    queryFn?: _tanstack_react_query.QueryFunction<number, (string | undefined)[]> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: number;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare enum NotificationFilter {
+    VOTES = "rvotes",
+    MENTIONS = "mentions",
+    FAVORITES = "nfavorites",
+    BOOKMARKS = "nbookmarks",
+    FOLLOWS = "follows",
+    REPLIES = "replies",
+    REBLOGS = "reblogs",
+    TRANSFERS = "transfers",
+    DELEGATIONS = "delegations"
+}
+
+declare enum NotifyTypes {
+    VOTE = 1,
+    MENTION = 2,
+    FOLLOW = 3,
+    COMMENT = 4,
+    RE_BLOG = 5,
+    TRANSFERS = 6,
+    FAVORITES = 13,
+    BOOKMARKS = 15,
+    ALLOW_NOTIFY = "ALLOW_NOTIFY"
+}
+declare const ALL_NOTIFY_TYPES: readonly [NotifyTypes.VOTE, NotifyTypes.MENTION, NotifyTypes.FOLLOW, NotifyTypes.COMMENT, NotifyTypes.RE_BLOG, NotifyTypes.TRANSFERS, NotifyTypes.FAVORITES, NotifyTypes.BOOKMARKS];
+declare enum NotificationViewType {
+    ALL = "All",
+    UNREAD = "Unread",
+    READ = "Read"
+}
+
+interface BaseWsNotification {
+    source: string;
+    target: string;
+    timestamp: string;
+}
+interface WsVoteNotification extends BaseWsNotification {
+    type: "vote";
+    extra: {
+        permlink: string;
+        weight: number;
+        title: string | null;
+        img_url: string | null;
+    };
+}
+interface WsMentionNotification extends BaseWsNotification {
+    type: "mention";
+    extra: {
+        permlink: string;
+        is_post: 0 | 1;
+        title: string | null;
+        img_url: string | null;
+    };
+}
+interface WsFavoriteNotification extends BaseWsNotification {
+    type: "favorites";
+    extra: {
+        permlink: string;
+        is_post: 0 | 1;
+        title: string | null;
+    };
+}
+interface WsBookmarkNotification extends BaseWsNotification {
+    type: "bookmarks";
+    extra: {
+        permlink: string;
+        is_post: 0 | 1;
+        title: string | null;
+    };
+}
+interface WsFollowNotification extends BaseWsNotification {
+    type: "follow";
+    extra: {
+        what: string[];
+    };
+}
+interface WsReplyNotification extends BaseWsNotification {
+    type: "reply";
+    extra: {
+        title: string;
+        body: string;
+        json_metadata: string;
+        permlink: string;
+        parent_author: string;
+        parent_permlink: string;
+        parent_title: string | null;
+        parent_img_url: string | null;
+    };
+}
+interface WsReblogNotification extends BaseWsNotification {
+    type: "reblog";
+    extra: {
+        permlink: string;
+        title: string | null;
+        img_url: string | null;
+    };
+}
+interface WsTransferNotification extends BaseWsNotification {
+    type: "transfer";
+    extra: {
+        amount: string;
+        memo: string;
+    };
+}
+interface WsDelegationsNotification extends BaseWsNotification {
+    type: "delegations";
+    extra: {
+        amount: string;
+    };
+}
+interface WsSpinNotification extends BaseWsNotification {
+    type: "spin";
+}
+interface WsInactiveNotification extends BaseWsNotification {
+    type: "inactive";
+}
+interface WsReferralNotification extends BaseWsNotification {
+    type: "referral";
+}
+type WsNotification = WsVoteNotification | WsMentionNotification | WsFavoriteNotification | WsBookmarkNotification | WsFollowNotification | WsReplyNotification | WsReblogNotification | WsTransferNotification | WsSpinNotification | WsInactiveNotification | WsReferralNotification | WsDelegationsNotification;
+interface BaseAPiNotification {
+    id: string;
+    source: string;
+    read: 0 | 1;
+    timestamp: string;
+    ts: number;
+    gk: string;
+    gkf: boolean;
+}
+interface ApiVoteNotification extends BaseAPiNotification {
+    type: "vote" | "unvote";
+    voter: string;
+    weight: number;
+    author: string;
+    permlink: string;
+    title: string | null;
+    img_url: string | null;
+}
+interface ApiMentionNotification extends BaseAPiNotification {
+    type: "mention";
+    author: string;
+    account: string;
+    permlink: string;
+    post: boolean;
+    title: string | null;
+    img_url: string | null;
+    deck?: boolean;
+}
+interface ApiFollowNotification extends BaseAPiNotification {
+    type: "follow" | "unfollow" | "ignore";
+    follower: string;
+    following: string;
+    blog: boolean;
+}
+interface ApiReblogNotification extends BaseAPiNotification {
+    type: "reblog";
+    account: string;
+    author: string;
+    permlink: string;
+    title: string | null;
+    img_url: string | null;
+}
+interface ApiReplyNotification extends BaseAPiNotification {
+    type: "reply";
+    author: string;
+    permlink: string;
+    title: string;
+    body: string;
+    json_metadata: string;
+    metadata: any;
+    parent_author: string;
+    parent_permlink: string;
+    parent_title: string | null;
+    parent_img_url: string | null;
+}
+interface ApiTransferNotification extends BaseAPiNotification {
+    type: "transfer";
+    to: string;
+    amount: string;
+    memo: string | null;
+}
+interface ApiFavoriteNotification extends BaseAPiNotification {
+    type: "favorites";
+    author: string;
+    account: string;
+    permlink: string;
+    post: boolean;
+    title: string | null;
+}
+interface ApiBookmarkNotification extends BaseAPiNotification {
+    type: "bookmarks";
+    author: string;
+    account: string;
+    permlink: string;
+    post: boolean;
+    title: string | null;
+}
+interface ApiSpinNotification extends BaseAPiNotification {
+    type: "spin";
+}
+interface ApiInactiveNotification extends BaseAPiNotification {
+    type: "inactive";
+}
+interface ApiReferralNotification extends BaseAPiNotification {
+    type: "referral";
+}
+interface ApiDelegationsNotification extends BaseAPiNotification {
+    type: "delegations";
+    to: string;
+    amount: string;
+}
+interface ApiNotificationSetting {
+    system: string;
+    allows_notify: number;
+    notify_types: number[] | null;
+    status: number;
+}
+type ApiNotification = ApiVoteNotification | ApiMentionNotification | ApiFavoriteNotification | ApiBookmarkNotification | ApiFollowNotification | ApiReblogNotification | ApiReplyNotification | ApiTransferNotification | ApiSpinNotification | ApiInactiveNotification | ApiReferralNotification | ApiDelegationsNotification;
+interface Notifications {
+    filter: NotificationFilter | null;
+    unread: number;
+    list: ApiNotification[];
+    loading: boolean;
+    hasMore: boolean;
+    unreadFetchFlag: boolean;
+    settings?: ApiNotificationSetting;
+    fbSupport: "pending" | "granted" | "denied";
+}
+
+declare function getNotificationsInfiniteQueryOptions(activeUsername: string | undefined, filter?: NotificationFilter | undefined): _tanstack_react_query.UseInfiniteQueryOptions<ApiNotification[], Error, _tanstack_react_query.InfiniteData<ApiNotification[], unknown>, (string | undefined)[], string> & {
+    initialData: _tanstack_react_query.InfiniteData<ApiNotification[], string> | (() => _tanstack_react_query.InfiniteData<ApiNotification[], string>) | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<ApiNotification[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getNotificationsSettingsQueryOptions(activeUsername: string | undefined): Omit<_tanstack_react_query.UseQueryOptions<ApiNotificationSetting, Error, ApiNotificationSetting, (string | undefined)[]>, "queryFn"> & {
+    initialData: ApiNotificationSetting | (() => ApiNotificationSetting);
+    queryFn?: _tanstack_react_query.QueryFunction<ApiNotificationSetting, (string | undefined)[]> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: ApiNotificationSetting;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+export { ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, keychain as Keychain, type Keys, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type Payer, ROLES, type RcStats, type Recoveries, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type WalletMetadataCandidate, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };

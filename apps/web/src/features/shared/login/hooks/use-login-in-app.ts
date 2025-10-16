@@ -1,17 +1,24 @@
-import {useHsLoginRefresh, useRecordUserActivity, useUpdateNotificationsSettings} from "@/api/mutations";
-import { useNotificationsSettingsQuery } from "@/api/queries";
+import {
+  useHsLoginRefresh,
+  useRecordUserActivity,
+  useUpdateNotificationsSettings
+} from "@/api/mutations";
+import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { Account, LoginType, User } from "@/entities";
+import { ALL_NOTIFY_TYPES } from "@/enums";
+import * as ls from "@/utils/local-storage";
+import { getNotificationsSettingsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useAfterLoginTutorial } from "./use-after-login-tutorial";
-import * as ls from "@/utils/local-storage";
-import { ALL_NOTIFY_TYPES } from "@/enums";
 
 export function useLoginInApp(username: string) {
   const pathname = usePathname();
   const router = useRouter();
 
+  const activeUser = useClientActiveUser();
   const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
@@ -20,7 +27,7 @@ export function useLoginInApp(username: string) {
   const { mutateAsync: recordActivity } = useRecordUserActivity();
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
-  const notificationsSettingsQuery = useNotificationsSettingsQuery();
+  const notificationsSettingsQuery = useQuery(getNotificationsSettingsQueryOptions(activeUser));
 
   const handleTutorial = useAfterLoginTutorial(username);
 
@@ -29,7 +36,12 @@ export function useLoginInApp(username: string) {
   }, [setLogin]);
 
   return useCallback(
-    async (code: string, postingKey: null | undefined | string, account: Account, loginType?: LoginType) => {
+    async (
+      code: string,
+      postingKey: null | undefined | string,
+      account: Account,
+      loginType?: LoginType
+    ) => {
       const token = await hsTokenRenew({ code });
       // get access token from code
       const user: User = {
@@ -67,8 +79,8 @@ export function useLoginInApp(username: string) {
         }
       }
 
-        // login activity
-      await recordActivity({ty: 20});
+      // login activity
+      await recordActivity({ ty: 20 });
 
       // redirection based on path name
       if (pathname?.startsWith("/signup/wallet")) {

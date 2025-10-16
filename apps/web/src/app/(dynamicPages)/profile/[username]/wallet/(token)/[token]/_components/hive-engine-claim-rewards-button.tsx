@@ -1,18 +1,18 @@
 "use client";
 
+import { claimRewards } from "@/api/hive-engine";
 import { formatError } from "@/api/operations";
 import { useClientActiveUser } from "@/api/queries";
-import { useHiveEngineUnclaimedRewardsQuery } from "@/api/queries/engine";
-import { claimRewards } from "@/api/hive-engine";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { formattedNumber } from "@/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
+import { getHiveEngineUnclaimedRewardsQueryOptions } from "@ecency/wallets";
 
 type PendingAmountInfo = {
   formatted: string;
@@ -22,30 +22,24 @@ export type HiveEngineClaimRewardsButtonProps = {
   className?: string;
 };
 
-export function HiveEngineClaimRewardsButton({
-  className
-}: HiveEngineClaimRewardsButtonProps) {
+export function HiveEngineClaimRewardsButton({ className }: HiveEngineClaimRewardsButtonProps) {
   const { token, username } = useParams();
   const activeUser = useClientActiveUser();
   const queryClient = useQueryClient();
 
-  const tokenSymbol =
-    typeof token === "string" ? token.toUpperCase() : undefined;
-  const cleanUsername =
-    typeof username === "string"
-      ? username.replace("%40", "")
-      : undefined;
+  const tokenSymbol = typeof token === "string" ? token.toUpperCase() : undefined;
+  const cleanUsername = typeof username === "string" ? username.replace("%40", "") : undefined;
 
-  const { data: unclaimedRewards } = useHiveEngineUnclaimedRewardsQuery(
-    activeUser?.username === cleanUsername ? cleanUsername : undefined
+  const { data: unclaimedRewards } = useQuery(
+    getHiveEngineUnclaimedRewardsQueryOptions(
+      activeUser?.username === cleanUsername ? cleanUsername : undefined
+    )
   );
 
   const pendingReward = useMemo(
     () =>
       tokenSymbol
-        ? unclaimedRewards?.find(
-            (reward) => reward.symbol?.toUpperCase() === tokenSymbol
-          )
+        ? unclaimedRewards?.find((reward) => reward.symbol?.toUpperCase() === tokenSymbol)
         : undefined,
     [tokenSymbol, unclaimedRewards]
   );
@@ -76,10 +70,7 @@ export function HiveEngineClaimRewardsButton({
   }, [pendingReward]);
 
   const canClaim = Boolean(
-    tokenSymbol &&
-      cleanUsername &&
-      activeUser?.username === cleanUsername &&
-      pendingAmountInfo
+    tokenSymbol && cleanUsername && activeUser?.username === cleanUsername && pendingAmountInfo
   );
 
   const { mutate: claimTokenRewards, isPending: isClaiming } = useMutation({
@@ -105,30 +96,16 @@ export function HiveEngineClaimRewardsButton({
 
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: [
-            QueryIdentifiers.HIVE_ENGINE_UNCLAIMED_REWARDS,
-            cleanUsername
-          ]
+          queryKey: [QueryIdentifiers.HIVE_ENGINE_UNCLAIMED_REWARDS, cleanUsername]
         }),
         queryClient.invalidateQueries({
           queryKey: ["assets", "hive-engine", "balances", cleanUsername]
         }),
         queryClient.invalidateQueries({
-          queryKey: [
-            "assets",
-            "hive-engine",
-            tokenSymbol,
-            "transactions",
-            cleanUsername
-          ]
+          queryKey: ["assets", "hive-engine", tokenSymbol, "transactions", cleanUsername]
         }),
         queryClient.invalidateQueries({
-          queryKey: [
-            "ecency-wallets",
-            "asset-info",
-            cleanUsername,
-            tokenSymbol
-          ]
+          queryKey: ["ecency-wallets", "asset-info", cleanUsername, tokenSymbol]
         })
       ]);
     },
@@ -155,4 +132,3 @@ export function HiveEngineClaimRewardsButton({
     </Button>
   );
 }
-

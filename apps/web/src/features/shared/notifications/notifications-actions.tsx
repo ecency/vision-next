@@ -1,9 +1,15 @@
-import { FormControl, Tooltip } from "@/features/ui";
-import React, { useEffect } from "react";
+import { useMarkNotifications, useUpdateNotificationsSettings } from "@/api/mutations";
+import { hiveNotifySetLastRead } from "@/api/operations";
+import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import i18next from "i18next";
-import i18n from "i18next";
-import { checkSvg, settingsSvg, syncSvg } from "@ui/svg";
+import { NotificationFilter, NotifyTypes } from "@/enums";
+import { FormControl, Tooltip } from "@/features/ui";
+import {
+  getNotificationsInfiniteQueryOptions,
+  getNotificationsSettingsQueryOptions,
+  getNotificationsUnreadCountQueryOptions
+} from "@ecency/sdk";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   Dropdown,
   DropdownItem,
@@ -11,24 +17,18 @@ import {
   DropdownMenu,
   DropdownToggle
 } from "@ui/dropdown";
-import { NotificationFilter, NotifyTypes } from "@/enums";
+import { checkSvg, settingsSvg, syncSvg } from "@ui/svg";
 import { classNameObject } from "@ui/util";
-import {
-  useNotificationsQuery,
-  useNotificationsSettingsQuery,
-  useNotificationUnreadCountQuery
-} from "@/api/queries";
-import { hiveNotifySetLastRead } from "@/api/operations";
-import { useMarkNotifications, useUpdateNotificationsSettings } from "@/api/mutations";
-import { useDebounce, useMap } from "react-use";
-import useMount from "react-use/lib/useMount";
+import { default as i18n, default as i18next } from "i18next";
+import { useEffect } from "react";
+import { useDebounce, useMap, useMount } from "react-use";
 
 interface Props {
-  filter: NotificationFilter | null;
+  filter?: NotificationFilter;
 }
 
 export function NotificationsActions({ filter }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const activeUser = useClientActiveUser();
   const isMobile = useGlobalStore((state) => state.isMobile);
 
   const [settings, { set: setSettingItem }] = useMap<Record<NotifyTypes, boolean>>({
@@ -43,13 +43,17 @@ export function NotificationsActions({ filter }: Props) {
     [NotifyTypes.ALLOW_NOTIFY]: false
   });
 
-  const { data: notificationSettings } = useNotificationsSettingsQuery();
+  const { data: notificationSettings } = useQuery(
+    getNotificationsSettingsQueryOptions(activeUser?.username)
+  );
   const {
     data: unread,
     refetch: refetchUnread,
     isLoading: isUnreadLoading
-  } = useNotificationUnreadCountQuery();
-  const { refetch: refetchData, isLoading: isDataLoading } = useNotificationsQuery(filter);
+  } = useQuery(getNotificationsUnreadCountQueryOptions(activeUser?.username));
+  const { refetch: refetchData, isLoading: isDataLoading } = useInfiniteQuery(
+    getNotificationsInfiniteQueryOptions(filter)
+  );
 
   const markNotifications = useMarkNotifications();
   const updateSettings = useUpdateNotificationsSettings();

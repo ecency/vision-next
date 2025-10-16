@@ -4,3 +4,4 @@ export * from "./get-hive-engine-token-transactions-query-options";
 export * from "./get-hive-engine-token-metrics-query-options";
 export * from "./get-hive-engine-tokens-market-query-options";
 export * from "./get-hive-engine-tokens-balances-query-options";
+export * from "./get-hive-engine-unclaimed-rewards-query-options";
