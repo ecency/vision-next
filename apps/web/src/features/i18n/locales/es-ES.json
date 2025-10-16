@@ -2963,6 +2963,18 @@
       "unstake": "Retirar de Estaca",
       "undelegate": "Retirar delegación"
     },
+    "hbd-interest": {
+      "title": "Interés de ahorro HBD",
+      "next-label": "Siguiente reclamo",
+      "next-ready": "Listo para reclamar ahora",
+      "next-in": "{{relative}} disponible",
+      "next-unknown": "Programación de interés no disponible",
+      "next-date": "En {{date}}",
+      "balance-label": "Saldo de ahorro",
+      "minimum-balance": "El interés se incrementa una vez que tengas al menos {{amount}} HBD en ahorros.",
+      "note": "El interés se calcula continuamente en {{apr}}% APR.",
+      "claim-button": "Reclamar interés"
+    },
     "claim-rewards": "Reclamar recompensas",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Reclamando...",
