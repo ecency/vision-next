@@ -2963,6 +2963,18 @@
       "unstake": "ステーク解除",
       "undelegate": "委任解除"
     },
+    "hbd-interest": {
+      "title": "HBD貯蓄利率",
+      "next-label": "次の請求",
+      "next-ready": "今すぐ請求する準備ができました",
+      "next-in": "利用可能な {{relative}}",
+      "next-unknown": "インタレストスケジュールが利用できません",
+      "next-date": "{{date}}",
+      "balance-label": "貯蓄残高",
+      "minimum-balance": "少なくとも {{amount}} HBDを貯蓄中に保持すると、利息が発生します。",
+      "note": "利息は {{apr}}%のAPRで継続的に計算されます。",
+      "claim-button": "利息を受け取る"
+    },
     "claim-rewards": "報酬を要求する",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "請求しています...",
