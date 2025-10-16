@@ -2930,10 +2930,14 @@
     "apr": "APR Belohnungen",
     "apr-hint": "Jährlicher Prozentsatz - eine Schätzung der Belohnungen, die du in Kryptowährung über den gewählten Zeitraum erhalten wirst",
     "delegations": "Delegationen",
+    "hp-total-balance": "Gesamt HP Guthaben",
+    "delegations-outgoing": "Ausgehende Delegationen",
+    "delegations-incoming": "Eingehende Delegationen",
     "external-wallets-offer": {
       "title": "Bring deine Krypto zu Ecency",
       "description": "Erstellen oder importieren Sie Brieftaschen für BTC, ET, BNB, SOL, TRX, APT und TON direkt aus Apps wie Trust oder Exodus, und fangen Sie an, sie nahtlos innerhalb des Hive-Ökosystems zu verwenden.",
-      "hint": "Erstellte und importierte Token-Informationen werden in einer Ecency and Hive-Account-Metadaten gespeichert"
+      "hint": "Erstellte und importierte Token-Informationen werden in einer Ecency and Hive-Account-Metadaten gespeichert",
+      "dismiss": "Vielleicht später"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Erstellen & Verlinken zum Hive-Konto",
