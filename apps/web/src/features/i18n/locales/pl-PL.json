@@ -2963,6 +2963,18 @@
       "unstake": "Bez stawki",
       "undelegate": "Usuń delegat"
     },
+    "hbd-interest": {
+      "title": "Odsetki z tytułu oszczędności HBD",
+      "next-label": "Następne włości",
+      "next-ready": "Gotowy do przejęcia teraz",
+      "next-in": "Dostępne {{relative}}",
+      "next-unknown": "Harmonogram odsetek niedostępny",
+      "next-date": "Na {{date}}",
+      "balance-label": "Saldo oszczędności",
+      "minimum-balance": "Odsetki narosłe po posiadaniu co najmniej {{amount}} HBD w oszczędnościach.",
+      "note": "Odsetki są obliczane w sposób ciągły dla {{apr}}% APR.",
+      "claim-button": "Odsetki"
+    },
     "claim-rewards": "Odbierz nagrody",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Trwa pobieranie...",
