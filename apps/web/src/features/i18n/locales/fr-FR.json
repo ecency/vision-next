@@ -2930,10 +2930,14 @@
     "apr": "Récompenses de l'APR",
     "apr-hint": "Taux de pourcentage annuel – une estimation des récompenses que vous gagnerez en cryptomonnaie au cours de la période sélectionnée",
     "delegations": "Délégations",
+    "hp-total-balance": "Solde total des PV",
+    "delegations-outgoing": "Délégations sortantes",
+    "delegations-incoming": "Délégations entrantes",
     "external-wallets-offer": {
       "title": "Apportez votre crypto Ecency",
       "description": "Créer ou importer des portefeuilles pour BTC, ETH, BNB, SOL, TRX, APT et TON directement à partir d'applications comme Trust ou Exodus, et commencez à les utiliser de façon transparente dans l'écosystème Hive.",
-      "hint": "Les informations du jeton créé et importé seront stockées dans les métadonnées du compte Ecency and Hive"
+      "hint": "Les informations du jeton créé et importé seront stockées dans les métadonnées du compte Ecency and Hive",
+      "dismiss": "Peut-être plus tard"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Créer & lier au compte Hive",
