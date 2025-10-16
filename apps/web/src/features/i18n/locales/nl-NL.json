@@ -2930,10 +2930,14 @@
     "apr": "APR beloningen",
     "apr-hint": "Jaarlijkse Percentage – een schatting van de beloningen die u in Cryptocurrency zult verdienen over de geselecteerde periode",
     "delegations": "Overdrachten",
+    "hp-total-balance": "Totaal HP saldo",
+    "delegations-outgoing": "Uitgaande delegaties",
+    "delegations-incoming": "Inkomende delegaties",
     "external-wallets-offer": {
       "title": "Breng uw crypto naar Ecency",
       "description": "Maken of importeren van portemonnees voor BTC, ETH, BNB, SOL, TRX, APT en TON direct vanuit apps als Trust of Exodus, en gebruik ze naadloos binnen het ecosysteem van de Hive.",
-      "hint": "Gemaakte en geïmporteerde token's informatie wordt opgeslagen in een Ecency en Hive account metadata"
+      "hint": "Gemaakte en geïmporteerde token's informatie wordt opgeslagen in een Ecency en Hive account metadata",
+      "dismiss": "Misschien later"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Maak een account aan en link naar Hive",
