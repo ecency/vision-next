@@ -1740,12 +1740,155 @@ function getCommunityPermissions({
     isModerator
   };
 }
+function getNotificationsUnreadCountQueryOptions(activeUsername) {
+  return reactQuery.queryOptions({
+    queryKey: ["notifications", "unread", activeUsername],
+    queryFn: async () => {
+      const response = await fetch(
+        `${CONFIG.privateApiHost}/private-api/notifications/unread`,
+        {
+          body: JSON.stringify({ code: getAccessToken(activeUsername) }),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      const data = await response.json();
+      return data.count;
+    },
+    enabled: !!activeUsername,
+    initialData: 0,
+    refetchInterval: 6e4
+  });
+}
+function getNotificationsInfiniteQueryOptions(activeUsername, filter = void 0) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["notifications", activeUsername, filter],
+    queryFn: async ({ pageParam }) => {
+      const data = {
+        code: getAccessToken(activeUsername),
+        filter,
+        since: pageParam,
+        user: void 0
+      };
+      const response = await fetch(
+        CONFIG.privateApiHost + "/private-api/notifications",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        }
+      );
+      return response.json();
+    },
+    enabled: !!activeUsername,
+    initialData: { pages: [], pageParams: [] },
+    initialPageParam: "",
+    getNextPageParam: (lastPage) => lastPage?.[lastPage.length - 1]?.id ?? "",
+    refetchOnMount: true
+  });
+}
 
+// src/modules/notifications/enums/notification-filter.ts
+var NotificationFilter = /* @__PURE__ */ ((NotificationFilter2) => {
+  NotificationFilter2["VOTES"] = "rvotes";
+  NotificationFilter2["MENTIONS"] = "mentions";
+  NotificationFilter2["FAVORITES"] = "nfavorites";
+  NotificationFilter2["BOOKMARKS"] = "nbookmarks";
+  NotificationFilter2["FOLLOWS"] = "follows";
+  NotificationFilter2["REPLIES"] = "replies";
+  NotificationFilter2["REBLOGS"] = "reblogs";
+  NotificationFilter2["TRANSFERS"] = "transfers";
+  NotificationFilter2["DELEGATIONS"] = "delegations";
+  return NotificationFilter2;
+})(NotificationFilter || {});
+
+// src/modules/notifications/enums/notify-types.ts
+var NotifyTypes = /* @__PURE__ */ ((NotifyTypes2) => {
+  NotifyTypes2[NotifyTypes2["VOTE"] = 1] = "VOTE";
+  NotifyTypes2[NotifyTypes2["MENTION"] = 2] = "MENTION";
+  NotifyTypes2[NotifyTypes2["FOLLOW"] = 3] = "FOLLOW";
+  NotifyTypes2[NotifyTypes2["COMMENT"] = 4] = "COMMENT";
+  NotifyTypes2[NotifyTypes2["RE_BLOG"] = 5] = "RE_BLOG";
+  NotifyTypes2[NotifyTypes2["TRANSFERS"] = 6] = "TRANSFERS";
+  NotifyTypes2[NotifyTypes2["FAVORITES"] = 13] = "FAVORITES";
+  NotifyTypes2[NotifyTypes2["BOOKMARKS"] = 15] = "BOOKMARKS";
+  NotifyTypes2["ALLOW_NOTIFY"] = "ALLOW_NOTIFY";
+  return NotifyTypes2;
+})(NotifyTypes || {});
+var ALL_NOTIFY_TYPES = [
+  1 /* VOTE */,
+  2 /* MENTION */,
+  3 /* FOLLOW */,
+  4 /* COMMENT */,
+  5 /* RE_BLOG */,
+  6 /* TRANSFERS */,
+  13 /* FAVORITES */,
+  15 /* BOOKMARKS */
+];
+var NotificationViewType = /* @__PURE__ */ ((NotificationViewType2) => {
+  NotificationViewType2["ALL"] = "All";
+  NotificationViewType2["UNREAD"] = "Unread";
+  NotificationViewType2["READ"] = "Read";
+  return NotificationViewType2;
+})(NotificationViewType || {});
+
+// src/modules/notifications/queries/get-notifications-settings-query-options.ts
+function getNotificationsSettingsQueryOptions(activeUsername) {
+  return reactQuery.queryOptions({
+    queryKey: ["notifications", "settings", activeUsername],
+    queryFn: async () => {
+      let token = activeUsername + "-web";
+      const response = await fetch(
+        CONFIG.privateApiHost + "/private-api/detail-device",
+        {
+          body: JSON.stringify({
+            code: getAccessToken(activeUsername),
+            username: activeUsername,
+            token
+          }),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      return response.json();
+    },
+    enabled: !!activeUsername,
+    refetchOnMount: false,
+    initialData: () => {
+      const wasMutedPreviously = localStorage.getItem("notifications") !== "true";
+      return {
+        status: 0,
+        system: "web",
+        allows_notify: 0,
+        notify_types: wasMutedPreviously ? [] : [
+          4 /* COMMENT */,
+          3 /* FOLLOW */,
+          2 /* MENTION */,
+          13 /* FAVORITES */,
+          15 /* BOOKMARKS */,
+          1 /* VOTE */,
+          5 /* RE_BLOG */,
+          6 /* TRANSFERS */
+        ]
+      };
+    }
+  });
+}
+
+exports.ALL_NOTIFY_TYPES = ALL_NOTIFY_TYPES;
 exports.CONFIG = CONFIG;
 exports.EcencyAnalytics = mutations_exports;
 exports.HiveSignerIntegration = HiveSignerIntegration;
 exports.Keychain = keychain_exports;
 exports.NaiMap = NaiMap;
+exports.NotificationFilter = NotificationFilter;
+exports.NotificationViewType = NotificationViewType;
+exports.NotifyTypes = NotifyTypes;
 exports.ROLES = ROLES;
 exports.Symbol = Symbol2;
 exports.ThreeSpeakIntegration = ThreeSpeakIntegration;
@@ -1773,6 +1916,9 @@ exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
 exports.getGameStatusCheckQueryOptions = getGameStatusCheckQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
 exports.getLoginType = getLoginType;
+exports.getNotificationsInfiniteQueryOptions = getNotificationsInfiniteQueryOptions;
+exports.getNotificationsSettingsQueryOptions = getNotificationsSettingsQueryOptions;
+exports.getNotificationsUnreadCountQueryOptions = getNotificationsUnreadCountQueryOptions;
 exports.getPostingKey = getPostingKey;
 exports.getPromotedPostsQuery = getPromotedPostsQuery;
 exports.getQueryClient = getQueryClient;

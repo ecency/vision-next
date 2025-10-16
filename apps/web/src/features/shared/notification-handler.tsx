@@ -1,20 +1,22 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
 import { NotificationsWebSocket } from "@/api/notifications-ws-api";
+import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { NotifyTypes } from "@/enums";
-import { usePrevious } from "react-use";
 import {
-  useNotificationsQuery,
-  useNotificationsSettingsQuery,
-  useNotificationUnreadCountQuery
-} from "@/api/queries";
+  getNotificationsInfiniteQueryOptions,
+  getNotificationsSettingsQueryOptions,
+  getNotificationsUnreadCountQueryOptions
+} from "@ecency/sdk";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { usePrevious } from "react-use";
 
 export function NotificationHandler() {
   const nws = useRef(new NotificationsWebSocket());
 
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const activeUser = useClientActiveUser();
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
   const globalNotifications = useGlobalStore((state) => state.globalNotifications);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -22,9 +24,15 @@ export function NotificationHandler() {
 
   const previousActiveUser = usePrevious(activeUser);
 
-  const notificationUnreadCountQuery = useNotificationUnreadCountQuery();
-  const notificationsQuery = useNotificationsQuery(null);
-  const notificationsSettingsQuery = useNotificationsSettingsQuery();
+  const notificationUnreadCountQuery = useQuery(
+    getNotificationsUnreadCountQueryOptions(activeUser?.username)
+  );
+  const notificationsQuery = useInfiniteQuery(
+    getNotificationsInfiniteQueryOptions(activeUser?.username)
+  );
+  const notificationsSettingsQuery = useQuery(
+    getNotificationsSettingsQueryOptions(activeUser?.username)
+  );
 
   useEffect(() => {
     nws.current

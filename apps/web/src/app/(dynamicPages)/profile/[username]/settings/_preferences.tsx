@@ -1,17 +1,21 @@
-import React, { useCallback, useMemo } from "react";
-import i18next from "i18next";
-import { FormControl, InputGroupCopyClipboard } from "@ui/input";
-import { ALL_NOTIFY_TYPES, Theme } from "@/enums";
-import { useGlobalStore } from "@/core/global-store";
-import { langOptions } from "@/features/i18n";
 import { useUpdateNotificationsSettings } from "@/api/mutations";
+import { useClientActiveUser, useClientTheme } from "@/api/queries";
+import currencies from "@/consts/currencies.json";
+import { useGlobalStore } from "@/core/global-store";
+import { ALL_NOTIFY_TYPES, Theme } from "@/enums";
+import { langOptions } from "@/features/i18n";
 import { success } from "@/features/shared";
 import * as ls from "@/utils/local-storage";
-import currencies from "@/consts/currencies.json";
-import { useNotificationsSettingsQuery, useClientTheme, useClientActiveUser } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
 import { UilCog } from "@tooni/iconscout-unicons-react";
+import { FormControl } from "@ui/input";
+import i18next from "i18next";
+import React, { useCallback, useMemo } from "react";
+import { getNotificationsSettingsQueryOptions } from "../../../../../../../../packages/sdk/dist/browser";
 
 export function Preferences() {
+  const activeUser = useClientActiveUser();
+
   const currency = useGlobalStore((s) => s.currency);
   const setCurrency = useGlobalStore((s) => s.setCurrency);
 
@@ -25,7 +29,9 @@ export function Preferences() {
 
   const defaultTheme = useMemo(() => theme, [theme]);
 
-  const { data: notificationSettings } = useNotificationsSettingsQuery();
+  const { data: notificationSettings } = useQuery(
+    getNotificationsSettingsQueryOptions(activeUser?.username)
+  );
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
   const notificationsChanged = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
