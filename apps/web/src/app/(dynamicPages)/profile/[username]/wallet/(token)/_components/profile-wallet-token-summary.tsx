@@ -1,3 +1,6 @@
+import type { ReactNode } from "react";
+
+import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
@@ -37,6 +40,7 @@ export function ProfileWalletTokenSummary() {
     (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase();
 
   const cleanUsername = (username as string).replace("%40", "");
+  const currency = useGlobalStore((state) => state.currency);
 
   const { hasPendingPoints } =
     useProfileWalletPointsClaimState(
@@ -80,7 +84,15 @@ export function ProfileWalletTokenSummary() {
   const hasStakedBalance = parts.some((part) => part.name === "staked");
   const hasSavingsBalance = parts.some((part) => part.name === "savings");
 
-  const cards = [
+  const normalizedCurrency = currency?.toUpperCase();
+  const fiatBalanceLabel =
+    normalizedCurrency === "USD" || normalizedCurrency === "HBD"
+      ? "USD Balance"
+      : `${normalizedCurrency ?? "USD"} Balance`;
+
+  const fiatBalance = liquidBalance * (data?.price ?? 0);
+
+  const cards: { label: string; value: ReactNode }[] = [
     {
       label: hasSavingsBalance
         ? "Current Balance"
@@ -106,8 +118,8 @@ export function ProfileWalletTokenSummary() {
         ]
       : []),
     {
-      label: "USD Balance",
-      value: format(liquidBalance * (data?.price ?? 0)),
+      label: fiatBalanceLabel,
+      value: <FormattedCurrency value={fiatBalance} />,
     },
     ...(data?.apr
       ? [

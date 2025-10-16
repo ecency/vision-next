@@ -13,7 +13,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 import i18next from "i18next";
-import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
 import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
 
 interface Props {
@@ -164,9 +163,6 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
           </div>
         </div>
       </Link>
-      {asset === "POINTS" && (
-        <ProfileWalletTokensListItemPoints username={sanitizedUsername} />
-      )}
     </div>
   );
 }

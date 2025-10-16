@@ -119,10 +119,15 @@ export function ProfileWalletSummary() {
               style={{ width: `${percent}%` }}
               key={asset}
               content={
-                <>
-                  {usdValue && `$ ${usdValue.toFixed(2)} – `}
-                  {asset}
-                </>
+                <div className="flex items-center gap-1">
+                  {usdValue && usdValue > 0 && (
+                    <>
+                      <FormattedCurrency value={usdValue} />
+                      <span>–</span>
+                    </>
+                  )}
+                  <span>{asset}</span>
+                </div>
               }
             >
               <motion.div
@@ -151,8 +156,13 @@ export function ProfileWalletSummary() {
                   TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
                 )}
               />
-              {usdValue && `$ ${usdValue.toFixed(2)} – `}
-              {asset}
+              {usdValue && usdValue > 0 && (
+                <>
+                  <FormattedCurrency value={usdValue} />
+                  <span>–</span>
+                </>
+              )}
+              <span>{asset}</span>
             </motion.div>
           ))}
       </div>
