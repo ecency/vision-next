@@ -2963,6 +2963,18 @@
       "unstake": "取消利害关系",
       "undelegate": "取消授权"
     },
+    "hbd-interest": {
+      "title": "HBD 储蓄兴趣",
+      "next-label": "下一个索赔",
+      "next-ready": "现在就准备索取了",
+      "next-in": "Available {{relative}}",
+      "next-unknown": "利息计划不可用",
+      "next-date": "On {{date}}",
+      "balance-label": "储蓄余额",
+      "minimum-balance": "Interest accrues once you hold at least {{amount}} HBD in savings.",
+      "note": "Interest is calculated continuously at {{apr}}% APR.",
+      "claim-button": "B. 索赔利 息"
+    },
     "claim-rewards": "认领奖励",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "正在补全...",
