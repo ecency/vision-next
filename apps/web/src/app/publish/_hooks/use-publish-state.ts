@@ -1,142 +1,69 @@
-import { BeneficiaryRoute, Entry } from "@/entities";
-import { extractMetaData, useSynchronizedLocalStorage } from "@/utils";
-import { PREFIX } from "@/utils/local-storage";
-import { postBodySummary } from "@ecency/render-helper";
-import dayjs from "@/utils/dayjs";
-import { useParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
-import { usePublishPollState } from "./use-publish-poll-state";
-import { ThreeSpeakVideo } from "@ecency/sdk";
-import i18next from "i18next";
 import {
   SUBMIT_DESCRIPTION_MAX_LENGTH,
   SUBMIT_TAG_MAX_LENGTH,
   SUBMIT_TITLE_MAX_LENGTH
 } from "@/app/submit/_consts";
+import { BeneficiaryRoute, Entry } from "@/entities";
+import { extractMetaData, useSynchronizedState } from "@/utils";
+import dayjs from "@/utils/dayjs";
+import { postBodySummary } from "@ecency/render-helper";
+import { ThreeSpeakVideo } from "@ecency/sdk";
+import i18next from "i18next";
+import { useCallback, useEffect, useMemo } from "react";
 import isEqual from "react-fast-compare";
+import { usePublishPollState } from "./use-publish-poll-state";
 
 export function usePublishState() {
-  const params = useParams();
-  const persistent = useMemo(() => {
-    const routeParams = params ?? {};
-    return Object.keys(routeParams).length === 0;
-  }, [params]);
-
-  const [title, setStoredTitle] = useSynchronizedLocalStorage<string>(
-    PREFIX + "_pub_title",
-    "",
-    undefined,
-    persistent
+  const [title, setStoredTitle] = useSynchronizedState<string>("publish:title", "");
+  const [content, setContent] = useSynchronizedState<string>("publish:content", "");
+  const [reward, setReward] = useSynchronizedState<string>("publish:reward", "default");
+  const [beneficiaries, setBeneficiaries] = useSynchronizedState<BeneficiaryRoute[]>(
+    "publish:beneficiaries",
+    []
   );
-  const [content, setContent] = useSynchronizedLocalStorage<string>(
-    PREFIX + "_pub_content",
-    "",
-    undefined,
-    persistent
+  const [metaDescription, setStoredMetaDescription] = useSynchronizedState<string>(
+    "publish:metaDescription",
+    ""
   );
-  const [reward, setReward] = useSynchronizedLocalStorage<string>(
-    PREFIX + "_pub_reward",
-    "default",
-    undefined,
-    persistent
+  const [schedule, setSchedule] = useSynchronizedState<Date | undefined>(
+    "publish:schedule",
+    undefined
   );
-  const [beneficiaries, setBeneficiaries] = useSynchronizedLocalStorage<BeneficiaryRoute[]>(
-    PREFIX + "_pub_beneficiaries",
-    [],
-    undefined,
-    persistent
+  const [tags, setStoredTags] = useSynchronizedState<string[]>("publish:tags", []);
+  const [selectedThumbnail, setSelectedThumbnail] = useSynchronizedState<string>(
+    "publish:selectedThumbnail",
+    ""
   );
-  const [metaDescription, setStoredMetaDescription] = useSynchronizedLocalStorage<string>(
-    PREFIX + "_pub_meta_desc",
-    "",
-    undefined,
-    persistent
+  const [skipAutoThumbnailSelection, setSkipAutoThumbnailSelection] = useSynchronizedState<boolean>(
+    "publish:skipAutoThumbnailSelection",
+    false
   );
-  const [schedule, setSchedule, clearSchedule] = useSynchronizedLocalStorage<Date | undefined>(
-    PREFIX + "_pub_schedule",
-    undefined,
-    {
-      raw: false,
-      serializer: (value) => value?.toISOString() ?? "",
-      deserializer: (value) => {
-        try {
-          return new Date(value);
-        } catch (e) {
-          return undefined;
-        }
+  const [isReblogToCommunity, setIsReblogToCommunity] = useSynchronizedState<boolean>(
+    "publish:isReblogToCommunity",
+    false
+  );
+  const [publishingVideo, setPublishingVideo] = useSynchronizedState<ThreeSpeakVideo | undefined>(
+    "publish:publishingVideo",
+    undefined
+  );
+  const [postLinks, setPostLinks] = useSynchronizedState<Entry[]>("publish:postLinks", []);
+  const [entryImages, setEntryImages] = useSynchronizedState<string[]>("publish:entryImages", []);
+  const [location, setLocation] = useSynchronizedState<
+    | {
+        coordinates: { lng: number; lat: number };
+        address?: string;
       }
-    },
-    persistent
-  );
-  const [tags, setStoredTags] = useSynchronizedLocalStorage<string[]>(
-    PREFIX + "_pub_tags",
-    [],
-    undefined,
-    persistent
-  );
-  const [selectedThumbnail, setSelectedThumbnail, clearSelectedThumbnail] =
-    useSynchronizedLocalStorage<string>(PREFIX + "_pub_sel_thumb", "", undefined, persistent);
-  const [skipAutoThumbnailSelection, setSkipAutoThumbnailSelection] =
-    useSynchronizedLocalStorage<boolean>(
-      PREFIX + "_pub_skip_auto_thumb",
-      false,
-      undefined,
-      persistent
-    );
-  const [isReblogToCommunity, setIsReblogToCommunity] = useSynchronizedLocalStorage<boolean>(
-    PREFIX + "_pub_reblog_to_community",
-    false,
-    undefined,
-    persistent
-  );
-  const [publishingVideo, setPublishingVideo, clearPublishingVideo] =
-    useSynchronizedLocalStorage<ThreeSpeakVideo>(
-      PREFIX + "_pub_publishing_video",
-      undefined,
-      undefined,
-      persistent
-    );
-  const [postLinks, setPostLinks, clearPostLinks] = useSynchronizedLocalStorage<Entry[]>(
-    PREFIX + "_pub_post_links",
-    [],
-    {
-      serializer: (val) => JSON.stringify(val),
-      deserializer: (val) => JSON.parse(val),
-      raw: false
-    },
-    persistent
-  );
-  const [entryImages, setEntryImages, clearEntryImages] = useSynchronizedLocalStorage<string[]>(
-    PREFIX + "_pub_entry_images",
-    [],
-    {
-      serializer: (val) => JSON.stringify(val),
-      deserializer: (val) => {
-        try {
-          const parsed = JSON.parse(val);
-          return Array.isArray(parsed) && parsed.every((x) => typeof x === "string") ? parsed : [];
-        } catch {
-          return [];
-        }
-      },
-      raw: false
-    },
-    persistent
-  );
-  const [location, setLocation, clearLocation] = useSynchronizedLocalStorage<{
-    coordinates: { lng: number; lat: number };
-    address?: string;
-  }>(
-    PREFIX + "_pub_location",
-    undefined,
-    {
-      serializer: (val) => JSON.stringify(val),
-      deserializer: (val) => JSON.parse(val),
-      raw: false
-    },
-    persistent
-  );
-  const [poll, setPoll, clearPoll] = usePublishPollState(persistent);
+    | undefined
+  >("publish:location", undefined);
+  const [poll, setPoll] = usePublishPollState(false);
+
+  const clearSchedule = useCallback(() => setSchedule(undefined), []);
+  const clearSelectedThumbnail = useCallback(() => setSelectedThumbnail(""), []);
+  const clearPublishingVideo = useCallback(() => setPublishingVideo(undefined), []);
+  const clearPostLinks = useCallback(() => setPostLinks([]), []);
+  const clearEntryImages = useCallback(() => setEntryImages([]), []);
+  const clearLocation = useCallback(() => setLocation(undefined), []);
+  const clearPoll = useCallback(() => setPoll(undefined), [setPoll]);
 
   const setTitle = useCallback(
     (value: string) => setStoredTitle(value.slice(0, SUBMIT_TITLE_MAX_LENGTH)),
@@ -144,15 +71,12 @@ export function usePublishState() {
   );
 
   const setMetaDescription = useCallback(
-    (value: string) =>
-      setStoredMetaDescription(value.slice(0, SUBMIT_DESCRIPTION_MAX_LENGTH)),
+    (value: string) => setStoredMetaDescription(value.slice(0, SUBMIT_DESCRIPTION_MAX_LENGTH)),
     [setStoredMetaDescription]
   );
 
   const sanitizeTags = useCallback((tagList: string[]) => {
-    const trimmed = tagList
-      .map((tag) => tag.slice(0, SUBMIT_TAG_MAX_LENGTH))
-      .filter((tag) => tag);
+    const trimmed = tagList.map((tag) => tag.slice(0, SUBMIT_TAG_MAX_LENGTH)).filter((tag) => tag);
     return Array.from(new Set(trimmed));
   }, []);
 
@@ -182,7 +106,6 @@ export function usePublishState() {
     }
   }, [sanitizeTags, setStoredTags, tags]);
 
-  //const metadata = useMemo(() => extractMetaData(content ?? ""), [content]);
   const metadata = useMemo(() => {
     const initialImage = selectedThumbnail
       ? [selectedThumbnail]

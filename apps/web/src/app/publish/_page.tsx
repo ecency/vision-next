@@ -1,7 +1,7 @@
 "use client";
 
 import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publish/_components";
-import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import { usePublishAutosave, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { isCommunity } from "@/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -18,6 +18,8 @@ export default function Publish() {
   const searchParams = useSearchParams();
   const { tags, setTags } = usePublishState();
   const appliedCommunityRef = useRef<string | null>(null);
+
+  usePublishAutosave();
 
   useEffect(() => {
     const communityParam = searchParams?.get("com");
