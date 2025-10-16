@@ -2963,6 +2963,18 @@
       "unstake": "Desinteressar",
       "undelegate": "Desdelegar"
     },
+    "hbd-interest": {
+      "title": "Economia de HBD",
+      "next-label": "Próxima reivindicação",
+      "next-ready": "Pronto para reivindicar agora",
+      "next-in": "{{relative}} Disponível",
+      "next-unknown": "Agendamento de juros indisponível",
+      "next-date": "Em {{date}}",
+      "balance-label": "Saldo de poupança",
+      "minimum-balance": "Os juros acumulam quando você tem, pelo menos, {{amount}} HBD em poupança.",
+      "note": "Os juros são calculados continuamente em {{apr}}% APR.",
+      "claim-button": "Reivindicar juros"
+    },
     "claim-rewards": "Reivindicar recompensas",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Reivindicando...",
