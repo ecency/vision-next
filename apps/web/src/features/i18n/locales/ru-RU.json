@@ -2963,6 +2963,18 @@
       "unstake": "Не поставлено",
       "undelegate": "Снять делегата"
     },
+    "hbd-interest": {
+      "title": "процентная ставка HBD",
+      "next-label": "Следующая претензия",
+      "next-ready": "Готовы претендовать",
+      "next-in": "Доступные {{relative}}",
+      "next-unknown": "График процентов недоступен",
+      "next-date": "На {{date}}",
+      "balance-label": "Сберегательный баланс",
+      "minimum-balance": "Проценты начисляются после того, как вы удерживаете по крайней мере {{amount}} HBD в накоплениях.",
+      "note": "Проценты рассчитываются непрерывно на {{apr}}% повторителя.",
+      "claim-button": "Запросить проценты"
+    },
     "claim-rewards": "Получить награды",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Утверждение...",
