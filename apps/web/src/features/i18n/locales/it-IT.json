@@ -2963,6 +2963,18 @@
       "unstake": "Spostare",
       "undelegate": "Undelegate"
     },
+    "hbd-interest": {
+      "title": "Interessi di risparmio HBD",
+      "next-label": "Prossimo reclamo",
+      "next-ready": "Pronto a reclamare ora",
+      "next-in": "Disponibile {{relative}}",
+      "next-unknown": "Schema di interessi non disponibile",
+      "next-date": "On {{date}}",
+      "balance-label": "Saldo di risparmio",
+      "minimum-balance": "Gli interessi maturano una volta che hai almeno {{amount}} HBD nei risparmi.",
+      "note": "Gli interessi sono calcolati in modo continuo al TAEG {{apr}}%.",
+      "claim-button": "Richiedi interesse"
+    },
     "claim-rewards": "Richiedi ricompense",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Rivendicazione...",
