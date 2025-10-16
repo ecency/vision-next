@@ -18,6 +18,15 @@ export function HpDelegationsCard({ username }: Props) {
   const [showDelegated, setShowDelegated] = useState(false);
   const [showReceived, setShowReceived] = useState(false);
 
+  const outgoingDelegations =
+    data?.parts?.find((part) =>
+      ["outgoing_delegations", "delegating"].includes(part.name)
+    )?.balance ?? 0;
+  const incomingDelegations =
+    data?.parts?.find((part) =>
+      ["incoming_delegations", "received"].includes(part.name)
+    )?.balance ?? 0;
+
   return (
     <>
       <ProfileWalletTokenHistoryCard title={i18next.t("profile-wallet.delegations")}>
@@ -26,15 +35,19 @@ export function HpDelegationsCard({ username }: Props) {
             className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 duration-300"
             onClick={() => setShowDelegated(true)}
           >
-            <div className="text-sm text-gray-600 dark:text-gray-400">{data?.parts?.[0].name}</div>
-            <div className="text-xl font-bold">{format.format(data?.parts?.[0].balance ?? 0)}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {i18next.t("profile-wallet.delegations-outgoing")}
+            </div>
+            <div className="text-xl font-bold">{format.format(outgoingDelegations)}</div>
           </div>
           <div
             className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 duration-300"
             onClick={() => setShowReceived(true)}
           >
-            <div className="text-sm text-gray-600 dark:text-gray-400">{data?.parts?.[1].name}</div>
-            <div className="text-xl font-bold">{format.format(data?.parts?.[1].balance ?? 0)}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {i18next.t("profile-wallet.delegations-incoming")}
+            </div>
+            <div className="text-xl font-bold">{format.format(incomingDelegations)}</div>
           </div>
         </div>
       </ProfileWalletTokenHistoryCard>
@@ -43,7 +56,7 @@ export function HpDelegationsCard({ username }: Props) {
         username={username}
         show={showDelegated}
         setShow={setShowDelegated}
-        totalDelegated={`${data?.parts?.[0].balance}`}
+        totalDelegated={`${outgoingDelegations}`}
       />
     </>
   );

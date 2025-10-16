@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
+import i18next from "i18next";
 import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
 import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
 
@@ -63,12 +64,16 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     return undefined;
   }, [allTokens?.layer2, asset, data]);
 
-  if (!data) {
-    return <ProfileWalletTokensListItemLoading />;
-  }
-
-  const formattedAccountBalance = data.accountBalance.toFixed(3);
-  const totalBalanceValue = (data.accountBalance ?? 0) * (data.price ?? 0);
+  const isHpAsset = data?.name === "HP" || asset === "HP";
+  const totalHpBalance = Number(data?.accountBalance ?? 0);
+  const formattedAccountBalance = totalHpBalance.toFixed(3);
+  const totalBalanceValue = totalHpBalance * (data?.price ?? 0);
+  const outgoingHpDelegations = Number(
+    data?.parts?.find((part) => part.name === "outgoing_delegations")?.balance ?? 0
+  );
+  const incomingHpDelegations = Number(
+    data?.parts?.find((part) => part.name === "incoming_delegations")?.balance ?? 0
+  );
 
   const formatPartLabel = (name?: string) => {
     if (!name) {
@@ -85,6 +90,29 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
 
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
+
+  const detailRows = isHpAsset
+    ? [
+        {
+          key: "outgoing_delegations",
+          label: i18next.t("profile-wallet.delegations-outgoing"),
+          balance: outgoingHpDelegations,
+        },
+        {
+          key: "incoming_delegations",
+          label: i18next.t("profile-wallet.delegations-incoming"),
+          balance: incomingHpDelegations,
+        },
+      ]
+    : (data?.parts ?? []).map((part, index) => ({
+        key: part.name ?? `part-${index}`,
+        label: formatPartLabel(part.name),
+        balance: Number(part.balance ?? 0),
+      }));
+
+  if (!data) {
+    return <ProfileWalletTokensListItemLoading />;
+  }
 
   const targetHref = `/@${sanitizedUsername}/wallet/${asset.toLowerCase()}`;
 
@@ -115,19 +143,21 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
           </div>
           <div className="text-gray-900 dark:text-white">
             <div className="text-base font-semibold">{formattedAccountBalance}</div>
-            {data?.parts?.map(({ name, balance }, index) => {
-              const label = formatPartLabel(name);
-
-              return (
-                <div
-                  key={name || `part-${index}`}
-                  className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500"
-                >
-                  <div>{label ? `${label}:` : ""}</div>
-                  <div>{Number(balance).toFixed(3)}</div>
-                </div>
-              );
-            })}
+            {isHpAsset && (
+              <div className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500">
+                <div>{`${i18next.t("profile-wallet.hp-total-balance")}:`}</div>
+                <div>{totalHpBalance.toFixed(3)}</div>
+              </div>
+            )}
+            {detailRows.map(({ key, label, balance }) => (
+              <div
+                key={key}
+                className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500"
+              >
+                <div>{label ? `${label}:` : ""}</div>
+                <div>{balance.toFixed(3)}</div>
+              </div>
+            ))}
             <div className="text-sm text-gray-600 dark:text-gray-400">
               <FormattedCurrency value={totalBalanceValue} fixAt={2} />
             </div>

@@ -754,33 +754,76 @@ function getHivePowerAssetGeneralInfoQueryOptions(username) {
       const marketTicker = await sdk.CONFIG.hiveClient.call("condenser_api", "get_ticker", []).catch(() => void 0);
       const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
       const price = Number.isFinite(marketPrice) ? marketPrice : dynamicProps.base / dynamicProps.quote;
+      const vestingShares = parseAsset(accountData.vesting_shares).amount;
+      const delegatedVests = parseAsset(accountData.delegated_vesting_shares).amount;
+      const receivedVests = parseAsset(accountData.received_vesting_shares).amount;
+      const withdrawRateVests = parseAsset(accountData.vesting_withdraw_rate).amount;
+      const remainingToWithdrawVests = Math.max(
+        (Number(accountData.to_withdraw) - Number(accountData.withdrawn)) / 1e6,
+        0
+      );
+      const nextWithdrawalVests = !isEmptyDate(accountData.next_vesting_withdrawal) ? Math.min(withdrawRateVests, remainingToWithdrawVests) : 0;
+      const hpBalance = +vestsToHp(
+        vestingShares,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const outgoingDelegationsHp = +vestsToHp(
+        delegatedVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const incomingDelegationsHp = +vestsToHp(
+        receivedVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const pendingPowerDownHp = +vestsToHp(
+        remainingToWithdrawVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const nextPowerDownHp = +vestsToHp(
+        nextWithdrawalVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const totalBalance = Math.max(hpBalance - pendingPowerDownHp, 0);
+      const availableHp = Math.max(
+        // Owned HP minus the portions already delegated away.
+        hpBalance - outgoingDelegationsHp,
+        0
+      );
       return {
         name: "HP",
         title: "Hive Power",
         price,
-        accountBalance: +vestsToHp(
-          parseAsset(accountData.vesting_shares).amount,
-          // parseAsset(accountData.delegated_vesting_shares).amount +
-          // parseAsset(accountData.received_vesting_shares).amount -
-          // nextVestingSharesWithdrawal,
-          dynamicProps.hivePerMVests
-        ).toFixed(3),
+        accountBalance: +totalBalance.toFixed(3),
         apr: getAPR(dynamicProps),
         parts: [
           {
-            name: "delegating",
-            balance: +vestsToHp(
-              parseAsset(accountData.delegated_vesting_shares).amount,
-              dynamicProps.hivePerMVests
-            ).toFixed(3)
+            name: "hp_balance",
+            balance: hpBalance
           },
           {
-            name: "received",
-            balance: +vestsToHp(
-              parseAsset(accountData.received_vesting_shares).amount,
-              dynamicProps.hivePerMVests
-            ).toFixed(3)
-          }
+            name: "available",
+            balance: +availableHp.toFixed(3)
+          },
+          {
+            name: "outgoing_delegations",
+            balance: outgoingDelegationsHp
+          },
+          {
+            name: "incoming_delegations",
+            balance: incomingDelegationsHp
+          },
+          ...pendingPowerDownHp > 0 ? [
+            {
+              name: "pending_power_down",
+              balance: +pendingPowerDownHp.toFixed(3)
+            }
+          ] : [],
+          ...nextPowerDownHp > 0 && nextPowerDownHp !== pendingPowerDownHp ? [
+            {
+              name: "next_power_down",
+              balance: +nextPowerDownHp.toFixed(3)
+            }
+          ] : []
         ]
       };
     }
@@ -3099,10 +3142,28 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
           const savingsBalance = assetInfo?.parts?.find(
             (part) => part.name === "savings"
           )?.balance;
+          const pendingSavingsWithdrawAmount = await (async () => {
+            if (!isForOwner || !username) {
+              return 0;
+            }
+            try {
+              const response = await sdk.CONFIG.hiveClient.database.call(
+                "get_savings_withdraw_from",
+                [username]
+              );
+              return response.reduce((total, request) => {
+                const parsed = parseAsset(request.amount);
+                return parsed.symbol === "HIVE" /* HIVE */ ? total + parsed.amount : total;
+              }, 0);
+            } catch {
+              return 0;
+            }
+          })();
+          const hasAvailableSavingsWithdraw = typeof savingsBalance === "number" && savingsBalance - pendingSavingsWithdrawAmount > 1e-6;
           return [
             "transfer" /* Transfer */,
             ...isForOwner ? [
-              ...savingsBalance && savingsBalance > 0 ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
+              ...hasAvailableSavingsWithdraw ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
               "transfer-saving" /* TransferToSavings */,
               "power-up" /* PowerUp */,
               "swap" /* Swap */
@@ -3119,10 +3180,28 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
           const savingsBalance = assetInfo?.parts?.find(
             (part) => part.name === "savings"
           )?.balance;
+          const pendingSavingsWithdrawAmount = await (async () => {
+            if (!isForOwner || !username) {
+              return 0;
+            }
+            try {
+              const response = await sdk.CONFIG.hiveClient.database.call(
+                "get_savings_withdraw_from",
+                [username]
+              );
+              return response.reduce((total, request) => {
+                const parsed = parseAsset(request.amount);
+                return parsed.symbol === "HBD" /* HBD */ ? total + parsed.amount : total;
+              }, 0);
+            } catch {
+              return 0;
+            }
+          })();
+          const hasAvailableSavingsWithdraw = typeof savingsBalance === "number" && savingsBalance - pendingSavingsWithdrawAmount > 1e-6;
           return [
             "transfer" /* Transfer */,
             ...isForOwner ? [
-              ...savingsBalance && savingsBalance > 0 ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
+              ...hasAvailableSavingsWithdraw ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
               "transfer-saving" /* TransferToSavings */,
               "swap" /* Swap */
             ] : []

@@ -1,11 +1,13 @@
 import {
   AssetOperation,
+  Symbol as AssetSymbol,
   getHiveEngineTokensBalancesQueryOptions,
   getHiveEngineTokensMetadataQueryOptions,
+  parseAsset,
 } from "@/modules/assets";
 import type { GeneralAssetInfo } from "@/modules/assets";
 import { getAccountWalletAssetInfoQueryOptions } from "./get-account-wallet-asset-info-query-options";
-import { getQueryClient } from "@ecency/sdk";
+import { CONFIG, getQueryClient } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { EcencyWalletBasicTokens } from "../enums";
 
@@ -35,12 +37,38 @@ export function getTokenOperationsQueryOptions(
           const savingsBalance = assetInfo?.parts?.find(
             (part) => part.name === "savings"
           )?.balance;
+          const pendingSavingsWithdrawAmount = await (async () => {
+            if (!isForOwner || !username) {
+              return 0;
+            }
+
+            try {
+              const response = (await CONFIG.hiveClient.database.call(
+                "get_savings_withdraw_from",
+                [username]
+              )) as { amount: string }[];
+
+              return response.reduce((total, request) => {
+                const parsed = parseAsset(request.amount);
+
+                return parsed.symbol === AssetSymbol.HIVE
+                  ? total + parsed.amount
+                  : total;
+              }, 0);
+            } catch {
+              return 0;
+            }
+          })();
+
+          const hasAvailableSavingsWithdraw =
+            typeof savingsBalance === "number" &&
+            savingsBalance - pendingSavingsWithdrawAmount > 0.000001;
 
           return [
             AssetOperation.Transfer,
             ...(isForOwner
               ? [
-                  ...(savingsBalance && savingsBalance > 0
+                  ...(hasAvailableSavingsWithdraw
                     ? [AssetOperation.WithdrawFromSavings]
                     : []),
                   AssetOperation.TransferToSavings,
@@ -62,12 +90,38 @@ export function getTokenOperationsQueryOptions(
           const savingsBalance = assetInfo?.parts?.find(
             (part) => part.name === "savings"
           )?.balance;
+          const pendingSavingsWithdrawAmount = await (async () => {
+            if (!isForOwner || !username) {
+              return 0;
+            }
+
+            try {
+              const response = (await CONFIG.hiveClient.database.call(
+                "get_savings_withdraw_from",
+                [username]
+              )) as { amount: string }[];
+
+              return response.reduce((total, request) => {
+                const parsed = parseAsset(request.amount);
+
+                return parsed.symbol === AssetSymbol.HBD
+                  ? total + parsed.amount
+                  : total;
+              }, 0);
+            } catch {
+              return 0;
+            }
+          })();
+
+          const hasAvailableSavingsWithdraw =
+            typeof savingsBalance === "number" &&
+            savingsBalance - pendingSavingsWithdrawAmount > 0.000001;
 
           return [
             AssetOperation.Transfer,
             ...(isForOwner
               ? [
-                  ...(savingsBalance && savingsBalance > 0
+                  ...(hasAvailableSavingsWithdraw
                     ? [AssetOperation.WithdrawFromSavings]
                     : []),
                   AssetOperation.TransferToSavings,

@@ -39,11 +39,44 @@ export function WalletOperationPowerDown({ username, asset, onSubmit, showSubmit
     [account, hivePerMVests]
   );
 
-  const maxAccountBalanceRef = useRef(accountWallet?.accountBalance ?? 0.001);
+  const hpBalance = useMemo(
+    () =>
+      Number(
+        accountWallet?.parts?.find((part) => part.name === "hp_balance")?.balance ??
+          accountWallet?.accountBalance ??
+          0
+      ),
+    [accountWallet?.accountBalance, accountWallet?.parts]
+  );
+
+  const outgoingDelegations = useMemo(
+    () =>
+      Number(
+        accountWallet?.parts?.find((part) => part.name === "outgoing_delegations")
+          ?.balance ?? 0
+      ),
+    [accountWallet?.parts]
+  );
+
+  const pendingPowerDown = useMemo(
+    () =>
+      Number(
+        accountWallet?.parts?.find((part) => part.name === "pending_power_down")
+          ?.balance ?? 0
+      ),
+    [accountWallet?.parts]
+  );
+
+  const availableForPowerDown = useMemo(
+    () => Math.max(hpBalance - outgoingDelegations - pendingPowerDown, 0),
+    [hpBalance, outgoingDelegations, pendingPowerDown]
+  );
+
+  const maxAccountBalanceRef = useRef(availableForPowerDown);
 
   useEffect(() => {
-    maxAccountBalanceRef.current = accountWallet?.accountBalance ?? 0.001;
-  }, [accountWallet?.accountBalance]);
+    maxAccountBalanceRef.current = availableForPowerDown;
+  }, [availableForPowerDown]);
 
   const resolver = useCallback(
     (...args: Parameters<ReturnType<typeof yupResolver>>) =>
@@ -52,8 +85,8 @@ export function WalletOperationPowerDown({ username, asset, onSubmit, showSubmit
           amount: yup
             .number()
             .required(i18next.t("validation.required"))
-            .min(0.001)
-            .max(maxAccountBalanceRef.current),
+            .min(maxAccountBalanceRef.current > 0 ? 0.001 : 0)
+            .max(Math.max(maxAccountBalanceRef.current, 0)),
         })
       )(...args),
     []
@@ -62,15 +95,13 @@ export function WalletOperationPowerDown({ username, asset, onSubmit, showSubmit
   const methods = useForm({
     resolver,
     defaultValues: {
-      amount: accountWallet?.accountBalance ?? 0,
+      amount: availableForPowerDown,
     },
   });
 
   useEffect(() => {
-    if (accountWallet?.accountBalance) {
-      methods.setValue("amount", accountWallet.accountBalance);
-    }
-  }, [accountWallet?.accountBalance, methods]);
+    methods.setValue("amount", availableForPowerDown);
+  }, [availableForPowerDown, methods]);
 
   const amountValue = methods.watch("amount");
 
@@ -81,7 +112,7 @@ export function WalletOperationPowerDown({ username, asset, onSubmit, showSubmit
           label="from"
           asset={asset}
           username={username}
-          onBalanceClick={(value) => methods.setValue("amount", value)}
+          onBalanceClick={() => methods.setValue("amount", availableForPowerDown)}
         />
       </div>
 
