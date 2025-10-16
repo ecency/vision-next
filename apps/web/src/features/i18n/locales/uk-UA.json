@@ -2930,10 +2930,14 @@
     "apr": "Нагороди APR",
     "apr-hint": "Щорічний відсоток - оцінка нагород, яку ви отримаєте в Криптовалюті за обраний термін",
     "delegations": "Делегації",
+    "hp-total-balance": "Загальний баланс ОЗ",
+    "delegations-outgoing": "Делегації вихідних",
+    "delegations-incoming": "Вхідні делегації",
     "external-wallets-offer": {
       "title": "Принесіть свою криптовалюту до території",
       "description": "Створіть чи імпортуйте гаманці для BTC, ETH, BNB, SOL, TRX, APT і TON безпосередньо з таких програм, як Trust або Exodus, і починайте використовувати їх безперешкодно в екосистемі вулив.",
-      "hint": "Інформація про створені і імпортовані токени буде збережена в метаданих Ecency і Hive акаунту"
+      "hint": "Інформація про створені і імпортовані токени буде збережена в метаданих Ecency і Hive акаунту",
+      "dismiss": "Мабуть пізніше"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Створити обліковий запис Hive",
@@ -2962,6 +2966,18 @@
       "stake": "Сума ставки",
       "unstake": "Недовірений",
       "undelegate": "Унделегат"
+    },
+    "hbd-interest": {
+      "title": "Індекс економії на HBD",
+      "next-label": "Наступне захоплення",
+      "next-ready": "Готовий до отримання винагороди",
+      "next-in": "Доступно {{relative}}",
+      "next-unknown": "Розклад інтересу недоступний",
+      "next-date": "On {{date}}",
+      "balance-label": "Баланс заощаджень",
+      "minimum-balance": "Interest accrues once you hold at least {{amount}} HBD in savings.",
+      "note": "Процент розраховується постійно на {{apr}}% APR.",
+      "claim-button": "Зажадати інтерес"
     },
     "claim-rewards": "Запит винагороди",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",

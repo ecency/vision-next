@@ -2930,10 +2930,14 @@
     "apr": "Recompensas da Aprão",
     "apr-hint": "年間割合 - 選択した期間にわたってCryptocurrencyで獲得する報酬の推定値",
     "delegations": "委任事項",
+    "hp-total-balance": "合計HP残高",
+    "delegations-outgoing": "委任状",
+    "delegations-incoming": "委任を受信する",
     "external-wallets-offer": {
       "title": "暗号通貨をEcencyに届けよう",
       "description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットをTrustやExodusなどのアプリから直接作成またはインポートします Hiveエコシステム内でシームレスに使用し始めます。",
-      "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます"
+      "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます",
+      "dismiss": "たぶん後で"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Hiveアカウントの作成とリンク",
@@ -2962,6 +2966,18 @@
       "stake": "ステーク（ステーク）",
       "unstake": "ステーク解除",
       "undelegate": "委任解除"
+    },
+    "hbd-interest": {
+      "title": "HBD貯蓄利率",
+      "next-label": "次の請求",
+      "next-ready": "今すぐ請求する準備ができました",
+      "next-in": "利用可能な {{relative}}",
+      "next-unknown": "インタレストスケジュールが利用できません",
+      "next-date": "{{date}}",
+      "balance-label": "貯蓄残高",
+      "minimum-balance": "少なくとも {{amount}} HBDを貯蓄中に保持すると、利息が発生します。",
+      "note": "利息は {{apr}}%のAPRで継続的に計算されます。",
+      "claim-button": "利息を受け取る"
     },
     "claim-rewards": "報酬を要求する",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",

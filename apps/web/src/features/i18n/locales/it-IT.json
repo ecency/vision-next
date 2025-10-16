@@ -2930,10 +2930,14 @@
     "apr": "Ricompense APR",
     "apr-hint": "Tasso percentuale annuale – una stima dei premi che otterrai in Criptovaluta nel periodo di tempo selezionato",
     "delegations": "Delegazioni",
+    "hp-total-balance": "Saldo HP totale",
+    "delegations-outgoing": "Delegazioni uscenti",
+    "delegations-incoming": "Delegazioni in arrivo",
     "external-wallets-offer": {
       "title": "Porta le tue criptovalute in Ecenza",
       "description": "Crea o importa portafogli per BTC, ETH, BNB, SOL, TRX, APT e TON direttamente da app come Trust o Exodus, e iniziare a usarli senza soluzione di continuità all'interno dell'ecosistema Hive.",
-      "hint": "Le informazioni di token create e importate saranno memorizzate in un account Ecency e Hive metadati"
+      "hint": "Le informazioni di token create e importate saranno memorizzate in un account Ecency e Hive metadati",
+      "dismiss": "Forse più tardi"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Crea un & collegamento ad un account Hive",
@@ -2962,6 +2966,18 @@
       "stake": "Stake",
       "unstake": "Spostare",
       "undelegate": "Undelegate"
+    },
+    "hbd-interest": {
+      "title": "Interessi di risparmio HBD",
+      "next-label": "Prossimo reclamo",
+      "next-ready": "Pronto a reclamare ora",
+      "next-in": "Disponibile {{relative}}",
+      "next-unknown": "Schema di interessi non disponibile",
+      "next-date": "On {{date}}",
+      "balance-label": "Saldo di risparmio",
+      "minimum-balance": "Gli interessi maturano una volta che hai almeno {{amount}} HBD nei risparmi.",
+      "note": "Gli interessi sono calcolati in modo continuo al TAEG {{apr}}%.",
+      "claim-button": "Richiedi interesse"
     },
     "claim-rewards": "Richiedi ricompense",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
