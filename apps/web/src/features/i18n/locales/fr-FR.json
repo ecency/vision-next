@@ -2963,6 +2963,18 @@
       "unstake": "Retirer",
       "undelegate": "Ne plus déléguer"
     },
+    "hbd-interest": {
+      "title": "Intérêt d'épargne HBD",
+      "next-label": "Prochaine revendication",
+      "next-ready": "Prêt à réclamer maintenant",
+      "next-in": "Available {{relative}}",
+      "next-unknown": "Calendrier des intérêts indisponible",
+      "next-date": "Sur {{date}}",
+      "balance-label": "Solde d'épargne",
+      "minimum-balance": "Les intérêts sont accrus une fois que vous détenez au moins {{amount}} HBD en économie.",
+      "note": "Les intérêts sont calculés en permanence à {{apr}}% TPB.",
+      "claim-button": "Revendiquer l'intérêt"
+    },
     "claim-rewards": "Réclamer les récompenses",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Revendication...",
