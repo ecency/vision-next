@@ -17,6 +17,7 @@ import { WalletOperationCard } from "./wallet-opearation-card";
 import { WalletOperationAmountForm } from "./wallet-operation-amount-form";
 import { formatNumber } from "@/utils";
 import { CONFIG } from "@ecency/sdk";
+import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
 
 interface Props {
   to?: string;
@@ -384,14 +385,19 @@ export function WalletOperationsTransfer({
       <FormProvider {...methods}>
         <form
           className="block"
-          onSubmit={methods.handleSubmit((data) =>
+          onSubmit={methods.handleSubmit((data) => {
+            const amountString =
+              asset === "HP" && operation === AssetOperation.Delegate
+                ? hpToVests(Number(data.amount), hivePerMVests)
+                : `${formatNumber(data.amount, 3)} ${asset}`;
+
             onSubmit({
               ...data,
-              amount: `${formatNumber(data.amount, 3)} ${asset}`,
+              amount: amountString,
               from: username,
-              to: sanitizedTo
-            })
-          )}
+              to: sanitizedTo,
+            });
+          })}
         >
           <div className="border-y border-[--border-color] flex flex-col py-4 gap-4 font-mono">
             <WalletOperationAmountForm readonly={!showSubmit} showMemo={showMemo} />
