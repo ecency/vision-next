@@ -10,9 +10,9 @@ import {
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useMemo } from "react";
-import { ProfileWalletTokensListItemPoints } from "./profile-wallet-tokens-list-item-points";
+import i18next from "i18next";
 import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
 
 interface Props {
@@ -32,8 +32,6 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const { data: allTokens } = useQuery(
     getAllTokensListQueryOptions(sanitizedUsername)
   );
-
-  const router = useRouter();
 
   const logo = useMemo(() => {
     const layer2Token = allTokens?.layer2?.find((token) => token.symbol === asset);
@@ -65,58 +63,106 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     return undefined;
   }, [allTokens?.layer2, asset, data]);
 
+  const isHpAsset = data?.name === "HP" || asset === "HP";
+  const totalHpBalance = Number(data?.accountBalance ?? 0);
+  const formattedAccountBalance = totalHpBalance.toFixed(3);
+  const totalBalanceValue = totalHpBalance * (data?.price ?? 0);
+  const outgoingHpDelegations = Number(
+    data?.parts?.find((part) => part.name === "outgoing_delegations")?.balance ?? 0
+  );
+  const incomingHpDelegations = Number(
+    data?.parts?.find((part) => part.name === "incoming_delegations")?.balance ?? 0
+  );
+
+  const formatPartLabel = (name?: string) => {
+    if (!name) {
+      return "";
+    }
+
+    if (name === "current") {
+      return "Current";
+    }
+
+    if (name === "savings") {
+      return "Savings";
+    }
+
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  };
+
+  const detailRows = isHpAsset
+    ? [
+        {
+          key: "outgoing_delegations",
+          label: i18next.t("profile-wallet.delegations-outgoing"),
+          balance: outgoingHpDelegations,
+        },
+        {
+          key: "incoming_delegations",
+          label: i18next.t("profile-wallet.delegations-incoming"),
+          balance: incomingHpDelegations,
+        },
+      ]
+    : (data?.parts ?? []).map((part, index) => ({
+        key: part.name ?? `part-${index}`,
+        label: formatPartLabel(part.name),
+        balance: Number(part.balance ?? 0),
+      }));
+
   if (!data) {
     return <ProfileWalletTokensListItemLoading />;
   }
 
-  const formattedAccountBalance = data.accountBalance.toFixed(3);
-  const totalBalanceValue = (data.accountBalance ?? 0) * (data.price ?? 0);
+  const targetHref = `/@${sanitizedUsername}/wallet/${asset.toLowerCase()}`;
 
   return (
-    <div
-      className="border-b last:border-0 border-[--border-color] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900"
-      onClick={() =>
-        router.push(`/@${sanitizedUsername}/wallet/${asset.toLowerCase()}`)
-      }
-    >
-      <div className="grid grid-cols-4 p-3 md:p-4">
-        <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
-          <div className="mt-1">{logo}</div>
-          <div>
-            <div>{data?.title}</div>
-            <div className="flex items-center gap-1">
-              <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
-              {data?.layer && (
-                <Badge className="!rounded-lg !p-0 !px-1" appearance="secondary">
-                  {data.layer}
-                </Badge>
-              )}
+    <div className="border-b last:border-0 border-[--border-color]">
+      <Link
+        href={targetHref}
+        className="block cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-dark-sky"
+      >
+        <div className="grid grid-cols-4 p-3 md:p-4">
+          <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
+            <div className="mt-1">{logo}</div>
+            <div>
+              <div>{data?.title}</div>
+              <div className="flex items-center gap-1">
+                <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
+                {data?.layer && (
+                  <Badge className="!rounded-lg !p-0 !px-1" appearance="secondary">
+                    {data.layer}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+          </div>
+          <div className="text-gray-900 dark:text-white">
+            <div className="text-base font-semibold">{formattedAccountBalance}</div>
+            {isHpAsset && (
+              <div className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500">
+                <div>{`${i18next.t("profile-wallet.hp-total-balance")}:`}</div>
+                <div>{totalHpBalance.toFixed(3)}</div>
+              </div>
+            )}
+            {detailRows.map(({ key, label, balance }) => (
+              <div
+                key={key}
+                className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500"
+              >
+                <div>{label ? `${label}:` : ""}</div>
+                <div>{balance.toFixed(3)}</div>
+              </div>
+            ))}
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              <FormattedCurrency value={totalBalanceValue} fixAt={2} />
             </div>
           </div>
         </div>
-        <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
-          <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
-        </div>
-        <div className="text-gray-900 dark:text-white">
-          <div className="text-base font-semibold">{formattedAccountBalance}</div>
-          {data?.parts?.map(({ name, balance }, index) => (
-            <div
-              key={name || `part-${index}`}
-              className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500"
-            >
-              <div>{name}:</div>
-              <div>{Number(balance).toFixed(3)}</div>
-            </div>
-          ))}
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            <FormattedCurrency value={totalBalanceValue} fixAt={2} />
-          </div>
-        </div>
-      </div>
-      {asset === "POINTS" && (
-        <ProfileWalletTokensListItemPoints username={sanitizedUsername} />
-      )}
+      </Link>
     </div>
   );
 }

@@ -7,13 +7,26 @@ import { getCurrencyRate } from "@/api/misc";
 import { currencySymbol, runWithRetries } from "@/utils";
 
 export function createGlobalState() {
+  const storedCurrency = ls.get("currency");
+  const storedCurrencyRate = ls.get("currency_rate");
+  const storedCurrencySymbol = ls.get("currency_symbol");
+  const initialCurrency = typeof storedCurrency === "string" ? storedCurrency : "hbd";
+  const initialCurrencyRate =
+    typeof storedCurrencyRate === "number" && !Number.isNaN(storedCurrencyRate)
+      ? storedCurrencyRate
+      : 1;
+  const initialCurrencySymbol =
+    typeof storedCurrencySymbol === "string"
+      ? storedCurrencySymbol
+      : currencySymbol(initialCurrency);
+
   return {
     theme: Cookies.get("theme") || Theme.day,
     listStyle: ListStyle.row,
     intro: true,
-    currency: "hbd",
-    currencyRate: 1,
-    currencySymbol: "$",
+    currency: initialCurrency,
+    currencyRate: initialCurrencyRate,
+    currencySymbol: initialCurrencySymbol,
     lang: ls.get("lang") || ls.get("current-language") || "en-US",
     searchIndexCount: 0,
     canUseWebp: false,
@@ -76,6 +89,9 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
     async setCurrency(currency: string) {
       const rate = await getCurrencyRate(currency);
       const symbol = currencySymbol(currency);
+      ls.set("currency", currency);
+      ls.set("currency_rate", rate);
+      ls.set("currency_symbol", symbol);
       set({
         currency,
         currencyRate: rate,

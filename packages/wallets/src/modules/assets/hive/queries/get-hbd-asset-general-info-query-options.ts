@@ -65,7 +65,7 @@ export function getHbdAssetGeneralInfoQueryOptions(username: string) {
         apr: ((dynamicProps?.hbdInterestRate ?? 0) / 100).toFixed(3),
         parts: [
           {
-            name: "account",
+            name: "current",
             balance: parseAsset(accountData.hbd_balance).amount,
           },
           {

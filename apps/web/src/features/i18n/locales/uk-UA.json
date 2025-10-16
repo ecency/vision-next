@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Вибрати токени для відображення",
     "search-token": "Пошук маркер",
-    "setup-tokens": "Налаштування активів",
+    "setup-tokens": "Керувати токенами",
     "asset-name": "Назва активу",
     "price": "Ціна",
     "balance": "Баланс",
@@ -2963,6 +2963,10 @@
       "unstake": "Недовірений",
       "undelegate": "Унделегат"
     },
+    "claim-rewards": "Запит винагороди",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Захоплення...",
+    "claim-rewards-success": "Успішно захоплено {{amount}} {{token}}",
     "external": {
       "receive-button": "Отримання",
       "transfer-soon": "Передача (скоро)",

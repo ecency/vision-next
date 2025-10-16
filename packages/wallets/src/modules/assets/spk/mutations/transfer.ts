@@ -5,7 +5,6 @@ import hs from "hivesigner";
 import { parseAsset } from "../../utils";
 
 interface SpkTransferPayload<T extends HiveBasedAssetSignType> {
-  id: string;
   from: string;
   to: string;
   amount: string;
@@ -20,12 +19,12 @@ export async function transferSpk<T extends HiveBasedAssetSignType>(
 ) {
   const json = JSON.stringify({
     to: payload.to,
-    amount: +payload.amount * 1000,
+    amount: parseAsset(payload.amount).amount * 1000,
     ...(typeof payload.memo === "string" ? { memo: payload.memo } : {}),
   });
 
   const op = {
-    id: payload.id,
+    id: "spkcc_spk_send",
     json,
     required_auths: [payload.from],
     required_posting_auths: [],
@@ -37,7 +36,7 @@ export async function transferSpk<T extends HiveBasedAssetSignType>(
   } else if (payload.type === "keychain") {
     return Keychain.customJson(
       payload.from,
-      payload.id,
+      "spkcc_spk_send",
       "Active",
       json,
       payload.to
@@ -50,7 +49,7 @@ export async function transferSpk<T extends HiveBasedAssetSignType>(
         authority: "active",
         required_auths: `["${payload.from}"]`,
         required_posting_auths: "[]",
-        id: payload.id,
+        id: "spkcc_spk_send",
         json: JSON.stringify({
           to: payload.to,
           amount: +amount * 1000,

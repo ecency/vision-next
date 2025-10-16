@@ -2,6 +2,7 @@ import React, { ReactElement } from "react";
 import i18next from "i18next";
 import { ApiBookmarkNotification } from "@/entities";
 import { EntryLink } from "@/features/shared";
+import { getNotificationEntryCategory } from "../utils";
 
 interface Props {
   sourceLink: ReactElement;
@@ -32,7 +33,7 @@ export function NotificationBookmarkType({
         ) : (
           <EntryLink
             entry={{
-              category: "category",
+              category: getNotificationEntryCategory(notification) ?? "created",
               author: notification.author,
               permlink: notification.permlink
             }}

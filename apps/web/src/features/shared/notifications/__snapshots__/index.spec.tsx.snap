@@ -53,7 +53,7 @@ exports[`(1) NotificationListItem (1) Vote  1`] = `
           <span
             className="source-name"
           >
-             
+
             fooo10
           </span>
         </a>
@@ -68,7 +68,7 @@ exports[`(1) NotificationListItem (1) Vote  1`] = `
       >
         <a
           className="post-link"
-          href="/category/@good-karma/update-on-hivesigner-integration-into-condenser"
+          href="/created/@good-karma/update-on-hivesigner-integration-into-condenser"
           onClick={[Function]}
         >
           update-on-hivesigner-integration-into-condenser
@@ -132,7 +132,7 @@ exports[`(1) NotificationListItem (2) Mention  1`] = `
           <span
             className="source-name"
           >
-             
+
             ecency.stats
           </span>
         </a>
@@ -147,7 +147,7 @@ exports[`(1) NotificationListItem (2) Mention  1`] = `
       >
         <a
           className="post-link"
-          href="/category/@ecency.stats/daily-activities-points-2020-07-24"
+          href="/created/@ecency.stats/daily-activities-points-2020-07-24"
           onClick={[Function]}
         >
           daily-activities-points-2020-07-24
@@ -211,7 +211,7 @@ exports[`(1) NotificationListItem (3) Follow  1`] = `
           <span
             className="source-name"
           >
-             
+
             fooo10
           </span>
         </a>
@@ -277,7 +277,7 @@ exports[`(1) NotificationListItem (4) Unfollow  1`] = `
           <span
             className="source-name"
           >
-             
+
             fooo102
           </span>
         </a>
@@ -343,7 +343,7 @@ exports[`(1) NotificationListItem (5) Reply  1`] = `
           <span
             className="source-name"
           >
-             
+
             dunsky
           </span>
         </a>
@@ -357,7 +357,7 @@ exports[`(1) NotificationListItem (5) Reply  1`] = `
         />
         <a
           className="post-link"
-          href="/category/@good-karma/re-dunsky-2020713t164324912z"
+          href="/ecency/@good-karma/re-dunsky-2020713t164324912z"
           onClick={[Function]}
         >
           re-dunsky-2020713t164324912z
@@ -368,7 +368,7 @@ exports[`(1) NotificationListItem (5) Reply  1`] = `
       >
         <a
           className="markdown-view mini-markdown reply-body"
-          href="/category/@dunsky/re-good-karma-2020721t1915968z"
+            href="/ecency/@dunsky/re-good-karma-2020721t1915968z"
           onClick={[Function]}
         >
           Testing replies from Ecency web interface 😎
@@ -432,7 +432,7 @@ exports[`(1) NotificationListItem (6) Reblog  1`] = `
           <span
             className="source-name"
           >
-             
+
             foo220
           </span>
         </a>
@@ -447,7 +447,7 @@ exports[`(1) NotificationListItem (6) Reblog  1`] = `
       >
         <a
           className="post-link"
-          href="/category/@good-karma/update-on-hivesigner-integration-into-condenser"
+          href="/created/@good-karma/update-on-hivesigner-integration-into-condenser"
           onClick={[Function]}
         >
           update-on-hivesigner-integration-into-condenser
@@ -505,7 +505,7 @@ exports[`(1) NotificationListItem (7) Transfer  1`] = `
           <span
             className="source-name"
           >
-             
+
             bar212
           </span>
         </a>
@@ -513,7 +513,7 @@ exports[`(1) NotificationListItem (7) Transfer  1`] = `
           className="item-action"
         >
           sent
-           
+
           <span
             className="transfer-amount"
           >
@@ -521,7 +521,7 @@ exports[`(1) NotificationListItem (7) Transfer  1`] = `
           </span>
         </span>
       </div>
-      
+
     </div>
   </div>
 </div>

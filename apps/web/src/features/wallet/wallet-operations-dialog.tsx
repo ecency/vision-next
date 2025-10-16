@@ -89,7 +89,9 @@ export function WalletOperationsDialog({
           AssetOperation.PowerUp,
           AssetOperation.Gift,
           AssetOperation.Stake,
-          AssetOperation.Unstake
+          AssetOperation.Unstake,
+          AssetOperation.WithdrawFromSavings,
+          AssetOperation.ClaimInterest,
         ].includes(operation) ||
           (AssetOperation.Delegate === operation && asset !== "LP")) && (
           <WalletOperationsTransfer
@@ -102,6 +104,7 @@ export function WalletOperationsDialog({
             showMemo={[
               AssetOperation.Transfer,
               AssetOperation.TransferToSavings,
+              AssetOperation.WithdrawFromSavings,
               AssetOperation.Delegate,
               AssetOperation.Gift
             ].includes(operation)}

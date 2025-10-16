@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Kies tokens om te tonen",
     "search-token": "Zoek token",
-    "setup-tokens": "Assets instellen",
+    "setup-tokens": "Beheer tokens",
     "asset-name": "Naam element",
     "price": "Prijs",
     "balance": "Saldo",
@@ -2963,6 +2963,10 @@
       "unstake": "Onbelangrijk",
       "undelegate": "Ontdelegeren"
     },
+    "claim-rewards": "Beloningen opeisen",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Ophalen...",
+    "claim-rewards-success": "Succesvol geclaimd {{amount}} {{token}}",
     "external": {
       "receive-button": "Ontvangen",
       "transfer-soon": "Overdracht (binnenkort)",

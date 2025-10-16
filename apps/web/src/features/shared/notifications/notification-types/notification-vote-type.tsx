@@ -1,6 +1,7 @@
 import React, { ReactElement } from "react";
 import { ApiVoteNotification } from "@/entities";
 import { EntryLink } from "@/features/shared";
+import { getNotificationEntryCategory } from "../utils";
 import i18next from "i18next";
 
 interface Props {
@@ -34,7 +35,7 @@ export function NotificationVoteType({
         ) : (
           <EntryLink
             entry={{
-              category: "category",
+              category: getNotificationEntryCategory(notification) ?? "created",
               author: notification.author,
               permlink: notification.permlink
             }}

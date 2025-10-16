@@ -34,6 +34,22 @@ export function getHiveAssetGeneralInfoQueryOptions(username: string) {
 
       const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
 
+      if (!accountData) {
+        return {
+          name: "HIVE",
+          title: "Hive",
+          price: Number.isFinite(marketPrice)
+            ? marketPrice
+            : dynamicProps
+              ? dynamicProps.base / dynamicProps.quote
+              : 0,
+          accountBalance: 0,
+        } satisfies GeneralAssetInfo;
+      }
+
+      const liquidBalance = parseAsset(accountData.balance).amount;
+      const savingsBalance = parseAsset(accountData.savings_balance).amount;
+
       return {
         name: "HIVE",
         title: "Hive",
@@ -42,9 +58,17 @@ export function getHiveAssetGeneralInfoQueryOptions(username: string) {
           : dynamicProps
             ? dynamicProps.base / dynamicProps.quote
             : 0,
-        accountBalance: accountData
-          ? parseAsset(accountData.balance).amount
-          : 0,
+        accountBalance: liquidBalance + savingsBalance,
+        parts: [
+          {
+            name: "current",
+            balance: liquidBalance,
+          },
+          {
+            name: "savings",
+            balance: savingsBalance,
+          },
+        ],
       } satisfies GeneralAssetInfo;
     },
   });

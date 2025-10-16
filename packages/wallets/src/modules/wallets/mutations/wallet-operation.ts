@@ -13,10 +13,13 @@ import {
   transferPoint,
   transferSpk,
   transferToSavingsHive,
+  transferFromSavingsHive,
   undelegateEngineToken,
   unstakeEngineToken,
   withdrawVestingRouteHive,
   powerUpLarynx,
+  transferLarynx,
+  claimInterestHive,
 } from "@/modules/assets";
 import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
@@ -29,11 +32,14 @@ const operationToFunctionMap: Record<
   HIVE: {
     [AssetOperation.Transfer]: transferHive,
     [AssetOperation.TransferToSavings]: transferToSavingsHive,
+    [AssetOperation.WithdrawFromSavings]: transferFromSavingsHive,
     [AssetOperation.PowerUp]: powerUpHive,
   },
   HBD: {
     [AssetOperation.Transfer]: transferHive,
     [AssetOperation.TransferToSavings]: transferToSavingsHive,
+    [AssetOperation.WithdrawFromSavings]: transferFromSavingsHive,
+    [AssetOperation.ClaimInterest]: claimInterestHive,
   },
   HP: {
     [AssetOperation.PowerDown]: powerDownHive,
@@ -47,6 +53,7 @@ const operationToFunctionMap: Record<
     [AssetOperation.Transfer]: transferSpk,
   },
   LARYNX: {
+    [AssetOperation.Transfer]: transferLarynx,
     [AssetOperation.LockLiquidity]: lockLarynx,
     [AssetOperation.PowerUp]: powerUpLarynx,
   },

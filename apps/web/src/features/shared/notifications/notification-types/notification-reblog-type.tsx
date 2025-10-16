@@ -2,6 +2,7 @@ import React, { ReactElement } from "react";
 import { ApiReblogNotification } from "@/entities";
 import i18next from "i18next";
 import { EntryLink } from "@/features/shared";
+import { getNotificationEntryCategory } from "../utils";
 
 interface Props {
   sourceLink: ReactElement;
@@ -30,7 +31,7 @@ export function NotificationReblogType({
         ) : (
           <EntryLink
             entry={{
-              category: "category",
+              category: getNotificationEntryCategory(notification) ?? "created",
               author: notification.author,
               permlink: notification.permlink
             }}

@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "Choisir les jetons à afficher",
     "search-token": "Jeton de recherche",
-    "setup-tokens": "Configuration des ressources",
+    "setup-tokens": "Gérer les jetons",
     "asset-name": "Nom de l'actif",
     "price": "Prix",
     "balance": "Solde",
@@ -2963,6 +2963,10 @@
       "unstake": "Retirer",
       "undelegate": "Ne plus déléguer"
     },
+    "claim-rewards": "Claim rewards",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Claiming...",
+    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
     "external": {
       "receive-button": "Recevoir",
       "transfer-soon": "Transfert (bientôt)",

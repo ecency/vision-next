@@ -5,10 +5,19 @@ export function get(k: string, def: any = null): any {
     return null;
   }
 
+  const key = `${PREFIX}_${k}`;
+
   try {
-    const key = `${PREFIX}_${k}`;
     const val = localStorage.getItem(key);
-    return val ? JSON.parse(val) : def;
+    if (val === null) {
+      return def;
+    }
+
+    try {
+      return JSON.parse(val);
+    } catch (e) {
+      return val;
+    }
   } catch (e) {
     return def;
   }
@@ -46,7 +55,19 @@ export function getByPrefix(prefix: string): any[] {
   try {
     return Object.keys(localStorage)
       .filter((key) => key.indexOf(prefKey) === 0)
-      .map((key) => JSON.parse(localStorage[key]));
+      .map((key) => {
+        const raw = localStorage.getItem(key);
+        if (raw === null) {
+          return null;
+        }
+
+        try {
+          return JSON.parse(raw);
+        } catch (e) {
+          return raw;
+        }
+      })
+      .filter((item) => item !== null);
   } catch (e) {
     return [];
   }

@@ -7,7 +7,7 @@ import {
 } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { GeneralAssetInfo } from "../../types";
-import { parseAsset, vestsToHp } from "../../utils";
+import { isEmptyDate, parseAsset, vestsToHp } from "../../utils";
 import { type FullAccount } from "@ecency/sdk";
 
 function getAPR(dynamicProps: DynamicProps) {
@@ -90,33 +90,84 @@ export function getHivePowerAssetGeneralInfoQueryOptions(username: string) {
       //     )
       //   : 0;
 
+      const vestingShares = parseAsset(accountData.vesting_shares).amount;
+      const delegatedVests = parseAsset(accountData.delegated_vesting_shares).amount;
+      const receivedVests = parseAsset(accountData.received_vesting_shares).amount;
+      const withdrawRateVests = parseAsset(accountData.vesting_withdraw_rate).amount;
+      const remainingToWithdrawVests = Math.max(
+        (Number(accountData.to_withdraw) - Number(accountData.withdrawn)) / 1e6,
+        0
+      );
+      const nextWithdrawalVests = !isEmptyDate(accountData.next_vesting_withdrawal)
+        ? Math.min(withdrawRateVests, remainingToWithdrawVests)
+        : 0;
+
+      const hpBalance = +vestsToHp(
+        vestingShares,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const outgoingDelegationsHp = +vestsToHp(
+        delegatedVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const incomingDelegationsHp = +vestsToHp(
+        receivedVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const pendingPowerDownHp = +vestsToHp(
+        remainingToWithdrawVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const nextPowerDownHp = +vestsToHp(
+        nextWithdrawalVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const totalBalance = Math.max(hpBalance - pendingPowerDownHp, 0);
+      const availableHp = Math.max(
+        // Owned HP minus the portions already delegated away.
+        hpBalance - outgoingDelegationsHp,
+        0
+      );
+
       return {
         name: "HP",
         title: "Hive Power",
         price,
-        accountBalance: +vestsToHp(
-          parseAsset(accountData.vesting_shares).amount,
-          // parseAsset(accountData.delegated_vesting_shares).amount +
-          // parseAsset(accountData.received_vesting_shares).amount -
-          // nextVestingSharesWithdrawal,
-          dynamicProps.hivePerMVests
-        ).toFixed(3),
+        accountBalance: +totalBalance.toFixed(3),
         apr: getAPR(dynamicProps),
         parts: [
           {
-            name: "delegating",
-            balance: +vestsToHp(
-              parseAsset(accountData.delegated_vesting_shares).amount,
-              dynamicProps.hivePerMVests
-            ).toFixed(3),
+            name: "hp_balance",
+            balance: hpBalance,
           },
           {
-            name: "received",
-            balance: +vestsToHp(
-              parseAsset(accountData.received_vesting_shares).amount,
-              dynamicProps.hivePerMVests
-            ).toFixed(3),
+            name: "available",
+            balance: +availableHp.toFixed(3),
           },
+          {
+            name: "outgoing_delegations",
+            balance: outgoingDelegationsHp,
+          },
+          {
+            name: "incoming_delegations",
+            balance: incomingDelegationsHp,
+          },
+          ...(pendingPowerDownHp > 0
+            ? [
+                {
+                  name: "pending_power_down",
+                  balance: +pendingPowerDownHp.toFixed(3),
+                },
+              ]
+            : []),
+          ...(nextPowerDownHp > 0 && nextPowerDownHp !== pendingPowerDownHp
+            ? [
+                {
+                  name: "next_power_down",
+                  balance: +nextPowerDownHp.toFixed(3),
+                },
+              ]
+            : []),
         ],
       } satisfies GeneralAssetInfo;
     },

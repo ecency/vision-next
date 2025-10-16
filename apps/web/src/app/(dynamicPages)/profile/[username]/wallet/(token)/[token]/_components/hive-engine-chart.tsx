@@ -9,18 +9,22 @@ import { useParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import { useMount } from "react-use";
+import { normalizeTokenSymbol, isSpkLayerTokenSymbol } from "../_helpers/token-symbol";
 
 export function HiveEngineChart() {
   const theme = useGlobalStore((s) => s.theme);
 
   const { token } = useParams();
+  const tokenSymbol = normalizeTokenSymbol(token as string);
+  const isSpkLayerToken = isSpkLayerTokenSymbol(tokenSymbol);
   const { ref: chartContainerRef } = useResizeDetector();
 
   const chartRef = useRef<IChartApi>();
   const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick">>();
 
   const { data } = useQuery({
-    ...getHiveEngineTokensMetricsQueryOptions(token as string, "hourly"),
+    ...getHiveEngineTokensMetricsQueryOptions(tokenSymbol ?? "", "hourly"),
+    enabled: Boolean(tokenSymbol) && !isSpkLayerToken,
     select: (items) =>
       items
         .map((item) => ({
@@ -39,7 +43,7 @@ export function HiveEngineChart() {
   });
 
   useMount(() => {
-    if (!chartContainerRef.current || chartRef.current) {
+    if (isSpkLayerToken || !chartContainerRef.current || chartRef.current) {
       return;
     }
 
@@ -93,6 +97,10 @@ export function HiveEngineChart() {
   });
 
   useEffect(() => {
+    if (isSpkLayerToken) {
+      return;
+    }
+
     if (candleStickSeriesRef.current && data) {
       candleStickSeriesRef.current.setData([]);
       candleStickSeriesRef.current.setData([...data]);
@@ -103,6 +111,10 @@ export function HiveEngineChart() {
       }
     }
   }, [data]);
+
+  if (isSpkLayerToken) {
+    return null;
+  }
 
   return (
     <div className="bg-white rounded-xl mb-4">

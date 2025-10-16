@@ -2921,7 +2921,7 @@
   "profile-wallet": {
     "pick-tokens": "选择要显示的标记",
     "search-token": "搜索令牌",
-    "setup-tokens": "设置素材",
+    "setup-tokens": "管理令牌",
     "asset-name": "资产名称",
     "price": "价格",
     "balance": "余额",
@@ -2963,6 +2963,10 @@
       "unstake": "取消利害关系",
       "undelegate": "取消授权"
     },
+    "claim-rewards": "认领奖励",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "正在补全...",
+    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
     "external": {
       "receive-button": "接收",
       "transfer-soon": "转让(即将)",

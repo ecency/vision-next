@@ -1,9 +1,13 @@
 import {
   AssetOperation,
+  Symbol as AssetSymbol,
   getHiveEngineTokensBalancesQueryOptions,
   getHiveEngineTokensMetadataQueryOptions,
+  parseAsset,
 } from "@/modules/assets";
-import { getQueryClient } from "@ecency/sdk";
+import type { GeneralAssetInfo } from "@/modules/assets";
+import { getAccountWalletAssetInfoQueryOptions } from "./get-account-wallet-asset-info-query-options";
+import { CONFIG, getQueryClient } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { EcencyWalletBasicTokens } from "../enums";
 
@@ -15,18 +19,65 @@ export function getTokenOperationsQueryOptions(
   return queryOptions({
     queryKey: ["wallets", "token-operations", token, username, isForOwner],
     queryFn: async () => {
+      const queryClient = getQueryClient();
+
+      const ensureAssetInfo = async (): Promise<GeneralAssetInfo | undefined> => {
+        if (!isForOwner || !username) {
+          return undefined;
+        }
+
+        return (await queryClient.ensureQueryData(
+          getAccountWalletAssetInfoQueryOptions(username, token)
+        )) as GeneralAssetInfo;
+      };
+
       switch (token) {
-        case EcencyWalletBasicTokens.Hive:
+        case EcencyWalletBasicTokens.Hive: {
+          const assetInfo = await ensureAssetInfo();
+          const savingsBalance = assetInfo?.parts?.find(
+            (part) => part.name === "savings"
+          )?.balance;
+          const pendingSavingsWithdrawAmount = await (async () => {
+            if (!isForOwner || !username) {
+              return 0;
+            }
+
+            try {
+              const response = (await CONFIG.hiveClient.database.call(
+                "get_savings_withdraw_from",
+                [username]
+              )) as { amount: string }[];
+
+              return response.reduce((total, request) => {
+                const parsed = parseAsset(request.amount);
+
+                return parsed.symbol === AssetSymbol.HIVE
+                  ? total + parsed.amount
+                  : total;
+              }, 0);
+            } catch {
+              return 0;
+            }
+          })();
+
+          const hasAvailableSavingsWithdraw =
+            typeof savingsBalance === "number" &&
+            savingsBalance - pendingSavingsWithdrawAmount > 0.000001;
+
           return [
             AssetOperation.Transfer,
             ...(isForOwner
               ? [
+                  ...(hasAvailableSavingsWithdraw
+                    ? [AssetOperation.WithdrawFromSavings]
+                    : []),
                   AssetOperation.TransferToSavings,
                   AssetOperation.PowerUp,
                   AssetOperation.Swap,
                 ]
               : []),
           ];
+        }
         case EcencyWalletBasicTokens.HivePower:
           return [
             AssetOperation.Delegate,
@@ -34,13 +85,51 @@ export function getTokenOperationsQueryOptions(
               ? [AssetOperation.PowerDown, AssetOperation.WithdrawRoutes]
               : [AssetOperation.PowerUp]),
           ];
-        case EcencyWalletBasicTokens.HiveDollar:
+        case EcencyWalletBasicTokens.HiveDollar: {
+          const assetInfo = await ensureAssetInfo();
+          const savingsBalance = assetInfo?.parts?.find(
+            (part) => part.name === "savings"
+          )?.balance;
+          const pendingSavingsWithdrawAmount = await (async () => {
+            if (!isForOwner || !username) {
+              return 0;
+            }
+
+            try {
+              const response = (await CONFIG.hiveClient.database.call(
+                "get_savings_withdraw_from",
+                [username]
+              )) as { amount: string }[];
+
+              return response.reduce((total, request) => {
+                const parsed = parseAsset(request.amount);
+
+                return parsed.symbol === AssetSymbol.HBD
+                  ? total + parsed.amount
+                  : total;
+              }, 0);
+            } catch {
+              return 0;
+            }
+          })();
+
+          const hasAvailableSavingsWithdraw =
+            typeof savingsBalance === "number" &&
+            savingsBalance - pendingSavingsWithdrawAmount > 0.000001;
+
           return [
             AssetOperation.Transfer,
             ...(isForOwner
-              ? [AssetOperation.TransferToSavings, AssetOperation.Swap]
+              ? [
+                  ...(hasAvailableSavingsWithdraw
+                    ? [AssetOperation.WithdrawFromSavings]
+                    : []),
+                  AssetOperation.TransferToSavings,
+                  AssetOperation.Swap,
+                ]
               : []),
           ];
+        }
         case EcencyWalletBasicTokens.Points:
           return [
             AssetOperation.Gift,
@@ -52,7 +141,7 @@ export function getTokenOperationsQueryOptions(
                 ]
               : []),
           ];
-        case EcencyWalletBasicTokens.Spk:
+        case "SPK":
           return [AssetOperation.Transfer];
         case "LARYNX":
           return [
@@ -79,8 +168,6 @@ export function getTokenOperationsQueryOptions(
       if (!username) {
         return [AssetOperation.Transfer];
       }
-
-      const queryClient = getQueryClient();
 
       const balancesListQuery =
         getHiveEngineTokensBalancesQueryOptions(username);

@@ -24,16 +24,19 @@ export function getPointsAssetTransactionsQueryOptions(
         }
       );
       const data = (await response.json()) as PointTransaction[];
-      return data.map(({ created, type, amount, id }) => ({
+      return data.map(({ created, type, amount, id, sender, receiver, memo }) => ({
         created: new Date(created),
         type,
         results: [
           {
-            amount: parseInt(amount),
+            amount: parseFloat(amount),
             asset: "POINTS",
           },
         ],
         id,
+        from: sender ?? undefined,
+        to: receiver ?? undefined,
+        memo: memo ?? undefined,
       })) satisfies GeneralAssetTransaction[];
     },
   });

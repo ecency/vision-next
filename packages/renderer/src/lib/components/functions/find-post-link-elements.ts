@@ -26,11 +26,19 @@ export function findPostLinkElements(container: HTMLElement) {
   );
 
   return anchors.filter((anchor) => {
+    if ((anchor.dataset.isInline ?? "").toLowerCase() === "true") {
+      return false;
+    }
+
     if (anchor.dataset.postLinkChecked === "true") {
       return anchor.classList.contains("markdown-post-link");
     }
 
     anchor.dataset.postLinkChecked = "true";
+
+    if ((anchor.dataset.isInline ?? "").toLowerCase() === "true") {
+      return false;
+    }
 
     if (anchor.classList.contains("markdown-post-link")) {
       return true;
