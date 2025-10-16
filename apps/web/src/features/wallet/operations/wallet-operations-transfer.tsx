@@ -272,6 +272,26 @@ export function WalletOperationsTransfer({
     username,
   ]);
 
+  const defaultAmount = useMemo(() => {
+    const fallbackAmount =
+      data?.amount ?? (operation === AssetOperation.ClaimInterest ? 0.001 : 0);
+
+    if (asset === "HP" && operation === AssetOperation.Delegate) {
+      const parsed =
+        typeof fallbackAmount === "string"
+          ? parseFloat(fallbackAmount)
+          : Number(fallbackAmount);
+
+      if (Number.isFinite(parsed)) {
+        return Number(formatNumber(parsed, 3));
+      }
+
+      return 0;
+    }
+
+    return fallbackAmount;
+  }, [asset, data?.amount, operation]);
+
   const methods = useForm({
     resolver: yupResolver(
       yup.object({
@@ -284,9 +304,7 @@ export function WalletOperationsTransfer({
       })
     ),
     defaultValues: {
-      amount:
-        data?.amount ??
-        (operation === AssetOperation.ClaimInterest ? 0.001 : 0),
+      amount: defaultAmount,
       memo: data?.memo ?? ""
     }
   });
@@ -305,9 +323,13 @@ export function WalletOperationsTransfer({
       return;
     }
 
-    methods.setValue("amount", existingDelegationHp ?? 0, {
-      shouldDirty: false,
-    });
+    methods.setValue(
+      "amount",
+      Number(formatNumber(existingDelegationHp ?? 0, 3)),
+      {
+        shouldDirty: false,
+      }
+    );
   }, [
     asset,
     existingDelegationHp,
