@@ -2963,6 +2963,18 @@
       "unstake": "Onbelangrijk",
       "undelegate": "Ontdelegeren"
     },
+    "hbd-interest": {
+      "title": "HBD spaarrente",
+      "next-label": "Volgende vordering",
+      "next-ready": "Klaar om nu op te eisen",
+      "next-in": "Beschikbaar {{relative}}",
+      "next-unknown": "Interessant schema niet beschikbaar",
+      "next-date": "Op {{date}}",
+      "balance-label": "Saldo spaarrekening",
+      "minimum-balance": "Opbouw van de rente zodra u ten minste {{amount}} HBD in spaartegoeden vasthoudt.",
+      "note": "De rente wordt continu berekend op {{apr}}% APR.",
+      "claim-button": "Opvordering rente"
+    },
     "claim-rewards": "Beloningen opeisen",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Ophalen...",
