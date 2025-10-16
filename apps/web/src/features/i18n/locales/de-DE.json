@@ -2963,6 +2963,18 @@
       "unstake": "Entsetzen",
       "undelegate": "Entfernen"
     },
+    "hbd-interest": {
+      "title": "HBD Sparzinsen",
+      "next-label": "Nächster Anspruch",
+      "next-ready": "Bereit jetzt zu beanspruchen",
+      "next-in": "Verfügbare {{relative}}",
+      "next-unknown": "Zeitplan für Zinsen nicht verfügbar",
+      "next-date": "{{date}}",
+      "balance-label": "Sparguthaben",
+      "minimum-balance": "Wenn Sie mindestens {{amount}} HBD in Ersparnissen halten, entstehen Zinsen.",
+      "note": "Die Zinsen werden kontinuierlich bei {{apr}}% APR berechnet.",
+      "claim-button": "Interesse beanspruchen"
+    },
     "claim-rewards": "Belohnung beanspruchen",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Beanspruchen...",
