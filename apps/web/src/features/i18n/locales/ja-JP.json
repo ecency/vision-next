@@ -2930,10 +2930,14 @@
     "apr": "Recompensas da Aprão",
     "apr-hint": "年間割合 - 選択した期間にわたってCryptocurrencyで獲得する報酬の推定値",
     "delegations": "委任事項",
+    "hp-total-balance": "合計HP残高",
+    "delegations-outgoing": "委任状",
+    "delegations-incoming": "委任を受信する",
     "external-wallets-offer": {
       "title": "暗号通貨をEcencyに届けよう",
       "description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットをTrustやExodusなどのアプリから直接作成またはインポートします Hiveエコシステム内でシームレスに使用し始めます。",
-      "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます"
+      "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます",
+      "dismiss": "たぶん後で"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Hiveアカウントの作成とリンク",
