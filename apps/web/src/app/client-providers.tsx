@@ -2,6 +2,7 @@
 
 import "@/polyfills";
 import { ClientInit } from "@/app/client-init";
+import { ServiceWorkerManager } from "@/app/service-worker-manager";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";
 import { Announcements } from "@/features/announcement";
@@ -26,6 +27,7 @@ export function ClientProviders(props: PropsWithChildren) {
       >
         <UIManager>
           <ClientInit />
+          <ServiceWorkerManager />
           <EcencyConfigManager.Conditional
             condition={({ visionFeatures }) => visionFeatures.userActivityTracking.enabled}
           >

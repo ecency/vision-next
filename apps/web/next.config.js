@@ -4,7 +4,55 @@ const path = require("path");
 const withPWA = require("next-pwa")({
   dest: "public",
   // Raise the max size to precache large chunks:
-  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024 // 8MB
+  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
+  // Disable default caching behavior and use custom strategies
+  disable: false,
+  // Use a custom worker to handle cache updates
+  register: true,
+  skipWaiting: true,
+  // Add custom service worker source
+  swSrc: "public/custom-sw.js",
+  // Customize runtime caching
+  runtimeCaching: [
+    // Network-first strategy for JavaScript chunks to prevent stale chunk errors
+    {
+      urlPattern: /^https?:\/\/[^/]+\/_next\/static\/chunks\/.+\.js$/,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "js-chunks",
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+        }
+      }
+    },
+    // Network-first for app routes
+    {
+      urlPattern: /^https?:\/\/[^/]+\/_next\/static\/.+$/,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "next-static-resources",
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+        }
+      }
+    },
+    // Cache-first for other static assets
+    {
+      urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "static-image-assets",
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+        }
+      }
+    }
+  ]
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
