@@ -32,10 +32,19 @@ export function WalletOperationsTransfer({
   showSubmit,
   showMemo = false
 }: Props) {
+  const shouldDefaultToSelf = useMemo(
+    () =>
+      [
+        AssetOperation.Stake,
+        AssetOperation.Unstake,
+        AssetOperation.WithdrawFromSavings,
+        AssetOperation.ClaimInterest,
+      ].includes(operation),
+    [operation]
+  );
+
   const [to, setTo] = useState<string>(
-    data?.to ??
-      toProp ??
-      ([AssetOperation.Stake, AssetOperation.Unstake].includes(operation) ? username : "")
+    data?.to ?? toProp ?? (shouldDefaultToSelf ? username : "")
   );
 
   const { data: accountWallet } = useQuery(getAccountWalletAssetInfoQueryOptions(username, asset));
@@ -51,10 +60,10 @@ export function WalletOperationsTransfer({
       return;
     }
 
-    if ([AssetOperation.Stake, AssetOperation.Unstake].includes(operation)) {
+    if (shouldDefaultToSelf) {
       setTo(username);
     }
-  }, [data?.to, operation, toProp, username]);
+  }, [data?.to, operation, shouldDefaultToSelf, toProp, username]);
 
   const isEngineToken = accountWallet?.layer === "ENGINE";
   const liquidBalance = useMemo(
@@ -67,6 +76,11 @@ export function WalletOperationsTransfer({
       Number(accountWallet?.parts?.find((part) => part.name === "staked")?.balance ?? 0),
     [accountWallet?.parts]
   );
+  const savingsBalance = useMemo(
+    () =>
+      Number(accountWallet?.parts?.find((part) => part.name === "savings")?.balance ?? 0),
+    [accountWallet?.parts]
+  );
 
   const operationBalance = useMemo(() => {
     if (!accountWallet) {
@@ -74,6 +88,14 @@ export function WalletOperationsTransfer({
     }
 
     if (!isEngineToken) {
+      if (
+        [AssetOperation.WithdrawFromSavings, AssetOperation.ClaimInterest].includes(
+          operation
+        )
+      ) {
+        return savingsBalance;
+      }
+
       return accountWallet.accountBalance ?? 0;
     }
 
@@ -90,7 +112,14 @@ export function WalletOperationsTransfer({
     }
 
     return accountWallet.accountBalance ?? 0;
-  }, [accountWallet, isEngineToken, liquidBalance, operation, stakedBalance]);
+  }, [
+    accountWallet,
+    isEngineToken,
+    liquidBalance,
+    operation,
+    savingsBalance,
+    stakedBalance,
+  ]);
 
   const maxAmount = operationBalance ?? 0;
 
@@ -124,7 +153,9 @@ export function WalletOperationsTransfer({
       })
     ),
     defaultValues: {
-      amount: data?.amount ?? 0,
+      amount:
+        data?.amount ??
+        (operation === AssetOperation.ClaimInterest ? 0.001 : 0),
       memo: data?.memo ?? ""
     }
   });
@@ -147,7 +178,10 @@ export function WalletOperationsTransfer({
           balance={recipientBalance}
           username={to ?? ""}
           onUsernameSubmit={(v) => setTo(v ?? "")}
-          editable={showSubmit && operation !== AssetOperation.Unstake}
+          editable={
+            showSubmit &&
+            ![AssetOperation.Unstake, AssetOperation.ClaimInterest].includes(operation)
+          }
           onBalanceClick={() =>
             methods.setValue("amount", +formatNumber(maxAmount || 0, 3) || 0)
           }

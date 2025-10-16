@@ -3,6 +3,8 @@ import {
   getHiveEngineTokensBalancesQueryOptions,
   getHiveEngineTokensMetadataQueryOptions,
 } from "@/modules/assets";
+import type { GeneralAssetInfo } from "@/modules/assets";
+import { getAccountWalletAssetInfoQueryOptions } from "./get-account-wallet-asset-info-query-options";
 import { getQueryClient } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { EcencyWalletBasicTokens } from "../enums";
@@ -15,18 +17,39 @@ export function getTokenOperationsQueryOptions(
   return queryOptions({
     queryKey: ["wallets", "token-operations", token, username, isForOwner],
     queryFn: async () => {
+      const queryClient = getQueryClient();
+
+      const ensureAssetInfo = async (): Promise<GeneralAssetInfo | undefined> => {
+        if (!isForOwner || !username) {
+          return undefined;
+        }
+
+        return (await queryClient.ensureQueryData(
+          getAccountWalletAssetInfoQueryOptions(username, token)
+        )) as GeneralAssetInfo;
+      };
+
       switch (token) {
-        case EcencyWalletBasicTokens.Hive:
+        case EcencyWalletBasicTokens.Hive: {
+          const assetInfo = await ensureAssetInfo();
+          const savingsBalance = assetInfo?.parts?.find(
+            (part) => part.name === "savings"
+          )?.balance;
+
           return [
             AssetOperation.Transfer,
             ...(isForOwner
               ? [
+                  ...(savingsBalance && savingsBalance > 0
+                    ? [AssetOperation.WithdrawFromSavings]
+                    : []),
                   AssetOperation.TransferToSavings,
                   AssetOperation.PowerUp,
                   AssetOperation.Swap,
                 ]
               : []),
           ];
+        }
         case EcencyWalletBasicTokens.HivePower:
           return [
             AssetOperation.Delegate,
@@ -34,13 +57,25 @@ export function getTokenOperationsQueryOptions(
               ? [AssetOperation.PowerDown, AssetOperation.WithdrawRoutes]
               : [AssetOperation.PowerUp]),
           ];
-        case EcencyWalletBasicTokens.HiveDollar:
+        case EcencyWalletBasicTokens.HiveDollar: {
+          const assetInfo = await ensureAssetInfo();
+          const savingsBalance = assetInfo?.parts?.find(
+            (part) => part.name === "savings"
+          )?.balance;
+
           return [
             AssetOperation.Transfer,
             ...(isForOwner
-              ? [AssetOperation.TransferToSavings, AssetOperation.Swap]
+              ? [
+                  ...(savingsBalance && savingsBalance > 0
+                    ? [AssetOperation.WithdrawFromSavings]
+                    : []),
+                  AssetOperation.TransferToSavings,
+                  AssetOperation.Swap,
+                ]
               : []),
           ];
+        }
         case EcencyWalletBasicTokens.Points:
           return [
             AssetOperation.Gift,
@@ -79,8 +114,6 @@ export function getTokenOperationsQueryOptions(
       if (!username) {
         return [AssetOperation.Transfer];
       }
-
-      const queryClient = getQueryClient();
 
       const balancesListQuery =
         getHiveEngineTokensBalancesQueryOptions(username);

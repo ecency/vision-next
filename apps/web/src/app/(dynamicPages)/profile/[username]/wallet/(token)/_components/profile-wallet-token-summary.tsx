@@ -21,6 +21,7 @@ import {
   ProfileWalletHiveClaimRewardsButton,
   useProfileWalletHiveClaimState,
 } from "./profile-wallet-hive-claim-rewards-button";
+import { ProfileWalletHbdInterest } from "./profile-wallet-hbd-interest";
 import i18next from "i18next";
 
 function format(value: number) {
@@ -67,13 +68,25 @@ export function ProfileWalletTokenSummary() {
 
   const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
 
-  const liquidBalance = data?.parts?.find((part) => part.name === "liquid")?.balance ?? data?.accountBalance ?? 0;
-  const stakedBalance = data?.parts?.find((part) => part.name === "staked")?.balance ?? 0;
-  const hasStakedBalance = data?.parts?.some((part) => part.name === "staked");
+  const parts = data?.parts ?? [];
+  const liquidBalance =
+    parts.find((part) => part.name === "liquid")?.balance ??
+    parts.find((part) => part.name === "current")?.balance ??
+    parts.find((part) => part.name === "account")?.balance ??
+    data?.accountBalance ??
+    0;
+  const stakedBalance = parts.find((part) => part.name === "staked")?.balance ?? 0;
+  const savingsBalance = parts.find((part) => part.name === "savings")?.balance ?? 0;
+  const hasStakedBalance = parts.some((part) => part.name === "staked");
+  const hasSavingsBalance = parts.some((part) => part.name === "savings");
 
   const cards = [
     {
-      label: hasStakedBalance ? "Liquid Balance" : "Balance",
+      label: hasSavingsBalance
+        ? "Current Balance"
+        : hasStakedBalance
+        ? "Liquid Balance"
+        : "Balance",
       value: format(liquidBalance),
     },
     ...(hasStakedBalance
@@ -84,9 +97,17 @@ export function ProfileWalletTokenSummary() {
           },
         ]
       : []),
+    ...(hasSavingsBalance
+      ? [
+          {
+            label: "Savings Balance",
+            value: format(savingsBalance),
+          },
+        ]
+      : []),
     {
       label: "USD Balance",
-      value: format((data?.accountBalance ?? 0) * (data?.price ?? 0)),
+      value: format(liquidBalance * (data?.price ?? 0)),
     },
     ...(data?.apr
       ? [
@@ -99,7 +120,7 @@ export function ProfileWalletTokenSummary() {
   ];
 
   const gridClassName =
-    cards.length === 4
+    cards.length >= 4
       ? "grid-cols-2 md:grid-cols-4"
       : cards.length === 3
       ? "grid-cols-3"
@@ -120,12 +141,13 @@ export function ProfileWalletTokenSummary() {
   }
 
   return (
-    <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
-        <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
-          <div className="mt-1">{logo}</div>
-          <div>
-            <div className="text-xl font-bold">{data?.title}</div>
+    <div className="flex flex-col gap-4">
+      <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
+          <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
+            <div className="mt-1">{logo}</div>
+            <div>
+              <div className="text-xl font-bold">{data?.title}</div>
             <div className="flex items-center gap-1">
               <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
               {data?.layer && (
@@ -187,14 +209,18 @@ export function ProfileWalletTokenSummary() {
           )}
         </div>
       </div>
-      <div className={`grid ${gridClassName} gap-2 md:gap-4`}>
-        {cards.map((card) => (
-          <div key={card.label} className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl">
-            <div className="text-sm text-gray-600 dark:text-gray-400">{card.label}</div>
-            <div className="text-xl font-bold">{card.value}</div>
-          </div>
-        ))}
+        <div className={`grid ${gridClassName} gap-2 md:gap-4`}>
+          {cards.map((card) => (
+            <div key={card.label} className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl">
+              <div className="text-sm text-gray-600 dark:text-gray-400">{card.label}</div>
+              <div className="text-xl font-bold">{card.value}</div>
+            </div>
+          ))}
+        </div>
       </div>
+      {tokenWithFallback === "HBD" && (
+        <ProfileWalletHbdInterest username={cleanUsername} />
+      )}
     </div>
   );
 }

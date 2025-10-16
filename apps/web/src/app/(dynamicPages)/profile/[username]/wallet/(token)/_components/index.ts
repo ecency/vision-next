@@ -6,3 +6,7 @@ export * from "./profile-wallet-token-history";
 export * from "./profile-wallet-hbd-claim-rewards-button";
 export * from "./profile-wallet-hive-claim-rewards-button";
 export * from "./profile-wallet-hbd-claim-rewards-button";
+export * from "./profile-wallet-hbd-interest";
+export * from "./profile-wallet-hbd-interest";
+export * from "./profile-wallet-hbd-interest";
+export * from "./profile-wallet-hbd-interest";

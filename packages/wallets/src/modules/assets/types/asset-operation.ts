@@ -4,10 +4,12 @@ export enum AssetOperation {
 
   // APR
   TransferToSavings = "transfer-saving",
+  WithdrawFromSavings = "withdraw-saving",
   Delegate = "delegate",
   PowerUp = "power-up",
   PowerDown = "power-down",
-  WithdrawRoutes = "withdraw-saving",
+  WithdrawRoutes = "withdraw-routes",
+  ClaimInterest = "claim-interest",
   Swap = "swap",
 
   // Points

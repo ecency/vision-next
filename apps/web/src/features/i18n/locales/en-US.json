@@ -2963,6 +2963,18 @@
       "unstake": "Unstake",
       "undelegate": "Undelegate"
     },
+    "hbd-interest": {
+      "title": "HBD savings interest",
+      "next-label": "Next claim",
+      "next-ready": "Ready to claim now",
+      "next-in": "Available {{relative}}",
+      "next-unknown": "Interest schedule unavailable",
+      "next-date": "On {{date}}",
+      "balance-label": "Savings balance",
+      "minimum-balance": "Interest accrues once you hold at least {{amount}} HBD in savings.",
+      "note": "Interest is calculated continuously at {{apr}}% APR.",
+      "claim-button": "Claim interest"
+    },
     "claim-rewards": "Claim rewards",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Claiming...",

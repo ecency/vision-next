@@ -654,11 +654,31 @@ function getHiveAssetGeneralInfoQueryOptions(username) {
       );
       const marketTicker = await CONFIG.hiveClient.call("condenser_api", "get_ticker", []).catch(() => void 0);
       const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
+      if (!accountData) {
+        return {
+          name: "HIVE",
+          title: "Hive",
+          price: Number.isFinite(marketPrice) ? marketPrice : dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
+          accountBalance: 0
+        };
+      }
+      const liquidBalance = parseAsset(accountData.balance).amount;
+      const savingsBalance = parseAsset(accountData.savings_balance).amount;
       return {
         name: "HIVE",
         title: "Hive",
         price: Number.isFinite(marketPrice) ? marketPrice : dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
-        accountBalance: accountData ? parseAsset(accountData.balance).amount : 0
+        accountBalance: liquidBalance + savingsBalance,
+        parts: [
+          {
+            name: "current",
+            balance: liquidBalance
+          },
+          {
+            name: "savings",
+            balance: savingsBalance
+          }
+        ]
       };
     }
   });
@@ -784,7 +804,7 @@ function getHbdAssetGeneralInfoQueryOptions(username) {
         apr: ((dynamicProps?.hbdInterestRate ?? 0) / 100).toFixed(3),
         parts: [
           {
-            name: "account",
+            name: "current",
             balance: parseAsset(accountData.hbd_balance).amount
           },
           {
@@ -1160,6 +1180,36 @@ async function transferToSavingsHive(payload) {
     );
   }
 }
+async function transferFromSavingsHive(payload) {
+  const requestId = payload.request_id ?? Date.now() >>> 0;
+  const operationPayload = {
+    from: payload.from,
+    to: payload.to,
+    amount: payload.amount,
+    memo: payload.memo,
+    request_id: requestId
+  };
+  if (payload.type === "key" && "key" in payload) {
+    const { key } = payload;
+    return CONFIG.hiveClient.broadcast.sendOperations(
+      [["transfer_from_savings", operationPayload]],
+      key
+    );
+  }
+  if (payload.type === "keychain") {
+    return Keychain.broadcast(
+      payload.from,
+      [["transfer_from_savings", operationPayload]],
+      "Active"
+    );
+  }
+  return hs.sendOperation(
+    ["transfer_from_savings", operationPayload],
+    { callback: `https://ecency.com/@${payload.from}/wallet` },
+    () => {
+    }
+  );
+}
 async function powerUpHive(payload) {
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
@@ -1298,15 +1348,60 @@ function useClaimRewards(username, onSuccess) {
     }
   );
 }
+async function claimInterestHive(payload) {
+  const requestId = payload.request_id ?? Date.now() >>> 0;
+  const baseOperation = {
+    from: payload.from,
+    to: payload.to,
+    amount: payload.amount,
+    memo: payload.memo,
+    request_id: requestId
+  };
+  const cancelOperation = {
+    from: payload.from,
+    request_id: requestId
+  };
+  if (payload.type === "key" && "key" in payload) {
+    const { key } = payload;
+    return CONFIG.hiveClient.broadcast.sendOperations(
+      [
+        ["transfer_from_savings", baseOperation],
+        ["cancel_transfer_from_savings", cancelOperation]
+      ],
+      key
+    );
+  }
+  if (payload.type === "keychain") {
+    return Keychain.broadcast(
+      payload.from,
+      [
+        ["transfer_from_savings", baseOperation],
+        ["cancel_transfer_from_savings", cancelOperation]
+      ],
+      "Active"
+    );
+  }
+  return hs.sendOperations(
+    [
+      ["transfer_from_savings", baseOperation],
+      ["cancel_transfer_from_savings", cancelOperation]
+    ],
+    { callback: `https://ecency.com/@${payload.from}/wallet` },
+    () => {
+    }
+  );
+}
 
 // src/modules/assets/types/asset-operation.ts
 var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
   AssetOperation2["Transfer"] = "transfer";
   AssetOperation2["TransferToSavings"] = "transfer-saving";
+  AssetOperation2["WithdrawFromSavings"] = "withdraw-saving";
   AssetOperation2["Delegate"] = "delegate";
   AssetOperation2["PowerUp"] = "power-up";
   AssetOperation2["PowerDown"] = "power-down";
-  AssetOperation2["WithdrawRoutes"] = "withdraw-saving";
+  AssetOperation2["WithdrawRoutes"] = "withdraw-routes";
+  AssetOperation2["ClaimInterest"] = "claim-interest";
   AssetOperation2["Swap"] = "swap";
   AssetOperation2["Gift"] = "gift";
   AssetOperation2["Promote"] = "promote";
@@ -2962,26 +3057,50 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
   return queryOptions({
     queryKey: ["wallets", "token-operations", token, username, isForOwner],
     queryFn: async () => {
+      const queryClient = getQueryClient();
+      const ensureAssetInfo = async () => {
+        if (!isForOwner || !username) {
+          return void 0;
+        }
+        return await queryClient.ensureQueryData(
+          getAccountWalletAssetInfoQueryOptions(username, token)
+        );
+      };
       switch (token) {
-        case "HIVE" /* Hive */:
+        case "HIVE" /* Hive */: {
+          const assetInfo = await ensureAssetInfo();
+          const savingsBalance = assetInfo?.parts?.find(
+            (part) => part.name === "savings"
+          )?.balance;
           return [
             "transfer" /* Transfer */,
             ...isForOwner ? [
+              ...savingsBalance && savingsBalance > 0 ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
               "transfer-saving" /* TransferToSavings */,
               "power-up" /* PowerUp */,
               "swap" /* Swap */
             ] : []
           ];
+        }
         case "HP" /* HivePower */:
           return [
             "delegate" /* Delegate */,
-            ...isForOwner ? ["power-down" /* PowerDown */, "withdraw-saving" /* WithdrawRoutes */] : ["power-up" /* PowerUp */]
+            ...isForOwner ? ["power-down" /* PowerDown */, "withdraw-routes" /* WithdrawRoutes */] : ["power-up" /* PowerUp */]
           ];
-        case "HBD" /* HiveDollar */:
+        case "HBD" /* HiveDollar */: {
+          const assetInfo = await ensureAssetInfo();
+          const savingsBalance = assetInfo?.parts?.find(
+            (part) => part.name === "savings"
+          )?.balance;
           return [
             "transfer" /* Transfer */,
-            ...isForOwner ? ["transfer-saving" /* TransferToSavings */, "swap" /* Swap */] : []
+            ...isForOwner ? [
+              ...savingsBalance && savingsBalance > 0 ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
+              "transfer-saving" /* TransferToSavings */,
+              "swap" /* Swap */
+            ] : []
           ];
+        }
         case "POINTS" /* Points */:
           return [
             "gift" /* Gift */,
@@ -3015,7 +3134,6 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
       if (!username) {
         return ["transfer" /* Transfer */];
       }
-      const queryClient = getQueryClient();
       const balancesListQuery = getHiveEngineTokensBalancesQueryOptions(username);
       const balances = await queryClient.ensureQueryData(balancesListQuery);
       const tokensQuery = getHiveEngineTokensMetadataQueryOptions(
@@ -3382,16 +3500,19 @@ var operationToFunctionMap = {
   HIVE: {
     ["transfer" /* Transfer */]: transferHive,
     ["transfer-saving" /* TransferToSavings */]: transferToSavingsHive,
+    ["withdraw-saving" /* WithdrawFromSavings */]: transferFromSavingsHive,
     ["power-up" /* PowerUp */]: powerUpHive
   },
   HBD: {
     ["transfer" /* Transfer */]: transferHive,
-    ["transfer-saving" /* TransferToSavings */]: transferToSavingsHive
+    ["transfer-saving" /* TransferToSavings */]: transferToSavingsHive,
+    ["withdraw-saving" /* WithdrawFromSavings */]: transferFromSavingsHive,
+    ["claim-interest" /* ClaimInterest */]: claimInterestHive
   },
   HP: {
     ["power-down" /* PowerDown */]: powerDownHive,
     ["delegate" /* Delegate */]: delegateHive,
-    ["withdraw-saving" /* WithdrawRoutes */]: withdrawVestingRouteHive
+    ["withdraw-routes" /* WithdrawRoutes */]: withdrawVestingRouteHive
   },
   POINTS: {
     ["gift" /* Gift */]: transferPoint
@@ -3455,6 +3576,6 @@ function useWalletOperation(username, asset, operation) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

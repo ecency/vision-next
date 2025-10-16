@@ -43,6 +43,7 @@ const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
   [AssetOperation.PowerUp]: <UilBoltAlt />,
   [AssetOperation.PowerDown]: <UilArrowDownRight />,
   [AssetOperation.WithdrawRoutes]: <UilCodeBranch />,
+  [AssetOperation.WithdrawFromSavings]: <UilArrowDownRight />,
   [AssetOperation.Delegate]: <UilUserPlus />,
   [AssetOperation.Swap]: <UilArrowsHAlt />,
   [AssetOperation.Gift]: <UilGift />,
@@ -51,7 +52,8 @@ const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
   [AssetOperation.Buy]: <UilBoltAlt />,
   [AssetOperation.LockLiquidity]: <UilLock />,
   [AssetOperation.Stake]: <UilLock />,
-  [AssetOperation.Unstake]: <UilUnlock />
+  [AssetOperation.Unstake]: <UilUnlock />,
+  [AssetOperation.ClaimInterest]: <UilMoneybag />,
 };
 
 export function ProfileWalletTokenActions() {
@@ -220,6 +222,15 @@ export function ProfileWalletTokenActions() {
         {filteredOperations.map((operation, index) => {
           const key = `operation-${operation}-${index}`;
 
+          const operationLabel =
+            operation === AssetOperation.WithdrawFromSavings
+              ? i18next.t("transfer.withdraw-saving-title")
+              : operation === AssetOperation.ClaimInterest
+              ? i18next.t("transfer.claim-interest-title")
+              : operation === AssetOperation.WithdrawRoutes
+              ? i18next.t("profile-wallet.operations.withdraw-saving")
+              : i18next.t(`profile-wallet.operations.${operation}`);
+
           if ([AssetOperation.Buy, AssetOperation.Promote].includes(operation)) {
             return (
               <Link
@@ -237,7 +248,7 @@ export function ProfileWalletTokenActions() {
               >
                 {operationsIcons[operation]}
                 <div className="w-full font-bold">
-                  {i18next.t(`profile-wallet.operations.${operation}`)}
+                  {operationLabel}
                 </div>
               </Link>
             );
@@ -256,7 +267,7 @@ export function ProfileWalletTokenActions() {
               >
                 {operationsIcons[operation]}
                 <div className="w-full font-bold">
-                  {i18next.t(`profile-wallet.operations.${operation}`)}
+                  {operationLabel}
                 </div>
               </WalletOperationsDialog>
             );

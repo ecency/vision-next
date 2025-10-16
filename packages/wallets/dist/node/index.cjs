@@ -681,11 +681,31 @@ function getHiveAssetGeneralInfoQueryOptions(username) {
       );
       const marketTicker = await sdk.CONFIG.hiveClient.call("condenser_api", "get_ticker", []).catch(() => void 0);
       const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
+      if (!accountData) {
+        return {
+          name: "HIVE",
+          title: "Hive",
+          price: Number.isFinite(marketPrice) ? marketPrice : dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
+          accountBalance: 0
+        };
+      }
+      const liquidBalance = parseAsset(accountData.balance).amount;
+      const savingsBalance = parseAsset(accountData.savings_balance).amount;
       return {
         name: "HIVE",
         title: "Hive",
         price: Number.isFinite(marketPrice) ? marketPrice : dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
-        accountBalance: accountData ? parseAsset(accountData.balance).amount : 0
+        accountBalance: liquidBalance + savingsBalance,
+        parts: [
+          {
+            name: "current",
+            balance: liquidBalance
+          },
+          {
+            name: "savings",
+            balance: savingsBalance
+          }
+        ]
       };
     }
   });
@@ -811,7 +831,7 @@ function getHbdAssetGeneralInfoQueryOptions(username) {
         apr: ((dynamicProps?.hbdInterestRate ?? 0) / 100).toFixed(3),
         parts: [
           {
-            name: "account",
+            name: "current",
             balance: parseAsset(accountData.hbd_balance).amount
           },
           {
@@ -1187,6 +1207,36 @@ async function transferToSavingsHive(payload) {
     );
   }
 }
+async function transferFromSavingsHive(payload) {
+  const requestId = payload.request_id ?? Date.now() >>> 0;
+  const operationPayload = {
+    from: payload.from,
+    to: payload.to,
+    amount: payload.amount,
+    memo: payload.memo,
+    request_id: requestId
+  };
+  if (payload.type === "key" && "key" in payload) {
+    const { key } = payload;
+    return sdk.CONFIG.hiveClient.broadcast.sendOperations(
+      [["transfer_from_savings", operationPayload]],
+      key
+    );
+  }
+  if (payload.type === "keychain") {
+    return sdk.Keychain.broadcast(
+      payload.from,
+      [["transfer_from_savings", operationPayload]],
+      "Active"
+    );
+  }
+  return hs__default.default.sendOperation(
+    ["transfer_from_savings", operationPayload],
+    { callback: `https://ecency.com/@${payload.from}/wallet` },
+    () => {
+    }
+  );
+}
 async function powerUpHive(payload) {
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
@@ -1325,15 +1375,60 @@ function useClaimRewards(username, onSuccess) {
     }
   );
 }
+async function claimInterestHive(payload) {
+  const requestId = payload.request_id ?? Date.now() >>> 0;
+  const baseOperation = {
+    from: payload.from,
+    to: payload.to,
+    amount: payload.amount,
+    memo: payload.memo,
+    request_id: requestId
+  };
+  const cancelOperation = {
+    from: payload.from,
+    request_id: requestId
+  };
+  if (payload.type === "key" && "key" in payload) {
+    const { key } = payload;
+    return sdk.CONFIG.hiveClient.broadcast.sendOperations(
+      [
+        ["transfer_from_savings", baseOperation],
+        ["cancel_transfer_from_savings", cancelOperation]
+      ],
+      key
+    );
+  }
+  if (payload.type === "keychain") {
+    return sdk.Keychain.broadcast(
+      payload.from,
+      [
+        ["transfer_from_savings", baseOperation],
+        ["cancel_transfer_from_savings", cancelOperation]
+      ],
+      "Active"
+    );
+  }
+  return hs__default.default.sendOperations(
+    [
+      ["transfer_from_savings", baseOperation],
+      ["cancel_transfer_from_savings", cancelOperation]
+    ],
+    { callback: `https://ecency.com/@${payload.from}/wallet` },
+    () => {
+    }
+  );
+}
 
 // src/modules/assets/types/asset-operation.ts
 var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
   AssetOperation2["Transfer"] = "transfer";
   AssetOperation2["TransferToSavings"] = "transfer-saving";
+  AssetOperation2["WithdrawFromSavings"] = "withdraw-saving";
   AssetOperation2["Delegate"] = "delegate";
   AssetOperation2["PowerUp"] = "power-up";
   AssetOperation2["PowerDown"] = "power-down";
-  AssetOperation2["WithdrawRoutes"] = "withdraw-saving";
+  AssetOperation2["WithdrawRoutes"] = "withdraw-routes";
+  AssetOperation2["ClaimInterest"] = "claim-interest";
   AssetOperation2["Swap"] = "swap";
   AssetOperation2["Gift"] = "gift";
   AssetOperation2["Promote"] = "promote";
@@ -2989,26 +3084,50 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
   return reactQuery.queryOptions({
     queryKey: ["wallets", "token-operations", token, username, isForOwner],
     queryFn: async () => {
+      const queryClient = sdk.getQueryClient();
+      const ensureAssetInfo = async () => {
+        if (!isForOwner || !username) {
+          return void 0;
+        }
+        return await queryClient.ensureQueryData(
+          getAccountWalletAssetInfoQueryOptions(username, token)
+        );
+      };
       switch (token) {
-        case "HIVE" /* Hive */:
+        case "HIVE" /* Hive */: {
+          const assetInfo = await ensureAssetInfo();
+          const savingsBalance = assetInfo?.parts?.find(
+            (part) => part.name === "savings"
+          )?.balance;
           return [
             "transfer" /* Transfer */,
             ...isForOwner ? [
+              ...savingsBalance && savingsBalance > 0 ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
               "transfer-saving" /* TransferToSavings */,
               "power-up" /* PowerUp */,
               "swap" /* Swap */
             ] : []
           ];
+        }
         case "HP" /* HivePower */:
           return [
             "delegate" /* Delegate */,
-            ...isForOwner ? ["power-down" /* PowerDown */, "withdraw-saving" /* WithdrawRoutes */] : ["power-up" /* PowerUp */]
+            ...isForOwner ? ["power-down" /* PowerDown */, "withdraw-routes" /* WithdrawRoutes */] : ["power-up" /* PowerUp */]
           ];
-        case "HBD" /* HiveDollar */:
+        case "HBD" /* HiveDollar */: {
+          const assetInfo = await ensureAssetInfo();
+          const savingsBalance = assetInfo?.parts?.find(
+            (part) => part.name === "savings"
+          )?.balance;
           return [
             "transfer" /* Transfer */,
-            ...isForOwner ? ["transfer-saving" /* TransferToSavings */, "swap" /* Swap */] : []
+            ...isForOwner ? [
+              ...savingsBalance && savingsBalance > 0 ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
+              "transfer-saving" /* TransferToSavings */,
+              "swap" /* Swap */
+            ] : []
           ];
+        }
         case "POINTS" /* Points */:
           return [
             "gift" /* Gift */,
@@ -3042,7 +3161,6 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
       if (!username) {
         return ["transfer" /* Transfer */];
       }
-      const queryClient = sdk.getQueryClient();
       const balancesListQuery = getHiveEngineTokensBalancesQueryOptions(username);
       const balances = await queryClient.ensureQueryData(balancesListQuery);
       const tokensQuery = getHiveEngineTokensMetadataQueryOptions(
@@ -3409,16 +3527,19 @@ var operationToFunctionMap = {
   HIVE: {
     ["transfer" /* Transfer */]: transferHive,
     ["transfer-saving" /* TransferToSavings */]: transferToSavingsHive,
+    ["withdraw-saving" /* WithdrawFromSavings */]: transferFromSavingsHive,
     ["power-up" /* PowerUp */]: powerUpHive
   },
   HBD: {
     ["transfer" /* Transfer */]: transferHive,
-    ["transfer-saving" /* TransferToSavings */]: transferToSavingsHive
+    ["transfer-saving" /* TransferToSavings */]: transferToSavingsHive,
+    ["withdraw-saving" /* WithdrawFromSavings */]: transferFromSavingsHive,
+    ["claim-interest" /* ClaimInterest */]: claimInterestHive
   },
   HP: {
     ["power-down" /* PowerDown */]: powerDownHive,
     ["delegate" /* Delegate */]: delegateHive,
-    ["withdraw-saving" /* WithdrawRoutes */]: withdrawVestingRouteHive
+    ["withdraw-routes" /* WithdrawRoutes */]: withdrawVestingRouteHive
   },
   POINTS: {
     ["gift" /* Gift */]: transferPoint
@@ -3496,6 +3617,7 @@ exports.buildPsbt = buildPsbt;
 exports.buildSolTx = buildSolTx;
 exports.buildTonTx = buildTonTx;
 exports.buildTronTx = buildTronTx;
+exports.claimInterestHive = claimInterestHive;
 exports.decryptMemoWithAccounts = decryptMemoWithAccounts;
 exports.decryptMemoWithKeys = decryptMemoWithKeys;
 exports.delay = delay;
@@ -3553,6 +3675,7 @@ exports.signTx = signTx;
 exports.signTxAndBroadcast = signTxAndBroadcast;
 exports.stakeEngineToken = stakeEngineToken;
 exports.transferEngineToken = transferEngineToken;
+exports.transferFromSavingsHive = transferFromSavingsHive;
 exports.transferHive = transferHive;
 exports.transferLarynx = transferLarynx;
 exports.transferPoint = transferPoint;
