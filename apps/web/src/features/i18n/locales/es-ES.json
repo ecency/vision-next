@@ -2980,7 +2980,7 @@
       "claim-button": "Reclamar interés"
     },
     "claim-rewards": "Reclamar recompensas",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-with-amount": "Reclamar {{amount}} {{token}}",
     "claim-rewards-loading": "Reclamando...",
     "claim-rewards-success": "{{amount}} {{token}} reclamado con éxito",
     "external": {
