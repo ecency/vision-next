@@ -2963,6 +2963,18 @@
       "unstake": "Недовірений",
       "undelegate": "Унделегат"
     },
+    "hbd-interest": {
+      "title": "Індекс економії на HBD",
+      "next-label": "Наступне захоплення",
+      "next-ready": "Готовий до отримання винагороди",
+      "next-in": "Доступно {{relative}}",
+      "next-unknown": "Розклад інтересу недоступний",
+      "next-date": "On {{date}}",
+      "balance-label": "Баланс заощаджень",
+      "minimum-balance": "Interest accrues once you hold at least {{amount}} HBD in savings.",
+      "note": "Процент розраховується постійно на {{apr}}% APR.",
+      "claim-button": "Зажадати інтерес"
+    },
     "claim-rewards": "Запит винагороди",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Захоплення...",
