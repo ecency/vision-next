@@ -2930,10 +2930,14 @@
     "apr": "Nagrody APR",
     "apr-hint": "Roczny procent - szacunkowa wartość nagród, które otrzymasz w kryptowalutach w wybranym przedziale czasowym",
     "delegations": "Delegatury",
+    "hp-total-balance": "Całkowity bilans HP",
+    "delegations-outgoing": "Wychodzące delegacje",
+    "delegations-incoming": "Przychodzące delegacje",
     "external-wallets-offer": {
       "title": "Przynieś swoją kryptowalutę do ecencji",
       "description": "Tworzenie lub importowanie portfeli dla BTC, ETH, BNB, SOL, TRX, APT i TON bezpośrednio z aplikacji takich jak Trust lub Exodus, i zacząć płynnie z nich korzystać w ekosystemie ulowym.",
-      "hint": "Utworzone i importowane informacje o tokenie będą przechowywane w metadanych konta Ecency i Uli"
+      "hint": "Utworzone i importowane informacje o tokenie będą przechowywane w metadanych konta Ecency i Uli",
+      "dismiss": "Może później"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Utwórz konto UL i link do konta UL",
