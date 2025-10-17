@@ -21,9 +21,19 @@ export function makeEntryPath(
   permlink?: string,
   toReplies: boolean = false
 ) {
-  if (!author || !permlink || permlink === "undefined") {
+  if (
+    !author ||
+    !permlink ||
+    typeof permlink !== "string" ||
+    permlink === "undefined" ||
+    permlink.trim().length === 0
+  ) {
     return "#";
   }
 
-  return `/${category}/@${author}/${permlink}${toReplies ? "#replies" : ""}`;
+  const sanitizedPermlink = permlink.trim();
+
+  return `/${category}/@${author}/${sanitizedPermlink}${
+    toReplies ? "#replies" : ""
+  }`;
 }
