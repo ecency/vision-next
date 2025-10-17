@@ -11,9 +11,28 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
-import i18next from "i18next";
+import { useMemo, type ReactNode } from "react";
 import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
+import {
+  ProfileWalletClaimPointsButton,
+  useProfileWalletPointsClaimState,
+} from "../(token)/_components/profile-wallet-claim-points-button";
+import {
+  ProfileWalletHpClaimRewardsButton,
+  useProfileWalletHpClaimState,
+} from "../(token)/_components/profile-wallet-hp-claim-rewards-button";
+import {
+  ProfileWalletHbdClaimRewardsButton,
+  useProfileWalletHbdClaimState,
+} from "../(token)/_components/profile-wallet-hbd-claim-rewards-button";
+import {
+  ProfileWalletHiveClaimRewardsButton,
+  useProfileWalletHiveClaimState,
+} from "../(token)/_components/profile-wallet-hive-claim-rewards-button";
+import {
+  HiveEngineClaimRewardsButton,
+  useHiveEngineClaimRewardsState,
+} from "../(token)/[token]/_components/hive-engine-claim-rewards-button";
 
 interface Props {
   username: string;
@@ -33,8 +52,13 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     getAllTokensListQueryOptions(sanitizedUsername)
   );
 
+  const assetSymbol = useMemo(() => asset.toUpperCase(), [asset]);
+  const layer2Token = useMemo(
+    () => allTokens?.layer2?.find((token) => token.symbol === assetSymbol),
+    [allTokens?.layer2, assetSymbol]
+  );
+
   const logo = useMemo(() => {
-    const layer2Token = allTokens?.layer2?.find((token) => token.symbol === asset);
     if (layer2Token) {
       const icon = getLayer2TokenIcon(layer2Token.metadata);
 
@@ -61,53 +85,32 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     }
 
     return undefined;
-  }, [allTokens?.layer2, asset, data]);
+  }, [assetSymbol, data, layer2Token]);
 
-  const isHpAsset = data?.name === "HP" || asset === "HP";
-  const totalHpBalance = Number(data?.accountBalance ?? 0);
-  const formattedAccountBalance = totalHpBalance.toFixed(3);
-  const totalBalanceValue = totalHpBalance * (data?.price ?? 0);
-  const outgoingHpDelegations = Number(
-    data?.parts?.find((part) => part.name === "outgoing_delegations")?.balance ?? 0
+  const formattedAccountBalance = Number(data?.accountBalance ?? 0).toFixed(3);
+
+  const { hasPendingPoints } = useProfileWalletPointsClaimState(
+    sanitizedUsername,
+    assetSymbol === "POINTS"
   );
-  const incomingHpDelegations = Number(
-    data?.parts?.find((part) => part.name === "incoming_delegations")?.balance ?? 0
+  const { hasRewards: hasHpRewards } = useProfileWalletHpClaimState(
+    sanitizedUsername,
+    assetSymbol === "HP"
   );
-
-  const formatPartLabel = (name?: string) => {
-    if (!name) {
-      return "";
-    }
-
-    if (name === "current") {
-      return "Current";
-    }
-
-    if (name === "savings") {
-      return "Savings";
-    }
-
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  };
-
-  const detailRows = isHpAsset
-    ? [
-        {
-          key: "outgoing_delegations",
-          label: i18next.t("profile-wallet.delegations-outgoing"),
-          balance: outgoingHpDelegations,
-        },
-        {
-          key: "incoming_delegations",
-          label: i18next.t("profile-wallet.delegations-incoming"),
-          balance: incomingHpDelegations,
-        },
-      ]
-    : (data?.parts ?? []).map((part, index) => ({
-        key: part.name ?? `part-${index}`,
-        label: formatPartLabel(part.name),
-        balance: Number(part.balance ?? 0),
-      }));
+  const { hasRewards: hasHbdRewards } = useProfileWalletHbdClaimState(
+    sanitizedUsername,
+    assetSymbol === "HBD"
+  );
+  const { hasRewards: hasHiveRewards } = useProfileWalletHiveClaimState(
+    sanitizedUsername,
+    assetSymbol === "HIVE"
+  );
+  const { hasPendingRewards: hasHiveEngineRewards } =
+    useHiveEngineClaimRewardsState(
+      sanitizedUsername,
+      assetSymbol,
+      Boolean(layer2Token)
+    );
 
   if (!data) {
     return <ProfileWalletTokensListItemLoading />;
@@ -115,54 +118,92 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
 
   const targetHref = `/@${sanitizedUsername}/wallet/${asset.toLowerCase()}`;
 
+  let claimButton: ReactNode = null;
+
+  if (assetSymbol === "POINTS" && hasPendingPoints) {
+    claimButton = (
+      <ProfileWalletClaimPointsButton
+        username={sanitizedUsername}
+        className="w-full sm:w-auto"
+        showIcon
+      />
+    );
+  } else if (assetSymbol === "HP" && hasHpRewards) {
+    claimButton = (
+      <ProfileWalletHpClaimRewardsButton
+        username={sanitizedUsername}
+        className="w-full sm:w-auto"
+        showIcon
+      />
+    );
+  } else if (assetSymbol === "HBD" && hasHbdRewards) {
+    claimButton = (
+      <ProfileWalletHbdClaimRewardsButton
+        username={sanitizedUsername}
+        className="w-full sm:w-auto"
+        showIcon
+      />
+    );
+  } else if (assetSymbol === "HIVE" && hasHiveRewards) {
+    claimButton = (
+      <ProfileWalletHiveClaimRewardsButton
+        username={sanitizedUsername}
+        className="w-full sm:w-auto"
+        showIcon
+      />
+    );
+  } else if (hasHiveEngineRewards) {
+    claimButton = (
+      <HiveEngineClaimRewardsButton
+        className="w-full sm:w-auto"
+        tokenSymbol={assetSymbol}
+        username={sanitizedUsername}
+        showIcon
+        fullWidth
+      />
+    );
+  }
+
+  const claimSection =
+    claimButton && (
+      <div className="px-3 pb-3 pt-3 md:px-4">
+        <div className="flex flex-col items-center text-center">{claimButton}</div>
+      </div>
+    );
+
   return (
     <div className="border-b last:border-0 border-[--border-color]">
-      <Link
-        href={targetHref}
-        className="block cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-dark-sky"
-      >
-        <div className="grid grid-cols-4 p-3 md:p-4">
-          <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
-            <div className="mt-1">{logo}</div>
-            <div>
-              <div>{data?.title}</div>
-              <div className="flex items-center gap-1">
-                <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
-                {data?.layer && (
-                  <Badge className="!rounded-lg !p-0 !px-1" appearance="secondary">
-                    {data.layer}
-                  </Badge>
-                )}
+      <div className="flex flex-col">
+        <Link
+          href={targetHref}
+          className="block cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-dark-sky"
+        >
+          <div className="grid grid-cols-4 p-3 md:p-4">
+            <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
+              <div className="mt-1">{logo}</div>
+              <div>
+                <div>{data?.title}</div>
+                <div className="flex items-center gap-1">
+                  <div className="text-xs text-gray-500 uppercase font-semibold">{data?.name}</div>
+                  {data?.layer && (
+                    <Badge className="!rounded-lg !p-0 !px-1" appearance="secondary">
+                      {data.layer}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
-          </div>
-          <div className="text-gray-900 dark:text-white">
-            <div className="text-base font-semibold">{formattedAccountBalance}</div>
-            {isHpAsset && (
-              <div className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500">
-                <div>{`${i18next.t("profile-wallet.hp-total-balance")}:`}</div>
-                <div>{totalHpBalance.toFixed(3)}</div>
-              </div>
-            )}
-            {detailRows.map(({ key, label, balance }) => (
-              <div
-                key={key}
-                className="flex items-center pl-2 gap-1 text-xs text-gray-600 dark:text-gray-500"
-              >
-                <div>{label ? `${label}:` : ""}</div>
-                <div>{balance.toFixed(3)}</div>
-              </div>
-            ))}
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              <FormattedCurrency value={totalBalanceValue} fixAt={2} />
+            <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+            </div>
+            <div className="text-gray-900 dark:text-white">
+              <div className="text-base font-semibold">{formattedAccountBalance}</div>
             </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+        {claimSection}
+      </div>
     </div>
   );
 }

@@ -9,10 +9,12 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
+import { UilPlus } from "@tooni/iconscout-unicons-react";
 
 type Props = {
   username: string;
   className?: string;
+  showIcon?: boolean;
 };
 
 type ClaimState = {
@@ -55,8 +57,12 @@ export function useProfileWalletHpClaimState(
   };
 }
 
-export function ProfileWalletHpClaimRewardsButton({ username, className }: Props) {
-  const { isOwnProfile, rewardBalance, rewardAmount, hasRewards } =
+export function ProfileWalletHpClaimRewardsButton({
+  username,
+  className,
+  showIcon = false,
+}: Props) {
+  const { isOwnProfile, rewardBalance, hasRewards } =
     useProfileWalletHpClaimState(username);
 
   const { mutateAsync: claimRewards, isPending } = useClaimRewards(
@@ -68,6 +74,13 @@ export function ProfileWalletHpClaimRewardsButton({ username, className }: Props
     return null;
   }
 
+  const icon = showIcon ? (
+    <UilPlus className="w-3 h-3 text-current" />
+  ) : undefined;
+  const iconClassName = showIcon
+    ? "!w-6 !h-6 rounded-full bg-white text-blue-dark-sky shrink-0"
+    : undefined;
+
   return (
     <Button
       size="sm"
@@ -76,8 +89,10 @@ export function ProfileWalletHpClaimRewardsButton({ username, className }: Props
       disabled={!isOwnProfile || isPending}
       isLoading={isPending}
       onClick={() => isOwnProfile && claimRewards()}
+      icon={icon}
+      iconClassName={iconClassName}
     >
-      {`${rewardAmount} HP`}
+      {rewardBalance}
     </Button>
   );
 }

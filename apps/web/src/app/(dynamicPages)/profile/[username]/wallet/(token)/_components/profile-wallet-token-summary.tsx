@@ -25,7 +25,6 @@ import {
   useProfileWalletHiveClaimState,
 } from "./profile-wallet-hive-claim-rewards-button";
 import { ProfileWalletHbdInterest } from "./profile-wallet-hbd-interest";
-import i18next from "i18next";
 
 function format(value: number) {
   const formatter = new Intl.NumberFormat();
@@ -176,48 +175,28 @@ export function ProfileWalletTokenSummary() {
           </div>
           <HiveEngineClaimRewardsButton className="w-full sm:w-auto" />
           {tokenWithFallback === "POINTS" && hasPendingPoints && (
-            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {i18next.t("wallet.unclaimed-rewards")}
-              </div>
-              <ProfileWalletClaimPointsButton
-                username={cleanUsername}
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <ProfileWalletClaimPointsButton
+              username={cleanUsername}
+              className="w-full sm:w-auto"
+            />
           )}
           {tokenWithFallback === "HP" && hasHpRewards && (
-            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {i18next.t("wallet.unclaimed-rewards")}
-              </div>
-              <ProfileWalletHpClaimRewardsButton
-                username={cleanUsername}
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <ProfileWalletHpClaimRewardsButton
+              username={cleanUsername}
+              className="w-full sm:w-auto"
+            />
           )}
           {tokenWithFallback === "HBD" && hasHbdRewards && (
-            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {i18next.t("wallet.unclaimed-rewards")}
-              </div>
-              <ProfileWalletHbdClaimRewardsButton
-                username={cleanUsername}
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <ProfileWalletHbdClaimRewardsButton
+              username={cleanUsername}
+              className="w-full sm:w-auto"
+            />
           )}
           {tokenWithFallback === "HIVE" && hasHiveRewards && (
-            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {i18next.t("wallet.unclaimed-rewards")}
-              </div>
-              <ProfileWalletHiveClaimRewardsButton
-                username={cleanUsername}
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <ProfileWalletHiveClaimRewardsButton
+              username={cleanUsername}
+              className="w-full sm:w-auto"
+            />
           )}
         </div>
       </div>
