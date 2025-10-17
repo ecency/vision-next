@@ -5,7 +5,7 @@ import { Button, FormControl, Modal, ModalBody, ModalHeader } from "@/features/u
 import { List, ListItem } from "@/features/ui/list";
 import { UilCog, UilTimesCircle } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useState, ChangeEvent, useCallback, useMemo } from "react";
+import { useState, ChangeEvent, useCallback, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   EcencyWalletCurrency,
@@ -106,6 +106,8 @@ export function ProfileWalletTokenPicker() {
 
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
+  const [selectedSymbols, setSelectedSymbols] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const normalizedQuery = useMemo(() => query.trim().toLowerCase(), [query]);
 
@@ -200,10 +202,19 @@ export function ProfileWalletTokenPicker() {
     return Array.from(tokensMap.values());
   }, [account?.profile?.tokens, pendingChainTokens, supportedChainSymbols]);
 
-  const selectedTokens = useMemo(
-    () => new Set(walletList ?? []),
-    [walletList]
-  );
+  useEffect(() => {
+    if (show) {
+      setSelectedSymbols(walletList ?? []);
+    }
+  }, [show, walletList]);
+
+  const selectedTokens = useMemo(() => {
+    if (show) {
+      return new Set(selectedSymbols);
+    }
+
+    return new Set(walletList ?? []);
+  }, [show, selectedSymbols, walletList]);
 
   const sortTokensWithSelection = useCallback(
     <T,>(
@@ -228,7 +239,7 @@ export function ProfileWalletTokenPicker() {
           return 0;
         }
 
-        return bKey.localeCompare(aKey);
+        return aKey.localeCompare(bKey);
       });
     },
     [selectedTokens]
@@ -330,42 +341,53 @@ export function ProfileWalletTokenPicker() {
     );
   }, [availableChainTokens]);
 
-  const togglableTokenSymbols = useMemo(() => {
-    return new Set(
-      [
-        ...Array.from(availableExternalTokenSymbols.values()),
-        ...(allTokens?.spk ?? []),
-        ...(allTokens?.layer2?.map((token) => token.symbol) ?? []),
-      ].filter(Boolean)
-    );
-  }, [
-    availableExternalTokenSymbols,
-    allTokens?.spk,
-    allTokens?.layer2,
-  ]);
+  const toggleSelection = useCallback((token: string) => {
+    setSelectedSymbols((previous) => {
+      const set = new Set(previous);
 
-  const update = useCallback(
-    (token: string) => {
-      let list = [...(walletList ?? [])];
-
-      if (list.includes(token)) {
-        const index = list.indexOf(token);
-        delete list[index];
+      if (set.has(token)) {
+        set.delete(token);
       } else {
-        list.push(token);
+        set.add(token);
       }
 
-      list = list.filter((i) => !!i);
+      return Array.from(set.values());
+    });
+  }, []);
 
-      const nextListSet = new Set(list);
-      const previousListSet = new Set(walletList ?? []);
-      const hiddenTokens = new Set(
-        [...Array.from(previousListSet.values())].filter(
-          (symbol) => togglableTokenSymbols.has(symbol) && !nextListSet.has(symbol)
-        )
-      );
+  const hasChanges = useMemo(() => {
+    const currentSet = new Set(walletList ?? []);
 
-      updateWallet([
+    if (currentSet.size !== selectedTokens.size) {
+      return true;
+    }
+
+    for (const token of selectedTokens) {
+      if (!currentSet.has(token)) {
+        return true;
+      }
+    }
+
+    for (const token of currentSet) {
+      if (!selectedTokens.has(token)) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [selectedTokens, walletList]);
+
+  const handleSave = useCallback(async () => {
+    if (isSaving || !hasChanges) {
+      return;
+    }
+
+    setIsSaving(true);
+
+    const nextListSet = new Set(selectedSymbols);
+
+    try {
+      await updateWallet([
         ...R.pipe(
           allTokens?.basic ?? [],
           R.map((currency) => ({ currency, type: "HIVE", show: true }))
@@ -374,30 +396,40 @@ export function ProfileWalletTokenPicker() {
           currency: chainToken.symbol!,
           type: chainToken.type ?? "CHAIN",
           ...(chainToken.meta ?? {}),
-          show: nextListSet.has(chainToken.symbol as string)
+          show: Boolean(chainToken.symbol && nextListSet.has(chainToken.symbol))
         })),
         ...R.pipe(
           allTokens?.spk ?? [],
-          R.filter((currency) => nextListSet.has(currency) || hiddenTokens.has(currency)),
+          R.filter((currency) => nextListSet.has(currency)),
           R.map((currency) => ({
             currency,
             type: "SPK",
-            show: nextListSet.has(currency)
+            show: true
           }))
         ),
         ...R.pipe(
           allTokens?.layer2 ?? [],
-          R.filter(({ symbol }) => nextListSet.has(symbol) || hiddenTokens.has(symbol)),
+          R.filter(({ symbol }) => nextListSet.has(symbol)),
           R.map(({ symbol: currency }) => ({
             currency,
             type: "ENGINE",
-            show: nextListSet.has(currency)
+            show: true
           }))
         )
       ]);
-    },
-    [updateWallet, walletList, allTokens, chainTokensBySymbol, togglableTokenSymbols]
-  );
+
+      setShow(false);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [
+    isSaving,
+    hasChanges,
+    selectedSymbols,
+    updateWallet,
+    allTokens,
+    chainTokensBySymbol,
+  ]);
 
   if (activeUser?.username !== profileUsername) {
     return <></>;
@@ -405,11 +437,41 @@ export function ProfileWalletTokenPicker() {
 
   return (
     <>
-      <Button size="sm" icon={<UilCog />} appearance="gray-link" onClick={() => setShow(true)}>
+      <Button
+        size="sm"
+        icon={<UilCog />}
+        appearance="gray-link"
+        onClick={() => {
+          setSelectedSymbols(walletList ?? []);
+          setShow(true);
+        }}
+      >
         {i18next.t("profile-wallet.setup-tokens")}
       </Button>
-      <Modal show={show} onHide={() => setShow(false)} centered={true}>
-        <ModalHeader closeButton={true}>{i18next.t("profile-wallet.pick-tokens")}</ModalHeader>
+      <Modal
+        show={show}
+        onHide={() => {
+          setShow(false);
+          setSelectedSymbols(walletList ?? []);
+        }}
+        centered={true}
+      >
+        <ModalHeader closeButton={true} className="pr-12">
+          <div className="flex w-full items-center gap-3">
+            <div className="flex-1 text-base">
+              {i18next.t("profile-wallet.pick-tokens")}
+            </div>
+            <Button
+              appearance="primary"
+              size="sm"
+              onClick={handleSave}
+              disabled={!hasChanges || isSaving}
+              isLoading={isSaving}
+            >
+              {i18next.t("g.save")}
+            </Button>
+          </div>
+        </ModalHeader>
         <ModalBody>
           <SearchBox
             placeholder={i18next.t("profile-wallet.search-token")}
@@ -445,8 +507,8 @@ export function ProfileWalletTokenPicker() {
                   <ListItem className="!flex items-center gap-2" key={token}>
                     <FormControl
                       type="checkbox"
-                      checked={walletList?.includes(token) ?? false}
-                      onChange={() => update(token)}
+                      checked={selectedTokens.has(token)}
+                      onChange={() => toggleSelection(token)}
                     />
                     {token}
                   </ListItem>
@@ -463,8 +525,8 @@ export function ProfileWalletTokenPicker() {
                   <ListItem className="!flex items-center gap-2" key={token}>
                     <FormControl
                       type="checkbox"
-                      checked={walletList?.includes(token) ?? false}
-                      onChange={() => update(token)}
+                      checked={selectedTokens.has(token)}
+                      onChange={() => toggleSelection(token)}
                     />
                     <div>{TOKEN_LOGOS_MAP[token]}</div>
                     {token}
@@ -485,8 +547,8 @@ export function ProfileWalletTokenPicker() {
                     <ListItem className="!flex items-center gap-2" key={token.name}>
                       <FormControl
                         type="checkbox"
-                        checked={walletList?.includes(token.symbol) ?? false}
-                        onChange={() => update(token.symbol)}
+                        checked={Boolean(token.symbol && selectedTokens.has(token.symbol))}
+                        onChange={() => token.symbol && toggleSelection(token.symbol)}
                       />
                       {icon ? (
                         <Image
