@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, useClientActiveUser } from "@/api/queries";
 import { success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
+import { formatNumber, parseAsset, vestsToHp } from "@/utils";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 
 type Props = {
@@ -35,17 +36,19 @@ export function useProfileWalletHpClaimState(
     ...getAccountFullQueryOptions(username),
     enabled: enabled && Boolean(username),
   });
-
-  const rewardBalance = useMemo(
-    () => accountData?.reward_vesting_hive ?? "0.000 HP",
-    [accountData?.reward_vesting_hive]
-  );
+  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
   const rewardAmount = useMemo(() => {
-    const [value] = rewardBalance.split(" ");
-    const parsed = Number.parseFloat(value ?? "0");
-    return Number.isFinite(parsed) ? parsed : 0;
-  }, [rewardBalance]);
+    const hivePerMVests = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
+    const rewardVests = parseAsset(accountData?.reward_vesting_balance ?? "0.000000 VESTS").amount;
+    const hp = vestsToHp(rewardVests, hivePerMVests);
+    return Number.isFinite(hp) ? hp : 0;
+  }, [accountData?.reward_vesting_balance, dynamicProps]);
+
+  const rewardBalance = useMemo(
+    () => `${formatNumber(rewardAmount, 3)} HP`,
+    [rewardAmount]
+  );
 
   const hasRewards = rewardAmount > 0;
 
