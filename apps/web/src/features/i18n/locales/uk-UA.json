@@ -2952,7 +2952,7 @@
     },
     "operations": {
       "transfer": "Переказ",
-      "transfer-saving": "В збереження",
+      "transfer-saving": "Депозит в ощадках",
       "power-up": "Збільшення Силу Голосу",
       "power-down": "Зменшення Сили Голосу",
       "swap": "Поміняти",

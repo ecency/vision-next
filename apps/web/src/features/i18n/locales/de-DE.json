@@ -2952,7 +2952,7 @@
     },
     "operations": {
       "transfer": "Überweisung",
-      "transfer-saving": "An Einsparungen",
+      "transfer-saving": "Spareinlage",
       "power-up": "Hochfahren",
       "power-down": "Strom runter",
       "swap": "Tausch",

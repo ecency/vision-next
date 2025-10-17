@@ -2952,7 +2952,7 @@
     },
     "operations": {
       "transfer": "送金",
-      "transfer-saving": "貯蓄へ",
+      "transfer-saving": "貯蓄額",
       "power-up": "パワーアップ",
       "power-down": "パワーダウン",
       "swap": "入れ替え",

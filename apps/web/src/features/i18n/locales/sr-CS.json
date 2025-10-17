@@ -2952,7 +2952,7 @@
     },
     "operations": {
       "transfer": "Transfer",
-      "transfer-saving": "To Savings",
+      "transfer-saving": "Savings Deposit",
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Swap",

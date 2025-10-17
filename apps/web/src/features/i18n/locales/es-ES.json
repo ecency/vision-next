@@ -2952,7 +2952,7 @@
     },
     "operations": {
       "transfer": "Transferir",
-      "transfer-saving": "A ahorros",
+      "transfer-saving": "Depósito de ahorro",
       "power-up": "Power Up (Potenciar)",
       "power-down": "Power Down (Apagado)",
       "swap": "Intercambiar",
@@ -2980,7 +2980,7 @@
       "claim-button": "Reclamar interés"
     },
     "claim-rewards": "Reclamar recompensas",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-with-amount": "Reclamar {{amount}} {{token}}",
     "claim-rewards-loading": "Reclamando...",
     "claim-rewards-success": "{{amount}} {{token}} reclamado con éxito",
     "external": {

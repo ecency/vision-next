@@ -2952,7 +2952,7 @@
     },
     "operations": {
       "transfer": "Przelew",
-      "transfer-saving": "Oszczędności",
+      "transfer-saving": "Depozyt oszczędnościowy",
       "power-up": "Zasil",
       "power-down": "Siła w dół",
       "swap": "Zamień",
