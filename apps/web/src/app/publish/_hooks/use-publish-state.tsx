@@ -4,57 +4,88 @@ import {
   SUBMIT_TITLE_MAX_LENGTH
 } from "@/app/submit/_consts";
 import { BeneficiaryRoute, Entry } from "@/entities";
-import { extractMetaData, useSynchronizedState } from "@/utils";
+import { extractMetaData } from "@/utils";
 import dayjs from "@/utils/dayjs";
 import { postBodySummary } from "@ecency/render-helper";
 import { ThreeSpeakVideo } from "@ecency/sdk";
 import i18next from "i18next";
-import { useCallback, useEffect, useMemo } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import isEqual from "react-fast-compare";
 import { usePublishPollState } from "./use-publish-poll-state";
 
-export function usePublishState() {
-  const [title, setStoredTitle] = useSynchronizedState<string>("publish:title", "");
-  const [content, setContent] = useSynchronizedState<string>("publish:content", "");
-  const [reward, setReward] = useSynchronizedState<string>("publish:reward", "default");
-  const [beneficiaries, setBeneficiaries] = useSynchronizedState<BeneficiaryRoute[]>(
-    "publish:beneficiaries",
-    []
-  );
-  const [metaDescription, setStoredMetaDescription] = useSynchronizedState<string>(
-    "publish:metaDescription",
-    ""
-  );
-  const [schedule, setSchedule] = useSynchronizedState<Date | undefined>(
-    "publish:schedule",
-    undefined
-  );
-  const [tags, setStoredTags] = useSynchronizedState<string[]>("publish:tags", []);
-  const [selectedThumbnail, setSelectedThumbnail] = useSynchronizedState<string>(
-    "publish:selectedThumbnail",
-    ""
-  );
-  const [skipAutoThumbnailSelection, setSkipAutoThumbnailSelection] = useSynchronizedState<boolean>(
-    "publish:skipAutoThumbnailSelection",
-    false
-  );
-  const [isReblogToCommunity, setIsReblogToCommunity] = useSynchronizedState<boolean>(
-    "publish:isReblogToCommunity",
-    false
-  );
-  const [publishingVideo, setPublishingVideo] = useSynchronizedState<ThreeSpeakVideo | undefined>(
-    "publish:publishingVideo",
-    undefined
-  );
-  const [postLinks, setPostLinks] = useSynchronizedState<Entry[]>("publish:postLinks", []);
-  const [entryImages, setEntryImages] = useSynchronizedState<string[]>("publish:entryImages", []);
-  const [location, setLocation] = useSynchronizedState<
+interface PublishStateContextValue {
+  title: string;
+  content: string;
+  setTitle: (value: string) => void;
+  setContent: (value: string) => void;
+  reward: string;
+  setReward: (value: string) => void;
+  beneficiaries: BeneficiaryRoute[];
+  setBeneficiaries: (value: BeneficiaryRoute[]) => void;
+  metaDescription: string;
+  setMetaDescription: (value: string) => void;
+  schedule: Date | undefined;
+  setSchedule: (value: Date | undefined) => void;
+  clearSchedule: () => void;
+  tags: string[];
+  setTags: (value: string[]) => void;
+  thumbnails: string[];
+  selectedThumbnail: string;
+  setSelectedThumbnail: (value: string) => void;
+  clearAll: () => void;
+  isReblogToCommunity: boolean;
+  setIsReblogToCommunity: (value: boolean) => void;
+  poll: any;
+  setPoll: (value: any) => void;
+  createDefaultPoll: () => void;
+  publishingVideo: ThreeSpeakVideo | undefined;
+  setPublishingVideo: (value: ThreeSpeakVideo | undefined) => void;
+  clearPublishingVideo: () => void;
+  postLinks: Entry[];
+  setPostLinks: (value: Entry[]) => void;
+  setEntryImages: (value: string[]) => void;
+  location:
+    | {
+        coordinates: { lng: number; lat: number };
+        address?: string;
+      }
+    | undefined;
+  setLocation: (
+    value:
+      | {
+          coordinates: { lng: number; lat: number };
+          address?: string;
+        }
+      | undefined
+  ) => void;
+  clearLocation: () => void;
+  skipAutoThumbnailSelection: boolean;
+  clearSelectedThumbnail: () => void;
+}
+
+const PublishStateContext = createContext<PublishStateContextValue | undefined>(undefined);
+
+export function PublishStateProvider({ children }: { children: React.ReactNode }) {
+  const [title, setStoredTitle] = useState<string>("");
+  const [content, setContent] = useState<string>("");
+  const [reward, setReward] = useState<string>("default");
+  const [beneficiaries, setBeneficiaries] = useState<BeneficiaryRoute[]>([]);
+  const [metaDescription, setStoredMetaDescription] = useState<string>("");
+  const [schedule, setSchedule] = useState<Date | undefined>(undefined);
+  const [tags, setStoredTags] = useState<string[]>([]);
+  const [selectedThumbnail, setSelectedThumbnail] = useState<string>("");
+  const [skipAutoThumbnailSelection, setSkipAutoThumbnailSelection] = useState<boolean>(false);
+  const [isReblogToCommunity, setIsReblogToCommunity] = useState<boolean>(false);
+  const [publishingVideo, setPublishingVideo] = useState<ThreeSpeakVideo | undefined>(undefined);
+  const [postLinks, setPostLinks] = useState<Entry[]>([]);
+  const [entryImages, setEntryImages] = useState<string[]>([]);
+  const [location, setLocation] = useState<
     | {
         coordinates: { lng: number; lat: number };
         address?: string;
       }
     | undefined
-  >("publish:location", undefined);
+  >(undefined);
   const [poll, setPoll] = usePublishPollState(false);
 
   const clearSchedule = useCallback(() => setSchedule(undefined), []);
@@ -200,41 +231,55 @@ export function usePublishState() {
     setIsReblogToCommunity
   ]);
 
-  return {
-    title,
-    content,
-    setTitle,
-    setContent,
-    reward,
-    setReward,
-    beneficiaries,
-    setBeneficiaries,
-    metaDescription,
-    setMetaDescription,
-    schedule,
-    setSchedule,
-    clearSchedule,
-    tags,
-    setTags,
-    thumbnails,
-    selectedThumbnail,
-    setSelectedThumbnail,
-    clearAll,
-    isReblogToCommunity,
-    setIsReblogToCommunity,
-    poll,
-    setPoll,
-    createDefaultPoll,
-    publishingVideo,
-    setPublishingVideo,
-    clearPublishingVideo,
-    postLinks,
-    setPostLinks,
-    setEntryImages,
-    location,
-    setLocation,
-    clearLocation,
-    skipAutoThumbnailSelection,
-    clearSelectedThumbnail: _clearSelectedThumbnail
-  };
+  return (
+    <PublishStateContext.Provider
+      value={{
+        title,
+        content,
+        setTitle,
+        setContent,
+        reward,
+        setReward,
+        beneficiaries,
+        setBeneficiaries,
+        metaDescription,
+        setMetaDescription,
+        schedule,
+        setSchedule,
+        clearSchedule,
+        tags,
+        setTags,
+        thumbnails,
+        selectedThumbnail,
+        setSelectedThumbnail,
+        clearAll,
+        isReblogToCommunity,
+        setIsReblogToCommunity,
+        poll,
+        setPoll,
+        createDefaultPoll,
+        publishingVideo,
+        setPublishingVideo,
+        clearPublishingVideo,
+        postLinks,
+        setPostLinks,
+        setEntryImages,
+        location,
+        setLocation,
+        clearLocation,
+        skipAutoThumbnailSelection,
+        clearSelectedThumbnail: _clearSelectedThumbnail
+      }}
+    >
+      {children}
+    </PublishStateContext.Provider>
+  );
+}
+
+export function usePublishState() {
+  const context = useContext(PublishStateContext);
+  if (context === undefined) {
+    throw new Error("usePublishState must be used within a PublishStateProvider");
+  }
+  return context;
 }

@@ -4,10 +4,11 @@ import { Feedback, Navbar, Theme } from "@/features/shared";
 import { PropsWithChildren } from "react";
 import { PublishOnboarding } from "./_components";
 import "./page.scss";
+import { PublishStateProvider } from "./_hooks";
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
-    <>
+    <PublishStateProvider>
       <Theme />
       <Feedback />
       <Navbar experimental={true} />
@@ -15,6 +16,6 @@ export default function Layout({ children }: PropsWithChildren) {
         <div className="md:pt-24 min-h-[100vh] mb-24 md:mb-0">{children}</div>
       </div>
       <PublishOnboarding />
-    </>
+    </PublishStateProvider>
   );
 }
