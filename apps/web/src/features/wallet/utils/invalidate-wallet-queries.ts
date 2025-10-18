@@ -4,51 +4,40 @@ const WALLET_QUERY_NAMESPACE = "ecency-wallets" as const;
 const ASSETS_QUERY_NAMESPACE = "assets" as const;
 const ASSET_GENERAL_INFO_SCOPE = "general-info" as const;
 
-const USER_SCOPED_QUERY_KEYS = new Set([
-  "asset-info",
-  "list",
-  "wallets",
-  "all-tokens-list"
-]);
+const USER_SCOPED_QUERY_KEY_PREFIXES = [
+  [WALLET_QUERY_NAMESPACE, "asset-info"] as const,
+  [WALLET_QUERY_NAMESPACE, "list"] as const,
+  [WALLET_QUERY_NAMESPACE, "wallets"] as const,
+  [WALLET_QUERY_NAMESPACE, "all-tokens-list"] as const
+];
 
-function isWalletNamespaceQuery(
-  queryKey: unknown,
+function invalidateWalletNamespaceQueries(
+  queryClient: QueryClient,
   username: string
-): boolean {
-  if (!Array.isArray(queryKey)) {
-    return false;
+) {
+  for (const queryKeyPrefix of USER_SCOPED_QUERY_KEY_PREFIXES) {
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeyPrefix, username]
+    });
   }
-
-  if (queryKey[0] !== WALLET_QUERY_NAMESPACE) {
-    return false;
-  }
-
-  const scope = queryKey[1];
-
-  if (!USER_SCOPED_QUERY_KEYS.has(scope as string)) {
-    return false;
-  }
-
-  return queryKey[2] === username;
 }
 
-function isAssetGeneralInfoQuery(
-  queryKey: unknown,
+function invalidateAssetGeneralInfoQueries(
+  queryClient: QueryClient,
   username: string
-): boolean {
-  if (!Array.isArray(queryKey)) {
-    return false;
-  }
+) {
+  const generalInfoQueries = queryClient
+    .getQueryCache()
+    .findAll({ queryKey: [ASSETS_QUERY_NAMESPACE] })
+    .filter(({ queryKey }) =>
+      Array.isArray(queryKey) &&
+      queryKey.includes(ASSET_GENERAL_INFO_SCOPE) &&
+      queryKey[queryKey.length - 1] === username
+    );
 
-  if (queryKey[0] !== ASSETS_QUERY_NAMESPACE) {
-    return false;
+  for (const { queryKey } of generalInfoQueries) {
+    queryClient.invalidateQueries({ queryKey });
   }
-
-  if (!queryKey.includes(ASSET_GENERAL_INFO_SCOPE)) {
-    return false;
-  }
-
-  return queryKey[queryKey.length - 1] === username;
 }
 
 export function invalidateWalletQueries(
@@ -60,10 +49,7 @@ export function invalidateWalletQueries(
   }
 
   setTimeout(() => {
-    queryClient.invalidateQueries({
-      predicate: ({ queryKey }) =>
-        isWalletNamespaceQuery(queryKey, username) ||
-        isAssetGeneralInfoQuery(queryKey, username)
-    });
-  }, 5000);
+    invalidateWalletNamespaceQueries(queryClient, username);
+    invalidateAssetGeneralInfoQueries(queryClient, username);
+  }, 6000);
 }
