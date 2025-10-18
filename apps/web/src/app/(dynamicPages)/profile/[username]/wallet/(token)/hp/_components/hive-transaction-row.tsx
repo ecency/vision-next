@@ -271,6 +271,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
         type={tr.type}
         timestamp={tr.timestamp}
         numbers={numbers}
+        rawDetails={tr}
       >
         {details}
       </ProfileWalletTokenHistoryHiveItem>
@@ -283,6 +284,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       type={tr.type}
       timestamp={tr.timestamp}
       numbers={numbers}
+      rawDetails={tr}
     >
       <code>{JSON.stringify(tr)}</code>
     </ProfileWalletTokenHistoryHiveItem>

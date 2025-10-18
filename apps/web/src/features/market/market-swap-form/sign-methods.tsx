@@ -17,6 +17,8 @@ import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import i18next from "i18next";
 import { hsLogoSvg, kcLogoSvg } from "@ui/svg";
+import { useQueryClient } from "@tanstack/react-query";
+import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
 
 export interface Props {
   disabled: boolean;
@@ -40,6 +42,8 @@ export const SignMethods = ({
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+  const queryClient = useQueryClient();
+  const activeUsername = activeUser?.username;
 
   const [showSignByKey, setShowSignByKey] = useState(false);
   const [isSignByKeyLoading, setIsSignByKeyLoading] = useState(false);
@@ -93,6 +97,7 @@ export const SignMethods = ({
       await action(amount);
       const account = await getAccountFull(activeUser!.username);
       await updateActiveUser(account);
+      invalidateWalletQueries(queryClient, activeUsername);
       onSuccess();
     } catch (e) {
       error(...formatError(e));
