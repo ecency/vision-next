@@ -1,7 +1,7 @@
 {
   "name": "@ecency/wallets",
   "private": false,
-  "version": "1.4.21",
+  "version": "1.4.22",
   "type": "module",
   "license": "MIT",
   "files": [

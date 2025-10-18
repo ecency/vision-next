@@ -8,5 +8,7 @@ export * from "./hive-operation-orders";
 export * from "./hive-operation-list";
 export * from "./hive-operation-orders";
 export * from "./hive-operation-list";
+export * from "./hive-operation-orders";
+export * from "./hive-operation-list";
 export * from "./hive-operation-list";
 export * from "./hive-operation-list";
