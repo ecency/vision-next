@@ -1,32 +1,39 @@
 "use client";
 
 import { useInfiniteDataFlow } from "@/utils";
-import { getHbdAssetTransactionsQueryOptions } from "@ecency/wallets";
+import {
+  getHbdAssetTransactionsQueryOptions,
+  type HiveOperationFilterValue,
+} from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useMount } from "react-use";
-import { ProfileWalletTokenHistoryCard } from "../_components";
+import {
+  DEFAULT_HIVE_OPERATION_FILTERS,
+  HiveOperationFilterSelect,
+  ProfileWalletTokenHistoryCard,
+} from "../_components";
 import { HiveTransactionRow } from "./_components";
-import { Button, FormControl } from "@/features/ui";
+import { Button } from "@/features/ui";
+import { Spinner } from "@/features/ui/spinner";
 import { TradingViewWidget } from "@/features/trading-view";
 import i18next from "i18next";
 import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 
-const OPTIONS = ["rewards", "transfers", "stake-operations", "market-orders", "interests"].map(
-  (value) => ({
-    value,
-    label: i18next.t(`transactions.group-${value}`)
-  })
-);
-
 export function HbdPage() {
   const { username } = useParams();
 
-  const [type, setType] = useState("transfers");
+  const [filters, setFilters] = useState<HiveOperationFilterValue[]>(
+    DEFAULT_HIVE_OPERATION_FILTERS
+  );
 
-  const { data, refetch } = useInfiniteQuery(
-    getHbdAssetTransactionsQueryOptions((username as string).replace("%40", ""), 1000, type as any)
+  const { data, refetch, isFetching, status } = useInfiniteQuery(
+    getHbdAssetTransactionsQueryOptions(
+      (username as string).replace("%40", ""),
+      1000,
+      filters
+    )
   );
   const dataFlow = useInfiniteDataFlow(data);
 
@@ -42,6 +49,9 @@ export function HbdPage() {
       ),
     [uniqueTransactionsList]
   );
+
+  const showSpinner =
+    status === "loading" || (isFetching && sortedTransactions.length === 0);
 
   useMount(() => refetch());
 
@@ -68,18 +78,21 @@ export function HbdPage() {
       </div>
       <ProfileWalletTokenHistoryCard
         action={
-          <FormControl value={type} onChange={(e) => setType((e.target as any).value)} type="select">
-            {OPTIONS.map(({ label, value }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </FormControl>
+          <HiveOperationFilterSelect
+            selected={filters}
+            onChange={setFilters}
+          />
         }
       >
-        {sortedTransactions.map((item, i) => (
-          <HiveTransactionRow transaction={item} key={i} />
-        ))}
+        {showSpinner ? (
+          <div className="flex justify-center py-12">
+            <Spinner className="w-6 h-6" />
+          </div>
+        ) : (
+          sortedTransactions.map((item, i) => (
+            <HiveTransactionRow transaction={item} key={i} />
+          ))
+        )}
       </ProfileWalletTokenHistoryCard>
     </>
   );

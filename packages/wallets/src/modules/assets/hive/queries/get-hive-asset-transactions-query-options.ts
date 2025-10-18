@@ -5,60 +5,94 @@ import { HIVE_ACCOUNT_OPERATION_GROUPS } from "../consts";
 import {
   AuthorReward,
   ClaimRewardBalance,
+  HiveOperationFilter,
+  HiveOperationFilterKey,
+  HiveOperationFilterValue,
   HiveOperationGroup,
+  HiveOperationName,
   HiveTransaction,
 } from "../types";
 import { parseAsset } from "../../utils";
 
+const operationOrders = utils.operationOrders;
+
+function isHiveOperationName(value: string): value is HiveOperationName {
+  return Object.prototype.hasOwnProperty.call(operationOrders, value);
+}
+
+export function resolveHiveOperationFilters(
+  filters: HiveOperationFilter
+): {
+  filterKey: HiveOperationFilterKey;
+  filterArgs: any[];
+} {
+  const rawValues: HiveOperationFilterValue[] = Array.isArray(filters)
+    ? filters
+    : [filters];
+
+  const hasAll = rawValues.includes("" as HiveOperationGroup);
+
+  const uniqueValues = Array.from(
+    new Set(
+      rawValues.filter(
+        (value): value is HiveOperationFilterValue =>
+          value !== undefined && value !== null && value !== ("" as HiveOperationGroup)
+      )
+    )
+  );
+
+  const filterKey: HiveOperationFilterKey =
+    hasAll || uniqueValues.length === 0
+      ? "all"
+      : uniqueValues
+          .map((value) => value.toString())
+          .sort()
+          .join("|");
+
+  const operationIds = new Set<number>();
+
+  if (!hasAll) {
+    uniqueValues.forEach((value) => {
+      if (value in HIVE_ACCOUNT_OPERATION_GROUPS) {
+        HIVE_ACCOUNT_OPERATION_GROUPS[value as HiveOperationGroup].forEach((id) =>
+          operationIds.add(id)
+        );
+        return;
+      }
+
+      if (isHiveOperationName(value)) {
+        operationIds.add(operationOrders[value]);
+      }
+    });
+  }
+
+  const filterArgs = utils.makeBitMaskFilter(Array.from(operationIds));
+
+  return {
+    filterKey,
+    filterArgs,
+  };
+}
+
 export function getHiveAssetTransactionsQueryOptions(
   username: string | undefined,
   limit = 20,
-  group: HiveOperationGroup
+  filters: HiveOperationFilter = []
 ) {
+  const { filterArgs, filterKey } = resolveHiveOperationFilters(filters);
+
   return infiniteQueryOptions<HiveTransaction[]>({
-    queryKey: ["assets", "hive", "transactions", username, limit, group],
+    queryKey: ["assets", "hive", "transactions", username, limit, filterKey],
     initialData: { pages: [], pageParams: [] },
     initialPageParam: -1,
     getNextPageParam: (lastPage, __) =>
       lastPage ? +(lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1,
 
     queryFn: async ({ pageParam }) => {
-      let filters = [];
-
-      switch (group) {
-        case "transfers":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["transfers"]
-          );
-          break;
-        case "market-orders":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["market-orders"]
-          );
-          break;
-        case "interests":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["interests"]
-          );
-          break;
-        case "stake-operations":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["stake-operations"]
-          );
-          break;
-        case "rewards":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["rewards"]
-          );
-          break;
-        default:
-          filters = utils.makeBitMaskFilter([]);
-      }
-
       const response = await CONFIG.hiveClient.call(
         "condenser_api",
         "get_account_history",
-        [username, pageParam, limit, ...filters]
+        [username, pageParam, limit, ...filterArgs]
       );
 
       return response.map(

@@ -3,19 +3,24 @@ import { parseAsset } from "../../utils";
 import {
   AuthorReward,
   ClaimRewardBalance,
-  HiveOperationGroup,
+  HiveOperationFilter,
   HiveTransaction,
 } from "../types";
-import { getHiveAssetTransactionsQueryOptions } from "./get-hive-asset-transactions-query-options";
+import {
+  getHiveAssetTransactionsQueryOptions,
+  resolveHiveOperationFilters,
+} from "./get-hive-asset-transactions-query-options";
 
 export function getHbdAssetTransactionsQueryOptions(
   username: string | undefined,
   limit = 20,
-  group: HiveOperationGroup
+  filters: HiveOperationFilter = []
 ) {
+  const { filterKey } = resolveHiveOperationFilters(filters);
+
   return infiniteQueryOptions<HiveTransaction[]>({
-    ...getHiveAssetTransactionsQueryOptions(username, limit, group),
-    queryKey: ["assets", "hbd", "transactions", username, limit, group],
+    ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
+    queryKey: ["assets", "hbd", "transactions", username, limit, filterKey],
     select: ({ pages, pageParams }) => ({
       pageParams,
       pages: pages.map((page) =>
