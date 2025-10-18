@@ -178,7 +178,7 @@ export const updateDraft = (
   body: string,
   tags: string,
   meta: DraftMetadata
-): Promise<any> => {
+): Promise<{ drafts: Draft[] }> => {
   const data = { code: getAccessToken(username), id: draftId, title, body, tags, meta };
   return appAxios.post(apiBase(`/private-api/drafts-update`), data).then((resp) => resp.data);
 };

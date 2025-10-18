@@ -42,3 +42,4 @@ export * from "./get-pure-post-text";
 export * from "./speech";
 export * from "./normalize-beneficiary-weight";
 export { default as dayjs } from "./dayjs";
+export * from "./use-synchronized-state";

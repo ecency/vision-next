@@ -15,6 +15,7 @@ import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 
 type SaveDraftOptions = {
   showToast?: boolean;
+  redirect?: boolean;
 };
 
 export function useSaveDraftApi(draftId?: string) {
@@ -44,7 +45,7 @@ export function useSaveDraftApi(draftId?: string) {
 
   return useMutation({
     mutationKey: ["saveDraft-2.0", draftId],
-    mutationFn: async ({ showToast = true }: SaveDraftOptions = {}) => {
+    mutationFn: async ({ showToast = true, redirect = true }: SaveDraftOptions = {}) => {
       if (!activeUser?.username) {
         throw new Error("[Draft] No active user");
       }
@@ -59,9 +60,7 @@ export function useSaveDraftApi(draftId?: string) {
         .extractFromBody(content!)
         .withTags(tags)
         // It should select filled description or if its empty or null/undefined then get auto summary
-        .withSummary(
-          metaDescription! || postBodySummary(content!, SUBMIT_DESCRIPTION_MAX_LENGTH)
-        )
+        .withSummary(metaDescription! || postBodySummary(content!, SUBMIT_DESCRIPTION_MAX_LENGTH))
         .withPostLinks(postLinks)
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
@@ -79,10 +78,12 @@ export function useSaveDraftApi(draftId?: string) {
       };
 
       if (draftId) {
-        await updateDraft(username, draftId, title!, content!, tagJ!, draftMeta);
+        const resp = await updateDraft(username, draftId, title!, content!, tagJ!, draftMeta);
         if (showToast) {
           success(i18next.t("submit.draft-updated"));
         }
+
+        queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], resp.drafts);
       } else {
         const resp = await addDraft(username, title!, content!, tagJ!, draftMeta);
         if (showToast) {
@@ -94,7 +95,11 @@ export function useSaveDraftApi(draftId?: string) {
 
         queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
 
-        router.push(`/publish/drafts/${draft._id}`);
+        if (redirect) {
+          router.push(`/publish/drafts/${draft._id}`);
+        }
+
+        return drafts[drafts.length - 1]._id;
       }
 
       recordActivity();
