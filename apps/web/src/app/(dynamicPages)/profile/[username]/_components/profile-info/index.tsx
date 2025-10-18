@@ -104,17 +104,30 @@ interface Props {
   account: Account;
 }
 
+function isFullAccount(account: Account): account is FullAccount {
+  return Boolean((account as FullAccount)?.__loaded);
+}
+
 export function ProfileInfo({ account }: Props) {
-  const { data, isLoading: isRcLoading } = useQuery(getAccountRcQueryOptions(account.name));
+  const hasFullAccount = isFullAccount(account);
+  const { data } = useQuery({
+    ...getAccountRcQueryOptions(account.name),
+    enabled: hasFullAccount,
+  });
   const rcAccount = useMemo(() => data?.[0], [data]);
-  const isLoaded = Boolean(account?.__loaded) && !isRcLoading;
 
   return (
     <StyledTooltip
-      content={isLoaded ? <ProfileInfoContent account={account} rcAccount={rcAccount} /> : <></>}
+      content={
+        hasFullAccount ? (
+          <ProfileInfoContent account={account} rcAccount={rcAccount} />
+        ) : (
+          <></>
+        )
+      }
     >
       <Button
-        isLoading={!isLoaded}
+        isLoading={!hasFullAccount}
         icon={<UilInfoCircle width={20} height={20} />}
         size="xs"
         appearance="gray"

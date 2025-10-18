@@ -925,50 +925,67 @@ var HIVE_ACCOUNT_OPERATION_GROUPS = {
     ops.comment_benefactor_reward,
     ops.liquidity_reward,
     ops.proposal_pay
-  ]};
+  ],
+  "": []
+};
+var HIVE_OPERATION_LIST = Object.keys(
+  dhive.utils.operationOrders
+);
+var operationOrders = dhive.utils.operationOrders;
+var HIVE_OPERATION_ORDERS = operationOrders;
+var HIVE_OPERATION_NAME_BY_ID = Object.entries(operationOrders).reduce((acc, [name, id]) => {
+  acc[id] = name;
+  return acc;
+}, {});
 
 // src/modules/assets/hive/queries/get-hive-asset-transactions-query-options.ts
-function getHiveAssetTransactionsQueryOptions(username, limit = 20, group) {
+var operationOrders2 = dhive.utils.operationOrders;
+function isHiveOperationName(value) {
+  return Object.prototype.hasOwnProperty.call(operationOrders2, value);
+}
+function resolveHiveOperationFilters(filters) {
+  const rawValues = Array.isArray(filters) ? filters : [filters];
+  const hasAll = rawValues.includes("");
+  const uniqueValues = Array.from(
+    new Set(
+      rawValues.filter(
+        (value) => value !== void 0 && value !== null && value !== ""
+      )
+    )
+  );
+  const filterKey = hasAll || uniqueValues.length === 0 ? "all" : uniqueValues.map((value) => value.toString()).sort().join("|");
+  const operationIds = /* @__PURE__ */ new Set();
+  if (!hasAll) {
+    uniqueValues.forEach((value) => {
+      if (value in HIVE_ACCOUNT_OPERATION_GROUPS) {
+        HIVE_ACCOUNT_OPERATION_GROUPS[value].forEach(
+          (id) => operationIds.add(id)
+        );
+        return;
+      }
+      if (isHiveOperationName(value)) {
+        operationIds.add(operationOrders2[value]);
+      }
+    });
+  }
+  const filterArgs = dhive.utils.makeBitMaskFilter(Array.from(operationIds));
+  return {
+    filterKey,
+    filterArgs
+  };
+}
+function getHiveAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterArgs, filterKey } = resolveHiveOperationFilters(filters);
   return reactQuery.infiniteQueryOptions({
-    queryKey: ["assets", "hive", "transactions", username, limit, group],
+    queryKey: ["assets", "hive", "transactions", username, limit, filterKey],
     initialData: { pages: [], pageParams: [] },
     initialPageParam: -1,
     getNextPageParam: (lastPage, __) => lastPage ? +(lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1,
     queryFn: async ({ pageParam }) => {
-      let filters = [];
-      switch (group) {
-        case "transfers":
-          filters = dhive.utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["transfers"]
-          );
-          break;
-        case "market-orders":
-          filters = dhive.utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["market-orders"]
-          );
-          break;
-        case "interests":
-          filters = dhive.utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["interests"]
-          );
-          break;
-        case "stake-operations":
-          filters = dhive.utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["stake-operations"]
-          );
-          break;
-        case "rewards":
-          filters = dhive.utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["rewards"]
-          );
-          break;
-        default:
-          filters = dhive.utils.makeBitMaskFilter([]);
-      }
       const response = await sdk.CONFIG.hiveClient.call(
         "condenser_api",
         "get_account_history",
-        [username, pageParam, limit, ...filters]
+        [username, pageParam, limit, ...filterArgs]
       );
       return response.map(
         (x) => ({
@@ -1023,10 +1040,18 @@ function getHiveAssetTransactionsQueryOptions(username, limit = 20, group) {
     })
   });
 }
-function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, group) {
+function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterKey } = resolveHiveOperationFilters(filters);
   return reactQuery.infiniteQueryOptions({
-    ...getHiveAssetTransactionsQueryOptions(username, limit, group),
-    queryKey: ["assets", "hive-power", "transactions", username, limit, group],
+    ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
+    queryKey: [
+      "assets",
+      "hive-power",
+      "transactions",
+      username,
+      limit,
+      filterKey
+    ],
     select: ({ pages, pageParams }) => ({
       pageParams,
       pages: pages.map(
@@ -1070,10 +1095,11 @@ function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, group) 
     })
   });
 }
-function getHbdAssetTransactionsQueryOptions(username, limit = 20, group) {
+function getHbdAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterKey } = resolveHiveOperationFilters(filters);
   return reactQuery.infiniteQueryOptions({
-    ...getHiveAssetTransactionsQueryOptions(username, limit, group),
-    queryKey: ["assets", "hbd", "transactions", username, limit, group],
+    ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
+    queryKey: ["assets", "hbd", "transactions", username, limit, filterKey],
     select: ({ pages, pageParams }) => ({
       pageParams,
       pages: pages.map(
@@ -3686,6 +3712,10 @@ exports.AssetOperation = AssetOperation;
 exports.EcencyWalletBasicTokens = EcencyWalletBasicTokens;
 exports.EcencyWalletCurrency = EcencyWalletCurrency;
 exports.EcencyWalletsPrivateApi = private_api_exports;
+exports.HIVE_ACCOUNT_OPERATION_GROUPS = HIVE_ACCOUNT_OPERATION_GROUPS;
+exports.HIVE_OPERATION_LIST = HIVE_OPERATION_LIST;
+exports.HIVE_OPERATION_NAME_BY_ID = HIVE_OPERATION_NAME_BY_ID;
+exports.HIVE_OPERATION_ORDERS = HIVE_OPERATION_ORDERS;
 exports.NaiMap = NaiMap;
 exports.PointTransactionType = PointTransactionType;
 exports.Symbol = Symbol2;
@@ -3746,6 +3776,7 @@ exports.parseAsset = parseAsset;
 exports.powerDownHive = powerDownHive;
 exports.powerUpHive = powerUpHive;
 exports.powerUpLarynx = powerUpLarynx;
+exports.resolveHiveOperationFilters = resolveHiveOperationFilters;
 exports.rewardSpk = rewardSpk;
 exports.signDigest = signDigest;
 exports.signExternalTx = signExternalTx;

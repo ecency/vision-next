@@ -898,50 +898,67 @@ var HIVE_ACCOUNT_OPERATION_GROUPS = {
     ops.comment_benefactor_reward,
     ops.liquidity_reward,
     ops.proposal_pay
-  ]};
+  ],
+  "": []
+};
+var HIVE_OPERATION_LIST = Object.keys(
+  utils.operationOrders
+);
+var operationOrders = utils.operationOrders;
+var HIVE_OPERATION_ORDERS = operationOrders;
+var HIVE_OPERATION_NAME_BY_ID = Object.entries(operationOrders).reduce((acc, [name, id]) => {
+  acc[id] = name;
+  return acc;
+}, {});
 
 // src/modules/assets/hive/queries/get-hive-asset-transactions-query-options.ts
-function getHiveAssetTransactionsQueryOptions(username, limit = 20, group) {
+var operationOrders2 = utils.operationOrders;
+function isHiveOperationName(value) {
+  return Object.prototype.hasOwnProperty.call(operationOrders2, value);
+}
+function resolveHiveOperationFilters(filters) {
+  const rawValues = Array.isArray(filters) ? filters : [filters];
+  const hasAll = rawValues.includes("");
+  const uniqueValues = Array.from(
+    new Set(
+      rawValues.filter(
+        (value) => value !== void 0 && value !== null && value !== ""
+      )
+    )
+  );
+  const filterKey = hasAll || uniqueValues.length === 0 ? "all" : uniqueValues.map((value) => value.toString()).sort().join("|");
+  const operationIds = /* @__PURE__ */ new Set();
+  if (!hasAll) {
+    uniqueValues.forEach((value) => {
+      if (value in HIVE_ACCOUNT_OPERATION_GROUPS) {
+        HIVE_ACCOUNT_OPERATION_GROUPS[value].forEach(
+          (id) => operationIds.add(id)
+        );
+        return;
+      }
+      if (isHiveOperationName(value)) {
+        operationIds.add(operationOrders2[value]);
+      }
+    });
+  }
+  const filterArgs = utils.makeBitMaskFilter(Array.from(operationIds));
+  return {
+    filterKey,
+    filterArgs
+  };
+}
+function getHiveAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterArgs, filterKey } = resolveHiveOperationFilters(filters);
   return infiniteQueryOptions({
-    queryKey: ["assets", "hive", "transactions", username, limit, group],
+    queryKey: ["assets", "hive", "transactions", username, limit, filterKey],
     initialData: { pages: [], pageParams: [] },
     initialPageParam: -1,
     getNextPageParam: (lastPage, __) => lastPage ? +(lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1,
     queryFn: async ({ pageParam }) => {
-      let filters = [];
-      switch (group) {
-        case "transfers":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["transfers"]
-          );
-          break;
-        case "market-orders":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["market-orders"]
-          );
-          break;
-        case "interests":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["interests"]
-          );
-          break;
-        case "stake-operations":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["stake-operations"]
-          );
-          break;
-        case "rewards":
-          filters = utils.makeBitMaskFilter(
-            HIVE_ACCOUNT_OPERATION_GROUPS["rewards"]
-          );
-          break;
-        default:
-          filters = utils.makeBitMaskFilter([]);
-      }
       const response = await CONFIG.hiveClient.call(
         "condenser_api",
         "get_account_history",
-        [username, pageParam, limit, ...filters]
+        [username, pageParam, limit, ...filterArgs]
       );
       return response.map(
         (x) => ({
@@ -996,10 +1013,18 @@ function getHiveAssetTransactionsQueryOptions(username, limit = 20, group) {
     })
   });
 }
-function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, group) {
+function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterKey } = resolveHiveOperationFilters(filters);
   return infiniteQueryOptions({
-    ...getHiveAssetTransactionsQueryOptions(username, limit, group),
-    queryKey: ["assets", "hive-power", "transactions", username, limit, group],
+    ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
+    queryKey: [
+      "assets",
+      "hive-power",
+      "transactions",
+      username,
+      limit,
+      filterKey
+    ],
     select: ({ pages, pageParams }) => ({
       pageParams,
       pages: pages.map(
@@ -1043,10 +1068,11 @@ function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, group) 
     })
   });
 }
-function getHbdAssetTransactionsQueryOptions(username, limit = 20, group) {
+function getHbdAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterKey } = resolveHiveOperationFilters(filters);
   return infiniteQueryOptions({
-    ...getHiveAssetTransactionsQueryOptions(username, limit, group),
-    queryKey: ["assets", "hbd", "transactions", username, limit, group],
+    ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
+    queryKey: ["assets", "hbd", "transactions", username, limit, filterKey],
     select: ({ pages, pageParams }) => ({
       pageParams,
       pages: pages.map(
@@ -3655,6 +3681,6 @@ function useWalletOperation(username, asset, operation) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
