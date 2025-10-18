@@ -12,6 +12,8 @@ import {
   useSignTransferByKey,
   useSignTransferByKeychain
 } from "@/api/mutations";
+import { useQueryClient } from "@tanstack/react-query";
+import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
 
 interface Props {
   onHide: () => void;
@@ -23,6 +25,8 @@ export function TransferStep3({ onHide }: Props) {
   const { step, setStep, to, amount, asset, mode, memo, inProgress } = useTransferSharedState();
 
   const { refetch } = getAccountFullQuery(activeUser?.username).useClientQuery();
+  const queryClient = useQueryClient();
+  const activeUsername = activeUser?.username;
 
   const { mutateAsync: signByKey } = useSignTransferByKey(mode, asset);
   const { mutateAsync: signByKeychain } = useSignTransferByKeychain(mode, asset);
@@ -35,15 +39,28 @@ export function TransferStep3({ onHide }: Props) {
 
       await signByKey({ amount, key, fullAmount, memo, to, username });
       await refetch();
+      invalidateWalletQueries(queryClient, activeUsername);
       setStep(4);
     },
-    [activeUser?.username, amount, asset, memo, refetch, setStep, signByKey, to]
+    [
+      activeUser?.username,
+      amount,
+      asset,
+      memo,
+      refetch,
+      setStep,
+      signByKey,
+      to,
+      queryClient,
+      activeUsername
+    ]
   );
 
   const signHs = () => {
     const fullAmount = `${amount} ${asset}`;
     const username = activeUser?.username!;
     signByHiveSigner({ amount, fullAmount, memo, to, username });
+    invalidateWalletQueries(queryClient, activeUsername);
     onHide();
   };
 
@@ -53,8 +70,20 @@ export function TransferStep3({ onHide }: Props) {
 
     await signByKeychain({ amount, fullAmount, memo, to, username });
     await refetch();
+    invalidateWalletQueries(queryClient, activeUsername);
     setStep(4);
-  }, [activeUser?.username, amount, asset, memo, refetch, setStep, signByKeychain, to]);
+  }, [
+    activeUser?.username,
+    amount,
+    asset,
+    memo,
+    refetch,
+    setStep,
+    signByKeychain,
+    to,
+    queryClient,
+    activeUsername
+  ]);
 
   return (
     <div className="transaction-form">

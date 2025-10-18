@@ -8,6 +8,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { Account } from "@/entities";
+import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
 
 interface Props {
   account?: Account;
@@ -23,6 +24,8 @@ export function TransferStep4({ onFinish, account }: Props) {
   const summaryLngKey = useMemo(() => `${mode}-summary`, [mode]);
 
   const finish = () => {
+    invalidateWalletQueries(queryClient, activeUser?.username);
+
     if (account && activeUser && account.name !== activeUser.username) {
       if (mode === "transfer" && asset === "POINT") {
         queryClient.invalidateQueries({
