@@ -42,10 +42,12 @@ export const getTranslation = async (
 
 export const getLanguages = async (): Promise<Language[]> => {
   const { data } = await translationApi.get<LanguagesMap>("/languages");
-  return Object.values(data).map(({ code, name, targets }) => ({
-    code,
-    name,
-    targets,
-  }));
+  return Object.values(data)
+    .map(({ code, name, targets }) => ({
+      code,
+      name,
+      targets,
+    }))
+    .filter((lang) => typeof lang.code === 'string' && lang.code.length > 0);
 };
 
