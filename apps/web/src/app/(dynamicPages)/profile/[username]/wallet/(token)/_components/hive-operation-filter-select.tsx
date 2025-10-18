@@ -171,7 +171,7 @@ export function HiveOperationFilterSelect({
         >
           <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
             {i18next.t("transactions.filter-toggle", {
-              defaultValue: "Filter",
+              defaultValue: "Filter ",
             })}
           </span>
           <span className="text-sm font-semibold text-gray-900 dark:text-white">
