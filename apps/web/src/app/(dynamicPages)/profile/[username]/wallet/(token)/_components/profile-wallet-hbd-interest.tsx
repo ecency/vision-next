@@ -106,6 +106,10 @@ export function ProfileWalletHbdInterest({ username, className }: Props) {
       })
     : undefined;
 
+  if (savingsBalance <= 0) {
+    return null;
+  }
+
   const claimButton = (
     <Button
       appearance="primary"
