@@ -212,6 +212,25 @@ export function Search({ containerClassName }: Props) {
     setShowGallery(true);
   }, [ensureAuthenticated]);
 
+  const handleDelegateHivePower = useCallback(() => {
+    if (!ensureAuthenticated()) {
+      return;
+    }
+
+    setQuickTransferConfig({ asset: "HP", mode: "delegate" });
+  }, [ensureAuthenticated]);
+
+  const handleHivePowerAction = useCallback(
+    (mode: Extract<TransferMode, "power-up" | "power-down">) => {
+      if (!ensureAuthenticated()) {
+        return;
+      }
+
+      setQuickTransferConfig({ asset: "HP", mode });
+    },
+    [ensureAuthenticated]
+  );
+
   const buildQuickActions = useCallback(
     (value: string): SuggestionGroup[] => {
       const normalized = value.trim().toLowerCase();
@@ -254,6 +273,30 @@ export function Search({ containerClassName }: Props) {
           label: i18next.t("search.action-transfer-points"),
           description: i18next.t("search.action-transfer-description", { token: "POINTS" }),
           onSelect: () => handleTransferAction("POINT")
+        });
+      }
+
+      if (matchesKeyword("delegate", "delegation")) {
+        addAction({
+          label: i18next.t("search.action-delegate-hp"),
+          description: i18next.t("search.action-delegate-hp-description"),
+          onSelect: handleDelegateHivePower
+        });
+      }
+
+      if (matchesKeyword("power up", "power-up", "powerup", "stake")) {
+        addAction({
+          label: i18next.t("search.action-power-up"),
+          description: i18next.t("search.action-power-up-description"),
+          onSelect: () => handleHivePowerAction("power-up")
+        });
+      }
+
+      if (matchesKeyword("power down", "power-down", "powerdown", "unstake")) {
+        addAction({
+          label: i18next.t("search.action-power-down"),
+          description: i18next.t("search.action-power-down-description"),
+          onSelect: () => handleHivePowerAction("power-down")
         });
       }
 
@@ -429,6 +472,8 @@ export function Search({ containerClassName }: Props) {
       handleClaimHiveRewards,
       handleClaimPoints,
       handleTransferAction,
+      handleDelegateHivePower,
+      handleHivePowerAction,
       handleOpenBookmarks,
       handleOpenDrafts,
       handleOpenGallery,
