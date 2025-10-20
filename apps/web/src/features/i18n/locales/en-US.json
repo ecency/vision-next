@@ -2999,8 +2999,15 @@
     "sessions": {
       "title": "Posting active sessions"
     },
+    "change-password": {
+      "title": "Change password",
+      "hint": "Update your password to enhance the security of your account. Note that new passwords must now be based on a seed phrase, as traditional raw passwords are no longer supported.<br> In case of changing current seed phrase You will lose access to all external tokens.",
+      "generate": "Generate new password",
+      "invalid-key": "Entered key is invalid. Account doesn't contain such owner key",
+      "success": "Password has changed successfully!"
+    },
     "keys": {
-      "title": "Keys & Passwords",
+      "title": "Keys",
       "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below",
       "add-key": "Add new keys",
       "key-created": "Keys have created and assigned successfully.",
