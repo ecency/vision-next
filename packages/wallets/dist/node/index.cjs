@@ -968,11 +968,23 @@ function resolveHiveOperationFilters(filters) {
       }
     });
   }
-  const filterArgs = dhive.utils.makeBitMaskFilter(Array.from(operationIds));
+  const filterArgs = makeBitMaskFilter(Array.from(operationIds));
   return {
     filterKey,
     filterArgs
   };
+}
+function makeBitMaskFilter(allowedOperations) {
+  let low = 0n;
+  let high = 0n;
+  allowedOperations.forEach((operation) => {
+    if (operation < 64) {
+      low |= 1n << BigInt(operation);
+    } else {
+      high |= 1n << BigInt(operation - 64);
+    }
+  });
+  return [low !== 0n ? low.toString() : null, high !== 0n ? high.toString() : null];
 }
 function getHiveAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
   const { filterArgs, filterKey } = resolveHiveOperationFilters(filters);
