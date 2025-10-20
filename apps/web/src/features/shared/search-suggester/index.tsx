@@ -15,14 +15,28 @@ import { accountReputation } from "@/utils";
 import { dataLimit, getCommunities } from "@/api/bridge";
 import { Badge } from "@ui/badge";
 
+export interface SuggestionGroup<T = any> {
+  header?: string;
+  items: T[];
+  renderer?: (item: T) => React.ReactNode;
+  onSelect?: (item: T) => void;
+}
+
 interface Props {
   value: string;
   children: ReactElement;
   containerClassName?: string;
   changed: boolean;
+  extraSuggestions?: (value: string) => SuggestionGroup[];
 }
 
-export function SearchSuggester({ changed, value, children, containerClassName }: Props) {
+export function SearchSuggester({
+  changed,
+  value,
+  children,
+  containerClassName,
+  extraSuggestions
+}: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const previousPathname = usePrevious(pathname);
@@ -31,7 +45,7 @@ export function SearchSuggester({ changed, value, children, containerClassName }
   const [suggestions, setSuggestions] = useState<string[] | Community[]>([]);
   const [loading, setLoading] = useState(false);
   const [_, setMode] = useState("");
-  const [suggestionWithMode, setSuggestionWithMode] = useState<any[]>([]);
+  const [suggestionWithMode, setSuggestionWithMode] = useState<SuggestionGroup[]>([]);
 
   const { data: trendingTagsPages } = getTrendingTagsQuery().useClientQuery();
   const trendingTags = useMemo(() => trendingTagsPages?.pages[0] ?? [], [trendingTagsPages?.pages]);
@@ -82,6 +96,25 @@ export function SearchSuggester({ changed, value, children, containerClassName }
       return;
     }
 
+    const extraSuggestionGroups = extraSuggestions?.(value) ?? [];
+
+    const applySuggestionGroups = (
+      groups: SuggestionGroup[],
+      suggestionItems: string[] | Community[] = []
+    ) => {
+      const combinedGroups = [...extraSuggestionGroups, ...groups];
+
+      if (combinedGroups.length > 0) {
+        setSuggestionWithMode(combinedGroups);
+        setSuggestions(suggestionItems);
+        return true;
+      }
+
+      setSuggestionWithMode([]);
+      setSuggestions([]);
+      return false;
+    };
+
     // # Tags
     if (value.startsWith("#")) {
       const tag = value.replace("#", "");
@@ -101,8 +134,7 @@ export function SearchSuggester({ changed, value, children, containerClassName }
         }
       ];
       setMode("tag");
-      setSuggestions(suggestions);
-      setSuggestionWithMode(suggestionWithMode);
+      applySuggestionGroups(suggestionWithMode, suggestions);
       return;
     }
 
@@ -133,7 +165,7 @@ export function SearchSuggester({ changed, value, children, containerClassName }
         ];
         setMode("account");
         setSuggestions(suggestions);
-        setSuggestionWithMode(suggestionWithMode);
+        applySuggestionGroups(suggestionWithMode, suggestions);
       } finally {
         setLoading(false);
       }
@@ -156,7 +188,7 @@ export function SearchSuggester({ changed, value, children, containerClassName }
           ];
           setMode("comm");
           setSuggestions(r);
-          setSuggestionWithMode(suggestionWithMode);
+          applySuggestionGroups(suggestionWithMode, r);
         }
       } catch (e) {
         setLoading(false);
@@ -211,15 +243,20 @@ export function SearchSuggester({ changed, value, children, containerClassName }
           }
         ];
         setMode("all");
-        setSuggestions([]);
-        setSuggestionWithMode(suggestionWithMode);
+        applySuggestionGroups(suggestionWithMode);
       } finally {
         setLoading(false);
       }
     } else {
-      setMode("");
-      setSuggestionWithMode([]);
-      setSuggestions([]);
+      if (extraSuggestionGroups.length > 0) {
+        setMode("custom");
+        setSuggestionWithMode(extraSuggestionGroups);
+        setSuggestions([]);
+      } else {
+        setMode("");
+        setSuggestionWithMode([]);
+        setSuggestions([]);
+      }
     }
   }, [accountSelected, communitySelected, loading, tagSelected, trendingTags, value]);
 
