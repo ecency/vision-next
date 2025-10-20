@@ -46,6 +46,7 @@ export function PublishGifPickerDialog({ show, setShow, onPick }: Props) {
           autoCapitalize="off"
           spellCheck="false"
           placeholder={i18next.t("gif-picker.filter-placeholder")}
+          value={filter}
           onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
             setFilter(e.target.value)
           }

@@ -75,6 +75,7 @@ export function GifPicker(props: Props) {
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"
+        value={filter}
         placeholder={i18next.t("gif-picker.filter-placeholder")}
         onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
           setFilter(e.target.value)
