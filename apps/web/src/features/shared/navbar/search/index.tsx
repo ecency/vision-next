@@ -226,7 +226,7 @@ export function Search({ containerClassName }: Props) {
         return;
       }
 
-      setQuickTransferConfig({ asset: "HP", mode });
+      setQuickTransferConfig({ asset: mode === "power-up" ? "HIVE" : "HP", mode });
     },
     [ensureAuthenticated]
   );

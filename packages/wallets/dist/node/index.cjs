@@ -3704,15 +3704,24 @@ function useWalletOperation(username, asset, operation) {
     },
     onSuccess: () => {
       recordActivity();
-      const query = getAccountWalletAssetInfoQueryOptions(username, asset, {
-        refetch: true
+      const assetsToRefresh = /* @__PURE__ */ new Set([asset]);
+      if (asset === "HIVE" && ["power-up" /* PowerUp */, "stake" /* Stake */].includes(operation)) {
+        assetsToRefresh.add("HP");
+      }
+      if (asset === "LARYNX" && operation === "power-up" /* PowerUp */) {
+        assetsToRefresh.add("LP");
+      }
+      assetsToRefresh.forEach((symbol) => {
+        const query = getAccountWalletAssetInfoQueryOptions(username, symbol, {
+          refetch: true
+        });
+        setTimeout(
+          () => sdk.getQueryClient().invalidateQueries({
+            queryKey: query.queryKey
+          }),
+          5e3
+        );
       });
-      setTimeout(
-        () => sdk.getQueryClient().invalidateQueries({
-          queryKey: query.queryKey
-        }),
-        5e3
-      );
     }
   });
 }

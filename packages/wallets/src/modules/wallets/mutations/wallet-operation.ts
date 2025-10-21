@@ -105,18 +105,35 @@ export function useWalletOperation(
     onSuccess: () => {
       recordActivity();
 
-      const query = getAccountWalletAssetInfoQueryOptions(username, asset, {
-        refetch: true,
-      });
+      const assetsToRefresh = new Set<string>([asset]);
 
-      // Give a some time to blockchain
-      setTimeout(
-        () =>
-          getQueryClient().invalidateQueries({
-            queryKey: query.queryKey,
-          }),
-        5000
-      );
+      if (asset === "HIVE") {
+        assetsToRefresh.add("HP");
+        assetsToRefresh.add("HIVE");
+      }
+      if (asset === "HBD") {
+        assetsToRefresh.add("HBD");
+      }
+
+      if (asset === "LARYNX" && operation === AssetOperation.PowerUp) {
+        assetsToRefresh.add("LP");
+        assetsToRefresh.add("LARYNX");
+      }
+
+      assetsToRefresh.forEach((symbol) => {
+        const query = getAccountWalletAssetInfoQueryOptions(username, symbol, {
+          refetch: true,
+        });
+
+        // Give some time to blockchain
+        setTimeout(
+          () =>
+            getQueryClient().invalidateQueries({
+              queryKey: query.queryKey,
+            }),
+          5000
+        );
+      });
     },
   });
 }
