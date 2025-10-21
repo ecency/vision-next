@@ -3705,11 +3705,16 @@ function useWalletOperation(username, asset, operation) {
     onSuccess: () => {
       recordActivity();
       const assetsToRefresh = /* @__PURE__ */ new Set([asset]);
-      if (asset === "HIVE" && ["power-up" /* PowerUp */, "stake" /* Stake */].includes(operation)) {
+      if (asset === "HIVE") {
         assetsToRefresh.add("HP");
+        assetsToRefresh.add("HIVE");
+      }
+      if (asset === "HBD") {
+        assetsToRefresh.add("HBD");
       }
       if (asset === "LARYNX" && operation === "power-up" /* PowerUp */) {
         assetsToRefresh.add("LP");
+        assetsToRefresh.add("LARYNX");
       }
       assetsToRefresh.forEach((symbol) => {
         const query = getAccountWalletAssetInfoQueryOptions(username, symbol, {
