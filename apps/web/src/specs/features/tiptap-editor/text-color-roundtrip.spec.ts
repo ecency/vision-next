@@ -79,7 +79,7 @@ describe("editor formatting persistence", () => {
   });
 
   it("keeps strikethrough formatting across the editor lifecycle", async () => {
-    const initialHtml = "<p><s>Struck text</s></p>";
+    const initialHtml = "<p><del>Struck text</del></p>";
 
     const {
       markdownAfterSave,
@@ -94,8 +94,17 @@ describe("editor formatting persistence", () => {
     expect(postEditHtml).toContain("<del>Struck text</del>");
   });
 
+  it("converts legacy <s> tags to <del> when reloading content", async () => {
+    const initialHtml = "<p><s>Legacy struck</s></p>";
+
+    const { reopenedHtml, postEditHtml } = await runEditorRoundTrip(initialHtml);
+
+    expect(reopenedHtml).toContain("<del>Legacy struck</del>");
+    expect(postEditHtml).toContain("<del>Legacy struck</del>");
+  });
+
   it("keeps strikethrough formatting applied to headings", async () => {
-    const initialHtml = "<h2><s>Struck heading</s></h2>";
+    const initialHtml = "<h2><del>Struck heading</del></h2>";
 
     const {
       markdownAfterSave,
@@ -113,7 +122,7 @@ describe("editor formatting persistence", () => {
   });
 
   it("keeps mixed strikethrough text inside headings", async () => {
-    const initialHtml = "<h3><s>Struck</s> and plain</h3>";
+    const initialHtml = "<h3><del>Struck</del> and plain</h3>";
 
     const {
       markdownAfterSave,

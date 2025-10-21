@@ -8,6 +8,7 @@ import {
   YoutubeVideoExtension,
   UserMentionExtensionConfig,
   clipboardPlugin,
+  DelStrike,
   markdownToHtml,
   parseAllExtensionsToDoc
 } from "@/features/tiptap-editor";
@@ -148,7 +149,10 @@ export function usePublishEditor(onHtmlPaste: () => void) {
         clipboardPlugin(event, editor, onHtmlPaste).handle(event)) as any
     },
     extensions: [
-      StarterKit.configure() as AnyExtension,
+      StarterKit.configure({
+        strike: false
+      }) as AnyExtension,
+      DelStrike,
       Placeholder.configure({
         placeholder: i18next.t("submit.body-placeholder")
       }),
