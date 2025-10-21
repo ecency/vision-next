@@ -1,6 +1,7 @@
 "use client";
 
 import { useGlobalStore } from "@/core/global-store";
+import { useIsMobile } from "@/utils";
 import { PrivateKey } from "@hiveio/dhive";
 import { Button } from "@ui/button";
 import { KeyInput } from "@ui/input";
@@ -20,6 +21,7 @@ interface Props {
 
 export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="active" }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
+  const isMobileBrowser = useIsMobile();
 
   return (
     <>
@@ -47,7 +49,7 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="a
                 {i18next.t("key-or-hot.with-hivesigner")}
               </Button>
 
-              {onKc && (
+              {onKc && !isMobileBrowser && (
                 <Button
                   outline={true}
                   appearance="secondary"

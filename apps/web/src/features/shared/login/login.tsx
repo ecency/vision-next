@@ -1,6 +1,6 @@
 import { EcencyConfigManager } from "@/config";
 import { useGlobalStore } from "@/core/global-store";
-import { getAuthUrl } from "@/utils";
+import { getAuthUrl, useIsMobile } from "@/utils";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
@@ -39,6 +39,7 @@ export default function Login() {
 
   const { mutateAsync: loginByKeychain, isPending: isLoginByKeychainPending } =
     useLoginByKeychain(username);
+  const isMobileBrowser = useIsMobile();
 
   const handleKeychainLogin = () => {
     loginByKeychain().catch(() => {
@@ -138,26 +139,28 @@ export default function Login() {
               Hivesigner
             </Button>
 
-            <Button
-              appearance="secondary"
-              outline={true}
-              full={true}
-              size="lg"
-              onClick={() => !!username && handleKeychainLogin()}
-              disabled={!username}
-              isLoading={isLoginByKeychainPending}
-              icon={
-                <Image
-                  width={100}
-                  height={100}
-                  src="/assets/keychain.png"
-                  alt="keychain"
-                  className="w-4 h-4"
-                />
-              }
-            >
-              Keychain
-            </Button>
+            {!isMobileBrowser && (
+              <Button
+                appearance="secondary"
+                outline={true}
+                full={true}
+                size="lg"
+                onClick={() => !!username && handleKeychainLogin()}
+                disabled={!username}
+                isLoading={isLoginByKeychainPending}
+                icon={
+                  <Image
+                    width={100}
+                    height={100}
+                    src="/assets/keychain.png"
+                    alt="keychain"
+                    className="w-4 h-4"
+                  />
+                }
+              >
+                Keychain
+              </Button>
+            )}
           </motion.div>
         )}
       </div>
