@@ -61,6 +61,27 @@ $xxxl-break: "1600px";
     font-family: $font-family-base;
   }
 
+  h1 del,
+  h1 s,
+  h1 strike,
+  h2 del,
+  h2 s,
+  h2 strike,
+  h3 del,
+  h3 s,
+  h3 strike,
+  h4 del,
+  h4 s,
+  h4 strike,
+  h5 del,
+  h5 s,
+  h5 strike,
+  h6 del,
+  h6 s,
+  h6 strike {
+    text-decoration: line-through;
+  }
+
   h1 {
     font-size: 22px;
 
