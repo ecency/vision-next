@@ -33,17 +33,14 @@ export interface KeyInputImperativeHandle {
 }
 
 function capitalizeFirstLetter(str) {
-    if (typeof str !== 'string' || str.length === 0) return '';
-    return str[0].toUpperCase() + str.slice(1);
+  if (typeof str !== "string" || str.length === 0) return "";
+  return str[0].toUpperCase() + str.slice(1);
 }
 
 export const KeyInput = forwardRef<
   KeyInputImperativeHandle,
   Props & Omit<HTMLProps<HTMLInputElement>, "ref" | "type">
->((
-  { onSign, isLoading, keyType, className, ...inputProps },
-  ref
-) => {
+>(({ onSign, isLoading, keyType, className, ...inputProps }, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const activeUser = useClientActiveUser();
@@ -69,11 +66,7 @@ export const KeyInput = forwardRef<
       if (cryptoUtils.isWif(key)) {
         privateKey = PrivateKey.fromString(key);
       } else {
-        const derivation = await detectHiveKeyDerivation(
-          activeUser.username,
-          key,
-          keyType
-        );
+        const derivation = await detectHiveKeyDerivation(activeUser.username, key, keyType);
 
         if (derivation === "bip44") {
           const keys = deriveHiveKeys(key);
@@ -115,7 +108,7 @@ export const KeyInput = forwardRef<
 
         <input
           ref={inputRef}
-          className="outline-none"
+          className="outline-none bg-transparent"
           {...inputProps}
           value={key}
           type="password"
