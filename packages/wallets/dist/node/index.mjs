@@ -1193,13 +1193,16 @@ function getHivePowerDelegatingsQueryOptions(username) {
 async function transferHive(payload) {
   const parsedAsset = parseAsset(payload.amount);
   const token = parsedAsset.symbol;
+  const precision = token === "VESTS" /* VESTS */ ? 6 : 3;
+  const formattedAmount = parsedAsset.amount.toFixed(precision);
+  const amountWithSymbol = `${formattedAmount} ${token}`;
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     return CONFIG.hiveClient.broadcast.transfer(
       {
         from: params.from,
         to: params.to,
-        amount: params.amount,
+        amount: amountWithSymbol,
         memo: params.memo
       },
       key
@@ -1209,7 +1212,7 @@ async function transferHive(payload) {
       (resolve, reject) => window.hive_keychain?.requestTransfer(
         payload.from,
         payload.to,
-        payload.amount,
+        formattedAmount,
         payload.memo,
         token,
         (resp) => {
@@ -1229,7 +1232,7 @@ async function transferHive(payload) {
         {
           from: payload.from,
           to: payload.to,
-          amount: payload.amount,
+          amount: amountWithSymbol,
           memo: payload.memo
         }
       ],
