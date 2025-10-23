@@ -10,7 +10,8 @@ import {
   clipboardPlugin,
   DelStrike,
   markdownToHtml,
-  parseAllExtensionsToDoc
+  parseAllExtensionsToDoc,
+  LoomVideoExtension
 } from "@/features/tiptap-editor";
 import Image from "@tiptap/extension-image";
 import Mention from "@tiptap/extension-mention";
@@ -75,8 +76,7 @@ const PublishTextStyle = TextStyle.extend({
 
           const parentParseHTML =
             typeof (parentColor as { parseHTML?: unknown }).parseHTML === "function"
-              ? ((parentColor as { parseHTML: (element: HTMLElement) => unknown })
-                  .parseHTML)
+              ? (parentColor as { parseHTML: (element: HTMLElement) => unknown }).parseHTML
               : null;
 
           if (parentParseHTML) {
@@ -94,8 +94,12 @@ const PublishTextStyle = TextStyle.extend({
           return null;
         },
         renderHTML: (attributes) => {
-          const { color, class: className, style, ...otherAttributes } =
-            (attributes ?? {}) as Record<string, string | undefined>;
+          const {
+            color,
+            class: className,
+            style,
+            ...otherAttributes
+          } = (attributes ?? {}) as Record<string, string | undefined>;
 
           const normalizedColor = normalizeTextColor(color);
 
@@ -195,7 +199,8 @@ export function usePublishEditor(onHtmlPaste: () => void) {
       }),
       ThreeSpeakVideoExtension,
       YoutubeVideoExtension,
-      HivePostExtension
+      HivePostExtension,
+      LoomVideoExtension
     ],
     onUpdate({ editor }) {
       publishState.setContent(markdownToHtml(editor.getHTML()));
@@ -211,12 +216,14 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     (content: string | undefined) => {
       try {
         const parsed = content ? marked.parse(content) : undefined;
-        const sanitized =
-          typeof parsed === "string" ? DOMPurify.sanitize(parsed) : undefined;
+        const sanitized = typeof parsed === "string" ? DOMPurify.sanitize(parsed) : undefined;
         const doc = sanitized
           ? parseAllExtensionsToDoc(sanitized, publishState.publishingVideo)
           : undefined;
-        editor?.chain().setContent(doc ?? "").run();
+        editor
+          ?.chain()
+          .setContent(doc ?? "")
+          .run();
       } catch (e) {
         error("Failed to load local draft. We are working on it");
         console.error(e);

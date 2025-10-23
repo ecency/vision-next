@@ -3,20 +3,19 @@ import { Node, nodePasteRule, NodeViewProps, mergeAttributes } from "@tiptap/cor
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
 
-export const YOUTUBE_REGEX =
-  /^https?:\/\/(?:(?:www|m)\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[^\s]*)?/i;
+export const LOOM_REGEX = /^(https?:)?\/\/www.loom.com\/share\/(.*)/i;
 
 function getId(url: string) {
-  const match = url.match(YOUTUBE_REGEX);
-  return match ? match[1] : "";
+  const match = url.match(LOOM_REGEX);
+  return match ? match[2] : "";
 }
 
 function toEmbedUrl(url: string) {
   const id = getId(url);
-  return id ? `https://www.youtube.com/embed/${id}` : url;
+  return id ? `https://www.loom.com/embed/${id}` : url;
 }
 
-function YouTubeVideoViewer({
+function LoomVideoViewer({
   node: {
     attrs: { src }
   },
@@ -36,6 +35,7 @@ function YouTubeVideoViewer({
             className="mx-auto"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
+            sandbox="allow-scripts allow-same-origin allow-popups"
           ></iframe>
         }
         behavior="hover"
@@ -59,14 +59,14 @@ function YouTubeVideoViewer({
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    youtubeVideo: {
-      setYoutubeVideo: (options: { src: string; thumbnail: string }) => ReturnType;
+    loomVideo: {
+      setLoomVideo: (options: { src: string; thumbnail: string }) => ReturnType;
     };
   }
 }
 
-export const YoutubeVideoExtension = Node.create({
-  name: "youtubeVideo",
+export const LoomVideoExtension = Node.create({
+  name: "loomVideo",
   inline: false,
   group: "block",
   draggable: true,
@@ -83,7 +83,7 @@ export const YoutubeVideoExtension = Node.create({
   parseHTML() {
     return [
       {
-        tag: "div[data-youtube-video]"
+        tag: "div[data-loom-video]"
       }
     ];
   },
@@ -93,11 +93,11 @@ export const YoutubeVideoExtension = Node.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(YouTubeVideoViewer);
+    return ReactNodeViewRenderer(LoomVideoViewer);
   },
   addCommands() {
     return {
-      setYoutubeVideo:
+      setLoomVideo:
         (options) =>
         ({ commands }) => {
           return commands.insertContent({
@@ -110,13 +110,13 @@ export const YoutubeVideoExtension = Node.create({
   addPasteRules() {
     return [
       nodePasteRule({
-        find: new RegExp(YOUTUBE_REGEX.source, "gi"),
+        find: new RegExp(LOOM_REGEX.source, "gi"),
         type: this.type,
         getAttributes(match) {
-          const id = match[1];
+          const id = match[2];
           return {
             src: match[0],
-            thumbnail: `https://img.youtube.com/vi/${id}/0.jpg`
+            thumbnail: `https://img.loom.com/vi/${id}/0.jpg`
           };
         }
       })

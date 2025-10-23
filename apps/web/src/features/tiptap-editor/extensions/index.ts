@@ -8,3 +8,4 @@ export * from "./safe-link-extension";
 export * from "./youtube-video-extension";
 export * from "./strike-extension";
 export * from "./strike-extension";
+export * from "./loom-video-extension";
