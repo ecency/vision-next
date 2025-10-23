@@ -73,7 +73,8 @@ export function ProfileWalletExternalBanner() {
   }
 
   if (
-    data?.profile?.tokens?.some(({ symbol }) =>
+    Array.isArray(data?.profile?.tokens) &&
+    data.profile.tokens.some(({ symbol }) =>
       Object.values(EcencyWalletCurrency).includes(symbol as any)
     )
   ) {
