@@ -26,7 +26,8 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   const signingKey = useGlobalStore((state) => state.signingKey);
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
   const isMobileBrowser = useIsMobile();
-  const allowKeychain = !isMobileBrowser || isKeychainInAppBrowser();
+  const hasKeychain = useGlobalStore((state) => state.hasKeyChain);
+  const allowKeychain = !isMobileBrowser || hasKeychain;
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
 

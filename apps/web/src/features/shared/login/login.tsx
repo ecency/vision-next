@@ -40,7 +40,8 @@ export default function Login() {
   const { mutateAsync: loginByKeychain, isPending: isLoginByKeychainPending } =
     useLoginByKeychain(username);
   const isMobileBrowser = useIsMobile();
-  const allowKeychain = !isMobileBrowser || isKeychainInAppBrowser();
+  const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
+  const allowKeychain = !isMobileBrowser || hasKeyChain;
 
   const handleKeychainLogin = () => {
     loginByKeychain().catch(() => {
