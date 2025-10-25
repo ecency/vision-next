@@ -1,7 +1,7 @@
 import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { Button, FormControl, InputGroup } from "@/features/ui";
-import { useIsMobile } from "@/utils";
+import { isKeychainInAppBrowser, useIsMobile } from "@/utils";
 import { AssetOperation, useWalletOperation } from "@ecency/wallets";
 import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
 import { UilLock } from "@tooni/iconscout-unicons-react";
@@ -26,6 +26,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   const signingKey = useGlobalStore((state) => state.signingKey);
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
   const isMobileBrowser = useIsMobile();
+  const allowKeychain = !isMobileBrowser || isKeychainInAppBrowser();
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
 
@@ -119,7 +120,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
             {i18next.t("key-or-hot.with-hivesigner")}
           </Button>
 
-          {!isMobileBrowser && (
+          {allowKeychain && (
             <Button
               outline={true}
               appearance="secondary"

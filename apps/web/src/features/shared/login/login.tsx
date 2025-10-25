@@ -1,6 +1,6 @@
 import { EcencyConfigManager } from "@/config";
 import { useGlobalStore } from "@/core/global-store";
-import { getAuthUrl, useIsMobile } from "@/utils";
+import { getAuthUrl, isKeychainInAppBrowser, useIsMobile } from "@/utils";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
@@ -40,6 +40,7 @@ export default function Login() {
   const { mutateAsync: loginByKeychain, isPending: isLoginByKeychainPending } =
     useLoginByKeychain(username);
   const isMobileBrowser = useIsMobile();
+  const allowKeychain = !isMobileBrowser || isKeychainInAppBrowser();
 
   const handleKeychainLogin = () => {
     loginByKeychain().catch(() => {
@@ -139,7 +140,7 @@ export default function Login() {
               Hivesigner
             </Button>
 
-            {!isMobileBrowser && (
+            {allowKeychain && (
               <Button
                 appearance="secondary"
                 outline={true}
