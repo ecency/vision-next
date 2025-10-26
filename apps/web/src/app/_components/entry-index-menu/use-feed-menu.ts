@@ -1,11 +1,12 @@
-import { useMemo } from "react";
-import i18next from "i18next";
-import { MenuItem } from "@ui/dropdown";
-import { EntryFilter } from "@/enums";
 import { useGlobalStore } from "@/core/global-store";
-import { useParams, useRouter } from "next/navigation";
-import { getTrendingTagsQuery } from "@/api/queries";
+import { EntryFilter } from "@/enums";
 import { useInfiniteDataFlow } from "@/utils";
+import { getTrendingTagsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { MenuItem } from "@ui/dropdown";
+import i18next from "i18next";
+import { useParams, useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 export function useFeedMenu() {
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -19,7 +20,7 @@ export function useFeedMenu() {
   }
   const router = useRouter();
 
-  const { data: trendingTags } = getTrendingTagsQuery().useClientQuery();
+  const { data: trendingTags } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
   const allTrendingTags = useInfiniteDataFlow(trendingTags);
 
   const isMy = useMemo(

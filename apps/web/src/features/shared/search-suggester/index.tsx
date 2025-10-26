@@ -1,19 +1,20 @@
 "use client";
 
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
-import { makePathTag } from "../tag";
-import { makePathProfile } from "../profile-link";
+import { dataLimit, getCommunities } from "@/api/bridge";
+import { getAccountReputations } from "@/api/hive";
 import defaults from "@/defaults.json";
 import { Community, Reputations } from "@/entities";
-import { usePathname, useRouter } from "next/navigation";
-import { useDebounce, usePrevious } from "react-use";
-import { getTrendingTagsQuery } from "@/api/queries";
-import i18next from "i18next";
-import { getAccountReputations } from "@/api/hive";
 import { SuggestionList, UserAvatar } from "@/features/shared";
 import { accountReputation } from "@/utils";
-import { dataLimit, getCommunities } from "@/api/bridge";
+import { getTrendingTagsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Badge } from "@ui/badge";
+import i18next from "i18next";
+import { usePathname, useRouter } from "next/navigation";
+import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
+import { useDebounce, usePrevious } from "react-use";
+import { makePathProfile } from "../profile-link";
+import { makePathTag } from "../tag";
 
 export interface SuggestionGroup<T = any> {
   header?: string;
@@ -47,7 +48,7 @@ export function SearchSuggester({
   const [_, setMode] = useState("");
   const [suggestionWithMode, setSuggestionWithMode] = useState<SuggestionGroup[]>([]);
 
-  const { data: trendingTagsPages } = getTrendingTagsQuery().useClientQuery();
+  const { data: trendingTagsPages } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
   const trendingTags = useMemo(() => trendingTagsPages?.pages[0] ?? [], [trendingTagsPages?.pages]);
 
   useEffect(() => {
