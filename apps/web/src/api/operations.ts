@@ -22,6 +22,7 @@ import {
   parseAsset
 } from "@/utils";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
+import { buildProfileMetadata, parseProfileMetadata } from "@ecency/sdk";
 
 const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
   if (/You may only post once every/.test(strErr)) {
@@ -1223,10 +1224,20 @@ export const updateProfile = (
   account: Account,
   newProfile: any
 ): Promise<TransactionConfirmation> => {
+  const existingProfile =
+    "posting_json_metadata" in account
+      ? parseProfileMetadata(account.posting_json_metadata)
+      : undefined;
+
+  const profile = buildProfileMetadata({
+    existingProfile,
+    profile: newProfile,
+  });
+
   const params = {
     account: account.name,
     json_metadata: "",
-    posting_json_metadata: JSON.stringify({ profile: { ...newProfile, version: 2 } }),
+    posting_json_metadata: JSON.stringify({ profile }),
     extensions: []
   };
 

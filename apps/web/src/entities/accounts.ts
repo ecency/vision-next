@@ -8,6 +8,13 @@ export interface AccountProfile {
   profile_image?: string;
   website?: string;
   pinned?: string;
+  reputation?: number;
+  version?: number;
+  beneficiary?: {
+    account: string;
+    weight: number;
+  };
+  tokens?: { symbol: string; type: string; meta: Record<string, any> }[];
 }
 
 export interface AccountFollowStats {

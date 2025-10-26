@@ -1,7 +1,7 @@
 import { QueryClient, useQuery, useInfiniteQuery, useMutation, queryOptions, useQueryClient, infiniteQueryOptions } from '@tanstack/react-query';
 import { Client, PrivateKey, cryptoUtils, RCAPI } from '@hiveio/dhive';
 import hs from 'hivesigner';
-import * as R from 'remeda';
+import * as R4 from 'remeda';
 
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
@@ -402,11 +402,7 @@ function getAccountFullQueryOptions(username) {
       if (!response[0]) {
         throw new Error("[SDK] No account with given username");
       }
-      let profile = {};
-      try {
-        profile = JSON.parse(response[0].posting_json_metadata).profile;
-      } catch (e) {
-      }
+      const profile = parseProfileMetadata(response[0].posting_json_metadata);
       let follow_stats;
       try {
         follow_stats = await CONFIG.hiveClient.database.call(
@@ -700,29 +696,42 @@ function sanitizeTokens(tokens) {
     return { ...rest, meta: safeMeta };
   });
 }
-function getExistingProfile(data) {
+function parseProfileMetadata(postingJsonMetadata) {
+  if (!postingJsonMetadata) {
+    return {};
+  }
   try {
-    const parsed = JSON.parse(data?.posting_json_metadata || "{}");
+    const parsed = JSON.parse(postingJsonMetadata);
     if (parsed && typeof parsed === "object" && parsed.profile && typeof parsed.profile === "object") {
       return parsed.profile;
     }
-  } catch (e) {
+  } catch (err) {
   }
   return {};
 }
-function getBuiltProfile({
+function extractAccountProfile(data) {
+  return parseProfileMetadata(data?.posting_json_metadata);
+}
+function buildProfileMetadata({
+  existingProfile,
   profile,
-  tokens,
-  data
+  tokens
 }) {
-  const metadata = R.mergeDeep(getExistingProfile(data), profile ?? {});
-  if (tokens && tokens.length > 0) {
-    metadata.tokens = tokens;
+  const { tokens: profileTokens, version: _ignoredVersion, ...profileRest } = profile ?? {};
+  const metadata = R4.mergeDeep(
+    existingProfile ?? {},
+    profileRest
+  );
+  const nextTokens = tokens ?? profileTokens;
+  if (nextTokens && nextTokens.length > 0) {
+    metadata.tokens = nextTokens;
   }
   metadata.tokens = sanitizeTokens(metadata.tokens);
   metadata.version = 2;
   return metadata;
 }
+
+// src/modules/accounts/mutations/use-account-update.ts
 function useAccountUpdate(username) {
   const queryClient = useQueryClient();
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -733,6 +742,11 @@ function useAccountUpdate(username) {
       if (!data) {
         throw new Error("[SDK][Accounts] \u2013 cannot update not existing account");
       }
+      const profile = buildProfileMetadata({
+        existingProfile: extractAccountProfile(data),
+        profile: payload.profile,
+        tokens: payload.tokens
+      });
       return [
         [
           "account_update2",
@@ -741,7 +755,7 @@ function useAccountUpdate(username) {
             json_metadata: "",
             extensions: [],
             posting_json_metadata: JSON.stringify({
-              profile: getBuiltProfile({ ...payload, data })
+              profile
             })
           }
         ]
@@ -753,8 +767,12 @@ function useAccountUpdate(username) {
         if (!data2) {
           return data2;
         }
-        const obj = R.clone(data2);
-        obj.profile = getBuiltProfile({ ...variables, data: data2 });
+        const obj = R4.clone(data2);
+        obj.profile = buildProfileMetadata({
+          existingProfile: extractAccountProfile(data2),
+          profile: variables.profile,
+          tokens: variables.tokens
+        });
         return obj;
       }
     )
@@ -949,7 +967,7 @@ function useAccountUpdateKeyAuths(username, options) {
         );
       }
       const prepareAuth = (keyName) => {
-        const auth = R.clone(accountData[keyName]);
+        const auth = R4.clone(accountData[keyName]);
         auth.key_auths = dedupeAndSortKeyAuths(
           keepCurrent ? auth.key_auths : [],
           keys.map(
@@ -1020,9 +1038,9 @@ function useAccountRevokePosting(username, options) {
           "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
         );
       }
-      const posting = R.pipe(
+      const posting = R4.pipe(
         {},
-        R.mergeDeep(data.posting)
+        R4.mergeDeep(data.posting)
       );
       posting.account_auths = posting.account_auths.filter(
         ([account]) => account !== accountName
@@ -1139,7 +1157,7 @@ function useAccountRevokeKey(username, options) {
         );
       }
       const prepareAuth = (keyName) => {
-        const auth = R.clone(accountData[keyName]);
+        const auth = R4.clone(accountData[keyName]);
         auth.key_auths = auth.key_auths.filter(
           ([key]) => key !== revokingKey.toString()
         );
@@ -1724,6 +1742,6 @@ function getCommunityPermissions({
   };
 }
 
-export { CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, ROLES, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, ROLES, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

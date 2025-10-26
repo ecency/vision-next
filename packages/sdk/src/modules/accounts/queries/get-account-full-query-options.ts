@@ -1,10 +1,10 @@
 import { CONFIG } from "@/modules/core/config";
 import {
   AccountFollowStats,
-  AccountProfile,
   AccountReputation,
   FullAccount,
 } from "../types";
+import { parseProfileMetadata } from "@/modules/accounts";
 import { queryOptions } from "@tanstack/react-query";
 
 export function getAccountFullQueryOptions(username: string | undefined) {
@@ -22,11 +22,7 @@ export function getAccountFullQueryOptions(username: string | undefined) {
         throw new Error("[SDK] No account with given username");
       }
 
-      let profile: AccountProfile = {};
-      try {
-        profile = JSON.parse(response[0].posting_json_metadata!)
-          .profile as AccountProfile;
-      } catch (e) {}
+      const profile = parseProfileMetadata(response[0].posting_json_metadata);
 
       let follow_stats: AccountFollowStats | undefined;
       try {
