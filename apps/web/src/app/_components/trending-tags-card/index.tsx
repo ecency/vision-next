@@ -1,13 +1,14 @@
 "use client";
 
-import React, { Fragment, useCallback, useMemo } from "react";
-import "./_index.scss";
-import { UilMultiply } from "@tooni/iconscout-unicons-react";
-import { TagLink } from "@/features/shared/tag";
 import { useGlobalStore } from "@/core/global-store";
+import { TagLink } from "@/features/shared/tag";
+import { getTrendingTagsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useParams, useRouter } from "next/navigation";
-import { getTrendingTagsQuery } from "@/api/queries";
+import { Fragment, useCallback, useMemo } from "react";
+import "./_index.scss";
 
 export function TrendingTagsCard() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export function TrendingTagsCard() {
 
   const activeUser = useGlobalStore((s) => s.activeUser);
 
-  const { data: trendingTagsPages } = getTrendingTagsQuery().useClientQuery();
+  const { data: trendingTagsPages } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
   const trendingTags = useMemo(() => trendingTagsPages?.pages[0], [trendingTagsPages?.pages]);
 
   const handleUnselection = useCallback(() => {

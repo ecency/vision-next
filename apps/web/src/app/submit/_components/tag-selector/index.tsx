@@ -1,13 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import "./_index.scss";
-import { FormControl } from "@ui/input";
-import i18next from "i18next";
-import { error, SuggestionList } from "@/features/shared";
-import { closeSvg, poundSvg } from "@ui/svg";
-import { ItemInterface, ReactSortable } from "react-sortablejs";
-import { getTrendingTagsQuery } from "@/api/queries";
-import usePrevious from "react-use/lib/usePrevious";
 import { SUBMIT_TAG_MAX_LENGTH } from "@/app/submit/_consts";
+import { error, SuggestionList } from "@/features/shared";
+import { getTrendingTagsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { FormControl } from "@ui/input";
+import { closeSvg, poundSvg } from "@ui/svg";
+import i18next from "i18next";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { ItemInterface, ReactSortable } from "react-sortablejs";
+import usePrevious from "react-use/lib/usePrevious";
+import "./_index.scss";
 
 interface Props {
   tags: string[];
@@ -17,7 +18,7 @@ interface Props {
 }
 
 export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
-  const { data: trendingTagsPages } = getTrendingTagsQuery().useClientQuery();
+  const { data: trendingTagsPages } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
   const trendingTags = useMemo(() => trendingTagsPages?.pages[0] ?? [], [trendingTagsPages?.pages]);
 
   const [hasFocus, setHasFocus] = useState(false);
@@ -131,7 +132,7 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
     [tags, maxItem, onChange]
   );
 
-    const onKeyDown = useCallback(
+  const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (
         (13 === e.which || 13 === e.keyCode || 13 === e.charCode || "Enter" === e.key) &&
