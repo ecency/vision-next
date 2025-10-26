@@ -24,6 +24,7 @@ interface AccountProfile {
     website?: string;
     pinned?: string;
     reputation?: number;
+    version?: number;
     beneficiary?: {
         account: string;
         weight: number;

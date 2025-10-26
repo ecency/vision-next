@@ -50,6 +50,7 @@ function getBuiltProfile({
   }
 
   metadata.tokens = sanitizeTokens(metadata.tokens);
+  metadata.version = 2;
 
   return metadata;
 }

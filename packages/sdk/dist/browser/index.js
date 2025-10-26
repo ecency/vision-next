@@ -704,19 +704,27 @@ function sanitizeTokens(tokens) {
     return { ...rest, meta: safeMeta };
   });
 }
+function getExistingProfile(data) {
+  try {
+    const parsed = JSON.parse(data?.posting_json_metadata || "{}");
+    if (parsed && typeof parsed === "object" && parsed.profile && typeof parsed.profile === "object") {
+      return parsed.profile;
+    }
+  } catch (e) {
+  }
+  return {};
+}
 function getBuiltProfile({
   profile,
   tokens,
   data
 }) {
-  const metadata = R.pipe(
-    JSON.parse(data?.posting_json_metadata || "{}").profile,
-    R.mergeDeep(profile ?? {})
-  );
+  const metadata = R.mergeDeep(getExistingProfile(data), profile ?? {});
   if (tokens && tokens.length > 0) {
     metadata.tokens = tokens;
   }
   metadata.tokens = sanitizeTokens(metadata.tokens);
+  metadata.version = 2;
   return metadata;
 }
 function useAccountUpdate(username) {

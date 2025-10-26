@@ -7,6 +7,7 @@ export interface AccountProfile {
   website?: string;
   pinned?: string;
   reputation?: number;
+  version?: number;
 
   // Community's default beneficiary settings
   beneficiary?: {
