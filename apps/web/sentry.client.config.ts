@@ -34,6 +34,10 @@ Sentry.init({
     "null is not an object (evaluating 'b.parentNode')"
   ],
   // Filter out errors originating from browser extension
-  denyUrls: [/sui\.js/]
+  denyUrls: [
+    /sui\.js/,
+    /extensionServiceWorker\.js$/,
+    /chrome-extension:\/\//
+  ]
 });
 Sentry.setTag("source", "client");
