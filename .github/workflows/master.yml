@@ -43,19 +43,18 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        id: docker_build
         uses: docker/build-push-action@v2
-        env:
-          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
         with:
           context: .
           file: ./apps/web/Dockerfile
           push: true
           tags: ecency/vision-next:latest
           build-args: |
-            "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}"
-            "NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}"
-            "NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}"
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+            SENTRY_ORG=ecency
+            SENTRY_PROJECT=ecency-web
+            NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}
+            NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}
             PNPM_VERSION=10.18.1
 
       - name: Image digest
