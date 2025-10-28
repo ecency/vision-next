@@ -2,7 +2,13 @@ import { useMutation } from "@tanstack/react-query";
 import { useLoginInApp } from "./use-login-in-app";
 import { getAccountFullQuery } from "@/api/queries";
 import { EcencyConfigManager } from "@/config";
-import { addAccountAuthority, makeHsCode, signBuffer } from "@/utils";
+import {
+  addAccountAuthority,
+  makeHsCode,
+  signBuffer,
+  shouldUseHiveAuth,
+  signWithHiveAuth
+} from "@/utils";
 import i18next from "i18next";
 import { error } from "../../feedback";
 import { formatError } from "@/api/operations";
@@ -42,7 +48,13 @@ export function useLoginByKeychain(username: string) {
       const code = await makeHsCode(
         EcencyConfigManager.CONFIG.service.hsClientId,
         username,
-        (message) => signBuffer(username, message, "Posting").then((r) => r.result)
+        async (message) => {
+          if (shouldUseHiveAuth()) {
+            return signWithHiveAuth(username, message, account, "posting");
+          }
+
+          return signBuffer(username, message, "Posting").then((r) => r.result);
+        }
       );
 
       await loginInApp(code, null, account!, "keychain");

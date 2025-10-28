@@ -81,6 +81,7 @@
     "framer-motion": "^11.3.24",
     "highcharts": "^12.1.2",
     "highcharts-react-official": "^3.2.1",
+    "hive-auth-client": "^0.1.5",
     "hive-uri": "^0.2.5",
     "hivesigner": "^3.3.4",
     "html-react-parser": "^5.0.7",
