@@ -1,7 +1,6 @@
 import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { Button, FormControl, InputGroup } from "@/features/ui";
-import { isKeychainInAppBrowser, useIsMobile } from "@/utils";
 import { AssetOperation, useWalletOperation } from "@ecency/wallets";
 import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
 import { UilLock } from "@tooni/iconscout-unicons-react";
@@ -10,6 +9,7 @@ import i18next from "i18next";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { WalletOperationSigning } from "./wallet-operations-signing";
+import { shouldUseHiveAuth } from "@/utils/client";
 
 interface Props {
   asset: string;
@@ -25,9 +25,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
   const signingKey = useGlobalStore((state) => state.signingKey);
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
-  const isMobileBrowser = useIsMobile();
-  const hasKeychain = useGlobalStore((state) => state.hasKeyChain);
-  const allowKeychain = !isMobileBrowser || hasKeychain;
+  const canUseKeychain = hasKeyChain || shouldUseHiveAuth();
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
 
@@ -121,32 +119,30 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
             {i18next.t("key-or-hot.with-hivesigner")}
           </Button>
 
-          {allowKeychain && (
-            <Button
-              outline={true}
-              appearance="secondary"
-              size="lg"
-              disabled={!hasKeyChain}
-              onClick={() => {
-                sign({
-                  ...(data as any),
-                  type: "keychain"
-                });
-                setStep("signing");
-              }}
-              icon={
-                <Image
-                  width={100}
-                  height={100}
-                  src="/assets/keychain.png"
-                  className="w-4 h-4"
-                  alt="keychain"
-                />
-              }
-            >
-              {i18next.t("key-or-hot.with-keychain")}
-            </Button>
-          )}
+          <Button
+            outline={true}
+            appearance="secondary"
+            size="lg"
+            disabled={!canUseKeychain}
+            onClick={() => {
+              sign({
+                ...(data as any),
+                type: "keychain"
+              });
+              setStep("signing");
+            }}
+            icon={
+              <Image
+                width={100}
+                height={100}
+                src="/assets/keychain.png"
+                className="w-4 h-4"
+                alt="keychain"
+              />
+            }
+          >
+            {i18next.t("key-or-hot.with-keychain")}
+          </Button>
         </motion.div>
       )}
       {step === "signing" && <WalletOperationSigning />}
