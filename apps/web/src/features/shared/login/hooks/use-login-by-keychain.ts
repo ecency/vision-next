@@ -3,6 +3,7 @@ import { useLoginInApp } from "./use-login-in-app";
 import { getAccountFullQuery } from "@/api/queries";
 import { EcencyConfigManager } from "@/config";
 import { addAccountAuthority, makeHsCode, signBuffer } from "@/utils";
+import { shouldUseHiveAuth, signWithHiveAuth } from "@/utils/client";
 import i18next from "i18next";
 import { error } from "../../feedback";
 import { formatError } from "@/api/operations";
@@ -42,7 +43,13 @@ export function useLoginByKeychain(username: string) {
       const code = await makeHsCode(
         EcencyConfigManager.CONFIG.service.hsClientId,
         username,
-        (message) => signBuffer(username, message, "Posting").then((r) => r.result)
+        async (message) => {
+          if (shouldUseHiveAuth()) {
+            return signWithHiveAuth(username, message, account, "posting");
+          }
+
+          return signBuffer(username, message, "Posting").then((r) => r.result);
+        }
       );
 
       await loginInApp(code, null, account!, "keychain");
