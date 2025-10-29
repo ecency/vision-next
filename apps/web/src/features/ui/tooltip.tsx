@@ -5,7 +5,7 @@ import { flip, useFloating } from "@floating-ui/react-dom";
 import { safeAutoUpdate } from "@ui/util";
 import clsx from "clsx";
 import { motion } from "framer-motion";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface Props {
@@ -43,10 +43,11 @@ export function StyledTooltip({
     middleware: [flip(), offset({ mainAxis: 4 })]
   });
 
-  const portalContainer =
-    typeof document !== "undefined"
-      ? document.getElementById("popper-container")
-      : null;
+  const [portalContainer, setPortalContainer] = useState<Element | null>(null);
+
+  useEffect(() => {
+    setPortalContainer(document.getElementById("popper-container"));
+  }, []);
 
   return (
     <div
