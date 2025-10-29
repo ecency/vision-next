@@ -4,7 +4,7 @@ import { HasClient } from "hive-auth-client";
 import defaults from "@/defaults.json";
 import { get, remove, set } from "@/utils/local-storage";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
-import { cryptoUtils, Operation, Signature } from "@hiveio/dhive";
+import { DEFAULT_ADDRESS_PREFIX, Operation, Signature, cryptoUtils } from "@hiveio/dhive";
 import type { FullAccount } from "@/entities";
 
 const HIVE_AUTH_HOST = "hive-auth.arcange.eu";
@@ -103,6 +103,33 @@ function openDeepLink(uri: string) {
   }
 }
 
+function parseChallengeSignature(rawSignature: string): Signature {
+  if (!rawSignature) {
+    throw new Error("HiveAuth challenge response is missing signature");
+  }
+
+  const normalized = rawSignature.trim();
+
+  if (normalized.startsWith("SIG_")) {
+    return Signature.fromString(normalized);
+  }
+
+  const isHex = /^[0-9a-fA-F]+$/.test(normalized);
+  if (isHex) {
+    return Signature.fromBuffer(Buffer.from(normalized, "hex"));
+  }
+
+  // HiveAuth mobile clients (e.g. Keychain) may return signatures encoded in base64.
+  // Attempt to decode the payload before giving up so we can validate those responses.
+  try {
+    return Signature.fromBuffer(Buffer.from(normalized, "base64"));
+  } catch (err) {
+    console.error("HiveAuth challenge signature parsing failed", err);
+  }
+
+  throw new Error("HiveAuth challenge signature has an unsupported format");
+}
+
 function verifyChallengeSignature(challenge: string, response: any, account?: FullAccount) {
   if (!response || !response.challenge) {
     throw new Error("HiveAuth challenge response is missing signature");
@@ -114,17 +141,18 @@ function verifyChallengeSignature(challenge: string, response: any, account?: Fu
 
   try {
     const digest = cryptoUtils.sha256(challenge);
-    const signature = Signature.fromString(response.challenge);
-    const recovered = signature.recover(digest, "STM");
+    const signature = parseChallengeSignature(response.challenge);
+    const recovered = signature.recover(digest, DEFAULT_ADDRESS_PREFIX);
     const postingKeys = account.posting?.key_auths?.map(([key]) => key) ?? [];
     const activeKeys = account.active?.key_auths?.map(([key]) => key) ?? [];
+    const authorizedKeys = new Set([...postingKeys, ...activeKeys]);
 
-    if (postingKeys.includes(recovered.toString()) || activeKeys.includes(recovered.toString())) {
+    if (authorizedKeys.has(recovered.toString())) {
       return true;
     }
 
     if (response.pubkey) {
-      if (postingKeys.includes(response.pubkey) || activeKeys.includes(response.pubkey)) {
+      if (authorizedKeys.has(response.pubkey)) {
         return true;
       }
     }
