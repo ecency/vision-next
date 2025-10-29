@@ -43,6 +43,11 @@ export function StyledTooltip({
     middleware: [flip(), offset({ mainAxis: 4 })]
   });
 
+  const portalContainer =
+    typeof document !== "undefined"
+      ? document.getElementById("popper-container")
+      : null;
+
   return (
     <div
       ref={refs.setReference}
@@ -62,26 +67,27 @@ export function StyledTooltip({
       style={style}
     >
       {children}
-      {createPortal(
-        <div
-          ref={refs.setFloating}
-          className="z-[1070] absolute"
-          style={{ ...floatingStyles, visibility: show && content ? "visible" : "hidden" }}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.75 }}
-            animate={{ opacity: show && content ? 1 : 0, scale: show && content ? 1 : 0.75 }}
-            className={clsx(
-              "bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky rounded-lg ",
-              size === "sm" && "p-1 text-xs font-semibold",
-              size === "md" && "p-2 text-xs"
-            )}
+      {portalContainer &&
+        createPortal(
+          <div
+            ref={refs.setFloating}
+            className="z-[1070] absolute"
+            style={{ ...floatingStyles, visibility: show && content ? "visible" : "hidden" }}
           >
-            {content}
-          </motion.div>
-        </div>,
-        document.getElementById("popper-container")!!
-      )}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.75 }}
+              animate={{ opacity: show && content ? 1 : 0, scale: show && content ? 1 : 0.75 }}
+              className={clsx(
+                "bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky rounded-lg ",
+                size === "sm" && "p-1 text-xs font-semibold",
+                size === "md" && "p-2 text-xs"
+              )}
+            >
+              {content}
+            </motion.div>
+          </div>,
+          portalContainer
+        )}
     </div>
   );
 }
