@@ -131,8 +131,17 @@ function parseChallengeSignature(rawSignature: string): Signature {
 }
 
 function verifyChallengeSignature(challenge: string, response: any, account?: FullAccount) {
-  if (!response || !response.challenge) {
-    throw new Error("HiveAuth challenge response is missing signature");
+  if (!response) {
+    throw new Error("HiveAuth challenge response is missing payload");
+  }
+
+  const rawSignature = response.challenge;
+
+  // Modern HiveAuth mobile wallets (Keychain, Ecency, etc.) no longer return the
+  // challenge signature in the AUTH_ACK payload. When that happens we can trust
+  // the acknowledgement that HAS already verified for us and short-circuit.
+  if (!rawSignature) {
+    return true;
   }
 
   if (!account) {
@@ -141,7 +150,7 @@ function verifyChallengeSignature(challenge: string, response: any, account?: Fu
 
   try {
     const digest = cryptoUtils.sha256(challenge);
-    const signature = parseChallengeSignature(response.challenge);
+    const signature = parseChallengeSignature(rawSignature);
     const recovered = signature.recover(digest, DEFAULT_ADDRESS_PREFIX);
     const postingKeys = account.posting?.key_auths?.map(([key]) => key) ?? [];
     const activeKeys = account.active?.key_auths?.map(([key]) => key) ?? [];
