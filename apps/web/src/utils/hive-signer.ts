@@ -4,7 +4,7 @@ import { decode as decodeHiveUri } from "hive-uri";
 import { b64uEnc } from "./b64";
 import { getAccessToken } from "./user-token";
 import { HiveSignerMessage } from "@/types";
-import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils";
+import { broadcastWithHiveAuth, shouldUseHiveAuth } from "./hive-auth";
 import type { Operation } from "@hiveio/dhive";
 
 export function getAuthUrl(app: string, redir: string = `${window.location.origin}/auth`) {

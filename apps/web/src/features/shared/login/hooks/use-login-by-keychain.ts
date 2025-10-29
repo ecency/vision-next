@@ -2,13 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useLoginInApp } from "./use-login-in-app";
 import { getAccountFullQuery } from "@/api/queries";
 import { EcencyConfigManager } from "@/config";
-import {
-  addAccountAuthority,
-  makeHsCode,
-  signBuffer,
-  shouldUseHiveAuth,
-  signWithHiveAuth
-} from "@/utils";
+import { addAccountAuthority, makeHsCode, signBuffer } from "@/utils";
+import { shouldUseHiveAuth, signWithHiveAuth } from "@/utils/client";
 import i18next from "i18next";
 import { error } from "../../feedback";
 import { formatError } from "@/api/operations";
