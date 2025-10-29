@@ -1,3 +1,5 @@
+"use client";
+
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { TOKEN_LOGOS_MAP } from "@/features/wallet";
