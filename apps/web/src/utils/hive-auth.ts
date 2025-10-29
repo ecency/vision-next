@@ -117,13 +117,16 @@ function verifyChallengeSignature(challenge: string, response: any, account?: Fu
     const signature = Signature.fromString(response.challenge);
     const recovered = signature.recover(digest, "STM");
     const postingKeys = account.posting?.key_auths?.map(([key]) => key) ?? [];
+    const activeKeys = account.active?.key_auths?.map(([key]) => key) ?? [];
 
-    if (postingKeys.includes(recovered.toString())) {
+    if (postingKeys.includes(recovered.toString()) || activeKeys.includes(recovered.toString())) {
       return true;
     }
 
-    if (response.pubkey && postingKeys.includes(response.pubkey)) {
-      return true;
+    if (response.pubkey) {
+      if (postingKeys.includes(response.pubkey) || activeKeys.includes(response.pubkey)) {
+        return true;
+      }
     }
   } catch (err) {
     console.error("HiveAuth challenge verification failed", err);
