@@ -4,7 +4,7 @@ import { HasClient } from "hive-auth-client";
 import defaults from "@/defaults.json";
 import { get, remove, set } from "@/utils/local-storage";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
-import { DEFAULT_ADDRESS_PREFIX, Operation, Signature, cryptoUtils } from "@hiveio/dhive";
+import { DEFAULT_ADDRESS_PREFIX, Operation, PublicKey, Signature, cryptoUtils } from "@hiveio/dhive";
 import type { FullAccount } from "@/entities";
 
 const HIVE_AUTH_HOST = "hive-auth.arcange.eu";
@@ -103,6 +103,26 @@ function openDeepLink(uri: string) {
   }
 }
 
+function watchAppVisibility(onVisible: () => void): () => void {
+  if (typeof document === "undefined" || typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handler = () => {
+    if (!document.hidden) {
+      onVisible();
+    }
+  };
+
+  document.addEventListener("visibilitychange", handler);
+  window.addEventListener("focus", handler);
+
+  return () => {
+    document.removeEventListener("visibilitychange", handler);
+    window.removeEventListener("focus", handler);
+  };
+}
+
 function parseChallengeSignature(rawSignature: string): Signature {
   if (!rawSignature) {
     throw new Error("HiveAuth challenge response is missing signature");
@@ -151,19 +171,26 @@ function verifyChallengeSignature(challenge: string, response: any, account?: Fu
   try {
     const digest = cryptoUtils.sha256(challenge);
     const signature = parseChallengeSignature(rawSignature);
-    const recovered = signature.recover(digest, DEFAULT_ADDRESS_PREFIX);
     const postingKeys = account.posting?.key_auths?.map(([key]) => key) ?? [];
     const activeKeys = account.active?.key_auths?.map(([key]) => key) ?? [];
     const authorizedKeys = new Set([...postingKeys, ...activeKeys]);
 
-    if (authorizedKeys.has(recovered.toString())) {
-      return true;
+    const providedPubkey = typeof response.pubkey === "string" ? response.pubkey.trim() : "";
+
+    if (providedPubkey && authorizedKeys.has(providedPubkey)) {
+      try {
+        const publicKey = PublicKey.fromString(providedPubkey);
+        if (signature.verifyHash(digest, publicKey)) {
+          return true;
+        }
+      } catch (err) {
+        console.error("HiveAuth challenge verification failed for provided pubkey", err);
+      }
     }
 
-    if (response.pubkey) {
-      if (authorizedKeys.has(response.pubkey)) {
-        return true;
-      }
+    const recovered = signature.recover(digest, DEFAULT_ADDRESS_PREFIX);
+    if (authorizedKeys.has(recovered.toString())) {
+      return true;
     }
   } catch (err) {
     console.error("HiveAuth challenge verification failed", err);
@@ -177,6 +204,18 @@ function requestAuthentication(username: string, account?: FullAccount): Promise
 
   return new Promise((resolve, reject) => {
     const challenge = JSON.stringify({ login: username, ts: Date.now() });
+    let pending = true;
+    const stopWatchingVisibility = watchAppVisibility(() => {
+      if (!pending) {
+        return;
+      }
+
+      try {
+        void client.connect();
+      } catch (err) {
+        console.error("HiveAuth reconnect failed after returning from wallet", err);
+      }
+    });
 
     const handlePending = (event: any) => {
       const pending = event ?? {};
@@ -194,11 +233,13 @@ function requestAuthentication(username: string, account?: FullAccount): Promise
     };
 
     const cleanup = () => {
+      pending = false;
       client.removeEventHandler("AuthPending", handlePending);
       client.removeEventHandler("AuthSuccess", handleSuccess);
       client.removeEventHandler("AuthFailure", handleFailure);
       client.removeEventHandler("Error", handleError);
       client.removeEventHandler("RequestExpired", handleExpired);
+      stopWatchingVisibility();
     };
 
     const handleSuccess = (event: any) => {
@@ -293,11 +334,26 @@ async function runChallenge(
   const client = getClient();
 
   return new Promise((resolve, reject) => {
+    let pending = true;
+    const stopWatchingVisibility = watchAppVisibility(() => {
+      if (!pending) {
+        return;
+      }
+
+      try {
+        void client.connect();
+      } catch (err) {
+        console.error("HiveAuth reconnect failed after returning from wallet", err);
+      }
+    });
+
     const cleanup = () => {
+      pending = false;
       client.removeEventHandler("ChallengeSuccess", handleSuccess);
       client.removeEventHandler("ChallengeFailure", handleFailure);
       client.removeEventHandler("ChallengeError", handleError);
       client.removeEventHandler("RequestExpired", handleExpired);
+      stopWatchingVisibility();
     };
 
     const handleSuccess = (event: any) => {
@@ -307,7 +363,12 @@ async function runChallenge(
         reject(new Error("HiveAuth returned empty signature"));
         return;
       }
-      resolve(signature);
+      try {
+        const normalized = parseChallengeSignature(signature).toString();
+        resolve(normalized);
+      } catch (err) {
+        reject(err instanceof Error ? err : new Error("HiveAuth returned invalid signature"));
+      }
     };
 
     const handleFailure = (event: any) => {
@@ -350,11 +411,26 @@ async function runChallenge(
       const clientRetry = getClient();
 
       return new Promise<string>((resolve, reject) => {
+        let pending = true;
+        const stopWatchingVisibility = watchAppVisibility(() => {
+          if (!pending) {
+            return;
+          }
+
+          try {
+            void clientRetry.connect();
+          } catch (error) {
+            console.error("HiveAuth reconnect failed after returning from wallet", error);
+          }
+        });
+
         const cleanup = () => {
+          pending = false;
           clientRetry.removeEventHandler("ChallengeSuccess", successHandler);
           clientRetry.removeEventHandler("ChallengeFailure", failureHandler);
           clientRetry.removeEventHandler("ChallengeError", errorHandler);
           clientRetry.removeEventHandler("RequestExpired", expiredHandler);
+          stopWatchingVisibility();
         };
 
         const successHandler = (event: any) => {
@@ -364,7 +440,12 @@ async function runChallenge(
             reject(new Error("HiveAuth returned empty signature"));
             return;
           }
-          resolve(signature);
+          try {
+            const normalized = parseChallengeSignature(signature).toString();
+            resolve(normalized);
+          } catch (err) {
+            reject(err instanceof Error ? err : new Error("HiveAuth returned invalid signature"));
+          }
         };
 
         const failureHandler = (event: any) => {
@@ -405,11 +486,26 @@ async function runBroadcast(
   const client = getClient();
 
   await new Promise<void>((resolve, reject) => {
+    let pending = true;
+    const stopWatchingVisibility = watchAppVisibility(() => {
+      if (!pending) {
+        return;
+      }
+
+      try {
+        void client.connect();
+      } catch (err) {
+        console.error("HiveAuth reconnect failed after returning from wallet", err);
+      }
+    });
+
     const cleanup = () => {
+      pending = false;
       client.removeEventHandler("SignSuccess", handleSuccess);
       client.removeEventHandler("SignFailure", handleFailure);
       client.removeEventHandler("SignError", handleError);
       client.removeEventHandler("RequestExpired", handleExpired);
+      stopWatchingVisibility();
     };
 
     const handleSuccess = () => {
@@ -457,11 +553,26 @@ async function runBroadcast(
       const clientRetry = getClient();
 
       return new Promise<void>((resolve, reject) => {
+        let pending = true;
+        const stopWatchingVisibility = watchAppVisibility(() => {
+          if (!pending) {
+            return;
+          }
+
+          try {
+            void clientRetry.connect();
+          } catch (error) {
+            console.error("HiveAuth reconnect failed after returning from wallet", error);
+          }
+        });
+
         const cleanup = () => {
+          pending = false;
           clientRetry.removeEventHandler("SignSuccess", successHandler);
           clientRetry.removeEventHandler("SignFailure", failureHandler);
           clientRetry.removeEventHandler("SignError", errorHandler);
           clientRetry.removeEventHandler("RequestExpired", expiredHandler);
+          stopWatchingVisibility();
         };
 
         const successHandler = () => {

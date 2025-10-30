@@ -3,6 +3,7 @@ declare module "hive-auth-client" {
 
   export class HasClient {
     constructor(host: string, authKeySecret?: string, debug?: boolean);
+    connect(): Promise<boolean>;
     addEventHandler(eventName: string | string[], handlerFunction: HiveAuthEventHandler): void;
     removeEventHandler(eventName: string, handlerFunction: HiveAuthEventHandler): void;
     authenticate(
