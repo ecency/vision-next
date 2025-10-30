@@ -173,11 +173,11 @@ function verifyChallengeSignature(challenge: string, response: any, account?: Fu
     const signature = parseChallengeSignature(rawSignature);
     const postingKeys = account.posting?.key_auths?.map(([key]) => key) ?? [];
     const activeKeys = account.active?.key_auths?.map(([key]) => key) ?? [];
-    const authorizedKeys = new Set([...postingKeys, ...activeKeys]);
+    const authorizedKeys = [...postingKeys, ...activeKeys];
 
     const providedPubkey = typeof response.pubkey === "string" ? response.pubkey.trim() : "";
 
-    if (providedPubkey && authorizedKeys.has(providedPubkey)) {
+    if (providedPubkey && authorizedKeys.includes(providedPubkey)) {
       try {
         const publicKey = PublicKey.fromString(providedPubkey);
         if (signature.verifyHash(digest, publicKey)) {
@@ -188,8 +188,19 @@ function verifyChallengeSignature(challenge: string, response: any, account?: Fu
       }
     }
 
-    const recovered = signature.recover(digest, DEFAULT_ADDRESS_PREFIX);
-    if (authorizedKeys.has(recovered.toString())) {
+    for (const key of authorizedKeys) {
+      try {
+        const publicKey = PublicKey.fromString(key);
+        if (signature.verifyHash(digest, publicKey)) {
+          return true;
+        }
+      } catch (err) {
+        console.error("HiveAuth challenge verification failed for account key", err);
+      }
+    }
+
+    const recovered = signature.recover(digest, DEFAULT_ADDRESS_PREFIX).toString();
+    if (authorizedKeys.includes(recovered)) {
       return true;
     }
   } catch (err) {
