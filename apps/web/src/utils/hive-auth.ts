@@ -4,42 +4,85 @@ import { HasClient } from "hive-auth-client";
 import defaults from "@/defaults.json";
 import { get, remove, set } from "@/utils/local-storage";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
-import { DEFAULT_ADDRESS_PREFIX, Operation, PublicKey, Signature, cryptoUtils } from "@hiveio/dhive";
+import {
+  DEFAULT_ADDRESS_PREFIX,
+  Operation,
+  PublicKey,
+  Signature,
+  cryptoUtils
+} from "@hiveio/dhive";
 import type { FullAccount } from "@/entities";
 
 const HIVE_AUTH_HOST = "hive-auth.arcange.eu";
 const STORAGE_KEY_PREFIX = "hiveauth-session";
-const MOBILE_USER_AGENT_PATTERN = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+const MOBILE_USER_AGENT_PATTERN =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+
+/* ----------------------------- Event typings ------------------------------ */
+
+interface AuthPendingEvent {
+  uuid: string;
+  key: string;
+  account?: string;
+}
+
+interface AuthSuccessEvent {
+  uuid?: string;
+  authData?: {
+    token?: string;
+    key?: string;
+    expire?: number; // seconds or ms, we normalize
+  };
+  data?: {
+    challenge?: string; // signature (optional in modern wallets)
+    pubkey?: string; // optional public key hint
+  };
+}
+
+interface FailureEvent {
+  message?: { error?: string } | string;
+  error?: string;
+}
+
+interface ChallengeSuccessEvent {
+  data?: { challenge?: string }; // signature
+}
+
+/* ------------------------------ Session model ----------------------------- */
 
 interface HiveAuthSession {
   username: string;
   token: string;
   key: string;
-  expire: number;
+  expire: number; // ms
 }
-
 interface HiveAuthSessionResponse extends HiveAuthSession {}
 
 class HiveAuthSessionExpiredError extends Error {}
 
+/* --------------------------------- Client --------------------------------- */
+
 let hiveAuthClient: HasClient | null = null;
+// Keep the current auth request UUID to sanity-check the ACK
+let currentAuthUuid: string | null = null;
 
 function getClient(): HasClient {
   if (typeof window === "undefined") {
     throw new Error("HiveAuth client is only available in the browser");
   }
-
   if (!hiveAuthClient) {
     hiveAuthClient = new HasClient(HIVE_AUTH_HOST, "", false);
   }
-
   return hiveAuthClient;
 }
 
+/* --------------------------------- Utils ---------------------------------- */
+
 function buildAppMeta() {
-  const iconUrl = typeof window !== "undefined"
-    ? new URL(defaults.logo, window.location.origin).toString()
-    : defaults.logo;
+  const iconUrl =
+    typeof window !== "undefined"
+      ? new URL(defaults.logo, window.location.origin).toString()
+      : defaults.logo;
 
   return {
     name: defaults.name,
@@ -54,10 +97,7 @@ function storageKey(username: string) {
 
 function loadSession(username: string): HiveAuthSession | null {
   const stored = get(storageKey(username));
-  if (!stored) {
-    return null;
-  }
-
+  if (!stored) return null;
   const expire = normalizeExpire(stored.expire);
   return {
     username: stored.username,
@@ -75,27 +115,20 @@ function clearSession(username: string) {
   remove(storageKey(username));
 }
 
+/** Normalize seconds-or-ms into ms */
 function normalizeExpire(expire: number): number {
-  if (!expire) {
-    return 0;
-  }
+  if (!expire) return 0;
   return expire > 1e12 ? expire : expire * 1000;
 }
 
 function isMobileBrowser() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
+  if (typeof window === "undefined") return false;
   const ua = window.navigator?.userAgent ?? "";
   return MOBILE_USER_AGENT_PATTERN.test(ua) || window.innerWidth <= 768;
 }
 
 function openDeepLink(uri: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
+  if (typeof window === "undefined") return;
   try {
     window.location.href = uri;
   } catch (err) {
@@ -107,66 +140,75 @@ function watchAppVisibility(onVisible: () => void): () => void {
   if (typeof document === "undefined" || typeof window === "undefined") {
     return () => {};
   }
-
   const handler = () => {
-    if (!document.hidden) {
-      onVisible();
-    }
+    if (!document.hidden) onVisible();
   };
-
   document.addEventListener("visibilitychange", handler);
   window.addEventListener("focus", handler);
-
   return () => {
     document.removeEventListener("visibilitychange", handler);
     window.removeEventListener("focus", handler);
   };
 }
 
+/* ---------- Binary helpers (no Node Buffer; browser-safe) ---------- */
+
+function b64ToBytes(b64: string): Uint8Array {
+  // atob returns a binary string; convert to bytes
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function hexToBytes(hex: string): Uint8Array {
+  const cleaned = hex.length % 2 ? "0" + hex : hex;
+  const len = cleaned.length / 2;
+  const out = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    out[i] = parseInt(cleaned.substr(i * 2, 2), 16);
+  }
+  return out;
+}
+
+/* ------------------------ Signature parse/verification --------------------- */
+
 function parseChallengeSignature(rawSignature: string): Signature {
   if (!rawSignature) {
     throw new Error("HiveAuth challenge response is missing signature");
   }
+  const s = rawSignature.trim();
 
-  const normalized = rawSignature.trim();
+  // Modern dhive string format
+  if (s.startsWith("SIG_")) return Signature.fromString(s);
 
-  if (normalized.startsWith("SIG_")) {
-    return Signature.fromString(normalized);
-  }
+  // Hex-encoded
+  if (/^[0-9a-fA-F]+$/.test(s)) return Signature.fromBuffer(hexToBytes(s));
 
-  const isHex = /^[0-9a-fA-F]+$/.test(normalized);
-  if (isHex) {
-    return Signature.fromBuffer(Buffer.from(normalized, "hex"));
-  }
-
-  // HiveAuth mobile clients (e.g. Keychain) may return signatures encoded in base64.
-  // Attempt to decode the payload before giving up so we can validate those responses.
+  // Base64 (Keychain Mobile historically)
   try {
-    return Signature.fromBuffer(Buffer.from(normalized, "base64"));
+    return Signature.fromBuffer(b64ToBytes(s));
   } catch (err) {
     console.error("HiveAuth challenge signature parsing failed", err);
   }
-
   throw new Error("HiveAuth challenge signature has an unsupported format");
 }
 
-function verifyChallengeSignature(challenge: string, response: any, account?: FullAccount) {
-  if (!response) {
-    throw new Error("HiveAuth challenge response is missing payload");
-  }
+function verifyChallengeSignature(
+  challenge: string,
+  response: { challenge?: string; pubkey?: string } | undefined,
+  account?: FullAccount
+) {
+  if (!response) throw new Error("HiveAuth challenge response is missing payload");
 
   const rawSignature = response.challenge;
 
-  // Modern HiveAuth mobile wallets (Keychain, Ecency, etc.) no longer return the
-  // challenge signature in the AUTH_ACK payload. When that happens we can trust
-  // the acknowledgement that HAS already verified for us and short-circuit.
-  if (!rawSignature) {
-    return true;
-  }
+  // Modern wallets may omit challenge signature entirely.
+  // In that case, HAS already verified; we accept success.
+  if (!rawSignature) return true;
 
-  if (!account) {
-    return true;
-  }
+  // If we don’t have an account to check keys against, accept HAS ack.
+  if (!account) return true;
 
   try {
     const digest = cryptoUtils.sha256(challenge);
@@ -175,34 +217,35 @@ function verifyChallengeSignature(challenge: string, response: any, account?: Fu
     const activeKeys = account.active?.key_auths?.map(([key]) => key) ?? [];
     const authorizedKeys = [...postingKeys, ...activeKeys];
 
-    const providedPubkey = typeof response.pubkey === "string" ? response.pubkey.trim() : "";
+    const providedPubkey =
+      typeof response.pubkey === "string" ? response.pubkey.trim() : "";
 
+    // Fast path: verify against provided pubkey if it is authorized
     if (providedPubkey && authorizedKeys.includes(providedPubkey)) {
       try {
         const publicKey = PublicKey.fromString(providedPubkey);
-        if (signature.verifyHash(digest, publicKey)) {
-          return true;
-        }
+        if (signature.verifyHash(digest, publicKey)) return true;
       } catch (err) {
-        console.error("HiveAuth challenge verification failed for provided pubkey", err);
+        console.error(
+          "HiveAuth challenge verification failed for provided pubkey",
+          err
+        );
       }
     }
 
+    // Try all known keys
     for (const key of authorizedKeys) {
       try {
         const publicKey = PublicKey.fromString(key);
-        if (signature.verifyHash(digest, publicKey)) {
-          return true;
-        }
+        if (signature.verifyHash(digest, publicKey)) return true;
       } catch (err) {
         console.error("HiveAuth challenge verification failed for account key", err);
       }
     }
 
+    // Recover & compare
     const recovered = signature.recover(digest, DEFAULT_ADDRESS_PREFIX).toString();
-    if (authorizedKeys.includes(recovered)) {
-      return true;
-    }
+    if (authorizedKeys.includes(recovered)) return true;
   } catch (err) {
     console.error("HiveAuth challenge verification failed", err);
   }
@@ -210,59 +253,96 @@ function verifyChallengeSignature(challenge: string, response: any, account?: Fu
   throw new Error("HiveAuth signature verification failed");
 }
 
-function requestAuthentication(username: string, account?: FullAccount): Promise<HiveAuthSessionResponse> {
+/* ------------------------------ Flow helpers ------------------------------ */
+
+function isTokenError(message: string | undefined) {
+  if (!message) return false;
+  const m = message.toLowerCase();
+  return (
+    m.includes("token") ||
+    m.includes("expired") ||
+    (m.includes("auth") && (m.includes("invalid") || m.includes("denied")))
+  );
+}
+
+/* --------------------------- Authentication flow -------------------------- */
+
+function requestAuthentication(
+  username: string,
+  account?: FullAccount
+): Promise<HiveAuthSessionResponse> {
   const client = getClient();
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const challenge = JSON.stringify({ login: username, ts: Date.now() });
-    let pending = true;
-    const stopWatchingVisibility = watchAppVisibility(() => {
-      if (!pending) {
-        return;
-      }
+    const challengeEnabled = !!challenge;
 
-      try {
-        void client.connect();
-      } catch (err) {
-        console.error("HiveAuth reconnect failed after returning from wallet", err);
-      }
+    let inFlight = true;
+    currentAuthUuid = null;
+
+    // Reconnect when the user returns from the wallet
+    const stopWatchingVisibility = watchAppVisibility(() => {
+      if (!inFlight) return;
+      client.connect().catch(() => {
+        console.error("HiveAuth reconnect failed after returning from wallet");
+      });
     });
 
-    const handlePending = (event: any) => {
-      const pending = event ?? {};
+    const cleanup = () => {
+      inFlight = false;
+      client.removeEventHandler("AuthPending", onPending);
+      client.removeEventHandler("AuthSuccess", onSuccess);
+      client.removeEventHandler("AuthFailure", onFailure);
+      client.removeEventHandler("Error", onError);
+      client.removeEventHandler("RequestExpired", onExpired);
+      stopWatchingVisibility();
+    };
+
+    const onPending = (ev: AuthPendingEvent | any) => {
+      const e: AuthPendingEvent = ev ?? ({} as any);
+      // Record UUID for later sanity checks
+      if (e?.uuid) currentAuthUuid = e.uuid;
+
       const payload = {
-        account: pending.account ?? username,
-        uuid: pending.uuid,
-        key: pending.key,
+        account: e?.account ?? username,
+        uuid: e?.uuid,
+        key: e?.key,
         host: `wss://${HIVE_AUTH_HOST}`
       };
 
       if (payload.uuid && payload.key) {
         const encoded = btoa(JSON.stringify(payload));
-        openDeepLink(`has://auth_req/${encoded}`);
+        // Only deep-link on mobile environments
+        if (isMobileBrowser()) openDeepLink(`has://auth_req/${encoded}`);
       }
     };
 
-    const cleanup = () => {
-      pending = false;
-      client.removeEventHandler("AuthPending", handlePending);
-      client.removeEventHandler("AuthSuccess", handleSuccess);
-      client.removeEventHandler("AuthFailure", handleFailure);
-      client.removeEventHandler("Error", handleError);
-      client.removeEventHandler("RequestExpired", handleExpired);
-      stopWatchingVisibility();
-    };
-
-    const handleSuccess = (event: any) => {
+    const onSuccess = (ev: AuthSuccessEvent | any) => {
       cleanup();
-      const { authData, data } = event ?? {};
+      const { authData, data, uuid: ackUuid } = ev ?? {};
+
+      // Basic presence checks
       if (!authData?.token || !authData?.key) {
         reject(new Error("HiveAuth returned incomplete session"));
         return;
       }
 
+      // UUID sanity check when available
+      if (currentAuthUuid && ackUuid && ackUuid !== currentAuthUuid) {
+        reject(new Error("HiveAuth uuid mismatch"));
+        return;
+      }
+
+      // Expiry sanity
+      const expireMs = normalizeExpire(authData.expire ?? 0);
+      if (!expireMs || expireMs <= Date.now()) {
+        reject(new Error("HiveAuth session already expired"));
+        return;
+      }
+
+      // Verify challenge if present/enabled
       try {
-        verifyChallengeSignature(challenge, data, account);
+        if (challengeEnabled) verifyChallengeSignature(challenge, data, account);
       } catch (err) {
         clearSession(username);
         reject(err);
@@ -271,36 +351,39 @@ function requestAuthentication(username: string, account?: FullAccount): Promise
 
       const session: HiveAuthSession = {
         username,
-        token: authData.token,
-        key: authData.key,
-        expire: normalizeExpire(authData.expire ?? 0)
+        token: authData.token!,
+        key: authData.key!,
+        expire: expireMs
       };
       saveSession(session);
       resolve(session);
     };
 
-    const handleFailure = (event: any) => {
+    const onFailure = (ev: FailureEvent | any) => {
       cleanup();
-      const message = event?.message?.error ?? event?.message ?? "HiveAuth authentication failed";
+      const message = (ev?.message as any)?.error ?? ev?.message ?? "HiveAuth authentication failed";
       reject(new Error(message));
     };
 
-    const handleError = (event: any) => {
+    const onError = (ev: FailureEvent | any) => {
       cleanup();
-      const message = event?.error ?? event?.message?.error ?? "HiveAuth error";
+      const message = ev?.error ?? (ev?.message as any)?.error ?? "HiveAuth error";
       reject(new Error(message));
     };
 
-    const handleExpired = () => {
+    const onExpired = () => {
       cleanup();
       reject(new HiveAuthSessionExpiredError("HiveAuth authentication expired"));
     };
 
-    client.addEventHandler("AuthPending", handlePending);
-    client.addEventHandler("AuthSuccess", handleSuccess);
-    client.addEventHandler("AuthFailure", handleFailure);
-    client.addEventHandler("Error", handleError);
-    client.addEventHandler("RequestExpired", handleExpired);
+    // Proactive connect to avoid missing early events on flaky networks
+    await client.connect().catch(() => {});
+
+    client.addEventHandler("AuthPending", onPending);
+    client.addEventHandler("AuthSuccess", onSuccess);
+    client.addEventHandler("AuthFailure", onFailure);
+    client.addEventHandler("Error", onError);
+    client.addEventHandler("RequestExpired", onExpired);
 
     client.authenticate(
       { username },
@@ -310,12 +393,14 @@ function requestAuthentication(username: string, account?: FullAccount): Promise
   });
 }
 
-async function ensureSession(username: string, account?: FullAccount): Promise<HiveAuthSession> {
+async function ensureSession(
+  username: string,
+  account?: FullAccount
+): Promise<HiveAuthSession> {
   const cached = loadSession(username);
   if (cached && cached.expire && cached.expire > Date.now()) {
     return cached;
   }
-
   try {
     return await requestAuthentication(username, account);
   } catch (err) {
@@ -326,14 +411,7 @@ async function ensureSession(username: string, account?: FullAccount): Promise<H
   }
 }
 
-function isTokenError(message: string | undefined) {
-  if (!message) {
-    return false;
-  }
-
-  const normalized = message.toLowerCase();
-  return normalized.includes("token") || normalized.includes("expired");
-}
+/* ------------------------------- Challenge -------------------------------- */
 
 async function runChallenge(
   username: string,
@@ -344,32 +422,28 @@ async function runChallenge(
   const session = await ensureSession(username, account);
   const client = getClient();
 
-  return new Promise((resolve, reject) => {
-    let pending = true;
-    const stopWatchingVisibility = watchAppVisibility(() => {
-      if (!pending) {
-        return;
-      }
+  return new Promise<string>(async (resolve, reject) => {
+    let inFlight = true;
 
-      try {
-        void client.connect();
-      } catch (err) {
-        console.error("HiveAuth reconnect failed after returning from wallet", err);
-      }
+    const stopWatchingVisibility = watchAppVisibility(() => {
+      if (!inFlight) return;
+      client.connect().catch(() => {
+        console.error("HiveAuth reconnect failed after returning from wallet");
+      });
     });
 
     const cleanup = () => {
-      pending = false;
-      client.removeEventHandler("ChallengeSuccess", handleSuccess);
-      client.removeEventHandler("ChallengeFailure", handleFailure);
-      client.removeEventHandler("ChallengeError", handleError);
-      client.removeEventHandler("RequestExpired", handleExpired);
+      inFlight = false;
+      client.removeEventHandler("ChallengeSuccess", onSuccess);
+      client.removeEventHandler("ChallengeFailure", onFailure);
+      client.removeEventHandler("ChallengeError", onError);
+      client.removeEventHandler("RequestExpired", onExpired);
       stopWatchingVisibility();
     };
 
-    const handleSuccess = (event: any) => {
+    const onSuccess = (ev: ChallengeSuccessEvent | any) => {
       cleanup();
-      const signature = event?.data?.challenge;
+      const signature = ev?.data?.challenge;
       if (!signature) {
         reject(new Error("HiveAuth returned empty signature"));
         return;
@@ -378,41 +452,49 @@ async function runChallenge(
         const normalized = parseChallengeSignature(signature).toString();
         resolve(normalized);
       } catch (err) {
-        reject(err instanceof Error ? err : new Error("HiveAuth returned invalid signature"));
+        reject(
+          err instanceof Error ? err : new Error("HiveAuth returned invalid signature")
+        );
       }
     };
 
-    const handleFailure = (event: any) => {
+    const onFailure = (ev: FailureEvent | any) => {
       cleanup();
-      const message = event?.message?.error ?? event?.message;
+      const message = (ev?.message as any)?.error ?? ev?.message;
       if (isTokenError(message)) {
         clearSession(username);
-        reject(new HiveAuthSessionExpiredError(message ?? "HiveAuth challenge failed"));
+        reject(
+          new HiveAuthSessionExpiredError(message ?? "HiveAuth challenge failed")
+        );
         return;
       }
       reject(new Error(message ?? "HiveAuth challenge failed"));
     };
 
-    const handleError = (event: any) => {
+    const onError = (ev: FailureEvent | any) => {
       cleanup();
-      const message = event?.error ?? event?.message?.error;
+      const message = ev?.error ?? (ev?.message as any)?.error;
       if (isTokenError(message)) {
         clearSession(username);
-        reject(new HiveAuthSessionExpiredError(message ?? "HiveAuth challenge error"));
+        reject(
+          new HiveAuthSessionExpiredError(message ?? "HiveAuth challenge error")
+        );
         return;
       }
       reject(new Error(message ?? "HiveAuth challenge error"));
     };
 
-    const handleExpired = () => {
+    const onExpired = () => {
       cleanup();
       reject(new HiveAuthSessionExpiredError("HiveAuth challenge expired"));
     };
 
-    client.addEventHandler("ChallengeSuccess", handleSuccess);
-    client.addEventHandler("ChallengeFailure", handleFailure);
-    client.addEventHandler("ChallengeError", handleError);
-    client.addEventHandler("RequestExpired", handleExpired);
+    await client.connect().catch(() => {});
+
+    client.addEventHandler("ChallengeSuccess", onSuccess);
+    client.addEventHandler("ChallengeFailure", onFailure);
+    client.addEventHandler("ChallengeError", onError);
+    client.addEventHandler("RequestExpired", onExpired);
 
     client.challenge(session, { key_type: keyType, challenge });
   }).catch(async (err) => {
@@ -421,22 +503,18 @@ async function runChallenge(
       const refreshed = await ensureSession(username, account);
       const clientRetry = getClient();
 
-      return new Promise<string>((resolve, reject) => {
-        let pending = true;
-        const stopWatchingVisibility = watchAppVisibility(() => {
-          if (!pending) {
-            return;
-          }
+      return new Promise<string>(async (resolve, reject) => {
+        let inFlight = true;
 
-          try {
-            void clientRetry.connect();
-          } catch (error) {
-            console.error("HiveAuth reconnect failed after returning from wallet", error);
-          }
+        const stopWatchingVisibility = watchAppVisibility(() => {
+          if (!inFlight) return;
+          clientRetry.connect().catch(() => {
+            console.error("HiveAuth reconnect failed after returning from wallet");
+          });
         });
 
         const cleanup = () => {
-          pending = false;
+          inFlight = false;
           clientRetry.removeEventHandler("ChallengeSuccess", successHandler);
           clientRetry.removeEventHandler("ChallengeFailure", failureHandler);
           clientRetry.removeEventHandler("ChallengeError", errorHandler);
@@ -444,9 +522,9 @@ async function runChallenge(
           stopWatchingVisibility();
         };
 
-        const successHandler = (event: any) => {
+        const successHandler = (ev: ChallengeSuccessEvent | any) => {
           cleanup();
-          const signature = event?.data?.challenge;
+          const signature = ev?.data?.challenge;
           if (!signature) {
             reject(new Error("HiveAuth returned empty signature"));
             return;
@@ -454,25 +532,39 @@ async function runChallenge(
           try {
             const normalized = parseChallengeSignature(signature).toString();
             resolve(normalized);
-          } catch (err) {
-            reject(err instanceof Error ? err : new Error("HiveAuth returned invalid signature"));
+          } catch (e) {
+            reject(
+              e instanceof Error ? e : new Error("HiveAuth returned invalid signature")
+            );
           }
         };
 
-        const failureHandler = (event: any) => {
+        const failureHandler = (ev: FailureEvent | any) => {
           cleanup();
-          reject(new Error(event?.message?.error ?? event?.message ?? "HiveAuth challenge failed"));
+          reject(
+            new Error(
+              (ev?.message as any)?.error ??
+                ev?.message ??
+                "HiveAuth challenge failed"
+            )
+          );
         };
 
-        const errorHandler = (event: any) => {
+        const errorHandler = (ev: FailureEvent | any) => {
           cleanup();
-          reject(new Error(event?.error ?? event?.message?.error ?? "HiveAuth challenge error"));
+          reject(
+            new Error(
+              ev?.error ?? (ev?.message as any)?.error ?? "HiveAuth challenge error"
+            )
+          );
         };
 
         const expiredHandler = () => {
           cleanup();
           reject(new Error("HiveAuth challenge expired"));
         };
+
+        await clientRetry.connect().catch(() => {});
 
         clientRetry.addEventHandler("ChallengeSuccess", successHandler);
         clientRetry.addEventHandler("ChallengeFailure", failureHandler);
@@ -482,10 +574,11 @@ async function runChallenge(
         clientRetry.challenge(refreshed, { key_type: keyType, challenge });
       });
     }
-
     throw err;
   });
 }
+
+/* -------------------------------- Broadcast -------------------------------- */
 
 async function runBroadcast(
   username: string,
@@ -496,48 +589,46 @@ async function runBroadcast(
   const session = await ensureSession(username, account);
   const client = getClient();
 
-  await new Promise<void>((resolve, reject) => {
-    let pending = true;
-    const stopWatchingVisibility = watchAppVisibility(() => {
-      if (!pending) {
-        return;
-      }
+  await new Promise<void>(async (resolve, reject) => {
+    let inFlight = true;
 
-      try {
-        void client.connect();
-      } catch (err) {
-        console.error("HiveAuth reconnect failed after returning from wallet", err);
-      }
+    const stopWatchingVisibility = watchAppVisibility(() => {
+      if (!inFlight) return;
+      client.connect().catch(() => {
+        console.error("HiveAuth reconnect failed after returning from wallet");
+      });
     });
 
     const cleanup = () => {
-      pending = false;
-      client.removeEventHandler("SignSuccess", handleSuccess);
-      client.removeEventHandler("SignFailure", handleFailure);
-      client.removeEventHandler("SignError", handleError);
-      client.removeEventHandler("RequestExpired", handleExpired);
+      inFlight = false;
+      client.removeEventHandler("SignSuccess", onSuccess);
+      client.removeEventHandler("SignFailure", onFailure);
+      client.removeEventHandler("SignError", onError);
+      client.removeEventHandler("RequestExpired", onExpired);
       stopWatchingVisibility();
     };
 
-    const handleSuccess = () => {
+    const onSuccess = () => {
       cleanup();
       resolve();
     };
 
-    const handleFailure = (event: any) => {
+    const onFailure = (ev: FailureEvent | any) => {
       cleanup();
-      const message = event?.message?.error ?? event?.message;
+      const message = (ev?.message as any)?.error ?? ev?.message;
       if (isTokenError(message)) {
         clearSession(username);
-        reject(new HiveAuthSessionExpiredError(message ?? "HiveAuth sign failure"));
+        reject(
+          new HiveAuthSessionExpiredError(message ?? "HiveAuth sign failure")
+        );
         return;
       }
       reject(new Error(message ?? "HiveAuth sign failure"));
     };
 
-    const handleError = (event: any) => {
+    const onError = (ev: FailureEvent | any) => {
       cleanup();
-      const message = event?.error ?? event?.message?.error;
+      const message = ev?.error ?? (ev?.message as any)?.error;
       if (isTokenError(message)) {
         clearSession(username);
         reject(new HiveAuthSessionExpiredError(message ?? "HiveAuth sign error"));
@@ -546,15 +637,17 @@ async function runBroadcast(
       reject(new Error(message ?? "HiveAuth sign error"));
     };
 
-    const handleExpired = () => {
+    const onExpired = () => {
       cleanup();
       reject(new HiveAuthSessionExpiredError("HiveAuth sign expired"));
     };
 
-    client.addEventHandler("SignSuccess", handleSuccess);
-    client.addEventHandler("SignFailure", handleFailure);
-    client.addEventHandler("SignError", handleError);
-    client.addEventHandler("RequestExpired", handleExpired);
+    await client.connect().catch(() => {});
+
+    client.addEventHandler("SignSuccess", onSuccess);
+    client.addEventHandler("SignFailure", onFailure);
+    client.addEventHandler("SignError", onError);
+    client.addEventHandler("RequestExpired", onExpired);
 
     client.broadcast(session, keyType, operations);
   }).catch(async (err) => {
@@ -563,22 +656,18 @@ async function runBroadcast(
       const refreshed = await ensureSession(username, account);
       const clientRetry = getClient();
 
-      return new Promise<void>((resolve, reject) => {
-        let pending = true;
-        const stopWatchingVisibility = watchAppVisibility(() => {
-          if (!pending) {
-            return;
-          }
+      return new Promise<void>(async (resolve, reject) => {
+        let inFlight = true;
 
-          try {
-            void clientRetry.connect();
-          } catch (error) {
-            console.error("HiveAuth reconnect failed after returning from wallet", error);
-          }
+        const stopWatchingVisibility = watchAppVisibility(() => {
+          if (!inFlight) return;
+          clientRetry.connect().catch(() => {
+            console.error("HiveAuth reconnect failed after returning from wallet");
+          });
         });
 
         const cleanup = () => {
-          pending = false;
+          inFlight = false;
           clientRetry.removeEventHandler("SignSuccess", successHandler);
           clientRetry.removeEventHandler("SignFailure", failureHandler);
           clientRetry.removeEventHandler("SignError", errorHandler);
@@ -591,20 +680,30 @@ async function runBroadcast(
           resolve();
         };
 
-        const failureHandler = (event: any) => {
+        const failureHandler = (ev: FailureEvent | any) => {
           cleanup();
-          reject(new Error(event?.message?.error ?? event?.message ?? "HiveAuth sign failure"));
+          reject(
+            new Error(
+              (ev?.message as any)?.error ?? ev?.message ?? "HiveAuth sign failure"
+            )
+          );
         };
 
-        const errorHandler = (event: any) => {
+        const errorHandler = (ev: FailureEvent | any) => {
           cleanup();
-          reject(new Error(event?.error ?? event?.message?.error ?? "HiveAuth sign error"));
+          reject(
+            new Error(
+              ev?.error ?? (ev?.message as any)?.error ?? "HiveAuth sign error"
+            )
+          );
         };
 
         const expiredHandler = () => {
           cleanup();
           reject(new Error("HiveAuth sign expired"));
         };
+
+        await clientRetry.connect().catch(() => {});
 
         clientRetry.addEventHandler("SignSuccess", successHandler);
         clientRetry.addEventHandler("SignFailure", failureHandler);
@@ -614,16 +713,14 @@ async function runBroadcast(
         clientRetry.broadcast(refreshed, keyType, operations);
       });
     }
-
     throw err;
   });
 }
 
-export function shouldUseHiveAuth(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
+/* ------------------------------ Public API -------------------------------- */
 
+export function shouldUseHiveAuth(): boolean {
+  if (typeof window === "undefined") return false;
   const hasKeychain = Boolean((window as any).hive_keychain);
   return isMobileBrowser() && !hasKeychain && !isKeychainInAppBrowser();
 }
