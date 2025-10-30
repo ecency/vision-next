@@ -11,22 +11,25 @@ import { formatError } from "@/api/operations";
 export function useLoginByKeychain(username: string) {
   const loginInApp = useLoginInApp(username);
 
-  const { data: account } = getAccountFullQuery(username).useClientQuery();
+  const accountQuery = getAccountFullQuery(username);
+  const { data: account } = accountQuery.useClientQuery();
 
   return useMutation({
     mutationKey: ["login-by-keychain", username, account],
     mutationFn: async () => {
-      if (!account) {
+      const accountData = account ?? (await accountQuery.fetchAndGet());
+
+      if (!accountData) {
         throw new Error(i18next.t("login.error-user-not-found"));
       }
 
       const hasPostingPerm =
-        account.posting!.account_auths.filter(
+        accountData.posting!.account_auths.filter(
           (x) => x[0] === EcencyConfigManager.CONFIG.service.hsClientId
         ).length > 0;
 
       /*if (!hasPostingPerm) {
-        const weight = account.posting!.weight_threshold;
+        const weight = accountData.posting!.weight_threshold;
 
         try {
           await addAccountAuthority(
@@ -45,14 +48,14 @@ export function useLoginByKeychain(username: string) {
         username,
         async (message) => {
           if (shouldUseHiveAuth()) {
-            return signWithHiveAuth(username, message, account, "posting");
+            return signWithHiveAuth(username, message, accountData, "posting");
           }
 
           return signBuffer(username, message, "Posting").then((r) => r.result);
         }
       );
 
-      await loginInApp(code, null, account!, "keychain");
+      await loginInApp(code, null, accountData, "keychain");
     },
     onError: (e) => error(...formatError(e))
   });
