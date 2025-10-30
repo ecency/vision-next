@@ -3,14 +3,37 @@ import { random } from "@/utils";
 import i18next from "i18next";
 import * as Sentry from "@sentry/nextjs";
 import { formatError } from "@/api/operations";
+import { ConsoleHistoryEntry, getConsoleHistory } from "@/utils/console-recorder";
 
-export const error = (message: string, errorType = ErrorTypes.COMMON) => {
+interface ErrorFeedbackExtras {
+  error?: unknown;
+  contextTag?: string;
+  consoleHistory?: ConsoleHistoryEntry[];
+}
+
+const errorContextMap = new Map<string, ErrorFeedbackExtras>();
+
+export const error = (
+  message: string,
+  errorType = ErrorTypes.COMMON,
+  extras?: ErrorFeedbackExtras
+) => {
+  const id = random();
   const detail: ErrorFeedbackObject = {
-    id: random(),
+    id,
     type: "error",
     message,
-    errorType
+    errorType,
+    contextTag: extras?.contextTag
   };
+
+  const consoleHistory = extras?.consoleHistory ?? getConsoleHistory();
+  if (extras || consoleHistory.length) {
+    errorContextMap.set(id, {
+      ...extras,
+      consoleHistory
+    });
+  }
 
   if (message.includes("Please wait to transact")) {
     detail.errorType = ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS;
@@ -51,7 +74,22 @@ export interface FeedbackObject {
 
 export interface ErrorFeedbackObject extends FeedbackObject {
   errorType: ErrorTypes;
+  contextTag?: string;
 }
+
+export const getErrorFeedbackContext = (id: string): ErrorFeedbackExtras | undefined => {
+  return errorContextMap.get(id);
+};
+
+export const clearErrorFeedbackContext = (id: string) => {
+  errorContextMap.delete(id);
+};
+
+export const consumeErrorFeedbackContext = (id: string): ErrorFeedbackExtras | undefined => {
+  const context = errorContextMap.get(id);
+  errorContextMap.delete(id);
+  return context;
+};
 
 /**
  * Handles known app errors and conditionally reports to Sentry.
@@ -72,13 +110,31 @@ export function handleAndReportError(err: any, contextTag?: string): boolean {
   }
 
   // Show modal
-  error(message, type);
+  error(message, type, {
+    error: err,
+    contextTag,
+    consoleHistory: getConsoleHistory()
+  });
 
   if (contextTag) {
     Sentry.setTag("context", contextTag);
   }
 
-  Sentry.captureException(err);
+  Sentry.withScope((scope) => {
+    scope.setExtra("feedbackMessage", message);
+    if (contextTag) {
+      scope.setExtra("feedbackId", `${contextTag}-${Date.now()}`);
+    }
+    const history = getConsoleHistory();
+    if (history.length) {
+      scope.setExtra("consoleHistory", history);
+    }
+    if (contextTag) {
+      scope.setTag("context", contextTag);
+    }
+    scope.setTag("reported_via", "handleAndReportError");
+    Sentry.captureException(err);
+  });
   return false; // ❌ unexpected, should throw
 }
 
