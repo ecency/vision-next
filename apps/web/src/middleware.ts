@@ -10,11 +10,19 @@ export function middleware(request: NextRequest) {
 
   // Decode URL and redirect if needed
   const path = request.nextUrl.pathname;
-  const decodedPath = decodeURIComponent(path);
-  if (decodedPath !== path) {
-    const url = request.nextUrl.clone();
-    url.pathname = decodedPath;
-    return NextResponse.redirect(url);
+  try {
+    const decodedPath = decodeURIComponent(path);
+    if (decodedPath !== path) {
+      const url = request.nextUrl.clone();
+      url.pathname = decodedPath;
+      return NextResponse.redirect(url);
+    }
+  } catch (e) {
+    if (e instanceof URIError) {
+      console.warn("Failed to decode request path", path, e);
+    } else {
+      throw e;
+    }
   }
 
   // block invalid permlinks with file extensions

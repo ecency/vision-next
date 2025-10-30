@@ -1,4 +1,4 @@
-import { parseDate, truncate } from "@/utils";
+import { parseDate, safeDecodeURIComponent, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
@@ -10,7 +10,7 @@ export async function generateEntryMetadata(
   username: string,
   permlink: string
 ): Promise<Metadata> {
-  const cleanPermlink = decodeURIComponent(permlink).trim();
+  const cleanPermlink = safeDecodeURIComponent(permlink).trim();
   if (!username || !cleanPermlink || cleanPermlink === "undefined" || !isValidPermlink(cleanPermlink)) {
     console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
     return {};

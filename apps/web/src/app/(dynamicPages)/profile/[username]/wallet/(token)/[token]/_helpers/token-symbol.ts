@@ -1,12 +1,6 @@
-const SPK_LAYER_TOKEN_SYMBOLS = new Set(["SPK", "LARYNX", "LP"]);
+import { safeDecodeURIComponent } from "@/utils";
 
-const safeDecodeURIComponent = (value: string) => {
-  try {
-    return decodeURIComponent(value);
-  } catch (error) {
-    return value;
-  }
-};
+const SPK_LAYER_TOKEN_SYMBOLS = new Set(["SPK", "LARYNX", "LP"]);
 
 export const normalizeTokenSymbol = (token?: string) => {
   if (!token) {
