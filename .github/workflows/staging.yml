@@ -48,7 +48,7 @@ jobs:
           context: .
           file: ./apps/web/Dockerfile
           push: true
-          tags: ecency/vision-next:latest
+          tags: ecency/vision-next:develop
           build-args: |
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
             SENTRY_ORG=ecency
