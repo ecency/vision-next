@@ -173,24 +173,35 @@ function hexToBytes(hex: string): Uint8Array {
 
 /* ------------------------ Signature parse/verification --------------------- */
 
-function parseChallengeSignature(rawSignature: string): Signature {
+function parseChallengeSignature(rawSignature: unknown): Signature {
   if (!rawSignature) {
     throw new Error("HiveAuth challenge response is missing signature");
   }
+
+  // Some wallets return { sig: "...", pubkey: "..." }
+  if (typeof rawSignature === "object" && rawSignature !== null) {
+    const sig = (rawSignature as any).sig || (rawSignature as any).signature;
+    if (!sig || typeof sig !== "string") {
+      throw new Error("HiveAuth challenge object missing sig field");
+    }
+    return parseChallengeSignature(sig); // recurse to existing logic
+  }
+
+  if (typeof rawSignature !== "string") {
+    throw new Error("HiveAuth challenge signature is not a string");
+  }
+
   const s = rawSignature.trim();
 
-  // Modern dhive string format
   if (s.startsWith("SIG_")) return Signature.fromString(s);
-
-  // Hex-encoded
   if (/^[0-9a-fA-F]+$/.test(s)) return Signature.fromBuffer(hexToBytes(s));
 
-  // Base64 (Keychain Mobile historically)
   try {
     return Signature.fromBuffer(b64ToBytes(s));
   } catch (err) {
     console.error("HiveAuth challenge signature parsing failed", err);
   }
+
   throw new Error("HiveAuth challenge signature has an unsupported format");
 }
 
