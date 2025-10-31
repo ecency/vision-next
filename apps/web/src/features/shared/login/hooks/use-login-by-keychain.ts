@@ -128,7 +128,7 @@ export function useLoginByKeychain(username: string) {
       const useHiveAuth = shouldUseHiveAuth();
 
       const signMessage = async (message: string) => {
-        if (useHiveAuth) {
+        if (useHiveAuth || shouldUseHiveAuth()) {
           return signWithHiveAuth(username, message, accountData, "posting");
         }
 
