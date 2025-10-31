@@ -37,14 +37,47 @@ export default function Login() {
   const hsLogin = () =>
     (window.location.href = getAuthUrl(EcencyConfigManager.CONFIG.service.hsClientId));
 
-  const { mutateAsync: loginByKeychain, isPending: isLoginByKeychainPending } =
-    useLoginByKeychain(username);
+  const {
+    mutateAsync: loginByKeychain,
+    isPending: isLoginByKeychainPending,
+    retryCountdown,
+    isRetryScheduled: isLoginRetryScheduled,
+    retryAttempt,
+    maxAttempts
+  } = useLoginByKeychain(username);
 
   const handleKeychainLogin = () => {
+    if (isLoginByKeychainPending) {
+      return;
+    }
     loginByKeychain().catch(() => {
       /* Already handled in onError of the mutation */
     });
   };
+
+  const keychainButtonLabel = (() => {
+    if (isLoginRetryScheduled && retryCountdown !== null) {
+      return (
+        <span className="flex items-center gap-1">
+          <span>Keychain</span>
+          <span className="font-mono text-xs leading-none">
+            {retryCountdown}
+          </span>
+          {retryAttempt > 0 ? (
+            <span className="text-xs leading-none text-[--text-muted]">
+              {retryAttempt}/{maxAttempts}
+            </span>
+          ) : null}
+        </span>
+      );
+    }
+
+    if (isLoginByKeychainPending && retryAttempt > 0) {
+      return `Keychain (${retryAttempt}/${maxAttempts})`;
+    }
+
+    return "Keychain";
+  })();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">
@@ -144,8 +177,8 @@ export default function Login() {
               full={true}
               size="lg"
               onClick={() => !!username && handleKeychainLogin()}
-              disabled={!username}
-              isLoading={isLoginByKeychainPending}
+              disabled={!username || isLoginByKeychainPending}
+              isLoading={isLoginByKeychainPending && !isLoginRetryScheduled}
               icon={
                 <Image
                   width={100}
@@ -156,7 +189,7 @@ export default function Login() {
                 />
               }
             >
-              Keychain
+              {keychainButtonLabel}
             </Button>
           </motion.div>
         )}
