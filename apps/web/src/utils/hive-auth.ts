@@ -518,6 +518,7 @@ async function executeChallenge(
         client.removeEventHandler("ChallengeSuccess", onSuccess);
         client.removeEventHandler("ChallengeFailure", onFailure);
         client.removeEventHandler("ChallengeError", onError);
+        client.removeEventHandler("Error", onError);
         client.removeEventHandler("RequestExpired", onExpired);
         stopWatchingVisibility();
       };
@@ -581,6 +582,10 @@ async function executeChallenge(
       client.addEventHandler("ChallengeSuccess", onSuccess);
       client.addEventHandler("ChallengeFailure", onFailure);
       client.addEventHandler("ChallengeError", onError);
+      // Older HAS implementations dispatch generic "Error" events instead of
+      // the more specific "ChallengeError" ones. Subscribe to both to ensure
+      // we capture and surface these failures consistently.
+      client.addEventHandler("Error", onError);
       client.addEventHandler("RequestExpired", onExpired);
 
       try {
@@ -646,6 +651,7 @@ async function executeBroadcast(
         client.removeEventHandler("SignSuccess", onSuccess);
         client.removeEventHandler("SignFailure", onFailure);
         client.removeEventHandler("SignError", onError);
+        client.removeEventHandler("Error", onError);
         client.removeEventHandler("RequestExpired", onExpired);
         stopWatchingVisibility();
       };
@@ -695,6 +701,10 @@ async function executeBroadcast(
       client.addEventHandler("SignSuccess", onSuccess);
       client.addEventHandler("SignFailure", onFailure);
       client.addEventHandler("SignError", onError);
+      // Older HAS implementations dispatch generic "Error" events for sign
+      // failures. Listen for both event names so we don't leave promises
+      // hanging when the server responds with an error payload.
+      client.addEventHandler("Error", onError);
       client.addEventHandler("RequestExpired", onExpired);
 
       try {
