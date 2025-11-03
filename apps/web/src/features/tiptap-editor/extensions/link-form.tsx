@@ -24,7 +24,7 @@ export function PublishEditorToolbarLinkForm({
 }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [link, setLink] = useState(initialValue ?? "https://");
+  const [link, setLink] = useState(initialValue ?? "");
   const [isLinkInvalid, setIsLinkInvalid] = useState(false);
 
   return (
@@ -48,7 +48,7 @@ export function PublishEditorToolbarLinkForm({
         type="text"
         autoComplete="off"
         value={link}
-        placeholder={i18next.t("add-link.text-label")}
+        placeholder={i18next.t("add-link.link-label")}
         onChange={(e) => {
           setLink(e.target.value);
           setIsLinkInvalid(false);

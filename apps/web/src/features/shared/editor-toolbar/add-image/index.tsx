@@ -15,7 +15,7 @@ export function AddImage({ onHide, onSubmit }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const [text, setText] = useState("");
-  const [link, setLink] = useState("https://");
+  const [link, setLink] = useState("");
 
   const textChanged = (e: React.ChangeEvent<HTMLInputElement>): void => setText(e.target.value);
   const linkChanged = (e: React.ChangeEvent<HTMLInputElement>): void => setLink(e.target.value);
