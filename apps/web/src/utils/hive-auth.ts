@@ -4,6 +4,7 @@ import { HasClient } from "hive-auth-client";
 import defaults from "@/defaults.json";
 import { error as showFeedbackError } from "@/features/shared/feedback";
 import { get, remove, set } from "@/utils/local-storage";
+import { b64uEnc } from "@/utils/b64";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
 import {
   DEFAULT_ADDRESS_PREFIX,
@@ -57,10 +58,16 @@ interface HiveAuthSession {
   token: string;
   key: string;
   expire: number; // ms
+  accessToken?: string;
 }
 interface HiveAuthSessionResponse extends HiveAuthSession {}
 
 class HiveAuthSessionExpiredError extends Error {}
+
+export interface HiveAuthChallengeResult {
+  signature: string;
+  signedToken?: string;
+}
 
 /* --------------------------------- Client --------------------------------- */
 
@@ -256,7 +263,8 @@ function loadSession(username: string): HiveAuthSession | null {
     username: stored.username,
     token: stored.token,
     key: stored.key,
-    expire
+    expire,
+    accessToken: stored.accessToken
   };
 }
 
@@ -296,6 +304,26 @@ function sanitizeDeepLinkPayload(payload: Record<string, unknown>) {
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value !== undefined && value !== null)
   );
+}
+
+function composeSignedChallengeToken(
+  challenge: string,
+  signature: string
+): string | null {
+  if (!challenge || !signature) return null;
+
+  try {
+    const parsed = JSON.parse(challenge);
+    if (!parsed || typeof parsed !== "object") return null;
+
+    const container = parsed as Record<string, unknown> & { signatures?: string[] };
+    container.signatures = [signature];
+
+    return b64uEnc(JSON.stringify(container));
+  } catch (err) {
+    console.warn("Failed to compose signed HiveAuth challenge token", err);
+    return null;
+  }
 }
 
 function dispatchPendingDeepLink(
@@ -661,11 +689,11 @@ async function executeChallenge(
   keyType: "posting" | "active",
   challenge: string,
   allowClientReset: boolean
-): Promise<string> {
+): Promise<HiveAuthChallengeResult> {
   const client = getClient();
 
   try {
-    return await new Promise<string>(async (resolve, reject) => {
+    return await new Promise<HiveAuthChallengeResult>(async (resolve, reject) => {
       let inFlight = true;
       currentRequestUuid = null; // keep consistent; challenge doesn’t use it but reset anyway
 
@@ -719,7 +747,17 @@ async function executeChallenge(
         }
         try {
           const normalized = parseChallengeSignature(signature).toString();
-          resolve(normalized);
+          const signedToken = composeSignedChallengeToken(challenge, normalized);
+
+          if (signedToken) {
+            session.accessToken = signedToken;
+            saveSession(session);
+          }
+
+          resolve({
+            signature: normalized,
+            signedToken: signedToken ?? undefined
+          });
         } catch (err) {
           const fallback = "HiveAuth returned invalid signature";
           const message = resolveHiveAuthMessage(
@@ -782,7 +820,11 @@ async function executeChallenge(
       client.addEventHandler("RequestExpired", onExpired);
 
       try {
-        client.challenge(session, { key_type: keyType, challenge });
+        const { username: accountName, token, key, expire } = session;
+        client.challenge(
+          { username: accountName, token, key, expire },
+          { key_type: keyType, challenge }
+        );
       } catch (err) {
         cleanup();
         reject(asError(err));
@@ -802,7 +844,7 @@ async function runChallenge(
   challenge: string,
   keyType: "posting" | "active",
   account?: FullAccount
-): Promise<string> {
+): Promise<HiveAuthChallengeResult> {
   const session = await ensureSession(username, account);
 
   try {
@@ -906,7 +948,8 @@ async function executeBroadcast(
       client.addEventHandler("RequestExpired", onExpired);
 
       try {
-        client.broadcast(session, keyType, operations);
+        const { username: accountName, token, key, expire } = session;
+        client.broadcast({ username: accountName, token, key, expire }, keyType, operations);
       } catch (err) {
         cleanup();
         reject(asError(err));
@@ -955,7 +998,7 @@ export async function signWithHiveAuth(
   message: string,
   account?: FullAccount,
   keyType: "posting" | "active" = "posting"
-): Promise<string> {
+): Promise<HiveAuthChallengeResult> {
   return runChallenge(username, message, keyType, account);
 }
 

@@ -4,7 +4,11 @@ import { decode as decodeHiveUri } from "hive-uri";
 import { b64uEnc } from "./b64";
 import { getAccessToken } from "./user-token";
 import { HiveSignerMessage } from "@/types";
-import { broadcastWithHiveAuth, shouldUseHiveAuth } from "./hive-auth";
+import {
+  broadcastWithHiveAuth,
+  shouldUseHiveAuth,
+  type HiveAuthChallengeResult
+} from "./hive-auth";
 import type { Operation } from "@hiveio/dhive";
 
 export function getAuthUrl(app: string, redir: string = `${window.location.origin}/auth`) {
@@ -61,7 +65,7 @@ export function validateToken(code: string | null): boolean {
 export async function makeHsCode(
   hsClientId: string,
   account: string,
-  signer: (message: string) => Promise<string>
+  signer: (message: string) => Promise<string | HiveAuthChallengeResult>
 ): Promise<string> {
   const timestamp = Math.floor(Date.now() / 1000);
 
@@ -73,11 +77,23 @@ export async function makeHsCode(
 
   const message = JSON.stringify(messageObj);
 
-  const signature = await signer(message);
+  const signedResult = await signer(message);
+  const signature =
+    typeof signedResult === "string" ? signedResult : signedResult.signature;
 
   messageObj.signatures = [signature];
+  const encoded = b64uEnc(JSON.stringify(messageObj));
 
-  return b64uEnc(JSON.stringify(messageObj));
+  if (
+    signedResult &&
+    typeof signedResult === "object" &&
+    typeof signedResult.signedToken === "string" &&
+    signedResult.signedToken
+  ) {
+    return signedResult.signedToken;
+  }
+
+  return encoded;
 }
 
 export function buildHotSignUrl(
