@@ -2,6 +2,7 @@
 
 import { HasClient } from "hive-auth-client";
 import defaults from "@/defaults.json";
+import { error as showFeedbackError } from "@/features/shared/feedback";
 import { get, remove, set } from "@/utils/local-storage";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
 import {
@@ -97,6 +98,94 @@ function resetClientConnection() {
   }
 
   hiveAuthClient = null;
+}
+
+const HIVE_AUTH_ERROR_FIELDS = [
+  "error",
+  "message",
+  "reason",
+  "details",
+  "detail",
+  "description"
+] as const;
+
+function resolveHiveAuthMessage(rawMessage: unknown, fallback: string): string {
+  const resolved = extractHiveAuthErrorMessage(rawMessage, new Set(), 0);
+  if (resolved) return resolved;
+  return fallback;
+}
+
+function extractHiveAuthErrorMessage(
+  rawMessage: unknown,
+  seen: Set<unknown>,
+  depth: number
+): string | null {
+  if (depth > 5) return null;
+
+  if (typeof rawMessage === "string") {
+    const trimmed = rawMessage.trim();
+    return trimmed ? trimmed : null;
+  }
+
+  if (typeof rawMessage === "number" && Number.isFinite(rawMessage)) {
+    return String(rawMessage);
+  }
+
+  if (!rawMessage) return null;
+
+  if (Array.isArray(rawMessage)) {
+    for (const entry of rawMessage) {
+      const result = extractHiveAuthErrorMessage(entry, seen, depth + 1);
+      if (result) return result;
+    }
+    return null;
+  }
+
+  if (typeof rawMessage !== "object") return null;
+
+  if (seen.has(rawMessage)) return null;
+  seen.add(rawMessage);
+
+  for (const field of HIVE_AUTH_ERROR_FIELDS) {
+    if (field in (rawMessage as Record<string, unknown>)) {
+      const value = (rawMessage as Record<string, unknown>)[field];
+      const result = extractHiveAuthErrorMessage(value, seen, depth + 1);
+      if (result) return result;
+    }
+  }
+
+  if ("code" in (rawMessage as Record<string, unknown>)) {
+    const codeValue = (rawMessage as Record<string, unknown>).code;
+    if (typeof codeValue === "string" && codeValue.trim()) {
+      return codeValue.trim();
+    }
+  }
+
+  const stringified = (() => {
+    try {
+      return JSON.stringify(rawMessage);
+    } catch (err) {
+      return null;
+    }
+  })();
+
+  if (stringified && stringified !== "{}" && stringified !== "[]") {
+    return stringified;
+  }
+
+  return null;
+}
+
+function showHiveAuthErrorToast(message: string) {
+  if (typeof window === "undefined") return;
+  const trimmed = message.trim();
+  if (!trimmed) return;
+
+  try {
+    showFeedbackError(trimmed);
+  } catch (err) {
+    console.warn("Failed to display HiveAuth error toast", err);
+  }
 }
 
 function getClient(): HasClient {
@@ -373,10 +462,15 @@ function requestAuthentication(
         host: `wss://${HIVE_AUTH_HOST}`
       };
 
-      if (payload.uuid && payload.key) {
+      const expireMs = normalizeExpire((ev as any)?.expire ?? 0);
+      const expired = !!expireMs && expireMs <= Date.now();
+
+      if (payload.uuid && payload.key && !expired) {
         const encoded = btoa(JSON.stringify(payload));
         // Only deep-link on mobile environments
         if (isMobileBrowser()) openDeepLink(`has://auth_req/${encoded}`);
+      } else if (expired) {
+        showHiveAuthErrorToast("HiveAuth request expired before opening wallet");
       }
     };
 
@@ -386,20 +480,26 @@ function requestAuthentication(
 
       // Basic presence checks
       if (!authData?.token || !authData?.key) {
-        reject(new Error("HiveAuth returned incomplete session"));
+        const message = "HiveAuth returned incomplete session";
+        showHiveAuthErrorToast(message);
+        reject(new Error(message));
         return;
       }
 
       // UUID sanity check when available
       if (currentAuthUuid && ackUuid && ackUuid !== currentAuthUuid) {
-        reject(new Error("HiveAuth uuid mismatch"));
+        const message = "HiveAuth uuid mismatch";
+        showHiveAuthErrorToast(message);
+        reject(new Error(message));
         return;
       }
 
       // Expiry sanity
       const expireMs = normalizeExpire(authData.expire ?? 0);
       if (!expireMs || expireMs <= Date.now()) {
-        reject(new Error("HiveAuth session already expired"));
+        const message = "HiveAuth session already expired";
+        showHiveAuthErrorToast(message);
+        reject(new Error(message));
         return;
       }
 
@@ -424,19 +524,25 @@ function requestAuthentication(
 
     const onFailure = (ev: FailureEvent | any) => {
       cleanup();
-      const message = (ev?.message as any)?.error ?? ev?.message ?? "HiveAuth authentication failed";
+      const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
+      const message = rawMessage ?? "HiveAuth authentication failed";
+      showHiveAuthErrorToast(message);
       reject(new Error(message));
     };
 
     const onError = (ev: FailureEvent | any) => {
       cleanup();
-      const message = ev?.error ?? (ev?.message as any)?.error ?? "HiveAuth error";
+      const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
+      const message = rawMessage ?? "HiveAuth error";
+      showHiveAuthErrorToast(message);
       reject(new Error(message));
     };
 
     const onExpired = () => {
       cleanup();
-      reject(new HiveAuthSessionExpiredError("HiveAuth authentication expired"));
+      const message = "HiveAuth authentication expired";
+      showHiveAuthErrorToast(message);
+      reject(new HiveAuthSessionExpiredError(message));
     };
 
     // Proactive connect to avoid missing early events on flaky networks
@@ -527,48 +633,58 @@ async function executeChallenge(
         cleanup();
         const signature = ev?.data?.challenge;
         if (!signature) {
-          reject(new Error("HiveAuth returned empty signature"));
+          const message = "HiveAuth returned empty signature";
+          showHiveAuthErrorToast(message);
+          reject(new Error(message));
           return;
         }
         try {
           const normalized = parseChallengeSignature(signature).toString();
           resolve(normalized);
         } catch (err) {
-          reject(
-            err instanceof Error ? err : new Error("HiveAuth returned invalid signature")
+          const fallback = "HiveAuth returned invalid signature";
+          const message = resolveHiveAuthMessage(
+            err instanceof Error ? err.message : undefined,
+            fallback
           );
+          showHiveAuthErrorToast(message);
+          reject(err instanceof Error ? err : new Error(fallback));
         }
       };
 
       const onFailure = (ev: FailureEvent | any) => {
         cleanup();
-        const message = (ev?.message as any)?.error ?? ev?.message;
-        if (isTokenError(message)) {
+        const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
+        const resolvedMessage = rawMessage ?? "HiveAuth challenge failed";
+        if (rawMessage && isTokenError(rawMessage)) {
           clearSession(username);
-          reject(
-            new HiveAuthSessionExpiredError(message ?? "HiveAuth challenge failed")
-          );
+          showHiveAuthErrorToast(resolvedMessage);
+          reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
         }
-        reject(new Error(message ?? "HiveAuth challenge failed"));
+        showHiveAuthErrorToast(resolvedMessage);
+        reject(new Error(resolvedMessage));
       };
 
       const onError = (ev: FailureEvent | any) => {
         cleanup();
-        const message = ev?.error ?? (ev?.message as any)?.error;
-        if (isTokenError(message)) {
+        const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
+        const resolvedMessage = rawMessage ?? "HiveAuth challenge error";
+        if (rawMessage && isTokenError(rawMessage)) {
           clearSession(username);
-          reject(
-            new HiveAuthSessionExpiredError(message ?? "HiveAuth challenge error")
-          );
+          showHiveAuthErrorToast(resolvedMessage);
+          reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
         }
-        reject(new Error(message ?? "HiveAuth challenge error"));
+        showHiveAuthErrorToast(resolvedMessage);
+        reject(new Error(resolvedMessage));
       };
 
       const onExpired = () => {
         cleanup();
-        reject(new HiveAuthSessionExpiredError("HiveAuth challenge expired"));
+        const message = "HiveAuth challenge expired";
+        showHiveAuthErrorToast(message);
+        reject(new HiveAuthSessionExpiredError(message));
       };
 
       try {
@@ -663,31 +779,37 @@ async function executeBroadcast(
 
       const onFailure = (ev: FailureEvent | any) => {
         cleanup();
-        const message = (ev?.message as any)?.error ?? ev?.message;
-        if (isTokenError(message)) {
+        const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
+        const resolvedMessage = rawMessage ?? "HiveAuth sign failure";
+        if (rawMessage && isTokenError(rawMessage)) {
           clearSession(username);
-          reject(
-            new HiveAuthSessionExpiredError(message ?? "HiveAuth sign failure")
-          );
+          showHiveAuthErrorToast(resolvedMessage);
+          reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
         }
-        reject(new Error(message ?? "HiveAuth sign failure"));
+        showHiveAuthErrorToast(resolvedMessage);
+        reject(new Error(resolvedMessage));
       };
 
       const onError = (ev: FailureEvent | any) => {
         cleanup();
-        const message = ev?.error ?? (ev?.message as any)?.error;
-        if (isTokenError(message)) {
+        const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
+        const resolvedMessage = rawMessage ?? "HiveAuth sign error";
+        if (rawMessage && isTokenError(rawMessage)) {
           clearSession(username);
-          reject(new HiveAuthSessionExpiredError(message ?? "HiveAuth sign error"));
+          showHiveAuthErrorToast(resolvedMessage);
+          reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
         }
-        reject(new Error(message ?? "HiveAuth sign error"));
+        showHiveAuthErrorToast(resolvedMessage);
+        reject(new Error(resolvedMessage));
       };
 
       const onExpired = () => {
         cleanup();
-        reject(new HiveAuthSessionExpiredError("HiveAuth sign expired"));
+        const message = "HiveAuth sign expired";
+        showHiveAuthErrorToast(message);
+        reject(new HiveAuthSessionExpiredError(message));
       };
 
       try {
