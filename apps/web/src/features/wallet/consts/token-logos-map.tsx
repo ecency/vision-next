@@ -112,22 +112,56 @@ export function getSizedTokenLogo(token: string, size = 32) {
   }
 }
 
-export const TOKEN_LOGOS_MAP: Record<string, ReactNode> = {
-  HIVE: getSizedTokenLogo("HIVE", 32),
-  HP: getSizedTokenLogo("HP", 32),
-  HBD: getSizedTokenLogo("HBD", 32),
-  SPK: getSizedTokenLogo("SPK", 32),
-  LARYNX: getSizedTokenLogo("LARYNX", 32),
-  LP: getSizedTokenLogo("LP", 32),
-  POINTS: getSizedTokenLogo("POINTS", 32),
-  APT: getSizedTokenLogo("APT", 32),
-  BTC: getSizedTokenLogo("BTC", 32),
-  BNB: getSizedTokenLogo("BNB", 32),
-  ETH: getSizedTokenLogo("ETH", 32),
-  SOL: getSizedTokenLogo("SOL", 32),
-  TON: getSizedTokenLogo("TON", 32),
-  TRX: getSizedTokenLogo("TRX", 32)
+const TOKEN_LOGO_ALIASES: Record<string, string> = {
+  "HIVE POWER": "HP",
+  "HIVE DOLLARS": "HBD",
+  POINT: "POINTS"
 };
+
+export function resolveTokenLogoKey(token: string): string {
+  const normalized = token.trim().toUpperCase();
+  const alias = TOKEN_LOGO_ALIASES[normalized];
+  return (alias ?? normalized) as string;
+}
+
+export function getTokenLogo(token: string, size = 32) {
+  const key = resolveTokenLogoKey(token);
+  return getSizedTokenLogo(key, size);
+}
+
+const TOKEN_LOGO_PRESETS = [
+  "HIVE",
+  "HP",
+  "HIVE POWER",
+  "HBD",
+  "HIVE DOLLARS",
+  "SPK",
+  "LARYNX",
+  "LP",
+  "POINTS",
+  "POINT",
+  "APT",
+  "BTC",
+  "BNB",
+  "ETH",
+  "SOL",
+  "TON",
+  "TRX"
+] as const;
+
+export const TOKEN_LOGOS_MAP: Record<string, ReactNode> = TOKEN_LOGO_PRESETS.reduce(
+  (acc, token) => {
+    const key = resolveTokenLogoKey(token);
+    const logo = getSizedTokenLogo(key, 32);
+
+    acc[token] = logo;
+    acc[key] = logo;
+    acc[token.toLowerCase()] = logo;
+
+    return acc;
+  },
+  {} as Record<string, ReactNode>
+);
 
 export const TOKEN_COLORS_MAP: Record<string, string> = {
   HIVE: "bg-gradient-to-r from-[#e05e5e] to-[#e05e5e]/60",

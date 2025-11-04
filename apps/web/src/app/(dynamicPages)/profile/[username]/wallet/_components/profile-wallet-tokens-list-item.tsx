@@ -2,7 +2,7 @@
 
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
-import { TOKEN_LOGOS_MAP } from "@/features/wallet";
+import { getTokenLogo } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-username";
 import { proxifyImageSrc } from "@ecency/render-helper";
@@ -82,12 +82,9 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         </div>
       );
     }
-    if (data) {
-      return TOKEN_LOGOS_MAP[data.name];
-    }
-
-    return undefined;
-  }, [assetSymbol, data, layer2Token]);
+    const tokenName = data?.name ?? assetSymbol;
+    return getTokenLogo(tokenName);
+  }, [assetSymbol, data?.name, layer2Token]);
 
   const formattedAccountBalance = Number(data?.accountBalance ?? 0).toFixed(3);
 

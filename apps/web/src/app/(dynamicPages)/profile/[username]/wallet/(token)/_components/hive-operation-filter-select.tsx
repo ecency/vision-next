@@ -167,7 +167,7 @@ export function HiveOperationFilterSelect({
         <Button
           appearance="gray"
           size="sm"
-          className="!flex !h-auto !flex-col !items-start !gap-2 !px-3 !py-2 min-w-[220px] text-left"
+          className="!flex !h-auto !w-full !flex-col !items-start !gap-2 !px-3 !py-2 text-left sm:!w-auto sm:min-w-[220px]"
         >
           <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
             {i18next.t("transactions.filter-toggle", {

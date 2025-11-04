@@ -12,6 +12,7 @@ import {
   Operation,
   PublicKey,
   Signature,
+  TransactionConfirmation,
   cryptoUtils
 } from "@hiveio/dhive";
 import type { FullAccount } from "@/entities";
@@ -866,17 +867,28 @@ async function runChallenge(
 
 /* -------------------------------- Broadcast -------------------------------- */
 
+function extractTransactionConfirmation(ev: any): TransactionConfirmation {
+  const payload = ev?.message ?? ev ?? {};
+  const result = (payload?.result ?? payload?.response ?? payload) as TransactionConfirmation;
+
+  if (result && typeof result === "object") {
+    return result;
+  }
+
+  return {} as TransactionConfirmation;
+}
+
 async function executeBroadcast(
   username: string,
   session: HiveAuthSession,
   keyType: "posting" | "active",
   operations: Operation[],
   allowClientReset: boolean
-): Promise<void> {
+): Promise<TransactionConfirmation> {
   const client = getClient();
 
   try {
-    await new Promise<void>(async (resolve, reject) => {
+    return await new Promise<TransactionConfirmation>(async (resolve, reject) => {
       let inFlight = true;
       currentRequestUuid = null;
 
@@ -910,7 +922,7 @@ async function executeBroadcast(
           return;
         }
         cleanup();
-        resolve();
+        resolve(extractTransactionConfirmation(ev));
       };
 
       const onPending = (ev: any) => {
@@ -1026,17 +1038,16 @@ async function runBroadcast(
   keyType: "posting" | "active",
   operations: Operation[],
   account?: FullAccount
-): Promise<void> {
+): Promise<TransactionConfirmation> {
   const session = await ensureSession(username, account);
 
   try {
-    await executeBroadcast(username, session, keyType, operations, true);
+    return await executeBroadcast(username, session, keyType, operations, true);
   } catch (err) {
     if (err instanceof HiveAuthSessionExpiredError) {
       clearSession(username);
       const refreshed = await ensureSession(username, account);
-      await executeBroadcast(username, refreshed, keyType, operations, true);
-      return;
+      return await executeBroadcast(username, refreshed, keyType, operations, true);
     }
     throw err;
   }
@@ -1064,8 +1075,8 @@ export async function broadcastWithHiveAuth(
   operations: Operation[],
   keyType: "posting" | "active" = "posting",
   account?: FullAccount
-): Promise<void> {
-  await runBroadcast(username, keyType, operations, account);
+): Promise<TransactionConfirmation> {
+  return await runBroadcast(username, keyType, operations, account);
 }
 
 export function resetHiveAuthSession(username: string) {

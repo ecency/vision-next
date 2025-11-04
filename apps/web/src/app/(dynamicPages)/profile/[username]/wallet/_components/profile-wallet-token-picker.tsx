@@ -18,7 +18,7 @@ import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
 import { useClientActiveUser } from "@/api/queries";
 import { getAccessToken } from "@/utils/user-token";
-import { TOKEN_LOGOS_MAP } from "@/features/wallet";
+import { getTokenLogo } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import * as R from "remeda";
 import {
@@ -491,7 +491,7 @@ export function ProfileWalletTokenPicker() {
                       checked={walletList?.includes(token) ?? false}
                       onChange={() => {}}
                     />
-                    <div>{TOKEN_LOGOS_MAP[token]}</div>
+                    <div>{getTokenLogo(token)}</div>
                     {token}
                   </ListItem>
                 ))}
@@ -528,7 +528,7 @@ export function ProfileWalletTokenPicker() {
                       checked={selectedTokens.has(token)}
                       onChange={() => toggleSelection(token)}
                     />
-                    <div>{TOKEN_LOGOS_MAP[token]}</div>
+                    <div>{getTokenLogo(token)}</div>
                     {token}
                   </ListItem>
                 ))}

@@ -1,5 +1,6 @@
 import React from "react";
 import { TransferAsset } from "@/features/shared";
+import { getTokenLogo } from "@/features/wallet";
 
 interface AssetSwitchProps {
   options: TransferAsset[];
@@ -10,13 +11,15 @@ export function TransferAssetSwitch({ options, selected, onChange }: AssetSwitch
   return (
     <div className="asset-switch">
       {options.map((opt) => (
-        <a
+        <button
           key={opt}
+          type="button"
           onClick={() => onChange(opt)}
-          className={`asset ${selected === opt ? "selected" : ""}`}
+          className={`asset inline-flex items-center gap-2 ${selected === opt ? "selected" : ""}`}
         >
-          {opt}
-        </a>
+          <span className="inline-flex items-center justify-center">{getTokenLogo(opt, 24)}</span>
+          <span>{opt}</span>
+        </button>
       ))}
     </div>
   );
