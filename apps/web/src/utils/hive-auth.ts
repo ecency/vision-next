@@ -65,8 +65,8 @@ class HiveAuthSessionExpiredError extends Error {}
 /* --------------------------------- Client --------------------------------- */
 
 let hiveAuthClient: HasClient | null = null;
-// Keep the current auth request UUID to sanity-check the ACK
-let currentAuthUuid: string | null = null;
+// Keep the current HAS request UUID to sanity-check the ACK
+let currentRequestUuid: string | null = null;
 
 // Single-flight guards (visibility reconnects, deep-link)
 let connecting = false;
@@ -290,6 +290,62 @@ function openDeepLink(uri: string) {
   }
 }
 
+type HasRequestType = "auth" | "challenge";
+
+function sanitizeDeepLinkPayload(payload: Record<string, unknown>) {
+  return Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== undefined && value !== null)
+  );
+}
+
+function dispatchPendingDeepLink(
+  type: HasRequestType,
+  username: string,
+  uuid: string | undefined,
+  expire: number | undefined,
+  extras: Record<string, unknown>
+) {
+  if (!uuid) return;
+
+  currentRequestUuid = uuid;
+
+  const expireMs = normalizeExpire(expire ?? 0);
+  const expired = !!expireMs && expireMs <= Date.now();
+
+  if (expired) {
+    const message =
+      type === "auth"
+        ? "HiveAuth request expired before opening wallet"
+        : "HiveAuth challenge expired before opening wallet";
+    showHiveAuthErrorToast(message);
+    return;
+  }
+
+  const requiresKey = type === "auth" || type === "challenge";
+  if (requiresKey && !extras.key) {
+    return;
+  }
+
+  if (!isMobileBrowser()) return;
+  if (lastDeepLinkSentForUuid === uuid) return;
+
+  const payload = sanitizeDeepLinkPayload({
+    account: username,
+    uuid,
+    host: `wss://${HIVE_AUTH_HOST}`,
+    hostname: HIVE_AUTH_HOST,
+    ...extras
+  });
+
+  try {
+    const encoded = btoa(JSON.stringify(payload));
+    lastDeepLinkSentForUuid = uuid;
+    openDeepLink(`has://${type}_req/${encoded}`);
+  } catch (err) {
+    console.error("Failed to serialize HiveAuth deep link payload", err);
+  }
+}
+
 function watchAppVisibility(onVisible: () => void): () => void {
   if (typeof document === "undefined" || typeof window === "undefined") {
     return () => {};
@@ -443,7 +499,7 @@ function requestAuthentication(
     const challengeEnabled = !!challenge;
 
     let inFlight = true;
-    currentAuthUuid = null;
+    currentRequestUuid = null;
     lastDeepLinkSentForUuid = null;
 
     // Reconnect when the user returns from the wallet (single-flight)
@@ -463,36 +519,19 @@ function requestAuthentication(
       client.removeEventHandler("RequestExpired", onExpired);
       stopWatchingVisibility();
       // ensure state is cleared between attempts
-      currentAuthUuid = null;
+      currentRequestUuid = null;
       lastDeepLinkSentForUuid = null;
     };
 
     const onPending = (ev: AuthPendingEvent | any) => {
       const e: AuthPendingEvent = ev ?? ({} as any);
-      // Record UUID for later sanity checks
-      if (e?.uuid) currentAuthUuid = e.uuid;
+      const accountName = e?.account ?? username;
+      const pendingUuid = e?.uuid;
+      const expire = (ev as any)?.expire ?? 0;
 
-      const payload = {
-        account: e?.account ?? username,
-        uuid: e?.uuid,
-        key: e?.key,
-        host: `wss://${HIVE_AUTH_HOST}`, // original
-        hostname: HIVE_AUTH_HOST        // compatibility for wallets expecting plain host
-      };
-
-      const expireMs = normalizeExpire((ev as any)?.expire ?? 0);
-      const expired = !!expireMs && expireMs <= Date.now();
-
-      if (payload.uuid && payload.key && !expired) {
-        // Only deep-link on mobile environments, and only ONCE per pending UUID
-        if (isMobileBrowser() && lastDeepLinkSentForUuid !== payload.uuid) {
-          lastDeepLinkSentForUuid = payload.uuid!;
-          const encoded = btoa(JSON.stringify(payload));
-          openDeepLink(`has://auth_req/${encoded}`);
-        }
-      } else if (expired) {
-        showHiveAuthErrorToast("HiveAuth request expired before opening wallet");
-      }
+      dispatchPendingDeepLink("auth", accountName, pendingUuid, expire, {
+        key: e?.key
+      });
     };
 
     const onSuccess = (ev: AuthSuccessEvent | any) => {
@@ -506,7 +545,7 @@ function requestAuthentication(
         return;
       }
 
-      if (currentAuthUuid && ackUuid && ackUuid !== currentAuthUuid) {
+      if (currentRequestUuid && ackUuid && ackUuid !== currentRequestUuid) {
         const message = "HiveAuth uuid mismatch";
         showHiveAuthErrorToast(message);
         reject(new Error(message));
@@ -628,7 +667,7 @@ async function executeChallenge(
   try {
     return await new Promise<string>(async (resolve, reject) => {
       let inFlight = true;
-      currentAuthUuid = null; // keep consistent; challenge doesn’t use it but reset anyway
+      currentRequestUuid = null; // keep consistent; challenge doesn’t use it but reset anyway
 
       const stopWatchingVisibility = watchAppVisibility(() => {
         if (!inFlight) return;
@@ -639,13 +678,27 @@ async function executeChallenge(
 
       const cleanup = () => {
         inFlight = false;
+        client.removeEventHandler("ChallengePending", onPending);
         client.removeEventHandler("ChallengeSuccess", onSuccess);
         client.removeEventHandler("ChallengeFailure", onFailure);
         client.removeEventHandler("ChallengeError", onError);
         client.removeEventHandler("Error", onError);
         client.removeEventHandler("RequestExpired", onExpired);
         stopWatchingVisibility();
-        currentAuthUuid = null;
+        currentRequestUuid = null;
+        lastDeepLinkSentForUuid = null;
+      };
+
+      const onPending = (ev: ChallengeSuccessEvent | any) => {
+        const payload = (ev as any)?.message ?? ev ?? {};
+        const pendingUuid = payload?.uuid ?? (ev as any)?.uuid;
+        const expire = payload?.expire ?? (ev as any)?.expire ?? 0;
+
+        dispatchPendingDeepLink("challenge", username, pendingUuid, expire, {
+          key: session.key,
+          key_type: keyType,
+          challenge
+        });
       };
 
       const onSuccess = (ev: ChallengeSuccessEvent | any) => {
@@ -653,6 +706,13 @@ async function executeChallenge(
         const signature = ev?.data?.challenge;
         if (!signature) {
           const message = "HiveAuth returned empty signature";
+          showHiveAuthErrorToast(message);
+          reject(new Error(message));
+          return;
+        }
+        const ackUuid = ev?.uuid ?? (ev as any)?.message?.uuid;
+        if (currentRequestUuid && ackUuid && ackUuid !== currentRequestUuid) {
+          const message = "HiveAuth uuid mismatch";
           showHiveAuthErrorToast(message);
           reject(new Error(message));
           return;
@@ -714,6 +774,7 @@ async function executeChallenge(
         return;
       }
 
+      client.addEventHandler("ChallengePending", onPending);
       client.addEventHandler("ChallengeSuccess", onSuccess);
       client.addEventHandler("ChallengeFailure", onFailure);
       client.addEventHandler("ChallengeError", onError);
@@ -770,7 +831,7 @@ async function executeBroadcast(
   try {
     await new Promise<void>(async (resolve, reject) => {
       let inFlight = true;
-      currentAuthUuid = null;
+      currentRequestUuid = null;
 
       const stopWatchingVisibility = watchAppVisibility(() => {
         if (!inFlight) return;
@@ -787,7 +848,7 @@ async function executeBroadcast(
         client.removeEventHandler("Error", onError);
         client.removeEventHandler("RequestExpired", onExpired);
         stopWatchingVisibility();
-        currentAuthUuid = null;
+        currentRequestUuid = null;
       };
 
       const onSuccess = () => {
