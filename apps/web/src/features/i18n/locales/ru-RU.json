@@ -1501,7 +1501,8 @@
     "sign": "Подписать",
     "key-placeholder": "Введите активный/владелец/мастер-ключ или сид",
     "with-hivesigner": "Подписать с помощью hivesigner",
-    "with-keychain": "Подписать с помощью keychain"
+    "with-keychain": "Подписать с помощью keychain",
+    "with-hiveauth": "Подписать через HiveAuth"
   },
   "delegated-vesting": {
     "title": "Делегированная Hive Сила",
