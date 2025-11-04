@@ -1501,7 +1501,8 @@
     "sign": "Firmar",
     "key-placeholder": "Clave privada, contraseña maestra o semilla",
     "with-hivesigner": "Iniciar Sesión con hivesigner",
-    "with-keychain": "Iniciar sesión con KeyChain"
+    "with-keychain": "Iniciar sesión con KeyChain",
+    "with-hiveauth": "Firmar con HiveAuth"
   },
   "delegated-vesting": {
     "title": "Hive Power delegado",
