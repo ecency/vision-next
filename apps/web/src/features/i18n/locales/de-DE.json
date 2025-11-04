@@ -1501,7 +1501,8 @@
     "sign": "Schild",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Mit HiveAuh signieren"
   },
   "delegated-vesting": {
     "title": "Delegierte Hive-Macht",
