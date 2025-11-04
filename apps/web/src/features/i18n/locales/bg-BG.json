@@ -1501,7 +1501,8 @@
     "sign": "Вход",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Sign with HiveAuth"
   },
   "delegated-vesting": {
     "title": "Делегиран Hive сила/стойност",
