@@ -21,18 +21,92 @@ class HiveAuthTimeoutError extends Error {
 }
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  if (typeof document === "undefined") {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(new HiveAuthTimeoutError());
+      }, timeoutMs);
+
+      promise
+        .then((value) => {
+          clearTimeout(timer);
+          resolve(value);
+        })
+        .catch((err) => {
+          clearTimeout(timer);
+          reject(err);
+        });
+    });
+  }
+
   return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let remaining = timeoutMs;
+    let lastStarted = Date.now();
+
+    const clearTimer = () => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
+
+    const onTimeout = () => {
+      cleanup();
       reject(new HiveAuthTimeoutError());
-    }, timeoutMs);
+    };
+
+    const startTimer = () => {
+      clearTimer();
+      lastStarted = Date.now();
+      timer = setTimeout(onTimeout, remaining);
+    };
+
+    const pauseTimer = () => {
+      if (!timer) return;
+      clearTimer();
+      remaining -= Date.now() - lastStarted;
+      if (remaining < 0) {
+        remaining = 0;
+      }
+    };
+
+    const resumeTimer = () => {
+      if (remaining <= 0) {
+        onTimeout();
+        return;
+      }
+      startTimer();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        pauseTimer();
+      } else {
+        resumeTimer();
+      }
+    };
+
+    const cleanup = () => {
+      clearTimer();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    if (document.hidden) {
+      remaining = timeoutMs;
+    } else {
+      startTimer();
+    }
 
     promise
       .then((value) => {
-        clearTimeout(timer);
+        cleanup();
         resolve(value);
       })
       .catch((err) => {
-        clearTimeout(timer);
+        cleanup();
         reject(err);
       });
   });
