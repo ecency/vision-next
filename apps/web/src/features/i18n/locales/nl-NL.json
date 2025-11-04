@@ -1501,7 +1501,8 @@
     "sign": "Ondertekenen",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Meld je aan met HiveAuth"
   },
   "delegated-vesting": {
     "title": "Toegewezene Korf Kracht",
