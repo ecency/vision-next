@@ -1501,7 +1501,8 @@
     "sign": "Sign",
     "key-placeholder": "Private key, master password or seed",
     "with-hivesigner": "Sign with Hivesigner",
-    "with-keychain": "Sign with Keychain"
+    "with-keychain": "Sign with Keychain",
+    "with-hiveauth": "Sign with HiveAuth"
   },
   "delegated-vesting": {
     "title": "Delegated Hive Power",

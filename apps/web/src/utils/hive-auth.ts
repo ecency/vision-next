@@ -299,7 +299,7 @@ function openDeepLink(uri: string) {
   }
 }
 
-type HasRequestType = "auth" | "challenge";
+type HasRequestType = "auth" | "challenge" | "sign";
 
 function sanitizeDeepLinkPayload(payload: Record<string, unknown>) {
   return Object.fromEntries(
@@ -350,7 +350,7 @@ function dispatchPendingDeepLink(
     return;
   }
 
-  const requiresKey = type === "auth" || type === "challenge";
+  const requiresKey = type === "auth" || type === "challenge" || type === "sign";
   if (requiresKey && !extras.key) {
     return;
   }
@@ -889,6 +889,7 @@ async function executeBroadcast(
 
       const cleanup = () => {
         inFlight = false;
+        client.removeEventHandler("SignPending", onPending);
         client.removeEventHandler("SignSuccess", onSuccess);
         client.removeEventHandler("SignFailure", onFailure);
         client.removeEventHandler("SignError", onError);
@@ -896,11 +897,61 @@ async function executeBroadcast(
         client.removeEventHandler("RequestExpired", onExpired);
         stopWatchingVisibility();
         currentRequestUuid = null;
+        lastDeepLinkSentForUuid = null;
       };
 
-      const onSuccess = () => {
+      const onSuccess = (ev: any) => {
+        const ackUuid = ev?.message?.uuid ?? ev?.uuid;
+        if (currentRequestUuid && ackUuid && ackUuid !== currentRequestUuid) {
+          cleanup();
+          const message = "HiveAuth uuid mismatch";
+          showHiveAuthErrorToast(message);
+          reject(new Error(message));
+          return;
+        }
         cleanup();
         resolve();
+      };
+
+      const onPending = (ev: any) => {
+        const payload = ev?.message ?? ev ?? {};
+        const pendingUuid = payload?.uuid ?? ev?.uuid;
+        const expire = payload?.expire ?? ev?.expire ?? 0;
+
+        const defaultSignRequest = {
+          key_type: keyType,
+          ops: operations,
+          broadcast: true
+        };
+
+        const extras: Record<string, unknown> = {
+          key: session.key,
+          key_type: keyType
+        };
+
+        let signReq: unknown = payload?.sign_req;
+        if (!signReq) {
+          signReq = defaultSignRequest;
+        }
+
+        if (signReq) {
+          extras.sign_req = signReq;
+        }
+
+        let signReqData: unknown = payload?.sign_req_data;
+        if (!signReqData) {
+          try {
+            signReqData = b64uEnc(JSON.stringify(signReq));
+          } catch (err) {
+            console.error("Failed to encode HiveAuth sign request payload", err);
+          }
+        }
+
+        if (signReqData) {
+          extras.sign_req_data = signReqData;
+        }
+
+        dispatchPendingDeepLink("sign", username, pendingUuid, expire, extras);
       };
 
       const onFailure = (ev: FailureEvent | any) => {
@@ -946,6 +997,7 @@ async function executeBroadcast(
         return;
       }
 
+      client.addEventHandler("SignPending", onPending);
       client.addEventHandler("SignSuccess", onSuccess);
       client.addEventHandler("SignFailure", onFailure);
       client.addEventHandler("SignError", onError);

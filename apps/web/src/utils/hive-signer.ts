@@ -145,6 +145,198 @@ function toBoolean(value: any): boolean {
   return Boolean(value);
 }
 
+function toNumber(value: any): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+}
+
+function parseJsonValue<T>(value: any): T | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (typeof value === "object") {
+    return value as T;
+  }
+
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed as T;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+function ensureString(value: any, fallback = ""): string {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (value === undefined || value === null) {
+    return fallback;
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch (err) {
+    console.error("Failed to serialize HiveAuth string value", err);
+    return fallback;
+  }
+}
+
+function buildVoteContext(params: Record<string, any>): HiveAuthContext | null {
+  const voter = typeof params.voter === "string" ? params.voter : params.account;
+  const author = typeof params.author === "string" ? params.author : null;
+  const permlink = typeof params.permlink === "string" ? params.permlink : null;
+  const weightValue =
+    params.weight ?? params.voting_weight ?? params.vote_weight ?? params.weight_pct;
+  const weight = toNumber(weightValue);
+
+  if (!voter || !author || !permlink || weight === null) {
+    return null;
+  }
+
+  const operation: Operation = [
+    "vote",
+    {
+      voter,
+      author,
+      permlink,
+      weight: Math.trunc(weight)
+    }
+  ];
+
+  return { username: voter, keyType: "posting", operations: [operation] };
+}
+
+function buildCommentContext(params: Record<string, any>): HiveAuthContext | null {
+  const author = typeof params.author === "string" ? params.author : params.account;
+  const permlink = typeof params.permlink === "string" ? params.permlink : null;
+  const parentPermlink =
+    typeof params.parent_permlink === "string" ? params.parent_permlink : null;
+
+  if (!author || !permlink || parentPermlink === null) {
+    return null;
+  }
+
+  const operation: Operation = [
+    "comment",
+    {
+      parent_author: typeof params.parent_author === "string" ? params.parent_author : "",
+      parent_permlink: parentPermlink,
+      author,
+      permlink,
+      title: ensureString(params.title),
+      body: ensureString(params.body),
+      json_metadata: ensureString(params.json_metadata, "{}")
+    }
+  ];
+
+  return { username: author, keyType: "posting", operations: [operation] };
+}
+
+function parseBeneficiaries(value: any): { account: string; weight: number }[] {
+  const parsed = parseJsonValue<{ account: string; weight: number }[]>(value);
+  if (Array.isArray(parsed)) {
+    return parsed.filter(
+      (entry) => typeof entry?.account === "string" && toNumber(entry?.weight) !== null
+    );
+  }
+  return [];
+}
+
+function buildCommentOptionsContext(params: Record<string, any>): HiveAuthContext | null {
+  const author = typeof params.author === "string" ? params.author : null;
+  const permlink = typeof params.permlink === "string" ? params.permlink : null;
+
+  if (!author || !permlink) {
+    return null;
+  }
+
+  const percentRaw =
+    params.percent_hbd ?? params.percent_hive_dollars ?? params.percent_steem_dollars;
+  const percent = toNumber(percentRaw) ?? 10000;
+  const allowVotes = params.allow_votes !== undefined ? toBoolean(params.allow_votes) : true;
+  const allowCuration =
+    params.allow_curation_rewards !== undefined
+      ? toBoolean(params.allow_curation_rewards)
+      : true;
+
+  let extensions = parseJsonValue<any[]>(params.extensions) ?? [];
+  if (!extensions.length) {
+    const beneficiaries = parseBeneficiaries(params.beneficiaries);
+    if (beneficiaries.length) {
+      extensions = [[0, { beneficiaries }]];
+    }
+  }
+
+  const operation: Operation = [
+    "comment_options",
+    {
+      author,
+      permlink,
+      max_accepted_payout: ensureString(params.max_accepted_payout, "1000000.000 HBD"),
+      percent_steem_dollars: Math.trunc(percent),
+      allow_votes: allowVotes,
+      allow_curation_rewards: allowCuration,
+      extensions
+    }
+  ];
+
+  return { username: author, keyType: "posting", operations: [operation] };
+}
+
+function buildDeleteCommentContext(params: Record<string, any>): HiveAuthContext | null {
+  const author = typeof params.author === "string" ? params.author : null;
+  const permlink = typeof params.permlink === "string" ? params.permlink : null;
+
+  if (!author || !permlink) {
+    return null;
+  }
+
+  const operation: Operation = [
+    "delete_comment",
+    {
+      author,
+      permlink
+    }
+  ];
+
+  return { username: author, keyType: "posting", operations: [operation] };
+}
+
+function buildClaimRewardBalanceContext(params: Record<string, any>): HiveAuthContext | null {
+  const account = typeof params.account === "string" ? params.account : null;
+
+  if (!account) {
+    return null;
+  }
+
+  const operation: Operation = [
+    "claim_reward_balance",
+    {
+      account,
+      reward_hbd: ensureString(params.reward_hbd, "0.000 HBD"),
+      reward_hive: ensureString(params.reward_hive, "0.000 HIVE"),
+      reward_vests: ensureString(params.reward_vests, "0.000000 VESTS")
+    }
+  ];
+
+  return { username: account, keyType: "posting", operations: [operation] };
+}
+
 function determineKeyType(
   operations: Operation[],
   explicitAuthority?: string
@@ -388,6 +580,16 @@ function createHiveAuthContext(
   switch (endpoint) {
     case "custom-json":
       return buildCustomJsonContext(params);
+    case "vote":
+      return buildVoteContext(params);
+    case "comment":
+      return buildCommentContext(params);
+    case "comment-options":
+      return buildCommentOptionsContext(params);
+    case "delete-comment":
+      return buildDeleteCommentContext(params);
+    case "claim-reward-balance":
+      return buildClaimRewardBalanceContext(params);
     case "account-witness-vote":
       return buildWitnessVoteContext(params);
     case "account-witness-proxy":

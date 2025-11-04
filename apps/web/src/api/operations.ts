@@ -21,6 +21,7 @@ import {
   hotSign,
   parseAsset
 } from "@/utils";
+import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
 import { buildProfileMetadata, parseProfileMetadata } from "@ecency/sdk";
 
@@ -87,37 +88,36 @@ export const broadcastPostingJSON = (
 ): Promise<TransactionConfirmation> => {
   // With posting private key
   const postingKey = getPostingKey(username);
+  const operation: CustomJsonOperation[1] = {
+    id,
+    required_auths: [],
+    required_posting_auths: [username],
+    json: JSON.stringify(json)
+  };
   if (postingKey) {
     const privateKey = PrivateKey.fromString(postingKey);
-
-    const operation: CustomJsonOperation[1] = {
-      id,
-      required_auths: [],
-      required_posting_auths: [username],
-      json: JSON.stringify(json)
-    };
-
     return hiveClient.broadcast.json(operation, privateKey);
   }
 
-  const loginType = getLoginType(username);
+  const customJsonOperation: Operation = ["custom_json", operation];
 
-  if (loginType && loginType == "keychain") {
-    return keychain
-      .customJson(username, id, "Posting", JSON.stringify(json), "Custom json")
-      .then((r: any) => r.result);
-  }
+  return sendWithHiveAuthOrHiveSigner(username, [customJsonOperation], "posting", () => {
+    const loginType = getLoginType(username);
+    if (loginType === "keychain") {
+      return keychain
+        .customJson(username, id, "Posting", JSON.stringify(json), "Custom json")
+        .then((r: any) => r.result);
+    }
 
-  // With hivesigner access token
-
-  let token = getAccessToken(username);
-  return token
-    ? new hs.Client({
-        accessToken: token
-      })
-        .customJson([], [username], id, JSON.stringify(json))
-        .then((r: any) => r.result)
-    : Promise.resolve(0 as unknown as TransactionConfirmation);
+    const token = getAccessToken(username);
+    return token
+      ? new hs.Client({
+          accessToken: token
+        })
+          .customJson([], [username], id, JSON.stringify(json))
+          .then((r: any) => r.result)
+      : Promise.resolve(0 as unknown as TransactionConfirmation);
+  });
 };
 
 export const broadcastPostingOperations = (
@@ -132,21 +132,39 @@ export const broadcastPostingOperations = (
     return hiveClient.broadcast.sendOperations(operations, privateKey);
   }
 
+  return sendWithHiveAuthOrHiveSigner(username, operations, "posting", () => {
+    const loginType = getLoginType(username);
+    if (loginType === "keychain") {
+      return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result);
+    }
+
+    const token = getAccessToken(username);
+    return token
+      ? new hs.Client({
+          accessToken: token
+        })
+          .broadcast(operations)
+          .then((r: any) => r.result)
+      : Promise.resolve(0 as unknown as TransactionConfirmation);
+  });
+};
+
+function sendWithHiveAuthOrHiveSigner(
+  username: string,
+  operations: Operation[],
+  authority: "posting" | "active",
+  fallback: () => Promise<any> | void
+) {
   const loginType = getLoginType(username);
-  if (loginType == "keychain") {
-    return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result);
+  if (loginType === "hiveauth" || shouldUseHiveAuth()) {
+    return broadcastWithHiveAuth(username, operations, authority).catch((err) => {
+      console.error("HiveAuth broadcast failed", err);
+      return fallback();
+    });
   }
 
-  // With hivesigner access token
-  let token = getAccessToken(username);
-  return token
-    ? new hs.Client({
-        accessToken: token
-      })
-        .broadcast(operations)
-        .then((r: any) => r.result)
-    : Promise.resolve(0 as unknown as TransactionConfirmation);
-};
+  return fallback();
+}
 
 export const reblog = (
   username: string,
@@ -312,7 +330,9 @@ export const transferHot = (from: string, to: string, amount: string, memo: stri
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const transferKc = (from: string, to: string, amount: string, memo: string) => {
@@ -404,7 +424,9 @@ export const transferToSavingsHot = (from: string, to: string, amount: string, m
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const transferToSavingsKc = (from: string, to: string, amount: string, memo: string) => {
@@ -513,7 +535,9 @@ export const limitOrderCreateHot = (
   const params: Parameters = {
     callback: `https://ecency.com/market${idPrefix === OrderIdPrefix.SWAP ? "#swap" : ""}`
   };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const limitOrderCancelHot = (owner: string, orderid: number) => {
@@ -526,7 +550,9 @@ export const limitOrderCancelHot = (owner: string, orderid: number) => {
   ];
 
   const params: Parameters = { callback: `https://ecency.com/market` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const limitOrderCreateKc = (
@@ -606,7 +632,9 @@ export const convertHot = (owner: string, amount: string) => {
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${owner}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const convertKc = (owner: string, amount: string) => {
@@ -656,7 +684,9 @@ export const transferFromSavingsHot = (from: string, to: string, amount: string,
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const transferFromSavingsKc = (from: string, to: string, amount: string, memo: string) => {
@@ -724,7 +754,9 @@ export const claimInterestHot = (from: string, to: string, amount: string, memo:
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperations([op, cop], params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op, cop], "active", () =>
+    hs.sendOperations([op, cop], params, () => {})
+  );
 };
 
 export const claimInterestKc = (from: string, to: string, amount: string, memo: string) => {
@@ -779,7 +811,9 @@ export const transferToVestingHot = (from: string, to: string, amount: string) =
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const transferToVestingKc = (from: string, to: string, amount: string) => {
@@ -828,7 +862,9 @@ export const delegateVestingSharesHot = (
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${delegator}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(delegator, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const delegateVestingSharesKc = (
@@ -891,7 +927,9 @@ export const withdrawVestingHot = (account: string, vestingShares: string) => {
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${account}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(account, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const withdrawVestingKc = (account: string, vestingShares: string) => {
@@ -943,7 +981,9 @@ export const setWithdrawVestingRouteHot = (
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    hs.sendOperation(op, params, () => {})
+  );
 };
 
 export const setWithdrawVestingRouteKc = (
@@ -1482,7 +1522,9 @@ export const createAccountHs = async (data: any, creator_account: string, hash: 
       const params: Parameters = {
         callback: `https://ecency.com/onboard-friend/confirming/${hash}?tid={{id}}`
       };
-      return hs.sendOperation(operation, params, () => {});
+      return sendWithHiveAuthOrHiveSigner(creator_account, [operation], "active", () =>
+        hs.sendOperation(operation, params, () => {})
+      );
     } catch (err: any) {
       console.log(err);
       return err.jse_info.name;
@@ -1671,7 +1713,9 @@ export const createAccountWithCreditHs = async (
       const params: Parameters = {
         callback: `https://ecency.com/onboard-friend/confirming/${hash}?tid={{id}}`
       };
-      return hs.sendOperation(operation, params, () => {});
+      return sendWithHiveAuthOrHiveSigner(creator_account, [operation], "active", () =>
+        hs.sendOperation(operation, params, () => {})
+      );
     } catch (err: any) {
       console.log(err);
       return err.jse_info.name;

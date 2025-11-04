@@ -25,7 +25,13 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
   const signingKey = useGlobalStore((state) => state.signingKey);
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
-  const canUseKeychain = hasKeyChain || shouldUseHiveAuth();
+  const useHiveAuth = shouldUseHiveAuth();
+  const canUseKeychain = hasKeyChain || useHiveAuth;
+  const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
+  const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
+  const keychainLabel = useHiveAuth
+    ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
+    : i18next.t("key-or-hot.with-keychain");
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
 
@@ -135,13 +141,13 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
               <Image
                 width={100}
                 height={100}
-                src="/assets/keychain.png"
+                src={keychainIcon}
                 className="w-4 h-4"
-                alt="keychain"
+                alt={keychainAlt}
               />
             }
           >
-            {i18next.t("key-or-hot.with-keychain")}
+            {keychainLabel}
           </Button>
         </motion.div>
       )}

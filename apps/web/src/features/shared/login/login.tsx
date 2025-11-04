@@ -14,6 +14,7 @@ import { LoginUsersList } from "./login-users-list";
 import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
+import { shouldUseHiveAuth } from "@/utils/client";
 
 export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -55,11 +56,16 @@ export default function Login() {
     });
   };
 
+  const useHiveAuth = shouldUseHiveAuth();
+  const keychainMethodLabel = useHiveAuth ? "HiveAuth" : "Keychain";
+  const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
+  const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
+
   const keychainButtonLabel = (() => {
     if (isLoginRetryScheduled && retryCountdown !== null) {
       return (
         <span className="flex items-center gap-1">
-          <span>Keychain</span>
+          <span>{keychainMethodLabel}</span>
           <span className="font-mono text-xs leading-none">
             {retryCountdown}
           </span>
@@ -73,10 +79,10 @@ export default function Login() {
     }
 
     if (isLoginByKeychainPending && retryAttempt > 0) {
-      return `Keychain (${retryAttempt}/${maxAttempts})`;
+      return `${keychainMethodLabel} (${retryAttempt}/${maxAttempts})`;
     }
 
-    return "Keychain";
+    return keychainMethodLabel;
   })();
 
   return (
@@ -183,8 +189,8 @@ export default function Login() {
                 <Image
                   width={100}
                   height={100}
-                  src="/assets/keychain.png"
-                  alt="keychain"
+                  src={keychainIcon}
+                  alt={keychainAlt}
                   className="w-4 h-4"
                 />
               }

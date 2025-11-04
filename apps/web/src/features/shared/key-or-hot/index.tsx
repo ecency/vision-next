@@ -9,6 +9,7 @@ import i18next from "i18next";
 import Image from "next/image";
 import { OrDivider } from "../or-divider";
 import "./index.scss";
+import { shouldUseHiveAuth } from "@/utils/client";
 
 interface Props {
   inProgress: boolean;
@@ -22,6 +23,13 @@ interface Props {
 export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="active" }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const isMobileBrowser = useIsMobile();
+  const useHiveAuth = shouldUseHiveAuth();
+  const canRenderKeychain = onKc && (!isMobileBrowser || useHiveAuth);
+  const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
+  const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
+  const keychainLabel = useHiveAuth
+    ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
+    : i18next.t("key-or-hot.with-keychain");
 
   return (
     <>
@@ -49,7 +57,7 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="a
                 {i18next.t("key-or-hot.with-hivesigner")}
               </Button>
 
-              {onKc && !isMobileBrowser && (
+              {canRenderKeychain && (
                 <Button
                   outline={true}
                   appearance="secondary"
@@ -59,13 +67,13 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="a
                     <Image
                       width={100}
                       height={100}
-                      src="/assets/keychain.png"
+                      src={keychainIcon}
                       className="w-4 h-4"
-                      alt="keychain"
+                      alt={keychainAlt}
                     />
                   }
                 >
-                  {i18next.t("key-or-hot.with-keychain")}
+                  {keychainLabel}
                 </Button>
               )}
             </div>

@@ -8,6 +8,7 @@ import { shouldUseHiveAuth, signWithHiveAuth } from "@/utils/client";
 import i18next from "i18next";
 import { error } from "../../feedback";
 import { formatError } from "@/api/operations";
+import { LoginType } from "@/entities";
 
 const MAX_ATTEMPTS = 3;
 const RETRY_DELAY_SECONDS = 5;
@@ -200,6 +201,7 @@ export function useLoginByKeychain(username: string) {
       setRetryAttempt(0);
 
       const useHiveAuth = shouldUseHiveAuth();
+      const loginMethod: LoginType = useHiveAuth ? "hiveauth" : "keychain";
 
       const signMessage = async (message: string) => {
         if (useHiveAuth || shouldUseHiveAuth()) {
@@ -216,7 +218,7 @@ export function useLoginByKeychain(username: string) {
           signMessage
         );
 
-        await loginInApp(code, null, accountData, "keychain");
+        await loginInApp(code, null, accountData, loginMethod);
         return;
       }
 
@@ -235,7 +237,7 @@ export function useLoginByKeychain(username: string) {
             HIVE_AUTH_TIMEOUT_MS
           );
 
-          await loginInApp(code, null, accountData, "keychain");
+          await loginInApp(code, null, accountData, loginMethod);
           stopCountdown();
           return;
         } catch (err) {
