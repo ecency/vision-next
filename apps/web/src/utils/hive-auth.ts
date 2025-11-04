@@ -1,5 +1,6 @@
 "use client";
 
+import { Buffer } from "buffer";
 import { HasClient } from "hive-auth-client";
 import defaults from "@/defaults.json";
 import { error as showFeedbackError } from "@/features/shared/feedback";
@@ -410,6 +411,10 @@ function hexToBytes(hex: string): Uint8Array {
 
 /* ------------------------ Signature parse/verification --------------------- */
 
+function toDhiveBuffer(bytes: Uint8Array): Buffer {
+  return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+}
+
 function parseChallengeSignature(rawSignature: unknown): Signature {
   if (!rawSignature) {
     throw new Error("HiveAuth challenge response is missing signature");
@@ -430,10 +435,10 @@ function parseChallengeSignature(rawSignature: unknown): Signature {
   const s = rawSignature.trim();
 
   if (s.startsWith("SIG_")) return Signature.fromString(s);
-  if (/^[0-9a-fA-F]+$/.test(s)) return Signature.fromBuffer(hexToBytes(s));
+  if (/^[0-9a-fA-F]+$/.test(s)) return Signature.fromBuffer(toDhiveBuffer(hexToBytes(s)));
 
   try {
-    return Signature.fromBuffer(b64ToBytes(s));
+    return Signature.fromBuffer(toDhiveBuffer(b64ToBytes(s)));
   } catch (err) {
     console.error("HiveAuth challenge signature parsing failed", err);
   }
