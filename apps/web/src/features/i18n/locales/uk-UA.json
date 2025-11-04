@@ -1501,7 +1501,8 @@
     "sign": "Підписати",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Увійти за допомогою HiveAuth"
   },
   "delegated-vesting": {
     "title": "Делегована Hive Power",
