@@ -1501,7 +1501,8 @@
     "sign": "Podpis",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Podpisz z HiveAuth"
   },
   "delegated-vesting": {
     "title": "Deleguj Hive Power",
