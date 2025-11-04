@@ -25,6 +25,7 @@ interface AuthPendingEvent {
   uuid: string;
   key: string;
   account?: string;
+  expire?: number;
 }
 
 interface AuthSuccessEvent {
@@ -32,7 +33,7 @@ interface AuthSuccessEvent {
   authData?: {
     token?: string;
     key?: string;
-    expire?: number; // seconds or ms, we normalize
+    expire?: number; // unix timestamp (s) or ms per docs; we keep current logic
   };
   data?: {
     challenge?: string; // signature (optional in modern wallets)
@@ -66,6 +67,21 @@ class HiveAuthSessionExpiredError extends Error {}
 let hiveAuthClient: HasClient | null = null;
 // Keep the current auth request UUID to sanity-check the ACK
 let currentAuthUuid: string | null = null;
+
+// Single-flight guards (visibility reconnects, deep-link)
+let connecting = false;
+let lastDeepLinkSentForUuid: string | null = null;
+
+// Ensure we don't spam .connect() on flaky focus/visibility events
+async function safeConnect(client: HasClient) {
+  if (connecting) return;
+  connecting = true;
+  try {
+    await client.connect();
+  } finally {
+    connecting = false;
+  }
+}
 
 function asError(err: unknown): Error {
   if (err instanceof Error) return err;
@@ -252,9 +268,10 @@ function clearSession(username: string) {
   remove(storageKey(username));
 }
 
-/** Normalize seconds-or-ms into ms */
+/** Keep the original expectation from docs: accept seconds or ms as timestamps; no TTL conversion */
 function normalizeExpire(expire: number): number {
   if (!expire) return 0;
+  // If seconds (10-digit), convert to ms; if already ms-ish, keep as is
   return expire > 1e12 ? expire : expire * 1000;
 }
 
@@ -291,7 +308,6 @@ function watchAppVisibility(onVisible: () => void): () => void {
 /* ---------- Binary helpers (no Node Buffer; browser-safe) ---------- */
 
 function b64ToBytes(b64: string): Uint8Array {
-  // atob returns a binary string; convert to bytes
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -315,13 +331,12 @@ function parseChallengeSignature(rawSignature: unknown): Signature {
     throw new Error("HiveAuth challenge response is missing signature");
   }
 
-  // Some wallets return { sig: "...", pubkey: "..." }
   if (typeof rawSignature === "object" && rawSignature !== null) {
     const sig = (rawSignature as any).sig || (rawSignature as any).signature;
     if (!sig || typeof sig !== "string") {
       throw new Error("HiveAuth challenge object missing sig field");
     }
-    return parseChallengeSignature(sig); // recurse to existing logic
+    return parseChallengeSignature(sig);
   }
 
   if (typeof rawSignature !== "string") {
@@ -344,7 +359,9 @@ function parseChallengeSignature(rawSignature: unknown): Signature {
 
 function verifyChallengeSignature(
   challenge: string,
-  response: { challenge?: string | { sig?: string; signature?: string; pubkey?: string }; pubkey?: string } | undefined,
+  response:
+    | { challenge?: string | { sig?: string; signature?: string; pubkey?: string }; pubkey?: string }
+    | undefined,
   account?: FullAccount
 ) {
   if (!response) throw new Error("HiveAuth challenge response is missing payload");
@@ -352,7 +369,6 @@ function verifyChallengeSignature(
   const rawSignature = response.challenge;
 
   // Modern wallets may omit challenge signature entirely.
-  // In that case, HAS already verified; we accept success.
   if (!rawSignature) return true;
 
   // If we don’t have an account to check keys against, accept HAS ack.
@@ -366,12 +382,11 @@ function verifyChallengeSignature(
     const authorizedKeys = [...postingKeys, ...activeKeys];
 
     const providedPubkey =
-      response.pubkey ??
+      (response as any).pubkey ??
       (typeof rawSignature === "object" && rawSignature
         ? (rawSignature as any).pubkey
         : undefined);
 
-    // Fast path: verify against provided pubkey if it is authorized
     if (providedPubkey && authorizedKeys.includes(providedPubkey)) {
       try {
         const publicKey = PublicKey.fromString(providedPubkey);
@@ -384,7 +399,6 @@ function verifyChallengeSignature(
       }
     }
 
-    // Try all known keys
     for (const key of authorizedKeys) {
       try {
         const publicKey = PublicKey.fromString(key);
@@ -394,7 +408,6 @@ function verifyChallengeSignature(
       }
     }
 
-    // Recover & compare
     const recovered = signature.recover(digest, DEFAULT_ADDRESS_PREFIX).toString();
     if (authorizedKeys.includes(recovered)) return true;
   } catch (err) {
@@ -431,11 +444,12 @@ function requestAuthentication(
 
     let inFlight = true;
     currentAuthUuid = null;
+    lastDeepLinkSentForUuid = null;
 
-    // Reconnect when the user returns from the wallet
+    // Reconnect when the user returns from the wallet (single-flight)
     const stopWatchingVisibility = watchAppVisibility(() => {
       if (!inFlight) return;
-      client.connect().catch(() => {
+      safeConnect(client).catch(() => {
         console.error("HiveAuth reconnect failed after returning from wallet");
       });
     });
@@ -448,6 +462,9 @@ function requestAuthentication(
       client.removeEventHandler("Error", onError);
       client.removeEventHandler("RequestExpired", onExpired);
       stopWatchingVisibility();
+      // ensure state is cleared between attempts
+      currentAuthUuid = null;
+      lastDeepLinkSentForUuid = null;
     };
 
     const onPending = (ev: AuthPendingEvent | any) => {
@@ -459,16 +476,20 @@ function requestAuthentication(
         account: e?.account ?? username,
         uuid: e?.uuid,
         key: e?.key,
-        host: `wss://${HIVE_AUTH_HOST}`
+        host: `wss://${HIVE_AUTH_HOST}`, // original
+        hostname: HIVE_AUTH_HOST        // compatibility for wallets expecting plain host
       };
 
       const expireMs = normalizeExpire((ev as any)?.expire ?? 0);
       const expired = !!expireMs && expireMs <= Date.now();
 
       if (payload.uuid && payload.key && !expired) {
-        const encoded = btoa(JSON.stringify(payload));
-        // Only deep-link on mobile environments
-        if (isMobileBrowser()) openDeepLink(`has://auth_req/${encoded}`);
+        // Only deep-link on mobile environments, and only ONCE per pending UUID
+        if (isMobileBrowser() && lastDeepLinkSentForUuid !== payload.uuid) {
+          lastDeepLinkSentForUuid = payload.uuid!;
+          const encoded = btoa(JSON.stringify(payload));
+          openDeepLink(`has://auth_req/${encoded}`);
+        }
       } else if (expired) {
         showHiveAuthErrorToast("HiveAuth request expired before opening wallet");
       }
@@ -478,7 +499,6 @@ function requestAuthentication(
       cleanup();
       const { authData, data, uuid: ackUuid } = ev ?? {};
 
-      // Basic presence checks
       if (!authData?.token || !authData?.key) {
         const message = "HiveAuth returned incomplete session";
         showHiveAuthErrorToast(message);
@@ -486,7 +506,6 @@ function requestAuthentication(
         return;
       }
 
-      // UUID sanity check when available
       if (currentAuthUuid && ackUuid && ackUuid !== currentAuthUuid) {
         const message = "HiveAuth uuid mismatch";
         showHiveAuthErrorToast(message);
@@ -494,7 +513,6 @@ function requestAuthentication(
         return;
       }
 
-      // Expiry sanity
       const expireMs = normalizeExpire(authData.expire ?? 0);
       if (!expireMs || expireMs <= Date.now()) {
         const message = "HiveAuth session already expired";
@@ -508,7 +526,6 @@ function requestAuthentication(
           verifyChallengeSignature(challenge, data, account);
         }
       } catch (err) {
-        // Prefer login success over strict local verification
         console.warn("Signature verification failed; proceeding (HAS already verified).", err);
       }
 
@@ -547,7 +564,7 @@ function requestAuthentication(
 
     // Proactive connect to avoid missing early events on flaky networks
     try {
-      await client.connect();
+      await safeConnect(client);
     } catch (err) {
       cleanup();
       reject(asError(err));
@@ -564,7 +581,7 @@ function requestAuthentication(
       client.authenticate(
         { username },
         buildAppMeta(),
-        { key_type: "posting", challenge }
+        { key_type: "posting", challenge } // keep challenge inline per your preference
       );
     } catch (err) {
       cleanup();
@@ -611,10 +628,11 @@ async function executeChallenge(
   try {
     return await new Promise<string>(async (resolve, reject) => {
       let inFlight = true;
+      currentAuthUuid = null; // keep consistent; challenge doesn’t use it but reset anyway
 
       const stopWatchingVisibility = watchAppVisibility(() => {
         if (!inFlight) return;
-        client.connect().catch(() => {
+        safeConnect(client).catch(() => {
           console.error("HiveAuth reconnect failed after returning from wallet");
         });
       });
@@ -627,6 +645,7 @@ async function executeChallenge(
         client.removeEventHandler("Error", onError);
         client.removeEventHandler("RequestExpired", onExpired);
         stopWatchingVisibility();
+        currentAuthUuid = null;
       };
 
       const onSuccess = (ev: ChallengeSuccessEvent | any) => {
@@ -688,7 +707,7 @@ async function executeChallenge(
       };
 
       try {
-        await client.connect();
+        await safeConnect(client);
       } catch (err) {
         cleanup();
         reject(asError(err));
@@ -698,9 +717,6 @@ async function executeChallenge(
       client.addEventHandler("ChallengeSuccess", onSuccess);
       client.addEventHandler("ChallengeFailure", onFailure);
       client.addEventHandler("ChallengeError", onError);
-      // Older HAS implementations dispatch generic "Error" events instead of
-      // the more specific "ChallengeError" ones. Subscribe to both to ensure
-      // we capture and surface these failures consistently.
       client.addEventHandler("Error", onError);
       client.addEventHandler("RequestExpired", onExpired);
 
@@ -754,10 +770,11 @@ async function executeBroadcast(
   try {
     await new Promise<void>(async (resolve, reject) => {
       let inFlight = true;
+      currentAuthUuid = null;
 
       const stopWatchingVisibility = watchAppVisibility(() => {
         if (!inFlight) return;
-        client.connect().catch(() => {
+        safeConnect(client).catch(() => {
           console.error("HiveAuth reconnect failed after returning from wallet");
         });
       });
@@ -770,6 +787,7 @@ async function executeBroadcast(
         client.removeEventHandler("Error", onError);
         client.removeEventHandler("RequestExpired", onExpired);
         stopWatchingVisibility();
+        currentAuthUuid = null;
       };
 
       const onSuccess = () => {
@@ -813,7 +831,7 @@ async function executeBroadcast(
       };
 
       try {
-        await client.connect();
+        await safeConnect(client);
       } catch (err) {
         cleanup();
         reject(asError(err));
@@ -823,9 +841,6 @@ async function executeBroadcast(
       client.addEventHandler("SignSuccess", onSuccess);
       client.addEventHandler("SignFailure", onFailure);
       client.addEventHandler("SignError", onError);
-      // Older HAS implementations dispatch generic "Error" events for sign
-      // failures. Listen for both event names so we don't leave promises
-      // hanging when the server responds with an error payload.
       client.addEventHandler("Error", onError);
       client.addEventHandler("RequestExpired", onExpired);
 
