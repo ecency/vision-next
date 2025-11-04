@@ -1501,7 +1501,8 @@
     "sign": "साइन करें",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Sign with HiveAuth"
   },
   "delegated-vesting": {
     "title": "प्रत्यायोजित हाइव पावर",
