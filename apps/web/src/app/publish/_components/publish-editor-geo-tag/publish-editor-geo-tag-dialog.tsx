@@ -1,5 +1,5 @@
 import { EcencyConfigManager } from "@/config";
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
+import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
 import { AdvancedMarker, APIProvider, Map, useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import i18next from "i18next";
 import { useCallback, useEffect, useState } from "react";
@@ -26,6 +26,7 @@ const G_MAPS_API_KEY = EcencyConfigManager.getConfigValue(
 const G_MAPS_MAP_ID = EcencyConfigManager.getConfigValue(
   ({ visionFeatures }) => visionFeatures.publish.geoPicker.gMapsMapId
 );
+const IS_GMAPS_CONFIGURED = Boolean(G_MAPS_API_KEY);
 
 export function PublishEditorGeoTagDialog({
   initialLocation,
@@ -74,40 +75,50 @@ export function PublishEditorGeoTagDialog({
             <span>{initialLocation.address}</span>
           </div>
         )}
-        <APIProvider apiKey={G_MAPS_API_KEY ?? ""}>
-          <PublishEditorGeoTagAutocomplete
-            selectedAddress={selectedAddress}
-            selectedPlace={selectedPlace}
-            setSelectedPlace={setSelectedPlace}
-          />
+        {!IS_GMAPS_CONFIGURED && (
+          <Alert appearance="warning" className="mb-4">
+            {i18next.t("publish.geo-tag.missing-config", {
+              defaultValue:
+                "Google Maps integration is not configured. Set NEXT_PUBLIC_GMAPS_API_KEY and NEXT_PUBLIC_GMAPS_MAP_ID environment variables to enable geotagging."
+            })}
+          </Alert>
+        )}
+        {IS_GMAPS_CONFIGURED && (
+          <APIProvider apiKey={G_MAPS_API_KEY ?? ""} libraries={["places", "geocoding"]}>
+            <PublishEditorGeoTagAutocomplete
+              selectedAddress={selectedAddress}
+              selectedPlace={selectedPlace}
+              setSelectedPlace={setSelectedPlace}
+            />
 
-          <div className="rounded-xl overflow-hidden">
-            <Map
-              mapId={G_MAPS_MAP_ID}
-              defaultZoom={1}
-              defaultCenter={{ lat: 0, lng: 0 }}
-              gestureHandling="greedy"
-              disableDefaultUI={true}
-              className="h-[300px]"
-              onClick={(e: any) => {
-                if (marker) {
-                  setSelectedPosition({ lat: e.detail.latLng.lat, lng: e.detail.latLng.lng });
-                  marker.position = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
-                }
-              }}
-            >
-              <AdvancedMarker ref={markerRef} />
-            </Map>
-          </div>
-          <PublishEditorGeoTagMapHandler
-            initialLocation={initialLocation}
-            place={selectedPlace}
-            marker={marker}
-            selectedPosition={selectedPosition}
-            setSelectedPosition={setSelectedPosition}
-            setSelectedAddress={setSelectedAddress}
-          />
-        </APIProvider>
+            <div className="rounded-xl overflow-hidden">
+              <Map
+                mapId={G_MAPS_MAP_ID}
+                defaultZoom={1}
+                defaultCenter={{ lat: 0, lng: 0 }}
+                gestureHandling="greedy"
+                disableDefaultUI={true}
+                className="h-[300px]"
+                onClick={(e: any) => {
+                  if (marker) {
+                    setSelectedPosition({ lat: e.detail.latLng.lat, lng: e.detail.latLng.lng });
+                    marker.position = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
+                  }
+                }}
+              >
+                <AdvancedMarker ref={markerRef} />
+              </Map>
+            </div>
+            <PublishEditorGeoTagMapHandler
+              initialLocation={initialLocation}
+              place={selectedPlace}
+              marker={marker}
+              selectedPosition={selectedPosition}
+              setSelectedPosition={setSelectedPosition}
+              setSelectedAddress={setSelectedAddress}
+            />
+          </APIProvider>
+        )}
       </ModalBody>
       <ModalFooter className="flex justify-end gap-2">
         <Button appearance="gray" size="sm" onClick={onClear}>

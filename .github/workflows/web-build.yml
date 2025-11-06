@@ -10,6 +10,8 @@ jobs:
     env:
       VITE_HELIUS_API_KEY: ${{ secrets.VITE_HELIUS_API_KEY }}
       VITE_BITQUERY_API_KEY: ${{ secrets.VITE_BITQUERY_API_KEY }}
+      NEXT_PUBLIC_GMAPS_API_KEY: ${{ secrets.GMAPS_API_KEY }}
+      NEXT_PUBLIC_GMAPS_MAP_ID: ${{ secrets.GMAPS_MAP_ID }}
     strategy:
       matrix:
         node-version: [20.x]
