@@ -33,6 +33,7 @@ import {
 } from "@/app/submit/_components";
 import "./_index.scss";
 import { useThreeSpeakMigrationAdapter } from "@/app/submit/_hooks/three-speak-migration-adapter";
+import { mergeThreeSpeakBeneficiaries } from "@/features/3speak";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { PollsContext, PollsManager } from "@/app/submit/_hooks/polls-manager";
@@ -331,16 +332,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   };
 
   const setVideoEncoderBeneficiary = async (video: VideoProps) => {
-    const videoBeneficiary = JSON.parse(video.beneficiaries);
-    const videoEncoders = [
-      {
-        account: "spk.beneficiary",
-        src: "ENCODER_PAY",
-        weight: 1000
-      }
-    ];
-    const joinedBeneficiary = [...videoBeneficiary, ...videoEncoders];
-    setBeneficiaries(joinedBeneficiary);
+    setBeneficiaries(mergeThreeSpeakBeneficiaries(video.beneficiaries, beneficiaries));
   };
 
   const focusInput = (parentSelector: string): void => {
