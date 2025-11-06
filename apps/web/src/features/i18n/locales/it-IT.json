@@ -1504,6 +1504,9 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Firma con HiveAuth"
   },
+  "hive-auth": {
+    "pending-request": "Richiesta HiveAuth in sospeso. Partita con ID {{id}} nel tuo portafoglio."
+  },
   "delegated-vesting": {
     "title": "Delega Hive Power",
     "undelegate": "undelegate",
