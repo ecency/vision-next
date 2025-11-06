@@ -915,6 +915,58 @@ function extractTransactionConfirmation(ev: any): TransactionConfirmation {
   return {} as TransactionConfirmation;
 }
 
+function inferSignRequestKeyType(
+  operations: Operation[],
+  fallback: HiveAuthKeyType
+): HiveAuthKeyType {
+  if (!operations || operations.length === 0) {
+    return fallback;
+  }
+
+  let requiresPosting = false;
+
+  for (const [opName, opPayload] of operations) {
+    if (opName === "custom_json") {
+      const payload = opPayload as {
+        required_posting_auths?: string[];
+        required_auths?: string[];
+      };
+
+      if (Array.isArray(payload?.required_auths) && payload.required_auths.length > 0) {
+        return "active";
+      }
+
+      if (
+        Array.isArray(payload?.required_posting_auths) &&
+        payload.required_posting_auths.length > 0
+      ) {
+        requiresPosting = true;
+        continue;
+      }
+
+      continue;
+    }
+
+    switch (opName) {
+      case "vote":
+      case "comment":
+      case "comment_options":
+      case "delete_comment":
+      case "claim_reward_balance":
+        requiresPosting = true;
+        continue;
+      default:
+        return "active";
+    }
+  }
+
+  if (requiresPosting) {
+    return "posting";
+  }
+
+  return fallback;
+}
+
 async function executeBroadcast(
   username: string,
   session: HiveAuthSession,
@@ -923,6 +975,8 @@ async function executeBroadcast(
   allowClientReset: boolean
 ): Promise<TransactionConfirmation> {
   const client = getClient();
+
+  const requestKeyType = inferSignRequestKeyType(operations, keyType);
 
   try {
     return await new Promise<TransactionConfirmation>(async (resolve, reject) => {
@@ -968,14 +1022,14 @@ async function executeBroadcast(
         const expire = payload?.expire ?? ev?.expire ?? 0;
 
         const defaultSignRequest = {
-          key_type: keyType,
+          key_type: requestKeyType,
           ops: operations,
           broadcast: true
         };
 
         const extras: Record<string, unknown> = {
           key: session.key,
-          key_type: keyType
+          key_type: requestKeyType
         };
 
         let signReq: unknown = payload?.sign_req;
