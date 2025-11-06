@@ -1042,9 +1042,11 @@ async function executeBroadcast(
         }
 
         let signReqData: unknown = payload?.sign_req_data;
-        if (!signReqData) {
+        if (!signReqData && signReq) {
           try {
-            signReqData = b64uEnc(JSON.stringify(signReq));
+            const serialized =
+              typeof signReq === "string" ? signReq : JSON.stringify(signReq);
+            signReqData = b64uEnc(serialized);
           } catch (err) {
             console.error("Failed to encode HiveAuth sign request payload", err);
           }
