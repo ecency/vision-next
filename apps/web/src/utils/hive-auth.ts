@@ -19,8 +19,11 @@ import type { FullAccount } from "@/entities";
 
 const HIVE_AUTH_HOST = "hive-auth.arcange.eu";
 const STORAGE_KEY_PREFIX = "hiveauth-session";
+const LEGACY_STORAGE_KEY_PREFIX = STORAGE_KEY_PREFIX;
 const MOBILE_USER_AGENT_PATTERN =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+
+type HiveAuthKeyType = "posting" | "active";
 
 /* ----------------------------- Event typings ------------------------------ */
 
@@ -253,29 +256,60 @@ function buildAppMeta() {
   };
 }
 
-function storageKey(username: string) {
-  return `${STORAGE_KEY_PREFIX}-${username}`;
+function storageKey(username: string, keyType: HiveAuthKeyType) {
+  return `${STORAGE_KEY_PREFIX}-${username}-${keyType}`;
 }
 
-function loadSession(username: string): HiveAuthSession | null {
-  const stored = get(storageKey(username));
-  if (!stored) return null;
-  const expire = normalizeExpire(stored.expire);
-  return {
-    username: stored.username,
-    token: stored.token,
-    key: stored.key,
+function legacyStorageKey(username: string) {
+  return `${LEGACY_STORAGE_KEY_PREFIX}-${username}`;
+}
+
+function loadSession(username: string, keyType: HiveAuthKeyType): HiveAuthSession | null {
+  const stored = get(storageKey(username, keyType));
+
+  const payload = stored ?? (keyType === "posting" ? get(legacyStorageKey(username)) : null);
+  if (!payload) return null;
+
+  const expire = normalizeExpire(payload.expire);
+  const session: HiveAuthSession = {
+    username: payload.username,
+    token: payload.token,
+    key: payload.key,
     expire,
-    accessToken: stored.accessToken
+    accessToken: payload.accessToken
   };
+
+  if (!stored && keyType === "posting") {
+    try {
+      set(storageKey(username, keyType), session);
+      remove(legacyStorageKey(username));
+    } catch (err) {
+      console.warn("Failed to migrate legacy HiveAuth session", err);
+    }
+  }
+
+  return session;
 }
 
-function saveSession(session: HiveAuthSession) {
-  set(storageKey(session.username), session);
+function saveSession(session: HiveAuthSession, keyType: HiveAuthKeyType) {
+  set(storageKey(session.username, keyType), session);
+  if (keyType === "posting") {
+    remove(legacyStorageKey(session.username));
+  }
 }
 
-function clearSession(username: string) {
-  remove(storageKey(username));
+function clearSession(username: string, keyType?: HiveAuthKeyType) {
+  if (!keyType) {
+    remove(legacyStorageKey(username));
+    remove(storageKey(username, "posting"));
+    remove(storageKey(username, "active"));
+    return;
+  }
+
+  remove(storageKey(username, keyType));
+  if (keyType === "posting") {
+    remove(legacyStorageKey(username));
+  }
 }
 
 /** Keep the original expectation from docs: accept seconds or ms as timestamps; no TTL conversion */
@@ -523,7 +557,8 @@ function isTokenError(message: string | undefined) {
 
 function requestAuthentication(
   username: string,
-  account?: FullAccount,
+  account: FullAccount | undefined,
+  keyType: HiveAuthKeyType,
   allowClientReset = true
 ): Promise<HiveAuthSessionResponse> {
   const client = getClient();
@@ -564,7 +599,8 @@ function requestAuthentication(
       const expire = (ev as any)?.expire ?? 0;
 
       dispatchPendingDeepLink("auth", accountName, pendingUuid, expire, {
-        key: e?.key
+        key: e?.key,
+        key_type: keyType
       });
     };
 
@@ -608,7 +644,7 @@ function requestAuthentication(
         key: authData.key!,
         expire: expireMs
       };
-      saveSession(session);
+      saveSession(session, keyType);
       resolve(session);
     };
 
@@ -654,7 +690,7 @@ function requestAuthentication(
       client.authenticate(
         { username },
         buildAppMeta(),
-        { key_type: "posting", challenge } // keep challenge inline per your preference
+        { key_type: keyType, challenge } // keep challenge inline per your preference
       );
     } catch (err) {
       cleanup();
@@ -663,7 +699,7 @@ function requestAuthentication(
   }).catch(async (err) => {
     if (allowClientReset && isInvalidStateError(err)) {
       resetClientConnection();
-      return requestAuthentication(username, account, false);
+      return requestAuthentication(username, account, keyType, false);
     }
     throw err;
   });
@@ -671,17 +707,18 @@ function requestAuthentication(
 
 async function ensureSession(
   username: string,
+  keyType: HiveAuthKeyType,
   account?: FullAccount
 ): Promise<HiveAuthSession> {
-  const cached = loadSession(username);
+  const cached = loadSession(username, keyType);
   if (cached && cached.expire && cached.expire > Date.now()) {
     return cached;
   }
   try {
-    return await requestAuthentication(username, account);
+    return await requestAuthentication(username, account, keyType);
   } catch (err) {
     if (err instanceof HiveAuthSessionExpiredError) {
-      clearSession(username);
+      clearSession(username, keyType);
     }
     throw err;
   }
@@ -692,7 +729,7 @@ async function ensureSession(
 async function executeChallenge(
   username: string,
   session: HiveAuthSession,
-  keyType: "posting" | "active",
+  keyType: HiveAuthKeyType,
   challenge: string,
   allowClientReset: boolean
 ): Promise<HiveAuthChallengeResult> {
@@ -757,7 +794,7 @@ async function executeChallenge(
 
           if (signedToken) {
             session.accessToken = signedToken;
-            saveSession(session);
+            saveSession(session, keyType);
           }
 
           resolve({
@@ -780,7 +817,7 @@ async function executeChallenge(
         const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
         const resolvedMessage = rawMessage ?? "HiveAuth challenge failed";
         if (rawMessage && isTokenError(rawMessage)) {
-          clearSession(username);
+          clearSession(username, keyType);
           showHiveAuthErrorToast(resolvedMessage);
           reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
@@ -794,7 +831,7 @@ async function executeChallenge(
         const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
         const resolvedMessage = rawMessage ?? "HiveAuth challenge error";
         if (rawMessage && isTokenError(rawMessage)) {
-          clearSession(username);
+          clearSession(username, keyType);
           showHiveAuthErrorToast(resolvedMessage);
           reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
@@ -848,17 +885,17 @@ async function executeChallenge(
 async function runChallenge(
   username: string,
   challenge: string,
-  keyType: "posting" | "active",
+  keyType: HiveAuthKeyType,
   account?: FullAccount
 ): Promise<HiveAuthChallengeResult> {
-  const session = await ensureSession(username, account);
+  const session = await ensureSession(username, keyType, account);
 
   try {
     return await executeChallenge(username, session, keyType, challenge, true);
   } catch (err) {
     if (err instanceof HiveAuthSessionExpiredError) {
-      clearSession(username);
-      const refreshed = await ensureSession(username, account);
+      clearSession(username, keyType);
+      const refreshed = await ensureSession(username, keyType, account);
       return executeChallenge(username, refreshed, keyType, challenge, true);
     }
     throw err;
@@ -881,7 +918,7 @@ function extractTransactionConfirmation(ev: any): TransactionConfirmation {
 async function executeBroadcast(
   username: string,
   session: HiveAuthSession,
-  keyType: "posting" | "active",
+  keyType: HiveAuthKeyType,
   operations: Operation[],
   allowClientReset: boolean
 ): Promise<TransactionConfirmation> {
@@ -971,7 +1008,7 @@ async function executeBroadcast(
         const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
         const resolvedMessage = rawMessage ?? "HiveAuth sign failure";
         if (rawMessage && isTokenError(rawMessage)) {
-          clearSession(username);
+          clearSession(username, keyType);
           showHiveAuthErrorToast(resolvedMessage);
           reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
@@ -985,7 +1022,7 @@ async function executeBroadcast(
         const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
         const resolvedMessage = rawMessage ?? "HiveAuth sign error";
         if (rawMessage && isTokenError(rawMessage)) {
-          clearSession(username);
+          clearSession(username, keyType);
           showHiveAuthErrorToast(resolvedMessage);
           reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
@@ -1035,18 +1072,18 @@ async function executeBroadcast(
 
 async function runBroadcast(
   username: string,
-  keyType: "posting" | "active",
+  keyType: HiveAuthKeyType,
   operations: Operation[],
   account?: FullAccount
 ): Promise<TransactionConfirmation> {
-  const session = await ensureSession(username, account);
+  const session = await ensureSession(username, keyType, account);
 
   try {
     return await executeBroadcast(username, session, keyType, operations, true);
   } catch (err) {
     if (err instanceof HiveAuthSessionExpiredError) {
-      clearSession(username);
-      const refreshed = await ensureSession(username, account);
+      clearSession(username, keyType);
+      const refreshed = await ensureSession(username, keyType, account);
       return await executeBroadcast(username, refreshed, keyType, operations, true);
     }
     throw err;
@@ -1065,7 +1102,7 @@ export async function signWithHiveAuth(
   username: string,
   message: string,
   account?: FullAccount,
-  keyType: "posting" | "active" = "posting"
+  keyType: HiveAuthKeyType = "posting"
 ): Promise<HiveAuthChallengeResult> {
   return runChallenge(username, message, keyType, account);
 }
@@ -1073,7 +1110,7 @@ export async function signWithHiveAuth(
 export async function broadcastWithHiveAuth(
   username: string,
   operations: Operation[],
-  keyType: "posting" | "active" = "posting",
+  keyType: HiveAuthKeyType = "posting",
   account?: FullAccount
 ): Promise<TransactionConfirmation> {
   return await runBroadcast(username, keyType, operations, account);
