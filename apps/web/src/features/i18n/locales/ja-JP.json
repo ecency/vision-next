@@ -1504,6 +1504,9 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "HiveAuthでサインイン"
   },
+  "hive-auth": {
+    "pending-request": "HiveAuthリクエストは保留中です。ウォレット内のマッチID {{id}}。"
+  },
   "delegated-vesting": {
     "title": "ハイブパワー",
     "undelegate": "undelegate",
