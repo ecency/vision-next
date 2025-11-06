@@ -1504,6 +1504,9 @@
     "with-keychain": "Подписать с помощью keychain",
     "with-hiveauth": "Подписать через HiveAuth"
   },
+  "hive-auth": {
+    "pending-request": "HiveAuth запрос в ожидании. ID {{id}} в вашем кошельке."
+  },
   "delegated-vesting": {
     "title": "Делегированная Hive Сила",
     "undelegate": "Отозвать делегирование",
