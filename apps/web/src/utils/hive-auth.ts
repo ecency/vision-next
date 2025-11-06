@@ -2,6 +2,7 @@
 
 import { Buffer } from "buffer";
 import { HasClient } from "hive-auth-client";
+import CryptoJS from "crypto-js";
 import defaults from "@/defaults.json";
 import {
   error as showFeedbackError,
@@ -291,15 +292,17 @@ function patchHiveAuthBroadcast() {
       nonce: generateHiveAuthNonce()
     };
 
-    const data = Buffer.from(JSON.stringify(signRequest), "utf8").toString(
-      "base64"
-    );
+    const serializedSignRequest = JSON.stringify(signRequest);
+    const encryptedSignRequest = CryptoJS.AES.encrypt(
+      serializedSignRequest,
+      authData.key
+    ).toString();
 
     const payload = {
       cmd: "sign_req",
       account: authData.username,
       token: authData.token,
-      data
+      data: encryptedSignRequest
     };
 
     this.send(JSON.stringify(payload));
@@ -1172,21 +1175,11 @@ async function executeBroadcast(
         }
 
         let signReqData: unknown = payload?.sign_req_data;
-        if (!signReqData && signReq) {
+        if (!signReqData) {
           try {
-            const serialized =
-              typeof signReq === "string" ? signReq : JSON.stringify(signReq);
-            signReqData = b64uEnc(serialized);
+            signReqData = b64uEnc(JSON.stringify(defaultSignRequest));
           } catch (err) {
             console.error("Failed to encode HiveAuth sign request payload", err);
-          }
-        }
-
-        if (!signReqData && lastSignRequestPayload) {
-          try {
-            signReqData = b64uEnc(JSON.stringify(lastSignRequestPayload));
-          } catch (err) {
-            console.error("Failed to encode fallback HiveAuth sign request payload", err);
           }
         }
 

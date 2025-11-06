@@ -76,6 +76,7 @@
     "diff-match-patch": "^1.0.5",
     "domhandler": "^5.0.3",
     "dompurify": "^3.2.5",
+    "crypto-js": "^4.2.0",
     "emoji-mart": "^5.5.2",
     "formidable": "^3.5.4",
     "framer-motion": "^11.3.24",
