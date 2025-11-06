@@ -1504,6 +1504,9 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Signer avec HiveAuth"
   },
+  "hive-auth": {
+    "pending-request": "Requête HiveAuth en attente. ID {{id}} dans votre portefeuille."
+  },
   "delegated-vesting": {
     "title": "Pouvoir délégué de la Ruche",
     "undelegate": "undelegate",
