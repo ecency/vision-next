@@ -49,7 +49,7 @@ export function ProfileWalletTokenHistory({ data, action }: Props) {
           numericType === PointTransactionType.TRANSFER_INCOMING ||
           numericType === PointTransactionType.TRANSFER_SENT ? (
             <div className="flex flex-col gap-2">
-              <div>{transferLabel}</div>
+              <div className="break-words">{transferLabel}</div>
               {(fromUser || toUser) && (
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   {fromUser}
@@ -60,32 +60,32 @@ export function ProfileWalletTokenHistory({ data, action }: Props) {
                 </div>
               )}
               {transaction.memo ? (
-                <div className="text-sm text-gray-600 dark:text-gray-400">
+                <div className="text-sm text-gray-600 dark:text-gray-400 break-words">
                   {transaction.memo}
                 </div>
               ) : null}
             </div>
           ) : (
-            <>
-              {transferLabel}
+            <div className="flex flex-col gap-2 break-words">
+              <div>{transferLabel}</div>
               {transaction.memo ? (
-                <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                <div className="text-sm text-gray-600 dark:text-gray-400 break-words">
                   {transaction.memo}
                 </div>
               ) : null}
-            </>
+            </div>
           );
 
         return (
           <motion.div
-            className="flex items-start justify-between gap-4 px-4 py-2 md:py-4 border-b border-[--border-color] last:border-0"
+            className="flex flex-col gap-4 px-4 py-3 border-b border-[--border-color] last:border-0 md:flex-row md:items-start md:justify-between md:py-4"
             key={id ?? created.getTime()}
           >
             <div className="flex items-start gap-4 leading-[1]">
               <div className="text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-dark-grey flex items-center justify-center p-2 rounded-lg">
                 {TRANSACTIONS_ICONS[type]}
               </div>
-              <div>
+              <div className="min-w-0">
                 <div>{label}</div>
                 <div className="text-sm mt-1 text-gray-600 dark:text-gray-400">
                   {format(created, "dd.MM.yyyy hh:mm")}
@@ -93,9 +93,9 @@ export function ProfileWalletTokenHistory({ data, action }: Props) {
               </div>
             </div>
 
-            <div>
+            <div className="flex flex-col items-start gap-1 text-blue-dark-sky md:items-end md:text-right">
               {results.map(({ amount }, i) => (
-                <div className="text-blue-dark-sky" key={i}>
+                <div key={i}>
                   {isNaN(+amount) ? amount : (+amount).toFixed(3)}
                 </div>
               ))}
