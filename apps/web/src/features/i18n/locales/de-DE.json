@@ -1504,6 +1504,9 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Mit HiveAuh signieren"
   },
+  "hive-auth": {
+    "pending-request": "HiveAuth Anfrage ausstehend. Match ID {{id}} in Ihrer Wallet."
+  },
   "delegated-vesting": {
     "title": "Delegierte Hive-Macht",
     "undelegate": "undelegate",
