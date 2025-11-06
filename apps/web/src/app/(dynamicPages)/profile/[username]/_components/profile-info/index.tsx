@@ -1,9 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import dayjs from "@/utils/dayjs";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getAccountFullQuery, getDynamicPropsQuery } from "@/api/queries";
 import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@/api/hive";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
@@ -109,7 +109,33 @@ function isFullAccount(account: Account): account is FullAccount {
 }
 
 export function ProfileInfo({ account }: Props) {
-  const hasFullAccount = isFullAccount(account);
+  const accountQuery = getAccountFullQuery(account?.name).useClientQuery();
+
+  const hydratedAccount = accountQuery.data ?? undefined;
+
+  const resolvedAccount = useMemo(() => {
+    if (isFullAccount(account)) {
+      return account;
+    }
+
+    if (hydratedAccount && isFullAccount(hydratedAccount)) {
+      return hydratedAccount;
+    }
+
+    return undefined;
+  }, [account, hydratedAccount]);
+
+  const hasFullAccount = Boolean(resolvedAccount);
+  const isAccountLoading = !hasFullAccount && (accountQuery.isLoading || accountQuery.isFetching);
+
+  useEffect(() => {
+    if (!hasFullAccount && !accountQuery.isLoading && !accountQuery.isFetching && account?.name) {
+      console.warn(
+        `ProfileInfo: account "${account.name}" is missing the __loaded flag after hydration.`,
+      );
+    }
+  }, [account?.name, accountQuery.isFetching, accountQuery.isLoading, hasFullAccount]);
+
   const { data } = useQuery({
     ...getAccountRcQueryOptions(account.name),
     enabled: hasFullAccount,
@@ -119,15 +145,24 @@ export function ProfileInfo({ account }: Props) {
   return (
     <StyledTooltip
       content={
-        hasFullAccount ? (
-          <ProfileInfoContent account={account} rcAccount={rcAccount} />
+        hasFullAccount && resolvedAccount ? (
+          <ProfileInfoContent account={resolvedAccount} rcAccount={rcAccount} />
         ) : (
           <></>
         )
       }
     >
       <Button
-        isLoading={!hasFullAccount}
+        isLoading={isAccountLoading}
+        data-loading-reason={
+          hasFullAccount
+            ? undefined
+            : accountQuery.isLoading
+              ? "fetching-account"
+              : accountQuery.isFetching
+                ? "refetching-account"
+                : "missing-full-account"
+        }
         icon={<UilInfoCircle width={20} height={20} />}
         size="xs"
         appearance="gray"
