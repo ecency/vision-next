@@ -3,10 +3,14 @@
 import { Buffer } from "buffer";
 import { HasClient } from "hive-auth-client";
 import defaults from "@/defaults.json";
-import { error as showFeedbackError } from "@/features/shared/feedback";
+import {
+  error as showFeedbackError,
+  info as showFeedbackInfo
+} from "@/features/shared/feedback";
 import { get, remove, set } from "@/utils/local-storage";
 import { b64uEnc } from "@/utils/b64";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
+import i18next from "i18next";
 import {
   DEFAULT_ADDRESS_PREFIX,
   Operation,
@@ -83,6 +87,23 @@ let currentRequestUuid: string | null = null;
 // Single-flight guards (visibility reconnects, deep-link)
 let connecting = false;
 let lastDeepLinkSentForUuid: string | null = null;
+let lastUuidAnnounced: string | null = null;
+
+let hasPatchedHiveAuthBroadcast = false;
+let lastNonceTimestamp = 0;
+let nonceIncrement = 0;
+
+type InternalHasClient = HasClient & {
+  __ecencyLastSignReqData?: HiveAuthSignRequestPayload;
+  authKey: string;
+};
+
+interface HiveAuthSignRequestPayload {
+  key_type: string;
+  ops: Operation[];
+  broadcast: boolean;
+  nonce?: string;
+}
 
 // Ensure we don't spam .connect() on flaky focus/visibility events
 async function safeConnect(client: HasClient) {
@@ -216,10 +237,108 @@ function showHiveAuthErrorToast(message: string) {
   }
 }
 
+function generateHiveAuthNonce(): string {
+  const now = Date.now();
+  if (now === lastNonceTimestamp) {
+    nonceIncrement += 1;
+  } else {
+    lastNonceTimestamp = now;
+    nonceIncrement = 0;
+  }
+  return `${now}-${nonceIncrement}`;
+}
+
+function patchHiveAuthBroadcast() {
+  if (hasPatchedHiveAuthBroadcast) return;
+
+  const prototype = HasClient.prototype as any;
+
+  if (!prototype || typeof prototype.broadcast !== "function") {
+    return;
+  }
+
+  const originalAssert: ((object: any, objectName: string, props: any[]) => void) | undefined =
+    typeof prototype.assert === "function" ? prototype.assert : undefined;
+
+  if (typeof originalAssert !== "function") {
+    return;
+  }
+
+  prototype.broadcast = function broadcast(
+    this: InternalHasClient & {
+      send: (message: string) => Promise<void> | void;
+      timeout: number;
+      currentRequestExpire: number;
+      setExpireTimeout: () => void;
+    },
+    authData: { username: string; token: string; expire: number; key: string },
+    keyType: string,
+    ops: Operation[]
+  ) {
+    originalAssert.call(this, authData, "authData", [
+      ["username", "string"],
+      ["token", "string"],
+      ["key", "string"]
+    ]);
+    originalAssert.call(this, ops, "ops", []);
+
+    this.authKey = authData.key;
+
+    const signRequest: HiveAuthSignRequestPayload = {
+      key_type: keyType,
+      ops,
+      broadcast: true,
+      nonce: generateHiveAuthNonce()
+    };
+
+    const data = Buffer.from(JSON.stringify(signRequest), "utf8").toString(
+      "base64"
+    );
+
+    const payload = {
+      cmd: "sign_req",
+      account: authData.username,
+      token: authData.token,
+      data
+    };
+
+    this.send(JSON.stringify(payload));
+    this.currentRequestExpire = new Date().getTime() + this.timeout;
+    this.setExpireTimeout();
+    this.__ecencyLastSignReqData = signRequest;
+  } as unknown as typeof HasClient.prototype.broadcast;
+
+  hasPatchedHiveAuthBroadcast = true;
+}
+
+function getLastSignRequestPayload(client: HasClient): HiveAuthSignRequestPayload | undefined {
+  return (client as InternalHasClient).__ecencyLastSignReqData;
+}
+
+function announcePendingUuid(uuid: string) {
+  if (typeof window === "undefined") return;
+  if (!uuid) return;
+  if (lastUuidAnnounced === uuid) return;
+
+  const shortUuid = uuid.slice(0, 8).toUpperCase();
+
+  try {
+    const message = i18next.t("hive-auth.pending-request", {
+      defaultValue: "HiveAuth request pending. Match ID {{id}} in your wallet.",
+      id: shortUuid
+    });
+    showFeedbackInfo(message);
+    lastUuidAnnounced = uuid;
+  } catch (err) {
+    console.warn("Failed to display HiveAuth pending request notice", err);
+  }
+}
+
 function getClient(): HasClient {
   if (typeof window === "undefined") {
     throw new Error("HiveAuth client is only available in the browser");
   }
+  patchHiveAuthBroadcast();
   if (hiveAuthClient) {
     try {
       const rawWs = (hiveAuthClient as unknown as { websocket?: WebSocket }).websocket;
@@ -389,6 +508,8 @@ function dispatchPendingDeepLink(
   if (requiresKey && !extras.key) {
     return;
   }
+
+  announcePendingUuid(uuid);
 
   if (!isMobileBrowser()) return;
   if (lastDeepLinkSentForUuid === uuid) return;
@@ -570,6 +691,7 @@ function requestAuthentication(
     let inFlight = true;
     currentRequestUuid = null;
     lastDeepLinkSentForUuid = null;
+    lastUuidAnnounced = null;
 
     // Reconnect when the user returns from the wallet (single-flight)
     const stopWatchingVisibility = watchAppVisibility(() => {
@@ -590,6 +712,7 @@ function requestAuthentication(
       // ensure state is cleared between attempts
       currentRequestUuid = null;
       lastDeepLinkSentForUuid = null;
+      lastUuidAnnounced = null;
     };
 
     const onPending = (ev: AuthPendingEvent | any) => {
@@ -739,6 +862,7 @@ async function executeChallenge(
     return await new Promise<HiveAuthChallengeResult>(async (resolve, reject) => {
       let inFlight = true;
       currentRequestUuid = null; // keep consistent; challenge doesn’t use it but reset anyway
+      lastUuidAnnounced = null;
 
       const stopWatchingVisibility = watchAppVisibility(() => {
         if (!inFlight) return;
@@ -758,6 +882,7 @@ async function executeChallenge(
         stopWatchingVisibility();
         currentRequestUuid = null;
         lastDeepLinkSentForUuid = null;
+        lastUuidAnnounced = null;
       };
 
       const onPending = (ev: ChallengeSuccessEvent | any) => {
@@ -982,6 +1107,7 @@ async function executeBroadcast(
     return await new Promise<TransactionConfirmation>(async (resolve, reject) => {
       let inFlight = true;
       currentRequestUuid = null;
+      lastUuidAnnounced = null;
 
       const stopWatchingVisibility = watchAppVisibility(() => {
         if (!inFlight) return;
@@ -1001,6 +1127,7 @@ async function executeBroadcast(
         stopWatchingVisibility();
         currentRequestUuid = null;
         lastDeepLinkSentForUuid = null;
+        lastUuidAnnounced = null;
       };
 
       const onSuccess = (ev: any) => {
@@ -1021,11 +1148,14 @@ async function executeBroadcast(
         const pendingUuid = payload?.uuid ?? ev?.uuid;
         const expire = payload?.expire ?? ev?.expire ?? 0;
 
-        const defaultSignRequest = {
-          key_type: requestKeyType,
-          ops: operations,
-          broadcast: true
-        };
+        const lastSignRequestPayload = getLastSignRequestPayload(client);
+
+        const defaultSignRequest =
+          lastSignRequestPayload ?? {
+            key_type: requestKeyType,
+            ops: operations,
+            broadcast: true
+          };
 
         const extras: Record<string, unknown> = {
           key: session.key,
@@ -1049,6 +1179,14 @@ async function executeBroadcast(
             signReqData = b64uEnc(serialized);
           } catch (err) {
             console.error("Failed to encode HiveAuth sign request payload", err);
+          }
+        }
+
+        if (!signReqData && lastSignRequestPayload) {
+          try {
+            signReqData = b64uEnc(JSON.stringify(lastSignRequestPayload));
+          } catch (err) {
+            console.error("Failed to encode fallback HiveAuth sign request payload", err);
           }
         }
 
