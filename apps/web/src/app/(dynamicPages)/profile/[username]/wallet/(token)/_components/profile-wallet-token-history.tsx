@@ -28,8 +28,8 @@ export function ProfileWalletTokenHistory({ data, action }: Props) {
               : labelFactory();
 
         const fromUser = from ? (
-          <ProfileLink username={from}>
-            <Badge className="flex items-center gap-1 pl-0.5">
+          <ProfileLink username={from} className="inline-block max-w-full">
+            <Badge className="flex flex-wrap items-center gap-1 pl-0.5 max-w-full break-all text-left">
               <UserAvatar username={from} size="small" />
               {from}
             </Badge>
@@ -37,8 +37,8 @@ export function ProfileWalletTokenHistory({ data, action }: Props) {
         ) : null;
 
         const toUser = to ? (
-          <ProfileLink username={to}>
-            <Badge className="flex items-center gap-1 pl-0.5">
+          <ProfileLink username={to} className="inline-block max-w-full">
+            <Badge className="flex flex-wrap items-center gap-1 pl-0.5 max-w-full break-all text-left">
               <UserAvatar username={to} size="small" />
               {to}
             </Badge>
