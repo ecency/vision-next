@@ -10,6 +10,7 @@ import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useCallback, useState } from "react";
+import { shouldUseHiveAuth } from "@/utils/client";
 
 export function ManageAuthorities() {
   const activeUser = useClientActiveUser();
@@ -33,6 +34,7 @@ export function ManageAuthorities() {
     onError: (err) => error((err as Error).message),
     onSuccess: () => setKeyDialog(false)
   });
+  const useHiveAuth = shouldUseHiveAuth();
 
   const handleRevoke = useCallback((account: string) => {
     setKeyDialog(true);
@@ -97,7 +99,12 @@ export function ManageAuthorities() {
             inProgress={isPending}
             onKey={(key) => revoke({ type: "key", accountName: revokingAccount, key })}
             onHot={() => revoke({ type: "hivesigner", accountName: revokingAccount })}
-            onKc={() => revoke({ type: "keychain", accountName: revokingAccount })}
+            onKc={() =>
+              revoke({
+                type: useHiveAuth ? "hiveauth" : "keychain",
+                accountName: revokingAccount
+              })
+            }
           />
         </ModalBody>
       </Modal>

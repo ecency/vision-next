@@ -1,8 +1,9 @@
 import { CONFIG } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
 import { Symbol as AssetSymbol, parseAsset } from "../../utils";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
 export interface TransferPayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -22,6 +23,16 @@ export async function transferHive<T extends HiveBasedAssetSignType>(
   const precision = token === AssetSymbol.VESTS ? 6 : 3;
   const formattedAmount = parsedAsset.amount.toFixed(precision);
   const amountWithSymbol = `${formattedAmount} ${token}`;
+
+  const operation: Operation = [
+    "transfer",
+    {
+      from: payload.from,
+      to: payload.to,
+      amount: amountWithSymbol,
+      memo: payload.memo,
+    },
+  ];
 
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
@@ -55,18 +66,12 @@ export async function transferHive<T extends HiveBasedAssetSignType>(
         null
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     // For hivesigner, include the same payload fields; amount already contains token denomination
     return hs.sendOperation(
-      [
-        "transfer",
-        {
-          from: payload.from,
-          to: payload.to,
-          amount: amountWithSymbol,
-          memo: payload.memo,
-        },
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {}
     );

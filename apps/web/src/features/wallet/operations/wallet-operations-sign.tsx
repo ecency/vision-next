@@ -133,7 +133,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
             onClick={() => {
               sign({
                 ...(data as any),
-                type: "keychain"
+                type: useHiveAuth ? "hiveauth" : "keychain"
               });
               setStep("signing");
             }}

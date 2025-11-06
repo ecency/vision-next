@@ -635,6 +635,30 @@ function rewardSpk(data, sstats) {
   }
 }
 
+// src/internal/hive-auth.ts
+var broadcastHandler = null;
+function registerHiveAuthBroadcastHandler(handler) {
+  broadcastHandler = handler;
+}
+function getHiveAuthBroadcastHandler() {
+  return broadcastHandler;
+}
+
+// src/modules/assets/utils/hive-auth.ts
+function registerWalletHiveAuthBroadcast(handler) {
+  registerHiveAuthBroadcastHandler(handler);
+}
+function broadcastWithWalletHiveAuth(username, operations, keyType) {
+  const handler = getHiveAuthBroadcastHandler();
+  if (!handler) {
+    throw new Error("HiveAuth broadcast handler is not registered");
+  }
+  return handler(username, operations, keyType);
+}
+function hasWalletHiveAuthBroadcast() {
+  return typeof getHiveAuthBroadcastHandler() === "function";
+}
+
 // src/modules/assets/hive/queries/get-hive-asset-general-info-query-options.ts
 function getHiveAssetGeneralInfoQueryOptions(username) {
   return queryOptions({
@@ -1196,6 +1220,15 @@ async function transferHive(payload) {
   const precision = token === "VESTS" /* VESTS */ ? 6 : 3;
   const formattedAmount = parsedAsset.amount.toFixed(precision);
   const amountWithSymbol = `${formattedAmount} ${token}`;
+  const operation = [
+    "transfer",
+    {
+      from: payload.from,
+      to: payload.to,
+      amount: amountWithSymbol,
+      memo: payload.memo
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     return CONFIG.hiveClient.broadcast.transfer(
@@ -1225,17 +1258,11 @@ async function transferHive(payload) {
         null
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
-      [
-        "transfer",
-        {
-          from: payload.from,
-          to: payload.to,
-          amount: amountWithSymbol,
-          memo: payload.memo
-        }
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -1243,6 +1270,13 @@ async function transferHive(payload) {
   }
 }
 async function transferToSavingsHive(payload) {
+  const operationPayload = {
+    from: payload.from,
+    to: payload.to,
+    amount: payload.amount,
+    memo: payload.memo
+  };
+  const operation = ["transfer_to_savings", operationPayload];
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
@@ -1250,18 +1284,12 @@ async function transferToSavingsHive(payload) {
       key
     );
   } else if (payload.type === "keychain") {
-    return Keychain.broadcast(
-      payload.from,
-      [["transfer_to_savings", payload]],
-      "Active"
-    );
+    return Keychain.broadcast(payload.from, [operation], "Active");
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
-    return hs.sendOperation(
-      ["transfer_to_savings", payload],
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
+    return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
+    });
   }
 }
 async function transferFromSavingsHive(payload) {
@@ -1273,28 +1301,31 @@ async function transferFromSavingsHive(payload) {
     memo: payload.memo,
     request_id: requestId
   };
+  const operation = ["transfer_from_savings", operationPayload];
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["transfer_from_savings", operationPayload]],
+      [operation],
       key
     );
   }
   if (payload.type === "keychain") {
-    return Keychain.broadcast(
-      payload.from,
-      [["transfer_from_savings", operationPayload]],
-      "Active"
-    );
+    return Keychain.broadcast(payload.from, [operation], "Active");
   }
-  return hs.sendOperation(
-    ["transfer_from_savings", operationPayload],
-    { callback: `https://ecency.com/@${payload.from}/wallet` },
-    () => {
-    }
-  );
+  if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  }
+  return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
+  });
 }
 async function powerUpHive(payload) {
+  const operationPayload = {
+    from: payload.from,
+    to: payload.to,
+    amount: payload.amount,
+    memo: payload.memo
+  };
+  const operation = ["transfer_to_vesting", operationPayload];
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
@@ -1302,18 +1333,12 @@ async function powerUpHive(payload) {
       key
     );
   } else if (payload.type === "keychain") {
-    return Keychain.broadcast(
-      payload.from,
-      [["transfer_to_vesting", payload]],
-      "Active"
-    );
+    return Keychain.broadcast(payload.from, [operation], "Active");
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
-    return hs.sendOperation(
-      ["transfer_to_vesting", payload],
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
+    return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
+    });
   }
 }
 async function delegateHive(payload) {
@@ -1322,25 +1347,20 @@ async function delegateHive(payload) {
     delegatee: payload.to,
     vesting_shares: payload.amount
   };
+  const operation = ["delegate_vesting_shares", operationPayload];
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["delegate_vesting_shares", operationPayload]],
+      [operation],
       key
     );
   } else if (payload.type === "keychain") {
-    return Keychain.broadcast(
-      payload.from,
-      [["delegate_vesting_shares", operationPayload]],
-      "Active"
-    );
+    return Keychain.broadcast(payload.from, [operation], "Active");
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
-    return hs.sendOperation(
-      ["delegate_vesting_shares", operationPayload],
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
+    return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
+    });
   }
 }
 async function powerDownHive(payload) {
@@ -1348,28 +1368,30 @@ async function powerDownHive(payload) {
     account: payload.from,
     vesting_shares: payload.amount
   };
+  const operation = ["withdraw_vesting", operationPayload];
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["withdraw_vesting", operationPayload]],
+      [operation],
       key
     );
   } else if (payload.type === "keychain") {
-    return Keychain.broadcast(
-      payload.from,
-      [["withdraw_vesting", operationPayload]],
-      "Active"
-    );
+    return Keychain.broadcast(payload.from, [operation], "Active");
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
-    return hs.sendOperation(
-      ["withdraw_vesting", operationPayload],
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
+    return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
+    });
   }
 }
 async function withdrawVestingRouteHive(payload) {
+  const baseParams = {
+    from_account: payload.from_account,
+    to_account: payload.to_account,
+    percent: payload.percent,
+    auto_vest: payload.auto_vest
+  };
+  const operation = ["set_withdraw_vesting_route", baseParams];
   if (payload.type === "key" && "key" in payload) {
     const { key, type: type2, ...params2 } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
@@ -1379,19 +1401,14 @@ async function withdrawVestingRouteHive(payload) {
   }
   if (payload.type === "keychain") {
     const { type: type2, ...params2 } = payload;
-    return Keychain.broadcast(
-      params2.from_account,
-      [["set_withdraw_vesting_route", params2]],
-      "Active"
-    );
+    return Keychain.broadcast(params2.from_account, [operation], "Active");
+  }
+  if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
   }
   const { type, ...params } = payload;
-  return hs.sendOperation(
-    ["set_withdraw_vesting_route", params],
-    { callback: `https://ecency.com/@${params.from_account}/wallet` },
-    () => {
-    }
-  );
+  return hs.sendOperation(operation, { callback: `https://ecency.com/@${params.from_account}/wallet` }, () => {
+  });
 }
 function useClaimRewards(username, onSuccess) {
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -1445,35 +1462,22 @@ async function claimInterestHive(payload) {
     from: payload.from,
     request_id: requestId
   };
+  const operations = [
+    ["transfer_from_savings", baseOperation],
+    ["cancel_transfer_from_savings", cancelOperation]
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
-    return CONFIG.hiveClient.broadcast.sendOperations(
-      [
-        ["transfer_from_savings", baseOperation],
-        ["cancel_transfer_from_savings", cancelOperation]
-      ],
-      key
-    );
+    return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
   }
   if (payload.type === "keychain") {
-    return Keychain.broadcast(
-      payload.from,
-      [
-        ["transfer_from_savings", baseOperation],
-        ["cancel_transfer_from_savings", cancelOperation]
-      ],
-      "Active"
-    );
+    return Keychain.broadcast(payload.from, operations, "Active");
   }
-  return hs.sendOperations(
-    [
-      ["transfer_from_savings", baseOperation],
-      ["cancel_transfer_from_savings", cancelOperation]
-    ],
-    { callback: `https://ecency.com/@${payload.from}/wallet` },
-    () => {
-    }
-  );
+  if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, operations, "active");
+  }
+  return hs.sendOperations(operations, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
+  });
 }
 
 // src/modules/assets/types/asset-operation.ts
@@ -1509,6 +1513,15 @@ async function transferSpk(payload) {
     required_auths: [payload.from],
     required_posting_auths: []
   };
+  const operation = [
+    "custom_json",
+    {
+      id: op.id,
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
@@ -1520,6 +1533,8 @@ async function transferSpk(payload) {
       json,
       payload.to
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1547,6 +1562,15 @@ var lockLarynx = async (payload) => {
     required_auths: [payload.from],
     required_posting_auths: []
   };
+  const operation = [
+    "custom_json",
+    {
+      id: op.id,
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
@@ -1558,6 +1582,8 @@ var lockLarynx = async (payload) => {
       json,
       payload.from
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1581,6 +1607,15 @@ async function powerUpLarynx(payload) {
     required_auths: [payload.from],
     required_posting_auths: []
   };
+  const operation = [
+    "custom_json",
+    {
+      id: `spkcc_power_${payload.mode}`,
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
@@ -1592,6 +1627,8 @@ async function powerUpLarynx(payload) {
       json,
       ""
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1619,6 +1656,15 @@ async function transferLarynx(payload) {
     required_auths: [payload.from],
     required_posting_auths: []
   };
+  const operation = [
+    "custom_json",
+    {
+      id: "spkcc_send",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
@@ -1630,6 +1676,8 @@ async function transferLarynx(payload) {
       json,
       payload.to
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -2030,6 +2078,23 @@ function getHiveEngineTokensMetricsQueryOptions(symbol, interval = "daily") {
 async function delegateEngineToken(payload) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
+  const operation = [
+    "custom_json",
+    {
+      id: "ssc-mainnet-hive",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json: JSON.stringify({
+        contractName: "tokens",
+        contractAction: "delegate",
+        contractPayload: {
+          symbol: payload.asset,
+          to: payload.to,
+          quantity
+        }
+      })
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     const op = {
@@ -2053,15 +2118,7 @@ async function delegateEngineToken(payload) {
         payload.from,
         "ssc-mainnet-hive",
         "Active",
-        JSON.stringify({
-          contractName: "tokens",
-          contractAction: "delegate",
-          contractPayload: {
-            symbol: payload.asset,
-            to: payload.to,
-            quantity
-          }
-        }),
+        operation[1].json,
         "Token Delegation",
         (resp) => {
           if (!resp.success) {
@@ -2071,25 +2128,11 @@ async function delegateEngineToken(payload) {
         }
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
-      [
-        "custom_json",
-        {
-          id: "ssc-mainnet-hive",
-          required_auths: [payload.from],
-          required_posting_auths: [],
-          json: JSON.stringify({
-            contractName: "tokens",
-            contractAction: "delegate",
-            contractPayload: {
-              symbol: payload.asset,
-              to: payload.to,
-              quantity
-            }
-          })
-        }
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -2099,6 +2142,23 @@ async function delegateEngineToken(payload) {
 async function undelegateEngineToken(payload) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
+  const operation = [
+    "custom_json",
+    {
+      id: "ssc-mainnet-hive",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json: JSON.stringify({
+        contractName: "tokens",
+        contractAction: "undelegate",
+        contractPayload: {
+          symbol: payload.asset,
+          from: payload.to,
+          quantity
+        }
+      })
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     const op = {
@@ -2122,15 +2182,7 @@ async function undelegateEngineToken(payload) {
         payload.from,
         "ssc-mainnet-hive",
         "Active",
-        JSON.stringify({
-          contractName: "tokens",
-          contractAction: "undelegate",
-          contractPayload: {
-            symbol: payload.asset,
-            from: payload.to,
-            quantity
-          }
-        }),
+        operation[1].json,
         "Token Undelegation",
         (resp) => {
           if (!resp.success) {
@@ -2140,25 +2192,11 @@ async function undelegateEngineToken(payload) {
         }
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
-      [
-        "custom_json",
-        {
-          id: "ssc-mainnet-hive",
-          required_auths: [payload.from],
-          required_posting_auths: [],
-          json: JSON.stringify({
-            contractName: "tokens",
-            contractAction: "undelegate",
-            contractPayload: {
-              symbol: payload.asset,
-              from: payload.to,
-              quantity
-            }
-          })
-        }
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -2168,6 +2206,23 @@ async function undelegateEngineToken(payload) {
 async function stakeEngineToken(payload) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
+  const operation = [
+    "custom_json",
+    {
+      id: "ssc-mainnet-hive",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json: JSON.stringify({
+        contractName: "tokens",
+        contractAction: "stake",
+        contractPayload: {
+          symbol: payload.asset,
+          to: payload.to,
+          quantity
+        }
+      })
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     const op = {
@@ -2191,15 +2246,7 @@ async function stakeEngineToken(payload) {
         payload.from,
         "ssc-mainnet-hive",
         "Active",
-        JSON.stringify({
-          contractName: "tokens",
-          contractAction: "stake",
-          contractPayload: {
-            symbol: payload.asset,
-            to: payload.to,
-            quantity
-          }
-        }),
+        operation[1].json,
         "Token Staking",
         (resp) => {
           if (!resp.success) {
@@ -2209,25 +2256,11 @@ async function stakeEngineToken(payload) {
         }
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
-      [
-        "custom_json",
-        {
-          id: "ssc-mainnet-hive",
-          required_auths: [payload.from],
-          required_posting_auths: [],
-          json: JSON.stringify({
-            contractName: "tokens",
-            contractAction: "stake",
-            contractPayload: {
-              symbol: payload.asset,
-              to: payload.to,
-              quantity
-            }
-          })
-        }
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -2237,6 +2270,23 @@ async function stakeEngineToken(payload) {
 async function unstakeEngineToken(payload) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
+  const operation = [
+    "custom_json",
+    {
+      id: "ssc-mainnet-hive",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json: JSON.stringify({
+        contractName: "tokens",
+        contractAction: "unstake",
+        contractPayload: {
+          symbol: payload.asset,
+          to: payload.to,
+          quantity
+        }
+      })
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     const op = {
@@ -2260,15 +2310,7 @@ async function unstakeEngineToken(payload) {
         payload.from,
         "ssc-mainnet-hive",
         "Active",
-        JSON.stringify({
-          contractName: "tokens",
-          contractAction: "unstake",
-          contractPayload: {
-            symbol: payload.asset,
-            to: payload.to,
-            quantity
-          }
-        }),
+        operation[1].json,
         "Token Unstaking",
         (resp) => {
           if (!resp.success) {
@@ -2278,25 +2320,11 @@ async function unstakeEngineToken(payload) {
         }
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
-      [
-        "custom_json",
-        {
-          id: "ssc-mainnet-hive",
-          required_auths: [payload.from],
-          required_posting_auths: [],
-          json: JSON.stringify({
-            contractName: "tokens",
-            contractAction: "unstake",
-            contractPayload: {
-              symbol: payload.asset,
-              to: payload.to,
-              quantity
-            }
-          })
-        }
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -2306,6 +2334,24 @@ async function unstakeEngineToken(payload) {
 async function transferEngineToken(payload) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
+  const operation = [
+    "custom_json",
+    {
+      id: "ssc-mainnet-hive",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json: JSON.stringify({
+        contractName: "tokens",
+        contractAction: "transfer",
+        contractPayload: {
+          symbol: payload.asset,
+          to: payload.to,
+          quantity,
+          memo: payload.memo
+        }
+      })
+    }
+  ];
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     const op = {
@@ -2330,16 +2376,7 @@ async function transferEngineToken(payload) {
         payload.from,
         "ssc-mainnet-hive",
         "Active",
-        JSON.stringify({
-          contractName: "tokens",
-          contractAction: "transfer",
-          contractPayload: {
-            symbol: payload.asset,
-            to: payload.to,
-            quantity,
-            memo: payload.memo
-          }
-        }),
+        operation[1].json,
         "Token Transfer",
         (resp) => {
           if (!resp.success) {
@@ -2349,26 +2386,11 @@ async function transferEngineToken(payload) {
         }
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
-      [
-        "custom_json",
-        {
-          id: "ssc-mainnet-hive",
-          required_auths: [payload.from],
-          required_posting_auths: [],
-          json: JSON.stringify({
-            contractName: "tokens",
-            contractAction: "transfer",
-            contractPayload: {
-              symbol: payload.asset,
-              to: payload.to,
-              quantity,
-              memo: payload.memo
-            }
-          })
-        }
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {
       }
@@ -2531,12 +2553,11 @@ async function transferPoint({
   if (type === "keychain") {
     return Keychain.broadcast(from, [op], "Active");
   }
-  return hs.sendOperation(
-    op,
-    { callback: `https://ecency.com/@${from}/wallet` },
-    () => {
-    }
-  );
+  if (type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(from, [op], "active");
+  }
+  return hs.sendOperation(op, { callback: `https://ecency.com/@${from}/wallet` }, () => {
+  });
 }
 
 // src/modules/assets/points/types/point-transaction-type.ts
@@ -3710,6 +3731,6 @@ function useWalletOperation(username, asset, operation) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, NaiMap, PointTransactionType, Symbol2 as Symbol, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

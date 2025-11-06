@@ -1,8 +1,9 @@
 import { CONFIG } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
 import { parseAsset } from "../../utils";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
 export interface TransferEnginePayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -20,6 +21,25 @@ export async function transferEngineToken<T extends HiveBasedAssetSignType>(
 ) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
+
+  const operation: Operation = [
+    "custom_json",
+    {
+      id: "ssc-mainnet-hive",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json: JSON.stringify({
+        contractName: "tokens",
+        contractAction: "transfer",
+        contractPayload: {
+          symbol: payload.asset,
+          to: payload.to,
+          quantity: quantity,
+          memo: payload.memo,
+        },
+      }),
+    },
+  ];
 
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
@@ -47,16 +67,7 @@ export async function transferEngineToken<T extends HiveBasedAssetSignType>(
         payload.from,
         "ssc-mainnet-hive",
         "Active",
-        JSON.stringify({
-          contractName: "tokens",
-          contractAction: "transfer",
-          contractPayload: {
-            symbol: payload.asset,
-            to: payload.to,
-            quantity: quantity,
-            memo: payload.memo,
-          },
-        }),
+        operation[1].json,
         "Token Transfer",
         (resp: { success: boolean }) => {
           if (!resp.success) {
@@ -67,26 +78,11 @@ export async function transferEngineToken<T extends HiveBasedAssetSignType>(
         }
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
-      [
-        "custom_json",
-        {
-          id: "ssc-mainnet-hive",
-          required_auths: [payload.from],
-          required_posting_auths: [],
-          json: JSON.stringify({
-            contractName: "tokens",
-            contractAction: "transfer",
-            contractPayload: {
-              symbol: payload.asset,
-              to: payload.to,
-              quantity: quantity,
-              memo: payload.memo,
-            },
-          }),
-        },
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {}
     );

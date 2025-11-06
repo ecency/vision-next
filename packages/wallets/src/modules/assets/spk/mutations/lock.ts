@@ -1,8 +1,9 @@
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import { HiveBasedAssetSignType } from "../../types";
 import { CONFIG, Keychain } from "@ecency/sdk";
 import hs from "hivesigner";
 import { parseAsset } from "../../utils";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
 interface SpkLockPayload<T extends HiveBasedAssetSignType> {
   mode: "lock" | "unlock";
@@ -25,6 +26,16 @@ export const lockLarynx = async <T extends HiveBasedAssetSignType>(
     required_posting_auths: [],
   };
 
+  const operation: Operation = [
+    "custom_json",
+    {
+      id: op.id,
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json,
+    },
+  ];
+
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
@@ -36,6 +47,8 @@ export const lockLarynx = async <T extends HiveBasedAssetSignType>(
       json,
       payload.from
     ) as Promise<unknown>;
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(

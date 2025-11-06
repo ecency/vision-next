@@ -1,7 +1,8 @@
 import { CONFIG, Keychain } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
 interface PayloadBase {
   from: string;
@@ -31,25 +32,23 @@ export async function transferFromSavingsHive<
     request_id: requestId,
   };
 
+  const operation: Operation = ["transfer_from_savings", operationPayload];
+
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["transfer_from_savings", operationPayload]],
+      [operation],
       key
     );
   }
 
   if (payload.type === "keychain") {
-    return Keychain.broadcast(
-      payload.from,
-      [["transfer_from_savings", operationPayload]],
-      "Active"
-    ) as Promise<unknown>;
+    return Keychain.broadcast(payload.from, [operation], "Active") as Promise<unknown>;
   }
 
-  return hs.sendOperation(
-    ["transfer_from_savings", operationPayload],
-    { callback: `https://ecency.com/@${payload.from}/wallet` },
-    () => {}
-  );
+  if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  }
+
+  return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});
 }

@@ -1,8 +1,9 @@
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import { HiveBasedAssetSignType } from "../../types";
 import { CONFIG, Keychain } from "@ecency/sdk";
 import hs from "hivesigner";
 import { parseAsset } from "../../utils";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
 interface LarynxTransferPayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -30,6 +31,16 @@ export async function transferLarynx<T extends HiveBasedAssetSignType>(
     required_posting_auths: [],
   };
 
+  const operation: Operation = [
+    "custom_json",
+    {
+      id: "spkcc_send",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json,
+    },
+  ];
+
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
@@ -41,6 +52,8 @@ export async function transferLarynx<T extends HiveBasedAssetSignType>(
       json,
       payload.to
     ) as Promise<unknown>;
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
