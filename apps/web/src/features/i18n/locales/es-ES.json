@@ -1504,6 +1504,9 @@
     "with-keychain": "Iniciar sesión con KeyChain",
     "with-hiveauth": "Firmar con HiveAuth"
   },
+  "hive-auth": {
+    "pending-request": "Solicitud de HiveAuth pendiente. Coincide con el ID {{id}} en tu cartera."
+  },
   "delegated-vesting": {
     "title": "Hive Power delegado",
     "undelegate": "Retirar delegación",
