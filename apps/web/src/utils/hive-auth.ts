@@ -1062,7 +1062,7 @@ async function executeBroadcast(
         const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
         const resolvedMessage = rawMessage ?? "HiveAuth sign failure";
         if (rawMessage && isTokenError(rawMessage)) {
-          clearSession(username, keyType);
+          clearSession(username, requestKeyType);
           showHiveAuthErrorToast(resolvedMessage);
           reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
@@ -1076,7 +1076,7 @@ async function executeBroadcast(
         const rawMessage = extractHiveAuthErrorMessage(ev, new Set(), 0);
         const resolvedMessage = rawMessage ?? "HiveAuth sign error";
         if (rawMessage && isTokenError(rawMessage)) {
-          clearSession(username, keyType);
+          clearSession(username, requestKeyType);
           showHiveAuthErrorToast(resolvedMessage);
           reject(new HiveAuthSessionExpiredError(resolvedMessage));
           return;
@@ -1109,7 +1109,7 @@ async function executeBroadcast(
 
       try {
         const { username: accountName, token, key, expire } = session;
-        client.broadcast({ username: accountName, token, key, expire }, keyType, operations);
+        client.broadcast({ username: accountName, token, key, expire }, requestKeyType, operations);
       } catch (err) {
         cleanup();
         reject(asError(err));
@@ -1130,15 +1130,16 @@ async function runBroadcast(
   operations: Operation[],
   account?: FullAccount
 ): Promise<TransactionConfirmation> {
-  const session = await ensureSession(username, keyType, account);
+  const resolvedKeyType = inferSignRequestKeyType(operations, keyType);
+  const session = await ensureSession(username, resolvedKeyType, account);
 
   try {
-    return await executeBroadcast(username, session, keyType, operations, true);
+    return await executeBroadcast(username, session, resolvedKeyType, operations, true);
   } catch (err) {
     if (err instanceof HiveAuthSessionExpiredError) {
-      clearSession(username, keyType);
-      const refreshed = await ensureSession(username, keyType, account);
-      return await executeBroadcast(username, refreshed, keyType, operations, true);
+      clearSession(username, resolvedKeyType);
+      const refreshed = await ensureSession(username, resolvedKeyType, account);
+      return await executeBroadcast(username, refreshed, resolvedKeyType, operations, true);
     }
     throw err;
   }
