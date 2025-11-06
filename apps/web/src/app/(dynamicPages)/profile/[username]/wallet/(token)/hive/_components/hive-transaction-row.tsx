@@ -23,6 +23,27 @@ interface Props {
   onMounted?: () => void;
 }
 
+function ParticipantBadge({ username }: { username: string }) {
+  return (
+    <ProfileLink username={username} className="max-w-full">
+      <Badge className="flex max-w-full items-center gap-1 pl-0.5 pr-1 text-left text-sm leading-tight break-all">
+        <UserAvatar username={username} size="small" />
+        <span className="break-all">{username}</span>
+      </Badge>
+    </ProfileLink>
+  );
+}
+
+function TransferParticipants({ from, to }: { from: string; to: string }) {
+  return (
+    <div className="flex min-w-0 flex-wrap items-center gap-2">
+      <ParticipantBadge username={from} />
+      <UilArrowRight className="shrink-0 text-gray-400 dark:text-gray-600" />
+      <ParticipantBadge username={to} />
+    </div>
+  );
+}
+
 export function HiveTransactionRow({ entry, transaction: tr }: Props) {
   let flag = true;
   let icon = ticketSvg;
@@ -73,23 +94,11 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     icon = <UilArrowRight className="w-4 h-4" />;
 
     details = (
-      <div>
-        <div className="flex gap-2 items-center">
-          <ProfileLink username={tr.from}>
-            <Badge className="flex gap-1 pl-0.5 items-center">
-              <UserAvatar username={tr.from} size="small" />
-              {tr.from}
-            </Badge>
-          </ProfileLink>
-          <UilArrowRight className="text-gray-400 dark:text-gray-600" />
-          <ProfileLink username={tr.to}>
-            <Badge className="flex gap-1 pl-0.5 items-center">
-              <UserAvatar username={tr.to} size="small" />
-              {tr.to}
-            </Badge>
-          </ProfileLink>
-        </div>
-        {tr.memo && <div className="text-sm opacity-75">{tr.memo}</div>}
+      <div className="space-y-2">
+        <TransferParticipants from={tr.from} to={tr.to} />
+        {tr.memo ? (
+          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+        ) : null}
       </div>
     );
 
@@ -98,63 +107,31 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     flag = true;
     icon = <UilRefresh className="w-4 h-4" />;
 
+    const recurrentDescription =
+      tr.type === "recurrent_transfer" ? (
+        <Tsx
+          k="transactions.type-recurrent_transfer-detail"
+          args={{ executions: tr.executions, recurrence: tr.recurrence }}
+        >
+          <span className="block" />
+        </Tsx>
+      ) : (
+        <Tsx
+          k="transactions.type-fill_recurrent_transfer-detail"
+          args={{ remaining_executions: tr.remaining_executions }}
+        >
+          <span className="block" />
+        </Tsx>
+      );
+
     details = (
-      <span>
+      <div className="space-y-2">
         {tr.memo ? (
-          <>
-            {tr.memo} <br /> <br />
-          </>
+          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
         ) : null}
-        {tr.type === "recurrent_transfer" ? (
-          <>
-            <Tsx
-              k="transactions.type-recurrent_transfer-detail"
-              args={{ executions: tr.executions, recurrence: tr.recurrence }}
-            >
-              <span />
-            </Tsx>
-            <div className="flex gap-2 items-center mt-4">
-              <ProfileLink username={tr.from}>
-                <Badge className="flex gap-1 pl-0.5 items-center">
-                  <UserAvatar username={tr.from} size="small" />
-                  {tr.from}
-                </Badge>
-              </ProfileLink>
-              <UilArrowRight className="text-gray-400 dark:text-gray-600" />
-              <ProfileLink username={tr.to}>
-                <Badge className="flex gap-1 pl-0.5 items-center">
-                  <UserAvatar username={tr.to} size="small" />
-                  {tr.to}
-                </Badge>
-              </ProfileLink>
-            </div>
-          </>
-        ) : (
-          <>
-            <Tsx
-              k="transactions.type-fill_recurrent_transfer-detail"
-              args={{ remaining_executions: tr.remaining_executions }}
-            >
-              <span />
-            </Tsx>
-            <div className="flex gap-2 items-center mt-4">
-              <ProfileLink username={tr.from}>
-                <Badge className="flex gap-1 pl-0.5 items-center">
-                  <UserAvatar username={tr.from} size="small" />
-                  {tr.from}
-                </Badge>
-              </ProfileLink>
-              <UilArrowRight className="text-gray-400 dark:text-gray-600" />
-              <ProfileLink username={tr.to}>
-                <Badge className="flex gap-1 pl-0.5 items-center">
-                  <UserAvatar username={tr.to} size="small" />
-                  {tr.to}
-                </Badge>
-              </ProfileLink>
-            </div>
-          </>
-        )}
-      </span>
+        <div className="text-sm text-gray-600 dark:text-gray-400">{recurrentDescription}</div>
+        <TransferParticipants from={tr.from} to={tr.to} />
+      </div>
     );
     let aam = tr.amount as any;
     if (tr.type === "fill_recurrent_transfer") {
