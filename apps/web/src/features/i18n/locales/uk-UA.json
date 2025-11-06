@@ -1504,6 +1504,9 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Увійти за допомогою HiveAuth"
   },
+  "hive-auth": {
+    "pending-request": "Очікується запит HiveAuth. Матч з ID {{id}} у вашому гаманці."
+  },
   "delegated-vesting": {
     "title": "Делегована Hive Power",
     "undelegate": "undelegate",
