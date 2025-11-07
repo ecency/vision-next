@@ -12,13 +12,14 @@ function LogoBox({
   return (
     <div
       className={clsx(
-        "rounded-lg p-1 flex items-center justify-center",
+        "rounded-lg p-1 flex items-center justify-center [&_svg]:h-full [&_svg]:w-full",
         className ?? "border border-[--border-color]"
       )}
       style={{
         minWidth: size,
         maxWidth: size,
-        height: size
+        height: size,
+        width: size
       }}
     >
       {children}
