@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "Should not contain double Hyphens",
     "username-exists": "This username already registered. Please, try another one",
     "username-starts-number": "Should not start with Numbers",
+    "username-required": "Username is required",
     "username-in-use": "This username already exists. Set another one",
     "referral-invalid": "This referral is invalid. Please, try another one",
     "referral-min-length-error": "Length of referral should be at least 3 characters",
