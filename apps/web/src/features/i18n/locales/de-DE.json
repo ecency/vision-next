@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "Es sollten keine doppelten Bindestriche enthalten sein",
     "username-exists": "Dieser Benutzername ist bereits registriert. Bitte versuche es mit einem anderen",
     "username-starts-number": "Darf nicht mit Nummern beginnen",
+    "username-required": "Benutzername ist erforderlich",
     "username-in-use": "Dieser Benutzername existiert bereits. Einen anderen wählen",
     "referral-invalid": "Diese Empfehlung ist ungültig. Bitte versuche eine andere",
     "referral-min-length-error": "Die Länge des Benutzernamens muss mindestens 3 Zeichen betragen",
