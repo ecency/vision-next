@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "二重ハイフンを含むべきではありません",
     "username-exists": "このユーザー名はすでに登録されています。別のものをお試しください",
     "username-starts-number": "数字で始まるべきではありません",
+    "username-required": "ユーザー名が必要です",
     "username-in-use": "このユーザー名は既に存在します。別のユーザー名を設定してください。",
     "referral-invalid": "この紹介は無効です。別の紹介をお試しください",
     "referral-min-length-error": "紹介の長さは少なくとも3文字でなければなりません",
