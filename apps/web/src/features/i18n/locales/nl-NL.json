@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "Mag geen dubbele Hyphens bevatten",
     "username-exists": "Deze gebruikersnaam is al in gebruik. Probeer een andere",
     "username-starts-number": "Mag niet beginnen met getallen",
+    "username-required": "Gebruikersnaam is verplicht",
     "username-in-use": "Deze gebruikersnaam bestaat al. Stel een andere in",
     "referral-invalid": "Deze aanbeveling is ongeldig. Probeer een andere aanbeveling.",
     "referral-min-length-error": "Lengte van de verwijzing moet ten minste 3 tekens bevatten",
