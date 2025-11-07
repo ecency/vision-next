@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "इसमें दोहरे हाइफ़न नहीं होने चाहिए",
     "username-exists": "यह उपयोगकर्ता नाम पहले से पंजीकृत है। कृपया कोई दूसरा उपयोगकर्ता नाम आज़माएँ",
     "username-starts-number": "संख्याओं से शुरू नहीं होना चाहिए",
+    "username-required": "Username is required",
     "username-in-use": "यह उपयोगकर्ता नाम पहले से मौजूद है। कोई दूसरा उपयोगकर्ता नाम सेट करें",
     "referral-invalid": "यह रेफ़रल अमान्य है। कृपया कोई दूसरा रेफ़रल आज़माएँ",
     "referral-min-length-error": "रेफरल की लंबाई कम से कम 3 अक्षर होनी चाहिए",
