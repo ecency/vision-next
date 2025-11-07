@@ -117,7 +117,10 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const [transferAmount, setTransferAmount] = useState(0);
   const [customJsonAmount, setCustomJsonAmount] = useState(0);
 
-  const downloadSeed = useDownloadSeed(accountInfo?.username ?? decodedInfo?.username ?? "");
+  const downloadSeed = useDownloadSeed(
+    seedPhrase,
+    accountInfo?.username ?? decodedInfo?.username ?? ""
+  );
 
   useMount(() => {
     setOnboardUrl(`${window.location.origin}/onboard-friend/creating/`);
