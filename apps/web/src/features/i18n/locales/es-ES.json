@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "No debe contener Signos de Puntuación dobles",
     "username-exists": "Este nombre de usuario ya está registrado. Por favor, prueba otro",
     "username-starts-number": "No debe comenzar con números",
+    "username-required": "Nombre de usuario requerido",
     "username-in-use": "Este nombre de usuario ya existe. Establecer otro",
     "referral-invalid": "Esta referencia no es válida. Por favor, prueba con otra",
     "referral-min-length-error": "La longitud de la referencia debe tener al menos 3 caracteres",
