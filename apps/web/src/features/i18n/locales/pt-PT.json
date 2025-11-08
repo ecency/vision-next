@@ -2181,6 +2181,46 @@
       "contact-news": "Notícias no Hive",
       "contact-email": "Envie-nos um email"
     },
+    "mobile": {
+      "page-title": "Celular Ecency",
+      "hero-title": "Sua comunidade, em qualquer lugar com <span>Ecency Mobile</span>",
+      "hero-subtitle": "Fique perto das comunidades do Hive, responda a conversas e gerencie recompensas onde quer que você esteja.",
+      "hero-footnote": "Disponível para dispositivos iOS, iPadOS e Android.",
+      "cta-ios": "Baixar na App Store",
+      "cta-android": "Baixe no Google Play",
+      "benefits-title": "Por que você vai adorar celular com Ecency",
+      "benefits": {
+        "communities-title": "Comunidades no seu bolso",
+        "communities-description": "Siga os feeds, explore as tags em alta e fique perto das pessoas e tópicos que você lhe interessa.",
+        "create-title": "Publicar de qualquer lugar",
+        "create-description": "Publicações de rascunho, compartilhar atualizações e responder aos comentários com o mesmo editor poderoso que você usa na área de trabalho.",
+        "wallet-title": "Carteira numa olhada",
+        "wallet-description": "Verifique saldos, reivindique recompensas e gerencie o Hive Power ou HBD com apenas alguns toques.",
+        "notifications-title": "Nunca perca uma menção",
+        "notifications-description": "Push notifications destaca novos seguidores, menções e recompensas para que você possa comemorar a tempo."
+      },
+      "features-title": "Projetado para criadores e comunidades",
+      "features": {
+        "interface-title": "Feito para celular",
+        "interface-description": "Desfrute de navegação nativa, controles amigáveis a gestos e layouts que se sentem bem em casa em telefones e tablets.",
+        "themes-title": "Temas Dia e Noite",
+        "themes-description": "Alterne entre temas claros e escuros para permanecer confortável durante a leitura e escrita a qualquer hora.",
+        "opensource-title": "Aberto e conduzido pela comunidade",
+        "opensource-description": "Contribua no GitHub, ajuda com traduções ou compartilhe feedback diretamente do app."
+      },
+      "screenshots-title": "Ver celular Ecency em ação",
+      "screenshots-description": "Limpe as visualizações para leitura, publicação e gerenciamento de seus perfis em telefones e tablets.",
+      "screenshots-tablet-alt": "Interface móvel de Ecency exibida em um tablet",
+      "screenshots-phone-alt": "Visualização do feed móvel para Ecency em um telefone",
+      "screenshots-desktop-alt": "Tela móvel Ecency ao lado da interface desktop",
+      "screenshots-dark-alt": "Aplicativo móvel Ecency em tema escuro",
+      "resources-title": "Recursos úteis",
+      "resources": {
+        "faq": "Visite o FAQ para respostas rápidas",
+        "blog": "Leia as notas mais recentes do lançamento móvel",
+        "github": "Explore a base de código aberto"
+      }
+    },
     "faq": {
       "about-ecency": "Sobre a Ecency",
       "working": "Trabalho da Ecency",
