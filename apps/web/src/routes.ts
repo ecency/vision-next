@@ -6,6 +6,7 @@ const profileFilters = Object.values(ProfileFilter);
 const routes = {
   HOME: `/`,
   ABOUT: `/about`,
+  MOBILE: `/mobile`,
   GUESTS: `/guest-posts`,
   CONTRIBUTE: `/contribute`,
   FAQ: `/faq`,

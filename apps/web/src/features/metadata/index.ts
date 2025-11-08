@@ -74,6 +74,12 @@ export namespace PagesMetadataGenerator {
     };
   }
 
+  function buildForMobile(): Metadata {
+    return {
+      title: i18next.t("static.mobile.page-title")
+    };
+  }
+
   function buildForOnboardFriend(): Metadata {
     return {
       title: "Onboarding a Friend"
@@ -134,6 +140,7 @@ export namespace PagesMetadataGenerator {
     if (name === "submit") return buildForSubmit();
     if (name === "faq") return buildForFaq();
     if (["market-swap", "market-limit", "market-advanced"].includes(name)) return buildForMarket();
+    if (name === "mobile") return buildForMobile();
     if (name === "onboard-friend") return buildForOnboardFriend();
     if (name === "perks") return buildForPerks();
     if (name === "proposals") return buildForProposals();
