@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "不应包含双Hyphens",
     "username-exists": "此用户名已被注册。请尝试另一个",
     "username-starts-number": "不应以数字开始",
+    "username-required": "必须输入用户名",
     "username-in-use": "用户名已经存在。请另设一个",
     "referral-invalid": "此推荐无效。请再试一次",
     "referral-min-length-error": "推荐时间长度应至少为 3 个字符",
