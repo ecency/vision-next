@@ -18,6 +18,7 @@ interface Props {
   clearSelectedImage: () => void;
   placeholder?: string;
   characterLimit: number;
+  onPasteImage?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
 }
 
 export const WaveFormControl = ({
@@ -27,7 +28,8 @@ export const WaveFormControl = ({
   clearSelectedImage,
   characterLimit,
   placeholder,
-  textareaRef
+  textareaRef,
+  onPasteImage
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
   const textLength = text?.length ?? 0;
@@ -49,6 +51,7 @@ export const WaveFormControl = ({
           value={text}
           onChange={(e) => setText(e.target.value)}
           ref={textareaRef}
+          onPaste={onPasteImage}
         />
         <div className={counterClassName} aria-live="polite">
           {textLength}/{characterLimit}

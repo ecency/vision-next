@@ -3,7 +3,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import { Entry, WaveEntry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { PollsContext, PollsManager, useEntryPollExtractor } from "@/features/polls";
 import { useClickAway, useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
@@ -16,6 +15,10 @@ import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form
 import { useWaveSubmit } from "@/features/waves";
 import { useOptionalWavesHost } from "@/app/waves/_context";
 import { useClientActiveUser } from "@/api/queries";
+import axios from "axios";
+import { uploadImage } from "@/api/misc";
+import { getAccessToken } from "@/utils";
+import { error } from "@/features/shared";
 
 interface Props {
   className?: string;
@@ -34,6 +37,7 @@ const WaveFormComponent = ({
   entry
 }: Props) => {
   const activeUser = useClientActiveUser();
+  const activeUsername = activeUser?.username;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -149,6 +153,63 @@ const WaveFormComponent = ({
     [setText, text]
   );
 
+  const handlePasteImage = useCallback(
+    (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const clipboardData = event.clipboardData;
+
+      if (!clipboardData) {
+        return;
+      }
+
+      const pastedText = clipboardData.getData("text/plain");
+
+      if (pastedText && pastedText.length >= 50) {
+        return;
+      }
+
+      const files = Array.from(clipboardData.items ?? [])
+        .map((item) => (item.type.includes("image") ? item.getAsFile() : null))
+        .filter((file): file is File => Boolean(file));
+
+      if (!files.length) {
+        return;
+      }
+
+      if (!activeUsername) {
+        return;
+      }
+
+      const token = getAccessToken(activeUsername);
+
+      if (!token) {
+        error(i18next.t("editor-toolbar.image-error-cache"));
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      void (async () => {
+        for (const file of files) {
+          try {
+            const { url } = await uploadImage(file, token);
+            setImage(url);
+            setImageName(file.name);
+            break;
+          } catch (err) {
+            if (axios.isAxiosError(err) && err.response?.status === 413) {
+              error(i18next.t("editor-toolbar.image-error-size"));
+            } else {
+              error(i18next.t("editor-toolbar.image-error"));
+            }
+            break;
+          }
+        }
+      })();
+    },
+    [activeUsername, setImage, setImageName]
+  );
+
   return (
     <div ref={rootRef} className="wave-form relative flex items-start px-4 pt-4 w-full">
       {!hideAvatar && activeUser?.username && (
@@ -177,6 +238,7 @@ const WaveFormComponent = ({
           clearSelectedImage={clearImage}
           placeholder={placeholder}
           characterLimit={characterLimit}
+          onPasteImage={handlePasteImage}
         />
         {activeUser && (
           <AvailableCredits username={activeUser.username} operation="comment_operation" />
