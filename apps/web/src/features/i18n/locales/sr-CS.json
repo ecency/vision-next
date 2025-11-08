@@ -2181,6 +2181,46 @@
       "contact-news": "Novosti na Hive",
       "contact-email": "Pošaljite nam e-mail"
     },
+    "mobile": {
+      "page-title": "Ecency Mobile",
+      "hero-title": "Your community, anywhere with <span>Ecency Mobile</span>",
+      "hero-subtitle": "Stay close to Hive communities, respond to conversations and manage rewards wherever you are.",
+      "hero-footnote": "Available for iOS, iPadOS and Android devices.",
+      "cta-ios": "Download on the App Store",
+      "cta-android": "Get it on Google Play",
+      "benefits-title": "Why you'll love Ecency mobile",
+      "benefits": {
+        "communities-title": "Communities in your pocket",
+        "communities-description": "Follow feeds, explore trending tags and stay close to the people and topics you care about.",
+        "create-title": "Publish from anywhere",
+        "create-description": "Draft posts, share updates and reply to comments with the same powerful editor you use on desktop.",
+        "wallet-title": "Wallet at a glance",
+        "wallet-description": "Check balances, claim rewards and manage Hive Power or HBD with just a couple of taps.",
+        "notifications-title": "Never miss a mention",
+        "notifications-description": "Push notifications highlight new followers, mentions and rewards so you can celebrate on time."
+      },
+      "features-title": "Designed for creators and communities",
+      "features": {
+        "interface-title": "Made for mobile",
+        "interface-description": "Enjoy native navigation, gesture-friendly controls and layouts that feel right at home on phones and tablets.",
+        "themes-title": "Day and night themes",
+        "themes-description": "Switch between light and dark themes to stay comfortable while reading and writing at any hour.",
+        "opensource-title": "Open and community driven",
+        "opensource-description": "Contribute on GitHub, help with translations or share feedback directly from the app."
+      },
+      "screenshots-title": "See Ecency mobile in action",
+      "screenshots-description": "Clean views for reading, publishing and managing your profile across phones and tablets.",
+      "screenshots-tablet-alt": "Ecency mobile interface displayed on a tablet",
+      "screenshots-phone-alt": "Ecency mobile feed view on a phone",
+      "screenshots-desktop-alt": "Ecency mobile screen next to the desktop interface",
+      "screenshots-dark-alt": "Ecency mobile app in dark theme",
+      "resources-title": "Helpful resources",
+      "resources": {
+        "faq": "Visit the FAQ for quick answers",
+        "blog": "Read the latest mobile release notes",
+        "github": "Explore the open-source mobile codebase"
+      }
+    },
     "faq": {
       "about-ecency": "About Ecency",
       "working": "Working of Ecency",
