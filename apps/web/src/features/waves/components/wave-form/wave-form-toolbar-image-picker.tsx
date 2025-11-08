@@ -72,7 +72,15 @@ export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
         e.preventDefault();
       }
 
-      files.forEach((file) => upload(file));
+      void (async () => {
+        for (const file of files) {
+          try {
+            await upload(file);
+          } catch {
+            /* handled in upload */
+          }
+        }
+      })();
 
       // reset input
       e.target.value = "";

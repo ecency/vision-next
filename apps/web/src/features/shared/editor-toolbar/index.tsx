@@ -205,11 +205,15 @@ export function EditorToolbar({
       e.preventDefault();
     }
 
-    files.forEach((file) =>
-      upload(file).catch(() => {
-        /* handled in mutation */
-      })
-    );
+    void (async () => {
+      for (const file of files) {
+        try {
+          await upload(file);
+        } catch {
+          /* handled in mutation */
+        }
+      }
+    })();
 
     // reset input
     e.target.value = "";
@@ -258,7 +262,15 @@ export function EditorToolbar({
       .filter((i) => i);
 
     if (files.length > 0) {
-      files.forEach((file) => upload(file));
+      void (async () => {
+        for (const file of files) {
+          try {
+            await upload(file);
+          } catch {
+            /* handled in mutation */
+          }
+        }
+      })();
     }
   };
 
@@ -283,9 +295,19 @@ export function EditorToolbar({
       e.stopPropagation();
       e.preventDefault();
 
-      files.forEach((file) => {
-        if (file) upload(file).then();
-      });
+      void (async () => {
+        for (const file of files) {
+          if (!file) {
+            continue;
+          }
+
+          try {
+            await upload(file);
+          } catch {
+            /* handled in mutation */
+          }
+        }
+      })();
     }
   };
 
