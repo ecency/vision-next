@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "Non dovrebbe contenere doppi Hyphens",
     "username-exists": "Questo nome utente è già registrato. Per favore, prova un altro",
     "username-starts-number": "Non dovrebbe iniziare con i Numeri",
+    "username-required": "Nome utente obbligatorio",
     "username-in-use": "Questo nome utente esiste già. Impostarne un altro",
     "referral-invalid": "Questa segnalazione non è valida. Si prega di provarne un'altra",
     "referral-min-length-error": "La lunghezza della segnalazione deve essere di almeno 3 caratteri",

@@ -323,6 +323,7 @@
     "username-contains-double-hyphens": "Nie powinien zawierać podwójnych hyfenów",
     "username-exists": "Ta nazwa użytkownika jest już zarejestrowana. Proszę spróbować innej.",
     "username-starts-number": "Nie powinno zaczynać się od numerów",
+    "username-required": "Nazwa użytkownika jest wymagana",
     "username-in-use": "Ta nazwa użytkownika już istnieje. Ustaw inną",
     "referral-invalid": "Ta rekomendacja jest nieprawidłowa. Proszę spróbować innej.",
     "referral-min-length-error": "Długość rekomendacji powinna składać się z co najmniej 3 znaków",
