@@ -2181,6 +2181,46 @@
       "contact-news": "ハイブのニュース",
       "contact-email": "Eメールを送信"
     },
+    "mobile": {
+      "page-title": "Ecency Mobile",
+      "hero-title": "あなたのコミュニティ、 <span>Ecency Mobile</span>",
+      "hero-subtitle": "Hiveのコミュニティに近づき、会話に反応し、どこにいても報酬を管理しましょう。",
+      "hero-footnote": "iOS、iPadOS、Androidデバイスで利用できます。",
+      "cta-ios": "App Storeでダウンロード",
+      "cta-android": "Google Playで入手",
+      "benefits-title": "Ecency mobile が好きな理由",
+      "benefits": {
+        "communities-title": "ポケットにあるコミュニティ",
+        "communities-description": "フィードをフォローしたり、トレンドタグを探したり、気になる人やトピックに近づいたりしましょう。",
+        "create-title": "どこからでも公開",
+        "create-description": "ドラフト投稿、アップデートを共有し、デスクトップで使用するのと同じ強力なエディタでコメントに返信します。",
+        "wallet-title": "ウォレットを一目で確認する",
+        "wallet-description": "残高を確認し、報酬を請求し、わずか数タップでハイブパワーまたはHBDを管理します。",
+        "notifications-title": "メンションをお見逃しなく",
+        "notifications-description": "プッシュ通知は新しいフォロワー、メンション、報酬を強調表示するので、時間通りに祝うことができます。"
+      },
+      "features-title": "クリエイターやコミュニティ向けにデザインされた",
+      "features": {
+        "interface-title": "モバイル用",
+        "interface-description": "ネイティブのナビゲーション、ジェスチャーに優しいコントロール、そして携帯電話やタブレット上の自宅で感じるレイアウトをお楽しみください。",
+        "themes-title": "昼と夜のテーマ",
+        "themes-description": "明るいテーマと暗いテーマを切り替えて、いつでも読み書きしながら快適に過ごせます。",
+        "opensource-title": "オープンでコミュニティ主導型の",
+        "opensource-description": "GitHubで貢献したり、翻訳を手伝ったり、アプリから直接フィードバックを共有したりできます。"
+      },
+      "screenshots-title": "Ecency mobile in actionを見る",
+      "screenshots-description": "スマートフォンやタブレット間でプロフィールを閲覧、公開、管理するためのビューをクリーンにします。",
+      "screenshots-tablet-alt": "タブレット上に表示されるモバイルインターフェイス",
+      "screenshots-phone-alt": "電話でのモバイルフィードの表示",
+      "screenshots-desktop-alt": "デスクトップインターフェイスの隣にあるモバイル画面",
+      "screenshots-dark-alt": "ダークテーマのEcency mobile app",
+      "resources-title": "役に立つリソース",
+      "resources": {
+        "faq": "FAQをご覧ください。",
+        "blog": "最新のモバイルリリースノートを読む",
+        "github": "オープンソースのモバイルコードベースを探索する"
+      }
+    },
     "faq": {
       "about-ecency": "Ecency について",
       "working": "異性の作業",
