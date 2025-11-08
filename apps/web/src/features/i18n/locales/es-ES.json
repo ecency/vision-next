@@ -2181,6 +2181,46 @@
       "contact-news": "Noticias en Hive",
       "contact-email": "Envíanos un correo"
     },
+    "mobile": {
+      "page-title": "Ecencia móvil",
+      "hero-title": "Su comunidad, en cualquier lugar con <span>Ecency Mobile</span>",
+      "hero-subtitle": "Manténgase cerca de las comunidades de las colmenas, responda a las conversaciones y gestione las recompensas dondequiera que estés.",
+      "hero-footnote": "Disponible para dispositivos iOS, iPadOS y Android.",
+      "cta-ios": "Descargar en la App Store",
+      "cta-android": "Consíguelo en Google Play",
+      "benefits-title": "Por qué te encanta la emoción móvil",
+      "benefits": {
+        "communities-title": "Comunidades en tu bolsillo",
+        "communities-description": "Sigue los feeds, explora las tendencias y mantente cerca de las personas y temas que te interesan.",
+        "create-title": "Publicar desde cualquier lugar",
+        "create-description": "Crea mensajes, comparte actualizaciones y responde a los comentarios con el mismo poderoso editor que usas en el ordenador.",
+        "wallet-title": "Monedero de un vistazo",
+        "wallet-description": "Comprueba los balances, reclama recompensas y administra Hive Power o HBD con solo un par de toques.",
+        "notifications-title": "Nunca te pierdas una mención",
+        "notifications-description": "Las notificaciones push resaltan nuevos seguidores, menciones y recompensas para que puedas celebrar a tiempo."
+      },
+      "features-title": "Diseñado para creadores y comunidades",
+      "features": {
+        "interface-title": "Hecho para móvil",
+        "interface-description": "Disfruta de la navegación nativa, controles de gestos y diseños que te sentirás como en casa en teléfonos y tabletas.",
+        "themes-title": "Temas de día y noche",
+        "themes-description": "Cambie entre temas claros y oscuros para mantenerse cómodo mientras lee y escribe a cualquier hora.",
+        "opensource-title": "Abrir e impulsar la comunidad",
+        "opensource-description": "Contribuye en GitHub, ayuda con traducciones o comparte comentarios directamente desde la aplicación."
+      },
+      "screenshots-title": "Ver Ecencia móvil en acción",
+      "screenshots-description": "Limpia las vistas para leer, publicar y administrar tu perfil a través de teléfonos y tabletas.",
+      "screenshots-tablet-alt": "Interfaz móvil Ecencia mostrada en una tableta",
+      "screenshots-phone-alt": "Ecencia vista de feed móvil en un teléfono",
+      "screenshots-desktop-alt": "Ecencia de pantalla móvil junto a la interfaz de escritorio",
+      "screenshots-dark-alt": "Aplicación móvil Ecencia en tema oscuro",
+      "resources-title": "Recursos útiles",
+      "resources": {
+        "faq": "Visita el FAQ para obtener respuestas rápidas",
+        "blog": "Leer las últimas notas de la versión móvil",
+        "github": "Explora la base de código móvil de código abierto"
+      }
+    },
     "faq": {
       "about-ecency": "Acerca de Ecency",
       "working": "Trabajo de Ecency",
