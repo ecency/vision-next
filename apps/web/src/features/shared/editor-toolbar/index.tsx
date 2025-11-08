@@ -97,6 +97,7 @@ export function EditorToolbar({
   const headers = useMemo(() => Array.from(new Array(3).keys()), []);
 
   const uploadImage = useUploadPostImage();
+  const uploadQueueRef = useRef<Promise<void | undefined>>(Promise.resolve());
   const isMounted = useMountedState();
   useEffect(() => {
     activeUserRef.current = activeUser;
@@ -205,31 +206,27 @@ export function EditorToolbar({
       e.preventDefault();
     }
 
-    void (async () => {
-      for (const file of files) {
-        try {
-          await upload(file);
-        } catch {
-          /* handled in mutation */
-        }
-      }
-    })();
+    files.forEach((file) => enqueueUpload(file));
 
     // reset input
     e.target.value = "";
   };
 
-  const upload = async (file: File) => {
+  const enqueueUpload = (file: File) => {
     const tempImgTag = `![Uploading ${file.name} #${Math.floor(Math.random() * 99)}]()\n\n`;
     insertText(tempImgTag);
 
-    try {
-      const { url } = await uploadImage.mutateAsync({ file });
-      const imgTag = url.length > 0 && `![](${url})\n\n`;
-      imgTag && replaceText(tempImgTag, imgTag);
-    } catch {
-      replaceText(tempImgTag, "");
-    }
+    uploadQueueRef.current = uploadQueueRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        try {
+          const { url } = await uploadImage.mutateAsync({ file });
+          const imgTag = url.length > 0 && `![](${url})\n\n`;
+          imgTag ? replaceText(tempImgTag, imgTag) : replaceText(tempImgTag, "");
+        } catch {
+          replaceText(tempImgTag, "");
+        }
+      });
   };
 
   const checkFile = (filename: string) =>
@@ -262,15 +259,7 @@ export function EditorToolbar({
       .filter((i) => i);
 
     if (files.length > 0) {
-      void (async () => {
-        for (const file of files) {
-          try {
-            await upload(file);
-          } catch {
-            /* handled in mutation */
-          }
-        }
-      })();
+      files.forEach((file) => enqueueUpload(file));
     }
   };
 
@@ -295,19 +284,13 @@ export function EditorToolbar({
       e.stopPropagation();
       e.preventDefault();
 
-      void (async () => {
-        for (const file of files) {
-          if (!file) {
-            continue;
-          }
-
-          try {
-            await upload(file);
-          } catch {
-            /* handled in mutation */
-          }
+      files.forEach((file) => {
+        if (!file) {
+          return;
         }
-      })();
+
+        enqueueUpload(file);
+      });
     }
   };
 
