@@ -40,7 +40,7 @@ export function ManageKey({ keyName }: Props) {
 
   return (
     <>
-      <div className="bg-gray-100 border border-[--border-color] rounded-lg flex flex-col">
+      <div className="bg-gray-100 dark:bg-dark-200 border border-[--border-color] rounded-lg flex flex-col text-gray-900 dark:text-white">
         <div className="text-xs opacity-50 uppercase p-2">
           {i18next.t(`manage-authorities.${keyName}`)}
         </div>

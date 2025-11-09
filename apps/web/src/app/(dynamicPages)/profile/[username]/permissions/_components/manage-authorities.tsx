@@ -44,7 +44,7 @@ export function ManageAuthorities() {
   return (
     <>
       {(accountData?.postingsAuths?.length ?? 0) > 0 && (
-        <div className="rounded-xl bg-white bg-opacity-75">
+        <div className="rounded-xl bg-white/80 dark:bg-dark-200/90 text-gray-900 dark:text-white">
           <div className="p-4 text-sm md:text-lg font-bold">
             {i18next.t("permissions.sessions.title")}
           </div>
