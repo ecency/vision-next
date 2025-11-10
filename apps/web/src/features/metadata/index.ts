@@ -139,7 +139,8 @@ export namespace PagesMetadataGenerator {
     if (name === "draft") return buildForSubmit();
     if (name === "submit") return buildForSubmit();
     if (name === "faq") return buildForFaq();
-    if (["market-swap", "market-limit", "market-advanced"].includes(name)) return buildForMarket();
+    if (["market-swap", "market-limit", "market-advanced"].includes(name))
+      return buildForMarket();
     if (name === "mobile") return buildForMobile();
     if (name === "onboard-friend") return buildForOnboardFriend();
     if (name === "perks") return buildForPerks();

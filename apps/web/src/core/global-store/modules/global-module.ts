@@ -4,7 +4,9 @@ import * as ls from "@/utils/local-storage";
 import { success } from "@/features/shared";
 import i18next from "i18next";
 import { getCurrencyRate } from "@/api/misc";
-import { currencySymbol, isKeychainInAppBrowser, runWithRetries } from "@/utils";
+import { currencySymbol } from "@/utils/currency-symbol";
+import { isKeychainInAppBrowser } from "@/utils/keychain";
+import { runWithRetries } from "@/utils/run-with-retries";
 import type { AppWindow } from "@/types/app-window";
 
 export function createGlobalState() {

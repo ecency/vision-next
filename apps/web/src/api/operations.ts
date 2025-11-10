@@ -1,4 +1,3 @@
-import hs from "hivesigner";
 import * as keychain from "@/utils/keychain";
 import {
   AccountUpdateOperation,
@@ -81,44 +80,140 @@ export const formatError = (err: any): [string, ErrorTypes] => {
   return ["", ErrorTypes.COMMON];
 };
 
-export const broadcastPostingJSON = (
+let hasBoundWindowFetch = false;
+
+const ensureBoundWindowFetch = () => {
+  if (hasBoundWindowFetch) {
+    return;
+  }
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const fetchFn = window.fetch;
+  if (typeof fetchFn !== "function") {
+    return;
+  }
+
+  (window as any).fetch = fetchFn.bind(window);
+  hasBoundWindowFetch = true;
+};
+
+type HiveSignerModule = typeof import("hivesigner");
+
+let hiveSignerModulePromise: Promise<HiveSignerModule> | null = null;
+
+const getHiveSignerModule = (): Promise<HiveSignerModule> => {
+  if (!hiveSignerModulePromise) {
+    ensureBoundWindowFetch();
+    hiveSignerModulePromise = import("hivesigner");
+  } else {
+    ensureBoundWindowFetch();
+  }
+
+  return hiveSignerModulePromise;
+};
+
+const getCustomJsonHotSignRedirect = (username: string, id: string): string => {
+  if (id === "ssc-mainnet-hive") {
+    return `@${username}/wallet/engine`;
+  }
+
+  if (id.startsWith("ecency_")) {
+    return `@${username}/points`;
+  }
+
+  return `@${username}/wallet`;
+};
+
+const broadcastCustomJSON = (
   username: string,
   id: string,
-  json: {}
+  json: {},
+  authority: "posting" | "active",
+  keychainLabel: string = "Custom json"
 ): Promise<TransactionConfirmation> => {
-  // With posting private key
-  const postingKey = getPostingKey(username);
+  const payload = JSON.stringify(json);
   const operation: CustomJsonOperation[1] = {
     id,
-    required_auths: [],
-    required_posting_auths: [username],
-    json: JSON.stringify(json)
+    required_auths: authority === "active" ? [username] : [],
+    required_posting_auths: authority === "posting" ? [username] : [],
+    json: payload
   };
-  if (postingKey) {
-    const privateKey = PrivateKey.fromString(postingKey);
-    return hiveClient.broadcast.json(operation, privateKey);
+
+  if (authority === "posting") {
+    const postingKey = getPostingKey(username);
+    if (postingKey) {
+      const privateKey = PrivateKey.fromString(postingKey);
+      return hiveClient.broadcast.json(operation, privateKey);
+    }
   }
 
   const customJsonOperation: Operation = ["custom_json", operation];
 
-  return sendWithHiveAuthOrHiveSigner(username, [customJsonOperation], "posting", () => {
+  ensureBoundWindowFetch();
+
+  return sendWithHiveAuthOrHiveSigner(username, [customJsonOperation], authority, async () => {
     const loginType = getLoginType(username);
     if (loginType === "keychain") {
       return keychain
-        .customJson(username, id, "Posting", JSON.stringify(json), "Custom json")
+        .customJson(
+          username,
+          id,
+          authority === "active" ? "Active" : "Posting",
+          payload,
+          keychainLabel
+        )
         .then((r: any) => r.result);
     }
 
     const token = getAccessToken(username);
-    return token
-      ? new hs.Client({
-          accessToken: token
-        })
-          .customJson([], [username], id, JSON.stringify(json))
-          .then((r: any) => r.result)
-      : Promise.resolve(0 as unknown as TransactionConfirmation);
+    if (token) {
+      if (authority === "posting") {
+        const hiveSigner = await getHiveSignerModule();
+
+        return new hiveSigner.Client({ accessToken: token })
+          .customJson(
+            [],
+            [username],
+            id,
+            payload
+          )
+          .then((r: any) => r.result);
+      }
+
+      const params = {
+        authority,
+        required_auths: JSON.stringify([username]),
+        required_posting_auths: "[]",
+        id,
+        json: payload,
+        display_msg: keychainLabel
+      };
+
+      hotSign("custom-json", params, getCustomJsonHotSignRedirect(username, id));
+
+      return Promise.resolve(0 as unknown as TransactionConfirmation);
+    }
+
+    return Promise.resolve(0 as unknown as TransactionConfirmation);
   });
 };
+
+export const broadcastPostingJSON = (
+  username: string,
+  id: string,
+  json: {}
+): Promise<TransactionConfirmation> => broadcastCustomJSON(username, id, json, "posting");
+
+export const broadcastActiveJSON = (
+  username: string,
+  id: string,
+  json: {},
+  keychainLabel: string = "Custom json"
+): Promise<TransactionConfirmation> =>
+  broadcastCustomJSON(username, id, json, "active", keychainLabel);
 
 export const broadcastPostingOperations = (
   username: string,
@@ -132,20 +227,24 @@ export const broadcastPostingOperations = (
     return hiveClient.broadcast.sendOperations(operations, privateKey);
   }
 
-  return sendWithHiveAuthOrHiveSigner(username, operations, "posting", () => {
+  return sendWithHiveAuthOrHiveSigner(username, operations, "posting", async () => {
     const loginType = getLoginType(username);
     if (loginType === "keychain") {
       return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result);
     }
 
     const token = getAccessToken(username);
-    return token
-      ? new hs.Client({
-          accessToken: token
-        })
-          .broadcast(operations)
-          .then((r: any) => r.result)
-      : Promise.resolve(0 as unknown as TransactionConfirmation);
+    if (token) {
+      const hiveSigner = await getHiveSignerModule();
+
+      return new hiveSigner.Client({
+        accessToken: token
+      })
+        .broadcast(operations)
+        .then((r: any) => r.result);
+    }
+
+    return Promise.resolve(0 as unknown as TransactionConfirmation);
   });
 };
 

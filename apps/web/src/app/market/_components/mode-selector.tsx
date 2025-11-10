@@ -39,9 +39,7 @@ export const ModeSelector = ({ mode, onSelect, className }: Props) => {
             break;
         }
       }}
-      selected={[MarketMode.SWAP, MarketMode.LIMIT, MarketMode.ADVANCED].findIndex(
-        (i) => i === rawMode
-      )}
+      selected={[MarketMode.SWAP, MarketMode.LIMIT, MarketMode.ADVANCED].findIndex((i) => i === rawMode)}
     />
   );
 };

@@ -13,7 +13,6 @@ import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
 import { DAY_CHANGE_DEFAULT } from "./_advanced-mode/consts/day-change.const";
 import { DayChange } from "./_advanced-mode/types/day-change.type";
 import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { MarketMode } from "@/app/market/_enums/market-mode";
 import { useRouter } from "next/navigation";
 import "../index.scss";
@@ -21,8 +20,6 @@ import { Feedback, Navbar } from "@/features/shared";
 
 export function MarketAdvancedPage() {
   const router = useRouter();
-
-  const activeUser = useGlobalStore((s) => s.activeUser);
 
   // AMM – advanced mode market
   // AMML – advanced mode market layout
