@@ -713,6 +713,7 @@
     "pending-orders": "Ausstehende Aufträge",
     "type": "Typ",
     "mode-limit": "Limit",
+    "mode-engine": "Motor",
     "mode-swap": "Tausch",
     "mode-advanced": "Erweitert",
     "action": "Aktion",
@@ -773,7 +774,48 @@
         "amount": "Betrag",
         "volume": "Volumen",
         "time": "Zeit"
+      },
+      "variant-hive": "HBD",
+      "variant-engine": "Engine Token"
+    },
+    "limit": {
+      "layer-core": "Kern · Ebene 1",
+      "layer-engine": "Maschine · Ebene 2",
+      "token-selector": {
+        "label": "Handelspaar",
+        "title": "Wählen Sie ein Handelspaar",
+        "search-placeholder": "Such-Tokens",
+        "core-description": "Handel mit dem HBD/HIVE-Kernmarkt.",
+        "engine-description": "Schicht-2 Token-Handel gegen SWAP.HIVE.",
+        "no-results": "Keine Token entsprechen Ihrer Suche."
       }
+    },
+    "engine": {
+      "title": "Hive-Motor-Markt",
+      "description": "Trading Hive-Engine Tokens mit Limit Orders direkt von deinem Hive-Konto.",
+      "token": "Token",
+      "volume": "Volt: {{value}} SWAP.HIVE",
+      "last-price": "Letzter Preis",
+      "price-change": "24h ändern",
+      "volume-label": "24h Lautstärke ({{symbol}})",
+      "bids": "Bestellungen kaufen",
+      "asks": "Aufträge verkaufen",
+      "price": "Preis",
+      "amount": "Betrag ({{symbol}})",
+      "total": "Gesamt",
+      "recent-trades": "Letzte Trades",
+      "time": "Zeit",
+      "type": "Typ",
+      "no-open-orders": "Sie haben noch keine offenen Bestellungen für diesen Markt.",
+      "use-best": "Besten Preis verwenden",
+      "use-max": "Maximal verwenden",
+      "invalid-order": "Geben Sie einen gültigen Betrag und einen Preis größer Null ein.",
+      "login-required": "Bitte melde dich an, um Hive-Engine Token zu handeln.",
+      "order-placed": "Bestellung aufgegeben",
+      "order-cancelled": "Bestellung storniert",
+      "login-to-trade": "Melden Sie sich an, um Ihre Hive-Engine Geschäfte zu verwalten.",
+      "deposit": "HIV einzahlen",
+      "deposit-instructions": "Senden Sie HIVE an @honey-swap mit Memo {{memo}} um SWAP.HIV zu erhalten."
     }
   },
   "list-style": {
