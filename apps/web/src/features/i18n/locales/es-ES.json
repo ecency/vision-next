@@ -713,6 +713,7 @@
     "pending-orders": "Órdenes Pendientes",
     "type": "Tipo",
     "mode-limit": "Límite",
+    "mode-engine": "Motor",
     "mode-swap": "Intercambiar",
     "mode-advanced": "Avanzado",
     "action": "Acción",
@@ -773,7 +774,48 @@
         "amount": "Cantidad",
         "volume": "Volumen",
         "time": "Hora"
+      },
+      "variant-hive": "VIHE/HBD",
+      "variant-engine": "Tokens de motor"
+    },
+    "limit": {
+      "layer-core": "Núcleo · Capa 1",
+      "layer-engine": "Motor · Capa 2",
+      "token-selector": {
+        "label": "Par de comercio",
+        "title": "Elegir un par de operaciones",
+        "search-placeholder": "Buscar tokens",
+        "core-description": "Opere con el mercado central de HBD/VIHE.",
+        "engine-description": "El token Layer-2 intercambia contra SWAP.HIVE.",
+        "no-results": "Ningún tokens coincide con tu búsqueda."
       }
+    },
+    "engine": {
+      "title": "Mercado de Hive Engine",
+      "description": "Opera con tokens de Hive Engine con órdenes límite directamente desde tu cuenta de Hive.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Último precio",
+      "price-change": "cambio 24h",
+      "volume-label": "Volumen 24h ({{symbol}})",
+      "bids": "Pedidos de compra",
+      "asks": "Vender pedidos",
+      "price": "Precio",
+      "amount": "Cantidad ({{symbol}})",
+      "total": "Total",
+      "recent-trades": "Operaciones recientes",
+      "time": "Hora",
+      "type": "Tipo",
+      "no-open-orders": "Aún no tiene órdenes abiertas para este mercado.",
+      "use-best": "Usar mejor precio",
+      "use-max": "Usar máximo",
+      "invalid-order": "Introduzca una cantidad y precio válidos mayores que cero.",
+      "login-required": "Por favor, inicia sesión para intercambiar tokens de Hive Engine.",
+      "order-placed": "Pedido realizado",
+      "order-cancelled": "Pedido cancelado",
+      "login-to-trade": "Inicia sesión para administrar tus intercambios con Hive Engine.",
+      "deposit": "Depositar VIHE",
+      "deposit-instructions": "Envía VIHE a @honey-swap con el memo {{memo}} para recibir SWAP.HIVE."
     }
   },
   "list-style": {
