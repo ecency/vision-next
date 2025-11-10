@@ -713,6 +713,7 @@
     "pending-orders": "Ожидающие заказы",
     "type": "Тип",
     "mode-limit": "Лимит",
+    "mode-engine": "Двигатель",
     "mode-swap": "Поменять",
     "mode-advanced": "Дополнительно",
     "action": "Действие",
@@ -773,7 +774,48 @@
         "amount": "Сумма",
         "volume": "Объем",
         "time": "Время"
+      },
+      "variant-hive": "ВИЧ/HBD",
+      "variant-engine": "Жетоны двигателя"
+    },
+    "limit": {
+      "layer-core": "Ядро · Layer 1",
+      "layer-engine": "Движок · Слой 2",
+      "token-selector": {
+        "label": "Торговая пара",
+        "title": "Выберите торговую пару",
+        "search-placeholder": "Поиск токенов",
+        "core-description": "Торгуйте основным рынком HBD/HIVE.",
+        "engine-description": "Токен уровня 2 торгует против SWAP.HIVE.",
+        "no-results": "Нет токенов, соответствующих вашему запросу."
       }
+    },
+    "engine": {
+      "title": "Рынок Hive Engine",
+      "description": "Торгуйте токенами Hive Engine с лимитными ордерами прямо из вашего счета Hive account.",
+      "token": "Токен",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Последняя цена",
+      "price-change": "Смена на 24 часа",
+      "volume-label": "Громкость 24 часа ({{symbol}})",
+      "bids": "Купить заказы",
+      "asks": "Заказы на продажу",
+      "price": "Цена",
+      "amount": "Сумма ({{symbol}})",
+      "total": "Итого",
+      "recent-trades": "Недавние сделки",
+      "time": "Время",
+      "type": "Тип",
+      "no-open-orders": "У вас пока нет открытых ордеров для этого рынка.",
+      "use-best": "Использовать лучшую цену",
+      "use-max": "Использовать макс.",
+      "invalid-order": "Введите правильную сумму и цену больше нуля.",
+      "login-required": "Пожалуйста, войдите в систему для торговли токенами Hive Engine.",
+      "order-placed": "Заказ размещен",
+      "order-cancelled": "Заказ отменен",
+      "login-to-trade": "Войдите, чтобы управлять сделками с Hive Engine.",
+      "deposit": "Депозит ВИЧ",
+      "deposit-instructions": "Отправьте ВИЧ на @honey-swap с помощью memo {{memo}} для получения SWAP.HIVE."
     }
   },
   "list-style": {
