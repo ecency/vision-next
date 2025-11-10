@@ -713,6 +713,7 @@
     "pending-orders": "Ordini in attesa",
     "type": "Digita",
     "mode-limit": "Limita",
+    "mode-engine": "Motore",
     "mode-swap": "Cambia",
     "mode-advanced": "Avanzate",
     "action": "Azioni",
@@ -773,7 +774,48 @@
         "amount": "Importo",
         "volume": "Volume",
         "time": "Ora"
+      },
+      "variant-hive": "HIVE/HBD",
+      "variant-engine": "Token del motore"
+    },
+    "limit": {
+      "layer-core": "Core · Livello 1",
+      "layer-engine": "Motore · Livello 2",
+      "token-selector": {
+        "label": "Coppia di trading",
+        "title": "Scegli una coppia di trading",
+        "search-placeholder": "Cerca token",
+        "core-description": "Opera il principale mercato HBD/HIV.",
+        "engine-description": "Layer-2 token trade contro SWAP.HIVE.",
+        "no-results": "Nessun token corrisponde alla tua ricerca."
       }
+    },
+    "engine": {
+      "title": "Mercato dell'alveare motore",
+      "description": "Trade Hive Engine token con ordini limite direttamente dal tuo account Hive.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Ultimo prezzo",
+      "price-change": "24h cambiamento",
+      "volume-label": "Volume 24h ({{symbol}})",
+      "bids": "Compra ordini",
+      "asks": "Ordini di vendita",
+      "price": "Prezzo",
+      "amount": "Importo ({{symbol}})",
+      "total": "Totale",
+      "recent-trades": "Operazioni recenti",
+      "time": "Tempo",
+      "type": "Tipo",
+      "no-open-orders": "Non hai ancora ordini aperti per questo mercato.",
+      "use-best": "Usa il miglior prezzo",
+      "use-max": "Usa max",
+      "invalid-order": "Inserisci un importo valido e un prezzo maggiore di zero.",
+      "login-required": "Per favore accedi per scambiare token Hive Engine.",
+      "order-placed": "Ordine effettuato",
+      "order-cancelled": "Ordine annullato",
+      "login-to-trade": "Accedi per gestire le tue operazioni di Hive Engine.",
+      "deposit": "Deposito HIVE",
+      "deposit-instructions": "Invia HIVE a @honey-swap con memo {{memo}} per ricevere SWAP.HIVE."
     }
   },
   "list-style": {
