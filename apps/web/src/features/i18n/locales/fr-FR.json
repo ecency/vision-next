@@ -713,6 +713,7 @@
     "pending-orders": "Commandes en attente",
     "type": "Type de texte",
     "mode-limit": "Limite",
+    "mode-engine": "Moteur",
     "mode-swap": "Permuter",
     "mode-advanced": "Avancé",
     "action": "Action",
@@ -773,7 +774,48 @@
         "amount": "Montant",
         "volume": "Volume",
         "time": "Date et heure"
+      },
+      "variant-hive": "VIH/HBD",
+      "variant-engine": "Jetons de moteur"
+    },
+    "limit": {
+      "layer-core": "Noyau · Layer 1",
+      "layer-engine": "Moteur · Couche 2",
+      "token-selector": {
+        "label": "Paire de trading",
+        "title": "Choisissez une paire de trading",
+        "search-placeholder": "Rechercher des jetons",
+        "core-description": "Négociez le marché principal de HBD/HIVE.",
+        "engine-description": "Le jeton de la couche 2 se négocie contre SWAP.HIE.",
+        "no-results": "Aucun jeton ne correspond à votre recherche."
       }
+    },
+    "engine": {
+      "title": "Marché des moteurs Hive",
+      "description": "Échangez des jetons Hive Engine avec des ordres limités directement depuis votre compte Hive.",
+      "token": "Jeton",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Dernier prix",
+      "price-change": "Changement de 24h",
+      "volume-label": "Volume 24h ({{symbol}})",
+      "bids": "Commandes d'achat",
+      "asks": "Commandes de vente",
+      "price": "Prix",
+      "amount": "Montant ({{symbol}})",
+      "total": "Total",
+      "recent-trades": "Échanges récents",
+      "time": "Date et heure",
+      "type": "Type de texte",
+      "no-open-orders": "Vous n'avez pas encore d'ordres ouverts pour ce marché.",
+      "use-best": "Utiliser le meilleur prix",
+      "use-max": "Utiliser le max",
+      "invalid-order": "Entrez un montant valide et un prix supérieur à zéro.",
+      "login-required": "Veuillez vous connecter pour échanger des jetons de moteur Hiv.",
+      "order-placed": "Commande passée",
+      "order-cancelled": "Commande annulée",
+      "login-to-trade": "Connectez-vous pour gérer vos échanges avec Hive Engine.",
+      "deposit": "Déposer en HAUT",
+      "deposit-instructions": "Envoyez HIVE à @honey-swap avec un mémo {{memo}} pour recevoir SWAP.HIVE."
     }
   },
   "list-style": {
