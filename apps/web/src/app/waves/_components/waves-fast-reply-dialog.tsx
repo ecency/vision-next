@@ -30,7 +30,10 @@ export function WavesFastReplyDialog({ show, onHide, entry }: Props) {
       <WaveForm
         entry={undefined}
         replySource={entry}
-        onSuccess={() => router.push(`/waves/${entry?.author}/${entry?.permlink}`)}
+        onSuccess={() => {
+          onHide();
+          router.refresh();
+        }}
       />
       {entry &&
         <div className="flex flex-col gap-4">
