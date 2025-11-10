@@ -713,6 +713,7 @@
     "pending-orders": "Zamówienia oczekujące",
     "type": "Typ",
     "mode-limit": "Ograniczenie",
+    "mode-engine": "Silnik",
     "mode-swap": "Zamień",
     "mode-advanced": "Zaawansowane",
     "action": "Akcja",
@@ -773,7 +774,48 @@
         "amount": "Kwota",
         "volume": "Objętość",
         "time": "Czas"
+      },
+      "variant-hive": "HIV/HBD",
+      "variant-engine": "Tokeny silnika"
+    },
+    "limit": {
+      "layer-core": "Rdzeń · Warstwa 1",
+      "layer-engine": "Silnik · Warstwa 2",
+      "token-selector": {
+        "label": "Para handlowa",
+        "title": "Wybierz parę handlową",
+        "search-placeholder": "Szukaj tokenów",
+        "core-description": "Handluj podstawowym rynkiem HBD/HIVE.",
+        "engine-description": "Warstwa-2 transakcje tokenów przeciwko SWAP.HIVE.",
+        "no-results": "Żaden token nie pasuje do Twojego wyszukiwania."
       }
+    },
+    "engine": {
+      "title": "Rynek silników ulowych",
+      "description": "Handluj tokenami silnika Hive z limitami zleceń bezpośrednio z Twojego konta Hive.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Ostatnia cena",
+      "price-change": "24h zmiana",
+      "volume-label": "24h głośność ({{symbol}})",
+      "bids": "Kup zamówienia",
+      "asks": "Sprzedaj zamówienia",
+      "price": "Cena",
+      "amount": "Kwota ({{symbol}})",
+      "total": "Łącznie",
+      "recent-trades": "Ostatnie transakcje",
+      "time": "Czas",
+      "type": "Typ",
+      "no-open-orders": "Nie masz jeszcze otwartych zamówień dla tego rynku.",
+      "use-best": "Użyj najlepszej ceny",
+      "use-max": "Użyj maks.",
+      "invalid-order": "Wprowadź poprawną kwotę i cenę większą niż zero.",
+      "login-required": "Zaloguj się, aby handlować tokenami silnika Hive.",
+      "order-placed": "Zamówienie złożone",
+      "order-cancelled": "Zamówienie anulowane",
+      "login-to-trade": "Zaloguj się, aby zarządzać transakcjami z silnika Hive.",
+      "deposit": "Wpłać HIVE",
+      "deposit-instructions": "Wyślij HIVE do @honey-swap z notatką {{memo}} , aby otrzymać SWAP.HIVE."
     }
   },
   "list-style": {
