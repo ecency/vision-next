@@ -713,6 +713,7 @@
     "pending-orders": "待定订单",
     "type": "类型",
     "mode-limit": "限制",
+    "mode-engine": "引擎",
     "mode-swap": "切换",
     "mode-advanced": "高级版",
     "action": "行 动",
@@ -773,7 +774,48 @@
         "amount": "金额",
         "volume": "音量",
         "time": "时间"
+      },
+      "variant-hive": "艾滋病毒／HBD",
+      "variant-engine": "引擎令牌"
+    },
+    "limit": {
+      "layer-core": "核心·图层 1",
+      "layer-engine": "引擎 · 图层 2",
+      "token-selector": {
+        "label": "交易对",
+        "title": "选择交易对",
+        "search-placeholder": "搜索令牌",
+        "core-description": "贸易六溴/艾滋病毒核心市场。",
+        "engine-description": "Layer-2 令牌交易与 SWAP.HIVE 。",
+        "no-results": "没有令牌匹配您的搜索。"
       }
+    },
+    "engine": {
+      "title": "Hive 引擎市场",
+      "description": "直接从您的 Hive 帐户中交易限制订单的 Hive 引擎令牌。",
+      "token": "令牌",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "最后价格",
+      "price-change": "24 小时变化",
+      "volume-label": "24h volume ({{symbol}})",
+      "bids": "购买订单",
+      "asks": "销售订单",
+      "price": "价格",
+      "amount": "Amount ({{symbol}})",
+      "total": "总计",
+      "recent-trades": "最近交易",
+      "time": "时间",
+      "type": "类型",
+      "no-open-orders": "您还没有此市场的开放订单。",
+      "use-best": "使用最佳价格",
+      "use-max": "使用最大值",
+      "invalid-order": "输入一个大于零的有效金额和价格。",
+      "login-required": "请登录 Hive 引擎令牌。",
+      "order-placed": "已下订单",
+      "order-cancelled": "订单已取消",
+      "login-to-trade": "登录以管理您的 Hive 引擎交易。",
+      "deposit": "存入艾滋病毒值",
+      "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
   },
   "list-style": {
