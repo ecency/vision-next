@@ -713,6 +713,7 @@
     "pending-orders": "保留中の注文",
     "type": "タイプ",
     "mode-limit": "制限",
+    "mode-engine": "エンジン",
     "mode-swap": "入れ替え",
     "mode-advanced": "高度な設定",
     "action": "アクション",
@@ -773,7 +774,48 @@
         "amount": "金額",
         "volume": "音量",
         "time": "時刻"
+      },
+      "variant-hive": "HIVE/HBD",
+      "variant-engine": "エンジントークン"
+    },
+    "limit": {
+      "layer-core": "コア・レイヤー 1",
+      "layer-engine": "エンジン・レイヤー2",
+      "token-selector": {
+        "label": "取引ペア",
+        "title": "取引ペアを選択",
+        "search-placeholder": "トークンを検索",
+        "core-description": "コアHBD/HIVE市場を取引する。",
+        "engine-description": "Layer-2トークンはSWAP.HIVEと取引されます。",
+        "no-results": "検索に一致するトークンがありません。"
       }
+    },
+    "engine": {
+      "title": "Hiveエンジン市場",
+      "description": "Hiveアカウントから直接指値注文でHiveエンジントークンをトレード。",
+      "token": "トークン",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "最終価格",
+      "price-change": "24時間の変更",
+      "volume-label": "24時間音量 ({{symbol}})",
+      "bids": "注文を購入",
+      "asks": "注文を販売",
+      "price": "価格",
+      "amount": "量 ({{symbol}})",
+      "total": "合計",
+      "recent-trades": "最近の取引",
+      "time": "時刻",
+      "type": "タイプ",
+      "no-open-orders": "このマーケットのオープン注文はまだありません。",
+      "use-best": "最高価格を使用する",
+      "use-max": "最大値を使用",
+      "invalid-order": "有効な金額とゼロより大きい価格を入力してください。",
+      "login-required": "Hiveエンジントークンを交換するにはサインインしてください。",
+      "order-placed": "注文済み",
+      "order-cancelled": "注文がキャンセルされました",
+      "login-to-trade": "サインインしてHiveエンジンの取引を管理します。",
+      "deposit": "デポジットHIVE（HIVE）",
+      "deposit-instructions": "SWAP.HIVEを受け取るには、メモ {{memo}} でHIVEを@honey-swapに送信してください。"
     }
   },
   "list-style": {
