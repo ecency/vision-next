@@ -713,6 +713,7 @@
     "pending-orders": "Openstaande bestellingen",
     "type": "Type",
     "mode-limit": "Limiet",
+    "mode-engine": "Motor",
     "mode-swap": "Ruilen",
     "mode-advanced": "Geavanceerd",
     "action": "actie",
@@ -773,7 +774,48 @@
         "amount": "Hoeveelheid",
         "volume": "Volume",
         "time": "Tijd"
+      },
+      "variant-hive": "HIV/HBD",
+      "variant-engine": "Motor tokens"
+    },
+    "limit": {
+      "layer-core": "Kern · Laag 1",
+      "layer-engine": "Motor · Laag 2",
+      "token-selector": {
+        "label": "Trading pair",
+        "title": "Kies een trading paar",
+        "search-placeholder": "Tokens zoeken",
+        "core-description": "Handel in de HBD/HIVE kernmarkt.",
+        "engine-description": "Layer-2 token transacties tegen SWAP.HIVE.",
+        "no-results": "Er komen geen tokens overeen met je zoekopdracht."
       }
+    },
+    "engine": {
+      "title": "Korf machinemarkt",
+      "description": "Trade Hive Engine Tokens met limietorders rechtstreeks vanuit uw Hive account.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Laatste prijs",
+      "price-change": "24u wijziging",
+      "volume-label": "24u volume ({{symbol}})",
+      "bids": "Koop bestellingen",
+      "asks": "Verkoop bestellingen",
+      "price": "Prijs",
+      "amount": "Bedrag ({{symbol}})",
+      "total": "Totaal",
+      "recent-trades": "Recente transacties",
+      "time": "Tijd",
+      "type": "Type",
+      "no-open-orders": "U heeft nog geen open orders voor deze markt.",
+      "use-best": "Gebruik de beste prijs",
+      "use-max": "Gebruik max",
+      "invalid-order": "Voer een geldig bedrag en prijs in groter dan nul.",
+      "login-required": "Log in om Hive Engine tokens te verhandelen.",
+      "order-placed": "Bestelling geplaatst",
+      "order-cancelled": "Bestelling geannuleerd",
+      "login-to-trade": "Log in om uw Hive Engine Trades te beheren.",
+      "deposit": "HIVE storten",
+      "deposit-instructions": "Stuur HIVE naar @honey-swap met memo {{memo}} om SWAP.HIVE te ontvangen."
     }
   },
   "list-style": {
