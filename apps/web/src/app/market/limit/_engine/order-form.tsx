@@ -95,6 +95,10 @@ export const EngineOrderForm = ({
       });
       setQuantity("");
     } catch (err: any) {
+      if (err?.code === "USER_CANCELLED") {
+        return;
+      }
+
       if (err?.message) {
         error(err.message);
       } else {
