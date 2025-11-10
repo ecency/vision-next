@@ -713,6 +713,7 @@
     "pending-orders": "Àwọn ìrà-ọjà àìyanjú",
     "type": "Type",
     "mode-limit": "Gbèdéke",
+    "mode-engine": "Engine",
     "mode-swap": "Ìpàrọ̀",
     "mode-advanced": "Iwájú",
     "action": "Action",
@@ -773,7 +774,48 @@
         "amount": "Amount",
         "volume": "Volume",
         "time": "Time"
+      },
+      "variant-hive": "HIVE/HBD",
+      "variant-engine": "Engine tokens"
+    },
+    "limit": {
+      "layer-core": "Core · Layer 1",
+      "layer-engine": "Engine · Layer 2",
+      "token-selector": {
+        "label": "Trading pair",
+        "title": "Choose a trading pair",
+        "search-placeholder": "Search tokens",
+        "core-description": "Trade the core HBD/HIVE market.",
+        "engine-description": "Layer-2 token trades against SWAP.HIVE.",
+        "no-results": "No tokens match your search."
       }
+    },
+    "engine": {
+      "title": "Hive Engine market",
+      "description": "Trade Hive Engine tokens with limit orders directly from your Hive account.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Last price",
+      "price-change": "24h change",
+      "volume-label": "24h volume ({{symbol}})",
+      "bids": "Buy orders",
+      "asks": "Sell orders",
+      "price": "Price",
+      "amount": "Amount ({{symbol}})",
+      "total": "Total",
+      "recent-trades": "Recent trades",
+      "time": "Time",
+      "type": "Type",
+      "no-open-orders": "You do not have open orders for this market yet.",
+      "use-best": "Use best price",
+      "use-max": "Use max",
+      "invalid-order": "Enter a valid amount and price greater than zero.",
+      "login-required": "Please sign in to trade Hive Engine tokens.",
+      "order-placed": "Order placed",
+      "order-cancelled": "Order cancelled",
+      "login-to-trade": "Sign in to manage your Hive Engine trades.",
+      "deposit": "Deposit HIVE",
+      "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
   },
   "list-style": {
