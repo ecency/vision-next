@@ -713,6 +713,7 @@
     "pending-orders": "Очікуючі замовлення",
     "type": "Тип",
     "mode-limit": "Ліміт",
+    "mode-engine": "Двигун",
     "mode-swap": "Обмін",
     "mode-advanced": "Розширений",
     "action": "Дія",
@@ -773,7 +774,48 @@
         "amount": "Кількість",
         "volume": "Обсяг",
         "time": "Час"
+      },
+      "variant-hive": "Привіт/HBD",
+      "variant-engine": "Маркери двигуна"
+    },
+    "limit": {
+      "layer-core": "Основа - шар 1",
+      "layer-engine": "Двигун 2",
+      "token-selector": {
+        "label": "Торговельна пара",
+        "title": "Виберіть торгову пару",
+        "search-placeholder": "Маркери пошуку",
+        "core-description": "Торгуйте основним ринком HBD/HIVE.",
+        "engine-description": "Токен Layer-2 торгує проти SWAP.HIVE.",
+        "no-results": "Немає токенів, які відповідають вашому пошуку."
       }
+    },
+    "engine": {
+      "title": "Інструмент переведення двигунів вуликів",
+      "description": "Торгуйте токенами Hive Engine з обмеженням замовлень безпосередньо з вашого акаунту Hive.",
+      "token": "Маркер",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Остання ціна",
+      "price-change": "24 год зміни",
+      "volume-label": "24 год ({{symbol}})",
+      "bids": "Купити замовлення",
+      "asks": "Продати замовлення",
+      "price": "Ціна",
+      "amount": "Сума ({{symbol}})",
+      "total": "Загальна сума замовлення",
+      "recent-trades": "Останні угоди",
+      "time": "Час",
+      "type": "Тип",
+      "no-open-orders": "Ви ще не маєте відкритих ордерів для цього ринку.",
+      "use-best": "Використовувати найкращу ціну",
+      "use-max": "Використання макс. макс",
+      "invalid-order": "Введіть допустиму суму і ціну більше нуля.",
+      "login-required": "Увійдіть для торгових токенів вуличного двигуна.",
+      "order-placed": "Замовлення розміщено",
+      "order-cancelled": "Замовлення скасовано",
+      "login-to-trade": "Увійдіть для керування вашими типовими обмінами.",
+      "deposit": "Поповнити рахунок",
+      "deposit-instructions": "Надішліть HIVE в @honey-swap з memo {{memo}} , щоб отримати SWAP.HIVE."
     }
   },
   "list-style": {
