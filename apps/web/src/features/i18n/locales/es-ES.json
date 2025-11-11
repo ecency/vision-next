@@ -2224,13 +2224,13 @@
       "contact-email": "Envíanos un correo"
     },
     "mobile": {
-      "page-title": "Ecencia móvil",
-      "hero-title": "Su comunidad, en cualquier lugar con <span>Ecency Mobile</span>",
-      "hero-subtitle": "Manténgase cerca de las comunidades de las colmenas, responda a las conversaciones y gestione las recompensas dondequiera que estés.",
+      "page-title": "Ecency móvil",
+      "hero-title": "Su comunidad, en cualquier lugar con <span>Ecency Móvil</span>",
+      "hero-subtitle": "Manténgase cerca de las comunidades de HIVE, responda a las conversaciones y gestione las recompensas dondequiera que estés.",
       "hero-footnote": "Disponible para dispositivos iOS, iPadOS y Android.",
       "cta-ios": "Descargar en la App Store",
       "cta-android": "Consíguelo en Google Play",
-      "benefits-title": "Por qué te encanta la emoción móvil",
+      "benefits-title": "Por qué te encantará Ecency Móvil",
       "benefits": {
         "communities-title": "Comunidades en tu bolsillo",
         "communities-description": "Sigue los feeds, explora las tendencias y mantente cerca de las personas y temas que te interesan.",
@@ -2250,11 +2250,11 @@
         "opensource-title": "Abrir e impulsar la comunidad",
         "opensource-description": "Contribuye en GitHub, ayuda con traducciones o comparte comentarios directamente desde la aplicación."
       },
-      "screenshots-title": "Ver Ecencia móvil en acción",
-      "screenshots-description": "Limpia las vistas para leer, publicar y administrar tu perfil a través de teléfonos y tabletas.",
-      "screenshots-tablet-alt": "Interfaz móvil Ecencia mostrada en una tableta",
-      "screenshots-phone-alt": "Ecencia vista de feed móvil en un teléfono",
-      "screenshots-desktop-alt": "Ecencia de pantalla móvil junto a la interfaz de escritorio",
+      "screenshots-title": "Ver Ecency Móvil en acción",
+      "screenshots-description": "Una vista limpia para leer, publicar y administrar tu perfil a través de teléfonos y tabletas.",
+      "screenshots-tablet-alt": "Interfaz Ecency móvil mostrada en una tableta",
+      "screenshots-phone-alt": "Vista del feed Ecency Móvil en un teléfono",
+      "screenshots-desktop-alt": "Pantalla de Ecency Móvil junto a la interfaz de escritorio",
       "screenshots-dark-alt": "Aplicación móvil Ecencia en tema oscuro",
       "resources-title": "Recursos útiles",
       "resources": {
