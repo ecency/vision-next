@@ -775,7 +775,7 @@
         "volume": "Volumen",
         "time": "Hora"
       },
-      "variant-hive": "VIHE/HBD",
+      "variant-hive": "HIVE/HBD",
       "variant-engine": "Tokens de motor"
     },
     "limit": {
@@ -785,8 +785,8 @@
         "label": "Par de comercio",
         "title": "Elegir un par de operaciones",
         "search-placeholder": "Buscar tokens",
-        "core-description": "Opere con el mercado central de HBD/VIHE.",
-        "engine-description": "El token Layer-2 intercambia contra SWAP.HIVE.",
+        "core-description": "Opere con el mercado central de HBD/HIVE.",
+        "engine-description": "El token de Capa-2 intercambia contra SWAP.HIVE.",
         "no-results": "Ningún tokens coincide con tu búsqueda."
       }
     },
@@ -799,7 +799,7 @@
       "price-change": "cambio 24h",
       "volume-label": "Volumen 24h ({{symbol}})",
       "bids": "Pedidos de compra",
-      "asks": "Vender pedidos",
+      "asks": "Pedidos de venta",
       "price": "Precio",
       "amount": "Cantidad ({{symbol}})",
       "total": "Total",
@@ -809,13 +809,13 @@
       "no-open-orders": "Aún no tiene órdenes abiertas para este mercado.",
       "use-best": "Usar mejor precio",
       "use-max": "Usar máximo",
-      "invalid-order": "Introduzca una cantidad y precio válidos mayores que cero.",
+      "invalid-order": "Introduzca una cantidad y precio válidos y mayores que cero.",
       "login-required": "Por favor, inicia sesión para intercambiar tokens de Hive Engine.",
       "order-placed": "Pedido realizado",
       "order-cancelled": "Pedido cancelado",
       "login-to-trade": "Inicia sesión para administrar tus intercambios con Hive Engine.",
-      "deposit": "Depositar VIHE",
-      "deposit-instructions": "Envía VIHE a @honey-swap con el memo {{memo}} para recibir SWAP.HIVE."
+      "deposit": "Depositar HIVE",
+      "deposit-instructions": "Envía HIVE a @honey-swap con el memo {{memo}} para recibir SWAP.HIVE."
     }
   },
   "list-style": {
@@ -2255,7 +2255,7 @@
       "screenshots-tablet-alt": "Interfaz Ecency móvil mostrada en una tableta",
       "screenshots-phone-alt": "Vista del feed Ecency Móvil en un teléfono",
       "screenshots-desktop-alt": "Pantalla de Ecency Móvil junto a la interfaz de escritorio",
-      "screenshots-dark-alt": "Aplicación móvil Ecencia en tema oscuro",
+      "screenshots-dark-alt": "Aplicación Ecency Móvil en tema oscuro",
       "resources-title": "Recursos útiles",
       "resources": {
         "faq": "Visita el FAQ para obtener respuestas rápidas",
