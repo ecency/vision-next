@@ -747,6 +747,8 @@
     "success-title": "Transazione completata",
     "more-than-balance": "Hai inserito più del saldo disponibile",
     "invalid-amount": "Importo non valido. Inserisci meno valore",
+    "engine-orderbook-thin": "Questo mercato ha una liquidità limitata. Prova una quantità minore o controlla più tardi.",
+    "engine-orderbook-empty": "Nessun ordine attivo è disponibile per questo mercato in questo momento.",
     "too-much-slippage": "Vi consigliamo vivamente di ridurre l'importo per un prezzo migliore!",
     "auth-required-title": "Preferiti",
     "auth-required-desc": "Devi essere autorizzato a scambiare fondi propri",
@@ -754,6 +756,10 @@
     "signing": "Firma..",
     "success-swap": "Scambio con successo!",
     "calculating-in": "Calcolo in",
+    "asset-selector": {
+      "title": "Seleziona un token",
+      "search-placeholder": "Cerca token"
+    },
     "advanced": {
       "history": "Cronologia",
       "stake": "Libro ordini",
