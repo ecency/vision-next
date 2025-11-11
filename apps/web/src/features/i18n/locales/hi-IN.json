@@ -747,6 +747,8 @@
     "success-title": "लेनदेन पूरा हुआ",
     "more-than-balance": "आपने उपलब्ध शेष राशि से अधिक राशि दर्ज की है",
     "invalid-amount": "राशि अमान्य है। कृपया कम मान दर्ज करें",
+    "engine-orderbook-thin": "This market has limited liquidity. Try a smaller amount or check back later.",
+    "engine-orderbook-empty": "No active orders are available for this market right now.",
     "too-much-slippage": "हम आपको बेहतर मूल्य निर्धारण के लिए राशि कम करने की अत्यधिक अनुशंसा करते हैं!",
     "auth-required-title": "अनुमति की आवश्यकता है",
     "auth-required-desc": "आपको स्वयं के फंडों की अदला-बदली करने के लिए अधिकृत होना होगा",
@@ -754,6 +756,10 @@
     "signing": "हस्ताक्षर।।",
     "success-swap": "सफलतापूर्वक अदला-बदली हुई!",
     "calculating-in": "गिना जा रहा है",
+    "asset-selector": {
+      "title": "Select a token",
+      "search-placeholder": "Search tokens"
+    },
     "advanced": {
       "history": "इतिहास",
       "stake": "आदेश बुक",
