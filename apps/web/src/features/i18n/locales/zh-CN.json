@@ -747,6 +747,8 @@
     "success-title": "交易已完成",
     "more-than-balance": "您输入的余额超过可用余额",
     "invalid-amount": "金额无效。请输入更少的值",
+    "engine-orderbook-thin": "此市场的流动性有限。请尝试少量金额或稍后再试。",
+    "engine-orderbook-empty": "此市场现在没有活动订单。",
     "too-much-slippage": "我们强烈建议您减少金额以获得更好的价格！",
     "auth-required-title": "需要授权",
     "auth-required-desc": "您必须被授权来交换资金",
@@ -754,6 +756,10 @@
     "signing": "正在签名...",
     "success-swap": "成功交换！",
     "calculating-in": "正在计算",
+    "asset-selector": {
+      "title": "选择一个令牌",
+      "search-placeholder": "搜索令牌"
+    },
     "advanced": {
       "history": "历史记录",
       "stake": "订单簿",
