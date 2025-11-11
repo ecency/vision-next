@@ -2,7 +2,7 @@ import { MarketAdvancedModeWidget } from "./market-advanced-mode-widget";
 import React, { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import { AutoSizer, List } from "react-virtualized";
-import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
+import { MarketAsset } from "@/api/market-pair";
 import { OrdersData } from "@/entities";
 import { Widget } from "@/app/market/advanced/_advanced-mode/types/layout.type";
 import i18next from "i18next";

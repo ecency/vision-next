@@ -9,7 +9,7 @@ import { PREFIX } from "@/utils/local-storage";
 import { DEFAULT_LAYOUT } from "./_advanced-mode/consts/default-layouts.const";
 import GridLayout from "react-grid-layout";
 import { useState } from "react";
-import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
+import { MarketAsset } from "@/api/market-pair";
 import { DAY_CHANGE_DEFAULT } from "./_advanced-mode/consts/day-change.const";
 import { DayChange } from "./_advanced-mode/types/day-change.type";
 import { OpenOrdersData, OrdersData, Transaction } from "@/entities";

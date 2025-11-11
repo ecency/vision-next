@@ -1,7 +1,7 @@
 import React from "react";
 import { HiveHbdObserver } from "./hive-hbd-observer";
 import { DayChange } from "../types/day-change.type";
-import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
+import { MarketAsset } from "@/api/market-pair";
 import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
 
 interface Props {

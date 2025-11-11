@@ -3,7 +3,7 @@ import { DayChange } from "@/app/market/advanced/_advanced-mode/types/day-change
 import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
 import useInterval from "react-use/lib/useInterval";
 import { getCGMarket } from "@/api/coingecko-api";
-import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
+import { MarketAsset } from "@/api/market-pair";
 import { useGlobalStore } from "@/core/global-store";
 import {
   getHiveHbdStatsQuery,
