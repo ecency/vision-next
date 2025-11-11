@@ -747,6 +747,8 @@
     "success-title": "Transaktion abgeschlossen",
     "more-than-balance": "Du hast mehr eingegeben als dein verfügbarer Kontostand",
     "invalid-amount": "Ungültiger Betrag. Bitte gib einen geringeren Wert ein",
+    "engine-orderbook-thin": "Dieser Markt hat eine begrenzte Liquidität. Versuchen Sie einen geringeren Betrag oder versuchen Sie es später noch einmal.",
+    "engine-orderbook-empty": "Für diesen Markt sind derzeit keine aktiven Bestellungen verfügbar.",
     "too-much-slippage": "Wir empfehlen dir dringend, den Betrag zu reduzieren, um bessere Preise zu erhalten!",
     "auth-required-title": "Autorisierung erforderlich",
     "auth-required-desc": "Der Austausch eigener Mittel erfordert eine Autorisierung",
@@ -754,6 +756,10 @@
     "signing": "Signieren..",
     "success-swap": "Erfolgreich getauscht!",
     "calculating-in": "Berechne in",
+    "asset-selector": {
+      "title": "Wählen Sie ein Token",
+      "search-placeholder": "Such-Tokens"
+    },
     "advanced": {
       "history": "Historie",
       "stake": "Handelsbuch",
