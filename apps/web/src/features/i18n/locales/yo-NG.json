@@ -747,6 +747,8 @@
     "success-title": "Ìdúnãdúrà tí yanjú",
     "more-than-balance": "O ti kọ ju iye tó wà nínú àsùnwòn rẹ",
     "invalid-amount": "Iye tí kò ní ìtumọ̀. Jọ̀wọ́ kọ iye tó dínkù",
+    "engine-orderbook-thin": "This market has limited liquidity. Try a smaller amount or check back later.",
+    "engine-orderbook-empty": "No active orders are available for this market right now.",
     "too-much-slippage": "A rọ̀ ọ́ láti dín iye tí o kọ́ kù fún iye owó tó sunhàn!",
     "auth-required-title": "Ó nílò ìfọwọ́sí",
     "auth-required-desc": "O nílò ìfọwọ́sí láti lè pààrọ̀ owó",
@@ -754,6 +756,10 @@
     "signing": "Signing..",
     "success-swap": "Ìpààrọ̀ tí yanjú!",
     "calculating-in": "Calculating in",
+    "asset-selector": {
+      "title": "Select a token",
+      "search-placeholder": "Search tokens"
+    },
     "advanced": {
       "history": "History",
       "stake": "Order book",
