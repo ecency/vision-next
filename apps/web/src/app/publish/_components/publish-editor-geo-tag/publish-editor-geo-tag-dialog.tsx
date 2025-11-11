@@ -87,7 +87,6 @@ export function PublishEditorGeoTagDialog({
           <APIProvider apiKey={G_MAPS_API_KEY ?? ""} libraries={["places", "geocoding"]}>
             <PublishEditorGeoTagAutocomplete
               selectedAddress={selectedAddress}
-              selectedPlace={selectedPlace}
               setSelectedPlace={setSelectedPlace}
             />
 
