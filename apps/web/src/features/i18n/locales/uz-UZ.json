@@ -747,6 +747,8 @@
     "success-title": "Tranzaksiya yakunlandi",
     "more-than-balance": "Siz mavjud balansdan ko‘p miqdorni kiritdingiz",
     "invalid-amount": "Yaroqsiz jo‘natish summasi. Iltimos, kamroq qiymat kiriting",
+    "engine-orderbook-thin": "This market has limited liquidity. Try a smaller amount or check back later.",
+    "engine-orderbook-empty": "No active orders are available for this market right now.",
     "too-much-slippage": "Eng yaxshi narx uchun miqdorni kamaytirishni tavsiya qilamiz!",
     "auth-required-title": "Avtorizatsiya talab qilinadi",
     "auth-required-desc": "O‘z mablag‘laringizni almashtirish uchun avtorizatsiyadan o‘tishingiz kerak",
@@ -754,6 +756,10 @@
     "signing": "Imzolamoqda..",
     "success-swap": "Almashuv muvaffaqiyatli amalga oshirildi!",
     "calculating-in": "Hisoblanmoqda",
+    "asset-selector": {
+      "title": "Select a token",
+      "search-placeholder": "Search tokens"
+    },
     "advanced": {
       "history": "Tarix",
       "stake": "Buyurtmalar kitobi",
