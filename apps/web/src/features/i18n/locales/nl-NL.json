@@ -747,6 +747,8 @@
     "success-title": "Transactie voltooid",
     "more-than-balance": "Je hebt meer dan je beschikbare saldo ingevoerd",
     "invalid-amount": "Ongeldig bedrag. Verlaag de waarde",
+    "engine-orderbook-thin": "Deze markt heeft beperkte liquiditeit. Probeer een kleiner bedrag of probeer het later.",
+    "engine-orderbook-empty": "Er zijn momenteel geen actieve bestellingen voor deze markt beschikbaar.",
     "too-much-slippage": "We raden u ten zeerste aan het aantal te verlagen voor betere prijzen!",
     "auth-required-title": "Autorisatie vereist",
     "auth-required-desc": "U dient gemachtigd te zijn om eigen tegoeden te wisselen",
@@ -754,6 +756,10 @@
     "signing": "Bezig met ondertekenen..",
     "success-swap": "Omwisselen gelukt!",
     "calculating-in": "Berekenen in",
+    "asset-selector": {
+      "title": "Selecteer een token",
+      "search-placeholder": "Tokens zoeken"
+    },
     "advanced": {
       "history": "Geschiedenis",
       "stake": "Boek bestellen",
