@@ -23,7 +23,7 @@ interface Props {
 export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="active" }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
   const isMobileBrowser = useIsMobile();
-  const useHiveAuth = shouldUseHiveAuth();
+  const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
   const canRenderKeychain = onKc && (!isMobileBrowser || useHiveAuth);
   const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
   const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";

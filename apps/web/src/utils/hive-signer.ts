@@ -608,15 +608,13 @@ export function hotSign(
   },
   redirect: string
 ) {
-  if (shouldUseHiveAuth()) {
-    const context = createHiveAuthContext(endpoint, params);
+  const context = createHiveAuthContext(endpoint, params);
 
-    if (context) {
-      void broadcastWithHiveAuth(context.username, context.operations, context.keyType).catch((err) => {
-        console.error("HiveAuth hot sign failed", err);
-      });
-      return;
-    }
+  if (context && shouldUseHiveAuth(context.username)) {
+    void broadcastWithHiveAuth(context.username, context.operations, context.keyType).catch((err) => {
+      console.error("HiveAuth hot sign failed", err);
+    });
+    return;
   }
 
   const webUrl = buildHotSignUrl(endpoint, params, redirect);

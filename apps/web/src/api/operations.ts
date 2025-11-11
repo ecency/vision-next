@@ -255,7 +255,7 @@ function sendWithHiveAuthOrHiveSigner(
   fallback: () => Promise<any> | void
 ) {
   const loginType = getLoginType(username);
-  if (loginType === "hiveauth" || shouldUseHiveAuth()) {
+  if (loginType === "hiveauth" || shouldUseHiveAuth(username)) {
     return broadcastWithHiveAuth(username, operations, authority).catch((err) => {
       console.error("HiveAuth broadcast failed", err);
       return fallback();

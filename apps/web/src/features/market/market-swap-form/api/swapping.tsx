@@ -107,7 +107,10 @@ export const swapByKc = (options: SwapOptions) => {
   }
 
   if (isEnginePair(options.fromAsset, options.toAsset)) {
-    return swapEngine(shouldUseHiveAuth() ? "hiveauth" : "keychain", options);
+    return swapEngine(
+      shouldUseHiveAuth(options.activeUser?.username) ? "hiveauth" : "keychain",
+      options
+    );
   }
 
   return Promise.reject();

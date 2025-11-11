@@ -25,7 +25,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
   const signingKey = useGlobalStore((state) => state.signingKey);
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
-  const useHiveAuth = shouldUseHiveAuth();
+  const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
   const canUseKeychain = hasKeyChain || useHiveAuth;
   const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
   const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";

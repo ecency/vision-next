@@ -34,7 +34,7 @@ export function ManageAuthorities() {
     onError: (err) => error((err as Error).message),
     onSuccess: () => setKeyDialog(false)
   });
-  const useHiveAuth = shouldUseHiveAuth();
+  const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
 
   const handleRevoke = useCallback((account: string) => {
     setKeyDialog(true);

@@ -305,7 +305,7 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
   const signWithHot = () => executeOrder("hivesigner");
 
   const signWithKeychainOrHiveAuth = () =>
-    executeOrder(shouldUseHiveAuth() ? "hiveauth" : "keychain");
+    executeOrder(shouldUseHiveAuth(username) ? "hiveauth" : "keychain");
 
   const handleSignerClose = () => {
     if (!signRequest) {

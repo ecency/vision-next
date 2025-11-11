@@ -11,6 +11,7 @@ import {
 import { get, remove, set } from "@/utils/local-storage";
 import { b64uEnc } from "@/utils/b64";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
+import { getLoginType } from "./user-token";
 import i18next from "i18next";
 import {
   DEFAULT_ADDRESS_PREFIX,
@@ -1280,8 +1281,16 @@ async function runBroadcast(
 
 /* ------------------------------ Public API -------------------------------- */
 
-export function shouldUseHiveAuth(): boolean {
+export function shouldUseHiveAuth(username?: string): boolean {
   if (typeof window === "undefined") return false;
+
+  if (username) {
+    const loginType = getLoginType(username);
+    if (loginType) {
+      return loginType === "hiveauth";
+    }
+  }
+
   const hasKeychain = Boolean((window as any).hive_keychain);
   return isMobileBrowser() && !hasKeychain && !isKeychainInAppBrowser();
 }
