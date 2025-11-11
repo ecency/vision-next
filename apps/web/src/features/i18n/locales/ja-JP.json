@@ -747,6 +747,8 @@
     "success-title": "取引が完了しました",
     "more-than-balance": "利用可能な残高を超えて入力しました",
     "invalid-amount": "金額から無効です。少ない値を入力してください",
+    "engine-orderbook-thin": "この市場は流動性が限られています。少ない額を試すか、後で確認してください。",
+    "engine-orderbook-empty": "現在、この取引所で有効な注文はありません。",
     "too-much-slippage": "より良い価格のために量を減らすことをお勧めします!",
     "auth-required-title": "認証が必要です",
     "auth-required-desc": "自分の資金を交換する権限が必要です",
@@ -754,6 +756,10 @@
     "signing": "サインインしています...",
     "success-swap": "交換に成功しました！",
     "calculating-in": "計算中",
+    "asset-selector": {
+      "title": "トークンを選択",
+      "search-placeholder": "トークンを検索"
+    },
     "advanced": {
       "history": "沿革",
       "stake": "オーダーブック",
