@@ -5,9 +5,10 @@ import { EmojiPicker } from "@/features/ui";
 
 interface Props {
   onPick: (v: string) => void;
+  disabled?: boolean;
 }
 
-export const WaveFormEmojiPicker = ({ onPick }: Props) => {
+export const WaveFormEmojiPicker = ({ onPick, disabled }: Props) => {
   const anchorRef = useRef<HTMLButtonElement>(null);
   const [anchor, setAnchor] = useState<Element | null>(null);
 
@@ -21,7 +22,7 @@ export const WaveFormEmojiPicker = ({ onPick }: Props) => {
 
   return (
     <div className="deck-threads-form-emoji-picker">
-      <Button appearance="gray-link" ref={anchorRef} icon={<UilSmile />} />
+      <Button appearance="gray-link" ref={anchorRef} icon={<UilSmile />} disabled={disabled} />
       <EmojiPicker anchor={anchor} onSelect={(value) => onPick(value)} />
     </div>
   );

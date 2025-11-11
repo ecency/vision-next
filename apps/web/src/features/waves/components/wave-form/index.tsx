@@ -38,6 +38,8 @@ const WaveFormComponent = ({
 }: Props) => {
   const activeUser = useClientActiveUser();
   const activeUsername = activeUser?.username;
+  const isActiveUserLoaded = Boolean((activeUser?.data as { __loaded?: boolean } | undefined)?.__loaded);
+  const isAccountPending = Boolean(activeUser && !isActiveUserLoaded);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -60,10 +62,6 @@ const WaveFormComponent = ({
   const textLength = text?.length ?? 0;
   const exceedsCharacterLimit = textLength > characterLimit;
 
-  const disabled = useMemo(
-    () => !text || !threadHost || (isReply && exceedsCharacterLimit),
-    [exceedsCharacterLimit, isReply, text, threadHost]
-  );
   const poll = useEntryPollExtractor(entry);
   useEffect(() => {
     if (poll) {
@@ -119,6 +117,23 @@ const WaveFormComponent = ({
     clear();
     onSuccess?.(item);
   });
+
+  const formInteractivityDisabled = isAccountPending || isPending;
+
+  const submitDisabled = useMemo(
+    () =>
+      formInteractivityDisabled ||
+      !text ||
+      !threadHost ||
+      (isReply && exceedsCharacterLimit),
+    [
+      exceedsCharacterLimit,
+      formInteractivityDisabled,
+      isReply,
+      text,
+      threadHost
+    ]
+  );
 
   const handleEmojiPick = useCallback(
     (emoji: string) => {
@@ -238,14 +253,21 @@ const WaveFormComponent = ({
           clearSelectedImage={clearImage}
           placeholder={placeholder}
           characterLimit={characterLimit}
-          onPasteImage={handlePasteImage}
+          onPasteImage={formInteractivityDisabled ? undefined : handlePasteImage}
+          disabled={formInteractivityDisabled}
         />
-        {activeUser && (
+        {isAccountPending && (
+          <div className="text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
+            {i18next.t("g.loading")}...
+          </div>
+        )}
+        {activeUser && isActiveUserLoaded && (
           <AvailableCredits username={activeUser.username} operation="comment_operation" />
         )}
 
         <WaveFormToolbar
           isEdit={!!entry}
+          disabled={formInteractivityDisabled}
           onAddImage={(url, name) => {
             setImage(url);
             setImageName(name);
@@ -255,7 +277,7 @@ const WaveFormComponent = ({
           submit={
             <Button
               onClick={() =>
-                !disabled &&
+                !submitDisabled &&
                 submit({
                   text: text!!,
                   imageName: imageName!!,
@@ -264,7 +286,7 @@ const WaveFormComponent = ({
                   video: video!!
                 })
               }
-              disabled={disabled}
+              disabled={submitDisabled}
               isLoading={isPending}
               className="justify-self-end"
               size="sm"

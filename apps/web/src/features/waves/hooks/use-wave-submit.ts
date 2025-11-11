@@ -25,6 +25,7 @@ export function useWaveSubmit(
 ) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
+  const isActiveUserLoaded = Boolean((activeUser?.data as { __loaded?: boolean } | undefined)?.__loaded);
 
   const { mutateAsync: create } = useWaveCreate();
   const { mutateAsync: createReply } = useWaveCreateReply();
@@ -39,6 +40,10 @@ export function useWaveSubmit(
     mutationFn: async ({ text, image, imageName, video, host }: Body) => {
       if (!activeUser) {
         toggleUIProp("login");
+        return;
+      }
+
+      if (!isActiveUserLoaded) {
         return;
       }
 

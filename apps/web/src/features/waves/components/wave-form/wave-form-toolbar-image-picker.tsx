@@ -14,9 +14,10 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 
 interface Props {
   onAddImage: (link: string, name: string) => void;
+  disabled?: boolean;
 }
 
-export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
+export const WaveFormToolbarImagePicker = ({ onAddImage, disabled }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const activeUser = useGlobalStore((s) => s.activeUser);
@@ -90,7 +91,7 @@ export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
 
   return (
     <div className="deck-threads-form-toolbar-image-picker">
-      {activeUser && (
+      {activeUser && !disabled && (
         <Dropdown>
           <DropdownToggle>
             <Button
