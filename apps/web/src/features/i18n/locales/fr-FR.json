@@ -747,6 +747,8 @@
     "success-title": "Transaction terminée",
     "more-than-balance": "Vous avez entré plus que le solde disponible",
     "invalid-amount": "Montant invalide. Veuillez entrer moins de valeur",
+    "engine-orderbook-thin": "Ce marché a des liquidités limitées. Essayez un montant plus petit ou revenez plus tard.",
+    "engine-orderbook-empty": "Aucun ordre actif n'est disponible pour ce marché en ce moment.",
     "too-much-slippage": "Nous vous recommandons fortement de réduire le montant pour un meilleur prix!",
     "auth-required-title": "Autorisation requise",
     "auth-required-desc": "Vous devez être autorisé à échanger vos propres fonds",
@@ -754,6 +756,10 @@
     "signing": "Signature en cours...",
     "success-swap": "Échangé avec succès!",
     "calculating-in": "Calcul dans",
+    "asset-selector": {
+      "title": "Sélectionnez un jeton",
+      "search-placeholder": "Rechercher des jetons"
+    },
     "advanced": {
       "history": "Historique",
       "stake": "Carnet de commandes",
