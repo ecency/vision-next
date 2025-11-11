@@ -747,6 +747,8 @@
     "success-title": "Transakcja zakończona",
     "more-than-balance": "Wprowadziłeś więcej niż dostępne saldo",
     "invalid-amount": "Nieprawidłowa kwota. Wprowadź mniej wartości",
+    "engine-orderbook-thin": "Ten rynek ma ograniczoną płynność. Wypróbuj mniejszą ilość lub sprawdź ponownie później.",
+    "engine-orderbook-empty": "W tej chwili nie ma dostępnych aktywnych zamówień dla tego rynku.",
     "too-much-slippage": "Zalecamy zmniejszenie kwoty za lepszą cenę!",
     "auth-required-title": "Wymagana autoryzacja",
     "auth-required-desc": "Musisz być autoryzowany do zamiany środków własnych",
@@ -754,6 +756,10 @@
     "signing": "Podpisywanie..",
     "success-swap": "Pomyślnie zamieniono!",
     "calculating-in": "Obliczanie w",
+    "asset-selector": {
+      "title": "Wybierz token",
+      "search-placeholder": "Szukaj tokenów"
+    },
     "advanced": {
       "history": "Historia",
       "stake": "Książka zamówień",
