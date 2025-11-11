@@ -747,6 +747,8 @@
     "success-title": "Transação concluída",
     "more-than-balance": "Você inseriu mais do que o saldo disponível",
     "invalid-amount": "Valor inválido. Por favor, insira um valor menor",
+    "engine-orderbook-thin": "Este mercado tem liquidez limitada. Tente uma quantidade menor ou volte mais tarde.",
+    "engine-orderbook-empty": "Neste momento, não há ordens ativas disponíveis para este mercado.",
     "too-much-slippage": "Recomendamos que você reduza a quantidade para melhorar os preços!",
     "auth-required-title": "Autorização necessária",
     "auth-required-desc": "Você tem que ser autorizado a trocar fundos próprios",
@@ -754,6 +756,10 @@
     "signing": "Entrando..",
     "success-swap": "Trocado com sucesso!",
     "calculating-in": "A calcular",
+    "asset-selector": {
+      "title": "Selecione um token",
+      "search-placeholder": "Pesquisar tokens"
+    },
     "advanced": {
       "history": "Hitórico",
       "stake": "Livro de ordens",
