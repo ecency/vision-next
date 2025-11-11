@@ -9,8 +9,12 @@ import dynamic from "next/dynamic";
 // Why its dynamic? We have some client-side only libraries in this page
 //     on server side they couldn't be initialised
 //     Dynamic import drops this component from server side totally
-// @ts-ignore
-const Login = dynamic(() => import("./login"), { ssr: false });
+const loginLoader = () => import("./login");
+const Login = dynamic(() => loginLoader(), { ssr: false });
+
+export const preloadLoginDialog = () => {
+  void loginLoader();
+};
 
 export function LoginDialog() {
   const users = useGlobalStore((state) => state.users);

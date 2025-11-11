@@ -4,6 +4,7 @@ import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { DraftsDialog } from "@/features/shared/drafts";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { GalleryDialog } from "@/features/shared/gallery";
+import { preloadLoginDialog } from "@/features/shared";
 import { SchedulesDialog } from "@/features/shared/schedules";
 import {
   UilArchive,
@@ -133,7 +134,13 @@ export function NavbarSideMainMenu({ onHide }: Props) {
         <hr className="my-2 border-[--border-color]" />
         <NavbarSideMainMenuItem
           label={i18next.t("g.login-as")}
-          onClick={() => toggleUIProp("login")}
+          onClick={() => {
+            preloadLoginDialog();
+            toggleUIProp("login");
+          }}
+          onPointerEnter={preloadLoginDialog}
+          onPointerDown={preloadLoginDialog}
+          onFocus={preloadLoginDialog}
           icon={<UilSignin size={16} />}
         />
         <NavbarSideMainLogout />
