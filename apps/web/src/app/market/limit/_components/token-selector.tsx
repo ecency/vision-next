@@ -72,7 +72,7 @@ export function MarketTokenSelector({ selection, onSelect, tokens, loading }: Pr
 
   return (
     <div className="mb-5 flex flex-col gap-2">
-      <label className="text-sm font-semibold text-2xl mb-3" htmlFor="market-token-selector-trigger">
+      <label className="text-2xl font-semibold mb-3" htmlFor="market-token-selector-trigger">
         {i18next.t("market.limit.token-selector.label")}
       </label>
       <Button
