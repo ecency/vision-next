@@ -1,6 +1,6 @@
 import * as api from "../../../api/operations";
 import { swapByHs, swapByKc, swapByKey } from "./swapping";
-import { MarketAsset } from "../market-pair";
+import { HiveMarketAsset } from "../market-pair";
 import { ActiveUser } from "../../../store/active-user/_types";
 import { TransactionType } from "../../buy-sell-hive";
 import { OrderIdPrefix } from "../../../api/operations";
@@ -13,7 +13,8 @@ describe("Swapping", function () {
     swapByKey(testKey, {
       fromAmount: "1,111",
       toAmount: "2,111",
-      fromAsset: MarketAsset.HIVE,
+      fromAsset: HiveMarketAsset.HIVE,
+      toAsset: HiveMarketAsset.HBD,
       activeUser: { username: "test" } as ActiveUser
     });
     expect(mock).toHaveBeenCalledWith(
@@ -32,7 +33,8 @@ describe("Swapping", function () {
     swapByHs({
       fromAmount: "1,111",
       toAmount: "2,111",
-      fromAsset: MarketAsset.HIVE,
+      fromAsset: HiveMarketAsset.HIVE,
+      toAsset: HiveMarketAsset.HBD,
       activeUser: { username: "test" } as ActiveUser
     });
     expect(mock).toHaveBeenCalledWith("test", 2111, 1111, TransactionType.Sell, OrderIdPrefix.SWAP);
@@ -44,7 +46,8 @@ describe("Swapping", function () {
     swapByKc({
       fromAmount: "1,111",
       toAmount: "2,111",
-      fromAsset: MarketAsset.HIVE,
+      fromAsset: HiveMarketAsset.HIVE,
+      toAsset: HiveMarketAsset.HBD,
       activeUser: { username: "test" } as ActiveUser
     });
     expect(mock).toHaveBeenCalledWith("test", 2111, 1111, TransactionType.Sell, OrderIdPrefix.SWAP);
@@ -57,7 +60,8 @@ describe("Swapping", function () {
     swapByKey(testKey, {
       fromAmount: "1,111",
       toAmount: "2,111",
-      fromAsset: MarketAsset.HBD,
+      fromAsset: HiveMarketAsset.HBD,
+      toAsset: HiveMarketAsset.HIVE,
       activeUser: { username: "test" } as ActiveUser
     });
     expect(mock).toHaveBeenCalledWith(
@@ -76,7 +80,8 @@ describe("Swapping", function () {
     swapByHs({
       fromAmount: "1,111",
       toAmount: "2,111",
-      fromAsset: MarketAsset.HBD,
+      fromAsset: HiveMarketAsset.HBD,
+      toAsset: HiveMarketAsset.HIVE,
       activeUser: { username: "test" } as ActiveUser
     });
     expect(mock).toHaveBeenCalledWith("test", 1111, 2111, TransactionType.Buy, OrderIdPrefix.SWAP);
@@ -88,7 +93,8 @@ describe("Swapping", function () {
     swapByKc({
       fromAmount: "1,111",
       toAmount: "2,111",
-      fromAsset: MarketAsset.HBD,
+      fromAsset: HiveMarketAsset.HBD,
+      toAsset: HiveMarketAsset.HIVE,
       activeUser: { username: "test" } as ActiveUser
     });
     expect(mock).toHaveBeenCalledWith("test", 1111, 2111, TransactionType.Buy, OrderIdPrefix.SWAP);

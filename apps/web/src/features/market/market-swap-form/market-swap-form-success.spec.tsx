@@ -1,15 +1,15 @@
 import renderer from "react-test-renderer";
 import React from "react";
 import { MarketSwapFormSuccess, Props } from "./market-swap-form-success";
-import { MarketAsset } from "./market-pair";
+import { HiveMarketAsset } from "./market-pair";
 
 describe("MarkSwapFormSuccess", function () {
   it("should render hive -> hbd", function () {
     const props: Props = {
       from: "1",
-      fromAsset: MarketAsset.HIVE,
+      fromAsset: HiveMarketAsset.HIVE,
       to: "1",
-      toAsset: MarketAsset.HBD,
+      toAsset: HiveMarketAsset.HBD,
       onReset: jest.fn()
     };
     const component = renderer.create(<MarketSwapFormSuccess {...props} />);
@@ -19,9 +19,9 @@ describe("MarkSwapFormSuccess", function () {
   it("should render hbd -> hive", function () {
     const props: Props = {
       from: "1",
-      fromAsset: MarketAsset.HBD,
+      fromAsset: HiveMarketAsset.HBD,
       to: "1",
-      toAsset: MarketAsset.HIVE,
+      toAsset: HiveMarketAsset.HIVE,
       onReset: jest.fn()
     };
     const component = renderer.create(<MarketSwapFormSuccess {...props} />);

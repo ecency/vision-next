@@ -1,5 +1,5 @@
 import { MarketInfo, Props } from "./market-info";
-import { MarketAsset } from "./market-pair";
+import { HiveMarketAsset } from "./market-pair";
 import React from "react";
 import { withStore } from "../../tests/with-store";
 import { queryClient } from "../../core";
@@ -9,8 +9,8 @@ it("should render market rate", function () {
   const props: Props = {
     className: "",
     marketRate: 2,
-    fromAsset: MarketAsset.HBD,
-    toAsset: MarketAsset.HIVE,
+    fromAsset: HiveMarketAsset.HBD,
+    toAsset: HiveMarketAsset.HIVE,
     usdFromMarketRate: 12
   };
   const component = withStore(

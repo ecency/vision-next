@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MarketAsset } from "../market-pair";
+import { HiveMarketAsset, MarketAsset, isHiveMarketAsset } from "../market-pair";
 
 interface CoinGeckoApiResponse {
   [key: string]: {
@@ -22,8 +22,8 @@ export const getCGMarketApi = async (ids: string, vs: string): Promise<CoinGecko
 };
 
 const getId = (asset: MarketAsset) => {
-  if (asset === MarketAsset.HIVE) return "hive";
-  if (asset === MarketAsset.HBD) return "hive_dollar";
+  if (asset === HiveMarketAsset.HIVE) return "hive";
+  if (asset === HiveMarketAsset.HBD) return "hive_dollar";
   return "";
 };
 
@@ -31,6 +31,10 @@ export const getCGMarket = async (
   fromAsset: MarketAsset,
   toAsset: MarketAsset
 ): Promise<number[]> => {
+  if (!isHiveMarketAsset(fromAsset) || !isHiveMarketAsset(toAsset)) {
+    return [0, 0];
+  }
+
   let ids = `${getId(fromAsset)},${getId(toAsset)}`;
   const market = await getCGMarketApi(ids, "usd");
   return [market[getId(fromAsset)].usd, market[getId(toAsset)].usd];
