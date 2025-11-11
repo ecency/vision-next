@@ -747,6 +747,8 @@
     "success-title": "Transaction completed",
     "more-than-balance": "You've entered more than available balance",
     "invalid-amount": "Invalid from amount. Please, enter less value",
+    "engine-orderbook-thin": "This market has limited liquidity. Try a smaller amount or check back later.",
+    "engine-orderbook-empty": "No active orders are available for this market right now.",
     "too-much-slippage": "We highly recommend you to reduce amount for better pricing!",
     "auth-required-title": "Authorization required",
     "auth-required-desc": "You have to be authorized to swap own funds",
@@ -754,6 +756,10 @@
     "signing": "Signing..",
     "success-swap": "Successfully swapped!",
     "calculating-in": "Calculating in",
+    "asset-selector": {
+      "title": "Select a token",
+      "search-placeholder": "Search tokens"
+    },
     "advanced": {
       "history": "History",
       "stake": "Order book",
