@@ -115,6 +115,13 @@ const getHiveSignerModule = (): Promise<HiveSignerModule> => {
   return hiveSignerModulePromise;
 };
 
+const withHiveSigner = async <T>(
+  callback: (hs: HiveSignerModule["default"]) => T | Promise<T>
+): Promise<T> => {
+  const hiveSigner = await getHiveSignerModule();
+  return callback(hiveSigner.default);
+};
+
 const getCustomJsonHotSignRedirect = (username: string, id: string): string => {
   if (id === "ssc-mainnet-hive") {
     return `@${username}/wallet/engine`;
@@ -430,7 +437,7 @@ export const transferHot = (from: string, to: string, amount: string, memo: stri
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
   return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -524,7 +531,7 @@ export const transferToSavingsHot = (from: string, to: string, amount: string, m
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
   return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -635,7 +642,7 @@ export const limitOrderCreateHot = (
     callback: `https://ecency.com/market${idPrefix === OrderIdPrefix.SWAP ? "#swap" : ""}`
   };
   return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -650,7 +657,7 @@ export const limitOrderCancelHot = (owner: string, orderid: number) => {
 
   const params: Parameters = { callback: `https://ecency.com/market` };
   return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -732,7 +739,7 @@ export const convertHot = (owner: string, amount: string) => {
 
   const params: Parameters = { callback: `https://ecency.com/@${owner}/wallet` };
   return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -784,7 +791,7 @@ export const transferFromSavingsHot = (from: string, to: string, amount: string,
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
   return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -854,7 +861,7 @@ export const claimInterestHot = (from: string, to: string, amount: string, memo:
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
   return sendWithHiveAuthOrHiveSigner(from, [op, cop], "active", () =>
-    hs.sendOperations([op, cop], params, () => {})
+    withHiveSigner((hs) => hs.sendOperations([op, cop], params, () => {}))
   );
 };
 
@@ -911,7 +918,7 @@ export const transferToVestingHot = (from: string, to: string, amount: string) =
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
   return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -962,7 +969,7 @@ export const delegateVestingSharesHot = (
 
   const params: Parameters = { callback: `https://ecency.com/@${delegator}/wallet` };
   return sendWithHiveAuthOrHiveSigner(delegator, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -1027,7 +1034,7 @@ export const withdrawVestingHot = (account: string, vestingShares: string) => {
 
   const params: Parameters = { callback: `https://ecency.com/@${account}/wallet` };
   return sendWithHiveAuthOrHiveSigner(account, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -1081,7 +1088,7 @@ export const setWithdrawVestingRouteHot = (
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
   return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    hs.sendOperation(op, params, () => {})
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
 
@@ -1622,7 +1629,7 @@ export const createAccountHs = async (data: any, creator_account: string, hash: 
         callback: `https://ecency.com/onboard-friend/confirming/${hash}?tid={{id}}`
       };
       return sendWithHiveAuthOrHiveSigner(creator_account, [operation], "active", () =>
-        hs.sendOperation(operation, params, () => {})
+        withHiveSigner((hs) => hs.sendOperation(operation, params, () => {}))
       );
     } catch (err: any) {
       console.log(err);
@@ -1813,7 +1820,7 @@ export const createAccountWithCreditHs = async (
         callback: `https://ecency.com/onboard-friend/confirming/${hash}?tid={{id}}`
       };
       return sendWithHiveAuthOrHiveSigner(creator_account, [operation], "active", () =>
-        hs.sendOperation(operation, params, () => {})
+        withHiveSigner((hs) => hs.sendOperation(operation, params, () => {}))
       );
     } catch (err: any) {
       console.log(err);
