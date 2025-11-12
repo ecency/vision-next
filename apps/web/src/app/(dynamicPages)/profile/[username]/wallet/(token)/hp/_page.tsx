@@ -19,7 +19,7 @@ import i18next from "i18next";
 import { Button } from "@/features/ui";
 import { Spinner } from "@/features/ui/spinner";
 import { TradingViewWidget } from "@/features/trading-view";
-import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
+import { UilExchange } from "@tooni/iconscout-unicons-react";
 
 export function HpPage() {
   const { username } = useParams();
@@ -74,7 +74,7 @@ export function HpPage() {
             target="_blank"
             appearance="gray"
             size="sm"
-            icon={<UilArrowUpRight />}
+            icon={<UilExchange />}
           >
             {i18next.t("market-data.trade")}
           </Button>
