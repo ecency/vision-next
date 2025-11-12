@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Możesz publikować tylko raz na pięć minut.",
     "identical-vote": "Twój obecny głos w tej sprawie jest identyczny z tym głosowaniem.",
-    "must-claim": "Nieodzyskanie salda lub już odzyskane.",
+    "must-claim": "Oczekujące nagrody zostały już odebrane.",
     "insufficient-resource": "Niewystarczająca ilość zasobów.",
     "delete-comment-with-vote": "Nie można usunąć zawartości z pozytywnymi oczekującymi nagrodami.",
     "comment-cashout": "Treść po wypłacie nie może zostać usunięta.",
