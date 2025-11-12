@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Du kannst nur einmal alle fünf Minuten posten.",
     "identical-vote": "Ihre aktuelle Abstimmung über diesen Inhalt ist identisch mit dieser Abstimmung.",
-    "must-claim": "Kein beanspruchender Saldo oder bereits beansprucht.",
+    "must-claim": "Ausstehende Belohnungen bereits abgeholt.",
     "insufficient-resource": "Unzureichende Ressourcen-Credits.",
     "delete-comment-with-vote": "Ein Inhalt mit positiven ausstehenden Belohnungen kann nicht gelöscht werden.",
     "comment-cashout": "Inhalt nach der Auszahlung kann nicht gelöscht werden.",
