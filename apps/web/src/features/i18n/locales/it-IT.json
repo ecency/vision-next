@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Puoi pubblicare soltanto una volta ogni cinque minuti.",
     "identical-vote": "Il tuo voto attuale sul contenuto corrente è identico a questo voto.",
-    "must-claim": "Nessun saldo di rivendicazione o già rivendicato.",
+    "must-claim": "Ricompense in attesa già reclamate.",
     "insufficient-resource": "Crediti Di Risorse Insufficienti.",
     "delete-comment-with-vote": "Impossibile eliminare un contenuto con ricompense positive in sospeso.",
     "comment-cashout": "I contenuti non possono essere eliminati dopo il loro pagamento.",
