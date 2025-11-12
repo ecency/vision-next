@@ -31,6 +31,8 @@ const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
     return [i18next.t("chain-error.identical-vote"), ErrorTypes.INFO];
   } else if (/Must claim something/.test(strErr)) {
     return [i18next.t("chain-error.must-claim"), ErrorTypes.INFO];
+  } else if (/Cannot claim that much VESTS/.test(strErr)) {
+    return [i18next.t("chain-error.must-claim"), ErrorTypes.INFO];
   } else if (/Please wait to transact, or power up/.test(strErr)) {
     return [
       i18next.t("chain-error.insufficient-resource"),

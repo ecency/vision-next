@@ -1,7 +1,7 @@
 "use client";
 
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, useClientActiveUser } from "@/api/queries";
-import { success } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useClaimRewards } from "@ecency/wallets";
@@ -11,6 +11,7 @@ import i18next from "i18next";
 import { useMemo } from "react";
 import { formatNumber, parseAsset, vestsToHp } from "@/utils";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
+import { formatError } from "@/api/operations";
 
 type Props = {
   username: string;
@@ -84,6 +85,18 @@ export function ProfileWalletHpClaimRewardsButton({
     ? "!w-6 !h-6 rounded-full bg-white text-blue-dark-sky shrink-0"
     : undefined;
 
+  const handleClaim = async () => {
+    if (!isOwnProfile) {
+      return;
+    }
+
+    try {
+      await claimRewards();
+    } catch (e) {
+      error(...formatError(e));
+    }
+  };
+
   return (
     <Button
       size="sm"
@@ -91,7 +104,7 @@ export function ProfileWalletHpClaimRewardsButton({
       className={clsx("sm:w-auto", className)}
       disabled={!isOwnProfile || isPending}
       isLoading={isPending}
-      onClick={() => isOwnProfile && claimRewards()}
+      onClick={handleClaim}
       icon={icon}
       iconClassName={iconClassName}
     >
