@@ -713,6 +713,7 @@
     "pending-orders": "Openstaande bestellingen",
     "type": "Type",
     "mode-limit": "Limiet",
+    "mode-engine": "Motor",
     "mode-swap": "Ruilen",
     "mode-advanced": "Geavanceerd",
     "action": "actie",
@@ -746,6 +747,8 @@
     "success-title": "Transactie voltooid",
     "more-than-balance": "Je hebt meer dan je beschikbare saldo ingevoerd",
     "invalid-amount": "Ongeldig bedrag. Verlaag de waarde",
+    "engine-orderbook-thin": "Deze markt heeft beperkte liquiditeit. Probeer een kleiner bedrag of probeer het later.",
+    "engine-orderbook-empty": "Er zijn momenteel geen actieve bestellingen voor deze markt beschikbaar.",
     "too-much-slippage": "We raden u ten zeerste aan het aantal te verlagen voor betere prijzen!",
     "auth-required-title": "Autorisatie vereist",
     "auth-required-desc": "U dient gemachtigd te zijn om eigen tegoeden te wisselen",
@@ -753,6 +756,10 @@
     "signing": "Bezig met ondertekenen..",
     "success-swap": "Omwisselen gelukt!",
     "calculating-in": "Berekenen in",
+    "asset-selector": {
+      "title": "Selecteer een token",
+      "search-placeholder": "Tokens zoeken"
+    },
     "advanced": {
       "history": "Geschiedenis",
       "stake": "Boek bestellen",
@@ -773,7 +780,48 @@
         "amount": "Hoeveelheid",
         "volume": "Volume",
         "time": "Tijd"
+      },
+      "variant-hive": "HIV/HBD",
+      "variant-engine": "Motor tokens"
+    },
+    "limit": {
+      "layer-core": "Kern · Laag 1",
+      "layer-engine": "Motor · Laag 2",
+      "token-selector": {
+        "label": "Trading pair",
+        "title": "Kies een trading paar",
+        "search-placeholder": "Tokens zoeken",
+        "core-description": "Handel in de HBD/HIVE kernmarkt.",
+        "engine-description": "Layer-2 token transacties tegen SWAP.HIVE.",
+        "no-results": "Er komen geen tokens overeen met je zoekopdracht."
       }
+    },
+    "engine": {
+      "title": "Korf machinemarkt",
+      "description": "Trade Hive Engine Tokens met limietorders rechtstreeks vanuit uw Hive account.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Laatste prijs",
+      "price-change": "24u wijziging",
+      "volume-label": "24u volume ({{symbol}})",
+      "bids": "Koop bestellingen",
+      "asks": "Verkoop bestellingen",
+      "price": "Prijs",
+      "amount": "Bedrag ({{symbol}})",
+      "total": "Totaal",
+      "recent-trades": "Recente transacties",
+      "time": "Tijd",
+      "type": "Type",
+      "no-open-orders": "U heeft nog geen open orders voor deze markt.",
+      "use-best": "Gebruik de beste prijs",
+      "use-max": "Gebruik max",
+      "invalid-order": "Voer een geldig bedrag en prijs in groter dan nul.",
+      "login-required": "Log in om Hive Engine tokens te verhandelen.",
+      "order-placed": "Bestelling geplaatst",
+      "order-cancelled": "Bestelling geannuleerd",
+      "login-to-trade": "Log in om uw Hive Engine Trades te beheren.",
+      "deposit": "HIVE storten",
+      "deposit-instructions": "Stuur HIVE naar @honey-swap met memo {{memo}} om SWAP.HIVE te ontvangen."
     }
   },
   "list-style": {
@@ -2180,6 +2228,46 @@
       "contact-blog": "blog oprichters",
       "contact-news": "Nieuws op bijenkorf",
       "contact-email": "E-mail ons"
+    },
+    "mobile": {
+      "page-title": "Ecency Mobile",
+      "hero-title": "Jouw community, overal met <span>Ecency Mobile</span>",
+      "hero-subtitle": "Blijf dicht bij de Hive gemeenschappen, reageer op gesprekken en beheer beloningen waar je ook bent.",
+      "hero-footnote": "Beschikbaar voor iOS, iPadOS en Android-apparaten.",
+      "cta-ios": "Download in de App Store",
+      "cta-android": "Verkrijg het op Google Play",
+      "benefits-title": "Waarom je van Ecency mobiel zult houden",
+      "benefits": {
+        "communities-title": "Gemeenschappen in je zak",
+        "communities-description": "Volg feeds, verken populaire tags en blijf dicht bij de mensen en onderwerpen waar je om geeft.",
+        "create-title": "Publiceer van overal",
+        "create-description": "Concept berichten, deel updates en antwoord op reacties met dezelfde krachtige editor die u op het bureaublad gebruikt.",
+        "wallet-title": "Portemonnee in een oogopslag",
+        "wallet-description": "Controleer saldo's, claim beloningen en beheer Hive Power of HBD met slechts een paar tikken.",
+        "notifications-title": "Mis nooit een vermelding",
+        "notifications-description": "Push-meldingen markeren nieuwe volgers, vermeldingen en beloningen, zodat u op tijd kunt vieren."
+      },
+      "features-title": "Ontworpen voor makers en gemeenschappen",
+      "features": {
+        "interface-title": "Gemaakt voor mobiel",
+        "interface-description": "Geniet van autochtone navigatie, gebaarvriendelijke controles en lay-outs die zich thuis voelen op telefoons en tablets.",
+        "themes-title": "Dag en nacht thema's",
+        "themes-description": "Schakel tussen licht- en donkere thema's om comfortabel te blijven tijdens het lezen en schrijven op elk uur.",
+        "opensource-title": "Open en community gedreven",
+        "opensource-description": "Draag bij aan GitHub, help met vertalingen of deel feedback rechtstreeks vanuit de app."
+      },
+      "screenshots-title": "Zie Ecency mobiel in actie",
+      "screenshots-description": "Schoon weergaven op voor het lezen, publiceren en beheren van je profiel over telefoons en tablets.",
+      "screenshots-tablet-alt": "Ecency mobiele interface weergegeven op een tablet",
+      "screenshots-phone-alt": "Ecency mobiele feed weergave op een telefoon",
+      "screenshots-desktop-alt": "Ecency mobiel scherm naast de desktop interface",
+      "screenshots-dark-alt": "Ecency mobiele app in donker thema",
+      "resources-title": "Nuttige grondstoffen",
+      "resources": {
+        "faq": "Bezoek de FAQ voor snelle antwoorden",
+        "blog": "Lees de nieuwste mobiele releasenotities",
+        "github": "Verken de open-source mobiele codebase"
+      }
     },
     "faq": {
       "about-ecency": "Over Ecency",

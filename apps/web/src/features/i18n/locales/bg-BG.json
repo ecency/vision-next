@@ -713,6 +713,7 @@
     "pending-orders": "Pending orders",
     "type": "Type",
     "mode-limit": "Limit",
+    "mode-engine": "Engine",
     "mode-swap": "Swap",
     "mode-advanced": "Advanced",
     "action": "Action",
@@ -746,6 +747,8 @@
     "success-title": "Transaction completed",
     "more-than-balance": "You've entered more than available balance",
     "invalid-amount": "Invalid from amount. Please, enter less value",
+    "engine-orderbook-thin": "This market has limited liquidity. Try a smaller amount or check back later.",
+    "engine-orderbook-empty": "No active orders are available for this market right now.",
     "too-much-slippage": "We highly recommend you to reduce amount for better pricing!",
     "auth-required-title": "Authorization required",
     "auth-required-desc": "You have to be authorized to swap own funds",
@@ -753,6 +756,10 @@
     "signing": "Signing..",
     "success-swap": "Successfully swapped!",
     "calculating-in": "Calculating in",
+    "asset-selector": {
+      "title": "Select a token",
+      "search-placeholder": "Search tokens"
+    },
     "advanced": {
       "history": "History",
       "stake": "Order book",
@@ -773,7 +780,48 @@
         "amount": "Amount",
         "volume": "Volume",
         "time": "Time"
+      },
+      "variant-hive": "HIVE/HBD",
+      "variant-engine": "Engine tokens"
+    },
+    "limit": {
+      "layer-core": "Core · Layer 1",
+      "layer-engine": "Engine · Layer 2",
+      "token-selector": {
+        "label": "Trading pair",
+        "title": "Choose a trading pair",
+        "search-placeholder": "Search tokens",
+        "core-description": "Trade the core HBD/HIVE market.",
+        "engine-description": "Layer-2 token trades against SWAP.HIVE.",
+        "no-results": "No tokens match your search."
       }
+    },
+    "engine": {
+      "title": "Hive Engine market",
+      "description": "Trade Hive Engine tokens with limit orders directly from your Hive account.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Last price",
+      "price-change": "24h change",
+      "volume-label": "24h volume ({{symbol}})",
+      "bids": "Buy orders",
+      "asks": "Sell orders",
+      "price": "Price",
+      "amount": "Amount ({{symbol}})",
+      "total": "Total",
+      "recent-trades": "Recent trades",
+      "time": "Time",
+      "type": "Type",
+      "no-open-orders": "You do not have open orders for this market yet.",
+      "use-best": "Use best price",
+      "use-max": "Use max",
+      "invalid-order": "Enter a valid amount and price greater than zero.",
+      "login-required": "Please sign in to trade Hive Engine tokens.",
+      "order-placed": "Order placed",
+      "order-cancelled": "Order cancelled",
+      "login-to-trade": "Sign in to manage your Hive Engine trades.",
+      "deposit": "Deposit HIVE",
+      "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
   },
   "list-style": {
@@ -2180,6 +2228,46 @@
       "contact-blog": "Блог на Създателя",
       "contact-news": "Новини в Hive",
       "contact-email": "Изпратете ни имейл"
+    },
+    "mobile": {
+      "page-title": "Ecency Mobile",
+      "hero-title": "Your community, anywhere with <span>Ecency Mobile</span>",
+      "hero-subtitle": "Stay close to Hive communities, respond to conversations and manage rewards wherever you are.",
+      "hero-footnote": "Available for iOS, iPadOS and Android devices.",
+      "cta-ios": "Download on the App Store",
+      "cta-android": "Get it on Google Play",
+      "benefits-title": "Why you'll love Ecency mobile",
+      "benefits": {
+        "communities-title": "Communities in your pocket",
+        "communities-description": "Follow feeds, explore trending tags and stay close to the people and topics you care about.",
+        "create-title": "Publish from anywhere",
+        "create-description": "Draft posts, share updates and reply to comments with the same powerful editor you use on desktop.",
+        "wallet-title": "Wallet at a glance",
+        "wallet-description": "Check balances, claim rewards and manage Hive Power or HBD with just a couple of taps.",
+        "notifications-title": "Never miss a mention",
+        "notifications-description": "Push notifications highlight new followers, mentions and rewards so you can celebrate on time."
+      },
+      "features-title": "Designed for creators and communities",
+      "features": {
+        "interface-title": "Made for mobile",
+        "interface-description": "Enjoy native navigation, gesture-friendly controls and layouts that feel right at home on phones and tablets.",
+        "themes-title": "Day and night themes",
+        "themes-description": "Switch between light and dark themes to stay comfortable while reading and writing at any hour.",
+        "opensource-title": "Open and community driven",
+        "opensource-description": "Contribute on GitHub, help with translations or share feedback directly from the app."
+      },
+      "screenshots-title": "See Ecency mobile in action",
+      "screenshots-description": "Clean views for reading, publishing and managing your profile across phones and tablets.",
+      "screenshots-tablet-alt": "Ecency mobile interface displayed on a tablet",
+      "screenshots-phone-alt": "Ecency mobile feed view on a phone",
+      "screenshots-desktop-alt": "Ecency mobile screen next to the desktop interface",
+      "screenshots-dark-alt": "Ecency mobile app in dark theme",
+      "resources-title": "Helpful resources",
+      "resources": {
+        "faq": "Visit the FAQ for quick answers",
+        "blog": "Read the latest mobile release notes",
+        "github": "Explore the open-source mobile codebase"
+      }
     },
     "faq": {
       "about-ecency": "About Ecency",

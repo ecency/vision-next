@@ -713,6 +713,7 @@
     "pending-orders": "待定订单",
     "type": "类型",
     "mode-limit": "限制",
+    "mode-engine": "引擎",
     "mode-swap": "切换",
     "mode-advanced": "高级版",
     "action": "行 动",
@@ -746,6 +747,8 @@
     "success-title": "交易已完成",
     "more-than-balance": "您输入的余额超过可用余额",
     "invalid-amount": "金额无效。请输入更少的值",
+    "engine-orderbook-thin": "此市场的流动性有限。请尝试少量金额或稍后再试。",
+    "engine-orderbook-empty": "此市场现在没有活动订单。",
     "too-much-slippage": "我们强烈建议您减少金额以获得更好的价格！",
     "auth-required-title": "需要授权",
     "auth-required-desc": "您必须被授权来交换资金",
@@ -753,6 +756,10 @@
     "signing": "正在签名...",
     "success-swap": "成功交换！",
     "calculating-in": "正在计算",
+    "asset-selector": {
+      "title": "选择一个令牌",
+      "search-placeholder": "搜索令牌"
+    },
     "advanced": {
       "history": "历史记录",
       "stake": "订单簿",
@@ -773,7 +780,48 @@
         "amount": "金额",
         "volume": "音量",
         "time": "时间"
+      },
+      "variant-hive": "艾滋病毒／HBD",
+      "variant-engine": "引擎令牌"
+    },
+    "limit": {
+      "layer-core": "核心·图层 1",
+      "layer-engine": "引擎 · 图层 2",
+      "token-selector": {
+        "label": "交易对",
+        "title": "选择交易对",
+        "search-placeholder": "搜索令牌",
+        "core-description": "贸易六溴/艾滋病毒核心市场。",
+        "engine-description": "Layer-2 令牌交易与 SWAP.HIVE 。",
+        "no-results": "没有令牌匹配您的搜索。"
       }
+    },
+    "engine": {
+      "title": "Hive 引擎市场",
+      "description": "直接从您的 Hive 帐户中交易限制订单的 Hive 引擎令牌。",
+      "token": "令牌",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "最后价格",
+      "price-change": "24 小时变化",
+      "volume-label": "24h volume ({{symbol}})",
+      "bids": "购买订单",
+      "asks": "销售订单",
+      "price": "价格",
+      "amount": "Amount ({{symbol}})",
+      "total": "总计",
+      "recent-trades": "最近交易",
+      "time": "时间",
+      "type": "类型",
+      "no-open-orders": "您还没有此市场的开放订单。",
+      "use-best": "使用最佳价格",
+      "use-max": "使用最大值",
+      "invalid-order": "输入一个大于零的有效金额和价格。",
+      "login-required": "请登录 Hive 引擎令牌。",
+      "order-placed": "已下订单",
+      "order-cancelled": "订单已取消",
+      "login-to-trade": "登录以管理您的 Hive 引擎交易。",
+      "deposit": "存入艾滋病毒值",
+      "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
   },
   "list-style": {
@@ -2180,6 +2228,46 @@
       "contact-blog": "创始人博客",
       "contact-news": "Hive 新闻",
       "contact-email": "给我们发电子邮件"
+    },
+    "mobile": {
+      "page-title": "生态移动版",
+      "hero-title": "Your community, anywhere with <span>Ecency Mobile</span>",
+      "hero-subtitle": "保持靠近Hive 社群，响应对话并管理奖励。",
+      "hero-footnote": "可用于 iOS、iPadOS 和 Android 设备。",
+      "cta-ios": "在 App Store 下载",
+      "cta-android": "在 Google Play 上获取",
+      "benefits-title": "为什么你会喜欢生态移动设备",
+      "benefits": {
+        "communities-title": "口袋中的社区",
+        "communities-description": "关注种子，探索热门标签，与你关心的人和主题保持密切联系。",
+        "create-title": "在任何地方发布",
+        "create-description": "帖子草稿，分享更新和回复您在桌面上使用的强大编辑器的评论。",
+        "wallet-title": "一目了然的钱包",
+        "wallet-description": "核对余额，领取奖励并管理Hive Power 或 HBD ，只需几盘磁带即可。",
+        "notifications-title": "永远不要错过一个引用",
+        "notifications-description": "推送通知高亮显示新的关注者、提及和奖励，以便您能够及时庆祝。"
+      },
+      "features-title": "为创作者和社区设计",
+      "features": {
+        "interface-title": "为移动制造的",
+        "interface-description": "享受本机导航、手势友好的控制和布局，在手机和平板电脑上感觉正常。",
+        "themes-title": "白天和夜晚主题",
+        "themes-description": "在轻暗主题之间切换，随时阅读和写入时保持舒适。",
+        "opensource-title": "开放和社区驱动的",
+        "opensource-description": "在 GitHub 上作出贡献，帮助翻译或直接分享应用的反馈。"
+      },
+      "screenshots-title": "见生态移动电话。",
+      "screenshots-description": "清理您在手机和平板电脑上阅读、发布和管理个人资料的视图。",
+      "screenshots-tablet-alt": "平板电脑上显示生态移动接口",
+      "screenshots-phone-alt": "在手机上显示生态移动订阅视图",
+      "screenshots-desktop-alt": "桌面接口旁边的生态移动屏幕",
+      "screenshots-dark-alt": "暗色主题中的生态移动应用",
+      "resources-title": "有益的资源",
+      "resources": {
+        "faq": "访问常见问题解答",
+        "blog": "阅读最新的移动版本便笺",
+        "github": "探索开源移动代码库"
+      }
     },
     "faq": {
       "about-ecency": "关于生态性",

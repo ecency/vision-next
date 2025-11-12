@@ -713,6 +713,7 @@
     "pending-orders": "Ordens pendentes",
     "type": "Tipo",
     "mode-limit": "Limite",
+    "mode-engine": "Mecanismo",
     "mode-swap": "Trocar",
     "mode-advanced": "Avançado",
     "action": "Ação",
@@ -746,6 +747,8 @@
     "success-title": "Transação concluída",
     "more-than-balance": "Você inseriu mais do que o saldo disponível",
     "invalid-amount": "Valor inválido. Por favor, insira um valor menor",
+    "engine-orderbook-thin": "Este mercado tem liquidez limitada. Tente uma quantidade menor ou volte mais tarde.",
+    "engine-orderbook-empty": "Neste momento, não há ordens ativas disponíveis para este mercado.",
     "too-much-slippage": "Recomendamos que você reduza a quantidade para melhorar os preços!",
     "auth-required-title": "Autorização necessária",
     "auth-required-desc": "Você tem que ser autorizado a trocar fundos próprios",
@@ -753,6 +756,10 @@
     "signing": "Entrando..",
     "success-swap": "Trocado com sucesso!",
     "calculating-in": "A calcular",
+    "asset-selector": {
+      "title": "Selecione um token",
+      "search-placeholder": "Pesquisar tokens"
+    },
     "advanced": {
       "history": "Hitórico",
       "stake": "Livro de ordens",
@@ -773,7 +780,48 @@
         "amount": "Quantia",
         "volume": "Volume",
         "time": "Horário"
+      },
+      "variant-hive": "VIH/HBD",
+      "variant-engine": "Tokens de motor"
+    },
+    "limit": {
+      "layer-core": "Núcleo · Layer 1",
+      "layer-engine": "Motor · Camada 2",
+      "token-selector": {
+        "label": "Pai de operação",
+        "title": "Escolha um par de negociação",
+        "search-placeholder": "Pesquisar tokens",
+        "core-description": "Negocie o mercado central HBD/HIVE.",
+        "engine-description": "Token Layer-2 troca contra SWAP.HIVE.",
+        "no-results": "Nenhum token corresponde à sua pesquisa."
       }
+    },
+    "engine": {
+      "title": "Mercado do Hive Engine",
+      "description": "Opere tokens do Hive Engine com demandas limitadas diretamente de sua conta do Hive.",
+      "token": "Identificador",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Último preço",
+      "price-change": "Alteração de 24h",
+      "volume-label": "Volume 24h ({{symbol}})",
+      "bids": "Ordens compradas",
+      "asks": "Vender ordens",
+      "price": "Quantidade",
+      "amount": "Valor ({{symbol}})",
+      "total": "Total:",
+      "recent-trades": "Operações recentes",
+      "time": "Horário",
+      "type": "tipo",
+      "no-open-orders": "Você ainda não tem ordens em aberto para este mercado.",
+      "use-best": "Usar melhor preço",
+      "use-max": "Use o máximo",
+      "invalid-order": "Insira um valor e preço válidos maiores que zero.",
+      "login-required": "Faça login para negociar tokens do Hive Engine",
+      "order-placed": "Pedido realizado",
+      "order-cancelled": "Ordem cancelada",
+      "login-to-trade": "Faça o login para gerenciar suas trocas de Hive Motores.",
+      "deposit": "Depositar HIVE",
+      "deposit-instructions": "Envie o HIVE para @honey-swap com memo {{memo}} para receber SWAP.HIVE."
     }
   },
   "list-style": {
@@ -2180,6 +2228,46 @@
       "contact-blog": "Blog do fundador",
       "contact-news": "Notícias no Hive",
       "contact-email": "Envie-nos um email"
+    },
+    "mobile": {
+      "page-title": "Celular Ecency",
+      "hero-title": "Sua comunidade, em qualquer lugar com <span>Ecency Mobile</span>",
+      "hero-subtitle": "Fique perto das comunidades do Hive, responda a conversas e gerencie recompensas onde quer que você esteja.",
+      "hero-footnote": "Disponível para dispositivos iOS, iPadOS e Android.",
+      "cta-ios": "Baixar na App Store",
+      "cta-android": "Baixe no Google Play",
+      "benefits-title": "Por que você vai adorar celular com Ecency",
+      "benefits": {
+        "communities-title": "Comunidades no seu bolso",
+        "communities-description": "Siga os feeds, explore as tags em alta e fique perto das pessoas e tópicos que você lhe interessa.",
+        "create-title": "Publicar de qualquer lugar",
+        "create-description": "Publicações de rascunho, compartilhar atualizações e responder aos comentários com o mesmo editor poderoso que você usa na área de trabalho.",
+        "wallet-title": "Carteira numa olhada",
+        "wallet-description": "Verifique saldos, reivindique recompensas e gerencie o Hive Power ou HBD com apenas alguns toques.",
+        "notifications-title": "Nunca perca uma menção",
+        "notifications-description": "Push notifications destaca novos seguidores, menções e recompensas para que você possa comemorar a tempo."
+      },
+      "features-title": "Projetado para criadores e comunidades",
+      "features": {
+        "interface-title": "Feito para celular",
+        "interface-description": "Desfrute de navegação nativa, controles amigáveis a gestos e layouts que se sentem bem em casa em telefones e tablets.",
+        "themes-title": "Temas Dia e Noite",
+        "themes-description": "Alterne entre temas claros e escuros para permanecer confortável durante a leitura e escrita a qualquer hora.",
+        "opensource-title": "Aberto e conduzido pela comunidade",
+        "opensource-description": "Contribua no GitHub, ajuda com traduções ou compartilhe feedback diretamente do app."
+      },
+      "screenshots-title": "Ver celular Ecency em ação",
+      "screenshots-description": "Limpe as visualizações para leitura, publicação e gerenciamento de seus perfis em telefones e tablets.",
+      "screenshots-tablet-alt": "Interface móvel de Ecency exibida em um tablet",
+      "screenshots-phone-alt": "Visualização do feed móvel para Ecency em um telefone",
+      "screenshots-desktop-alt": "Tela móvel Ecency ao lado da interface desktop",
+      "screenshots-dark-alt": "Aplicativo móvel Ecency em tema escuro",
+      "resources-title": "Recursos úteis",
+      "resources": {
+        "faq": "Visite o FAQ para respostas rápidas",
+        "blog": "Leia as notas mais recentes do lançamento móvel",
+        "github": "Explore a base de código aberto"
+      }
     },
     "faq": {
       "about-ecency": "Sobre a Ecency",

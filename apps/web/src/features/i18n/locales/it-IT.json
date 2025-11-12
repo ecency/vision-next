@@ -713,6 +713,7 @@
     "pending-orders": "Ordini in attesa",
     "type": "Digita",
     "mode-limit": "Limita",
+    "mode-engine": "Motore",
     "mode-swap": "Cambia",
     "mode-advanced": "Avanzate",
     "action": "Azioni",
@@ -746,6 +747,8 @@
     "success-title": "Transazione completata",
     "more-than-balance": "Hai inserito più del saldo disponibile",
     "invalid-amount": "Importo non valido. Inserisci meno valore",
+    "engine-orderbook-thin": "Questo mercato ha una liquidità limitata. Prova una quantità minore o controlla più tardi.",
+    "engine-orderbook-empty": "Nessun ordine attivo è disponibile per questo mercato in questo momento.",
     "too-much-slippage": "Vi consigliamo vivamente di ridurre l'importo per un prezzo migliore!",
     "auth-required-title": "Preferiti",
     "auth-required-desc": "Devi essere autorizzato a scambiare fondi propri",
@@ -753,6 +756,10 @@
     "signing": "Firma..",
     "success-swap": "Scambio con successo!",
     "calculating-in": "Calcolo in",
+    "asset-selector": {
+      "title": "Seleziona un token",
+      "search-placeholder": "Cerca token"
+    },
     "advanced": {
       "history": "Cronologia",
       "stake": "Libro ordini",
@@ -773,7 +780,48 @@
         "amount": "Importo",
         "volume": "Volume",
         "time": "Ora"
+      },
+      "variant-hive": "HIVE/HBD",
+      "variant-engine": "Token del motore"
+    },
+    "limit": {
+      "layer-core": "Core · Livello 1",
+      "layer-engine": "Motore · Livello 2",
+      "token-selector": {
+        "label": "Coppia di trading",
+        "title": "Scegli una coppia di trading",
+        "search-placeholder": "Cerca token",
+        "core-description": "Opera il principale mercato HBD/HIV.",
+        "engine-description": "Layer-2 token trade contro SWAP.HIVE.",
+        "no-results": "Nessun token corrisponde alla tua ricerca."
       }
+    },
+    "engine": {
+      "title": "Mercato dell'alveare motore",
+      "description": "Trade Hive Engine token con ordini limite direttamente dal tuo account Hive.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Ultimo prezzo",
+      "price-change": "24h cambiamento",
+      "volume-label": "Volume 24h ({{symbol}})",
+      "bids": "Compra ordini",
+      "asks": "Ordini di vendita",
+      "price": "Prezzo",
+      "amount": "Importo ({{symbol}})",
+      "total": "Totale",
+      "recent-trades": "Operazioni recenti",
+      "time": "Tempo",
+      "type": "Tipo",
+      "no-open-orders": "Non hai ancora ordini aperti per questo mercato.",
+      "use-best": "Usa il miglior prezzo",
+      "use-max": "Usa max",
+      "invalid-order": "Inserisci un importo valido e un prezzo maggiore di zero.",
+      "login-required": "Per favore accedi per scambiare token Hive Engine.",
+      "order-placed": "Ordine effettuato",
+      "order-cancelled": "Ordine annullato",
+      "login-to-trade": "Accedi per gestire le tue operazioni di Hive Engine.",
+      "deposit": "Deposito HIVE",
+      "deposit-instructions": "Invia HIVE a @honey-swap con memo {{memo}} per ricevere SWAP.HIVE."
     }
   },
   "list-style": {
@@ -2180,6 +2228,46 @@
       "contact-blog": "Fondatore del Blog",
       "contact-news": "Novità su Hive",
       "contact-email": "Contattaci via email"
+    },
+    "mobile": {
+      "page-title": "Ecency Mobile",
+      "hero-title": "La tua comunità, ovunque con <span>Ecency Mobile</span>",
+      "hero-subtitle": "Resta vicino alle comunità di Hive, rispondi alle conversazioni e gestisci le ricompense ovunque ti trovi.",
+      "hero-footnote": "Disponibile per dispositivi iOS, iPadOS e Android.",
+      "cta-ios": "Scarica su App Store",
+      "cta-android": "Scaricalo su Google Play",
+      "benefits-title": "Perché amerai Ecency mobile",
+      "benefits": {
+        "communities-title": "Comunità nella tua tasca",
+        "communities-description": "Seguire i feed, esplorare i tag di tendenza e rimanere vicino alle persone e agli argomenti che ti interessano.",
+        "create-title": "Pubblica da qualsiasi luogo",
+        "create-description": "Bozza di post, condividi gli aggiornamenti e rispondi ai commenti con lo stesso potente editor che usi sul desktop.",
+        "wallet-title": "Portafoglio a colpo d'occhio",
+        "wallet-description": "Controllare i saldi, ottenere premi e gestire Hive Power o HBD con solo un paio di rubinetti.",
+        "notifications-title": "Non perdere mai una menzione",
+        "notifications-description": "Le notifiche push evidenziano nuovi follower, menzioni e ricompense in modo da poter festeggiare in tempo."
+      },
+      "features-title": "Progettato per creatori e comunità",
+      "features": {
+        "interface-title": "Realizzato per dispositivi mobili",
+        "interface-description": "Godetevi la navigazione nativa, controlli e layout gesti amichevoli che si sentono a casa su telefoni e tablet.",
+        "themes-title": "Temi giorno e notte",
+        "themes-description": "Passare da temi chiari a temi scuri per stare a proprio agio durante la lettura e la scrittura a qualsiasi ora.",
+        "opensource-title": "Aperto e guidato dalla comunità",
+        "opensource-description": "Contribuire su GitHub, aiutare con le traduzioni o condividere il feedback direttamente dall'app."
+      },
+      "screenshots-title": "Vedere Ecency mobile in azione",
+      "screenshots-description": "Pulisci le viste per leggere, pubblicare e gestire il tuo profilo tra telefoni e tablet.",
+      "screenshots-tablet-alt": "Interfaccia mobile Ecency visualizzata su un tablet",
+      "screenshots-phone-alt": "Ecency mobile feed view su un telefono",
+      "screenshots-desktop-alt": "Schermata mobile Ecency accanto all'interfaccia desktop",
+      "screenshots-dark-alt": "App mobile Ecency in tema scuro",
+      "resources-title": "Risorse utili",
+      "resources": {
+        "faq": "Visita le FAQ per risposte rapide",
+        "blog": "Leggi le ultime note di rilascio mobile",
+        "github": "Esplora il codice mobile open-source"
+      }
     },
     "faq": {
       "about-ecency": "Informazioni Su Ecency",

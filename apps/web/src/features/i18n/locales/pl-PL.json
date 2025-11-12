@@ -713,6 +713,7 @@
     "pending-orders": "Zamówienia oczekujące",
     "type": "Typ",
     "mode-limit": "Ograniczenie",
+    "mode-engine": "Silnik",
     "mode-swap": "Zamień",
     "mode-advanced": "Zaawansowane",
     "action": "Akcja",
@@ -746,6 +747,8 @@
     "success-title": "Transakcja zakończona",
     "more-than-balance": "Wprowadziłeś więcej niż dostępne saldo",
     "invalid-amount": "Nieprawidłowa kwota. Wprowadź mniej wartości",
+    "engine-orderbook-thin": "Ten rynek ma ograniczoną płynność. Wypróbuj mniejszą ilość lub sprawdź ponownie później.",
+    "engine-orderbook-empty": "W tej chwili nie ma dostępnych aktywnych zamówień dla tego rynku.",
     "too-much-slippage": "Zalecamy zmniejszenie kwoty za lepszą cenę!",
     "auth-required-title": "Wymagana autoryzacja",
     "auth-required-desc": "Musisz być autoryzowany do zamiany środków własnych",
@@ -753,6 +756,10 @@
     "signing": "Podpisywanie..",
     "success-swap": "Pomyślnie zamieniono!",
     "calculating-in": "Obliczanie w",
+    "asset-selector": {
+      "title": "Wybierz token",
+      "search-placeholder": "Szukaj tokenów"
+    },
     "advanced": {
       "history": "Historia",
       "stake": "Książka zamówień",
@@ -773,7 +780,48 @@
         "amount": "Kwota",
         "volume": "Objętość",
         "time": "Czas"
+      },
+      "variant-hive": "HIV/HBD",
+      "variant-engine": "Tokeny silnika"
+    },
+    "limit": {
+      "layer-core": "Rdzeń · Warstwa 1",
+      "layer-engine": "Silnik · Warstwa 2",
+      "token-selector": {
+        "label": "Para handlowa",
+        "title": "Wybierz parę handlową",
+        "search-placeholder": "Szukaj tokenów",
+        "core-description": "Handluj podstawowym rynkiem HBD/HIVE.",
+        "engine-description": "Warstwa-2 transakcje tokenów przeciwko SWAP.HIVE.",
+        "no-results": "Żaden token nie pasuje do Twojego wyszukiwania."
       }
+    },
+    "engine": {
+      "title": "Rynek silników ulowych",
+      "description": "Handluj tokenami silnika Hive z limitami zleceń bezpośrednio z Twojego konta Hive.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Ostatnia cena",
+      "price-change": "24h zmiana",
+      "volume-label": "24h głośność ({{symbol}})",
+      "bids": "Kup zamówienia",
+      "asks": "Sprzedaj zamówienia",
+      "price": "Cena",
+      "amount": "Kwota ({{symbol}})",
+      "total": "Łącznie",
+      "recent-trades": "Ostatnie transakcje",
+      "time": "Czas",
+      "type": "Typ",
+      "no-open-orders": "Nie masz jeszcze otwartych zamówień dla tego rynku.",
+      "use-best": "Użyj najlepszej ceny",
+      "use-max": "Użyj maks.",
+      "invalid-order": "Wprowadź poprawną kwotę i cenę większą niż zero.",
+      "login-required": "Zaloguj się, aby handlować tokenami silnika Hive.",
+      "order-placed": "Zamówienie złożone",
+      "order-cancelled": "Zamówienie anulowane",
+      "login-to-trade": "Zaloguj się, aby zarządzać transakcjami z silnika Hive.",
+      "deposit": "Wpłać HIVE",
+      "deposit-instructions": "Wyślij HIVE do @honey-swap z notatką {{memo}} , aby otrzymać SWAP.HIVE."
     }
   },
   "list-style": {
@@ -2180,6 +2228,46 @@
       "contact-blog": "Blog Fundatora",
       "contact-news": "Wiadomości w Ule",
       "contact-email": "Napisz do nas"
+    },
+    "mobile": {
+      "page-title": "Komórka Ecency",
+      "hero-title": "Twoja społeczność, gdziekolwiek z <span>Ecency Mobile</span>",
+      "hero-subtitle": "Pozostań w pobliżu społeczności Uli, reaguj na rozmowy i zarządzaj nagrodami gdziekolwiek jesteś.",
+      "hero-footnote": "Dostępne dla urządzeń iOS, iPadOS i Android.",
+      "cta-ios": "Pobierz w App Store",
+      "cta-android": "Pobierz w Google Play",
+      "benefits-title": "Czemu kochasz Ecency Mobile",
+      "benefits": {
+        "communities-title": "Społeczności w twojej kieszeni",
+        "communities-description": "Obserwuj kanały, odkrywaj popularne tagi i pozostań blisko ludzi i tematów, którymi się zajmujesz.",
+        "create-title": "Opublikuj z dowolnego miejsca",
+        "create-description": "Szkic postów, udostępniaj aktualizacje i odpowiadaj na komentarze z tym samym potężnym edytorem, którego używasz na komputerze.",
+        "wallet-title": "Portfel na rzut oka",
+        "wallet-description": "Sprawdź salda, odbierz nagrody i zarządzaj Mością Uroczną lub HBD tylko kilkoma dotknięciami.",
+        "notifications-title": "Nigdy nie przegap wzmianki",
+        "notifications-description": "Powiadomienia wyróżniają nowych obserwujących, wzmianki i nagrody, dzięki czemu możesz świętować na czas."
+      },
+      "features-title": "Zaprojektowane dla twórców i społeczności",
+      "features": {
+        "interface-title": "Wykonane na telefon komórkowy",
+        "interface-description": "Ciesz się natywną nawigacją, przyjaznymi dla gestów urządzeniami sterującymi i układami, które czują się w domu na telefonach i tabletach.",
+        "themes-title": "Motywy dnia i nocy",
+        "themes-description": "Przełącz pomiędzy jasnymi i ciemnymi motywami, aby zachować komfort podczas czytania i pisania o dowolnej godzinie.",
+        "opensource-title": "Otwarte i wspierane przez społeczność",
+        "opensource-description": "Wspomóż GitHub, pomóż z tłumaczeniami lub udostępniaj opinie bezpośrednio z aplikacji."
+      },
+      "screenshots-title": "Zobacz Ecency mobilny w akcji",
+      "screenshots-description": "Wyczyść widoki do czytania, publikowania i zarządzania profilem przez telefony i tablety.",
+      "screenshots-tablet-alt": "Ecency mobilny interfejs wyświetlany na tablecie",
+      "screenshots-phone-alt": "Ecencja widoku kanałów mobilnych w telefonie",
+      "screenshots-desktop-alt": "Ecencja ekranu mobilnego obok interfejsu pulpitu",
+      "screenshots-dark-alt": "Ecencja aplikacji mobilnej w ciemnym motywie",
+      "resources-title": "Pomocne zasoby",
+      "resources": {
+        "faq": "Odwiedź FAQ aby uzyskać szybkie odpowiedzi",
+        "blog": "Przeczytaj najnowsze informacje o wydaniu mobilnym",
+        "github": "Przeglądaj open-source mobilną bazę kodową"
+      }
     },
     "faq": {
       "about-ecency": "O Ecencji",

@@ -713,6 +713,7 @@
     "pending-orders": "Commandes en attente",
     "type": "Type de texte",
     "mode-limit": "Limite",
+    "mode-engine": "Moteur",
     "mode-swap": "Permuter",
     "mode-advanced": "Avancé",
     "action": "Action",
@@ -746,6 +747,8 @@
     "success-title": "Transaction terminée",
     "more-than-balance": "Vous avez entré plus que le solde disponible",
     "invalid-amount": "Montant invalide. Veuillez entrer moins de valeur",
+    "engine-orderbook-thin": "Ce marché a des liquidités limitées. Essayez un montant plus petit ou revenez plus tard.",
+    "engine-orderbook-empty": "Aucun ordre actif n'est disponible pour ce marché en ce moment.",
     "too-much-slippage": "Nous vous recommandons fortement de réduire le montant pour un meilleur prix!",
     "auth-required-title": "Autorisation requise",
     "auth-required-desc": "Vous devez être autorisé à échanger vos propres fonds",
@@ -753,6 +756,10 @@
     "signing": "Signature en cours...",
     "success-swap": "Échangé avec succès!",
     "calculating-in": "Calcul dans",
+    "asset-selector": {
+      "title": "Sélectionnez un jeton",
+      "search-placeholder": "Rechercher des jetons"
+    },
     "advanced": {
       "history": "Historique",
       "stake": "Carnet de commandes",
@@ -773,7 +780,48 @@
         "amount": "Montant",
         "volume": "Volume",
         "time": "Date et heure"
+      },
+      "variant-hive": "VIH/HBD",
+      "variant-engine": "Jetons de moteur"
+    },
+    "limit": {
+      "layer-core": "Noyau · Layer 1",
+      "layer-engine": "Moteur · Couche 2",
+      "token-selector": {
+        "label": "Paire de trading",
+        "title": "Choisissez une paire de trading",
+        "search-placeholder": "Rechercher des jetons",
+        "core-description": "Négociez le marché principal de HBD/HIVE.",
+        "engine-description": "Le jeton de la couche 2 se négocie contre SWAP.HIE.",
+        "no-results": "Aucun jeton ne correspond à votre recherche."
       }
+    },
+    "engine": {
+      "title": "Marché des moteurs Hive",
+      "description": "Échangez des jetons Hive Engine avec des ordres limités directement depuis votre compte Hive.",
+      "token": "Jeton",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Dernier prix",
+      "price-change": "Changement de 24h",
+      "volume-label": "Volume 24h ({{symbol}})",
+      "bids": "Commandes d'achat",
+      "asks": "Commandes de vente",
+      "price": "Prix",
+      "amount": "Montant ({{symbol}})",
+      "total": "Total",
+      "recent-trades": "Échanges récents",
+      "time": "Date et heure",
+      "type": "Type de texte",
+      "no-open-orders": "Vous n'avez pas encore d'ordres ouverts pour ce marché.",
+      "use-best": "Utiliser le meilleur prix",
+      "use-max": "Utiliser le max",
+      "invalid-order": "Entrez un montant valide et un prix supérieur à zéro.",
+      "login-required": "Veuillez vous connecter pour échanger des jetons de moteur Hiv.",
+      "order-placed": "Commande passée",
+      "order-cancelled": "Commande annulée",
+      "login-to-trade": "Connectez-vous pour gérer vos échanges avec Hive Engine.",
+      "deposit": "Déposer en HAUT",
+      "deposit-instructions": "Envoyez HIVE à @honey-swap avec un mémo {{memo}} pour recevoir SWAP.HIVE."
     }
   },
   "list-style": {
@@ -2180,6 +2228,46 @@
       "contact-blog": "Blog du Fondateur",
       "contact-news": "Nouveautés sur Hive",
       "contact-email": "Écrivez-nous"
+    },
+    "mobile": {
+      "page-title": "Mobile Ecency",
+      "hero-title": "Votre communauté, n'importe où avec <span>Ecency Mobile</span>",
+      "hero-subtitle": "Restez à proximité des communautés Hive, répondez aux conversations et gérez les récompenses où que vous soyez.",
+      "hero-footnote": "Disponible pour les appareils iOS, iPadOS et Android.",
+      "cta-ios": "Télécharger sur l'App Store",
+      "cta-android": "Télécharger sur Google Play",
+      "benefits-title": "Pourquoi vous allez adorer Ecency mobile",
+      "benefits": {
+        "communities-title": "Communautés dans votre poche",
+        "communities-description": "Suivez les flux, explorez les balises tendances et restez près des personnes et des sujets qui vous intéressent.",
+        "create-title": "Publier depuis n'importe où",
+        "create-description": "Brouillons de publications, partagez les mises à jour et répondez aux commentaires avec le même puissant éditeur que vous utilisez sur le bureau.",
+        "wallet-title": "Portefeuille d'un coup d'œil",
+        "wallet-description": "Vérifiez les soldes, réclamez des récompenses et gérez la puissance Hive ou HBD en quelques clics.",
+        "notifications-title": "Ne manquez jamais une mention",
+        "notifications-description": "Les notifications push mettent en surbrillance les nouveaux abonnés, les mentions et les récompenses afin que vous puissiez célébrer à temps."
+      },
+      "features-title": "Conçu pour les créateurs et les communautés",
+      "features": {
+        "interface-title": "Fait pour mobile",
+        "interface-description": "Profitez de la navigation native, de commandes et de mises en page conviviales qui se sentent bien à la maison sur les téléphones et les tablettes.",
+        "themes-title": "Thèmes jour et nuit",
+        "themes-description": "Basculez entre thèmes clairs et sombres pour rester à l'aise en lisant et en écrivant à n'importe quelle heure.",
+        "opensource-title": "Ouvert et orienté vers la communauté",
+        "opensource-description": "Contribuez sur GitHub, aidez avec les traductions ou partagez vos commentaires directement depuis l'application."
+      },
+      "screenshots-title": "Voir Ecency mobile en action",
+      "screenshots-description": "Nettoyez les vues pour lire, publier et gérer votre profil sur tous les téléphones et tablettes.",
+      "screenshots-tablet-alt": "Interface mobile Ecency affichée sur une tablette",
+      "screenshots-phone-alt": "Affichage des flux mobiles sur un téléphone",
+      "screenshots-desktop-alt": "Écence écran mobile à côté de l'interface de bureau",
+      "screenshots-dark-alt": "Application mobile Ecency dans le thème sombre",
+      "resources-title": "Ressources utiles",
+      "resources": {
+        "faq": "Visitez la FAQ pour des réponses rapides",
+        "blog": "Lire les dernières notes de version mobile",
+        "github": "Explorez la base de code mobile open-source"
+      }
     },
     "faq": {
       "about-ecency": "À propos de Ecency",
