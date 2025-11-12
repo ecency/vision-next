@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Você só pode postar uma vez a cada cinco minutos.",
     "identical-vote": "Seu voto atual sobre este conteúdo é idêntico a este voto.",
-    "must-claim": "Nenhum saldo reivindicado ou já reivindicado.",
+    "must-claim": "Recompensas pendentes já reivindicadas.",
     "insufficient-resource": "Créditos de Recursos insuficientes.",
     "delete-comment-with-vote": "Não é possível excluir um conteúdo com recompensas pendentes.",
     "comment-cashout": "O conteúdo não pode ser excluído após o pagamento.",
