@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Her beş dakikada bir yalnızca bir gönderi paylaşabilirsiniz.",
     "identical-vote": "Bu içerikteki mevcut oyunuz bu oy ile aynıdır.",
-    "must-claim": "No claiming balance or already claimed.",
+    "must-claim": "Pending rewards already claimed.",
     "insufficient-resource": "Insufficient Resource Credits.",
     "delete-comment-with-vote": "Bekleyen pozitif ödülleri olan bir içerik silinemez.",
     "comment-cashout": "Ödemesini almış olan içerikler silinemez.",
