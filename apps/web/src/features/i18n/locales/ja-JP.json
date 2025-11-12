@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "5分に1回しか投稿できません。",
     "identical-vote": "このコンテンツへの現在の投票は、この投票と同じです。",
-    "must-claim": "請求の残高や請求済みの残高はありません。",
+    "must-claim": "保留中の報酬は既に請求されています。",
     "insufficient-resource": "資源クレジットが不足しています。",
     "delete-comment-with-vote": "肯定的な保留中の報酬を削除することはできません。",
     "comment-cashout": "支払い後のコンテンツは削除できません。",
@@ -3050,6 +3050,7 @@
     "pick-tokens": "表示するトークンを選択",
     "search-token": "検索トークン",
     "setup-tokens": "トークンの管理",
+    "trade-tokens": "取引トークン",
     "asset-name": "資産名",
     "price": "価格",
     "balance": "残高",

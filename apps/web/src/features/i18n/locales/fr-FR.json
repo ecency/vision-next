@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Vous ne pouvez poster qu'une seule fois toutes les cinq minutes.",
     "identical-vote": "Votre vote actuel sur ce contenu est identique à ce vote.",
-    "must-claim": "Aucun solde réclamé ou déjà réclamé.",
+    "must-claim": "Récompenses en attente déjà réclamées.",
     "insufficient-resource": "Crédits de Ressources insuffisants.",
     "delete-comment-with-vote": "Impossible de supprimer un contenu avec des récompenses positives en attente.",
     "comment-cashout": "Le contenu après leur paiement ne peut pas être supprimé.",
@@ -3050,6 +3050,7 @@
     "pick-tokens": "Choisir les jetons à afficher",
     "search-token": "Jeton de recherche",
     "setup-tokens": "Gérer les jetons",
+    "trade-tokens": "Jetons d'échange",
     "asset-name": "Nom de l'actif",
     "price": "Prix",
     "balance": "Solde",

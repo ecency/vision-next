@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Siz har besh daqiqada bir marta xabar yozishingiz mumkin.",
     "identical-vote": "Bu kontentdagi hozirgi ovozingiz shu ovoz bilan bir xil.",
-    "must-claim": "No claiming balance or already claimed.",
+    "must-claim": "Pending rewards already claimed.",
     "insufficient-resource": "Resurs kreditlari yetarli emas.",
     "delete-comment-with-vote": "Mukofot kutilayotgan ijobiy kontentni oʻchirib boʻlmaydi.",
     "comment-cashout": "Toʻlovdan keyin kontentni oʻchirib boʻlmaydi.",
@@ -3050,6 +3050,7 @@
     "pick-tokens": "Pick tokens to show",
     "search-token": "Search token",
     "setup-tokens": "Manage tokens",
+    "trade-tokens": "Trade tokens",
     "asset-name": "Asset name",
     "price": "Price",
     "balance": "Balance",

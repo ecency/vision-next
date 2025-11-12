@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "您只能每五分钟发布一次。",
     "identical-vote": "您当前对此内容的投票与本次投票完全相同。",
-    "must-claim": "没有索要余额或已经索要。",
+    "must-claim": "待处理奖励已经领取。",
     "insufficient-resource": "资源积分不足。",
     "delete-comment-with-vote": "不能删除正等待奖励的内容。",
     "comment-cashout": "不能删除他们付款后的内容。",
@@ -3050,6 +3050,7 @@
     "pick-tokens": "选择要显示的标记",
     "search-token": "搜索令牌",
     "setup-tokens": "管理令牌",
+    "trade-tokens": "交易令牌",
     "asset-name": "资产名称",
     "price": "价格",
     "balance": "余额",

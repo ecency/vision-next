@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Sólo puedes publicar una vez cada cinco minutos.",
     "identical-vote": "Tu voto actual sobre este contenido es idéntico a esta votación.",
-    "must-claim": "Nada a reclamar en balance o ya ha sido reclamado.",
+    "must-claim": "Recompensas pendientes ya reclamadas.",
     "insufficient-resource": "Créditos de Recursos insuficientes.",
     "delete-comment-with-vote": "No se puede eliminar un contenido con recompensas positivas pendientes.",
     "comment-cashout": "El contenido después de su pago no puede ser eliminado.",
@@ -3050,6 +3050,7 @@
     "pick-tokens": "Elegir tokens para mostrar",
     "search-token": "Buscar tokens",
     "setup-tokens": "Administrar tokens",
+    "trade-tokens": "Tokens de comercio",
     "asset-name": "Nombre del recurso",
     "price": "Precio",
     "balance": "Balance",

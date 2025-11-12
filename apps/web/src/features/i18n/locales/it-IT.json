@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Puoi pubblicare soltanto una volta ogni cinque minuti.",
     "identical-vote": "Il tuo voto attuale sul contenuto corrente è identico a questo voto.",
-    "must-claim": "Nessun saldo di rivendicazione o già rivendicato.",
+    "must-claim": "Ricompense in attesa già reclamate.",
     "insufficient-resource": "Crediti Di Risorse Insufficienti.",
     "delete-comment-with-vote": "Impossibile eliminare un contenuto con ricompense positive in sospeso.",
     "comment-cashout": "I contenuti non possono essere eliminati dopo il loro pagamento.",
@@ -3050,6 +3050,7 @@
     "pick-tokens": "Scegli i token da mostrare",
     "search-token": "Token di ricerca",
     "setup-tokens": "Gestisci i token",
+    "trade-tokens": "Trade token",
     "asset-name": "Nome asset",
     "price": "Prezzo",
     "balance": "Saldo",
