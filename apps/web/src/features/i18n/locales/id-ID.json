@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Anda hanya dapat mempublikasikan satu konten saja setiap lima menit.",
     "identical-vote": "Voting terbaru Anda pada konten ini sudah dilakukan.",
-    "must-claim": "No claiming balance or already claimed.",
+    "must-claim": "Pending rewards already claimed.",
     "insufficient-resource": "Insufficient Resource Credits.",
     "delete-comment-with-vote": "Tidak bisa menghapus sebuah konten dengan reward yang belum dibayar.",
     "comment-cashout": "Konten setelah pembayaran tidak bisa dihapus.",
