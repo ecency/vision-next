@@ -2568,7 +2568,7 @@
   "chain-error": {
     "min-root-comment": "Je mag maar eenmaal per vijf minuten een bericht plaatsen.",
     "identical-vote": "Uw huidige stemming over deze inhoud is identiek aan deze stemming.",
-    "must-claim": "Geen claim saldo of wordt al beweerd.",
+    "must-claim": "Beloningen in behandeling zijn al geëist.",
     "insufficient-resource": "Onvoldoende Grondstof Credits.",
     "delete-comment-with-vote": "Kan geen inhoud met positieve beloningen verwijderen.",
     "comment-cashout": "Inhoud na uitbetaling kan niet verwijderd worden.",
