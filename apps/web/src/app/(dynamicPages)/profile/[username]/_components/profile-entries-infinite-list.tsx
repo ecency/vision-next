@@ -1,6 +1,11 @@
 "use client";
 
-import { DetectBottom, EntryListContent, EntryListContentLoading } from "@/features/shared";
+import {
+  DetectBottom,
+  EntryListContent,
+  EntryListContentLoading,
+  EntryListContentNoData
+} from "@/features/shared";
 import React, { useMemo } from "react";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, FullAccount } from "@/entities";
@@ -8,20 +13,41 @@ import { Entry, FullAccount } from "@/entities";
 interface Props {
   account: FullAccount;
   section: string;
+  initialEntriesCount: number;
+  initialPageEntriesCount: number;
+  initialDataLoaded: boolean;
 }
 
-export function ProfileEntriesInfiniteList({ section, account }: Props) {
-  const { fetchNextPage, data, isFetching } = usePostsFeedQuery(section, `@${account.name}`);
-
-  const entryList = useMemo(
-    () =>
-      // Drop first page as it has loaded in a server and shown in RSC
-      data?.pages
-        ?.slice(1)
-        ?.reduce<Entry[]>((acc, page) => [...acc, ...(page as Entry[])], [])
-        ?.filter((item: Entry) => item.permlink !== account.profile?.pinned) ?? [],
-    [account.profile?.pinned, data?.pages]
+export function ProfileEntriesInfiniteList({
+  section,
+  account,
+  initialEntriesCount,
+  initialPageEntriesCount,
+  initialDataLoaded
+}: Props) {
+  const { fetchNextPage, data, isFetching, isLoading } = usePostsFeedQuery(
+    section,
+    `@${account.name}`
   );
+
+  const dropFirstPage = initialPageEntriesCount > 0;
+
+  const entryList = useMemo(() => {
+    const pages = data?.pages ?? [];
+    const relevantPages = dropFirstPage ? pages.slice(1) : pages;
+    return (
+      relevantPages
+        ?.reduce<Entry[]>((acc, page) => [...acc, ...(page as Entry[])], [])
+        ?.filter((item: Entry) => item.permlink !== account.profile?.pinned) ?? []
+    );
+  }, [account.profile?.pinned, data?.pages, dropFirstPage]);
+
+  const totalEntriesCount = initialEntriesCount + entryList.length;
+  const hasClientData = (data?.pages?.length ?? 0) > 0;
+  const isDataReady = initialDataLoaded || hasClientData;
+  const isFetchingData = isLoading || isFetching;
+  const shouldShowEmptyState =
+    isDataReady && !isFetchingData && totalEntriesCount === 0;
 
   return (
     <>
@@ -33,8 +59,15 @@ export function ProfileEntriesInfiniteList({ section, account }: Props) {
         isPromoted={false}
         showEmptyPlaceholder={false}
       />
+      {shouldShowEmptyState && (
+        <EntryListContentNoData
+          username={`@${account.name}`}
+          loading={false}
+          section={section}
+        />
+      )}
       <DetectBottom onBottom={() => fetchNextPage()} />
-      {isFetching && <EntryListContentLoading />}
+      {isFetchingData && <EntryListContentLoading />}
     </>
   );
 }

@@ -6,7 +6,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
-import { SearchResult } from "@/entities";
+import { Entry, SearchResult } from "@/entities";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { SearchResponse } from "@/entities";
 
@@ -32,6 +32,8 @@ export default async function Page({ params, searchParams }: Props) {
   ).prefetch();
 
   let searchData: SearchResult[] | undefined = undefined;
+  let initialFeed: InfiniteData<Entry[], unknown> | undefined;
+
   if (searchParam && searchParam !== "") {
     const searchPages = (await getSearchApiQuery(
         `${searchParam} author:${username} type:post`,
@@ -49,7 +51,8 @@ export default async function Page({ params, searchParams }: Props) {
         .slice()
         .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
   } else {
-    await prefetchGetPostsFeedQuery(section, `@${username}`);
+    const prefetched = await prefetchGetPostsFeedQuery(section, `@${username}`);
+    initialFeed = prefetched as InfiniteData<Entry[], unknown> | undefined;
   }
 
   if (!account || !["", "posts", "comments", "replies", "blog"].includes(section)) {
@@ -61,7 +64,7 @@ export default async function Page({ params, searchParams }: Props) {
       {searchData && searchData.length > 0 ? (
         <ProfileSearchContent items={searchData} />
       ) : (
-        <ProfileEntriesList section={section} account={account} />
+        <ProfileEntriesList section={section} account={account} initialFeed={initialFeed} />
       )}
     </HydrationBoundary>
   );
