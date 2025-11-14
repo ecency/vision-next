@@ -30,12 +30,18 @@ export default async function FeedPage({ params, searchParams }: Props) {
   if (!rawTag && observer && ["trending", "hot", "created"].includes(filter)) {
     redirect(`/${filter}/my`);
   }
-  await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
+  const initialFeedData = await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
   await getPromotedEntriesQuery().prefetch();
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <FeedContent searchParams={sParams} tag={tag} filter={filter} observer={observer} />
+      <FeedContent
+        searchParams={sParams}
+        tag={tag}
+        filter={filter}
+        observer={observer}
+        initialData={initialFeedData}
+      />
     </HydrationBoundary>
   );
 }

@@ -3,17 +3,28 @@ import React from "react";
 import { FeedLayout } from "@/app/(dynamicPages)/feed/_components/feed-layout";
 import { getPostsFeedQueryData } from "@/api/queries";
 import { Entry } from "@/entities";
+import type { InfiniteData } from "@tanstack/react-query";
+import type { SearchResponse } from "@/entities";
 import { FeedInfiniteList } from "@/app/(dynamicPages)/feed/_components/feed-infinite-list";
+
+type Page = Entry[] | SearchResponse;
 
 interface Props {
   filter: string;
   tag: string;
   observer?: string;
   searchParams: Record<string, string>;
+  initialData?: InfiniteData<Page, unknown>;
 }
 
-export function FeedContent({ filter, tag, observer, searchParams }: Props) {
-  const data = getPostsFeedQueryData(filter, tag, 20, observer);
+export function FeedContent({
+  filter,
+  tag,
+  observer,
+  searchParams,
+  initialData
+}: Props) {
+  const data = initialData ?? getPostsFeedQueryData(filter, tag, 20, observer);
 
   const noReblog = searchParams["no-reblog"] === "true";
 
