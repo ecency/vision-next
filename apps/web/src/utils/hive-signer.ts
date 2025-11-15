@@ -532,6 +532,40 @@ function buildProposalVoteContext(params: Record<string, any>): HiveAuthContext 
   };
 }
 
+function buildCreateProposalContext(params: Record<string, any>): HiveAuthContext | null {
+  if (
+    typeof params.creator !== "string" ||
+    typeof params.receiver !== "string" ||
+    typeof params.subject !== "string" ||
+    typeof params.permlink !== "string" ||
+    typeof params.start_date !== "string" ||
+    typeof params.end_date !== "string" ||
+    typeof params.daily_pay !== "string"
+  ) {
+    return null;
+  }
+
+  const operation: Operation = [
+    "create_proposal",
+    {
+      creator: params.creator,
+      receiver: params.receiver,
+      start_date: params.start_date,
+      end_date: params.end_date,
+      daily_pay: params.daily_pay,
+      subject: params.subject,
+      permlink: params.permlink,
+      extensions: []
+    }
+  ];
+
+  return {
+    username: params.creator,
+    keyType: "active",
+    operations: [operation]
+  };
+}
+
 function buildGenericContext(
   endpoint: string,
   params: Record<string, any>
@@ -596,6 +630,8 @@ function createHiveAuthContext(
       return buildWitnessProxyContext(params);
     case "update-proposal-votes":
       return buildProposalVoteContext(params);
+    case "create-proposal":
+      return buildCreateProposalContext(params);
     default:
       return null;
   }

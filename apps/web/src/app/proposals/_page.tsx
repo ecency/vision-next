@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import numeral from "numeral";
 import defaults from "@/defaults.json";
 import { setProxyBase } from "@ecency/render-helper";
@@ -7,7 +7,7 @@ import "./_page.scss";
 import { Feedback, LinearProgress, Navbar, ScrollToTop, SearchBox, Theme } from "@/features/shared";
 import { Tsx } from "@/features/i18n/helper";
 import i18next from "i18next";
-import { ProposalListItem } from "@/app/proposals/_components";
+import { ProposalCreateForm, ProposalListItem } from "@/app/proposals/_components";
 import { getAccountFullQuery, getProposalsQuery } from "@/api/queries";
 import { parseAsset } from "@/utils";
 import { Proposal } from "@/entities";
@@ -15,14 +15,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useInViewport } from "react-in-viewport";
 import { useDebounce } from "react-use";
 import { useSearchParams } from "next/navigation";
-
 setProxyBase(defaults.imageServer);
 
 enum Filter {
   ALL = "all",
   ACTIVE = "active",
   INACTIVE = "inactive",
-  TEAM = "team"
+  TEAM = "team",
+  CREATE = "create"
 }
 
 export function ProposalsPage() {
@@ -120,6 +120,9 @@ export function ProposalsPage() {
     }
   }, [searchParams]);
 
+  const showCreateForm = filter === Filter.CREATE;
+  const showProposalsList = !showCreateForm;
+
   return (
     <>
       <ScrollToTop />
@@ -182,8 +185,13 @@ export function ProposalsPage() {
             })}
           </div>
         </div>
-        {isLoading && <LinearProgress />}
-        {(sliced?.length ?? 0) > 0 && (
+        {showCreateForm && (
+          <div id="proposal-create-form">
+            <ProposalCreateForm />
+          </div>
+        )}
+        {showProposalsList && isLoading && <LinearProgress />}
+        {showProposalsList && (sliced?.length ?? 0) > 0 && (
           <div className="proposal-list">
             <AnimatePresence>
               {sliced?.map((p, i) => (
