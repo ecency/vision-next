@@ -1174,6 +1174,69 @@ export const witnessProxyKc = (account: string, witness: string) => {
   return keychain.witnessProxy(account, witness);
 };
 
+type ProposalCreatePayload = {
+  receiver: string;
+  subject: string;
+  permlink: string;
+  start: string;
+  end: string;
+  dailyPay: string;
+};
+
+export const proposalCreate = (
+  account: string,
+  key: PrivateKey,
+  payload: ProposalCreatePayload
+): Promise<TransactionConfirmation> => {
+  const op: Operation = [
+    "create_proposal",
+    {
+      creator: account,
+      receiver: payload.receiver,
+      start_date: payload.start,
+      end_date: payload.end,
+      daily_pay: payload.dailyPay,
+      subject: payload.subject,
+      permlink: payload.permlink,
+      extensions: []
+    }
+  ];
+
+  return hiveClient.broadcast.sendOperations([op], key);
+};
+
+export const proposalCreateHot = (account: string, payload: ProposalCreatePayload) => {
+  const params = {
+    creator: account,
+    receiver: payload.receiver,
+    start_date: payload.start,
+    end_date: payload.end,
+    daily_pay: payload.dailyPay,
+    subject: payload.subject,
+    permlink: payload.permlink
+  };
+
+  hotSign("create-proposal", params, "proposals");
+};
+
+export const proposalCreateKc = (account: string, payload: ProposalCreatePayload) => {
+  const op: Operation = [
+    "create_proposal",
+    {
+      creator: account,
+      receiver: payload.receiver,
+      start_date: payload.start,
+      end_date: payload.end,
+      daily_pay: payload.dailyPay,
+      subject: payload.subject,
+      permlink: payload.permlink,
+      extensions: []
+    }
+  ];
+
+  return keychain.broadcast(account, [op], "Active");
+};
+
 export const proposalVote = (
   account: string,
   key: PrivateKey,
