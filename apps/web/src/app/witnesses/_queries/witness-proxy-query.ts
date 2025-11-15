@@ -3,7 +3,12 @@ import { QueryIdentifiers } from "@/core/react-query";
 import { useSearchParams } from "next/navigation";
 import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+
+export interface WitnessProxyQueryResult {
+  highlightedProxy: string;
+  activeUserProxy: string;
+}
 
 export function useWitnessProxyQuery() {
   const searchParams = useSearchParams();
@@ -15,14 +20,27 @@ export function useWitnessProxyQuery() {
     searchParams?.get("username") ?? searchParams?.get("account") ?? ""
   ).useClientQuery();
 
+  const activeUserProxy = activeUserAccount?.proxy ?? "";
+  const urlAccountProxy = urlParamAccount?.proxy ?? "";
+
+  const proxyResult = useMemo<WitnessProxyQueryResult>(() => {
+    const highlightedProxy = urlAccountProxy || activeUserProxy;
+
+    return { highlightedProxy, activeUserProxy };
+  }, [activeUserProxy, urlAccountProxy]);
+
+  useEffect(() => {
+    queryClient.setQueryData([QueryIdentifiers.WITNESSES, "proxy"], proxyResult);
+  }, [proxyResult, queryClient]);
+
   useEffect(() => {
     queryClient.refetchQueries({ queryKey: [QueryIdentifiers.WITNESSES, "proxy"] });
   }, [urlParamAccount, activeUserAccount, queryClient]);
 
-  return useQuery<string>({
+  return useQuery<WitnessProxyQueryResult>({
     queryKey: [QueryIdentifiers.WITNESSES, "proxy"],
-    queryFn: () => urlParamAccount?.proxy ?? activeUserAccount?.proxy ?? "",
-    initialData: "",
+    queryFn: () => proxyResult,
+    initialData: { highlightedProxy: "", activeUserProxy: "" },
     enabled: !!activeUserAccount || !!urlParamAccount
   });
 }

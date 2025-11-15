@@ -14,14 +14,15 @@ export function WitnessesControls({ witnesses }: Props) {
   const queryClient = useQueryClient();
 
   const { data: witnessVotes } = useWitnessVotesQuery();
-  const { data: proxy } = useWitnessProxyQuery();
+  const { data: proxyInfo } = useWitnessProxyQuery();
+  const hasActiveUserProxy = Boolean(proxyInfo?.activeUserProxy);
 
   const extraWitnesses = useMemo(
     () => witnessVotes?.filter((w) => !witnesses.find((y) => y.name === w)) ?? [],
     [witnesses, witnessVotes]
   );
 
-  return proxy ? (
+  return hasActiveUserProxy ? (
     <></>
   ) : (
     <div className="witnesses-controls">
@@ -29,9 +30,7 @@ export function WitnessesControls({ witnesses }: Props) {
       <div className="flex-spacer" />
 
       <WitnessesProxy
-        onDone={(username) =>
-          queryClient.setQueryData<string>([QueryIdentifiers.WITNESSES, "proxy"], username)
-        }
+        onDone={() => queryClient.invalidateQueries({ queryKey: [QueryIdentifiers.WITNESSES, "proxy"] })}
       />
     </div>
   );

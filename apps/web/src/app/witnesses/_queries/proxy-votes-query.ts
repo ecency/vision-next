@@ -1,27 +1,57 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { QueryIdentifiers } from "@/core/react-query";
 import { useSearchParams } from "next/navigation";
 import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
-import { useEffect } from "react";
+import { useMemo } from "react";
 
 export function useProxyVotesQuery() {
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
 
   const activeUser = useGlobalStore((state) => state.activeUser);
-  const { data: activeUserAccount } = getAccountFullQuery(activeUser?.username).useClientQuery();
-  const { data: urlParamAccount } = getAccountFullQuery(
-    searchParams?.get("username") ?? searchParams?.get("account") ?? ""
-  ).useClientQuery();
+  const voter = searchParams?.get("voter") ?? "";
+  const usernameFromParams = searchParams?.get("username") ?? searchParams?.get("account") ?? "";
 
-  useEffect(() => {
-    queryClient.refetchQueries({ queryKey: [QueryIdentifiers.WITNESSES, "proxyVotes"] });
-  }, [urlParamAccount, activeUserAccount, queryClient]);
+  const activeUserAccountQuery = getAccountFullQuery(activeUser?.username).useClientQuery();
+  const urlParamAccountQuery = getAccountFullQuery(usernameFromParams).useClientQuery();
+  const voterAccountQuery = getAccountFullQuery(voter).useClientQuery();
 
-  return useQuery<string[]>({
-    queryKey: [QueryIdentifiers.WITNESSES, "proxyVotes"],
-    queryFn: () => urlParamAccount?.proxyVotes ?? activeUserAccount?.proxyVotes ?? [],
-    initialData: []
-  });
+  const shouldUseVoterAccount = Boolean(voter);
+  const shouldUseUrlAccount = !shouldUseVoterAccount && Boolean(usernameFromParams);
+
+  const baseAccount = shouldUseVoterAccount
+    ? voterAccountQuery.data ?? undefined
+    : shouldUseUrlAccount
+    ? urlParamAccountQuery.data ?? undefined
+    : activeUserAccountQuery.data ?? undefined;
+
+  const baseAccountProxy = baseAccount?.proxy ?? "";
+  const proxiedAccountQuery = getAccountFullQuery(baseAccountProxy || undefined).useClientQuery();
+
+  const baseAccountVotes = baseAccount?.witness_votes ?? [];
+  const proxiedAccountVotes = proxiedAccountQuery.data?.witness_votes ?? [];
+
+  const proxyVotes = useMemo(
+    () => (baseAccountProxy ? proxiedAccountVotes : baseAccountVotes),
+    [baseAccountProxy, proxiedAccountVotes, baseAccountVotes]
+  );
+
+  const baseAccountLoading = shouldUseVoterAccount
+    ? voterAccountQuery.isLoading
+    : shouldUseUrlAccount
+    ? urlParamAccountQuery.isLoading
+    : activeUserAccountQuery.isLoading;
+
+  const baseAccountFetching = shouldUseVoterAccount
+    ? voterAccountQuery.isFetching
+    : shouldUseUrlAccount
+    ? urlParamAccountQuery.isFetching
+    : activeUserAccountQuery.isFetching;
+
+  const proxyAccountLoading = baseAccountProxy ? proxiedAccountQuery.isLoading : false;
+  const proxyAccountFetching = baseAccountProxy ? proxiedAccountQuery.isFetching : false;
+
+  return {
+    data: proxyVotes,
+    isLoading: baseAccountLoading || proxyAccountLoading,
+    isFetching: baseAccountFetching || proxyAccountFetching
+  };
 }
