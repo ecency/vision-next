@@ -4,6 +4,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
+import { formatApr } from "@/utils";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, usePathname } from "next/navigation";
@@ -90,20 +91,19 @@ export function ProfileWalletTokenSummary() {
       : `${normalizedCurrency ?? "USD"} Balance`;
 
   const fiatBalance = liquidBalance * (data?.price ?? 0);
+  const formattedApr = formatApr(data?.apr);
 
   const cards: { label: string; value: ReactNode }[] = [
     {
       label: hasSavingsBalance
         ? "Current Balance"
-        : hasStakedBalance
-        ? "Liquid Balance"
-        : "Balance",
+        : "Available",
       value: format(liquidBalance),
     },
     ...(hasStakedBalance
       ? [
           {
-            label: "Staked Balance",
+            label: "Staked",
             value: format(stakedBalance),
           },
         ]
@@ -120,11 +120,11 @@ export function ProfileWalletTokenSummary() {
       label: fiatBalanceLabel,
       value: <FormattedCurrency value={fiatBalance} />,
     },
-    ...(data?.apr
+    ...(formattedApr
       ? [
           {
             label: "APR",
-            value: `${+data.apr}%`,
+            value: `${formattedApr}%`,
           },
         ]
       : []),

@@ -5,6 +5,7 @@ import { Badge } from "@/features/ui";
 import { getTokenLogo } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-username";
+import { formatApr } from "@/utils";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import {
   getAccountWalletAssetInfoQueryOptions,
@@ -117,6 +118,8 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
 
   const targetHref = `/@${sanitizedUsername}/wallet/${asset.toLowerCase()}`;
 
+  const formattedApr = formatApr(data?.apr);
+
   let claimButton: ReactNode = null;
 
   if (assetSymbol === "POINTS" && hasPendingPoints) {
@@ -192,7 +195,9 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
                 </div>
               </div>
             </div>
-            <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
+            <div className="hidden sm:block">
+              {formattedApr && <Badge>{formattedApr}% APR</Badge>}
+            </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
             </div>

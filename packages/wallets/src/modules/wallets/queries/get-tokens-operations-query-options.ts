@@ -10,6 +10,7 @@ import { getAccountWalletAssetInfoQueryOptions } from "./get-account-wallet-asse
 import { CONFIG, getQueryClient } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { EcencyWalletBasicTokens } from "../enums";
+import { getVisionPortfolioQueryOptions } from "./get-vision-portfolio-query-options";
 
 export function getTokenOperationsQueryOptions(
   token: string,
@@ -20,6 +21,33 @@ export function getTokenOperationsQueryOptions(
     queryKey: ["wallets", "token-operations", token, username, isForOwner],
     queryFn: async () => {
       const queryClient = getQueryClient();
+      const normalizedToken = token.toUpperCase();
+      const portfolioOperations = await (async () => {
+        if (!isForOwner || !username) {
+          return undefined;
+        }
+
+        try {
+          const portfolio = await queryClient.fetchQuery(
+            getVisionPortfolioQueryOptions(username)
+          );
+          const assetEntry = portfolio.wallets.find(
+            (assetItem) => assetItem.info.name === normalizedToken
+          );
+
+          if (assetEntry?.operations.length) {
+            return assetEntry.operations;
+          }
+        } catch {
+          return undefined;
+        }
+
+        return undefined;
+      })();
+
+      if (portfolioOperations && portfolioOperations.length > 0) {
+        return portfolioOperations;
+      }
 
       const ensureAssetInfo = async (): Promise<GeneralAssetInfo | undefined> => {
         if (!isForOwner || !username) {
@@ -27,11 +55,11 @@ export function getTokenOperationsQueryOptions(
         }
 
         return (await queryClient.ensureQueryData(
-          getAccountWalletAssetInfoQueryOptions(username, token)
+          getAccountWalletAssetInfoQueryOptions(username, normalizedToken)
         )) as GeneralAssetInfo;
       };
 
-      switch (token) {
+      switch (normalizedToken) {
         case EcencyWalletBasicTokens.Hive: {
           const assetInfo = await ensureAssetInfo();
           const savingsBalance = assetInfo?.parts?.find(

@@ -5,17 +5,34 @@ import {
   getAccountFullQueryOptions,
   getQueryClient,
 } from "@ecency/sdk";
+import { getVisionPortfolioQueryOptions } from "./get-vision-portfolio-query-options";
 
 export function getAccountWalletListQueryOptions(username: string) {
   return queryOptions({
     queryKey: ["ecency-wallets", "list", username],
     enabled: !!username,
     queryFn: async () => {
+      const portfolioQuery = getVisionPortfolioQueryOptions(username);
+      const queryClient = getQueryClient();
+
+      try {
+        const portfolio = await queryClient.fetchQuery(portfolioQuery);
+        const tokensFromPortfolio = portfolio.wallets.map(
+          (asset) => asset.info.name
+        );
+
+        if (tokensFromPortfolio.length > 0) {
+          return Array.from(new Set(tokensFromPortfolio));
+        }
+      } catch {
+        // Fallback to legacy behaviour when the portfolio endpoint is not accessible.
+      }
+
       const accountQuery = getAccountFullQueryOptions(username);
-      await getQueryClient().fetchQuery({
+      await queryClient.fetchQuery({
         queryKey: accountQuery.queryKey,
       });
-      const account = getQueryClient().getQueryData<FullAccount>(
+      const account = queryClient.getQueryData<FullAccount>(
         accountQuery.queryKey
       );
       if (account?.profile?.tokens instanceof Array) {
