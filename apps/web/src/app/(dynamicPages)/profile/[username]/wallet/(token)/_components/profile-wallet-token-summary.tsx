@@ -96,7 +96,7 @@ export function ProfileWalletTokenSummary() {
       label: hasSavingsBalance
         ? "Current Balance"
         : hasStakedBalance
-        ? "Liquid Balance"
+        ? "Available Balance"
         : "Balance",
       value: format(liquidBalance),
     },

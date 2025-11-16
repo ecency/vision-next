@@ -21,6 +21,7 @@ import {
   getTonAssetGeneralInfoQueryOptions,
   getTronAssetGeneralInfoQueryOptions,
 } from "@/modules/assets/external";
+import { getVisionPortfolioQueryOptions } from "./get-vision-portfolio-query-options";
 
 interface Options {
   refetch: boolean;
@@ -41,10 +42,29 @@ export function getAccountWalletAssetInfoQueryOptions(
     }
     return queryClient.getQueryData<GeneralAssetInfo>(queryOptions.queryKey);
   };
+  const portfolioQuery = getVisionPortfolioQueryOptions(username);
+  const getPortfolioAssetInfo = async () => {
+    try {
+      const portfolio = await queryClient.fetchQuery(portfolioQuery);
+      const assetInfo = portfolio.wallets.find(
+        (assetItem) => assetItem.info.name === asset.toUpperCase()
+      );
+
+      return assetInfo?.info;
+    } catch {
+      return undefined;
+    }
+  };
 
   return queryOptions({
     queryKey: ["ecency-wallets", "asset-info", username, asset],
     queryFn: async () => {
+      const portfolioAssetInfo = await getPortfolioAssetInfo();
+
+      if (portfolioAssetInfo) {
+        return portfolioAssetInfo;
+      }
+
       if (asset === "HIVE") {
         return fetchQuery(getHiveAssetGeneralInfoQueryOptions(username));
       } else if (asset === "HP") {

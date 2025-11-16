@@ -2648,16 +2648,400 @@ function getAllTokensListQueryOptions(username) {
     }
   });
 }
+var ACTION_ALIAS_MAP = {
+  "transfer-to-savings": "transfer-saving" /* TransferToSavings */,
+  "transfer-savings": "transfer-saving" /* TransferToSavings */,
+  "savings-transfer": "transfer-saving" /* TransferToSavings */,
+  "withdraw-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
+  "withdraw-savings": "withdraw-saving" /* WithdrawFromSavings */,
+  "savings-withdraw": "withdraw-saving" /* WithdrawFromSavings */,
+  "powerup": "power-up" /* PowerUp */,
+  "power-down": "power-down" /* PowerDown */,
+  "powerdown": "power-down" /* PowerDown */,
+  "hp-delegate": "delegate" /* Delegate */,
+  "delegate-hp": "delegate" /* Delegate */,
+  "delegate-power": "delegate" /* Delegate */,
+  "undelegate-power": "undelegate" /* Undelegate */,
+  "undelegate-token": "undelegate" /* Undelegate */,
+  "stake-token": "stake" /* Stake */,
+  "stake-power": "stake" /* Stake */,
+  "unstake-token": "unstake" /* Unstake */,
+  "unstake-power": "unstake" /* Unstake */,
+  "lock-liquidity": "lock" /* LockLiquidity */,
+  "lock-liq": "lock" /* LockLiquidity */,
+  "gift-points": "gift" /* Gift */,
+  "points-gift": "gift" /* Gift */,
+  "promote-post": "promote" /* Promote */,
+  "promote-entry": "promote" /* Promote */,
+  "claim-points": "claim" /* Claim */,
+  "claim-rewards": "claim" /* Claim */,
+  "buy-points": "buy" /* Buy */,
+  "swap-token": "swap" /* Swap */,
+  "swap-tokens": "swap" /* Swap */,
+  "withdraw-routes": "withdraw-routes" /* WithdrawRoutes */,
+  "withdrawroutes": "withdraw-routes" /* WithdrawRoutes */,
+  "claim-interest": "claim-interest" /* ClaimInterest */
+};
+var KNOWN_OPERATION_VALUES = new Map(
+  Object.values(AssetOperation).map((value) => [value, value])
+);
+var DERIVED_PART_KEY_MAP = {
+  liquid: ["liquid", "liquidBalance", "liquid_amount", "liquidTokens"],
+  savings: ["savings", "savingsBalance", "savings_amount"],
+  staked: ["staked", "stakedBalance", "staking", "stake", "power"],
+  delegated: ["delegated", "delegatedBalance", "delegationsOut"],
+  received: ["received", "receivedBalance", "delegationsIn"],
+  pending: [
+    "pending",
+    "pendingRewards",
+    "unclaimed",
+    "unclaimedBalance",
+    "pendingReward"
+  ]
+};
+var EXTRA_DATA_PART_KEY_MAP = {
+  delegated: "outgoing_delegations",
+  outgoing: "outgoing_delegations",
+  delegations_out: "outgoing_delegations",
+  delegated_hive_power: "outgoing_delegations",
+  delegated_hp: "outgoing_delegations",
+  received: "incoming_delegations",
+  incoming: "incoming_delegations",
+  delegations_in: "incoming_delegations",
+  received_hive_power: "incoming_delegations",
+  received_hp: "incoming_delegations",
+  powering_down: "pending_power_down",
+  power_down: "pending_power_down",
+  powering_down_hive_power: "pending_power_down"
+};
+function normalizeString(value) {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : void 0;
+  }
+  return void 0;
+}
+function normalizeNumber(value) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return void 0;
+    }
+    const direct = Number.parseFloat(trimmed);
+    if (Number.isFinite(direct)) {
+      return direct;
+    }
+    const sanitized = trimmed.replace(/,/g, "");
+    const match = sanitized.match(/[-+]?\d+(?:\.\d+)?/);
+    if (match) {
+      const parsed = Number.parseFloat(match[0]);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+  }
+  return void 0;
+}
+function normalizeApr(value) {
+  const numeric = normalizeNumber(value);
+  if (numeric === void 0) {
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      return trimmed.length > 0 ? trimmed : void 0;
+    }
+    return void 0;
+  }
+  return numeric.toString();
+}
+function normalizeParts(rawParts) {
+  if (Array.isArray(rawParts)) {
+    const parsed = rawParts.map((item) => {
+      if (!item || typeof item !== "object") {
+        return void 0;
+      }
+      const name = normalizeString(
+        item.name ?? item.label ?? item.type ?? item.part
+      );
+      const balance = normalizeNumber(
+        item.balance ?? item.amount ?? item.value
+      );
+      if (!name || balance === void 0) {
+        return void 0;
+      }
+      return { name, balance };
+    }).filter((item) => Boolean(item));
+    return parsed.length ? parsed : void 0;
+  }
+  if (rawParts && typeof rawParts === "object") {
+    const parsed = Object.entries(rawParts).map(([name, amount]) => {
+      const balance = normalizeNumber(amount);
+      if (!name || balance === void 0) {
+        return void 0;
+      }
+      return { name, balance };
+    }).filter((item) => Boolean(item));
+    return parsed.length ? parsed : void 0;
+  }
+  return void 0;
+}
+function deriveParts(record) {
+  const derived = Object.entries(DERIVED_PART_KEY_MAP).map(([name, keys]) => {
+    for (const key of keys) {
+      const value = normalizeNumber(record[key]);
+      if (value !== void 0) {
+        return { name, balance: value };
+      }
+    }
+    return void 0;
+  }).filter((item) => Boolean(item));
+  return derived.length ? derived : void 0;
+}
+function normalizePartKey(value) {
+  return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+function mergeParts(...sources) {
+  const order = [];
+  const values2 = /* @__PURE__ */ new Map();
+  for (const parts of sources) {
+    if (!parts) {
+      continue;
+    }
+    for (const part of parts) {
+      if (!part?.name || typeof part.balance !== "number") {
+        continue;
+      }
+      const existing = values2.get(part.name);
+      if (existing === void 0) {
+        order.push(part.name);
+        values2.set(part.name, part.balance);
+      } else {
+        values2.set(part.name, existing + part.balance);
+      }
+    }
+  }
+  return order.length ? order.map((name) => ({ name, balance: values2.get(name) })) : void 0;
+}
+function normalizeExtraDataParts(rawExtraData) {
+  const items = Array.isArray(rawExtraData) ? rawExtraData : rawExtraData && typeof rawExtraData === "object" ? Object.values(rawExtraData) : [];
+  const parts = items.map((item) => {
+    if (!item || typeof item !== "object") {
+      return void 0;
+    }
+    const record = item;
+    const keyCandidate = normalizeString(record.dataKey) ?? normalizeString(record.key) ?? normalizeString(record.name);
+    if (!keyCandidate) {
+      return void 0;
+    }
+    const canonical = normalizePartKey(keyCandidate);
+    const partName = EXTRA_DATA_PART_KEY_MAP[canonical];
+    if (!partName) {
+      return void 0;
+    }
+    const balance = normalizeNumber(
+      record.balance ?? record.amount ?? record.value ?? record.displayValue ?? record.text
+    );
+    if (balance === void 0) {
+      return void 0;
+    }
+    return { name: partName, balance: Math.abs(balance) };
+  }).filter((part) => Boolean(part));
+  return parts.length ? parts : void 0;
+}
+function normalizeActionKey(value) {
+  return value.trim().toLowerCase().replace(/[\s_]+/g, "-");
+}
+function mapActions(rawActions) {
+  if (!rawActions) {
+    return [];
+  }
+  const rawList = Array.isArray(rawActions) ? rawActions : [rawActions];
+  const result = [];
+  for (const raw of rawList) {
+    let candidate;
+    if (typeof raw === "string") {
+      candidate = raw;
+    } else if (raw && typeof raw === "object") {
+      const record = raw;
+      candidate = normalizeString(record.code) ?? normalizeString(record.name) ?? normalizeString(record.action);
+    }
+    if (!candidate) {
+      continue;
+    }
+    const canonical = normalizeActionKey(candidate);
+    const operation = KNOWN_OPERATION_VALUES.get(canonical) ?? ACTION_ALIAS_MAP[canonical];
+    if (operation && !result.includes(operation)) {
+      result.push(operation);
+    }
+  }
+  return result;
+}
+function parseToken(rawToken) {
+  if (!rawToken || typeof rawToken !== "object") {
+    return void 0;
+  }
+  const token = rawToken;
+  const symbol = normalizeString(token.symbol) ?? normalizeString(token.asset) ?? normalizeString(token.name);
+  if (!symbol) {
+    return void 0;
+  }
+  const normalizedSymbol = symbol.toUpperCase();
+  const title = normalizeString(token.title) ?? normalizeString(token.display) ?? normalizeString(token.label) ?? normalizeString(token.friendlyName) ?? normalizeString(token.name) ?? normalizedSymbol;
+  const price = normalizeNumber(token.fiatRate) ?? normalizeNumber(token.price) ?? normalizeNumber(token.priceUsd) ?? normalizeNumber(token.usdPrice) ?? normalizeNumber(token.metrics?.price) ?? normalizeNumber(
+    token.metrics?.priceUsd
+  ) ?? 0;
+  const apr = normalizeApr(token.apr) ?? normalizeApr(token.aprPercent) ?? normalizeApr(token.metrics?.apr) ?? normalizeApr(
+    token.metrics?.aprPercent
+  );
+  const baseParts = normalizeParts(
+    token.parts ?? token.balances ?? token.sections ?? token.breakdown ?? token.accountBreakdown ?? token.walletParts
+  ) ?? deriveParts(token);
+  const parts = mergeParts(
+    baseParts,
+    normalizeExtraDataParts(
+      token.extraData ?? token.extra_data ?? token.extra ?? token.badges
+    )
+  );
+  const accountBalance = normalizeNumber(token.balance) ?? normalizeNumber(token.accountBalance) ?? normalizeNumber(token.totalBalance) ?? normalizeNumber(token.total) ?? normalizeNumber(token.amount) ?? (baseParts ? baseParts.reduce((total, part) => total + (part.balance ?? 0), 0) : parts ? parts.reduce((total, part) => total + (part.balance ?? 0), 0) : 0);
+  const layer = normalizeString(token.layer) ?? normalizeString(token.chain) ?? normalizeString(token.category) ?? normalizeString(token.type);
+  return {
+    symbol: normalizedSymbol,
+    info: {
+      name: normalizedSymbol,
+      title,
+      price,
+      accountBalance,
+      apr: apr ?? void 0,
+      layer: layer ?? void 0,
+      parts
+    },
+    operations: mapActions(
+      token.actions ?? token.available_actions ?? token.availableActions ?? token.operations ?? token.supportedActions
+    )
+  };
+}
+function extractTokens(payload) {
+  if (!payload || typeof payload !== "object") {
+    return [];
+  }
+  const containers = [payload];
+  const record = payload;
+  if (record.data && typeof record.data === "object") {
+    containers.push(record.data);
+  }
+  if (record.result && typeof record.result === "object") {
+    containers.push(record.result);
+  }
+  if (record.portfolio && typeof record.portfolio === "object") {
+    containers.push(record.portfolio);
+  }
+  for (const container of containers) {
+    if (Array.isArray(container)) {
+      return container;
+    }
+    if (container && typeof container === "object") {
+      for (const key of [
+        "wallets",
+        "tokens",
+        "assets",
+        "items",
+        "portfolio",
+        "balances"
+      ]) {
+        const value = container[key];
+        if (Array.isArray(value)) {
+          return value;
+        }
+      }
+    }
+  }
+  return [];
+}
+function resolveUsername(payload) {
+  if (!payload || typeof payload !== "object") {
+    return void 0;
+  }
+  const record = payload;
+  return normalizeString(record.username) ?? normalizeString(record.name) ?? normalizeString(record.account);
+}
+function getVisionPortfolioQueryOptions(username) {
+  return queryOptions({
+    queryKey: [
+      "ecency-wallets",
+      "portfolio",
+      "v2",
+      username,
+      "only-enabled"
+    ],
+    enabled: Boolean(username),
+    staleTime: 6e4,
+    refetchInterval: 12e4,
+    queryFn: async () => {
+      if (!username) {
+        throw new Error("[SDK][Wallets] \u2013 username is required");
+      }
+      if (!CONFIG.privateApiHost) {
+        throw new Error(
+          "[SDK][Wallets] \u2013 privateApiHost isn't configured for portfolio"
+        );
+      }
+      const endpoint = `${CONFIG.privateApiHost}/wallet-api/portfolio-v2`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, onlyEnabled: true })
+      });
+      if (!response.ok) {
+        throw new Error(
+          `[SDK][Wallets] \u2013 Vision portfolio request failed(${response.status})`
+        );
+      }
+      const payload = await response.json();
+      const tokens = extractTokens(payload).map((item) => parseToken(item)).filter((item) => Boolean(item));
+      if (!tokens.length) {
+        throw new Error(
+          "[SDK][Wallets] \u2013 Vision portfolio payload contained no tokens"
+        );
+      }
+      return {
+        username: resolveUsername(payload) ?? username,
+        currency: normalizeString(
+          payload?.currency
+        )?.toUpperCase(),
+        wallets: tokens
+      };
+    }
+  });
+}
+
+// src/modules/wallets/queries/use-get-account-wallet-list-query.ts
 function getAccountWalletListQueryOptions(username) {
   return queryOptions({
     queryKey: ["ecency-wallets", "list", username],
     enabled: !!username,
     queryFn: async () => {
+      const portfolioQuery = getVisionPortfolioQueryOptions(username);
+      const queryClient = getQueryClient();
+      try {
+        const portfolio = await queryClient.fetchQuery(portfolioQuery);
+        const tokensFromPortfolio = portfolio.wallets.map(
+          (asset) => asset.info.name
+        );
+        if (tokensFromPortfolio.length > 0) {
+          return Array.from(new Set(tokensFromPortfolio));
+        }
+      } catch {
+      }
       const accountQuery = getAccountFullQueryOptions(username);
-      await getQueryClient().fetchQuery({
+      await queryClient.fetchQuery({
         queryKey: accountQuery.queryKey
       });
-      const account = getQueryClient().getQueryData(
+      const account = queryClient.getQueryData(
         accountQuery.queryKey
       );
       if (account?.profile?.tokens instanceof Array) {
@@ -3103,17 +3487,33 @@ function getTronAssetGeneralInfoQueryOptions(username) {
 // src/modules/wallets/queries/get-account-wallet-asset-info-query-options.ts
 function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { refetch: false }) {
   const queryClient = getQueryClient();
-  const fetchQuery = async (queryOptions39) => {
+  const fetchQuery = async (queryOptions40) => {
     if (options2.refetch) {
-      await queryClient.fetchQuery(queryOptions39);
+      await queryClient.fetchQuery(queryOptions40);
     } else {
-      await queryClient.prefetchQuery(queryOptions39);
+      await queryClient.prefetchQuery(queryOptions40);
     }
-    return queryClient.getQueryData(queryOptions39.queryKey);
+    return queryClient.getQueryData(queryOptions40.queryKey);
+  };
+  const portfolioQuery = getVisionPortfolioQueryOptions(username);
+  const getPortfolioAssetInfo = async () => {
+    try {
+      const portfolio = await queryClient.fetchQuery(portfolioQuery);
+      const assetInfo = portfolio.wallets.find(
+        (assetItem) => assetItem.info.name === asset.toUpperCase()
+      );
+      return assetInfo?.info;
+    } catch {
+      return void 0;
+    }
   };
   return queryOptions({
     queryKey: ["ecency-wallets", "asset-info", username, asset],
     queryFn: async () => {
+      const portfolioAssetInfo = await getPortfolioAssetInfo();
+      if (portfolioAssetInfo) {
+        return portfolioAssetInfo;
+      }
       if (asset === "HIVE") {
         return fetchQuery(getHiveAssetGeneralInfoQueryOptions(username));
       } else if (asset === "HP") {
@@ -3163,15 +3563,38 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
     queryKey: ["wallets", "token-operations", token, username, isForOwner],
     queryFn: async () => {
       const queryClient = getQueryClient();
+      const normalizedToken = token.toUpperCase();
+      const portfolioOperations = await (async () => {
+        if (!isForOwner || !username) {
+          return void 0;
+        }
+        try {
+          const portfolio = await queryClient.fetchQuery(
+            getVisionPortfolioQueryOptions(username)
+          );
+          const assetEntry = portfolio.wallets.find(
+            (assetItem) => assetItem.info.name === normalizedToken
+          );
+          if (assetEntry?.operations.length) {
+            return assetEntry.operations;
+          }
+        } catch {
+          return void 0;
+        }
+        return void 0;
+      })();
+      if (portfolioOperations && portfolioOperations.length > 0) {
+        return portfolioOperations;
+      }
       const ensureAssetInfo = async () => {
         if (!isForOwner || !username) {
           return void 0;
         }
         return await queryClient.ensureQueryData(
-          getAccountWalletAssetInfoQueryOptions(username, token)
+          getAccountWalletAssetInfoQueryOptions(username, normalizedToken)
         );
       };
-      switch (token) {
+      switch (normalizedToken) {
         case "HIVE" /* Hive */: {
           const assetInfo = await ensureAssetInfo();
           const savingsBalance = assetInfo?.parts?.find(
@@ -3731,6 +4154,6 @@ function useWalletOperation(username, asset, operation) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getVisionPortfolioQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
