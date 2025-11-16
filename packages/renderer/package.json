@@ -1,6 +1,6 @@
 {
   "name": "@ecency/renderer",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "React components for rendering Hive posts using Ecency extensions",
   "type": "module",
   "files": ["dist", "README.md"],
