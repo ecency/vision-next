@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Reclamar {{amount}} {{token}}",
     "claim-rewards-loading": "Reclamando...",
     "claim-rewards-success": "{{amount}} {{token}} reclamado con éxito",
+    "hp-delegation-promo": {
+      "tag": "+10% de impulso APR",
+      "title": "Deja que la elegancia se cure con tu poder de colmena",
+      "description": "Delegate tu Hive Power a @ecency para activar la curación activa administrada por nuestro equipo de curadores. La curación activa puede añadir aproximadamente +10% APR y 100% de las recompensas de curación te son devueltas.",
+      "button": "Delegar a @ecency",
+      "dismiss": "Tal vez más tarde"
+    },
     "external": {
       "receive-button": "Recibir",
       "transfer-soon": "Transferir (pronto)",
