@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
@@ -92,7 +92,6 @@ export function ProfileWalletTokenSummary() {
 
   const fiatBalance = liquidBalance * (data?.price ?? 0);
   const formattedApr = formatApr(data?.apr);
-
   const cards: { label: string; value: ReactNode }[] = [
     {
       label: hasSavingsBalance
@@ -152,10 +151,11 @@ export function ProfileWalletTokenSummary() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
-          <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
+    <>
+      <div className="flex flex-col gap-4">
+        <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
+            <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
             <div className="mt-1">{logo}</div>
             <div>
               <div className="text-xl font-bold">{data?.title}</div>
@@ -213,5 +213,6 @@ export function ProfileWalletTokenSummary() {
         <ProfileWalletHbdInterest username={cleanUsername} />
       )}
     </div>
+    </>
   );
 }
