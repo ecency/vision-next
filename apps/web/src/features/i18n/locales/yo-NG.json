@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Claiming...",
     "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% APR boost",
+      "title": "Let Ecency curate with your Hive Power",
+      "description": "Delegate your Hive Power to @ecency to activate active curation managed by our curator team. Active curation can add roughly +10% APR and 100% of the curation rewards are returned to you.",
+      "button": "Delegate to @ecency",
+      "dismiss": "Maybe later"
+    },
     "external": {
       "receive-button": "Receive",
       "transfer-soon": "Transfer (soon)",
