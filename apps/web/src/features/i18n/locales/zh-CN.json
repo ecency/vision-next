@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "正在补全...",
     "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% APR 加速",
+      "title": "使用你的Hive 能量来进行生态管理",
+      "description": "委派你的Hive Power 到 @ecency 来激活由我们的管理团队管理的活动管理。 主动管理可以添加大约10% APR，100%的管理奖励将返还给你。",
+      "button": "代表 @ecency",
+      "dismiss": "稍后再说"
+    },
     "external": {
       "receive-button": "接收",
       "transfer-soon": "转让(即将)",
