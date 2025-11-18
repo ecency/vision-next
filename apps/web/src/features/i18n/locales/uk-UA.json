@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Захоплення...",
     "claim-rewards-success": "Успішно захоплено {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% Пришвидшення APR",
+      "title": "Нехай кровотоки обертаються з силою вулика",
+      "description": "Делегуйте силу вашого Hive на @ecency щоб активувати активну куратуру, що керується нашою командою куратора. Активна куратура може додати приблизно +10% APR і 100% винагород за куратуру повернуті вам.",
+      "button": "Делегувати @ecency",
+      "dismiss": "Мабуть пізніше"
+    },
     "external": {
       "receive-button": "Отримання",
       "transfer-soon": "Передача (скоро)",
