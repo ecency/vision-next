@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "請求しています...",
     "claim-rewards-success": "{{amount}} {{token}} の請求に成功しました",
+    "hp-delegation-promo": {
+      "tag": "APRブースト+10%",
+      "title": "ハイブパワーでEcancyキュレーションをする",
+      "description": "キュレーターチームによって管理されているアクティブキュレーションをアクティブにするには、ハイブパワーを @ecency に委任してください。 アクティブキュレーションでは、約+10%のAPRが加算され、キュレーション報酬の100%が返却されます。",
+      "button": "@ecency に委任する",
+      "dismiss": "たぶん後で"
+    },
     "external": {
       "receive-button": "受信する",
       "transfer-soon": "転送 (近日)",
