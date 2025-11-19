@@ -4,7 +4,7 @@ import { rcPower } from "@/api/hive";
 import { getAccountFullQuery } from "@/api/queries";
 import { EcencyConfigManager } from "@/config";
 import { useGlobalStore } from "@/core/global-store";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { Account } from "@/entities";
 import { FollowControls, HivePosh, UserAvatar } from "@/features/shared";
 import { FavouriteBtn } from "@/features/shared/favorite-btn";

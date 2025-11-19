@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { appAxios } from "@/api/axios";
 import { getAccessToken } from "@/utils";
 import { useGlobalStore } from "@/core/global-store";

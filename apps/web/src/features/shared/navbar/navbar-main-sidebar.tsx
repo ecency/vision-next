@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
 import { EcencyConfigManager } from "@/config";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   show: boolean;

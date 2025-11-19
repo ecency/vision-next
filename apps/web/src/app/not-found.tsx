@@ -5,7 +5,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
 import { SentryIssueReporterDialog } from "@/features/issue-reporter";
 import { Feedback } from "@/features/shared";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { NotFoundBackButton } from "./not-found-back-button";
 
 export async function generateMetadata(

@@ -6,7 +6,7 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
 import { getImagesQuery } from "@/api/queries";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { EcencyConfigManager } from "@/config";
 
 setProxyBase(defaults.imageServer);

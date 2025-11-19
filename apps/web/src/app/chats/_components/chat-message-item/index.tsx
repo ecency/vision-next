@@ -21,7 +21,7 @@ import { ChatMessageRepliedLabel } from "./chat-message-replied-label";
 import { ChatMessageUsernameLabel } from "./chat-message-username-label";
 import { classNameObject } from "@ui/util";
 import { useGlobalStore } from "@/core/global-store";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   type: "sender" | "receiver";

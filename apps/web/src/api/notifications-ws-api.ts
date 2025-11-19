@@ -1,4 +1,4 @@
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { ActiveUser, WsNotification } from "@/entities";
 import { NotifyTypes } from "@/enums";
 import i18next from "i18next";

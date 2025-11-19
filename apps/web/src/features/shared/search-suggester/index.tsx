@@ -2,7 +2,7 @@
 
 import { dataLimit, getCommunities } from "@/api/bridge";
 import { getAccountReputations } from "@/api/hive";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { Community, Reputations } from "@/entities";
 import { SuggestionList, UserAvatar } from "@/features/shared";
 import { accountReputation } from "@/utils";

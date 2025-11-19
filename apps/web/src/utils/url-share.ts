@@ -1,4 +1,4 @@
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { makeEntryPath } from "./make-path";
 
 export const makeEcencyUrl = (cat: string, author: string, permlink: string): string => {

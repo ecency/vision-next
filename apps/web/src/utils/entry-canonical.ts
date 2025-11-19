@@ -1,6 +1,6 @@
 import { Entry } from "@/entities";
 import rawApps from "@hiveio/hivescript/apps.json";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { appName } from "./app-name";
 import { makeEntryPath } from "./make-path";
 
@@ -14,13 +14,13 @@ type AppsMap = Record<string, AppInfo>;
 
 const apps = rawApps as AppsMap;
 
-export function entryCanonical(entry: Entry, isAmp = false): string | null {
+export function entryCanonical(entry: Entry, isAmp = false, baseUrl = defaults.base): string | null {
   const path = makeEntryPath(entry.category, entry.author, entry.permlink);
   if (path === "#") {
     return null;
   }
   if (isAmp) {
-    return `${defaults.base}${path}`;
+    return `${baseUrl}${path}`;
   }
 
   const canonicalFromMetadata = entry.json_metadata?.canonical_url;
@@ -32,12 +32,12 @@ export function entryCanonical(entry: Entry, isAmp = false): string | null {
   const identifier = app?.split("/")[0];
 
   if (!identifier || ["ecency", "esteem"].includes(identifier)) {
-    return `${defaults.base}${path}`;
+    return `${baseUrl}${path}`;
   }
 
   const appInfo = apps[identifier] as { url_scheme?: string };
   if (!appInfo?.url_scheme) {
-    return `${defaults.base}${path}`;
+    return `${baseUrl}${path}`;
   }
 
   return appInfo.url_scheme

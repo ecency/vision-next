@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { getAccountFullQuery } from "@/api/queries";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
+import { getServerAppBase } from "@/utils/server-app-base";
 
 export async function generateProfileMetadata(
   username: string,
@@ -8,6 +9,7 @@ export async function generateProfileMetadata(
 ): Promise<Metadata> {
   const account = await getAccountFullQuery(username).prefetch();
   if (account) {
+    const base = getServerAppBase();
     const metaTitle = `${account.profile?.name || account.name}'s ${
       section ? (section === "engine" ? "tokens" : `${section}`) : ""
     } on decentralized web`;
@@ -17,10 +19,10 @@ export async function generateProfileMetadata(
         : `${account.profile?.name || account.name} ${section ? `${section}` : ""}`
     }`;
     const metaUrl = `/@${username.replace("@", "")}${section ? `/${section}` : ""}`;
-    const metaCanonical = `${defaults.base}/@${username.replace("@", "")}${
+    const metaCanonical = `${base}/@${username.replace("@", "")}${
       section ? `/${section}` : ""
     }`;
-    const metaRss = `${defaults.base}/@${username.replace("@", "")}/rss`;
+    const metaRss = `${base}/@${username.replace("@", "")}/rss`;
     const metaKeywords = `${username.replace("@", "")}, ${username.replace("@", "")}'s blog`;
     const metaImage = `${defaults.imageServer}/u/${username.replace("@", "")}/avatar/medium`;
     return {

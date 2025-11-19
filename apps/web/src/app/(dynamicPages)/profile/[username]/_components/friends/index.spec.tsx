@@ -9,7 +9,7 @@ import { createBrowserHistory } from "history";
 import { globalInstance } from "../../helper/test-helper";
 import { withStore } from "../../tests/with-store";
 
-jest.mock("../../constants/defaults.json", () => ({
+jest.mock("@/defaults", () => ({
   imageServer: "https://images.ecency.com"
 }));
 

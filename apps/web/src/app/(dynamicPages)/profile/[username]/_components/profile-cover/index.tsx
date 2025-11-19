@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useMemo} from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import {proxifyImageSrc, setProxyBase} from "@ecency/render-helper";
 import "./_index.scss";
 import {Account} from "@/entities";

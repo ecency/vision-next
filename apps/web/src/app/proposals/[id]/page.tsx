@@ -14,7 +14,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
 import { Button } from "@ui/button";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 export interface Props {
   params: Promise<{

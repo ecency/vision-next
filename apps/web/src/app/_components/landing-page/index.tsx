@@ -13,7 +13,7 @@ import { scrollDown } from "@ui/svg";
 import { handleInvalid, handleOnInput } from "@/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 export function LandingPage() {
   const router = useRouter();

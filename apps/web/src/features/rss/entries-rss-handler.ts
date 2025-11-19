@@ -2,7 +2,7 @@ import { RssHandler } from "@/features/rss/rss-handler";
 import { Entry } from "@/entities";
 import RSS from "rss";
 import { catchPostImage, postBodySummary } from "@ecency/render-helper";
-import defaults from "@/defaults.json";
+import { getServerAppBase } from "@/utils/server-app-base";
 import { makeEntryPath } from "@/utils";
 
 export abstract class EntriesRssHandler extends RssHandler<Entry> {
@@ -12,8 +12,9 @@ export abstract class EntriesRssHandler extends RssHandler<Entry> {
       description: postBodySummary(entry.body, 200),
       url:
         (() => {
+          const base = getServerAppBase();
           const path = makeEntryPath(entry.category, entry.author, entry.permlink);
-          return path === "#" ? defaults.base : `${defaults.base}${path}`;
+          return path === "#" ? base : `${base}${path}`;
         })(),
       categories: [entry.category],
       author: entry.author,

@@ -3,7 +3,7 @@ import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import md5 from "js-md5";
 import useMount from "react-use/lib/useMount";
 import { useGlobalStore } from "@/core/global-store";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   rawBody: string;

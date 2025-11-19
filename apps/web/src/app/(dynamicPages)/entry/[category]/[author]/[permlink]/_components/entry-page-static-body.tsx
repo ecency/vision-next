@@ -1,6 +1,6 @@
 import { Entry } from "@/entities";
 import { renderPostBody, setProxyBase } from "@ecency/render-helper";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   entry: Entry;

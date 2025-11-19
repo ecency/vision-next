@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { renderPostBody, setProxyBase } from "@ecency/render-helper";
 import "./index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";

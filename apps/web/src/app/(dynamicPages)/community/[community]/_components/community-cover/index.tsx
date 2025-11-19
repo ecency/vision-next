@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import i18next from "i18next";
 import { CommunityCoverEditImage } from "@/app/(dynamicPages)/community/[community]/_components/community-cover-edit-image";
 import { SubscriptionBtn } from "@/app/communities/_components";

@@ -1,6 +1,6 @@
 "use client";
 
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { PurchaseQrTypes } from "@/features/shared/purchase-qr/purchase-qr-types";
 import { SearchByUsername } from "@/features/shared/search-by-username";
 import { Alert } from "@ui/alert";

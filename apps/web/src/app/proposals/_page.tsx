@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import numeral from "numeral";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_page.scss";
 import { Feedback, LinearProgress, Navbar, ScrollToTop, SearchBox, Theme } from "@/features/shared";

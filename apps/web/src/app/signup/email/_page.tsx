@@ -23,7 +23,7 @@ import { appleSvg, checkSvg, googleSvg, hiveSvg } from "@ui/svg";
 import { Tsx } from "@/features/i18n/helper";
 import { useGlobalStore } from "@/core/global-store";
 import Link from "next/link";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 enum Stage {
   FORM = "form",

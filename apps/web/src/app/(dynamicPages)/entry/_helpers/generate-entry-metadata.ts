@@ -2,8 +2,9 @@ import { parseDate, safeDecodeURIComponent, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import {getContent} from "@/api/hive";
-import {getPostQuery} from "@/api/queries";
+import { getContent } from "@/api/hive";
+import { getPostQuery } from "@/api/queries";
+import { getServerAppBase } from "@/utils/server-app-base";
 
 
 export async function generateEntryMetadata(
@@ -11,6 +12,7 @@ export async function generateEntryMetadata(
   permlink: string
 ): Promise<Metadata> {
   const cleanPermlink = safeDecodeURIComponent(permlink).trim();
+  const base = getServerAppBase();
   if (!username || !cleanPermlink || cleanPermlink === "undefined" || !isValidPermlink(cleanPermlink)) {
     console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
     return {};
@@ -52,12 +54,12 @@ export async function generateEntryMetadata(
     const image = catchPostImage(entry, 600, 500, "match")
     const urlParts = entry.url.split("#");
     const fullUrl = isComment && urlParts[1]
-        ? `https://ecency.com/${urlParts[1]}`
-        : `https://ecency.com${entry.url}`;
-    const authorUrl = `https://ecency.com/@${entry.author}`;
+        ? `${base}/${urlParts[1]}`
+        : `${base}${entry.url}`;
+    const authorUrl = `${base}/@${entry.author}`;
     const createdAt = parseDate(entry.created ?? new Date().toISOString());
     const updatedAt = parseDate(entry.updated ?? entry.last_update ?? entry.created ?? new Date().toISOString());
-    const canonical = entryCanonical(entry);
+    const canonical = entryCanonical(entry, false, base);
     const finalCanonical = canonical ?? fullUrl;
 
     return {

@@ -1,4 +1,4 @@
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { LinearProgress, UserAvatar } from "@/features/shared";
 import { formattedNumber, makePath, truncate } from "@/utils";
 import { SearchQuery } from "@/utils/search-query";

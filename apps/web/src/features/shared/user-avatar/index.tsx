@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 import { useGlobalStore } from "@/core/global-store";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 setProxyBase(defaults.imageServer);
 

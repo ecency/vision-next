@@ -3,7 +3,7 @@
 import { Buffer } from "buffer";
 import { HasClient } from "hive-auth-client";
 import CryptoJS from "crypto-js";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import {
   error as showFeedbackError,
   info as showFeedbackInfo

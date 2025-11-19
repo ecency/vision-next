@@ -7,7 +7,7 @@ import Link from "next/link";
 import { FullAccount } from "@/entities";
 import i18next from "i18next";
 import Image from "next/image";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   isExpanded: boolean;

@@ -1,10 +1,10 @@
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import { PropsWithChildren } from "react";
 import { CommunityCard, CommunityCover, CommunityMenu } from "./_components";
-import defaults from "@/defaults.json";
 import { getCommunityCache } from "@/core/caches";
 import { getAccountFullQuery } from "@/api/queries";
 import "./community.scss";
+import { getServerAppBase } from "@/utils/server-app-base";
 
 interface Props {
   params: Promise<{ tag: string; community: string }>;
@@ -15,6 +15,7 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
   const communityData = await getCommunityCache(community).prefetch();
   const account = await getAccountFullQuery(community).prefetch();
   const metaUrl = `/${tag}/${community}`;
+  const base = getServerAppBase();
 
   return (
     <>
@@ -35,7 +36,7 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
           <span itemProp="logo" itemScope={true} itemType="http://schema.org/ImageObject">
             <meta itemProp="url" content={metaUrl} />
           </span>
-          <meta itemProp="url" content={`${defaults.base}${metaUrl}`} />
+          <meta itemProp="url" content={`${base}${metaUrl}`} />
         </span>
         <div className="content-side">
           {communityData && <CommunityMenu community={communityData} />}

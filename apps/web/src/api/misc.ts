@@ -1,4 +1,4 @@
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { appAxios } from "@/api/axios";
 
 export const uploadImage = async (

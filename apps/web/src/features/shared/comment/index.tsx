@@ -1,6 +1,6 @@
 "use client";
 
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { Entry } from "@/entities";
 import { AvailableCredits, handleAndReportError, LoginRequired } from "@/features/shared";
 import { CommentPreview } from "@/features/shared/comment/comment-preview";
@@ -91,7 +91,7 @@ export function Comment({
     if (selection) {
       setText((prev) => `${selection}${prev ?? ""}`);
       const el = (inputRef as any)?.current as HTMLTextAreaElement | null;
-      
+
       // Enhanced validation to ensure element is fully initialized
       if (el && el.scrollHeight !== undefined && typeof el.scrollHeight === 'number') {
         try {
@@ -103,12 +103,12 @@ export function Comment({
           }
           setInputHeight(scHeight);
           const caret = selection.length;
-          
+
           // Re-validate element existence and method availability in requestAnimationFrame
           requestAnimationFrame(() => {
             const currentEl = (inputRef as any)?.current as HTMLTextAreaElement | null;
-            if (currentEl && 
-                typeof currentEl.setSelectionRange === 'function' && 
+            if (currentEl &&
+                typeof currentEl.setSelectionRange === 'function' &&
                 currentEl.isConnected) {
               currentEl.setSelectionRange(caret, caret);
             }

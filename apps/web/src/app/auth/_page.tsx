@@ -12,7 +12,7 @@ import Image from "next/image";
 import i18next from "i18next";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import { Alert } from "@ui/alert";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 export function AuthPage() {
   const searchParams = useSearchParams();
