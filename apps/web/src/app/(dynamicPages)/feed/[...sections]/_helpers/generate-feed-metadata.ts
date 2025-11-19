@@ -4,7 +4,7 @@ import { getServerAppBase } from "@/utils/server-app-base";
 
 export async function generateFeedMetadata(filter: string, tag: string) {
   const fC = capitalize(filter);
-  const base = getServerAppBase();
+  const base = await getServerAppBase();
   let title = i18next.t("entry-index.title", { f: fC });
   let description = i18next.t("entry-index.description", { f: fC });
   let url = `/${filter}`;

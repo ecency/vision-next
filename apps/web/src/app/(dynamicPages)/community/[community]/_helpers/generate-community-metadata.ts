@@ -9,7 +9,7 @@ export async function generateCommunityMetadata(communityName: string, tag: stri
   const community = await getCommunityCache(communityName).prefetch();
   const account = await getAccountFullQuery(communityName).prefetch();
   if (community && account) {
-    const base = getServerAppBase();
+    const base = await getServerAppBase();
     const title = `${community!!.title.trim()} community ${tag} list`;
     const description = i18next.t("community.page-description", {
       f: `${capitalize(tag)} ${community!!.title.trim()}`

@@ -9,7 +9,7 @@ export async function generateProfileMetadata(
 ): Promise<Metadata> {
   const account = await getAccountFullQuery(username).prefetch();
   if (account) {
-    const base = getServerAppBase();
+    const base = await getServerAppBase();
     const metaTitle = `${account.profile?.name || account.name}'s ${
       section ? (section === "engine" ? "tokens" : `${section}`) : ""
     } on decentralized web`;

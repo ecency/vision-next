@@ -12,7 +12,7 @@ export async function generateEntryMetadata(
   permlink: string
 ): Promise<Metadata> {
   const cleanPermlink = safeDecodeURIComponent(permlink).trim();
-  const base = getServerAppBase();
+  const base = await getServerAppBase();
   if (!username || !cleanPermlink || cleanPermlink === "undefined" || !isValidPermlink(cleanPermlink)) {
     console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
     return {};

@@ -1,4 +1,5 @@
 import baseDefaults from "./defaults.json";
+import { shouldUseDefaultBase } from "./utils/host-utils";
 
 const resolveEnvBase = () => {
   const envBase = process.env.NEXT_PUBLIC_APP_BASE || process.env.APP_BASE;
@@ -6,11 +7,18 @@ const resolveEnvBase = () => {
 };
 
 const resolveRuntimeBase = (): string => {
-  if (typeof window !== "undefined" && window.location?.origin) {
-    return window.location.origin;
+  const envBase = resolveEnvBase();
+  if (envBase) {
+    return envBase;
   }
 
-  return resolveEnvBase() || baseDefaults.base;
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return shouldUseDefaultBase(window.location.hostname)
+      ? baseDefaults.base
+      : window.location.origin;
+  }
+
+  return baseDefaults.base;
 };
 
 const defaults = {

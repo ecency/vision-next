@@ -7,10 +7,10 @@ export abstract class RssHandler<T> {
 
   protected abstract fetchData(): Promise<T[]>;
 
-  protected abstract convertItem(item: T): RSS.ItemOptions;
+  protected abstract convertItem(item: T, base: string): RSS.ItemOptions;
 
   async getFeed() {
-    const base = getServerAppBase();
+    const base = await getServerAppBase();
     const feed = new RSS({
       title: "RSS Feed",
       feed_url: `${base}${this.pathname}`,
@@ -20,7 +20,7 @@ export abstract class RssHandler<T> {
 
     try {
       const data = await this.fetchData();
-      data.forEach((item) => feed.item(this.convertItem(item)));
+      data.forEach((item) => feed.item(this.convertItem(item, base)));
     } catch (e) {
       Sentry.captureException(e,{
         extra: {

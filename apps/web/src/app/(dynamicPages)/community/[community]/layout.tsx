@@ -15,7 +15,7 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
   const communityData = await getCommunityCache(community).prefetch();
   const account = await getAccountFullQuery(community).prefetch();
   const metaUrl = `/${tag}/${community}`;
-  const base = getServerAppBase();
+  const base = await getServerAppBase();
 
   return (
     <>
