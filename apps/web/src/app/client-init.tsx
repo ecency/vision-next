@@ -10,7 +10,7 @@ import { client } from "@/api/hive";
 import { ConfigManager } from "@ecency/sdk";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMount } from "react-use";
-import { installConsoleRecorder } from "@/utils/console-recorder";
+import { installConsoleRecorder } from "@/utils/console-msg";
 import { registerWalletHiveAuthBroadcast } from "@ecency/wallets";
 import { broadcastWithHiveAuth } from "@/utils/hive-auth";
 

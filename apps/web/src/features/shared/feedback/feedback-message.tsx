@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { useMount, useUnmount } from "react-use";
 import * as Sentry from "@sentry/nextjs";
-import { getConsoleHistory } from "@/utils/console-recorder";
+import { getConsoleHistory } from "@/utils/console-msg";
 
 interface Props {
   feedback: FeedbackObject;

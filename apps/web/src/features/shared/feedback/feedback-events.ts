@@ -3,7 +3,7 @@ import { random } from "@/utils";
 import i18next from "i18next";
 import * as Sentry from "@sentry/nextjs";
 import { formatError } from "@/api/operations";
-import { ConsoleHistoryEntry, getConsoleHistory } from "@/utils/console-recorder";
+import { ConsoleHistoryEntry, getConsoleHistory } from "@/utils/console-msg";
 
 interface ErrorFeedbackExtras {
   error?: unknown;
