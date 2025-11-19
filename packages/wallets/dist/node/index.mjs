@@ -3564,167 +3564,20 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
     queryFn: async () => {
       const queryClient = getQueryClient();
       const normalizedToken = token.toUpperCase();
-      const portfolioOperations = await (async () => {
-        if (!isForOwner || !username) {
-          return void 0;
-        }
-        try {
-          const portfolio = await queryClient.fetchQuery(
-            getVisionPortfolioQueryOptions(username)
-          );
-          const assetEntry = portfolio.wallets.find(
-            (assetItem) => assetItem.info.name === normalizedToken
-          );
-          if (assetEntry?.operations.length) {
-            return assetEntry.operations;
-          }
-        } catch {
-          return void 0;
-        }
-        return void 0;
-      })();
-      if (portfolioOperations && portfolioOperations.length > 0) {
-        return portfolioOperations;
-      }
-      const ensureAssetInfo = async () => {
-        if (!isForOwner || !username) {
-          return void 0;
-        }
-        return await queryClient.ensureQueryData(
-          getAccountWalletAssetInfoQueryOptions(username, normalizedToken)
-        );
-      };
-      switch (normalizedToken) {
-        case "HIVE" /* Hive */: {
-          const assetInfo = await ensureAssetInfo();
-          const savingsBalance = assetInfo?.parts?.find(
-            (part) => part.name === "savings"
-          )?.balance;
-          const pendingSavingsWithdrawAmount = await (async () => {
-            if (!isForOwner || !username) {
-              return 0;
-            }
-            try {
-              const response = await CONFIG.hiveClient.database.call(
-                "get_savings_withdraw_from",
-                [username]
-              );
-              return response.reduce((total, request) => {
-                const parsed = parseAsset(request.amount);
-                return parsed.symbol === "HIVE" /* HIVE */ ? total + parsed.amount : total;
-              }, 0);
-            } catch {
-              return 0;
-            }
-          })();
-          const hasAvailableSavingsWithdraw = typeof savingsBalance === "number" && savingsBalance - pendingSavingsWithdrawAmount > 1e-6;
-          return [
-            "transfer" /* Transfer */,
-            ...isForOwner ? [
-              ...hasAvailableSavingsWithdraw ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
-              "transfer-saving" /* TransferToSavings */,
-              "power-up" /* PowerUp */,
-              "swap" /* Swap */
-            ] : []
-          ];
-        }
-        case "HP" /* HivePower */:
-          return [
-            "delegate" /* Delegate */,
-            ...isForOwner ? ["power-down" /* PowerDown */, "withdraw-routes" /* WithdrawRoutes */] : ["power-up" /* PowerUp */]
-          ];
-        case "HBD" /* HiveDollar */: {
-          const assetInfo = await ensureAssetInfo();
-          const savingsBalance = assetInfo?.parts?.find(
-            (part) => part.name === "savings"
-          )?.balance;
-          const pendingSavingsWithdrawAmount = await (async () => {
-            if (!isForOwner || !username) {
-              return 0;
-            }
-            try {
-              const response = await CONFIG.hiveClient.database.call(
-                "get_savings_withdraw_from",
-                [username]
-              );
-              return response.reduce((total, request) => {
-                const parsed = parseAsset(request.amount);
-                return parsed.symbol === "HBD" /* HBD */ ? total + parsed.amount : total;
-              }, 0);
-            } catch {
-              return 0;
-            }
-          })();
-          const hasAvailableSavingsWithdraw = typeof savingsBalance === "number" && savingsBalance - pendingSavingsWithdrawAmount > 1e-6;
-          return [
-            "transfer" /* Transfer */,
-            ...isForOwner ? [
-              ...hasAvailableSavingsWithdraw ? ["withdraw-saving" /* WithdrawFromSavings */] : [],
-              "transfer-saving" /* TransferToSavings */,
-              "swap" /* Swap */
-            ] : []
-          ];
-        }
-        case "POINTS" /* Points */:
-          return [
-            "gift" /* Gift */,
-            ...isForOwner ? [
-              "promote" /* Promote */,
-              "claim" /* Claim */,
-              "buy" /* Buy */
-            ] : []
-          ];
-        case "SPK":
-          return ["transfer" /* Transfer */];
-        case "LARYNX":
-          return [
-            "transfer" /* Transfer */,
-            ...isForOwner ? ["power-up" /* PowerUp */, "lock" /* LockLiquidity */] : []
-          ];
-        case "LP":
-          return [
-            "delegate" /* Delegate */,
-            ...isForOwner ? ["power-down" /* PowerDown */] : []
-          ];
-        case "APT":
-        case "BNB":
-        case "BTC":
-        case "ETH":
-        case "SOL":
-        case "TON":
-        case "TRX":
-          return [];
-      }
       if (!username) {
-        return ["transfer" /* Transfer */];
+        return [];
       }
-      const balancesListQuery = getHiveEngineTokensBalancesQueryOptions(username);
-      const balances = await queryClient.ensureQueryData(balancesListQuery);
-      const tokensQuery = getHiveEngineTokensMetadataQueryOptions(
-        balances.map((b) => b.symbol)
-      );
-      const tokens = await queryClient.ensureQueryData(tokensQuery);
-      const balanceInfo = balances.find((m) => m.symbol === token);
-      const tokenInfo = tokens.find((t) => t.symbol === token);
-      const canDelegate = isForOwner && tokenInfo?.delegationEnabled && balanceInfo && parseFloat(balanceInfo.delegationsOut) !== parseFloat(balanceInfo.balance);
-      const canUndelegate = isForOwner && parseFloat(balanceInfo?.delegationsOut ?? "0") > 0;
-      const stakeBalance = parseFloat(balanceInfo?.stake ?? "0");
-      const pendingUnstakeBalance = parseFloat(
-        balanceInfo?.pendingUnstake ?? "0"
-      );
-      const supportsStakingFeature = Boolean(
-        tokenInfo?.stakingEnabled || (tokenInfo?.unstakingCooldown ?? 0) > 0 || parseFloat(tokenInfo?.totalStaked ?? "0") > 0
-      );
-      const hasStakingBalances = stakeBalance > 0 || pendingUnstakeBalance > 0;
-      const canStake = isForOwner && Boolean(tokenInfo?.stakingEnabled);
-      const canUnstake = isForOwner && (supportsStakingFeature || hasStakingBalances);
-      return [
-        "transfer" /* Transfer */,
-        ...canDelegate ? ["delegate" /* Delegate */] : [],
-        ...canUndelegate ? ["undelegate" /* Undelegate */] : [],
-        ...canStake ? ["stake" /* Stake */] : [],
-        ...canUnstake ? ["unstake" /* Unstake */] : []
-      ];
+      try {
+        const portfolio = await queryClient.fetchQuery(
+          getVisionPortfolioQueryOptions(username)
+        );
+        const assetEntry = portfolio.wallets.find(
+          (assetItem) => assetItem.info.name === normalizedToken
+        );
+        return assetEntry?.operations ?? [];
+      } catch {
+        return [];
+      }
     }
   });
 }
