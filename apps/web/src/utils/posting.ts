@@ -4,6 +4,8 @@ import { BeneficiaryRoute, CommentOptions, MetaData, RewardType } from "@/entiti
 
 const permlinkRnd = () => (Math.random() + 1).toString(16).substring(2);
 
+const permlinkPattern = /^[a-z0-9-]{1,255}$/;
+
 export const createPermlink = (title: string, random: boolean = false): string => {
   // Ensure the string is valid and normalized
   let slug = getSlug(title || "", { lang: false, symbols: true }) ?? "";
@@ -36,6 +38,25 @@ export const createPermlink = (title: string, random: boolean = false): string =
   }
 
   return perm;
+};
+
+export const ensureValidPermlink = (
+  permlink: string,
+  fallbackTitle: string
+): string => {
+  const normalizedPermlink = permlink?.trim().toLowerCase();
+
+  if (normalizedPermlink && permlinkPattern.test(normalizedPermlink)) {
+    return normalizedPermlink;
+  }
+
+  const derivedPermlink = createPermlink(permlink || fallbackTitle);
+
+  if (permlinkPattern.test(derivedPermlink)) {
+    return derivedPermlink;
+  }
+
+  return createPermlink(fallbackTitle, true);
 };
 
 

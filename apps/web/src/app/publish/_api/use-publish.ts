@@ -10,7 +10,13 @@ import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-m
 import { PollSnapshot } from "@/features/polls";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { success } from "@/features/shared";
-import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
+import {
+  createPermlink,
+  ensureValidPermlink,
+  isCommunity,
+  makeCommentOptions,
+  tempEntry
+} from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -80,6 +86,16 @@ export function usePublishApi() {
       } catch (e) {}
 
       const [parentPermlink] = tags!;
+      const videoMetadata = publishingVideo
+        ? {
+            ...publishingVideo,
+            permlink: ensureValidPermlink(
+              publishingVideo.permlink,
+              title || publishingVideo.title
+            )
+          }
+        : undefined;
+
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
@@ -93,20 +109,20 @@ export function usePublishApi() {
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
-        .withVideo(title!, metaDescription!, publishingVideo)
+        .withVideo(title!, metaDescription!, videoMetadata)
         .withPoll(poll)
         .build();
 
       // If post has one unpublished video need to modify
       //    json metadata which matches to 3Speak
-      if (publishingVideo) {
+      if (videoMetadata) {
         // Permlink should be got from 3speak video metadata
-        permlink = publishingVideo.permlink;
+        permlink = videoMetadata.permlink;
         // Update speak video with title, body and tags
         await updateSpeakVideoInfo(
           activeUser.username,
           content!,
-          publishingVideo._id,
+          videoMetadata._id,
           title!,
           tags ?? [],
           // isNsfw,
