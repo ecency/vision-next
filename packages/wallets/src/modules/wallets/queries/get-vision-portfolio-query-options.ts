@@ -21,29 +21,37 @@ const ACTION_ALIAS_MAP: Record<string, AssetOperation> = {
   "withdraw-from-savings": AssetOperation.WithdrawFromSavings,
   "withdraw-savings": AssetOperation.WithdrawFromSavings,
   "savings-withdraw": AssetOperation.WithdrawFromSavings,
+  "transfer-from-savings": AssetOperation.WithdrawFromSavings,
   "powerup": AssetOperation.PowerUp,
   "power-down": AssetOperation.PowerDown,
   "powerdown": AssetOperation.PowerDown,
+  "withdraw-vesting": AssetOperation.PowerDown,
   "hp-delegate": AssetOperation.Delegate,
   "delegate-hp": AssetOperation.Delegate,
   "delegate-power": AssetOperation.Delegate,
+  "delegate-vesting-shares": AssetOperation.Delegate,
   "undelegate-power": AssetOperation.Undelegate,
   "undelegate-token": AssetOperation.Undelegate,
   "stake-token": AssetOperation.Stake,
   "stake-power": AssetOperation.Stake,
   "unstake-token": AssetOperation.Unstake,
   "unstake-power": AssetOperation.Unstake,
+  "transfer-to-vesting": AssetOperation.PowerUp,
   "lock-liquidity": AssetOperation.LockLiquidity,
   "lock-liq": AssetOperation.LockLiquidity,
   "gift-points": AssetOperation.Gift,
   "points-gift": AssetOperation.Gift,
   "promote-post": AssetOperation.Promote,
   "promote-entry": AssetOperation.Promote,
+  boost: AssetOperation.Promote,
+  convert: AssetOperation.Swap,
+  "swap-token": AssetOperation.Swap,
+  "swap_tokens": AssetOperation.Swap,
   "claim-points": AssetOperation.Claim,
   "claim-rewards": AssetOperation.Claim,
   "buy-points": AssetOperation.Buy,
-  "swap-token": AssetOperation.Swap,
-  "swap-tokens": AssetOperation.Swap,
+  "ecency-point-transfer": AssetOperation.Transfer,
+  "spkcc-spk-send": AssetOperation.Transfer,
   "withdraw-routes": AssetOperation.WithdrawRoutes,
   "withdrawroutes": AssetOperation.WithdrawRoutes,
   "claim-interest": AssetOperation.ClaimInterest,
@@ -311,6 +319,7 @@ function mapActions(rawActions: unknown): AssetOperation[] {
       const record = raw as Record<string, unknown>;
       candidate =
         normalizeString(record.code) ??
+        normalizeString(record.id) ??
         normalizeString(record.name) ??
         normalizeString(record.action);
     }

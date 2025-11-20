@@ -2682,29 +2682,37 @@ var ACTION_ALIAS_MAP = {
   "withdraw-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
   "withdraw-savings": "withdraw-saving" /* WithdrawFromSavings */,
   "savings-withdraw": "withdraw-saving" /* WithdrawFromSavings */,
+  "transfer-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
   "powerup": "power-up" /* PowerUp */,
   "power-down": "power-down" /* PowerDown */,
   "powerdown": "power-down" /* PowerDown */,
+  "withdraw-vesting": "power-down" /* PowerDown */,
   "hp-delegate": "delegate" /* Delegate */,
   "delegate-hp": "delegate" /* Delegate */,
   "delegate-power": "delegate" /* Delegate */,
+  "delegate-vesting-shares": "delegate" /* Delegate */,
   "undelegate-power": "undelegate" /* Undelegate */,
   "undelegate-token": "undelegate" /* Undelegate */,
   "stake-token": "stake" /* Stake */,
   "stake-power": "stake" /* Stake */,
   "unstake-token": "unstake" /* Unstake */,
   "unstake-power": "unstake" /* Unstake */,
+  "transfer-to-vesting": "power-up" /* PowerUp */,
   "lock-liquidity": "lock" /* LockLiquidity */,
   "lock-liq": "lock" /* LockLiquidity */,
   "gift-points": "gift" /* Gift */,
   "points-gift": "gift" /* Gift */,
   "promote-post": "promote" /* Promote */,
   "promote-entry": "promote" /* Promote */,
+  boost: "promote" /* Promote */,
+  convert: "swap" /* Swap */,
+  "swap-token": "swap" /* Swap */,
+  "swap_tokens": "swap" /* Swap */,
   "claim-points": "claim" /* Claim */,
   "claim-rewards": "claim" /* Claim */,
   "buy-points": "buy" /* Buy */,
-  "swap-token": "swap" /* Swap */,
-  "swap-tokens": "swap" /* Swap */,
+  "ecency-point-transfer": "transfer" /* Transfer */,
+  "spkcc-spk-send": "transfer" /* Transfer */,
   "withdraw-routes": "withdraw-routes" /* WithdrawRoutes */,
   "withdrawroutes": "withdraw-routes" /* WithdrawRoutes */,
   "claim-interest": "claim-interest" /* ClaimInterest */
@@ -2892,7 +2900,7 @@ function mapActions(rawActions) {
       candidate = raw;
     } else if (raw && typeof raw === "object") {
       const record = raw;
-      candidate = normalizeString(record.code) ?? normalizeString(record.name) ?? normalizeString(record.action);
+      candidate = normalizeString(record.code) ?? normalizeString(record.id) ?? normalizeString(record.name) ?? normalizeString(record.action);
     }
     if (!candidate) {
       continue;
