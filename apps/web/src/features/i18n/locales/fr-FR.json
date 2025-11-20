@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Revendication...",
     "claim-rewards-success": "Réclamé avec succès {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% d'augmentation de l'APR",
+      "title": "Laissez Ecency superviser avec votre puissance Ruche",
+      "description": "Déléguez votre pouvoir Hive à @ecency pour activer la curation active gérée par notre équipe de conservateurs. La conservation active peut ajouter environ +10% d'APR et 100% des récompenses de curation vous sont retournées.",
+      "button": "Déléguer à @ecency",
+      "dismiss": "Peut-être plus tard"
+    },
     "external": {
       "receive-button": "Recevoir",
       "transfer-soon": "Transfert (bientôt)",

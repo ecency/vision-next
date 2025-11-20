@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Reivindicando...",
     "claim-rewards-success": "{{amount}} {{token}} reivindicado com sucesso",
+    "hp-delegation-promo": {
+      "tag": "+10% de aumento de APR",
+      "title": "Deixar que a Ecency seja curada com a sua energia da Colmeia",
+      "description": "Delegue sua Hive Power à @ecency para ativar a curadoria ativa gerenciada pela nossa equipe de curadores. A curadoria ativa pode adicionar aproximadamente +10% de APR e 100% das recompensas de curadoria são devolvidas para você.",
+      "button": "Delegar à @ecency",
+      "dismiss": "Talvez mais tarde"
+    },
     "external": {
       "receive-button": "Receber",
       "transfer-soon": "Transferência (em breve)",

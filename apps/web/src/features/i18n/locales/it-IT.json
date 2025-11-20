@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Rivendicazione...",
     "claim-rewards-success": "{{amount}} {{token}} rivendicato con successo",
+    "hp-delegation-promo": {
+      "tag": "+10% APR boost",
+      "title": "Lasciate che Ecency curare con il vostro potere Hive",
+      "description": "Delega il tuo potere Hive a @ecency per attivare la cura attiva gestita dal nostro team di curatori. La cura attiva può aggiungere circa +10% APR e il 100% delle ricompense di curazione ti vengono restituiti.",
+      "button": "Delega a @ecency",
+      "dismiss": "Forse più tardi"
+    },
     "external": {
       "receive-button": "Ricevi",
       "transfer-soon": "Trasferimento (prossimo)",
