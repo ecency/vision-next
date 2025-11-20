@@ -38,7 +38,7 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
 
   useMount(() => {
     // referral check / redirect
-    if (location.pathname.startsWith("/signup") && query?.has("referral")) {
+    if (location.pathname === "/signup" && query?.has("referral")) {
       router.push(`/signup?referral=${query.get("referral")}`);
     }
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", handleSetTheme);
