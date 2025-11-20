@@ -67,6 +67,7 @@ export function SignUp() {
     if (referral && typeof referral === "string") {
       setReferral(referral);
       setLockReferral(true);
+      setLsReferral(referral);
     } else if (lsReferral && typeof lsReferral === "string") {
       router.push(`/signup/email?referral=${lsReferral}`);
       setReferral(lsReferral);
