@@ -47,6 +47,7 @@ const operationToFunctionMap: Record<
     [AssetOperation.WithdrawRoutes]: withdrawVestingRouteHive,
   },
   POINTS: {
+    [AssetOperation.Transfer]: transferPoint,
     [AssetOperation.Gift]: transferPoint,
   },
   SPK: {

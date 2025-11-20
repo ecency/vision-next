@@ -3967,6 +3967,7 @@ var operationToFunctionMap = {
     ["withdraw-routes" /* WithdrawRoutes */]: withdrawVestingRouteHive
   },
   POINTS: {
+    ["transfer" /* Transfer */]: transferPoint,
     ["gift" /* Gift */]: transferPoint
   },
   SPK: {
