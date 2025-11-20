@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Beanspruchen...",
     "claim-rewards-success": "{{amount}} {{token}} erfolgreich abgeholt",
+    "hp-delegation-promo": {
+      "tag": "+10% APR Boost",
+      "title": "Lasst Ökologie mit deiner Bienenstärke kurieren",
+      "description": "Delegieren Sie Ihre Hive-Power auf @ecency um die aktive Kur zu aktivieren, die von unserem Kurator-Team verwaltet wird. Aktive Kur kann ungefähr +10% APR hinzufügen und 100% der Kuratierungsbelohnungen werden an dich zurückgeschickt.",
+      "button": "Delegieren zu @ecency",
+      "dismiss": "Vielleicht später"
+    },
     "external": {
       "receive-button": "Erhalten",
       "transfer-soon": "Überweisung (bald)",

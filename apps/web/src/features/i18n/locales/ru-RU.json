@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Утверждение...",
     "claim-rewards-success": "Успешно получено {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% к усилению повторителя",
+      "title": "Пусть Эциэнс курирует вашу мощь Улей",
+      "description": "Делегируйте вашу силу Hive в @ecency для активации активного курирования, управляемого нашей командой. Активное курирование может добавить примерно 10% APR и 100% кураторных вознаграждений возвращаются Вам.",
+      "button": "Уполномочить на @ecency",
+      "dismiss": "Может быть позже"
+    },
     "external": {
       "receive-button": "Получить",
       "transfer-soon": "Перевод (скоро)",

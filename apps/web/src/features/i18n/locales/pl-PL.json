@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Trwa pobieranie...",
     "claim-rewards-success": "Pomyślnie odebrano {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% wzmocnienie APR",
+      "title": "Niech Ecencja klasztoru z Twoją Moc Uliczną",
+      "description": "Deleguj swoją Moc Urolową do @ecency, aby aktywować aktywną kurację zarządzaną przez nasz zespół kuratorów. Aktywna kuracja może dodać około +10% APR i 100% nagród za kurację jest zwracane do Ciebie.",
+      "button": "Deleguj na @ecency",
+      "dismiss": "Może później"
+    },
     "external": {
       "receive-button": "Odbierz",
       "transfer-soon": "Przelew (wkrótce)",

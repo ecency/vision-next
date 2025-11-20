@@ -3159,6 +3159,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Ophalen...",
     "claim-rewards-success": "Succesvol geclaimd {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% APR boost",
+      "title": "Laat Ecency curate met je Korf Kracht",
+      "description": "Delegeer je Hive Power naar @ecency om de actieve curatie te activeren die beheerd wordt door ons curator team. Actieve curatie kan grofweg +10% APR toevoegen en 100% van de curatie beloningen zijn aan u teruggegeven.",
+      "button": "Delegeren naar @ecency",
+      "dismiss": "Misschien later"
+    },
     "external": {
       "receive-button": "Ontvangen",
       "transfer-soon": "Overdracht (binnenkort)",
