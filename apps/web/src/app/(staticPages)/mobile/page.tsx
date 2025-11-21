@@ -80,6 +80,34 @@ export default function MobilePage() {
     }
   ];
 
+  const screenshotPairs = [
+    {
+      title: i18next.t("static.mobile.screenshots.feed-title", { defaultValue: "Feed" }),
+      darkSrc: "/assets/ecency-feed1.jpg",
+      lightSrc: "/assets/ecency-feed2.jpg"
+    },
+    {
+      title: i18next.t("static.mobile.screenshots.profile-title", { defaultValue: "Profile" }),
+      darkSrc: "/assets/ecency-profile1.jpg",
+      lightSrc: "/assets/ecency-profile2.jpg"
+    },
+    {
+      title: i18next.t("static.mobile.screenshots.wallet-title", { defaultValue: "Wallet" }),
+      darkSrc: "/assets/ecency-wallet1.jpg",
+      lightSrc: "/assets/ecency-wallet2.jpg"
+    },
+    {
+      title: i18next.t("static.mobile.screenshots.replies-title", { defaultValue: "Replies" }),
+      darkSrc: "/assets/ecency-reply1.jpg",
+      lightSrc: "/assets/ecency-reply2.jpg"
+    },
+    {
+      title: i18next.t("static.mobile.screenshots.multi-token-title", { defaultValue: "Multi-token" }),
+      darkSrc: "/assets/ecency-multi-token1.jpg",
+      lightSrc: "/assets/ecency-multi-token2.jpg"
+    }
+  ];
+
   return (
     <>
       <ScrollToTop />
@@ -162,17 +190,41 @@ export default function MobilePage() {
           <p className="mobile-section__description">
             {i18next.t("static.mobile.screenshots-description")}
           </p>
-          <div className="mobile-gallery__images">
-            <img
-              src="/assets/phone-light-pc.png"
-              alt={i18next.t("static.mobile.screenshots-desktop-alt")}
-              loading="lazy"
-            />
-            <img
-              src="/assets/phone-dark-tablet.png"
-              alt={i18next.t("static.mobile.screenshots-dark-alt")}
-              loading="lazy"
-            />
+          <div className="mobile-gallery__grid">
+            {screenshotPairs.map((pair) => (
+              <article key={pair.title} className="mobile-gallery__pair">
+                <header className="mobile-gallery__pair-header">
+                  <h3 className="mobile-gallery__pair-title">{pair.title}</h3>
+                  <p className="mobile-gallery__pair-subtitle">
+                    {i18next.t("static.mobile.screenshots.pair-subtitle", {
+                      defaultValue: "See how it looks in dark and light themes",
+                    })}
+                  </p>
+                </header>
+                <div className="mobile-gallery__pair-images">
+                  <figure className="mobile-gallery__screenshot">
+                    <span className="mobile-gallery__badge">
+                      {i18next.t("static.mobile.screenshots.dark-label", { defaultValue: "Dark theme" })}
+                    </span>
+                    <img
+                      src={pair.darkSrc}
+                      alt={`${pair.title} ${i18next.t("static.mobile.screenshots.dark-label", { defaultValue: "Dark theme" })}`}
+                      loading="lazy"
+                    />
+                  </figure>
+                  <figure className="mobile-gallery__screenshot">
+                    <span className="mobile-gallery__badge mobile-gallery__badge--light">
+                      {i18next.t("static.mobile.screenshots.light-label", { defaultValue: "Light theme" })}
+                    </span>
+                    <img
+                      src={pair.lightSrc}
+                      alt={`${pair.title} ${i18next.t("static.mobile.screenshots.light-label", { defaultValue: "Light theme" })}`}
+                      loading="lazy"
+                    />
+                  </figure>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
