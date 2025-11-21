@@ -20,8 +20,7 @@ export const Announcements = () => {
 
   const [show, setShow] = useState(true);
   const [list, setList] = useState<Announcement[]>([]);
-  const [bannerState, setBannerState] = useState(1);
-  const [index, setIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [currentAnnouncement, setCurrentAnnouncement] = useState<Announcement[]>([]);
 
   const superList = useMemo(() => {
@@ -76,72 +75,84 @@ export const Announcements = () => {
 
   useEffect(() => {
     setList(superList);
-    setCurrentAnnouncement([list[bannerState - 1]]);
+    setActiveIndex(0);
   }, [superList]);
 
   useEffect(() => {
-    if (index < list.length) {
-      setCurrentAnnouncement([list[index]]);
-    } else {
-      setCurrentAnnouncement([list[0]]);
+    if (!list.length) {
+      setCurrentAnnouncement([]);
+      return;
     }
-  }, [list]);
+
+    const safeIndex = Math.min(activeIndex, list.length - 1);
+
+    if (safeIndex !== activeIndex) {
+      setActiveIndex(safeIndex);
+      return;
+    }
+
+    setCurrentAnnouncement([list[safeIndex]]);
+  }, [activeIndex, list]);
 
   const closeClick = () => {
     setShow(false);
   };
 
   const upClick = () => {
-    if (bannerState < list.length) {
-      setCurrentAnnouncement([list[bannerState]]);
-      setBannerState(bannerState + 1);
-    } else {
-      setBannerState(1);
-      setCurrentAnnouncement([list[0]]);
+    if (!list.length) {
+      return;
     }
+
+    setActiveIndex((previous) => (previous + 1) % list.length);
   };
 
   const dismissClick = () => {
-    const clickedBanner = list[bannerState - 1];
-    const index = list.findIndex((x) => x.id === clickedBanner.id);
-    setIndex(index);
+    if (!list.length) {
+      return;
+    }
+
+    const clickedBanner = list[activeIndex];
     const newList = list.filter((x) => x.id !== clickedBanner.id);
     setList(newList);
+    setActiveIndex((previous) => Math.max(Math.min(previous, newList.length - 1), 0));
     const data = ls.get("dismiss_announcements");
     if (data === null) {
-      ls.set("dismiss_announcements", [list[bannerState - 1].id]);
+      ls.set("dismiss_announcements", [clickedBanner.id]);
     } else {
       const getCurrentData = ls.get("dismiss_announcements");
       for (let i = 0; i < getCurrentData.length; i++) {
-        if (getCurrentData[i].id === list[bannerState - 1].id) {
+        if (getCurrentData[i].id === clickedBanner.id) {
           return;
         }
       }
-      getCurrentData.push(list[bannerState - 1].id);
+      getCurrentData.push(clickedBanner.id);
       ls.set("dismiss_announcements", getCurrentData);
     }
   };
 
   const laterClick = () => {
-    const clickedBanner = list[bannerState - 1];
-    const index = list.findIndex((x) => x.id === clickedBanner.id);
-    setIndex(index);
+    if (!list.length) {
+      return;
+    }
+
+    const clickedBanner = list[activeIndex];
     const newList = list.filter((x) => x.id !== clickedBanner.id);
     setList(newList);
+    setActiveIndex((previous) => Math.max(Math.min(previous, newList.length - 1), 0));
     const DateTime = dayjs();
     const laterAnnouncementDetail = ls.get("later_announcements_detail");
     if (laterAnnouncementDetail === null) {
-      ls.set("later_announcements_detail", [{ id: list[bannerState - 1].id, dateTime: DateTime }]);
+      ls.set("later_announcements_detail", [{ id: clickedBanner.id, dateTime: DateTime }]);
     } else {
       const getCurrentAnnouncementsDetail = ls.get("later_announcements_detail");
       for (let i = 0; i < getCurrentAnnouncementsDetail.length; i++) {
-        if (getCurrentAnnouncementsDetail[i].id === list[bannerState - 1].id) {
+        if (getCurrentAnnouncementsDetail[i].id === clickedBanner.id) {
           ls.set("later_announcements_detail", [
-            { id: list[bannerState - 1].id, dateTime: DateTime }
+            { id: clickedBanner.id, dateTime: DateTime }
           ]);
         }
       }
-      getCurrentAnnouncementsDetail.push({ id: list[bannerState - 1].id, dateTime: DateTime });
+      getCurrentAnnouncementsDetail.push({ id: clickedBanner.id, dateTime: DateTime });
       ls.set("later_announcements_detail", getCurrentAnnouncementsDetail);
     }
   };
