@@ -3566,6 +3566,16 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
     }
   });
 }
+function normalizePartKey2(value) {
+  return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+function hasNonZeroSavingsBalance(parts) {
+  return Boolean(
+    parts?.some(
+      (part) => normalizePartKey2(part.name) === "savings" && Number(part.balance) > 0
+    )
+  );
+}
 function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
   return queryOptions({
     queryKey: ["wallets", "token-operations", token, username, isForOwner],
@@ -3582,7 +3592,19 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
         const assetEntry = portfolio.wallets.find(
           (assetItem) => assetItem.info.name === normalizedToken
         );
-        return assetEntry?.operations ?? [];
+        if (!assetEntry) {
+          return [];
+        }
+        const operations = assetEntry.operations ?? [];
+        const isHiveOrHbd = ["HIVE", "HBD"].includes(
+          assetEntry.info.name.toUpperCase()
+        );
+        if (isHiveOrHbd && !hasNonZeroSavingsBalance(assetEntry.info.parts)) {
+          return operations.filter(
+            (operation) => operation !== "withdraw-saving" /* WithdrawFromSavings */
+          );
+        }
+        return operations;
       } catch {
         return [];
       }
