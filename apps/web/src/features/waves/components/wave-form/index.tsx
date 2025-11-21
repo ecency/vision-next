@@ -19,6 +19,7 @@ import axios from "axios";
 import { uploadImage } from "@/api/misc";
 import { getAccessToken } from "@/utils";
 import { error } from "@/features/shared";
+import { useGlobalStore } from "@/core/global-store";
 
 interface Props {
   className?: string;
@@ -37,6 +38,7 @@ const WaveFormComponent = ({
   entry
 }: Props) => {
   const activeUser = useClientActiveUser();
+  const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
   const activeUsername = activeUser?.username;
   const isActiveUserLoaded = Boolean((activeUser?.data as { __loaded?: boolean } | undefined)?.__loaded);
   const isAccountPending = Boolean(activeUser && !isActiveUserLoaded);
@@ -104,6 +106,12 @@ const WaveFormComponent = ({
     },
     [setThreadHost, wavesHostContext]
   );
+
+  useEffect(() => {
+    if (activeUser && !isActiveUserLoaded) {
+      void updateActiveUser();
+    }
+  }, [activeUser, isActiveUserLoaded, updateActiveUser]);
 
   const clear = useCallback(() => {
     setText("");

@@ -25,6 +25,7 @@ export function useWaveSubmit(
 ) {
   const activeUser = useGlobalStore((s) => s.activeUser);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
+  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
   const isActiveUserLoaded = Boolean((activeUser?.data as { __loaded?: boolean } | undefined)?.__loaded);
 
   const { mutateAsync: create } = useWaveCreate();
@@ -38,12 +39,29 @@ export function useWaveSubmit(
   return useMutation({
     mutationKey: ["wave-form-submit", activeUser, replySource, editingEntry],
     mutationFn: async ({ text, image, imageName, video, host }: Body) => {
-      if (!activeUser) {
+      const currentActiveUser = useGlobalStore.getState().activeUser;
+
+      if (!currentActiveUser) {
         toggleUIProp("login");
         return;
       }
 
+      const isActiveUserLoaded = Boolean(
+        (currentActiveUser?.data as { __loaded?: boolean } | undefined)?.__loaded
+      );
+
       if (!isActiveUserLoaded) {
+        await updateActiveUser();
+      }
+
+      const ensuredActiveUser = useGlobalStore.getState().activeUser;
+
+      if (!ensuredActiveUser) {
+        toggleUIProp("login");
+        return;
+      }
+
+      if (!(ensuredActiveUser.data as { __loaded?: boolean } | undefined)?.__loaded) {
         return;
       }
 
