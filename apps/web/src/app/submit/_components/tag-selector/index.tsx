@@ -10,6 +10,32 @@ import { ItemInterface, ReactSortable } from "react-sortablejs";
 import usePrevious from "react-use/lib/usePrevious";
 import "./_index.scss";
 
+const specialCharMap: Record<string, string> = {
+  æ: "ae",
+  œ: "oe",
+  ß: "ss",
+  ø: "o",
+  đ: "d",
+  ł: "l",
+  ð: "d",
+  þ: "th"
+};
+
+const specialCharRegex = new RegExp(`[${Object.keys(specialCharMap).join("")}]`, "g");
+
+export function sanitizeTagInput(input: string) {
+  const normalized = input.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  const lowerCased = normalized.toLowerCase();
+
+  const transliterated = lowerCased.replace(specialCharRegex, (char) => specialCharMap[char] ?? "");
+
+  return transliterated
+    .replace(/[,#]/g, " ")
+    .replace(/[^a-z0-9-\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trimStart();
+}
+
 interface Props {
   tags: string[];
   maxItem: number;
@@ -25,6 +51,8 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
   const [value, setValue] = useState("");
   const [warning, setWarning] = useState("");
   const previousWarning = usePrevious(warning);
+
+  const sanitizeInput = useCallback(sanitizeTagInput, []);
 
   const placeholder = useMemo(
     () =>
@@ -103,12 +131,11 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
   const handlePaste = useCallback(
     (e: React.ClipboardEvent<HTMLInputElement>) => {
       e.preventDefault();
-      const pastedText = e.clipboardData.getData("Text").trim();
+      const pastedText = sanitizeInput(e.clipboardData.getData("Text"));
 
       // Normalize delimiters to space, then split
-      const rawTags = pastedText.replace(/,/g, " ").split(/\s+/);
+      const rawTags = pastedText.trim().split(/\s+/);
       const newTags = rawTags
-        .map((tag) => tag.toLowerCase().replace(/#/g, ""))
         .map((tag) => tag.slice(0, SUBMIT_TAG_MAX_LENGTH))
         .filter((tag) => !!tag);
 
@@ -129,7 +156,7 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
       onChange(finalTags.slice(0, maxItem));
       setValue(""); // clear input
     },
-    [tags, maxItem, onChange]
+    [tags, maxItem, onChange, sanitizeInput]
   );
 
   const onKeyDown = useCallback(
@@ -160,21 +187,24 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
   );
   const onChangeFn = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value.toLocaleLowerCase().trim().replace(/,/g, " ").replace(/#/g, "");
-      let cats = value.split(" ");
+      const sanitizedValue = sanitizeInput(e.target.value);
+      const value = sanitizedValue.trim();
+      const cats = value === "" ? [] : value.split(/\s+/);
+
       if (cats.length > 0) {
         const normalizedCats = cats.map((cat) => cat.slice(0, SUBMIT_TAG_MAX_LENGTH));
         filter(normalizedCats);
         setValue(normalizedCats.join(""));
+      } else {
+        setValue("");
       }
 
-      const rawValue = e.target.value.toLocaleLowerCase();
-      if (rawValue.endsWith(" ") || rawValue.endsWith(",")) {
+      if (e.target.value.endsWith(" ") || e.target.value.endsWith(",")) {
         e.preventDefault();
         add(value);
       }
     },
-    [add, filter]
+    [add, filter, sanitizeInput]
   );
   const onBlur = useCallback(() => {
     setHasFocus(false);

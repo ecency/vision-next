@@ -1,6 +1,7 @@
 "use client";
 
-import { TagSelector } from "@/app/submit/_components";
+import { SUBMIT_TAG_MAX_LENGTH } from "@/app/submit/_consts";
+import { TagSelector, sanitizeTagInput } from "@/app/submit/_components";
 import { Alert, Button, FormControl } from "@/features/ui";
 import { formatError } from "@/api/operations";
 import { handleAndReportError, error as feedbackError } from "@/features/shared";
@@ -96,8 +97,14 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
   useMount(() => {
     const computedTags = Array.from(
       content ? content.matchAll(/#([\p{L}\p{N}\p{M}_-]+)/gu) : []
-    ).map(([, tag]) => tag.toLowerCase());
-    const normalizedExistingTags = (tags ?? []).map((tag) => tag.toLowerCase());
+    )
+      .map(([, tag]) => sanitizeTagInput(tag).slice(0, SUBMIT_TAG_MAX_LENGTH).trim())
+      .filter((tag) => !!tag);
+
+    const normalizedExistingTags = (tags ?? [])
+      .map((tag) => sanitizeTagInput(tag).slice(0, SUBMIT_TAG_MAX_LENGTH).trim())
+      .filter((tag) => !!tag);
+
     const uniqueTagsSet = new Set([...normalizedExistingTags, ...computedTags]);
     setTags(Array.from(uniqueTagsSet).slice(0, 10));
   });
