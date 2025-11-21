@@ -1,5 +1,5 @@
 import {Client} from "@hiveio/dhive";
-import SERVERS from "@/servers.json";
+import SERVERS from "../../public/public-nodes.json";
 import {Community, Entry, Subscription} from "@/entities";
 import dmca from "@/dmca.json";
 import dmca_accounts from "@/dmca-accounts.json";
