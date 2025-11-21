@@ -400,20 +400,24 @@ export function ProfileWalletTokenPicker() {
         })),
         ...R.pipe(
           allTokens?.spk ?? [],
-          R.filter((currency) => nextListSet.has(currency)),
+          R.filter((currency): currency is string =>
+            Boolean(currency && nextListSet.has(currency))
+          ),
           R.map((currency) => ({
             currency,
             type: "SPK",
-            show: true
+            show: true,
           }))
         ),
         ...R.pipe(
           allTokens?.layer2 ?? [],
-          R.filter(({ symbol }) => nextListSet.has(symbol)),
+          R.filter((token): token is { symbol: string } =>
+            Boolean((token as any)?.symbol && nextListSet.has((token as any)?.symbol))
+          ),
           R.map(({ symbol: currency }) => ({
             currency,
             type: "ENGINE",
-            show: true
+            show: true,
           }))
         )
       ]);
