@@ -2128,10 +2128,10 @@
     "update-success-message": "Tu email de recuperación ha sido actualizado correctamente"
   },
   "chat": {
-    "page-title": "Iniciar mensajes directos o unirse a canales para chatear con la comunidad de Ecencia.",
+    "page-title": "Iniciar mensajes directos o unirse a canales para chatear con la comunidad de Ecency.",
     "loading-chats": "Cargando chats…",
     "direct-messages-title": "Mensajes directos",
-    "start-dm": "Iniciar un mensaje directo con cualquiera de Ecency.",
+    "start-dm": "Inicia un mensaje directo con cualquiera en Ecency.",
     "start-dm-button": "Iniciar DM",
     "starting-dm": "Iniciando…",
     "search-user": "Buscar por nombre de usuario",
@@ -2266,7 +2266,7 @@
     },
     "reply": "Responder",
     "reply-to": "Respondiendo a {{account}}",
-    "mattermost-title": "El chat de ecuencia ahora está gestionado por Mattermost",
+    "mattermost-title": "El chat de Ecency ahora está gestionado por Mattermost",
     "mattermost-body": "Abra chat.ecency.com para continuar con mensajes directos y conversaciones comunitarias. Su nombre de usuario y credenciales se utilizan en lugar de las antiguas claves de chat de Nostr.",
     "mattermost-community-hint": "Buscando {{community}}? Abre el canal de la comunidad después de iniciar sesión en chat.ecency.com.",
     "mattermost-open": "Abrir chat.ecency.com",
