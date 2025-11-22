@@ -14,6 +14,8 @@ import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { useState } from "react";
 
+const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
+
 export function ChatsClient() {
   const activeUser = useClientActiveUser();
   const hydrated = useHydrated();
@@ -107,6 +109,8 @@ export function ChatsClient() {
                 <div className="flex items-center gap-3">
                   {channel.type === "D" && channel.directUser ? (
                     <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
+                  ) : COMMUNITY_CHANNEL_NAME_PATTERN.test(channel.name) ? (
+                    <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
                   ) : (
                     <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
                   )}
