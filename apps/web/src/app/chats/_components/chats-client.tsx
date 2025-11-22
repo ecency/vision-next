@@ -3,7 +3,8 @@
 import {
   useMattermostBootstrap,
   useMattermostChannels,
-  useMattermostDirectChannel
+  useMattermostDirectChannel,
+  useMattermostUserSearch
 } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
 import { UserAvatar } from "@/features/shared/user-avatar";
@@ -12,7 +13,7 @@ import { useClientActiveUser, useHydrated } from "@/api/queries";
 import { useRouter } from "next/navigation";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
 
@@ -21,6 +22,7 @@ export function ChatsClient() {
   const hydrated = useHydrated();
   const router = useRouter();
   const [dmUsername, setDmUsername] = useState("");
+  const [channelSearch, setChannelSearch] = useState("");
 
   const { data: bootstrap, isLoading, error } = useMattermostBootstrap();
   const {
@@ -28,7 +30,42 @@ export function ChatsClient() {
     isLoading: channelsLoading,
     error: channelsError
   } = useMattermostChannels(Boolean(bootstrap?.ok));
+  const {
+    data: userSearch,
+    isFetching: userSearchLoading,
+    error: userSearchError
+  } = useMattermostUserSearch(dmUsername, Boolean(bootstrap?.ok));
   const directChannelMutation = useMattermostDirectChannel();
+
+  const filteredChannels = useMemo(() => {
+    if (!channels?.channels) return [];
+
+    const query = channelSearch.trim().toLowerCase();
+    if (!query) return channels.channels;
+
+    return channels.channels.filter((channel) => {
+      const displayName = channel.display_name || channel.name;
+      const directUsername = channel.directUser?.username || "";
+
+      return (
+        displayName.toLowerCase().includes(query) ||
+        channel.name.toLowerCase().includes(query) ||
+        directUsername.toLowerCase().includes(query)
+      );
+    });
+  }, [channels?.channels, channelSearch]);
+
+  const startDirectMessage = (username: string) => {
+    const target = username.trim();
+    if (!target) return;
+
+    directChannelMutation.mutate(target, {
+      onSuccess: (data) => {
+        setDmUsername("");
+        router.push(`/chats/${data.channelId}`);
+      }
+    });
+  };
 
   if (!hydrated) {
     return (
@@ -61,22 +98,14 @@ export function ChatsClient() {
               Start a private conversation with another Ecency user.
             </p>
             <form
-              className="mt-3 flex gap-2"
+              className="mt-3 flex flex-col gap-2 sm:flex-row"
               onSubmit={(e) => {
                 e.preventDefault();
-                const username = dmUsername.trim();
-                if (!username) return;
-
-                directChannelMutation.mutate(username, {
-                  onSuccess: (data) => {
-                    setDmUsername("");
-                    router.push(`/chats/${data.channelId}`);
-                  }
-                });
+                startDirectMessage(dmUsername);
               }}
             >
               <FormControl
-                placeholder="Enter Hive username"
+                placeholder="Search or enter Hive username"
                 value={dmUsername}
                 onChange={(e) => setDmUsername(e.target.value)}
                 className="flex-1"
@@ -90,17 +119,73 @@ export function ChatsClient() {
                 {(directChannelMutation.error as Error).message}
               </div>
             )}
+            {userSearchError && (
+              <div className="text-sm text-red-500 mt-2">
+                {(userSearchError as Error).message}
+              </div>
+            )}
+            {(dmUsername.trim().length >= 2 || userSearchLoading) && (
+              <div className="mt-3 space-y-2 rounded border border-[--border-color] p-3 bg-[--surface-color]">
+                <div className="text-xs text-[--text-muted]">
+                  {userSearchLoading ? "Searching users…" : "Select a user to start a DM"}
+                </div>
+                <div className="flex flex-col gap-2">
+                  {userSearchLoading && <div className="text-sm text-[--text-muted]">Searching…</div>}
+                  {!userSearchLoading &&
+                    userSearch?.users?.map((user) => {
+                      const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
+                      const secondary = user.nickname || fullName;
+
+                      return (
+                        <button
+                          key={user.id}
+                          type="button"
+                          onClick={() => startDirectMessage(user.username)}
+                          className="flex items-center justify-between gap-3 rounded border border-[--border-color] p-2 text-left hover:border-blue-500 transition"
+                        >
+                          <div className="flex items-center gap-3">
+                            <UserAvatar
+                              username={user.username}
+                              size="medium"
+                              className="h-9 w-9"
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-semibold">@{user.username}</span>
+                              {secondary && (
+                                <span className="text-xs text-[--text-muted]">{secondary}</span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-sm text-blue-500 font-semibold">Start</span>
+                        </button>
+                      );
+                    })}
+                  {!userSearchLoading && !userSearch?.users?.length && dmUsername.trim().length >= 2 && (
+                    <div className="text-sm text-[--text-muted]">No users found.</div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-3">
             <h2 className="text-lg font-semibold">Channels</h2>
-            {(isLoading || channelsLoading) && <div className="text-xs text-[--text-muted]">Loading…</div>}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <FormControl
+                type="search"
+                placeholder="Search channels and DMs"
+                value={channelSearch}
+                onChange={(e) => setChannelSearch(e.target.value)}
+                className="w-full sm:w-64"
+              />
+              {(isLoading || channelsLoading) && <div className="text-xs text-[--text-muted]">Loading…</div>}
+            </div>
           </div>
           {channelsError && (
             <div className="text-sm text-red-500">{(channelsError as Error).message}</div>
           )}
           <div className="grid gap-2">
-            {channels?.channels?.map((channel) => (
+            {filteredChannels.map((channel) => (
               <Link
                 href={`/chats/${channel.id}`}
                 key={channel.id}
@@ -134,8 +219,10 @@ export function ChatsClient() {
                 </div>
               </Link>
             ))}
-            {!channels?.channels?.length && !channelsLoading && (
-              <div className="text-sm text-[--text-muted]">No channels assigned yet.</div>
+            {!filteredChannels.length && !channelsLoading && (
+              <div className="text-sm text-[--text-muted]">
+                {channelSearch.trim() ? "No channels match your search." : "No channels assigned yet."}
+              </div>
             )}
           </div>
         </div>

@@ -69,6 +69,25 @@ export function useMattermostChannels(enabled: boolean) {
   });
 }
 
+export function useMattermostUserSearch(term: string, enabled: boolean) {
+  const query = term.trim();
+
+  return useQuery({
+    queryKey: ["mattermost-user-search", query],
+    enabled: enabled && query.length >= 2,
+    queryFn: async () => {
+      const res = await fetch(`/api/mattermost/users/search?q=${encodeURIComponent(query)}`);
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to search users");
+      }
+
+      return (await res.json()) as { users: MattermostUser[] };
+    }
+  });
+}
+
 export function useMattermostUnread(enabled: boolean) {
   return useQuery({
     queryKey: ["mattermost-unread"],
