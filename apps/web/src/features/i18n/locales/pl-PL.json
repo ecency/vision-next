@@ -2128,8 +2128,14 @@
     "update-success-message": "Twój e-mail odzyskiwania został pomyślnie zaktualizowany"
   },
   "chat": {
-    "page-title": "Rozmowy",
-    "read-only": "Tylko do odczytu",
+    "page-title": "Zaszyfrowane rozmowy i kanały publiczne",
+    "search-user": "Szukaj osób",
+    "search-people": "Wyszukiwanie osób...",
+    "start-dm": "Rozpocznij prywatną rozmowę z inną osobą.",
+    "select-dm": "Wybierz użytkownika do uruchomienia pamięci DM",
+    "searching": "Wyszukiwanie...",
+    "no-user": "Nie znaleziono użytkowników.",
+    "search-channels": "Szukaj kanałów i DM",
     "why-read-only": "Ten użytkownik zmienił swój klucz czatu. Znajdź nowe konto według nazwy użytkownika w wyszukiwaniu powyżej.",
     "user-not-joined": "Jeszcze nie dołączył",
     "title": "Czaty",
