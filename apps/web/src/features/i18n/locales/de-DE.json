@@ -2128,8 +2128,14 @@
     "update-success-message": "Ihre Wiederherstellungs-E-Mail wurde erfolgreich aktualisiert"
   },
   "chat": {
-    "page-title": "Unterhaltungen",
-    "read-only": "Nur lesen",
+    "page-title": "Verschlüsselte Unterhaltungen und öffentliche Kanäle",
+    "search-user": "Personen suchen",
+    "search-people": "Personen suchen...",
+    "start-dm": "Beginnen Sie eine private Unterhaltung mit einer anderen Person.",
+    "select-dm": "Wählen Sie einen Benutzer zum Starten eines DM",
+    "searching": "Suche...",
+    "no-user": "Keine Benutzer gefunden.",
+    "search-channels": "Kanäle und DMs durchsuchen",
     "why-read-only": "Dieser Benutzer hat seinen Chat-Schlüssel geändert. Bitte finden Sie in der Suche oben einen neuen Account nach Benutzernamen.",
     "user-not-joined": "Noch nicht beigetreten",
     "title": "Chats",
