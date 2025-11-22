@@ -2128,8 +2128,14 @@
     "update-success-message": "リカバリ用のメールアドレスが正常に更新されました"
   },
   "chat": {
-    "page-title": "会話",
-    "read-only": "読み取り専用",
+    "page-title": "暗号化された会話と公開チャンネル",
+    "search-user": "人を検索",
+    "search-people": "人を検索しています...",
+    "start-dm": "他の人とのプライベートな会話を開始します。",
+    "select-dm": "DMを開始するユーザーを選択してください",
+    "searching": "検索中...",
+    "no-user": "ユーザーが見つかりませんでした。",
+    "search-channels": "チャンネルとDMを検索",
     "why-read-only": "このユーザーはチャットキーを変更しました。上記の検索でユーザー名で新しいアカウントを見つけてください。",
     "user-not-joined": "まだ参加していません",
     "title": "チャット",
