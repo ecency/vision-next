@@ -92,6 +92,17 @@ export function NavbarDesktop({
                   {unread.totalUnread}
                 </span>
               ) : null}
+              {unread?.totalMentions ? (
+                <span className="absolute -bottom-2 left-2 inline-flex min-w-[18px] justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-semibold text-white shadow">
+                  @{unread.totalMentions}
+                </span>
+              ) : null}
+              {unread?.totalDMs ? (
+                <span className="absolute -bottom-2 right-0 inline-flex min-w-[18px] justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-semibold text-white shadow">
+                  DM
+                  {unread.totalDMs}
+                </span>
+              ) : null}
             </div>
           </Tooltip>
           <Tooltip content={i18next.t("navbar.post")}>

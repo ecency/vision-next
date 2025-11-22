@@ -41,6 +41,12 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ channels: publicChannels });
   } catch (error) {
+    if (error instanceof Error && error.message.includes("(400)")) {
+      // Mattermost responds with a 400 when the search payload is rejected.
+      // Instead of surfacing an error to the user, just return no results.
+      return NextResponse.json({ channels: [] });
+    }
+
     const message = error instanceof Error ? error.message : "unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }

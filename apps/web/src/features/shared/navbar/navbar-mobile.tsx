@@ -67,6 +67,16 @@ export function NavbarMobile({
             {unread.totalUnread}
           </span>
         ) : null}
+        {unread?.totalMentions ? (
+          <span className="absolute -bottom-2 left-0 inline-flex min-w-[18px] justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-semibold text-white shadow">
+            @{unread.totalMentions}
+          </span>
+        ) : null}
+        {unread?.totalDMs ? (
+          <span className="absolute -bottom-2 right-0 inline-flex min-w-[18px] justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-semibold text-white shadow">
+            DM{unread.totalDMs}
+          </span>
+        ) : null}
       </div>
       <Button href="/publish" appearance="gray-link" icon={<UilEditAlt width={20} height={20} />} />
 

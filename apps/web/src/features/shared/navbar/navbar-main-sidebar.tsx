@@ -23,6 +23,8 @@ import Image from "next/image";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
 import { EcencyConfigManager } from "@/config";
 import defaults from "@/defaults";
+import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useMattermostUnread } from "@/features/chat/mattermost-api";
 
 interface Props {
   show: boolean;
@@ -32,6 +34,9 @@ interface Props {
 
 export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
   const router = useRouter();
+  const activeUser = useClientActiveUser();
+  const hydrated = useHydrated();
+  const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
 
   const onLogoClick = () => {
     if (
@@ -117,6 +122,8 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             to="/chats"
             onClick={() => setShow(false)}
             icon={<UilCommentDots size={16} />}
+            badgeContent={unread?.totalUnread || undefined}
+            dot={Boolean(unread?.totalMentions || unread?.totalDMs)}
           />
         </EcencyConfigManager.Conditional>
         <EcencyConfigManager.Conditional
