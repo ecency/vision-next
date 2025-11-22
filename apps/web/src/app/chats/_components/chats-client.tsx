@@ -34,8 +34,7 @@ export function ChatsClient() {
         <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
           <h1 className="text-2xl font-semibold mb-2">Chats</h1>
           <p className="text-[--text-muted] text-sm">
-            Your Ecency account is automatically provisioned inside Mattermost. Channels and direct
-            messages stay inside Ecency UI while Mattermost handles delivery.
+            Your Ecency/Hive account is automatically provisioned inside Ecency Chats.
           </p>
         </div>
 

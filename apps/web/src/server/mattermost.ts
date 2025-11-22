@@ -105,6 +105,20 @@ export async function ensureChannelForCommunity(
   }
 }
 
+export async function ensureUserInChannel(userId: string, channelId: string) {
+  try {
+    await mmFetch(`/channels/${channelId}/members/${userId}`, {
+      headers: getAdminHeaders()
+    });
+  } catch (error) {
+    await mmFetch(`/channels/${channelId}/members`, {
+      method: "POST",
+      headers: getAdminHeaders(),
+      body: JSON.stringify({ channel_id: channelId, user_id: userId })
+    });
+  }
+}
+
 async function getExistingToken(userId: string): Promise<string | null> {
   try {
     const tokens = await mmFetch<{ id: string; token: string; description: string }[]>(
