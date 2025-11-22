@@ -115,10 +115,22 @@ export function ChatsClient() {
                     <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
                   )}
 
-                  <div className="flex flex-col">
+                  <div className="flex flex-col flex-1">
                     <div className="font-semibold">{channel.display_name || channel.name}</div>
                     <div className="text-xs text-[--text-muted]">{channel.type === "D" ? "DM" : "Channel"}</div>
                   </div>
+
+                  {(() => {
+                    const unread = channel.type === "D" ? channel.message_count : channel.mention_count;
+
+                    if (!unread) return null;
+
+                    return (
+                      <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-blue-500 px-2 py-1 text-xs font-semibold text-white">
+                        {unread}
+                      </span>
+                    );
+                  })()}
                 </div>
               </Link>
             ))}

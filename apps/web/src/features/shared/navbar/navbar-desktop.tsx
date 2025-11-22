@@ -15,6 +15,7 @@ import i18next from "i18next";
 import { useState } from "react";
 import { NavbarTextMenu } from "./navbar-text-menu";
 import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useMattermostUnread } from "@/features/chat/mattermost-api";
 
 interface Props {
   step?: number;
@@ -38,6 +39,7 @@ export function NavbarDesktop({
   const hydrated = useHydrated();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
+  const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
 
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -78,12 +80,19 @@ export function NavbarDesktop({
         <div className="flex items-center ml-3">
           <NavbarPerksButton />
           <Tooltip content={i18next.t("chat.chats") || "Chats"}>
-            <Button
-              href="/chats"
-              appearance="gray-link"
-              className="ml-3"
-              icon={<UilComment width={20} height={20} />}
-            />
+            <div className="relative ml-3">
+              <Button
+                href="/chats"
+                appearance="gray-link"
+                className="relative"
+                icon={<UilComment width={20} height={20} />}
+              />
+              {unread?.totalUnread ? (
+                <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+                  {unread.totalUnread}
+                </span>
+              ) : null}
+            </div>
           </Tooltip>
           <Tooltip content={i18next.t("navbar.post")}>
             <Button

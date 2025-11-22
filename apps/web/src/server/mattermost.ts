@@ -28,6 +28,10 @@ function requireEnv(value: string | undefined, name: string) {
   return value;
 }
 
+export function getMattermostTeamId() {
+  return requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
+}
+
 function getAdminHeaders() {
   return {
     Authorization: `Bearer ${requireEnv(MATTERMOST_ADMIN_TOKEN, "MATTERMOST_ADMIN_TOKEN")}`,

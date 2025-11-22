@@ -1,12 +1,13 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useClientActiveUser, useHydrated } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar, preloadLoginDialog } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { isKeychainInAppBrowser } from "@/utils";
+import { useMattermostUnread } from "@/features/chat/mattermost-api";
 import { UilComment, UilEditAlt, UilHomeAlt, UilLock, UilWallet, UilWater } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
@@ -31,7 +32,9 @@ export function NavbarMobile({
   setMainBarExpanded
 }: Props) {
   const activeUser = useClientActiveUser();
+  const hydrated = useHydrated();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
+  const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
 
   const [isInRn, setIsInRn] = useState(false);
   useEffect(() => {
@@ -57,7 +60,14 @@ export function NavbarMobile({
         onClick={() => setMainBarExpanded(true)}
       />
       <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} />
-      <Button href="/chats" appearance="gray-link" icon={<UilComment width={20} height={20} />} />
+      <div className="relative">
+        <Button href="/chats" appearance="gray-link" icon={<UilComment width={20} height={20} />} />
+        {unread?.totalUnread ? (
+          <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+            {unread.totalUnread}
+          </span>
+        ) : null}
+      </div>
       <Button href="/publish" appearance="gray-link" icon={<UilEditAlt width={20} height={20} />} />
 
       {activeUser ? (

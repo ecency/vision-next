@@ -10,6 +10,8 @@ interface MattermostChannel {
   display_name: string;
   type: string;
   directUser?: MattermostUser | null;
+  mention_count?: number;
+  message_count?: number;
 }
 
 interface MattermostChannelSummary {
@@ -67,6 +69,28 @@ export function useMattermostChannels(enabled: boolean) {
   });
 }
 
+export function useMattermostUnread(enabled: boolean) {
+  return useQuery({
+    queryKey: ["mattermost-unread"],
+    enabled,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const res = await fetch("/api/mattermost/channels/unreads");
+
+      if (res.status === 401) {
+        return { channels: [], totalMentions: 0, totalDMs: 0, totalUnread: 0 } satisfies MattermostUnreadSummary;
+      }
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to load unread counts");
+      }
+
+      return (await res.json()) as MattermostUnreadSummary;
+    }
+  });
+}
+
 export interface MattermostUser {
   id: string;
   username: string;
@@ -82,6 +106,20 @@ export interface MattermostPostsResponse {
   channel?: MattermostChannelSummary;
   community?: string | null;
   canModerate?: boolean;
+}
+
+export interface MattermostUnreadChannel {
+  channelId: string;
+  type: string;
+  mention_count: number;
+  message_count: number;
+}
+
+export interface MattermostUnreadSummary {
+  channels: MattermostUnreadChannel[];
+  totalMentions: number;
+  totalDMs: number;
+  totalUnread: number;
 }
 
 export function useMattermostPosts(channelId: string | undefined) {

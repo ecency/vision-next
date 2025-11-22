@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
-import { getMattermostTokenFromCookies, mmUserFetch } from "@/server/mattermost";
+import {
+  getMattermostTeamId,
+  getMattermostTokenFromCookies,
+  mmUserFetch
+} from "@/server/mattermost";
 
 interface MattermostChannel {
   id: string;
   name: string;
   display_name: string;
   type: string;
+  mention_count?: number;
+  message_count?: number;
+  directUser?: MattermostUser | null;
 }
 
 interface MattermostUser {
@@ -21,6 +28,12 @@ interface MattermostChannelMember {
   user_id: string;
 }
 
+interface MattermostChannelMemberCounts extends MattermostChannelMember {
+  channel_id: string;
+  mention_count: number;
+  msg_count: number;
+}
+
 export async function GET() {
   const token = getMattermostTokenFromCookies();
   if (!token) {
@@ -28,15 +41,23 @@ export async function GET() {
   }
 
   try {
-    const [channels, currentUser] = await Promise.all([
+    const teamId = getMattermostTeamId();
+
+    const [channels, currentUser, channelMembers] = await Promise.all([
       mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
-      mmUserFetch<MattermostUser>(`/users/me`, token)
+      mmUserFetch<MattermostUser>(`/users/me`, token),
+      mmUserFetch<MattermostChannelMemberCounts[]>(`/users/me/teams/${teamId}/channels/members`, token)
     ]);
 
     const directChannels = channels.filter((channel) => channel.type === "D");
 
     let directChannelMembers: Record<string, string[]> = {};
     let usersById: Record<string, MattermostUser> = {};
+
+    const mentionCounts = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>((acc, member) => {
+      acc[member.channel_id] = member;
+      return acc;
+    }, {});
 
     if (directChannels.length) {
       const memberLists = await Promise.all(
@@ -66,6 +87,9 @@ export async function GET() {
     }
 
     const channelsWithDirectUsers = channels.map((channel) => {
+      const mentionCount = mentionCounts[channel.id]?.mention_count || 0;
+      const messageCount = mentionCounts[channel.id]?.msg_count || 0;
+
       if (channel.type !== "D") return channel;
 
       const memberIds = directChannelMembers[channel.id] || [];
@@ -74,12 +98,20 @@ export async function GET() {
 
       return {
         ...channel,
+        mention_count: mentionCount,
+        message_count: messageCount,
         display_name: directUser ? `@${directUser.username}` : channel.display_name,
         directUser: directUser || null
       };
     });
 
-    return NextResponse.json({ channels: channelsWithDirectUsers });
+    const channelsWithCounts = channelsWithDirectUsers.map((channel) => ({
+      ...channel,
+      mention_count: mentionCounts[channel.id]?.mention_count || channel.mention_count || 0,
+      message_count: mentionCounts[channel.id]?.msg_count || channel.message_count || 0
+    }));
+
+    return NextResponse.json({ channels: channelsWithCounts });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
