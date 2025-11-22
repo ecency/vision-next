@@ -2239,7 +2239,12 @@
       "iv": "Initial vector value"
     },
     "reply": "Reply",
-    "reply-to": "Replying to {{account}}"
+    "reply-to": "Replying to {{account}}",
+    "mattermost-title": "Ecency chat is now powered by Mattermost",
+    "mattermost-body": "Open chat.ecency.com to continue direct messages and community conversations. Your Ecency username and credentials are used instead of the old Nostr chat keys.",
+    "mattermost-community-hint": "Looking for {{community}}? Open the community channel after signing in at chat.ecency.com.",
+    "mattermost-open": "Open chat.ecency.com",
+    "mattermost-guide": "View chat setup guide"
   },
   "add-image": {
     "title": "Добави Снимка",
@@ -2814,7 +2819,8 @@
     "faq": "FAQ",
     "chats": "Chats",
     "news": "News",
-    "chats-page-placeholder": "Chats have opened in extended view"
+    "chats-page-placeholder": "Chats have opened in extended view",
+    "open-chats": "Open chats"
   },
   "not-found": {
     "title": "Not found",
