@@ -12,7 +12,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { UIManager } from "@ui/core";
 import { PropsWithChildren } from "react";
-import { ConditionalChatProvider } from "@/app/conditional-chat-provider";
 import { ProgressProvider } from "@bprogress/next/app";
 
 export function ClientProviders(props: PropsWithChildren) {
@@ -32,11 +31,7 @@ export function ClientProviders(props: PropsWithChildren) {
             <UserActivityRecorder />
           </EcencyConfigManager.Conditional>
           <Tracker />
-          <PushNotificationsProvider>
-            <ConditionalChatProvider>
-              {props.children}
-            </ConditionalChatProvider>
-          </PushNotificationsProvider>
+          <PushNotificationsProvider>{props.children}</PushNotificationsProvider>
           <Announcements />
         </UIManager>
       </ProgressProvider>

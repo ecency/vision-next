@@ -7,7 +7,7 @@ import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notif
 import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button";
 import { Search } from "@/features/shared/navbar/search";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
-import { UilEditAlt, UilQuestionCircle } from "@tooni/iconscout-unicons-react";
+import { UilComment, UilEditAlt, UilQuestionCircle } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import { classNameObject } from "@ui/util";
@@ -77,6 +77,14 @@ export function NavbarDesktop({
         )}
         <div className="flex items-center ml-3">
           <NavbarPerksButton />
+          <Tooltip content={i18next.t("chat.chats") || "Chats"}>
+            <Button
+              href="/chats"
+              appearance="gray-link"
+              className="ml-3"
+              icon={<UilComment width={20} height={20} />}
+            />
+          </Tooltip>
           <Tooltip content={i18next.t("navbar.post")}>
             <Button
               href="/publish"

@@ -24,6 +24,7 @@ const resolveRuntimeBase = (): string => {
 const defaults = {
   ...baseDefaults,
   base: resolveRuntimeBase(),
+  chatBase: process.env.NEXT_PUBLIC_CHAT_BASE || baseDefaults.chatBase,
   imageServer: process.env.NEXT_PUBLIC_IMAGE_SERVER || baseDefaults.imageServer,
   nwsServer: process.env.NEXT_PUBLIC_NWS_SERVER || baseDefaults.nwsServer,
   name: process.env.NEXT_PUBLIC_APP_NAME || baseDefaults.name,

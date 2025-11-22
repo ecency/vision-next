@@ -6,9 +6,23 @@ export function LoginRequired({ children }: PropsWithChildren) {
   const activeUser = useClientActiveUser();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
 
-  return activeUser
-    ? children
-    : cloneElement(children as ReactElement, {
-        onClick: () => toggleUiProp("login")
-      });
+  if (activeUser) {
+    return <>{children}</>;
+  }
+
+  if (!children) {
+    return (
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() => toggleUiProp("login")}
+      >
+        Login to continue
+      </button>
+    );
+  }
+
+  return cloneElement(children as ReactElement, {
+    onClick: () => toggleUiProp("login")
+  });
 }

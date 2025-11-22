@@ -1,14 +1,16 @@
-import { ChatsScreen } from "@/app/chats/_screens";
+import { PagesMetadataGenerator } from "@/features/metadata";
+import { Metadata, ResolvingMetadata } from "next";
+import { CommunityChannelClient } from "./_components/community-channel-client";
 
 export const dynamic = "force-dynamic";
 
-interface Props {
-  params: Promise<{
-    community: string;
-  }>;
+export async function generateMetadata(
+  _props: unknown,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  return PagesMetadataGenerator.getForPage("chats");
 }
 
-export default async function Chats({ params }: Props) {
-  const { community } = await params;
-  return <ChatsScreen params={[community, "channel"]} />;
+export default function CommunityChannelPage() {
+  return <CommunityChannelClient />;
 }

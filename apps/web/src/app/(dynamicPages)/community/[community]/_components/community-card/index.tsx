@@ -7,7 +7,6 @@ import { Button } from "@ui/button";
 import { useGlobalStore } from "@/core/global-store";
 import { Account, Community, FullAccount, roleMap, ROLES } from "@/entities";
 import i18next from "i18next";
-import { JoinCommunityChatBtn } from "@/app/chats/_components/join-community-chat-btn";
 import { UserAvatar } from "@/features/shared";
 import { DialogInfo } from "../../_types";
 import { CommunityCardEditPic } from "./community-card-edit-pic";
@@ -110,7 +109,11 @@ export function CommunityCard({ community, account }: Props) {
           </p>
         </EcencyConfigManager.Conditional>
       )}
-      <JoinCommunityChatBtn community={community} />
+      <Link href={`/chats/${community.name}/channel`} className="mt-4 inline-flex">
+        <Button appearance="secondary" size="sm">
+          {i18next.t("chat.view-community-channel")}
+        </Button>
+      </Link>
       {info && (
         <Modal
           show={true}
