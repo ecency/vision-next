@@ -113,6 +113,30 @@ export function useMattermostSendMessage(channelId: string | undefined) {
   });
 }
 
+export function useMattermostDirectChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (username: string) => {
+      const res = await fetch(`/api/mattermost/direct`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to start direct message");
+      }
+
+      return (await res.json()) as { channelId: string };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+    }
+  });
+}
+
 export interface MattermostPostProps {
   username?: string;
   override_username?: string;

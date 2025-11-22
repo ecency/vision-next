@@ -6,7 +6,7 @@ const MATTERMOST_ADMIN_TOKEN = process.env.MATTERMOST_ADMIN_TOKEN;
 const MATTERMOST_TEAM_ID = process.env.MATTERMOST_TEAM_ID;
 const MATTERMOST_TOKEN_COOKIE = "mm_pat";
 
-interface MattermostUser {
+export interface MattermostUser {
   id: string;
   username: string;
   email: string;
@@ -130,6 +130,16 @@ export async function ensureUserInChannel(userId: string, channelId: string) {
       headers: getAdminHeaders(),
       body: JSON.stringify({ channel_id: channelId, user_id: userId })
     });
+  }
+}
+
+export async function findMattermostUser(username: string): Promise<MattermostUser | null> {
+  try {
+    return await mmFetch<MattermostUser>(`/users/username/${username}`, {
+      headers: getAdminHeaders()
+    });
+  } catch (error) {
+    return null;
   }
 }
 
