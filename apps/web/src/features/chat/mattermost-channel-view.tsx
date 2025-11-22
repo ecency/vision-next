@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useCallback, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   useMattermostPosts,
   useMattermostSendMessage,
@@ -8,7 +8,8 @@ import {
   MattermostUser,
   useMattermostDeletePost,
   useMattermostDirectChannel,
-  useMattermostUserSearch
+  useMattermostUserSearch,
+  useMattermostMarkChannelViewed
 } from "./mattermost-api";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
@@ -42,6 +43,9 @@ export function MattermostChannelView({ channelId }: Props) {
   const activeUser = useClientActiveUser();
   const directChannelMutation = useMattermostDirectChannel();
   const router = useRouter();
+  const markViewedMutation = useMattermostMarkChannelViewed();
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastViewUpdateRef = useRef(0);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
@@ -56,6 +60,37 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const isPublicChannel = data?.channel?.type === "O";
   const mentionSearch = useMattermostUserSearch(mentionQuery, Boolean(isPublicChannel && mentionQuery.length >= 2));
+
+  const markChannelRead = useCallback(() => {
+    const id = data?.channel?.id || channelId;
+    if (!id) return;
+
+    const now = Date.now();
+    if (now - lastViewUpdateRef.current < 4000) return;
+
+    lastViewUpdateRef.current = now;
+    markViewedMutation.mutate(id);
+  }, [channelId, data?.channel?.id, markViewedMutation]);
+
+  const handleScroll = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    if (distanceFromBottom < 120) {
+      markChannelRead();
+    }
+  }, [markChannelRead]);
+
+  useEffect(() => {
+    lastViewUpdateRef.current = 0;
+  }, [channelId]);
+
+  useEffect(() => {
+    if (data) {
+      markChannelRead();
+    }
+  }, [data, markChannelRead]);
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
@@ -265,7 +300,11 @@ export function MattermostChannelView({ channelId }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded border border-[--border-color] bg-[--background-color] p-4 h-[60vh] overflow-y-auto">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="rounded border border-[--border-color] bg-[--background-color] p-4 h-[60vh] overflow-y-auto"
+      >
         {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
         {error && (
           <div className="text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>

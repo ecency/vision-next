@@ -224,6 +224,30 @@ export function useMattermostUnread(enabled: boolean) {
   });
 }
 
+export function useMattermostMarkChannelViewed() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (channelId: string) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/view`, { method: "POST" });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to mark channel as read");
+      }
+
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async (_data, channelId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-unread"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] })
+      ]);
+    }
+  });
+}
+
 export interface MattermostUser {
   id: string;
   username: string;

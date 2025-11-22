@@ -37,9 +37,7 @@ export async function GET(req: Request) {
       }
     );
 
-    const publicChannels = channels.filter((channel) => channel.type === "O");
-
-    return NextResponse.json({ channels: publicChannels });
+    return NextResponse.json({ channels });
   } catch (error) {
     if (error instanceof Error && error.message.includes("(400)")) {
       // Mattermost responds with a 400 when the search payload is rejected.

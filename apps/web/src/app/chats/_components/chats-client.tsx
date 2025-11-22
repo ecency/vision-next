@@ -92,11 +92,38 @@ export function ChatsClient() {
     const existingIds = new Set((channels?.channels || []).map((channel) => channel.id));
 
     return (
-      channelSearchResults?.channels?.filter(
-        (channel) => channel.type === "O" && !existingIds.has(channel.id)
-      ) || []
+      channelSearchResults?.channels?.filter((channel) => !existingIds.has(channel.id)) || []
     );
   }, [channelSearchResults?.channels, channels?.channels]);
+
+  const unreadChannels = useMemo(() => {
+    if (!unreadSummary?.channels?.length || !channels?.channels) return [];
+
+    const channelMap = new Map(channels.channels.map((channel) => [channel.id, channel]));
+
+    return unreadSummary.channels
+      .map((channelUnread) => {
+        const channel = channelMap.get(channelUnread.channelId);
+        if (!channel) return null;
+
+        const unread =
+          channelUnread.type === "D" ? channelUnread.message_count : channelUnread.mention_count;
+
+        if (!unread) return null;
+
+        return {
+          id: channel.id,
+          name: channel.display_name || channel.name,
+          unread
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => (b?.unread || 0) - (a?.unread || 0)) as {
+      id: string;
+      name: string;
+      unread: number;
+    }[];
+  }, [channels?.channels, unreadSummary?.channels]);
 
   const unreadByChannelId = useMemo(() => {
     if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number }>();
@@ -172,6 +199,23 @@ export function ChatsClient() {
               <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-200">
                 Total unread: <span className="ml-1 font-semibold">{unreadSummary.totalUnread}</span>
               </Badge>
+              {!!unreadChannels.length && (
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {unreadChannels.map((channel) => (
+                    <button
+                      key={channel.id}
+                      type="button"
+                      onClick={() => router.push(`/chats/${channel.id}`)}
+                      className="inline-flex items-center gap-2 rounded-full border border-[--border-color] bg-[--surface-color] px-3 py-1 text-sm hover:border-blue-500"
+                    >
+                      <span className="font-semibold">{channel.name}</span>
+                      <span className="rounded-full bg-blue-500 px-2 py-0.5 text-xs font-semibold text-white">
+                        {channel.unread}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -340,8 +384,15 @@ export function ChatsClient() {
                   {channel.type !== "D" && (
                     <div className="ml-2" onClick={(e) => e.stopPropagation()}>
                       <Dropdown>
-                        <DropdownToggle>
-                          <Button appearance="gray-link" icon={dotsHorizontal} onClick={(e) => e.preventDefault()} />
+                        <DropdownToggle onClick={(e) => e.preventDefault()}>
+                          <Button
+                            appearance="gray-link"
+                            icon={dotsHorizontal}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                          />
                         </DropdownToggle>
                         <DropdownMenu align="end">
                           <DropdownItemWithIcon
@@ -388,7 +439,9 @@ export function ChatsClient() {
                   >
                     <div className="flex flex-col">
                       <span className="font-semibold">{channel.display_name || channel.name}</span>
-                      <span className="text-xs text-[--text-muted]">Public channel</span>
+                      <span className="text-xs text-[--text-muted]">
+                        {channel.type === "O" ? "Public channel" : channel.type === "P" ? "Private channel" : "Channel"}
+                      </span>
                     </div>
                     <Button
                       size="sm"

@@ -63,18 +63,8 @@ export function NavbarMobile({
       <div className="relative">
         <Button href="/chats" appearance="gray-link" icon={<UilComment width={20} height={20} />} />
         {unread?.totalUnread ? (
-          <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+          <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white shadow">
             {unread.totalUnread}
-          </span>
-        ) : null}
-        {unread?.totalMentions ? (
-          <span className="absolute -bottom-2 left-0 inline-flex min-w-[18px] justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-semibold text-white shadow">
-            @{unread.totalMentions}
-          </span>
-        ) : null}
-        {unread?.totalDMs ? (
-          <span className="absolute -bottom-2 right-0 inline-flex min-w-[18px] justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-semibold text-white shadow">
-            DM{unread.totalDMs}
           </span>
         ) : null}
       </div>
