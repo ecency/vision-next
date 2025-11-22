@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   useMattermostPosts,
   useMattermostSendMessage,
@@ -8,11 +8,16 @@ import {
   MattermostUser,
   useMattermostDeletePost
 } from "./mattermost-api";
+import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { deleteForeverSvg, dotsHorizontal } from "@ui/svg";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
+import { useGlobalStore } from "@/core/global-store";
+import defaults from "@/defaults";
+
+setProxyBase(defaults.imageServer);
 
 interface Props {
   channelId: string;
@@ -25,9 +30,18 @@ export function MattermostChannelView({ channelId }: Props) {
   const deleteMutation = useMattermostDeletePost(channelId);
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
+
+  const getProxiedImageUrl = useCallback(
+    (url: string) => {
+      const format = canUseWebp ? "webp" : "match";
+      return proxifyImageSrc(url, 1200, 0, format) || url;
+    },
+    [canUseWebp]
+  );
 
   const getDisplayName = (post: MattermostPost) => {
     const user = usersById[post.user_id];
@@ -93,6 +107,7 @@ export function MattermostChannelView({ channelId }: Props) {
       .map((token, idx) => {
         if (/^https?:\/\//.test(token)) {
           if (isImageUrl(token)) {
+            const previewUrl = getProxiedImageUrl(token);
             return (
               <a
                 key={`${token}-${idx}`}
@@ -102,7 +117,7 @@ export function MattermostChannelView({ channelId }: Props) {
                 className="block"
               >
                 <img
-                  src={token}
+                  src={previewUrl}
                   alt="Shared image"
                   className="max-h-80 rounded border border-[--border-color] object-contain"
                 />
