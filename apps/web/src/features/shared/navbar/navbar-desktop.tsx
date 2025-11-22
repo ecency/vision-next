@@ -77,10 +77,10 @@ export function NavbarDesktop({
             <Search />
           </div>
         )}
-        <div className="flex items-center ml-3">
+        <div className="flex items-center ml-3 gap-3">
           <NavbarPerksButton />
           <Tooltip content={i18next.t("chat.chats") || "Chats"}>
-            <div className="relative ml-3">
+            <div className="relative">
               <Button
                 href="/chats"
                 appearance="gray-link"
@@ -98,7 +98,6 @@ export function NavbarDesktop({
             <Button
               href="/publish"
               appearance="gray-link"
-              className="ml-3"
               icon={<UilEditAlt width={20} height={20} />}
             />
           </Tooltip>

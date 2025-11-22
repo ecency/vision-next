@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClientActiveUser } from "@/api/queries";
-import { getAccessToken } from "@/utils";
+import { getAccessToken, getRefreshToken } from "@/utils";
 
 interface MattermostChannel {
   id: string;
@@ -29,7 +29,9 @@ export function useMattermostBootstrap(community?: string) {
     enabled: Boolean(activeUser?.username),
     queryFn: async () => {
       const accessToken = getAccessToken(activeUser?.username || "");
-      if (!accessToken) {
+      const refreshToken = getRefreshToken(activeUser?.username || "");
+
+      if (!accessToken && !refreshToken) {
         throw new Error("Authentication required");
       }
 
@@ -39,6 +41,7 @@ export function useMattermostBootstrap(community?: string) {
         body: JSON.stringify({
           username: activeUser?.username,
           accessToken,
+          refreshToken,
           displayName: activeUser?.username,
           community
         })

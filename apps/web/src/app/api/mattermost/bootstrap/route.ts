@@ -15,6 +15,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const username = body.username as string | undefined;
     const accessToken = body.accessToken as string | undefined;
+    const refreshToken = body.refreshToken as string | undefined;
     const displayName = (body.displayName as string | undefined) || username;
     const communityTitle = body.communityTitle as string | undefined;
     const community = body.community as string | undefined;
@@ -23,8 +24,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "username missing" }, { status: 400 });
     }
 
-    const token = accessToken && validateToken(accessToken) ? decodeToken(accessToken) : null;
-    if (!token || !token.authors?.includes(username)) {
+    const rawToken =
+      (accessToken && validateToken(accessToken) && accessToken) ||
+      (refreshToken && validateToken(refreshToken) && refreshToken) ||
+      null;
+
+    const token = rawToken ? decodeToken(rawToken) : null;
+    const authors = token?.authors?.map((author) => author?.toLowerCase?.()) || [];
+
+    if (!token || !authors.includes(username.toLowerCase())) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
