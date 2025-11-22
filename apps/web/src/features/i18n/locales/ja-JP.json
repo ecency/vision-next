@@ -2239,7 +2239,12 @@
       "iv": "初期ベクトル値"
     },
     "reply": "返信",
-    "reply-to": "{{account}} に返信"
+    "reply-to": "{{account}} に返信",
+    "mattermost-title": "EcencyチャットはMattermostによって提供されました",
+    "mattermost-body": "ダイレクトメッセージやコミュニティの会話を続けるためにchat.ecency.comを開きます. あなたのEcencyユーザー名と資格情報は、古いNostrチャットキーの代わりに使用されます.",
+    "mattermost-community-hint": "{{community}}をお探しですか? chat.ecency.comにサインインした後、コミュニティチャンネルを開きます。",
+    "mattermost-open": "chat.ecency.com を開く",
+    "mattermost-guide": "チャット設定ガイドを表示"
   },
   "add-image": {
     "title": "画像を追加",
@@ -2814,7 +2819,8 @@
     "faq": "FAQ",
     "chats": "チャット",
     "news": "ニュース",
-    "chats-page-placeholder": "チャットを拡張ビューで開きました"
+    "chats-page-placeholder": "チャットを拡張ビューで開きました",
+    "open-chats": "チャットを開く"
   },
   "not-found": {
     "title": "見つかりません",
