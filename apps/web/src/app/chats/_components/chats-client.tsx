@@ -388,15 +388,13 @@ export function ChatsClient() {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Dropdown>
-                          <DropdownToggle onClick={(e) => e.preventDefault()}>
-                            <Button
-                              appearance="gray-link"
-                              icon={dotsHorizontal}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                            />
+                          <DropdownToggle
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                          >
+                            <Button appearance="gray-link" icon={dotsHorizontal} />
                           </DropdownToggle>
                           <DropdownMenu align="end">
                             {unread > 0 && (
@@ -440,15 +438,13 @@ export function ChatsClient() {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <Dropdown>
-                            <DropdownToggle onClick={(e) => e.preventDefault()}>
-                              <Button
-                                appearance="gray-link"
-                                icon={dotsHorizontal}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                              />
+                            <DropdownToggle
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                            >
+                              <Button appearance="gray-link" icon={dotsHorizontal} />
                             </DropdownToggle>
                             <DropdownMenu align="end">
                               <DropdownItemWithIcon
