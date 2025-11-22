@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import { getSubscriptions } from "@/api/bridge";
 import { Subscription } from "@/entities";
 import {
-  ensureChannelForCommunity,
+  ensureCommunityChannelMembership,
   ensureMattermostUser,
   ensurePersonalToken,
-  ensureUserInChannel,
   ensureUserInTeam,
   withMattermostTokenCookie
 } from "@/server/mattermost";
@@ -17,6 +16,7 @@ export async function POST(req: Request) {
     const username = body.username as string | undefined;
     const accessToken = body.accessToken as string | undefined;
     const displayName = (body.displayName as string | undefined) || username;
+    const communityTitle = body.communityTitle as string | undefined;
     const community = body.community as string | undefined;
 
     if (!username) {
@@ -52,17 +52,18 @@ export async function POST(req: Request) {
 
     let channelId: string | null = null;
     for (const [communityId, title] of uniqueCommunityIds) {
-      const ensuredChannelId = await ensureChannelForCommunity(communityId, title);
-      await ensureUserInChannel(user.id, ensuredChannelId);
+      const ensuredChannelId = await ensureCommunityChannelMembership(user.id, communityId, title);
       if (community && communityId === community) {
         channelId = ensuredChannelId;
       }
     }
 
     if (community && !channelId) {
-      const ensuredChannelId = await ensureChannelForCommunity(community, displayName);
-      await ensureUserInChannel(user.id, ensuredChannelId);
-      channelId = ensuredChannelId;
+      channelId = await ensureCommunityChannelMembership(
+        user.id,
+        community,
+        communityTitle || displayName || community
+      );
     }
 
     const response = NextResponse.json({ ok: true, userId: user.id, channelId });

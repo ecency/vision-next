@@ -79,12 +79,16 @@ export async function ensureUserInTeam(userId: string) {
   }
 }
 
+function normalizeCommunityId(community: string) {
+  return community.trim().toLowerCase();
+}
+
 export async function ensureChannelForCommunity(
   community: string,
   displayName?: string
 ): Promise<string> {
   const teamId = requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
-  const channelName = community.toLowerCase();
+  const channelName = normalizeCommunityId(community);
   try {
     const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${channelName}`, {
       headers: getAdminHeaders()
@@ -103,6 +107,16 @@ export async function ensureChannelForCommunity(
     });
     return created.id;
   }
+}
+
+export async function ensureCommunityChannelMembership(
+  userId: string,
+  community: string,
+  displayName?: string
+) {
+  const channelId = await ensureChannelForCommunity(community, displayName);
+  await ensureUserInChannel(userId, channelId);
+  return channelId;
 }
 
 export async function ensureUserInChannel(userId: string, channelId: string) {
