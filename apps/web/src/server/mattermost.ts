@@ -21,6 +21,15 @@ export interface MattermostChannel {
   type: string;
 }
 
+class MattermostError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 function requireEnv(value: string | undefined, name: string) {
   if (!value) {
     throw new Error(`${name} is not configured`);
@@ -51,7 +60,7 @@ async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Mattermost request failed (${res.status}): ${text}`);
+    throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
   }
 
   return (await res.json()) as T;
@@ -214,6 +223,19 @@ export async function mmUserFetch<T>(path: string, token: string, init?: Request
       ...(init?.headers || {})
     }
   });
+}
+
+export function isMattermostUnauthorizedError(error: unknown) {
+  return error instanceof MattermostError && (error.status === 401 || error.status === 403);
+}
+
+export function handleMattermostError(error: unknown) {
+  if (isMattermostUnauthorizedError(error)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const message = error instanceof Error ? error.message : "unknown error";
+  return NextResponse.json({ error: message }, { status: 500 });
 }
 
 const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;

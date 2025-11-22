@@ -4,6 +4,7 @@ import {
   ensureUserInChannel,
   ensureUserInTeam,
   getMattermostCommunityModerationContext,
+  handleMattermostError,
   MattermostChannel,
   getMattermostTokenFromCookies,
   mmUserFetch
@@ -82,8 +83,7 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
       canModerate: moderation.canModerate
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleMattermostError(error);
   }
 }
 
@@ -127,7 +127,6 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
 
     return NextResponse.json({ post });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleMattermostError(error);
   }
 }

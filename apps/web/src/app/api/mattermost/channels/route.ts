@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   getMattermostTeamId,
   getMattermostTokenFromCookies,
+  handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
 
@@ -143,7 +144,6 @@ export async function GET() {
 
     return NextResponse.json({ channels: channelsWithCounts });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleMattermostError(error);
   }
 }

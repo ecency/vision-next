@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { findMattermostUser, getMattermostTokenFromCookies, mmUserFetch, MattermostUser } from "@/server/mattermost";
+import {
+  findMattermostUser,
+  getMattermostTokenFromCookies,
+  handleMattermostError,
+  mmUserFetch,
+  MattermostUser
+} from "@/server/mattermost";
 
 export async function POST(req: NextRequest) {
   const token = getMattermostTokenFromCookies();
@@ -33,7 +39,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ channelId: channel.id });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleMattermostError(error);
   }
 }

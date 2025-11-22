@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getMattermostTeamId,
   getMattermostTokenFromCookies,
+  handleMattermostError,
   mmUserFetch,
   MattermostUser
 } from "@/server/mattermost";
@@ -48,7 +49,6 @@ export async function GET(req: NextRequest) {
       }))
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleMattermostError(error);
   }
 }

@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import { getMattermostTokenFromCookies, mmUserFetch } from "@/server/mattermost";
+import {
+  getMattermostTokenFromCookies,
+  handleMattermostError,
+  mmUserFetch
+} from "@/server/mattermost";
 
-export async function POST(_req: Request, { params }: { params: { channelId: string } }) {
+export async function POST(req: Request, { params }: { params: { channelId: string } }) {
   const token = getMattermostTokenFromCookies();
 
   if (!token) {
@@ -10,14 +14,22 @@ export async function POST(_req: Request, { params }: { params: { channelId: str
 
   try {
     const channelId = params.channelId;
-    await mmUserFetch(`/channels/${channelId}/view`, token, {
+    let prevChannelId = "";
+
+    try {
+      const body = await req.json();
+      prevChannelId = body?.prev_channel_id || body?.prevChannelId || "";
+    } catch (_err) {
+      // ignore body parsing errors and fall back to empty prev_channel_id
+    }
+
+    await mmUserFetch(`/channels/members/me/view`, token, {
       method: "POST",
-      body: JSON.stringify({ channel_id: channelId })
+      body: JSON.stringify({ channel_id: channelId, prev_channel_id: prevChannelId })
     });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleMattermostError(error);
   }
 }

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import {
   deleteMattermostPostAsAdmin,
   getMattermostCommunityModerationContext,
-  getMattermostTokenFromCookies
+  getMattermostTokenFromCookies,
+  handleMattermostError
 } from "@/server/mattermost";
 
 export async function DELETE(_req: Request, { params }: { params: { channelId: string; postId: string } }) {
@@ -21,7 +22,6 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
     await deleteMattermostPostAsAdmin(params.postId);
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleMattermostError(error);
   }
 }

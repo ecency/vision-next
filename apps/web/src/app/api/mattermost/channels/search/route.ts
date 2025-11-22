@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
-import { getMattermostTeamId, getMattermostTokenFromCookies, mmUserFetch } from "@/server/mattermost";
+import {
+  getMattermostTeamId,
+  getMattermostTokenFromCookies,
+  handleMattermostError,
+  isMattermostUnauthorizedError,
+  mmUserFetch
+} from "@/server/mattermost";
 
 interface MattermostChannelSummary {
   id: string;
@@ -39,13 +45,16 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ channels });
   } catch (error) {
+    if (isMattermostUnauthorizedError(error)) {
+      return handleMattermostError(error);
+    }
+
     if (error instanceof Error && error.message.includes("(400)")) {
       // Mattermost responds with a 400 when the search payload is rejected.
       // Instead of surfacing an error to the user, just return no results.
       return NextResponse.json({ channels: [] });
     }
 
-    const message = error instanceof Error ? error.message : "unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleMattermostError(error);
   }
 }
