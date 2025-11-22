@@ -46,6 +46,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const markViewedMutation = useMattermostMarkChannelViewed();
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const lastViewUpdateRef = useRef(0);
+  const [optimisticLastViewedAt, setOptimisticLastViewedAt] = useState<number | null>(null);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
@@ -60,6 +61,13 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const isPublicChannel = data?.channel?.type === "O";
   const mentionSearch = useMattermostUserSearch(mentionQuery, Boolean(isPublicChannel && mentionQuery.length >= 2));
+  const effectiveLastViewedAt = optimisticLastViewedAt ?? data?.member?.last_viewed_at ?? 0;
+  const firstUnreadIndex = useMemo(() => {
+    if (!posts.length) return -1;
+
+    return posts.findIndex((post) => post.create_at > effectiveLastViewedAt);
+  }, [effectiveLastViewedAt, posts]);
+  const showUnreadDivider = firstUnreadIndex !== -1;
 
   const markChannelRead = useCallback(() => {
     const id = data?.channel?.id || channelId;
@@ -69,8 +77,13 @@ export function MattermostChannelView({ channelId }: Props) {
     if (now - lastViewUpdateRef.current < 4000) return;
 
     lastViewUpdateRef.current = now;
-    markViewedMutation.mutate(id);
-  }, [channelId, data?.channel?.id, markViewedMutation]);
+    setOptimisticLastViewedAt(now);
+    markViewedMutation.mutate(id, {
+      onError: () => {
+        setOptimisticLastViewedAt(data?.member?.last_viewed_at ?? null);
+      }
+    });
+  }, [channelId, data?.channel?.id, data?.member?.last_viewed_at, markViewedMutation]);
 
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -84,6 +97,7 @@ export function MattermostChannelView({ channelId }: Props) {
 
   useEffect(() => {
     lastViewUpdateRef.current = 0;
+    setOptimisticLastViewedAt(null);
   }, [channelId]);
 
   useEffect(() => {
@@ -91,6 +105,30 @@ export function MattermostChannelView({ channelId }: Props) {
       markChannelRead();
     }
   }, [data, markChannelRead]);
+
+  const timestampFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }),
+    []
+  );
+
+  const formatTimestamp = useCallback((value: number) => timestampFormatter.format(new Date(value)), [timestampFormatter]);
+  const channelTitle = data?.channel?.display_name || data?.channel?.name || "Chat";
+  const channelSubtitle =
+    data?.channel?.type === "D"
+      ? "Direct message"
+      : data?.community
+        ? `${data.community} channel`
+        : "Channel";
+
+  useEffect(() => {
+    handleScroll();
+  }, [posts.length, handleScroll]);
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
@@ -300,6 +338,22 @@ export function MattermostChannelView({ channelId }: Props) {
 
   return (
     <div className="space-y-4">
+      <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-lg font-semibold">{channelTitle}</div>
+            <div className="text-xs text-[--text-muted]">{channelSubtitle}</div>
+          </div>
+          {effectiveLastViewedAt > 0 && (
+            <div
+              className="text-[11px] text-[--text-muted]"
+              title={new Date(effectiveLastViewedAt).toLocaleString()}
+            >
+              Last viewed {formatTimestamp(effectiveLastViewedAt)}
+            </div>
+          )}
+        </div>
+      </div>
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
@@ -314,99 +368,111 @@ export function MattermostChannelView({ channelId }: Props) {
           <div className="text-sm text-[--text-muted]">No messages yet. Say hello!</div>
         )}
         <div className="space-y-3">
-          {posts.map((post) => (
-            <div key={post.id} className="flex gap-3">
-              {post.type === "system_add_to_channel" ? (
-                <div className="w-full flex justify-center">
-                  <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
-                    {renderMessageContent(getDisplayMessage(post))}
-                  </div>
+          {posts.map((post, index) => (
+            <div key={post.id} className="space-y-3">
+              {showUnreadDivider && index === firstUnreadIndex && (
+                <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
+                  <div className="flex-1 border-t border-[--border-color]" />
+                  <span>New</span>
+                  <div className="flex-1 border-t border-[--border-color]" />
                 </div>
-              ) : (
-                <>
-                  <div className="h-10 w-10 flex-shrink-0">
-                    {(() => {
-                      const user = usersById[post.user_id];
-                      const displayName = getDisplayName(post);
-                      const username = getUsername(post);
-                      const avatarUrl = getAvatarUrl(user);
-
-                      if (username) {
-                        return <UserAvatar username={username} size="medium" className="h-10 w-10" />;
-                      }
-
-                      if (avatarUrl) {
-                        return (
-                          <img
-                            src={avatarUrl}
-                            alt={`${displayName} avatar`}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                        );
-                      }
-
-                      return (
-                        <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
-                          {displayName.charAt(0).toUpperCase()}
-                        </div>
-                      );
-                    })()}
+              )}
+              <div className="flex gap-3">
+                {post.type === "system_add_to_channel" ? (
+                  <div className="w-full flex justify-center">
+                    <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
+                      {renderMessageContent(getDisplayMessage(post))}
+                    </div>
                   </div>
-
-                  <div className="flex flex-col gap-1 w-full">
-                    <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                ) : (
+                  <>
+                    <div className="h-10 w-10 flex-shrink-0">
                       {(() => {
-                        const username = getUsername(post);
+                        const user = usersById[post.user_id];
                         const displayName = getDisplayName(post);
+                        const username = getUsername(post);
+                        const avatarUrl = getAvatarUrl(user);
 
                         if (username) {
+                          return <UserAvatar username={username} size="medium" className="h-10 w-10" />;
+                        }
+
+                        if (avatarUrl) {
                           return (
-                            <UsernameActions
-                              username={username}
-                              displayName={displayName}
-                              currentUsername={activeUser?.username}
-                              onStartDm={startDirectMessage}
+                            <img
+                              src={avatarUrl}
+                              alt={`${displayName} avatar`}
+                              className="h-10 w-10 rounded-full object-cover"
                             />
                           );
                         }
 
-                        return <span>{displayName}</span>;
+                        return (
+                          <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                            {displayName.charAt(0).toUpperCase()}
+                          </div>
+                        );
                       })()}
-                      {data?.canModerate && (
-                        <Dropdown className="ml-auto">
-                          <DropdownToggle>
-                            <Button
-                              icon={dotsHorizontal}
-                              appearance="gray-link"
-                              size="xs"
-                              className="h-7 w-7 !p-0"
-                              aria-label="Moderation actions"
-                            />
-                          </DropdownToggle>
-                          <DropdownMenu align="right" size="small">
-                            <DropdownItemWithIcon
-                              icon={deleteForeverSvg}
-                              label={deleteMutation.isPending && deletingPostId === post.id ? "Deleting…" : "Delete"}
-                              onClick={() => handleDelete(post.id)}
-                              disabled={deleteMutation.isPending}
-                            />
-                          </DropdownMenu>
-                        </Dropdown>
-                      )}
                     </div>
-                    <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
-                      {renderMessageContent(getDisplayMessage(post))}
+
+                    <div className="flex flex-col gap-1 w-full">
+                      <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                        {(() => {
+                          const username = getUsername(post);
+                          const displayName = getDisplayName(post);
+
+                          if (username) {
+                            return (
+                              <UsernameActions
+                                username={username}
+                                displayName={displayName}
+                                currentUsername={activeUser?.username}
+                                onStartDm={startDirectMessage}
+                              />
+                            );
+                          }
+
+                          return <span>{displayName}</span>;
+                        })()}
+                        <span className="text-[--text-muted]" title={new Date(post.create_at).toLocaleString()}>
+                          {formatTimestamp(post.create_at)}
+                        </span>
+                        {data?.canModerate && (
+                          <Dropdown className="ml-auto">
+                            <DropdownToggle>
+                              <Button
+                                icon={dotsHorizontal}
+                                appearance="gray-link"
+                                size="xs"
+                                className="h-7 w-7 !p-0"
+                                aria-label="Moderation actions"
+                              />
+                            </DropdownToggle>
+                            <DropdownMenu align="right" size="small">
+                              <DropdownItemWithIcon
+                                icon={deleteForeverSvg}
+                                label={deleteMutation.isPending && deletingPostId === post.id ? "Deleting…" : "Delete"}
+                                onClick={() => handleDelete(post.id)}
+                                disabled={deleteMutation.isPending}
+                              />
+                            </DropdownMenu>
+                          </Dropdown>
+                        )}
+                      </div>
+                      <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
+                        {renderMessageContent(getDisplayMessage(post))}
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+              </div>
             </div>
           ))}
         </div>
       </div>
 
       <form
-        className="flex gap-2 items-start"
+        className="flex gap-2 items-end"
         onSubmit={(e) => {
           e.preventDefault();
           if (!message.trim()) return;
@@ -415,11 +481,20 @@ export function MattermostChannelView({ channelId }: Props) {
               setMessage("");
               setMentionQuery("");
               setMentionStart(null);
+              requestAnimationFrame(() => {
+                const container = scrollContainerRef.current;
+                if (container) {
+                  container.scrollTop = container.scrollHeight;
+                }
+              });
+              markChannelRead();
             }
           });
         }}
       >
         <ImageUploadButton
+          size="md"
+          className="self-end"
           onBegin={() => undefined}
           onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
         />
@@ -467,7 +542,7 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           )}
         </div>
-        <Button type="submit" disabled={sendMutation.isLoading}>
+        <Button type="submit" size="md" className="self-end" disabled={sendMutation.isLoading}>
           {sendMutation.isLoading ? "Sending…" : "Send"}
         </Button>
       </form>

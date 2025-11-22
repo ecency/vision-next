@@ -261,6 +261,11 @@ export interface MattermostPostsResponse {
   posts: MattermostPost[];
   users: Record<string, MattermostUser>;
   channel?: MattermostChannelSummary;
+  member?: {
+    last_viewed_at?: number;
+    mention_count?: number;
+    msg_count?: number;
+  };
   community?: string | null;
   canModerate?: boolean;
 }

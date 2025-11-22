@@ -62,12 +62,22 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
       }
     }
 
+    const member = await mmUserFetch<{
+      channel_id: string;
+      user_id: string;
+      roles: string;
+      last_viewed_at: number;
+      mention_count: number;
+      msg_count: number;
+    }>(`/channels/${params.channelId}/members/me`, token);
+
     const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
 
     return NextResponse.json({
       posts: orderedPosts,
       users,
       channel: moderation.channel,
+      member,
       community: moderation.community,
       canModerate: moderation.canModerate
     });

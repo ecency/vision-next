@@ -10,7 +10,8 @@ import {
   useMattermostLeaveChannel,
   useMattermostMuteChannel,
   useMattermostUserSearch,
-  useMattermostUnread
+  useMattermostUnread,
+  useMattermostMarkChannelViewed
 } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
 import { UserAvatar } from "@/features/shared/user-avatar";
@@ -20,8 +21,8 @@ import { useRouter } from "next/navigation";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { dotsHorizontal } from "@ui/svg";
-import { MouseEvent, useMemo, useState } from "react";
+import { checkSvg, dotsHorizontal } from "@ui/svg";
+import { MouseEvent, useCallback, useMemo, useState } from "react";
 import { Badge } from "@ui/badge";
 
 const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
@@ -48,6 +49,7 @@ export function ChatsClient() {
   const muteChannelMutation = useMattermostMuteChannel();
   const leaveChannelMutation = useMattermostLeaveChannel();
   const joinChannelMutation = useMattermostJoinChannel();
+  const markChannelViewedMutation = useMattermostMarkChannelViewed();
   const {
     data: userSearch,
     isFetching: userSearchLoading,
@@ -163,6 +165,14 @@ export function ChatsClient() {
     e.stopPropagation();
     action();
   };
+
+  const handleChannelLinkClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+    const targetElement = event.target as HTMLElement | null;
+
+    if (targetElement?.closest("[data-chat-channel-actions]")) {
+      event.preventDefault();
+    }
+  }, []);
 
   if (!hydrated) {
     return (
@@ -322,102 +332,142 @@ export function ChatsClient() {
             <div className="text-sm text-red-500">{(joinChannelMutation.error as Error).message}</div>
           )}
           <div className="grid gap-2">
-            {sortedChannels.map((channel) => (
-              <Link
-                href={`/chats/${channel.id}`}
-                key={channel.id}
-                className="rounded border border-[--border-color] p-3 hover:border-blue-500 transition"
-              >
-                <div className="flex items-center gap-3">
-                  {(() => {
-                    const unreadCounts = unreadByChannelId.get(channel.id);
-                    const mentionCount = channel.mention_count ?? unreadCounts?.mention_count ?? 0;
-                    const messageCount = channel.message_count ?? unreadCounts?.message_count ?? 0;
-                    const unread = channel.type === "D" ? messageCount : mentionCount;
+            {sortedChannels.map((channel) => {
+              const unreadCounts = unreadByChannelId.get(channel.id);
+              const mentionCount = channel.mention_count ?? unreadCounts?.mention_count ?? 0;
+              const messageCount = channel.message_count ?? unreadCounts?.message_count ?? 0;
+              const unread = channel.type === "D" ? messageCount : mentionCount;
+              const markAsReadLabel = markChannelViewedMutation.isPending ? "Marking…" : "Mark as read";
 
-                    return (
-                      <div className="relative">
-                        {channel.type === "D" && channel.directUser ? (
-                          <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
-                        ) : COMMUNITY_CHANNEL_NAME_PATTERN.test(channel.name) ? (
-                          <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
-                        ) : (
-                          <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
-                        )}
-                        {unread > 0 && (
-                          <span
-                            className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-blue-500 ring-2 ring-[--surface-color]"
-                            aria-hidden="true"
-                          />
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  <div className="flex flex-col flex-1">
-                    <div className="font-semibold flex items-center gap-1">
-                      <span>{channel.display_name || channel.name}</span>
-                      {channel.is_favorite && (
-                        <span className="text-amber-500" aria-label="Favorite channel" title="Favorite channel">
-                          ★
-                        </span>
+              return (
+                <Link
+                  href={`/chats/${channel.id}`}
+                  key={channel.id}
+                  className="rounded border border-[--border-color] p-3 hover:border-blue-500 transition"
+                  onClickCapture={handleChannelLinkClick}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      {channel.type === "D" && channel.directUser ? (
+                        <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
+                      ) : COMMUNITY_CHANNEL_NAME_PATTERN.test(channel.name) ? (
+                        <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
+                      ) : (
+                        <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
+                      )}
+                      {unread > 0 && (
+                        <span
+                          className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-blue-500 ring-2 ring-[--surface-color]"
+                          aria-hidden="true"
+                        />
                       )}
                     </div>
-                    <div className="text-xs text-[--text-muted]">{channel.type === "D" ? "DM" : "Channel"}</div>
-                  </div>
 
-                  {(() => {
-                    const unreadCounts = unreadByChannelId.get(channel.id);
-                    const mentionCount = channel.mention_count ?? unreadCounts?.mention_count ?? 0;
-                    const messageCount = channel.message_count ?? unreadCounts?.message_count ?? 0;
-                    const unread = channel.type === "D" ? messageCount : mentionCount;
+                    <div className="flex flex-col flex-1">
+                      <div className="font-semibold flex items-center gap-1">
+                        <span>{channel.display_name || channel.name}</span>
+                        {channel.is_favorite && (
+                          <span className="text-amber-500" aria-label="Favorite channel" title="Favorite channel">
+                            ★
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-[--text-muted]">{channel.type === "D" ? "DM" : "Channel"}</div>
+                    </div>
 
-                    if (!unread) return null;
-
-                    return (
+                    {unread > 0 && (
                       <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-blue-500 px-2 py-1 text-xs font-semibold text-white">
                         {unread}
                       </span>
-                    );
-                  })()}
+                    )}
 
-                  {channel.type !== "D" && (
-                    <div className="ml-2" onClick={(e) => e.stopPropagation()}>
-                      <Dropdown>
-                        <DropdownToggle onClick={(e) => e.preventDefault()}>
-                          <Button
-                            appearance="gray-link"
-                            icon={dotsHorizontal}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                          />
-                        </DropdownToggle>
-                        <DropdownMenu align="end">
-                          <DropdownItemWithIcon
-                            label="Favorite channel"
-                            onClick={(e: MouseEvent) =>
-                              handleChannelAction(e, () => favoriteChannelMutation.mutate({ channelId: channel.id, favorite: true }))
-                            }
-                          />
-                          <DropdownItemWithIcon
-                            label="Mute channel"
-                            onClick={(e: MouseEvent) =>
-                              handleChannelAction(e, () => muteChannelMutation.mutate({ channelId: channel.id, mute: true }))
-                            }
-                          />
-                          <DropdownItemWithIcon
-                            label="Leave channel"
-                            onClick={(e: MouseEvent) => handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))}
-                          />
-                        </DropdownMenu>
-                      </Dropdown>
-                    </div>
-                  )}
-                </div>
-              </Link>
-            ))}
+                    {channel.type !== "D" ? (
+                      <div
+                        className="ml-2"
+                        data-chat-channel-actions
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Dropdown>
+                          <DropdownToggle onClick={(e) => e.preventDefault()}>
+                            <Button
+                              appearance="gray-link"
+                              icon={dotsHorizontal}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                            />
+                          </DropdownToggle>
+                          <DropdownMenu align="end">
+                            {unread > 0 && (
+                              <DropdownItemWithIcon
+                                icon={checkSvg}
+                                label={markAsReadLabel}
+                                onClick={(e: MouseEvent) =>
+                                  handleChannelAction(e, () => markChannelViewedMutation.mutate(channel.id))
+                                }
+                                disabled={markChannelViewedMutation.isPending}
+                              />
+                            )}
+                            <DropdownItemWithIcon
+                              label="Favorite channel"
+                              onClick={(e: MouseEvent) =>
+                                handleChannelAction(e, () =>
+                                  favoriteChannelMutation.mutate({ channelId: channel.id, favorite: true })
+                                )
+                              }
+                            />
+                            <DropdownItemWithIcon
+                              label="Mute channel"
+                              onClick={(e: MouseEvent) =>
+                                handleChannelAction(e, () => muteChannelMutation.mutate({ channelId: channel.id, mute: true }))
+                              }
+                            />
+                            <DropdownItemWithIcon
+                              label="Leave channel"
+                              onClick={(e: MouseEvent) =>
+                                handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))
+                              }
+                            />
+                          </DropdownMenu>
+                        </Dropdown>
+                      </div>
+                    ) : (
+                      unread > 0 && (
+                        <div
+                          className="ml-2"
+                          data-chat-channel-actions
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Dropdown>
+                            <DropdownToggle onClick={(e) => e.preventDefault()}>
+                              <Button
+                                appearance="gray-link"
+                                icon={dotsHorizontal}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                              />
+                            </DropdownToggle>
+                            <DropdownMenu align="end">
+                              <DropdownItemWithIcon
+                                icon={checkSvg}
+                                label={markAsReadLabel}
+                                onClick={(e: MouseEvent) =>
+                                  handleChannelAction(e, () => markChannelViewedMutation.mutate(channel.id))
+                                }
+                                disabled={markChannelViewedMutation.isPending}
+                              />
+                            </DropdownMenu>
+                          </Dropdown>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
             {!sortedChannels.length && !channelsLoading && (
               <div className="text-sm text-[--text-muted]">
                 {channelSearch.trim() ? "No channels match your search." : "No channels assigned yet."}
