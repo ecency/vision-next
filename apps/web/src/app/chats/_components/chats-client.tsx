@@ -164,9 +164,9 @@ export function ChatsClient() {
     <div className="col-span-12 flex justify-center items-center p-4 md:p-10">
       <div className="w-full max-w-4xl space-y-6">
         <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
-          <h1 className="text-2xl font-semibold mb-2">Chats</h1>
+          <h1 className="text-2xl font-semibold mb-2">{i18next.t("chat.title")}</h1>
           <p className="text-[--text-muted] text-sm">
-            Your Ecency/Hive account is automatically provisioned inside Ecency Chats.
+            {i18next.t("chat.page-title")}
           </p>
         </div>
 
@@ -176,7 +176,7 @@ export function ChatsClient() {
           <div>
             <h2 className="text-lg font-semibold">Direct messages</h2>
             <p className="text-xs text-[--text-muted]">
-              Start a private conversation with another Ecency user.
+              {i18next.t("chat.start-dm")}
             </p>
             <form
               className="mt-3 flex flex-col gap-2 sm:flex-row"
@@ -186,7 +186,7 @@ export function ChatsClient() {
               }}
             >
               <FormControl
-                placeholder="Search or enter Hive username"
+                placeholder={i18next.t("chat.search-user")}
                 value={dmUsername}
                 onChange={(e) => setDmUsername(e.target.value)}
                 className="flex-1"
@@ -208,10 +208,10 @@ export function ChatsClient() {
             {(dmUsername.trim().length >= 2 || userSearchLoading) && (
               <div className="mt-3 space-y-2 rounded border border-[--border-color] p-3 bg-[--surface-color]">
                 <div className="text-xs text-[--text-muted]">
-                  {userSearchLoading ? "Searching users…" : "Select a user to start a DM"}
+                  {userSearchLoading ? i18next.t("chat.search-people") : i18next.t("chat.select-dm")}
                 </div>
                 <div className="flex flex-col gap-2">
-                  {userSearchLoading && <div className="text-sm text-[--text-muted]">Searching…</div>}
+                  {userSearchLoading && <div className="text-sm text-[--text-muted]">{i18next.t("chat.searching")}</div>}
                   {!userSearchLoading &&
                     userSearch?.users?.map((user) => {
                       const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
@@ -242,7 +242,7 @@ export function ChatsClient() {
                       );
                     })}
                   {!userSearchLoading && !userSearch?.users?.length && dmUsername.trim().length >= 2 && (
-                    <div className="text-sm text-[--text-muted]">No users found.</div>
+                    <div className="text-sm text-[--text-muted]">{i18next.t("chat.no-user")}</div>
                   )}
                 </div>
               </div>
@@ -254,7 +254,7 @@ export function ChatsClient() {
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <FormControl
                 type="search"
-                placeholder="Search channels and DMs"
+                placeholder={i18next.t("chat.search-channels")}
                 value={channelSearch}
                 onChange={(e) => setChannelSearch(e.target.value)}
                 className="w-full sm:w-64"

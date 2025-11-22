@@ -9,13 +9,15 @@ import {
   useMattermostDeletePost,
   useMattermostDirectChannel,
   useMattermostUserSearch,
-  useMattermostMarkChannelViewed
+  useMattermostMarkChannelViewed,
+  useMattermostReactToPost
 } from "./mattermost-api";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
+import { Popover, PopoverContent } from "@ui/popover";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
@@ -23,6 +25,8 @@ import defaults from "@/defaults";
 import { useRouter } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import clsx from "clsx";
+
+const QUICK_REACTIONS = ["👍", "❤️", "😂", "🎉", "😮", "😢"] as const;
 
 setProxyBase(defaults.imageServer);
 
@@ -39,6 +43,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const deleteMutation = useMattermostDeletePost(channelId);
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<MattermostPost | null>(null);
+  const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const activeUser = useClientActiveUser();
   const directChannelMutation = useMattermostDirectChannel();
@@ -47,8 +53,15 @@ export function MattermostChannelView({ channelId }: Props) {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const lastViewUpdateRef = useRef(0);
   const [optimisticLastViewedAt, setOptimisticLastViewedAt] = useState<number | null>(null);
+  const reactMutation = useMattermostReactToPost(channelId);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
+  const postsById = useMemo(() => {
+    return posts.reduce<Map<string, MattermostPost>>((acc, post) => {
+      acc.set(post.id, post);
+      return acc;
+    }, new Map());
+  }, [posts]);
   const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
   const usersByUsername = useMemo(() => {
     return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
@@ -336,6 +349,41 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
+  const scrollToPost = useCallback((postId: string) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const target = container.querySelector<HTMLDivElement>(`[data-post-id="${postId}"]`);
+    if (!target) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const offset = targetRect.top - containerRect.top + container.scrollTop - 12;
+
+    container.scrollTo({ top: offset, behavior: "smooth" });
+  }, []);
+
+  const toggleReaction = useCallback(
+    (post: MattermostPost, emoji: string) => {
+      if (!emoji || !data?.member?.user_id) return;
+
+      const reactions = post.metadata?.reactions ?? [];
+      const hasReacted = reactions.some(
+        (reaction) => reaction.emoji_name === emoji && reaction.user_id === data.member?.user_id
+      );
+
+      reactMutation.mutate({ postId: post.id, emoji, add: !hasReacted });
+    },
+    [data?.member?.user_id, reactMutation]
+  );
+
+  const handleReply = useCallback((post: MattermostPost) => {
+    setReplyingTo(post);
+    requestAnimationFrame(() => {
+      messageInputRef.current?.focus();
+    });
+  }, []);
+
   return (
     <div className="space-y-4">
       <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
@@ -369,7 +417,7 @@ export function MattermostChannelView({ channelId }: Props) {
         )}
         <div className="space-y-3">
           {posts.map((post, index) => (
-            <div key={post.id} className="space-y-3">
+            <div key={post.id} className="space-y-3" data-post-id={post.id}>
               {showUnreadDivider && index === firstUnreadIndex && (
                 <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
                   <div className="flex-1 border-t border-[--border-color]" />
@@ -377,7 +425,7 @@ export function MattermostChannelView({ channelId }: Props) {
                   <div className="flex-1 border-t border-[--border-color]" />
                 </div>
               )}
-              <div className="flex gap-3">
+              <div className="flex gap-3 group relative">
                 {post.type === "system_add_to_channel" ? (
                   <div className="w-full flex justify-center">
                     <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
@@ -459,11 +507,102 @@ export function MattermostChannelView({ channelId }: Props) {
                           </Dropdown>
                         )}
                       </div>
+                      {post.root_id && (
+                        <button
+                          type="button"
+                          onClick={() => scrollToPost(post.root_id!)}
+                          className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
+                        >
+                          <div className="font-semibold">Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}</div>
+                          <div className="line-clamp-2 text-[--text-muted]">
+                            {renderMessageContent(getDisplayMessage(postsById.get(post.root_id) ?? post))}
+                          </div>
+                        </button>
+                      )}
                       <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
                         {renderMessageContent(getDisplayMessage(post))}
                       </div>
+                      {(() => {
+                        const reactions = post.metadata?.reactions ?? [];
+                        if (!reactions.length) return null;
+
+                        const grouped = reactions.reduce<Record<string, { count: number; reacted: boolean }>>(
+                          (acc, reaction) => {
+                            const existing = acc[reaction.emoji_name] || { count: 0, reacted: false };
+                            return {
+                              ...acc,
+                              [reaction.emoji_name]: {
+                                count: existing.count + 1,
+                                reacted:
+                                  existing.reacted ||
+                                  (data?.member?.user_id
+                                    ? reaction.user_id === data.member.user_id
+                                    : false)
+                              }
+                            };
+                          },
+                          {}
+                        );
+
+                        return (
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(grouped).map(([emoji, info]) => (
+                              <button
+                                key={`${post.id}-${emoji}`}
+                                type="button"
+                                onClick={() => toggleReaction(post, emoji)}
+                                className={clsx(
+                                  "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
+                                  info.reacted
+                                    ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
+                                    : "border-[--border-color] bg-[--background-color]"
+                                )}
+                              >
+                                <span>{emoji}</span>
+                                <span className="text-[--text-muted]">{info.count}</span>
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </>
+                )}
+                {post.type !== "system_add_to_channel" && (
+                  <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+                    <Button
+                      appearance="gray-link"
+                      size="xs"
+                      onClick={() => handleReply(post)}
+                      className="!h-7"
+                    >
+                      Reply
+                    </Button>
+                    <Popover
+                      behavior="click"
+                      placement="right"
+                      customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
+                      directContent={
+                        <Button appearance="gray-link" size="xs" className="!h-7" disabled={reactMutation.isPending}>
+                          React
+                        </Button>
+                      }
+                    >
+                      <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
+                        {QUICK_REACTIONS.map((emoji) => (
+                          <button
+                            key={`${post.id}-${emoji}-picker`}
+                            type="button"
+                            className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
+                            onClick={() => toggleReaction(post, emoji)}
+                            disabled={reactMutation.isPending}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 )}
               </div>
             </div>
@@ -476,11 +615,14 @@ export function MattermostChannelView({ channelId }: Props) {
         onSubmit={(e) => {
           e.preventDefault();
           if (!message.trim()) return;
-          sendMutation.mutate(message, {
+          sendMutation.mutate(
+            { message, rootId: replyingTo?.id ?? null },
+            {
             onSuccess: () => {
               setMessage("");
               setMentionQuery("");
               setMentionStart(null);
+              setReplyingTo(null);
               requestAnimationFrame(() => {
                 const container = scrollContainerRef.current;
                 if (container) {
@@ -489,7 +631,8 @@ export function MattermostChannelView({ channelId }: Props) {
               });
               markChannelRead();
             }
-          });
+            }
+          );
         }}
       >
         <ImageUploadButton
@@ -499,8 +642,28 @@ export function MattermostChannelView({ channelId }: Props) {
           onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
         />
         <div className="flex-1 space-y-2">
+          {replyingTo && (
+            <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-[--text-color]">Replying to {getDisplayName(replyingTo)}</span>
+                <Button
+                  type="button"
+                  appearance="gray-link"
+                  size="xs"
+                  onClick={() => setReplyingTo(null)}
+                  className="!h-6"
+                >
+                  Cancel
+                </Button>
+              </div>
+              <div className="line-clamp-2 text-[--text-muted]">
+                {renderMessageContent(getDisplayMessage(replyingTo))}
+              </div>
+            </div>
+          )}
           <FormControl
             as="textarea"
+            ref={messageInputRef}
             rows={2}
             value={message}
             onChange={handleMessageChange}

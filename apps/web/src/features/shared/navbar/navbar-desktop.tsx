@@ -79,7 +79,7 @@ export function NavbarDesktop({
         )}
         <div className="flex items-center ml-3 gap-3">
           <NavbarPerksButton />
-          <Tooltip content={i18next.t("chat.chats") || "Chats"}>
+          <Tooltip content={i18next.t("chat.title")}>
             <div className="relative">
               <Button
                 href="/chats"

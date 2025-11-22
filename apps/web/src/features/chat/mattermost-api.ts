@@ -274,6 +274,13 @@ export interface MattermostPostsResponse {
   canModerate?: boolean;
 }
 
+export interface MattermostReaction {
+  user_id: string;
+  post_id: string;
+  emoji_name: string;
+  create_at?: number;
+}
+
 export interface MattermostUnreadChannel {
   channelId: string;
   type: string;
@@ -330,11 +337,11 @@ export function useMattermostSendMessage(channelId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (message: string) => {
+    mutationFn: async ({ message, rootId }: { message: string; rootId?: string | null }) => {
       const res = await fetch(`/api/mattermost/channels/${channelId}/posts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message, rootId })
       });
 
       if (!res.ok) {
@@ -389,5 +396,41 @@ export interface MattermostPost {
   message: string;
   create_at: number;
   type?: string;
+  root_id?: string | null;
+  metadata?: {
+    reactions?: MattermostReaction[];
+  };
   props?: MattermostPostProps;
+}
+
+export function useMattermostReactToPost(channelId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      postId,
+      emoji,
+      add
+    }: {
+      postId: string;
+      emoji: string;
+      add: boolean;
+    }) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/posts/${postId}/reactions`, {
+        method: add ? "POST" : "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emoji })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to update reaction");
+      }
+
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
+    }
+  });
 }
