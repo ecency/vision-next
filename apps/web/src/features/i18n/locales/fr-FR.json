@@ -2128,8 +2128,14 @@
     "update-success-message": "Votre e-mail de récupération a été mis à jour avec succès"
   },
   "chat": {
-    "page-title": "Conversations",
-    "read-only": "Lecture seule",
+    "page-title": "Conversations chiffrées et canaux publics",
+    "search-user": "Rechercher des personnes",
+    "search-people": "Recherche de personnes...",
+    "start-dm": "Commencez une conversation privée avec une autre personne.",
+    "select-dm": "Sélectionnez un utilisateur pour démarrer un DM",
+    "searching": "Recherche en cours...",
+    "no-user": "Aucun utilisateur trouvé.",
+    "search-channels": "Rechercher des canaux et des DMs",
     "why-read-only": "Cet utilisateur a changé sa clé de chat. Veuillez trouver un nouveau compte par nom d'utilisateur dans la recherche ci-dessus.",
     "user-not-joined": "N'a pas encore rejoint",
     "title": "Chats",
