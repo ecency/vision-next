@@ -2239,7 +2239,12 @@
       "iv": "Początkowa wartość wektora"
     },
     "reply": "Odpowiedz",
-    "reply-to": "Odpowiedz na {{account}}"
+    "reply-to": "Odpowiedz na {{account}}",
+    "mattermost-title": "Czat Ecency jest teraz wspierany przez Mattermost",
+    "mattermost-body": "Otwórz chat.ecency.com, aby kontynuować bezpośrednie wiadomości i rozmowy społeczności. Użytkownicy i dane logowania są używane zamiast starych kluczy czatu Nostr.",
+    "mattermost-community-hint": "Szukasz {{community}}? Otwórz kanał społecznościowy po zalogowaniu się na chat.ecency.com.",
+    "mattermost-open": "Otwórz chat.ecency.com",
+    "mattermost-guide": "Zobacz poradnik konfiguracji czatu"
   },
   "add-image": {
     "title": "Dodaj obraz",
@@ -2814,7 +2819,8 @@
     "faq": "Często zadawane pytania",
     "chats": "Czaty",
     "news": "Wiadomości",
-    "chats-page-placeholder": "Czaty otworzyły się w rozszerzonym widoku"
+    "chats-page-placeholder": "Czaty otworzyły się w rozszerzonym widoku",
+    "open-chats": "Otwórz czaty"
   },
   "not-found": {
     "title": "Nie znaleziono",
