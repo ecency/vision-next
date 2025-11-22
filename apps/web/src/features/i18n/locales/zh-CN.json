@@ -2239,7 +2239,12 @@
       "iv": "初始矢量值"
     },
     "reply": "答复",
-    "reply-to": "Replying to {{account}}"
+    "reply-to": "Replying to {{account}}",
+    "mattermost-title": "生态聊天现在由Mattermost 提供支持",
+    "mattermost-body": "打开 chat.ecency.com 继续直接消息和社区对话。您的生态用户名和凭据被使用而不是旧的 Nostr 聊天密钥。",
+    "mattermost-community-hint": "Looking for {{community}}? Open the community channel after signing in at chat.ecency.com.",
+    "mattermost-open": "打开 chat.ecency.com",
+    "mattermost-guide": "查看聊天设置指南"
   },
   "add-image": {
     "title": "添加图像",
@@ -2814,7 +2819,8 @@
     "faq": "常见问题",
     "chats": "聊天",
     "news": "新闻",
-    "chats-page-placeholder": "聊天已在扩展视图中打开"
+    "chats-page-placeholder": "聊天已在扩展视图中打开",
+    "open-chats": "打开聊天"
   },
   "not-found": {
     "title": "找不到",
