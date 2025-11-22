@@ -108,9 +108,7 @@ export function ChatsClient() {
                   {channel.type === "D" && channel.directUser ? (
                     <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
-                      {(channel.display_name || channel.name).charAt(0).toUpperCase()}
-                    </div>
+                    <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
                   )}
 
                   <div className="flex flex-col">
