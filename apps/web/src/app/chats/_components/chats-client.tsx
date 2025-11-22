@@ -56,6 +56,10 @@ export function ChatsClient() {
   const directChannelMutation = useMattermostDirectChannel();
   const { data: unreadSummary } = useMattermostUnread(Boolean(bootstrap?.ok && activeUser && hydrated));
 
+  const channelOrder = useMemo(() => {
+    return new Map((channels?.channels || []).map((channel, index) => [channel.id, index]));
+  }, [channels?.channels]);
+
   const filteredChannels = useMemo(() => {
     if (!channels?.channels) return [];
 
@@ -73,6 +77,16 @@ export function ChatsClient() {
       );
     });
   }, [channels?.channels, channelSearch]);
+
+  const sortedChannels = useMemo(() => {
+    return [...filteredChannels].sort((a, b) => {
+      if (a.is_favorite === b.is_favorite) {
+        return (channelOrder.get(a.id) || 0) - (channelOrder.get(b.id) || 0);
+      }
+
+      return a.is_favorite ? -1 : 1;
+    });
+  }, [channelOrder, filteredChannels]);
 
   const joinableChannelResults = useMemo(() => {
     const existingIds = new Set((channels?.channels || []).map((channel) => channel.id));
@@ -264,7 +278,7 @@ export function ChatsClient() {
             <div className="text-sm text-red-500">{(joinChannelMutation.error as Error).message}</div>
           )}
           <div className="grid gap-2">
-            {filteredChannels.map((channel) => (
+            {sortedChannels.map((channel) => (
               <Link
                 href={`/chats/${channel.id}`}
                 key={channel.id}
@@ -297,7 +311,14 @@ export function ChatsClient() {
                   })()}
 
                   <div className="flex flex-col flex-1">
-                    <div className="font-semibold">{channel.display_name || channel.name}</div>
+                    <div className="font-semibold flex items-center gap-1">
+                      <span>{channel.display_name || channel.name}</span>
+                      {channel.is_favorite && (
+                        <span className="text-amber-500" aria-label="Favorite channel" title="Favorite channel">
+                          ★
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-[--text-muted]">{channel.type === "D" ? "DM" : "Channel"}</div>
                   </div>
 
@@ -346,7 +367,7 @@ export function ChatsClient() {
                 </div>
               </Link>
             ))}
-            {!filteredChannels.length && !channelsLoading && (
+            {!sortedChannels.length && !channelsLoading && (
               <div className="text-sm text-[--text-muted]">
                 {channelSearch.trim() ? "No channels match your search." : "No channels assigned yet."}
               </div>

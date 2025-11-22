@@ -10,6 +10,7 @@ interface MattermostChannel {
   name: string;
   display_name: string;
   type: string;
+  is_favorite?: boolean;
   total_msg_count?: number;
   mention_count?: number;
   message_count?: number;
@@ -44,11 +45,14 @@ export async function GET() {
   try {
     const teamId = getMattermostTeamId();
 
-    const [channels, currentUser, channelMembers] = await Promise.all([
+    const [channels, currentUser, channelMembers, favoriteChannels] = await Promise.all([
       mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
       mmUserFetch<MattermostUser>(`/users/me`, token),
-      mmUserFetch<MattermostChannelMemberCounts[]>(`/users/me/teams/${teamId}/channels/members`, token)
+      mmUserFetch<MattermostChannelMemberCounts[]>(`/users/me/teams/${teamId}/channels/members`, token),
+      mmUserFetch<MattermostChannel[]>(`/users/me/teams/${teamId}/channels/favorites`, token).catch(() => [])
     ]);
+
+    const favoriteIds = new Set((favoriteChannels || []).map((channel) => channel.id));
 
     const mentionCounts = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>((acc, member) => {
       acc[member.channel_id] = member;
@@ -125,6 +129,7 @@ export async function GET() {
 
     const channelsWithCounts = channelsWithDirectUsers.map((channel) => ({
       ...channel,
+      is_favorite: favoriteIds.has(channel.id),
       mention_count:
         directMemberCounts[channel.id]?.mention_count ||
         mentionCounts[channel.id]?.mention_count ||
