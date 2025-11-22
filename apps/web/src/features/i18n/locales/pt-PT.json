@@ -2239,7 +2239,12 @@
       "iv": "Valor vetorial inicial"
     },
     "reply": "Responder",
-    "reply-to": "Respondendo para {{account}}"
+    "reply-to": "Respondendo para {{account}}",
+    "mattermost-title": "Bate-papo por Ecency agora é fornecido pelo Mattermost",
+    "mattermost-body": "Abra chat.ecency.com para continuar mensagens diretas e conversas da comunidade. As suas credenciais e nome de usuário Ecency são usadas ao invés das antigas chaves de bate-papo do Nostr.",
+    "mattermost-community-hint": "Procurando por {{community}}? Abra o canal da comunidade após se conectar em chat.ecency.com.",
+    "mattermost-open": "Abrir chat.ecency.com",
+    "mattermost-guide": "Ver guia de configuração do chat"
   },
   "add-image": {
     "title": "Adicionar imagem",
@@ -2814,7 +2819,8 @@
     "faq": "Perguntas Frequentes",
     "chats": "Bate-papos",
     "news": "Notícias",
-    "chats-page-placeholder": "Chats abriram com vista estendida"
+    "chats-page-placeholder": "Chats abriram com vista estendida",
+    "open-chats": "Bate-papos abertos"
   },
   "not-found": {
     "title": "Não encontrado",
