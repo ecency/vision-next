@@ -2239,7 +2239,12 @@
       "iv": "Valor inicial del vector"
     },
     "reply": "Responder",
-    "reply-to": "Respondiendo a {{account}}"
+    "reply-to": "Respondiendo a {{account}}",
+    "mattermost-title": "El chat de ecuencia ahora está gestionado por Mattermost",
+    "mattermost-body": "Abra chat.ecency.com para continuar con mensajes directos y conversaciones comunitarias. Su nombre de usuario y credenciales se utilizan en lugar de las antiguas claves de chat de Nostr.",
+    "mattermost-community-hint": "Buscando {{community}}? Abre el canal de la comunidad después de iniciar sesión en chat.ecency.com.",
+    "mattermost-open": "Abrir chat.ecency.com",
+    "mattermost-guide": "Ver guía de configuración del chat"
   },
   "add-image": {
     "title": "Añadir imagen",
@@ -2814,7 +2819,8 @@
     "faq": "Preguntas Frecuentes (FAQ)",
     "chats": "Chats",
     "news": "Noticias",
-    "chats-page-placeholder": "Los chats se han abierto en vista extendida"
+    "chats-page-placeholder": "Los chats se han abierto en vista extendida",
+    "open-chats": "Abrir chats"
   },
   "not-found": {
     "title": "No encontrado",
