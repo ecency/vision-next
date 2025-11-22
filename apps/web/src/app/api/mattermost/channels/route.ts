@@ -10,6 +10,7 @@ interface MattermostChannel {
   name: string;
   display_name: string;
   type: string;
+  total_msg_count?: number;
   mention_count?: number;
   message_count?: number;
   directUser?: MattermostUser | null;
@@ -49,15 +50,21 @@ export async function GET() {
       mmUserFetch<MattermostChannelMemberCounts[]>(`/users/me/teams/${teamId}/channels/members`, token)
     ]);
 
-    const directChannels = channels.filter((channel) => channel.type === "D");
-
-    let directChannelMembers: Record<string, string[]> = {};
-    let usersById: Record<string, MattermostUser> = {};
-
     const mentionCounts = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>((acc, member) => {
       acc[member.channel_id] = member;
       return acc;
     }, {});
+
+    const unreadMessagesById = channels.reduce<Record<string, number>>((acc, channel) => {
+      const member = mentionCounts[channel.id];
+      acc[channel.id] = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
+      return acc;
+    }, {});
+
+    const directChannels = channels.filter((channel) => channel.type === "D");
+
+    let directChannelMembers: Record<string, string[]> = {};
+    let usersById: Record<string, MattermostUser> = {};
 
     if (directChannels.length) {
       const memberLists = await Promise.all(
@@ -87,9 +94,6 @@ export async function GET() {
     }
 
     const channelsWithDirectUsers = channels.map((channel) => {
-      const mentionCount = mentionCounts[channel.id]?.mention_count || 0;
-      const messageCount = mentionCounts[channel.id]?.msg_count || 0;
-
       if (channel.type !== "D") return channel;
 
       const memberIds = directChannelMembers[channel.id] || [];
@@ -98,8 +102,8 @@ export async function GET() {
 
       return {
         ...channel,
-        mention_count: mentionCount,
-        message_count: messageCount,
+        mention_count: mentionCounts[channel.id]?.mention_count || 0,
+        message_count: unreadMessagesById[channel.id],
         display_name: directUser ? `@${directUser.username}` : channel.display_name,
         directUser: directUser || null
       };
@@ -108,7 +112,7 @@ export async function GET() {
     const channelsWithCounts = channelsWithDirectUsers.map((channel) => ({
       ...channel,
       mention_count: mentionCounts[channel.id]?.mention_count || channel.mention_count || 0,
-      message_count: mentionCounts[channel.id]?.msg_count || channel.message_count || 0
+      message_count: channel.type === "D" ? unreadMessagesById[channel.id] : channel.message_count || 0
     }));
 
     return NextResponse.json({ channels: channelsWithCounts });

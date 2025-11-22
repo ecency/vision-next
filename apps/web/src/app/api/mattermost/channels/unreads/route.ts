@@ -8,6 +8,7 @@ import {
 interface MattermostChannel {
   id: string;
   type: string;
+  total_msg_count?: number;
 }
 
 interface MattermostChannelMember {
@@ -43,11 +44,12 @@ export async function GET() {
 
     const channelsWithCounts = channels.map((channel) => {
       const member = memberByChannelId[channel.id];
+      const unreadMessages = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
       return {
         channelId: channel.id,
         type: channel.type,
         mention_count: member?.mention_count || 0,
-        message_count: member?.msg_count || 0
+        message_count: unreadMessages
       };
     });
 
