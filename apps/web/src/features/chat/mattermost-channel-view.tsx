@@ -10,6 +10,8 @@ import {
 } from "./mattermost-api";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
+import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import { deleteForeverSvg, dotsHorizontal } from "@ui/svg";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
 
 interface Props {
@@ -198,16 +200,25 @@ export function MattermostChannelView({ channelId }: Props) {
                 <div className="flex items-center gap-2 text-xs text-[--text-muted]">
                   <span>{getDisplayName(post)}</span>
                   {data?.canModerate && (
-                    <Button
-                      appearance="danger"
-                      outline
-                      size="xxs"
-                      className="ml-auto"
-                      onClick={() => handleDelete(post.id)}
-                      isLoading={deleteMutation.isPending && deletingPostId === post.id}
-                    >
-                      Delete
-                    </Button>
+                    <Dropdown className="ml-auto">
+                      <DropdownToggle>
+                        <Button
+                          icon={dotsHorizontal}
+                          appearance="gray-link"
+                          size="xs"
+                          className="h-7 w-7 !p-0"
+                          aria-label="Moderation actions"
+                        />
+                      </DropdownToggle>
+                      <DropdownMenu align="right" size="small">
+                        <DropdownItemWithIcon
+                          icon={deleteForeverSvg}
+                          label={deleteMutation.isPending && deletingPostId === post.id ? "Deleting…" : "Delete"}
+                          onClick={() => handleDelete(post.id)}
+                          disabled={deleteMutation.isPending}
+                        />
+                      </DropdownMenu>
+                    </Dropdown>
                   )}
                 </div>
                 <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
