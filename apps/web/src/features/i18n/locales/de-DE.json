@@ -2239,7 +2239,12 @@
       "iv": "Anfangsvektor Wert"
     },
     "reply": "Antwort",
-    "reply-to": "Antworten auf {{account}}"
+    "reply-to": "Antworten auf {{account}}",
+    "mattermost-title": "Ecency Chat wird jetzt von Mattermost betrieben",
+    "mattermost-body": "Öffne chat.ecency.com um direkte Nachrichten und Community-Unterhaltungen fortzusetzen. Dein Ecency Benutzername und deine Zugangsdaten werden anstelle der alten Nostr Chat-Schlüssel verwendet.",
+    "mattermost-community-hint": "Suchen Sie nach {{community}}? Öffnen Sie den Gemeinschaftskanal nach der Anmeldung auf chat.ecency.com.",
+    "mattermost-open": "Chat.ecency.com öffnen",
+    "mattermost-guide": "Chat-Setup-Anleitung anzeigen"
   },
   "add-image": {
     "title": "Bild hinzufügen",
@@ -2814,7 +2819,8 @@
     "faq": "FAQ",
     "chats": "Chats",
     "news": "Nachrichten",
-    "chats-page-placeholder": "Chats wurden in der erweiterten Ansicht geöffnet"
+    "chats-page-placeholder": "Chats wurden in der erweiterten Ansicht geöffnet",
+    "open-chats": "Chats öffnen"
   },
   "not-found": {
     "title": "Nicht gefunden",
