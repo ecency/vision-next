@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  ensureMattermostUser,
+  ensureUserInChannel,
+  ensureUserInTeam,
   getMattermostCommunityModerationContext,
+  MattermostChannel,
   getMattermostTokenFromCookies,
   mmUserFetch
 } from "@/server/mattermost";
+
+const USER_MENTION_REGEX = /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
 
 interface MattermostUser {
   id: string;
@@ -82,6 +88,26 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
     const message = body.message as string;
     if (!message) {
       return NextResponse.json({ error: "message required" }, { status: 400 });
+    }
+
+    const mentionedUsers = Array.from(
+      new Set(message.match(USER_MENTION_REGEX)?.map((mention) => mention.slice(1).toLowerCase()) || [])
+    );
+
+    if (mentionedUsers.length) {
+      const channel = await mmUserFetch<MattermostChannel>(`/channels/${params.channelId}`, token);
+
+      if (channel.type === "O") {
+        for (const username of mentionedUsers) {
+          try {
+            const user = await ensureMattermostUser(username);
+            await ensureUserInTeam(user.id);
+            await ensureUserInChannel(user.id, channel.id);
+          } catch (error) {
+            console.error(`Unable to ensure mentioned user ${username} in channel`, error);
+          }
+        }
+      }
     }
 
     const post = await mmUserFetch(`/posts`, token, {

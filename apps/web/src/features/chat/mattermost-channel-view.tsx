@@ -1,21 +1,26 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import {
   useMattermostPosts,
   useMattermostSendMessage,
   MattermostPost,
   MattermostUser,
-  useMattermostDeletePost
+  useMattermostDeletePost,
+  useMattermostDirectChannel,
+  useMattermostUserSearch
 } from "./mattermost-api";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { deleteForeverSvg, dotsHorizontal } from "@ui/svg";
+import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults";
+import { useRouter } from "next/navigation";
+import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
+import clsx from "clsx";
 
 setProxyBase(defaults.imageServer);
 
@@ -26,14 +31,29 @@ interface Props {
 export function MattermostChannelView({ channelId }: Props) {
   const { data, isLoading, error } = useMattermostPosts(channelId);
   const [message, setMessage] = useState("");
+  const [mentionQuery, setMentionQuery] = useState("");
+  const [mentionStart, setMentionStart] = useState<number | null>(null);
   const sendMutation = useMattermostSendMessage(channelId);
   const deleteMutation = useMattermostDeletePost(channelId);
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
+  const directChannelMutation = useMattermostDirectChannel();
+  const router = useRouter();
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
+  const usersByUsername = useMemo(() => {
+    return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
+      if (user.username) {
+        acc[user.username.toLowerCase()] = user;
+      }
+      return acc;
+    }, {});
+  }, [usersById]);
+
+  const isPublicChannel = data?.channel?.type === "O";
+  const mentionSearch = useMattermostUserSearch(mentionQuery, Boolean(isPublicChannel && mentionQuery.length >= 2));
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
@@ -100,7 +120,8 @@ export function MattermostChannelView({ channelId }: Props) {
   };
 
   const renderMessageContent = (text: string) => {
-    const tokens = text.split(/(https?:\/\/\S+)/g);
+    const mentionMatcher = new RegExp(USER_MENTION_PURE_REGEX.source, "i");
+    const tokens = text.split(/(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+|https?:\/\/\S+)/g);
 
     return tokens
       .filter((token) => token !== "")
@@ -138,6 +159,18 @@ export function MattermostChannelView({ channelId }: Props) {
           );
         }
 
+        if (mentionMatcher.test(token)) {
+          const username = token.slice(1);
+          return (
+            <MentionToken
+              key={`${token}-${idx}`}
+              username={username}
+              user={usersByUsername[username.toLowerCase()]}
+              onStartDm={startDirectMessage}
+            />
+          );
+        }
+
         return <span key={idx}>{token}</span>;
       });
   };
@@ -146,6 +179,50 @@ export function MattermostChannelView({ channelId }: Props) {
     if (!user) return undefined;
     const cacheBuster = user.last_picture_update ? `?t=${user.last_picture_update}` : "";
     return `/api/mattermost/users/${user.id}/image${cacheBuster}`;
+  };
+
+  const startDirectMessage = (username: string) => {
+    directChannelMutation.mutate(username, {
+      onSuccess: (result) => {
+        router.push(`/chats/${result.channelId}`);
+      }
+    });
+  };
+
+  const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setMessage(value);
+
+    if (!isPublicChannel) {
+      setMentionQuery("");
+      setMentionStart(null);
+      return;
+    }
+
+    const cursor = e.target.selectionStart ?? value.length;
+    const textUntilCursor = value.slice(0, cursor);
+    const mentionMatch = textUntilCursor.match(/@([a-zA-Z][a-zA-Z0-9.-]{1,15})$/i);
+
+    if (mentionMatch) {
+      setMentionQuery(mentionMatch[1]);
+      setMentionStart(textUntilCursor.lastIndexOf("@"));
+    } else {
+      setMentionQuery("");
+      setMentionStart(null);
+    }
+  };
+
+  const applyMention = (username: string) => {
+    setMessage((prev) => {
+      if (mentionStart === null) return prev;
+      const before = prev.slice(0, mentionStart);
+      const afterStart = mentionStart + (mentionQuery?.length || 0) + 1;
+      const after = prev.slice(afterStart);
+      const spacer = after.startsWith(" ") || after.startsWith("\n") || after === "" ? "" : " ";
+      return `${before}@${username}${spacer}${after}`;
+    });
+    setMentionQuery("");
+    setMentionStart(null);
   };
 
   const handleDelete = (postId: string) => {
@@ -251,7 +328,11 @@ export function MattermostChannelView({ channelId }: Props) {
           e.preventDefault();
           if (!message.trim()) return;
           sendMutation.mutate(message, {
-            onSuccess: () => setMessage("")
+            onSuccess: () => {
+              setMessage("");
+              setMentionQuery("");
+              setMentionStart(null);
+            }
           });
         }}
       >
@@ -259,18 +340,86 @@ export function MattermostChannelView({ channelId }: Props) {
           onBegin={() => undefined}
           onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
         />
-        <FormControl
-          as="textarea"
-          rows={2}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Write a message"
-          className="flex-1"
-        />
+        <div className="flex-1 space-y-2">
+          <FormControl
+            as="textarea"
+            rows={2}
+            value={message}
+            onChange={handleMessageChange}
+            placeholder="Write a message"
+            className="flex-1"
+          />
+          {isPublicChannel && mentionQuery && (
+            <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
+              <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
+                <span>Use @ to mention users. Selecting will invite them to this channel.</span>
+                {mentionSearch.isFetching && <span className="text-[--text-muted]">Searching…</span>}
+              </div>
+              <div className="max-h-48 overflow-y-auto">
+                {mentionQuery.length < 2 && (
+                  <div className="px-3 py-2 text-sm text-[--text-muted]">Keep typing to search for a user.</div>
+                )}
+                {mentionSearch.data?.users?.map((user) => (
+                  <button
+                    key={user.id}
+                    type="button"
+                    className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
+                    onClick={() => applyMention(user.username)}
+                  >
+                    <UserAvatar username={user.username} size="medium" className="h-8 w-8" />
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">@{user.username}</span>
+                      {(user.nickname || user.first_name || user.last_name) && (
+                        <span className="text-xs text-[--text-muted]">
+                          {[user.first_name, user.last_name].filter(Boolean).join(" ") || user.nickname}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+                {!mentionSearch.isFetching && mentionQuery.length >= 2 && !mentionSearch.data?.users?.length && (
+                  <div className="px-3 py-2 text-sm text-[--text-muted]">No users found.</div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         <Button type="submit" disabled={sendMutation.isLoading}>
           {sendMutation.isLoading ? "Sending…" : "Send"}
         </Button>
       </form>
     </div>
+  );
+}
+
+function MentionToken({
+  username,
+  user,
+  onStartDm
+}: {
+  username: string;
+  user?: MattermostUser;
+  onStartDm: (username: string) => void;
+}) {
+  const secondary = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.nickname;
+
+  return (
+    <Dropdown className="inline-block">
+      <DropdownToggle>
+        <span
+          className={clsx(
+            "inline-flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-sm font-semibold",
+            "bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-200"
+          )}
+          title={secondary || `@${username}`}
+        >
+          @{username}
+        </span>
+      </DropdownToggle>
+      <DropdownMenu align="left" size="small">
+        <DropdownItemWithIcon icon={blogSvg} label="View blog" href={`/@${username}`} />
+        <DropdownItemWithIcon icon={mailSvg} label="Start DM" onClick={() => onStartDm(username)} />
+      </DropdownMenu>
+    </Dropdown>
   );
 }
