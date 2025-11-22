@@ -4,6 +4,11 @@ import {
   useMattermostBootstrap,
   useMattermostChannels,
   useMattermostDirectChannel,
+  useMattermostChannelSearch,
+  useMattermostJoinChannel,
+  useMattermostFavoriteChannel,
+  useMattermostLeaveChannel,
+  useMattermostMuteChannel,
   useMattermostUserSearch
 } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
@@ -13,7 +18,9 @@ import { useClientActiveUser, useHydrated } from "@/api/queries";
 import { useRouter } from "next/navigation";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
-import { useMemo, useState } from "react";
+import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import { dotsHorizontal } from "@ui/svg";
+import { MouseEvent, useMemo, useState } from "react";
 
 const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
 
@@ -30,6 +37,15 @@ export function ChatsClient() {
     isLoading: channelsLoading,
     error: channelsError
   } = useMattermostChannels(Boolean(bootstrap?.ok));
+  const {
+    data: channelSearchResults,
+    isFetching: channelSearchLoading,
+    error: channelSearchError
+  } = useMattermostChannelSearch(channelSearch, Boolean(bootstrap?.ok));
+  const favoriteChannelMutation = useMattermostFavoriteChannel();
+  const muteChannelMutation = useMattermostMuteChannel();
+  const leaveChannelMutation = useMattermostLeaveChannel();
+  const joinChannelMutation = useMattermostJoinChannel();
   const {
     data: userSearch,
     isFetching: userSearchLoading,
@@ -55,6 +71,16 @@ export function ChatsClient() {
     });
   }, [channels?.channels, channelSearch]);
 
+  const joinableChannelResults = useMemo(() => {
+    const existingIds = new Set((channels?.channels || []).map((channel) => channel.id));
+
+    return (
+      channelSearchResults?.channels?.filter(
+        (channel) => channel.type === "O" && !existingIds.has(channel.id)
+      ) || []
+    );
+  }, [channelSearchResults?.channels, channels?.channels]);
+
   const startDirectMessage = (username: string) => {
     const target = username.trim();
     if (!target) return;
@@ -65,6 +91,21 @@ export function ChatsClient() {
         router.push(`/chats/${data.channelId}`);
       }
     });
+  };
+
+  const joinChannel = (channelId: string) => {
+    joinChannelMutation.mutate(channelId, {
+      onSuccess: () => {
+        setChannelSearch("");
+        router.push(`/chats/${channelId}`);
+      }
+    });
+  };
+
+  const handleChannelAction = (e: MouseEvent, action: () => void) => {
+    e.preventDefault();
+    e.stopPropagation();
+    action();
   };
 
   if (!hydrated) {
@@ -188,6 +229,12 @@ export function ChatsClient() {
           {channelsError && (
             <div className="text-sm text-red-500">{(channelsError as Error).message}</div>
           )}
+          {channelSearchError && (
+            <div className="text-sm text-red-500">{(channelSearchError as Error).message}</div>
+          )}
+          {joinChannelMutation.error && (
+            <div className="text-sm text-red-500">{(joinChannelMutation.error as Error).message}</div>
+          )}
           <div className="grid gap-2">
             {filteredChannels.map((channel) => (
               <Link
@@ -220,6 +267,32 @@ export function ChatsClient() {
                       </span>
                     );
                   })()}
+
+                  <div className="ml-2" onClick={(e) => e.stopPropagation()}>
+                    <Dropdown>
+                      <DropdownToggle>
+                        <Button appearance="gray-link" icon={dotsHorizontal} onClick={(e) => e.preventDefault()} />
+                      </DropdownToggle>
+                      <DropdownMenu align="end">
+                        <DropdownItemWithIcon
+                          label="Favorite channel"
+                          onClick={(e: MouseEvent) =>
+                            handleChannelAction(e, () => favoriteChannelMutation.mutate({ channelId: channel.id, favorite: true }))
+                          }
+                        />
+                        <DropdownItemWithIcon
+                          label="Mute channel"
+                          onClick={(e: MouseEvent) =>
+                            handleChannelAction(e, () => muteChannelMutation.mutate({ channelId: channel.id, mute: true }))
+                          }
+                        />
+                        <DropdownItemWithIcon
+                          label="Leave channel"
+                          onClick={(e: MouseEvent) => handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))}
+                        />
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -229,6 +302,38 @@ export function ChatsClient() {
               </div>
             )}
           </div>
+
+          {channelSearch.trim().length >= 2 && (
+            <div className="mt-4 space-y-2 rounded border border-[--border-color] bg-[--background-color] p-3">
+              <div className="flex items-center justify-between text-xs text-[--text-muted]">
+                <span>Joinable channels</span>
+                {channelSearchLoading && <span>Searching…</span>}
+              </div>
+              <div className="grid gap-2">
+                {joinableChannelResults.map((channel) => (
+                  <div
+                    key={channel.id}
+                    className="flex items-center justify-between rounded border border-[--border-color] bg-[--surface-color] p-3"
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-semibold">{channel.display_name || channel.name}</span>
+                      <span className="text-xs text-[--text-muted]">Public channel</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => joinChannel(channel.id)}
+                      disabled={joinChannelMutation.isPending}
+                    >
+                      {joinChannelMutation.isPending ? "Joining…" : "Join"}
+                    </Button>
+                  </div>
+                ))}
+                {!channelSearchLoading && !joinableChannelResults.length && (
+                  <div className="text-sm text-[--text-muted]">No additional channels found.</div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

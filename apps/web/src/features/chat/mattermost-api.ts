@@ -72,6 +72,97 @@ export function useMattermostChannels(enabled: boolean) {
   });
 }
 
+export function useMattermostFavoriteChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ channelId, favorite }: { channelId: string; favorite: boolean }) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/favorite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ favorite })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to update favorite");
+      }
+
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+    }
+  });
+}
+
+export function useMattermostMuteChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ channelId, mute }: { channelId: string; mute: boolean }) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/mute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mute })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to update mute state");
+      }
+
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+    }
+  });
+}
+
+export function useMattermostLeaveChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (channelId: string) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/leave`, {
+        method: "POST"
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to leave channel");
+      }
+
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+    }
+  });
+}
+
+export function useMattermostJoinChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (channelId: string) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/join`, { method: "POST" });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to join channel");
+      }
+
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async (_data, channelId) => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
+    }
+  });
+}
+
 export function useMattermostUserSearch(term: string, enabled: boolean) {
   const query = term.trim();
 
@@ -87,6 +178,25 @@ export function useMattermostUserSearch(term: string, enabled: boolean) {
       }
 
       return (await res.json()) as { users: MattermostUser[] };
+    }
+  });
+}
+
+export function useMattermostChannelSearch(term: string, enabled: boolean) {
+  const query = term.trim();
+
+  return useQuery({
+    queryKey: ["mattermost-channel-search", query],
+    enabled: enabled && query.length >= 2,
+    queryFn: async () => {
+      const res = await fetch(`/api/mattermost/channels/search?q=${encodeURIComponent(query)}`);
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to search channels");
+      }
+
+      return (await res.json()) as { channels: MattermostChannelSummary[] };
     }
   });
 }
