@@ -17,6 +17,7 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
+import { useClientActiveUser } from "@/api/queries";
 import defaults from "@/defaults";
 import { useRouter } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
@@ -38,6 +39,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
+  const activeUser = useClientActiveUser();
   const directChannelMutation = useMattermostDirectChannel();
   const router = useRouter();
 
@@ -80,6 +82,21 @@ export function MattermostChannelView({ channelId }: Props) {
     if (fallbackUsername) return fallbackUsername;
 
     return post.user_id || "Unknown user";
+  };
+
+  const getUsername = (post: MattermostPost) => {
+    const user = usersById[post.user_id];
+
+    if (user?.username) return user.username;
+
+    const fallbackUsername =
+      (post.props?.username as string | undefined) ||
+      (post.props?.override_username as string | undefined) ||
+      post.props?.addedUsername;
+
+    if (fallbackUsername) return fallbackUsername.replace(/^@/, "");
+
+    return undefined;
   };
 
   const getAddedUserDisplayName = (post: MattermostPost) => {
@@ -169,6 +186,7 @@ export function MattermostChannelView({ channelId }: Props) {
               key={`${token}-${idx}`}
               username={username}
               user={usersByUsername[username.toLowerCase()]}
+              currentUsername={activeUser?.username}
               onStartDm={startDirectMessage}
             />
           );
@@ -271,10 +289,7 @@ export function MattermostChannelView({ channelId }: Props) {
                     {(() => {
                       const user = usersById[post.user_id];
                       const displayName = getDisplayName(post);
-                      const username =
-                        user?.username ||
-                        (post.props?.username as string | undefined) ||
-                        (post.props?.override_username as string | undefined);
+                      const username = getUsername(post);
                       const avatarUrl = getAvatarUrl(user);
 
                       if (username) {
@@ -301,7 +316,23 @@ export function MattermostChannelView({ channelId }: Props) {
 
                   <div className="flex flex-col gap-1 w-full">
                     <div className="flex items-center gap-2 text-xs text-[--text-muted]">
-                      <span>{getDisplayName(post)}</span>
+                      {(() => {
+                        const username = getUsername(post);
+                        const displayName = getDisplayName(post);
+
+                        if (username) {
+                          return (
+                            <UsernameActions
+                              username={username}
+                              displayName={displayName}
+                              currentUsername={activeUser?.username}
+                              onStartDm={startDirectMessage}
+                            />
+                          );
+                        }
+
+                        return <span>{displayName}</span>;
+                      })()}
                       {data?.canModerate && (
                         <Dropdown className="ml-auto">
                           <DropdownToggle>
@@ -408,13 +439,16 @@ export function MattermostChannelView({ channelId }: Props) {
 function MentionToken({
   username,
   user,
+  currentUsername,
   onStartDm
 }: {
   username: string;
   user?: MattermostUser;
+  currentUsername?: string;
   onStartDm: (username: string) => void;
 }) {
   const secondary = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.nickname;
+  const isSelf = currentUsername ? username.toLowerCase() === currentUsername.toLowerCase() : false;
 
   return (
     <Dropdown className="inline-block">
@@ -431,7 +465,35 @@ function MentionToken({
       </DropdownToggle>
       <DropdownMenu align="left" size="small">
         <DropdownItemWithIcon icon={blogSvg} label="View blog" href={`/@${username}`} />
-        <DropdownItemWithIcon icon={mailSvg} label="Start DM" onClick={() => onStartDm(username)} />
+        {!isSelf && <DropdownItemWithIcon icon={mailSvg} label="Start DM" onClick={() => onStartDm(username)} />}
+      </DropdownMenu>
+    </Dropdown>
+  );
+}
+
+function UsernameActions({
+  username,
+  displayName,
+  currentUsername,
+  onStartDm
+}: {
+  username: string;
+  displayName: string;
+  currentUsername?: string;
+  onStartDm: (username: string) => void;
+}) {
+  const isSelf = currentUsername ? username.toLowerCase() === currentUsername.toLowerCase() : false;
+
+  return (
+    <Dropdown className="inline-block">
+      <DropdownToggle>
+        <span className="cursor-pointer font-semibold hover:text-[--text-color]" title={`@${username}`}>
+          {displayName}
+        </span>
+      </DropdownToggle>
+      <DropdownMenu align="left" size="small">
+        <DropdownItemWithIcon icon={blogSvg} label="View blog" href={`/@${username}`} />
+        {!isSelf && <DropdownItemWithIcon icon={mailSvg} label="Start DM" onClick={() => onStartDm(username)} />}
       </DropdownMenu>
     </Dropdown>
   );
