@@ -58,7 +58,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const getProxiedImageUrl = useCallback(
     (url: string) => {
       const format = canUseWebp ? "webp" : "match";
-      return proxifyImageSrc(url, 1200, 0, format) || url;
+      return proxifyImageSrc(url, 1024, 0, format) || url;
     },
     [canUseWebp]
   );
@@ -88,16 +88,19 @@ export function MattermostChannelView({ channelId }: Props) {
     if (addedUserId) {
       const addedUser = usersById[addedUserId];
       if (addedUser) {
+        if (addedUser.username) return `@${addedUser.username}`;
+
         const fullName = [addedUser.first_name, addedUser.last_name].filter(Boolean).join(" ");
         if (fullName) return fullName;
 
         if (addedUser.nickname) return addedUser.nickname;
-
-        if (addedUser.username) return `@${addedUser.username}`;
       }
     }
 
-    return (post.props?.addedUsername as string | undefined) || undefined;
+    const addedUsername = (post.props?.addedUsername as string | undefined) || undefined;
+    if (addedUsername) return addedUsername.startsWith("@") ? addedUsername : `@${addedUsername}`;
+
+    return undefined;
   };
 
   const getDisplayMessage = (post: MattermostPost) => {
@@ -256,67 +259,77 @@ export function MattermostChannelView({ channelId }: Props) {
         <div className="space-y-3">
           {posts.map((post) => (
             <div key={post.id} className="flex gap-3">
-              <div className="h-10 w-10 flex-shrink-0">
-                {(() => {
-                  const user = usersById[post.user_id];
-                  const displayName = getDisplayName(post);
-                  const username =
-                    user?.username ||
-                    (post.props?.username as string | undefined) ||
-                    (post.props?.override_username as string | undefined);
-                  const avatarUrl = getAvatarUrl(user);
+              {post.type === "system_add_to_channel" ? (
+                <div className="w-full flex justify-center">
+                  <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
+                    {renderMessageContent(getDisplayMessage(post))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="h-10 w-10 flex-shrink-0">
+                    {(() => {
+                      const user = usersById[post.user_id];
+                      const displayName = getDisplayName(post);
+                      const username =
+                        user?.username ||
+                        (post.props?.username as string | undefined) ||
+                        (post.props?.override_username as string | undefined);
+                      const avatarUrl = getAvatarUrl(user);
 
-                  if (username) {
-                    return <UserAvatar username={username} size="medium" className="h-10 w-10" />;
-                  }
+                      if (username) {
+                        return <UserAvatar username={username} size="medium" className="h-10 w-10" />;
+                      }
 
-                  if (avatarUrl) {
-                    return (
-                      <img
-                        src={avatarUrl}
-                        alt={`${displayName} avatar`}
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                    );
-                  }
+                      if (avatarUrl) {
+                        return (
+                          <img
+                            src={avatarUrl}
+                            alt={`${displayName} avatar`}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        );
+                      }
 
-                  return (
-                    <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
-                      {displayName.charAt(0).toUpperCase()}
+                      return (
+                        <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                          {displayName.charAt(0).toUpperCase()}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="flex flex-col gap-1 w-full">
+                    <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                      <span>{getDisplayName(post)}</span>
+                      {data?.canModerate && (
+                        <Dropdown className="ml-auto">
+                          <DropdownToggle>
+                            <Button
+                              icon={dotsHorizontal}
+                              appearance="gray-link"
+                              size="xs"
+                              className="h-7 w-7 !p-0"
+                              aria-label="Moderation actions"
+                            />
+                          </DropdownToggle>
+                          <DropdownMenu align="right" size="small">
+                            <DropdownItemWithIcon
+                              icon={deleteForeverSvg}
+                              label={deleteMutation.isPending && deletingPostId === post.id ? "Deleting…" : "Delete"}
+                              onClick={() => handleDelete(post.id)}
+                              disabled={deleteMutation.isPending}
+                            />
+                          </DropdownMenu>
+                        </Dropdown>
+                      )}
                     </div>
-                  );
-                })()}
-              </div>
-
-              <div className="flex flex-col gap-1 w-full">
-                <div className="flex items-center gap-2 text-xs text-[--text-muted]">
-                  <span>{getDisplayName(post)}</span>
-                  {data?.canModerate && (
-                    <Dropdown className="ml-auto">
-                      <DropdownToggle>
-                        <Button
-                          icon={dotsHorizontal}
-                          appearance="gray-link"
-                          size="xs"
-                          className="h-7 w-7 !p-0"
-                          aria-label="Moderation actions"
-                        />
-                      </DropdownToggle>
-                      <DropdownMenu align="right" size="small">
-                        <DropdownItemWithIcon
-                          icon={deleteForeverSvg}
-                          label={deleteMutation.isPending && deletingPostId === post.id ? "Deleting…" : "Delete"}
-                          onClick={() => handleDelete(post.id)}
-                          disabled={deleteMutation.isPending}
-                        />
-                      </DropdownMenu>
-                    </Dropdown>
-                  )}
-                </div>
-                <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
-                  {renderMessageContent(getDisplayMessage(post))}
-                </div>
-              </div>
+                    <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
+                      {renderMessageContent(getDisplayMessage(post))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
