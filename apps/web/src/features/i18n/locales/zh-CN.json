@@ -2128,8 +2128,14 @@
     "update-success-message": "您的恢复电子邮件已成功更新"
   },
   "chat": {
-    "page-title": "对话",
-    "read-only": "只读",
+    "page-title": "加密对话和公共频道",
+    "search-user": "搜索用户",
+    "search-people": "正在搜索人员...",
+    "start-dm": "与其他人开始私下对话。",
+    "select-dm": "选择一个用户来启动 DM",
+    "searching": "搜索中...",
+    "no-user": "未找到用户。",
+    "search-channels": "搜索频道和私信",
     "why-read-only": "此用户已更改了他们的聊天密钥。请在上面的搜索中通过用户名查找新帐户。",
     "user-not-joined": "尚未加入",
     "title": "聊天",
