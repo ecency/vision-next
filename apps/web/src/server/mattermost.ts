@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { bridgeApiCall } from "@/api/bridge";
+import { CommunityRole, ROLES } from "@ecency/sdk";
 
 const MATTERMOST_BASE_URL = process.env.MATTERMOST_BASE_URL;
 const MATTERMOST_ADMIN_TOKEN = process.env.MATTERMOST_ADMIN_TOKEN;
@@ -10,6 +12,13 @@ export interface MattermostUser {
   id: string;
   username: string;
   email: string;
+}
+
+export interface MattermostChannel {
+  id: string;
+  name: string;
+  display_name: string;
+  type: string;
 }
 
 function requireEnv(value: string | undefined, name: string) {
@@ -200,5 +209,60 @@ export async function mmUserFetch<T>(path: string, token: string, init?: Request
       "Content-Type": "application/json",
       ...(init?.headers || {})
     }
+  });
+}
+
+const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
+
+function isCommunityModerator(role: CommunityRole | undefined) {
+  return role === ROLES.OWNER || role === ROLES.ADMIN || role === ROLES.MOD;
+}
+
+export async function getMattermostCommunityModerationContext(token: string, channelId: string) {
+  const [channel, currentUser] = await Promise.all([
+    mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token),
+    mmUserFetch<MattermostUser>(`/users/me`, token)
+  ]);
+
+  const isCommunityChannel =
+    channel.type === "O" && normalizeCommunityId(channel.name) === channel.name &&
+    COMMUNITY_CHANNEL_NAME_PATTERN.test(channel.name);
+
+  if (!isCommunityChannel) {
+    return {
+      channel,
+      currentUser,
+      community: null,
+      canModerate: false as const
+    };
+  }
+
+  try {
+    const context = await bridgeApiCall<{ role?: CommunityRole }>("get_community_context", {
+      account: currentUser.username,
+      name: channel.name
+    });
+
+    return {
+      channel,
+      currentUser,
+      community: channel.name,
+      canModerate: isCommunityModerator(context?.role)
+    };
+  } catch (error) {
+    console.error("Unable to load community context for chat moderation", error);
+    return {
+      channel,
+      currentUser,
+      community: channel.name,
+      canModerate: false as const
+    };
+  }
+}
+
+export async function deleteMattermostPostAsAdmin(postId: string) {
+  await mmFetch(`/posts/${postId}`, {
+    method: "DELETE",
+    headers: getAdminHeaders()
   });
 }

@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useMattermostPosts, useMattermostSendMessage, MattermostPost, MattermostUser } from "./mattermost-api";
+import {
+  useMattermostPosts,
+  useMattermostSendMessage,
+  MattermostPost,
+  MattermostUser,
+  useMattermostDeletePost
+} from "./mattermost-api";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { UserAvatar } from "@/features/shared";
@@ -14,6 +20,9 @@ export function MattermostChannelView({ channelId }: Props) {
   const { data, isLoading, error } = useMattermostPosts(channelId);
   const [message, setMessage] = useState("");
   const sendMutation = useMattermostSendMessage(channelId);
+  const deleteMutation = useMattermostDeletePost(channelId);
+  const [moderationError, setModerationError] = useState<string | null>(null);
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
@@ -72,6 +81,23 @@ export function MattermostChannelView({ channelId }: Props) {
     return `/api/mattermost/users/${user.id}/image${cacheBuster}`;
   };
 
+  const handleDelete = (postId: string) => {
+    if (!data?.canModerate) return;
+    if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
+
+    setModerationError(null);
+    setDeletingPostId(postId);
+    deleteMutation.mutate(postId, {
+      onError: (err) => {
+        setModerationError((err as Error)?.message || "Unable to delete message");
+        setDeletingPostId(null);
+      },
+      onSuccess: () => {
+        setDeletingPostId(null);
+      }
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="rounded border border-[--border-color] bg-[--background-color] p-4 h-[60vh] overflow-y-auto">
@@ -79,6 +105,7 @@ export function MattermostChannelView({ channelId }: Props) {
         {error && (
           <div className="text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>
         )}
+        {moderationError && <div className="text-sm text-red-500">{moderationError}</div>}
         {!isLoading && !posts.length && (
           <div className="text-sm text-[--text-muted]">No messages yet. Say hello!</div>
         )}
@@ -117,8 +144,22 @@ export function MattermostChannelView({ channelId }: Props) {
                 })()}
               </div>
 
-              <div className="flex flex-col gap-1">
-                <div className="text-xs text-[--text-muted]">{getDisplayName(post)}</div>
+              <div className="flex flex-col gap-1 w-full">
+                <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                  <span>{getDisplayName(post)}</span>
+                  {data?.canModerate && (
+                    <Button
+                      appearance="danger"
+                      outline
+                      size="xxs"
+                      className="ml-auto"
+                      onClick={() => handleDelete(post.id)}
+                      isLoading={deleteMutation.isPending && deletingPostId === post.id}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </div>
                 <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap">
                   {getDisplayMessage(post)}
                 </div>

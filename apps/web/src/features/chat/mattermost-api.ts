@@ -12,6 +12,13 @@ interface MattermostChannel {
   directUser?: MattermostUser | null;
 }
 
+interface MattermostChannelSummary {
+  id: string;
+  name: string;
+  display_name: string;
+  type: string;
+}
+
 export function useMattermostBootstrap(community?: string) {
   const activeUser = useClientActiveUser();
 
@@ -72,6 +79,9 @@ export interface MattermostUser {
 export interface MattermostPostsResponse {
   posts: MattermostPost[];
   users: Record<string, MattermostUser>;
+  channel?: MattermostChannelSummary;
+  community?: string | null;
+  canModerate?: boolean;
 }
 
 export function useMattermostPosts(channelId: string | undefined) {
@@ -86,6 +96,28 @@ export function useMattermostPosts(channelId: string | undefined) {
       }
 
       return (await res.json()) as MattermostPostsResponse;
+    }
+  });
+}
+
+export function useMattermostDeletePost(channelId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/posts/${postId}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to delete message");
+      }
+
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
     }
   });
 }

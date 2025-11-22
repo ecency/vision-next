@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMattermostTokenFromCookies, mmUserFetch } from "@/server/mattermost";
+import {
+  getMattermostCommunityModerationContext,
+  getMattermostTokenFromCookies,
+  mmUserFetch
+} from "@/server/mattermost";
 
 interface MattermostUser {
   id: string;
@@ -52,9 +56,14 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
       }
     }
 
+    const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+
     return NextResponse.json({
       posts: orderedPosts,
-      users
+      users,
+      channel: moderation.channel,
+      community: moderation.community,
+      canModerate: moderation.canModerate
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
