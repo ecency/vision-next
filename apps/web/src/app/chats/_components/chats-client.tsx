@@ -76,7 +76,11 @@ export function ChatsClient() {
   }
 
   if (!activeUser) {
-    return <LoginRequired />;
+    return (
+      <div className="col-span-12 flex justify-center items-center p-4 md:p-10">
+        <LoginRequired />
+      </div>
+    );
   }
 
   return (

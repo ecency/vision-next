@@ -65,16 +65,29 @@ export async function GET() {
 
     let directChannelMembers: Record<string, string[]> = {};
     let usersById: Record<string, MattermostUser> = {};
+    let directMemberCounts: Record<string, MattermostChannelMemberCounts> = {};
 
     if (directChannels.length) {
-      const memberLists = await Promise.all(
-        directChannels.map((channel) =>
-          mmUserFetch<MattermostChannelMember[]>(`/channels/${channel.id}/members`, token)
+      const [memberLists, memberCounts] = await Promise.all([
+        Promise.all(
+          directChannels.map((channel) =>
+            mmUserFetch<MattermostChannelMember[]>(`/channels/${channel.id}/members`, token)
+          )
+        ),
+        Promise.all(
+          directChannels.map((channel) =>
+            mmUserFetch<MattermostChannelMemberCounts>(`/channels/${channel.id}/members/me`, token)
+          )
         )
-      );
+      ]);
 
       directChannelMembers = memberLists.reduce<Record<string, string[]>>((acc, members, index) => {
         acc[directChannels[index].id] = members.map((member) => member.user_id);
+        return acc;
+      }, {});
+
+      directMemberCounts = memberCounts.reduce<Record<string, MattermostChannelMemberCounts>>((acc, member, index) => {
+        acc[directChannels[index].id] = member;
         return acc;
       }, {});
 
@@ -99,11 +112,12 @@ export async function GET() {
       const memberIds = directChannelMembers[channel.id] || [];
       const otherUserId = memberIds.find((id) => id !== currentUser.id) || memberIds[0];
       const directUser = otherUserId ? usersById[otherUserId] : undefined;
+      const directMember = directMemberCounts[channel.id];
 
       return {
         ...channel,
-        mention_count: mentionCounts[channel.id]?.mention_count || 0,
-        message_count: unreadMessagesById[channel.id],
+        mention_count: directMember?.mention_count || mentionCounts[channel.id]?.mention_count || 0,
+        message_count: Math.max((channel.total_msg_count || 0) - (directMember?.msg_count || 0), 0),
         display_name: directUser ? `@${directUser.username}` : channel.display_name,
         directUser: directUser || null
       };
@@ -111,8 +125,15 @@ export async function GET() {
 
     const channelsWithCounts = channelsWithDirectUsers.map((channel) => ({
       ...channel,
-      mention_count: mentionCounts[channel.id]?.mention_count || channel.mention_count || 0,
-      message_count: channel.type === "D" ? unreadMessagesById[channel.id] : channel.message_count || 0
+      mention_count:
+        directMemberCounts[channel.id]?.mention_count ||
+        mentionCounts[channel.id]?.mention_count ||
+        channel.mention_count ||
+        0,
+      message_count:
+        channel.type === "D"
+          ? Math.max((channel.total_msg_count || 0) - (directMemberCounts[channel.id]?.msg_count || 0), 0)
+          : channel.message_count || 0
     }));
 
     return NextResponse.json({ channels: channelsWithCounts });

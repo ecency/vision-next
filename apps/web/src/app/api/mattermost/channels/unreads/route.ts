@@ -42,6 +42,16 @@ export async function GET() {
       return acc;
     }, {});
 
+    const directMemberCounts = await Promise.all(
+      channels
+        .filter((channel) => channel.type === "D")
+        .map((channel) => mmUserFetch<MattermostChannelMember>(`/channels/${channel.id}/members/me`, token))
+    );
+
+    directMemberCounts.forEach((member) => {
+      memberByChannelId[member.channel_id] = member;
+    });
+
     const channelsWithCounts = channels.map((channel) => {
       const member = memberByChannelId[channel.id];
       const unreadMessages = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);

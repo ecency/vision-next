@@ -1,6 +1,7 @@
 import { cloneElement, PropsWithChildren, ReactElement } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
+import { Button } from "@ui/button";
 
 export function LoginRequired({ children }: PropsWithChildren) {
   const activeUser = useClientActiveUser();
@@ -12,13 +13,7 @@ export function LoginRequired({ children }: PropsWithChildren) {
 
   if (!children) {
     return (
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={() => toggleUiProp("login")}
-      >
-        Login to continue
-      </button>
+      <Button onClick={() => toggleUiProp("login")}>Login to continue</Button>
     );
   }
 
