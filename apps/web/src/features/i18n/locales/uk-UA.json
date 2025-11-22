@@ -2239,7 +2239,12 @@
       "iv": "Початкове векторне значення"
     },
     "reply": "Відповідь",
-    "reply-to": "Відповідь на {{account}}"
+    "reply-to": "Відповідь на {{account}}",
+    "mattermost-title": "Чат влаштовано Mattermost",
+    "mattermost-body": "Відкрийте chat.ecency.com, щоб продовжувати особисті повідомлення та розмови спільноти. Ваше ім'я користувача та облікові дані використовуються замість старих ключів чату Nostr.",
+    "mattermost-community-hint": "Ви шукаєте {{community}}? Відкрийте канал спільноти після входу в chat.ecency.com.",
+    "mattermost-open": "Відкрити chat.ecency.com",
+    "mattermost-guide": "Переглянути керівництво для налаштування чату"
   },
   "add-image": {
     "title": "Додати зображення",
@@ -2814,7 +2819,8 @@
     "faq": "ЧАП",
     "chats": "Чати",
     "news": "Новини",
-    "chats-page-placeholder": "Чати відкрито у розширеному вигляді"
+    "chats-page-placeholder": "Чати відкрито у розширеному вигляді",
+    "open-chats": "Відкриті чати"
   },
   "not-found": {
     "title": "Не знайдено",
