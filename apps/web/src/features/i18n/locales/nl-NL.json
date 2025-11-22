@@ -2239,7 +2239,12 @@
       "iv": "Initiële waarde vector"
     },
     "reply": "Beantwoorden",
-    "reply-to": "Reageren op {{account}}"
+    "reply-to": "Reageren op {{account}}",
+    "mattermost-title": "Ecency chat wordt nu aangedreven door Mattermost",
+    "mattermost-body": "Open chat.ecency.com om door te gaan met directe berichten en community gesprekken. Je Ecency gebruikersnaam en referenties worden gebruikt in plaats van de oude Nostr chat sleutels.",
+    "mattermost-community-hint": "Op zoek naar {{community}}? Open het community kanaal na het inloggen op chat.ecency.com.",
+    "mattermost-open": "Open chat.ecency.com",
+    "mattermost-guide": "Bekijk de chat setup-gids"
   },
   "add-image": {
     "title": "Afbeelding toevoegen",
@@ -2814,7 +2819,8 @@
     "faq": "FAQ",
     "chats": "Chats",
     "news": "Nieuws",
-    "chats-page-placeholder": "Gesprekken zijn geopend in uitgebreide weergave"
+    "chats-page-placeholder": "Gesprekken zijn geopend in uitgebreide weergave",
+    "open-chats": "Open chats"
   },
   "not-found": {
     "title": "Niet gevonden",
