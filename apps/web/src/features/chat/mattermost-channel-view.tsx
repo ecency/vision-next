@@ -10,7 +10,7 @@ import {
 } from "./mattermost-api";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
-import { UserAvatar } from "@/features/shared";
+import { ImageUploadButton, UserAvatar } from "@/features/shared";
 
 interface Props {
   channelId: string;
@@ -73,6 +73,56 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     return post.message;
+  };
+
+  const isImageUrl = (url: string) => {
+    const normalizedUrl = url.toLowerCase();
+    return (
+      /^https?:\/\/images\.ecency\.com\//.test(normalizedUrl) ||
+      /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(normalizedUrl)
+    );
+  };
+
+  const renderMessageContent = (text: string) => {
+    const tokens = text.split(/(https?:\/\/\S+)/g);
+
+    return tokens
+      .filter((token) => token !== "")
+      .map((token, idx) => {
+        if (/^https?:\/\//.test(token)) {
+          if (isImageUrl(token)) {
+            return (
+              <a
+                key={`${token}-${idx}`}
+                href={token}
+                target="_blank"
+                rel="noreferrer"
+                className="block"
+              >
+                <img
+                  src={token}
+                  alt="Shared image"
+                  className="max-h-80 rounded border border-[--border-color] object-contain"
+                />
+              </a>
+            );
+          }
+
+          return (
+            <a
+              key={`${token}-${idx}`}
+              href={token}
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-500 underline break-all"
+            >
+              {token}
+            </a>
+          );
+        }
+
+        return <span key={idx}>{token}</span>;
+      });
   };
 
   const getAvatarUrl = (user?: MattermostUser) => {
@@ -160,8 +210,8 @@ export function MattermostChannelView({ channelId }: Props) {
                     </Button>
                   )}
                 </div>
-                <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap">
-                  {getDisplayMessage(post)}
+                <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
+                  {renderMessageContent(getDisplayMessage(post))}
                 </div>
               </div>
             </div>
@@ -170,7 +220,7 @@ export function MattermostChannelView({ channelId }: Props) {
       </div>
 
       <form
-        className="flex gap-2"
+        className="flex gap-2 items-start"
         onSubmit={(e) => {
           e.preventDefault();
           if (!message.trim()) return;
@@ -179,6 +229,10 @@ export function MattermostChannelView({ channelId }: Props) {
           });
         }}
       >
+        <ImageUploadButton
+          onBegin={() => undefined}
+          onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
+        />
         <FormControl
           as="textarea"
           rows={2}
