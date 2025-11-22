@@ -9,11 +9,13 @@ import {
   ensureUserInTeam,
   withMattermostTokenCookie
 } from "@/server/mattermost";
+import { decodeToken, validateToken } from "@/utils";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const username = body.username as string | undefined;
+    const accessToken = body.accessToken as string | undefined;
     const displayName = (body.displayName as string | undefined) || username;
     const community = body.community as string | undefined;
 
@@ -21,9 +23,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "username missing" }, { status: 400 });
     }
 
+    const token = accessToken && validateToken(accessToken) ? decodeToken(accessToken) : null;
+    if (!token || !token.authors?.includes(username)) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+
     const user = await ensureMattermostUser(username);
     await ensureUserInTeam(user.id);
-    const token = await ensurePersonalToken(user.id);
+    const personalToken = await ensurePersonalToken(user.id);
 
     let subscriptions: Subscription[] = [];
     try {
@@ -59,7 +66,7 @@ export async function POST(req: Request) {
     }
 
     const response = NextResponse.json({ ok: true, userId: user.id, channelId });
-    return withMattermostTokenCookie(response, token);
+    return withMattermostTokenCookie(response, personalToken);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
     return NextResponse.json({ error: message }, { status: 500 });

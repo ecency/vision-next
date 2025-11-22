@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClientActiveUser } from "@/api/queries";
+import { getAccessToken } from "@/utils";
 
 interface MattermostChannel {
   id: string;
@@ -17,11 +18,17 @@ export function useMattermostBootstrap(community?: string) {
     queryKey: ["mattermost-bootstrap", activeUser?.username, community],
     enabled: Boolean(activeUser?.username),
     queryFn: async () => {
+      const accessToken = getAccessToken(activeUser?.username || "");
+      if (!accessToken) {
+        throw new Error("Authentication required");
+      }
+
       const res = await fetch("/api/mattermost/bootstrap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: activeUser?.username,
+          accessToken,
           displayName: activeUser?.username,
           community
         })
