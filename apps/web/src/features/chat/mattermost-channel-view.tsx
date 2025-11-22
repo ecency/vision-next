@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useMattermostPosts, useMattermostSendMessage } from "./mattermost-api";
 import { Button } from "@ui/button";
-import { FormControl } from "@ui/form";
+import { FormControl } from "@ui/input";
 
 interface Props {
   channelId: string;

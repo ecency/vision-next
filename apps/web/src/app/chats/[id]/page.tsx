@@ -10,7 +10,7 @@ import { useClientActiveUser, useHydrated } from "@/api/queries";
 export default function ChannelPage() {
   const activeUser = useClientActiveUser();
   const hydrated = useHydrated();
-  const params = useParams<{ channel: string }>();
+  const params = useParams<{ id: string }>();
   const { data: bootstrap, isLoading, error } = useMattermostBootstrap();
 
   if (!hydrated) {
@@ -36,7 +36,7 @@ export default function ChannelPage() {
           ← Back to chats
         </Link>
       </div>
-      {params.channel && <MattermostChannelView channelId={params.channel} />}
+      {params.id && <MattermostChannelView channelId={params.id} />}
     </div>
   );
 }

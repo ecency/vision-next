@@ -9,9 +9,9 @@ import { useClientActiveUser, useHydrated } from "@/api/queries";
 export function CommunityChannelClient() {
   const activeUser = useClientActiveUser();
   const hydrated = useHydrated();
-  const params = useParams<{ community: string }>();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { data, isLoading, error } = useMattermostBootstrap(params.community);
+  const { data, isLoading, error } = useMattermostBootstrap(params.id);
 
   useEffect(() => {
     if (data?.channelId) {
