@@ -7,7 +7,7 @@ import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar"
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
 import { isKeychainInAppBrowser } from "@/utils";
-import { UilEditAlt, UilHomeAlt, UilLock, UilWallet, UilWater } from "@tooni/iconscout-unicons-react";
+import { UilComment, UilEditAlt, UilHomeAlt, UilLock, UilWallet, UilWater } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import clsx from "clsx";
 import i18next from "i18next";
@@ -57,6 +57,7 @@ export function NavbarMobile({
         onClick={() => setMainBarExpanded(true)}
       />
       <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} />
+      <Button href="/chats" appearance="gray-link" icon={<UilComment width={20} height={20} />} />
       <Button href="/publish" appearance="gray-link" icon={<UilEditAlt width={20} height={20} />} />
 
       {activeUser ? (

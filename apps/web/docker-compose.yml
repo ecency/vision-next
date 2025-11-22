@@ -30,6 +30,9 @@ services:
       - PLAUSIBLE_API_KEY
       - NEXT_PUBLIC_GMAPS_MAP_ID
       - NEXT_PUBLIC_GMAPS_API_KEY
+      - MATTERMOST_BASE_URL
+      - MATTERMOST_ADMIN_TOKEN
+      - MATTERMOST_TEAM_ID
     restart: always
     ports:
       - "3000:3000"

@@ -9,6 +9,7 @@
   },
   "locale": "en-US",
   "base": "https://ecency.com",
+  "chatBase": "https://chat.ecency.com",
   "imageServer": "https://images.ecency.com",
   "nwsServer": "wss://enotify.esteem.app",
   "name": "Ecency",
