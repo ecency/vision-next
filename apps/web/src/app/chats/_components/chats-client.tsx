@@ -6,6 +6,7 @@ import {
   useMattermostDirectChannel
 } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
+import { UserAvatar } from "@/features/shared/user-avatar";
 import Link from "next/link";
 import { useClientActiveUser, useHydrated } from "@/api/queries";
 import { useRouter } from "next/navigation";
@@ -103,8 +104,20 @@ export function ChatsClient() {
                 key={channel.id}
                 className="rounded border border-[--border-color] p-3 hover:border-blue-500 transition"
               >
-                <div className="font-semibold">{channel.display_name || channel.name}</div>
-                <div className="text-xs text-[--text-muted]">{channel.type === "D" ? "DM" : "Channel"}</div>
+                <div className="flex items-center gap-3">
+                  {channel.type === "D" && channel.directUser ? (
+                    <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                      {(channel.display_name || channel.name).charAt(0).toUpperCase()}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col">
+                    <div className="font-semibold">{channel.display_name || channel.name}</div>
+                    <div className="text-xs text-[--text-muted]">{channel.type === "D" ? "DM" : "Channel"}</div>
+                  </div>
+                </div>
               </Link>
             ))}
             {!channels?.channels?.length && !channelsLoading && (

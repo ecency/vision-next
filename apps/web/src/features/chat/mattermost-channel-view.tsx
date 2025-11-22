@@ -37,6 +37,35 @@ export function MattermostChannelView({ channelId }: Props) {
     return post.user_id || "Unknown user";
   };
 
+  const getAddedUserDisplayName = (post: MattermostPost) => {
+    const addedUserId = post.props?.addedUserId;
+
+    if (addedUserId) {
+      const addedUser = usersById[addedUserId];
+      if (addedUser) {
+        const fullName = [addedUser.first_name, addedUser.last_name].filter(Boolean).join(" ");
+        if (fullName) return fullName;
+
+        if (addedUser.nickname) return addedUser.nickname;
+
+        if (addedUser.username) return `@${addedUser.username}`;
+      }
+    }
+
+    return (post.props?.addedUsername as string | undefined) || undefined;
+  };
+
+  const getDisplayMessage = (post: MattermostPost) => {
+    if (post.type === "system_add_to_channel") {
+      const addedUserDisplayName = getAddedUserDisplayName(post);
+      if (addedUserDisplayName) {
+        return `${addedUserDisplayName} joined`;
+      }
+    }
+
+    return post.message;
+  };
+
   const getAvatarUrl = (user?: MattermostUser) => {
     if (!user) return undefined;
     const cacheBuster = user.last_picture_update ? `?t=${user.last_picture_update}` : "";
@@ -91,7 +120,7 @@ export function MattermostChannelView({ channelId }: Props) {
               <div className="flex flex-col gap-1">
                 <div className="text-xs text-[--text-muted]">{getDisplayName(post)}</div>
                 <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap">
-                  {post.message}
+                  {getDisplayMessage(post)}
                 </div>
               </div>
             </div>

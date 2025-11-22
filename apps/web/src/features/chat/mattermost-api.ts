@@ -9,6 +9,7 @@ interface MattermostChannel {
   name: string;
   display_name: string;
   type: string;
+  directUser?: MattermostUser | null;
 }
 
 export function useMattermostBootstrap(community?: string) {
