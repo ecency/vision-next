@@ -2239,7 +2239,12 @@
       "iv": "Начальное значение вектора"
     },
     "reply": "Ответить",
-    "reply-to": "Ответ {{account}}"
+    "reply-to": "Ответ {{account}}",
+    "mattermost-title": "Чат Экции теперь питается от Математики",
+    "mattermost-body": "Откройте chat.ecency.com для продолжения личных сообщений и разговоров с сообществом. Вместо старых ключей чата Nostr используется ваше имя пользователя и учетные данные.",
+    "mattermost-community-hint": "Ищете {{community}}? Откройте канал сообщества после входа на chat.ecency.com.",
+    "mattermost-open": "Открыть chat.ecency.com",
+    "mattermost-guide": "Посмотреть руководство по настройке чата"
   },
   "add-image": {
     "title": "Добавить изображение",
@@ -2814,7 +2819,8 @@
     "faq": "FAQ",
     "chats": "Чаты",
     "news": "Новости",
-    "chats-page-placeholder": "Чаты открываются в расширенном режиме"
+    "chats-page-placeholder": "Чаты открываются в расширенном режиме",
+    "open-chats": "Открытые чаты"
   },
   "not-found": {
     "title": "Не найдено",
