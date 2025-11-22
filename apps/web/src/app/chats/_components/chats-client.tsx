@@ -3,14 +3,11 @@
 import { useMattermostBootstrap, useMattermostChannels } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
 import Link from "next/link";
-import { useClientActiveUser } from "@/api/queries";
+import { useClientActiveUser, useHydrated } from "@/api/queries";
 
 export function ChatsClient() {
   const activeUser = useClientActiveUser();
-
-  if (!activeUser) {
-    return <LoginRequired />;
-  }
+  const hydrated = useHydrated();
 
   const { data: bootstrap, isLoading, error } = useMattermostBootstrap();
   const {
@@ -18,6 +15,18 @@ export function ChatsClient() {
     isLoading: channelsLoading,
     error: channelsError
   } = useMattermostChannels(Boolean(bootstrap?.ok));
+
+  if (!hydrated) {
+    return (
+      <div className="col-span-12 flex justify-center items-center p-4 md:p-10">
+        <div className="text-sm text-[--text-muted]">Loading chats…</div>
+      </div>
+    );
+  }
+
+  if (!activeUser) {
+    return <LoginRequired />;
+  }
 
   return (
     <div className="col-span-12 flex justify-center items-center p-4 md:p-10">
