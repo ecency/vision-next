@@ -14,14 +14,28 @@ interface MattermostChannelSummary {
   type: string;
 }
 
-export async function GET(req: Request) {
+interface ChannelSearchPayload {
+  term?: string;
+  public?: boolean;
+  private?: boolean;
+}
+
+export async function POST(req: Request) {
   const token = getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const { searchParams } = new URL(req.url);
-  const query = searchParams.get("q")?.trim() || "";
+  let payload: ChannelSearchPayload = {};
+  try {
+    payload = (await req.json()) as ChannelSearchPayload;
+  } catch (error) {
+    return NextResponse.json({ error: "invalid request" }, { status: 400 });
+  }
+
+  const query = payload.term?.trim() || "";
+  const includePublic = payload.public ?? true;
+  const includePrivate = payload.private ?? true;
 
   if (query.length < 2) {
     return NextResponse.json({ channels: [] });
@@ -36,9 +50,8 @@ export async function GET(req: Request) {
         method: "POST",
         body: JSON.stringify({
           term: query,
-          team_ids: [teamId],
-          not_associated_to_group: false,
-          exclude_deleted_channels: true
+          public: includePublic,
+          private: includePrivate
         })
       }
     );

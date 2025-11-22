@@ -190,7 +190,11 @@ export function useMattermostChannelSearch(term: string, enabled: boolean) {
     queryKey: ["mattermost-channel-search", query],
     enabled: enabled && query.length >= 2,
     queryFn: async () => {
-      const res = await fetch(`/api/mattermost/channels/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/mattermost/channels/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ term: query })
+      });
 
       if (!res.ok) {
         const data = await res.json();

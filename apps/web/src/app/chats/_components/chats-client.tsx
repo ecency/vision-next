@@ -23,7 +23,6 @@ import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { checkSvg, dotsHorizontal } from "@ui/svg";
 import { MouseEvent, useCallback, useMemo, useState } from "react";
-import { Badge } from "@ui/badge";
 
 const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
 
@@ -98,35 +97,6 @@ export function ChatsClient() {
     );
   }, [channelSearchResults?.channels, channels?.channels]);
 
-  const unreadChannels = useMemo(() => {
-    if (!unreadSummary?.channels?.length || !channels?.channels) return [];
-
-    const channelMap = new Map(channels.channels.map((channel) => [channel.id, channel]));
-
-    return unreadSummary.channels
-      .map((channelUnread) => {
-        const channel = channelMap.get(channelUnread.channelId);
-        if (!channel) return null;
-
-        const unread =
-          channelUnread.type === "D" ? channelUnread.message_count : channelUnread.mention_count;
-
-        if (!unread) return null;
-
-        return {
-          id: channel.id,
-          name: channel.display_name || channel.name,
-          unread
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => (b?.unread || 0) - (a?.unread || 0)) as {
-      id: string;
-      name: string;
-      unread: number;
-    }[];
-  }, [channels?.channels, unreadSummary?.channels]);
-
   const unreadByChannelId = useMemo(() => {
     if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number }>();
 
@@ -198,36 +168,6 @@ export function ChatsClient() {
           <p className="text-[--text-muted] text-sm">
             Your Ecency/Hive account is automatically provisioned inside Ecency Chats.
           </p>
-          {unreadSummary && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Badge variant="secondary" className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-200">
-                Mentions: <span className="ml-1 font-semibold">{unreadSummary.totalMentions}</span>
-              </Badge>
-              <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-200">
-                DMs: <span className="ml-1 font-semibold">{unreadSummary.totalDMs}</span>
-              </Badge>
-              <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-200">
-                Total unread: <span className="ml-1 font-semibold">{unreadSummary.totalUnread}</span>
-              </Badge>
-              {!!unreadChannels.length && (
-                <div className="mt-1 flex flex-wrap gap-2">
-                  {unreadChannels.map((channel) => (
-                    <button
-                      key={channel.id}
-                      type="button"
-                      onClick={() => router.push(`/chats/${channel.id}`)}
-                      className="inline-flex items-center gap-2 rounded-full border border-[--border-color] bg-[--surface-color] px-3 py-1 text-sm hover:border-blue-500"
-                    >
-                      <span className="font-semibold">{channel.name}</span>
-                      <span className="rounded-full bg-blue-500 px-2 py-0.5 text-xs font-semibold text-white">
-                        {channel.unread}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {error && <div className="text-red-500 text-sm">{error.message}</div>}
@@ -357,7 +297,7 @@ export function ChatsClient() {
                       )}
                       {unread > 0 && (
                         <span
-                          className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-blue-500 ring-2 ring-[--surface-color]"
+                          className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
                           aria-hidden="true"
                         />
                       )}
@@ -376,7 +316,7 @@ export function ChatsClient() {
                     </div>
 
                     {unread > 0 && (
-                      <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-blue-500 px-2 py-1 text-xs font-semibold text-white">
+                      <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-[--primary-color] px-2 py-1 text-xs font-semibold text-[--primary-button-text-color]">
                         {unread}
                       </span>
                     )}
