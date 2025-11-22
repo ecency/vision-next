@@ -2128,8 +2128,14 @@
     "update-success-message": "Seu e-mail de recuperação foi atualizado com sucesso"
   },
   "chat": {
-    "page-title": "Conversas",
-    "read-only": "Somente leitura",
+    "page-title": "Conversas e canais públicos criptografados",
+    "search-user": "Procurar pessoas",
+    "search-people": "Procurando pessoas...",
+    "start-dm": "Iniciar uma conversa privada com outra pessoa.",
+    "select-dm": "Selecione um usuário para iniciar um MD",
+    "searching": "Buscando...",
+    "no-user": "Usuários não encontrados.",
+    "search-channels": "Pesquisar canais e mensagens diretas",
     "why-read-only": "Este usuário mudou a chave de bate-papo. Por favor, encontre uma nova conta com o nome de usuário na busca acima.",
     "user-not-joined": "Ainda não se juntou",
     "title": "Bate-papo",
