@@ -2128,8 +2128,14 @@
     "update-success-message": "Uw herstel-e-mail is met succes bijgewerkt"
   },
   "chat": {
-    "page-title": "Gesprekken",
-    "read-only": "Alleen-lezen",
+    "page-title": "Versleutelde gesprekken en openbare kanalen",
+    "search-user": "Mensen zoeken",
+    "search-people": "Mensen zoeken...",
+    "start-dm": "Begin een privégesprek met een andere persoon.",
+    "select-dm": "Selecteer een gebruiker om een DM te starten",
+    "searching": "Zoeken...",
+    "no-user": "Geen gebruikers gevonden.",
+    "search-channels": "Kanalen en PM's zoeken",
     "why-read-only": "Deze gebruiker heeft de chatsleutel gewijzigd. Zoek een nieuw account op de gebruikersnaam in bovenstaand zoekopdracht.",
     "user-not-joined": "Nog niet toegetreden",
     "title": "Chats",
