@@ -59,6 +59,20 @@ export function useMattermostChannels(enabled: boolean) {
   });
 }
 
+export interface MattermostUser {
+  id: string;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  nickname?: string;
+  last_picture_update?: number;
+}
+
+export interface MattermostPostsResponse {
+  posts: MattermostPost[];
+  users: Record<string, MattermostUser>;
+}
+
 export function useMattermostPosts(channelId: string | undefined) {
   return useQuery({
     queryKey: ["mattermost-posts", channelId],
@@ -70,7 +84,7 @@ export function useMattermostPosts(channelId: string | undefined) {
         throw new Error(data?.error || "Unable to load messages");
       }
 
-      return (await res.json()) as { posts: MattermostPost[] };
+      return (await res.json()) as MattermostPostsResponse;
     }
   });
 }
@@ -99,9 +113,20 @@ export function useMattermostSendMessage(channelId: string | undefined) {
   });
 }
 
+export interface MattermostPostProps {
+  username?: string;
+  override_username?: string;
+  addedUserId?: string;
+  addedUsername?: string;
+  from_webhook?: boolean;
+  [key: string]: any;
+}
+
 export interface MattermostPost {
   id: string;
   user_id: string;
   message: string;
   create_at: number;
+  type?: string;
+  props?: MattermostPostProps;
 }

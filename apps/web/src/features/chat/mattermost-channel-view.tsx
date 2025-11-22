@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useMattermostPosts, useMattermostSendMessage } from "./mattermost-api";
+import { useMattermostPosts, useMattermostSendMessage, MattermostPost, MattermostUser } from "./mattermost-api";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
+import { UserAvatar } from "@/features/shared";
 
 interface Props {
   channelId: string;
@@ -15,6 +16,32 @@ export function MattermostChannelView({ channelId }: Props) {
   const sendMutation = useMattermostSendMessage(channelId);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
+  const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
+
+  const getDisplayName = (post: MattermostPost) => {
+    const user = usersById[post.user_id];
+
+    if (user) {
+      const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
+      if (fullName) return fullName;
+
+      if (user.nickname) return user.nickname;
+
+      if (user.username) return `@${user.username}`;
+    }
+
+    const fallbackUsername =
+      (post.props?.override_username as string | undefined) || post.props?.username || post.props?.addedUsername;
+    if (fallbackUsername) return fallbackUsername;
+
+    return post.user_id || "Unknown user";
+  };
+
+  const getAvatarUrl = (user?: MattermostUser) => {
+    if (!user) return undefined;
+    const cacheBuster = user.last_picture_update ? `?t=${user.last_picture_update}` : "";
+    return `/api/mattermost/users/${user.id}/image${cacheBuster}`;
+  };
 
   return (
     <div className="space-y-4">
@@ -28,10 +55,44 @@ export function MattermostChannelView({ channelId }: Props) {
         )}
         <div className="space-y-3">
           {posts.map((post) => (
-            <div key={post.id} className="flex flex-col gap-1">
-              <div className="text-xs text-[--text-muted]">{post.user_id}</div>
-              <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap">
-                {post.message}
+            <div key={post.id} className="flex gap-3">
+              <div className="h-10 w-10 flex-shrink-0">
+                {(() => {
+                  const user = usersById[post.user_id];
+                  const displayName = getDisplayName(post);
+                  const username =
+                    user?.username ||
+                    (post.props?.username as string | undefined) ||
+                    (post.props?.override_username as string | undefined);
+                  const avatarUrl = getAvatarUrl(user);
+
+                  if (username) {
+                    return <UserAvatar username={username} size="medium" className="h-10 w-10" />;
+                  }
+
+                  if (avatarUrl) {
+                    return (
+                      <img
+                        src={avatarUrl}
+                        alt={`${displayName} avatar`}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    );
+                  }
+
+                  return (
+                    <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                      {displayName.charAt(0).toUpperCase()}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <div className="text-xs text-[--text-muted]">{getDisplayName(post)}</div>
+                <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap">
+                  {post.message}
+                </div>
               </div>
             </div>
           ))}

@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMattermostTokenFromCookies, mmUserFetch } from "@/server/mattermost";
 
+interface MattermostUser {
+  id: string;
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  nickname?: string;
+  last_picture_update?: number;
+}
+
 export async function GET(_req: NextRequest, { params }: { params: { channelId: string } }) {
   const token = getMattermostTokenFromCookies();
   if (!token) {
@@ -18,7 +27,35 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
       .filter(Boolean)
       .sort((a, b) => Number(a.create_at) - Number(b.create_at));
 
-    return NextResponse.json({ posts: orderedPosts });
+    const channelUsers = await mmUserFetch<MattermostUser[]>(
+      `/users?in_channel=${params.channelId}&per_page=200&page=0`,
+      token
+    );
+
+    const users = channelUsers.reduce<Record<string, MattermostUser>>((acc, user) => {
+      acc[user.id] = user;
+      return acc;
+    }, {});
+
+    const userIds = Array.from(new Set(orderedPosts.map((post) => post.user_id).filter(Boolean)));
+
+    const missingUserIds = userIds.filter((id) => !users[id]);
+
+    if (missingUserIds.length) {
+      const missingUsers = await mmUserFetch<MattermostUser[]>("/users/ids", token, {
+        method: "POST",
+        body: JSON.stringify(missingUserIds)
+      });
+
+      for (const user of missingUsers) {
+        users[user.id] = user;
+      }
+    }
+
+    return NextResponse.json({
+      posts: orderedPosts,
+      users
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
