@@ -2128,8 +2128,14 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
-    "page-title": "Conversations",
-    "read-only": "Read-only",
+    "page-title": "Encrypted Conversations and Public Channels",
+    "search-user": "Search people",
+    "search-people": "Searching people...",
+    "start-dm": "Start a private conversation with another person.",
+    "select-dm": "Select a user to start a DM",
+    "searching": "Searching...",
+    "no-user": "No users found.",
+    "search-channels": "Search channels and DMs",
     "why-read-only": "This user has changed their chat key. Please, find new account by username in search above.",
     "user-not-joined": "Hasn't joined yet",
     "title": "Chats",
