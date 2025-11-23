@@ -2128,7 +2128,7 @@
     "update-success-message": "リカバリ用のメールアドレスが正常に更新されました"
   },
   "chat": {
-    "page-title": "Ecencyコミュニティとチャットするために、ダイレクトメッセージを開始するか、チャンネルに参加してください。",
+    "page-title": "ダイレクトメッセージを開始するか、チャンネルに参加して誰とでもチャットできます。",
     "loading-chats": "Loading chats…",
     "direct-messages-title": "ダイレクトメッセージ",
     "start-dm": "Ecencyで誰とでもダイレクトメッセージを開始します。",
@@ -2139,7 +2139,7 @@
     "select-dm": "DMを開始する相手を選択",
     "searching": "Searching…",
     "no-user": "ユーザーが見つかりません。",
-    "search-channels": "チャンネルまたはダイレクトメッセージを検索",
+    "search-channels": "チャンネルまたはDMを検索",
     "channels-title": "チャンネル",
     "loading": "読み込み中...",
     "mark-as-read": "既読にする",
