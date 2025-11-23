@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMattermostTokenFromCookies, handleMattermostError, mmUserFetch } from "@/server/mattermost";
+import {
+  ensureUserInChannel,
+  getMattermostTokenFromCookies,
+  handleMattermostError,
+  mmUserFetch
+} from "@/server/mattermost";
 
 export async function POST(req: NextRequest, { params }: { params: { channelId: string; postId: string } }) {
   const token = getMattermostTokenFromCookies();
@@ -16,6 +21,8 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
     }
 
     const user = await mmUserFetch<{ id: string }>(`/users/me`, token);
+
+    await ensureUserInChannel(user.id, params.channelId);
 
     const reaction = await mmUserFetch<{ user_id: string; post_id: string; emoji_name: string }>(
       `/reactions`,
@@ -47,6 +54,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { channelId
     }
 
     const user = await mmUserFetch<{ id: string }>(`/users/me`, token);
+
+    await ensureUserInChannel(user.id, params.channelId);
 
     await mmUserFetch(
       `/users/${user.id}/posts/${params.postId}/reactions/${encodeURIComponent(emoji)}`,

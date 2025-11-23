@@ -345,7 +345,7 @@ export function ChatsClient() {
                           >
                             <Button appearance="gray-link" icon={dotsHorizontal} />
                           </DropdownToggle>
-                          <DropdownMenu align="end">
+                          <DropdownMenu align="right">
                             {unread > 0 && (
                               <DropdownItemWithIcon
                                 icon={checkSvg}
@@ -395,7 +395,7 @@ export function ChatsClient() {
                             >
                               <Button appearance="gray-link" icon={dotsHorizontal} />
                             </DropdownToggle>
-                            <DropdownMenu align="end">
+                            <DropdownMenu align="right">
                               <DropdownItemWithIcon
                                 icon={checkSvg}
                                 label={markAsReadLabel}

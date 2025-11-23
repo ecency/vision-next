@@ -17,6 +17,7 @@ import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
+import { emojiIconSvg } from "@ui/icons";
 import { Popover, PopoverContent } from "@ui/popover";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
@@ -54,6 +55,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const lastViewUpdateRef = useRef(0);
   const [optimisticLastViewedAt, setOptimisticLastViewedAt] = useState<number | null>(null);
   const reactMutation = useMattermostReactToPost(channelId);
+  const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const postsById = useMemo(() => {
@@ -364,7 +366,7 @@ export function MattermostChannelView({ channelId }: Props) {
   }, []);
 
   const toggleReaction = useCallback(
-    (post: MattermostPost, emoji: string) => {
+    (post: MattermostPost, emoji: string, closePicker = false) => {
       if (!emoji || !data?.member?.user_id) return;
 
       const reactions = post.metadata?.reactions ?? [];
@@ -373,6 +375,10 @@ export function MattermostChannelView({ channelId }: Props) {
       );
 
       reactMutation.mutate({ postId: post.id, emoji, add: !hasReacted });
+
+      if (closePicker) {
+        setOpenReactionPostId((current) => (current === post.id ? null : current));
+      }
     },
     [data?.member?.user_id, reactMutation]
   );
@@ -557,30 +563,48 @@ export function MattermostChannelView({ channelId }: Props) {
                     >
                       Reply
                     </Button>
-                    <Popover
-                      behavior="click"
-                      placement="right"
-                      customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
-                      directContent={
-                        <Button appearance="gray-link" size="xs" className="!h-7" disabled={reactMutation.isPending}>
-                          React
-                        </Button>
-                      }
-                    >
-                      <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
-                        {QUICK_REACTIONS.map((emoji) => (
-                          <button
-                            key={`${post.id}-${emoji}-picker`}
-                            type="button"
-                            className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
-                            onClick={() => toggleReaction(post, emoji)}
-                            disabled={reactMutation.isPending}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </PopoverContent>
-                    </Popover>
+                    {(() => {
+                      const isReactionPickerOpen = openReactionPostId === post.id;
+
+                      return (
+                        <Popover
+                          behavior="click"
+                          placement="right"
+                          customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
+                          show={isReactionPickerOpen}
+                          setShow={(next) => setOpenReactionPostId(next ? post.id : null)}
+                          directContent={
+                            <Button
+                              appearance="gray-link"
+                              size="xs"
+                              className="!h-7"
+                              icon={emojiIconSvg}
+                              aria-label="Add reaction"
+                              disabled={reactMutation.isPending}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setOpenReactionPostId((current) => (current === post.id ? null : post.id));
+                              }}
+                            />
+                          }
+                        >
+                          <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
+                            {QUICK_REACTIONS.map((emoji) => (
+                              <button
+                                key={`${post.id}-${emoji}-picker`}
+                                type="button"
+                                className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
+                                onClick={() => toggleReaction(post, emoji, true)}
+                                disabled={reactMutation.isPending}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </PopoverContent>
+                        </Popover>
+                      );
+                    })()}
                     {data?.canModerate && (
                       <Dropdown>
                         <DropdownToggle>
