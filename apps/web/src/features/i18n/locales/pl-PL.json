@@ -2128,7 +2128,7 @@
     "update-success-message": "Twój e-mail odzyskiwania został pomyślnie zaktualizowany"
   },
   "chat": {
-    "page-title": "Rozpocznij bezpośrednie wiadomości lub dołącz do kanałów, aby rozmawiać ze społecznością Ecency.",
+    "page-title": "Rozpocznij bezpośrednie wiadomości lub dołącz do kanałów, aby czatować z każdym.",
     "loading-chats": "Ładowanie czatów…",
     "direct-messages-title": "Wiadomości bezpośrednie",
     "start-dm": "Rozpocznij bezpośrednią wiadomość z kimkolwiek na Ecency.",
@@ -2139,7 +2139,7 @@
     "select-dm": "Wybierz kogoś do uruchomienia pamięci DM",
     "searching": "Wyszukiwanie…",
     "no-user": "Nie znaleziono ludzi.",
-    "search-channels": "Szukaj kanałów lub bezpośrednich wiadomości",
+    "search-channels": "Szukaj kanałów lub DM",
     "channels-title": "Kanały",
     "loading": "Ładowanie...",
     "mark-as-read": "Oznacz jako przeczytane",
