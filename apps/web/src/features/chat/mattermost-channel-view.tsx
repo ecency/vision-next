@@ -485,27 +485,6 @@ export function MattermostChannelView({ channelId }: Props) {
                         <span className="text-[--text-muted]" title={new Date(post.create_at).toLocaleString()}>
                           {formatTimestamp(post.create_at)}
                         </span>
-                        {data?.canModerate && (
-                          <Dropdown className="ml-auto">
-                            <DropdownToggle>
-                              <Button
-                                icon={dotsHorizontal}
-                                appearance="gray-link"
-                                size="xs"
-                                className="h-7 w-7 !p-0"
-                                aria-label="Moderation actions"
-                              />
-                            </DropdownToggle>
-                            <DropdownMenu align="right" size="small">
-                              <DropdownItemWithIcon
-                                icon={deleteForeverSvg}
-                                label={deleteMutation.isPending && deletingPostId === post.id ? "Deleting…" : "Delete"}
-                                onClick={() => handleDelete(post.id)}
-                                disabled={deleteMutation.isPending}
-                              />
-                            </DropdownMenu>
-                          </Dropdown>
-                        )}
                       </div>
                       {post.root_id && (
                         <button
@@ -602,6 +581,27 @@ export function MattermostChannelView({ channelId }: Props) {
                         ))}
                       </PopoverContent>
                     </Popover>
+                    {data?.canModerate && (
+                      <Dropdown>
+                        <DropdownToggle>
+                          <Button
+                            icon={dotsHorizontal}
+                            appearance="gray-link"
+                            size="xs"
+                            className="h-7 w-7 !p-0"
+                            aria-label="Moderation actions"
+                          />
+                        </DropdownToggle>
+                        <DropdownMenu align="right" size="small">
+                          <DropdownItemWithIcon
+                            icon={deleteForeverSvg}
+                            label={deleteMutation.isPending && deletingPostId === post.id ? "Deleting…" : "Delete"}
+                            onClick={() => handleDelete(post.id)}
+                            disabled={deleteMutation.isPending}
+                          />
+                        </DropdownMenu>
+                      </Dropdown>
+                    )}
                   </div>
                 )}
               </div>

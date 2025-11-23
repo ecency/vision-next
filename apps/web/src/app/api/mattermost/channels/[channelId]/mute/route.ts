@@ -14,7 +14,9 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
   const { mute = true } = (await req.json().catch(() => ({}))) as { mute?: boolean };
 
   try {
-    await mmUserFetch(`/users/me/channels/${params.channelId}/notify`, token, {
+    const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
+
+    await mmUserFetch(`/users/${currentUser.id}/channels/${params.channelId}/notify`, token, {
       method: "PUT",
       body: JSON.stringify({ mark_unread: mute ? "mention" : "all" })
     });

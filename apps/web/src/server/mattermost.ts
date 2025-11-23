@@ -63,7 +63,13 @@ async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
     throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
   }
 
-  return (await res.json()) as T;
+  const text = await res.text();
+
+  if (!text) {
+    return undefined as T;
+  }
+
+  return JSON.parse(text) as T;
 }
 
 export async function ensureMattermostUser(username: string): Promise<MattermostUser> {
@@ -235,6 +241,11 @@ export function handleMattermostError(error: unknown) {
   }
 
   const message = error instanceof Error ? error.message : "unknown error";
+
+  if (error instanceof MattermostError) {
+    return NextResponse.json({ error: message }, { status: error.status });
+  }
+
   return NextResponse.json({ error: message }, { status: 500 });
 }
 
