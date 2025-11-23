@@ -2128,7 +2128,7 @@
     "update-success-message": "Tu email de recuperación ha sido actualizado correctamente"
   },
   "chat": {
-    "page-title": "Iniciar mensajes directos o unirse a canales para chatear con la comunidad de Ecency.",
+    "page-title": "Iniciar mensajes directos o unirse a canales para chatear con cualquiera.",
     "loading-chats": "Cargando chats…",
     "direct-messages-title": "Mensajes directos",
     "start-dm": "Inicia un mensaje directo con cualquiera en Ecency.",
@@ -2139,7 +2139,7 @@
     "select-dm": "Seleccione alguien para iniciar un DM",
     "searching": "Buscando…",
     "no-user": "No se encontraron personas.",
-    "search-channels": "Buscar canales o mensajes directos",
+    "search-channels": "Buscar canales o DMs",
     "channels-title": "Canales",
     "loading": "Cargando...",
     "mark-as-read": "Marcar como leído",
