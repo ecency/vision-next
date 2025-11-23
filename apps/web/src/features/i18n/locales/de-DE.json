@@ -2128,7 +2128,7 @@
     "update-success-message": "Ihre Wiederherstellungs-E-Mail wurde erfolgreich aktualisiert"
   },
   "chat": {
-    "page-title": "Starte Direktnachrichten oder betrete Kanäle, um mit der Ecency Community zu chatten.",
+    "page-title": "Starte Direktnachrichten oder betrete Kanäle, um mit jedem zu chatten.",
     "loading-chats": "Lade Chats…",
     "direct-messages-title": "Direkte Nachrichten",
     "start-dm": "Starten Sie eine Direktnachricht mit jedem auf Ecency.",
@@ -2139,7 +2139,7 @@
     "select-dm": "Wählen Sie jemanden aus, um eine DM zu starten",
     "searching": "Suche…",
     "no-user": "Keine Personen gefunden.",
-    "search-channels": "Kanäle oder Direktnachrichten suchen",
+    "search-channels": "Kanäle oder DMs suchen",
     "channels-title": "Kanäle",
     "loading": "Wird geladen...",
     "mark-as-read": "Als gelesen markieren",
