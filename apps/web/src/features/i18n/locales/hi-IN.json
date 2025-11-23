@@ -2128,7 +2128,7 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
-    "page-title": "Start direct messages or join channels to chat with the Ecency community.",
+    "page-title": "Start direct messages or join channels to chat with anyone.",
     "loading-chats": "Loading chats…",
     "direct-messages-title": "Direct messages",
     "start-dm": "Start a direct message with anyone on Ecency.",
@@ -2139,7 +2139,7 @@
     "select-dm": "Select someone to start a DM",
     "searching": "Searching…",
     "no-user": "No people found.",
-    "search-channels": "Search channels or direct messages",
+    "search-channels": "Search channels or DMs",
     "channels-title": "Channels",
     "loading": "Loading...",
     "mark-as-read": "Mark as read",
