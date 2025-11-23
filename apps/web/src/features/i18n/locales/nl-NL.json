@@ -2128,7 +2128,7 @@
     "update-success-message": "Uw herstel-e-mail is met succes bijgewerkt"
   },
   "chat": {
-    "page-title": "Begin direct berichten of neem deel aan kanalen om te chatten met de Ecency community.",
+    "page-title": "Begin directe berichten of neem deel aan kanalen om met iemand te chatten.",
     "loading-chats": "Chats laden…",
     "direct-messages-title": "Directe berichten",
     "start-dm": "Begin een direct bericht met iemand op Ecency.",
@@ -2139,7 +2139,7 @@
     "select-dm": "Selecteer iemand om een DM te starten",
     "searching": "Searching…",
     "no-user": "Geen personen gevonden.",
-    "search-channels": "Zenders of directe berichten zoeken",
+    "search-channels": "Zenders of PM's zoeken",
     "channels-title": "Kanalen",
     "loading": "Laden...",
     "mark-as-read": "Markeren als gelezen",
