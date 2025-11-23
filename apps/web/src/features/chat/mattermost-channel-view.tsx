@@ -28,6 +28,25 @@ import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/use
 import clsx from "clsx";
 
 const QUICK_REACTIONS = ["👍", "❤️", "😂", "🎉", "😮", "😢"] as const;
+const EMOJI_CHAR_TO_MATTERMOST_NAME: Record<string, string> = {
+  "👍": "+1",
+  "❤️": "heart",
+  "😂": "joy",
+  "🎉": "tada",
+  "😮": "open_mouth",
+  "😢": "cry"
+};
+const MATTERMOST_NAME_TO_DISPLAY_EMOJI: Record<string, string> = Object.fromEntries(
+  Object.entries(EMOJI_CHAR_TO_MATTERMOST_NAME).map(([char, name]) => [name, char])
+);
+
+function toMattermostEmojiName(emoji: string) {
+  return EMOJI_CHAR_TO_MATTERMOST_NAME[emoji] || emoji.trim();
+}
+
+function toDisplayEmoji(emojiName: string) {
+  return MATTERMOST_NAME_TO_DISPLAY_EMOJI[emojiName] || `:${emojiName}:`;
+}
 
 setProxyBase(defaults.imageServer);
 
@@ -367,14 +386,16 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const toggleReaction = useCallback(
     (post: MattermostPost, emoji: string, closePicker = false) => {
-      if (!emoji || !data?.member?.user_id) return;
+      const emojiName = toMattermostEmojiName(emoji);
+
+      if (!emojiName || !data?.member?.user_id) return;
 
       const reactions = post.metadata?.reactions ?? [];
       const hasReacted = reactions.some(
-        (reaction) => reaction.emoji_name === emoji && reaction.user_id === data.member?.user_id
+        (reaction) => reaction.emoji_name === emojiName && reaction.user_id === data.member?.user_id
       );
 
-      reactMutation.mutate({ postId: post.id, emoji, add: !hasReacted });
+      reactMutation.mutate({ postId: post.id, emoji: emojiName, add: !hasReacted });
 
       if (closePicker) {
         setOpenReactionPostId((current) => (current === post.id ? null : current));
@@ -531,11 +552,11 @@ export function MattermostChannelView({ channelId }: Props) {
 
                         return (
                           <div className="flex flex-wrap gap-2">
-                            {Object.entries(grouped).map(([emoji, info]) => (
+                            {Object.entries(grouped).map(([emojiName, info]) => (
                               <button
-                                key={`${post.id}-${emoji}`}
+                                key={`${post.id}-${emojiName}`}
                                 type="button"
-                                onClick={() => toggleReaction(post, emoji)}
+                                onClick={() => toggleReaction(post, emojiName)}
                                 className={clsx(
                                   "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
                                   info.reacted
@@ -543,7 +564,7 @@ export function MattermostChannelView({ channelId }: Props) {
                                     : "border-[--border-color] bg-[--background-color]"
                                 )}
                               >
-                                <span>{emoji}</span>
+                                <span>{toDisplayEmoji(emojiName)}</span>
                                 <span className="text-[--text-muted]">{info.count}</span>
                               </button>
                             ))}

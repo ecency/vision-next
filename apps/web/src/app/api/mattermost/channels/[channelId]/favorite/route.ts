@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getMattermostTeamId,
   getMattermostTokenFromCookies,
   handleMattermostError,
   mmUserFetch
@@ -15,9 +14,8 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
   const { favorite = true } = (await req.json().catch(() => ({}))) as { favorite?: boolean };
 
   try {
-    const teamId = getMattermostTeamId();
     const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
-    const path = `/users/${currentUser.id}/teams/${teamId}/channels/${params.channelId}/favorite`;
+    const path = `/users/${currentUser.id}/channels/${params.channelId}/favorite`;
 
     await mmUserFetch(path, token, { method: favorite ? "POST" : "DELETE" });
 

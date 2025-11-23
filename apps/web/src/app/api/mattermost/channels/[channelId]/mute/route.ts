@@ -16,10 +16,14 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
   try {
     const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
 
-    await mmUserFetch(`/users/${currentUser.id}/channels/${params.channelId}/notify`, token, {
-      method: "PUT",
-      body: JSON.stringify({ mark_unread: mute ? "mention" : "all" })
-    });
+    await mmUserFetch(
+      `/channels/${params.channelId}/members/${currentUser.id}/notify_props`,
+      token,
+      {
+        method: "PUT",
+        body: JSON.stringify({ mark_unread: mute ? "mention" : "all" })
+      }
+    );
 
     return NextResponse.json({ ok: true });
   } catch (error) {
