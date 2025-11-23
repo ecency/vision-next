@@ -80,24 +80,6 @@ export function ChatsClient() {
     });
   }, [channels?.channels, channelSearch]);
 
-  const sortedChannels = useMemo(() => {
-    return [...filteredChannels].sort((a, b) => {
-      if (a.is_favorite === b.is_favorite) {
-        return (channelOrder.get(a.id) || 0) - (channelOrder.get(b.id) || 0);
-      }
-
-      return a.is_favorite ? -1 : 1;
-    });
-  }, [channelOrder, filteredChannels]);
-
-  const joinableChannelResults = useMemo(() => {
-    const existingIds = new Set((channels?.channels || []).map((channel) => channel.id));
-
-    return (
-      channelSearchResults?.channels?.filter((channel) => !existingIds.has(channel.id)) || []
-    );
-  }, [channelSearchResults?.channels, channels?.channels]);
-
   const unreadByChannelId = useMemo(() => {
     if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number }>();
 
@@ -109,6 +91,42 @@ export function ChatsClient() {
       return acc;
     }, new Map<string, { mention_count: number; message_count: number }>());
   }, [unreadSummary?.channels]);
+
+  const getUnreadCount = useCallback(
+    (channel: (typeof filteredChannels)[number]) => {
+      const unreadCounts = unreadByChannelId.get(channel.id);
+      const mentionCount = channel.mention_count ?? unreadCounts?.mention_count ?? 0;
+      const messageCount = channel.message_count ?? unreadCounts?.message_count ?? 0;
+
+      return channel.type === "D" ? messageCount : Math.max(messageCount, mentionCount);
+    },
+    [unreadByChannelId]
+  );
+
+  const sortedChannels = useMemo(() => {
+    return [...filteredChannels].sort((a, b) => {
+      const aUnread = getUnreadCount(a) > 0;
+      const bUnread = getUnreadCount(b) > 0;
+
+      if (aUnread !== bUnread) {
+        return aUnread ? -1 : 1;
+      }
+
+      if (a.is_favorite === b.is_favorite) {
+        return (channelOrder.get(a.id) || 0) - (channelOrder.get(b.id) || 0);
+      }
+
+      return a.is_favorite ? -1 : 1;
+    });
+  }, [channelOrder, filteredChannels, getUnreadCount]);
+
+  const joinableChannelResults = useMemo(() => {
+    const existingIds = new Set((channels?.channels || []).map((channel) => channel.id));
+
+    return (
+      channelSearchResults?.channels?.filter((channel) => !existingIds.has(channel.id)) || []
+    );
+  }, [channelSearchResults?.channels, channels?.channels]);
 
   const startDirectMessage = (username: string) => {
     const target = username.trim();
@@ -276,10 +294,7 @@ export function ChatsClient() {
           )}
           <div className="grid gap-2">
             {sortedChannels.map((channel) => {
-              const unreadCounts = unreadByChannelId.get(channel.id);
-              const mentionCount = channel.mention_count ?? unreadCounts?.mention_count ?? 0;
-              const messageCount = channel.message_count ?? unreadCounts?.message_count ?? 0;
-              const unread = channel.type === "D" ? messageCount : mentionCount;
+              const unread = getUnreadCount(channel);
               const markAsReadLabel = markChannelViewedMutation.isPending
                 ? i18next.t("chat.marking-as-read")
                 : i18next.t("chat.mark-as-read");
