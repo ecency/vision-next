@@ -15,12 +15,12 @@ import {
 } from "./mattermost-api";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
-import { FormControl } from "@ui/input";
+import { FormControl, InputGroup } from "@ui/input";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
 import { Popover, PopoverContent } from "@ui/popover";
-import { ImageUploadButton, UserAvatar } from "@/features/shared";
+import { EmojiPicker, ImageUploadButton, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
 import defaults from "@/defaults";
@@ -77,6 +77,14 @@ export function MattermostChannelView({ channelId }: Props) {
   const [optimisticLastViewedAt, setOptimisticLastViewedAt] = useState<number | null>(null);
   const reactMutation = useMattermostReactToPost(channelId);
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
+  const emojiAnchorRef = useRef<HTMLButtonElement | null>(null);
+  const [emojiAnchor, setEmojiAnchor] = useState<Element | null>(null);
+
+  useEffect(() => {
+    if (emojiAnchorRef.current) {
+      setEmojiAnchor(emojiAnchorRef.current);
+    }
+  }, []);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const postsById = useMemo(() => {
@@ -374,17 +382,14 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
-  const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setMessage(value);
-
+  const updateMentionState = useCallback(
+    (value: string, cursor: number) => {
     if (!isPublicChannel) {
       setMentionQuery("");
       setMentionStart(null);
       return;
     }
 
-    const cursor = e.target.selectionStart ?? value.length;
     const textUntilCursor = value.slice(0, cursor);
     const mentionMatch = textUntilCursor.match(/@([a-zA-Z][a-zA-Z0-9.-]{1,15})$/i);
 
@@ -395,6 +400,41 @@ export function MattermostChannelView({ channelId }: Props) {
       setMentionQuery("");
       setMentionStart(null);
     }
+    },
+    [isPublicChannel]
+  );
+
+  const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setMessage(value);
+
+    const cursor = e.target.selectionStart ?? value.length;
+    updateMentionState(value, cursor);
+  };
+
+  const insertEmoji = (emoji: string) => {
+    const textarea = messageInputRef.current;
+
+    setMessage((prev) => {
+      const selectionStart = textarea?.selectionStart ?? prev.length;
+      const selectionEnd = textarea?.selectionEnd ?? prev.length;
+
+      const before = prev.slice(0, selectionStart);
+      const after = prev.slice(selectionEnd);
+      const next = `${before}${emoji}${after}`;
+      const nextCursor = selectionStart + emoji.length;
+
+      requestAnimationFrame(() => {
+        if (textarea) {
+          textarea.focus();
+          textarea.setSelectionRange(nextCursor, nextCursor);
+        }
+      });
+
+      updateMentionState(next, nextCursor);
+
+      return next;
+    });
   };
 
   const applyMention = (username: string) => {
@@ -469,7 +509,7 @@ export function MattermostChannelView({ channelId }: Props) {
   }, []);
 
   return (
-    <div className="flex flex-col gap-4 min-h-[70vh]">
+    <div className="flex flex-col gap-4 min-h-[70vh] pb-28 md:pb-4">
       <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -713,37 +753,31 @@ export function MattermostChannelView({ channelId }: Props) {
       </div>
 
       <form
-        className="flex gap-2 items-end"
+        className="flex flex-col gap-3"
         onSubmit={(e) => {
           e.preventDefault();
           if (!message.trim()) return;
           sendMutation.mutate(
             { message, rootId: replyingTo?.id ?? null },
             {
-            onSuccess: () => {
-              setMessage("");
-              setMentionQuery("");
-              setMentionStart(null);
-              setReplyingTo(null);
-              requestAnimationFrame(() => {
-                const container = scrollContainerRef.current;
-                if (container) {
-                  container.scrollTop = container.scrollHeight;
-                }
-              });
-              markChannelRead();
-            }
+              onSuccess: () => {
+                setMessage("");
+                setMentionQuery("");
+                setMentionStart(null);
+                setReplyingTo(null);
+                requestAnimationFrame(() => {
+                  const container = scrollContainerRef.current;
+                  if (container) {
+                    container.scrollTop = container.scrollHeight;
+                  }
+                });
+                markChannelRead();
+              }
             }
           );
         }}
       >
-        <ImageUploadButton
-          size="md"
-          className="self-end"
-          onBegin={() => undefined}
-          onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
-        />
-        <div className="flex-1 space-y-2">
+        <div className="flex flex-col gap-2">
           {replyingTo && (
             <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
               <div className="flex items-center justify-between">
@@ -763,15 +797,38 @@ export function MattermostChannelView({ channelId }: Props) {
               </div>
             </div>
           )}
-          <FormControl
-            as="textarea"
-            ref={messageInputRef}
-            rows={2}
-            value={message}
-            onChange={handleMessageChange}
-            placeholder="Write a message"
-            className="flex-1"
-          />
+          <InputGroup
+            prepend={
+              <ImageUploadButton
+                size="md"
+                className="h-full"
+                onBegin={() => undefined}
+                onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
+              />
+            }
+            append={
+              <Button
+                ref={emojiAnchorRef}
+                appearance="gray-link"
+                icon={emojiIconSvg}
+                aria-label="Insert emoji"
+                type="button"
+              />
+            }
+            className="items-stretch"
+            onClick={() => messageInputRef.current?.focus()}
+          >
+            <FormControl
+              as="textarea"
+              ref={messageInputRef}
+              rows={2}
+              value={message}
+              onChange={handleMessageChange}
+              placeholder="Write a message"
+              className="flex-1 rounded-none"
+            />
+          </InputGroup>
+          <EmojiPicker anchor={emojiAnchor} onSelect={insertEmoji} />
           {isPublicChannel && mentionQuery && (
             <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
               <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
