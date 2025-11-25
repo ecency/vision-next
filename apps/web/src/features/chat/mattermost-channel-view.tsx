@@ -469,7 +469,7 @@ export function MattermostChannelView({ channelId }: Props) {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4 min-h-[70vh]">
       <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -489,7 +489,7 @@ export function MattermostChannelView({ channelId }: Props) {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="rounded border border-[--border-color] bg-[--background-color] p-4 h-[60vh] overflow-y-auto"
+        className="rounded border border-[--border-color] bg-[--background-color] p-4 flex-1 min-h-[320px] max-h-[calc(100vh-280px)] overflow-y-auto"
       >
         {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
         {error && (
