@@ -43,6 +43,7 @@ const EMOJI_CHAR_TO_MATTERMOST_NAME: Record<string, string> = {
 const MATTERMOST_NAME_TO_DISPLAY_EMOJI: Record<string, string> = Object.fromEntries(
   Object.entries(EMOJI_CHAR_TO_MATTERMOST_NAME).map(([char, name]) => [name, char])
 );
+const MATTERMOST_SHORTCODE_REGEX = /:([a-zA-Z0-9_+-]+):/g;
 
 function toMattermostEmojiName(emoji: string) {
   return EMOJI_CHAR_TO_MATTERMOST_NAME[emoji] || emoji.trim();
@@ -50,6 +51,21 @@ function toMattermostEmojiName(emoji: string) {
 
 function toDisplayEmoji(emojiName: string) {
   return MATTERMOST_NAME_TO_DISPLAY_EMOJI[emojiName] || `:${emojiName}:`;
+}
+
+function normalizeMessageEmojis(message: string) {
+  return message.replace(/\p{Extended_Pictographic}+/gu, (emoji) => {
+    const emojiName = toMattermostEmojiName(emoji);
+    if (emojiName === emoji.trim()) {
+      return emoji;
+    }
+
+    return `:${emojiName}:`;
+  });
+}
+
+function decodeMessageEmojis(message: string) {
+  return message.replace(MATTERMOST_SHORTCODE_REGEX, (_, emojiName) => toDisplayEmoji(emojiName));
 }
 
 setProxyBase(defaults.imageServer);
@@ -85,8 +101,10 @@ export function MattermostChannelView({ channelId }: Props) {
   const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const [emojiAnchor, setEmojiAnchor] = useState<Element | null>(null);
-  const emojiAnchorRef = useCallback((node: HTMLButtonElement | null) => {
-    setEmojiAnchor(node);
+  const emojiAnchorRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    setEmojiAnchor(emojiAnchorRef.current);
   }, []);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
@@ -303,7 +321,7 @@ export function MattermostChannelView({ channelId }: Props) {
       }
     }
 
-    return post.message;
+    return decodeMessageEmojis(post.message);
   };
 
   const isImageUrl = (url: string) => {
@@ -517,9 +535,10 @@ export function MattermostChannelView({ channelId }: Props) {
       setReplyingTo(null);
       setEditingPost(post);
       setMessageError(null);
-      setMessage(post.message);
-      const cursor = post.message.length;
-      updateMentionState(post.message, cursor);
+      const decodedMessage = decodeMessageEmojis(post.message);
+      setMessage(decodedMessage);
+      const cursor = decodedMessage.length;
+      updateMentionState(decodedMessage, cursor);
 
       requestAnimationFrame(() => {
         const textarea = messageInputRef.current;
@@ -798,7 +817,7 @@ export function MattermostChannelView({ channelId }: Props) {
         className="flex flex-col gap-3"
         onSubmit={(e) => {
           e.preventDefault();
-          const trimmedMessage = message.trim();
+          const trimmedMessage = normalizeMessageEmojis(message.trim());
           if (!trimmedMessage) return;
 
           setMessageError(null);
@@ -901,8 +920,8 @@ export function MattermostChannelView({ channelId }: Props) {
             prepend={
               <ImageUploadButton
                 size="md"
-                appearance="white"
-                className="h-full rounded-none border-2 border-[--border-color] border-r-0 bg-[--background-color] text-[--text-color] hover:bg-[--background-color]"
+                appearance="gray-link"
+                className="h-full rounded-none"
                 onBegin={() => undefined}
                 onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
               />
