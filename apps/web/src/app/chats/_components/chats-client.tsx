@@ -63,6 +63,19 @@ export function ChatsClient() {
     return new Map((channels?.channels || []).map((channel, index) => [channel.id, index]));
   }, [channels?.channels]);
 
+  const getDirectUserDisplayName = useCallback((user?: MattermostUser | null) => {
+    if (!user) return undefined;
+
+    const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
+    if (fullName) return fullName;
+
+    if (user.nickname) return user.nickname;
+
+    if (user.username) return `@${user.username}`;
+
+    return undefined;
+  }, []);
+
   const filteredChannels = useMemo(() => {
     if (!channels?.channels) return [];
 
@@ -164,19 +177,6 @@ export function ChatsClient() {
     if (targetElement?.closest("[data-chat-channel-actions]")) {
       event.preventDefault();
     }
-  }, []);
-
-  const getDirectUserDisplayName = useCallback((user?: MattermostUser | null) => {
-    if (!user) return undefined;
-
-    const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
-    if (fullName) return fullName;
-
-    if (user.nickname) return user.nickname;
-
-    if (user.username) return `@${user.username}`;
-
-    return undefined;
   }, []);
 
   const getChannelTitle = useCallback(
