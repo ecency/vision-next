@@ -20,7 +20,8 @@ import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@u
 import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
 import { Popover, PopoverContent } from "@ui/popover";
-import { EmojiPicker, ImageUploadButton, UserAvatar } from "@/features/shared";
+import { ImageUploadButton, UserAvatar } from "@/features/shared";
+import { EmojiPicker } from "@/features/ui";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
 import defaults from "@/defaults";
@@ -28,9 +29,10 @@ import { useRouter } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import clsx from "clsx";
 
-const QUICK_REACTIONS = ["👍", "❤️", "😂", "🎉", "😮", "😢"] as const;
+const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const EMOJI_CHAR_TO_MATTERMOST_NAME: Record<string, string> = {
   "👍": "+1",
+  "👎": "-1",
   "❤️": "heart",
   "😂": "joy",
   "🎉": "tada",
