@@ -11,7 +11,8 @@ import {
   useMattermostChannels,
   useMattermostUserSearch,
   useMattermostMarkChannelViewed,
-  useMattermostReactToPost
+  useMattermostReactToPost,
+  useMattermostUpdatePost
 } from "./mattermost-api";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
@@ -67,6 +68,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [replyingTo, setReplyingTo] = useState<MattermostPost | null>(null);
+  const [editingPost, setEditingPost] = useState<MattermostPost | null>(null);
+  const [messageError, setMessageError] = useState<string | null>(null);
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const activeUser = useClientActiveUser();
@@ -78,14 +81,12 @@ export function MattermostChannelView({ channelId }: Props) {
   const lastViewUpdateRef = useRef(0);
   const [optimisticLastViewedAt, setOptimisticLastViewedAt] = useState<number | null>(null);
   const reactMutation = useMattermostReactToPost(channelId);
+  const updateMutation = useMattermostUpdatePost(channelId);
+  const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
-  const emojiAnchorRef = useRef<HTMLButtonElement | null>(null);
   const [emojiAnchor, setEmojiAnchor] = useState<Element | null>(null);
-
-  useEffect(() => {
-    if (emojiAnchorRef.current) {
-      setEmojiAnchor(emojiAnchorRef.current);
-    }
+  const emojiAnchorRef = useCallback((node: HTMLButtonElement | null) => {
+    setEmojiAnchor(node);
   }, []);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
@@ -504,11 +505,32 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
   const handleReply = useCallback((post: MattermostPost) => {
+    setEditingPost(null);
     setReplyingTo(post);
     requestAnimationFrame(() => {
       messageInputRef.current?.focus();
     });
   }, []);
+
+  const handleEdit = useCallback(
+    (post: MattermostPost) => {
+      setReplyingTo(null);
+      setEditingPost(post);
+      setMessageError(null);
+      setMessage(post.message);
+      const cursor = post.message.length;
+      updateMentionState(post.message, cursor);
+
+      requestAnimationFrame(() => {
+        const textarea = messageInputRef.current;
+        if (textarea) {
+          textarea.focus();
+          textarea.setSelectionRange(cursor, cursor);
+        }
+      });
+    },
+    [updateMentionState]
+  );
 
   return (
     <div className="flex flex-col gap-4 min-h-[70vh] pb-28 md:pb-4">
@@ -606,11 +628,19 @@ export function MattermostChannelView({ channelId }: Props) {
                             );
                           }
 
-                          return <span>{displayName}</span>;
+                      return <span>{displayName}</span>;
                         })()}
                         <span className="text-[--text-muted]" title={new Date(post.create_at).toLocaleString()}>
                           {formatTimestamp(post.create_at)}
                         </span>
+                        {post.edit_at && post.edit_at > post.create_at && (
+                          <span
+                            className="text-[11px] text-[--text-muted]"
+                            title={`Edited ${formatTimestamp(post.edit_at)}`}
+                          >
+                            • Edited
+                          </span>
+                        )}
                       </div>
                       {post.root_id && (
                         <button
@@ -683,6 +713,16 @@ export function MattermostChannelView({ channelId }: Props) {
                     >
                       Reply
                     </Button>
+                    {post.user_id === data?.member?.user_id && (
+                      <Button
+                        appearance="gray-link"
+                        size="xs"
+                        onClick={() => handleEdit(post)}
+                        className="!h-7"
+                      >
+                        Edit
+                      </Button>
+                    )}
                     {(() => {
                       const isReactionPickerOpen = openReactionPostId === post.id;
 
@@ -758,10 +798,42 @@ export function MattermostChannelView({ channelId }: Props) {
         className="flex flex-col gap-3"
         onSubmit={(e) => {
           e.preventDefault();
-          if (!message.trim()) return;
+          const trimmedMessage = message.trim();
+          if (!trimmedMessage) return;
+
+          setMessageError(null);
+
+          if (editingPost) {
+            updateMutation.mutate(
+              { postId: editingPost.id, message: trimmedMessage },
+              {
+                onError: (err) => {
+                  setMessageError((err as Error)?.message || "Unable to update message");
+                },
+                onSuccess: () => {
+                  setMessage("");
+                  setMentionQuery("");
+                  setMentionStart(null);
+                  setEditingPost(null);
+                  requestAnimationFrame(() => {
+                    const container = scrollContainerRef.current;
+                    if (container) {
+                      container.scrollTop = container.scrollHeight;
+                    }
+                  });
+                  markChannelRead();
+                }
+              }
+            );
+            return;
+          }
+
           sendMutation.mutate(
-            { message, rootId: replyingTo?.id ?? null },
+            { message: trimmedMessage, rootId: replyingTo?.id ?? null },
             {
+              onError: (err) => {
+                setMessageError((err as Error)?.message || "Unable to send message");
+              },
               onSuccess: () => {
                 setMessage("");
                 setMentionQuery("");
@@ -780,6 +852,31 @@ export function MattermostChannelView({ channelId }: Props) {
         }}
       >
         <div className="flex flex-col gap-2">
+          {editingPost && (
+            <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-[--text-color]">Editing message</span>
+                <Button
+                  type="button"
+                  appearance="gray-link"
+                  size="xs"
+                  onClick={() => {
+                    setEditingPost(null);
+                    setMessage("");
+                    setMentionQuery("");
+                    setMentionStart(null);
+                    setMessageError(null);
+                  }}
+                  className="!h-6"
+                >
+                  Cancel
+                </Button>
+              </div>
+              <div className="line-clamp-2 text-[--text-muted]">
+                {renderMessageContent(getDisplayMessage(editingPost))}
+              </div>
+            </div>
+          )}
           {replyingTo && (
             <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
               <div className="flex items-center justify-between">
@@ -799,11 +896,13 @@ export function MattermostChannelView({ channelId }: Props) {
               </div>
             </div>
           )}
+          {messageError && <div className="text-sm text-red-500">{messageError}</div>}
           <InputGroup
             prepend={
               <ImageUploadButton
                 size="md"
-                className="h-full"
+                appearance="white"
+                className="h-full rounded-none border-2 border-[--border-color] border-r-0 bg-[--background-color] text-[--text-color] hover:bg-[--background-color]"
                 onBegin={() => undefined}
                 onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
               />
@@ -866,8 +965,14 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           )}
         </div>
-        <Button type="submit" size="md" className="self-end" disabled={sendMutation.isLoading}>
-          {sendMutation.isLoading ? "Sending…" : "Send"}
+        <Button type="submit" size="md" className="self-end" disabled={isSubmitting}>
+          {editingPost
+            ? updateMutation.isPending
+              ? "Saving…"
+              : "Save"
+            : sendMutation.isLoading
+              ? "Sending…"
+              : "Send"}
         </Button>
       </form>
     </div>

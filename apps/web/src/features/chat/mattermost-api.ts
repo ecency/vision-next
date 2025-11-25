@@ -395,6 +395,7 @@ export interface MattermostPost {
   user_id: string;
   message: string;
   create_at: number;
+  edit_at?: number;
   type?: string;
   root_id?: string | null;
   metadata?: {
@@ -428,6 +429,30 @@ export function useMattermostReactToPost(channelId: string | undefined) {
       }
 
       return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
+    }
+  });
+}
+
+export function useMattermostUpdatePost(channelId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ postId, message }: { postId: string; message: string }) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/posts/${postId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to update message");
+      }
+
+      return (await res.json()) as { post: MattermostPost };
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });

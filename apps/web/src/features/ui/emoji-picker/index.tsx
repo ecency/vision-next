@@ -30,6 +30,7 @@ export function EmojiPicker({ anchor, onSelect, position, isDisabled }: Props) {
   const theme = useGlobalStore((state) => state.theme);
 
   const [show, setShow] = useState(false);
+  const [pickerPosition, setPickerPosition] = useState<{ top: number; left: number } | null>(null);
 
   // Due to ability to hold multiple dialogs we have to identify them
   const dialogId = useMemo(() => v4(), []);
@@ -41,12 +42,21 @@ export function EmojiPicker({ anchor, onSelect, position, isDisabled }: Props) {
   const isMounted = useMountedState();
 
   useEffect(() => {
-    if (anchor) {
-      anchor.addEventListener("click", () => {
-        (anchor as HTMLElement).style.position = "relative !important";
-        setShow(true);
-      });
-    }
+    if (!anchor) return;
+
+    const handleClick = () => {
+      setShow((prev) => !prev);
+      if (anchor) {
+        const rect = anchor.getBoundingClientRect();
+        setPickerPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+      }
+    };
+
+    anchor.addEventListener("click", handleClick);
+
+    return () => {
+      anchor.removeEventListener("click", handleClick);
+    };
   }, [anchor]);
 
   return isMounted() ? (
@@ -60,7 +70,10 @@ export function EmojiPicker({ anchor, onSelect, position, isDisabled }: Props) {
         "bottom-[100%] right-0": position === "top"
       })}
       style={{
-        display: show ? "block" : "none"
+        display: show ? "block" : "none",
+        position: "fixed",
+        top: pickerPosition?.top,
+        left: pickerPosition?.left
       }}
     >
       <Picker
@@ -70,6 +83,7 @@ export function EmojiPicker({ anchor, onSelect, position, isDisabled }: Props) {
             return;
           }
           onSelect(e.native);
+          setShow(false);
         }}
         previewPosition="none"
         set="apple"
