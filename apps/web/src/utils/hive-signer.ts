@@ -37,10 +37,11 @@ export function getDecodedMemo(username: string, memo: string): Promise<any> {
 }
 
 export function decodeToken(code: string): HiveSignerMessage | null {
-  const buff = Buffer.from(code, "base64");
+  const normalizedCode = code.replace(/-/g, "+").replace(/_/g, "/").replace(/\./g, "=");
+
   try {
-    const s = buff.toString("ascii");
-    return JSON.parse(s);
+    const decoded = Buffer.from(normalizedCode, "base64").toString("utf-8");
+    return JSON.parse(decoded);
   } catch (e) {
     return null;
   }
