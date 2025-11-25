@@ -15,7 +15,7 @@ interface MattermostSearchUser extends MattermostUser {
 }
 
 export async function GET(req: NextRequest) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
 
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });

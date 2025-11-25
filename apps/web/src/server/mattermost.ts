@@ -216,8 +216,9 @@ export function withMattermostTokenCookie(response: NextResponse, token: string)
   return response;
 }
 
-export function getMattermostTokenFromCookies(): string | null {
-  return cookies().get(MATTERMOST_TOKEN_COOKIE)?.value || null;
+export async function getMattermostTokenFromCookies(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(MATTERMOST_TOKEN_COOKIE)?.value || null;
 }
 
 export async function mmUserFetch<T>(path: string, token: string, init?: RequestInit) {

@@ -8,7 +8,7 @@ import {
 } from "@/server/mattermost";
 
 export async function POST(req: NextRequest) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

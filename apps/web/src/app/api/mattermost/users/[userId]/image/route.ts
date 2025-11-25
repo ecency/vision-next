@@ -4,7 +4,7 @@ import { getMattermostTokenFromCookies } from "@/server/mattermost";
 export const runtime = "nodejs";
 
 export async function GET(_req: NextRequest, { params }: { params: { userId: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

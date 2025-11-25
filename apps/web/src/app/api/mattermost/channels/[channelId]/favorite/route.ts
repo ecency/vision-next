@@ -7,7 +7,7 @@ import {
 } from "@/server/mattermost";
 
 export async function POST(req: NextRequest, { params }: { params: { channelId: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

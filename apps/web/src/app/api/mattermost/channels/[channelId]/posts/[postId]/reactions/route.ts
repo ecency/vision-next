@@ -7,7 +7,7 @@ import {
 } from "@/server/mattermost";
 
 export async function POST(req: NextRequest, { params }: { params: { channelId: string; postId: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { channelId: string; postId: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

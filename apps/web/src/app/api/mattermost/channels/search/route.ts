@@ -21,7 +21,7 @@ interface ChannelSearchPayload {
 }
 
 export async function POST(req: Request) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

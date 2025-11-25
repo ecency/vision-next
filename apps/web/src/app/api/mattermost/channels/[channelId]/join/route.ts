@@ -10,7 +10,7 @@ interface MattermostUser {
 }
 
 export async function POST(_: Request, { params }: { params: { channelId?: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

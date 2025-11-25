@@ -8,7 +8,7 @@ import {
 } from "@/server/mattermost";
 
 export async function DELETE(_req: Request, { params }: { params: { channelId: string; postId: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
@@ -28,7 +28,7 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
 }
 
 export async function PATCH(req: Request, { params }: { params: { channelId: string; postId: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

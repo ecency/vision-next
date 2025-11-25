@@ -22,7 +22,7 @@ interface MattermostUser {
 }
 
 export async function GET(_req: NextRequest, { params }: { params: { channelId: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
@@ -88,7 +88,7 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
 }
 
 export async function POST(req: NextRequest, { params }: { params: { channelId: string } }) {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

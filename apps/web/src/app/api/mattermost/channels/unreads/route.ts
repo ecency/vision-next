@@ -19,7 +19,7 @@ interface MattermostChannelMember {
 }
 
 export async function GET() {
-  const token = getMattermostTokenFromCookies();
+  const token = await getMattermostTokenFromCookies();
 
   if (!token) {
     return NextResponse.json({
