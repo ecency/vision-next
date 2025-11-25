@@ -8,6 +8,7 @@ import {
   MattermostUser,
   useMattermostDeletePost,
   useMattermostDirectChannel,
+  useMattermostChannels,
   useMattermostUserSearch,
   useMattermostMarkChannelViewed,
   useMattermostReactToPost
@@ -67,6 +68,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const activeUser = useClientActiveUser();
+  const { data: channels } = useMattermostChannels(Boolean(channelId));
   const directChannelMutation = useMattermostDirectChannel();
   const router = useRouter();
   const markViewedMutation = useMattermostMarkChannelViewed();
@@ -152,13 +154,68 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
   const formatTimestamp = useCallback((value: number) => timestampFormatter.format(new Date(value)), [timestampFormatter]);
-  const channelTitle = data?.channel?.display_name || data?.channel?.name || "Chat";
-  const channelSubtitle =
-    data?.channel?.type === "D"
-      ? "Direct message"
-      : data?.community
-        ? `${data.community} channel`
-        : "Channel";
+  const getUserDisplayName = useCallback((user?: MattermostUser) => {
+    if (!user) return undefined;
+
+    const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
+    if (fullName) return fullName;
+
+    if (user.nickname) return user.nickname;
+
+    if (user.username) return `@${user.username}`;
+
+    return undefined;
+  }, []);
+
+  const directChannelFromList = useMemo(
+    () => channels?.channels.find((channel) => channel.id === channelId),
+    [channelId, channels?.channels]
+  );
+
+  const directChannelUser = useMemo(() => {
+    const isDirect = data?.channel?.type === "D" || directChannelFromList?.type === "D";
+    if (!isDirect) return null;
+
+    const participantIds = (data?.channel?.name || directChannelFromList?.name || "").split("__");
+    const participants = participantIds
+      .map((id) => usersById[id])
+      .filter(Boolean);
+
+    const participantFromList = directChannelFromList?.directUser;
+
+    return (
+      participants.find((user) => user.username !== activeUser?.username) ||
+      participantFromList ||
+      participants[0] ||
+      null
+    );
+  }, [activeUser?.username, data?.channel?.name, data?.channel?.type, directChannelFromList, usersById]);
+
+  const channelTitle = useMemo(() => {
+    if (directChannelUser) {
+      const displayName = getUserDisplayName(directChannelUser);
+      if (displayName) return displayName;
+    }
+
+    return (
+      data?.channel?.display_name ||
+      directChannelFromList?.display_name ||
+      data?.channel?.name ||
+      directChannelFromList?.name ||
+      "Chat"
+    );
+  }, [data?.channel?.display_name, data?.channel?.name, directChannelFromList?.display_name, directChannelFromList?.name, directChannelUser, getUserDisplayName]);
+
+  const channelSubtitle = useMemo(() => {
+    const isDirectChannel = data?.channel?.type === "D" || directChannelFromList?.type === "D";
+    if (isDirectChannel) {
+      if (directChannelUser?.username) return `@${directChannelUser.username}`;
+
+      return "Direct message";
+    }
+
+    return data?.community ? `${data.community} channel` : "Channel";
+  }, [data?.channel?.type, data?.community, directChannelFromList?.type, directChannelUser?.username]);
 
   useEffect(() => {
     handleScroll();

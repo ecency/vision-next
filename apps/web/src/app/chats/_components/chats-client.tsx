@@ -11,7 +11,8 @@ import {
   useMattermostMuteChannel,
   useMattermostUserSearch,
   useMattermostUnread,
-  useMattermostMarkChannelViewed
+  useMattermostMarkChannelViewed,
+  type MattermostUser
 } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
 import { UserAvatar } from "@/features/shared/user-avatar";
@@ -71,14 +72,16 @@ export function ChatsClient() {
     return channels.channels.filter((channel) => {
       const displayName = channel.display_name || channel.name;
       const directUsername = channel.directUser?.username || "";
+      const directDisplayName = getDirectUserDisplayName(channel.directUser) || "";
 
       return (
         displayName.toLowerCase().includes(query) ||
         channel.name.toLowerCase().includes(query) ||
-        directUsername.toLowerCase().includes(query)
+        directUsername.toLowerCase().includes(query) ||
+        directDisplayName.toLowerCase().includes(query)
       );
     });
-  }, [channels?.channels, channelSearch]);
+  }, [channelSearch, channels?.channels, getDirectUserDisplayName]);
 
   const unreadByChannelId = useMemo(() => {
     if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number }>();
@@ -162,6 +165,44 @@ export function ChatsClient() {
       event.preventDefault();
     }
   }, []);
+
+  const getDirectUserDisplayName = useCallback((user?: MattermostUser | null) => {
+    if (!user) return undefined;
+
+    const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
+    if (fullName) return fullName;
+
+    if (user.nickname) return user.nickname;
+
+    if (user.username) return `@${user.username}`;
+
+    return undefined;
+  }, []);
+
+  const getChannelTitle = useCallback(
+    (channel: (typeof filteredChannels)[number]) => {
+      if (channel.type === "D") {
+        const displayName = getDirectUserDisplayName(channel.directUser);
+        if (displayName) return displayName;
+      }
+
+      return channel.display_name || channel.name;
+    },
+    [getDirectUserDisplayName]
+  );
+
+  const getChannelSubtitle = useCallback(
+    (channel: (typeof filteredChannels)[number]) => {
+      if (channel.type === "D") {
+        if (channel.directUser?.username) return `@${channel.directUser.username}`;
+
+        return i18next.t("chat.channel-type-dm");
+      }
+
+      return i18next.t("chat.channel-type");
+    },
+    []
+  );
 
   if (!hydrated) {
     return (
@@ -323,21 +364,19 @@ export function ChatsClient() {
                       )}
                     </div>
 
-                    <div className="flex flex-col flex-1">
-                      <div className="font-semibold flex items-center gap-1">
-                        <span>{channel.display_name || channel.name}</span>
-                        {channel.is_favorite && (
-                          <span className="text-amber-500" aria-label="Favorite channel" title="Favorite channel">
-                            ★
-                          </span>
-                        )}
+                      <div className="flex flex-col flex-1">
+                        <div className="font-semibold flex items-center gap-1">
+                          <span>{getChannelTitle(channel)}</span>
+                          {channel.is_favorite && (
+                            <span className="text-amber-500" aria-label="Favorite channel" title="Favorite channel">
+                              ★
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-[--text-muted]">
+                          {getChannelSubtitle(channel)}
+                        </div>
                       </div>
-                      <div className="text-xs text-[--text-muted]">
-                        {channel.type === "D"
-                          ? i18next.t("chat.channel-type-dm")
-                          : i18next.t("chat.channel-type")}
-                      </div>
-                    </div>
 
                     {unread > 0 && (
                       <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-[--primary-color] px-2 py-1 text-xs font-semibold text-[--primary-button-text-color]">
