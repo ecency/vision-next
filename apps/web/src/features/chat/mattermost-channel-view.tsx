@@ -483,7 +483,7 @@ export function MattermostChannelView({ channelId }: Props) {
     const emojiMatch = textUntilCursor.match(EMOJI_TRIGGER_REGEX);
 
     if (emojiMatch) {
-      setEmojiQuery(emojiMatch[2]);
+      setEmojiQuery(emojiMatch[1]);
       setEmojiStart(textUntilCursor.lastIndexOf(":"));
     } else {
       setEmojiQuery("");
