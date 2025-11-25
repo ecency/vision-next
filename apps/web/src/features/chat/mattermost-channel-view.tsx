@@ -22,50 +22,101 @@ import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
 import { Popover, PopoverContent } from "@ui/popover";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
-import { EmojiPicker } from "@/features/ui";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
 import defaults from "@/defaults";
 import { useRouter } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import clsx from "clsx";
+import emojiData from "@emoji-mart/data";
+import { SearchIndex, init as initEmojiMart } from "emoji-mart";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
-const EMOJI_CHAR_TO_MATTERMOST_NAME: Record<string, string> = {
-  "👍": "+1",
-  "👎": "-1",
-  "❤️": "heart",
-  "😂": "joy",
-  "🎉": "tada",
-  "😮": "open_mouth",
-  "😢": "cry"
-};
-const MATTERMOST_NAME_TO_DISPLAY_EMOJI: Record<string, string> = Object.fromEntries(
-  Object.entries(EMOJI_CHAR_TO_MATTERMOST_NAME).map(([char, name]) => [name, char])
-);
 const MATTERMOST_SHORTCODE_REGEX = /:([a-zA-Z0-9_+-]+):/g;
+const EMOJI_TRIGGER_REGEX = /:([a-zA-Z0-9_+-]{1,30})$/i;
 
-function toMattermostEmojiName(emoji: string) {
-  return EMOJI_CHAR_TO_MATTERMOST_NAME[emoji] || emoji.trim();
+type EmojiSuggestion = {
+  id: string;
+  name: string;
+  native: string;
+};
+
+const SHORTCODE_TO_NATIVE = new Map<string, string>();
+const NATIVE_TO_SHORTCODE = new Map<string, string>();
+
+Object.entries(emojiData.emojis).forEach(([id, emoji]) => {
+  const primaryId = id.toLowerCase();
+  const native = emoji.skins?.[0]?.native;
+
+  emoji.skins?.forEach((skin) => {
+    if (!skin?.native) return;
+
+    const shortcodes = Array.isArray(skin.shortcodes)
+      ? skin.shortcodes
+      : skin.shortcodes
+        ? [skin.shortcodes]
+        : [];
+    const shortcode = (shortcodes[0]?.replace(/^:|:$/g, "") || primaryId).toLowerCase();
+
+    NATIVE_TO_SHORTCODE.set(skin.native, shortcode);
+    if (!SHORTCODE_TO_NATIVE.has(shortcode)) {
+      SHORTCODE_TO_NATIVE.set(shortcode, skin.native);
+    }
+  });
+
+  if (native && !SHORTCODE_TO_NATIVE.has(primaryId)) {
+    SHORTCODE_TO_NATIVE.set(primaryId, native);
+  }
+
+  emoji.aliases?.forEach((alias) => {
+    if (native && !SHORTCODE_TO_NATIVE.has(alias.toLowerCase())) {
+      SHORTCODE_TO_NATIVE.set(alias.toLowerCase(), native);
+    }
+  });
+});
+
+Object.entries(emojiData.aliases || {}).forEach(([alias, id]) => {
+  const native = SHORTCODE_TO_NATIVE.get((id as string).toLowerCase());
+  if (native) {
+    SHORTCODE_TO_NATIVE.set(alias.toLowerCase(), native);
+  }
+});
+
+let emojiDataInitPromise: Promise<void> | null = null;
+const ensureEmojiDataReady = () => {
+  if (!emojiDataInitPromise) {
+    emojiDataInitPromise = initEmojiMart({ data: emojiData as unknown });
+  }
+
+  return emojiDataInitPromise;
+};
+
+function getEmojiShortcodeFromNative(emoji: string) {
+  return NATIVE_TO_SHORTCODE.get(emoji);
 }
 
-function toDisplayEmoji(emojiName: string) {
-  return MATTERMOST_NAME_TO_DISPLAY_EMOJI[emojiName] || `:${emojiName}:`;
+function getNativeEmojiFromShortcode(shortcode: string) {
+  return SHORTCODE_TO_NATIVE.get(shortcode.toLowerCase());
+}
+
+function toMattermostEmojiName(emoji: string) {
+  return getEmojiShortcodeFromNative(emoji) || emoji.replace(/^:|:$/g, "").trim();
 }
 
 function normalizeMessageEmojis(message: string) {
   return message.replace(/\p{Extended_Pictographic}+/gu, (emoji) => {
     const emojiName = toMattermostEmojiName(emoji);
-    if (emojiName === emoji.trim()) {
-      return emoji;
-    }
+    if (!emojiName) return emoji;
 
     return `:${emojiName}:`;
   });
 }
 
 function decodeMessageEmojis(message: string) {
-  return message.replace(MATTERMOST_SHORTCODE_REGEX, (_, emojiName) => toDisplayEmoji(emojiName));
+  return message.replace(MATTERMOST_SHORTCODE_REGEX, (_, emojiName) => {
+    const native = getNativeEmojiFromShortcode(emojiName);
+    return native || `:${emojiName}:`;
+  });
 }
 
 setProxyBase(defaults.imageServer);
@@ -79,6 +130,10 @@ export function MattermostChannelView({ channelId }: Props) {
   const [message, setMessage] = useState("");
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionStart, setMentionStart] = useState<number | null>(null);
+  const [emojiQuery, setEmojiQuery] = useState("");
+  const [emojiStart, setEmojiStart] = useState<number | null>(null);
+  const [emojiSuggestions, setEmojiSuggestions] = useState<EmojiSuggestion[]>([]);
+  const [isEmojiSearchLoading, setIsEmojiSearchLoading] = useState(false);
   const sendMutation = useMattermostSendMessage(channelId);
   const deleteMutation = useMattermostDeletePost(channelId);
   const [moderationError, setModerationError] = useState<string | null>(null);
@@ -100,12 +155,6 @@ export function MattermostChannelView({ channelId }: Props) {
   const updateMutation = useMattermostUpdatePost(channelId);
   const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
-  const [emojiAnchor, setEmojiAnchor] = useState<Element | null>(null);
-  const emojiAnchorRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    setEmojiAnchor(emojiAnchorRef.current);
-  }, []);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const postsById = useMemo(() => {
@@ -403,27 +452,92 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
+  useEffect(() => {
+    ensureEmojiDataReady();
+  }, []);
+
   const updateMentionState = useCallback(
     (value: string, cursor: number) => {
-    if (!isPublicChannel) {
-      setMentionQuery("");
-      setMentionStart(null);
-      return;
-    }
+      if (!isPublicChannel) {
+        setMentionQuery("");
+        setMentionStart(null);
+        return;
+      }
 
-    const textUntilCursor = value.slice(0, cursor);
-    const mentionMatch = textUntilCursor.match(/@([a-zA-Z][a-zA-Z0-9.-]{1,15})$/i);
+      const textUntilCursor = value.slice(0, cursor);
+      const mentionMatch = textUntilCursor.match(/@([a-zA-Z][a-zA-Z0-9.-]{1,15})$/i);
 
-    if (mentionMatch) {
-      setMentionQuery(mentionMatch[1]);
-      setMentionStart(textUntilCursor.lastIndexOf("@"));
-    } else {
-      setMentionQuery("");
-      setMentionStart(null);
-    }
+      if (mentionMatch) {
+        setMentionQuery(mentionMatch[1]);
+        setMentionStart(textUntilCursor.lastIndexOf("@"));
+      } else {
+        setMentionQuery("");
+        setMentionStart(null);
+      }
     },
     [isPublicChannel]
   );
+
+  const updateEmojiState = useCallback((value: string, cursor: number) => {
+    const textUntilCursor = value.slice(0, cursor);
+    const emojiMatch = textUntilCursor.match(EMOJI_TRIGGER_REGEX);
+
+    if (emojiMatch) {
+      setEmojiQuery(emojiMatch[2]);
+      setEmojiStart(textUntilCursor.lastIndexOf(":"));
+    } else {
+      setEmojiQuery("");
+      setEmojiStart(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    if (!emojiQuery) {
+      setEmojiSuggestions([]);
+      setIsEmojiSearchLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    setIsEmojiSearchLoading(true);
+
+    ensureEmojiDataReady()
+      .then(() => SearchIndex.search(emojiQuery, { maxResults: 15, caller: "chat" }))
+      .then((results) => {
+        if (!active) return;
+
+        const suggestions = (results || [])
+          .map((emoji) => {
+            if (!emoji?.id || !emoji?.skins?.[0]?.native) return null;
+
+            return {
+              id: emoji.id as string,
+              name: (emoji.name as string) || (emoji.id as string),
+              native: emoji.skins[0].native as string
+            } satisfies EmojiSuggestion;
+          })
+          .filter(Boolean) as EmojiSuggestion[];
+
+        setEmojiSuggestions(suggestions.slice(0, 8));
+      })
+      .catch(() => {
+        if (active) {
+          setEmojiSuggestions([]);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setIsEmojiSearchLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [emojiQuery]);
 
   const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -431,19 +545,22 @@ export function MattermostChannelView({ channelId }: Props) {
 
     const cursor = e.target.selectionStart ?? value.length;
     updateMentionState(value, cursor);
+    updateEmojiState(value, cursor);
   };
 
-  const insertEmoji = (emoji: string) => {
+  const applyEmoji = (shortcode: string) => {
     const textarea = messageInputRef.current;
 
     setMessage((prev) => {
-      const selectionStart = textarea?.selectionStart ?? prev.length;
-      const selectionEnd = textarea?.selectionEnd ?? prev.length;
+      if (emojiStart === null) return prev;
 
-      const before = prev.slice(0, selectionStart);
-      const after = prev.slice(selectionEnd);
-      const next = `${before}${emoji}${after}`;
-      const nextCursor = selectionStart + emoji.length;
+      const before = prev.slice(0, emojiStart);
+      const afterStart = emojiStart + (emojiQuery?.length || 0) + 1;
+      const after = prev.slice(afterStart);
+      const insertion = `:${shortcode}:`;
+      const spacer = after.startsWith(" ") || after.startsWith("\n") || after === "" ? "" : " ";
+      const next = `${before}${insertion}${spacer}${after}`;
+      const nextCursor = before.length + insertion.length + spacer.length;
 
       requestAnimationFrame(() => {
         if (textarea) {
@@ -453,9 +570,13 @@ export function MattermostChannelView({ channelId }: Props) {
       });
 
       updateMentionState(next, nextCursor);
+      updateEmojiState(next, nextCursor);
 
       return next;
     });
+
+    setEmojiQuery("");
+    setEmojiStart(null);
   };
 
   const applyMention = (username: string) => {
@@ -469,6 +590,8 @@ export function MattermostChannelView({ channelId }: Props) {
     });
     setMentionQuery("");
     setMentionStart(null);
+    setEmojiQuery("");
+    setEmojiStart(null);
   };
 
   const handleDelete = (postId: string) => {
@@ -539,6 +662,7 @@ export function MattermostChannelView({ channelId }: Props) {
       setMessage(decodedMessage);
       const cursor = decodedMessage.length;
       updateMentionState(decodedMessage, cursor);
+      updateEmojiState(decodedMessage, cursor);
 
       requestAnimationFrame(() => {
         const textarea = messageInputRef.current;
@@ -548,7 +672,7 @@ export function MattermostChannelView({ channelId }: Props) {
         }
       });
     },
-    [updateMentionState]
+    [updateEmojiState, updateMentionState]
   );
 
   return (
@@ -712,7 +836,7 @@ export function MattermostChannelView({ channelId }: Props) {
                                     : "border-[--border-color] bg-[--background-color]"
                                 )}
                               >
-                                <span>{toDisplayEmoji(emojiName)}</span>
+                                <span>{getNativeEmojiFromShortcode(emojiName) || `:${emojiName}:`}</span>
                                 <span className="text-[--text-muted]">{info.count}</span>
                               </button>
                             ))}
@@ -833,6 +957,8 @@ export function MattermostChannelView({ channelId }: Props) {
                   setMessage("");
                   setMentionQuery("");
                   setMentionStart(null);
+                  setEmojiQuery("");
+                  setEmojiStart(null);
                   setEditingPost(null);
                   requestAnimationFrame(() => {
                     const container = scrollContainerRef.current;
@@ -857,6 +983,8 @@ export function MattermostChannelView({ channelId }: Props) {
                 setMessage("");
                 setMentionQuery("");
                 setMentionStart(null);
+                setEmojiQuery("");
+                setEmojiStart(null);
                 setReplyingTo(null);
                 requestAnimationFrame(() => {
                   const container = scrollContainerRef.current;
@@ -884,6 +1012,8 @@ export function MattermostChannelView({ channelId }: Props) {
                     setMessage("");
                     setMentionQuery("");
                     setMentionStart(null);
+                    setEmojiQuery("");
+                    setEmojiStart(null);
                     setMessageError(null);
                   }}
                   className="!h-6"
@@ -926,15 +1056,6 @@ export function MattermostChannelView({ channelId }: Props) {
                 onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
               />
             }
-            append={
-              <Button
-                ref={emojiAnchorRef}
-                appearance="gray-link"
-                icon={emojiIconSvg}
-                aria-label="Insert emoji"
-                type="button"
-              />
-            }
             className="items-stretch"
             onClick={() => messageInputRef.current?.focus()}
           >
@@ -948,7 +1069,33 @@ export function MattermostChannelView({ channelId }: Props) {
               className="flex-1 rounded-none"
             />
           </InputGroup>
-          <EmojiPicker anchor={emojiAnchor} onSelect={insertEmoji} />
+          {emojiQuery && (
+            <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
+              <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
+                <span>Type :emoji_name to insert an emoji.</span>
+                {isEmojiSearchLoading && <span className="text-[--text-muted]">Searching…</span>}
+              </div>
+              <div className="max-h-48 overflow-y-auto">
+                {emojiSuggestions.map((emoji) => (
+                  <button
+                    key={emoji.id}
+                    type="button"
+                    className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
+                    onClick={() => applyEmoji(emoji.id)}
+                  >
+                    <span className="text-xl">{emoji.native}</span>
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">:{emoji.id}:</span>
+                      <span className="text-xs text-[--text-muted]">{emoji.name}</span>
+                    </div>
+                  </button>
+                ))}
+                {!emojiSuggestions.length && !isEmojiSearchLoading && (
+                  <div className="px-3 py-2 text-sm text-[--text-muted]">No emojis found.</div>
+                )}
+              </div>
+            </div>
+          )}
           {isPublicChannel && mentionQuery && (
             <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
               <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
