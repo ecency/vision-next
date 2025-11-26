@@ -1090,7 +1090,7 @@ export function MattermostChannelView({ channelId }: Props) {
           {messageError && <div className="text-sm text-red-500">{messageError}</div>}
           <div className="relative">
             {emojiQuery && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--surface-color] shadow-lg">
+              <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--background-color] shadow-lg">
                 <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
                   <span>Type :emoji_name to insert an emoji.</span>
                   {isEmojiSearchLoading && <span className="text-[--text-muted]">Searching…</span>}
