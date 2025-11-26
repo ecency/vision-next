@@ -2270,7 +2270,10 @@
     "mattermost-body": "Open chat.ecency.com to continue direct messages and community conversations. Your Ecency username and credentials are used instead of the old Nostr chat keys.",
     "mattermost-community-hint": "Looking for {{community}}? Open the community channel after signing in at chat.ecency.com.",
     "mattermost-open": "Open chat.ecency.com",
-    "mattermost-guide": "View chat setup guide"
+    "mattermost-guide": "View chat setup guide",
+    "message-search-results": "Message search results",
+    "no-messages-found": "No messages found.",
+    "no-message": "No message content."
   },
   "add-image": {
     "title": "Добави Снимка",
