@@ -2270,7 +2270,10 @@
     "mattermost-body": "Öffne chat.ecency.com um direkte Nachrichten und Community-Unterhaltungen fortzusetzen. Dein Ecency Benutzername und deine Zugangsdaten werden anstelle der alten Nostr Chat-Schlüssel verwendet.",
     "mattermost-community-hint": "Suchen Sie nach {{community}}? Öffnen Sie den Gemeinschaftskanal nach der Anmeldung auf chat.ecency.com.",
     "mattermost-open": "Chat.ecency.com öffnen",
-    "mattermost-guide": "Chat-Setup-Anleitung anzeigen"
+    "mattermost-guide": "Chat-Setup-Anleitung anzeigen",
+    "message-search-results": "Nachrichten Suchergebnisse",
+    "no-messages-found": "Keine Nachrichten gefunden.",
+    "no-message": "Kein Nachrichteninhalt."
   },
   "add-image": {
     "title": "Bild hinzufügen",
