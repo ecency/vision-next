@@ -2270,7 +2270,10 @@
     "mattermost-body": "打开 chat.ecency.com 继续直接消息和社区对话。您的生态用户名和凭据被使用而不是旧的 Nostr 聊天密钥。",
     "mattermost-community-hint": "Looking for {{community}}? Open the community channel after signing in at chat.ecency.com.",
     "mattermost-open": "打开 chat.ecency.com",
-    "mattermost-guide": "查看聊天设置指南"
+    "mattermost-guide": "查看聊天设置指南",
+    "message-search-results": "消息搜索结果",
+    "no-messages-found": "未找到消息。",
+    "no-message": "没有消息内容。"
   },
   "add-image": {
     "title": "添加图像",
