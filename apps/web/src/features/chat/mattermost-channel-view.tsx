@@ -230,6 +230,30 @@ export function MattermostChannelView({ channelId }: Props) {
     }
   }, [data, markChannelRead]);
 
+  const scrollToPost = useCallback(
+    (postId: string, options?: { highlight?: boolean; behavior?: ScrollBehavior }) => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const target = container.querySelector<HTMLDivElement>(`[data-post-id="${postId}"]`);
+      if (!target) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const offset = targetRect.top - containerRect.top + container.scrollTop - 12;
+      const behavior = options?.behavior ?? "smooth";
+
+      container.scrollTo({ top: offset, behavior });
+
+      if (options?.highlight ?? true) {
+        target.classList.remove("chat-post-highlight");
+        void target.offsetWidth;
+        target.classList.add("chat-post-highlight");
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     if (!focusedPostId || !posts.length || hasFocusedPostRef.current) return;
 
@@ -642,33 +666,9 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
-  const scrollToPost = useCallback(
-    (postId: string, options?: { highlight?: boolean; behavior?: ScrollBehavior }) => {
-      const container = scrollContainerRef.current;
-      if (!container) return;
-
-      const target = container.querySelector<HTMLDivElement>(`[data-post-id="${postId}"]`);
-      if (!target) return;
-
-      const containerRect = container.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const offset = targetRect.top - containerRect.top + container.scrollTop - 12;
-      const behavior = options?.behavior ?? "smooth";
-
-      container.scrollTo({ top: offset, behavior });
-
-      if (options?.highlight ?? true) {
-        target.classList.remove("chat-post-highlight");
-        void target.offsetWidth;
-        target.classList.add("chat-post-highlight");
-      }
-    },
-    []
-  );
-
-  const toggleReaction = useCallback(
-    (post: MattermostPost, emoji: string, closePicker = false) => {
-      const emojiName = toMattermostEmojiName(emoji);
+    const toggleReaction = useCallback(
+      (post: MattermostPost, emoji: string, closePicker = false) => {
+        const emojiName = toMattermostEmojiName(emoji);
 
       if (!emojiName || !data?.member?.user_id) return;
 
