@@ -10,6 +10,7 @@ import {
   useMattermostLeaveChannel,
   useMattermostMuteChannel,
   useMattermostUserSearch,
+  useMattermostMessageSearch,
   useMattermostUnread,
   useMattermostMarkChannelViewed,
   type MattermostUser
@@ -46,6 +47,11 @@ export function ChatsClient() {
     isFetching: channelSearchLoading,
     error: channelSearchError
   } = useMattermostChannelSearch(channelSearch, Boolean(bootstrap?.ok));
+  const {
+    data: messageSearchResults,
+    isFetching: messageSearchLoading,
+    error: messageSearchError
+  } = useMattermostMessageSearch(channelSearch, Boolean(bootstrap?.ok));
   const favoriteChannelMutation = useMattermostFavoriteChannel();
   const muteChannelMutation = useMattermostMuteChannel();
   const leaveChannelMutation = useMattermostLeaveChannel();
@@ -61,6 +67,10 @@ export function ChatsClient() {
 
   const channelOrder = useMemo(() => {
     return new Map((channels?.channels || []).map((channel, index) => [channel.id, index]));
+  }, [channels?.channels]);
+
+  const channelsById = useMemo(() => {
+    return new Map((channels?.channels || []).map((channel) => [channel.id, channel]));
   }, [channels?.channels]);
 
   const getDirectUserDisplayName = useCallback((user?: MattermostUser | null) => {
@@ -204,6 +214,21 @@ export function ChatsClient() {
     []
   );
 
+  const formatTimestamp = useMemo(
+    () =>
+      new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }),
+    []
+  );
+
+  const subscribedMessageResults = useMemo(() => {
+    return (messageSearchResults?.posts || []).filter((post) => channelsById.has(post.channel_id));
+  }, [channelsById, messageSearchResults?.posts]);
+
   if (!hydrated) {
     return (
       <div className="col-span-12 flex justify-center items-center p-4 md:p-10">
@@ -323,16 +348,19 @@ export function ChatsClient() {
                 <div className="text-xs text-[--text-muted]">{i18next.t("chat.loading")}</div>
               )}
             </div>
-          </div>
-          {channelsError && (
-            <div className="text-sm text-red-500">{(channelsError as Error).message}</div>
-          )}
-          {channelSearchError && (
-            <div className="text-sm text-red-500">{(channelSearchError as Error).message}</div>
-          )}
-          {joinChannelMutation.error && (
-            <div className="text-sm text-red-500">{(joinChannelMutation.error as Error).message}</div>
-          )}
+        </div>
+        {channelsError && (
+          <div className="text-sm text-red-500">{(channelsError as Error).message}</div>
+        )}
+        {channelSearchError && (
+          <div className="text-sm text-red-500">{(channelSearchError as Error).message}</div>
+        )}
+        {messageSearchError && (
+          <div className="text-sm text-red-500">{(messageSearchError as Error).message}</div>
+        )}
+        {joinChannelMutation.error && (
+          <div className="text-sm text-red-500">{(joinChannelMutation.error as Error).message}</div>
+        )}
           <div className="grid gap-2">
             {sortedChannels.map((channel) => {
               const unread = getUnreadCount(channel);
@@ -513,6 +541,48 @@ export function ChatsClient() {
                   <div className="text-sm text-[--text-muted]">
                     {i18next.t("chat.no-additional-channels")}
                   </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {channelSearch.trim().length >= 2 && (
+            <div className="mt-4 space-y-2 rounded border border-[--border-color] bg-[--background-color] p-3">
+              <div className="flex items-center justify-between text-xs text-[--text-muted]">
+                <span>{i18next.t("chat.message-search-results")}</span>
+                {messageSearchLoading && <span>{i18next.t("chat.searching")}</span>}
+              </div>
+              <div className="grid gap-2">
+                {subscribedMessageResults.map((post) => {
+                  const channel = channelsById.get(post.channel_id);
+                  const channelLabel = channel ? getChannelTitle(channel) : i18next.t("chat.channel-type");
+                  const channelSubtitle = channel ? getChannelSubtitle(channel) : undefined;
+
+                  return (
+                    <Link
+                      key={post.id}
+                      href={`/chats/${post.channel_id}?post=${post.id}`}
+                      className="flex flex-col gap-1 rounded border border-[--border-color] bg-[--surface-color] p-3 hover:border-blue-500 transition"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold line-clamp-2 whitespace-pre-wrap break-words">
+                            {post.message || i18next.t("chat.no-message")}
+                          </div>
+                          <div className="text-xs text-[--text-muted]">
+                            {channelLabel}
+                            {channelSubtitle ? ` • ${channelSubtitle}` : ""}
+                          </div>
+                        </div>
+                        <span className="text-[11px] text-[--text-muted]">
+                          {formatTimestamp.format(new Date(post.create_at))}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
+                {!messageSearchLoading && !subscribedMessageResults.length && (
+                  <div className="text-sm text-[--text-muted]">{i18next.t("chat.no-messages-found")}</div>
                 )}
               </div>
             </div>

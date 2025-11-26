@@ -206,6 +206,29 @@ export function useMattermostChannelSearch(term: string, enabled: boolean) {
   });
 }
 
+export function useMattermostMessageSearch(term: string, enabled: boolean) {
+  const query = term.trim();
+
+  return useQuery({
+    queryKey: ["mattermost-message-search", query],
+    enabled: enabled && query.length >= 2,
+    queryFn: async () => {
+      const res = await fetch(`/api/mattermost/search/posts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ term: query })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to search messages");
+      }
+
+      return (await res.json()) as MattermostPostSearchResponse;
+    }
+  });
+}
+
 export function useMattermostUnread(enabled: boolean) {
   return useQuery({
     queryKey: ["mattermost-unread"],
@@ -293,6 +316,10 @@ export interface MattermostUnreadSummary {
   totalMentions: number;
   totalDMs: number;
   totalUnread: number;
+}
+
+export interface MattermostPostSearchResponse {
+  posts: MattermostPost[];
 }
 
 export function useMattermostPosts(channelId: string | undefined) {

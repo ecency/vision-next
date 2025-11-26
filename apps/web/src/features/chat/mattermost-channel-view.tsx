@@ -25,7 +25,7 @@ import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
 import defaults from "@/defaults";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import clsx from "clsx";
 import emojiData from "@emoji-mart/data";
@@ -147,10 +147,13 @@ export function MattermostChannelView({ channelId }: Props) {
   const { data: channels } = useMattermostChannels(Boolean(channelId));
   const directChannelMutation = useMattermostDirectChannel();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const markViewedMutation = useMattermostMarkChannelViewed();
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const lastViewUpdateRef = useRef(0);
   const [optimisticLastViewedAt, setOptimisticLastViewedAt] = useState<number | null>(null);
+  const hasAutoScrolledRef = useRef(false);
+  const hasFocusedPostRef = useRef(false);
   const reactMutation = useMattermostReactToPost(channelId);
   const updateMutation = useMattermostUpdatePost(channelId);
   const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
@@ -163,6 +166,7 @@ export function MattermostChannelView({ channelId }: Props) {
       return acc;
     }, new Map());
   }, [posts]);
+  const focusedPostId = searchParams?.get("post");
   const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
   const usersByUsername = useMemo(() => {
     return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
@@ -212,13 +216,40 @@ export function MattermostChannelView({ channelId }: Props) {
   useEffect(() => {
     lastViewUpdateRef.current = 0;
     setOptimisticLastViewedAt(null);
+    hasAutoScrolledRef.current = false;
+    hasFocusedPostRef.current = false;
   }, [channelId]);
+
+  useEffect(() => {
+    hasFocusedPostRef.current = false;
+  }, [focusedPostId]);
 
   useEffect(() => {
     if (data) {
       markChannelRead();
     }
   }, [data, markChannelRead]);
+
+  useEffect(() => {
+    if (!focusedPostId || !posts.length || hasFocusedPostRef.current) return;
+
+    if (!posts.some((post) => post.id === focusedPostId)) return;
+
+    hasFocusedPostRef.current = true;
+    requestAnimationFrame(() => scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" }));
+  }, [focusedPostId, posts, scrollToPost]);
+
+  useEffect(() => {
+    if (hasFocusedPostRef.current || hasAutoScrolledRef.current) return;
+    if (!posts.length) return;
+
+    const targetIndex = firstUnreadIndex !== -1 ? Math.max(0, firstUnreadIndex - 1) : posts.length - 1;
+    const targetId = posts[targetIndex]?.id;
+    if (!targetId) return;
+
+    hasAutoScrolledRef.current = true;
+    requestAnimationFrame(() => scrollToPost(targetId, { highlight: false, behavior: "auto" }));
+  }, [firstUnreadIndex, posts, scrollToPost]);
 
   const timestampFormatter = useMemo(
     () =>
@@ -611,19 +642,29 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
-  const scrollToPost = useCallback((postId: string) => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+  const scrollToPost = useCallback(
+    (postId: string, options?: { highlight?: boolean; behavior?: ScrollBehavior }) => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
 
-    const target = container.querySelector<HTMLDivElement>(`[data-post-id="${postId}"]`);
-    if (!target) return;
+      const target = container.querySelector<HTMLDivElement>(`[data-post-id="${postId}"]`);
+      if (!target) return;
 
-    const containerRect = container.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    const offset = targetRect.top - containerRect.top + container.scrollTop - 12;
+      const containerRect = container.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const offset = targetRect.top - containerRect.top + container.scrollTop - 12;
+      const behavior = options?.behavior ?? "smooth";
 
-    container.scrollTo({ top: offset, behavior: "smooth" });
-  }, []);
+      container.scrollTo({ top: offset, behavior });
+
+      if (options?.highlight ?? true) {
+        target.classList.remove("chat-post-highlight");
+        void target.offsetWidth;
+        target.classList.add("chat-post-highlight");
+      }
+    },
+    []
+  );
 
   const toggleReaction = useCallback(
     (post: MattermostPost, emoji: string, closePicker = false) => {
@@ -676,9 +717,10 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
   return (
-    <div className="flex flex-col gap-4 min-h-[70vh] pb-28 md:pb-4">
-      <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
-        <div className="flex items-center justify-between gap-3">
+    <>
+      <div className="flex flex-col gap-4 min-h-[70vh] pb-28 md:pb-4">
+        <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
+          <div className="flex items-center justify-between gap-3">
           <div>
             <div className="text-lg font-semibold">{channelTitle}</div>
             <div className="text-xs text-[--text-muted]">{channelSubtitle}</div>
@@ -696,7 +738,7 @@ export function MattermostChannelView({ channelId }: Props) {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="rounded border border-[--border-color] bg-[--background-color] p-4 flex-1 min-h-[320px] max-h-[calc(100vh-280px)] overflow-y-auto"
+        className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+9rem)] md:pb-4 flex-1 min-h-[320px] max-h-[calc(100vh-280px)] overflow-y-auto"
       >
         {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
         {error && (
@@ -938,7 +980,7 @@ export function MattermostChannelView({ channelId }: Props) {
       </div>
 
       <form
-        className="sticky bottom-24 flex flex-col gap-3 md:static"
+        className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-[--surface-color] px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:static md:inset-auto md:bottom-auto md:border-0 md:bg-transparent md:px-0 md:py-0 md:shadow-none"
         onSubmit={(e) => {
           e.preventDefault();
           const trimmedMessage = normalizeMessageEmojis(message.trim());
@@ -998,7 +1040,7 @@ export function MattermostChannelView({ channelId }: Props) {
           );
         }}
       >
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto">
           {editingPost && (
             <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
               <div className="flex items-center justify-between">
@@ -1046,56 +1088,58 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           )}
           {messageError && <div className="text-sm text-red-500">{messageError}</div>}
-          {emojiQuery && (
-            <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
-              <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
-                <span>Type :emoji_name to insert an emoji.</span>
-                {isEmojiSearchLoading && <span className="text-[--text-muted]">Searching…</span>}
+          <div className="relative">
+            {emojiQuery && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--surface-color] shadow-lg">
+                <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
+                  <span>Type :emoji_name to insert an emoji.</span>
+                  {isEmojiSearchLoading && <span className="text-[--text-muted]">Searching…</span>}
+                </div>
+                <div className="max-h-48 overflow-y-auto">
+                  {emojiSuggestions.map((emoji) => (
+                    <button
+                      key={emoji.id}
+                      type="button"
+                      className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
+                      onClick={() => applyEmoji(emoji.id)}
+                    >
+                      <span className="text-xl">{emoji.native}</span>
+                      <div className="flex flex-col text-left">
+                        <span className="font-semibold">:{emoji.id}:</span>
+                        <span className="text-xs text-[--text-muted]">{emoji.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                  {!emojiSuggestions.length && !isEmojiSearchLoading && (
+                    <div className="px-3 py-2 text-sm text-[--text-muted]">No emojis found.</div>
+                  )}
+                </div>
               </div>
-              <div className="max-h-48 overflow-y-auto">
-                {emojiSuggestions.map((emoji) => (
-                  <button
-                    key={emoji.id}
-                    type="button"
-                    className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
-                    onClick={() => applyEmoji(emoji.id)}
-                  >
-                    <span className="text-xl">{emoji.native}</span>
-                    <div className="flex flex-col text-left">
-                      <span className="font-semibold">:{emoji.id}:</span>
-                      <span className="text-xs text-[--text-muted]">{emoji.name}</span>
-                    </div>
-                  </button>
-                ))}
-                {!emojiSuggestions.length && !isEmojiSearchLoading && (
-                  <div className="px-3 py-2 text-sm text-[--text-muted]">No emojis found.</div>
-                )}
-              </div>
-            </div>
-          )}
-          <InputGroup
-            prepend={
-              <ImageUploadButton
-                size="md"
-                appearance="gray-link"
-                className="h-full rounded-none"
-                onBegin={() => undefined}
-                onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
+            )}
+            <InputGroup
+              prepend={
+                <ImageUploadButton
+                  size="md"
+                  appearance="gray-link"
+                  className="h-full rounded-none"
+                  onBegin={() => undefined}
+                  onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
+                />
+              }
+              className="items-stretch"
+              onClick={() => messageInputRef.current?.focus()}
+            >
+              <FormControl
+                as="textarea"
+                ref={messageInputRef}
+                rows={2}
+                value={message}
+                onChange={handleMessageChange}
+                placeholder="Write a message"
+                className="flex-1 rounded-none"
               />
-            }
-            className="items-stretch"
-            onClick={() => messageInputRef.current?.focus()}
-          >
-            <FormControl
-              as="textarea"
-              ref={messageInputRef}
-              rows={2}
-              value={message}
-              onChange={handleMessageChange}
-              placeholder="Write a message"
-              className="flex-1 rounded-none"
-            />
-          </InputGroup>
+            </InputGroup>
+          </div>
           {isPublicChannel && mentionQuery && (
             <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
               <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
@@ -1131,17 +1175,39 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           )}
         </div>
-        <Button type="submit" size="md" className="self-end" disabled={isSubmitting}>
-          {editingPost
-            ? updateMutation.isPending
-              ? "Saving…"
-              : "Save"
-            : sendMutation.isLoading
-              ? "Sending…"
-              : "Send"}
-        </Button>
+        <div className="w-full max-w-4xl mx-auto flex justify-end">
+          <Button type="submit" size="md" disabled={isSubmitting}>
+            {editingPost
+              ? updateMutation.isPending
+                ? "Saving…"
+                : "Save"
+              : sendMutation.isLoading
+                ? "Sending…"
+                : "Send"}
+          </Button>
+        </div>
       </form>
     </div>
+
+      <style jsx global>{`
+        @keyframes chat-post-highlight {
+          0% {
+            background-color: rgba(59, 130, 246, 0.18);
+          }
+          50% {
+            background-color: rgba(59, 130, 246, 0.12);
+          }
+          100% {
+            background-color: transparent;
+          }
+        }
+
+        [data-post-id].chat-post-highlight {
+          animation: chat-post-highlight 1.2s ease-in-out;
+          border-radius: 12px;
+        }
+      `}</style>
+    </>
   );
 }
 
