@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getMattermostTeamId,
-  getMattermostTokenFromCookies,
-  handleMattermostError,
-  mmUserFetch
-} from "@/server/mattermost";
+import { getMattermostTokenFromCookies, handleMattermostError, mmUserFetch } from "@/server/mattermost";
 
 export async function POST(req: NextRequest, { params }: { params: { channelId: string } }) {
   const token = await getMattermostTokenFromCookies();
@@ -16,8 +11,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
 
   try {
     const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
-    const teamId = getMattermostTeamId();
-    const path = `/users/${currentUser.id}/teams/${teamId}/channels/${params.channelId}/favorite`;
+    const path = `/users/${currentUser.id}/channels/${params.channelId}/favorite`;
 
     await mmUserFetch(path, token, { method: favorite ? "POST" : "DELETE" });
 

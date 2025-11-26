@@ -10,6 +10,7 @@ interface MattermostChannel {
   display_name: string;
   type: string;
   is_favorite?: boolean;
+  is_muted?: boolean;
   directUser?: MattermostUser | null;
   mention_count?: number;
   message_count?: number;

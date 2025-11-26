@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { checkSvg, dotsHorizontal } from "@ui/svg";
+import { bellOffSvg, checkSvg, dotsHorizontal } from "@ui/svg";
 import { MouseEvent, useCallback, useMemo, useState } from "react";
 
 const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
@@ -364,9 +364,11 @@ export function ChatsClient() {
           <div className="grid gap-2">
             {sortedChannels.map((channel) => {
               const unread = getUnreadCount(channel);
+              const isMuted = Boolean(channel.is_muted);
               const markAsReadLabel = markChannelViewedMutation.isPending
                 ? i18next.t("chat.marking-as-read")
                 : i18next.t("chat.mark-as-read");
+              const muteLabel = i18next.t(isMuted ? "chat.unmute-channel" : "chat.mute-channel");
 
               return (
                 <Link
@@ -393,11 +395,20 @@ export function ChatsClient() {
                     </div>
 
                       <div className="flex flex-col flex-1">
-                        <div className="font-semibold flex items-center gap-1">
+                        <div className="font-semibold flex items-center gap-1.5">
                           <span>{getChannelTitle(channel)}</span>
                           {channel.is_favorite && (
                             <span className="text-amber-500" aria-label="Favorite channel" title="Favorite channel">
                               ★
+                            </span>
+                          )}
+                          {isMuted && (
+                            <span
+                              className="text-[--text-muted]"
+                              aria-label={i18next.t("chat.channel-muted")}
+                              title={i18next.t("chat.channel-muted")}
+                            >
+                              {bellOffSvg}
                             </span>
                           )}
                         </div>
@@ -447,9 +458,11 @@ export function ChatsClient() {
                               }
                             />
                             <DropdownItemWithIcon
-                              label={i18next.t("chat.mute-channel")}
+                              label={muteLabel}
                               onClick={(e: MouseEvent) =>
-                                handleChannelAction(e, () => muteChannelMutation.mutate({ channelId: channel.id, mute: true }))
+                                handleChannelAction(e, () =>
+                                  muteChannelMutation.mutate({ channelId: channel.id, mute: !isMuted })
+                                )
                               }
                             />
                             <DropdownItemWithIcon

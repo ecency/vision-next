@@ -12,6 +12,7 @@ interface MattermostChannel {
   display_name: string;
   type: string;
   is_favorite?: boolean;
+  is_muted?: boolean;
   total_msg_count?: number;
   mention_count?: number;
   message_count?: number;
@@ -35,6 +36,9 @@ interface MattermostChannelMemberCounts extends MattermostChannelMember {
   channel_id: string;
   mention_count: number;
   msg_count: number;
+  notify_props?: {
+    mark_unread?: string;
+  };
 }
 
 export async function GET() {
@@ -50,18 +54,21 @@ export async function GET() {
       mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
       mmUserFetch<MattermostUser>(`/users/me`, token),
       mmUserFetch<MattermostChannelMemberCounts[]>(`/users/me/teams/${teamId}/channels/members`, token),
-      mmUserFetch<MattermostChannel[]>(`/users/me/teams/${teamId}/channels/favorites`, token).catch(() => [])
+      mmUserFetch<MattermostChannel[]>(`/users/me/channels/favorites`, token).catch(() => [])
     ]);
 
     const favoriteIds = new Set((favoriteChannels || []).map((channel) => channel.id));
 
-    const mentionCounts = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>((acc, member) => {
-      acc[member.channel_id] = member;
-      return acc;
-    }, {});
+    const channelMembersById = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>(
+      (acc, member) => {
+        acc[member.channel_id] = member;
+        return acc;
+      },
+      {}
+    );
 
     const unreadMessagesById = channels.reduce<Record<string, number>>((acc, channel) => {
-      const member = mentionCounts[channel.id];
+      const member = channelMembersById[channel.id];
       acc[channel.id] = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
       return acc;
     }, {});
@@ -121,7 +128,7 @@ export async function GET() {
 
       return {
         ...channel,
-        mention_count: directMember?.mention_count || mentionCounts[channel.id]?.mention_count || 0,
+        mention_count: directMember?.mention_count || channelMembersById[channel.id]?.mention_count || 0,
         message_count: Math.max((channel.total_msg_count || 0) - (directMember?.msg_count || 0), 0),
         display_name: directUser ? `@${directUser.username}` : channel.display_name,
         directUser: directUser || null
@@ -131,9 +138,13 @@ export async function GET() {
     const channelsWithCounts = channelsWithDirectUsers.map((channel) => ({
       ...channel,
       is_favorite: favoriteIds.has(channel.id),
+      is_muted:
+        (channel.type === "D"
+          ? directMemberCounts[channel.id]?.notify_props?.mark_unread
+          : channelMembersById[channel.id]?.notify_props?.mark_unread) === "mention",
       mention_count:
         directMemberCounts[channel.id]?.mention_count ||
-        mentionCounts[channel.id]?.mention_count ||
+        channelMembersById[channel.id]?.mention_count ||
         channel.mention_count ||
         0,
       message_count:
