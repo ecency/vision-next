@@ -2270,7 +2270,10 @@
     "mattermost-body": "Ouvrez chat.ecency.com pour continuer les messages directs et les conversations de la communauté. Votre nom d'utilisateur et vos identifiants sont utilisés à la place des anciennes clés de chat Nostr.",
     "mattermost-community-hint": "Vous cherchez {{community}}? Ouvrez le canal de la communauté après vous être connecté sur chat.ecency.com.",
     "mattermost-open": "Ouvrir chat.ecency.com",
-    "mattermost-guide": "Voir le guide de configuration du chat"
+    "mattermost-guide": "Voir le guide de configuration du chat",
+    "message-search-results": "Résultats de la recherche de messages",
+    "no-messages-found": "Aucun message trouvé.",
+    "no-message": "Aucun contenu de message."
   },
   "add-image": {
     "title": "Ajouter une image",
