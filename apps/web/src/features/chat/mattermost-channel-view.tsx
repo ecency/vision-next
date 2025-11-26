@@ -1136,7 +1136,7 @@ export function MattermostChannelView({ channelId }: Props) {
                 value={message}
                 onChange={handleMessageChange}
                 placeholder="Write a message"
-                className="flex-1 rounded-none"
+                className="flex-1 rounded-none bg-[--background-color]"
               />
             </InputGroup>
           </div>
