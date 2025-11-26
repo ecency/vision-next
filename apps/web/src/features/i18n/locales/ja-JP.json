@@ -2270,7 +2270,10 @@
     "mattermost-body": "ダイレクトメッセージやコミュニティの会話を続けるためにchat.ecency.comを開きます. あなたのEcencyユーザー名と資格情報は、古いNostrチャットキーの代わりに使用されます.",
     "mattermost-community-hint": "{{community}}をお探しですか? chat.ecency.comにサインインした後、コミュニティチャンネルを開きます。",
     "mattermost-open": "chat.ecency.com を開く",
-    "mattermost-guide": "チャット設定ガイドを表示"
+    "mattermost-guide": "チャット設定ガイドを表示",
+    "message-search-results": "メッセージ検索結果",
+    "no-messages-found": "メッセージが見つかりません。",
+    "no-message": "メッセージの内容がありません。"
   },
   "add-image": {
     "title": "画像を追加",
