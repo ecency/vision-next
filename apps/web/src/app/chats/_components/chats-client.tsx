@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { bellOffSvg, checkSvg, dotsHorizontal } from "@ui/svg";
+import { checkSvg, dotsHorizontal, volumeOffSvg } from "@ui/svg";
 import { MouseEvent, useCallback, useMemo, useState } from "react";
 
 const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
@@ -368,6 +368,9 @@ export function ChatsClient() {
               const markAsReadLabel = markChannelViewedMutation.isPending
                 ? i18next.t("chat.marking-as-read")
                 : i18next.t("chat.mark-as-read");
+              const favoriteLabel = channel.is_favorite
+                ? i18next.t("favorite-btn.delete")
+                : i18next.t("chat.favorite-channel");
               const muteLabel = i18next.t(isMuted ? "chat.unmute-channel" : "chat.mute-channel");
 
               return (
@@ -408,7 +411,7 @@ export function ChatsClient() {
                               aria-label={i18next.t("chat.channel-muted")}
                               title={i18next.t("chat.channel-muted")}
                             >
-                              {bellOffSvg}
+                              {volumeOffSvg}
                             </span>
                           )}
                         </div>
@@ -450,10 +453,13 @@ export function ChatsClient() {
                               />
                             )}
                             <DropdownItemWithIcon
-                              label={i18next.t("chat.favorite-channel")}
+                              label={favoriteLabel}
                               onClick={(e: MouseEvent) =>
                                 handleChannelAction(e, () =>
-                                  favoriteChannelMutation.mutate({ channelId: channel.id, favorite: true })
+                                  favoriteChannelMutation.mutate({
+                                    channelId: channel.id,
+                                    favorite: !channel.is_favorite
+                                  })
                                 )
                               }
                             />

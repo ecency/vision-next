@@ -738,7 +738,7 @@ export function MattermostChannelView({ channelId }: Props) {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+9rem)] md:pb-4 flex-1 min-h-[320px] max-h-[calc(100vh-280px)] overflow-y-auto"
+        className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+9rem)] md:pb-4 flex-1 min-h-[320px] max-h-[calc(100vh-280px)] md:max-h-[calc(100vh-420px)] overflow-y-auto"
       >
         {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
         {error && (
