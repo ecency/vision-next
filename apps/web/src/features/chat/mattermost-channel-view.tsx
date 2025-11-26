@@ -1015,8 +1015,10 @@ export function MattermostChannelView({ channelId }: Props) {
             return;
           }
 
+          const rootId = replyingTo?.root_id || replyingTo?.id || null;
+
           sendMutation.mutate(
-            { message: trimmedMessage, rootId: replyingTo?.id ?? null },
+            { message: trimmedMessage, rootId },
             {
               onError: (err) => {
                 setMessageError((err as Error)?.message || "Unable to send message");
