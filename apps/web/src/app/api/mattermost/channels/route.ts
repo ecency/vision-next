@@ -17,6 +17,7 @@ interface MattermostChannel {
   mention_count?: number;
   message_count?: number;
   directUser?: MattermostUser | null;
+  order?: number;
 }
 
 interface MattermostUser {
@@ -41,6 +42,19 @@ interface MattermostChannelMemberCounts extends MattermostChannelMember {
   };
 }
 
+interface MattermostChannelCategory {
+  id: string;
+  user_id: string;
+  team_id: string;
+  sort_order: number;
+  sorting: "" | "recent";
+  type: "favorites" | "channels" | "direct_messages";
+  display_name: string;
+  muted: boolean;
+  collapsed: boolean;
+  channel_ids: string[];
+}
+
 export async function GET() {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
@@ -50,14 +64,29 @@ export async function GET() {
   try {
     const teamId = getMattermostTeamId();
 
-    const [channels, currentUser, channelMembers, favoriteChannels] = await Promise.all([
+    const [channels, currentUser, channelMembers, categoriesResponse] = await Promise.all([
       mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
       mmUserFetch<MattermostUser>(`/users/me`, token),
       mmUserFetch<MattermostChannelMemberCounts[]>(`/users/me/teams/${teamId}/channels/members`, token),
-      mmUserFetch<MattermostChannel[]>(`/users/me/channels/favorites`, token).catch(() => [])
+      mmUserFetch<{ categories: MattermostChannelCategory[]; order: string[] }>(
+        `/users/me/teams/${teamId}/channels/categories`,
+        token
+      ).catch(() => ({ categories: [], order: [] }))
     ]);
 
-    const favoriteIds = new Set((favoriteChannels || []).map((channel) => channel.id));
+    const categoryOrderIds = categoriesResponse.order && categoriesResponse.order.length
+      ? categoriesResponse.order
+      : categoriesResponse.categories.map((category) => category.id);
+
+    const categoriesById = new Map(
+      (categoriesResponse.categories || []).map((category) => [category.id, category])
+    );
+
+    const favoriteIds = new Set(
+      (categoriesResponse.categories || [])
+        .find((category) => category.type === "favorites")
+        ?.channel_ids || []
+    );
 
     const channelMembersById = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>(
       (acc, member) => {
@@ -135,6 +164,30 @@ export async function GET() {
       };
     });
 
+    const channelOrderFromCategories = (() => {
+      const order = new Map<string, number>();
+      let index = 0;
+
+      categoryOrderIds.forEach((categoryId) => {
+        const category = categoriesById.get(categoryId);
+        if (!category) return;
+
+        category.channel_ids.forEach((channelId) => {
+          if (!order.has(channelId)) {
+            order.set(channelId, index++);
+          }
+        });
+      });
+
+      channels.forEach((channel) => {
+        if (!order.has(channel.id)) {
+          order.set(channel.id, index++);
+        }
+      });
+
+      return order;
+    })();
+
     const channelsWithCounts = channelsWithDirectUsers.map((channel) => ({
       ...channel,
       is_favorite: favoriteIds.has(channel.id),
@@ -150,10 +203,18 @@ export async function GET() {
       message_count:
         channel.type === "D"
           ? Math.max((channel.total_msg_count || 0) - (directMemberCounts[channel.id]?.msg_count || 0), 0)
-          : channel.message_count || 0
+          : channel.message_count || 0,
+      order: channelOrderFromCategories.get(channel.id)
     }));
 
-    return NextResponse.json({ channels: channelsWithCounts });
+    const orderedChannels = [...channelsWithCounts].sort((a, b) => {
+      const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+
+      return orderA - orderB;
+    });
+
+    return NextResponse.json({ channels: orderedChannels });
   } catch (error) {
     return handleMattermostError(error);
   }
