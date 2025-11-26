@@ -2270,7 +2270,10 @@
     "mattermost-body": "Open chat.ecency.com om door te gaan met directe berichten en community gesprekken. Je Ecency gebruikersnaam en referenties worden gebruikt in plaats van de oude Nostr chat sleutels.",
     "mattermost-community-hint": "Op zoek naar {{community}}? Open het community kanaal na het inloggen op chat.ecency.com.",
     "mattermost-open": "Open chat.ecency.com",
-    "mattermost-guide": "Bekijk de chat setup-gids"
+    "mattermost-guide": "Bekijk de chat setup-gids",
+    "message-search-results": "Resultaten van berichten",
+    "no-messages-found": "Geen berichten gevonden.",
+    "no-message": "Geen inhoud van berichten"
   },
   "add-image": {
     "title": "Afbeelding toevoegen",
