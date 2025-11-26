@@ -776,7 +776,7 @@ export function MattermostChannelView({ channelId }: Props) {
                         <span className="text-[--text-muted]" title={new Date(post.create_at).toLocaleString()}>
                           {formatTimestamp(post.create_at)}
                         </span>
-                        {post.edit_at && post.edit_at > post.create_at && (
+                        {post.edit_at > post.create_at && (
                           <span
                             className="text-[11px] text-[--text-muted]"
                             title={`Edited ${formatTimestamp(post.edit_at)}`}
@@ -938,7 +938,7 @@ export function MattermostChannelView({ channelId }: Props) {
       </div>
 
       <form
-        className="flex flex-col gap-3"
+        className="sticky bottom-24 flex flex-col gap-3 md:static"
         onSubmit={(e) => {
           e.preventDefault();
           const trimmedMessage = normalizeMessageEmojis(message.trim());
@@ -1046,29 +1046,6 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           )}
           {messageError && <div className="text-sm text-red-500">{messageError}</div>}
-          <InputGroup
-            prepend={
-              <ImageUploadButton
-                size="md"
-                appearance="gray-link"
-                className="h-full rounded-none"
-                onBegin={() => undefined}
-                onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
-              />
-            }
-            className="items-stretch"
-            onClick={() => messageInputRef.current?.focus()}
-          >
-            <FormControl
-              as="textarea"
-              ref={messageInputRef}
-              rows={2}
-              value={message}
-              onChange={handleMessageChange}
-              placeholder="Write a message"
-              className="flex-1 rounded-none"
-            />
-          </InputGroup>
           {emojiQuery && (
             <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
               <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
@@ -1096,6 +1073,29 @@ export function MattermostChannelView({ channelId }: Props) {
               </div>
             </div>
           )}
+          <InputGroup
+            prepend={
+              <ImageUploadButton
+                size="md"
+                appearance="gray-link"
+                className="h-full rounded-none"
+                onBegin={() => undefined}
+                onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
+              />
+            }
+            className="items-stretch"
+            onClick={() => messageInputRef.current?.focus()}
+          >
+            <FormControl
+              as="textarea"
+              ref={messageInputRef}
+              rows={2}
+              value={message}
+              onChange={handleMessageChange}
+              placeholder="Write a message"
+              className="flex-1 rounded-none"
+            />
+          </InputGroup>
           {isPublicChannel && mentionQuery && (
             <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
               <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
