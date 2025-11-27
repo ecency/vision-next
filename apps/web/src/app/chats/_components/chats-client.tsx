@@ -33,8 +33,7 @@ export function ChatsClient() {
   const activeUser = useClientActiveUser();
   const hydrated = useHydrated();
   const router = useRouter();
-  const [dmUsername, setDmUsername] = useState("");
-  const [channelSearch, setChannelSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: bootstrap, isLoading, error } = useMattermostBootstrap();
   const {
@@ -46,12 +45,12 @@ export function ChatsClient() {
     data: channelSearchResults,
     isFetching: channelSearchLoading,
     error: channelSearchError
-  } = useMattermostChannelSearch(channelSearch, Boolean(bootstrap?.ok));
+  } = useMattermostChannelSearch(searchTerm, Boolean(bootstrap?.ok));
   const {
     data: messageSearchResults,
     isFetching: messageSearchLoading,
     error: messageSearchError
-  } = useMattermostMessageSearch(channelSearch, Boolean(bootstrap?.ok));
+  } = useMattermostMessageSearch(searchTerm, Boolean(bootstrap?.ok));
   const favoriteChannelMutation = useMattermostFavoriteChannel();
   const muteChannelMutation = useMattermostMuteChannel();
   const leaveChannelMutation = useMattermostLeaveChannel();
@@ -61,7 +60,7 @@ export function ChatsClient() {
     data: userSearch,
     isFetching: userSearchLoading,
     error: userSearchError
-  } = useMattermostUserSearch(dmUsername, Boolean(bootstrap?.ok));
+  } = useMattermostUserSearch(searchTerm, Boolean(bootstrap?.ok));
   const directChannelMutation = useMattermostDirectChannel();
   const { data: unreadSummary } = useMattermostUnread(Boolean(bootstrap?.ok && activeUser && hydrated));
 
@@ -89,7 +88,7 @@ export function ChatsClient() {
   const filteredChannels = useMemo(() => {
     if (!channels?.channels) return [];
 
-    const query = channelSearch.trim().toLowerCase();
+    const query = searchTerm.trim().toLowerCase();
     if (!query) return channels.channels;
 
     return channels.channels.filter((channel) => {
@@ -104,7 +103,7 @@ export function ChatsClient() {
         directDisplayName.toLowerCase().includes(query)
       );
     });
-  }, [channelSearch, channels?.channels, getDirectUserDisplayName]);
+  }, [channels?.channels, getDirectUserDisplayName, searchTerm]);
 
   const unreadByChannelId = useMemo(() => {
     if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number }>();
@@ -160,7 +159,7 @@ export function ChatsClient() {
 
     directChannelMutation.mutate(target, {
       onSuccess: (data) => {
-        setDmUsername("");
+        setSearchTerm("");
         router.push(`/chats/${data.channelId}`);
       }
     });
@@ -229,6 +228,9 @@ export function ChatsClient() {
     return (messageSearchResults?.posts || []).filter((post) => channelsById.has(post.channel_id));
   }, [channelsById, messageSearchResults?.posts]);
 
+  const trimmedSearch = searchTerm.trim();
+  const hasSearchTerm = trimmedSearch.length >= 2;
+
   if (!hydrated) {
     return (
       <div className="col-span-12 flex justify-center items-center p-4 md:p-10">
@@ -257,45 +259,233 @@ export function ChatsClient() {
 
         {error && <div className="text-red-500 text-sm">{error.message}</div>}
 
-        <div className="rounded border border-[--border-color] bg-[--surface-color] p-4 space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold">{i18next.t("chat.direct-messages-title")}</h2>
-            <p className="text-xs text-[--text-muted]">{i18next.t("chat.start-dm")}</p>
-            <form
-              className="mt-3 flex flex-col gap-2 sm:flex-row"
-              onSubmit={(e) => {
-                e.preventDefault();
-                startDirectMessage(dmUsername);
-              }}
-            >
-              <FormControl
-                placeholder={i18next.t("chat.search-user")}
-                value={dmUsername}
-                onChange={(e) => setDmUsername(e.target.value)}
-                className="flex-1"
-              />
-              <Button type="submit" disabled={directChannelMutation.isLoading}>
-                {directChannelMutation.isLoading
-                  ? i18next.t("chat.starting-dm")
-                  : i18next.t("chat.start-dm-button")}
+        <div className="rounded border border-[--border-color] bg-[--surface-color] p-4 space-y-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">{i18next.t("chat.channels-title")}</h2>
+              <p className="text-xs text-[--text-muted]">{i18next.t("chat.page-title")}</p>
+            </div>
+            {(isLoading || channelsLoading) && (
+              <div className="text-xs text-[--text-muted]">{i18next.t("chat.loading")}</div>
+            )}
+          </div>
+
+          <form
+            className="flex flex-col gap-2 sm:flex-row sm:items-center"
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <FormControl
+              type="search"
+              placeholder={`${i18next.t("chat.search-channels")} / ${i18next.t("chat.search-user")}`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full"
+            />
+            {searchTerm && (
+              <Button type="button" appearance="secondary" onClick={() => setSearchTerm("")}>
+                Clear
               </Button>
-            </form>
-            {directChannelMutation.error && (
-              <div className="text-sm text-red-500 mt-2">
-                {(directChannelMutation.error as Error).message}
-              </div>
             )}
-            {userSearchError && (
-              <div className="text-sm text-red-500 mt-2">
-                {(userSearchError as Error).message}
-              </div>
-            )}
-            {(dmUsername.trim().length >= 2 || userSearchLoading) && (
-              <div className="mt-3 space-y-2 rounded border border-[--border-color] p-3 bg-[--surface-color]">
-                <div className="text-xs text-[--text-muted]">
-                  {userSearchLoading ? i18next.t("chat.search-people") : i18next.t("chat.select-dm")}
+          </form>
+
+          {(channelsError || channelSearchError || messageSearchError || joinChannelMutation.error ||
+            directChannelMutation.error || userSearchError) && (
+            <div className="grid gap-1 text-sm text-red-500">
+              {channelsError && <div>{(channelsError as Error).message}</div>}
+              {channelSearchError && <div>{(channelSearchError as Error).message}</div>}
+              {messageSearchError && <div>{(messageSearchError as Error).message}</div>}
+              {joinChannelMutation.error && <div>{(joinChannelMutation.error as Error).message}</div>}
+              {directChannelMutation.error && <div>{(directChannelMutation.error as Error).message}</div>}
+              {userSearchError && <div>{(userSearchError as Error).message}</div>}
+            </div>
+          )}
+
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold">{i18next.t("chat.title")}</h3>
+                  <p className="text-xs text-[--text-muted]">
+                    {hasSearchTerm
+                      ? i18next.t("chat.searching-channels")
+                      : i18next.t("chat.start-dm")}
+                  </p>
                 </div>
-                <div className="flex flex-col gap-2">
+                {hasSearchTerm && channelSearchLoading && (
+                  <span className="text-xs text-[--text-muted]">{i18next.t("chat.searching")}</span>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                {sortedChannels.map((channel) => {
+                  const unread = getUnreadCount(channel);
+                  const isMuted = Boolean(channel.is_muted);
+                  const markAsReadLabel = markChannelViewedMutation.isPending
+                    ? i18next.t("chat.marking-as-read")
+                    : i18next.t("chat.mark-as-read");
+                  const favoriteLabel = channel.is_favorite
+                    ? i18next.t("favorite-btn.delete")
+                    : i18next.t("chat.favorite-channel");
+                  const muteLabel = i18next.t(isMuted ? "chat.unmute-channel" : "chat.mute-channel");
+
+                  return (
+                    <Link
+                      href={`/chats/${channel.id}`}
+                      key={channel.id}
+                      className="rounded border border-[--border-color] p-3 hover:border-blue-500 transition"
+                      onClickCapture={handleChannelLinkClick}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          {channel.type === "D" && channel.directUser ? (
+                            <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
+                          ) : COMMUNITY_CHANNEL_NAME_PATTERN.test(channel.name) ? (
+                            <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
+                          ) : (
+                            <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
+                          )}
+                          {unread > 0 && (
+                            <span
+                              className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
+                              aria-hidden="true"
+                            />
+                          )}
+                        </div>
+
+                        <div className="flex flex-col flex-1">
+                          <div className="font-semibold flex items-center gap-1.5">
+                            <span>{getChannelTitle(channel)}</span>
+                            {channel.is_favorite && (
+                              <span className="text-amber-500" aria-label="Favorite channel" title="Favorite channel">
+                                ★
+                              </span>
+                            )}
+                            {isMuted && (
+                              <span
+                                className="text-[--text-muted]"
+                                aria-label={i18next.t("chat.channel-muted")}
+                                title={i18next.t("chat.channel-muted")}
+                              >
+                                {volumeOffSvg}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-[--text-muted]">
+                            {getChannelSubtitle(channel)}
+                          </div>
+                        </div>
+
+                        {unread > 0 && (
+                          <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-[--primary-color] px-2 py-1 text-xs font-semibold text-[--primary-button-text-color]">
+                            {unread}
+                          </span>
+                        )}
+
+                        {channel.type !== "D" ? (
+                          <div
+                            className="ml-2"
+                            data-chat-channel-actions
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Dropdown>
+                              <DropdownToggle
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                              >
+                                <Button appearance="gray-link" icon={dotsHorizontal} />
+                              </DropdownToggle>
+                              <DropdownMenu align="right">
+                                {unread > 0 && (
+                                  <DropdownItemWithIcon
+                                    icon={checkSvg}
+                                    label={markAsReadLabel}
+                                    onClick={(e: MouseEvent) =>
+                                      handleChannelAction(e, () => markChannelViewedMutation.mutate(channel.id))
+                                    }
+                                    disabled={markChannelViewedMutation.isPending}
+                                  />
+                                )}
+                                <DropdownItemWithIcon
+                                  label={favoriteLabel}
+                                  onClick={(e: MouseEvent) =>
+                                    handleChannelAction(e, () =>
+                                      favoriteChannelMutation.mutate({
+                                        channelId: channel.id,
+                                        favorite: !channel.is_favorite
+                                      })
+                                    )
+                                  }
+                                />
+                                <DropdownItemWithIcon
+                                  label={muteLabel}
+                                  onClick={(e: MouseEvent) =>
+                                    handleChannelAction(e, () =>
+                                      muteChannelMutation.mutate({ channelId: channel.id, mute: !isMuted })
+                                    )
+                                  }
+                                />
+                                <DropdownItemWithIcon
+                                  label={i18next.t("chat.leave-channel")}
+                                  onClick={(e: MouseEvent) =>
+                                    handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))
+                                  }
+                                />
+                              </DropdownMenu>
+                            </Dropdown>
+                          </div>
+                        ) : (
+                          unread > 0 && (
+                            <div
+                              className="ml-2"
+                              data-chat-channel-actions
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Dropdown>
+                                <DropdownToggle
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                >
+                                  <Button appearance="gray-link" icon={dotsHorizontal} />
+                                </DropdownToggle>
+                                <DropdownMenu align="right">
+                                  <DropdownItemWithIcon
+                                    icon={checkSvg}
+                                    label={markAsReadLabel}
+                                    onClick={(e: MouseEvent) =>
+                                      handleChannelAction(e, () => markChannelViewedMutation.mutate(channel.id))
+                                    }
+                                    disabled={markChannelViewedMutation.isPending}
+                                  />
+                                </DropdownMenu>
+                              </Dropdown>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+                {!sortedChannels.length && !channelsLoading && (
+                  <div className="text-sm text-[--text-muted]">
+                    {hasSearchTerm
+                      ? i18next.t("chat.no-channels-search")
+                      : i18next.t("chat.no-channels")}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {hasSearchTerm && (
+              <div className="space-y-2 rounded border border-[--border-color] bg-[--background-color] p-3">
+                <div className="flex items-center justify-between text-xs text-[--text-muted]">
+                  <span>{i18next.t("chat.search-user")}</span>
+                  {userSearchLoading && <span>{i18next.t("chat.searching")}</span>}
+                </div>
+                <div className="grid gap-2">
                   {userSearchLoading && <div className="text-sm text-[--text-muted]">{i18next.t("chat.searching")}</div>}
                   {!userSearchLoading &&
                     userSearch?.users?.map((user) => {
@@ -307,14 +497,10 @@ export function ChatsClient() {
                           key={user.id}
                           type="button"
                           onClick={() => startDirectMessage(user.username)}
-                          className="flex items-center justify-between gap-3 rounded border border-[--border-color] p-2 text-left hover:border-blue-500 transition"
+                          className="flex items-center justify-between gap-3 rounded border border-[--border-color] bg-[--surface-color] p-2 text-left hover:border-blue-500 transition"
                         >
                           <div className="flex items-center gap-3">
-                            <UserAvatar
-                              username={user.username}
-                              size="medium"
-                              className="h-9 w-9"
-                            />
+                            <UserAvatar username={user.username} size="medium" className="h-9 w-9" />
                             <div className="flex flex-col">
                               <span className="font-semibold">@{user.username}</span>
                               {secondary && (
@@ -322,290 +508,105 @@ export function ChatsClient() {
                               )}
                             </div>
                           </div>
-                          <span className="text-sm text-blue-500 font-semibold">Start</span>
+                          <span className="text-sm text-blue-500 font-semibold">
+                            {directChannelMutation.isLoading
+                              ? i18next.t("chat.starting-dm")
+                              : i18next.t("chat.start-dm-button")}
+                          </span>
                         </button>
                       );
                     })}
-                  {!userSearchLoading && !userSearch?.users?.length && dmUsername.trim().length >= 2 && (
+                  {!userSearchLoading && !userSearch?.users?.length && (
                     <div className="text-sm text-[--text-muted]">{i18next.t("chat.no-user")}</div>
                   )}
                 </div>
               </div>
             )}
-          </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-3">
-            <h2 className="text-lg font-semibold">{i18next.t("chat.channels-title")}</h2>
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <FormControl
-                type="search"
-                placeholder={i18next.t("chat.search-channels")}
-                value={channelSearch}
-                onChange={(e) => setChannelSearch(e.target.value)}
-                className="w-full sm:w-64"
-              />
-              {(isLoading || channelsLoading) && (
-                <div className="text-xs text-[--text-muted]">{i18next.t("chat.loading")}</div>
-              )}
-            </div>
-        </div>
-        {channelsError && (
-          <div className="text-sm text-red-500">{(channelsError as Error).message}</div>
-        )}
-        {channelSearchError && (
-          <div className="text-sm text-red-500">{(channelSearchError as Error).message}</div>
-        )}
-        {messageSearchError && (
-          <div className="text-sm text-red-500">{(messageSearchError as Error).message}</div>
-        )}
-        {joinChannelMutation.error && (
-          <div className="text-sm text-red-500">{(joinChannelMutation.error as Error).message}</div>
-        )}
-          <div className="grid gap-2">
-            {sortedChannels.map((channel) => {
-              const unread = getUnreadCount(channel);
-              const isMuted = Boolean(channel.is_muted);
-              const markAsReadLabel = markChannelViewedMutation.isPending
-                ? i18next.t("chat.marking-as-read")
-                : i18next.t("chat.mark-as-read");
-              const favoriteLabel = channel.is_favorite
-                ? i18next.t("favorite-btn.delete")
-                : i18next.t("chat.favorite-channel");
-              const muteLabel = i18next.t(isMuted ? "chat.unmute-channel" : "chat.mute-channel");
-
-              return (
-                <Link
-                  href={`/chats/${channel.id}`}
-                  key={channel.id}
-                  className="rounded border border-[--border-color] p-3 hover:border-blue-500 transition"
-                  onClickCapture={handleChannelLinkClick}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      {channel.type === "D" && channel.directUser ? (
-                        <UserAvatar username={channel.directUser.username} size="medium" className="h-10 w-10" />
-                      ) : COMMUNITY_CHANNEL_NAME_PATTERN.test(channel.name) ? (
-                        <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
-                      ) : (
-                        <UserAvatar username={channel.name} size="medium" className="h-10 w-10" />
-                      )}
-                      {unread > 0 && (
-                        <span
-                          className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[--primary-color] ring-2 ring-[--surface-color]"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </div>
-
-                      <div className="flex flex-col flex-1">
-                        <div className="font-semibold flex items-center gap-1.5">
-                          <span>{getChannelTitle(channel)}</span>
-                          {channel.is_favorite && (
-                            <span className="text-amber-500" aria-label="Favorite channel" title="Favorite channel">
-                              ★
-                            </span>
-                          )}
-                          {isMuted && (
-                            <span
-                              className="text-[--text-muted]"
-                              aria-label={i18next.t("chat.channel-muted")}
-                              title={i18next.t("chat.channel-muted")}
-                            >
-                              {volumeOffSvg}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-[--text-muted]">
-                          {getChannelSubtitle(channel)}
-                        </div>
+            {hasSearchTerm && (
+              <div className="space-y-2 rounded border border-[--border-color] bg-[--background-color] p-3">
+                <div className="flex items-center justify-between text-xs text-[--text-muted]">
+                  <span>{i18next.t("chat.joinable-channels")}</span>
+                  {channelSearchLoading && <span>{i18next.t("chat.searching-channels")}</span>}
+                </div>
+                <div className="grid gap-2">
+                  {joinableChannelResults.map((channel) => (
+                    <div
+                      key={channel.id}
+                      className="flex items-center justify-between rounded border border-[--border-color] bg-[--surface-color] p-3"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-semibold">{channel.display_name || channel.name}</span>
+                        <span className="text-xs text-[--text-muted]">
+                          {channel.type === "O"
+                            ? i18next.t("chat.channel-type-public")
+                            : channel.type === "P"
+                              ? i18next.t("chat.channel-type-private")
+                              : i18next.t("chat.channel-type")}
+                        </span>
                       </div>
-
-                    {unread > 0 && (
-                      <span className="ml-auto inline-flex min-w-[24px] justify-center rounded-full bg-[--primary-color] px-2 py-1 text-xs font-semibold text-[--primary-button-text-color]">
-                        {unread}
-                      </span>
-                    )}
-
-                    {channel.type !== "D" ? (
-                      <div
-                        className="ml-2"
-                        data-chat-channel-actions
-                        onClick={(e) => e.stopPropagation()}
+                      <Button
+                        size="sm"
+                        onClick={() => joinChannel(channel.id)}
+                        disabled={joinChannelMutation.isPending}
                       >
-                        <Dropdown>
-                          <DropdownToggle
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                          >
-                            <Button appearance="gray-link" icon={dotsHorizontal} />
-                          </DropdownToggle>
-                          <DropdownMenu align="right">
-                            {unread > 0 && (
-                              <DropdownItemWithIcon
-                                icon={checkSvg}
-                                label={markAsReadLabel}
-                                onClick={(e: MouseEvent) =>
-                                  handleChannelAction(e, () => markChannelViewedMutation.mutate(channel.id))
-                                }
-                                disabled={markChannelViewedMutation.isPending}
-                              />
-                            )}
-                            <DropdownItemWithIcon
-                              label={favoriteLabel}
-                              onClick={(e: MouseEvent) =>
-                                handleChannelAction(e, () =>
-                                  favoriteChannelMutation.mutate({
-                                    channelId: channel.id,
-                                    favorite: !channel.is_favorite
-                                  })
-                                )
-                              }
-                            />
-                            <DropdownItemWithIcon
-                              label={muteLabel}
-                              onClick={(e: MouseEvent) =>
-                                handleChannelAction(e, () =>
-                                  muteChannelMutation.mutate({ channelId: channel.id, mute: !isMuted })
-                                )
-                              }
-                            />
-                            <DropdownItemWithIcon
-                              label={i18next.t("chat.leave-channel")}
-                              onClick={(e: MouseEvent) =>
-                                handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))
-                              }
-                            />
-                          </DropdownMenu>
-                        </Dropdown>
-                      </div>
-                    ) : (
-                      unread > 0 && (
-                        <div
-                          className="ml-2"
-                          data-chat-channel-actions
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Dropdown>
-                            <DropdownToggle
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                            >
-                              <Button appearance="gray-link" icon={dotsHorizontal} />
-                            </DropdownToggle>
-                            <DropdownMenu align="right">
-                              <DropdownItemWithIcon
-                                icon={checkSvg}
-                                label={markAsReadLabel}
-                                onClick={(e: MouseEvent) =>
-                                  handleChannelAction(e, () => markChannelViewedMutation.mutate(channel.id))
-                                }
-                                disabled={markChannelViewedMutation.isPending}
-                              />
-                            </DropdownMenu>
-                          </Dropdown>
+                        {joinChannelMutation.isPending
+                          ? i18next.t("chat.joining-channel")
+                          : i18next.t("chat.join-channel-action")}
+                      </Button>
+                    </div>
+                  ))}
+                  {!channelSearchLoading && !joinableChannelResults.length && (
+                    <div className="text-sm text-[--text-muted]">
+                      {i18next.t("chat.no-additional-channels")}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {hasSearchTerm && (
+              <div className="space-y-2 rounded border border-[--border-color] bg-[--background-color] p-3">
+                <div className="flex items-center justify-between text-xs text-[--text-muted]">
+                  <span>{i18next.t("chat.message-search-results")}</span>
+                  {messageSearchLoading && <span>{i18next.t("chat.searching")}</span>}
+                </div>
+                <div className="grid gap-2">
+                  {subscribedMessageResults.map((post) => {
+                    const channel = channelsById.get(post.channel_id);
+                    const channelLabel = channel ? getChannelTitle(channel) : i18next.t("chat.channel-type");
+                    const channelSubtitle = channel ? getChannelSubtitle(channel) : undefined;
+
+                    return (
+                      <Link
+                        key={post.id}
+                        href={`/chats/${post.channel_id}?post=${post.id}`}
+                        className="flex flex-col gap-1 rounded border border-[--border-color] bg-[--surface-color] p-3 hover:border-blue-500 transition"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="text-sm font-semibold line-clamp-2 whitespace-pre-wrap break-words">
+                              {post.message || i18next.t("chat.no-message")}
+                            </div>
+                            <div className="text-xs text-[--text-muted]">
+                              {channelLabel}
+                              {channelSubtitle ? ` • ${channelSubtitle}` : ""}
+                            </div>
+                          </div>
+                          <span className="text-[11px] text-[--text-muted]">
+                            {formatTimestamp.format(new Date(post.create_at))}
+                          </span>
                         </div>
-                      )
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-            {!sortedChannels.length && !channelsLoading && (
-              <div className="text-sm text-[--text-muted]">
-                {channelSearch.trim()
-                  ? i18next.t("chat.no-channels-search")
-                  : i18next.t("chat.no-channels")}
+                      </Link>
+                    );
+                  })}
+                  {!messageSearchLoading && !subscribedMessageResults.length && (
+                    <div className="text-sm text-[--text-muted]">{i18next.t("chat.no-messages-found")}</div>
+                  )}
+                </div>
               </div>
             )}
           </div>
-
-          {channelSearch.trim().length >= 2 && (
-            <div className="mt-4 space-y-2 rounded border border-[--border-color] bg-[--background-color] p-3">
-              <div className="flex items-center justify-between text-xs text-[--text-muted]">
-                <span>{i18next.t("chat.joinable-channels")}</span>
-                {channelSearchLoading && <span>{i18next.t("chat.searching-channels")}</span>}
-              </div>
-              <div className="grid gap-2">
-                {joinableChannelResults.map((channel) => (
-                  <div
-                    key={channel.id}
-                    className="flex items-center justify-between rounded border border-[--border-color] bg-[--surface-color] p-3"
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-semibold">{channel.display_name || channel.name}</span>
-                      <span className="text-xs text-[--text-muted]">
-                        {channel.type === "O"
-                          ? i18next.t("chat.channel-type-public")
-                          : channel.type === "P"
-                            ? i18next.t("chat.channel-type-private")
-                            : i18next.t("chat.channel-type")}
-                      </span>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => joinChannel(channel.id)}
-                      disabled={joinChannelMutation.isPending}
-                    >
-                      {joinChannelMutation.isPending
-                        ? i18next.t("chat.joining-channel")
-                        : i18next.t("chat.join-channel-action")}
-                    </Button>
-                  </div>
-                ))}
-                {!channelSearchLoading && !joinableChannelResults.length && (
-                  <div className="text-sm text-[--text-muted]">
-                    {i18next.t("chat.no-additional-channels")}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {channelSearch.trim().length >= 2 && (
-            <div className="mt-4 space-y-2 rounded border border-[--border-color] bg-[--background-color] p-3">
-              <div className="flex items-center justify-between text-xs text-[--text-muted]">
-                <span>{i18next.t("chat.message-search-results")}</span>
-                {messageSearchLoading && <span>{i18next.t("chat.searching")}</span>}
-              </div>
-              <div className="grid gap-2">
-                {subscribedMessageResults.map((post) => {
-                  const channel = channelsById.get(post.channel_id);
-                  const channelLabel = channel ? getChannelTitle(channel) : i18next.t("chat.channel-type");
-                  const channelSubtitle = channel ? getChannelSubtitle(channel) : undefined;
-
-                  return (
-                    <Link
-                      key={post.id}
-                      href={`/chats/${post.channel_id}?post=${post.id}`}
-                      className="flex flex-col gap-1 rounded border border-[--border-color] bg-[--surface-color] p-3 hover:border-blue-500 transition"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="text-sm font-semibold line-clamp-2 whitespace-pre-wrap break-words">
-                            {post.message || i18next.t("chat.no-message")}
-                          </div>
-                          <div className="text-xs text-[--text-muted]">
-                            {channelLabel}
-                            {channelSubtitle ? ` • ${channelSubtitle}` : ""}
-                          </div>
-                        </div>
-                        <span className="text-[11px] text-[--text-muted]">
-                          {formatTimestamp.format(new Date(post.create_at))}
-                        </span>
-                      </div>
-                    </Link>
-                  );
-                })}
-                {!messageSearchLoading && !subscribedMessageResults.length && (
-                  <div className="text-sm text-[--text-muted]">{i18next.t("chat.no-messages-found")}</div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
