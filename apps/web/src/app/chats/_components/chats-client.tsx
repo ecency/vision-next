@@ -250,12 +250,6 @@ export function ChatsClient() {
   return (
     <div className="col-span-12 flex justify-center items-center p-4 md:p-10">
       <div className="w-full max-w-4xl space-y-6">
-        <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
-          <h1 className="text-2xl font-semibold mb-2">{i18next.t("chat.title")}</h1>
-          <p className="text-[--text-muted] text-sm">
-            {i18next.t("chat.page-title")}
-          </p>
-        </div>
 
         {error && <div className="text-red-500 text-sm">{error.message}</div>}
 
