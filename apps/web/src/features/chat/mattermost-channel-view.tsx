@@ -723,284 +723,347 @@ export function MattermostChannelView({ channelId }: Props) {
     [updateEmojiState, updateMentionState]
   );
 
-  return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="flex flex-1 flex-col gap-4 pb-28 md:pb-4 min-h-0">
-        <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
-          <div className="flex items-center justify-between gap-3">
-          <div>
-            <div className="text-lg font-semibold">{channelTitle}</div>
-            <div className="text-xs text-[--text-muted]">{channelSubtitle}</div>
-          </div>
-          {effectiveLastViewedAt > 0 && (
-            <div
-              className="text-[11px] text-[--text-muted]"
-              title={new Date(effectiveLastViewedAt).toLocaleString()}
-            >
-              Last viewed {formatTimestamp(effectiveLastViewedAt)}
-            </div>
-          )}
-        </div>
-      </div>
-        <div
-          ref={scrollContainerRef}
-          onScroll={handleScroll}
-          className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+9rem)] md:pb-4 flex-1 min-h-0 md:min-h-[320px] overflow-y-auto"
-        >
-          {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
-        {error && (
-          <div className="text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>
-        )}
-        {moderationError && <div className="text-sm text-red-500">{moderationError}</div>}
-        {!isLoading && !posts.length && (
-          <div className="text-sm text-[--text-muted]">No messages yet. Say hello!</div>
-        )}
-        <div className="space-y-3">
-          {posts.map((post, index) => (
-            <div key={post.id} className="space-y-3" data-post-id={post.id}>
-              {showUnreadDivider && index === firstUnreadIndex && (
-                <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
-                  <div className="flex-1 border-t border-[--border-color]" />
-                  <span>New</span>
-                  <div className="flex-1 border-t border-[--border-color]" />
-                </div>
-              )}
-              <div className="flex gap-3 group relative">
-                {post.type === "system_add_to_channel" ? (
-                  <div className="w-full flex justify-center">
-                    <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
-                      {renderMessageContent(getDisplayMessage(post))}
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="h-10 w-10 flex-shrink-0">
-                      {(() => {
-                        const user = usersById[post.user_id];
-                        const displayName = getDisplayName(post);
-                        const username = getUsername(post);
-                        const avatarUrl = getAvatarUrl(user);
+    return (
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="flex flex-1 flex-col gap-0 md:pb-0 min-h-0">
+          {/* Header with title, subtitle and X on mobile */}
+          <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
+            <div className="flex items-center justify-between gap-3">
+              {/* Left: title + subtitle */}
+              <div className="flex flex-col min-w-0">
+                <div className="truncate text-lg font-semibold">{channelTitle}</div>
+                <div className="truncate text-xs text-[--text-muted]">{channelSubtitle}</div>
+              </div>
 
-                        if (username) {
-                          return <UserAvatar username={username} size="medium" className="h-10 w-10" />;
-                        }
-
-                        if (avatarUrl) {
-                          return (
-                            <img
-                              src={avatarUrl}
-                              alt={`${displayName} avatar`}
-                              className="h-10 w-10 rounded-full object-cover"
-                            />
-                          );
-                        }
-
-                        return (
-                          <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
-                            {displayName.charAt(0).toUpperCase()}
-                          </div>
-                        );
-                      })()}
-                    </div>
-
-                    <div className="flex flex-col gap-1 w-full">
-                      <div className="flex items-center gap-2 text-xs text-[--text-muted]">
-                        {(() => {
-                          const username = getUsername(post);
-                          const displayName = getDisplayName(post);
-
-                          if (username) {
-                            return (
-                              <UsernameActions
-                                username={username}
-                                displayName={displayName}
-                                currentUsername={activeUser?.username}
-                                onStartDm={startDirectMessage}
-                              />
-                            );
-                          }
-
-                      return <span>{displayName}</span>;
-                        })()}
-                        <span className="text-[--text-muted]" title={new Date(post.create_at).toLocaleString()}>
-                          {formatTimestamp(post.create_at)}
-                        </span>
-                        {post.edit_at > post.create_at && (
-                          <span
-                            className="text-[11px] text-[--text-muted]"
-                            title={`Edited ${formatTimestamp(post.edit_at)}`}
-                          >
-                            • Edited
-                          </span>
-                        )}
-                      </div>
-                      {post.root_id && (
-                        <button
-                          type="button"
-                          onClick={() => scrollToPost(post.root_id!)}
-                          className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
-                        >
-                          <div className="font-semibold">Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}</div>
-                          <div className="line-clamp-2 text-[--text-muted]">
-                            {renderMessageContent(getDisplayMessage(postsById.get(post.root_id) ?? post))}
-                          </div>
-                        </button>
-                      )}
-                      <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
-                        {renderMessageContent(getDisplayMessage(post))}
-                      </div>
-                      {(() => {
-                        const reactions = post.metadata?.reactions ?? [];
-                        if (!reactions.length) return null;
-
-                        const grouped = reactions.reduce<Record<string, { count: number; reacted: boolean }>>(
-                          (acc, reaction) => {
-                            const existing = acc[reaction.emoji_name] || { count: 0, reacted: false };
-                            return {
-                              ...acc,
-                              [reaction.emoji_name]: {
-                                count: existing.count + 1,
-                                reacted:
-                                  existing.reacted ||
-                                  (data?.member?.user_id
-                                    ? reaction.user_id === data.member.user_id
-                                    : false)
-                              }
-                            };
-                          },
-                          {}
-                        );
-
-                        return (
-                          <div className="flex flex-wrap gap-2">
-                            {Object.entries(grouped).map(([emojiName, info]) => (
-                              <button
-                                key={`${post.id}-${emojiName}`}
-                                type="button"
-                                onClick={() => toggleReaction(post, emojiName)}
-                                className={clsx(
-                                  "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
-                                  info.reacted
-                                    ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
-                                    : "border-[--border-color] bg-[--background-color]"
-                                )}
-                              >
-                                <span>{getNativeEmojiFromShortcode(emojiName) || `:${emojiName}:`}</span>
-                                <span className="text-[--text-muted]">{info.count}</span>
-                              </button>
-                            ))}
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  </>
-                )}
-                {post.type !== "system_add_to_channel" && (
-                  <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
-                    <Button
-                      appearance="gray-link"
-                      size="xs"
-                      onClick={() => handleReply(post)}
-                      className="!h-7"
-                    >
-                      Reply
-                    </Button>
-                    {post.user_id === data?.member?.user_id && (
-                      <Button
-                        appearance="gray-link"
-                        size="xs"
-                        onClick={() => handleEdit(post)}
-                        className="!h-7"
-                      >
-                        Edit
-                      </Button>
-                    )}
-                    {(() => {
-                      const isReactionPickerOpen = openReactionPostId === post.id;
-
-                      return (
-                        <Popover
-                          behavior="click"
-                          placement="right"
-                          customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
-                          show={isReactionPickerOpen}
-                          setShow={(next) => setOpenReactionPostId(next ? post.id : null)}
-                          directContent={
-                            <Button
-                              appearance="gray-link"
-                              size="xs"
-                              className="!h-7"
-                              icon={emojiIconSvg}
-                              aria-label="Add reaction"
-                              disabled={reactMutation.isPending}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setOpenReactionPostId((current) => (current === post.id ? null : post.id));
-                              }}
-                            />
-                          }
-                        >
-                          <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
-                            {QUICK_REACTIONS.map((emoji) => (
-                              <button
-                                key={`${post.id}-${emoji}-picker`}
-                                type="button"
-                                className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
-                                onClick={() => toggleReaction(post, emoji, true)}
-                                disabled={reactMutation.isPending}
-                              >
-                                {emoji}
-                              </button>
-                            ))}
-                          </PopoverContent>
-                        </Popover>
-                      );
-                    })()}
-                    {data?.canModerate && (
-                      <Dropdown>
-                        <DropdownToggle>
-                          <Button
-                            icon={dotsHorizontal}
-                            appearance="gray-link"
-                            size="xs"
-                            className="h-7 w-7 !p-0"
-                            aria-label="Moderation actions"
-                          />
-                        </DropdownToggle>
-                        <DropdownMenu align="right" size="small">
-                          <DropdownItemWithIcon
-                            icon={deleteForeverSvg}
-                            label={deleteMutation.isPending && deletingPostId === post.id ? "Deleting…" : "Delete"}
-                            onClick={() => handleDelete(post.id)}
-                            disabled={deleteMutation.isPending}
-                          />
-                        </DropdownMenu>
-                      </Dropdown>
-                    )}
+              {/* Right side: last viewed + X (mobile only) */}
+              <div className="flex items-center gap-3 shrink-0">
+                {effectiveLastViewedAt > 0 && (
+                  <div
+                    className="hidden md:block text-[11px] text-[--text-muted]"
+                    title={new Date(effectiveLastViewedAt).toLocaleString()}
+                  >
+                    Last viewed {formatTimestamp(effectiveLastViewedAt)}
                   </div>
                 )}
+
+                {/* X button – visible only on mobile */}
+                <button
+                  type="button"
+                  onClick={() => router.push("/chats")}
+                  className="md:hidden text-[--text-muted] hover:text-[--text-color] p-1"
+                  aria-label="Close chat"
+                  title="Back to chats"
+                >
+                  ✕
+                </button>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Messages list */}
+          <div
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+            className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
+          >
+            {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
+            {error && (
+              <div className="text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>
+            )}
+            {moderationError && <div className="text-sm text-red-500">{moderationError}</div>}
+            {!isLoading && !posts.length && (
+              <div className="text-sm text-[--text-muted]">No messages yet. Say hello!</div>
+            )}
+            <div className="space-y-3">
+              {posts.map((post, index) => (
+                <div key={post.id} className="space-y-3" data-post-id={post.id}>
+                  {showUnreadDivider && index === firstUnreadIndex && (
+                    <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
+                      <div className="flex-1 border-t border-[--border-color]" />
+                      <span>New</span>
+                      <div className="flex-1 border-t border-[--border-color]" />
+                    </div>
+                  )}
+                  <div className="flex gap-3 group relative">
+                    {post.type === "system_add_to_channel" ? (
+                      <div className="w-full flex justify-center">
+                        <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
+                          {renderMessageContent(getDisplayMessage(post))}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="h-10 w-10 flex-shrink-0">
+                          {(() => {
+                            const user = usersById[post.user_id];
+                            const displayName = getDisplayName(post);
+                            const username = getUsername(post);
+                            const avatarUrl = getAvatarUrl(user);
+
+                            if (username) {
+                              return <UserAvatar username={username} size="medium" className="h-10 w-10" />;
+                            }
+
+                            if (avatarUrl) {
+                              return (
+                                <img
+                                  src={avatarUrl}
+                                  alt={`${displayName} avatar`}
+                                  className="h-10 w-10 rounded-full object-cover"
+                                />
+                              );
+                            }
+
+                            return (
+                              <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                                {displayName.charAt(0).toUpperCase()}
+                              </div>
+                            );
+                          })()}
+                        </div>
+
+                        <div className="flex flex-col gap-1 w-full">
+                          <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                            {(() => {
+                              const username = getUsername(post);
+                              const displayName = getDisplayName(post);
+
+                              if (username) {
+                                return (
+                                  <UsernameActions
+                                    username={username}
+                                    displayName={displayName}
+                                    currentUsername={activeUser?.username}
+                                    onStartDm={startDirectMessage}
+                                  />
+                                );
+                              }
+
+                              return <span>{displayName}</span>;
+                            })()}
+                            <span
+                              className="text-[--text-muted]"
+                              title={new Date(post.create_at).toLocaleString()}
+                            >
+                              {formatTimestamp(post.create_at)}
+                            </span>
+                            {post.edit_at > post.create_at && (
+                              <span
+                                className="text-[11px] text-[--text-muted]"
+                                title={`Edited ${formatTimestamp(post.edit_at)}`}
+                              >
+                                • Edited
+                              </span>
+                            )}
+                          </div>
+                          {post.root_id && (
+                            <button
+                              type="button"
+                              onClick={() => scrollToPost(post.root_id!)}
+                              className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
+                            >
+                              <div className="font-semibold">
+                                Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}
+                              </div>
+                              <div className="line-clamp-2 text-[--text-muted]">
+                                {renderMessageContent(
+                                  getDisplayMessage(postsById.get(post.root_id) ?? post)
+                                )}
+                              </div>
+                            </button>
+                          )}
+                          <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
+                            {renderMessageContent(getDisplayMessage(post))}
+                          </div>
+                          {(() => {
+                            const reactions = post.metadata?.reactions ?? [];
+                            if (!reactions.length) return null;
+
+                            const grouped = reactions.reduce<
+                              Record<string, { count: number; reacted: boolean }>
+                            >((acc, reaction) => {
+                              const existing = acc[reaction.emoji_name] || { count: 0, reacted: false };
+                              return {
+                                ...acc,
+                                [reaction.emoji_name]: {
+                                  count: existing.count + 1,
+                                  reacted:
+                                    existing.reacted ||
+                                    (data?.member?.user_id
+                                      ? reaction.user_id === data.member.user_id
+                                      : false)
+                                }
+                              };
+                            }, {});
+
+                            return (
+                              <div className="flex flex-wrap gap-2">
+                                {Object.entries(grouped).map(([emojiName, info]) => (
+                                  <button
+                                    key={`${post.id}-${emojiName}`}
+                                    type="button"
+                                    onClick={() => toggleReaction(post, emojiName)}
+                                    className={clsx(
+                                      "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
+                                      info.reacted
+                                        ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
+                                        : "border-[--border-color] bg-[--background-color]"
+                                    )}
+                                  >
+                                    <span>
+                                      {getNativeEmojiFromShortcode(emojiName) || `:${emojiName}:`}
+                                    </span>
+                                    <span className="text-[--text-muted]">{info.count}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </>
+                    )}
+                    {post.type !== "system_add_to_channel" && (
+                      <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+                        <Button
+                          appearance="gray-link"
+                          size="xs"
+                          onClick={() => handleReply(post)}
+                          className="!h-7"
+                        >
+                          Reply
+                        </Button>
+                        {post.user_id === data?.member?.user_id && (
+                          <Button
+                            appearance="gray-link"
+                            size="xs"
+                            onClick={() => handleEdit(post)}
+                            className="!h-7"
+                          >
+                            Edit
+                          </Button>
+                        )}
+                        {(() => {
+                          const isReactionPickerOpen = openReactionPostId === post.id;
+
+                          return (
+                            <Popover
+                              behavior="click"
+                              placement="right"
+                              customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
+                              show={isReactionPickerOpen}
+                              setShow={(next) => setOpenReactionPostId(next ? post.id : null)}
+                              directContent={
+                                <Button
+                                  appearance="gray-link"
+                                  size="xs"
+                                  className="!h-7"
+                                  icon={emojiIconSvg}
+                                  aria-label="Add reaction"
+                                  disabled={reactMutation.isPending}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setOpenReactionPostId((current) =>
+                                      current === post.id ? null : post.id
+                                    );
+                                  }}
+                                />
+                              }
+                            >
+                              <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
+                                {QUICK_REACTIONS.map((emoji) => (
+                                  <button
+                                    key={`${post.id}-${emoji}-picker`}
+                                    type="button"
+                                    className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
+                                    onClick={() => toggleReaction(post, emoji, true)}
+                                    disabled={reactMutation.isPending}
+                                  >
+                                    {emoji}
+                                  </button>
+                                ))}
+                              </PopoverContent>
+                            </Popover>
+                          );
+                        })()}
+                        {data?.canModerate && (
+                          <Dropdown>
+                            <DropdownToggle>
+                              <Button
+                                icon={dotsHorizontal}
+                                appearance="gray-link"
+                                size="xs"
+                                className="h-7 w-7 !p-0"
+                                aria-label="Moderation actions"
+                              />
+                            </DropdownToggle>
+                            <DropdownMenu align="right" size="small">
+                              <DropdownItemWithIcon
+                                icon={deleteForeverSvg}
+                                label={
+                                  deleteMutation.isPending && deletingPostId === post.id
+                                    ? "Deleting…"
+                                    : "Delete"
+                                }
+                                onClick={() => handleDelete(post.id)}
+                                disabled={deleteMutation.isPending}
+                              />
+                            </DropdownMenu>
+                          </Dropdown>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
 
-      <form
-        className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-[--surface-color] px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-[--surface-color] md:px-4 md:py-3 md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const trimmedMessage = normalizeMessageEmojis(message.trim());
-          if (!trimmedMessage) return;
+        {/* Input form */}
+        <form
+          className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-white md:px-4 md:py-3 md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const trimmedMessage = normalizeMessageEmojis(message.trim());
+            if (!trimmedMessage) return;
 
-          setMessageError(null);
+            setMessageError(null);
 
-          if (editingPost) {
-            updateMutation.mutate(
-              { postId: editingPost.id, message: trimmedMessage },
+            if (editingPost) {
+              updateMutation.mutate(
+                { postId: editingPost.id, message: trimmedMessage },
+                {
+                  onError: (err) => {
+                    setMessageError((err as Error)?.message || "Unable to update message");
+                  },
+                  onSuccess: () => {
+                    setMessage("");
+                    setMentionQuery("");
+                    setMentionStart(null);
+                    setEmojiQuery("");
+                    setEmojiStart(null);
+                    setEditingPost(null);
+                    requestAnimationFrame(() => {
+                      const container = scrollContainerRef.current;
+                      if (container) {
+                        container.scrollTop = container.scrollHeight;
+                      }
+                    });
+                    markChannelRead();
+                  }
+                }
+              );
+              return;
+            }
+
+            const rootId = replyingTo?.root_id || replyingTo?.id || null;
+
+            sendMutation.mutate(
+              { message: trimmedMessage, rootId },
               {
                 onError: (err) => {
-                  setMessageError((err as Error)?.message || "Unable to update message");
+                  setMessageError((err as Error)?.message || "Unable to send message");
                 },
                 onSuccess: () => {
                   setMessage("");
@@ -1008,7 +1071,7 @@ export function MattermostChannelView({ channelId }: Props) {
                   setMentionStart(null);
                   setEmojiQuery("");
                   setEmojiStart(null);
-                  setEditingPost(null);
+                  setReplyingTo(null);
                   requestAnimationFrame(() => {
                     const container = scrollContainerRef.current;
                     if (container) {
@@ -1019,208 +1082,185 @@ export function MattermostChannelView({ channelId }: Props) {
                 }
               }
             );
-            return;
-          }
-
-          const rootId = replyingTo?.root_id || replyingTo?.id || null;
-
-          sendMutation.mutate(
-            { message: trimmedMessage, rootId },
-            {
-              onError: (err) => {
-                setMessageError((err as Error)?.message || "Unable to send message");
-              },
-              onSuccess: () => {
-                setMessage("");
-                setMentionQuery("");
-                setMentionStart(null);
-                setEmojiQuery("");
-                setEmojiStart(null);
-                setReplyingTo(null);
-                requestAnimationFrame(() => {
-                  const container = scrollContainerRef.current;
-                  if (container) {
-                    container.scrollTop = container.scrollHeight;
-                  }
-                });
-                markChannelRead();
-              }
-            }
-          );
-        }}
-      >
-        <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto">
-          {editingPost && (
-            <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-[--text-color]">Editing message</span>
-                <Button
-                  type="button"
-                  appearance="gray-link"
-                  size="xs"
-                  onClick={() => {
-                    setEditingPost(null);
-                    setMessage("");
-                    setMentionQuery("");
-                    setMentionStart(null);
-                    setEmojiQuery("");
-                    setEmojiStart(null);
-                    setMessageError(null);
-                  }}
-                  className="!h-6"
-                >
-                  Cancel
-                </Button>
+          }}
+        >
+          <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto">
+            {editingPost && (
+              <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[--text-color]">Editing message</span>
+                  <Button
+                    type="button"
+                    appearance="gray-link"
+                    size="xs"
+                    onClick={() => {
+                      setEditingPost(null);
+                      setMessage("");
+                      setMentionQuery("");
+                      setMentionStart(null);
+                      setEmojiQuery("");
+                      setEmojiStart(null);
+                      setMessageError(null);
+                    }}
+                    className="!h-6"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+                <div className="line-clamp-2 text-[--text-muted]">
+                  {renderMessageContent(getDisplayMessage(editingPost))}
+                </div>
               </div>
-              <div className="line-clamp-2 text-[--text-muted]">
-                {renderMessageContent(getDisplayMessage(editingPost))}
+            )}
+            {replyingTo && (
+              <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[--text-color]">
+                    Replying to {getDisplayName(replyingTo)}
+                  </span>
+                  <Button
+                    type="button"
+                    appearance="gray-link"
+                    size="xs"
+                    onClick={() => setReplyingTo(null)}
+                    className="!h-6"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+                <div className="line-clamp-2 text-[--text-muted]">
+                  {renderMessageContent(getDisplayMessage(replyingTo))}
+                </div>
               </div>
+            )}
+            {messageError && <div className="text-sm text-red-500">{messageError}</div>}
+            <div className="relative">
+              {emojiQuery && (
+                <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--background-color] shadow-lg">
+                  <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
+                    <span>Type :emoji_name to insert an emoji.</span>
+                    {isEmojiSearchLoading && <span className="text-[--text-muted]">Searching…</span>}
+                  </div>
+                  <div className="max-h-48 overflow-y-auto">
+                    {emojiSuggestions.map((emoji) => (
+                      <button
+                        key={emoji.id}
+                        type="button"
+                        className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
+                        onClick={() => applyEmoji(emoji.id)}
+                      >
+                        <span className="text-xl">{emoji.native}</span>
+                        <div className="flex flex-col text-left">
+                          <span className="font-semibold">:{emoji.id}:</span>
+                          <span className="text-xs text-[--text-muted]">{emoji.name}</span>
+                        </div>
+                      </button>
+                    ))}
+                    {!emojiSuggestions.length && !isEmojiSearchLoading && (
+                      <div className="px-3 py-2 text-sm text-[--text-muted]">No emojis found.</div>
+                    )}
+                  </div>
+                </div>
+              )}
+              <InputGroup
+                prepend={
+                  <ImageUploadButton
+                    size="md"
+                    appearance="gray-link"
+                    className="h-full rounded-none"
+                    onBegin={() => undefined}
+                    onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
+                  />
+                }
+                append={
+                  <Button
+                    type="submit"
+                    size="md"
+                    appearance="primary"
+                    className="h-full rounded-none px-3"
+                    disabled={isSubmitting}
+                    aria-label={submitLabel}
+                    title={submitLabel}
+                  >
+                    <span className="sr-only">{submitLabel}</span>
+                    {upArrowSvg}
+                  </Button>
+                }
+                className="items-stretch rounded-xl border border-[--border-color] bg-[--background-color] overflow-hidden"
+                onClick={() => messageInputRef.current?.focus()}
+              >
+                <FormControl
+                  as="textarea"
+                  ref={messageInputRef}
+                  rows={2}
+                  value={message}
+                  onChange={handleMessageChange}
+                  placeholder="Write a message"
+                  className="flex-1 bg-transparent"
+                />
+              </InputGroup>
             </div>
-          )}
-          {replyingTo && (
-            <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-[--text-color]">Replying to {getDisplayName(replyingTo)}</span>
-                <Button
-                  type="button"
-                  appearance="gray-link"
-                  size="xs"
-                  onClick={() => setReplyingTo(null)}
-                  className="!h-6"
-                >
-                  Cancel
-                </Button>
-              </div>
-              <div className="line-clamp-2 text-[--text-muted]">
-                {renderMessageContent(getDisplayMessage(replyingTo))}
-              </div>
-            </div>
-          )}
-          {messageError && <div className="text-sm text-red-500">{messageError}</div>}
-          <div className="relative">
-            {emojiQuery && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--background-color] shadow-lg">
+            {isPublicChannel && mentionQuery && (
+              <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
                 <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
-                  <span>Type :emoji_name to insert an emoji.</span>
-                  {isEmojiSearchLoading && <span className="text-[--text-muted]">Searching…</span>}
+                  <span>Use @ to mention users. Selecting will invite them to this channel.</span>
+                  {mentionSearch.isFetching && <span className="text-[--text-muted]">Searching…</span>}
                 </div>
                 <div className="max-h-48 overflow-y-auto">
-                  {emojiSuggestions.map((emoji) => (
+                  {mentionQuery.length < 2 && (
+                    <div className="px-3 py-2 text-sm text-[--text-muted]">
+                      Keep typing to search for a user.
+                    </div>
+                  )}
+                  {mentionSearch.data?.users?.map((user) => (
                     <button
-                      key={emoji.id}
+                      key={user.id}
                       type="button"
                       className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
-                      onClick={() => applyEmoji(emoji.id)}
+                      onClick={() => applyMention(user.username)}
                     >
-                      <span className="text-xl">{emoji.native}</span>
+                      <UserAvatar username={user.username} size="medium" className="h-8 w-8" />
                       <div className="flex flex-col text-left">
-                        <span className="font-semibold">:{emoji.id}:</span>
-                        <span className="text-xs text-[--text-muted]">{emoji.name}</span>
+                        <span className="font-semibold">@{user.username}</span>
+                        {(user.nickname || user.first_name || user.last_name) && (
+                          <span className="text-xs text-[--text-muted]">
+                            {[user.first_name, user.last_name].filter(Boolean).join(" ") ||
+                              user.nickname}
+                          </span>
+                        )}
                       </div>
                     </button>
                   ))}
-                  {!emojiSuggestions.length && !isEmojiSearchLoading && (
-                    <div className="px-3 py-2 text-sm text-[--text-muted]">No emojis found.</div>
+                  {!mentionSearch.isFetching && mentionQuery.length >= 2 && !mentionSearch.data?.users?.length && (
+                    <div className="px-3 py-2 text-sm text-[--text-muted]">No users found.</div>
                   )}
                 </div>
               </div>
             )}
-            <InputGroup
-              prepend={
-                <ImageUploadButton
-                  size="md"
-                  appearance="gray-link"
-                  className="h-full rounded-none"
-                  onBegin={() => undefined}
-                  onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
-                />
-              }
-              append={
-                <Button
-                  type="submit"
-                  size="md"
-                  appearance="primary"
-                  className="h-full rounded-none px-3"
-                  disabled={isSubmitting}
-                  aria-label={submitLabel}
-                  title={submitLabel}
-                >
-                  <span className="sr-only">{submitLabel}</span>
-                  {upArrowSvg}
-                </Button>
-              }
-              className="items-stretch"
-              onClick={() => messageInputRef.current?.focus()}
-            >
-              <FormControl
-                as="textarea"
-                ref={messageInputRef}
-                rows={2}
-                value={message}
-                onChange={handleMessageChange}
-                placeholder="Write a message"
-                className="flex-1 rounded-none bg-[--background-color]"
-              />
-            </InputGroup>
           </div>
-          {isPublicChannel && mentionQuery && (
-            <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
-              <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
-                <span>Use @ to mention users. Selecting will invite them to this channel.</span>
-                {mentionSearch.isFetching && <span className="text-[--text-muted]">Searching…</span>}
-              </div>
-              <div className="max-h-48 overflow-y-auto">
-                {mentionQuery.length < 2 && (
-                  <div className="px-3 py-2 text-sm text-[--text-muted]">Keep typing to search for a user.</div>
-                )}
-                {mentionSearch.data?.users?.map((user) => (
-                  <button
-                    key={user.id}
-                    type="button"
-                    className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
-                    onClick={() => applyMention(user.username)}
-                  >
-                    <UserAvatar username={user.username} size="medium" className="h-8 w-8" />
-                    <div className="flex flex-col text-left">
-                      <span className="font-semibold">@{user.username}</span>
-                      {(user.nickname || user.first_name || user.last_name) && (
-                        <span className="text-xs text-[--text-muted]">
-                          {[user.first_name, user.last_name].filter(Boolean).join(" ") || user.nickname}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                ))}
-                {!mentionSearch.isFetching && mentionQuery.length >= 2 && !mentionSearch.data?.users?.length && (
-                  <div className="px-3 py-2 text-sm text-[--text-muted]">No users found.</div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </form>
-    </div>
+        </form>
 
-      <style jsx global>{`
-        @keyframes chat-post-highlight {
-          0% {
-            background-color: rgba(59, 130, 246, 0.18);
+        {/* highlight animation */}
+        <style>{`
+          @keyframes chat-post-highlight {
+            0% {
+              background-color: rgba(59, 130, 246, 0.18);
+            }
+            50% {
+              background-color: rgba(59, 130, 246, 0.12);
+            }
+            100% {
+              background-color: transparent;
+            }
           }
-          50% {
-            background-color: rgba(59, 130, 246, 0.12);
-          }
-          100% {
-            background-color: transparent;
-          }
-        }
 
-        [data-post-id].chat-post-highlight {
-          animation: chat-post-highlight 1.2s ease-in-out;
-          border-radius: 12px;
-        }
-      `}</style>
-    </div>
-  );
+          [data-post-id].chat-post-highlight {
+            animation: chat-post-highlight 1.2s ease-in-out;
+            border-radius: 12px;
+          }
+        `}</style>
+      </div>
+    );
 }
 
 function MentionToken({

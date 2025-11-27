@@ -15,7 +15,7 @@ export async function generateMetadata(
 export default function Chats() {
   return (
     <>
-      <div className="md:hidden">
+      <div className="h-full md:hidden">
         <ChatsClient />
       </div>
       <div className="hidden h-full md:block">
