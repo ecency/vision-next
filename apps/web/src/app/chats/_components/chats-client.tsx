@@ -28,7 +28,7 @@ import { checkSvg, dotsHorizontal, volumeOffSvg } from "@ui/svg";
 import { MouseEvent, useCallback, useMemo, useState } from "react";
 import clsx from "clsx";
 
-const TOWN_HALL_CHANNEL_NAME = "town-square";
+const TOWN_HALL_CHANNEL_NAME = "town-hall";
 
 export function ChatsClient() {
   const activeUser = useClientActiveUser();
@@ -238,7 +238,7 @@ export function ChatsClient() {
 
     const townHallChannel = channels.channels.find((channel) => {
       const displayName = channel.display_name?.toLowerCase() || "";
-      return channel.name.toLowerCase() === TOWN_HALL_CHANNEL_NAME || displayName === "Town Square";
+      return channel.name.toLowerCase() === TOWN_HALL_CHANNEL_NAME || displayName === "town hall" || displayName === "town-hall";
     });
 
     return townHallChannel?.id || channels.channels[0]?.id;

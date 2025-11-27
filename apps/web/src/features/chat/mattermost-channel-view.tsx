@@ -717,8 +717,8 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
   return (
-    <>
-      <div className="flex flex-col gap-4 min-h-[70vh] pb-28 md:pb-4">
+    <div className="flex h-full flex-col">
+      <div className="flex flex-1 flex-col gap-4 pb-28 md:pb-4 min-h-0">
         <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
           <div className="flex items-center justify-between gap-3">
           <div>
@@ -735,12 +735,12 @@ export function MattermostChannelView({ channelId }: Props) {
           )}
         </div>
       </div>
-      <div
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
-        className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+9rem)] md:pb-4 flex-1 min-h-[320px] max-h-[calc(100vh-280px)] md:max-h-[calc(100vh-420px)] overflow-y-auto"
-      >
-        {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+9rem)] md:pb-4 flex-1 min-h-0 md:min-h-[320px] overflow-y-auto"
+        >
+          {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
         {error && (
           <div className="text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>
         )}
@@ -1209,7 +1209,7 @@ export function MattermostChannelView({ channelId }: Props) {
           border-radius: 12px;
         }
       `}</style>
-    </>
+    </div>
   );
 }
 

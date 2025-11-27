@@ -6,7 +6,7 @@ import { useMattermostBootstrap, useMattermostChannels } from "@/features/chat/m
 import { MattermostChannelView } from "@/features/chat/mattermost-channel-view";
 import { LoginRequired } from "@/features/shared";
 
-const TOWN_HALL_CHANNEL_NAME = "town-square";
+const TOWN_HALL_CHANNEL_NAME = "town-hall";
 
 export function ChatsPageClient() {
   const activeUser = useClientActiveUser();
@@ -19,7 +19,7 @@ export function ChatsPageClient() {
 
     const townHallChannel = channels.channels.find((channel) => {
       const displayName = channel.display_name?.toLowerCase() || "";
-      return channel.name.toLowerCase() === TOWN_HALL_CHANNEL_NAME || displayName === "Town Square";
+      return channel.name.toLowerCase() === TOWN_HALL_CHANNEL_NAME || displayName === "town hall" || displayName === "town-hall";
     });
 
     return townHallChannel?.id || channels.channels[0]?.id;
