@@ -407,9 +407,6 @@
     "ascending": "Ascendente",
     "descending": "Discendente"
   },
-  "selected-tags": {
-    "title": "In primo piano"
-  },
   "entry-list-item": {
     "cross-posted": "cross-posted",
     "cross-posted-to": "a",
@@ -823,9 +820,6 @@
       "deposit": "Deposito HIVE",
       "deposit-instructions": "Invia HIVE a @honey-swap con memo {{memo}} per ricevere SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "Commuta lo stile della lista"
   },
   "entry-votes": {
     "title": "1 Voto",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "I token bloccati forniscono liquidità alla rete, aiuto nel determinare il consenso, e guadagnare premi per i corridori di nodi"
     }
   },
-  "wallet-engine": {
-    "title": "Token Di Hive Engine",
-    "description": "Hive Engine è una piattaforma di smart contract side-chain per la blockchain Hive.",
-    "no-results": "Nessun token trovato.",
-    "token": "Token",
-    "balance": "Bilancio",
-    "staked": "Staked"
-  },
-  "sort-engine-tokens": {
-    "sort": "Ordina",
-    "sort-in-ascending": "Ascendente",
-    "sort-in-descending": "Discendente",
-    "sort-by-value": "Valore",
-    "sort-by-balance": "Bilancio",
-    "sort-by-stake": "Paletto",
-    "sort-by-delegations-in": "Delegazioni in",
-    "sort-by-delegations-out": "Delegazioni fuori"
-  },
   "wallet-engine-estimated": {
     "title": "Valore Dei Token Stimati",
     "description": "Il valore approssimativo del Dollaro USA per tutti i token del motore nel tuo portafoglio."
@@ -1347,12 +1323,6 @@
     "filter-998": "Trasferimento in uscita",
     "filter-999": "Trasferimento in entrata"
   },
-  "purchase": {
-    "select-asset": "Seleziona risorsa",
-    "slider-hint": "Trascina il cursore per regolare l'importo.",
-    "submit": "Acquista",
-    "purchase-message": "Oppure invia qualsiasi importo a @esteem.app con `points` come promemoria per acquistare punti."
-  },
   "purchase-qr": {
     "scan-code": "Scansiona con Ecency app mobile per continuare",
     "select-user": "Seleziona un utente",
@@ -1370,14 +1340,6 @@
     "sub-title": "Promuovi il tuo post",
     "duration": "Durata",
     "learn-more": "Scopri di più sulla promozione"
-  },
-  "boost": {
-    "title": "Potenzia",
-    "sub-title": "Migliora il tuo post",
-    "amount": "Importo",
-    "slider-hint": "Trascina il cursore per regolare l'importo.",
-    "hint": "Il valore effettivo del voto che ricevi può variare",
-    "learn-more": "Scopri di più sul potenziamento"
   },
   "redeem-common": {
     "balance": "Saldo",
@@ -1739,11 +1701,6 @@
     "refresh": "Aggiorna per ottenere lo stato aggiornato",
     "video-info": "I video sono memorizzati e alimentati dalla rete SPK, potrebbero avere alcune commissioni di memorizzazione e codifica."
   },
-  "nsfw-content": {
-    "title": "Contenuto NSFW",
-    "warning": "Si prega di controllare se il contenuto è NSFW",
-    "continue": "Continua"
-  },
   "tag-selector": {
     "placeholder-empty": "Tag. Il primo tag è la categoria principale. Ordinabile.",
     "placeholder-focus": "Inserisci etichetta",
@@ -1850,9 +1807,6 @@
     "header-reward": "Ricompensa",
     "header-votes": "Voti",
     "header-votes-tip": "Numero di voti in questo periodo"
-  },
-  "popular-users": {
-    "title": "Utenti popolari"
   },
   "discover": {
     "title": "Scopri",
@@ -2064,19 +2018,6 @@
     "validation-label": "Spunta questo riquadro per procedere.",
     "updated": "Chiave d'accesso aggiornata con successo!",
     "hint": "In questo momento, è possibile generare chiavi solo impostando una nuova frase di seme. L'aggiornamento a qualsiasi altro tipo di password non è supportato. Ci aiuta a mantenere Ecency e Hive account in uno standard di Web 3.0."
-  },
-  "view-keys": {
-    "title": "Mostra le chiavi private",
-    "header": "Gestisci chiavi",
-    "account": "Profilo",
-    "cur-pass": "Password attuale",
-    "owner": "Proprietario",
-    "active": "Attiva",
-    "posting": "Pubblicazione",
-    "memo": "Memo",
-    "view-keys": "Clicca per vedere le chiavi",
-    "copied": "Chiave privata copiata negli appunti",
-    "error": "La password sembra errata, si prega di effettuare un doppio controllo!"
   },
   "manage-authorities": {
     "title": "Gestire Le Autorità",
@@ -2521,22 +2462,6 @@
     "title": "Collaboratori",
     "description": "Queste fantastiche persone hanno contribuito in un modo o nell'altro a Ecency e ci piacerebbe ringraziarle. Se vuoi unirti al nostro team contribuendo con Traduzioni, Idee, Sviluppo, Design, Divulgazione di conoscenze social, sei libero di partecipare. Per maggiori informazioni leggi le nostre <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Taglia",
-    "copy": "Copia",
-    "paste": "Incolla",
-    "open-image-browser": "Apri l'immagine nel browser",
-    "copy-image-url": "Copia l'Url dell'immagine"
-  },
-  "updater": {
-    "new-version-available": "Una nuova versione è disponibile",
-    "download": "Scarica",
-    "update": "Aggiorna",
-    "dismiss": "Abbandona",
-    "downloading": "Scarica la nuova versione...",
-    "download-completed": "Download completato",
-    "restart": "Ricomincia"
-  },
   "chain-error": {
     "min-root-comment": "Puoi pubblicare soltanto una volta ogni cinque minuti.",
     "identical-vote": "Il tuo voto attuale sul contenuto corrente è identico a questo voto.",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "La tua e-mail (opzionale)",
     "message-placeholder": "Descrivi il tuo report",
     "issue-reported": "Problema segnalato con successo"
-  },
-  "entry-preview": {
-    "searching-title": "Ricerca post",
-    "searching-description": "Stiamo cercando di scoprire questo post...",
-    "title": "Anteprima",
-    "description": "Questo post sta creando ora. Puoi interagire con esso quando questo messaggio scomparirà."
   },
   "banners": {
     "no-ls-title": "Impossibile utilizzare i dati locali",
