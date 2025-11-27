@@ -407,9 +407,6 @@
     "ascending": "昇順",
     "descending": "降順"
   },
-  "selected-tags": {
-    "title": "注目の商品"
-  },
   "entry-list-item": {
     "cross-posted": "クロス投稿",
     "cross-posted-to": "to",
@@ -823,9 +820,6 @@
       "deposit": "デポジットHIVE（HIVE）",
       "deposit-instructions": "SWAP.HIVEを受け取るには、メモ {{memo}} でHIVEを@honey-swapに送信してください。"
     }
-  },
-  "list-style": {
-    "title": "リストのスタイルを切り替える"
   },
   "entry-votes": {
     "title": "1票",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "ロックされたトークンはネットワークに流動性を提供し、コンセンサスを決定するのに役立ち、ノードランナーの報酬を獲得します"
     }
   },
-  "wallet-engine": {
-    "title": "Hiveエンジントークン",
-    "description": "Hiveエンジンは、Hiveブロックチェーンのスマートコントラクトサイドチェーンプラットフォームです。",
-    "no-results": "トークンが見つかりません。",
-    "token": "トークン",
-    "balance": "残高",
-    "staked": "ステーク中"
-  },
-  "sort-engine-tokens": {
-    "sort": "並べ替え",
-    "sort-in-ascending": "昇順",
-    "sort-in-descending": "降順",
-    "sort-by-value": "値",
-    "sort-by-balance": "残高",
-    "sort-by-stake": "ステーク（ステーク）",
-    "sort-by-delegations-in": "委任先",
-    "sort-by-delegations-out": "委任する"
-  },
   "wallet-engine-estimated": {
     "title": "推定トークン値",
     "description": "あなたの財布のすべてのエンジントークンの米ドルの価値。"
@@ -1347,12 +1323,6 @@
     "filter-998": "送信",
     "filter-999": "入金手続き中"
   },
-  "purchase": {
-    "select-asset": "資産を選択",
-    "slider-hint": "スライダーをドラッグして金額を調整します。",
-    "submit": "購入",
-    "purchase-message": "または、ポイントを購入するためのメモとして @steem.app にいくらでも送ってください。"
-  },
   "purchase-qr": {
     "scan-code": "Ecencyモバイルアプリでスキャンして続行します",
     "select-user": "ユーザーを選択してください",
@@ -1370,14 +1340,6 @@
     "sub-title": "ポストを宣伝する",
     "duration": "期間",
     "learn-more": "プロモーションについての詳細"
-  },
-  "boost": {
-    "title": "ブースト",
-    "sub-title": "あなたの投稿をブーストします",
-    "amount": "金額",
-    "slider-hint": "スライダーをドラッグして金額を調整します。",
-    "hint": "投票の実際の価値は異なる場合があります",
-    "learn-more": "ブーストについてもっと詳しく"
   },
   "redeem-common": {
     "balance": "残高",
@@ -1739,11 +1701,6 @@
     "refresh": "更新して状態を取得する",
     "video-info": "ビデオはSPKネットワークによって保存され、いくつかのストレージとエンコード料金がかかる可能性があります。"
   },
-  "nsfw-content": {
-    "title": "NSFW コンテンツ",
-    "warning": "あなたのコンテンツがNSFWであるかどうかを確認してください",
-    "continue": "続ける"
-  },
   "tag-selector": {
     "placeholder-empty": "タグ。最初のタグはメインカテゴリです。ソート可能です。",
     "placeholder-focus": "タグを入力",
@@ -1850,9 +1807,6 @@
     "header-reward": "Recompensa",
     "header-votes": "投票",
     "header-votes-tip": "この期間の投票数"
-  },
-  "popular-users": {
-    "title": "人気のユーザー"
   },
   "discover": {
     "title": "Discover",
@@ -2064,19 +2018,6 @@
     "validation-label": "続行するにはこのボックスにチェックを入れてください。",
     "updated": "パスワードが変更されました！",
     "hint": "現時点では、新しいシードフレーズを設定するだけでキーを生成できます。他の種類のパスワードへの更新はサポートされていません。 Web 3.0の標準でEcencyとHiveのアカウントを維持するのに役立ちます。"
-  },
-  "view-keys": {
-    "title": "秘密鍵を表示",
-    "header": "キーの管理",
-    "account": "アカウント",
-    "cur-pass": "現在のパスワード",
-    "owner": "所有者",
-    "active": "アクティブ",
-    "posting": "投稿",
-    "memo": "メモ",
-    "view-keys": "クリックしてキーを表示",
-    "copied": "秘密鍵をクリップボードにコピーしました",
-    "error": "パスワードが正しくありません。もう一度確認してください！"
   },
   "manage-authorities": {
     "title": "認証局の管理",
@@ -2521,22 +2462,6 @@
     "title": "貢献者",
     "description": "これらの偉大な人々は、何らかの形でEcencyに貢献し、私たちはそれらすべてに感謝したいと思います。 翻訳、アイデア、開発、デザイン、社会認識に貢献して、私たちのチームに参加したい場合は、自由に参加してください。 詳細については、 <a href=\"/faq#how-to-contribute\">FAQ</a> をご覧ください。"
   },
-  "context-menu": {
-    "cut": "カット",
-    "copy": "コピー",
-    "paste": "貼り付け",
-    "open-image-browser": "ブラウザで画像を開く",
-    "copy-image-url": "画像のURLをコピー"
-  },
-  "updater": {
-    "new-version-available": "新しいバージョンが利用可能です。",
-    "download": "ダウンロード",
-    "update": "アップデート",
-    "dismiss": "中止",
-    "downloading": "新しいバージョンをダウンロードしています...",
-    "download-completed": "ダウンロードが完了",
-    "restart": "再起動"
-  },
   "chain-error": {
     "min-root-comment": "5分に1回しか投稿できません。",
     "identical-vote": "このコンテンツへの現在の投票は、この投票と同じです。",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "メールアドレス（任意）",
     "message-placeholder": "レポートを説明してください",
     "issue-reported": "問題が正常に報告されました"
-  },
-  "entry-preview": {
-    "searching-title": "投稿を検索中",
-    "searching-description": "この投稿を確認しようとしています...",
-    "title": "プレビュー",
-    "description": "この投稿は現在作成中です。このメッセージが消えたときに操作できます。"
   },
   "banners": {
     "no-ls-title": "ローカルデータを使用できません",
