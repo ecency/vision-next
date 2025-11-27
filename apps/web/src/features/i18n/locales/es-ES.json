@@ -407,9 +407,6 @@
     "ascending": "Ascendente",
     "descending": "Descendente"
   },
-  "selected-tags": {
-    "title": "Destacado"
-  },
   "entry-list-item": {
     "cross-posted": "publicación-cruzada",
     "cross-posted-to": "para",
@@ -823,9 +820,6 @@
       "deposit": "Depositar HIVE",
       "deposit-instructions": "Envía HIVE a @honey-swap con el memo {{memo}} para recibir SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "Alternar estilo de líneas"
   },
   "entry-votes": {
     "title": "1 voto",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "Las fichas bloqueadas proporcionan liquidez a la red, ayudan a determinar el consenso y obtienen recompensas para los corredores de nodos"
     }
   },
-  "wallet-engine": {
-    "title": "Motor de Tokens de Hive",
-    "description": "Hive Engine es una plataforma inteligente de cadena lateral para la cadena de bloques de Hive.",
-    "no-results": "No se ha encontrado ningún token.",
-    "token": "Token",
-    "balance": "Balance",
-    "staked": "En Estaca"
-  },
-  "sort-engine-tokens": {
-    "sort": "Ordenar",
-    "sort-in-ascending": "Ascendente",
-    "sort-in-descending": "Descendente",
-    "sort-by-value": "Valor",
-    "sort-by-balance": "Balance",
-    "sort-by-stake": "Estaca",
-    "sort-by-delegations-in": "Delegaciones recibidas",
-    "sort-by-delegations-out": "Delegaciones emitidas"
-  },
   "wallet-engine-estimated": {
     "title": "Valor de fichas estimadas",
     "description": "El valor aproximado en Dólar de USA para todos las fichas del motor en tu cartera."
@@ -1347,12 +1323,6 @@
     "filter-998": "Transferencia enviada",
     "filter-999": "Transferencia recibida"
   },
-  "purchase": {
-    "select-asset": "Seleccionar activos",
-    "slider-hint": "Arrastra el deslizador para ajustar la cantidad.",
-    "submit": "Comprar",
-    "purchase-message": "O envía cualquier cantidad a @esteem.app con `points` como nota en el memo para comprar puntos."
-  },
   "purchase-qr": {
     "scan-code": "Escanear con aplicación móvil de Ecency para continuar",
     "select-user": "Por favor, selecciona un usuario",
@@ -1370,14 +1340,6 @@
     "sub-title": "Promociona tu post",
     "duration": "Duración",
     "learn-more": "Más información sobre la promoción"
-  },
-  "boost": {
-    "title": "Impulsar",
-    "sub-title": "Impulsa tu publicación",
-    "amount": "Cantidad",
-    "slider-hint": "Arrastra el deslizador para ajustar la cantidad.",
-    "hint": "El valor real del voto que recibes puede variar",
-    "learn-more": "Más información sobre cómo impulsar"
   },
   "redeem-common": {
     "balance": "Balance",
@@ -1739,11 +1701,6 @@
     "refresh": "Refrescar para obtener el estado actualizado",
     "video-info": "Los videos son almacenados y mantenidos por la red SPK, puede tener algunos cargos de almacenamiento y codificación."
   },
-  "nsfw-content": {
-    "title": "Contenido NSFW",
-    "warning": "Por favor, comprueba esto si tu contenido es NSFW",
-    "continue": "Continuar"
-  },
   "tag-selector": {
     "placeholder-empty": "Etiquetas. Primera etiqueta es la categoría principal. Organízable.",
     "placeholder-focus": "Escribir una etiqueta",
@@ -1850,9 +1807,6 @@
     "header-reward": "Recompensa",
     "header-votes": "Votos",
     "header-votes-tip": "Número de votos en este período"
-  },
-  "popular-users": {
-    "title": "Usuarios populares"
   },
   "discover": {
     "title": "Descubrir",
@@ -2064,19 +2018,6 @@
     "validation-label": "Marque esta casilla para continuar.",
     "updated": "¡Contraseña actualizada correctamente!",
     "hint": "En este momento, solamente puede generar claves configurando una nueva frase de semilla. No se admite ninguna otra forma de actualización de contraseña. Esto nos ayuda a mantener las cuentas de Ecency y de Hive en un estándar de Web 3.0."
-  },
-  "view-keys": {
-    "title": "Ver claves privadas",
-    "header": "Administrar claves",
-    "account": "Cuenta",
-    "cur-pass": "Contraseña actual",
-    "owner": "Propietario",
-    "active": "Activa",
-    "posting": "Publicación",
-    "memo": "Memo",
-    "view-keys": "Haga clic para ver las llaves",
-    "copied": "Clave privada copiada en el portapapeles",
-    "error": "La contraseña parece incorrecta, ¡por favor compruébela!"
   },
   "manage-authorities": {
     "title": "Administrar Autorizaciones",
@@ -2521,22 +2462,6 @@
     "title": "Colaboradores",
     "description": "Estas grandes personas contribuyeron de una manera u otra con Ecency, nos gustaría darles las gracias a todos. Si quieres unirte a nuestro equipo contribuyendo con la traducción, Ideas, Desarrollo, Diseño, Conciencia Social, siéntete libre de unirte. Para obtener más información, lee nuestras Preguntas Frecuentes <a href=\"/faq#how-to-contribute\"></a>."
   },
-  "context-menu": {
-    "cut": "Cortar",
-    "copy": "Copiar",
-    "paste": "Pegar",
-    "open-image-browser": "Abrir la imagen en el navegador",
-    "copy-image-url": "Copiar Url de la imagen"
-  },
-  "updater": {
-    "new-version-available": "La nueva versión está disponible",
-    "download": "Descargar",
-    "update": "Actualización",
-    "dismiss": "Descartar",
-    "downloading": "Descargando nueva versión...",
-    "download-completed": "La descarga esta completa",
-    "restart": "Reiniciar"
-  },
   "chain-error": {
     "min-root-comment": "Sólo puedes publicar una vez cada cinco minutos.",
     "identical-vote": "Tu voto actual sobre este contenido es idéntico a esta votación.",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "Tu correo electrónico (opcional)",
     "message-placeholder": "Por favor, describe tu reporte",
     "issue-reported": "Problema reportado con éxito"
-  },
-  "entry-preview": {
-    "searching-title": "Buscando publicación",
-    "searching-description": "Estamos tratando de encontrar esta publicación...",
-    "title": "Previsualización",
-    "description": "Esta publicación se está creando ahora. Puedes interactuar con ella cuando este mensaje desaparezca."
   },
   "banners": {
     "no-ls-title": "No se puede utilizar datos locales",
