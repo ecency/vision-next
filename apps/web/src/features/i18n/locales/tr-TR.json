@@ -407,9 +407,6 @@
     "ascending": "Artan",
     "descending": "Azalan"
   },
-  "selected-tags": {
-    "title": "Öne Çıkanlar"
-  },
   "entry-list-item": {
     "cross-posted": "tarafından çapraz gönderildi",
     "cross-posted-to": "topluluk",
@@ -823,9 +820,6 @@
       "deposit": "Deposit HIVE",
       "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "Liste biçimine geçiş"
   },
   "entry-votes": {
     "title": "1 Oy",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "Locked tokens provide liquidity to the network, aid in determining consensus, and earn rewards for node runners"
     }
   },
-  "wallet-engine": {
-    "title": "Hive Engine Tokenları",
-    "description": "Hive Engine is a smart contracts side-chain platform for the Hive blockchain.",
-    "no-results": "Hiç token bulunamadı.",
-    "token": "Token",
-    "balance": "Bakiye",
-    "staked": "Stake edilmiş"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sort",
-    "sort-in-ascending": "Ascending",
-    "sort-in-descending": "Descending",
-    "sort-by-value": "Value",
-    "sort-by-balance": "Balance",
-    "sort-by-stake": "Stake",
-    "sort-by-delegations-in": "Delegations in",
-    "sort-by-delegations-out": "Delegations out"
-  },
   "wallet-engine-estimated": {
     "title": "Estimated Tokens Value",
     "description": "The approximate US Dollar value for all engine tokens in your wallet."
@@ -1347,12 +1323,6 @@
     "filter-998": "Giden aktarım",
     "filter-999": "Gelen aktarım"
   },
-  "purchase": {
-    "select-asset": "Varlık Seç",
-    "slider-hint": "Miktarı ayarlamak için kaydırıcıyı sürükle.",
-    "submit": "Satın al",
-    "purchase-message": "Or send any amount to @esteem.app with `points` as a memo to purchase Points."
-  },
   "purchase-qr": {
     "scan-code": "Scan with Ecency mobile app to continue",
     "select-user": "Please, select an user",
@@ -1370,14 +1340,6 @@
     "sub-title": "Gönderini tanıt",
     "duration": "Süre",
     "learn-more": "Learn more about promotion"
-  },
-  "boost": {
-    "title": "Yükselt",
-    "sub-title": "Gönderini yükselt",
-    "amount": "Miktar",
-    "slider-hint": "Miktarı ayarlamak için kaydırıcıyı sürükleyin.",
-    "hint": "Actual value of vote you receive may vary",
-    "learn-more": "Learn more about boosting"
   },
   "redeem-common": {
     "balance": "Bakiye",
@@ -1739,11 +1701,6 @@
     "refresh": "Refresh to get updated status",
     "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
   },
-  "nsfw-content": {
-    "title": "NSFW contents",
-    "warning": "Please check this if your content is NSFW",
-    "continue": "Continue"
-  },
   "tag-selector": {
     "placeholder-empty": "Etiketler. İlk etiket ana kategoridir. Sıralanabilir.",
     "placeholder-focus": "Etiket gir",
@@ -1850,9 +1807,6 @@
     "header-reward": "Ödül",
     "header-votes": "Oylar",
     "header-votes-tip": "Bu dönemdeki oy sayısı"
-  },
-  "popular-users": {
-    "title": "Popüler Kullanıcılar"
   },
   "discover": {
     "title": "Keşfet",
@@ -2064,19 +2018,6 @@
     "validation-label": "Devam etmek için lütfen bu kutucuğu işaretleyin.",
     "updated": "Şifre başarıyla güncellendi!",
     "hint": "At this time, you can generate keys only by setting a new seed phrase. Updating to any other type of password is not supported. It helps us to keep Ecency and Hive accounts in a standards of Web 3.0."
-  },
-  "view-keys": {
-    "title": "Özel anahtarı görüntüle",
-    "header": "Manage keys",
-    "account": "Hesap",
-    "cur-pass": "Güncel şifreniz",
-    "owner": "Sahip",
-    "active": "Aktif",
-    "posting": "Posting",
-    "memo": "Memo",
-    "view-keys": "Anahtarları görmek için tıkla",
-    "copied": "Özel anahtar panoya kopyalandı",
-    "error": "Şifre hatalıdır, lütfen tekrar kontrol edin!"
   },
   "manage-authorities": {
     "title": "Manage Authorities",
@@ -2521,22 +2462,6 @@
     "title": "Katkıda Bulunanlar",
     "description": "These great people contributed in one way or another to Ecency, we would like to thank them all. If you want to join our team by contributing with Translation, Ideas, Development, Designing, Social awareness, feel free to join. To learn more read our <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Kes",
-    "copy": "Kopyala",
-    "paste": "Yapıştır",
-    "open-image-browser": "Görseli tarayıcıda aç",
-    "copy-image-url": "Görsel Url'sini kopyala"
-  },
-  "updater": {
-    "new-version-available": "Yeni sürüm mevcut",
-    "download": "İndir",
-    "update": "Güncelle",
-    "dismiss": "Yoksay",
-    "downloading": "Yeni sürüm indiriliyor...",
-    "download-completed": "İndirme tamamlandı",
-    "restart": "Yeniden başlat"
-  },
   "chain-error": {
     "min-root-comment": "Her beş dakikada bir yalnızca bir gönderi paylaşabilirsiniz.",
     "identical-vote": "Bu içerikteki mevcut oyunuz bu oy ile aynıdır.",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "Your e-mail(optional)",
     "message-placeholder": "Please, describe your report",
     "issue-reported": "Issue reported successfully"
-  },
-  "entry-preview": {
-    "searching-title": "Searching post",
-    "searching-description": "We are trying to find out this post...",
-    "title": "Preview",
-    "description": "This post is creating now. You can interact with it when this message will disappear."
   },
   "banners": {
     "no-ls-title": "Unable to use local data",
