@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 import { MattermostChannelView } from "@/features/chat/mattermost-channel-view";
 import { useMattermostBootstrap } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
-import Link from "next/link";
 import { useClientActiveUser, useHydrated } from "@/api/queries";
 
 export default function ChannelPage() {
@@ -15,14 +14,18 @@ export default function ChannelPage() {
 
   if (!hydrated) {
     return (
-      <div className="col-span-12 flex justify-center items-center p-10">
+      <div className="flex h-full items-center justify-center p-4">
         <div className="text-sm text-[--text-muted]">Loading chat…</div>
       </div>
     );
   }
 
   if (!activeUser) {
-    return <LoginRequired />;
+    return (
+      <div className="flex h-full items-center justify-center p-4">
+        <LoginRequired />
+      </div>
+    );
   }
 
   if (!bootstrap && !isLoading && error?.message.includes("username")) {
@@ -30,12 +33,7 @@ export default function ChannelPage() {
   }
 
   return (
-    <div className="col-span-12 p-4 md:p-10">
-      <div className="mb-4">
-        <Link href="/chats" className="text-blue-500 text-sm hover:underline">
-          ← Back to chats
-        </Link>
-      </div>
+    <div className="h-full">
       {params.id && <MattermostChannelView channelId={params.id} />}
     </div>
   );
