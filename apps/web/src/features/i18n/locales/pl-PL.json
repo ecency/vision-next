@@ -407,9 +407,6 @@
     "ascending": "Rosnąco",
     "descending": "Malejąco"
   },
-  "selected-tags": {
-    "title": "Polecane"
-  },
   "entry-list-item": {
     "cross-posted": "udostępnił(a)",
     "cross-posted-to": "do",
@@ -823,9 +820,6 @@
       "deposit": "Wpłać HIVE",
       "deposit-instructions": "Wyślij HIVE do @honey-swap z notatką {{memo}} , aby otrzymać SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "Przełącz styl listy"
   },
   "entry-votes": {
     "title": "1 głos",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "Zablokowane tokeny zapewniają płynność sieci, pomagają w określaniu konsensusu i zarabiają nagrody dla runnerów węzłów"
     }
   },
-  "wallet-engine": {
-    "title": "Tokeny silnika hive",
-    "description": "Silnik Hive jest inteligentną platformą dla łańcucha bocznego kontraktów dla łańcucha bloków uli.",
-    "no-results": "Nie znaleziono tokenów.",
-    "token": "Token",
-    "balance": "Saldo",
-    "staked": "Wycięte"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sortuj",
-    "sort-in-ascending": "Rosnąco",
-    "sort-in-descending": "Malejąco",
-    "sort-by-value": "Wartość",
-    "sort-by-balance": "Saldo",
-    "sort-by-stake": "Tycz",
-    "sort-by-delegations-in": "Delegacje w",
-    "sort-by-delegations-out": "Delegacje"
-  },
   "wallet-engine-estimated": {
     "title": "Szacowana wartość tokenów",
     "description": "Przybliżona wartość dolara amerykańskiego dla wszystkich tokenów silnika w portfelu."
@@ -1347,12 +1323,6 @@
     "filter-998": "Przelew wychodzący",
     "filter-999": "Przelew przychodzący"
   },
-  "purchase": {
-    "select-asset": "Wybierz zasób",
-    "slider-hint": "Przeciągnij suwak, aby dostosować kwotę.",
-    "submit": "Zakup",
-    "purchase-message": "Lub wyślij dowolną kwotę do @esteem.app za pomocą `points` jako notatkę do zakupu punktów."
-  },
   "purchase-qr": {
     "scan-code": "Skanuj za pomocą aplikacji mobilnej Ecency aby kontynuować",
     "select-user": "Wybierz użytkownika",
@@ -1370,14 +1340,6 @@
     "sub-title": "Promuj swój post",
     "duration": "Czas trwania",
     "learn-more": "Dowiedz się więcej o promocji"
-  },
-  "boost": {
-    "title": "Wzmocnienie",
-    "sub-title": "Promuj swój post",
-    "amount": "Ilość",
-    "slider-hint": "Przeciągnij suwak, aby dostosować kwotę.",
-    "hint": "Rzeczywista wartość otrzymanego głosu może się różnić",
-    "learn-more": "Dowiedz się więcej o wzmocnieniu"
   },
   "redeem-common": {
     "balance": "Saldo",
@@ -1739,11 +1701,6 @@
     "refresh": "Odśwież, aby zaktualizować status",
     "video-info": "Wideo są przechowywane i zasilane przez sieć SPK, mogą mieć pewne opłaty za przechowywanie i kodowanie."
   },
-  "nsfw-content": {
-    "title": "Zawartość NSFW",
-    "warning": "Sprawdź to, jeśli zawartość jest NSFW",
-    "continue": "Kontynuuj"
-  },
   "tag-selector": {
     "placeholder-empty": "Tagi. Pierwszy tag jest kategorią główną. Tagi można sortować.",
     "placeholder-focus": "Wprowadź tag",
@@ -1850,9 +1807,6 @@
     "header-reward": "Wynagrodzenie",
     "header-votes": "Głosy",
     "header-votes-tip": "Liczba głosów w tym okresie"
-  },
-  "popular-users": {
-    "title": "Popularni użytkownicy"
   },
   "discover": {
     "title": "Odkrywaj",
@@ -2064,19 +2018,6 @@
     "validation-label": "Proszę zaznaczyć to pole, aby kontynuować.",
     "updated": "Hasło zostało zaktualizowane!",
     "hint": "W tej chwili możesz wygenerować klucze tylko poprzez ustawienie nowej frazy seed. Aktualizacja do innego typu hasła nie jest obsługiwana. Pomaga nam to w utrzymaniu kont ecencji i uli w standardach Web 3.0."
-  },
-  "view-keys": {
-    "title": "Zobacz klucze prywatne",
-    "header": "Zarządzaj kluczami",
-    "account": "Konto",
-    "cur-pass": "Aktualne hasło",
-    "owner": "Właściciel",
-    "active": "Aktywne",
-    "posting": "Wysyłanie",
-    "memo": "Notatka",
-    "view-keys": "Kliknij, aby wyświetlić klucze",
-    "copied": "Klucz prywatny skopiowany do schowka",
-    "error": "Hasło wydaje się nieprawidłowe, sprawdź podwójnie!"
   },
   "manage-authorities": {
     "title": "Zarządzaj władzami",
@@ -2521,22 +2462,6 @@
     "title": "Współtwórcy",
     "description": "Ci wielcy ludzie w taki czy inny sposób przyczynili się do Ecencji, chcielibyśmy im wszystkim podziękować. Jeśli chcesz dołączyć do naszego zespołu, wnosząc wkład w tłumaczenie, Pomysły, Rozwój, Wyznaczanie, Wiedza Społeczna, możesz się do niego przyłączyć. Aby dowiedzieć się więcej o naszym <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Wytnij",
-    "copy": "Kopiuj",
-    "paste": "Wklej",
-    "open-image-browser": "Otwórz obraz w przeglądarce",
-    "copy-image-url": "Kopiuj adres URL obrazu"
-  },
-  "updater": {
-    "new-version-available": "Dostępna jest nowa wersja",
-    "download": "Pobierz",
-    "update": "Aktualizuj",
-    "dismiss": "Odrzuć",
-    "downloading": "Pobieranie nowej wersji...",
-    "download-completed": "Zakończono pobieranie",
-    "restart": "Uruchom ponownie"
-  },
   "chain-error": {
     "min-root-comment": "Możesz publikować tylko raz na pięć minut.",
     "identical-vote": "Twój obecny głos w tej sprawie jest identyczny z tym głosowaniem.",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "Twój e-mail (opcjonalnie)",
     "message-placeholder": "Proszę opisać swój raport",
     "issue-reported": "Zgłoszono problem"
-  },
-  "entry-preview": {
-    "searching-title": "Wyszukiwanie postów",
-    "searching-description": "Próbujemy dowiedzieć się o tym wpisze...",
-    "title": "Podgląd",
-    "description": "Ten post tworzy teraz. Możesz z nim współpracować, gdy ta wiadomość zniknie."
   },
   "banners": {
     "no-ls-title": "Nie można użyć lokalnych danych",
