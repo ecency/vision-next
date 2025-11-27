@@ -407,9 +407,6 @@
     "ascending": "Ascendant",
     "descending": "Descendant"
   },
-  "selected-tags": {
-    "title": "À la une"
-  },
   "entry-list-item": {
     "cross-posted": "message croisé",
     "cross-posted-to": "à",
@@ -823,9 +820,6 @@
       "deposit": "Déposer en HAUT",
       "deposit-instructions": "Envoyez HIVE à @honey-swap avec un mémo {{memo}} pour recevoir SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "(Dés)activer le style de liste"
   },
   "entry-votes": {
     "title": "1 Vote",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "Les jetons verrouillés fournissent des liquidités au réseau, aident à déterminer le consensus, et gagnent des récompenses pour les coureurs de nœuds"
     }
   },
-  "wallet-engine": {
-    "title": "Jetons de moteur Hive",
-    "description": "Hive Engine est une plate-forme intelligente de contrats en chaîne latérale pour la blockchain Hive.",
-    "no-results": "Aucun jeton trouvé.",
-    "token": "Jeton",
-    "balance": "Solde",
-    "staked": "Abandonné"
-  },
-  "sort-engine-tokens": {
-    "sort": "Trier",
-    "sort-in-ascending": "Ascendant",
-    "sort-in-descending": "Descendant",
-    "sort-by-value": "Valeur",
-    "sort-by-balance": "Solde",
-    "sort-by-stake": "Stake",
-    "sort-by-delegations-in": "Délégations dans",
-    "sort-by-delegations-out": "Délégations dehors"
-  },
   "wallet-engine-estimated": {
     "title": "Valeur estimée des jetons",
     "description": "La valeur approximative du dollar US pour tous les jetons du moteur dans votre portefeuille."
@@ -1347,12 +1323,6 @@
     "filter-998": "Transfert sortant",
     "filter-999": "Transfert entrant"
   },
-  "purchase": {
-    "select-asset": "Sélectionner l’actif",
-    "slider-hint": "Faites glisser le curseur pour ajuster le montant.",
-    "submit": "Acheter",
-    "purchase-message": "Ou envoyez n'importe quel montant à @esteem.app avec `points` comme mémo pour acheter des Points."
-  },
   "purchase-qr": {
     "scan-code": "Scanner avec l'application mobile Ecency pour continuer",
     "select-user": "Veuillez sélectionner un utilisateur",
@@ -1370,14 +1340,6 @@
     "sub-title": "Promouvoir votre post",
     "duration": "Durée",
     "learn-more": "En savoir plus sur la promotion"
-  },
-  "boost": {
-    "title": "Booster",
-    "sub-title": "Boostez votre post",
-    "amount": "Montant",
-    "slider-hint": "Faites glisser le curseur pour ajuster le montant.",
-    "hint": "La valeur réelle du vote que vous recevez peut varier",
-    "learn-more": "En savoir plus sur le booster"
   },
   "redeem-common": {
     "balance": "Solde",
@@ -1739,11 +1701,6 @@
     "refresh": "Rafraîchir pour obtenir le statut de mise à jour",
     "video-info": "Les vidéos sont stockées et alimentées par le réseau SPK et peuvent avoir des frais de stockage et d'encodage."
   },
-  "nsfw-content": {
-    "title": "Contenu NSFW",
-    "warning": "Veuillez vérifier si votre contenu est NSFW",
-    "continue": "Continuer"
-  },
   "tag-selector": {
     "placeholder-empty": "Mots-clés. Le premier mot-clé est la catégorie principale. Triable.",
     "placeholder-focus": "Saisir un mot-clé",
@@ -1850,9 +1807,6 @@
     "header-reward": "Récompenses",
     "header-votes": "Votes",
     "header-votes-tip": "Nombre de votes sur cette période"
-  },
-  "popular-users": {
-    "title": "Utilisateurs populaires"
   },
   "discover": {
     "title": "Découvrir",
@@ -2064,19 +2018,6 @@
     "validation-label": "Veuillez cocher cette case pour continuer.",
     "updated": "Le mot de passe a été mis à jour avec succès !",
     "hint": "Pour le moment, vous pouvez générer des clés uniquement en définissant une nouvelle phrase de graine. La mise à jour de tout autre type de mot de passe n'est pas prise en charge. Il nous aide à conserver les comptes Ecency et Hive dans une norme Web 3.0."
-  },
-  "view-keys": {
-    "title": "Voir les clés privées",
-    "header": "Gérer les clés",
-    "account": "Compte",
-    "cur-pass": "Mot de passe actuel",
-    "owner": "Propriétaire",
-    "active": "Actif",
-    "posting": "Publication en cours",
-    "memo": "Mémo",
-    "view-keys": "Cliquez pour voir les clés",
-    "copied": "Clé privée copiée dans le presse-papiers",
-    "error": "Le mot de passe semble incorrect, veuillez vérifier !"
   },
   "manage-authorities": {
     "title": "Gérer les Autorités",
@@ -2521,22 +2462,6 @@
     "title": "Contributeurs",
     "description": "Ces grandes personnes ont contribué d'une manière ou d'une autre à Ecency, nous aimerions tous les remercier. Si vous voulez rejoindre notre équipe en contribuant à la traduction, aux idées, au développement, au design, à la sensibilisation sociale, n'hésitez pas à vous joindre. Pour en savoir plus, lisez notre <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Couper",
-    "copy": "Copier",
-    "paste": "Coller",
-    "open-image-browser": "Ouvrir l'image dans votre navigateur",
-    "copy-image-url": "Copier l'url de l'image"
-  },
-  "updater": {
-    "new-version-available": "Une nouvelle version est disponible",
-    "download": "Télécharger",
-    "update": "Mettre à jour",
-    "dismiss": "Ignorer",
-    "downloading": "Téléchargement de la nouvelle version...",
-    "download-completed": "Téléchargement terminé",
-    "restart": "Redémarrer"
-  },
   "chain-error": {
     "min-root-comment": "Vous ne pouvez poster qu'une seule fois toutes les cinq minutes.",
     "identical-vote": "Votre vote actuel sur ce contenu est identique à ce vote.",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "Votre adresse e-mail (facultatif)",
     "message-placeholder": "Veuillez décrire votre rapport",
     "issue-reported": "Problème signalé avec succès"
-  },
-  "entry-preview": {
-    "searching-title": "Recherche d'un message",
-    "searching-description": "Nous essayons de trouver ce post...",
-    "title": "Aperçu",
-    "description": "Ce message est en cours de création. Vous pouvez interagir avec lui quand ce message disparaîtra."
   },
   "banners": {
     "no-ls-title": "Impossible d'utiliser les données locales",
