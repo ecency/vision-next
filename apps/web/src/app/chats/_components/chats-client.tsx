@@ -256,7 +256,7 @@ export function ChatsClient() {
         <div className="rounded border border-[--border-color] bg-[--surface-color] p-4 space-y-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold">{i18next.t("chat.channels-title")}</h2>
+              <h2 className="text-lg font-semibold">{i18next.t("chat.title")}</h2>
               <p className="text-xs text-[--text-muted]">{i18next.t("chat.page-title")}</p>
             </div>
             {(isLoading || channelsLoading) && (
@@ -270,7 +270,7 @@ export function ChatsClient() {
           >
             <FormControl
               type="search"
-              placeholder={`${i18next.t("chat.search-channels")} / ${i18next.t("chat.search-user")}`}
+              placeholder={i18next.t("chat.search-channels")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
@@ -298,11 +298,8 @@ export function ChatsClient() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold">{i18next.t("chat.title")}</h3>
                   <p className="text-xs text-[--text-muted]">
-                    {hasSearchTerm
-                      ? i18next.t("chat.searching-channels")
-                      : i18next.t("chat.start-dm")}
+                    {hasSearchTerm && i18next.t("chat.searching-channels")}
                   </p>
                 </div>
                 {hasSearchTerm && channelSearchLoading && (

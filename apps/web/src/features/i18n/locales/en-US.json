@@ -2139,7 +2139,7 @@
     "select-dm": "Select someone to start a DM",
     "searching": "Searching…",
     "no-user": "No people found.",
-    "search-channels": "Search channels or DMs",
+    "search-channels": "Search channels, users or DMs",
     "channels-title": "Channels",
     "loading": "Loading…",
     "mark-as-read": "Mark as read",
