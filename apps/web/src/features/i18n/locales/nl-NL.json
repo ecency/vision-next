@@ -407,9 +407,6 @@
     "ascending": "Oplopend",
     "descending": "Aflopend"
   },
-  "selected-tags": {
-    "title": "Uitgelicht"
-  },
   "entry-list-item": {
     "cross-posted": "gedeelde post",
     "cross-posted-to": "naar",
@@ -823,9 +820,6 @@
       "deposit": "HIVE storten",
       "deposit-instructions": "Stuur HIVE naar @honey-swap met memo {{memo}} om SWAP.HIVE te ontvangen."
     }
-  },
-  "list-style": {
-    "title": "Schakelaar stijl"
   },
   "entry-votes": {
     "title": "1 Stem",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "Vergrendelde tokens bieden liquiditeit aan het netwerk, hulp bij het bepalen van consensus, en verdienen beloningen voor node runners"
     }
   },
-  "wallet-engine": {
-    "title": "Hive Engine Tokens",
-    "description": "Hive Engine is een transactie platform voor de Hive blockchain.",
-    "no-results": "Geen token gevonden.",
-    "token": "Token",
-    "balance": "Saldo",
-    "staked": "Gestaked"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sorteren",
-    "sort-in-ascending": "Oplopend",
-    "sort-in-descending": "Aflopend",
-    "sort-by-value": "Waarde",
-    "sort-by-balance": "Saldo",
-    "sort-by-stake": "Uitzetten",
-    "sort-by-delegations-in": "Delegaties in",
-    "sort-by-delegations-out": "Overdrachten uit"
-  },
   "wallet-engine-estimated": {
     "title": "Geschatte Tokens Waarde",
     "description": "De geschatte waarde voor alle engine tokens in uw portemonnee in US-dollar."
@@ -1347,12 +1323,6 @@
     "filter-998": "Uitgaande overschrijving",
     "filter-999": "Binnenkomende overschrijving"
   },
-  "purchase": {
-    "select-asset": "Selecteer bezitting",
-    "slider-hint": "Sleep de schuifregelaar om het bedrag aan te passen.",
-    "submit": "Koop",
-    "purchase-message": "Of stuur een willekeurig aantal naar @esteem.app met `points` als memo om punten te kopen."
-  },
   "purchase-qr": {
     "scan-code": "Scan met Ecency mobiele app om door te gaan",
     "select-user": "Selecteer een gebruiker",
@@ -1370,14 +1340,6 @@
     "sub-title": "Promoot je bericht",
     "duration": "Duur",
     "learn-more": "Meer informatie over promotie"
-  },
-  "boost": {
-    "title": "Versterken",
-    "sub-title": "Boost je bericht",
-    "amount": "Hoeveelheid",
-    "slider-hint": "Sleep de schuifregelaar om het bedrag aan te passen.",
-    "hint": "De werkelijke stemwaarde kan variëren",
-    "learn-more": "Meer informatie over boosten"
   },
   "redeem-common": {
     "balance": "Saldo",
@@ -1739,11 +1701,6 @@
     "refresh": "Vernieuwen voor geactualiseerde status",
     "video-info": "Video's worden opgeslagen en aangedreven door SPK netwerk, kunnen wat opslag- en codering kosten hebben."
   },
-  "nsfw-content": {
-    "title": "NSFW inhoud",
-    "warning": "Controleer dit als uw inhoud NSFW is",
-    "continue": "Doorgaan"
-  },
   "tag-selector": {
     "placeholder-empty": "Tags. Eerste tag is hoofdcategorie. Sortablet.",
     "placeholder-focus": "Voer label in",
@@ -1850,9 +1807,6 @@
     "header-reward": "Beloning",
     "header-votes": "Stemming",
     "header-votes-tip": "Aantal stemmen in deze periode"
-  },
-  "popular-users": {
-    "title": "Populaire gebruikers"
   },
   "discover": {
     "title": "Ontdek",
@@ -2064,19 +2018,6 @@
     "validation-label": "Vink dit vakje aan om verder te gaan.",
     "updated": "Wachtwoord succesvol bijgewerkt!",
     "hint": "Op dit moment kunt u sleutels alleen genereren door het instellen van een nieuwe herstelzin. Het bijwerken van een ander soort wachtwoord wordt niet ondersteund. Het helpt ons om rekeningen van Ecency en Hive in een standaard van Web 3.0 te houden."
-  },
-  "view-keys": {
-    "title": "Privésleutels bekijken",
-    "header": "Beheer sleutels",
-    "account": "Rekening",
-    "cur-pass": "Huidig wachtwoord",
-    "owner": "Eigenaar",
-    "active": "actief",
-    "posting": "Plaatsen",
-    "memo": "Notitie",
-    "view-keys": "Klik om sleutels te bekijken",
-    "copied": "Privésleutel gekopieerd naar klembord",
-    "error": "Wachtwoord lijkt onjuist, controleer het nog eens!"
   },
   "manage-authorities": {
     "title": "Autoriteiten beheren",
@@ -2521,22 +2462,6 @@
     "title": "Bijdragers",
     "description": "Deze geweldige mensen hebben op de een of andere manier bijgedragen aan de Ecentie, we willen hen allen bedanken. Als u deel wilt nemen aan ons team door deel te nemen aan Vertaling, Ideeën, Ontwikkeling, Ontwerp, sociaal bewustzijn, voel je vrij om je aan te sluiten. Voor meer informatie lees onze <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Knippen",
-    "copy": "Kopiëren",
-    "paste": "Plakken",
-    "open-image-browser": "Open afbeelding in browser",
-    "copy-image-url": "Kopieer afbeeldings-url"
-  },
-  "updater": {
-    "new-version-available": "Nieuwe versie is beschikbaar",
-    "download": "downloaden",
-    "update": "Update",
-    "dismiss": "Negeren",
-    "downloading": "Nieuwe versie aan het downloaden...",
-    "download-completed": "Download is voltooid",
-    "restart": "Opnieuw starten"
-  },
   "chain-error": {
     "min-root-comment": "Je mag maar eenmaal per vijf minuten een bericht plaatsen.",
     "identical-vote": "Uw huidige stemming over deze inhoud is identiek aan deze stemming.",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "Uw e-mail (optioneel)",
     "message-placeholder": "Beschrijf uw rapport",
     "issue-reported": "Probleem met succes gerapporteerd"
-  },
-  "entry-preview": {
-    "searching-title": "Zoek bericht",
-    "searching-description": "We proberen deze post te achterhalen...",
-    "title": "Voorvertoning",
-    "description": "Dit bericht wordt nu aangemaakt. Je kunt ermee communiceren wanneer dit bericht verdwijnt."
   },
   "banners": {
     "no-ls-title": "Kan lokale gegevens niet gebruiken",
