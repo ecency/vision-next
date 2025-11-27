@@ -407,9 +407,6 @@
     "ascending": "Ascending",
     "descending": "Descending"
   },
-  "selected-tags": {
-    "title": "Sorotan"
-  },
   "entry-list-item": {
     "cross-posted": "diposting bersilangan",
     "cross-posted-to": "ke",
@@ -823,9 +820,6 @@
       "deposit": "Deposit HIVE",
       "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "Gaya daftar kotak"
   },
   "entry-votes": {
     "title": "1 Vote",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "Locked tokens provide liquidity to the network, aid in determining consensus, and earn rewards for node runners"
     }
   },
-  "wallet-engine": {
-    "title": "Token Hive Engine",
-    "description": "Hive Engine adalah platform side-chain kontrak pintar untuk Blockchain Hive.",
-    "no-results": "Tidak ada token ditemukan.",
-    "token": "Token",
-    "balance": "Saldo",
-    "staked": "Staking"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sort",
-    "sort-in-ascending": "Ascending",
-    "sort-in-descending": "Descending",
-    "sort-by-value": "Value",
-    "sort-by-balance": "Balance",
-    "sort-by-stake": "Stake",
-    "sort-by-delegations-in": "Delegations in",
-    "sort-by-delegations-out": "Delegations out"
-  },
   "wallet-engine-estimated": {
     "title": "Estimated Tokens Value",
     "description": "The approximate US Dollar value for all engine tokens in your wallet."
@@ -1347,12 +1323,6 @@
     "filter-998": "Transfer keluar",
     "filter-999": "Transfer masuk"
   },
-  "purchase": {
-    "select-asset": "Pilih Aset",
-    "slider-hint": "Seret penggeser tersebut untuk menyesuaikan jumlahnya.",
-    "submit": "Pembelian",
-    "purchase-message": "Atau kirim jumlah berapa pun ke @esteem.app dengan `poin` sebagai memo untuk membeli Poin."
-  },
   "purchase-qr": {
     "scan-code": "Scan with Ecency mobile app to continue",
     "select-user": "Please, select an user",
@@ -1370,14 +1340,6 @@
     "sub-title": "Promosikan postingan Anda",
     "duration": "Durasi",
     "learn-more": "Learn more about promotion"
-  },
-  "boost": {
-    "title": "Naikkan",
-    "sub-title": "Naikkan postingan Anda",
-    "amount": "Jumlah",
-    "slider-hint": "Seret penggeser tersebut untuk menyesuaikan jumlahnya.",
-    "hint": "Actual value of vote you receive may vary",
-    "learn-more": "Learn more about boosting"
   },
   "redeem-common": {
     "balance": "Saldo",
@@ -1739,11 +1701,6 @@
     "refresh": "Refresh to get updated status",
     "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
   },
-  "nsfw-content": {
-    "title": "NSFW contents",
-    "warning": "Please check this if your content is NSFW",
-    "continue": "Continue"
-  },
   "tag-selector": {
     "placeholder-empty": "Tagar. Tagar pertama adalah kategori utama. Mudah disortir.",
     "placeholder-focus": "Masukkan tagar",
@@ -1850,9 +1807,6 @@
     "header-reward": "Imbalan",
     "header-votes": "Vote",
     "header-votes-tip": "Jumlah vote dalam periode ini"
-  },
-  "popular-users": {
-    "title": "Pengguna Populer"
   },
   "discover": {
     "title": "Jelajahi",
@@ -2064,19 +2018,6 @@
     "validation-label": "Centang kotak ini untuk melanjutkan.",
     "updated": "Kata Sandi berhasil diperbaharui!",
     "hint": "At this time, you can generate keys only by setting a new seed phrase. Updating to any other type of password is not supported. It helps us to keep Ecency and Hive accounts in a standards of Web 3.0."
-  },
-  "view-keys": {
-    "title": "Lihat Kunci Pribadi",
-    "header": "Manage keys",
-    "account": "Akun",
-    "cur-pass": "Password terkini",
-    "owner": "Pemilik",
-    "active": "Aktif",
-    "posting": "Postingan",
-    "memo": "Memo",
-    "view-keys": "Klik untuk melihat kunci",
-    "copied": "Kunci pribadi telah disalin",
-    "error": "Password sepertinya salah, tolong periksa kembali!"
   },
   "manage-authorities": {
     "title": "Manage Authorities",
@@ -2521,22 +2462,6 @@
     "title": "Kontributor",
     "description": "Orang-orang hebat ini berkontribusi dalam satu atau lain cara untuk Ecency, kami ingin berterima kasih kepada mereka semua. Jika Anda ingin bergabung dengan tim kami dengan berkontribusi dalam Penerjemahan, Ide, Pengembangan, Desain, Kesadaran sosial, silakan bergabung. Untuk mempelajari lebih lanjut, baca<a href=\"/faq#how-to-contribute\">FAQ kami</a>."
   },
-  "context-menu": {
-    "cut": "Potong",
-    "copy": "Salin",
-    "paste": "Tempel",
-    "open-image-browser": "Buka gambar di browser",
-    "copy-image-url": "Salin gambar url"
-  },
-  "updater": {
-    "new-version-available": "Tersedia versi terbaru",
-    "download": "Unduh",
-    "update": "Pembaruan",
-    "dismiss": "Memberhentikan",
-    "downloading": "Sedang mengunduh versi terbaru...",
-    "download-completed": "Unduhan selesai",
-    "restart": "Restart"
-  },
   "chain-error": {
     "min-root-comment": "Anda hanya dapat mempublikasikan satu konten saja setiap lima menit.",
     "identical-vote": "Voting terbaru Anda pada konten ini sudah dilakukan.",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "Your e-mail(optional)",
     "message-placeholder": "Please, describe your report",
     "issue-reported": "Issue reported successfully"
-  },
-  "entry-preview": {
-    "searching-title": "Searching post",
-    "searching-description": "We are trying to find out this post...",
-    "title": "Preview",
-    "description": "This post is creating now. You can interact with it when this message will disappear."
   },
   "banners": {
     "no-ls-title": "Unable to use local data",
