@@ -407,9 +407,6 @@
     "ascending": "O'sish bo'yicha",
     "descending": "Kamayish bo`yicha"
   },
-  "selected-tags": {
-    "title": "Tanlanganlar"
-  },
   "entry-list-item": {
     "cross-posted": "tarqatish",
     "cross-posted-to": "ga",
@@ -823,9 +820,6 @@
       "deposit": "Deposit HIVE",
       "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "Ro'yxat stilini o'zgartirish"
   },
   "entry-votes": {
     "title": "1 Ovoz",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "Qulflangan tokenlar tarmoqdagi likvidlikni ta'minlaydi, konsensusni aniqlashga yordam beradi va nodlarni boshqaradiganlarni mukofotlaydi"
     }
   },
-  "wallet-engine": {
-    "title": "Hive Engine Tokenlari",
-    "description": "Hive Engine - bu Hive blockchain uchun aqlli kontraktlar zanjiri platformasi.",
-    "no-results": "Tokenlar topilmadi.",
-    "token": "Token",
-    "balance": "Balans",
-    "staked": "Muzlatilgan"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sort",
-    "sort-in-ascending": "Ascending",
-    "sort-in-descending": "Descending",
-    "sort-by-value": "Value",
-    "sort-by-balance": "Balance",
-    "sort-by-stake": "Stake",
-    "sort-by-delegations-in": "Delegations in",
-    "sort-by-delegations-out": "Delegations out"
-  },
   "wallet-engine-estimated": {
     "title": "Estimated Tokens Value",
     "description": "The approximate US Dollar value for all engine tokens in your wallet."
@@ -1347,12 +1323,6 @@
     "filter-998": "Chiquvchi transfer",
     "filter-999": "Kiruvchi transfer"
   },
-  "purchase": {
-    "select-asset": "Aktivni Tanlang",
-    "slider-hint": "Miqdorni belgilash uchun slayderni torting.",
-    "submit": "Sotib oling",
-    "purchase-message": "Yoki Ballarni xarid qilish uchun eslatmadagi “ballar” bilan @esteem.app manziliga istalgan summani yuboring."
-  },
   "purchase-qr": {
     "scan-code": "Scan with Ecency mobile app to continue",
     "select-user": "Iltimos, foydalanuvchini tanlang",
@@ -1370,14 +1340,6 @@
     "sub-title": "Postingizni targ'ib qiling",
     "duration": "Davomiyligi",
     "learn-more": "Learn more about promotion"
-  },
-  "boost": {
-    "title": "Kuchaytirish",
-    "sub-title": "Postingizni mustahkamlang",
-    "amount": "Miqdor",
-    "slider-hint": "Miqdorni belgilash uchun slayderni torting.",
-    "hint": "Siz olgan ovozlarning haqiqiy qiymati farq qilishi mumkin",
-    "learn-more": "Learn more about boosting"
   },
   "redeem-common": {
     "balance": "Balans",
@@ -1739,11 +1701,6 @@
     "refresh": "Refresh to get updated status",
     "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
   },
-  "nsfw-content": {
-    "title": "NSFW contents",
-    "warning": "Please check this if your content is NSFW",
-    "continue": "Continue"
-  },
   "tag-selector": {
     "placeholder-empty": "Teglar. Birinchi teg asosiy toifadir. Uni saralash mumkin.",
     "placeholder-focus": "Tegni kiriting",
@@ -1850,9 +1807,6 @@
     "header-reward": "Mukofot",
     "header-votes": "Ovozlar",
     "header-votes-tip": "Shu vaqt davomidan berilgan ovozlar"
-  },
-  "popular-users": {
-    "title": "Mashhur Foydalanuvchilar"
   },
   "discover": {
     "title": "Kashf qilish",
@@ -2064,19 +2018,6 @@
     "validation-label": "Davom etish uchun ushbu katakchani belgilang.",
     "updated": "Parol muvaffaqiyatli yangilandi!",
     "hint": "At this time, you can generate keys only by setting a new seed phrase. Updating to any other type of password is not supported. It helps us to keep Ecency and Hive accounts in a standards of Web 3.0."
-  },
-  "view-keys": {
-    "title": "Shaxsiy kalitni ko'rish",
-    "header": "Kalit boshqarish",
-    "account": "Akkaunt",
-    "cur-pass": "Joriy parol",
-    "owner": "Egasi",
-    "active": "Faol",
-    "posting": "Nashr",
-    "memo": "Eslatma",
-    "view-keys": "Kalitlarni ko'rish uchun bosing",
-    "copied": "Shaxsiy kalit nusxalandi",
-    "error": "Parol noto'g'ri, qayta tekshiring!"
   },
   "manage-authorities": {
     "title": "Manage Authorities",
@@ -2521,22 +2462,6 @@
     "title": "Ishtirokchilar",
     "description": "Bu buyuk insonlar Ecencyga u yoki bu tarzda hissa qo'shgan, biz ularning barchasiga minnatdorchilik bildiramiz. Tarjima, g‘oyalar, ishlab chiqish, loyihalash, ijtimoiy xabardorlik bilan o‘z hissangizni qo‘shish orqali bizning jamoamizga qo‘shilishni istasangiz, qo‘shiling. Batafsil ma’lumot olish uchun bizning <a href=\"/faq#qanday qilib hissa qo'shish\">FAQ</a>ni o‘qing."
   },
-  "context-menu": {
-    "cut": "Kesish",
-    "copy": "Nusxalash",
-    "paste": "Kiritish",
-    "open-image-browser": "Brauzerda rasmni ochish",
-    "copy-image-url": "Rasm urlini nusxalash"
-  },
-  "updater": {
-    "new-version-available": "Yangi versiyasi mavjud",
-    "download": "Yuklash",
-    "update": "Yangilash",
-    "dismiss": "Rad etish",
-    "downloading": "Yangi versiya yuklanmoqda...",
-    "download-completed": "Yuklash yakunandi",
-    "restart": "Qayta ishga tushirish"
-  },
   "chain-error": {
     "min-root-comment": "Siz har besh daqiqada bir marta xabar yozishingiz mumkin.",
     "identical-vote": "Bu kontentdagi hozirgi ovozingiz shu ovoz bilan bir xil.",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "Your e-mail(optional)",
     "message-placeholder": "Please, describe your report",
     "issue-reported": "Issue reported successfully"
-  },
-  "entry-preview": {
-    "searching-title": "Searching post",
-    "searching-description": "We are trying to find out this post...",
-    "title": "Preview",
-    "description": "This post is creating now. You can interact with it when this message will disappear."
   },
   "banners": {
     "no-ls-title": "Unable to use local data",
