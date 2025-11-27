@@ -407,9 +407,6 @@
     "ascending": "升序",
     "descending": "降序"
   },
-  "selected-tags": {
-    "title": "精选"
-  },
   "entry-list-item": {
     "cross-posted": "转发帖子",
     "cross-posted-to": "至",
@@ -823,9 +820,6 @@
       "deposit": "存入艾滋病毒值",
       "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "切换列表样式"
   },
   "entry-votes": {
     "title": "1个投票",
@@ -1269,24 +1263,6 @@
       "larynx-locked-description": "锁定令牌为网络提供流动性，帮助确定共识，为节点运行者赚取奖励"
     }
   },
-  "wallet-engine": {
-    "title": "Hive 引擎令牌",
-    "description": "Hive 引擎是 Hive 区块链的一个智能合约侧链平台。",
-    "no-results": "未找到令牌。",
-    "token": "令牌",
-    "balance": "余额",
-    "staked": "已关注"
-  },
-  "sort-engine-tokens": {
-    "sort": "排序",
-    "sort-in-ascending": "升序",
-    "sort-in-descending": "降序",
-    "sort-by-value": "值",
-    "sort-by-balance": "余额",
-    "sort-by-stake": "拉克",
-    "sort-by-delegations-in": "代表团在",
-    "sort-by-delegations-out": "代表团退出"
-  },
   "wallet-engine-estimated": {
     "title": "估计令牌值",
     "description": "您钱包中所有引擎代币的大约美元值。"
@@ -1347,12 +1323,6 @@
     "filter-998": "转出传输",
     "filter-999": "传入传输"
   },
-  "purchase": {
-    "select-asset": "选择资产",
-    "slider-hint": "拖动滑块来调整金额。",
-    "submit": "购买",
-    "purchase-message": "或者发送任何金额到 @eseem.app 与 `points` 作为购买点数的备注。"
-  },
   "purchase-qr": {
     "scan-code": "使用 Ecency 移动应用程序扫描以继续",
     "select-user": "请选择一个用户",
@@ -1370,14 +1340,6 @@
     "sub-title": "推广您的帖子",
     "duration": "周期",
     "learn-more": "了解更多关于推广的信息"
-  },
-  "boost": {
-    "title": "推荐",
-    "sub-title": "推荐您的帖子",
-    "amount": "数量",
-    "slider-hint": "拖动滑块来调整金额。",
-    "hint": "您收到的票数的实际值可能有所变化",
-    "learn-more": "了解更多关于提升的信息"
   },
   "redeem-common": {
     "balance": "余额",
@@ -1739,11 +1701,6 @@
     "refresh": "刷新以获取更新状态",
     "video-info": "视频由SPK网络存储和供电，可能需要一些存储和编码费用。"
   },
-  "nsfw-content": {
-    "title": "NSFW内容",
-    "warning": "请检查您的内容是否为 NSFW",
-    "continue": "继续"
-  },
   "tag-selector": {
     "placeholder-empty": "标签：第一个标签是主要分类，可排序。",
     "placeholder-focus": "输入标签",
@@ -1850,9 +1807,6 @@
     "header-reward": "奖励",
     "header-votes": "票",
     "header-votes-tip": "在此期间的投票数"
-  },
-  "popular-users": {
-    "title": "受欢迎的用户"
   },
   "discover": {
     "title": "发现",
@@ -2064,19 +2018,6 @@
     "validation-label": "请勾选此框以继续。",
     "updated": "密码更新成功！",
     "hint": "此时，您只能通过设置新的种子短语生成密钥。不支持更新到任何其他类型的密码。 它有助于我们将生态和Hive 帐户保持在网页3.0 的标准中。"
-  },
-  "view-keys": {
-    "title": "查看私钥",
-    "header": "管理密钥",
-    "account": "账户",
-    "cur-pass": "当前密码",
-    "owner": "所有者",
-    "active": "活动",
-    "posting": "发送中",
-    "memo": "备注",
-    "view-keys": "点击查看密钥",
-    "copied": "私钥已复制到剪贴板",
-    "error": "密码似乎不正确，请重复检查！"
   },
   "manage-authorities": {
     "title": "管理授权",
@@ -2521,22 +2462,6 @@
     "title": "贡献者",
     "description": "这些伟大的人以这样或那样的方式为生态作出了贡献，我们要感谢他们所有人。 如果你想加入我们的团队，通过翻译、思想、发展、设计和社会意识作出贡献，请随意加入。 要了解更多信息，请阅读我们的 <a href=\"/faq#how-to-contribute\">常见问题</a>。"
   },
-  "context-menu": {
-    "cut": "剪切",
-    "copy": "复制",
-    "paste": "粘帖",
-    "open-image-browser": "在浏览器中打开图片",
-    "copy-image-url": "复制图片网址"
-  },
-  "updater": {
-    "new-version-available": "有新版本可用！",
-    "download": "下载",
-    "update": "更新",
-    "dismiss": "忽略",
-    "downloading": "正在下载新版本......",
-    "download-completed": "下载完成",
-    "restart": "重启"
-  },
   "chain-error": {
     "min-root-comment": "您只能每五分钟发布一次。",
     "identical-vote": "您当前对此内容的投票与本次投票完全相同。",
@@ -2757,12 +2682,6 @@
     "email-placeholder": "您的电子邮件(可选)",
     "message-placeholder": "请描述您的报告",
     "issue-reported": "问题报告成功"
-  },
-  "entry-preview": {
-    "searching-title": "搜索帖子",
-    "searching-description": "我们正在试图找到这个帖子...",
-    "title": "预览",
-    "description": "此帖子正在创建。当此消息将消失时，您可以与它进行交互。"
   },
   "banners": {
     "no-ls-title": "无法使用本地数据",
