@@ -263,7 +263,7 @@ export function ChatsClient() {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <div className="flex flex-col gap-3 border-b border-[--border-color] p-4">
         <div className="flex items-center justify-between gap-3">
           <div>

@@ -18,7 +18,7 @@ import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import { FormControl, InputGroup } from "@ui/input";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
+import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg, upArrowSvg } from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
 import { Popover, PopoverContent } from "@ui/popover";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
@@ -157,6 +157,13 @@ export function MattermostChannelView({ channelId }: Props) {
   const reactMutation = useMattermostReactToPost(channelId);
   const updateMutation = useMattermostUpdatePost(channelId);
   const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
+  const submitLabel = editingPost
+    ? updateMutation.isPending
+      ? "Saving…"
+      : "Save"
+    : sendMutation.isLoading
+      ? "Sending…"
+      : "Send";
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
@@ -717,7 +724,7 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <div className="flex flex-1 flex-col gap-4 pb-28 md:pb-4 min-h-0">
         <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
           <div className="flex items-center justify-between gap-3">
@@ -980,7 +987,7 @@ export function MattermostChannelView({ channelId }: Props) {
       </div>
 
       <form
-        className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-[--surface-color] px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:static md:inset-auto md:bottom-auto md:border-0 md:bg-transparent md:px-0 md:py-0 md:shadow-none"
+        className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-[--surface-color] px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-[--surface-color] md:px-4 md:py-3 md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
         onSubmit={(e) => {
           e.preventDefault();
           const trimmedMessage = normalizeMessageEmojis(message.trim());
@@ -1128,6 +1135,20 @@ export function MattermostChannelView({ channelId }: Props) {
                   onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
                 />
               }
+              append={
+                <Button
+                  type="submit"
+                  size="md"
+                  appearance="primary"
+                  className="h-full rounded-none px-3"
+                  disabled={isSubmitting}
+                  aria-label={submitLabel}
+                  title={submitLabel}
+                >
+                  <span className="sr-only">{submitLabel}</span>
+                  {upArrowSvg}
+                </Button>
+              }
               className="items-stretch"
               onClick={() => messageInputRef.current?.focus()}
             >
@@ -1176,17 +1197,6 @@ export function MattermostChannelView({ channelId }: Props) {
               </div>
             </div>
           )}
-        </div>
-        <div className="w-full max-w-4xl mx-auto flex justify-end">
-          <Button type="submit" size="md" disabled={isSubmitting}>
-            {editingPost
-              ? updateMutation.isPending
-                ? "Saving…"
-                : "Save"
-              : sendMutation.isLoading
-                ? "Sending…"
-                : "Send"}
-          </Button>
         </div>
       </form>
     </div>
