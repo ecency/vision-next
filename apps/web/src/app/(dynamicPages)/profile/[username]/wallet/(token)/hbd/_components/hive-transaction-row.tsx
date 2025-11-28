@@ -1,4 +1,4 @@
-import { cashCoinSvg, ticketSvg } from "@/assets/img/svg";
+import { cashCoinSvg, ticketSvg, reOrderHorizontalSvg, exchangeSvg } from "@/assets/img/svg";
 import { Transaction } from "@/entities";
 import { Tsx } from "@/features/i18n/helper";
 import { EntryLink, ProfileLink, UserAvatar } from "@/features/shared";
@@ -119,58 +119,85 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       aam = `${t.amount} ${t.symbol}`;
     }
     numbers = <span className="number">{aam}</span>;
-  } else if (tr.type === "comment_reward") {
+  } else if (tr.type === "proposal_pay") {
+    icon = ticketSvg;
+    const payment = parseAsset(tr.payment);
+    numbers = <span className="number">{formattedNumber(payment.amount, { suffix: payment.symbol })}</span>;
+    details = (
+      <div className="space-y-1">
+        <div className="text-sm">
+          <span className="text-gray-600 dark:text-gray-400">Receiver: </span>
+          <ProfileLink username={tr.receiver}>
+            <Badge className="inline-flex items-center gap-1 text-sm">
+              <UserAvatar username={tr.receiver} size="small" />
+              <span>{tr.receiver}</span>
+            </Badge>
+          </ProfileLink>
+        </div>
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          Proposal #{tr.proposal_id}
+        </div>
+      </div>
+    );
+  } else if (tr.type === "transfer_from_savings") {
+    icon = <UilArrowRight className="w-4 h-4" />;
+    details = (
+      <div className="space-y-2">
+        <TransferParticipants from={tr.from} to={tr.to} />
+        {tr.memo ? (
+          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+        ) : null}
+      </div>
+    );
+    numbers = <span className="number">{tr.amount}</span>;
+  } else if (tr.type === "cancel_transfer_from_savings") {
+    icon = ticketSvg;
+    details = (
+      <Tsx k="transactions.type-cancel_transfer_from_savings-detail" args={{ from: tr.from }}>
+        <span />
+      </Tsx>
+    );
+  } else if (tr.type === "fill_order") {
+    icon = reOrderHorizontalSvg;
+    numbers = (
+      <span className="number">
+        {tr.current_pays} = {tr.open_pays}
+      </span>
+    );
+  } else if (tr.type === "limit_order_create" || tr.type === "limit_order_create2") {
+    icon = reOrderHorizontalSvg;
+    numbers = (
+      <span className="number">
+        {tr.amount_to_sell} = {tr.min_to_receive}
+      </span>
+    );
+  } else if (tr.type === "limit_order_cancel") {
+    icon = reOrderHorizontalSvg;
+    details = (
+      <span>
+        <strong>Order ID: {tr.orderid}</strong>
+      </span>
+    );
+  } else if (tr.type === "fill_convert_request") {
+    icon = exchangeSvg;
+    numbers = (
+      <span className="number">
+        {tr.amount_in} = {tr.amount_out}
+      </span>
+    );
+  } else if (tr.type === "fill_collateralized_convert_request") {
+    icon = exchangeSvg;
+    details = (
+      <Tsx
+        k="transactions.type-fill_collateralized_convert-detail"
+        args={{ request: tr.requestid, returned: tr.excess_collateral }}
+      >
+        <span />
+      </Tsx>
+    );
+  } else if (tr.type === "interest") {
     icon = cashCoinSvg;
-
-    const payout = parseAsset(tr.payout);
-
-    numbers = (
-      <>
-        {payout.amount > 0 && (
-          <span className="number">{formattedNumber(payout.amount, { suffix: "HBD" })}</span>
-        )}
-      </>
-    );
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
-  } else if (tr.type === "effective_comment_vote") {
-    const payout = parseAsset(tr.pending_payout);
-
-    numbers = (
-      <>
-        {payout.amount > 0 && (
-          <span className="number">{formattedNumber(payout.amount, { suffix: "HBD" })}</span>
-        )}
-      </>
-    );
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
+    numbers = <span className="number">{tr.interest}</span>;
   } else {
     flag = false;
   }

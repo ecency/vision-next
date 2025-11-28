@@ -4,6 +4,7 @@ import {
   AuthorReward,
   ClaimRewardBalance,
   HiveOperationFilter,
+  HiveOperationName,
   HiveTransaction,
 } from "../types";
 import {
@@ -43,12 +44,24 @@ export function getHbdAssetTransactionsQueryOptions(
             case "recurrent_transfer":
               return parseAsset(item.amount).symbol === "HBD";
 
+            case "transfer_from_savings" as HiveOperationName:
+              return parseAsset((item as any).amount).symbol === "HBD";
+
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["HBD"].includes(asset.symbol);
 
-            case "comment_reward":
-            case "effective_comment_vote":
+            case "cancel_transfer_from_savings":
+            case "fill_order":
+            case "limit_order_create":
+            case "limit_order_cancel":
+            case "fill_convert_request":
+            case "fill_collateralized_convert_request":
+            case "proposal_pay":
+            case "interest":
+              return true;
+
+            case "limit_order_create2" as HiveOperationName:
               return true;
             default:
               return false;

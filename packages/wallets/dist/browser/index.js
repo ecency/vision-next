@@ -1020,6 +1020,8 @@ function getHiveAssetTransactionsQueryOptions(username, limit = 20, filters = []
             case "transfer_to_vesting":
             case "recurrent_transfer":
               return parseAsset(item.amount).symbol === "HIVE";
+            case "transfer_from_savings":
+              return parseAsset(item.amount).symbol === "HIVE";
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["HIVE"].includes(asset.symbol);
@@ -1028,18 +1030,15 @@ function getHiveAssetTransactionsQueryOptions(username, limit = 20, filters = []
                 item.reward_hive
               );
               return rewardHive.amount > 0;
+            case "curation_reward":
             case "cancel_transfer_from_savings":
             case "fill_order":
             case "limit_order_create":
             case "limit_order_cancel":
-            case "interest":
             case "fill_convert_request":
             case "fill_collateralized_convert_request":
-            case "proposal_pay":
-            case "update_proposal_votes":
-            case "comment_payout_update":
-            case "collateralized_convert":
-            case "account_witness_proxy":
+              return true;
+            case "limit_order_create2":
               return true;
             default:
               return false;
@@ -1051,6 +1050,10 @@ function getHiveAssetTransactionsQueryOptions(username, limit = 20, filters = []
 }
 function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
   const { filterKey } = resolveHiveOperationFilters(filters);
+  const userSelectedOperations = new Set(
+    Array.isArray(filters) ? filters : [filters]
+  );
+  const hasAllFilter = userSelectedOperations.has("") || userSelectedOperations.size === 0;
   return infiniteQueryOptions({
     ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
     queryKey: [
@@ -1097,7 +1100,7 @@ function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, filters
             case "set_withdraw_vesting_route":
               return true;
             default:
-              return false;
+              return hasAllFilter || userSelectedOperations.has(item.type);
           }
         })
       )
@@ -1128,11 +1131,21 @@ function getHbdAssetTransactionsQueryOptions(username, limit = 20, filters = [])
             case "transfer_to_vesting":
             case "recurrent_transfer":
               return parseAsset(item.amount).symbol === "HBD";
+            case "transfer_from_savings":
+              return parseAsset(item.amount).symbol === "HBD";
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["HBD"].includes(asset.symbol);
-            case "comment_reward":
-            case "effective_comment_vote":
+            case "cancel_transfer_from_savings":
+            case "fill_order":
+            case "limit_order_create":
+            case "limit_order_cancel":
+            case "fill_convert_request":
+            case "fill_collateralized_convert_request":
+            case "proposal_pay":
+            case "interest":
+              return true;
+            case "limit_order_create2":
               return true;
             default:
               return false;

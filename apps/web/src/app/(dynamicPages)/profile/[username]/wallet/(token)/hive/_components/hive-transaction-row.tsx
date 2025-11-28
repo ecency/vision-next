@@ -85,10 +85,36 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
         </span>
       </EntryLink>
     );
+  } else if (tr.type === "curation_reward") {
+    icon = cashCoinSvg;
+    const reward = parseAsset(tr.reward);
+    numbers = (
+      <>
+        {reward.amount > 0 && (
+          <span className="number">{formattedNumber(reward.amount, { suffix: reward.symbol })}</span>
+        )}
+      </>
+    );
+
+    details = (
+      <EntryLink
+        entry={{
+          category: "history",
+          author: tr.comment_author,
+          permlink: tr.comment_permlink
+        }}
+      >
+        <span>
+          {"@"}
+          {tr.comment_author}/{tr.comment_permlink}
+        </span>
+      </EntryLink>
+    );
   } else if (
     tr.type === "transfer" ||
     tr.type === "transfer_to_vesting" ||
-    tr.type === "transfer_to_savings"
+    tr.type === "transfer_to_savings" ||
+    tr.type === "transfer_from_savings"
   ) {
     flag = true;
     icon = <UilArrowRight className="w-4 h-4" />;
@@ -158,7 +184,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
         {tr.current_pays} = {tr.open_pays}
       </span>
     );
-  } else if (tr.type === "limit_order_create") {
+  } else if (tr.type === "limit_order_create" || tr.type === "limit_order_create2") {
     icon = reOrderHorizontalSvg;
 
     numbers = (
