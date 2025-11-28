@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useMount } from "react-use";
 import {
-  DEFAULT_HIVE_OPERATION_FILTERS,
+  HIVE_TOKEN_OPERATION_FILTERS,
   HiveOperationFilterSelect,
   ProfileWalletTokenHistoryCard,
 } from "../_components";
@@ -25,7 +25,7 @@ export function HivePage() {
   const { username } = useParams();
 
   const [filters, setFilters] = useState<HiveOperationFilterValue[]>(
-    DEFAULT_HIVE_OPERATION_FILTERS
+    HIVE_TOKEN_OPERATION_FILTERS
   );
 
   const { data, refetch, isFetching, status } = useInfiniteQuery(

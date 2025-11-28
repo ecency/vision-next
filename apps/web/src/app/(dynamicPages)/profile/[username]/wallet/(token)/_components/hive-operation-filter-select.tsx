@@ -1,55 +1,66 @@
 "use client";
 
 import { Button } from "@/features/ui";
-import {
-  HIVE_ACCOUNT_OPERATION_GROUPS,
-  HIVE_OPERATION_LIST,
-  HIVE_OPERATION_NAME_BY_ID,
-} from "@ecency/wallets";
-import type {
-  HiveOperationFilterValue,
-  HiveOperationGroup,
-} from "@ecency/wallets";
+import { HIVE_OPERATION_LIST } from "@ecency/wallets";
+import type { HiveOperationFilterValue } from "@ecency/wallets";
 import { Dropdown, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { closeSvg } from "@ui/svg";
 import { clsx } from "clsx";
 import i18next from "i18next";
 import { useCallback, useMemo } from "react";
 
-export const DEFAULT_HIVE_OPERATION_GROUPS: HiveOperationGroup[] = [
-  "rewards",
-  "transfers",
-  "stake-operations",
-  "market-orders",
-  "interests",
+export const HIVE_TOKEN_OPERATION_FILTERS: HiveOperationFilterValue[] = [
+  "transfer",
+  "transfer_to_savings",
+  "transfer_from_savings",
+  "transfer_to_vesting",
+  "recurrent_transfer",
+  "fill_recurrent_transfer",
+  "cancel_transfer_from_savings",
+  "fill_order",
+  "limit_order_create",
+  "limit_order_create2",
+  "limit_order_cancel",
+  "fill_convert_request",
+  "fill_collateralized_convert_request",
+  "author_reward",
+  "claim_reward_balance",
+  "comment_benefactor_reward",
 ];
 
-function resolveGroupOperations(
-  groups: HiveOperationGroup[]
-): HiveOperationFilterValue[] {
-  const operations = new Set<HiveOperationFilterValue>();
+export const HBD_TOKEN_OPERATION_FILTERS: HiveOperationFilterValue[] = [
+  "transfer",
+  "transfer_to_savings",
+  "transfer_from_savings",
+  "recurrent_transfer",
+  "fill_recurrent_transfer",
+  "cancel_transfer_from_savings",
+  "fill_order",
+  "limit_order_create",
+  "limit_order_create2",
+  "limit_order_cancel",
+  "fill_convert_request",
+  "fill_collateralized_convert_request",
+  "author_reward",
+  "comment_benefactor_reward",
+  "claim_reward_balance",
+  "proposal_pay",
+  "interest",
+];
 
-  groups.forEach((group) => {
-    const operationIds = HIVE_ACCOUNT_OPERATION_GROUPS[group];
-
-    if (!operationIds) {
-      return;
-    }
-
-    operationIds.forEach((id) => {
-      const name = HIVE_OPERATION_NAME_BY_ID[id];
-
-      if (name) {
-        operations.add(name);
-      }
-    });
-  });
-
-  return Array.from(operations);
-}
-
-export const DEFAULT_HIVE_OPERATION_FILTERS: HiveOperationFilterValue[] =
-  resolveGroupOperations(DEFAULT_HIVE_OPERATION_GROUPS);
+export const HP_TOKEN_OPERATION_FILTERS: HiveOperationFilterValue[] = [
+  "transfer_to_vesting",
+  "withdraw_vesting",
+  "fill_vesting_withdraw",
+  "delegate_vesting_shares",
+  "return_vesting_delegation",
+  "set_withdraw_vesting_route",
+  "author_reward",
+  "curation_reward",
+  "claim_reward_balance",
+  "comment_benefactor_reward",
+  "producer_reward",
+];
 
 function formatOperationLabel(operation: string) {
   return operation
@@ -61,7 +72,6 @@ function formatOperationLabel(operation: string) {
 interface Props {
   selected: HiveOperationFilterValue[];
   onChange: (value: HiveOperationFilterValue[]) => void;
-  groups?: HiveOperationGroup[];
 }
 
 type FilterOption = {
@@ -69,31 +79,8 @@ type FilterOption = {
   label: string;
 };
 
-export function HiveOperationFilterSelect({
-  selected,
-  onChange,
-  groups = DEFAULT_HIVE_OPERATION_GROUPS,
-}: Props) {
+export function HiveOperationFilterSelect({ selected, onChange }: Props) {
   const language = i18next.language;
-
-  const normalizedGroups = useMemo(
-    () =>
-      groups.filter(
-        (group): group is HiveOperationGroup =>
-          group !== "" && group in HIVE_ACCOUNT_OPERATION_GROUPS
-      ),
-    [groups]
-  );
-
-  const groupLabelLookup = useMemo(() => {
-    const map = new Map<HiveOperationFilterValue, string>();
-
-    normalizedGroups.forEach((value) => {
-      map.set(value, i18next.t(`transactions.group-${value}`));
-    });
-
-    return map;
-  }, [normalizedGroups, language]);
 
   const operationOptions = useMemo<FilterOption[]>(
     () =>
@@ -108,14 +95,11 @@ export function HiveOperationFilterSelect({
 
   const optionLookup = useMemo(() => {
     const map = new Map<HiveOperationFilterValue, string>();
-    groupLabelLookup.forEach((label, value) => {
-      map.set(value, label);
-    });
     operationOptions.forEach(({ value, label }) => {
       map.set(value, label);
     });
     return map;
-  }, [groupLabelLookup, operationOptions]);
+  }, [operationOptions]);
 
   const handleToggle = useCallback(
     (value: HiveOperationFilterValue) => {
