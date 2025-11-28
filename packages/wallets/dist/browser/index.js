@@ -1050,6 +1050,10 @@ function getHiveAssetTransactionsQueryOptions(username, limit = 20, filters = []
 }
 function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
   const { filterKey } = resolveHiveOperationFilters(filters);
+  const userSelectedOperations = new Set(
+    Array.isArray(filters) ? filters : [filters]
+  );
+  const hasAllFilter = userSelectedOperations.has("") || userSelectedOperations.size === 0;
   return infiniteQueryOptions({
     ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
     queryKey: [
@@ -1096,7 +1100,7 @@ function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, filters
             case "set_withdraw_vesting_route":
               return true;
             default:
-              return false;
+              return hasAllFilter || userSelectedOperations.has(item.type);
           }
         })
       )

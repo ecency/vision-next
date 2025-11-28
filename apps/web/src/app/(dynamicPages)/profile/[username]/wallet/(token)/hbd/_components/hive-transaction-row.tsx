@@ -119,58 +119,6 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       aam = `${t.amount} ${t.symbol}`;
     }
     numbers = <span className="number">{aam}</span>;
-  } else if (tr.type === "comment_reward") {
-    icon = cashCoinSvg;
-
-    const payout = parseAsset(tr.payout);
-
-    numbers = (
-      <>
-        {payout.amount > 0 && (
-          <span className="number">{formattedNumber(payout.amount, { suffix: "HBD" })}</span>
-        )}
-      </>
-    );
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
-  } else if (tr.type === "effective_comment_vote") {
-    const payout = parseAsset(tr.pending_payout);
-
-    numbers = (
-      <>
-        {payout.amount > 0 && (
-          <span className="number">{formattedNumber(payout.amount, { suffix: "HBD" })}</span>
-        )}
-      </>
-    );
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
   } else if (tr.type === "proposal_pay") {
     icon = ticketSvg;
     const payment = parseAsset(tr.payment);
