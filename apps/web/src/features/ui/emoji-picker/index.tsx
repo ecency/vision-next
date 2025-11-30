@@ -5,6 +5,7 @@ import useMountedState from "react-use/lib/useMountedState";
 import "./_index.scss";
 import { v4 } from "uuid";
 import Picker from "@emoji-mart/react";
+import emojiData from "@emoji-mart/data";
 import useClickAway from "react-use/lib/useClickAway";
 import { useGlobalStore } from "@/core/global-store";
 import { classNameObject } from "@ui/util";
@@ -46,20 +47,20 @@ export function EmojiPicker({ anchor, onSelect, position = "bottom", isDisabled 
       let top: number;
       let left: number;
 
-      // Base left so picker is roughly centered on the button
-      const desiredLeft = rect.left + rect.width / 2 - PICKER_ESTIMATED_WIDTH / 2;
+      // Align the picker to the right edge of the trigger button for a tighter visual connection
+      const desiredLeft = rect.right - PICKER_ESTIMATED_WIDTH;
 
       if (position === "top") {
         // Put picker above the anchor
-        top = rect.top + window.scrollY - PICKER_ESTIMATED_HEIGHT - 8;
+        top = rect.top - PICKER_ESTIMATED_HEIGHT - 8;
       } else {
         // Put picker below the anchor
-        top = rect.bottom + window.scrollY + 8;
+        top = rect.bottom + 8;
       }
 
       // Clamp top so it stays on screen
-      const minTop = window.scrollY + 8;
-      const maxTop = window.scrollY + window.innerHeight - PICKER_ESTIMATED_HEIGHT - 8;
+      const minTop = 8;
+      const maxTop = window.innerHeight - PICKER_ESTIMATED_HEIGHT - 8;
       top = Math.max(minTop, Math.min(top, maxTop));
 
       // Clamp left so it stays on screen
@@ -97,6 +98,7 @@ export function EmojiPicker({ anchor, onSelect, position = "bottom", isDisabled 
       }}
     >
       <Picker
+        data={emojiData}
         dynamicWidth={true}
         onEmojiSelect={(e: { native: string }) => {
           if (isDisabled) {
@@ -106,7 +108,8 @@ export function EmojiPicker({ anchor, onSelect, position = "bottom", isDisabled 
           setShow(false);
         }}
         previewPosition="none"
-        set="apple"
+        // Render native emoji glyphs so we don't depend on sprite sheets that may not load
+        set="native"
         theme={theme === "day" ? "light" : "dark"}
       />
     </div>

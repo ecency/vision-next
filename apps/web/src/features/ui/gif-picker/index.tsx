@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useCallback, useRef, useState } from "react";
+import React, { MutableRefObject, useCallback, useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import { SearchBox } from "@/features/shared";
 import Image from "next/image";
@@ -31,7 +31,8 @@ interface Props {
 }
 
 export function GifPicker(props: Props) {
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const internalRootRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = props.rootRef ?? internalRootRef;
   const targetRef = useRef<HTMLInputElement | null>(null);
 
   const [filter, setFilter] = useState("");
@@ -61,6 +62,15 @@ export function GifPicker(props: Props) {
     [dataFlow, props]
   );
 
+  const mergedStyle = useMemo(
+    () => ({
+      position: "fixed" as const,
+      right: "auto",
+      ...props.style
+    }),
+    [props.style]
+  );
+
   return (
     <div
       ref={rootRef}
@@ -68,7 +78,7 @@ export function GifPicker(props: Props) {
         "gif-picker": true,
         "emoji-picker gif": !props.pureStyle
       })}
-      style={props.style}
+      style={mergedStyle}
     >
       <SearchBox
         autoComplete="off"

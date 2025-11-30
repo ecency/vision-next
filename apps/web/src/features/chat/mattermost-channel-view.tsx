@@ -33,8 +33,7 @@ import {
   blogSvg,
   deleteForeverSvg,
   dotsHorizontal,
-  mailSvg,
-  upArrowSvg
+  mailSvg
 } from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
 import { Popover, PopoverContent } from "@ui/popover";
@@ -49,6 +48,10 @@ import emojiData from "@emoji-mart/data";
 import { SearchIndex, init as initEmojiMart } from "emoji-mart";
 import { EmojiPicker } from "@ui/emoji-picker";
 import { GifPicker } from "@ui/gif-picker";
+import DOMPurify from "dompurify";
+import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
+import { Element, Text } from "domhandler";
+import { marked } from "marked";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const MATTERMOST_SHORTCODE_REGEX = /:([a-zA-Z0-9_+-]+):/g;
@@ -179,17 +182,10 @@ export function MattermostChannelView({ channelId }: Props) {
   const reactMutation = useMattermostReactToPost(channelId);
   const updateMutation = useMattermostUpdatePost(channelId);
   const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
-  const submitLabel =
-    editingPost
-      ? updateMutation.isPending
-        ? "Saving…"
-        : "Save"
-      : sendMutation.isLoading
-        ? "Sending…"
-        : "Send";
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
-    const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
-    const gifButtonRef = useRef<HTMLButtonElement | null>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
+  const gifButtonRef = useRef<HTMLButtonElement | null>(null);
+  const gifPickerRef = useRef<HTMLDivElement | null>(null);
 
     type GifStyle = {
       width: string;
@@ -205,6 +201,16 @@ export function MattermostChannelView({ channelId }: Props) {
     const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
+  const markdownParser = useMemo(() => {
+    marked.setOptions({
+      gfm: true,
+      breaks: true,
+      headerIds: false,
+      mangle: false
+    });
+
+    return (content: string) => (marked.parse(content) as string) || "";
+  }, []);
   const postsById = useMemo(() => {
     return posts.reduce<Map<string, MattermostPost>>((acc, post) => {
       acc.set(post.id, post);
@@ -249,6 +255,22 @@ export function MattermostChannelView({ channelId }: Props) {
       }
     });
   }, [channelId, data?.channel?.id, data?.member?.last_viewed_at, markViewedMutation]);
+
+  useEffect(() => {
+    if (!showGifPicker) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const targetNode = event.target as Node | null;
+
+      if (gifPickerRef.current?.contains(targetNode)) return;
+      if (gifButtonRef.current?.contains(targetNode as Node)) return;
+
+      setShowGifPicker(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [showGifPicker]);
 
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -521,53 +543,20 @@ export function MattermostChannelView({ channelId }: Props) {
     );
   };
 
-  const renderMessageContent = (text: string) => {
+  const renderTextWithMentions = (content: string) => {
     const mentionMatcher = new RegExp(USER_MENTION_PURE_REGEX.source, "i");
-    const tokens = text.split(
-      /(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+|https?:\/\/\S+)/
+    const parts = content.split(
+      /(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+)/
     );
 
-    return tokens
-      .filter((token) => token !== "")
-      .map((token, idx) => {
-        if (/^https?:\/\//.test(token)) {
-          if (isImageUrl(token)) {
-            const previewUrl = getProxiedImageUrl(token);
-            return (
-              <a
-                key={`${token}-${idx}`}
-                href={token}
-                target="_blank"
-                rel="noreferrer"
-                className="block"
-              >
-                <img
-                  src={previewUrl}
-                  alt="Shared image"
-                  className="max-h-80 rounded border border-[--border-color] object-contain"
-                />
-              </a>
-            );
-          }
-
-          return (
-            <a
-              key={`${token}-${idx}`}
-              href={token}
-              target="_blank"
-              rel="noreferrer"
-              className="text-blue-500 underline break-all"
-            >
-              {token}
-            </a>
-          );
-        }
-
-        if (mentionMatcher.test(token)) {
-          const username = token.slice(1);
+    return parts
+      .filter((part) => part !== "")
+      .map((part, idx) => {
+        if (mentionMatcher.test(part)) {
+          const username = part.slice(1);
           return (
             <MentionToken
-              key={`${token}-${idx}`}
+              key={`${part}-${idx}`}
               username={username}
               user={usersByUsername[username.toLowerCase()]}
               currentUsername={activeUser?.username}
@@ -576,8 +565,61 @@ export function MattermostChannelView({ channelId }: Props) {
           );
         }
 
-        return <span key={idx}>{token}</span>;
+        return <span key={`${part}-${idx}`}>{part}</span>;
       });
+  };
+
+  const renderMessageContent = (text: string) => {
+    const sanitized = DOMPurify.sanitize(markdownParser(text), {
+      ADD_ATTR: ["target", "rel"]
+    });
+
+    const parseOptions: HTMLReactParserOptions = {
+      replace(domNode) {
+        if (domNode.type === "text") {
+          return <>{renderTextWithMentions((domNode as Text).data || "")}</>;
+        }
+
+        if (domNode instanceof Element) {
+          if (domNode.name === "img") {
+            const src = domNode.attribs?.src || "";
+            const alt = domNode.attribs?.alt || "Shared image";
+            const proxied = isImageUrl(src) ? getProxiedImageUrl(src) : src;
+
+            return (
+              <img
+                src={proxied}
+                alt={alt}
+                className="max-h-80 rounded border border-[--border-color] object-contain"
+              />
+            );
+          }
+
+          if (domNode.name === "a") {
+            const href = domNode.attribs?.href || "";
+            const children = domToReact(domNode.children ?? [], parseOptions);
+            const containsImage = (domNode.children || []).some(
+              (child) => child instanceof Element && child.name === "img"
+            );
+
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className={containsImage ? "block" : "text-blue-500 underline break-all"}
+              >
+                {children}
+              </a>
+            );
+          }
+        }
+
+        return undefined;
+      }
+    };
+
+    return htmlParse(sanitized, parseOptions);
   };
 
   const getAvatarUrl = (user?: MattermostUser) => {
@@ -708,6 +750,68 @@ export function MattermostChannelView({ channelId }: Props) {
     updateEmojiState(value, cursor);
 
     autoResize();
+  };
+
+  const submitMessage = () => {
+    if (isSubmitting) return;
+
+    const trimmedMessage = normalizeMessageEmojis(message.trim());
+    if (!trimmedMessage) return;
+
+    setMessageError(null);
+
+    if (editingPost) {
+      updateMutation.mutate(
+        { postId: editingPost.id, message: trimmedMessage },
+        {
+          onError: (err) => {
+            setMessageError((err as Error)?.message || "Unable to update message");
+          },
+          onSuccess: () => {
+            setMessage("");
+            setMentionQuery("");
+            setMentionStart(null);
+            setEmojiQuery("");
+            setEmojiStart(null);
+            setEditingPost(null);
+            requestAnimationFrame(() => {
+              const container = scrollContainerRef.current;
+              if (container) {
+                container.scrollTop = container.scrollHeight;
+              }
+            });
+            markChannelRead();
+          }
+        }
+      );
+      return;
+    }
+
+    const rootId = replyingTo?.root_id || replyingTo?.id || null;
+
+    sendMutation.mutate(
+      { message: trimmedMessage, rootId },
+      {
+        onError: (err) => {
+          setMessageError((err as Error)?.message || "Unable to send message");
+        },
+        onSuccess: () => {
+          setMessage("");
+          setMentionQuery("");
+          setMentionStart(null);
+          setEmojiQuery("");
+          setEmojiStart(null);
+          setReplyingTo(null);
+          requestAnimationFrame(() => {
+            const container = scrollContainerRef.current;
+            if (container) {
+              container.scrollTop = container.scrollHeight;
+            }
+          });
+          markChannelRead();
+        }
+      }
+    );
   };
 
   const applyEmoji = (shortcode: string) => {
@@ -1157,67 +1261,7 @@ export function MattermostChannelView({ channelId }: Props) {
         className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-white md:px-4 md:py-3 md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
         onSubmit={(e) => {
           e.preventDefault();
-          const trimmedMessage = normalizeMessageEmojis(message.trim());
-          if (!trimmedMessage) return;
-
-          setMessageError(null);
-
-          if (editingPost) {
-            updateMutation.mutate(
-              { postId: editingPost.id, message: trimmedMessage },
-              {
-                onError: (err) => {
-                  setMessageError(
-                    (err as Error)?.message || "Unable to update message"
-                  );
-                },
-                onSuccess: () => {
-                  setMessage("");
-                  setMentionQuery("");
-                  setMentionStart(null);
-                  setEmojiQuery("");
-                  setEmojiStart(null);
-                  setEditingPost(null);
-                  requestAnimationFrame(() => {
-                    const container = scrollContainerRef.current;
-                    if (container) {
-                      container.scrollTop = container.scrollHeight;
-                    }
-                  });
-                  markChannelRead();
-                }
-              }
-            );
-            return;
-          }
-
-          const rootId = replyingTo?.root_id || replyingTo?.id || null;
-
-          sendMutation.mutate(
-            { message: trimmedMessage, rootId },
-            {
-              onError: (err) => {
-                setMessageError(
-                  (err as Error)?.message || "Unable to send message"
-                );
-              },
-              onSuccess: () => {
-                setMessage("");
-                setMentionQuery("");
-                setMentionStart(null);
-                setEmojiQuery("");
-                setEmojiStart(null);
-                setReplyingTo(null);
-                requestAnimationFrame(() => {
-                  const container = scrollContainerRef.current;
-                  if (container) {
-                    container.scrollTop = container.scrollHeight;
-                  }
-                });
-                markChannelRead();
-              }
-            }
-          );
+          submitMessage();
         }}
       >
         <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto">
@@ -1321,7 +1365,6 @@ export function MattermostChannelView({ channelId }: Props) {
               )}
               onClick={() => messageInputRef.current?.focus()}
             >
-              {/* Left icons: image + emoji + GIF */}
               <div className="flex items-center gap-1">
                 <ImageUploadButton
                   size="md"
@@ -1332,7 +1375,60 @@ export function MattermostChannelView({ channelId }: Props) {
                   aria-label="Attach image"
                   title="Attach image"
                 />
+              </div>
 
+              {/* Textarea */}
+              <div className="flex-1 min-w-0">
+                <textarea
+                  ref={messageInputRef}
+                  rows={1}
+                  value={message}
+                  onChange={handleMessageChange}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                      e.preventDefault();
+
+                      const target = e.currentTarget;
+                      const selectionStart = target.selectionStart ?? message.length;
+                      const selectionEnd = target.selectionEnd ?? selectionStart;
+
+                      setMessage((prev) => {
+                        const nextValue =
+                          prev.slice(0, selectionStart) + "\n" + prev.slice(selectionEnd);
+
+                        requestAnimationFrame(() => {
+                          target.setSelectionRange(selectionStart + 1, selectionStart + 1);
+                        });
+
+                        return nextValue;
+                      });
+
+                      return;
+                    }
+
+                    if (
+                      e.key === "Enter" &&
+                      !e.shiftKey &&
+                      !e.nativeEvent.isComposing &&
+                      !e.ctrlKey &&
+                      !e.metaKey
+                    ) {
+                      e.preventDefault();
+                      submitMessage();
+                    }
+                  }}
+                  placeholder="Write a message"
+                  className={clsx(
+                    "block w-full resize-none bg-transparent",
+                    "text-sm md:text-base leading-[1.4]",
+                    "py-1.5", // vertical padding to center text visually
+                    "outline-none border-none",
+                    "placeholder:text-[--text-muted]"
+                  )}
+                />
+              </div>
+
+              <div className="flex items-center gap-1">
                 <Button
                   ref={emojiButtonRef}
                   type="button"
@@ -1359,17 +1455,21 @@ export function MattermostChannelView({ channelId }: Props) {
                     if (gifButtonRef.current) {
                       const rect = gifButtonRef.current.getBoundingClientRect();
 
-                      // Distance from button’s top to viewport bottom -> picker sits just above the button
-                      const bottomPx = window.innerHeight - rect.top + 8; // 8px gap
+                      const minMargin = 8;
+                      const desiredWidth = 430;
+                      const pickerWidth = Math.min(
+                        desiredWidth,
+                        Math.max(260, window.innerWidth - minMargin * 2)
+                      );
 
-                      // Try to align the picker’s right edge with the button’s right edge
-                      const pickerWidth = 320;
+                      // Distance from button’s bottom to viewport bottom -> picker sits just above the button
+                      const bottomPx = window.innerHeight - rect.bottom + minMargin;
+
+                      // Align picker’s right edge with the trigger while clamping on screen
                       const rawLeft = rect.right - pickerWidth;
-
-                      // Clamp left so it doesn’t go off-screen
                       const leftPx = Math.min(
-                        Math.max(8, rawLeft), // at least 8px from left
-                        window.innerWidth - pickerWidth - 8 // at most 8px from right
+                        Math.max(minMargin, rawLeft),
+                        window.innerWidth - pickerWidth - minMargin
                       );
 
                       setGifPickerStyle({
@@ -1387,43 +1487,6 @@ export function MattermostChannelView({ channelId }: Props) {
                   }}
                 >
                   GIF
-                </Button>
-              </div>
-
-              {/* Textarea */}
-              <div className="flex-1 min-w-0">
-                <textarea
-                  ref={messageInputRef}
-                  rows={1}
-                  value={message}
-                  onChange={handleMessageChange}
-                  placeholder="Write a message"
-                  className={clsx(
-                    "block w-full resize-none bg-transparent",
-                    "text-sm md:text-base leading-[1.4]",
-                    "py-1.5", // vertical padding to center text visually
-                    "outline-none border-none",
-                    "placeholder:text-[--text-muted]"
-                  )}
-                />
-              </div>
-
-              {/* Send button */}
-              <div className="flex items-center">
-                <Button
-                  type="submit"
-                  size="sm"
-                  appearance={message.trim() && !isSubmitting ? "primary" : "gray-link"}
-                  className={clsx(
-                    "rounded-full !px-2 !py-1",
-                    (!message.trim() || isSubmitting) && "opacity-60 cursor-not-allowed"
-                  )}
-                  disabled={!message.trim() || isSubmitting}
-                  aria-label={submitLabel}
-                  title={submitLabel}
-                >
-                  <span className="sr-only">{submitLabel}</span>
-                  {upArrowSvg}
                 </Button>
               </div>
             </div>
@@ -1490,14 +1553,15 @@ export function MattermostChannelView({ channelId }: Props) {
         }}
       />
       {showGifPicker && gifPickerStyle && (
-          <GifPicker
-            shGif={showGifPicker}
-            changeState={(state) => setShowGifPicker(state ?? false)}
-            fallback={(gifUrl) => {
-              setMessage((prev) => (prev ? `${prev}\n${gifUrl}` : gifUrl));
-            }}
-            style={gifPickerStyle}
-          />
+        <GifPicker
+          rootRef={gifPickerRef}
+          shGif={showGifPicker}
+          changeState={(state) => setShowGifPicker(state ?? false)}
+          fallback={(gifUrl) => {
+            setMessage((prev) => (prev ? `${prev}\n${gifUrl}` : gifUrl));
+          }}
+          style={gifPickerStyle}
+        />
       )}
       {/* highlight animation */}
       <style>{`
