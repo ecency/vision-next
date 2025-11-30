@@ -62,3 +62,23 @@ export const makeShareUrlDiscord = (
   const u = makeEcencyUrl(cat, author, permlink);
   return `https://discord.com/channels/@me?title=${encodeURIComponent(title)}&url=${encodeURIComponent(u)}`;
 };
+
+export const makeShareUrlChats = (
+  cat: string,
+  author: string,
+  permlink: string,
+  title: string
+): string => {
+  const u = makeEcencyUrl(cat, author, permlink);
+  return `${defaults.chatBase}?text=${encodeURIComponent(`${title} - ${u}`)}`;
+};
+
+export const makeShareUrlWaves = (
+  cat: string,
+  author: string,
+  permlink: string,
+  title: string
+): string => {
+  const u = makeEcencyUrl(cat, author, permlink);
+  return `${defaults.base}/waves?text=${encodeURIComponent(`${title} - ${u}`)}`;
+};
