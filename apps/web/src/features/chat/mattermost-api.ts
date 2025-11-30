@@ -230,6 +230,54 @@ export function useMattermostMessageSearch(term: string, enabled: boolean) {
   });
 }
 
+export function useMattermostAdminBanUser() {
+  return useMutation({
+    mutationFn: async ({
+      username,
+      hours
+    }: {
+      username: string;
+      hours: number | string | null | undefined;
+    }) => {
+      const res = await fetch(`/api/mattermost/admin/users/${encodeURIComponent(username)}/ban`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hours })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to update ban");
+      }
+
+      return (await res.json()) as { bannedUntil: number | null };
+    }
+  });
+}
+
+export function useMattermostAdminDeleteUserPosts() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (username: string) => {
+      const res = await fetch(`/api/mattermost/admin/users/${encodeURIComponent(username)}/posts`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to delete posts");
+      }
+
+      return (await res.json()) as { deleted: number };
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] });
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+    }
+  });
+}
+
 export function useMattermostUnread(enabled: boolean) {
   return useQuery({
     queryKey: ["mattermost-unread"],

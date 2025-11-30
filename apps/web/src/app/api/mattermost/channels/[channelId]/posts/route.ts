@@ -7,7 +7,9 @@ import {
   handleMattermostError,
   MattermostChannel,
   getMattermostTokenFromCookies,
-  mmUserFetch
+  mmUserFetch,
+  isUserChatBanned,
+  CHAT_BAN_PROP
 } from "@/server/mattermost";
 
 const USER_MENTION_REGEX = /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
@@ -99,6 +101,24 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
     const rootId = (body.rootId as string | null | undefined) || null;
     if (!message) {
       return NextResponse.json({ error: "message required" }, { status: 400 });
+    }
+
+    const currentUser = await mmUserFetch<{ id: string; username: string; props?: Record<string, string> }>(
+      `/users/me`,
+      token
+    );
+
+    const bannedUntil = isUserChatBanned(currentUser);
+
+    if (bannedUntil) {
+      return NextResponse.json(
+        {
+          error: `@${currentUser.username} is banned from chat until ${new Date(Number(bannedUntil)).toISOString()}`,
+          bannedUntil,
+          prop: CHAT_BAN_PROP
+        },
+        { status: 403 }
+      );
     }
 
     const mentionedUsers = Array.from(

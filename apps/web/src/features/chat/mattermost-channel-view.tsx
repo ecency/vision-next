@@ -19,8 +19,11 @@ import {
   useMattermostUserSearch,
   useMattermostMarkChannelViewed,
   useMattermostReactToPost,
-  useMattermostUpdatePost
+  useMattermostUpdatePost,
+  useMattermostAdminBanUser,
+  useMattermostAdminDeleteUserPosts
 } from "./mattermost-api";
+import { useChatAdminStore } from "./chat-admin-store";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import {
@@ -170,6 +173,11 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const activeUser = useClientActiveUser();
+  const isEcencyAdmin = activeUser?.username?.toLowerCase() === "ecency";
+  const [adminUsername, setAdminUsername] = useState("");
+  const [banHours, setBanHours] = useState("24");
+  const [adminMessage, setAdminMessage] = useState<string | null>(null);
+  const [adminError, setAdminError] = useState<string | null>(null);
   const { data: channels } = useMattermostChannels(Boolean(channelId));
   const directChannelMutation = useMattermostDirectChannel();
   const router = useRouter();
@@ -182,11 +190,14 @@ export function MattermostChannelView({ channelId }: Props) {
   const hasFocusedPostRef = useRef(false);
   const reactMutation = useMattermostReactToPost(channelId);
   const updateMutation = useMattermostUpdatePost(channelId);
+  const banUserMutation = useMattermostAdminBanUser();
+  const deleteUserPostsMutation = useMattermostAdminDeleteUserPosts();
   const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
   const gifButtonRef = useRef<HTMLButtonElement | null>(null);
   const gifPickerRef = useRef<HTMLDivElement | null>(null);
+  const showAdminTools = useChatAdminStore((state) => state.showAdminTools);
 
     type GifStyle = {
       width: string;
@@ -248,6 +259,10 @@ export function MattermostChannelView({ channelId }: Props) {
   const mentionSearch = useMattermostUserSearch(
     mentionQuery,
     Boolean(isPublicChannel && mentionQuery.length >= 2)
+  );
+  const adminUserSearch = useMattermostUserSearch(
+    adminUsername,
+    Boolean(isEcencyAdmin && adminUsername.trim().length >= 2)
   );
   const effectiveLastViewedAt = optimisticLastViewedAt ?? data?.member?.last_viewed_at ?? 0;
   const firstUnreadIndex = useMemo(() => {
@@ -912,6 +927,76 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
+  const handleBanUser = (hoursOverride?: number | null) => {
+    if (!isEcencyAdmin) return;
+
+    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
+    const hoursValue = hoursOverride ?? Number(banHours);
+
+    if (!normalizedUsername) {
+      setAdminError("Enter a username to manage");
+      setAdminMessage(null);
+      return;
+    }
+
+    if (Number.isNaN(hoursValue) || hoursValue < 0) {
+      setAdminError("Ban hours must be zero or a positive number");
+      setAdminMessage(null);
+      return;
+    }
+
+    setAdminError(null);
+    setAdminMessage(null);
+
+    banUserMutation.mutate(
+      { username: normalizedUsername, hours: hoursValue },
+      {
+        onSuccess: ({ bannedUntil }) => {
+          if (hoursValue === 0 || bannedUntil === null) {
+            setAdminMessage(`Lifted chat ban for @${normalizedUsername}`);
+          } else {
+            setAdminMessage(
+              `@${normalizedUsername} banned until ${new Date(Number(bannedUntil)).toLocaleString()}`
+            );
+          }
+        },
+        onError: (err) => {
+          setAdminError((err as Error)?.message || "Unable to update ban");
+        }
+      }
+    );
+  };
+
+  const handleDeleteAllPosts = () => {
+    if (!isEcencyAdmin) return;
+
+    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
+    if (!normalizedUsername) {
+      setAdminError("Enter a username to manage");
+      setAdminMessage(null);
+      return;
+    }
+
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`Delete all posts by @${normalizedUsername} across chat channels?`)
+    ) {
+      return;
+    }
+
+    setAdminError(null);
+    setAdminMessage(null);
+
+    deleteUserPostsMutation.mutate(normalizedUsername, {
+      onSuccess: ({ deleted }) => {
+        setAdminMessage(`Deleted ${deleted} post${deleted === 1 ? "" : "s"} from @${normalizedUsername}`);
+      },
+      onError: (err) => {
+        setAdminError((err as Error)?.message || "Unable to delete posts");
+      }
+    });
+  };
+
   const toggleReaction = useCallback(
     (post: MattermostPost, emoji: string, closePicker = false) => {
       const emojiName = toMattermostEmojiName(emoji);
@@ -1005,6 +1090,102 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           </div>
         </div>
+
+        {isEcencyAdmin && showAdminTools && (
+          <div className="mt-3 space-y-3 rounded border border-[--border-color] bg-[--surface-color] p-4">
+            <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="text-sm font-semibold">Chat admin tools</div>
+                <div className="text-xs text-[--text-muted]">
+                  Ban users or delete their posts across channels as @ecency.
+                </div>
+              </div>
+              <div className="flex flex-col gap-1 text-xs md:items-end">
+                {adminMessage && <div className="text-green-600">{adminMessage}</div>}
+                {adminError && <div className="text-red-500">{adminError}</div>}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 md:flex-row md:items-end">
+              <div className="flex w-full flex-col gap-1 md:w-1/3">
+                <label className="text-xs font-semibold text-[--text-muted]" htmlFor="admin-username">
+                  Target username
+                </label>
+                <input
+                  id="admin-username"
+                  className="w-full rounded-lg border border-[--border-color] bg-white px-3 py-2 text-sm focus:border-blue-dark-sky focus:outline-none"
+                  placeholder="exampleuser"
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                />
+                {adminUserSearch.data?.users?.length ? (
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-[--text-muted]">
+                    <span>Suggestions:</span>
+                    {adminUserSearch.data.users.slice(0, 5).map((user) => (
+                      <button
+                        key={user.id}
+                        type="button"
+                        className="rounded-full border border-[--border-color] px-2 py-1 hover:border-blue-dark-sky hover:text-blue-dark-sky"
+                        onClick={() => setAdminUsername(user.username || "")}
+                      >
+                        @{user.username}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="flex flex-col gap-1 md:w-48">
+                <label className="text-xs font-semibold text-[--text-muted]" htmlFor="ban-hours">
+                  Ban duration (hours)
+                </label>
+                <input
+                  id="ban-hours"
+                  type="number"
+                  min={0}
+                  className="w-full rounded-lg border border-[--border-color] bg-white px-3 py-2 text-sm focus:border-blue-dark-sky focus:outline-none"
+                  value={banHours}
+                  onChange={(e) => setBanHours(e.target.value)}
+                />
+                <div className="text-[11px] text-[--text-muted]">Use 0 to lift a ban</div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 md:ml-auto">
+                <Button
+                  appearance="primary"
+                  onClick={() => handleBanUser()}
+                  isLoading={banUserMutation.isPending}
+                  disabled={banUserMutation.isPending}
+                >
+                  Apply ban
+                </Button>
+                <Button
+                  appearance="secondary"
+                  outline
+                  onClick={() => handleBanUser(0)}
+                  isLoading={banUserMutation.isPending}
+                  disabled={banUserMutation.isPending}
+                >
+                  Lift ban
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                appearance="danger"
+                onClick={handleDeleteAllPosts}
+                isLoading={deleteUserPostsMutation.isPending}
+                disabled={deleteUserPostsMutation.isPending}
+              >
+                Delete all posts by user
+              </Button>
+              <div className="text-[11px] text-[--text-muted]">
+                Removes every chat message from the user across channels.
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Messages list */}
         <div

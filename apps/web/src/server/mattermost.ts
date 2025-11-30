@@ -7,11 +7,16 @@ const MATTERMOST_BASE_URL = process.env.MATTERMOST_BASE_URL;
 const MATTERMOST_ADMIN_TOKEN = process.env.MATTERMOST_ADMIN_TOKEN;
 const MATTERMOST_TEAM_ID = process.env.MATTERMOST_TEAM_ID;
 const MATTERMOST_TOKEN_COOKIE = "mm_pat";
+export const CHAT_BAN_PROP = "ecency_chat_banned_until";
 
 export interface MattermostUser {
   id: string;
   username: string;
   email: string;
+}
+
+export interface MattermostUserWithProps extends MattermostUser {
+  props?: Record<string, string>;
 }
 
 export interface MattermostChannel {
@@ -171,6 +176,12 @@ export async function findMattermostUser(username: string): Promise<MattermostUs
   }
 }
 
+export async function getMattermostUserWithProps(userId: string): Promise<MattermostUserWithProps> {
+  return await mmFetch<MattermostUserWithProps>(`/users/${userId}`, {
+    headers: getAdminHeaders()
+  });
+}
+
 async function getExistingToken(userId: string): Promise<string | null> {
   try {
     const tokens = await mmFetch<{ id: string; token: string; description: string }[]>(
@@ -303,4 +314,96 @@ export async function deleteMattermostPostAsAdmin(postId: string) {
     method: "DELETE",
     headers: getAdminHeaders()
   });
+}
+
+export function isUserChatBanned(user: Pick<MattermostUserWithProps, "props">) {
+  const bannedUntil = user.props?.[CHAT_BAN_PROP];
+  const expiration = Number(bannedUntil);
+
+  if (!bannedUntil || Number.isNaN(expiration)) {
+    return null;
+  }
+
+  if (expiration <= Date.now()) {
+    return null;
+  }
+
+  return expiration;
+}
+
+async function searchMattermostPostsByUserAsAdmin(username: string, page: number, perPage: number) {
+  const teamId = getMattermostTeamId();
+
+  return mmFetch<{ order: string[]; posts: Record<string, any> }>(`/teams/${teamId}/posts/search`, {
+    method: "POST",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({
+      terms: `from:${username}`,
+      is_or_search: false,
+      include_deleted_channels: true,
+      per_page: perPage,
+      page
+    })
+  });
+}
+
+export async function deleteMattermostPostsByUserAsAdmin(username: string) {
+  const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
+  const targetUser = await findMattermostUser(normalizedUsername);
+
+  if (!targetUser) {
+    throw new MattermostError(`User @${normalizedUsername} not found`, 404);
+  }
+
+  const perPage = 200;
+  let deleted = 0;
+
+  // Continue searching from the first page until no more posts remain for the target user.
+  while (true) {
+    const { order, posts } = await searchMattermostPostsByUserAsAdmin(targetUser.username, 0, perPage);
+    const postsToDelete = (order || []).map((id) => posts[id]).filter(Boolean);
+
+    if (!postsToDelete.length) {
+      break;
+    }
+
+    for (const post of postsToDelete) {
+      await deleteMattermostPostAsAdmin(post.id);
+      deleted += 1;
+    }
+  }
+
+  return { deleted, user: targetUser } as const;
+}
+
+export async function banMattermostUserForHoursAsAdmin(username: string, hours: number) {
+  if (Number.isNaN(hours) || !Number.isFinite(hours)) {
+    throw new MattermostError("hours must be a finite number", 400);
+  }
+
+  const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
+  const targetUser = await findMattermostUser(normalizedUsername);
+
+  if (!targetUser) {
+    throw new MattermostError(`User @${normalizedUsername} not found`, 404);
+  }
+
+  const adminUser = await getMattermostUserWithProps(targetUser.id);
+  const props = { ...(adminUser.props || {}) };
+
+  const expiration = hours > 0 ? Date.now() + hours * 60 * 60 * 1000 : null;
+
+  if (expiration) {
+    props[CHAT_BAN_PROP] = String(expiration);
+  } else {
+    delete props[CHAT_BAN_PROP];
+  }
+
+  await mmFetch(`/users/${adminUser.id}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+
+  return { user: targetUser, bannedUntil: expiration } as const;
 }
