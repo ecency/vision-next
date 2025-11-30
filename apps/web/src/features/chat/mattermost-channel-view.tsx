@@ -1,6 +1,13 @@
 "use client";
 
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import {
   useMattermostPosts,
   useMattermostSendMessage,
@@ -16,9 +23,19 @@ import {
 } from "./mattermost-api";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
-import { FormControl, InputGroup } from "@ui/input";
-import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg, upArrowSvg } from "@ui/svg";
+import {
+  Dropdown,
+  DropdownItemWithIcon,
+  DropdownMenu,
+  DropdownToggle
+} from "@ui/dropdown";
+import {
+  blogSvg,
+  deleteForeverSvg,
+  dotsHorizontal,
+  mailSvg,
+  upArrowSvg
+} from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
 import { Popover, PopoverContent } from "@ui/popover";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
@@ -30,6 +47,8 @@ import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/use
 import clsx from "clsx";
 import emojiData from "@emoji-mart/data";
 import { SearchIndex, init as initEmojiMart } from "emoji-mart";
+import { EmojiPicker } from "@ui/emoji-picker";
+import { GifPicker } from "@ui/gif-picker";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const MATTERMOST_SHORTCODE_REGEX = /:([a-zA-Z0-9_+-]+):/g;
@@ -134,6 +153,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const [emojiStart, setEmojiStart] = useState<number | null>(null);
   const [emojiSuggestions, setEmojiSuggestions] = useState<EmojiSuggestion[]>([]);
   const [isEmojiSearchLoading, setIsEmojiSearchLoading] = useState(false);
+
   const sendMutation = useMattermostSendMessage(channelId);
   const deleteMutation = useMattermostDeletePost(channelId);
   const [moderationError, setModerationError] = useState<string | null>(null);
@@ -141,7 +161,9 @@ export function MattermostChannelView({ channelId }: Props) {
   const [replyingTo, setReplyingTo] = useState<MattermostPost | null>(null);
   const [editingPost, setEditingPost] = useState<MattermostPost | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
+
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
+
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const activeUser = useClientActiveUser();
   const { data: channels } = useMattermostChannels(Boolean(channelId));
@@ -157,14 +179,30 @@ export function MattermostChannelView({ channelId }: Props) {
   const reactMutation = useMattermostReactToPost(channelId);
   const updateMutation = useMattermostUpdatePost(channelId);
   const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
-  const submitLabel = editingPost
-    ? updateMutation.isPending
-      ? "Saving…"
-      : "Save"
-    : sendMutation.isLoading
-      ? "Sending…"
-      : "Send";
+  const submitLabel =
+    editingPost
+      ? updateMutation.isPending
+        ? "Saving…"
+        : "Save"
+      : sendMutation.isLoading
+        ? "Sending…"
+        : "Send";
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
+    const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
+    const gifButtonRef = useRef<HTMLButtonElement | null>(null);
+
+    type GifStyle = {
+      width: string;
+      bottom: string;
+      left: number;
+      marginLeft: string;
+      borderTopLeftRadius: string;
+      borderTopRightRadius: string;
+      borderBottomLeftRadius: string;
+    };
+
+    const [showGifPicker, setShowGifPicker] = useState(false);
+    const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
 
   const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
   const postsById = useMemo(() => {
@@ -185,11 +223,13 @@ export function MattermostChannelView({ channelId }: Props) {
   }, [usersById]);
 
   const isPublicChannel = data?.channel?.type === "O";
-  const mentionSearch = useMattermostUserSearch(mentionQuery, Boolean(isPublicChannel && mentionQuery.length >= 2));
+  const mentionSearch = useMattermostUserSearch(
+    mentionQuery,
+    Boolean(isPublicChannel && mentionQuery.length >= 2)
+  );
   const effectiveLastViewedAt = optimisticLastViewedAt ?? data?.member?.last_viewed_at ?? 0;
   const firstUnreadIndex = useMemo(() => {
     if (!posts.length) return -1;
-
     return posts.findIndex((post) => post.create_at > effectiveLastViewedAt);
   }, [effectiveLastViewedAt, posts]);
   const showUnreadDivider = firstUnreadIndex !== -1;
@@ -214,7 +254,8 @@ export function MattermostChannelView({ channelId }: Props) {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
     if (distanceFromBottom < 120) {
       markChannelRead();
     }
@@ -242,12 +283,15 @@ export function MattermostChannelView({ channelId }: Props) {
       const container = scrollContainerRef.current;
       if (!container) return;
 
-      const target = container.querySelector<HTMLDivElement>(`[data-post-id="${postId}"]`);
+      const target = container.querySelector<HTMLDivElement>(
+        `[data-post-id="${postId}"]`
+      );
       if (!target) return;
 
       const containerRect = container.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
-      const offset = targetRect.top - containerRect.top + container.scrollTop - 12;
+      const offset =
+        targetRect.top - containerRect.top + container.scrollTop - 12;
       const behavior = options?.behavior ?? "smooth";
 
       container.scrollTo({ top: offset, behavior });
@@ -267,19 +311,24 @@ export function MattermostChannelView({ channelId }: Props) {
     if (!posts.some((post) => post.id === focusedPostId)) return;
 
     hasFocusedPostRef.current = true;
-    requestAnimationFrame(() => scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" }));
+    requestAnimationFrame(() =>
+      scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" })
+    );
   }, [focusedPostId, posts, scrollToPost]);
 
   useEffect(() => {
     if (hasFocusedPostRef.current || hasAutoScrolledRef.current) return;
     if (!posts.length) return;
 
-    const targetIndex = firstUnreadIndex !== -1 ? Math.max(0, firstUnreadIndex - 1) : posts.length - 1;
+    const targetIndex =
+      firstUnreadIndex !== -1 ? Math.max(0, firstUnreadIndex - 1) : posts.length - 1;
     const targetId = posts[targetIndex]?.id;
     if (!targetId) return;
 
     hasAutoScrolledRef.current = true;
-    requestAnimationFrame(() => scrollToPost(targetId, { highlight: false, behavior: "auto" }));
+    requestAnimationFrame(() =>
+      scrollToPost(targetId, { highlight: false, behavior: "auto" })
+    );
   }, [firstUnreadIndex, posts, scrollToPost]);
 
   const timestampFormatter = useMemo(
@@ -293,7 +342,11 @@ export function MattermostChannelView({ channelId }: Props) {
     []
   );
 
-  const formatTimestamp = useCallback((value: number) => timestampFormatter.format(new Date(value)), [timestampFormatter]);
+  const formatTimestamp = useCallback(
+    (value: number) => timestampFormatter.format(new Date(value)),
+    [timestampFormatter]
+  );
+
   const getUserDisplayName = useCallback((user?: MattermostUser) => {
     if (!user) return undefined;
 
@@ -316,7 +369,9 @@ export function MattermostChannelView({ channelId }: Props) {
     const isDirect = data?.channel?.type === "D" || directChannelFromList?.type === "D";
     if (!isDirect) return null;
 
-    const participantIds = (data?.channel?.name || directChannelFromList?.name || "").split("__");
+    const participantIds = (data?.channel?.name || directChannelFromList?.name || "").split(
+      "__"
+    );
     const participants = participantIds
       .map((id) => usersById[id])
       .filter(Boolean);
@@ -329,7 +384,13 @@ export function MattermostChannelView({ channelId }: Props) {
       participants[0] ||
       null
     );
-  }, [activeUser?.username, data?.channel?.name, data?.channel?.type, directChannelFromList, usersById]);
+  }, [
+    activeUser?.username,
+    data?.channel?.name,
+    data?.channel?.type,
+    directChannelFromList,
+    usersById
+  ]);
 
   const channelTitle = useMemo(() => {
     if (directChannelUser) {
@@ -344,18 +405,30 @@ export function MattermostChannelView({ channelId }: Props) {
       directChannelFromList?.name ||
       "Chat"
     );
-  }, [data?.channel?.display_name, data?.channel?.name, directChannelFromList?.display_name, directChannelFromList?.name, directChannelUser, getUserDisplayName]);
+  }, [
+    data?.channel?.display_name,
+    data?.channel?.name,
+    directChannelFromList?.display_name,
+    directChannelFromList?.name,
+    directChannelUser,
+    getUserDisplayName
+  ]);
 
   const channelSubtitle = useMemo(() => {
-    const isDirectChannel = data?.channel?.type === "D" || directChannelFromList?.type === "D";
+    const isDirectChannel =
+      data?.channel?.type === "D" || directChannelFromList?.type === "D";
     if (isDirectChannel) {
       if (directChannelUser?.username) return `@${directChannelUser.username}`;
-
       return "Direct message";
     }
 
     return data?.community ? `${data.community} channel` : "Channel";
-  }, [data?.channel?.type, data?.community, directChannelFromList?.type, directChannelUser?.username]);
+  }, [
+    data?.channel?.type,
+    data?.community,
+    directChannelFromList?.type,
+    directChannelUser?.username
+  ]);
 
   useEffect(() => {
     handleScroll();
@@ -382,7 +455,9 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     const fallbackUsername =
-      (post.props?.override_username as string | undefined) || post.props?.username || post.props?.addedUsername;
+      (post.props?.override_username as string | undefined) ||
+      post.props?.username ||
+      post.props?.addedUsername;
     if (fallbackUsername) return fallbackUsername;
 
     return post.user_id || "Unknown user";
@@ -411,7 +486,9 @@ export function MattermostChannelView({ channelId }: Props) {
       if (addedUser) {
         if (addedUser.username) return `@${addedUser.username}`;
 
-        const fullName = [addedUser.first_name, addedUser.last_name].filter(Boolean).join(" ");
+        const fullName = [addedUser.first_name, addedUser.last_name]
+          .filter(Boolean)
+          .join(" ");
         if (fullName) return fullName;
 
         if (addedUser.nickname) return addedUser.nickname;
@@ -419,7 +496,8 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     const addedUsername = (post.props?.addedUsername as string | undefined) || undefined;
-    if (addedUsername) return addedUsername.startsWith("@") ? addedUsername : `@${addedUsername}`;
+    if (addedUsername)
+      return addedUsername.startsWith("@") ? addedUsername : `@${addedUsername}`;
 
     return undefined;
   };
@@ -445,7 +523,9 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const renderMessageContent = (text: string) => {
     const mentionMatcher = new RegExp(USER_MENTION_PURE_REGEX.source, "i");
-    const tokens = text.split(/(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+|https?:\/\/\S+)/g);
+    const tokens = text.split(
+      /(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+|https?:\/\/\S+)/
+    );
 
     return tokens
       .filter((token) => token !== "")
@@ -514,9 +594,27 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
+  // auto-resize for textarea
+  const autoResize = useCallback(() => {
+    const el = messageInputRef.current;
+    if (!el) return;
+
+    el.style.height = "0px";
+    const scroll = el.scrollHeight;
+    const maxHeight = 200;
+
+    el.style.height = Math.min(scroll, maxHeight) + "px";
+    el.style.overflowY = scroll > maxHeight ? "auto" : "hidden";
+  }, []);
+
   useEffect(() => {
     ensureEmojiDataReady();
   }, []);
+
+  // auto-resize on message change
+  useEffect(() => {
+    autoResize();
+  }, [message, autoResize]);
 
   const updateMentionState = useCallback(
     (value: string, cursor: number) => {
@@ -608,6 +706,8 @@ export function MattermostChannelView({ channelId }: Props) {
     const cursor = e.target.selectionStart ?? value.length;
     updateMentionState(value, cursor);
     updateEmojiState(value, cursor);
+
+    autoResize();
   };
 
   const applyEmoji = (shortcode: string) => {
@@ -620,7 +720,8 @@ export function MattermostChannelView({ channelId }: Props) {
       const afterStart = emojiStart + (emojiQuery?.length || 0) + 1;
       const after = prev.slice(afterStart);
       const insertion = `:${shortcode}:`;
-      const spacer = after.startsWith(" ") || after.startsWith("\n") || after === "" ? "" : " ";
+      const spacer =
+        after.startsWith(" ") || after.startsWith("\n") || after === "" ? "" : " ";
       const next = `${before}${insertion}${spacer}${after}`;
       const nextCursor = before.length + insertion.length + spacer.length;
 
@@ -647,7 +748,8 @@ export function MattermostChannelView({ channelId }: Props) {
       const before = prev.slice(0, mentionStart);
       const afterStart = mentionStart + (mentionQuery?.length || 0) + 1;
       const after = prev.slice(afterStart);
-      const spacer = after.startsWith(" ") || after.startsWith("\n") || after === "" ? "" : " ";
+      const spacer =
+        after.startsWith(" ") || after.startsWith("\n") || after === "" ? "" : " ";
       return `${before}@${username}${spacer}${after}`;
     });
     setMentionQuery("");
@@ -673,18 +775,23 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
-    const toggleReaction = useCallback(
-      (post: MattermostPost, emoji: string, closePicker = false) => {
-        const emojiName = toMattermostEmojiName(emoji);
+  const toggleReaction = useCallback(
+    (post: MattermostPost, emoji: string, closePicker = false) => {
+      const emojiName = toMattermostEmojiName(emoji);
 
       if (!emojiName || !data?.member?.user_id) return;
 
       const reactions = post.metadata?.reactions ?? [];
       const hasReacted = reactions.some(
-        (reaction) => reaction.emoji_name === emojiName && reaction.user_id === data.member?.user_id
+        (reaction) =>
+          reaction.emoji_name === emojiName && reaction.user_id === data.member?.user_id
       );
 
-      reactMutation.mutate({ postId: post.id, emoji: emojiName, add: !hasReacted });
+      reactMutation.mutate({
+        postId: post.id,
+        emoji: emojiName,
+        add: !hasReacted
+      });
 
       if (closePicker) {
         setOpenReactionPostId((current) => (current === post.id ? null : current));
@@ -723,347 +830,346 @@ export function MattermostChannelView({ channelId }: Props) {
     [updateEmojiState, updateMentionState]
   );
 
-    return (
-      <div className="flex h-full min-h-0 flex-col">
-        <div className="flex flex-1 flex-col gap-0 md:pb-0 min-h-0">
-          {/* Header with title, subtitle and X on mobile */}
-          <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
-            <div className="flex items-center justify-between gap-3">
-              {/* Left: title + subtitle */}
-              <div className="flex flex-col min-w-0">
-                <div className="truncate text-lg font-semibold">{channelTitle}</div>
-                <div className="truncate text-xs text-[--text-muted]">{channelSubtitle}</div>
-              </div>
-
-              {/* Right side: last viewed + X (mobile only) */}
-              <div className="flex items-center gap-3 shrink-0">
-                {effectiveLastViewedAt > 0 && (
-                  <div
-                    className="hidden md:block text-[11px] text-[--text-muted]"
-                    title={new Date(effectiveLastViewedAt).toLocaleString()}
-                  >
-                    Last viewed {formatTimestamp(effectiveLastViewedAt)}
-                  </div>
-                )}
-
-                {/* X button – visible only on mobile */}
-                <button
-                  type="button"
-                  onClick={() => router.push("/chats")}
-                  className="md:hidden text-[--text-muted] hover:text-[--text-color] p-1"
-                  aria-label="Close chat"
-                  title="Back to chats"
-                >
-                  ✕
-                </button>
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex flex-1 flex-col gap-0 md:pb-0 min-h-0">
+        {/* Header with title, subtitle and X on mobile */}
+        <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
+          <div className="flex items-center justify-between gap-3">
+            {/* Left: title + subtitle */}
+            <div className="flex flex-col min-w-0">
+              <div className="truncate text-lg font-semibold">{channelTitle}</div>
+              <div className="truncate text-xs text-[--text-muted]">
+                {channelSubtitle}
               </div>
             </div>
-          </div>
 
-          {/* Messages list */}
-          <div
-            ref={scrollContainerRef}
-            onScroll={handleScroll}
-            className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
-          >
-            {isLoading && <div className="text-sm text-[--text-muted]">Loading messages…</div>}
-            {error && (
-              <div className="text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>
-            )}
-            {moderationError && <div className="text-sm text-red-500">{moderationError}</div>}
-            {!isLoading && !posts.length && (
-              <div className="text-sm text-[--text-muted]">No messages yet. Say hello!</div>
-            )}
-            <div className="space-y-3">
-              {posts.map((post, index) => (
-                <div key={post.id} className="space-y-3" data-post-id={post.id}>
-                  {showUnreadDivider && index === firstUnreadIndex && (
-                    <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
-                      <div className="flex-1 border-t border-[--border-color]" />
-                      <span>New</span>
-                      <div className="flex-1 border-t border-[--border-color]" />
-                    </div>
-                  )}
-                  <div className="flex gap-3 group relative">
-                    {post.type === "system_add_to_channel" ? (
-                      <div className="w-full flex justify-center">
-                        <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
-                          {renderMessageContent(getDisplayMessage(post))}
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="h-10 w-10 flex-shrink-0">
-                          {(() => {
-                            const user = usersById[post.user_id];
-                            const displayName = getDisplayName(post);
-                            const username = getUsername(post);
-                            const avatarUrl = getAvatarUrl(user);
-
-                            if (username) {
-                              return <UserAvatar username={username} size="medium" className="h-10 w-10" />;
-                            }
-
-                            if (avatarUrl) {
-                              return (
-                                <img
-                                  src={avatarUrl}
-                                  alt={`${displayName} avatar`}
-                                  className="h-10 w-10 rounded-full object-cover"
-                                />
-                              );
-                            }
-
-                            return (
-                              <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
-                                {displayName.charAt(0).toUpperCase()}
-                              </div>
-                            );
-                          })()}
-                        </div>
-
-                        <div className="flex flex-col gap-1 w-full">
-                          <div className="flex items-center gap-2 text-xs text-[--text-muted]">
-                            {(() => {
-                              const username = getUsername(post);
-                              const displayName = getDisplayName(post);
-
-                              if (username) {
-                                return (
-                                  <UsernameActions
-                                    username={username}
-                                    displayName={displayName}
-                                    currentUsername={activeUser?.username}
-                                    onStartDm={startDirectMessage}
-                                  />
-                                );
-                              }
-
-                              return <span>{displayName}</span>;
-                            })()}
-                            <span
-                              className="text-[--text-muted]"
-                              title={new Date(post.create_at).toLocaleString()}
-                            >
-                              {formatTimestamp(post.create_at)}
-                            </span>
-                            {post.edit_at > post.create_at && (
-                              <span
-                                className="text-[11px] text-[--text-muted]"
-                                title={`Edited ${formatTimestamp(post.edit_at)}`}
-                              >
-                                • Edited
-                              </span>
-                            )}
-                          </div>
-                          {post.root_id && (
-                            <button
-                              type="button"
-                              onClick={() => scrollToPost(post.root_id!)}
-                              className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
-                            >
-                              <div className="font-semibold">
-                                Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}
-                              </div>
-                              <div className="line-clamp-2 text-[--text-muted]">
-                                {renderMessageContent(
-                                  getDisplayMessage(postsById.get(post.root_id) ?? post)
-                                )}
-                              </div>
-                            </button>
-                          )}
-                          <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
-                            {renderMessageContent(getDisplayMessage(post))}
-                          </div>
-                          {(() => {
-                            const reactions = post.metadata?.reactions ?? [];
-                            if (!reactions.length) return null;
-
-                            const grouped = reactions.reduce<
-                              Record<string, { count: number; reacted: boolean }>
-                            >((acc, reaction) => {
-                              const existing = acc[reaction.emoji_name] || { count: 0, reacted: false };
-                              return {
-                                ...acc,
-                                [reaction.emoji_name]: {
-                                  count: existing.count + 1,
-                                  reacted:
-                                    existing.reacted ||
-                                    (data?.member?.user_id
-                                      ? reaction.user_id === data.member.user_id
-                                      : false)
-                                }
-                              };
-                            }, {});
-
-                            return (
-                              <div className="flex flex-wrap gap-2">
-                                {Object.entries(grouped).map(([emojiName, info]) => (
-                                  <button
-                                    key={`${post.id}-${emojiName}`}
-                                    type="button"
-                                    onClick={() => toggleReaction(post, emojiName)}
-                                    className={clsx(
-                                      "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
-                                      info.reacted
-                                        ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
-                                        : "border-[--border-color] bg-[--background-color]"
-                                    )}
-                                  >
-                                    <span>
-                                      {getNativeEmojiFromShortcode(emojiName) || `:${emojiName}:`}
-                                    </span>
-                                    <span className="text-[--text-muted]">{info.count}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                      </>
-                    )}
-                    {post.type !== "system_add_to_channel" && (
-                      <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
-                        <Button
-                          appearance="gray-link"
-                          size="xs"
-                          onClick={() => handleReply(post)}
-                          className="!h-7"
-                        >
-                          Reply
-                        </Button>
-                        {post.user_id === data?.member?.user_id && (
-                          <Button
-                            appearance="gray-link"
-                            size="xs"
-                            onClick={() => handleEdit(post)}
-                            className="!h-7"
-                          >
-                            Edit
-                          </Button>
-                        )}
-                        {(() => {
-                          const isReactionPickerOpen = openReactionPostId === post.id;
-
-                          return (
-                            <Popover
-                              behavior="click"
-                              placement="right"
-                              customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
-                              show={isReactionPickerOpen}
-                              setShow={(next) => setOpenReactionPostId(next ? post.id : null)}
-                              directContent={
-                                <Button
-                                  appearance="gray-link"
-                                  size="xs"
-                                  className="!h-7"
-                                  icon={emojiIconSvg}
-                                  aria-label="Add reaction"
-                                  disabled={reactMutation.isPending}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setOpenReactionPostId((current) =>
-                                      current === post.id ? null : post.id
-                                    );
-                                  }}
-                                />
-                              }
-                            >
-                              <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
-                                {QUICK_REACTIONS.map((emoji) => (
-                                  <button
-                                    key={`${post.id}-${emoji}-picker`}
-                                    type="button"
-                                    className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
-                                    onClick={() => toggleReaction(post, emoji, true)}
-                                    disabled={reactMutation.isPending}
-                                  >
-                                    {emoji}
-                                  </button>
-                                ))}
-                              </PopoverContent>
-                            </Popover>
-                          );
-                        })()}
-                        {data?.canModerate && (
-                          <Dropdown>
-                            <DropdownToggle>
-                              <Button
-                                icon={dotsHorizontal}
-                                appearance="gray-link"
-                                size="xs"
-                                className="h-7 w-7 !p-0"
-                                aria-label="Moderation actions"
-                              />
-                            </DropdownToggle>
-                            <DropdownMenu align="right" size="small">
-                              <DropdownItemWithIcon
-                                icon={deleteForeverSvg}
-                                label={
-                                  deleteMutation.isPending && deletingPostId === post.id
-                                    ? "Deleting…"
-                                    : "Delete"
-                                }
-                                onClick={() => handleDelete(post.id)}
-                                disabled={deleteMutation.isPending}
-                              />
-                            </DropdownMenu>
-                          </Dropdown>
-                        )}
-                      </div>
-                    )}
-                  </div>
+            {/* Right side: last viewed + X (mobile only) */}
+            <div className="flex items-center gap-3 shrink-0">
+              {effectiveLastViewedAt > 0 && (
+                <div
+                  className="hidden md:block text-[11px] text-[--text-muted]"
+                  title={new Date(effectiveLastViewedAt).toLocaleString()}
+                >
+                  Last viewed {formatTimestamp(effectiveLastViewedAt)}
                 </div>
-              ))}
+              )}
+
+              {/* X button – visible only on mobile */}
+              <button
+                type="button"
+                onClick={() => router.push("/chats")}
+                className="md:hidden text-[--text-muted] hover:text-[--text-color] p-1"
+                aria-label="Close chat"
+                title="Back to chats"
+              >
+                ✕
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Input form */}
-        <form
-          className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-white md:px-4 md:py-3 md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const trimmedMessage = normalizeMessageEmojis(message.trim());
-            if (!trimmedMessage) return;
+        {/* Messages list */}
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
+        >
+          {isLoading && (
+            <div className="text-sm text-[--text-muted]">Loading messages…</div>
+          )}
+          {error && (
+            <div className="text-sm text-red-500">
+              {(error as Error).message || "Failed to load"}
+            </div>
+          )}
+          {moderationError && (
+            <div className="text-sm text-red-500">{moderationError}</div>
+          )}
+          {!isLoading && !posts.length && (
+            <div className="text-sm text-[--text-muted]">
+              No messages yet. Say hello!
+            </div>
+          )}
+          <div className="space-y-3">
+            {posts.map((post, index) => (
+              <div key={post.id} className="space-y-3" data-post-id={post.id}>
+                {showUnreadDivider && index === firstUnreadIndex && (
+                  <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
+                    <div className="flex-1 border-t border-[--border-color]" />
+                    <span>New</span>
+                    <div className="flex-1 border-t border-[--border-color]" />
+                  </div>
+                )}
+                <div className="flex gap-3 group relative">
+                  {post.type === "system_add_to_channel" ? (
+                    <div className="w-full flex justify-center">
+                      <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
+                        {renderMessageContent(getDisplayMessage(post))}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="h-10 w-10 flex-shrink-0">
+                        {(() => {
+                          const user = usersById[post.user_id];
+                          const displayName = getDisplayName(post);
+                          const username = getUsername(post);
+                          const avatarUrl = getAvatarUrl(user);
 
-            setMessageError(null);
+                          if (username) {
+                            return (
+                              <UserAvatar
+                                username={username}
+                                size="medium"
+                                className="h-10 w-10"
+                              />
+                            );
+                          }
 
-            if (editingPost) {
-              updateMutation.mutate(
-                { postId: editingPost.id, message: trimmedMessage },
-                {
-                  onError: (err) => {
-                    setMessageError((err as Error)?.message || "Unable to update message");
-                  },
-                  onSuccess: () => {
-                    setMessage("");
-                    setMentionQuery("");
-                    setMentionStart(null);
-                    setEmojiQuery("");
-                    setEmojiStart(null);
-                    setEditingPost(null);
-                    requestAnimationFrame(() => {
-                      const container = scrollContainerRef.current;
-                      if (container) {
-                        container.scrollTop = container.scrollHeight;
-                      }
-                    });
-                    markChannelRead();
-                  }
-                }
-              );
-              return;
-            }
+                          if (avatarUrl) {
+                            return (
+                              <img
+                                src={avatarUrl}
+                                alt={`${displayName} avatar`}
+                                className="h-10 w-10 rounded-full object-cover"
+                              />
+                            );
+                          }
 
-            const rootId = replyingTo?.root_id || replyingTo?.id || null;
+                          return (
+                            <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                              {displayName.charAt(0).toUpperCase()}
+                            </div>
+                          );
+                        })()}
+                      </div>
 
-            sendMutation.mutate(
-              { message: trimmedMessage, rootId },
+                      <div className="flex flex-col gap-1 w-full">
+                        <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                          {(() => {
+                            const username = getUsername(post);
+                            const displayName = getDisplayName(post);
+
+                            if (username) {
+                              return (
+                                <UsernameActions
+                                  username={username}
+                                  displayName={displayName}
+                                  currentUsername={activeUser?.username}
+                                  onStartDm={startDirectMessage}
+                                />
+                              );
+                            }
+
+                            return <span>{displayName}</span>;
+                          })()}
+                          <span
+                            className="text-[--text-muted]"
+                            title={new Date(post.create_at).toLocaleString()}
+                          >
+                            {formatTimestamp(post.create_at)}
+                          </span>
+                          {post.edit_at > post.create_at && (
+                            <span
+                              className="text-[11px] text-[--text-muted]"
+                              title={`Edited ${formatTimestamp(post.edit_at)}`}
+                            >
+                              • Edited
+                            </span>
+                          )}
+                        </div>
+                        {post.root_id && (
+                          <button
+                            type="button"
+                            onClick={() => scrollToPost(post.root_id!)}
+                            className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
+                          >
+                            <div className="font-semibold">
+                              Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}
+                            </div>
+                            <div className="line-clamp-2 text-[--text-muted]">
+                              {renderMessageContent(
+                                getDisplayMessage(postsById.get(post.root_id) ?? post)
+                              )}
+                            </div>
+                          </button>
+                        )}
+                        <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
+                          {renderMessageContent(getDisplayMessage(post))}
+                        </div>
+                        {(() => {
+                          const reactions = post.metadata?.reactions ?? [];
+                          if (!reactions.length) return null;
+
+                          const grouped = reactions.reduce<
+                            Record<string, { count: number; reacted: boolean }>
+                          >((acc, reaction) => {
+                            const existing = acc[reaction.emoji_name] || {
+                              count: 0,
+                              reacted: false
+                            };
+                            return {
+                              ...acc,
+                              [reaction.emoji_name]: {
+                                count: existing.count + 1,
+                                reacted:
+                                  existing.reacted ||
+                                  (data?.member?.user_id
+                                    ? reaction.user_id === data.member.user_id
+                                    : false)
+                              }
+                            };
+                          }, {});
+
+                          return (
+                            <div className="flex flex-wrap gap-2">
+                              {Object.entries(grouped).map(([emojiName, info]) => (
+                                <button
+                                  key={`${post.id}-${emojiName}`}
+                                  type="button"
+                                  onClick={() => toggleReaction(post, emojiName)}
+                                  className={clsx(
+                                    "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
+                                    info.reacted
+                                      ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
+                                      : "border-[--border-color] bg-[--background-color]"
+                                  )}
+                                >
+                                  <span>
+                                    {getNativeEmojiFromShortcode(emojiName) ||
+                                      `:${emojiName}:`}
+                                  </span>
+                                  <span className="text-[--text-muted]">
+                                    {info.count}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </>
+                  )}
+                  {post.type !== "system_add_to_channel" && (
+                    <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+                      <Button
+                        appearance="gray-link"
+                        size="xs"
+                        onClick={() => handleReply(post)}
+                        className="!h-7"
+                      >
+                        Reply
+                      </Button>
+                      {post.user_id === data?.member?.user_id && (
+                        <Button
+                          appearance="gray-link"
+                          size="xs"
+                          onClick={() => handleEdit(post)}
+                          className="!h-7"
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      {(() => {
+                        const isReactionPickerOpen = openReactionPostId === post.id;
+
+                        return (
+                          <Popover
+                            behavior="click"
+                            placement="right"
+                            customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
+                            show={isReactionPickerOpen}
+                            setShow={(next) =>
+                              setOpenReactionPostId(next ? post.id : null)
+                            }
+                            directContent={
+                              <Button
+                                appearance="gray-link"
+                                size="xs"
+                                className="!h-7"
+                                icon={emojiIconSvg}
+                                aria-label="Add reaction"
+                                disabled={reactMutation.isPending}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setOpenReactionPostId((current) =>
+                                    current === post.id ? null : post.id
+                                  );
+                                }}
+                              />
+                            }
+                          >
+                            <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
+                              {QUICK_REACTIONS.map((emoji) => (
+                                <button
+                                  key={`${post.id}-${emoji}-picker`}
+                                  type="button"
+                                  className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
+                                  onClick={() => toggleReaction(post, emoji, true)}
+                                  disabled={reactMutation.isPending}
+                                >
+                                  {emoji}
+                                </button>
+                              ))}
+                            </PopoverContent>
+                          </Popover>
+                        );
+                      })()}
+                      {data?.canModerate && (
+                        <Dropdown>
+                          <DropdownToggle>
+                            <Button
+                              icon={dotsHorizontal}
+                              appearance="gray-link"
+                              size="xs"
+                              className="h-7 w-7 !p-0"
+                              aria-label="Moderation actions"
+                            />
+                          </DropdownToggle>
+                          <DropdownMenu align="right" size="small">
+                            <DropdownItemWithIcon
+                              icon={deleteForeverSvg}
+                              label={
+                                deleteMutation.isPending &&
+                                deletingPostId === post.id
+                                  ? "Deleting…"
+                                  : "Delete"
+                              }
+                              onClick={() => handleDelete(post.id)}
+                              disabled={deleteMutation.isPending}
+                            />
+                          </DropdownMenu>
+                        </Dropdown>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Input form */}
+      <form
+        className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-white md:px-4 md:py-3 md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const trimmedMessage = normalizeMessageEmojis(message.trim());
+          if (!trimmedMessage) return;
+
+          setMessageError(null);
+
+          if (editingPost) {
+            updateMutation.mutate(
+              { postId: editingPost.id, message: trimmedMessage },
               {
                 onError: (err) => {
-                  setMessageError((err as Error)?.message || "Unable to send message");
+                  setMessageError(
+                    (err as Error)?.message || "Unable to update message"
+                  );
                 },
                 onSuccess: () => {
                   setMessage("");
@@ -1071,7 +1177,7 @@ export function MattermostChannelView({ channelId }: Props) {
                   setMentionStart(null);
                   setEmojiQuery("");
                   setEmojiStart(null);
-                  setReplyingTo(null);
+                  setEditingPost(null);
                   requestAnimationFrame(() => {
                     const container = scrollContainerRef.current;
                     if (container) {
@@ -1082,185 +1188,338 @@ export function MattermostChannelView({ channelId }: Props) {
                 }
               }
             );
-          }}
-        >
-          <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto">
-            {editingPost && (
-              <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[--text-color]">Editing message</span>
-                  <Button
-                    type="button"
-                    appearance="gray-link"
-                    size="xs"
-                    onClick={() => {
-                      setEditingPost(null);
-                      setMessage("");
-                      setMentionQuery("");
-                      setMentionStart(null);
-                      setEmojiQuery("");
-                      setEmojiStart(null);
-                      setMessageError(null);
-                    }}
-                    className="!h-6"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-                <div className="line-clamp-2 text-[--text-muted]">
-                  {renderMessageContent(getDisplayMessage(editingPost))}
-                </div>
+            return;
+          }
+
+          const rootId = replyingTo?.root_id || replyingTo?.id || null;
+
+          sendMutation.mutate(
+            { message: trimmedMessage, rootId },
+            {
+              onError: (err) => {
+                setMessageError(
+                  (err as Error)?.message || "Unable to send message"
+                );
+              },
+              onSuccess: () => {
+                setMessage("");
+                setMentionQuery("");
+                setMentionStart(null);
+                setEmojiQuery("");
+                setEmojiStart(null);
+                setReplyingTo(null);
+                requestAnimationFrame(() => {
+                  const container = scrollContainerRef.current;
+                  if (container) {
+                    container.scrollTop = container.scrollHeight;
+                  }
+                });
+                markChannelRead();
+              }
+            }
+          );
+        }}
+      >
+        <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto">
+          {editingPost && (
+            <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-[--text-color]">
+                  Editing message
+                </span>
+                <Button
+                  type="button"
+                  appearance="gray-link"
+                  size="xs"
+                  onClick={() => {
+                    setEditingPost(null);
+                    setMessage("");
+                    setMentionQuery("");
+                    setMentionStart(null);
+                    setEmojiQuery("");
+                    setEmojiStart(null);
+                    setMessageError(null);
+                  }}
+                  className="!h-6"
+                >
+                  Cancel
+                </Button>
               </div>
-            )}
-            {replyingTo && (
-              <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[--text-color]">
-                    Replying to {getDisplayName(replyingTo)}
-                  </span>
-                  <Button
-                    type="button"
-                    appearance="gray-link"
-                    size="xs"
-                    onClick={() => setReplyingTo(null)}
-                    className="!h-6"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-                <div className="line-clamp-2 text-[--text-muted]">
-                  {renderMessageContent(getDisplayMessage(replyingTo))}
-                </div>
+              <div className="line-clamp-2 text-[--text-muted]">
+                {renderMessageContent(getDisplayMessage(editingPost))}
               </div>
-            )}
-            {messageError && <div className="text-sm text-red-500">{messageError}</div>}
-            <div className="relative">
-              {emojiQuery && (
-                <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--background-color] shadow-lg">
-                  <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
-                    <span>Type :emoji_name to insert an emoji.</span>
-                    {isEmojiSearchLoading && <span className="text-[--text-muted]">Searching…</span>}
-                  </div>
-                  <div className="max-h-48 overflow-y-auto">
-                    {emojiSuggestions.map((emoji) => (
-                      <button
-                        key={emoji.id}
-                        type="button"
-                        className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
-                        onClick={() => applyEmoji(emoji.id)}
-                      >
-                        <span className="text-xl">{emoji.native}</span>
-                        <div className="flex flex-col text-left">
-                          <span className="font-semibold">:{emoji.id}:</span>
-                          <span className="text-xs text-[--text-muted]">{emoji.name}</span>
-                        </div>
-                      </button>
-                    ))}
-                    {!emojiSuggestions.length && !isEmojiSearchLoading && (
-                      <div className="px-3 py-2 text-sm text-[--text-muted]">No emojis found.</div>
-                    )}
-                  </div>
-                </div>
-              )}
-              <InputGroup
-                prepend={
-                  <ImageUploadButton
-                    size="md"
-                    appearance="gray-link"
-                    className="h-full rounded-none"
-                    onBegin={() => undefined}
-                    onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
-                  />
-                }
-                append={
-                  <Button
-                    type="submit"
-                    size="md"
-                    appearance="primary"
-                    className="h-full rounded-none px-3"
-                    disabled={isSubmitting}
-                    aria-label={submitLabel}
-                    title={submitLabel}
-                  >
-                    <span className="sr-only">{submitLabel}</span>
-                    {upArrowSvg}
-                  </Button>
-                }
-                className="items-stretch rounded-xl border border-[--border-color] bg-[--background-color] overflow-hidden"
-                onClick={() => messageInputRef.current?.focus()}
-              >
-                <FormControl
-                  as="textarea"
-                  ref={messageInputRef}
-                  rows={2}
-                  value={message}
-                  onChange={handleMessageChange}
-                  placeholder="Write a message"
-                  className="flex-1 bg-transparent"
-                />
-              </InputGroup>
             </div>
-            {isPublicChannel && mentionQuery && (
-              <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
+          )}
+          {replyingTo && (
+            <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-[--text-color]">
+                  Replying to {getDisplayName(replyingTo)}
+                </span>
+                <Button
+                  type="button"
+                  appearance="gray-link"
+                  size="xs"
+                  onClick={() => setReplyingTo(null)}
+                  className="!h-6"
+                >
+                  Cancel
+                </Button>
+              </div>
+              <div className="line-clamp-2 text-[--text-muted]">
+                {renderMessageContent(getDisplayMessage(replyingTo))}
+              </div>
+            </div>
+          )}
+          {messageError && (
+            <div className="text-sm text-red-500">{messageError}</div>
+          )}
+
+          <div className="relative">
+            {/* Emoji shortcode suggestions */}
+            {emojiQuery && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--background-color] shadow-lg">
                 <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
-                  <span>Use @ to mention users. Selecting will invite them to this channel.</span>
-                  {mentionSearch.isFetching && <span className="text-[--text-muted]">Searching…</span>}
+                  <span>Type :emoji_name to insert an emoji.</span>
+                  {isEmojiSearchLoading && (
+                    <span className="text-[--text-muted]">Searching…</span>
+                  )}
                 </div>
                 <div className="max-h-48 overflow-y-auto">
-                  {mentionQuery.length < 2 && (
-                    <div className="px-3 py-2 text-sm text-[--text-muted]">
-                      Keep typing to search for a user.
-                    </div>
-                  )}
-                  {mentionSearch.data?.users?.map((user) => (
+                  {emojiSuggestions.map((emoji) => (
                     <button
-                      key={user.id}
+                      key={emoji.id}
                       type="button"
                       className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
-                      onClick={() => applyMention(user.username)}
+                      onClick={() => applyEmoji(emoji.id)}
                     >
-                      <UserAvatar username={user.username} size="medium" className="h-8 w-8" />
+                      <span className="text-xl">{emoji.native}</span>
                       <div className="flex flex-col text-left">
-                        <span className="font-semibold">@{user.username}</span>
-                        {(user.nickname || user.first_name || user.last_name) && (
-                          <span className="text-xs text-[--text-muted]">
-                            {[user.first_name, user.last_name].filter(Boolean).join(" ") ||
-                              user.nickname}
-                          </span>
-                        )}
+                        <span className="font-semibold">:{emoji.id}:</span>
+                        <span className="text-xs text-[--text-muted]">{emoji.name}</span>
                       </div>
                     </button>
                   ))}
-                  {!mentionSearch.isFetching && mentionQuery.length >= 2 && !mentionSearch.data?.users?.length && (
-                    <div className="px-3 py-2 text-sm text-[--text-muted]">No users found.</div>
+                  {!emojiSuggestions.length && !isEmojiSearchLoading && (
+                    <div className="px-3 py-2 text-sm text-[--text-muted]">
+                      No emojis found.
+                    </div>
                   )}
                 </div>
               </div>
             )}
+
+            {/* ChatGPT-style input pill */}
+            <div
+              className={clsx(
+                "flex items-center gap-2", // items-center instead of items-end -> vertical alignment
+                "rounded-2xl border border-[--border-color]",
+                "bg-[--surface-color] px-3 py-2",
+                "shadow-sm",
+                "focus-within:ring-2 focus-within:ring-blue-500/60 focus-within:border-blue-500/60",
+                "transition-colors"
+              )}
+              onClick={() => messageInputRef.current?.focus()}
+            >
+              {/* Left icons: image + emoji + GIF */}
+              <div className="flex items-center gap-1">
+                <ImageUploadButton
+                  size="md"
+                  appearance="gray-link"
+                  className="rounded-full !px-2 !py-1"
+                  onBegin={() => undefined}
+                  onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
+                  aria-label="Attach image"
+                  title="Attach image"
+                />
+
+                <Button
+                  ref={emojiButtonRef}
+                  type="button"
+                  size="sm"
+                  appearance="gray-link"
+                  className="rounded-full !px-2 !py-1"
+                  icon={emojiIconSvg}
+                  aria-label="Add emoji"
+                  title="Add emoji"
+                />
+
+                <Button
+                  ref={gifButtonRef}
+                  type="button"
+                  size="sm"
+                  appearance="gray-link"
+                  className="rounded-full !px-2 !py-1 font-semibold"
+                  aria-label="Add GIF"
+                  title="Add GIF"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (gifButtonRef.current) {
+                      const rect = gifButtonRef.current.getBoundingClientRect();
+
+                      // Distance from button’s top to viewport bottom -> picker sits just above the button
+                      const bottomPx = window.innerHeight - rect.top + 8; // 8px gap
+
+                      // Try to align the picker’s right edge with the button’s right edge
+                      const pickerWidth = 320;
+                      const rawLeft = rect.right - pickerWidth;
+
+                      // Clamp left so it doesn’t go off-screen
+                      const leftPx = Math.min(
+                        Math.max(8, rawLeft), // at least 8px from left
+                        window.innerWidth - pickerWidth - 8 // at most 8px from right
+                      );
+
+                      setGifPickerStyle({
+                        width: `${pickerWidth}px`,
+                        bottom: `${bottomPx}px`,
+                        left: leftPx,
+                        marginLeft: "0",
+                        borderTopLeftRadius: "12px",
+                        borderTopRightRadius: "12px",
+                        borderBottomLeftRadius: "12px"
+                      });
+                    }
+
+                    setShowGifPicker((prev) => !prev);
+                  }}
+                >
+                  GIF
+                </Button>
+              </div>
+
+              {/* Textarea */}
+              <div className="flex-1 min-w-0">
+                <textarea
+                  ref={messageInputRef}
+                  rows={1}
+                  value={message}
+                  onChange={handleMessageChange}
+                  placeholder="Write a message"
+                  className={clsx(
+                    "block w-full resize-none bg-transparent",
+                    "text-sm md:text-base leading-[1.4]",
+                    "py-1.5", // vertical padding to center text visually
+                    "outline-none border-none",
+                    "placeholder:text-[--text-muted]"
+                  )}
+                />
+              </div>
+
+              {/* Send button */}
+              <div className="flex items-center">
+                <Button
+                  type="submit"
+                  size="sm"
+                  appearance={message.trim() && !isSubmitting ? "primary" : "gray-link"}
+                  className={clsx(
+                    "rounded-full !px-2 !py-1",
+                    (!message.trim() || isSubmitting) && "opacity-60 cursor-not-allowed"
+                  )}
+                  disabled={!message.trim() || isSubmitting}
+                  aria-label={submitLabel}
+                  title={submitLabel}
+                >
+                  <span className="sr-only">{submitLabel}</span>
+                  {upArrowSvg}
+                </Button>
+              </div>
+            </div>
           </div>
-        </form>
 
-        {/* highlight animation */}
-        <style>{`
-          @keyframes chat-post-highlight {
-            0% {
-              background-color: rgba(59, 130, 246, 0.18);
-            }
-            50% {
-              background-color: rgba(59, 130, 246, 0.12);
-            }
-            100% {
-              background-color: transparent;
-            }
+          {isPublicChannel && mentionQuery && (
+            <div className="rounded border border-[--border-color] bg-[--surface-color] shadow-sm">
+              <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
+                <span>
+                  Use @ to mention users. Selecting will invite them to this channel.
+                </span>
+                {mentionSearch.isFetching && (
+                  <span className="text-[--text-muted]">Searching…</span>
+                )}
+              </div>
+              <div className="max-h-48 overflow-y-auto">
+                {mentionQuery.length < 2 && (
+                  <div className="px-3 py-2 text-sm text-[--text-muted]">
+                    Keep typing to search for a user.
+                  </div>
+                )}
+                {mentionSearch.data?.users?.map((user) => (
+                  <button
+                    key={user.id}
+                    type="button"
+                    className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
+                    onClick={() => applyMention(user.username)}
+                  >
+                    <UserAvatar
+                      username={user.username}
+                      size="medium"
+                      className="h-8 w-8"
+                    />
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">@{user.username}</span>
+                      {(user.nickname || user.first_name || user.last_name) && (
+                        <span className="text-xs text-[--text-muted]">
+                          {[user.first_name, user.last_name]
+                            .filter(Boolean)
+                            .join(" ") || user.nickname}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+                {!mentionSearch.isFetching &&
+                  mentionQuery.length >= 2 &&
+                  !mentionSearch.data?.users?.length && (
+                    <div className="px-3 py-2 text-sm text-[--text-muted]">
+                      No users found.
+                    </div>
+                  )}
+              </div>
+            </div>
+          )}
+        </div>
+      </form>
+      <EmojiPicker
+        anchor={emojiButtonRef.current}
+        position="top"
+        onSelect={(emoji: string) => {
+          setMessage((prev) => prev + emoji);
+          // textarea auto-resize will run via useEffect on message
+        }}
+      />
+      {showGifPicker && gifPickerStyle && (
+          <GifPicker
+            shGif={showGifPicker}
+            changeState={(state) => setShowGifPicker(state ?? false)}
+            fallback={(gifUrl) => {
+              setMessage((prev) => (prev ? `${prev}\n${gifUrl}` : gifUrl));
+            }}
+            style={gifPickerStyle}
+          />
+      )}
+      {/* highlight animation */}
+      <style>{`
+        @keyframes chat-post-highlight {
+          0% {
+            background-color: rgba(59, 130, 246, 0.18);
           }
+          50% {
+            background-color: rgba(59, 130, 246, 0.12);
+          }
+          100% {
+            background-color: transparent;
+          }
+        }
 
-          [data-post-id].chat-post-highlight {
-            animation: chat-post-highlight 1.2s ease-in-out;
-            border-radius: 12px;
-          }
-        `}</style>
-      </div>
-    );
+        [data-post-id].chat-post-highlight {
+          animation: chat-post-highlight 1.2s ease-in-out;
+          border-radius: 12px;
+        }
+      `}</style>
+    </div>
+  );
 }
 
 function MentionToken({
@@ -1274,8 +1533,11 @@ function MentionToken({
   currentUsername?: string;
   onStartDm: (username: string) => void;
 }) {
-  const secondary = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.nickname;
-  const isSelf = currentUsername ? username.toLowerCase() === currentUsername.toLowerCase() : false;
+  const secondary =
+    [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.nickname;
+  const isSelf = currentUsername
+    ? username.toLowerCase() === currentUsername.toLowerCase()
+    : false;
 
   return (
     <Dropdown className="inline-block">
@@ -1292,7 +1554,13 @@ function MentionToken({
       </DropdownToggle>
       <DropdownMenu align="left" size="small">
         <DropdownItemWithIcon icon={blogSvg} label="View blog" href={`/@${username}`} />
-        {!isSelf && <DropdownItemWithIcon icon={mailSvg} label="Start DM" onClick={() => onStartDm(username)} />}
+        {!isSelf && (
+          <DropdownItemWithIcon
+            icon={mailSvg}
+            label="Start DM"
+            onClick={() => onStartDm(username)}
+          />
+        )}
       </DropdownMenu>
     </Dropdown>
   );
@@ -1309,18 +1577,29 @@ function UsernameActions({
   currentUsername?: string;
   onStartDm: (username: string) => void;
 }) {
-  const isSelf = currentUsername ? username.toLowerCase() === currentUsername.toLowerCase() : false;
+  const isSelf = currentUsername
+    ? username.toLowerCase() === currentUsername.toLowerCase()
+    : false;
 
   return (
     <Dropdown className="inline-block">
       <DropdownToggle>
-        <span className="cursor-pointer font-semibold hover:text-[--text-color]" title={`@${username}`}>
+        <span
+          className="cursor-pointer font-semibold hover:text-[--text-color]"
+          title={`@${username}`}
+        >
           {displayName}
         </span>
       </DropdownToggle>
       <DropdownMenu align="left" size="small">
         <DropdownItemWithIcon icon={blogSvg} label="View blog" href={`/@${username}`} />
-        {!isSelf && <DropdownItemWithIcon icon={mailSvg} label="Start DM" onClick={() => onStartDm(username)} />}
+        {!isSelf && (
+          <DropdownItemWithIcon
+            icon={mailSvg}
+            label="Start DM"
+            onClick={() => onStartDm(username)}
+          />
+        )}
       </DropdownMenu>
     </Dropdown>
   );
