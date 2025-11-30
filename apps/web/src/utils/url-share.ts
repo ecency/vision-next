@@ -52,3 +52,13 @@ export const makeShareUrlLinkedin = (cat: string, author: string, permlink: stri
   const u = makeEcencyUrl(cat, author, permlink);
   return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}`;
 };
+
+export const makeShareUrlDiscord = (
+  cat: string,
+  author: string,
+  permlink: string,
+  title: string
+): string => {
+  const u = makeEcencyUrl(cat, author, permlink);
+  return `https://discord.com/channels/@me?title=${encodeURIComponent(title)}&url=${encodeURIComponent(u)}`;
+};
