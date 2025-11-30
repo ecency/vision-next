@@ -70,7 +70,7 @@ export const makeShareUrlChats = (
   title: string
 ): string => {
   const u = makeEcencyUrl(cat, author, permlink);
-  return `${defaults.chatBase}?text=${encodeURIComponent(`${title} - ${u}`)}`;
+  return `${defaults.base}/chats?text=${encodeURIComponent(`${title} - ${u}`)}`;
 };
 
 export const makeShareUrlWaves = (

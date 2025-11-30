@@ -150,6 +150,7 @@ interface Props {
 export function MattermostChannelView({ channelId }: Props) {
   const { data, isLoading, error } = useMattermostPosts(channelId);
   const [message, setMessage] = useState("");
+  const hasAppliedSharedText = useRef(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionStart, setMentionStart] = useState<number | null>(null);
   const [emojiQuery, setEmojiQuery] = useState("");
@@ -218,6 +219,21 @@ export function MattermostChannelView({ channelId }: Props) {
     }, new Map());
   }, [posts]);
   const focusedPostId = searchParams?.get("post");
+
+  useEffect(() => {
+    if (hasAppliedSharedText.current) {
+      return;
+    }
+
+    const sharedText = searchParams?.get("text")?.trim();
+
+    if (!sharedText) {
+      return;
+    }
+
+    setMessage((current) => current || sharedText);
+    hasAppliedSharedText.current = true;
+  }, [searchParams, setMessage]);
   const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
   const usersByUsername = useMemo(() => {
     return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
@@ -543,6 +559,12 @@ export function MattermostChannelView({ channelId }: Props) {
     );
   };
 
+  const isPartOfEcencyPostLink = (before: string, mention: string, after: string) => {
+    const combined = `${before}${mention}${after}`;
+
+    return /https?:\/\/(?:www\.)?ecency\.com\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})/i.test(combined);
+  };
+
   const renderTextWithMentions = (content: string) => {
     const mentionMatcher = new RegExp(USER_MENTION_PURE_REGEX.source, "i");
     const parts = content.split(
@@ -553,6 +575,13 @@ export function MattermostChannelView({ channelId }: Props) {
       .filter((part) => part !== "")
       .map((part, idx) => {
         if (mentionMatcher.test(part)) {
+          const prevPart = parts[idx - 1] || "";
+          const nextPart = parts[idx + 1] || "";
+
+          if (isPartOfEcencyPostLink(prevPart, part, nextPart)) {
+            return <span key={`${part}-${idx}`}>{part}</span>;
+          }
+
           const username = part.slice(1);
           return (
             <MentionToken
@@ -788,6 +817,9 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     const rootId = replyingTo?.root_id || replyingTo?.id || null;
+    const params = new URLSearchParams(searchParams?.toString());
+    params.delete("text");
+    const nextUrl = params.size ? `/chats/${channelId}?${params.toString()}` : `/chats/${channelId}`;
 
     sendMutation.mutate(
       { message: trimmedMessage, rootId },
@@ -802,6 +834,7 @@ export function MattermostChannelView({ channelId }: Props) {
           setEmojiQuery("");
           setEmojiStart(null);
           setReplyingTo(null);
+          router.replace(nextUrl);
           requestAnimationFrame(() => {
             const container = scrollContainerRef.current;
             if (container) {

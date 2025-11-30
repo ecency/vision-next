@@ -20,6 +20,7 @@ import { uploadImage } from "@/api/misc";
 import { getAccessToken } from "@/utils";
 import { error } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Props {
   className?: string;
@@ -53,6 +54,9 @@ const WaveFormComponent = ({
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const hasAppliedSharedText = useRef(false);
 
   const entryDepth = entry?.depth;
   const entryParentAuthor = entry?.parent_author;
@@ -90,6 +94,22 @@ const WaveFormComponent = ({
       setText(nextText);
     }
   }, [entry, setImage, setText]);
+
+  useEffect(() => {
+    if (entry || hasAppliedSharedText.current) {
+      return;
+    }
+
+    const sharedText = searchParams?.get("text")?.trim();
+
+    if (!sharedText) {
+      return;
+    }
+
+    setText(sharedText);
+    hasAppliedSharedText.current = true;
+    router.replace("/waves");
+  }, [entry, router, searchParams, setText]);
 
   const contextHost = wavesHostContext?.host;
 

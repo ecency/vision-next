@@ -20,7 +20,7 @@ import { UserAvatar } from "@/features/shared/user-avatar";
 import i18next from "i18next";
 import Link from "next/link";
 import { useClientActiveUser, useHydrated } from "@/api/queries";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
@@ -34,7 +34,10 @@ export function ChatsClient() {
   const activeUser = useClientActiveUser();
   const hydrated = useHydrated();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
+  const shareText = searchParams?.get("text")?.trim();
+  const isShareMode = Boolean(shareText);
 
   const { data: bootstrap, isLoading, error } = useMattermostBootstrap();
   const {
@@ -162,7 +165,7 @@ export function ChatsClient() {
     directChannelMutation.mutate(target, {
       onSuccess: (data) => {
         setSearchTerm("");
-        router.push(`/chats/${data.channelId}`);
+        router.push(buildChannelUrl(data.channelId));
       }
     });
   };
@@ -171,7 +174,7 @@ export function ChatsClient() {
     joinChannelMutation.mutate(channelId, {
       onSuccess: () => {
         setSearchTerm("");
-        router.push(`/chats/${channelId}`);
+        router.push(buildChannelUrl(channelId));
       }
     });
   };
@@ -229,6 +232,12 @@ export function ChatsClient() {
   const subscribedMessageResults = useMemo(() => {
     return (messageSearchResults?.posts || []).filter((post) => channelsById.has(post.channel_id));
   }, [channelsById, messageSearchResults?.posts]);
+
+  const buildChannelUrl = useCallback(
+    (channelId: string) =>
+      shareText ? `/chats/${channelId}?text=${encodeURIComponent(shareText)}` : `/chats/${channelId}`,
+    [shareText]
+  );
 
   const trimmedSearch = searchTerm.trim();
   const hasSearchTerm = trimmedSearch.length >= 2;
@@ -288,6 +297,14 @@ export function ChatsClient() {
             </Button>
           )}
         </form>
+        {isShareMode && (
+          <div className="rounded border border-[--border-color] bg-[--surface-color] p-3">
+            <div className="text-xs font-semibold text-[--text-color]">
+              {i18next.t("chat.share-intent", { defaultValue: "Share this link in chats" })}
+            </div>
+            <p className="mt-2 break-words text-sm text-[--text-muted]">{shareText}</p>
+          </div>
+        )}
         {(channelsError || channelSearchError || messageSearchError || joinChannelMutation.error ||
           directChannelMutation.error || userSearchError || error) && (
           <div className="grid gap-1 text-sm text-red-500">
@@ -329,7 +346,7 @@ export function ChatsClient() {
 
                 return (
                   <Link
-                    href={`/chats/${channel.id}`}
+                    href={buildChannelUrl(channel.id)}
                     key={channel.id}
                     className={clsx(
                       "rounded border p-3 transition",
@@ -562,11 +579,14 @@ export function ChatsClient() {
                   const channel = channelsById.get(post.channel_id);
                   const channelLabel = channel ? getChannelTitle(channel) : i18next.t("chat.channel-type");
                   const channelSubtitle = channel ? getChannelSubtitle(channel) : undefined;
+                  const messageLink = shareText
+                    ? `/chats/${post.channel_id}?post=${post.id}&text=${encodeURIComponent(shareText)}`
+                    : `/chats/${post.channel_id}?post=${post.id}`;
 
                   return (
                     <Link
                       key={post.id}
-                      href={`/chats/${post.channel_id}?post=${post.id}`}
+                      href={messageLink}
                       className="flex flex-col gap-1 rounded border border-[--border-color] bg-[--surface-color] p-3 transition hover:border-blue-500"
                     >
                       <div className="flex items-start justify-between gap-3">
