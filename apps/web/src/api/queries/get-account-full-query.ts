@@ -1,6 +1,7 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { client, getAccount, getFollowCount } from "@/api/hive";
-import { AccountFollowStats, Reputations } from "@/entities";
+import { getAccount } from "@/api/hive";
+import { getProfiles } from "@/api/bridge";
+import { AccountFollowStats } from "@/entities";
 
 export const getAccountFullQuery = (username?: string) =>
   EcencyQueriesManager.generateClientServerQuery({
@@ -9,25 +10,31 @@ export const getAccountFullQuery = (username?: string) =>
       if (!username) {
         return null;
       }
-      const response = await getAccount(username);
-      let follow_stats: AccountFollowStats | undefined;
-      try {
-        follow_stats = await getFollowCount(username);
-      } catch (e) {}
+      const [response, profiles] = await Promise.all([
+        getAccount(username),
+        getProfiles([username]).catch(() => undefined)
+      ]);
 
-      const reputation: Reputations[] = await client.call(
-        "condenser_api",
-        "get_account_reputations",
-        [username, 1]
-      );
+      if (!response) {
+        return null;
+      }
+
+      const profile = profiles?.[0];
+      const follow_stats: AccountFollowStats | undefined = profile
+        ? {
+            account: username,
+            follower_count: profile.stats?.followers,
+            following_count: profile.stats?.following
+          }
+        : undefined;
 
       return {
         ...response,
         follow_stats,
-        reputation: reputation[0].reputation,
+        reputation: profile?.reputation ?? response.reputation,
         profile: {
           ...response.profile,
-          reputation: reputation[0].reputation
+          reputation: profile?.reputation ?? response.profile?.reputation
         }
       };
     },
