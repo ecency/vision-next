@@ -166,6 +166,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [replyingTo, setReplyingTo] = useState<MattermostPost | null>(null);
+  const [threadRootId, setThreadRootId] = useState<string | null>(null);
   const [editingPost, setEditingPost] = useState<MattermostPost | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
 
@@ -229,6 +230,16 @@ export function MattermostChannelView({ channelId }: Props) {
       return acc;
     }, new Map());
   }, [posts]);
+  const threadRootPost = threadRootId ? postsById.get(threadRootId) ?? null : null;
+  const threadPosts = useMemo(() => {
+    if (!threadRootId) return [];
+
+    const related = posts.filter(
+      (post) => post.id === threadRootId || post.root_id === threadRootId
+    );
+
+    return [...related].sort((a, b) => a.create_at - b.create_at);
+  }, [posts, threadRootId]);
   const focusedPostId = searchParams?.get("post");
 
   useEffect(() => {
@@ -319,6 +330,9 @@ export function MattermostChannelView({ channelId }: Props) {
     setOptimisticLastViewedAt(null);
     hasAutoScrolledRef.current = false;
     hasFocusedPostRef.current = false;
+    setThreadRootId(null);
+    setReplyingTo(null);
+    setEditingPost(null);
   }, [channelId]);
 
   useEffect(() => {
@@ -1022,13 +1036,25 @@ export function MattermostChannelView({ channelId }: Props) {
     [data?.member?.user_id, reactMutation]
   );
 
+  const openThread = useCallback(
+    (post: MattermostPost) => {
+      const rootId = post.root_id || post.id;
+      setThreadRootId(rootId);
+      requestAnimationFrame(() =>
+        scrollToPost(rootId, { highlight: false, behavior: "auto" })
+      );
+    },
+    [scrollToPost]
+  );
+
   const handleReply = useCallback((post: MattermostPost) => {
     setEditingPost(null);
     setReplyingTo(post);
+    openThread(post);
     requestAnimationFrame(() => {
       messageInputRef.current?.focus();
     });
-  }, []);
+  }, [openThread]);
 
   const handleEdit = useCallback(
     (post: MattermostPost) => {
@@ -1187,286 +1213,421 @@ export function MattermostChannelView({ channelId }: Props) {
           </div>
         )}
 
-        {/* Messages list */}
-        <div
-          ref={scrollContainerRef}
-          onScroll={handleScroll}
-          className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
-        >
-          {isLoading && (
-            <div className="text-sm text-[--text-muted]">Loading messages…</div>
-          )}
-          {error && (
-            <div className="text-sm text-red-500">
-              {(error as Error).message || "Failed to load"}
-            </div>
-          )}
-          {moderationError && (
-            <div className="text-sm text-red-500">{moderationError}</div>
-          )}
-          {!isLoading && !posts.length && (
-            <div className="text-sm text-[--text-muted]">
-              No messages yet. Say hello!
-            </div>
-          )}
-          <div className="space-y-3">
-            {posts.map((post, index) => (
-              <div key={post.id} className="space-y-3" data-post-id={post.id}>
-                {showUnreadDivider && index === firstUnreadIndex && (
-                  <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
-                    <div className="flex-1 border-t border-[--border-color]" />
-                    <span>New</span>
-                    <div className="flex-1 border-t border-[--border-color]" />
-                  </div>
-                )}
-                <div className="flex gap-3 group relative">
-                  {post.type === "system_add_to_channel" ? (
-                    <div className="w-full flex justify-center">
-                      <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
-                        {renderMessageContent(getDisplayMessage(post))}
+        <div className="flex flex-1 min-h-0 flex-col gap-4 lg:flex-row">
+          <div className="flex min-h-0 flex-1 flex-col gap-3">
+            {/* Messages list */}
+            <div
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
+              className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
+            >
+              {isLoading && (
+                <div className="text-sm text-[--text-muted]">Loading messages…</div>
+              )}
+              {error && (
+                <div className="text-sm text-red-500">
+                  {(error as Error).message || "Failed to load"}
+                </div>
+              )}
+              {moderationError && (
+                <div className="text-sm text-red-500">{moderationError}</div>
+              )}
+              {!isLoading && !posts.length && (
+                <div className="text-sm text-[--text-muted]">
+                  No messages yet. Say hello!
+                </div>
+              )}
+              <div className="space-y-3">
+                {posts.map((post, index) => (
+                  <div key={post.id} className="space-y-3" data-post-id={post.id}>
+                    {showUnreadDivider && index === firstUnreadIndex && (
+                      <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
+                        <div className="flex-1 border-t border-[--border-color]" />
+                        <span>New</span>
+                        <div className="flex-1 border-t border-[--border-color]" />
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="h-10 w-10 flex-shrink-0">
-                        {(() => {
-                          const user = usersById[post.user_id];
-                          const displayName = getDisplayName(post);
-                          const username = getUsername(post);
-                          const avatarUrl = getAvatarUrl(user);
+                    )}
+                    <div className="flex gap-3 group relative">
+                      {post.type === "system_add_to_channel" ? (
+                        <div className="w-full flex justify-center">
+                          <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
+                            {renderMessageContent(getDisplayMessage(post))}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="h-10 w-10 flex-shrink-0">
+                            {(() => {
+                              const user = usersById[post.user_id];
+                              const displayName = getDisplayName(post);
+                              const username = getUsername(post);
+                              const avatarUrl = getAvatarUrl(user);
 
-                          if (username) {
-                            return (
-                              <UserAvatar
-                                username={username}
-                                size="medium"
-                                className="h-10 w-10"
-                              />
-                            );
-                          }
+                              if (username) {
+                                return (
+                                  <UserAvatar
+                                    username={username}
+                                    size="medium"
+                                    className="h-10 w-10"
+                                  />
+                                );
+                              }
 
-                          if (avatarUrl) {
-                            return (
-                              <img
-                                src={avatarUrl}
-                                alt={`${displayName} avatar`}
-                                className="h-10 w-10 rounded-full object-cover"
-                              />
-                            );
-                          }
+                              if (avatarUrl) {
+                                return (
+                                  <img
+                                    src={avatarUrl}
+                                    alt={`${displayName} avatar`}
+                                    className="h-10 w-10 rounded-full object-cover"
+                                  />
+                                );
+                              }
 
-                          return (
-                            <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
-                              {displayName.charAt(0).toUpperCase()}
+                              return (
+                                <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                                  {displayName.charAt(0).toUpperCase()}
+                                </div>
+                              );
+                            })()}
+                          </div>
+
+                          <div className="flex flex-col gap-1 w-full">
+                            <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                              {(() => {
+                                const username = getUsername(post);
+                                const displayName = getDisplayName(post);
+
+                                if (username) {
+                                  return (
+                                    <UsernameActions
+                                      username={username}
+                                      displayName={displayName}
+                                      currentUsername={activeUser?.username}
+                                      onStartDm={startDirectMessage}
+                                    />
+                                  );
+                                }
+
+                                return <span>{displayName}</span>;
+                              })()}
+                              <span
+                                className="text-[--text-muted]"
+                                title={new Date(post.create_at).toLocaleString()}
+                              >
+                                {formatTimestamp(post.create_at)}
+                              </span>
+                              {post.edit_at > post.create_at && (
+                                <span
+                                  className="text-[11px] text-[--text-muted]"
+                                  title={`Edited ${formatTimestamp(post.edit_at)}`}
+                                >
+                                  • Edited
+                                </span>
+                              )}
                             </div>
-                          );
-                        })()}
-                      </div>
+                            {post.root_id && (
+                              // Mattermost replies are stored as threads (root_id). Show a parent preview and allow
+                              // opening the dedicated side panel for a focused view.
+                              <button
+                                type="button"
+                                onClick={() => openThread(postsById.get(post.root_id!) ?? post)}
+                                className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
+                              >
+                                <div className="font-semibold">
+                                  Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}
+                                </div>
+                                <div className="line-clamp-2 text-[--text-muted]">
+                                  {renderMessageContent(
+                                    getDisplayMessage(postsById.get(post.root_id) ?? post)
+                                  )}
+                                </div>
+                              </button>
+                            )}
+                            <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
+                              {renderMessageContent(getDisplayMessage(post))}
+                            </div>
+                            {(() => {
+                              const reactions = post.metadata?.reactions ?? [];
+                              if (!reactions.length) return null;
 
-                      <div className="flex flex-col gap-1 w-full">
-                        <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                              const grouped = reactions.reduce<
+                                Record<string, { count: number; reacted: boolean }>
+                              >((acc, reaction) => {
+                                const existing = acc[reaction.emoji_name] || {
+                                  count: 0,
+                                  reacted: false
+                                };
+                                return {
+                                  ...acc,
+                                  [reaction.emoji_name]: {
+                                    count: existing.count + 1,
+                                    reacted:
+                                      existing.reacted ||
+                                      (data?.member?.user_id
+                                        ? reaction.user_id === data.member.user_id
+                                        : false)
+                                  }
+                                };
+                              }, {});
+
+                              return (
+                                <div className="flex flex-wrap gap-2">
+                                  {Object.entries(grouped).map(([emojiName, info]) => (
+                                    <button
+                                      key={`${post.id}-${emojiName}`}
+                                      type="button"
+                                      onClick={() => toggleReaction(post, emojiName)}
+                                      className={clsx(
+                                        "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
+                                        info.reacted
+                                          ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
+                                          : "border-[--border-color] bg-[--background-color]"
+                                      )}
+                                    >
+                                      <span>
+                                        {getNativeEmojiFromShortcode(emojiName) ||
+                                          `:${emojiName}:`}
+                                      </span>
+                                      <span className="text-[--text-muted]">
+                                        {info.count}
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </>
+                      )}
+                      {post.type !== "system_add_to_channel" && (
+                        <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
                           {(() => {
-                            const username = getUsername(post);
+                            const isReactionPickerOpen = openReactionPostId === post.id;
+
+                            return (
+                              <Popover
+                                behavior="click"
+                                placement="right"
+                                customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
+                                show={isReactionPickerOpen}
+                                setShow={(next) =>
+                                  setOpenReactionPostId(next ? post.id : null)
+                                }
+                                directContent={
+                                  <Button
+                                    appearance="gray-link"
+                                    size="xs"
+                                    className="!h-7"
+                                    icon={emojiIconSvg}
+                                    aria-label="Add reaction"
+                                    disabled={reactMutation.isPending}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setOpenReactionPostId((current) =>
+                                        current === post.id ? null : post.id
+                                      );
+                                    }}
+                                  />
+                                }
+                              >
+                                <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
+                                  {QUICK_REACTIONS.map((emoji) => (
+                                    <button
+                                      key={`${post.id}-${emoji}-picker`}
+                                      type="button"
+                                      className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
+                                      onClick={() => toggleReaction(post, emoji, true)}
+                                      disabled={reactMutation.isPending}
+                                    >
+                                      {emoji}
+                                    </button>
+                                  ))}
+                                </PopoverContent>
+                              </Popover>
+                            );
+                          })()}
+                          <Button
+                            appearance="gray-link"
+                            size="xs"
+                            onClick={() => handleReply(post)}
+                            className="!h-7"
+                          >
+                            Reply
+                          </Button>
+                          {post.user_id === data?.member?.user_id && (
+                            <Button
+                              appearance="gray-link"
+                              size="xs"
+                              onClick={() => handleEdit(post)}
+                              className="!h-7"
+                            >
+                              Edit
+                            </Button>
+                          )}
+                          <Dropdown>
+                            <DropdownToggle>
+                              <Button
+                                icon={dotsHorizontal}
+                                appearance="gray-link"
+                                size="xs"
+                                className="h-7 w-7 !p-0"
+                                aria-label="Message actions"
+                              />
+                            </DropdownToggle>
+                            <DropdownMenu align="right" size="small">
+                              <DropdownItemWithIcon
+                                icon={mailSvg}
+                                label="Open thread"
+                                onClick={() => openThread(post)}
+                              />
+                              {data?.canModerate && (
+                                <DropdownItemWithIcon
+                                  icon={deleteForeverSvg}
+                                  label={
+                                    deleteMutation.isPending &&
+                                    deletingPostId === post.id
+                                      ? "Deleting…"
+                                      : "Delete"
+                                  }
+                                  onClick={() => handleDelete(post.id)}
+                                  disabled={deleteMutation.isPending}
+                                />
+                              )}
+                            </DropdownMenu>
+                          </Dropdown>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {threadRootId && (
+            <div className="hidden lg:flex w-[360px] flex-col rounded border border-[--border-color] bg-[--surface-color] p-4 min-h-0">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-[--text-color]">Thread</span>
+                  {threadRootPost && (
+                    <span className="text-[11px] text-[--text-muted]">
+                      Started by {getDisplayName(threadRootPost)} • {formatTimestamp(threadRootPost.create_at)}
+                    </span>
+                  )}
+                </div>
+                <Button
+                  appearance="gray-link"
+                  size="xs"
+                  onClick={() => setThreadRootId(null)}
+                  className="!h-7"
+                >
+                  Close
+                </Button>
+              </div>
+
+              <div className="mt-3 flex-1 overflow-y-auto space-y-3">
+                {threadPosts.length ? (
+                  threadPosts.map((post) => (
+                    <div
+                      key={`${post.id}-thread`}
+                      className={clsx(
+                        "rounded border border-[--border-color] bg-[--background-color] p-3",
+                        post.id === threadRootId &&
+                          "border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/30"
+                      )}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="h-8 w-8 flex-shrink-0">
+                          {(() => {
+                            const user = usersById[post.user_id];
                             const displayName = getDisplayName(post);
+                            const username = getUsername(post);
+                            const avatarUrl = getAvatarUrl(user);
 
                             if (username) {
                               return (
-                                <UsernameActions
+                                <UserAvatar
                                   username={username}
-                                  displayName={displayName}
-                                  currentUsername={activeUser?.username}
-                                  onStartDm={startDirectMessage}
+                                  size="small"
+                                  className="h-8 w-8"
                                 />
                               );
                             }
 
-                            return <span>{displayName}</span>;
+                            if (avatarUrl) {
+                              return (
+                                <img
+                                  src={avatarUrl}
+                                  alt={`${displayName} avatar`}
+                                  className="h-8 w-8 rounded-full object-cover"
+                                />
+                              );
+                            }
+
+                            return (
+                              <div className="h-8 w-8 rounded-full bg-[--surface-color] text-xs font-semibold text-[--text-muted] flex items-center justify-center">
+                                {displayName.charAt(0).toUpperCase()}
+                              </div>
+                            );
                           })()}
-                          <span
-                            className="text-[--text-muted]"
-                            title={new Date(post.create_at).toLocaleString()}
-                          >
-                            {formatTimestamp(post.create_at)}
-                          </span>
-                          {post.edit_at > post.create_at && (
-                            <span
-                              className="text-[11px] text-[--text-muted]"
-                              title={`Edited ${formatTimestamp(post.edit_at)}`}
-                            >
-                              • Edited
+                        </div>
+
+                        <div className="flex w-full flex-col gap-2">
+                          <div className="flex items-center gap-2 text-[11px] text-[--text-muted]">
+                            <span className="font-semibold text-[--text-color]">
+                              {getDisplayName(post)}
                             </span>
-                          )}
-                        </div>
-                        {post.root_id && (
-                          <button
-                            type="button"
-                            onClick={() => scrollToPost(post.root_id!)}
-                            className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
-                          >
-                            <div className="font-semibold">
-                              Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}
-                            </div>
-                            <div className="line-clamp-2 text-[--text-muted]">
-                              {renderMessageContent(
-                                getDisplayMessage(postsById.get(post.root_id) ?? post)
-                              )}
-                            </div>
-                          </button>
-                        )}
-                        <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
-                          {renderMessageContent(getDisplayMessage(post))}
-                        </div>
-                        {(() => {
-                          const reactions = post.metadata?.reactions ?? [];
-                          if (!reactions.length) return null;
-
-                          const grouped = reactions.reduce<
-                            Record<string, { count: number; reacted: boolean }>
-                          >((acc, reaction) => {
-                            const existing = acc[reaction.emoji_name] || {
-                              count: 0,
-                              reacted: false
-                            };
-                            return {
-                              ...acc,
-                              [reaction.emoji_name]: {
-                                count: existing.count + 1,
-                                reacted:
-                                  existing.reacted ||
-                                  (data?.member?.user_id
-                                    ? reaction.user_id === data.member.user_id
-                                    : false)
-                              }
-                            };
-                          }, {});
-
-                          return (
-                            <div className="flex flex-wrap gap-2">
-                              {Object.entries(grouped).map(([emojiName, info]) => (
-                                <button
-                                  key={`${post.id}-${emojiName}`}
-                                  type="button"
-                                  onClick={() => toggleReaction(post, emojiName)}
-                                  className={clsx(
-                                    "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
-                                    info.reacted
-                                      ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
-                                      : "border-[--border-color] bg-[--background-color]"
-                                  )}
-                                >
-                                  <span>
-                                    {getNativeEmojiFromShortcode(emojiName) ||
-                                      `:${emojiName}:`}
-                                  </span>
-                                  <span className="text-[--text-muted]">
-                                    {info.count}
-                                  </span>
-                                </button>
-                              ))}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </>
-                  )}
-                  {post.type !== "system_add_to_channel" && (
-                    <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
-                      <Button
-                        appearance="gray-link"
-                        size="xs"
-                        onClick={() => handleReply(post)}
-                        className="!h-7"
-                      >
-                        Reply
-                      </Button>
-                      {post.user_id === data?.member?.user_id && (
-                        <Button
-                          appearance="gray-link"
-                          size="xs"
-                          onClick={() => handleEdit(post)}
-                          className="!h-7"
-                        >
-                          Edit
-                        </Button>
-                      )}
-                      {(() => {
-                        const isReactionPickerOpen = openReactionPostId === post.id;
-
-                        return (
-                          <Popover
-                            behavior="click"
-                            placement="right"
-                            customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
-                            show={isReactionPickerOpen}
-                            setShow={(next) =>
-                              setOpenReactionPostId(next ? post.id : null)
-                            }
-                            directContent={
-                              <Button
-                                appearance="gray-link"
-                                size="xs"
-                                className="!h-7"
-                                icon={emojiIconSvg}
-                                aria-label="Add reaction"
-                                disabled={reactMutation.isPending}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setOpenReactionPostId((current) =>
-                                    current === post.id ? null : post.id
-                                  );
-                                }}
-                              />
-                            }
-                          >
-                            <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
-                              {QUICK_REACTIONS.map((emoji) => (
-                                <button
-                                  key={`${post.id}-${emoji}-picker`}
-                                  type="button"
-                                  className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
-                                  onClick={() => toggleReaction(post, emoji, true)}
-                                  disabled={reactMutation.isPending}
-                                >
-                                  {emoji}
-                                </button>
-                              ))}
-                            </PopoverContent>
-                          </Popover>
-                        );
-                      })()}
-                      {data?.canModerate && (
-                        <Dropdown>
-                          <DropdownToggle>
+                            <span title={new Date(post.create_at).toLocaleString()}>
+                              {formatTimestamp(post.create_at)}
+                            </span>
+                          </div>
+                          <div className="text-sm whitespace-pre-wrap break-words space-y-2">
+                            {renderMessageContent(getDisplayMessage(post))}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
                             <Button
-                              icon={dotsHorizontal}
                               appearance="gray-link"
                               size="xs"
-                              className="h-7 w-7 !p-0"
-                              aria-label="Moderation actions"
-                            />
-                          </DropdownToggle>
-                          <DropdownMenu align="right" size="small">
-                            <DropdownItemWithIcon
-                              icon={deleteForeverSvg}
-                              label={
-                                deleteMutation.isPending &&
-                                deletingPostId === post.id
-                                  ? "Deleting…"
-                                  : "Delete"
-                              }
-                              onClick={() => handleDelete(post.id)}
-                              disabled={deleteMutation.isPending}
-                            />
-                          </DropdownMenu>
-                        </Dropdown>
-                      )}
+                              className="!h-7"
+                              onClick={() => handleReply(post)}
+                              disabled={isSubmitting}
+                            >
+                              Reply in thread
+                            </Button>
+                            <Button
+                              appearance="gray-link"
+                              size="xs"
+                              className="!h-7"
+                              onClick={() => scrollToPost(post.id)}
+                            >
+                              Jump to message
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
+                  ))
+                ) : (
+                  <div className="text-sm text-[--text-muted]">
+                    No messages in this thread yet.
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+
+              {threadRootPost && (
+                <Button
+                  appearance="primary"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => handleReply(threadRootPost)}
+                  disabled={isSubmitting}
+                >
+                  Reply to thread
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
