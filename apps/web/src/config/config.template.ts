@@ -28,7 +28,7 @@ const CONFIG = {
     visionFeatures: {
       analytics: {
         plausible: {
-          domain: "https://pl.ecency.com"
+          domain: process.env.PLAUSIBLE_API_HOST || "https://pl.ecency.com"
         }
       },
       perks: {
@@ -100,8 +100,8 @@ const CONFIG = {
       },
       plausible: {
         enabled: true,
-        host: "https://pl.ecency.com",
-        siteId: "ecency.com",
+        host: process.env.PLAUSIBLE_API_HOST || "https://pl.ecency.com",
+        siteId: process.env.PLAUSIBLE_DOMAIN || "ecency.com",
         apiKey: process.env.PLAUSIBLE_API_KEY
       },
       publish: {
