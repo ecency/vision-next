@@ -1,4 +1,11 @@
-import React, { MutableRefObject, useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import "./_index.scss";
 import { SearchBox } from "@/features/shared";
 import Image from "next/image";
@@ -70,6 +77,32 @@ export function GifPicker(props: Props) {
     }),
     [props.style]
   );
+
+  useEffect(() => {
+    if (!props.shGif) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const targetNode = event.target as Node | null;
+
+      if (!targetNode) {
+        return;
+      }
+
+      if (rootRef.current?.contains(targetNode)) {
+        return;
+      }
+
+      props.changeState(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [props.changeState, props.shGif]);
 
   return (
     <div

@@ -1,6 +1,7 @@
 @import "src/styles/vars_mixins";
 
 .emoji-picker.gif {
+  display: block;
   // width: 280px;
   width: 430px;
   position: absolute;
@@ -78,6 +79,10 @@
       }
     }
   }
+}
+
+.editor-tool .emoji-picker.gif {
+  display: block;
 }
 
 
