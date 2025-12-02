@@ -137,20 +137,34 @@ export function ChatsClient() {
   );
 
   const sortedChannels = useMemo(() => {
-    return [...filteredChannels].sort((a, b) => {
-      const aUnread = getUnreadCount(a) > 0;
-      const bUnread = getUnreadCount(b) > 0;
+    const defaultOrder = Number.MAX_SAFE_INTEGER;
 
-      if (aUnread !== bUnread) {
-        return aUnread ? -1 : 1;
-      }
+    return [...filteredChannels]
+      .map((channel) => ({
+        channel,
+        unread: getUnreadCount(channel) > 0,
+        favorite: Boolean(channel.is_favorite),
+        // Order by the logged-in user's most recent interaction (last viewed),
+        // falling back to latest post time if we have never opened the channel.
+        lastInteraction: channel.last_viewed_at ?? channel.last_post_at ?? 0,
+        order: channelOrder.get(channel.id) ?? defaultOrder
+      }))
+      .sort((a, b) => {
+        if (a.unread !== b.unread) {
+          return a.unread ? -1 : 1;
+        }
 
-      if (a.is_favorite === b.is_favorite) {
-        return (channelOrder.get(a.id) || 0) - (channelOrder.get(b.id) || 0);
-      }
+        if (a.favorite !== b.favorite) {
+          return a.favorite ? -1 : 1;
+        }
 
-      return a.is_favorite ? -1 : 1;
-    });
+        if (a.lastInteraction !== b.lastInteraction) {
+          return b.lastInteraction - a.lastInteraction;
+        }
+
+        return a.order - b.order;
+      })
+      .map((item) => item.channel);
   }, [channelOrder, filteredChannels, getUnreadCount]);
 
   const joinableChannelResults = useMemo(() => {

@@ -18,6 +18,8 @@ interface MattermostChannel {
   message_count?: number;
   directUser?: MattermostUser | null;
   order?: number;
+  last_post_at?: number;
+  last_viewed_at?: number;
 }
 
 interface MattermostUser {
@@ -40,6 +42,8 @@ interface MattermostChannelMemberCounts extends MattermostChannelMember {
   notify_props?: {
     mark_unread?: string;
   };
+  last_viewed_at?: number;
+  last_update_at?: number;
 }
 
 interface MattermostChannelCategory {
@@ -160,7 +164,8 @@ export async function GET() {
         mention_count: directMember?.mention_count || channelMembersById[channel.id]?.mention_count || 0,
         message_count: Math.max((channel.total_msg_count || 0) - (directMember?.msg_count || 0), 0),
         display_name: directUser ? `@${directUser.username}` : channel.display_name,
-        directUser: directUser || null
+        directUser: directUser || null,
+        last_viewed_at: directMember?.last_viewed_at || channelMembersById[channel.id]?.last_viewed_at
       };
     });
 
@@ -204,7 +209,11 @@ export async function GET() {
         channel.type === "D"
           ? Math.max((channel.total_msg_count || 0) - (directMemberCounts[channel.id]?.msg_count || 0), 0)
           : channel.message_count || 0,
-      order: channelOrderFromCategories.get(channel.id)
+      order: channelOrderFromCategories.get(channel.id),
+      last_viewed_at:
+        channel.type === "D"
+          ? directMemberCounts[channel.id]?.last_viewed_at
+          : channelMembersById[channel.id]?.last_viewed_at
     }));
 
     const orderedChannels = [...channelsWithCounts].sort((a, b) => {

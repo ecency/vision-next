@@ -14,6 +14,8 @@ interface MattermostChannel {
   directUser?: MattermostUser | null;
   mention_count?: number;
   message_count?: number;
+  last_post_at?: number;
+  last_viewed_at?: number;
 }
 
 interface MattermostChannelSummary {
