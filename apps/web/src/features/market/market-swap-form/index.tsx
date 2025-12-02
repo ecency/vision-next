@@ -215,6 +215,33 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
 
   const engineTokenPrecision = (engineTokenDefinitionQuery.data as Token | undefined)?.precision ?? DEFAULT_ENGINE_PRECISION;
 
+  const engineTokenPrecisionMap = useMemo(() => {
+    const precisionMap = new Map<string, number>();
+
+    engineTokens.forEach((token) => {
+      if (token.symbol && typeof token.precision === "number") {
+        precisionMap.set(token.symbol, token.precision);
+      }
+    });
+
+    return precisionMap;
+  }, [engineTokens]);
+
+  const getAssetPrecision = useCallback(
+    (asset: MarketAsset) => {
+      if (isHiveMarketAsset(asset)) {
+        return 3;
+      }
+
+      if (isSwapHiveAsset(asset)) {
+        return DEFAULT_ENGINE_PRECISION;
+      }
+
+      return engineTokenPrecisionMap.get(asset) ?? DEFAULT_ENGINE_PRECISION;
+    },
+    [engineTokenPrecisionMap]
+  );
+
   const { data } = useCurrencyRateQuery(fromAsset, toAsset);
 
   useMount(() => {
@@ -346,6 +373,9 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
   const isHiveSwap = isHiveMarketAsset(fromAsset) && isHiveMarketAsset(toAsset);
   const isEngineSwap = isEnginePair(fromAsset, toAsset);
 
+  const fromPrecision = useMemo(() => getAssetPrecision(fromAsset), [fromAsset, getAssetPrecision]);
+  const toPrecision = useMemo(() => getAssetPrecision(toAsset), [getAssetPrecision, toAsset]);
+
   return (
     <div
       className={classNameObject({
@@ -393,6 +423,7 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
           availableAssets={availableFromAssets}
           labelKey="market.from"
           value={from}
+          precision={fromPrecision}
           setValue={(v) => setFrom(v)}
           setAsset={(v) => setFromAsset(v)}
           usdRate={accountFromMarketRate}
@@ -442,6 +473,7 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
           availableAssets={availableToAssets}
           labelKey="market.to"
           value={to}
+          precision={toPrecision}
           setValue={(v) => setTo(v)}
           setAsset={(v) => setToAsset(v)}
           usdRate={accountToMarketRate}

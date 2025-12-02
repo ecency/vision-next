@@ -260,7 +260,10 @@ export const getEngineOrderBook = async (
     )
   ]);
 
-  return { buy, sell };
+  return {
+    buy: buy.sort((a, b) => parseFloat(b.price || "0") - parseFloat(a.price || "0")),
+    sell: sell.sort((a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0"))
+  };
 };
 
 export const getEngineTradeHistory = async (

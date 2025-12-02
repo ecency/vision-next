@@ -20,6 +20,7 @@ export interface Props {
   setAsset: (asset: MarketAsset) => void;
   usdRate: number;
   disabled: boolean;
+  precision?: number;
   inputDisabled?: boolean;
   selectDisabled?: boolean;
   elementAfterBalance?: JSX.Element;
@@ -152,6 +153,7 @@ export const SwapAmountControl = ({
   balance,
   usdRate,
   disabled,
+  precision = 3,
   inputDisabled = false,
   selectDisabled = false,
   className,
@@ -161,25 +163,26 @@ export const SwapAmountControl = ({
 }: Props) => {
   // Format to x,xxx.xxx
   const formatValue = (newValue: string) => {
-    const isInt = /[0-9.]*/.test(newValue);
-    if (isInt) {
-      const isFirstPoint = newValue[0] === ".";
-      if (isFirstPoint) {
-        return "";
-      }
+    const sanitized = newValue.replace(/,/g, "");
 
-      const isLastPoint = newValue[newValue.length - 1] === ".";
-      if (isLastPoint) {
-        return newValue;
-      }
-
-      const [integerPart, fractionalPart] = newValue.split(".");
-      return (
-        numeral(integerPart).format("0,0") +
-        (fractionalPart ? "." + fractionalPart.slice(0, 3) : "")
-      );
+    if (!/^\d*(\.\d*)?$/.test(sanitized)) {
+      return value;
     }
-    return value;
+
+    const [integerPart = "", fractionalPart = ""] = sanitized.split(".");
+
+    const formattedInteger = integerPart ? numeral(integerPart).format("0,0") : "";
+    const trimmedFractional = fractionalPart.slice(0, precision);
+
+    if (sanitized === "" || sanitized === ".") {
+      return "";
+    }
+
+    if (sanitized.endsWith(".")) {
+      return `${formattedInteger}.`;
+    }
+
+    return trimmedFractional ? `${formattedInteger}.${trimmedFractional}` : formattedInteger;
   };
 
   return (
