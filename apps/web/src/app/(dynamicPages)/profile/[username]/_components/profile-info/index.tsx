@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import dayjs from "@/utils/dayjs";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
@@ -104,8 +104,17 @@ interface Props {
   account: Account;
 }
 
-function isFullAccount(account: Account): account is FullAccount {
-  return Boolean((account as FullAccount)?.__loaded);
+function isFullAccount(account?: Account | null): account is FullAccount {
+  if (!account) {
+    return false;
+  }
+
+  return (
+    account.post_count !== undefined &&
+    account.last_vote_time !== undefined &&
+    account.vesting_shares !== undefined &&
+    account.savings_balance !== undefined
+  );
 }
 
 export function ProfileInfo({ account }: Props) {
@@ -113,28 +122,31 @@ export function ProfileInfo({ account }: Props) {
 
   const hydratedAccount = accountQuery.data ?? undefined;
 
+  const refetchAttempted = useRef(false);
+
+  useEffect(() => {
+    refetchAttempted.current = false;
+  }, [account?.name]);
+
   const resolvedAccount = useMemo(() => {
-    if (isFullAccount(account)) {
-      return account;
-    }
-
-    if (hydratedAccount && isFullAccount(hydratedAccount)) {
-      return hydratedAccount;
-    }
-
-    return undefined;
+    return isFullAccount(account) ? account : isFullAccount(hydratedAccount) ? hydratedAccount : undefined;
   }, [account, hydratedAccount]);
 
   const hasFullAccount = Boolean(resolvedAccount);
   const isAccountLoading = !hasFullAccount && (accountQuery.isLoading || accountQuery.isFetching);
 
   useEffect(() => {
-    if (!hasFullAccount && !accountQuery.isLoading && !accountQuery.isFetching && account?.name) {
-      console.warn(
-        `ProfileInfo: account "${account.name}" is missing the __loaded flag after hydration.`,
-      );
+    if (
+      !hasFullAccount &&
+      !refetchAttempted.current &&
+      !accountQuery.isLoading &&
+      !accountQuery.isFetching &&
+      account?.name
+    ) {
+      refetchAttempted.current = true;
+      accountQuery.refetch();
     }
-  }, [account?.name, accountQuery.isFetching, accountQuery.isLoading, hasFullAccount]);
+  }, [account?.name, accountQuery, hasFullAccount]);
 
   const { data } = useQuery({
     ...getAccountRcQueryOptions(account.name),
