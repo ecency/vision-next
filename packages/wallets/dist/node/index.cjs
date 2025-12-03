@@ -3068,6 +3068,17 @@ function getVisionPortfolioQueryOptions(username) {
 }
 
 // src/modules/wallets/queries/use-get-account-wallet-list-query.ts
+function normalizeAccountTokens(tokens) {
+  if (Array.isArray(tokens)) {
+    return tokens.filter(Boolean);
+  }
+  if (tokens && typeof tokens === "object") {
+    return Object.values(tokens).flatMap(
+      (value) => Array.isArray(value) ? value.filter(Boolean) : []
+    );
+  }
+  return [];
+}
 var BASIC_TOKENS = [
   "POINTS" /* Points */,
   "HIVE" /* Hive */,
@@ -3088,7 +3099,8 @@ function getAccountWalletListQueryOptions(username) {
       } catch {
       }
       const tokenVisibility = /* @__PURE__ */ new Map();
-      account?.profile?.tokens?.forEach((token) => {
+      const accountTokens = normalizeAccountTokens(account?.profile?.tokens);
+      accountTokens.forEach((token) => {
         const symbol = token.symbol?.toUpperCase?.();
         if (!symbol) {
           return;
@@ -3121,10 +3133,10 @@ function getAccountWalletListQueryOptions(username) {
         }
       } catch {
       }
-      if (account?.profile?.tokens instanceof Array) {
+      if (accountTokens.length > 0) {
         const list = [
           ...BASIC_TOKENS,
-          ...account.profile.tokens.map((token) => token.symbol).filter(isTokenVisible)
+          ...accountTokens.map((token) => token.symbol).filter(isTokenVisible)
         ];
         return Array.from(new Set(list).values());
       }

@@ -1,11 +1,29 @@
 import { queryOptions } from "@tanstack/react-query";
 import { EcencyWalletBasicTokens } from "../enums";
 import {
+  AccountProfile,
   FullAccount,
   getAccountFullQueryOptions,
   getQueryClient,
 } from "@ecency/sdk";
 import { getVisionPortfolioQueryOptions } from "./get-vision-portfolio-query-options";
+
+type ProfileTokens = AccountProfile["tokens"];
+type ProfileToken = NonNullable<ProfileTokens>[number];
+
+function normalizeAccountTokens(tokens: ProfileTokens): ProfileToken[] {
+  if (Array.isArray(tokens)) {
+    return tokens.filter(Boolean) as ProfileToken[];
+  }
+
+  if (tokens && typeof tokens === "object") {
+    return Object.values(tokens).flatMap((value) =>
+      Array.isArray(value) ? (value.filter(Boolean) as ProfileToken[]) : []
+    );
+  }
+
+  return [];
+}
 
 const BASIC_TOKENS: string[] = [
   EcencyWalletBasicTokens.Points,
@@ -33,7 +51,9 @@ export function getAccountWalletListQueryOptions(username: string) {
 
       const tokenVisibility = new Map<string, boolean>();
 
-      account?.profile?.tokens?.forEach((token) => {
+      const accountTokens = normalizeAccountTokens(account?.profile?.tokens);
+
+      accountTokens.forEach((token: ProfileToken) => {
         const symbol = token.symbol?.toUpperCase?.();
 
         if (!symbol) {
@@ -81,11 +101,11 @@ export function getAccountWalletListQueryOptions(username: string) {
         // Fallback to legacy behaviour when the portfolio endpoint is not accessible.
       }
 
-      if (account?.profile?.tokens instanceof Array) {
+      if (accountTokens.length > 0) {
         const list = [
           ...BASIC_TOKENS,
-          ...account.profile.tokens
-            .map((token) => token.symbol)
+          ...accountTokens
+            .map((token: ProfileToken) => token.symbol)
             .filter(isTokenVisible),
         ];
 
