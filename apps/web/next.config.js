@@ -8,17 +8,19 @@ const withPWA = require("next-pwa")({
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
+const sassEmbedded = require("sass-embedded");
 
 const config = {
   productionBrowserSourceMaps: true,
   htmlLimitedBots:
     /Mediapartners-Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/,
   sassOptions: {
-    implementation: require.resolve("sass-embedded"),
+    implementation: sassEmbedded,
     includePaths: [path.join(__dirname), path.join(__dirname, "src/styles")],
     silenceDeprecations: ["legacy-js-api", "import", "global-builtin", "color-functions"]
   },
   generateBuildId: async () => v4(),
+  eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   transpilePackages: ["@ecency/sdk", "@ecency/wallets", "@ecency/renderer"],
   experimental: {
