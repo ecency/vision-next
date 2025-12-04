@@ -33,10 +33,7 @@
     "overrides": {
       "typescript": "^5",
       "source-map": "^0.7.4",
-      "sass-embedded": "1.93.2",
-      "@sentry/core": "^8.55.0",
-      "@sentry/types": "^8.55.0",
-      "@sentry/utils": "^8.55.0"
+      "sass-embedded": "1.93.2"
     },
     "ignoredBuiltDependencies": [
       "sharp"
