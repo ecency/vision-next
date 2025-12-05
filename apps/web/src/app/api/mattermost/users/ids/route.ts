@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getMattermostTokenFromCookies, handleMattermostError, mmUserFetch } from "@/server/mattermost";
 
 interface MattermostUser {
@@ -12,15 +12,25 @@ interface MattermostUser {
   last_picture_update?: number;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const token = await getMattermostTokenFromCookies();
 
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  let ids: unknown;
   try {
-    const ids = await request.json();
+    ids = await request.json();
+  } catch (error) {
+    return NextResponse.json({ error: "invalid request" }, { status: 400 });
+  }
+
+  if (!Array.isArray(ids) || !ids.every((id) => typeof id === "string")) {
+    return NextResponse.json({ error: "invalid request" }, { status: 400 });
+  }
+
+  try {
     const users = await mmUserFetch<MattermostUser[]>("/users/ids", token, {
       method: "POST",
       body: JSON.stringify(ids)
