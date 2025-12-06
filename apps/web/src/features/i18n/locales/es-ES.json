@@ -1043,7 +1043,7 @@
     "section-replies": "Respuestas",
     "section-communities": "Comunidades",
     "section-wallet": "Cartera",
-    "section-insights": "Perspectivas",
+    "section-insights": "Estadísticas",
     "section-settings": "Configuraciones",
     "section-referrals": "Referidos",
     "section-permission": "Permisos",
@@ -1089,7 +1089,7 @@
     "no-data": "No hay páginas vistas disponibles para este rango todavía.",
     "range": "Intervalo de fechas",
     "disabled": "Las estadísticas en profundidad están desactivadas en este momento.",
-    "error": "No se puede cargar insights."
+    "error": "No se pueden cargar estadísticas en profundidad."
   },
   "rc-info": {
     "available": "Disponible",
