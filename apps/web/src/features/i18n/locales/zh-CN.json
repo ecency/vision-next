@@ -1043,6 +1043,7 @@
     "section-replies": "回复",
     "section-communities": "社区",
     "section-wallet": "钱包",
+    "section-insights": "洞察力",
     "section-settings": "设置",
     "section-referrals": "引用",
     "section-permission": "权限",
@@ -1073,6 +1074,22 @@
     "link-copied": "搜索链接已复制到剪贴板",
     "no-posts-found": "找不到任何东西！",
     "subscribe": "订阅"
+  },
+  "profile-insights": {
+    "description": "看看你的帖子中哪一个与读者最为共鸣。",
+    "today": "今日：",
+    "yesterday": "昨日",
+    "last-7": "过去 7 天",
+    "last-30": "过去 30 天",
+    "all-time": "全部时间",
+    "page": "页",
+    "views": "视图",
+    "uniques": "唯一视图",
+    "minutes": "分钟",
+    "no-data": "此范围内尚无页面查看。",
+    "range": "Date range",
+    "disabled": "眼光目前已被禁用。",
+    "error": "无法加载洞察力。"
   },
   "rc-info": {
     "available": "可用",
