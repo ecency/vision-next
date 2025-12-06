@@ -407,9 +407,6 @@
     "ascending": "昇順",
     "descending": "降順"
   },
-  "selected-tags": {
-    "title": "注目の商品"
-  },
   "entry-list-item": {
     "cross-posted": "クロス投稿",
     "cross-posted-to": "to",
@@ -824,9 +821,6 @@
       "deposit-instructions": "SWAP.HIVEを受け取るには、メモ {{memo}} でHIVEを@honey-swapに送信してください。"
     }
   },
-  "list-style": {
-    "title": "リストのスタイルを切り替える"
-  },
   "entry-votes": {
     "title": "1票",
     "title-n": "{{n}} 投票",
@@ -1049,6 +1043,7 @@
     "section-replies": "返信",
     "section-communities": "コミュニティ",
     "section-wallet": "ウォレット",
+    "section-insights": "洞察",
     "section-settings": "設定",
     "section-referrals": "紹介",
     "section-permission": "アクセス許可",
@@ -1079,6 +1074,22 @@
     "link-copied": "検索リンクをクリップボードにコピーしました",
     "no-posts-found": "何も見つかりません！",
     "subscribe": "購読する"
+  },
+  "profile-insights": {
+    "description": "あなたのポストのどの部分が読者と最も共鳴しているかを確認してください。",
+    "today": "今日",
+    "yesterday": "昨日",
+    "last-7": "過去 7 日間",
+    "last-30": "過去 30 日間",
+    "all-time": "すべて",
+    "page": "ページ",
+    "views": "ビュー",
+    "uniques": "ユニークビュー",
+    "minutes": "分",
+    "no-data": "この範囲で利用可能なページビューはまだありません。",
+    "range": "Date range",
+    "disabled": "インサイトは現在無効になっています。",
+    "error": "インサイトを読み込めません。"
   },
   "rc-info": {
     "available": "利用可能です",
@@ -1269,24 +1280,6 @@
       "larynx-locked-description": "ロックされたトークンはネットワークに流動性を提供し、コンセンサスを決定するのに役立ち、ノードランナーの報酬を獲得します"
     }
   },
-  "wallet-engine": {
-    "title": "Hiveエンジントークン",
-    "description": "Hiveエンジンは、Hiveブロックチェーンのスマートコントラクトサイドチェーンプラットフォームです。",
-    "no-results": "トークンが見つかりません。",
-    "token": "トークン",
-    "balance": "残高",
-    "staked": "ステーク中"
-  },
-  "sort-engine-tokens": {
-    "sort": "並べ替え",
-    "sort-in-ascending": "昇順",
-    "sort-in-descending": "降順",
-    "sort-by-value": "値",
-    "sort-by-balance": "残高",
-    "sort-by-stake": "ステーク（ステーク）",
-    "sort-by-delegations-in": "委任先",
-    "sort-by-delegations-out": "委任する"
-  },
   "wallet-engine-estimated": {
     "title": "推定トークン値",
     "description": "あなたの財布のすべてのエンジントークンの米ドルの価値。"
@@ -1347,12 +1340,6 @@
     "filter-998": "送信",
     "filter-999": "入金手続き中"
   },
-  "purchase": {
-    "select-asset": "資産を選択",
-    "slider-hint": "スライダーをドラッグして金額を調整します。",
-    "submit": "購入",
-    "purchase-message": "または、ポイントを購入するためのメモとして @steem.app にいくらでも送ってください。"
-  },
   "purchase-qr": {
     "scan-code": "Ecencyモバイルアプリでスキャンして続行します",
     "select-user": "ユーザーを選択してください",
@@ -1370,14 +1357,6 @@
     "sub-title": "ポストを宣伝する",
     "duration": "期間",
     "learn-more": "プロモーションについての詳細"
-  },
-  "boost": {
-    "title": "ブースト",
-    "sub-title": "あなたの投稿をブーストします",
-    "amount": "金額",
-    "slider-hint": "スライダーをドラッグして金額を調整します。",
-    "hint": "投票の実際の価値は異なる場合があります",
-    "learn-more": "ブーストについてもっと詳しく"
   },
   "redeem-common": {
     "balance": "残高",
@@ -1739,11 +1718,6 @@
     "refresh": "更新して状態を取得する",
     "video-info": "ビデオはSPKネットワークによって保存され、いくつかのストレージとエンコード料金がかかる可能性があります。"
   },
-  "nsfw-content": {
-    "title": "NSFW コンテンツ",
-    "warning": "あなたのコンテンツがNSFWであるかどうかを確認してください",
-    "continue": "続ける"
-  },
   "tag-selector": {
     "placeholder-empty": "タグ。最初のタグはメインカテゴリです。ソート可能です。",
     "placeholder-focus": "タグを入力",
@@ -1850,9 +1824,6 @@
     "header-reward": "Recompensa",
     "header-votes": "投票",
     "header-votes-tip": "この期間の投票数"
-  },
-  "popular-users": {
-    "title": "人気のユーザー"
   },
   "discover": {
     "title": "Discover",
@@ -2065,19 +2036,6 @@
     "updated": "パスワードが変更されました！",
     "hint": "現時点では、新しいシードフレーズを設定するだけでキーを生成できます。他の種類のパスワードへの更新はサポートされていません。 Web 3.0の標準でEcencyとHiveのアカウントを維持するのに役立ちます。"
   },
-  "view-keys": {
-    "title": "秘密鍵を表示",
-    "header": "キーの管理",
-    "account": "アカウント",
-    "cur-pass": "現在のパスワード",
-    "owner": "所有者",
-    "active": "アクティブ",
-    "posting": "投稿",
-    "memo": "メモ",
-    "view-keys": "クリックしてキーを表示",
-    "copied": "秘密鍵をクリップボードにコピーしました",
-    "error": "パスワードが正しくありません。もう一度確認してください！"
-  },
   "manage-authorities": {
     "title": "認証局の管理",
     "type": "タイプ",
@@ -2128,26 +2086,23 @@
     "update-success-message": "リカバリ用のメールアドレスが正常に更新されました"
   },
   "chat": {
-    "page-title": "ダイレクトメッセージを開始するか、チャンネルに参加して誰とでもチャットできます。",
+    "page-title": "Ecencyコミュニティとチャットするために、ダイレクトメッセージを開始するか、チャンネルに参加してください。",
     "loading-chats": "Loading chats…",
-    "direct-messages-title": "ダイレクトメッセージ",
-    "start-dm": "Ecencyで誰とでもダイレクトメッセージを開始します。",
     "start-dm-button": "DMを開始",
     "starting-dm": "Starting…",
-    "search-user": "ユーザー名で検索",
-    "search-people": "Searching for people…",
-    "select-dm": "DMを開始する相手を選択",
-    "searching": "Searching…",
-    "no-user": "ユーザーが見つかりません。",
-    "search-channels": "チャンネルまたはDMを検索",
-    "channels-title": "チャンネル",
-    "loading": "読み込み中...",
+    "search-user": "人を検索",
+    "searching": "検索中...",
+    "no-user": "ユーザーが見つかりませんでした。",
+    "search-channels": "チャンネル、ユーザー、またはDMを検索",
+    "loading": "Loading…",
     "mark-as-read": "既読にする",
     "marking-as-read": "Marking…",
     "channel-type-dm": "DM",
     "channel-type": "チャンネル",
     "favorite-channel": "お気に入りチャンネル",
+    "channel-muted": "ミュート中",
     "mute-channel": "チャンネルをミュート",
+    "unmute-channel": "チャンネルのミュートを解除",
     "leave-channel": "僅用於中文",
     "no-channels": "割り当てられたチャンネルはまだありません。",
     "no-channels-search": "検索に一致するチャンネルがありません。",
@@ -2158,119 +2113,13 @@
     "join-channel-action": "参加する",
     "joining-channel": "Joining…",
     "no-additional-channels": "追加のチャンネルが見つかりませんでした。",
-    "why-read-only": "このユーザーはチャットキーを変更しました。上記の検索でユーザー名で新しいアカウントを見つけてください。",
-    "user-not-joined": "まだ参加していません",
     "title": "チャット",
-    "messages": "メッセージ",
-    "key": "Ecency chat key",
-    "new-message": "新しいメッセージ",
-    "direct-messages": "ダイレクトメッセージ",
-    "collapse": "折りたたむ",
-    "expand": "展開",
-    "scroll-to-bottom": "一番下までスクロール",
-    "joined": "参加しました",
-    "followers": "フォロワー",
-    "start-chat-placeholder": "新しいメッセージを開始する",
-    "search": "人やコミュニティを検索",
-    "join-chat": "チャットに参加",
-    "join-channel": "チャンネルに参加",
-    "back": "戻る",
-    "no-chat": "会話が見つかりません",
-    "start-chat": "チャットを開始",
-    "not-joined": "このユーザーはまだチャットに参加していません",
-    "subscribers": "Subscribers",
-    "invite": "招待",
-    "send-invite": "招待を送信",
-    "leave:": "退出する",
-    "refresh": "更新",
-    "message-warning": "このグループではメッセージを送信できません。",
-    "edit-community-roles": "コミュニティの役割を編集",
-    "add": "追加",
     "no-admin": "このコミュニティチャットの管理者またはモデレータはいません。",
-    "blocked-users": "ブロックされたユーザー",
-    "action": "アクション",
-    "unblock": "ブロックを解除",
-    "ecency-key": "Ecency key",
-    "no-locked-user": "ブロックされたユーザーが見つかりません",
-    "no-hidden-messages": "非表示のメッセージが見つかりません",
-    "enter-private-key": "チャット秘密鍵を入力",
-    "enter-private-key-detail": "すべてのチャットをインポートするにはチャット秘密鍵を入力してください",
-    "close": "閉じる",
-    "confirm": "確認する",
-    "error-updating-community": "コミュニティの更新中にエラーが発生しました",
-    "leaving": "退出中",
-    "edit-roles": "役割を編集",
-    "manage-chat-key": "資格情報",
-    "block": "ブロック",
-    "communities": "コミュニティ",
-    "dms": "ダイレクトメッセージ",
-    "import-chat": "チャットをインポート",
-    "create-new-account": "新規アカウントを作成",
-    "blocked-user-message": "あなたはこのコミュニティからブロックされています",
-    "start-community-channel": "Start community channel",
     "view-community-channel": "コミュニティチャット",
-    "submit": "送信",
-    "chat-priv-key": "ダウンロードボタンをクリックしてチャットキーを保存するか、QRコードをスキャンして会話を復元してください。",
     "public-key": "公開キー",
     "private-key": "Private key",
-    "copy-priv-key": "秘密鍵をコピー",
-    "extended-view": "拡張ビュー",
-    "you-haven-t-joined": "まだチャットに参加していません。参加して始めましょう！",
-    "invalid-private-key": "無効な秘密鍵です",
-    "enter-username": "一時的なユーザー名を入力",
     "hide-message": "メッセージを隠す",
-    "block-author": "作者をブロック",
-    "unblock-author": "著者のブロックを解除",
-    "create-an-account": "チャットアカウントを作成",
-    "create-description": "ようこそ！あなたのアカウントの準備が完了しました。会話に飛び込み、プライベートに他の人とつながりを楽しんでください。",
-    "create-pin-description": "任意のデバイスからチャットにアクセスするためのPINを設定してください",
-    "logout": "ログアウト",
-    "specify-invitation-message": "この招待メッセージは最新のユーザーの投稿にコメントとして送信されます",
-    "successfully-invited": "招待に成功しました",
-    "invite-couldnt-be-sent": "ユーザーがまだ投稿を持っていないため、招待を送信できませんでした",
-    "no-posts-for-invite": "残念ながら、ユーザーはアクティブではありません。投稿はありません。",
-    "warn-key-saving": "アカウントを安全に保つためにチャットキーをバックアップし、中断のないサービスを持っています！",
-    "view-and-save": "キーを表示して保存",
-    "blocked-users-management": "ブロックされたユーザー管理",
-    "unlock-the-section": "認証情報を見るためにPINを入力してください",
-    "no-contacts-or-channels": "会話はまだありません",
-    "upload-image": "画像をアップロード",
-    "hidden-messages": "非表示メッセージ",
-    "hidden-messages-management": "非表示のメッセージ管理",
-    "saved-messages": "保存されたメッセージ",
-    "fetch-error": "留守中にネットワークの変更が検出されました。新しいデータを取得するには、今すぐページを再読み込みしてください",
-    "pin": "ピン留めする",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "連絡先またはチャンネルを選択",
-    "message-forwarding": "メッセージ転送",
-    "forward": "メッセージを転送",
-    "forwarded-from": "転送済みメッセージ",
-    "welcome": {
-      "title": "チャットへようこそ",
-      "description": "チャットを使用してアカウントを作成またはインポートする",
-      "already-joined-title": "僅用於中文",
-      "already-joined-hint": "PINを入力してアカウントを認証し、アクセスを取得してください",
-      "pin-failed": "PINが無効です。確認に失敗しました。",
-      "oops": "おっと！",
-      "user-not-joined-yet": "メッセージを送信できません。このユーザーまたはチャンネルはまだチャットに参加していません。",
-      "hello": "こんにちは",
-      "start-description": "個人またはコミュニティを検索し、メッセージを開始する",
-      "join-description": "あなたはチャンネルの一部ではありません",
-      "rejoin-description": "このコミュニティチャットから抜けました。今すぐチャットに参加しましょう！"
-    },
-    "import": {
-      "title": "アカウントをインポート中",
-      "description": "既存のアカウントをインポートするには、公開鍵と秘密鍵のペアを入力してください",
-      "button": "インポート",
-      "iv": "初期ベクトル値"
-    },
-    "reply": "返信",
-    "reply-to": "{{account}} に返信",
-    "mattermost-title": "EcencyチャットはMattermostによって提供されました",
-    "mattermost-body": "ダイレクトメッセージやコミュニティの会話を続けるためにchat.ecency.comを開きます. あなたのEcencyユーザー名と資格情報は、古いNostrチャットキーの代わりに使用されます.",
-    "mattermost-community-hint": "{{community}}をお探しですか? chat.ecency.comにサインインした後、コミュニティチャンネルを開きます。",
-    "mattermost-open": "chat.ecency.com を開く",
-    "mattermost-guide": "チャット設定ガイドを表示",
+    "enter-private-key-detail": "すべてのチャットをインポートするにはチャット秘密鍵を入力してください",
     "message-search-results": "メッセージ検索結果",
     "no-messages-found": "メッセージが見つかりません。",
     "no-message": "メッセージの内容がありません。"
@@ -2630,22 +2479,6 @@
     "title": "貢献者",
     "description": "これらの偉大な人々は、何らかの形でEcencyに貢献し、私たちはそれらすべてに感謝したいと思います。 翻訳、アイデア、開発、デザイン、社会認識に貢献して、私たちのチームに参加したい場合は、自由に参加してください。 詳細については、 <a href=\"/faq#how-to-contribute\">FAQ</a> をご覧ください。"
   },
-  "context-menu": {
-    "cut": "カット",
-    "copy": "コピー",
-    "paste": "貼り付け",
-    "open-image-browser": "ブラウザで画像を開く",
-    "copy-image-url": "画像のURLをコピー"
-  },
-  "updater": {
-    "new-version-available": "新しいバージョンが利用可能です。",
-    "download": "ダウンロード",
-    "update": "アップデート",
-    "dismiss": "中止",
-    "downloading": "新しいバージョンをダウンロードしています...",
-    "download-completed": "ダウンロードが完了",
-    "restart": "再起動"
-  },
   "chain-error": {
     "min-root-comment": "5分に1回しか投稿できません。",
     "identical-vote": "このコンテンツへの現在の投票は、この投票と同じです。",
@@ -2866,12 +2699,6 @@
     "email-placeholder": "メールアドレス（任意）",
     "message-placeholder": "レポートを説明してください",
     "issue-reported": "問題が正常に報告されました"
-  },
-  "entry-preview": {
-    "searching-title": "投稿を検索中",
-    "searching-description": "この投稿を確認しようとしています...",
-    "title": "プレビュー",
-    "description": "この投稿は現在作成中です。このメッセージが消えたときに操作できます。"
   },
   "banners": {
     "no-ls-title": "ローカルデータを使用できません",

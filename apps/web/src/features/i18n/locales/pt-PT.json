@@ -407,9 +407,6 @@
     "ascending": "Ascendente",
     "descending": "Descendente"
   },
-  "selected-tags": {
-    "title": "Destaque"
-  },
   "entry-list-item": {
     "cross-posted": "republicado",
     "cross-posted-to": "para",
@@ -824,9 +821,6 @@
       "deposit-instructions": "Envie o HIVE para @honey-swap com memo {{memo}} para receber SWAP.HIVE."
     }
   },
-  "list-style": {
-    "title": "Alternar estilo da lista"
-  },
   "entry-votes": {
     "title": "1 Voto",
     "title-n": "{{n}} Votos",
@@ -1049,6 +1043,7 @@
     "section-replies": "Respostas",
     "section-communities": "Comunidades",
     "section-wallet": "Carteira",
+    "section-insights": "Insights",
     "section-settings": "Definições",
     "section-referrals": "Referências",
     "section-permission": "Permissão",
@@ -1079,6 +1074,22 @@
     "link-copied": "Link de pesquisa copiado para a área de transferência",
     "no-posts-found": "Nada encontrado!",
     "subscribe": "Inscrever-se"
+  },
+  "profile-insights": {
+    "description": "Veja quais das suas publicações mais ressoam com os leitores.",
+    "today": "hoje",
+    "yesterday": "ontem",
+    "last-7": "Últimos 7 Dias",
+    "last-30": "Últimos 30 Dias",
+    "all-time": "Desde o início",
+    "page": "Página",
+    "views": "Visualizações",
+    "uniques": "Visões exclusivas",
+    "minutes": "minutos",
+    "no-data": "Nenhuma visualização de página disponível para este intervalo ainda.",
+    "range": "Date range",
+    "disabled": "As idéias estão desativadas no momento.",
+    "error": "Incapaz de carregar informações"
   },
   "rc-info": {
     "available": "Disponível",
@@ -1269,24 +1280,6 @@
       "larynx-locked-description": "Tokens bloqueados fornecem liquidez à rede, ajudam na determinação do consenso e recebem recompensas para rodar servidores de nó"
     }
   },
-  "wallet-engine": {
-    "title": "Tokens da Hive Engine",
-    "description": "Hive Engine é uma blockchain exclusiva para contratos inteligentes e paralela à Hive.",
-    "no-results": "Nenhum token encontrado.",
-    "token": "Token",
-    "balance": "Balanço",
-    "staked": "Guardado"
-  },
-  "sort-engine-tokens": {
-    "sort": "Ordenar",
-    "sort-in-ascending": "Ascendente",
-    "sort-in-descending": "Descendente",
-    "sort-by-value": "Valor",
-    "sort-by-balance": "Saldo",
-    "sort-by-stake": "Guardado",
-    "sort-by-delegations-in": "Delegações recebidas",
-    "sort-by-delegations-out": "Delegações efetuadas"
-  },
   "wallet-engine-estimated": {
     "title": "Valor Estimado dos Tokens",
     "description": "O valor aproximado em dólares de todos os tokens do Engine na sua carteira."
@@ -1347,12 +1340,6 @@
     "filter-998": "Transferência de saída",
     "filter-999": "Depósitos"
   },
-  "purchase": {
-    "select-asset": "Selecionar ativo",
-    "slider-hint": "Deslize o cursor para ajustar a quantidade.",
-    "submit": "Compra",
-    "purchase-message": "Ou envie qualquer quantia para @esteem.app com `pontos` no memo, para comprar Pontos."
-  },
   "purchase-qr": {
     "scan-code": "Aponte a câmera utilizando o aplicativo da Ecency para continuar",
     "select-user": "Por favor, selecione um usuário",
@@ -1370,14 +1357,6 @@
     "sub-title": "Promover a sua publicação",
     "duration": "Duração",
     "learn-more": "Saiba mais sobre promoção"
-  },
-  "boost": {
-    "title": "Impulsionar",
-    "sub-title": "Impulsione a sua publicação",
-    "amount": "Quantidade",
-    "slider-hint": "Deslize o cursor para ajustar a quantidade.",
-    "hint": "O valor real de voto recebido pode variar",
-    "learn-more": "Saiba mais sobre como impulsionar"
   },
   "redeem-common": {
     "balance": "Balanço",
@@ -1739,11 +1718,6 @@
     "refresh": "Atualize para obter o estado de carregamento",
     "video-info": "Os vídeos são armazenados e mantidos pela rede SPK, podendo ter alguns custos de armazenamento e codificação."
   },
-  "nsfw-content": {
-    "title": "Conteúdo NSFW",
-    "warning": "Por favor, verifique se o seu conteúdo é NSFW (inadequado)",
-    "continue": "Continuar"
-  },
   "tag-selector": {
     "placeholder-empty": "Etiquetas. A primeira etiqueta é a categoria principal. Ordenável.",
     "placeholder-focus": "Inserir etiqueta",
@@ -1850,9 +1824,6 @@
     "header-reward": "Recompensa",
     "header-votes": "Votos",
     "header-votes-tip": "Número de votos neste período"
-  },
-  "popular-users": {
-    "title": "Utilizadores Populares"
   },
   "discover": {
     "title": "Descobrir",
@@ -2065,19 +2036,6 @@
     "updated": "Senha atualizada com sucesso!",
     "hint": "No momento, é possível gerar chaves apenas definindo uma nova seed phrase. Não é possível atualizar para qualquer outro tipo de senha. Isso nos ajuda a manter as contas de Ecência e Hive nos padrões da Web 3.0."
   },
-  "view-keys": {
-    "title": "Ver Chaves Privadas",
-    "header": "Gerenciar chaves",
-    "account": "Conta",
-    "cur-pass": "Senha atual",
-    "owner": "Proprietário",
-    "active": "Ativa",
-    "posting": "Postagem",
-    "memo": "Memo",
-    "view-keys": "Clique para ver as chaves",
-    "copied": "Chave privada copiada para a área de transferência",
-    "error": "Senha parece incorreta. Por favor, verifique novamente!"
-  },
   "manage-authorities": {
     "title": "Gerenciar as Chaves Privadas",
     "type": "Tipo",
@@ -2128,26 +2086,23 @@
     "update-success-message": "Seu e-mail de recuperação foi atualizado com sucesso"
   },
   "chat": {
-    "page-title": "Inicie mensagens diretas ou entre em canais para conversar com qualquer pessoa.",
+    "page-title": "Inicia mensagens diretas ou entra em canais para conversar com a comunidade de Ecency",
     "loading-chats": "Carregando bate-papos…",
-    "direct-messages-title": "Mensagens diretas",
-    "start-dm": "Iniciar uma mensagem direta com qualquer um do Ecency.",
     "start-dm-button": "Iniciar MD",
     "starting-dm": "Iniciando…",
-    "search-user": "Pesquisar por nome de usuário",
-    "search-people": "Procurando pessoas…",
-    "select-dm": "Selecione alguém para iniciar uma MD",
-    "searching": "Procurando…",
-    "no-user": "Nenhuma pessoa encontrada.",
-    "search-channels": "Pesquisar canais ou mensagens diretas",
-    "channels-title": "Canais",
-    "loading": "Carregando...",
+    "search-user": "Procurar pessoas",
+    "searching": "Buscando...",
+    "no-user": "Usuários não encontrados.",
+    "search-channels": "Pesquisar canais, usuários ou mensagens diretas",
+    "loading": "Carregando…",
     "mark-as-read": "Marcar Tudo como Lido",
     "marking-as-read": "Marcando…",
     "channel-type-dm": "DM",
     "channel-type": "Canal",
     "favorite-channel": "Canal favorito",
+    "channel-muted": "Silenciado",
     "mute-channel": "Silenciar canal",
+    "unmute-channel": "Reativar canal",
     "leave-channel": "Sair do canal",
     "no-channels": "Nenhum canal atribuído ainda.",
     "no-channels-search": "Nenhum canal corresponde à sua pesquisa.",
@@ -2158,119 +2113,13 @@
     "join-channel-action": "Juntar-se",
     "joining-channel": "Juntando-se a…",
     "no-additional-channels": "Nenhum canal adicional encontrado.",
-    "why-read-only": "Este usuário mudou a chave de bate-papo. Por favor, encontre uma nova conta com o nome de usuário na busca acima.",
-    "user-not-joined": "Ainda não se juntou",
     "title": "Bate-papo",
-    "messages": "Mensagens",
-    "key": "Chaves de bate-papo Ecency",
-    "new-message": "Nova Mensagem",
-    "direct-messages": "Mensagens diretas",
-    "collapse": "Fechar",
-    "expand": "Expandir",
-    "scroll-to-bottom": "Rolar para baixo",
-    "joined": "Entrou",
-    "followers": "Seguidores",
-    "start-chat-placeholder": "Criar mensagem",
-    "search": "Procurar pessoas ou comunidades",
-    "join-chat": "Entrar no bate-papo",
-    "join-channel": "Entrar no canal",
-    "back": "Voltar",
-    "no-chat": "Nenhuma conversa encontrada",
-    "start-chat": "Comece a conversar",
-    "not-joined": "Esse usuário ainda não se juntou ao chat",
-    "subscribers": "Assinantes",
-    "invite": "Convidar",
-    "send-invite": "Enviar um convite",
-    "leave:": "Sair",
-    "refresh": "Atualizar",
-    "message-warning": "Você não pode enviar mensagens neste grupo.",
-    "edit-community-roles": "Editar Funções da Comunidade",
-    "add": "Adicionar",
     "no-admin": "Nenhum administrador ou moderador para este chat da comunidade.",
-    "blocked-users": "Usuários Bloqueados",
-    "action": "Ação",
-    "unblock": "Desbloquear",
-    "ecency-key": "Chave da Ecency",
-    "no-locked-user": "Usuários bloqueados não encontrados",
-    "no-hidden-messages": "Mensagens ocultas não encontradas",
-    "enter-private-key": "Inserir chave privada do Chat",
-    "enter-private-key-detail": "Introduza a chave privada para importar todas as conversas",
-    "close": "Fechar",
-    "confirm": "Confirmar",
-    "error-updating-community": "Ocorreu um erro ao atualizar a comunidade",
-    "leaving": "Saindo",
-    "edit-roles": "Editar Papéis",
-    "manage-chat-key": "Informações das credenciais",
-    "block": "Bloco",
-    "communities": "Comunidades",
-    "dms": "Mensagens diretas",
-    "import-chat": "Importar Chat",
-    "create-new-account": "Criar Nova Conta",
-    "blocked-user-message": "Você foi bloqueado por esta comunidade",
-    "start-community-channel": "Start community channel",
     "view-community-channel": "View community channel",
-    "submit": "Enviar",
-    "chat-priv-key": "Importante: salve a Chave do Bate-Papo clicando no botão de download ou escaneando o código QR para restaurar as suas conversas.",
     "public-key": "Chave pública",
     "private-key": "Chave privada",
-    "copy-priv-key": "Copiar Chave Privada",
-    "extended-view": "Visão Estendida",
-    "you-haven-t-joined": "Você ainda não começou no bate-papo. Junte-se e faça parte!",
-    "invalid-private-key": "Chave privada inválida",
-    "enter-username": "Insira um nome de usuário temporário",
     "hide-message": "Ocultar mensagem",
-    "block-author": "Bloquear autor",
-    "unblock-author": "Desbloquear autor",
-    "create-an-account": "Criar conta de chat",
-    "create-description": "Bem-vindo a bordo! A conta está quase pronta. Mergulhe nas conversas e conecte-se com o mundo como preferir.",
-    "create-pin-description": "Por favor, defina uma senha (PIN) para obter acesso às suas conversas de qualquer dispositivo",
-    "logout": "Encerrar sessão",
-    "specify-invitation-message": "Este convite será enviado através de um comentário na última publicação do usuário",
-    "successfully-invited": "Convite enviado!",
-    "invite-couldnt-be-sent": "O convite não pôde ser enviado porque o usuário ainda não fez nenhuma publicação",
-    "no-posts-for-invite": "Infelizmente, o Usuário não parece ativo e não fez nenhuma publicação.",
-    "warn-key-saving": "Faça backup da sua chave de Bate-Papo para manter a conta segura e o serviço ininterrupto!",
-    "view-and-save": "Mostrar chaves e salvar",
-    "blocked-users-management": "Gerenciamento de usuários bloqueados",
-    "unlock-the-section": "Por favor, insira seu PIN para ver suas informações de credenciais",
-    "no-contacts-or-channels": "Não há conversas ainda",
-    "upload-image": "Enviar imagem",
-    "hidden-messages": "Mensagens ocultas",
-    "hidden-messages-management": "Gerenciamento de mensagens ocultas",
-    "saved-messages": "Mensagens salvas",
-    "fetch-error": "Enquanto você estava ausente, uma alteração de rede foi detectada. Recarregue a página para atualizar",
-    "pin": "Fixar",
-    "unpin": "Desafixar",
-    "select-contact-or-channel": "Selecione contato ou canal",
-    "message-forwarding": "Encaminhamento de mensagem",
-    "forward": "Encaminhar mensagem",
-    "forwarded-from": "Mensagem encaminhada",
-    "welcome": {
-      "title": "Bem-vindo ao Bate-Papo",
-      "description": "Crie ou importe uma conta para usar o chat",
-      "already-joined-title": "Parece que você já entrou no Chat",
-      "already-joined-hint": "Por favor, verifique sua conta e obtenha acesso digitando o PIN",
-      "pin-failed": "PIN inválido. Falha ao verificar.",
-      "oops": "Ops!",
-      "user-not-joined-yet": "A mensagem não pode ser enviada. O usuário ainda não entrou no chat.",
-      "hello": "Olá",
-      "start-description": "Procure uma pessoa ou comunidade e envie mensagens",
-      "join-description": "Você não faz parte do canal",
-      "rejoin-description": "Você saiu do chat dessa comunidade. Junte-se agora!"
-    },
-    "import": {
-      "title": "Importando conta",
-      "description": "Por favor, insira ambas chaves, pública e privada, para importar sua conta existente",
-      "button": "Importar",
-      "iv": "Valor vetorial inicial"
-    },
-    "reply": "Responder",
-    "reply-to": "Respondendo para {{account}}",
-    "mattermost-title": "Bate-papo por Ecency agora é fornecido pelo Mattermost",
-    "mattermost-body": "Abra chat.ecency.com para continuar mensagens diretas e conversas da comunidade. As suas credenciais e nome de usuário Ecency são usadas ao invés das antigas chaves de bate-papo do Nostr.",
-    "mattermost-community-hint": "Procurando por {{community}}? Abra o canal da comunidade após se conectar em chat.ecency.com.",
-    "mattermost-open": "Abrir chat.ecency.com",
-    "mattermost-guide": "Ver guia de configuração do chat",
+    "enter-private-key-detail": "Introduza a chave privada para importar todas as conversas",
     "message-search-results": "Resultados da pesquisa de mensagens",
     "no-messages-found": "Nenhuma mensagem encontrada.",
     "no-message": "Nenhum conteúdo de mensagem."
@@ -2630,22 +2479,6 @@
     "title": "Colaboradores",
     "description": "Estas grandes pessoas contribuíram de uma forma ou de outra para a Ecency, gostaríamos de agradecer a todos. Se você quiser se juntar a nossa equipe contribuindo com Tradução, Idéias, Desenvolvimento, Design, Conscientização social, sinta-se livre para participar. Para saber mais, leia as nossas <a href=\"/faq#how-to-contribute\">Perguntas Frequentes</a>."
   },
-  "context-menu": {
-    "cut": "Cortar",
-    "copy": "Copiar",
-    "paste": "Colar",
-    "open-image-browser": "Abrir imagem no navegador",
-    "copy-image-url": "Copiar url da Imagem"
-  },
-  "updater": {
-    "new-version-available": "Nova versão disponível",
-    "download": "Baixar",
-    "update": "Atualizar",
-    "dismiss": "Descartar",
-    "downloading": "Transferindo nova versão...",
-    "download-completed": "Transferência terminada",
-    "restart": "Reiniciar"
-  },
   "chain-error": {
     "min-root-comment": "Você só pode postar uma vez a cada cinco minutos.",
     "identical-vote": "Seu voto atual sobre este conteúdo é idêntico a este voto.",
@@ -2866,12 +2699,6 @@
     "email-placeholder": "Seu e-mail (opcional)",
     "message-placeholder": "Por favor, descreva sua denúncia",
     "issue-reported": "Problema reportado com sucesso"
-  },
-  "entry-preview": {
-    "searching-title": "Pesquisando post",
-    "searching-description": "Estamos tentando descobrir esta publicação...",
-    "title": "Pré-visualizar",
-    "description": "Este post está criando agora. Você pode interagir com ele quando esta mensagem desaparecerá."
   },
   "banners": {
     "no-ls-title": "Não é possível usar dados locais",
