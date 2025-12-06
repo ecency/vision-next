@@ -1043,6 +1043,7 @@
     "section-replies": "Odpowiedzi",
     "section-communities": "Społeczności",
     "section-wallet": "Portfel",
+    "section-insights": "Spostrzeżenia",
     "section-settings": "Ustawienia",
     "section-referrals": "Polecenia",
     "section-permission": "Uprawnienie",
@@ -1073,6 +1074,22 @@
     "link-copied": "Link wyszukiwania skopiowany do schowka",
     "no-posts-found": "Nic nie znaleziono!",
     "subscribe": "Subskrybuj"
+  },
+  "profile-insights": {
+    "description": "Zobacz, który z twoich postów jest najbardziej zadowolony z czytelników.",
+    "today": "Dziś",
+    "yesterday": "Wczoraj",
+    "last-7": "Ostatnie 7 dni",
+    "last-30": "Ostatnie 30 dni",
+    "all-time": "Cały czas",
+    "page": "Strona",
+    "views": "Widoki",
+    "uniques": "Unikalne widoki",
+    "minutes": "Protokoły",
+    "no-data": "Brak dostępnych widoków dla tego zakresu.",
+    "range": "Date range",
+    "disabled": "Spostrzeżenia są obecnie wyłączone.",
+    "error": "Nie można załadować spostrzeżeń."
   },
   "rc-info": {
     "available": "Dostępny",
