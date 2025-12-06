@@ -130,10 +130,6 @@ export function ProfileInsights({ username }: Props) {
         label: i18next.t("profile-insights.today", { defaultValue: "Today" })
       },
       {
-        dateRange: "yesterday",
-        label: i18next.t("profile-insights.yesterday", { defaultValue: "Yesterday" })
-      },
-      {
         dateRange: "7d",
         label: i18next.t("profile-insights.last-7", { defaultValue: "Last 7 days" })
       },
