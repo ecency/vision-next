@@ -1043,6 +1043,7 @@
     "section-replies": "Antworten",
     "section-communities": "Communities",
     "section-wallet": "Wallet",
+    "section-insights": "Einblicke",
     "section-settings": "Einstellungen",
     "section-referrals": "Empfehlungen",
     "section-permission": "Berechtigung",
@@ -1073,6 +1074,22 @@
     "link-copied": "Suchlink in die Zwischenablage kopiert",
     "no-posts-found": "Nichts gefunden!",
     "subscribe": "Abonnieren"
+  },
+  "profile-insights": {
+    "description": "Sehen Sie, welche Ihrer Beiträge am meisten mit Lesern widerhallen.",
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "last-7": "Letzte 7 Tage",
+    "last-30": "Letzte 30 Tage",
+    "all-time": "Gesamt",
+    "page": "Seite",
+    "views": "Aufrufe",
+    "uniques": "Eindeutige Ansichten",
+    "minutes": "Minuten",
+    "no-data": "Für diesen Bereich sind noch keine Seitenaufrufe verfügbar.",
+    "range": "Date range",
+    "disabled": "Einblicke sind im Moment deaktiviert.",
+    "error": "Kann Einsichten nicht laden."
   },
   "rc-info": {
     "available": "Verfügbar",
