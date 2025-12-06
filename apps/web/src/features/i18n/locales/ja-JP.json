@@ -1043,6 +1043,7 @@
     "section-replies": "返信",
     "section-communities": "コミュニティ",
     "section-wallet": "ウォレット",
+    "section-insights": "洞察",
     "section-settings": "設定",
     "section-referrals": "紹介",
     "section-permission": "アクセス許可",
@@ -1073,6 +1074,22 @@
     "link-copied": "検索リンクをクリップボードにコピーしました",
     "no-posts-found": "何も見つかりません！",
     "subscribe": "購読する"
+  },
+  "profile-insights": {
+    "description": "あなたのポストのどの部分が読者と最も共鳴しているかを確認してください。",
+    "today": "今日",
+    "yesterday": "昨日",
+    "last-7": "過去 7 日間",
+    "last-30": "過去 30 日間",
+    "all-time": "すべて",
+    "page": "ページ",
+    "views": "ビュー",
+    "uniques": "ユニークビュー",
+    "minutes": "分",
+    "no-data": "この範囲で利用可能なページビューはまだありません。",
+    "range": "Date range",
+    "disabled": "インサイトは現在無効になっています。",
+    "error": "インサイトを読み込めません。"
   },
   "rc-info": {
     "available": "利用可能です",
