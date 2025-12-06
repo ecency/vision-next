@@ -1043,6 +1043,7 @@
     "section-replies": "Réponses",
     "section-communities": "Communautés",
     "section-wallet": "Portefeuille",
+    "section-insights": "Aperçus",
     "section-settings": "Paramètres",
     "section-referrals": "Recommandations",
     "section-permission": "Permission",
@@ -1073,6 +1074,22 @@
     "link-copied": "Lien de recherche copié dans le presse-papiers",
     "no-posts-found": "Rien n'a été trouvé!",
     "subscribe": "S'abonner"
+  },
+  "profile-insights": {
+    "description": "Voyez lequel de vos messages résonne le plus avec les lecteurs.",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "last-7": "Les 7 derniers jours",
+    "last-30": "Les 30 derniers jours",
+    "all-time": "Tous les temps",
+    "page": "Page",
+    "views": "Vues",
+    "uniques": "Vues uniques",
+    "minutes": "Minutes",
+    "no-data": "Aucune vue de page disponible pour cette plage pour le moment.",
+    "range": "Date range",
+    "disabled": "Les aperçus sont actuellement désactivés.",
+    "error": "Impossible de charger les aperçus."
   },
   "rc-info": {
     "available": "Disponible",
