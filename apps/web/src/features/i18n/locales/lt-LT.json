@@ -1043,6 +1043,7 @@
     "section-replies": "Atsakymai",
     "section-communities": "Bendruomenės",
     "section-wallet": "Piniginė",
+    "section-insights": "Insights",
     "section-settings": "Settings",
     "section-referrals": "Referrals",
     "section-permission": "Permission",
@@ -1073,6 +1074,22 @@
     "link-copied": "Search link copied to clipboard",
     "no-posts-found": "Found nothing!",
     "subscribe": "Subscribe"
+  },
+  "profile-insights": {
+    "description": "See which of your posts resonate most with readers.",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last-7": "Last 7 days",
+    "last-30": "Last 30 days",
+    "all-time": "All time",
+    "page": "Page",
+    "views": "Views",
+    "uniques": "Unique views",
+    "minutes": "Minutes",
+    "no-data": "No page views available for this range yet.",
+    "range": "Date range",
+    "disabled": "Insights are disabled at the moment.",
+    "error": "Unable to load insights."
   },
   "rc-info": {
     "available": "Available",
