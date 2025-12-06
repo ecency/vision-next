@@ -1043,6 +1043,7 @@
     "section-replies": "Respuestas",
     "section-communities": "Comunidades",
     "section-wallet": "Cartera",
+    "section-insights": "Imágenes",
     "section-settings": "Configuraciones",
     "section-referrals": "Referidos",
     "section-permission": "Permisos",
@@ -1073,6 +1074,22 @@
     "link-copied": "Enlace de búsqueda copiado al portapapeles",
     "no-posts-found": "¡No se encontró nada!",
     "subscribe": "Suscribirse"
+  },
+  "profile-insights": {
+    "description": "Mira cuál de tus publicaciones resuenan más con los lectores.",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "last-7": "Últimos 7 días",
+    "last-30": "Últimos 30 días",
+    "all-time": "Todo el tiempo",
+    "page": "Pgina",
+    "views": "Vistas",
+    "uniques": "Vistas únicas",
+    "minutes": "Minutos",
+    "no-data": "No hay páginas vistas disponibles para este rango todavía.",
+    "range": "Date range",
+    "disabled": "Las imágenes están desactivadas en este momento.",
+    "error": "No se puede cargar insights."
   },
   "rc-info": {
     "available": "Disponible",
