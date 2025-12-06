@@ -59,6 +59,18 @@ import { marked } from "marked";
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const MATTERMOST_SHORTCODE_REGEX = /:([a-zA-Z0-9_+-]+):/g;
 const EMOJI_TRIGGER_REGEX = /:([a-zA-Z0-9_+-]{1,30})$/i;
+const CHANNEL_WIDE_MENTIONS = [
+  {
+    key: "here",
+    label: "@here",
+    description: "Notify everyone in this channel unless they have it muted."
+  },
+  {
+    key: "everyone",
+    label: "@everyone",
+    description: "Notify all channel members unless they muted the channel."
+  }
+] as const;
 
 type EmojiSuggestion = {
   id: string;
@@ -267,6 +279,18 @@ export function MattermostChannelView({ channelId }: Props) {
   }, [usersById]);
 
   const isPublicChannel = data?.channel?.type === "O";
+  const normalizedMentionQuery = mentionQuery.trim().toLowerCase();
+  const channelWideMentionOptions = useMemo(
+    () =>
+      CHANNEL_WIDE_MENTIONS.filter((mention) =>
+        mention.key.startsWith(normalizedMentionQuery)
+      ),
+    [normalizedMentionQuery]
+  );
+  const isChannelWideMentionQuery = useMemo(
+    () => CHANNEL_WIDE_MENTIONS.some((mention) => mention.key.startsWith(normalizedMentionQuery)),
+    [normalizedMentionQuery]
+  );
   const mentionSearch = useMattermostUserSearch(
     mentionQuery,
     Boolean(isPublicChannel && mentionQuery.length >= 2)
@@ -1878,6 +1902,32 @@ export function MattermostChannelView({ channelId }: Props) {
                 )}
               </div>
               <div className="max-h-48 overflow-y-auto">
+                {data?.canModerate && channelWideMentionOptions.length > 0 && (
+                  <>
+                    <div className="px-3 pt-2 text-xs font-semibold text-[--text-muted]">
+                      Channel-wide mentions
+                    </div>
+                    {channelWideMentionOptions.map((mention) => (
+                      <button
+                        key={mention.key}
+                        type="button"
+                        className="w-full px-3 py-2 flex items-center gap-3 hover:bg-[--background-color]"
+                        onClick={() => applyMention(mention.key)}
+                      >
+                        <div className="flex flex-col text-left">
+                          <span className="font-semibold">{mention.label}</span>
+                          <span className="text-xs text-[--text-muted]">{mention.description}</span>
+                        </div>
+                      </button>
+                    ))}
+                    <div className="border-t border-[--border-color]" />
+                  </>
+                )}
+                {!data?.canModerate && isChannelWideMentionQuery && (
+                  <div className="px-3 py-2 text-xs text-[--text-muted]">
+                    Channel-wide mentions (@here, @everyone) are limited to community moderators.
+                  </div>
+                )}
                 {mentionQuery.length < 2 && (
                   <div className="px-3 py-2 text-sm text-[--text-muted]">
                     Keep typing to search for a user.

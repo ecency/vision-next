@@ -13,6 +13,8 @@ import {
 } from "@/server/mattermost";
 
 const USER_MENTION_REGEX = /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
+const SPECIAL_MENTIONS = new Set(["here", "everyone"]);
+const SPECIAL_MENTION_REGEX = /(^|\s)@(here|everyone)\b/i;
 
 interface MattermostUser {
   id: string;
@@ -121,9 +123,26 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
       );
     }
 
+    const hasSpecialMention = SPECIAL_MENTION_REGEX.test(message);
     const mentionedUsers = Array.from(
-      new Set(message.match(USER_MENTION_REGEX)?.map((mention) => mention.slice(1).toLowerCase()) || [])
+      new Set(
+        message
+          .match(USER_MENTION_REGEX)
+          ?.map((mention) => mention.slice(1).toLowerCase())
+          .filter((username) => !SPECIAL_MENTIONS.has(username)) || []
+      )
     );
+
+    if (hasSpecialMention) {
+      const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+
+      if (!moderation.canModerate) {
+        return NextResponse.json(
+          { error: "Only community moderators can mention everyone in this channel." },
+          { status: 403 }
+        );
+      }
+    }
 
     if (mentionedUsers.length) {
       const channel = await mmUserFetch<MattermostChannel>(`/channels/${params.channelId}`, token);

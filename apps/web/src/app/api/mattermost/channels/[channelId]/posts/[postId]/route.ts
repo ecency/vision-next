@@ -7,6 +7,8 @@ import {
   mmUserFetch
 } from "@/server/mattermost";
 
+const SPECIAL_MENTION_REGEX = /(^|\s)@(here|everyone)\b/i;
+
 export async function DELETE(_req: Request, { params }: { params: { channelId: string; postId: string } }) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
@@ -47,6 +49,17 @@ export async function PATCH(req: Request, { params }: { params: { channelId: str
 
     if (!message) {
       return NextResponse.json({ error: "message required" }, { status: 400 });
+    }
+
+    if (SPECIAL_MENTION_REGEX.test(message)) {
+      const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+
+      if (!moderation.canModerate) {
+        return NextResponse.json(
+          { error: "Only community moderators can mention everyone in this channel." },
+          { status: 403 }
+        );
+      }
     }
 
     const post = await mmUserFetch(`/posts/${params.postId}/patch`, token, {
