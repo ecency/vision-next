@@ -1043,6 +1043,7 @@
     "section-replies": "Risposte",
     "section-communities": "Community",
     "section-wallet": "Portafoglio",
+    "section-insights": "Approfondimenti",
     "section-settings": "Impostazioni",
     "section-referrals": "Referências",
     "section-permission": "Permessi",
@@ -1073,6 +1074,22 @@
     "link-copied": "Link di ricerca copiato negli appunti",
     "no-posts-found": "Non abbiamo trovato nulla!",
     "subscribe": "Abbonati"
+  },
+  "profile-insights": {
+    "description": "Vedi quale dei tuoi post risuonano di più con i lettori.",
+    "today": "Oggi",
+    "yesterday": "Ieri",
+    "last-7": "Ultimi 7 giorni",
+    "last-30": "Ultimi 30 giorni",
+    "all-time": "Tutto il tempo",
+    "page": "Pagina",
+    "views": "Viste",
+    "uniques": "Viste uniche",
+    "minutes": "Minuti",
+    "no-data": "Nessuna vista pagina disponibile per questo intervallo.",
+    "range": "Date range",
+    "disabled": "Le informazioni sono disabilitate al momento.",
+    "error": "Impossibile caricare intuizioni."
   },
   "rc-info": {
     "available": "Disponibile",
