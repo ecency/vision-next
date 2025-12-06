@@ -15,12 +15,20 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
 
   try {
     const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+    const post = await mmUserFetch<{ user_id: string }>(`/posts/${params.postId}`, token);
 
-    if (!moderation.canModerate) {
+    const isAuthor = post.user_id === moderation.currentUser.id;
+
+    if (!isAuthor && !moderation.canModerate) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
-    await deleteMattermostPostAsAdmin(params.postId);
+    if (isAuthor) {
+      await mmUserFetch(`/posts/${params.postId}`, token, { method: "DELETE" });
+    } else {
+      await deleteMattermostPostAsAdmin(params.postId);
+    }
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     return handleMattermostError(error);
