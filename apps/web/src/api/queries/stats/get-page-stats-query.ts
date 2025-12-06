@@ -20,21 +20,24 @@ interface UseStatsQueryOptions {
   dimensions?: string[];
   metrics?: string[];
   enabled?: boolean;
+  dateRange?: string;
 }
 
 export function useGetStatsQuery({
                                    url,
                                    dimensions = [],
                                    metrics = ["visitors", "pageviews", "visit_duration"],
-                                   enabled = true
+                                   enabled = true,
+                                   dateRange = "all"
                                  }: UseStatsQueryOptions) {
   return EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.PAGE_STATS, url, dimensions, metrics],
+    queryKey: [QueryIdentifiers.PAGE_STATS, url, dimensions, metrics, dateRange],
     queryFn: async () => {
       const response = await appAxios.post<StatsResponse>(`/api/stats`, {
         metrics,
         url: encodeURIComponent(url),
-        dimensions
+        dimensions,
+        dateRange
       });
       return response.data;
     },

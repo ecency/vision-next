@@ -15,3 +15,6 @@ export * from "./modal-confirm";
 export * from "./page-menu";
 export * from "./tabs";
 export * from "./datepicker";
+export * from "./spinner";
+export * from "./spinner";
+export * from "./spinner";

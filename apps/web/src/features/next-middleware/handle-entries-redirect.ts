@@ -11,6 +11,7 @@ export function isEntriesRedirect(request: NextRequest) {
     "spk",
     "engine",
     "settings",
+    "insights",
     "feed",
     "referrals",
     "permissions",

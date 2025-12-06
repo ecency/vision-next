@@ -57,7 +57,17 @@ export function ProfileMenu({ username }: Props) {
       selected: ["wallet", "points", "engine", "spk"].includes(section),
       href: `/@${username}/wallet`,
       id: "wallet"
-    }
+    },
+    ...(activeUser && activeUser.username === username
+      ? [
+          {
+            label: i18next.t(`profile.section-insights`, { defaultValue: "Insights" }),
+            selected: section === "insights",
+            href: `/@${username}/insights`,
+            id: "insights"
+          }
+        ]
+      : [])
   ];
 
   const dropDownMenuItems = [...menuItems, ...kebabMenuItems];

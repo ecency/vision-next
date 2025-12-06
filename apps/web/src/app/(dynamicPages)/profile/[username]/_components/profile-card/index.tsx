@@ -16,7 +16,12 @@ import {
   getRelationshipBetweenAccountsQueryOptions
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { UilCalendarAlt, UilGlobe, UilLocationPoint, UilRss } from "@tooni/iconscout-unicons-react";
+import {
+  UilCalendarAlt,
+  UilGlobe,
+  UilLocationPoint,
+  UilRss
+} from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
@@ -135,14 +140,16 @@ export function ProfileCard({ account }: Props) {
       {showFollowers && data && <Followers account={data} onHide={() => setShowFollowers(false)} />}
       {showFollowing && data && <Following account={data} onHide={() => setShowFollowing(false)} />}
 
-      <div className="mb-4 flex gap-2">
-        <FollowControls targetUsername={account?.name} />
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
-        >
-          <FavouriteBtn targetUsername={account?.name} />
-        </EcencyConfigManager.Conditional>
-      </div>
+      {!isMyProfile && (
+        <div className="mb-4 flex gap-2">
+          <FollowControls targetUsername={account?.name} />
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
+          >
+            <FavouriteBtn targetUsername={account?.name} />
+          </EcencyConfigManager.Conditional>
+        </div>
+      )}
 
       {data && (
         <div className="-mx-4 border-y border-[--border-color] px-4 py-4">
