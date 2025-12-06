@@ -1043,6 +1043,7 @@
     "section-replies": "Respostas",
     "section-communities": "Comunidades",
     "section-wallet": "Carteira",
+    "section-insights": "Insights",
     "section-settings": "Definições",
     "section-referrals": "Referências",
     "section-permission": "Permissão",
@@ -1073,6 +1074,22 @@
     "link-copied": "Link de pesquisa copiado para a área de transferência",
     "no-posts-found": "Nada encontrado!",
     "subscribe": "Inscrever-se"
+  },
+  "profile-insights": {
+    "description": "Veja quais das suas publicações mais ressoam com os leitores.",
+    "today": "hoje",
+    "yesterday": "ontem",
+    "last-7": "Últimos 7 Dias",
+    "last-30": "Últimos 30 Dias",
+    "all-time": "Desde o início",
+    "page": "Página",
+    "views": "Visualizações",
+    "uniques": "Visões exclusivas",
+    "minutes": "minutos",
+    "no-data": "Nenhuma visualização de página disponível para este intervalo ainda.",
+    "range": "Date range",
+    "disabled": "As idéias estão desativadas no momento.",
+    "error": "Incapaz de carregar informações"
   },
   "rc-info": {
     "available": "Disponível",
