@@ -1043,6 +1043,7 @@
     "section-replies": "Відповіді",
     "section-communities": "Спільноти",
     "section-wallet": "Гаманець",
+    "section-insights": "Статистика",
     "section-settings": "Налаштування",
     "section-referrals": "Реферали",
     "section-permission": "Дозволи",
@@ -1073,6 +1074,22 @@
     "link-copied": "Посилання на пошук скопійовано в буфер обміну",
     "no-posts-found": "Нічого не знайдено!",
     "subscribe": "Підписатися"
+  },
+  "profile-insights": {
+    "description": "Погляньте які з ваших публікацій віднесені більшість у читанні.",
+    "today": "Сьогодні",
+    "yesterday": "Вчора",
+    "last-7": "Останні 7 днів",
+    "last-30": "Останні 30 днів",
+    "all-time": "За весь час",
+    "page": "Сторінка",
+    "views": "Перегляди",
+    "uniques": "Унікальні види",
+    "minutes": "Хвилин",
+    "no-data": "Ще немає переглядів сторінок для цього діапазону.",
+    "range": "Date range",
+    "disabled": "Статистика на даний момент відключена.",
+    "error": "Не вдалося завантажити статистику."
   },
   "rc-info": {
     "available": "Доступно",
