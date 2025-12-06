@@ -1043,6 +1043,7 @@
     "section-replies": "Antwoorden",
     "section-communities": "Gemeenschappen",
     "section-wallet": "Portemonnee",
+    "section-insights": "Inzichten",
     "section-settings": "Instellingen",
     "section-referrals": "Aangebrachten leden",
     "section-permission": "Bevoegdheden",
@@ -1073,6 +1074,22 @@
     "link-copied": "Gezochte link gekopieerd naar klembord",
     "no-posts-found": "Niets gevonden!",
     "subscribe": "Abonneren"
+  },
+  "profile-insights": {
+    "description": "Zie welke berichten het meest tot de lezers behoren.",
+    "today": "vandaag",
+    "yesterday": "gisteren",
+    "last-7": "Afgelopen 7 dagen",
+    "last-30": "Laatste 30 dagen",
+    "all-time": "Gehele tijd",
+    "page": "Pagina",
+    "views": "Weergaven",
+    "uniques": "Unieke weergaven",
+    "minutes": "minuten",
+    "no-data": "Voor dit bereik zijn nog geen paginaweergaven beschikbaar.",
+    "range": "Date range",
+    "disabled": "Inzichten zijn op dit moment uitgeschakeld.",
+    "error": "Kan geen inzichten laden."
   },
   "rc-info": {
     "available": "Beschikbaar",
