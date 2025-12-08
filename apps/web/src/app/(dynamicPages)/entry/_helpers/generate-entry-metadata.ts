@@ -2,23 +2,22 @@ import { accountReputation, parseDate, safeDecodeURIComponent, truncate } from "
 import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import { getAccount, getContent } from "@/api/hive";
+import { getContent } from "@/api/hive";
+import { getProfiles, Profile } from "@/api/bridge";
 import { getPostQuery } from "@/api/queries";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { FullAccount } from "@/entities";
 
 const NOINDEX_REPUTATION_THRESHOLD = 40;
 
+type ReputationSource = Pick<FullAccount, "reputation" | "post_count"> | Profile | null;
+
 const shouldApplyNoIndex = (
-  account: FullAccount | null,
+  account: ReputationSource,
   fallbackReputation: number
 ): boolean => {
-  if (!account) {
-    return false;
-  }
-
-  const reputationScore = accountReputation(account.reputation ?? fallbackReputation);
-  const postCount = typeof account.post_count === "number" ? account.post_count : 0;
+  const reputationScore = accountReputation(account?.reputation ?? fallbackReputation ?? 0);
+  const postCount = typeof account?.post_count === "number" ? account.post_count : 0;
 
   const meetsReputationGate = reputationScore < NOINDEX_REPUTATION_THRESHOLD;
   const lacksPostingHistory = postCount <= 3;
@@ -62,7 +61,6 @@ export async function generateEntryMetadata(
     }
 
     const isComment = !!entry.parent_author;
-    const contentAuthor = entry.author ?? cleanAuthor;
 
     let title = truncate(entry.title, 67);
     if (isComment) {
@@ -82,20 +80,22 @@ export async function generateEntryMetadata(
     const canonical = entryCanonical(entry, false, base);
     const finalCanonical = canonical ?? fullUrl;
 
-    let authorAccount: FullAccount | null = null;
+    let authorAccount: ReputationSource = null;
+    let accountFetchFailed = false;
+
     try {
-      authorAccount = contentAuthor ? await getAccount(contentAuthor) : null;
+      const profiles = await getProfiles([entry.author]);
+      authorAccount = profiles?.[0] ?? null;
     } catch (e) {
+      accountFetchFailed = true;
       console.warn("generateEntryMetadata: failed to load author account", e);
     }
 
-    const applyNoIndex = shouldApplyNoIndex(
-      authorAccount,
-      entry.author_reputation ?? authorAccount?.reputation ?? 0
-    );
-    const robots = applyNoIndex
-      ? { index: false, follow: false }
-      : undefined;
+    const applyNoIndex = accountFetchFailed
+      ? false
+      : shouldApplyNoIndex(authorAccount, entry.author_reputation ?? 0);
+
+    const robots = applyNoIndex ? "noindex, nofollow" : undefined;
 
     return {
       title,
