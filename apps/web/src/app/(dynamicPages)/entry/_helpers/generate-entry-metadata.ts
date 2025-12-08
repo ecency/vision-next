@@ -62,6 +62,7 @@ export async function generateEntryMetadata(
     }
 
     const isComment = !!entry.parent_author;
+    const contentAuthor = entry.author ?? cleanAuthor;
 
     let title = truncate(entry.title, 67);
     if (isComment) {
@@ -83,14 +84,18 @@ export async function generateEntryMetadata(
 
     let authorAccount: FullAccount | null = null;
     try {
-      authorAccount = await getAccount(entry.author);
+      authorAccount = contentAuthor ? await getAccount(contentAuthor) : null;
     } catch (e) {
       console.warn("generateEntryMetadata: failed to load author account", e);
     }
 
-    const applyNoIndex = shouldApplyNoIndex(authorAccount, entry.author_reputation ?? 0);
-
-    const robots = applyNoIndex ? "noindex, nofollow" : undefined;
+    const applyNoIndex = shouldApplyNoIndex(
+      authorAccount,
+      entry.author_reputation ?? authorAccount?.reputation ?? 0
+    );
+    const robots = applyNoIndex
+      ? { index: false, follow: false }
+      : undefined;
 
     return {
       title,
