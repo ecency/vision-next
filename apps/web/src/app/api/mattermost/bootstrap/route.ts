@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         await ensureUserInTeam(user.id);
         personalToken = await ensurePersonalToken(user.id);
     } catch (e) {
-        console.error("MM bootstrap: Mattermost user/team/token error", {
+        console.error("MM bootstrap: MM user/team/token error", {
           username,
           error: e
         });
