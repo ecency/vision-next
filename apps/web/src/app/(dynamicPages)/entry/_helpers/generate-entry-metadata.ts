@@ -7,7 +7,6 @@ import { getPostQuery } from "@/api/queries";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { FullAccount } from "@/entities";
 
-const NOINDEX_AGE_DAYS = 7;
 const NOINDEX_REPUTATION_THRESHOLD = 40;
 
 const shouldApplyNoIndex = (
@@ -18,19 +17,14 @@ const shouldApplyNoIndex = (
     return false;
   }
 
-  const createdAt = parseDate(account.created ?? new Date().toISOString());
-  const ageInDays = Math.abs((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-  const isNewAccount = ageInDays < NOINDEX_AGE_DAYS;
-
-  if (!isNewAccount) {
-    return false;
-  }
-
   const reputationScore = accountReputation(account.reputation ?? fallbackReputation);
   const postCount = typeof account.post_count === "number" ? account.post_count : 0;
-  const hasLowPostingHistory = postCount <= 3;
 
-  return reputationScore < NOINDEX_REPUTATION_THRESHOLD || hasLowPostingHistory;
+  const meetsReputationGate = reputationScore < NOINDEX_REPUTATION_THRESHOLD;
+  const lacksPostingHistory = postCount <= 3;
+
+  // Accounts are no-indexed when they lack reputation or meaningful posting history, regardless of age.
+  return meetsReputationGate || lacksPostingHistory;
 };
 
 
