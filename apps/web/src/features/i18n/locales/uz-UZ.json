@@ -407,9 +407,6 @@
     "ascending": "O'sish bo'yicha",
     "descending": "Kamayish bo`yicha"
   },
-  "selected-tags": {
-    "title": "Tanlanganlar"
-  },
   "entry-list-item": {
     "cross-posted": "tarqatish",
     "cross-posted-to": "ga",
@@ -824,9 +821,6 @@
       "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
   },
-  "list-style": {
-    "title": "Ro'yxat stilini o'zgartirish"
-  },
   "entry-votes": {
     "title": "1 Ovoz",
     "title-n": "{{n}} ovozlar",
@@ -1049,6 +1043,7 @@
     "section-replies": "Javoblar",
     "section-communities": "Guruhlar",
     "section-wallet": "Hamyon",
+    "section-insights": "Insights",
     "section-settings": "Sozlamalar",
     "section-referrals": "Yo'llanmalar",
     "section-permission": "Ruxsat",
@@ -1079,6 +1074,22 @@
     "link-copied": "Link nusxalandi",
     "no-posts-found": "Hech nima topilmadi!",
     "subscribe": "Subscribe"
+  },
+  "profile-insights": {
+    "description": "See which of your posts resonate most with readers.",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last-7": "Last 7 days",
+    "last-30": "Last 30 days",
+    "all-time": "All time",
+    "page": "Page",
+    "views": "Views",
+    "uniques": "Unique views",
+    "minutes": "Minutes",
+    "no-data": "No page views available for this range yet.",
+    "range": "Date range",
+    "disabled": "Insights are disabled at the moment.",
+    "error": "Unable to load insights."
   },
   "rc-info": {
     "available": "Available",
@@ -1269,24 +1280,6 @@
       "larynx-locked-description": "Qulflangan tokenlar tarmoqdagi likvidlikni ta'minlaydi, konsensusni aniqlashga yordam beradi va nodlarni boshqaradiganlarni mukofotlaydi"
     }
   },
-  "wallet-engine": {
-    "title": "Hive Engine Tokenlari",
-    "description": "Hive Engine - bu Hive blockchain uchun aqlli kontraktlar zanjiri platformasi.",
-    "no-results": "Tokenlar topilmadi.",
-    "token": "Token",
-    "balance": "Balans",
-    "staked": "Muzlatilgan"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sort",
-    "sort-in-ascending": "Ascending",
-    "sort-in-descending": "Descending",
-    "sort-by-value": "Value",
-    "sort-by-balance": "Balance",
-    "sort-by-stake": "Stake",
-    "sort-by-delegations-in": "Delegations in",
-    "sort-by-delegations-out": "Delegations out"
-  },
   "wallet-engine-estimated": {
     "title": "Estimated Tokens Value",
     "description": "The approximate US Dollar value for all engine tokens in your wallet."
@@ -1347,12 +1340,6 @@
     "filter-998": "Chiquvchi transfer",
     "filter-999": "Kiruvchi transfer"
   },
-  "purchase": {
-    "select-asset": "Aktivni Tanlang",
-    "slider-hint": "Miqdorni belgilash uchun slayderni torting.",
-    "submit": "Sotib oling",
-    "purchase-message": "Yoki Ballarni xarid qilish uchun eslatmadagi “ballar” bilan @esteem.app manziliga istalgan summani yuboring."
-  },
   "purchase-qr": {
     "scan-code": "Scan with Ecency mobile app to continue",
     "select-user": "Iltimos, foydalanuvchini tanlang",
@@ -1370,14 +1357,6 @@
     "sub-title": "Postingizni targ'ib qiling",
     "duration": "Davomiyligi",
     "learn-more": "Learn more about promotion"
-  },
-  "boost": {
-    "title": "Kuchaytirish",
-    "sub-title": "Postingizni mustahkamlang",
-    "amount": "Miqdor",
-    "slider-hint": "Miqdorni belgilash uchun slayderni torting.",
-    "hint": "Siz olgan ovozlarning haqiqiy qiymati farq qilishi mumkin",
-    "learn-more": "Learn more about boosting"
   },
   "redeem-common": {
     "balance": "Balans",
@@ -1739,11 +1718,6 @@
     "refresh": "Refresh to get updated status",
     "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
   },
-  "nsfw-content": {
-    "title": "NSFW contents",
-    "warning": "Please check this if your content is NSFW",
-    "continue": "Continue"
-  },
   "tag-selector": {
     "placeholder-empty": "Teglar. Birinchi teg asosiy toifadir. Uni saralash mumkin.",
     "placeholder-focus": "Tegni kiriting",
@@ -1850,9 +1824,6 @@
     "header-reward": "Mukofot",
     "header-votes": "Ovozlar",
     "header-votes-tip": "Shu vaqt davomidan berilgan ovozlar"
-  },
-  "popular-users": {
-    "title": "Mashhur Foydalanuvchilar"
   },
   "discover": {
     "title": "Kashf qilish",
@@ -2065,19 +2036,6 @@
     "updated": "Parol muvaffaqiyatli yangilandi!",
     "hint": "At this time, you can generate keys only by setting a new seed phrase. Updating to any other type of password is not supported. It helps us to keep Ecency and Hive accounts in a standards of Web 3.0."
   },
-  "view-keys": {
-    "title": "Shaxsiy kalitni ko'rish",
-    "header": "Kalit boshqarish",
-    "account": "Akkaunt",
-    "cur-pass": "Joriy parol",
-    "owner": "Egasi",
-    "active": "Faol",
-    "posting": "Nashr",
-    "memo": "Eslatma",
-    "view-keys": "Kalitlarni ko'rish uchun bosing",
-    "copied": "Shaxsiy kalit nusxalandi",
-    "error": "Parol noto'g'ri, qayta tekshiring!"
-  },
   "manage-authorities": {
     "title": "Manage Authorities",
     "type": "Type",
@@ -2128,26 +2086,23 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
-    "page-title": "Start direct messages or join channels to chat with anyone.",
+    "page-title": "Start direct messages or join channels to chat with the Ecency community.",
     "loading-chats": "Loading chats…",
-    "direct-messages-title": "Direct messages",
-    "start-dm": "Start a direct message with anyone on Ecency.",
     "start-dm-button": "Start DM",
     "starting-dm": "Starting…",
-    "search-user": "Search by username",
-    "search-people": "Searching for people…",
-    "select-dm": "Select someone to start a DM",
-    "searching": "Searching…",
-    "no-user": "No people found.",
-    "search-channels": "Search channels or DMs",
-    "channels-title": "Channels",
-    "loading": "Loading...",
+    "search-user": "Search people",
+    "searching": "Searching...",
+    "no-user": "No users found.",
+    "search-channels": "Search channels, users or DMs",
+    "loading": "Loading…",
     "mark-as-read": "Mark as read",
     "marking-as-read": "Marking…",
     "channel-type-dm": "DM",
     "channel-type": "Channel",
     "favorite-channel": "Favorite channel",
+    "channel-muted": "Muted",
     "mute-channel": "Mute channel",
+    "unmute-channel": "Unmute channel",
     "leave-channel": "Leave channel",
     "no-channels": "No channels assigned yet.",
     "no-channels-search": "No channels match your search.",
@@ -2158,119 +2113,13 @@
     "join-channel-action": "Join",
     "joining-channel": "Joining…",
     "no-additional-channels": "No additional channels found.",
-    "why-read-only": "This user has changed their chat key. Please, find new account by username in search above.",
-    "user-not-joined": "Hasn't joined yet",
     "title": "Chats",
-    "messages": "Messages",
-    "key": "Ecency chat key",
-    "new-message": "New Message",
-    "direct-messages": "Direct messages",
-    "collapse": "Collapse",
-    "expand": "Expand",
-    "scroll-to-bottom": "Scroll to Bottom",
-    "joined": "Joined",
-    "followers": "Followers",
-    "start-chat-placeholder": "Start a new message",
-    "search": "Search people or communities",
-    "join-chat": "Join chat",
-    "join-channel": "Join channel",
-    "back": "Back",
-    "no-chat": "No conversation found",
-    "start-chat": "Start chatting",
-    "not-joined": "This user hasn't joined the chat yet",
-    "subscribers": "Subscribers",
-    "invite": "Invite",
-    "send-invite": "Send an invite",
-    "leave:": "Leave",
-    "refresh": "Refresh",
-    "message-warning": "You cannot send messages in this group.",
-    "edit-community-roles": "Edit Community Roles",
-    "add": "Add",
     "no-admin": "No admin or moderator for this community chat.",
-    "blocked-users": "Blocked Users",
-    "action": "Action",
-    "unblock": "Unblock",
-    "ecency-key": "Ecency key",
-    "no-locked-user": "Blocked users not found",
-    "no-hidden-messages": "Hidden messages not found",
-    "enter-private-key": "Enter Chat private key",
-    "enter-private-key-detail": "Enter chat private key to import all chats",
-    "close": "Close",
-    "confirm": "Confirm",
-    "error-updating-community": "Error occurred while updating community",
-    "leaving": "Leaving",
-    "edit-roles": "Edit Roles",
-    "manage-chat-key": "Credentials info",
-    "block": "Block",
-    "communities": "Communities",
-    "dms": "Direct messages",
-    "import-chat": "Import Chat",
-    "create-new-account": "Create New Account",
-    "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
     "view-community-channel": "Community chat",
-    "submit": "Submit",
-    "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
     "public-key": "Public key",
     "private-key": "Private key",
-    "copy-priv-key": "Copy Private key",
-    "extended-view": "Extended View",
-    "you-haven-t-joined": "You haven't joined the Chat yet. Please join to get started!",
-    "invalid-private-key": "Invalid private key",
-    "enter-username": "Enter temporary username",
     "hide-message": "Hide message",
-    "block-author": "Block author",
-    "unblock-author": "Unblock author",
-    "create-an-account": "Create chat account",
-    "create-description": "Welcome aboard! Your account is almost ready. Dive into conversations and enjoy connecting with others privately.",
-    "create-pin-description": "Please, set PIN for getting access to your chats from any device",
-    "logout": "Logout",
-    "specify-invitation-message": "This invitation message will be sent as comment to latest user post",
-    "successfully-invited": "Successfully invited!",
-    "invite-couldnt-be-sent": "Invite couldn't be sent due to user doesn't have any post yet",
-    "no-posts-for-invite": "Unfortunately, User doesn't seem active and haven't made any posts.",
-    "warn-key-saving": "Backup your Chat key to keep account secure and also have uninterrupted service!",
-    "view-and-save": "Show keys and save",
-    "blocked-users-management": "Blocked users management",
-    "unlock-the-section": "Please, enter your PIN to see your credentials information",
-    "no-contacts-or-channels": "No conversations yet",
-    "upload-image": "Upload image",
-    "hidden-messages": "Hidden messages",
-    "hidden-messages-management": "Hidden messages management",
-    "saved-messages": "Saved messages",
-    "fetch-error": "While you were away, network change detected. Reload page now to fetch new data",
-    "pin": "Pin",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "Select contact or channel",
-    "message-forwarding": "Message forwarding",
-    "forward": "Forward message",
-    "forwarded-from": "Forwarded message",
-    "welcome": {
-      "title": "Welcome to Chats",
-      "description": "Create or import an account start using Chats",
-      "already-joined-title": "Looks like, you've already joined the Chats",
-      "already-joined-hint": "Please, verify your account and get access by entering PIN",
-      "pin-failed": "Invalid PIN. Failed to verify.",
-      "oops": "Oops!",
-      "user-not-joined-yet": "You can't send a message. This user or channel hasn't joined to chats yet.",
-      "hello": "Hello",
-      "start-description": "Search a person or community and start messaging",
-      "join-description": "You aren't part of channel",
-      "rejoin-description": "You have left this community chat. Rejoin the chat now!"
-    },
-    "import": {
-      "title": "Importing account",
-      "description": "Please, enter public and private key pair to import your existing account",
-      "button": "Import",
-      "iv": "Initial vector value"
-    },
-    "reply": "Reply",
-    "reply-to": "Replying to {{account}}",
-    "mattermost-title": "Ecency chat is now powered by Mattermost",
-    "mattermost-body": "Open chat.ecency.com to continue direct messages and community conversations. Your Ecency username and credentials are used instead of the old Nostr chat keys.",
-    "mattermost-community-hint": "Looking for {{community}}? Open the community channel after signing in at chat.ecency.com.",
-    "mattermost-open": "Open chat.ecency.com",
-    "mattermost-guide": "View chat setup guide",
+    "enter-private-key-detail": "Enter chat private key to import all chats",
     "message-search-results": "Message search results",
     "no-messages-found": "No messages found.",
     "no-message": "No message content."
@@ -2630,22 +2479,6 @@
     "title": "Ishtirokchilar",
     "description": "Bu buyuk insonlar Ecencyga u yoki bu tarzda hissa qo'shgan, biz ularning barchasiga minnatdorchilik bildiramiz. Tarjima, g‘oyalar, ishlab chiqish, loyihalash, ijtimoiy xabardorlik bilan o‘z hissangizni qo‘shish orqali bizning jamoamizga qo‘shilishni istasangiz, qo‘shiling. Batafsil ma’lumot olish uchun bizning <a href=\"/faq#qanday qilib hissa qo'shish\">FAQ</a>ni o‘qing."
   },
-  "context-menu": {
-    "cut": "Kesish",
-    "copy": "Nusxalash",
-    "paste": "Kiritish",
-    "open-image-browser": "Brauzerda rasmni ochish",
-    "copy-image-url": "Rasm urlini nusxalash"
-  },
-  "updater": {
-    "new-version-available": "Yangi versiyasi mavjud",
-    "download": "Yuklash",
-    "update": "Yangilash",
-    "dismiss": "Rad etish",
-    "downloading": "Yangi versiya yuklanmoqda...",
-    "download-completed": "Yuklash yakunandi",
-    "restart": "Qayta ishga tushirish"
-  },
   "chain-error": {
     "min-root-comment": "Siz har besh daqiqada bir marta xabar yozishingiz mumkin.",
     "identical-vote": "Bu kontentdagi hozirgi ovozingiz shu ovoz bilan bir xil.",
@@ -2866,12 +2699,6 @@
     "email-placeholder": "Your e-mail(optional)",
     "message-placeholder": "Please, describe your report",
     "issue-reported": "Issue reported successfully"
-  },
-  "entry-preview": {
-    "searching-title": "Searching post",
-    "searching-description": "We are trying to find out this post...",
-    "title": "Preview",
-    "description": "This post is creating now. You can interact with it when this message will disappear."
   },
   "banners": {
     "no-ls-title": "Unable to use local data",

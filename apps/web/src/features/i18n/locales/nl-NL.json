@@ -407,9 +407,6 @@
     "ascending": "Oplopend",
     "descending": "Aflopend"
   },
-  "selected-tags": {
-    "title": "Uitgelicht"
-  },
   "entry-list-item": {
     "cross-posted": "gedeelde post",
     "cross-posted-to": "naar",
@@ -824,9 +821,6 @@
       "deposit-instructions": "Stuur HIVE naar @honey-swap met memo {{memo}} om SWAP.HIVE te ontvangen."
     }
   },
-  "list-style": {
-    "title": "Schakelaar stijl"
-  },
   "entry-votes": {
     "title": "1 Stem",
     "title-n": "{{n}} Stemmen",
@@ -1049,6 +1043,7 @@
     "section-replies": "Antwoorden",
     "section-communities": "Gemeenschappen",
     "section-wallet": "Portemonnee",
+    "section-insights": "Inzichten",
     "section-settings": "Instellingen",
     "section-referrals": "Aangebrachten leden",
     "section-permission": "Bevoegdheden",
@@ -1079,6 +1074,22 @@
     "link-copied": "Gezochte link gekopieerd naar klembord",
     "no-posts-found": "Niets gevonden!",
     "subscribe": "Abonneren"
+  },
+  "profile-insights": {
+    "description": "Zie welke berichten het meest tot de lezers behoren.",
+    "today": "vandaag",
+    "yesterday": "gisteren",
+    "last-7": "Afgelopen 7 dagen",
+    "last-30": "Laatste 30 dagen",
+    "all-time": "Gehele tijd",
+    "page": "Pagina",
+    "views": "Weergaven",
+    "uniques": "Unieke weergaven",
+    "minutes": "minuten",
+    "no-data": "Voor dit bereik zijn nog geen paginaweergaven beschikbaar.",
+    "range": "Date range",
+    "disabled": "Inzichten zijn op dit moment uitgeschakeld.",
+    "error": "Kan geen inzichten laden."
   },
   "rc-info": {
     "available": "Beschikbaar",
@@ -1269,24 +1280,6 @@
       "larynx-locked-description": "Vergrendelde tokens bieden liquiditeit aan het netwerk, hulp bij het bepalen van consensus, en verdienen beloningen voor node runners"
     }
   },
-  "wallet-engine": {
-    "title": "Hive Engine Tokens",
-    "description": "Hive Engine is een transactie platform voor de Hive blockchain.",
-    "no-results": "Geen token gevonden.",
-    "token": "Token",
-    "balance": "Saldo",
-    "staked": "Gestaked"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sorteren",
-    "sort-in-ascending": "Oplopend",
-    "sort-in-descending": "Aflopend",
-    "sort-by-value": "Waarde",
-    "sort-by-balance": "Saldo",
-    "sort-by-stake": "Uitzetten",
-    "sort-by-delegations-in": "Delegaties in",
-    "sort-by-delegations-out": "Overdrachten uit"
-  },
   "wallet-engine-estimated": {
     "title": "Geschatte Tokens Waarde",
     "description": "De geschatte waarde voor alle engine tokens in uw portemonnee in US-dollar."
@@ -1347,12 +1340,6 @@
     "filter-998": "Uitgaande overschrijving",
     "filter-999": "Binnenkomende overschrijving"
   },
-  "purchase": {
-    "select-asset": "Selecteer bezitting",
-    "slider-hint": "Sleep de schuifregelaar om het bedrag aan te passen.",
-    "submit": "Koop",
-    "purchase-message": "Of stuur een willekeurig aantal naar @esteem.app met `points` als memo om punten te kopen."
-  },
   "purchase-qr": {
     "scan-code": "Scan met Ecency mobiele app om door te gaan",
     "select-user": "Selecteer een gebruiker",
@@ -1370,14 +1357,6 @@
     "sub-title": "Promoot je bericht",
     "duration": "Duur",
     "learn-more": "Meer informatie over promotie"
-  },
-  "boost": {
-    "title": "Versterken",
-    "sub-title": "Boost je bericht",
-    "amount": "Hoeveelheid",
-    "slider-hint": "Sleep de schuifregelaar om het bedrag aan te passen.",
-    "hint": "De werkelijke stemwaarde kan variëren",
-    "learn-more": "Meer informatie over boosten"
   },
   "redeem-common": {
     "balance": "Saldo",
@@ -1739,11 +1718,6 @@
     "refresh": "Vernieuwen voor geactualiseerde status",
     "video-info": "Video's worden opgeslagen en aangedreven door SPK netwerk, kunnen wat opslag- en codering kosten hebben."
   },
-  "nsfw-content": {
-    "title": "NSFW inhoud",
-    "warning": "Controleer dit als uw inhoud NSFW is",
-    "continue": "Doorgaan"
-  },
   "tag-selector": {
     "placeholder-empty": "Tags. Eerste tag is hoofdcategorie. Sortablet.",
     "placeholder-focus": "Voer label in",
@@ -1850,9 +1824,6 @@
     "header-reward": "Beloning",
     "header-votes": "Stemming",
     "header-votes-tip": "Aantal stemmen in deze periode"
-  },
-  "popular-users": {
-    "title": "Populaire gebruikers"
   },
   "discover": {
     "title": "Ontdek",
@@ -2065,19 +2036,6 @@
     "updated": "Wachtwoord succesvol bijgewerkt!",
     "hint": "Op dit moment kunt u sleutels alleen genereren door het instellen van een nieuwe herstelzin. Het bijwerken van een ander soort wachtwoord wordt niet ondersteund. Het helpt ons om rekeningen van Ecency en Hive in een standaard van Web 3.0 te houden."
   },
-  "view-keys": {
-    "title": "Privésleutels bekijken",
-    "header": "Beheer sleutels",
-    "account": "Rekening",
-    "cur-pass": "Huidig wachtwoord",
-    "owner": "Eigenaar",
-    "active": "actief",
-    "posting": "Plaatsen",
-    "memo": "Notitie",
-    "view-keys": "Klik om sleutels te bekijken",
-    "copied": "Privésleutel gekopieerd naar klembord",
-    "error": "Wachtwoord lijkt onjuist, controleer het nog eens!"
-  },
   "manage-authorities": {
     "title": "Autoriteiten beheren",
     "type": "Type",
@@ -2128,26 +2086,23 @@
     "update-success-message": "Uw herstel-e-mail is met succes bijgewerkt"
   },
   "chat": {
-    "page-title": "Begin directe berichten of neem deel aan kanalen om met iemand te chatten.",
+    "page-title": "Begin direct berichten of neem deel aan kanalen om te chatten met de Ecency community.",
     "loading-chats": "Chats laden…",
-    "direct-messages-title": "Directe berichten",
-    "start-dm": "Begin een direct bericht met iemand op Ecency.",
     "start-dm-button": "Start DM",
     "starting-dm": "Starting…",
-    "search-user": "Zoeken op gebruikersnaam",
-    "search-people": "Searching for people…",
-    "select-dm": "Selecteer iemand om een DM te starten",
-    "searching": "Searching…",
-    "no-user": "Geen personen gevonden.",
-    "search-channels": "Zenders of PM's zoeken",
-    "channels-title": "Kanalen",
-    "loading": "Laden...",
+    "search-user": "Mensen zoeken",
+    "searching": "Zoeken...",
+    "no-user": "Geen gebruikers gevonden.",
+    "search-channels": "Zoek kanalen, gebruikers of berichten",
+    "loading": "Loading…",
     "mark-as-read": "Markeren als gelezen",
     "marking-as-read": "Marking…",
     "channel-type-dm": "DM",
     "channel-type": "Kanaal",
     "favorite-channel": "Favoriete kanaal",
+    "channel-muted": "Gedempt",
     "mute-channel": "Kanaal dempen",
+    "unmute-channel": "Kanaal inschakelen",
     "leave-channel": "Kanaal verlaten",
     "no-channels": "Nog geen kanalen toegewezen.",
     "no-channels-search": "Geen kanalen gevonden die overeenkomen met uw zoekopdracht.",
@@ -2158,119 +2113,13 @@
     "join-channel-action": "Deelnemen",
     "joining-channel": "Joining…",
     "no-additional-channels": "Geen extra kanalen gevonden.",
-    "why-read-only": "Deze gebruiker heeft de chatsleutel gewijzigd. Zoek een nieuw account op de gebruikersnaam in bovenstaand zoekopdracht.",
-    "user-not-joined": "Nog niet toegetreden",
     "title": "Chats",
-    "messages": "berichten",
-    "key": "Ecency chat sleutel",
-    "new-message": "Nieuw bericht",
-    "direct-messages": "Directe berichten",
-    "collapse": "Samenvouwen",
-    "expand": "Uitklappen",
-    "scroll-to-bottom": "Naar beneden scrollen",
-    "joined": "Aangesloten",
-    "followers": "Volgers",
-    "start-chat-placeholder": "Start een nieuw bericht",
-    "search": "Zoek mensen of gemeenschappen",
-    "join-chat": "Deelnemen aan chat",
-    "join-channel": "Kanaal samenvoegen",
-    "back": "Achterzijde",
-    "no-chat": "Geen gesprek gevonden",
-    "start-chat": "Chatten starten",
-    "not-joined": "Deze gebruiker heeft zich nog niet aangesloten bij de chat",
-    "subscribers": "Ontvangers",
-    "invite": "Uitnodigen",
-    "send-invite": "Stuur een uitnodiging",
-    "leave:": "Verlaat",
-    "refresh": "Vernieuwen",
-    "message-warning": "U kunt geen berichten verzenden in deze groep.",
-    "edit-community-roles": "Bewerk Community Rollen",
-    "add": "Toevoegen",
     "no-admin": "Geen admin of moderator voor deze community chat.",
-    "blocked-users": "Geblokkeerde gebruikers",
-    "action": "actie",
-    "unblock": "Deblokkeer",
-    "ecency-key": "Ecency toets",
-    "no-locked-user": "Geblokkeerde gebruikers niet gevonden",
-    "no-hidden-messages": "Verborgen berichten niet gevonden",
-    "enter-private-key": "Voer chat privé sleutel in",
-    "enter-private-key-detail": "Voer de privésleutel in om alle chats te importeren",
-    "close": "Afsluiten",
-    "confirm": "Bevestigen",
-    "error-updating-community": "Fout opgetreden tijdens het bijwerken van de community",
-    "leaving": "Verlaat",
-    "edit-roles": "Rollen bewerken",
-    "manage-chat-key": "Referenties informatie",
-    "block": "Blokkeren",
-    "communities": "Gemeenschappen",
-    "dms": "Directe berichten",
-    "import-chat": "Chat importeren",
-    "create-new-account": "Nieuw account aanmaken",
-    "blocked-user-message": "Je bent geblokkeerd van deze community",
-    "start-community-channel": "Start community channel",
     "view-community-channel": "Community chat",
-    "submit": "Bevestigen",
-    "chat-priv-key": "Sla de chatsleutel op door op de downloadknop te klikken of de QR-code te scannen om uw gesprekken te herstellen.",
     "public-key": "Publieke sleutel",
     "private-key": "Privé sleutel",
-    "copy-priv-key": "Kopieer privésleutel",
-    "extended-view": "Uitgebreide weergave",
-    "you-haven-t-joined": "U bent nog niet toegetreden tot de Chat . Meld u aan om aan de slag te gaan!",
-    "invalid-private-key": "Ongeldige geheime sleutel",
-    "enter-username": "Voer tijdelijke gebruikersnaam in",
     "hide-message": "Bericht verbergen",
-    "block-author": "Blokkeer auteur",
-    "unblock-author": "Deblokkeer auteur",
-    "create-an-account": "Chat-account aanmaken",
-    "create-description": "Welkom aan boord! Uw account is bijna klaar. Duik in gesprekken en geniet van privécommunicatie.",
-    "create-pin-description": "Stel pincode in voor toegang tot uw chats vanaf elk apparaat",
-    "logout": "Afmelden",
-    "specify-invitation-message": "Dit uitnodigingsbericht zal worden verzonden als reactie op het laatste bericht van de gebruiker",
-    "successfully-invited": "Succesvol uitgenodigd!",
-    "invite-couldnt-be-sent": "Uitnodiging kan niet worden verzonden omdat de gebruiker nog geen bericht heeft",
-    "no-posts-for-invite": "Helaas lijkt de gebruiker niet actief te zijn en heeft hij geen posts gemaakt.",
-    "warn-key-saving": "Maak een back-up van uw Chat-sleutel om uw account veilig te houden en heb ook een ononderbroken service!",
-    "view-and-save": "Toon sleutels en sla op",
-    "blocked-users-management": "Geblokkeerde gebruikers beheer",
-    "unlock-the-section": "Voer uw pincode in om uw inloggegevens te zien",
-    "no-contacts-or-channels": "Nog geen gesprekken",
-    "upload-image": "Afbeelding uploaden",
-    "hidden-messages": "Verborgen berichten",
-    "hidden-messages-management": "Verborgen berichten beheer",
-    "saved-messages": "Opgeslagen berichten",
-    "fetch-error": "Terwijl u weg was, werd netwerkwijziging gedetecteerd. Herlaad de pagina nu om nieuwe gegevens op te halen",
-    "pin": "Vastzetten",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "Selecteer contactpersoon of kanaal",
-    "message-forwarding": "Bericht doorsturen",
-    "forward": "Bericht doorsturen",
-    "forwarded-from": "Doorgestuurd bericht",
-    "welcome": {
-      "title": "Welkom bij Chats",
-      "description": "Een account maken of importeren met chats",
-      "already-joined-title": "Het lijkt erop dat je je al bij de chat hebt aangesloten",
-      "already-joined-hint": "Verifieer uw account en krijg toegang door uw pincode in te voeren",
-      "pin-failed": "Ongeldige PIN-code. Verifiëren mislukt.",
-      "oops": "Oeps!",
-      "user-not-joined-yet": "Je kunt geen bericht verzenden. Deze gebruiker of kanaal is nog niet toegetreden tot chatten.",
-      "hello": "Hallo",
-      "start-description": "Zoek iemand of gemeenschap en begin met berichten",
-      "join-description": "Je bent geen deel van het kanaal",
-      "rejoin-description": "Je hebt deze community chat verlaten. Maak nu opnieuw deel aan de chat!"
-    },
-    "import": {
-      "title": "Account importeren",
-      "description": "Voer publieke en private key pair in om uw bestaande account te importeren",
-      "button": "Importeren",
-      "iv": "Initiële waarde vector"
-    },
-    "reply": "Beantwoorden",
-    "reply-to": "Reageren op {{account}}",
-    "mattermost-title": "Ecency chat wordt nu aangedreven door Mattermost",
-    "mattermost-body": "Open chat.ecency.com om door te gaan met directe berichten en community gesprekken. Je Ecency gebruikersnaam en referenties worden gebruikt in plaats van de oude Nostr chat sleutels.",
-    "mattermost-community-hint": "Op zoek naar {{community}}? Open het community kanaal na het inloggen op chat.ecency.com.",
-    "mattermost-open": "Open chat.ecency.com",
-    "mattermost-guide": "Bekijk de chat setup-gids",
+    "enter-private-key-detail": "Voer de privésleutel in om alle chats te importeren",
     "message-search-results": "Resultaten van berichten",
     "no-messages-found": "Geen berichten gevonden.",
     "no-message": "Geen inhoud van berichten"
@@ -2630,22 +2479,6 @@
     "title": "Bijdragers",
     "description": "Deze geweldige mensen hebben op de een of andere manier bijgedragen aan de Ecentie, we willen hen allen bedanken. Als u deel wilt nemen aan ons team door deel te nemen aan Vertaling, Ideeën, Ontwikkeling, Ontwerp, sociaal bewustzijn, voel je vrij om je aan te sluiten. Voor meer informatie lees onze <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Knippen",
-    "copy": "Kopiëren",
-    "paste": "Plakken",
-    "open-image-browser": "Open afbeelding in browser",
-    "copy-image-url": "Kopieer afbeeldings-url"
-  },
-  "updater": {
-    "new-version-available": "Nieuwe versie is beschikbaar",
-    "download": "downloaden",
-    "update": "Update",
-    "dismiss": "Negeren",
-    "downloading": "Nieuwe versie aan het downloaden...",
-    "download-completed": "Download is voltooid",
-    "restart": "Opnieuw starten"
-  },
   "chain-error": {
     "min-root-comment": "Je mag maar eenmaal per vijf minuten een bericht plaatsen.",
     "identical-vote": "Uw huidige stemming over deze inhoud is identiek aan deze stemming.",
@@ -2866,12 +2699,6 @@
     "email-placeholder": "Uw e-mail (optioneel)",
     "message-placeholder": "Beschrijf uw rapport",
     "issue-reported": "Probleem met succes gerapporteerd"
-  },
-  "entry-preview": {
-    "searching-title": "Zoek bericht",
-    "searching-description": "We proberen deze post te achterhalen...",
-    "title": "Voorvertoning",
-    "description": "Dit bericht wordt nu aangemaakt. Je kunt ermee communiceren wanneer dit bericht verdwijnt."
   },
   "banners": {
     "no-ls-title": "Kan lokale gegevens niet gebruiken",

@@ -407,9 +407,6 @@
     "ascending": "आरोही",
     "descending": "अवरोही"
   },
-  "selected-tags": {
-    "title": "प्रदर्शित"
-  },
   "entry-list-item": {
     "cross-posted": "क्रॉस पोस्ट की गई",
     "cross-posted-to": "इसमें",
@@ -824,9 +821,6 @@
       "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
   },
-  "list-style": {
-    "title": "टॉगल सूची शैली"
-  },
   "entry-votes": {
     "title": "1 वोट",
     "title-n": "{{n}} वोटस",
@@ -1049,6 +1043,7 @@
     "section-replies": "जवाब",
     "section-communities": "समुदाय",
     "section-wallet": "बटुआ",
+    "section-insights": "Insights",
     "section-settings": "सेटिंग्स",
     "section-referrals": "रेफरलस",
     "section-permission": "अनुमति",
@@ -1079,6 +1074,22 @@
     "link-copied": "खोज लिंक क्लिपबोर्ड पर कॉपी किया गया",
     "no-posts-found": "कुछ भी नहीं मिला!",
     "subscribe": "सदस्यता लें"
+  },
+  "profile-insights": {
+    "description": "See which of your posts resonate most with readers.",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last-7": "Last 7 days",
+    "last-30": "Last 30 days",
+    "all-time": "All time",
+    "page": "Page",
+    "views": "Views",
+    "uniques": "Unique views",
+    "minutes": "Minutes",
+    "no-data": "No page views available for this range yet.",
+    "range": "Date range",
+    "disabled": "Insights are disabled at the moment.",
+    "error": "Unable to load insights."
   },
   "rc-info": {
     "available": "उपलब्ध",
@@ -1269,24 +1280,6 @@
       "larynx-locked-description": "लॉक किए गए टोकन नेटवर्क को तरलता प्रदान करते हैं, आम सहमति निर्धारित करने में सहायता करते हैं, और नोड रनर्स के लिए पुरस्कार अर्जित करते हैं"
     }
   },
-  "wallet-engine": {
-    "title": "हाइव इंजन टोकनस",
-    "description": "हाइव इंजन हाइव ब्लॉकचेन के लिए एक स्मार्ट कॉन्ट्रैक्ट साइड-चेन प्लेटफॉर्म है।",
-    "no-results": "कोई टोकन नहीं मिला।",
-    "token": "टोकन",
-    "balance": "शेष रकम",
-    "staked": "दांव पर लगा दिया"
-  },
-  "sort-engine-tokens": {
-    "sort": "क्रम",
-    "sort-in-ascending": "आरोही",
-    "sort-in-descending": "अवरोही",
-    "sort-by-value": "कीमत",
-    "sort-by-balance": "बैलेंस",
-    "sort-by-stake": "दांव",
-    "sort-by-delegations-in": "डेलीगेशन्स अंदर",
-    "sort-by-delegations-out": "डेलीगेशन्स बाहर"
-  },
   "wallet-engine-estimated": {
     "title": "अनुमानित अंक मूल्य",
     "description": "आपके वॉलेट में सभी इंजन टोकन का अनुमानित अमेरिकी डॉलर मूल्य।"
@@ -1347,12 +1340,6 @@
     "filter-998": "आउटगोइंग स्थानांतरण",
     "filter-999": "आने वाले स्थानांतरण"
   },
-  "purchase": {
-    "select-asset": "असेट चुनें",
-    "slider-hint": "राशि समायोजित करने के लिए स्लाइडर को खींचें।",
-    "submit": "खरीद",
-    "purchase-message": "या प्वॉइंट्स खरीदने के लिए मेमो के रूप में `अंक' के साथ @esteem.app को कोई भी राशि भेजें।"
-  },
   "purchase-qr": {
     "scan-code": "जारी रखने के लिए इसेंसी मोबाइल ऐप से स्कैन करें",
     "select-user": "कृपया, उपयोगकर्ता को चुने",
@@ -1370,14 +1357,6 @@
     "sub-title": "अपनी पोस्ट का प्रचार करें",
     "duration": "अवधि",
     "learn-more": "प्रमोशन के बारे में अधिक जानें"
-  },
-  "boost": {
-    "title": "बूस्ट",
-    "sub-title": "अपनी पोस्ट का प्रचार करें",
-    "amount": "रकम",
-    "slider-hint": "राशि समायोजित करने के लिए स्लाइडर को खींचें।",
-    "hint": "आपको प्राप्त होने वाले वोट का वास्तविक मूल्य भिन्न हो सकता है",
-    "learn-more": "बूस्टिंग के बारे में अधिक जानें"
   },
   "redeem-common": {
     "balance": "शेष रकम",
@@ -1739,11 +1718,6 @@
     "refresh": "अद्यतन स्थिति प्राप्त करने के लिए रीफ़्रेश करें",
     "video-info": "वीडियो एसपीके नेटवर्क द्वारा संग्रहीत और संचालित किए जाते हैं, इसमें कुछ भंडारण और एन्कोडिंग शुल्क हो सकता है।"
   },
-  "nsfw-content": {
-    "title": "एनएसएफडब्ल्यू सामग्री",
-    "warning": "यदि आपकी सामग्री एनएसएफडब्ल्यू है तो कृपया इसकी जाँच करें",
-    "continue": "जारी रखना"
-  },
   "tag-selector": {
     "placeholder-empty": "टैग। पहला टैग मुख्य श्रेणी है। क्रमित करने योग्य।",
     "placeholder-focus": "टैग डालें",
@@ -1850,9 +1824,6 @@
     "header-reward": "इनाम",
     "header-votes": "वोटस",
     "header-votes-tip": "इस अवधि में वोटों की संख्या"
-  },
-  "popular-users": {
-    "title": "लोकप्रिय उपयोगकर्ता"
   },
   "discover": {
     "title": "खोजिए",
@@ -2065,19 +2036,6 @@
     "updated": "पासवर्ड सफलतापूर्वक अपडेट किया गया!",
     "hint": "At this time, you can generate keys only by setting a new seed phrase. Updating to any other type of password is not supported. It helps us to keep Ecency and Hive accounts in a standards of Web 3.0."
   },
-  "view-keys": {
-    "title": "निजी कुंजी देखें",
-    "header": "चाबियाँ प्रबंधित करें",
-    "account": "खाता",
-    "cur-pass": "वर्तमान पासवर्ड",
-    "owner": "मालिक",
-    "active": "सक्रिय",
-    "posting": "पोस्टिंग",
-    "memo": "ज्ञापन",
-    "view-keys": "कुंजियाँ देखने के लिए क्लिक करें",
-    "copied": "निजी कुंजी को क्लिपबोर्ड में कॉपी किया गया",
-    "error": "पासवर्ड गलत लग रहा है, कृपया दोबारा जांचें!"
-  },
   "manage-authorities": {
     "title": "Manage Authorities",
     "type": "Type",
@@ -2128,26 +2086,23 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
-    "page-title": "Start direct messages or join channels to chat with anyone.",
+    "page-title": "Start direct messages or join channels to chat with the Ecency community.",
     "loading-chats": "Loading chats…",
-    "direct-messages-title": "Direct messages",
-    "start-dm": "Start a direct message with anyone on Ecency.",
     "start-dm-button": "Start DM",
     "starting-dm": "Starting…",
-    "search-user": "Search by username",
-    "search-people": "Searching for people…",
-    "select-dm": "Select someone to start a DM",
-    "searching": "Searching…",
-    "no-user": "No people found.",
-    "search-channels": "Search channels or DMs",
-    "channels-title": "Channels",
-    "loading": "Loading...",
+    "search-user": "Search people",
+    "searching": "Searching...",
+    "no-user": "No users found.",
+    "search-channels": "Search channels, users or DMs",
+    "loading": "Loading…",
     "mark-as-read": "Mark as read",
     "marking-as-read": "Marking…",
     "channel-type-dm": "DM",
     "channel-type": "Channel",
     "favorite-channel": "Favorite channel",
+    "channel-muted": "Muted",
     "mute-channel": "Mute channel",
+    "unmute-channel": "Unmute channel",
     "leave-channel": "Leave channel",
     "no-channels": "No channels assigned yet.",
     "no-channels-search": "No channels match your search.",
@@ -2158,119 +2113,13 @@
     "join-channel-action": "Join",
     "joining-channel": "Joining…",
     "no-additional-channels": "No additional channels found.",
-    "why-read-only": "This user has changed their chat key. Please, find new account by username in search above.",
-    "user-not-joined": "Hasn't joined yet",
     "title": "Chats",
-    "messages": "Messages",
-    "key": "Ecency chat key",
-    "new-message": "New Message",
-    "direct-messages": "Direct messages",
-    "collapse": "Collapse",
-    "expand": "Expand",
-    "scroll-to-bottom": "Scroll to Bottom",
-    "joined": "Joined",
-    "followers": "Followers",
-    "start-chat-placeholder": "Start a new message",
-    "search": "Search people or communities",
-    "join-chat": "Join chat",
-    "join-channel": "Join channel",
-    "back": "Back",
-    "no-chat": "No conversation found",
-    "start-chat": "Start chatting",
-    "not-joined": "This user hasn't joined the chat yet",
-    "subscribers": "Subscribers",
-    "invite": "Invite",
-    "send-invite": "Send an invite",
-    "leave:": "Leave",
-    "refresh": "Refresh",
-    "message-warning": "You cannot send messages in this group.",
-    "edit-community-roles": "Edit Community Roles",
-    "add": "Add",
     "no-admin": "No admin or moderator for this community chat.",
-    "blocked-users": "Blocked Users",
-    "action": "Action",
-    "unblock": "Unblock",
-    "ecency-key": "Ecency key",
-    "no-locked-user": "Blocked users not found",
-    "no-hidden-messages": "Hidden messages not found",
-    "enter-private-key": "Enter Chat private key",
-    "enter-private-key-detail": "Enter chat private key to import all chats",
-    "close": "Close",
-    "confirm": "Confirm",
-    "error-updating-community": "Error occurred while updating community",
-    "leaving": "Leaving",
-    "edit-roles": "Edit Roles",
-    "manage-chat-key": "Credentials info",
-    "block": "Block",
-    "communities": "Communities",
-    "dms": "Direct messages",
-    "import-chat": "Import Chat",
-    "create-new-account": "Create New Account",
-    "blocked-user-message": "You have been blocked from this community",
-    "start-community-channel": "Start community channel",
     "view-community-channel": "Community chat",
-    "submit": "Submit",
-    "chat-priv-key": "Please, save Chat key by clicking on download button or scanning QR code to restore your conversations.",
     "public-key": "Public key",
     "private-key": "Private key",
-    "copy-priv-key": "Copy Private key",
-    "extended-view": "Extended View",
-    "you-haven-t-joined": "You haven't joined the Chat yet. Please join to get started!",
-    "invalid-private-key": "Invalid private key",
-    "enter-username": "Enter temporary username",
     "hide-message": "Hide message",
-    "block-author": "Block author",
-    "unblock-author": "Unblock author",
-    "create-an-account": "Create chat account",
-    "create-description": "Welcome aboard! Your account is almost ready. Dive into conversations and enjoy connecting with others privately.",
-    "create-pin-description": "Please, set PIN for getting access to your chats from any device",
-    "logout": "Logout",
-    "specify-invitation-message": "This invitation message will be sent as comment to latest user post",
-    "successfully-invited": "Successfully invited!",
-    "invite-couldnt-be-sent": "Invite couldn't be sent due to user doesn't have any post yet",
-    "no-posts-for-invite": "Unfortunately, User doesn't seem active and haven't made any posts.",
-    "warn-key-saving": "Backup your Chat key to keep account secure and also have uninterrupted service!",
-    "view-and-save": "Show keys and save",
-    "blocked-users-management": "Blocked users management",
-    "unlock-the-section": "Please, enter your PIN to see your credentials information",
-    "no-contacts-or-channels": "No conversations yet",
-    "upload-image": "Upload image",
-    "hidden-messages": "Hidden messages",
-    "hidden-messages-management": "Hidden messages management",
-    "saved-messages": "Saved messages",
-    "fetch-error": "While you were away, network change detected. Reload page now to fetch new data",
-    "pin": "Pin",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "Select contact or channel",
-    "message-forwarding": "Message forwarding",
-    "forward": "Forward message",
-    "forwarded-from": "Forwarded message",
-    "welcome": {
-      "title": "Welcome to Chats",
-      "description": "Create or import an account start using Chats",
-      "already-joined-title": "Looks like, you've already joined the Chats",
-      "already-joined-hint": "Please, verify your account and get access by entering PIN",
-      "pin-failed": "Invalid PIN. Failed to verify.",
-      "oops": "Oops!",
-      "user-not-joined-yet": "You can't send a message. This user or channel hasn't joined to chats yet.",
-      "hello": "Hello",
-      "start-description": "Search a person or community and start messaging",
-      "join-description": "You aren't part of channel",
-      "rejoin-description": "You have left this community chat. Rejoin the chat now!"
-    },
-    "import": {
-      "title": "Importing account",
-      "description": "Please, enter public and private key pair to import your existing account",
-      "button": "Import",
-      "iv": "Initial vector value"
-    },
-    "reply": "Reply",
-    "reply-to": "Replying to {{account}}",
-    "mattermost-title": "Ecency chat is now powered by Mattermost",
-    "mattermost-body": "Open chat.ecency.com to continue direct messages and community conversations. Your Ecency username and credentials are used instead of the old Nostr chat keys.",
-    "mattermost-community-hint": "Looking for {{community}}? Open the community channel after signing in at chat.ecency.com.",
-    "mattermost-open": "Open chat.ecency.com",
-    "mattermost-guide": "View chat setup guide",
+    "enter-private-key-detail": "Enter chat private key to import all chats",
     "message-search-results": "Message search results",
     "no-messages-found": "No messages found.",
     "no-message": "No message content."
@@ -2630,22 +2479,6 @@
     "title": "योगदानकर्ता",
     "description": "इन महान लोगों ने एक या दूसरे तरीके से इक्विटी में योगदान दिया, हम उन सभी को धन्यवाद देना चाहते हैं। यदि आप अनुवाद, विचार, विकास, डिजाइनिंग, सामाजिक जागरूकता के साथ योगदान देकर हमारी टीम में शामिल होना चाहते हैं, तो बेझिझक शामिल हो सकते हैं। अधिक जानने के लिए हमारे पढ़ें<a href=\"/faq#how-to-contribute\">फएक्यू </a>."
   },
-  "context-menu": {
-    "cut": "काटें",
-    "copy": "प्रतिलिपि",
-    "paste": "चिपकाएँ",
-    "open-image-browser": "छवि ब्राउज़र में ओपन करे",
-    "copy-image-url": "छवि यूआरएल प्रतिलिपि करे"
-  },
-  "updater": {
-    "new-version-available": "नयी संस्करण उपलब्ध है!",
-    "download": "डाउनलोड करें",
-    "update": "नवनीकरण",
-    "dismiss": "ख़ारिज करें",
-    "downloading": "नया संस्करण डाउनलोड हो रहा है...",
-    "download-completed": "डाउनलोड पूरा हो गया है",
-    "restart": "पुन: शुरू करें"
-  },
   "chain-error": {
     "min-root-comment": "आप हर पांच मिनट में केवल एक बार पोस्ट कर सकते हैं।",
     "identical-vote": "इस सामग्री पर आपका वर्तमान वोट इस वोट के समान है।",
@@ -2866,12 +2699,6 @@
     "email-placeholder": "Your e-mail(optional)",
     "message-placeholder": "Please, describe your report",
     "issue-reported": "Issue reported successfully"
-  },
-  "entry-preview": {
-    "searching-title": "Searching post",
-    "searching-description": "We are trying to find out this post...",
-    "title": "Preview",
-    "description": "This post is creating now. You can interact with it when this message will disappear."
   },
   "banners": {
     "no-ls-title": "Unable to use local data",

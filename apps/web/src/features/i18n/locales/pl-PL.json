@@ -407,9 +407,6 @@
     "ascending": "Rosnąco",
     "descending": "Malejąco"
   },
-  "selected-tags": {
-    "title": "Polecane"
-  },
   "entry-list-item": {
     "cross-posted": "udostępnił(a)",
     "cross-posted-to": "do",
@@ -824,9 +821,6 @@
       "deposit-instructions": "Wyślij HIVE do @honey-swap z notatką {{memo}} , aby otrzymać SWAP.HIVE."
     }
   },
-  "list-style": {
-    "title": "Przełącz styl listy"
-  },
   "entry-votes": {
     "title": "1 głos",
     "title-n": "{{n}} Głosów",
@@ -1049,6 +1043,7 @@
     "section-replies": "Odpowiedzi",
     "section-communities": "Społeczności",
     "section-wallet": "Portfel",
+    "section-insights": "Spostrzeżenia",
     "section-settings": "Ustawienia",
     "section-referrals": "Polecenia",
     "section-permission": "Uprawnienie",
@@ -1079,6 +1074,22 @@
     "link-copied": "Link wyszukiwania skopiowany do schowka",
     "no-posts-found": "Nic nie znaleziono!",
     "subscribe": "Subskrybuj"
+  },
+  "profile-insights": {
+    "description": "Zobacz, który z twoich postów jest najbardziej zadowolony z czytelników.",
+    "today": "Dziś",
+    "yesterday": "Wczoraj",
+    "last-7": "Ostatnie 7 dni",
+    "last-30": "Ostatnie 30 dni",
+    "all-time": "Cały czas",
+    "page": "Strona",
+    "views": "Widoki",
+    "uniques": "Unikalne widoki",
+    "minutes": "Protokoły",
+    "no-data": "Brak dostępnych widoków dla tego zakresu.",
+    "range": "Date range",
+    "disabled": "Spostrzeżenia są obecnie wyłączone.",
+    "error": "Nie można załadować spostrzeżeń."
   },
   "rc-info": {
     "available": "Dostępny",
@@ -1269,24 +1280,6 @@
       "larynx-locked-description": "Zablokowane tokeny zapewniają płynność sieci, pomagają w określaniu konsensusu i zarabiają nagrody dla runnerów węzłów"
     }
   },
-  "wallet-engine": {
-    "title": "Tokeny silnika hive",
-    "description": "Silnik Hive jest inteligentną platformą dla łańcucha bocznego kontraktów dla łańcucha bloków uli.",
-    "no-results": "Nie znaleziono tokenów.",
-    "token": "Token",
-    "balance": "Saldo",
-    "staked": "Wycięte"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sortuj",
-    "sort-in-ascending": "Rosnąco",
-    "sort-in-descending": "Malejąco",
-    "sort-by-value": "Wartość",
-    "sort-by-balance": "Saldo",
-    "sort-by-stake": "Tycz",
-    "sort-by-delegations-in": "Delegacje w",
-    "sort-by-delegations-out": "Delegacje"
-  },
   "wallet-engine-estimated": {
     "title": "Szacowana wartość tokenów",
     "description": "Przybliżona wartość dolara amerykańskiego dla wszystkich tokenów silnika w portfelu."
@@ -1347,12 +1340,6 @@
     "filter-998": "Przelew wychodzący",
     "filter-999": "Przelew przychodzący"
   },
-  "purchase": {
-    "select-asset": "Wybierz zasób",
-    "slider-hint": "Przeciągnij suwak, aby dostosować kwotę.",
-    "submit": "Zakup",
-    "purchase-message": "Lub wyślij dowolną kwotę do @esteem.app za pomocą `points` jako notatkę do zakupu punktów."
-  },
   "purchase-qr": {
     "scan-code": "Skanuj za pomocą aplikacji mobilnej Ecency aby kontynuować",
     "select-user": "Wybierz użytkownika",
@@ -1370,14 +1357,6 @@
     "sub-title": "Promuj swój post",
     "duration": "Czas trwania",
     "learn-more": "Dowiedz się więcej o promocji"
-  },
-  "boost": {
-    "title": "Wzmocnienie",
-    "sub-title": "Promuj swój post",
-    "amount": "Ilość",
-    "slider-hint": "Przeciągnij suwak, aby dostosować kwotę.",
-    "hint": "Rzeczywista wartość otrzymanego głosu może się różnić",
-    "learn-more": "Dowiedz się więcej o wzmocnieniu"
   },
   "redeem-common": {
     "balance": "Saldo",
@@ -1739,11 +1718,6 @@
     "refresh": "Odśwież, aby zaktualizować status",
     "video-info": "Wideo są przechowywane i zasilane przez sieć SPK, mogą mieć pewne opłaty za przechowywanie i kodowanie."
   },
-  "nsfw-content": {
-    "title": "Zawartość NSFW",
-    "warning": "Sprawdź to, jeśli zawartość jest NSFW",
-    "continue": "Kontynuuj"
-  },
   "tag-selector": {
     "placeholder-empty": "Tagi. Pierwszy tag jest kategorią główną. Tagi można sortować.",
     "placeholder-focus": "Wprowadź tag",
@@ -1850,9 +1824,6 @@
     "header-reward": "Wynagrodzenie",
     "header-votes": "Głosy",
     "header-votes-tip": "Liczba głosów w tym okresie"
-  },
-  "popular-users": {
-    "title": "Popularni użytkownicy"
   },
   "discover": {
     "title": "Odkrywaj",
@@ -2065,19 +2036,6 @@
     "updated": "Hasło zostało zaktualizowane!",
     "hint": "W tej chwili możesz wygenerować klucze tylko poprzez ustawienie nowej frazy seed. Aktualizacja do innego typu hasła nie jest obsługiwana. Pomaga nam to w utrzymaniu kont ecencji i uli w standardach Web 3.0."
   },
-  "view-keys": {
-    "title": "Zobacz klucze prywatne",
-    "header": "Zarządzaj kluczami",
-    "account": "Konto",
-    "cur-pass": "Aktualne hasło",
-    "owner": "Właściciel",
-    "active": "Aktywne",
-    "posting": "Wysyłanie",
-    "memo": "Notatka",
-    "view-keys": "Kliknij, aby wyświetlić klucze",
-    "copied": "Klucz prywatny skopiowany do schowka",
-    "error": "Hasło wydaje się nieprawidłowe, sprawdź podwójnie!"
-  },
   "manage-authorities": {
     "title": "Zarządzaj władzami",
     "type": "Typ",
@@ -2128,26 +2086,23 @@
     "update-success-message": "Twój e-mail odzyskiwania został pomyślnie zaktualizowany"
   },
   "chat": {
-    "page-title": "Rozpocznij bezpośrednie wiadomości lub dołącz do kanałów, aby czatować z każdym.",
+    "page-title": "Rozpocznij bezpośrednie wiadomości lub dołącz do kanałów, aby rozmawiać ze społecznością Ecency.",
     "loading-chats": "Ładowanie czatów…",
-    "direct-messages-title": "Wiadomości bezpośrednie",
-    "start-dm": "Rozpocznij bezpośrednią wiadomość z kimkolwiek na Ecency.",
     "start-dm-button": "Rozpocznij DM",
     "starting-dm": "Uruchamianie…",
-    "search-user": "Szukaj według nazwy użytkownika",
-    "search-people": "Szukanie ludzi…",
-    "select-dm": "Wybierz kogoś do uruchomienia pamięci DM",
-    "searching": "Wyszukiwanie…",
-    "no-user": "Nie znaleziono ludzi.",
-    "search-channels": "Szukaj kanałów lub DM",
-    "channels-title": "Kanały",
-    "loading": "Ładowanie...",
+    "search-user": "Szukaj osób",
+    "searching": "Wyszukiwanie...",
+    "no-user": "Nie znaleziono użytkowników.",
+    "search-channels": "Szukaj kanałów, użytkowników lub DM",
+    "loading": "Ładowanie…",
     "mark-as-read": "Oznacz jako przeczytane",
     "marking-as-read": "Oznaczanie…",
     "channel-type-dm": "DM",
     "channel-type": "Kanał",
     "favorite-channel": "Ulubiony kanał",
+    "channel-muted": "Wyciszony",
     "mute-channel": "Wycisz kanał",
+    "unmute-channel": "Wyłącz wyciszenie kanału",
     "leave-channel": "Opuść kanał",
     "no-channels": "Brak przypisanych kanałów.",
     "no-channels-search": "Żaden kanał nie pasuje do Twojego wyszukiwania.",
@@ -2158,119 +2113,13 @@
     "join-channel-action": "Dołącz",
     "joining-channel": "Dołączanie do…",
     "no-additional-channels": "Nie znaleziono dodatkowych kanałów.",
-    "why-read-only": "Ten użytkownik zmienił swój klucz czatu. Znajdź nowe konto według nazwy użytkownika w wyszukiwaniu powyżej.",
-    "user-not-joined": "Jeszcze nie dołączył",
     "title": "Czaty",
-    "messages": "Wiadomości",
-    "key": "Klucz czatu Ecency",
-    "new-message": "Nowa wiadomość",
-    "direct-messages": "Wiadomości bezpośrednie",
-    "collapse": "Zwiń",
-    "expand": "Rozwiń",
-    "scroll-to-bottom": "Przewiń na dół",
-    "joined": "Dołączono",
-    "followers": "Obserwujący",
-    "start-chat-placeholder": "Rozpocznij nową wiadomość",
-    "search": "Szukaj osób lub społeczności",
-    "join-chat": "Dołącz do czatu",
-    "join-channel": "Dołącz do kanału",
-    "back": "Powrót",
-    "no-chat": "Nie znaleziono konwersacji",
-    "start-chat": "Rozpocznij czat",
-    "not-joined": "Ten użytkownik nie dołączył jeszcze do czatu",
-    "subscribers": "Subskrybenci",
-    "invite": "Zaproś",
-    "send-invite": "Wyślij zaproszenie",
-    "leave:": "Opuść",
-    "refresh": "Odśwież",
-    "message-warning": "Nie możesz wysyłać wiadomości w tej grupie.",
-    "edit-community-roles": "Edytuj role społeczności",
-    "add": "Dodaj",
     "no-admin": "Brak administratora lub moderatora dla tego czatu społecznościowego.",
-    "blocked-users": "Zablokowani użytkownicy",
-    "action": "Akcja",
-    "unblock": "Odblokuj",
-    "ecency-key": "Klucz Ecencji",
-    "no-locked-user": "Nie znaleziono zablokowanych użytkowników",
-    "no-hidden-messages": "Nie znaleziono ukrytych wiadomości",
-    "enter-private-key": "Wprowadź klucz prywatny czatu",
-    "enter-private-key-detail": "Wprowadź klucz prywatny czatu, aby zaimportować wszystkie czaty",
-    "close": "Zamknij",
-    "confirm": "Potwierdź",
-    "error-updating-community": "Wystąpił błąd podczas aktualizacji społeczności",
-    "leaving": "Opuszczanie",
-    "edit-roles": "Edytuj role",
-    "manage-chat-key": "Informacje o poświadczeniach",
-    "block": "Blok",
-    "communities": "Społeczności",
-    "dms": "Wiadomości bezpośrednie",
-    "import-chat": "Importuj czat",
-    "create-new-account": "Utwórz nowe konto",
-    "blocked-user-message": "Zostałeś zablokowany w tej społeczności",
-    "start-community-channel": "Start community channel",
     "view-community-channel": "Czat Społeczności",
-    "submit": "Prześlij",
-    "chat-priv-key": "Proszę zapisać klucz czatu, klikając przycisk pobierania lub skanując kod QR, aby przywrócić rozmowy.",
     "public-key": "Klucz publiczny",
     "private-key": "Klucz prywatny",
-    "copy-priv-key": "Kopiuj klucz prywatny",
-    "extended-view": "Widok rozszerzony",
-    "you-haven-t-joined": "Nie dołączyłeś jeszcze do czatu. Dołącz do niego aby rozpocząć!",
-    "invalid-private-key": "Nieprawidłowy klucz prywatny",
-    "enter-username": "Wprowadź tymczasową nazwę użytkownika",
     "hide-message": "Ukryj wiadomość",
-    "block-author": "Zablokuj autora",
-    "unblock-author": "Odblokuj autora",
-    "create-an-account": "Utwórz konto czatu",
-    "create-description": "Witaj na pokładzie! Twoje konto jest prawie gotowe. Wejdź w rozmowy i ciesz się prywatnymi kontaktami.",
-    "create-pin-description": "Proszę ustawić kod PIN, aby uzyskać dostęp do czatów z dowolnego urządzenia",
-    "logout": "Wyloguj się",
-    "specify-invitation-message": "Ta wiadomość z zaproszeniem zostanie wysłana jako komentarz do najnowszego postu użytkownika",
-    "successfully-invited": "Zaproszono pomyślnie!",
-    "invite-couldnt-be-sent": "Nie można wysłać zaproszenia ze względu na to, że użytkownik nie ma jeszcze żadnego postu",
-    "no-posts-for-invite": "Niestety, użytkownik nie wydaje się aktywny i nie zrobił żadnych postów.",
-    "warn-key-saving": "Utwórz kopię zapasową swojego klucza czatu, aby zapewnić bezpieczeństwo konta i nieprzerwaną usługę!",
-    "view-and-save": "Pokaż klucze i zapisz",
-    "blocked-users-management": "Zarządzanie zablokowanymi użytkownikami",
-    "unlock-the-section": "Wprowadź kod PIN, aby zobaczyć informacje o poświadczeniach",
-    "no-contacts-or-channels": "Brak konwersacji",
-    "upload-image": "Prześlij obraz",
-    "hidden-messages": "Ukryte wiadomości",
-    "hidden-messages-management": "Zarządzanie ukrytymi wiadomościami",
-    "saved-messages": "Zapisane wiadomości",
-    "fetch-error": "Wykryto zmianę sieci. Odśwież stronę teraz, aby pobrać nowe dane",
-    "pin": "Przypnij",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "Wybierz kontakt lub kanał",
-    "message-forwarding": "Przesyłanie wiadomości",
-    "forward": "Przekaż wiadomość",
-    "forwarded-from": "Przekazana wiadomość",
-    "welcome": {
-      "title": "Witaj w czatach",
-      "description": "Utwórz lub zaimportuj konto zaczynające się za pomocą czatów",
-      "already-joined-title": "Wygląda na to, że już dołączyłeś do czatów",
-      "already-joined-hint": "Zweryfikuj swoje konto i uzyskaj dostęp poprzez wprowadzenie kodu PIN",
-      "pin-failed": "Nieprawidłowy kod PIN. Weryfikacja nie powiodła się.",
-      "oops": "Ups!",
-      "user-not-joined-yet": "Nie możesz wysłać wiadomości. Ten użytkownik lub kanał nie dołączył jeszcze do czatu.",
-      "hello": "Witaj",
-      "start-description": "Szukaj osoby lub społeczności i zacznij wysyłać wiadomości",
-      "join-description": "Nie jesteś częścią kanału",
-      "rejoin-description": "Opuściłeś ten czat społecznościowy. Dołącz ponownie do czatu!"
-    },
-    "import": {
-      "title": "Importowanie konta",
-      "description": "Wprowadź klucz publiczny i prywatny aby zaimportować swoje istniejące konto",
-      "button": "Importuj",
-      "iv": "Początkowa wartość wektora"
-    },
-    "reply": "Odpowiedz",
-    "reply-to": "Odpowiedz na {{account}}",
-    "mattermost-title": "Czat Ecency jest teraz wspierany przez Mattermost",
-    "mattermost-body": "Otwórz chat.ecency.com, aby kontynuować bezpośrednie wiadomości i rozmowy społeczności. Użytkownicy i dane logowania są używane zamiast starych kluczy czatu Nostr.",
-    "mattermost-community-hint": "Szukasz {{community}}? Otwórz kanał społecznościowy po zalogowaniu się na chat.ecency.com.",
-    "mattermost-open": "Otwórz chat.ecency.com",
-    "mattermost-guide": "Zobacz poradnik konfiguracji czatu",
+    "enter-private-key-detail": "Wprowadź klucz prywatny czatu, aby zaimportować wszystkie czaty",
     "message-search-results": "Wyniki wyszukiwania wiadomości",
     "no-messages-found": "Nie znaleziono wiadomości.",
     "no-message": "Brak zawartości wiadomości."
@@ -2630,22 +2479,6 @@
     "title": "Współtwórcy",
     "description": "Ci wielcy ludzie w taki czy inny sposób przyczynili się do Ecencji, chcielibyśmy im wszystkim podziękować. Jeśli chcesz dołączyć do naszego zespołu, wnosząc wkład w tłumaczenie, Pomysły, Rozwój, Wyznaczanie, Wiedza Społeczna, możesz się do niego przyłączyć. Aby dowiedzieć się więcej o naszym <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Wytnij",
-    "copy": "Kopiuj",
-    "paste": "Wklej",
-    "open-image-browser": "Otwórz obraz w przeglądarce",
-    "copy-image-url": "Kopiuj adres URL obrazu"
-  },
-  "updater": {
-    "new-version-available": "Dostępna jest nowa wersja",
-    "download": "Pobierz",
-    "update": "Aktualizuj",
-    "dismiss": "Odrzuć",
-    "downloading": "Pobieranie nowej wersji...",
-    "download-completed": "Zakończono pobieranie",
-    "restart": "Uruchom ponownie"
-  },
   "chain-error": {
     "min-root-comment": "Możesz publikować tylko raz na pięć minut.",
     "identical-vote": "Twój obecny głos w tej sprawie jest identyczny z tym głosowaniem.",
@@ -2866,12 +2699,6 @@
     "email-placeholder": "Twój e-mail (opcjonalnie)",
     "message-placeholder": "Proszę opisać swój raport",
     "issue-reported": "Zgłoszono problem"
-  },
-  "entry-preview": {
-    "searching-title": "Wyszukiwanie postów",
-    "searching-description": "Próbujemy dowiedzieć się o tym wpisze...",
-    "title": "Podgląd",
-    "description": "Ten post tworzy teraz. Możesz z nim współpracować, gdy ta wiadomość zniknie."
   },
   "banners": {
     "no-ls-title": "Nie można użyć lokalnych danych",
