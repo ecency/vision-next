@@ -73,6 +73,71 @@ const CHANNEL_WIDE_MENTIONS = [
   }
 ] as const;
 
+// Draft message persistence utilities
+const DRAFT_STORAGE_KEY = "ecency-chat-drafts";
+const DRAFT_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+interface DraftData {
+  message: string;
+  timestamp: number;
+}
+
+function saveDraft(channelId: string, message: string) {
+  if (typeof window === "undefined") return;
+
+  try {
+    const drafts = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || "{}");
+
+    if (message.trim()) {
+      drafts[channelId] = {
+        message,
+        timestamp: Date.now()
+      };
+    } else {
+      delete drafts[channelId];
+    }
+
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(drafts));
+  } catch (error) {
+    console.error("Failed to save draft:", error);
+  }
+}
+
+function loadDraft(channelId: string): string {
+  if (typeof window === "undefined") return "";
+
+  try {
+    const drafts = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || "{}");
+    const draft = drafts[channelId] as DraftData | undefined;
+
+    if (!draft) return "";
+
+    // Check if draft is expired (older than 24 hours)
+    if (Date.now() - draft.timestamp > DRAFT_EXPIRY_MS) {
+      delete drafts[channelId];
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(drafts));
+      return "";
+    }
+
+    return draft.message;
+  } catch (error) {
+    console.error("Failed to load draft:", error);
+    return "";
+  }
+}
+
+function clearDraft(channelId: string) {
+  if (typeof window === "undefined") return;
+
+  try {
+    const drafts = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || "{}");
+    delete drafts[channelId];
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(drafts));
+  } catch (error) {
+    console.error("Failed to clear draft:", error);
+  }
+}
+
 type EmojiSuggestion = {
   id: string;
   name: string;
@@ -182,6 +247,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const [threadRootId, setThreadRootId] = useState<string | null>(null);
   const [editingPost, setEditingPost] = useState<MattermostPost | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
 
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -213,6 +280,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const gifPickerRef = useRef<HTMLDivElement | null>(null);
   const showAdminTools = useChatAdminStore((state) => state.showAdminTools);
   const [expandedJoinGroups, setExpandedJoinGroups] = useState<Set<string>>(new Set());
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [unreadCountBelowScroll, setUnreadCountBelowScroll] = useState(0);
 
     type GifStyle = {
       width: string;
@@ -234,15 +303,16 @@ export function MattermostChannelView({ channelId }: Props) {
       .sort((a, b) => Number(a.create_at) - Number(b.create_at));
   }, [data?.pages]);
 
-  // Group consecutive join messages
+  // Group consecutive join messages and messages from same user
   type PostItem =
-    | { type: 'message'; post: MattermostPost; index: number }
+    | { type: 'message'; post: MattermostPost; index: number; isGroupStart: boolean }
     | { type: 'join-group'; posts: MattermostPost[]; indices: number[]; groupId: string };
 
   const groupedPosts = useMemo<PostItem[]>(() => {
     const result: PostItem[] = [];
     let currentJoinGroup: MattermostPost[] = [];
     let currentJoinIndices: number[] = [];
+    const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000; // 5 minutes in milliseconds
 
     posts.forEach((post, index) => {
       if (post.type === "system_add_to_channel") {
@@ -259,13 +329,30 @@ export function MattermostChannelView({ channelId }: Props) {
           });
         } else if (currentJoinGroup.length === 1) {
           // Single join message, add as regular message
-          result.push({ type: 'message', post: currentJoinGroup[0], index: currentJoinIndices[0] });
+          result.push({ type: 'message', post: currentJoinGroup[0], index: currentJoinIndices[0], isGroupStart: true });
         }
         currentJoinGroup = [];
         currentJoinIndices = [];
 
+        // Determine if this message should be grouped with the previous one
+        const lastItem = result[result.length - 1];
+        let isGroupStart = true;
+
+        if (
+          lastItem &&
+          lastItem.type === 'message' &&
+          lastItem.post.user_id === post.user_id &&
+          lastItem.post.type !== "system_add_to_channel" &&
+          post.type !== "system_add_to_channel" &&
+          !post.root_id && // Don't group threaded replies
+          !lastItem.post.root_id && // Don't group if previous was a threaded reply
+          (post.create_at - lastItem.post.create_at) < MESSAGE_GROUP_TIME_WINDOW
+        ) {
+          isGroupStart = false;
+        }
+
         // Add the current non-join message
-        result.push({ type: 'message', post, index });
+        result.push({ type: 'message', post, index, isGroupStart });
       }
     });
 
@@ -278,7 +365,7 @@ export function MattermostChannelView({ channelId }: Props) {
         groupId: currentJoinGroup[0].id
       });
     } else if (currentJoinGroup.length === 1) {
-      result.push({ type: 'message', post: currentJoinGroup[0], index: currentJoinIndices[0] });
+      result.push({ type: 'message', post: currentJoinGroup[0], index: currentJoinIndices[0], isGroupStart: true });
     }
 
     return result;
@@ -451,10 +538,31 @@ export function MattermostChannelView({ channelId }: Props) {
 
     const distanceFromBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight;
+
+    // Show scroll-to-bottom button if scrolled up more than 200px
+    setShowScrollToBottom(distanceFromBottom > 200);
+
+    // Calculate unread messages below current scroll position
+    if (distanceFromBottom > 200 && firstUnreadIndex !== -1) {
+      const scrolledPastUnread = posts.length > 0 && firstUnreadIndex >= 0;
+      if (scrolledPastUnread) {
+        // Count messages created after the current view
+        const viewportBottomTime = Date.now() - distanceFromBottom * 10; // Rough estimate
+        const unreadBelow = posts.filter(
+          (post) => post.create_at > effectiveLastViewedAt
+        ).length;
+        setUnreadCountBelowScroll(unreadBelow);
+      } else {
+        setUnreadCountBelowScroll(0);
+      }
+    } else {
+      setUnreadCountBelowScroll(0);
+    }
+
     if (distanceFromBottom < 120) {
       markChannelRead();
     }
-  }, [markChannelRead]);
+  }, [markChannelRead, firstUnreadIndex, posts, effectiveLastViewedAt]);
 
   useEffect(() => {
     lastViewUpdateRef.current = 0;
@@ -464,11 +572,58 @@ export function MattermostChannelView({ channelId }: Props) {
     setThreadRootId(null);
     setReplyingTo(null);
     setEditingPost(null);
+
+    // Load draft message for this channel (if not editing or replying)
+    if (!editingPost && !replyingTo) {
+      const draft = loadDraft(channelId);
+      if (draft) {
+        setMessage(draft);
+      } else {
+        setMessage("");
+      }
+    }
+
+    // Cleanup: clear draft save timeout when changing channels
+    return () => {
+      if (draftSaveTimeoutRef.current) {
+        clearTimeout(draftSaveTimeoutRef.current);
+      }
+    };
   }, [channelId]);
 
   useEffect(() => {
     hasFocusedPostRef.current = false;
   }, [focusedPostId]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape - Cancel edit/reply mode
+      if (e.key === "Escape") {
+        if (editingPost) {
+          setEditingPost(null);
+          setMessage("");
+          clearDraft(channelId);
+          e.preventDefault();
+        } else if (replyingTo) {
+          setReplyingTo(null);
+          e.preventDefault();
+        }
+      }
+
+      // Ctrl/Cmd+K - Focus on search (will focus channel search in sidebar)
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        const searchInput = document.querySelector<HTMLInputElement>('[type="search"]');
+        if (searchInput) {
+          searchInput.focus();
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [editingPost, replyingTo, channelId]);
 
   useEffect(() => {
     if (data) {
@@ -502,6 +657,21 @@ export function MattermostChannelView({ channelId }: Props) {
     },
     []
   );
+
+  const scrollToBottom = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth"
+    });
+
+    // Mark channel as read after scrolling to bottom
+    setTimeout(() => {
+      markChannelRead();
+    }, 500);
+  }, [markChannelRead]);
 
   useEffect(() => {
     if (!focusedPostId || !posts.length || hasFocusedPostRef.current) return;
@@ -544,6 +714,31 @@ export function MattermostChannelView({ channelId }: Props) {
     (value: number) => timestampFormatter.format(new Date(value)),
     [timestampFormatter]
   );
+
+  // Format timestamp to relative time for recent messages
+  const formatRelativeTime = useCallback((timestamp: number): string => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) {
+      return "Just now";
+    } else if (minutes < 60) {
+      return `${minutes} min${minutes !== 1 ? 's' : ''} ago`;
+    } else if (hours < 24) {
+      return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+    } else if (days === 1) {
+      return "Yesterday";
+    } else if (days < 7) {
+      return `${days} day${days !== 1 ? 's' : ''} ago`;
+    } else {
+      // For messages older than 7 days, use absolute format
+      return formatTimestamp(timestamp);
+    }
+  }, [formatTimestamp]);
 
   const getUserDisplayName = useCallback((user?: MattermostUser) => {
     if (!user) return undefined;
@@ -938,9 +1133,21 @@ export function MattermostChannelView({ channelId }: Props) {
     };
   }, [emojiQuery]);
 
+  // Debounced draft saving
+  const draftSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setMessage(value);
+
+    // Save draft with debouncing (500ms delay)
+    if (draftSaveTimeoutRef.current) {
+      clearTimeout(draftSaveTimeoutRef.current);
+    }
+
+    draftSaveTimeoutRef.current = setTimeout(() => {
+      saveDraft(channelId, value);
+    }, 500);
 
     const cursor = e.target.selectionStart ?? value.length;
     updateMentionState(value, cursor);
@@ -949,23 +1156,77 @@ export function MattermostChannelView({ channelId }: Props) {
     autoResize();
   };
 
+  // Handle image upload
+  const handleImageUpload = useCallback((url: string) => {
+    setUploadedImages((prev) => [...prev, url]);
+  }, []);
+
+  // Remove uploaded image
+  const removeImage = useCallback((index: number) => {
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDraggingFile(true);
+    }
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set to false if leaving the input area completely
+    if (e.currentTarget === e.target) {
+      setIsDraggingFile(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+
+    // Note: Actual file upload would need to be implemented
+    // This is a placeholder for drag & drop functionality
+    console.log('Files dropped:', e.dataTransfer.files);
+  }, []);
+
   const submitMessage = () => {
     if (isSubmitting) return;
 
     const trimmedMessage = normalizeMessageEmojis(message.trim());
-    if (!trimmedMessage) return;
+    const hasImages = uploadedImages.length > 0;
+
+    if (!trimmedMessage && !hasImages) return;
+
+    // Build final message with images
+    let finalMessage = trimmedMessage;
+    if (hasImages) {
+      const imageUrls = uploadedImages.join('\n');
+      finalMessage = trimmedMessage ? `${trimmedMessage}\n${imageUrls}` : imageUrls;
+    }
 
     setMessageError(null);
 
     if (editingPost) {
       updateMutation.mutate(
-        { postId: editingPost.id, message: trimmedMessage },
+        { postId: editingPost.id, message: finalMessage },
         {
           onError: (err) => {
             setMessageError((err as Error)?.message || "Unable to update message");
           },
           onSuccess: () => {
             setMessage("");
+            setUploadedImages([]); // Clear images
+            clearDraft(channelId); // Clear draft after successful edit
             setMentionQuery("");
             setMentionStart(null);
             setEmojiQuery("");
@@ -990,13 +1251,15 @@ export function MattermostChannelView({ channelId }: Props) {
     const nextUrl = params.size ? `/chats/${channelId}?${params.toString()}` : `/chats/${channelId}`;
 
     sendMutation.mutate(
-      { message: trimmedMessage, rootId },
+      { message: finalMessage, rootId },
       {
         onError: (err) => {
           setMessageError((err as Error)?.message || "Unable to send message");
         },
         onSuccess: () => {
           setMessage("");
+          setUploadedImages([]); // Clear images
+          clearDraft(channelId); // Clear draft after successful send
           setMentionQuery("");
           setMentionStart(null);
           setEmojiQuery("");
@@ -1358,7 +1621,7 @@ export function MattermostChannelView({ channelId }: Props) {
             <div
               ref={scrollContainerRef}
               onScroll={handleScroll}
-              className="rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
+              className="relative rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
             >
               {isLoading && (
                 <div className="text-sm text-[--text-muted]">Loading messages…</div>
@@ -1438,9 +1701,17 @@ export function MattermostChannelView({ channelId }: Props) {
 
                   const post = item.post;
                   const index = item.index;
+                  const isGroupStart = item.isGroupStart;
 
                   return (
-                    <div key={post.id} className="space-y-3" data-post-id={post.id}>
+                    <div
+                      key={post.id}
+                      className={clsx(
+                        "space-y-3",
+                        !isGroupStart && "-mt-2" // Reduce top margin for grouped messages
+                      )}
+                      data-post-id={post.id}
+                    >
                       {showUnreadDivider && index === firstUnreadIndex && (
                         <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
                           <div className="flex-1 border-t border-[--border-color]" />
@@ -1457,75 +1728,91 @@ export function MattermostChannelView({ channelId }: Props) {
                           </div>
                         ) : (
                         <>
+                          {/* Avatar - show only for group start or hide with placeholder */}
                           <div className="h-10 w-10 flex-shrink-0">
-                            {(() => {
-                              const user = usersById[post.user_id];
-                              const displayName = getDisplayName(post);
-                              const username = getUsername(post);
-                              const avatarUrl = getAvatarUrl(user);
-
-                              if (username) {
-                                return (
-                                  <UserAvatar
-                                    username={username}
-                                    size="medium"
-                                    className="h-10 w-10"
-                                  />
-                                );
-                              }
-
-                              if (avatarUrl) {
-                                return (
-                                  <img
-                                    src={avatarUrl}
-                                    alt={`${displayName} avatar`}
-                                    className="h-10 w-10 rounded-full object-cover"
-                                  />
-                                );
-                              }
-
-                              return (
-                                <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
-                                  {displayName.charAt(0).toUpperCase()}
-                                </div>
-                              );
-                            })()}
-                          </div>
-
-                          <div className="flex flex-col gap-1 w-full">
-                            <div className="flex items-center gap-2 text-xs text-[--text-muted]">
-                              {(() => {
-                                const username = getUsername(post);
+                            {isGroupStart ? (
+                              (() => {
+                                const user = usersById[post.user_id];
                                 const displayName = getDisplayName(post);
+                                const username = getUsername(post);
+                                const avatarUrl = getAvatarUrl(user);
 
                                 if (username) {
                                   return (
-                                    <UsernameActions
+                                    <UserAvatar
                                       username={username}
-                                      displayName={displayName}
-                                      currentUsername={activeUser?.username}
-                                      onStartDm={startDirectMessage}
+                                      size="medium"
+                                      className="h-10 w-10"
                                     />
                                   );
                                 }
 
-                                return <span>{displayName}</span>;
-                              })()}
-                              <span
-                                className="text-[--text-muted]"
-                                title={new Date(post.create_at).toLocaleString()}
-                              >
-                                {formatTimestamp(post.create_at)}
-                              </span>
-                              {post.edit_at > post.create_at && (
-                                <span
-                                  className="text-[11px] text-[--text-muted]"
-                                  title={`Edited ${formatTimestamp(post.edit_at)}`}
-                                >
-                                  • Edited
+                                if (avatarUrl) {
+                                  return (
+                                    <img
+                                      src={avatarUrl}
+                                      alt={`${displayName} avatar`}
+                                      className="h-10 w-10 rounded-full object-cover"
+                                    />
+                                  );
+                                }
+
+                                return (
+                                  <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                                    {displayName.charAt(0).toUpperCase()}
+                                  </div>
+                                );
+                              })()
+                            ) : (
+                              // Invisible placeholder for grouped messages, shows timestamp on hover
+                              <div className="h-10 w-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-[10px] text-[--text-muted]">
+                                  {new Date(post.create_at).toLocaleTimeString([], {
+                                    hour: 'numeric',
+                                    minute: '2-digit'
+                                  })}
                                 </span>
-                              )}
-                            </div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col gap-1 w-full">
+                            {/* Header with name and timestamp - show only for group start */}
+                            {isGroupStart && (
+                              <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                                {(() => {
+                                  const username = getUsername(post);
+                                  const displayName = getDisplayName(post);
+
+                                  if (username) {
+                                    return (
+                                      <UsernameActions
+                                        username={username}
+                                        displayName={displayName}
+                                        currentUsername={activeUser?.username}
+                                        onStartDm={startDirectMessage}
+                                      />
+                                    );
+                                  }
+
+                                  return <span>{displayName}</span>;
+                                })()}
+                                <span
+                                  className="text-[--text-muted] cursor-help"
+                                  title={new Date(post.create_at).toLocaleString()}
+                                >
+                                  {formatRelativeTime(post.create_at)}
+                                </span>
+                                {post.edit_at > post.create_at && (
+                                  <span
+                                    className="text-[11px] text-[--text-muted] cursor-help"
+                                    title={`Edited ${new Date(post.edit_at).toLocaleString()}`}
+                                  >
+                                    • Edited {formatRelativeTime(post.edit_at)}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                             {post.root_id && (
                               (() => {
                                 const rootPost = postsById.get(post.root_id!) ?? post;
@@ -1537,9 +1824,10 @@ export function MattermostChannelView({ channelId }: Props) {
                                   <button
                                     type="button"
                                     onClick={() => openThread(rootPost)}
-                                    className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
+                                    className="text-left rounded border-l-4 border-l-blue-500 border-y border-r border-dashed border-[--border-color] bg-blue-50/30 dark:bg-blue-900/10 p-2 text-xs text-[--text-muted] hover:border-[--text-muted] hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors"
                                   >
-                                    <div className="font-semibold">
+                                    <div className="font-semibold flex items-center gap-1.5">
+                                      <span className="text-blue-500">↪</span>
                                       Replying to {getDisplayName(parentPost)}
                                     </div>
                                     <div className="line-clamp-2 text-[--text-muted]">
@@ -1709,6 +1997,23 @@ export function MattermostChannelView({ channelId }: Props) {
                   );
                 })}
               </div>
+
+              {/* Scroll to bottom button */}
+              {showScrollToBottom && (
+                <button
+                  type="button"
+                  onClick={scrollToBottom}
+                  className="absolute bottom-6 right-6 z-10 flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:bg-blue-600 hover:shadow-xl active:scale-95"
+                  aria-label="Scroll to bottom"
+                >
+                  <span>↓</span>
+                  {unreadCountBelowScroll > 0 ? (
+                    <span>{unreadCountBelowScroll} new</span>
+                  ) : (
+                    <span>Jump to latest</span>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 
@@ -1718,8 +2023,8 @@ export function MattermostChannelView({ channelId }: Props) {
                 <div className="flex flex-col">
                   <span className="text-sm font-semibold text-[--text-color]">Thread</span>
                   {threadRootPost && (
-                    <span className="text-[11px] text-[--text-muted]">
-                      Started by {getDisplayName(threadRootPost)} • {formatTimestamp(threadRootPost.create_at)}
+                    <span className="text-[11px] text-[--text-muted] cursor-help" title={new Date(threadRootPost.create_at).toLocaleString()}>
+                      Started by {getDisplayName(threadRootPost)} • {formatRelativeTime(threadRootPost.create_at)}
                     </span>
                   )}
                 </div>
@@ -1881,7 +2186,42 @@ export function MattermostChannelView({ channelId }: Props) {
             <div className="text-sm text-red-500">{messageError}</div>
           )}
 
+          {/* Image Previews */}
+          {uploadedImages.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {uploadedImages.map((url, index) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={url}
+                    alt={`Upload ${index + 1}`}
+                    className="h-20 w-20 rounded-lg object-cover border border-[--border-color]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                    aria-label="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="relative">
+            {/* Drag & Drop Overlay */}
+            {isDraggingFile && (
+              <div className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl border-2 border-dashed border-blue-500 bg-blue-50/90 dark:bg-blue-900/90">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">📎</div>
+                  <div className="text-sm font-semibold text-blue-600 dark:text-blue-300">
+                    Drop image here
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Emoji shortcode suggestions */}
             {emojiQuery && (
               <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--background-color] shadow-lg">
@@ -1923,9 +2263,14 @@ export function MattermostChannelView({ channelId }: Props) {
                 "bg-[--surface-color] px-3 py-2",
                 "shadow-sm",
                 "focus-within:ring-2 focus-within:ring-blue-500/60 focus-within:border-blue-500/60",
-                "transition-colors"
+                "transition-colors",
+                isDraggingFile && "ring-2 ring-blue-500"
               )}
               onClick={() => messageInputRef.current?.focus()}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
             >
               <div className="flex items-center gap-1">
                 <ImageUploadButton
@@ -1933,7 +2278,7 @@ export function MattermostChannelView({ channelId }: Props) {
                   appearance="gray-link"
                   className="rounded-full !px-2 !py-1"
                   onBegin={() => undefined}
-                  onEnd={(url) => setMessage((prev) => (prev ? `${prev}\n${url}` : url))}
+                  onEnd={handleImageUpload}
                   aria-label="Attach image"
                   title="Attach image"
                 />
@@ -1947,6 +2292,22 @@ export function MattermostChannelView({ channelId }: Props) {
                   value={message}
                   onChange={handleMessageChange}
                   onKeyDown={(e) => {
+                    // Arrow Up - Edit last message (when input is empty)
+                    if (e.key === "ArrowUp" && !message.trim() && !editingPost && !replyingTo) {
+                      const myPosts = posts.filter(
+                        (post) =>
+                          post.user_id === channelData?.member?.user_id &&
+                          post.type !== "system_add_to_channel" &&
+                          !post.root_id
+                      );
+                      const lastPost = myPosts[myPosts.length - 1];
+
+                      if (lastPost) {
+                        handleEdit(lastPost);
+                        e.preventDefault();
+                      }
+                    }
+
                     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
                       e.preventDefault();
 
