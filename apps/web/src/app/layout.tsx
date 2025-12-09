@@ -43,6 +43,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className={`${lora.variable} ${inter.variable}`}>
+      <head>
+        <link rel="dns-prefetch" href="https://images.ecency.com" />
+        <link rel="dns-prefetch" href="https://ecency.com" />
+        <link rel="preconnect" href="https://images.ecency.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://ecency.com" crossOrigin="anonymous" />
+      </head>
       <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
