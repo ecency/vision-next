@@ -284,11 +284,30 @@ export function MattermostChannelView({ channelId }: Props) {
     return result;
   }, [posts]);
 
+  const normalizeUsername = useCallback((username?: string | null) => {
+    if (!username) return username ?? undefined;
+
+    if (username.toLowerCase() === "ecency.") return "ecency";
+
+    return username;
+  }, []);
+
   const usersById = useMemo(() => {
     if (!data?.pages) return {};
-    // Merge users from all pages
-    return data.pages.reduce((acc, page) => ({ ...acc, ...page.users }), {} as Record<string, MattermostUser>);
-  }, [data?.pages]);
+    // Merge users from all pages while normalizing special cases
+    return data.pages.reduce((acc, page) => {
+      Object.entries(page.users).forEach(([id, user]) => {
+        const normalizedUser: MattermostUser = {
+          ...user,
+          username: normalizeUsername(user.username) ?? user.username
+        };
+
+        acc[id] = normalizedUser;
+      });
+
+      return acc;
+    }, {} as Record<string, MattermostUser>);
+  }, [data?.pages, normalizeUsername]);
 
   const channelData = useMemo(() => data?.pages?.[0], [data?.pages]);
 
@@ -619,9 +638,9 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     const fallbackUsername =
-      (post.props?.override_username as string | undefined) ||
-      post.props?.username ||
-      post.props?.addedUsername;
+      normalizeUsername(post.props?.override_username as string | undefined) ||
+      normalizeUsername(post.props?.username) ||
+      normalizeUsername(post.props?.addedUsername);
     if (fallbackUsername) return fallbackUsername;
 
     return post.user_id || "Unknown user";
@@ -633,9 +652,9 @@ export function MattermostChannelView({ channelId }: Props) {
     if (user?.username) return user.username;
 
     const fallbackUsername =
-      (post.props?.username as string | undefined) ||
-      (post.props?.override_username as string | undefined) ||
-      post.props?.addedUsername;
+      normalizeUsername(post.props?.username) ||
+      normalizeUsername(post.props?.override_username as string | undefined) ||
+      normalizeUsername(post.props?.addedUsername);
 
     if (fallbackUsername) return fallbackUsername.replace(/^@/, "");
 
