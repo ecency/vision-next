@@ -1246,12 +1246,19 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     const rootId = replyingTo?.root_id || replyingTo?.id || null;
+    const parentProps = replyingTo
+      ? {
+          parent_id: replyingTo.id,
+          parent_username: getUsername(replyingTo),
+          parent_message: replyingTo.message
+        }
+      : undefined;
     const params = new URLSearchParams(searchParams?.toString());
     params.delete("text");
     const nextUrl = params.size ? `/chats/${channelId}?${params.toString()}` : `/chats/${channelId}`;
 
     sendMutation.mutate(
-      { message: finalMessage, rootId },
+      { message: trimmedMessage, rootId, props: parentProps },
       {
         onError: (err) => {
           setMessageError((err as Error)?.message || "Unable to send message");
@@ -1816,9 +1823,22 @@ export function MattermostChannelView({ channelId }: Props) {
                             {post.root_id && (
                               (() => {
                                 const rootPost = postsById.get(post.root_id!) ?? post;
-                                const parentPost = parentPostById.get(post.id);
+                                const parentFromPropsId = post.props?.parent_id as
+                                  | string
+                                  | undefined;
+                                const parentPost =
+                                  parentPostById.get(post.id) ||
+                                  (parentFromPropsId ? postsById.get(parentFromPropsId) : undefined);
+                                const parentMessage = parentPost
+                                  ? getDisplayMessage(parentPost)
+                                  : typeof post.props?.parent_message === "string"
+                                    ? decodeMessageEmojis(post.props.parent_message)
+                                    : undefined;
+                                const parentUsername = parentPost
+                                  ? getDisplayName(parentPost)
+                                  : normalizeUsername(post.props?.parent_username as string | undefined);
 
-                                if (!parentPost) return null;
+                                if (!parentPost && !parentMessage && !parentUsername) return null;
 
                                 return (
                                   <button
@@ -1828,11 +1848,13 @@ export function MattermostChannelView({ channelId }: Props) {
                                   >
                                     <div className="font-semibold flex items-center gap-1.5">
                                       <span className="text-blue-500">↪</span>
-                                      Replying to {getDisplayName(parentPost)}
+                                      Replying to {parentUsername || "conversation"}
                                     </div>
-                                    <div className="line-clamp-2 text-[--text-muted]">
-                                      {renderMessageContent(getDisplayMessage(parentPost))}
-                                    </div>
+                                    {parentMessage && (
+                                      <div className="line-clamp-2 text-[--text-muted]">
+                                        {renderMessageContent(parentMessage)}
+                                      </div>
+                                    )}
                                   </button>
                                 );
                               })()

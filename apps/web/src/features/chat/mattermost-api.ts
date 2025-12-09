@@ -455,11 +455,19 @@ export function useMattermostSendMessage(channelId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ message, rootId }: { message: string; rootId?: string | null }) => {
+    mutationFn: async ({
+        message,
+        rootId,
+        props
+      }: {
+        message: string;
+        rootId?: string | null;
+        props?: MattermostPostProps;
+      }) => {
       const res = await fetch(`/api/mattermost/channels/${channelId}/posts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, rootId })
+        body: JSON.stringify({ message, rootId, props })
       });
 
       if (!res.ok) {
@@ -508,6 +516,9 @@ export interface MattermostPostProps {
   addedUserId?: string;
   addedUsername?: string;
   from_webhook?: boolean;
+  parent_id?: string;
+  parent_username?: string;
+  parent_message?: string;
   [key: string]: any;
 }
 

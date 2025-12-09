@@ -131,6 +131,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
     const body = await req.json();
     const message = body.message as string;
     const rootId = (body.rootId as string | null | undefined) || null;
+    const props = (body.props as Record<string, unknown> | undefined) || undefined;
     if (!message) {
       return NextResponse.json({ error: "message required" }, { status: 400 });
     }
@@ -192,7 +193,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
 
     const post = await mmUserFetch(`/posts`, token, {
       method: "POST",
-      body: JSON.stringify({ channel_id: channelId, message, root_id: rootId || undefined })
+      body: JSON.stringify({
+          channel_id: channelId,
+          message,
+          root_id: rootId || undefined,
+          props: props || undefined
+      })
     });
 
     return NextResponse.json({ post });
