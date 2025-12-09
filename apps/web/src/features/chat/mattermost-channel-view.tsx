@@ -10,6 +10,7 @@ import {
 } from "react";
 import {
   useMattermostPosts,
+  useMattermostPostsInfinite,
   useMattermostSendMessage,
   MattermostPost,
   MattermostUser,
@@ -163,7 +164,7 @@ interface Props {
 }
 
 export function MattermostChannelView({ channelId }: Props) {
-  const { data, isLoading, error } = useMattermostPosts(channelId);
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId);
   const [message, setMessage] = useState("");
   const hasAppliedSharedText = useRef(false);
   const [mentionQuery, setMentionQuery] = useState("");
@@ -211,6 +212,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const gifButtonRef = useRef<HTMLButtonElement | null>(null);
   const gifPickerRef = useRef<HTMLDivElement | null>(null);
   const showAdminTools = useChatAdminStore((state) => state.showAdminTools);
+  const [expandedJoinGroups, setExpandedJoinGroups] = useState<Set<string>>(new Set());
 
     type GifStyle = {
       width: string;
@@ -225,7 +227,69 @@ export function MattermostChannelView({ channelId }: Props) {
     const [showGifPicker, setShowGifPicker] = useState(false);
     const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
 
-  const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
+  const posts = useMemo(() => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap(page => page.posts);
+  }, [data?.pages]);
+
+  // Group consecutive join messages
+  type PostItem =
+    | { type: 'message'; post: MattermostPost; index: number }
+    | { type: 'join-group'; posts: MattermostPost[]; indices: number[]; groupId: string };
+
+  const groupedPosts = useMemo<PostItem[]>(() => {
+    const result: PostItem[] = [];
+    let currentJoinGroup: MattermostPost[] = [];
+    let currentJoinIndices: number[] = [];
+
+    posts.forEach((post, index) => {
+      if (post.type === "system_add_to_channel") {
+        currentJoinGroup.push(post);
+        currentJoinIndices.push(index);
+      } else {
+        // Flush the current join group if it has 2+ messages
+        if (currentJoinGroup.length >= 2) {
+          result.push({
+            type: 'join-group',
+            posts: currentJoinGroup,
+            indices: currentJoinIndices,
+            groupId: currentJoinGroup[0].id
+          });
+        } else if (currentJoinGroup.length === 1) {
+          // Single join message, add as regular message
+          result.push({ type: 'message', post: currentJoinGroup[0], index: currentJoinIndices[0] });
+        }
+        currentJoinGroup = [];
+        currentJoinIndices = [];
+
+        // Add the current non-join message
+        result.push({ type: 'message', post, index });
+      }
+    });
+
+    // Flush remaining join group at the end
+    if (currentJoinGroup.length >= 2) {
+      result.push({
+        type: 'join-group',
+        posts: currentJoinGroup,
+        indices: currentJoinIndices,
+        groupId: currentJoinGroup[0].id
+      });
+    } else if (currentJoinGroup.length === 1) {
+      result.push({ type: 'message', post: currentJoinGroup[0], index: currentJoinIndices[0] });
+    }
+
+    return result;
+  }, [posts]);
+
+  const usersById = useMemo(() => {
+    if (!data?.pages) return {};
+    // Merge users from all pages
+    return data.pages.reduce((acc, page) => ({ ...acc, ...page.users }), {} as Record<string, MattermostUser>);
+  }, [data?.pages]);
+
+  const channelData = useMemo(() => data?.pages?.[0], [data?.pages]);
+
   const markdownParser = useMemo(() => {
     marked.setOptions({
       gfm: true,
@@ -268,7 +332,6 @@ export function MattermostChannelView({ channelId }: Props) {
     setMessage((current) => current || sharedText);
     hasAppliedSharedText.current = true;
   }, [searchParams, setMessage]);
-  const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
   const usersByUsername = useMemo(() => {
     return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
       if (user.username) {
@@ -278,7 +341,7 @@ export function MattermostChannelView({ channelId }: Props) {
     }, {});
   }, [usersById]);
 
-  const isPublicChannel = data?.channel?.type === "O";
+  const isPublicChannel = channelData?.channel?.type === "O";
   const normalizedMentionQuery = mentionQuery.trim().toLowerCase();
   const channelWideMentionOptions = useMemo(
     () =>
@@ -299,7 +362,7 @@ export function MattermostChannelView({ channelId }: Props) {
     adminUsername,
     Boolean(isEcencyAdmin && adminUsername.trim().length >= 2)
   );
-  const effectiveLastViewedAt = optimisticLastViewedAt ?? data?.member?.last_viewed_at ?? 0;
+  const effectiveLastViewedAt = optimisticLastViewedAt ?? channelData?.member?.last_viewed_at ?? 0;
   const firstUnreadIndex = useMemo(() => {
     if (!posts.length) return -1;
     return posts.findIndex((post) => post.create_at > effectiveLastViewedAt);
@@ -307,7 +370,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const showUnreadDivider = firstUnreadIndex !== -1;
 
   const markChannelRead = useCallback(() => {
-    const id = data?.channel?.id || channelId;
+    const id = channelData?.channel?.id || channelId;
     if (!id) return;
 
     const now = Date.now();
@@ -317,10 +380,10 @@ export function MattermostChannelView({ channelId }: Props) {
     setOptimisticLastViewedAt(now);
     markViewedMutation.mutate(id, {
       onError: () => {
-        setOptimisticLastViewedAt(data?.member?.last_viewed_at ?? null);
+        setOptimisticLastViewedAt(channelData?.member?.last_viewed_at ?? null);
       }
     });
-  }, [channelId, data?.channel?.id, data?.member?.last_viewed_at, markViewedMutation]);
+  }, [channelId, channelData?.channel?.id, channelData?.member?.last_viewed_at, markViewedMutation]);
 
   useEffect(() => {
     if (!showGifPicker) return;
@@ -477,8 +540,8 @@ export function MattermostChannelView({ channelId }: Props) {
     );
   }, [
     activeUser?.username,
-    data?.channel?.name,
-    data?.channel?.type,
+    channelData?.channel?.name,
+    channelData?.channel?.type,
     directChannelFromList,
     usersById
   ]);
@@ -490,15 +553,15 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     return (
-      data?.channel?.display_name ||
+      channelData?.channel?.display_name ||
       directChannelFromList?.display_name ||
-      data?.channel?.name ||
+      channelData?.channel?.name ||
       directChannelFromList?.name ||
       "Chat"
     );
   }, [
-    data?.channel?.display_name,
-    data?.channel?.name,
+    channelData?.channel?.display_name,
+    channelData?.channel?.name,
     directChannelFromList?.display_name,
     directChannelFromList?.name,
     directChannelUser,
@@ -507,16 +570,24 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const channelSubtitle = useMemo(() => {
     const isDirectChannel =
-      data?.channel?.type === "D" || directChannelFromList?.type === "D";
+      channelData?.channel?.type === "D" || directChannelFromList?.type === "D";
     if (isDirectChannel) {
       if (directChannelUser?.username) return `@${directChannelUser.username}`;
       return "Direct message";
     }
 
-    return data?.community ? `${data.community} channel` : "Channel";
+    const baseName = channelData?.community ? `${channelData.community} channel` : "Channel";
+    const memberCount = channelData?.memberCount;
+
+    if (memberCount !== undefined) {
+      return `${baseName} • ${memberCount} member${memberCount === 1 ? "" : "s"}`;
+    }
+
+    return baseName;
   }, [
-    data?.channel?.type,
-    data?.community,
+    channelData?.channel?.type,
+    channelData?.community,
+    channelData?.memberCount,
     directChannelFromList?.type,
     directChannelUser?.username
   ]);
@@ -949,7 +1020,7 @@ export function MattermostChannelView({ channelId }: Props) {
   };
 
   const handleDelete = (postId: string) => {
-    if (!data?.canModerate) return;
+    if (!channelData?.canModerate) return;
     if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
 
     setModerationError(null);
@@ -1039,7 +1110,7 @@ export function MattermostChannelView({ channelId }: Props) {
     (post: MattermostPost, emoji: string, closePicker = false) => {
       const emojiName = toMattermostEmojiName(emoji);
 
-      if (!emojiName || !data?.member?.user_id) return;
+      if (!emojiName || !channelData?.member?.user_id) return;
 
       const reactions = post.metadata?.reactions ?? [];
       const hasReacted = reactions.some(
@@ -1057,7 +1128,7 @@ export function MattermostChannelView({ channelId }: Props) {
         setOpenReactionPostId((current) => (current === post.id ? null : current));
       }
     },
-    [data?.member?.user_id, reactMutation]
+    [channelData?.member?.user_id, reactMutation]
   );
 
   const openThread = useCallback(
@@ -1261,24 +1332,86 @@ export function MattermostChannelView({ channelId }: Props) {
                   No messages yet. Say hello!
                 </div>
               )}
+              {hasNextPage && (
+                <div className="flex justify-center mb-4">
+                  <Button
+                    appearance="gray-link"
+                    size="sm"
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                  >
+                    {isFetchingNextPage ? "Loading older messages..." : "Load older messages"}
+                  </Button>
+                </div>
+              )}
               <div className="space-y-3">
-                {posts.map((post, index) => (
-                  <div key={post.id} className="space-y-3" data-post-id={post.id}>
-                    {showUnreadDivider && index === firstUnreadIndex && (
-                      <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
-                        <div className="flex-1 border-t border-[--border-color]" />
-                        <span>New</span>
-                        <div className="flex-1 border-t border-[--border-color]" />
-                      </div>
-                    )}
-                    <div className="flex gap-3 group relative">
-                      {post.type === "system_add_to_channel" ? (
-                        <div className="w-full flex justify-center">
-                          <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
-                            {renderMessageContent(getDisplayMessage(post))}
+                {groupedPosts.map((item) => {
+                  if (item.type === 'join-group') {
+                    const isExpanded = expandedJoinGroups.has(item.groupId);
+                    const firstUnreadInGroup = item.indices.find(i => i === firstUnreadIndex);
+
+                    return (
+                      <div key={item.groupId} className="space-y-3">
+                        {showUnreadDivider && firstUnreadInGroup !== undefined && (
+                          <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
+                            <div className="flex-1 border-t border-[--border-color]" />
+                            <span>New</span>
+                            <div className="flex-1 border-t border-[--border-color]" />
                           </div>
+                        )}
+                        <div className="w-full flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setExpandedJoinGroups(prev => {
+                                const next = new Set(prev);
+                                if (next.has(item.groupId)) {
+                                  next.delete(item.groupId);
+                                } else {
+                                  next.add(item.groupId);
+                                }
+                                return next;
+                              });
+                            }}
+                            className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center hover:bg-[--hover-color] transition-colors cursor-pointer"
+                          >
+                            {isExpanded ? (
+                              <div className="space-y-1">
+                                {item.posts.map(post => (
+                                  <div key={post.id}>
+                                    {renderMessageContent(getDisplayMessage(post))}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span>{item.posts.length} people joined</span>
+                            )}
+                          </button>
                         </div>
-                      ) : (
+                      </div>
+                    );
+                  }
+
+                  const post = item.post;
+                  const index = item.index;
+
+                  return (
+                    <div key={post.id} className="space-y-3" data-post-id={post.id}>
+                      {showUnreadDivider && index === firstUnreadIndex && (
+                        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
+                          <div className="flex-1 border-t border-[--border-color]" />
+                          <span>New</span>
+                          <div className="flex-1 border-t border-[--border-color]" />
+                        </div>
+                      )}
+                      <div className="flex gap-3 group relative">
+                        {post.type === "system_add_to_channel" ? (
+                          <div className="w-full flex justify-center">
+                            <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
+                              {renderMessageContent(getDisplayMessage(post))}
+                            </div>
+                          </div>
+                        ) : (
                         <>
                           <div className="h-10 w-10 flex-shrink-0">
                             {(() => {
@@ -1387,8 +1520,8 @@ export function MattermostChannelView({ channelId }: Props) {
                                     count: existing.count + 1,
                                     reacted:
                                       existing.reacted ||
-                                      (data?.member?.user_id
-                                        ? reaction.user_id === data.member.user_id
+                                      (channelData?.member?.user_id
+                                        ? reaction.user_id === channelData.member.user_id
                                         : false)
                                   }
                                 };
@@ -1479,7 +1612,7 @@ export function MattermostChannelView({ channelId }: Props) {
                           >
                             Reply
                           </Button>
-                          {post.user_id === data?.member?.user_id && (
+                          {post.user_id === channelData?.member?.user_id && (
                             <Button
                               appearance="gray-link"
                               size="xs"
@@ -1505,7 +1638,7 @@ export function MattermostChannelView({ channelId }: Props) {
                                 label="Open thread"
                                 onClick={() => openThread(post)}
                               />
-                              {data?.canModerate && (
+                              {channelData?.canModerate && (
                                 <DropdownItemWithIcon
                                   icon={deleteForeverSvg}
                                   label={
@@ -1524,7 +1657,8 @@ export function MattermostChannelView({ channelId }: Props) {
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1905,7 +2039,7 @@ export function MattermostChannelView({ channelId }: Props) {
                 )}
               </div>
               <div className="max-h-48 overflow-y-auto">
-                {data?.canModerate && channelWideMentionOptions.length > 0 && (
+                {channelData?.canModerate && channelWideMentionOptions.length > 0 && (
                   <>
                     <div className="px-3 pt-2 text-xs font-semibold text-[--text-muted]">
                       Channel-wide mentions
@@ -1926,7 +2060,7 @@ export function MattermostChannelView({ channelId }: Props) {
                     <div className="border-t border-[--border-color]" />
                   </>
                 )}
-                {!data?.canModerate && isChannelWideMentionQuery && (
+                {!channelData?.canModerate && isChannelWideMentionQuery && (
                   <div className="px-3 py-2 text-xs text-[--text-muted]">
                     Channel-wide mentions (@here, @everyone) are limited to community moderators.
                   </div>
