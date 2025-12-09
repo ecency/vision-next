@@ -229,7 +229,9 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const posts = useMemo(() => {
     if (!data?.pages) return [];
-    return data.pages.flatMap(page => page.posts);
+    return data.pages
+      .flatMap(page => page.posts)
+      .sort((a, b) => Number(a.create_at) - Number(b.create_at));
   }, [data?.pages]);
 
   // Group consecutive join messages
