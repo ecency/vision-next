@@ -328,6 +328,29 @@ export function MattermostChannelView({ channelId }: Props) {
     }, new Map());
   }, [posts]);
   const threadRootPost = threadRootId ? postsById.get(threadRootId) ?? null : null;
+  const parentPostById = useMemo(() => {
+    const parents = new Map<string, MattermostPost>();
+
+    const threads = posts.reduce<Map<string, MattermostPost[]>>((acc, post) => {
+      const rootId = post.root_id || post.id;
+      const thread = acc.get(rootId) ?? [];
+      thread.push(post);
+      acc.set(rootId, thread);
+      return acc;
+    }, new Map());
+
+    threads.forEach((threadPosts) => {
+      const ordered = [...threadPosts].sort((a, b) => a.create_at - b.create_at);
+      ordered.forEach((post, index) => {
+        const parent = ordered[index - 1];
+        if (parent) {
+          parents.set(post.id, parent);
+        }
+      });
+    });
+
+    return parents;
+  }, [posts]);
   const threadPosts = useMemo(() => {
     if (!threadRootId) return [];
 
@@ -1504,22 +1527,27 @@ export function MattermostChannelView({ channelId }: Props) {
                               )}
                             </div>
                             {post.root_id && (
-                              // Mattermost replies are stored as threads (root_id). Show a parent preview and allow
-                              // opening the dedicated side panel for a focused view.
-                              <button
-                                type="button"
-                                onClick={() => openThread(postsById.get(post.root_id!) ?? post)}
-                                className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
-                              >
-                                <div className="font-semibold">
-                                  Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}
-                                </div>
-                                <div className="line-clamp-2 text-[--text-muted]">
-                                  {renderMessageContent(
-                                    getDisplayMessage(postsById.get(post.root_id) ?? post)
-                                  )}
-                                </div>
-                              </button>
+                              (() => {
+                                const rootPost = postsById.get(post.root_id!) ?? post;
+                                const parentPost = parentPostById.get(post.id);
+
+                                if (!parentPost) return null;
+
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={() => openThread(rootPost)}
+                                    className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
+                                  >
+                                    <div className="font-semibold">
+                                      Replying to {getDisplayName(parentPost)}
+                                    </div>
+                                    <div className="line-clamp-2 text-[--text-muted]">
+                                      {renderMessageContent(getDisplayMessage(parentPost))}
+                                    </div>
+                                  </button>
+                                );
+                              })()
                             )}
                             <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
                               {renderMessageContent(getDisplayMessage(post))}
