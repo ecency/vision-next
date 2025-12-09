@@ -1,6 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient
+} from "@tanstack/react-query";
 import { useClientActiveUser } from "@/api/queries";
 import { getAccessToken, getRefreshToken } from "@/utils";
 
@@ -374,11 +379,24 @@ export interface MattermostPostSearchResponse {
 }
 
 export function useMattermostPosts(channelId: string | undefined) {
-  return useQuery({
+  const perPage = 200;
+
+  return useInfiniteQuery({
     queryKey: ["mattermost-posts", channelId],
     enabled: Boolean(channelId),
-    queryFn: async () => {
-      const res = await fetch(`/api/mattermost/channels/${channelId}/posts`);
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.posts.length || lastPage.posts.length < perPage) {
+        return undefined;
+      }
+
+      return lastPage.posts[0]?.id || null;
+    },
+    queryFn: async ({ pageParam }) => {
+      const before = pageParam ? `&before=${encodeURIComponent(pageParam)}` : "";
+      const res = await fetch(
+        `/api/mattermost/channels/${channelId}/posts?per_page=${perPage}${before}`
+      );
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data?.error || "Unable to load messages");

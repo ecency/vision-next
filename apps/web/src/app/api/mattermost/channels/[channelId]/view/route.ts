@@ -5,7 +5,10 @@ import {
   mmUserFetch
 } from "@/server/mattermost";
 
-export async function POST(req: Request, { params }: { params: { channelId: string } }) {
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ channelId: string }> }
+) {
   const token = await getMattermostTokenFromCookies();
 
   if (!token) {
@@ -13,7 +16,7 @@ export async function POST(req: Request, { params }: { params: { channelId: stri
   }
 
   try {
-    const channelId = params.channelId;
+    const { channelId } = await params;
     let prevChannelId = "";
 
     try {

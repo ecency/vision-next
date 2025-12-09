@@ -2,6 +2,8 @@
 
 import {
   ChangeEvent,
+  UIEvent,
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -34,6 +36,7 @@ import {
 } from "@ui/dropdown";
 import {
   blogSvg,
+  checkSvg,
   deleteForeverSvg,
   dotsHorizontal,
   mailSvg
@@ -55,6 +58,7 @@ import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
 import { Element, Text } from "domhandler";
 import { marked } from "marked";
+import { EcencyRenderer } from "@ecency/renderer";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const MATTERMOST_SHORTCODE_REGEX = /:([a-zA-Z0-9_+-]+):/g;
@@ -72,6 +76,8 @@ const CHANNEL_WIDE_MENTIONS = [
   }
 ] as const;
 
+const JOIN_COLLAPSE_THRESHOLD = 3;
+
 type EmojiSuggestion = {
   id: string;
   name: string;
@@ -80,6 +86,8 @@ type EmojiSuggestion = {
 
 const SHORTCODE_TO_NATIVE = new Map<string, string>();
 const NATIVE_TO_SHORTCODE = new Map<string, string>();
+
+const MemoEcencyRenderer = memo(EcencyRenderer);
 
 Object.entries(emojiData.emojis).forEach(([id, emoji]) => {
   const primaryId = id.toLowerCase();
@@ -163,7 +171,14 @@ interface Props {
 }
 
 export function MattermostChannelView({ channelId }: Props) {
-  const { data, isLoading, error } = useMattermostPosts(channelId);
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useMattermostPosts(channelId);
   const [message, setMessage] = useState("");
   const hasAppliedSharedText = useRef(false);
   const [mentionQuery, setMentionQuery] = useState("");
@@ -211,21 +226,62 @@ export function MattermostChannelView({ channelId }: Props) {
   const gifButtonRef = useRef<HTMLButtonElement | null>(null);
   const gifPickerRef = useRef<HTMLDivElement | null>(null);
   const showAdminTools = useChatAdminStore((state) => state.showAdminTools);
+  const scrollRestoreRef = useRef<{ previousHeight: number; previousScrollTop: number } | null>(
+    null
+  );
 
-    type GifStyle = {
-      width: string;
-      bottom: string;
-      left: number;
-      marginLeft: string;
-      borderTopLeftRadius: string;
-      borderTopRightRadius: string;
-      borderBottomLeftRadius: string;
+  type GifStyle = {
+    width: string;
+    bottom: string;
+    left: number;
+    marginLeft: string;
+    borderTopLeftRadius: string;
+    borderTopRightRadius: string;
+    borderBottomLeftRadius: string;
+  };
+
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
+  const [showJoinDetails, setShowJoinDetails] = useState(false);
+
+  const chatData = useMemo(() => {
+    if (!data?.pages?.length) return null;
+
+    const postsById = new Map<string, MattermostPost>();
+    const users: Record<string, MattermostUser> = {};
+    let channel = data.pages[0].channel;
+    let member = data.pages[0].member;
+    let community = data.pages[0].community;
+    let canModerate = data.pages[0].canModerate;
+
+    data.pages.forEach((page) => {
+      page.posts.forEach((post) => {
+        postsById.set(post.id, post);
+      });
+
+      Object.entries(page.users || {}).forEach(([id, user]) => {
+        users[id] = user;
+      });
+
+      channel = channel || page.channel;
+      member = member || page.member;
+      community = community ?? page.community;
+      canModerate = canModerate ?? page.canModerate;
+    });
+
+    return {
+      posts: Array.from(postsById.values()).sort(
+        (a, b) => Number(a.create_at) - Number(b.create_at)
+      ),
+      users,
+      channel,
+      member,
+      community,
+      canModerate
     };
+  }, [data]);
 
-    const [showGifPicker, setShowGifPicker] = useState(false);
-    const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
-
-  const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
+  const posts = useMemo(() => chatData?.posts ?? [], [chatData?.posts]);
   const markdownParser = useMemo(() => {
     marked.setOptions({
       gfm: true,
@@ -268,7 +324,7 @@ export function MattermostChannelView({ channelId }: Props) {
     setMessage((current) => current || sharedText);
     hasAppliedSharedText.current = true;
   }, [searchParams, setMessage]);
-  const usersById = useMemo(() => data?.users ?? {}, [data?.users]);
+  const usersById = useMemo(() => chatData?.users ?? {}, [chatData?.users]);
   const usersByUsername = useMemo(() => {
     return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
       if (user.username) {
@@ -278,7 +334,7 @@ export function MattermostChannelView({ channelId }: Props) {
     }, {});
   }, [usersById]);
 
-  const isPublicChannel = data?.channel?.type === "O";
+  const isPublicChannel = chatData?.channel?.type === "O";
   const normalizedMentionQuery = mentionQuery.trim().toLowerCase();
   const channelWideMentionOptions = useMemo(
     () =>
@@ -299,28 +355,72 @@ export function MattermostChannelView({ channelId }: Props) {
     adminUsername,
     Boolean(isEcencyAdmin && adminUsername.trim().length >= 2)
   );
-  const effectiveLastViewedAt = optimisticLastViewedAt ?? data?.member?.last_viewed_at ?? 0;
+  const effectiveLastViewedAt = optimisticLastViewedAt ?? chatData?.member?.last_viewed_at ?? 0;
   const firstUnreadIndex = useMemo(() => {
     if (!posts.length) return -1;
     return posts.findIndex((post) => post.create_at > effectiveLastViewedAt);
   }, [effectiveLastViewedAt, posts]);
   const showUnreadDivider = firstUnreadIndex !== -1;
+  const trailingJoinPosts = useMemo(() => {
+    const joins: MattermostPost[] = [];
 
-  const markChannelRead = useCallback(() => {
-    const id = data?.channel?.id || channelId;
+    for (let i = posts.length - 1; i >= 0; i--) {
+      const post = posts[i];
+      if (post.type === "system_add_to_channel") {
+        joins.unshift(post);
+      } else {
+        break;
+      }
+    }
+
+    return joins;
+  }, [posts]);
+  const shouldShowJoiningSummary = trailingJoinPosts.length >= JOIN_COLLAPSE_THRESHOLD;
+  const joiningStartIndex = shouldShowJoiningSummary
+    ? posts.length - trailingJoinPosts.length
+    : posts.length;
+  const unreadWithinJoining = shouldShowJoiningSummary && firstUnreadIndex >= joiningStartIndex;
+
+  useEffect(() => {
+    const oldestPost = posts[0];
+    if (
+      effectiveLastViewedAt > 0 &&
+      oldestPost &&
+      oldestPost.create_at > effectiveLastViewedAt &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage();
+    }
+  }, [effectiveLastViewedAt, fetchNextPage, hasNextPage, isFetchingNextPage, posts]);
+
+  const markChannelRead = useCallback((force = false) => {
+    const id = chatData?.channel?.id || channelId;
     if (!id) return;
 
     const now = Date.now();
-    if (now - lastViewUpdateRef.current < 4000) return;
+    if (!force && now - lastViewUpdateRef.current < 4000) return;
 
     lastViewUpdateRef.current = now;
     setOptimisticLastViewedAt(now);
     markViewedMutation.mutate(id, {
       onError: () => {
-        setOptimisticLastViewedAt(data?.member?.last_viewed_at ?? null);
+        setOptimisticLastViewedAt(chatData?.member?.last_viewed_at ?? null);
       }
     });
-  }, [channelId, data?.channel?.id, data?.member?.last_viewed_at, markViewedMutation]);
+  }, [channelId, chatData?.channel?.id, chatData?.member?.last_viewed_at, markViewedMutation]);
+
+  const loadOlderMessages = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container || !hasNextPage || isFetchingNextPage) return;
+
+    scrollRestoreRef.current = {
+      previousHeight: container.scrollHeight,
+      previousScrollTop: container.scrollTop
+    };
+
+    fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   useEffect(() => {
     if (!showGifPicker) return;
@@ -338,16 +438,23 @@ export function MattermostChannelView({ channelId }: Props) {
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [showGifPicker]);
 
-  const handleScroll = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+  const handleScroll = useCallback(
+    (source?: UIEvent<HTMLDivElement> | "effect" | "user") => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      if (source !== "effect" && container.scrollTop < 120) {
+        loadOlderMessages();
+    }
 
     const distanceFromBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight;
-    if (distanceFromBottom < 120) {
-      markChannelRead();
-    }
-  }, [markChannelRead]);
+      if (distanceFromBottom < 120) {
+        markChannelRead();
+      }
+    },
+    [loadOlderMessages, markChannelRead]
+  );
 
   useEffect(() => {
     lastViewUpdateRef.current = 0;
@@ -357,6 +464,7 @@ export function MattermostChannelView({ channelId }: Props) {
     setThreadRootId(null);
     setReplyingTo(null);
     setEditingPost(null);
+    setShowJoinDetails(false);
   }, [channelId]);
 
   useEffect(() => {
@@ -364,10 +472,10 @@ export function MattermostChannelView({ channelId }: Props) {
   }, [focusedPostId]);
 
   useEffect(() => {
-    if (data) {
+    if (chatData) {
       markChannelRead();
     }
-  }, [data, markChannelRead]);
+  }, [chatData, markChannelRead]);
 
   const scrollToPost = useCallback(
     (postId: string, options?: { highlight?: boolean; behavior?: ScrollBehavior }) => {
@@ -457,10 +565,10 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
   const directChannelUser = useMemo(() => {
-    const isDirect = data?.channel?.type === "D" || directChannelFromList?.type === "D";
+    const isDirect = chatData?.channel?.type === "D" || directChannelFromList?.type === "D";
     if (!isDirect) return null;
 
-    const participantIds = (data?.channel?.name || directChannelFromList?.name || "").split(
+    const participantIds = (chatData?.channel?.name || directChannelFromList?.name || "").split(
       "__"
     );
     const participants = participantIds
@@ -477,8 +585,8 @@ export function MattermostChannelView({ channelId }: Props) {
     );
   }, [
     activeUser?.username,
-    data?.channel?.name,
-    data?.channel?.type,
+    chatData?.channel?.name,
+    chatData?.channel?.type,
     directChannelFromList,
     usersById
   ]);
@@ -490,15 +598,15 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     return (
-      data?.channel?.display_name ||
+      chatData?.channel?.display_name ||
       directChannelFromList?.display_name ||
-      data?.channel?.name ||
+      chatData?.channel?.name ||
       directChannelFromList?.name ||
       "Chat"
     );
   }, [
-    data?.channel?.display_name,
-    data?.channel?.name,
+    chatData?.channel?.display_name,
+    chatData?.channel?.name,
     directChannelFromList?.display_name,
     directChannelFromList?.name,
     directChannelUser,
@@ -507,23 +615,48 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const channelSubtitle = useMemo(() => {
     const isDirectChannel =
-      data?.channel?.type === "D" || directChannelFromList?.type === "D";
+      chatData?.channel?.type === "D" || directChannelFromList?.type === "D";
     if (isDirectChannel) {
       if (directChannelUser?.username) return `@${directChannelUser.username}`;
       return "Direct message";
     }
 
-    return data?.community ? `${data.community} channel` : "Channel";
+    return chatData?.community ? `${chatData.community} channel` : "Channel";
   }, [
-    data?.channel?.type,
-    data?.community,
+    chatData?.channel?.type,
+    chatData?.community,
     directChannelFromList?.type,
     directChannelUser?.username
   ]);
 
+  const unreadMessageCount = useMemo(() => {
+    const summaryUnread = directChannelFromList?.message_count ?? 0;
+    const localUnread = firstUnreadIndex === -1 ? 0 : posts.length - firstUnreadIndex;
+
+    return Math.max(summaryUnread, localUnread);
+  }, [directChannelFromList?.message_count, firstUnreadIndex, posts.length]);
+
   useEffect(() => {
-    handleScroll();
+    handleScroll("effect");
   }, [posts.length, handleScroll]);
+
+  useEffect(() => {
+    if (!scrollRestoreRef.current) return;
+
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const { previousHeight, previousScrollTop } = scrollRestoreRef.current;
+    const heightDiff = container.scrollHeight - previousHeight;
+    container.scrollTop = Math.max(0, previousScrollTop + heightDiff);
+    scrollRestoreRef.current = null;
+  }, [posts.length]);
+
+  useEffect(() => {
+    if (!shouldShowJoiningSummary) {
+      setShowJoinDetails(false);
+    }
+  }, [shouldShowJoiningSummary]);
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
@@ -612,6 +745,26 @@ export function MattermostChannelView({ channelId }: Props) {
     );
   };
 
+  const isEcencyContentLink = (href: string) => {
+    try {
+      const url = new URL(href);
+      const hostname = url.hostname.toLowerCase();
+
+      if (!hostname.endsWith("ecency.com")) return false;
+
+      const [, maybeAuthor, maybePermlink] = url.pathname.split("/").filter(Boolean);
+
+      if (!maybeAuthor || !maybePermlink) return false;
+
+      const authorSegment = maybePermlink ? maybeAuthor : undefined;
+      const permlinkSegment = maybePermlink || maybeAuthor;
+
+      return Boolean(authorSegment?.startsWith("@") && permlinkSegment);
+    } catch (err) {
+      return false;
+    }
+  };
+
   const isPartOfEcencyPostLink = (before: string, mention: string, after: string) => {
     const combined = `${before}${mention}${after}`;
 
@@ -684,7 +837,7 @@ export function MattermostChannelView({ channelId }: Props) {
               (child) => child instanceof Element && child.name === "img"
             );
 
-            return (
+            const link = (
               <a
                 href={href}
                 target="_blank"
@@ -694,6 +847,17 @@ export function MattermostChannelView({ channelId }: Props) {
                 {children}
               </a>
             );
+
+            if (isEcencyContentLink(href)) {
+              return (
+                <div className="space-y-2">
+                  {link}
+                  <MemoEcencyRenderer value={href} />
+                </div>
+              );
+            }
+
+            return link;
           }
         }
 
@@ -949,7 +1113,7 @@ export function MattermostChannelView({ channelId }: Props) {
   };
 
   const handleDelete = (postId: string) => {
-    if (!data?.canModerate) return;
+    if (!chatData?.canModerate) return;
     if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
 
     setModerationError(null);
@@ -1039,12 +1203,12 @@ export function MattermostChannelView({ channelId }: Props) {
     (post: MattermostPost, emoji: string, closePicker = false) => {
       const emojiName = toMattermostEmojiName(emoji);
 
-      if (!emojiName || !data?.member?.user_id) return;
+      if (!emojiName || !chatData?.member?.user_id) return;
 
       const reactions = post.metadata?.reactions ?? [];
       const hasReacted = reactions.some(
         (reaction) =>
-          reaction.emoji_name === emojiName && reaction.user_id === data.member?.user_id
+          reaction.emoji_name === emojiName && reaction.user_id === chatData.member?.user_id
       );
 
       reactMutation.mutate({
@@ -1057,7 +1221,7 @@ export function MattermostChannelView({ channelId }: Props) {
         setOpenReactionPostId((current) => (current === post.id ? null : current));
       }
     },
-    [data?.member?.user_id, reactMutation]
+    [chatData?.member?.user_id, reactMutation]
   );
 
   const openThread = useCallback(
@@ -1125,6 +1289,28 @@ export function MattermostChannelView({ channelId }: Props) {
                 >
                   Last viewed {formatTimestamp(effectiveLastViewedAt)}
                 </div>
+              )}
+
+              {unreadMessageCount > 1 && (
+                <Dropdown>
+                  <DropdownToggle>
+                    <Button
+                      icon={dotsHorizontal}
+                      appearance="gray-link"
+                      size="sm"
+                      className="h-8 w-8 !p-0"
+                      aria-label="Channel actions"
+                    />
+                  </DropdownToggle>
+                  <DropdownMenu align="right" size="small">
+                    <DropdownItemWithIcon
+                      icon={checkSvg}
+                      label="Mark as read"
+                      onClick={() => markChannelRead(true)}
+                      disabled={markViewedMutation.isPending}
+                    />
+                  </DropdownMenu>
+                </Dropdown>
               )}
 
               {/* X button – visible only on mobile */}
@@ -1262,269 +1448,330 @@ export function MattermostChannelView({ channelId }: Props) {
                 </div>
               )}
               <div className="space-y-3">
-                {posts.map((post, index) => (
-                  <div key={post.id} className="space-y-3" data-post-id={post.id}>
-                    {showUnreadDivider && index === firstUnreadIndex && (
-                      <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
-                        <div className="flex-1 border-t border-[--border-color]" />
-                        <span>New</span>
-                        <div className="flex-1 border-t border-[--border-color]" />
-                      </div>
-                    )}
-                    <div className="flex gap-3 group relative">
-                      {post.type === "system_add_to_channel" ? (
+                {isFetchingNextPage && (
+                  <div className="text-center text-[11px] text-[--text-muted]">
+                    Loading earlier messages…
+                  </div>
+                )}
+                {posts.map((post, index) => {
+                  const isWithinJoiningSummary =
+                    shouldShowJoiningSummary && index >= joiningStartIndex;
+                  const shouldRenderJoiningSummary =
+                    isWithinJoiningSummary && index === joiningStartIndex;
+
+                  if (shouldRenderJoiningSummary) {
+                    return (
+                      <div key="joining-summary" className="space-y-3" data-post-id="joining-summary">
+                        {showUnreadDivider && unreadWithinJoining && (
+                          <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
+                            <div className="flex-1 border-t border-[--border-color]" />
+                            <span>New</span>
+                            <div className="flex-1 border-t border-[--border-color]" />
+                          </div>
+                        )}
                         <div className="w-full flex justify-center">
-                          <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
-                            {renderMessageContent(getDisplayMessage(post))}
+                          <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center space-y-2">
+                            <div className="flex flex-wrap items-center justify-center gap-2">
+                              <span>{`${trailingJoinPosts.length} people joined the channel.`}</span>
+                              <Button
+                                appearance="gray-link"
+                                size="sm"
+                                onClick={() => setShowJoinDetails((current) => !current)}
+                              >
+                                {showJoinDetails ? "Hide" : "Show"} users
+                              </Button>
+                            </div>
+                            {showJoinDetails && (
+                              <div className="flex flex-wrap justify-center gap-2 text-[11px] text-[--text-muted]">
+                                {trailingJoinPosts.map((joinPost) => {
+                                  const displayName =
+                                    getAddedUserDisplayName(joinPost) || getDisplayName(joinPost);
+
+                                  return (
+                                    <span
+                                      key={joinPost.id}
+                                      className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1"
+                                    >
+                                      {displayName || "New member"}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         </div>
-                      ) : (
-                        <>
-                          <div className="h-10 w-10 flex-shrink-0">
-                            {(() => {
-                              const user = usersById[post.user_id];
-                              const displayName = getDisplayName(post);
-                              const username = getUsername(post);
-                              const avatarUrl = getAvatarUrl(user);
+                      </div>
+                    );
+                  }
 
-                              if (username) {
-                                return (
-                                  <UserAvatar
-                                    username={username}
-                                    size="medium"
-                                    className="h-10 w-10"
-                                  />
-                                );
-                              }
+                  if (isWithinJoiningSummary) {
+                    return null;
+                  }
 
-                              if (avatarUrl) {
-                                return (
-                                  <img
-                                    src={avatarUrl}
-                                    alt={`${displayName} avatar`}
-                                    className="h-10 w-10 rounded-full object-cover"
-                                  />
-                                );
-                              }
-
-                              return (
-                                <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
-                                  {displayName.charAt(0).toUpperCase()}
-                                </div>
-                              );
-                            })()}
+                  return (
+                    <div key={post.id} className="space-y-3" data-post-id={post.id}>
+                      {showUnreadDivider && index === firstUnreadIndex && (
+                        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wide text-[--text-muted]">
+                          <div className="flex-1 border-t border-[--border-color]" />
+                          <span>New</span>
+                          <div className="flex-1 border-t border-[--border-color]" />
+                        </div>
+                      )}
+                      <div className="flex gap-3 group relative">
+                        {post.type === "system_add_to_channel" ? (
+                          <div className="w-full flex justify-center">
+                            <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
+                              {renderMessageContent(getDisplayMessage(post))}
+                            </div>
                           </div>
-
-                          <div className="flex flex-col gap-1 w-full">
-                            <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                        ) : (
+                          <>
+                            <div className="h-10 w-10 flex-shrink-0">
                               {(() => {
-                                const username = getUsername(post);
+                                const user = usersById[post.user_id];
                                 const displayName = getDisplayName(post);
+                                const username = getUsername(post);
+                                const avatarUrl = getAvatarUrl(user);
 
                                 if (username) {
                                   return (
-                                    <UsernameActions
+                                    <UserAvatar
                                       username={username}
-                                      displayName={displayName}
-                                      currentUsername={activeUser?.username}
-                                      onStartDm={startDirectMessage}
+                                      size="medium"
+                                      className="h-10 w-10"
                                     />
                                   );
                                 }
 
-                                return <span>{displayName}</span>;
-                              })()}
-                              <span
-                                className="text-[--text-muted]"
-                                title={new Date(post.create_at).toLocaleString()}
-                              >
-                                {formatTimestamp(post.create_at)}
-                              </span>
-                              {post.edit_at > post.create_at && (
-                                <span
-                                  className="text-[11px] text-[--text-muted]"
-                                  title={`Edited ${formatTimestamp(post.edit_at)}`}
-                                >
-                                  • Edited
-                                </span>
-                              )}
-                            </div>
-                            {post.root_id && (
-                              // Mattermost replies are stored as threads (root_id). Show a parent preview and allow
-                              // opening the dedicated side panel for a focused view.
-                              <button
-                                type="button"
-                                onClick={() => openThread(postsById.get(post.root_id!) ?? post)}
-                                className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
-                              >
-                                <div className="font-semibold">
-                                  Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}
-                                </div>
-                                <div className="line-clamp-2 text-[--text-muted]">
-                                  {renderMessageContent(
-                                    getDisplayMessage(postsById.get(post.root_id) ?? post)
-                                  )}
-                                </div>
-                              </button>
-                            )}
-                            <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
-                              {renderMessageContent(getDisplayMessage(post))}
-                            </div>
-                            {(() => {
-                              const reactions = post.metadata?.reactions ?? [];
-                              if (!reactions.length) return null;
+                                if (avatarUrl) {
+                                  return (
+                                    <img
+                                      src={avatarUrl}
+                                      alt={`${displayName} avatar`}
+                                      className="h-10 w-10 rounded-full object-cover"
+                                    />
+                                  );
+                                }
 
-                              const grouped = reactions.reduce<
-                                Record<string, { count: number; reacted: boolean }>
-                              >((acc, reaction) => {
-                                const existing = acc[reaction.emoji_name] || {
-                                  count: 0,
-                                  reacted: false
-                                };
-                                return {
-                                  ...acc,
-                                  [reaction.emoji_name]: {
-                                    count: existing.count + 1,
-                                    reacted:
-                                      existing.reacted ||
-                                      (data?.member?.user_id
-                                        ? reaction.user_id === data.member.user_id
-                                        : false)
+                                return (
+                                  <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                                    {displayName.charAt(0).toUpperCase()}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+
+                            <div className="flex flex-col gap-1 w-full">
+                              <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+                                {(() => {
+                                  const username = getUsername(post);
+                                  const displayName = getDisplayName(post);
+
+                                  if (username) {
+                                    return (
+                                      <UsernameActions
+                                        username={username}
+                                        displayName={displayName}
+                                        currentUsername={activeUser?.username}
+                                        onStartDm={startDirectMessage}
+                                      />
+                                    );
                                   }
-                                };
-                              }, {});
+
+                                  return <span>{displayName}</span>;
+                                })()}
+                                <span
+                                  className="text-[--text-muted]"
+                                  title={new Date(post.create_at).toLocaleString()}
+                                >
+                                  {formatTimestamp(post.create_at)}
+                                </span>
+                                {post.edit_at > post.create_at && (
+                                  <span
+                                    className="text-[11px] text-[--text-muted]"
+                                    title={`Edited ${formatTimestamp(post.edit_at)}`}
+                                  >
+                                    • Edited
+                                  </span>
+                                )}
+                              </div>
+                              {post.root_id && (
+                                // Mattermost replies are stored as threads (root_id). Show a parent preview and allow
+                                // opening the dedicated side panel for a focused view.
+                                <button
+                                  type="button"
+                                  onClick={() => openThread(postsById.get(post.root_id!) ?? post)}
+                                  className="text-left rounded border border-dashed border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted] hover:border-[--text-muted]"
+                                >
+                                  <div className="font-semibold">
+                                    Replying to {getDisplayName(postsById.get(post.root_id) ?? post)}
+                                  </div>
+                                  <div className="line-clamp-2 text-[--text-muted]">
+                                    {renderMessageContent(
+                                      getDisplayMessage(postsById.get(post.root_id) ?? post)
+                                    )}
+                                  </div>
+                                </button>
+                              )}
+                              <div className="rounded bg-[--surface-color] p-3 text-sm whitespace-pre-wrap break-words space-y-2">
+                                {renderMessageContent(getDisplayMessage(post))}
+                              </div>
+                              {(() => {
+                                const reactions = post.metadata?.reactions ?? [];
+                                if (!reactions.length) return null;
+
+                                const grouped = reactions.reduce<
+                                  Record<string, { count: number; reacted: boolean }>
+                                >((acc, reaction) => {
+                                  const existing = acc[reaction.emoji_name] || {
+                                    count: 0,
+                                    reacted: false
+                                  };
+                                  return {
+                                    ...acc,
+                                    [reaction.emoji_name]: {
+                                      count: existing.count + 1,
+                                      reacted:
+                                        existing.reacted ||
+                                        (chatData?.member?.user_id
+                                          ? reaction.user_id === chatData.member.user_id
+                                          : false)
+                                    }
+                                  };
+                                }, {});
+
+                                return (
+                                  <div className="flex flex-wrap gap-2">
+                                    {Object.entries(grouped).map(([emojiName, info]) => (
+                                      <button
+                                        key={`${post.id}-${emojiName}`}
+                                        type="button"
+                                        onClick={() => toggleReaction(post, emojiName)}
+                                        className={clsx(
+                                          "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
+                                          info.reacted
+                                            ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
+                                            : "border-[--border-color] bg-[--background-color]"
+                                        )}
+                                      >
+                                        <span>
+                                          {getNativeEmojiFromShortcode(emojiName) ||
+                                            `:${emojiName}:`}
+                                        </span>
+                                        <span className="text-[--text-muted]">
+                                          {info.count}
+                                        </span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                          </>
+                        )}
+                        {post.type !== "system_add_to_channel" && (
+                          <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+                            {(() => {
+                              const isReactionPickerOpen = openReactionPostId === post.id;
 
                               return (
-                                <div className="flex flex-wrap gap-2">
-                                  {Object.entries(grouped).map(([emojiName, info]) => (
-                                    <button
-                                      key={`${post.id}-${emojiName}`}
-                                      type="button"
-                                      onClick={() => toggleReaction(post, emojiName)}
-                                      className={clsx(
-                                        "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
-                                        info.reacted
-                                          ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/40"
-                                          : "border-[--border-color] bg-[--background-color]"
-                                      )}
-                                    >
-                                      <span>
-                                        {getNativeEmojiFromShortcode(emojiName) ||
-                                          `:${emojiName}:`}
-                                      </span>
-                                      <span className="text-[--text-muted]">
-                                        {info.count}
-                                      </span>
-                                    </button>
-                                  ))}
-                                </div>
+                                <Popover
+                                  behavior="click"
+                                  placement="right"
+                                  customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
+                                  show={isReactionPickerOpen}
+                                  setShow={(next) =>
+                                    setOpenReactionPostId(next ? post.id : null)
+                                  }
+                                  directContent={
+                                    <Button
+                                      appearance="gray-link"
+                                      size="xs"
+                                      className="!h-7"
+                                      icon={emojiIconSvg}
+                                      aria-label="Add reaction"
+                                      disabled={reactMutation.isPending}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setOpenReactionPostId((current) =>
+                                          current === post.id ? null : post.id
+                                        );
+                                      }}
+                                    />
+                                  }
+                                >
+                                  <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
+                                    {QUICK_REACTIONS.map((emoji) => (
+                                      <button
+                                        key={`${post.id}-${emoji}-picker`}
+                                        type="button"
+                                        className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
+                                        onClick={() => toggleReaction(post, emoji, true)}
+                                        disabled={reactMutation.isPending}
+                                      >
+                                        {emoji}
+                                      </button>
+                                    ))}
+                                  </PopoverContent>
+                                </Popover>
                               );
                             })()}
-                          </div>
-                        </>
-                      )}
-                      {post.type !== "system_add_to_channel" && (
-                        <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
-                          {(() => {
-                            const isReactionPickerOpen = openReactionPostId === post.id;
-
-                            return (
-                              <Popover
-                                behavior="click"
-                                placement="right"
-                                customClassName="bg-[--surface-color] border border-[--border-color] rounded-lg shadow-lg"
-                                show={isReactionPickerOpen}
-                                setShow={(next) =>
-                                  setOpenReactionPostId(next ? post.id : null)
-                                }
-                                directContent={
-                                  <Button
-                                    appearance="gray-link"
-                                    size="xs"
-                                    className="!h-7"
-                                    icon={emojiIconSvg}
-                                    aria-label="Add reaction"
-                                    disabled={reactMutation.isPending}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      setOpenReactionPostId((current) =>
-                                        current === post.id ? null : post.id
-                                      );
-                                    }}
-                                  />
-                                }
-                              >
-                                <PopoverContent className="flex max-w-[220px] flex-wrap gap-2 p-3">
-                                  {QUICK_REACTIONS.map((emoji) => (
-                                    <button
-                                      key={`${post.id}-${emoji}-picker`}
-                                      type="button"
-                                      className="rounded-full border border-[--border-color] bg-[--background-color] px-2 py-1 text-lg hover:border-[--text-muted]"
-                                      onClick={() => toggleReaction(post, emoji, true)}
-                                      disabled={reactMutation.isPending}
-                                    >
-                                      {emoji}
-                                    </button>
-                                  ))}
-                                </PopoverContent>
-                              </Popover>
-                            );
-                          })()}
-                          <Button
-                            appearance="gray-link"
-                            size="xs"
-                            onClick={() => handleReply(post)}
-                            className="!h-7"
-                          >
-                            Reply
-                          </Button>
-                          {post.user_id === data?.member?.user_id && (
                             <Button
                               appearance="gray-link"
                               size="xs"
-                              onClick={() => handleEdit(post)}
+                              onClick={() => handleReply(post)}
                               className="!h-7"
                             >
-                              Edit
+                              Reply
                             </Button>
-                          )}
-                          <Dropdown>
-                            <DropdownToggle>
+                            {post.user_id === chatData?.member?.user_id && (
                               <Button
-                                icon={dotsHorizontal}
                                 appearance="gray-link"
                                 size="xs"
-                                className="h-7 w-7 !p-0"
-                                aria-label="Message actions"
-                              />
-                            </DropdownToggle>
-                            <DropdownMenu align="right" size="small">
-                              <DropdownItemWithIcon
-                                icon={mailSvg}
-                                label="Open thread"
-                                onClick={() => openThread(post)}
-                              />
-                              {data?.canModerate && (
-                                <DropdownItemWithIcon
-                                  icon={deleteForeverSvg}
-                                  label={
-                                    deleteMutation.isPending &&
-                                    deletingPostId === post.id
-                                      ? "Deleting…"
-                                      : "Delete"
-                                  }
-                                  onClick={() => handleDelete(post.id)}
-                                  disabled={deleteMutation.isPending}
+                                onClick={() => handleEdit(post)}
+                                className="!h-7"
+                              >
+                                Edit
+                              </Button>
+                            )}
+                            <Dropdown>
+                              <DropdownToggle>
+                                <Button
+                                  icon={dotsHorizontal}
+                                  appearance="gray-link"
+                                  size="xs"
+                                  className="h-7 w-7 !p-0"
+                                  aria-label="Message actions"
                                 />
-                              )}
-                            </DropdownMenu>
-                          </Dropdown>
-                        </div>
-                      )}
+                              </DropdownToggle>
+                              <DropdownMenu align="right" size="small">
+                                <DropdownItemWithIcon
+                                  icon={mailSvg}
+                                  label="Open thread"
+                                  onClick={() => openThread(post)}
+                                />
+                                {chatData?.canModerate && (
+                                  <DropdownItemWithIcon
+                                    icon={deleteForeverSvg}
+                                    label={
+                                      deleteMutation.isPending &&
+                                      deletingPostId === post.id
+                                        ? "Deleting…"
+                                        : "Delete"
+                                    }
+                                    onClick={() => handleDelete(post.id)}
+                                    disabled={deleteMutation.isPending}
+                                  />
+                                )}
+                              </DropdownMenu>
+                            </Dropdown>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1905,7 +2152,7 @@ export function MattermostChannelView({ channelId }: Props) {
                 )}
               </div>
               <div className="max-h-48 overflow-y-auto">
-                {data?.canModerate && channelWideMentionOptions.length > 0 && (
+                {chatData?.canModerate && channelWideMentionOptions.length > 0 && (
                   <>
                     <div className="px-3 pt-2 text-xs font-semibold text-[--text-muted]">
                       Channel-wide mentions
@@ -1926,7 +2173,7 @@ export function MattermostChannelView({ channelId }: Props) {
                     <div className="border-t border-[--border-color]" />
                   </>
                 )}
-                {!data?.canModerate && isChannelWideMentionQuery && (
+                {!chatData?.canModerate && isChannelWideMentionQuery && (
                   <div className="px-3 py-2 text-xs text-[--text-muted]">
                     Channel-wide mentions (@here, @everyone) are limited to community moderators.
                   </div>

@@ -25,15 +25,47 @@ interface MattermostUser {
   last_picture_update?: number;
 }
 
-export async function GET(_req: NextRequest, { params }: { params: { channelId: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ channelId: string }> }
+) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {
+    const { channelId } = await params;
+    const searchParams = req.nextUrl.searchParams;
+    const page = Math.max(0, Number.parseInt(searchParams.get("page") || "0", 10) || 0);
+    const before = searchParams.get("before");
+    const explicitSince = searchParams.get("since");
+    const perPage = Math.min(
+      200,
+      Math.max(1, Number.parseInt(searchParams.get("per_page") || "50", 10) || 50)
+    );
+
+    const member = await mmUserFetch<{
+      channel_id: string;
+      user_id: string;
+      roles: string;
+      last_viewed_at: number;
+      mention_count: number;
+      msg_count: number;
+    }>(`/channels/${channelId}/members/me`, token);
+
+    const since = Number.parseInt(explicitSince || "", 10) || member.last_viewed_at || 0;
+    const mmParams = new URLSearchParams({ per_page: String(perPage) });
+    if (before) {
+      mmParams.set("before", before);
+    } else if (since > 0) {
+      mmParams.set("since", String(since));
+    } else {
+      mmParams.set("page", String(page));
+    }
+
     const { posts, order } = await mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
-      `/channels/${params.channelId}/posts?per_page=50&page=0`,
+      `/channels/${channelId}/posts?${mmParams.toString()}`,
       token
     );
 
@@ -43,7 +75,7 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
       .sort((a, b) => Number(a.create_at) - Number(b.create_at));
 
     const channelUsers = await mmUserFetch<MattermostUser[]>(
-      `/users?in_channel=${params.channelId}&per_page=200&page=0`,
+      `/users?in_channel=${channelId}&per_page=200&page=0`,
       token
     );
 
@@ -67,16 +99,7 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
       }
     }
 
-    const member = await mmUserFetch<{
-      channel_id: string;
-      user_id: string;
-      roles: string;
-      last_viewed_at: number;
-      mention_count: number;
-      msg_count: number;
-    }>(`/channels/${params.channelId}/members/me`, token);
-
-    const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+    const moderation = await getMattermostCommunityModerationContext(token, channelId);
 
     return NextResponse.json({
       posts: orderedPosts,
@@ -91,7 +114,10 @@ export async function GET(_req: NextRequest, { params }: { params: { channelId: 
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { channelId: string } }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ channelId: string }> }
+) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -133,8 +159,10 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
       )
     );
 
+    const { channelId } = await params;
+
     if (hasSpecialMention) {
-      const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+      const moderation = await getMattermostCommunityModerationContext(token, channelId);
 
       if (!moderation.canModerate) {
         return NextResponse.json(
@@ -145,7 +173,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
     }
 
     if (mentionedUsers.length) {
-      const channel = await mmUserFetch<MattermostChannel>(`/channels/${params.channelId}`, token);
+      const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token);
 
       if (channel.type === "O") {
         for (const username of mentionedUsers) {
@@ -162,7 +190,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
 
     const post = await mmUserFetch(`/posts`, token, {
       method: "POST",
-      body: JSON.stringify({ channel_id: params.channelId, message, root_id: rootId || undefined })
+      body: JSON.stringify({ channel_id: channelId, message, root_id: rootId || undefined })
     });
 
     return NextResponse.json({ post });
