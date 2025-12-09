@@ -1797,15 +1797,6 @@ export function MattermostChannelView({ channelId }: Props) {
                               appearance="gray-link"
                               size="xs"
                               className="!h-7"
-                              onClick={() => handleReply(post)}
-                              disabled={isSubmitting}
-                            >
-                              Reply in thread
-                            </Button>
-                            <Button
-                              appearance="gray-link"
-                              size="xs"
-                              className="!h-7"
                               onClick={() => scrollToPost(post.id)}
                             >
                               Jump to message
@@ -1822,17 +1813,6 @@ export function MattermostChannelView({ channelId }: Props) {
                 )}
               </div>
 
-              {threadRootPost && (
-                <Button
-                  appearance="primary"
-                  size="sm"
-                  className="mt-3"
-                  onClick={() => handleReply(threadRootPost)}
-                  disabled={isSubmitting}
-                >
-                  Reply to thread
-                </Button>
-              )}
             </div>
           )}
         </div>
