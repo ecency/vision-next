@@ -727,56 +727,62 @@ export function MattermostChannelView({ channelId }: Props) {
   };
 
   const renderMessageContent = (text: string) => {
-    const sanitized = DOMPurify.sanitize(markdownParser(text), {
-      ADD_ATTR: ["target", "rel"]
-    });
+    try {
+      const sanitized = DOMPurify.sanitize(markdownParser(text), {
+        ADD_ATTR: ["target", "rel"]
+      });
 
-    const parseOptions: HTMLReactParserOptions = {
-      replace(domNode) {
-        if (domNode.type === "text") {
-          return <>{renderTextWithMentions((domNode as Text).data || "")}</>;
-        }
-
-        if (domNode instanceof Element) {
-          if (domNode.name === "img") {
-            const src = domNode.attribs?.src || "";
-            const alt = domNode.attribs?.alt || "Shared image";
-            const proxied = isImageUrl(src) ? getProxiedImageUrl(src) : src;
-
-            return (
-              <img
-                src={proxied}
-                alt={alt}
-                className="max-h-80 rounded border border-[--border-color] object-contain"
-              />
-            );
+      const parseOptions: HTMLReactParserOptions = {
+        replace(domNode) {
+          if (domNode.type === "text") {
+            return <>{renderTextWithMentions((domNode as Text).data || "")}</>;
           }
 
-          if (domNode.name === "a") {
-            const href = domNode.attribs?.href || "";
-            const children = domToReact(domNode.children ?? [], parseOptions);
-            const containsImage = (domNode.children || []).some(
-              (child) => child instanceof Element && child.name === "img"
-            );
+          if (domNode instanceof Element) {
+            if (domNode.name === "img") {
+              const src = domNode.attribs?.src || "";
+              const alt = domNode.attribs?.alt || "Shared image";
+              const proxied = isImageUrl(src) ? getProxiedImageUrl(src) : src;
 
-            return (
-              <a
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                className={containsImage ? "block" : "text-blue-500 underline break-all"}
-              >
-                {children}
-              </a>
-            );
+              return (
+                <img
+                  src={proxied}
+                  alt={alt}
+                  className="max-h-80 rounded border border-[--border-color] object-contain"
+                />
+              );
+            }
+
+            if (domNode.name === "a") {
+              const href = domNode.attribs?.href || "";
+              const children = domToReact(domNode.children ?? [], parseOptions);
+              const containsImage = (domNode.children || []).some(
+                (child) => child instanceof Element && child.name === "img"
+              );
+
+              return (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={containsImage ? "block" : "text-blue-500 underline break-all"}
+                >
+                  {children}
+                </a>
+              );
+            }
           }
+
+          return undefined;
         }
+      };
 
-        return undefined;
-      }
-    };
-
-    return htmlParse(sanitized, parseOptions);
+      return htmlParse(sanitized, parseOptions);
+    } catch (error) {
+      console.error("Failed to render chat message", error);
+      const fallback = DOMPurify.sanitize(text || "", { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+      return <span className="whitespace-pre-wrap break-words">{fallback}</span>;
+    }
   };
 
   // Note: getAvatarUrl now imported from format-utils.ts
