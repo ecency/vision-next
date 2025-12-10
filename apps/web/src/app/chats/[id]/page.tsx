@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { MattermostChannelView } from "@/features/chat/mattermost-channel-view";
 import { useMattermostBootstrap } from "@/features/chat/mattermost-api";
+import { ChatErrorBoundary } from "@/features/chat/chat-error-boundary";
 import { LoginRequired } from "@/features/shared";
 import { useClientActiveUser, useHydrated } from "@/api/queries";
 
@@ -33,8 +34,10 @@ export default function ChannelPage() {
   }
 
   return (
-    <div className="h-full">
-      {params.id && <MattermostChannelView channelId={params.id} />}
-    </div>
+    <ChatErrorBoundary>
+      <div className="h-full">
+        {params.id && <MattermostChannelView channelId={params.id} />}
+      </div>
+    </ChatErrorBoundary>
   );
 }

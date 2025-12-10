@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useClientActiveUser, useHydrated } from "@/api/queries";
 import { useMattermostBootstrap, useMattermostChannels } from "@/features/chat/mattermost-api";
 import { MattermostChannelView } from "@/features/chat/mattermost-channel-view";
+import { ChatErrorBoundary } from "@/features/chat/chat-error-boundary";
 import { LoginRequired } from "@/features/shared";
 
 const TOWN_HALL_CHANNEL_NAME = "town-hall";
@@ -56,8 +57,10 @@ export function ChatsPageClient() {
   }
 
   return (
-    <div className="h-full overflow-hidden">
-      <MattermostChannelView channelId={defaultChannelId} />
-    </div>
+    <ChatErrorBoundary>
+      <div className="h-full overflow-hidden">
+        <MattermostChannelView channelId={defaultChannelId} />
+      </div>
+    </ChatErrorBoundary>
   );
 }
