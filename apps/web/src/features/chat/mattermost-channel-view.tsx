@@ -677,7 +677,7 @@ export function MattermostChannelView({ channelId }: Props) {
 
   // Wrapper to decode emojis in display messages
   const getDecodedDisplayMessage = (post: MattermostPost) =>
-    decodeMessageEmojis(getDecodedDisplayMessage(post));
+    decodeMessageEmojis(getDisplayMessage(post));
 
   const isImageUrl = (url: string) => {
     const normalizedUrl = url.toLowerCase();
