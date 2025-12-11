@@ -758,13 +758,11 @@ export function MattermostChannelView({ channelId }: Props) {
             if (isImageUrl(trimmedText) && /^https?:\/\//.test(trimmedText)) {
               const proxied = getProxiedImageUrl(trimmedText);
               return (
-                <a href={trimmedText} target="_blank" rel="noreferrer" className="inline-block max-w-full">
                   <img
                     src={proxied}
                     alt="Shared image"
                     className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
                   />
-                </a>
               );
             }
             return <>{renderTextWithMentions(textContent)}</>;
