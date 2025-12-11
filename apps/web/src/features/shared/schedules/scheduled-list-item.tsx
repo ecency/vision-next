@@ -3,7 +3,7 @@ import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { PopoverConfirm } from "@ui/popover-confirm";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
-import { FullAccount, Schedule } from "@/entities";
+import { Schedule } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import { accountReputation, dateToFormatted, dateToFullRelative } from "@/utils";
 import { UserAvatar } from "@/features/shared";
@@ -15,19 +15,18 @@ import Image from "next/image";
 import fallbackImage from "../../../../public/assets/fallback.png";
 import noImage from "@/assets/img/noimage.svg";
 import { useDeleteSchedule, useMoveSchedule } from "@/api/mutations";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   post: Schedule;
 }
 
 export function ScheduledListItem({ post }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { account } = useActiveAccount();
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
 
-  const account = useMemo(() => activeUser?.data as FullAccount, [activeUser]);
-
-  const author = account.name;
-  const reputation = account.reputation;
+  const author = account?.name;
+  const reputation = account?.reputation;
 
   const tag = post.tags_arr[0] || "";
   const img = catchPostImage(post.body, 600, 500, canUseWebp ? "webp" : "match") || noImage;
@@ -39,15 +38,20 @@ export function ScheduledListItem({ post }: Props) {
   const { mutateAsync: moveSchedule, isPending: isScheduleMoving } = useMoveSchedule();
   const { mutateAsync: deleteSchedule, isPending: isScheduleDeleting } = useDeleteSchedule();
 
-  return !activeUser?.data.__loaded ? null : (
+  // Don't render if no account data available
+  if (!account) {
+    return null;
+  }
+
+  return (
     <div className="drafts-list-item border dark:border-dark-400 rounded-3xl overflow-hidden">
       <div className="flex items-center gap-3 border-b dark:border-dark-300 mb-4 p-2 bg-gray-100 dark:bg-dark-500">
         <div className="flex items-center gap-2">
-          <UserAvatar username={author} size="medium" />
+          <UserAvatar username={author!} size="medium" />
           <div className="flex items-center text-sm">
             <div className="font-bold">{author}</div>
             <div className="text-gray-600 dark:text-gray-400 pl-1">
-              ({accountReputation(reputation)})
+              ({accountReputation(reputation!)})
             </div>
           </div>
         </div>

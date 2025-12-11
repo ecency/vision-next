@@ -23,11 +23,6 @@ export interface AccountFollowStats {
   account: string;
 }
 
-export interface BaseAccount {
-  name: string;
-  __loaded?: false;
-}
-
 export interface FullAccount {
   name: string;
   owner: Authority;
@@ -75,10 +70,10 @@ export interface FullAccount {
   };
   profile?: AccountProfile;
   follow_stats?: AccountFollowStats;
-  __loaded?: true;
   proxyVotes?: [];
 }
 
-export type Account = FullAccount | BaseAccount;
+// Account is now just FullAccount - no more BaseAccount or __loaded discrimination
+export type Account = FullAccount;
 
 export type Accounts = Account[];

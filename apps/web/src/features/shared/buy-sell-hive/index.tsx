@@ -42,14 +42,11 @@ export function BuySellHiveDialog({
   onTransactionSuccess
 }: Props) {
   const activeUser = useGlobalStore((state) => state.activeUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
 
   const [step, setStep] = useState(1);
   const [inProgress, setInProgress] = useState(false);
 
-  const updateAll = (a: any) => {
-    // update active
-    updateActiveUser(a);
+  const updateAll = () => {
     setInProgress(false);
     setStep(3);
     onTransactionSuccess();
@@ -58,8 +55,7 @@ export function BuySellHiveDialog({
   const promiseCheck = (p: any) => {
     p &&
       p
-        .then(() => getAccountFull(activeUser!.username))
-        .then((a: any) => updateAll(a))
+        .then(() => updateAll())
         .catch((err: any) => {
           error(...formatError(err));
           setInProgress(false);

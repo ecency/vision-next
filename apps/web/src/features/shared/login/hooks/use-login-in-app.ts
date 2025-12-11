@@ -14,7 +14,6 @@ export function useLoginInApp(username: string) {
 
   const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
-  const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
   const setLogin = useGlobalStore((state) => state.setLogin);
 
   const { mutateAsync: recordActivity } = useRecordUserActivity();
@@ -46,9 +45,6 @@ export function useLoginInApp(username: string) {
 
       // activate user
       setActiveUser(user.username);
-
-      // add account data of the user to the reducer
-      await updateActiveUser(account);
 
       const notifToken = ls.get("fb-notifications-token") ?? "";
       if (notifToken) {
@@ -90,7 +86,8 @@ export function useLoginInApp(username: string) {
       recordActivity,
       router,
       setActiveUser,
-      updateActiveUser
+      updateNotificationSettings,
+      notificationsSettingsQuery
     ]
   );
 }

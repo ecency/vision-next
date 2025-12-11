@@ -33,7 +33,7 @@ export function ProfileCover({ account }: Props) {
   const coverFallbackNight = "/assets/cover-fallback-night.png";
   let bgImage = "";
 
-  if (account?.__loaded) {
+  if (account) {
     bgImage = theme === Theme.day ? coverFallbackDay : coverFallbackNight;
     if (account.profile?.cover_image) {
       bgImage = proxifyImageSrc(account.profile.cover_image, 0, 0, canUseWebp ? "webp" : "match");

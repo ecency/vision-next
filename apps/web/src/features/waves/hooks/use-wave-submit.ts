@@ -9,6 +9,8 @@ import { useGlobalStore } from "@/core/global-store";
 import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks";
+import { getAccountFullQuery } from "@/api/queries";
 
 interface Body {
   text: string;
@@ -23,10 +25,8 @@ export function useWaveSubmit(
   replySource?: Entry,
   onSuccess?: (item: WaveEntry) => void
 ) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
-  const isActiveUserLoaded = Boolean((activeUser?.data as { __loaded?: boolean } | undefined)?.__loaded);
 
   const { mutateAsync: create } = useWaveCreate();
   const { mutateAsync: createReply } = useWaveCreateReply();
@@ -37,31 +37,25 @@ export function useWaveSubmit(
   );
 
   return useMutation({
-    mutationKey: ["wave-form-submit", activeUser, replySource, editingEntry],
+    mutationKey: ["wave-form-submit", username, replySource, editingEntry],
     mutationFn: async ({ text, image, imageName, video, host }: Body) => {
-      const currentActiveUser = useGlobalStore.getState().activeUser;
-
-      if (!currentActiveUser) {
+      // Check if user is logged in
+      if (!username) {
         toggleUIProp("login");
         return;
       }
 
-      const isActiveUserLoaded = Boolean(
-        (currentActiveUser?.data as { __loaded?: boolean } | undefined)?.__loaded
-      );
-
-      if (!isActiveUserLoaded) {
-        await updateActiveUser();
-      }
-
-      const ensuredActiveUser = useGlobalStore.getState().activeUser;
-
-      if (!ensuredActiveUser) {
-        toggleUIProp("login");
-        return;
-      }
-
-      if (!(ensuredActiveUser.data as { __loaded?: boolean } | undefined)?.__loaded) {
+      // If account is still loading, wait for it
+      if (isLoading) {
+        // Refetch to ensure we have fresh data
+        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        if (!accountData) {
+          error(i18next.t("g.server-error"));
+          return;
+        }
+      } else if (!account) {
+        // Account should exist but doesn't - show error
+        error(i18next.t("g.server-error"));
         return;
       }
 

@@ -1,7 +1,6 @@
 import { addSchedule } from "@/api/private-api";
 import { formatError } from "@/api/operations";
-import { getPostHeaderQuery } from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
+import { getAccountFullQuery, getPostHeaderQuery } from "@/api/queries";
 import { CommentOptions, Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { error } from "@/features/shared";
@@ -13,9 +12,10 @@ import i18next from "i18next";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
+import { useActiveAccount } from "@/core/hooks";
 
 export function useScheduleApi() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const {
     title,
     content,
@@ -31,16 +31,13 @@ export function useScheduleApi() {
   } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username ?? undefined,
     "post-scheduled"
   );
 
   return useMutation({
     mutationKey: ["schedule-2.0"],
     mutationFn: async (schedule: Date) => {
-      // const unpublished3SpeakVideo = Object.values(videos).find(
-      //   (v) => v.status === "publish_manual"
-      // );
       let cleanBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildClearBody(content!);
@@ -49,13 +46,26 @@ export function useScheduleApi() {
         .builder()
         .withLocation(cleanBody, location);
 
-      // make sure active user fully loaded
-      if (!activeUser || !activeUser.data.__loaded) {
+      // Ensure user is logged in and account data is available
+      if (!username) {
         throw new Error("[Schedule] No active user");
       }
 
-      const author = activeUser.username;
-      const authorData = activeUser.data as FullAccount;
+      // Wait for account data if still loading
+      let authorData: FullAccount;
+      if (isLoading) {
+        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        if (!accountData) {
+          throw new Error("[Schedule] Failed to load account data");
+        }
+        authorData = accountData;
+      } else if (!account) {
+        throw new Error("[Schedule] Account data not available");
+      } else {
+        authorData = account;
+      }
+
+      const author = username;
 
       let permlink = createPermlink(title!);
 

@@ -3,7 +3,6 @@
 import { rcPower } from "@/api/hive";
 import { getAccountFullQuery } from "@/api/queries";
 import { EcencyConfigManager } from "@/config";
-import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults";
 import { Account } from "@/entities";
 import { FollowControls, HivePosh, UserAvatar } from "@/features/shared";
@@ -32,18 +31,19 @@ import { ProfileInfo } from "../profile-info";
 import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
 import { ProfileCardExtraProperty } from "./profile-card-extra-property";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   account: Account;
 }
 
 export function ProfileCard({ account }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username: activeUsername, account: activeAccount } = useActiveAccount();
 
   const { data } = getAccountFullQuery(account.name).useClientQuery();
   const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
   const { data: relationshipBetweenAccounts } = useQuery(
-    getRelationshipBetweenAccountsQueryOptions(account?.name, activeUser?.username)
+    getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined)
   );
   const { data: subscriptions } = useQuery(getAccountSubscriptionsQueryOptions(account?.name));
 
@@ -52,12 +52,8 @@ export function ProfileCard({ account }: Props) {
   const [imageSrc, setImageSrc] = useState<string>();
 
   const isMyProfile = useMemo(
-    () =>
-      activeUser &&
-      activeUser.username === account?.name &&
-      activeUser.data.__loaded &&
-      activeUser.data.profile,
-    [account?.name, activeUser]
+    () => activeUsername === account?.name && activeAccount?.profile,
+    [account?.name, activeUsername, activeAccount]
   );
   const moderatedCommunities = useMemo(
     () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin") ?? [],

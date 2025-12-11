@@ -60,7 +60,7 @@ export function CommunityCard({ community, account }: Props) {
           className="border border-[--border-color]"
           username={community.name}
           size="xLarge"
-          src={account.__loaded && useNewImage ? account.profile?.profile_image : undefined}
+          src={useNewImage ? account.profile?.profile_image : undefined}
         />
       </div>
       <div className="community-info">

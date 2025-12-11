@@ -308,7 +308,7 @@ export function TransferStep1({ titleLngKey }: Props) {
                 </div>
                 {to!.length > 0 &&
                   Number(amount) > 0 &&
-                  toData?.__loaded &&
+                  toData &&
                   mode === "delegate" && (
                     <div className="text-gray-600 mt-1 override-warning">
                       {i18next.t("transfer.override-warning-1")}

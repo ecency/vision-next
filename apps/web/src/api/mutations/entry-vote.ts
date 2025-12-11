@@ -8,7 +8,6 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 
 export function useEntryVote(entry?: Entry) {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
 
   const { invalidate } = EcencyEntriesCacheManagement.useInvalidation(entry);
   const { update: updateVotes } = EcencyEntriesCacheManagement.useUpdateVotes(entry);
@@ -38,7 +37,10 @@ export function useEntryVote(entry?: Entry) {
       ] as const;
     },
     onSuccess: ([estimated, votes]) => {
-      updateActiveUser(); // refresh voting power
+      // Invalidate account query to refresh voting power
+      qc.invalidateQueries({
+        queryKey: [QueryIdentifiers.ACCOUNT_FULL, activeUser?.username]
+      });
 
       if (!entry) {
         throw new Error("No entry provided");
