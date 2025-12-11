@@ -5,8 +5,8 @@ import "./_deck-add-column.scss";
 import { DeckAddColumnTypeSettings } from "./deck-add-column-type-settings";
 import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
 import { DeckGridContext } from "../../deck-manager";
-import {
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import {
   communityIconSvg,
   faqIconSvg,
   notificationsIconSvg,

@@ -3,8 +3,8 @@ import badActors from "@hiveio/hivescript/bad-actors.json";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { useTransferSharedState } from "./transfer-shared-state";
-import {
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import {
   DEFAULT_DYNAMIC_PROPS,
   getAccountFullQuery,
   getDynamicPropsQuery,

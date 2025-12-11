@@ -6,8 +6,8 @@ import React, { useCallback } from "react";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { PrivateKey } from "@hiveio/dhive";
 import { getAccountFullQuery } from "@/api/queries";
-import {
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import {
   useSignTransferByHiveSigner,
   useSignTransferByKey,
   useSignTransferByKeychain

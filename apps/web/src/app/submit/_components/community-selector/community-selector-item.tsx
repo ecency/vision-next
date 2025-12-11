@@ -5,8 +5,8 @@ import i18next from "i18next";
 import { Button } from "@/features/ui";
 import { Community } from "@/entities";
 import { useQuery } from "@tanstack/react-query";
-import {
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import {
   getCommunityContextQueryOptions,
   getCommunityPermissions,
   getCommunityType

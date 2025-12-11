@@ -1,4 +1,3 @@
-import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   getMarketSwappingMethods,
   swapByHs,
@@ -20,6 +19,7 @@ import i18next from "i18next";
 import { hsLogoSvg, kcLogoSvg } from "@ui/svg";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export interface Props {
   disabled: boolean;

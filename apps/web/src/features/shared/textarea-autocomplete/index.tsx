@@ -1,10 +1,10 @@
 import React, {
-import { useActiveAccount } from "@/core/hooks/use-active-account";
   forwardRef,
   MutableRefObject,
   useEffect,
   useState
 } from "react";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "./_index.scss";
 import { searchPath } from "@/api/search-api";
