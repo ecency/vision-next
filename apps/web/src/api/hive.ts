@@ -152,8 +152,7 @@ export const getAccounts = (usernames: string[]): Promise<FullAccount[]> => {
         proxied_vsf_votes: x.proxied_vsf_votes,
         voting_manabar: x.voting_manabar,
         voting_power: x.voting_power,
-        downvote_manabar: x.downvote_manabar,
-        __loaded: true
+        downvote_manabar: x.downvote_manabar
       };
 
       let profile: AccountProfile | undefined;

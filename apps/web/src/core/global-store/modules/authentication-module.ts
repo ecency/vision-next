@@ -1,9 +1,6 @@
-import { Account, ActiveUser } from "@/entities";
+import { ActiveUser } from "@/entities";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
-import { error } from "@/features/shared";
-import { formatError } from "@/api/operations";
-import { getAccountFullQuery } from "@/api/queries";
 import { activeUserMaker } from "@/specs/test-helper";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import * as Sentry from "@sentry/nextjs";
@@ -23,42 +20,12 @@ export function createAuthenticationState() {
   };
 }
 
-async function populateActiveUserByApi(activeUser: ActiveUser) {
-  const fallback = {
-    name: activeUser.username
-  };
-  try {
-    const response = await getAccountFullQuery(activeUser.username).fetchAndGet();
-    if (!response) {
-      return fallback;
-    }
-
-    return response;
-  } catch (e) {
-    return fallback;
-  }
-}
-
 export type AuthenticationState = ReturnType<typeof createAuthenticationState>;
 
 export const createAuthenticationActions = (
   set: (state: Partial<AuthenticationState>) => void,
   getState: () => AuthenticationState
 ) => ({
-  updateActiveUser: async (data?: Account | null) => {
-    const { activeUser } = getState();
-    if (!activeUser) {
-      error(...formatError("Cannot update non-active user"));
-      return;
-    }
-
-    set({
-      activeUser: {
-        data: data ?? (await populateActiveUserByApi(activeUser)),
-        username: activeUser.username
-      }
-    });
-  },
   setActiveUser: (name: string | null) => {
     if (name) {
       ls.set("active_user", name);
