@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PrivateKey } from "@hiveio/dhive";
 import { useQueryClient } from "@tanstack/react-query";
@@ -41,7 +43,7 @@ const buildDefaultDates = () => {
 };
 
 export function ProposalCreateForm() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
   const queryClient = useQueryClient();
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { hsTokenRenew } from "@/api/auth-api";
 import { setUserRole, updateCommunity } from "@/api/operations";
 import { useGlobalStore } from "@/core/global-store";
@@ -23,7 +25,7 @@ export function CommunityCreateHsPage() {
   const router = useRouter();
   const params = useSearchParams();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const addUser = useGlobalStore((s) => s.addUser);
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(

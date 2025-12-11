@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import Image from "next/image";
 import { volumeOffSvg } from "@ui/svg";
 import i18next from "i18next";
@@ -21,7 +23,7 @@ interface Props {
 }
 
 export function EntryListItemMutedContent({ entry: entryProp }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const globalNsfw = useGlobalStore((s) => s.nsfw);
   const { showNsfw } = EcencyClientServerBridge.useSafeContext(EntryListItemContext);
 

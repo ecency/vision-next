@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import {
   Feedback,
   Navbar,
@@ -10,13 +12,12 @@ import {
 } from "@/features/shared";
 import { useEffect, useState } from "react";
 import Head from "next/head";
-import { useGlobalStore } from "@/core/global-store";
 import { FullAccount } from "@/entities";
 import { useSearchParams } from "next/navigation";
 
 export function Purchase() {
   const params = useSearchParams();
-  const account = useGlobalStore((s) => s.activeUser);
+  const { activeUser: account } = useActiveAccount();
 
   const [username, setUsername] = useState("");
   const [type, setType] = useState(PurchaseTypes.BOOST);

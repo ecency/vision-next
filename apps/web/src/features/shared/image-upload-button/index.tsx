@@ -6,7 +6,7 @@ import { error, success } from "@/features/shared";
 import i18next from "i18next";
 import { getAccessToken } from "@/utils";
 import { uploadImage } from "@/api/misc";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface UploadButtonProps {
   onBegin: () => void;
@@ -18,7 +18,7 @@ interface UploadButtonProps {
 export function ImageUploadButton({ onBegin, onEnd, size = "sm", className }: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const [inProgress, setInProgress] = useState(false);
 
   const handleFileInput = useCallback(

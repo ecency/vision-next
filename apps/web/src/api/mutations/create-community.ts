@@ -8,6 +8,7 @@ import { AccountCreateOperation, Authority, cryptoUtils, PrivateKey } from "@hiv
 import { useGlobalStore } from "@/core/global-store";
 import hs from "hivesigner";
 import { client } from "@/api/hive";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 function makeOperation(
   creator: string,
@@ -144,7 +145,7 @@ export function useCreateCommunityByHivesigner() {
 }
 
 export function useCreateCommunityByKeychain() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["createCommunity", "keychain"],

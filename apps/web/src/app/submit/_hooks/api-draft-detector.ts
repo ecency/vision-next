@@ -3,10 +3,10 @@ import { useContext, useEffect } from "react";
 import usePrevious from "react-use/lib/usePrevious";
 import { PollsContext } from "./polls-manager";
 import { Draft } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { getDrafts } from "@/api/private-api";
 import { useLocation } from "react-use";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useApiDraftDetector(
   draftId: string | undefined,
@@ -15,7 +15,7 @@ export function useApiDraftDetector(
 ) {
   const { setActivePoll } = useContext(PollsContext);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   const location = useLocation();

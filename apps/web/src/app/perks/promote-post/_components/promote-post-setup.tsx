@@ -1,6 +1,5 @@
 import { getPointsQuery, useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
 import { EntryListItem, SuggestionList } from "@/features/shared";
 import { Button, FormControl } from "@/features/ui";
 import { UilTrashAlt } from "@tooni/iconscout-unicons-react";
@@ -9,13 +8,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
 import { useDebounce } from "react-use";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onSuccess: (path: string, duration: number) => void;
 }
 
 export function PromotePostSetup({ onSuccess }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [path, setPath] = useState(activeUser ? `${activeUser.username}/` : "");
   const [pathQuery, setPathQuery] = useState("");

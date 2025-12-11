@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
 import { CommunityTypes } from "@/enums";
 import i18next from "i18next";
@@ -7,6 +6,7 @@ import { Button } from "@/features/ui";
 import { Community } from "@/entities";
 import { useQuery } from "@tanstack/react-query";
 import {
+import { useActiveAccount } from "@/core/hooks/use-active-account";
   getCommunityContextQueryOptions,
   getCommunityPermissions,
   getCommunityType
@@ -27,7 +27,7 @@ const COMMUNITY_TYPES = {
 };
 
 export function CommunitySelectorItem({ name, title, onSelect, onHide, community }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data: userContext } = useQuery({
     ...getCommunityContextQueryOptions(activeUser?.username, name ?? undefined),

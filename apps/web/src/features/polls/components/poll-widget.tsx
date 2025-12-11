@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useEffect, useMemo, useState } from "react";
 import { PollSnapshot } from "./polls-creation";
 import { Button } from "@ui/button";
@@ -13,7 +15,6 @@ import useLocalStorage from "react-use/lib/useLocalStorage";
 import { FormControl } from "@ui/input";
 import { useSet } from "react-use";
 import { Entry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { PREFIX } from "@/utils/local-storage";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
@@ -26,7 +27,7 @@ interface Props {
 }
 
 export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const pollDetails = useGetPollDetailsQuery(entry);
   const activeUserVote = useMemo(

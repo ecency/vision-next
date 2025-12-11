@@ -1,14 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGetPollDetailsQuery } from "./get-poll-details-query";
 import { PollsVotesManagement } from "./polls-votes-management";
-import { useGlobalStore } from "@/core/global-store";
 import { error } from "@/features/shared";
 import i18next from "i18next";
 import { broadcastPostingJSON } from "@/api/operations";
 import { QueryIdentifiers } from "@/core/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQuery>["data"]) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({

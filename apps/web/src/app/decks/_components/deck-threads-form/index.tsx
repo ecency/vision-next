@@ -17,6 +17,7 @@ import i18next from "i18next";
 import { AvailableCredits, UserAvatar } from "@/features/shared";
 import { arrowLeftSvg } from "@ui/svg";
 import { classNameObject } from "@ui/util";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export * from "./deck-threads-form-manager";
 
@@ -44,7 +45,7 @@ export const DeckThreadsForm = ({
   const rootRef = useRef(null);
   useClickAway(rootRef, () => setFocused(false));
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const { setShow, create, createReply } = useContext(DeckThreadsFormContext);
   const { clearActivePoll } = useContext(PollsContext);

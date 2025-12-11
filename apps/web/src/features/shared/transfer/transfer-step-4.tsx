@@ -4,11 +4,11 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import React, { useMemo } from "react";
 import { useTransferSharedState } from "./transfer-shared-state";
-import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { Account } from "@/entities";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   account?: Account;
@@ -17,7 +17,7 @@ interface Props {
 
 export function TransferStep4({ onFinish, account }: Props) {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { mode, amount, asset, step, to, reset } = useTransferSharedState();
 

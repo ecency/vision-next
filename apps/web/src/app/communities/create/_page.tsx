@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import base58 from "bs58";
 
 import { useCommunitySetUserRole, useHsLoginRefresh, useUpdateCommunity } from "@/api/mutations";
@@ -40,7 +42,7 @@ function generateWif() {
 }
 
 export function CreateCommunityPage() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const addUser = useGlobalStore((s) => s.addUser);
 
   const [title, setTitle] = useState("");

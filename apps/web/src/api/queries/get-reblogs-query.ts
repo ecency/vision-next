@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { client } from "@/api/hive";
 import { QueryIdentifiers } from "@/core/react-query";
 import { BlogEntry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useGetReblogsQuery(username?: string, limit = 200) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useQuery({
     queryKey: [QueryIdentifiers.REBLOGS, username, limit],

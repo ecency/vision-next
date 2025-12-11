@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Community, Subscription } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { broadcastPostingJSON, formatError } from "@/api/operations";
 import { error } from "@/features/shared";
 import { QueryIdentifiers } from "@/core/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useSubscribeToCommunity(community: Community) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({

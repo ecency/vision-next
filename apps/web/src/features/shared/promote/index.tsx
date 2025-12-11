@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { PrivateKey } from "@hiveio/dhive";
 import "./_index.scss";
@@ -10,7 +12,6 @@ import i18next from "i18next";
 import { LinearProgress, SuggestionList } from "@/features/shared";
 import { KeyOrHot } from "@/features/shared/key-or-hot";
 import { checkAllSvg } from "@ui/svg";
-import { useGlobalStore } from "@/core/global-store";
 import { promoteHot } from "@/api/operations";
 import { usePreCheckPromote, usePromoteByApi, usePromoteByKeychain } from "@/api/mutations";
 import { getPointsQuery, useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
@@ -23,7 +24,7 @@ interface Props {
 }
 
 export function Promote({ onHide, entry }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState(1);
   const [path, setPath] = useState("");

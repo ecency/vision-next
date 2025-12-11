@@ -5,9 +5,9 @@ import i18next from "i18next";
 import React, { useCallback } from "react";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { PrivateKey } from "@hiveio/dhive";
-import { useGlobalStore } from "@/core/global-store";
 import { getAccountFullQuery } from "@/api/queries";
 import {
+import { useActiveAccount } from "@/core/hooks/use-active-account";
   useSignTransferByHiveSigner,
   useSignTransferByKey,
   useSignTransferByKeychain
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export function TransferStep3({ onHide }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { step, setStep, to, amount, asset, mode, memo, inProgress } = useTransferSharedState();
 

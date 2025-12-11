@@ -1,6 +1,7 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { useState } from "react";
 import { useDebounce } from "react-use";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ import axios from "axios";
 import { apiBase } from "@/api/helper";
 
 export function useGetBoostPlusAccountPricesQuery(account: string) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [query, setQuery] = useState("");
 

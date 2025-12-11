@@ -1,6 +1,6 @@
-import { useGlobalStore } from "@/core/global-store";
 import { getAccountFullQuery } from "@/api/queries";
 import { FullAccount } from "@/entities";
+import { useGlobalStore } from "@/core/global-store";
 
 /**
  * Hook to access the active user's account data with proper loading states.
@@ -9,6 +9,7 @@ import { FullAccount } from "@/entities";
  * native loading states. Components should check `isLoading` instead of `__loaded`.
  *
  * @returns {Object} Account state
+ * @returns {ActiveUser | null} activeUser - The raw active user object from the global store
  * @returns {string | null} username - The active username
  * @returns {FullAccount | null | undefined} account - The full account data (undefined during loading, null if no user)
  * @returns {boolean} isLoading - True during initial fetch
@@ -42,6 +43,7 @@ export function useActiveAccount() {
   const query = getAccountFullQuery(activeUser?.username).useClientQuery();
 
   return {
+    activeUser,
     username: activeUser?.username ?? null,
     account: query.data as FullAccount | null | undefined,
     isLoading: query.isLoading,

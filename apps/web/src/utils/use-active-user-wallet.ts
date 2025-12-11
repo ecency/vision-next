@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { useGlobalStore } from "@/core/global-store";
 import { getDynamicPropsQuery } from "@/api/queries";
 import { HiveWallet } from "./hive-wallet";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useActiveUserWallet() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
   return useMemo(

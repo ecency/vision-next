@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
 import { initI18next } from "@/features/i18n";
@@ -14,7 +16,7 @@ import { registerWalletHiveAuthBroadcast } from "@ecency/wallets";
 import { broadcastWithHiveAuth } from "@/utils/hive-auth";
 
 export function ClientInit() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const initKeychain = useGlobalStore((state) => state.initKeychain);
   const loadUsers = useGlobalStore((state) => state.loadUsers);

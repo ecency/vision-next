@@ -2,14 +2,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { GenericOrderItem } from "./generic-order-item";
 import "./index.scss";
 import { OpenOrdersData } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { getOpenOrder } from "@/api/hive";
 import i18next from "i18next";
 import { BuySellHiveDialog } from "@/features/shared";
 import { BuySellHiveTransactionType } from "@/enums";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export const MarketSwapActiveOrders = () => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [orders, setOrders] = useState<OpenOrdersData[]>([]);
   const [cancelingOrder, setCancelingOrder] = useState(0);

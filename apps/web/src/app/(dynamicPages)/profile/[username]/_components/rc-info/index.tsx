@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
@@ -12,7 +14,6 @@ import { RcProgressCircle } from "./rc-progress-circle";
 import { ClaimAccountCredit } from "../claim-account-credit";
 import { ConfirmDelete, RcDelegationsList } from "../rc-delegations-list";
 import { ResourceCreditsDelegation } from "@/app/(dynamicPages)/profile/[username]/_components/rc-delegation";
-import { useGlobalStore } from "@/core/global-store";
 import { FullAccount } from "@/entities";
 
 interface Props {
@@ -21,7 +22,7 @@ interface Props {
 }
 
 export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const radius = 70;
   const dasharray = 440;

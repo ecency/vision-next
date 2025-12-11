@@ -3,13 +3,13 @@ import Link from "next/link";
 import i18next from "i18next";
 import { Spinner } from "@ui/spinner";
 import React from "react";
-import { useGlobalStore } from "@/core/global-store";
 import { WaveEntry } from "@/entities";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { UilArrowRight, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { TimeLabel } from "@/features/shared";
 import clsx from "clsx";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   entry: WaveEntry;
@@ -34,7 +34,7 @@ export function WavesListItemHeader({
   className,
   onClose
 }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return (
     <div

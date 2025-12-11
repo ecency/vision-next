@@ -1,13 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import * as keychain from "@/utils/keychain";
-import { useGlobalStore } from "@/core/global-store";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { client as hiveClient } from "@/api/hive";
 import { PrivateKey } from "@hiveio/dhive";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function usePromoteByKeychain() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["promote-by-keychain"],
@@ -26,7 +26,7 @@ export function usePromoteByKeychain() {
 }
 
 export function usePromoteByApi() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["promote-by-api"],

@@ -1,15 +1,15 @@
-import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { UilMinusCircle } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function PublishEntryNoPost() {
   const router = useRouter();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const profileHref = activeUser ? `/@${activeUser.username}/posts` : "/";
 
   return (

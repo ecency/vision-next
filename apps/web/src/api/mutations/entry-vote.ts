@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Entry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { formatError, vote } from "@/api/operations";
 import { error } from "@/features/shared";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useEntryVote(entry?: Entry) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { invalidate } = EcencyEntriesCacheManagement.useInvalidation(entry);
   const { update: updateVotes } = EcencyEntriesCacheManagement.useUpdateVotes(entry);

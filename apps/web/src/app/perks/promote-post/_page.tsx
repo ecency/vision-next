@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { Button } from "@/features/ui";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
@@ -9,11 +11,10 @@ import { PromotePostIntro, PromotePostSetup, PromoteSuccess } from "./_component
 import { KeyOrHot } from "@/features/shared";
 import { usePreCheckPromote, usePromoteByApi, usePromoteByKeychain } from "@/api/mutations";
 import { promoteHot } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
 import { EcencyAnalytics } from "@ecency/sdk";
 
 export function PromotePost() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState<"intro" | "setup" | "sign" | "success">("intro");
   const [path, setPath] = useState("");

@@ -2,12 +2,12 @@ import { useContext, useEffect } from "react";
 import { DeckGrid, OldDeck } from "./types";
 import { DeckGridContext } from "./deck-manager";
 import * as uuid from "uuid";
-import { useGlobalStore } from "@/core/global-store";
 import { get, set } from "@/utils/local-storage";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useOldDeckMigration() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { pushOrUpdateDeck } = useContext(DeckGridContext);
 
   useEffect(() => {

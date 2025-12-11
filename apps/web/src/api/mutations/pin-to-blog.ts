@@ -2,12 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Entry, FullAccount } from "@/entities";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { useUpdateProfile } from "@/api/mutations/update-profile";
 import { QueryIdentifiers } from "@/core/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function usePinToBlog(entry: Entry, onSuccess: () => void) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const qc = useQueryClient();
 
   const { mutateAsync: updateProfile } = useUpdateProfile(activeUser?.data as FullAccount);

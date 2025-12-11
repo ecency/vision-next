@@ -1,4 +1,5 @@
 import {
+import { useActiveAccount } from "@/core/hooks/use-active-account";
   getMarketSwappingMethods,
   swapByHs,
   swapByKc,
@@ -12,7 +13,6 @@ import { PrivateKey } from "@hiveio/dhive";
 import { HiveMarket } from "./api/hive";
 import { EngineMarket } from "./api/engine";
 import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
 import { getAccountFull } from "@/api/hive";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
@@ -45,7 +45,7 @@ export const SignMethods = ({
   engineTokenPrecision,
   onSuccess
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
   const activeUsername = activeUser?.username;
 

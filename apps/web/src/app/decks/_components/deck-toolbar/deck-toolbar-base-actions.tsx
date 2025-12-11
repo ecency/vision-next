@@ -7,13 +7,14 @@ import { bellSvg, rocketSvg } from "@ui/svg";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { WalletBadge } from "@/features/shared";
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   setShowPurchaseDialog: (v: boolean) => void;
 }
 
 export const DeckToolbarBaseActions = ({ setShowPurchaseDialog }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const { data: unread } = useNotificationUnreadCountQuery();

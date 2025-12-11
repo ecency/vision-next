@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import axios from "axios";
 import { Button } from "@ui/button";
 import { UilImage, UilLink, UilUpload } from "@tooni/iconscout-unicons-react";
-import { useGlobalStore } from "@/core/global-store";
 import { getAccessToken } from "@/utils";
 import { uploadImage } from "@/api/misc";
 import { error } from "@/features/shared";
@@ -12,13 +11,14 @@ import { AddImage } from "@/features/shared/editor-toolbar/add-image";
 import { GalleryDialog } from "@/features/shared/gallery";
 import { EcencyConfigManager } from "@/config";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onAddImage: (link: string, name: string) => void;
 }
 
 export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const fileInputRef = useRef<any>();
 

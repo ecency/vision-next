@@ -6,16 +6,16 @@ import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { usePollsCreationManagement } from "@/features/polls";
-import { useGlobalStore } from "@/core/global-store";
 import { createPermlink, isCommunity, makeCommentOptions } from "@/utils";
 import { error } from "@/features/shared";
 import { AxiosError } from "axios";
 import i18next from "i18next";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useScheduleApi(onClear: () => void) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { buildBody } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
