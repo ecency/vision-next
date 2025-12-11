@@ -14,13 +14,12 @@ import { Button } from "@ui/button";
 import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form-toolbar";
 import { useWaveSubmit } from "@/features/waves";
 import { useOptionalWavesHost } from "@/app/waves/_context";
-import { useClientActiveUser } from "@/api/queries";
 import axios from "axios";
 import { uploadImage } from "@/api/misc";
 import { getAccessToken } from "@/utils";
 import { error } from "@/features/shared";
-import { useGlobalStore } from "@/core/global-store";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   className?: string;
@@ -38,11 +37,7 @@ const WaveFormComponent = ({
   hideAvatar = false,
   entry
 }: Props) => {
-  const activeUser = useClientActiveUser();
-  const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
-  const activeUsername = activeUser?.username;
-  const isActiveUserLoaded = Boolean((activeUser?.data as { __loaded?: boolean } | undefined)?.__loaded);
-  const isAccountPending = Boolean(activeUser && !isActiveUserLoaded);
+  const { username: activeUsername, account, isLoading: isAccountLoading } = useActiveAccount();
 
   const rootRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -127,12 +122,6 @@ const WaveFormComponent = ({
     [setThreadHost, wavesHostContext]
   );
 
-  useEffect(() => {
-    if (activeUser && !isActiveUserLoaded) {
-      void updateActiveUser();
-    }
-  }, [activeUser, isActiveUserLoaded, updateActiveUser]);
-
   const clear = useCallback(() => {
     setText("");
     clearImage();
@@ -146,7 +135,7 @@ const WaveFormComponent = ({
     onSuccess?.(item);
   });
 
-  const formInteractivityDisabled = isAccountPending || isPending;
+  const formInteractivityDisabled = isAccountLoading || isPending;
 
   const submitDisabled = useMemo(
     () =>
@@ -255,9 +244,9 @@ const WaveFormComponent = ({
 
   return (
     <div ref={rootRef} className="wave-form relative flex items-start px-4 pt-4 w-full">
-      {!hideAvatar && activeUser?.username && (
+      {!hideAvatar && activeUsername && (
         <UserAvatar
-          username={activeUser?.username ?? ""}
+          username={activeUsername}
           size={replySource ? "deck-item" : "medium"}
         />
       )}
@@ -284,13 +273,13 @@ const WaveFormComponent = ({
           onPasteImage={formInteractivityDisabled ? undefined : handlePasteImage}
           disabled={formInteractivityDisabled}
         />
-        {isAccountPending && (
+        {isAccountLoading && (
           <div className="text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
             {i18next.t("g.loading")}...
           </div>
         )}
-        {activeUser && isActiveUserLoaded && (
-          <AvailableCredits username={activeUser.username} operation="comment_operation" />
+        {activeUsername && account && (
+          <AvailableCredits username={activeUsername} operation="comment_operation" />
         )}
 
         <WaveFormToolbar
@@ -319,18 +308,18 @@ const WaveFormComponent = ({
               className="justify-self-end"
               size="sm"
             >
-              {!activeUser &&
+              {!activeUsername &&
                 !entry &&
                 !exceedsCharacterLimit &&
                 i18next.t("decks.threads-form.login-and-publish")}
-              {activeUser &&
+              {activeUsername &&
                 !replySource &&
                 !entry &&
                 !exceedsCharacterLimit &&
                 (isPending
                   ? i18next.t("decks.threads-form.publishing")
                   : i18next.t("decks.threads-form.publish"))}
-              {activeUser &&
+              {activeUsername &&
                 replySource &&
                 !entry &&
                 !exceedsCharacterLimit &&

@@ -8,7 +8,6 @@ import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { usePollsCreationManagement } from "@/features/polls";
-import { useGlobalStore } from "@/core/global-store";
 import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
 import { createPermlink, isCommunity, makeApp, makeCommentOptions, tempEntry } from "@/utils";
 import appPackage from "../../../../package.json";
@@ -21,12 +20,14 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
 import { validatePostCreating } from "@/api/hive";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks";
+import { getAccountFullQuery } from "@/api/queries";
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
   const { videos, isNsfw, buildBody } = useThreeSpeakManager();
 
@@ -63,13 +64,26 @@ export function usePublishApi(onClear: () => void) {
       );
       const cbody = EntryBodyManagement.EntryBodyManager.shared.builder().buildClearBody(body);
 
-      // make sure active user fully loaded
-      if (!activeUser || !activeUser.data.__loaded) {
+      // Ensure user is logged in and account data is available
+      if (!username) {
         return [];
       }
 
-      const author = activeUser.username;
-      const authorData = activeUser.data as FullAccount;
+      // Wait for account data if still loading
+      let authorData: FullAccount;
+      if (isLoading) {
+        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        if (!accountData) {
+          return [];
+        }
+        authorData = accountData;
+      } else if (!account) {
+        return [];
+      } else {
+        authorData = account;
+      }
+
+      const author = username;
 
       let permlink = createPermlink(title);
 
