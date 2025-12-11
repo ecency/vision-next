@@ -1058,7 +1058,7 @@ export function ChatsClient() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
-                          <div className="text-sm font-semibold line-clamp-2 whitespace-pre-wrap break-words">
+                          <div className="text-sm font-semibold line-clamp-2 break-words">
                             {post.message || i18next.t("chat.no-message")}
                           </div>
                           <div className="text-xs text-[--text-muted]">

@@ -744,7 +744,8 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const renderMessageContent = (text: string) => {
     try {
-      const sanitized = DOMPurify.sanitize(markdownParser(text), {
+      const normalized = text.trimEnd();
+      const sanitized = DOMPurify.sanitize(markdownParser(normalized), {
         ADD_ATTR: ["target", "rel"]
       });
 
@@ -770,6 +771,10 @@ export function MattermostChannelView({ channelId }: Props) {
           }
 
           if (domNode instanceof Element) {
+            if (domNode.name === "p") {
+              return <div className="leading-relaxed">{domToReact(domNode.children ?? [], parseOptions)}</div>;
+            }
+
             if (domNode.name === "img") {
               const src = domNode.attribs?.src || "";
               const alt = domNode.attribs?.alt || "Shared image";

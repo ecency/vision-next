@@ -263,7 +263,9 @@ export function MessageItem({
                     </button>
                   );
                 })()}
-              <div className="rounded bg-[--surface-color] p-2.5 text-sm whitespace-pre-wrap break-words space-y-1">
+              <div
+                className="rounded bg-[--surface-color] p-2.5 text-sm break-words space-y-1 [&>*]:m-0"
+              >
                 {renderMessageContent(getDecodedDisplayMessage(post))}
               </div>
               {(() => {

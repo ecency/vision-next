@@ -114,7 +114,9 @@ export function ThreadPanel({
                     )}
                   </div>
                   <div className="flex flex-col gap-1">
-                    <div className="rounded bg-[--surface-color] p-2.5 text-sm whitespace-pre-wrap break-words space-y-1">
+                    <div
+                      className="rounded bg-[--surface-color] p-2.5 text-sm whitespace-pre-wrap break-words space-y-1 [&>*]:m-0"
+                    >
                       {renderMessageContent(getDecodedDisplayMessage(post))}
                     </div>
                     <div className="flex flex-wrap gap-1">

@@ -220,7 +220,10 @@ export function MessageInput({
           <div className="relative">
             {/* Emoji shortcode suggestions */}
             {emojiQuery && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--background-color] shadow-lg">
+              <div
+                className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--surface-color] shadow-lg"
+                style={{ backgroundColor: "var(--surface-color, var(--background-color, #0f172a))" }}
+              >
                 <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
                   <span>Type :emoji_name to insert an emoji.</span>
                   {isEmojiSearchLoading && (
@@ -413,7 +416,7 @@ export function MessageInput({
           {isPublicChannel && mentionQuery && (
             <div
               className="absolute bottom-full left-0 right-0 mb-2 z-20 rounded border border-[--border-color] bg-[--surface-color] shadow-sm"
-              style={{ backgroundColor: "var(--surface-color, #fff)" }}
+              style={{ backgroundColor: "var(--surface-color, var(--background-color, #0f172a))" }}
             >
               <div className="px-3 py-2 text-xs text-[--text-muted] flex items-center justify-between">
                 <span>Use @ to mention users. Selecting will invite them to this channel.</span>
