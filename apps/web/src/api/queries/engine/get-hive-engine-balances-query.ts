@@ -3,8 +3,8 @@ import { TokenMetadata } from "@/entities";
 import { HiveEngineToken } from "@/utils";
 import { getTokenBalances, getTokens } from "@/api/hive-engine";
 import { useMemo } from "react";
-import {
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import {
   DEFAULT_DYNAMIC_PROPS,
   getAllHiveEngineTokensQuery,
   getDynamicPropsQuery
