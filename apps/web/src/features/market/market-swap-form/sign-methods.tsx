@@ -46,7 +46,6 @@ export const SignMethods = ({
   onSuccess
 }: Props) => {
   const activeUser = useGlobalStore((s) => s.activeUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
   const queryClient = useQueryClient();
   const activeUsername = activeUser?.username;
 
@@ -132,8 +131,6 @@ export const SignMethods = ({
       }
 
       await action(amount);
-      const account = await getAccountFull(activeUser!.username);
-      await updateActiveUser(account);
       invalidateWalletQueries(queryClient, activeUsername);
       onSuccess();
     } catch (e) {
