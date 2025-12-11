@@ -116,13 +116,9 @@ export function MessageList({
                   {isExpanded ? (
                     <div className="space-y-1">
                       {item.posts.map((post) => {
-                        const userName = getDisplayName(post);
                         const message = getDecodedDisplayMessage(post);
-                        return (
-                          <div key={post.id}>
-                            <span className="font-semibold">{userName}</span> {message}
-                          </div>
-                        );
+
+                        return <div key={post.id}>{message}</div>;
                       })}
                     </div>
                   ) : (

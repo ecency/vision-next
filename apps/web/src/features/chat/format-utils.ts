@@ -43,6 +43,23 @@ export function getPostDisplayName(
   usersById: Record<string, MattermostUser>,
   normalizeUsername: (username?: string | null) => string | undefined
 ): string {
+  const formatUsernameWithAt = (username?: string | null) => {
+    if (!username) return undefined;
+    return username.startsWith("@") ? username : `@${username}`;
+  };
+
+  if (post.type === "system_add_to_channel") {
+    const addedUserId = post.props?.addedUserId;
+    const addedUser = addedUserId ? usersById[addedUserId] : undefined;
+
+    if (addedUser) {
+      return getUserDisplayName(addedUser) || `@${addedUser.username}`;
+    }
+
+    const addedUsername = formatUsernameWithAt(normalizeUsername(post.props?.addedUsername));
+    if (addedUsername) return addedUsername;
+  }
+
   const user = usersById[post.user_id];
 
   if (user) {
@@ -55,9 +72,9 @@ export function getPostDisplayName(
   }
 
   const fallbackUsername =
-    normalizeUsername(post.props?.override_username as string | undefined) ||
-    normalizeUsername(post.props?.username) ||
-    normalizeUsername(post.props?.addedUsername);
+    formatUsernameWithAt(normalizeUsername(post.props?.override_username as string | undefined)) ||
+    formatUsernameWithAt(normalizeUsername(post.props?.username)) ||
+    formatUsernameWithAt(normalizeUsername(post.props?.addedUsername));
   if (fallbackUsername) return fallbackUsername;
 
   return post.user_id || "Unknown user";
@@ -71,6 +88,16 @@ export function getPostUsername(
   usersById: Record<string, MattermostUser>,
   normalizeUsername: (username?: string | null) => string | undefined
 ): string | undefined {
+  if (post.type === "system_add_to_channel") {
+    const addedUserId = post.props?.addedUserId;
+    const addedUser = addedUserId ? usersById[addedUserId] : undefined;
+
+    if (addedUser?.username) return addedUser.username;
+
+    const addedUsername = normalizeUsername(post.props?.addedUsername);
+    if (addedUsername) return addedUsername;
+  }
+
   const user = usersById[post.user_id];
 
   if (user?.username) return user.username;
@@ -90,13 +117,20 @@ export function getAddedUserDisplayName(
   post: MattermostPost,
   usersById: Record<string, MattermostUser>
 ): string {
+  const formatUsernameWithAt = (username?: string | null) => {
+    if (!username) return undefined;
+    return username.startsWith("@") ? username : `@${username}`;
+  };
+
   const addedUserId = post.props?.addedUserId;
   if (addedUserId && usersById[addedUserId]) {
     const user = usersById[addedUserId];
-    return getUserDisplayName(user) || `@${user.username}`;
+    const usernameWithAt = formatUsernameWithAt(user.username);
+
+    return usernameWithAt || getUserDisplayName(user) || "Someone";
   }
 
-  return post.props?.addedUsername || "Someone";
+  return formatUsernameWithAt(post.props?.addedUsername) || "Someone";
 }
 
 /**

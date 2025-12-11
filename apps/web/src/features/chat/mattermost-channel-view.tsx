@@ -683,8 +683,14 @@ export function MattermostChannelView({ channelId }: Props) {
     getAddedUserDisplayName(post, usersById);
 
   // Wrapper to decode emojis in display messages
-  const getDecodedDisplayMessage = (post: MattermostPost) =>
-    decodeMessageEmojis(getDisplayMessage(post));
+  const getDecodedDisplayMessage = (post: MattermostPost) => {
+    const baseMessage =
+      post.type === "system_add_to_channel"
+        ? `${getAddedUserDisplayName(post, usersById)} joined the channel`
+        : getDisplayMessage(post);
+
+    return decodeMessageEmojis(baseMessage);
+  };
 
   const isImageUrl = (url: string) => {
     const normalizedUrl = url.toLowerCase().trim();
@@ -1482,7 +1488,7 @@ export function MattermostChannelView({ channelId }: Props) {
                   {unreadCountBelowScroll > 0 ? (
                     <span className="text-[--text-color] dark:!text-white">{unreadCountBelowScroll} new</span>
                   ) : (
-                    <span className="text-[--text-color] dark:!text-white">Jump to latest</span>
+                    <span className="sr-only">Jump to latest</span>
                   )}
                 </button>
               </div>
