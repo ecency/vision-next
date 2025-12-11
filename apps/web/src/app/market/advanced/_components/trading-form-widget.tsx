@@ -7,6 +7,7 @@ import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import Link from "next/link";
 import { HiveBarter } from "@/app/market/_components/hive-barter";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   buyBalance: string;
@@ -27,7 +28,7 @@ export const TradingFormWidget = ({
   amount,
   onSuccessTrade
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username: activeUsername } = useActiveAccount();
   const isMobile = useGlobalStore((s) => s.isMobile);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
@@ -72,7 +73,7 @@ export const TradingFormWidget = ({
       widgetTypeChanged={widgetTypeChanged}
     >
       <div>
-        {activeUser ? (
+        {activeUsername ? (
           <div className="market-advanced-mode-trading-form-widget flex">
             {activeTab === "buy" || !isMobile ? (
               <HiveBarter
@@ -80,7 +81,7 @@ export const TradingFormWidget = ({
                 isInline={true}
                 type={1}
                 available={buyBalance}
-                username={activeUser.username}
+                username={activeUsername}
                 peakValue={buyPeakValue}
                 basePeakValue={dayChange.low}
                 loading={loading}
@@ -98,7 +99,7 @@ export const TradingFormWidget = ({
                 isInline={true}
                 type={2}
                 available={sellBalance}
-                username={activeUser.username}
+                username={activeUsername}
                 peakValue={sellPeakValue}
                 basePeakValue={dayChange.high}
                 loading={loading}

@@ -4,7 +4,6 @@ import GridLayout from "react-grid-layout";
 import ReactGridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 import { MarketAsset } from "@/api/market-pair";
 import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { HistoryWidget } from "@/app/market/advanced/_components/history-widget";
 import { StakeWidget } from "@/app/market/advanced/_components/stake-widget";
 import { TradingFormWidget } from "@/app/market/advanced/_components/trading-form-widget";
@@ -53,8 +52,6 @@ export const WidgetLayoutBuilder = ({
   setRefresh,
   allOrders
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
-
   const [currentBreakpoint, setCurrentBreakpoint] = useState("lg");
 
   const onWidgetTypeChanged = (currentType: string, newType: string) => {

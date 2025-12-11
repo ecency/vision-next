@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Decimal from "decimal.js";
-import { useGlobalStore } from "@/core/global-store";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import {
@@ -32,6 +31,7 @@ import {
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { PrivateKey } from "@hiveio/dhive";
 import { shouldUseHiveAuth } from "@/utils/client";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   symbol: string;
@@ -58,8 +58,8 @@ type EngineOrderRequest =
     };
 
 export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, className }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
-  const username = activeUser?.username;
+  const { username: activeUsername } = useActiveAccount();
+  const username = activeUsername ?? undefined;
 
   const [prefillBuyPrice, setPrefillBuyPrice] = useState<string | undefined>();
   const [prefillSellPrice, setPrefillSellPrice] = useState<string | undefined>();
@@ -115,7 +115,7 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
     refetchInterval: 20000
   });
 
-  const balances = balancesQuery.data ?? [];
+  const balances = username ? balancesQuery.data ?? [] : [];
 
   const quoteBalance = useMemo(() => {
     const balance = balances.find((item) => item.symbol === QUOTE_SYMBOL);
@@ -149,7 +149,7 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
     const trades = tradeHistoryQuery.data ? [...tradeHistoryQuery.data] : [];
     return trades.sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0));
   }, [tradeHistoryQuery.data]);
-  const openOrders = openOrdersQuery.data ?? [];
+  const openOrders = username ? openOrdersQuery.data ?? [] : [];
 
   const bestAsk = sortedOrderBook.sell[0]?.price;
   const bestBid = sortedOrderBook.buy[0]?.price;
