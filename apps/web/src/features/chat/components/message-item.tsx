@@ -244,7 +244,11 @@ export function MessageItem({
                   return (
                     <button
                       type="button"
-                      onClick={() => openThread(rootPost)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openThread(rootPost);
+                      }}
                       className="text-left rounded border-l-4 border-l-blue-500 border-y border-r border-dashed border-[--border-color] bg-blue-50/30 dark:bg-blue-900/10 p-2 text-xs text-[--text-muted] hover:border-[--text-muted] hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors"
                     >
                       <div className="font-semibold flex items-center gap-1.5">
@@ -313,7 +317,7 @@ export function MessageItem({
           </>
         )}
         {post.type !== "system_add_to_channel" && (
-          <div className="absolute -right-2 -top-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+          <div className="absolute -right-2 -top-2 flex gap-1 opacity-100 md:opacity-0 transition-opacity duration-150 md:group-hover:opacity-100 pointer-events-auto md:pointer-events-none md:group-hover:pointer-events-auto">
             {(() => {
               const isReactionPickerOpen = openReactionPostId === post.id;
 

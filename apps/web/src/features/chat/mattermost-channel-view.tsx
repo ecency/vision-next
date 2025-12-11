@@ -409,6 +409,12 @@ export function MattermostChannelView({ channelId }: Props) {
 
     const distanceFromBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight;
+    const distanceFromTop = container.scrollTop;
+
+    // Auto-load older messages when scrolled near the top
+    if (distanceFromTop < 300 && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
 
     // Show scroll-to-bottom button if scrolled up more than 200px
     setShowScrollToBottom(distanceFromBottom > 200);
@@ -427,7 +433,7 @@ export function MattermostChannelView({ channelId }: Props) {
     if (distanceFromBottom < 120) {
       markChannelRead();
     }
-  }, [markChannelRead, firstUnreadIndex, posts, effectiveLastViewedAt]);
+  }, [markChannelRead, firstUnreadIndex, posts, effectiveLastViewedAt, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
     lastViewUpdateRef.current = 0;
@@ -681,10 +687,13 @@ export function MattermostChannelView({ channelId }: Props) {
     decodeMessageEmojis(getDisplayMessage(post));
 
   const isImageUrl = (url: string) => {
-    const normalizedUrl = url.toLowerCase();
+    const normalizedUrl = url.toLowerCase().trim();
     return (
       /^https?:\/\/images\.ecency\.com\//.test(normalizedUrl) ||
-      /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(normalizedUrl)
+      /\.(png|jpe?g|gif|webp|svg)(\?[^#]*)?(\#.*)?$/i.test(normalizedUrl) ||
+      /^https?:\/\/.*\.(gif|giphy)/.test(normalizedUrl) ||
+      /tenor\.com\/.*\.gif/.test(normalizedUrl) ||
+      /giphy\.com\//.test(normalizedUrl)
     );
   };
 
@@ -736,7 +745,22 @@ export function MattermostChannelView({ channelId }: Props) {
       const parseOptions: HTMLReactParserOptions = {
         replace(domNode) {
           if (domNode.type === "text") {
-            return <>{renderTextWithMentions((domNode as Text).data || "")}</>;
+            const textContent = (domNode as Text).data || "";
+            // Check if the text is a bare image URL
+            const trimmedText = textContent.trim();
+            if (isImageUrl(trimmedText) && /^https?:\/\//.test(trimmedText)) {
+              const proxied = getProxiedImageUrl(trimmedText);
+              return (
+                <a href={trimmedText} target="_blank" rel="noreferrer" className="inline-block max-w-full">
+                  <img
+                    src={proxied}
+                    alt="Shared image"
+                    className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
+                  />
+                </a>
+              );
+            }
+            return <>{renderTextWithMentions(textContent)}</>;
           }
 
           if (domNode instanceof Element) {
@@ -763,14 +787,22 @@ export function MattermostChannelView({ channelId }: Props) {
 
               const childText = (domNode.children || [])
                 .map((child) => (child.type === "text" ? (child as Text).data?.trim() ?? "" : ""))
-                .join("");
-              const isPlainImageLink = !containsImage && isImageUrl(href) && childText === href;
+                .join("")
+                .trim();
+              // More lenient check: if the link href is an image and text is similar or empty, render as image
+              const isPlainImageLink = !containsImage && isImageUrl(href) && (
+                childText === href ||
+                childText === href.trim() ||
+                !childText ||
+                childText === href.replace(/^https?:\/\//, '').trim() ||
+                isImageUrl(childText)
+              );
 
               if (isPlainImageLink) {
                 const proxied = getProxiedImageUrl(href);
 
                 return (
-                  <a href={href} target="_blank" rel="noreferrer" className="block max-w-full">
+                  <a href={href} target="_blank" rel="noreferrer" className="inline-block max-w-full">
                     <img
                       src={proxied}
                       alt={childText || "Shared image"}
@@ -785,7 +817,7 @@ export function MattermostChannelView({ channelId }: Props) {
                   href={href}
                   target="_blank"
                   rel="noreferrer"
-                  className={containsImage ? "block" : "text-blue-500 underline break-all"}
+                  className={containsImage ? "inline-block" : "text-blue-500 underline break-all"}
                 >
                   {children}
                 </a>
@@ -1205,11 +1237,10 @@ export function MattermostChannelView({ channelId }: Props) {
   const handleReply = useCallback((post: MattermostPost) => {
     setEditingPost(null);
     setReplyingTo(post);
-    openThread(post);
     requestAnimationFrame(() => {
       messageInputRef.current?.focus();
     });
-  }, [openThread]);
+  }, []);
 
   const handleEdit = useCallback(
     (post: MattermostPost) => {
@@ -1379,77 +1410,72 @@ export function MattermostChannelView({ channelId }: Props) {
           </div>
         )}
 
-        <div className="flex flex-1 min-h-0 flex-col gap-4 lg:flex-row">
-          <div className="flex min-h-0 flex-1 flex-col gap-3">
-            {/* Messages list */}
-            <div
-              ref={scrollContainerRef}
-              onScroll={handleScroll}
-              className="relative rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
-            >
-              {isLoading && (
-                <div className="text-sm text-[--text-muted]">Loading messages…</div>
-              )}
-              {error && (
-                <div className="text-sm text-red-500">
-                  {(error as Error).message || "Failed to load"}
-                </div>
-              )}
-              {moderationError && (
-                <div className="text-sm text-red-500">{moderationError}</div>
-              )}
-              {!isLoading && !posts.length && (
+        <div className="flex flex-1 min-h-0 flex-col gap-3">
+          {/* Messages list */}
+          <div
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+            className="relative rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
+          >
+            {isLoading && (
+              <div className="text-sm text-[--text-muted]">Loading messages…</div>
+            )}
+            {error && (
+              <div className="text-sm text-red-500">
+                {(error as Error).message || "Failed to load"}
+              </div>
+            )}
+            {moderationError && (
+              <div className="text-sm text-red-500">{moderationError}</div>
+            )}
+            {!isLoading && !posts.length && (
+              <div className="text-sm text-[--text-muted]">
+                No messages yet. Say hello!
+              </div>
+            )}
+            {isFetchingNextPage && (
+              <div className="flex justify-center mb-4">
                 <div className="text-sm text-[--text-muted]">
-                  No messages yet. Say hello!
+                  Loading older messages...
                 </div>
-              )}
-              {hasNextPage && (
-                <div className="flex justify-center mb-4">
-                  <Button
-                    appearance="gray-link"
-                    size="sm"
-                    onClick={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                  >
-                    {isFetchingNextPage ? "Loading older messages..." : "Load older messages"}
-                  </Button>
-                </div>
-              )}
-              <MessageList
-                groupedPosts={groupedPosts}
-                showUnreadDivider={showUnreadDivider}
-                firstUnreadIndex={firstUnreadIndex}
-                expandedJoinGroups={expandedJoinGroups}
-                setExpandedJoinGroups={setExpandedJoinGroups}
-                usersById={usersById}
-                channelData={channelData}
-                activeUser={activeUser}
-                postsById={postsById}
-                parentPostById={parentPostById}
-                getDisplayName={getDisplayName}
-                getUsername={getUsername}
-                getDecodedDisplayMessage={getDecodedDisplayMessage}
-                renderMessageContent={renderMessageContent}
-                normalizeUsername={normalizeUsername}
-                startDirectMessage={startDirectMessage}
-                openThread={openThread}
-                handleReply={handleReply}
-                handleEdit={handleEdit}
-                handleDelete={handleDelete}
-                toggleReaction={toggleReaction}
-                openReactionPostId={openReactionPostId}
-                setOpenReactionPostId={setOpenReactionPostId}
-                deletingPostId={deletingPostId}
-                reactMutationPending={reactMutation.isPending}
-                deleteMutationPending={deleteMutation.isPending}
-              />
+              </div>
+            )}
+            <MessageList
+              groupedPosts={groupedPosts}
+              showUnreadDivider={showUnreadDivider}
+              firstUnreadIndex={firstUnreadIndex}
+              expandedJoinGroups={expandedJoinGroups}
+              setExpandedJoinGroups={setExpandedJoinGroups}
+              usersById={usersById}
+              channelData={channelData}
+              activeUser={activeUser}
+              postsById={postsById}
+              parentPostById={parentPostById}
+              getDisplayName={getDisplayName}
+              getUsername={getUsername}
+              getDecodedDisplayMessage={getDecodedDisplayMessage}
+              renderMessageContent={renderMessageContent}
+              normalizeUsername={normalizeUsername}
+              startDirectMessage={startDirectMessage}
+              openThread={openThread}
+              handleReply={handleReply}
+              handleEdit={handleEdit}
+              handleDelete={handleDelete}
+              toggleReaction={toggleReaction}
+              openReactionPostId={openReactionPostId}
+              setOpenReactionPostId={setOpenReactionPostId}
+              deletingPostId={deletingPostId}
+              reactMutationPending={reactMutation.isPending}
+              deleteMutationPending={deleteMutation.isPending}
+            />
 
-              {/* Scroll to bottom button */}
-              {showScrollToBottom && (
+            {/* Scroll to bottom button - sticky FAB */}
+            {showScrollToBottom && (
+              <div className="sticky bottom-4 flex justify-end z-20 pointer-events-none mt-4">
                 <button
                   type="button"
                   onClick={scrollToBottom}
-                  className="absolute bottom-6 right-6 z-10 flex items-center gap-2 rounded-full border border-[--border-color] bg-[--surface-color] px-4 py-2.5 text-sm font-semibold text-[--text-color] shadow-lg shadow-[rgba(0,0,0,0.12)] transition-all hover:bg-[--hover-color] hover:shadow-xl active:scale-95 dark:border-transparent dark:bg-blue-500 dark:text-white dark:hover:bg-blue-600"
+                  className="pointer-events-auto flex items-center gap-2 rounded-full border border-[--border-color] bg-[--surface-color] px-4 py-2.5 text-sm font-semibold text-[--text-color] shadow-lg shadow-[rgba(0,0,0,0.12)] transition-all hover:bg-[--hover-color] hover:shadow-xl active:scale-95 dark:border-transparent dark:bg-blue-500 dark:text-white dark:hover:bg-blue-600"
                   aria-label="Scroll to bottom"
                 >
                   <span className="text-[--text-color] dark:!text-white">↓</span>
@@ -1459,38 +1485,22 @@ export function MattermostChannelView({ channelId }: Props) {
                     <span className="text-[--text-color] dark:!text-white">Jump to latest</span>
                   )}
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {threadRootId && (
-            <>
-              <div className="hidden lg:flex w-[360px] min-h-0">
-                <ThreadPanel
-                  threadRootId={threadRootId}
-                  threadRootPost={threadRootPost}
-                  threadPosts={threadPosts}
-                  usersById={usersById}
-                  getDisplayName={getDisplayName}
-                  getUsername={getUsername}
-                  renderMessageContent={renderMessageContent}
-                  getDecodedDisplayMessage={getDecodedDisplayMessage}
-                  scrollToPost={scrollToPost}
-                  onClose={() => setThreadRootId(null)}
-                />
-              </div>
-              <Modal
-                show={!!threadRootId && isMobile}
-                onHide={() => setThreadRootId(null)}
-                centered
-                className="lg:hidden"
-              >
-                <ModalBody className="!p-0">
-                  <div className="max-h-[80vh] overflow-y-auto rounded-t-xl bg-[--surface-color]">
-                    <ThreadPanel
-                      threadRootId={threadRootId}
-                      threadRootPost={threadRootPost}
-                      threadPosts={threadPosts}
+            <Modal
+              show={true}
+              onHide={() => setThreadRootId(null)}
+              centered
+            >
+              <ModalBody className="!p-0">
+                <div className="max-h-[80vh] overflow-y-auto rounded-t-xl bg-[--surface-color]">
+                  <ThreadPanel
+                    threadRootId={threadRootId}
+                    threadRootPost={threadRootPost}
+                    threadPosts={threadPosts}
                     usersById={usersById}
                     getDisplayName={getDisplayName}
                     getUsername={getUsername}
@@ -1501,8 +1511,7 @@ export function MattermostChannelView({ channelId }: Props) {
                   />
                 </div>
               </ModalBody>
-              </Modal>
-            </>
+            </Modal>
           )}
         </div>
       </div>
@@ -1561,6 +1570,7 @@ export function MattermostChannelView({ channelId }: Props) {
         show={showKeyboardShortcuts}
         onHide={() => setShowKeyboardShortcuts(false)}
         title="Keyboard Shortcuts"
+        centered
       >
         <ModalBody>
           <div className="space-y-4">
