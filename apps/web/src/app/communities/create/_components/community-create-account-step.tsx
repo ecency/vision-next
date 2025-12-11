@@ -1,7 +1,7 @@
 import { getAccountsQuery } from "@/api/queries";
 import { ProfileLink, UserAvatar } from "@/features/shared";
-import {
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import {
   Badge,
   Button,
   FormControl,
