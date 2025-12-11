@@ -125,6 +125,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
+  const isMobile = useGlobalStore((state) => state.isMobile);
   const activeUser = useClientActiveUser();
   const isEcencyAdmin = activeUser?.username?.toLowerCase() === "ecency";
   const [adminUsername, setAdminUsername] = useState("");
@@ -759,6 +760,25 @@ export function MattermostChannelView({ channelId }: Props) {
               const containsImage = (domNode.children || []).some(
                 (child) => child instanceof Element && child.name === "img"
               );
+
+              const childText = (domNode.children || [])
+                .map((child) => (child.type === "text" ? (child as Text).data?.trim() ?? "" : ""))
+                .join("");
+              const isPlainImageLink = !containsImage && isImageUrl(href) && childText === href;
+
+              if (isPlainImageLink) {
+                const proxied = getProxiedImageUrl(href);
+
+                return (
+                  <a href={href} target="_blank" rel="noreferrer" className="block max-w-full">
+                    <img
+                      src={proxied}
+                      alt={childText || "Shared image"}
+                      className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
+                    />
+                  </a>
+                );
+              }
 
               return (
                 <a
@@ -1429,14 +1449,14 @@ export function MattermostChannelView({ channelId }: Props) {
                 <button
                   type="button"
                   onClick={scrollToBottom}
-                  className="absolute bottom-6 right-6 z-10 flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:bg-blue-600 hover:shadow-xl active:scale-95"
+                  className="absolute bottom-6 right-6 z-10 flex items-center gap-2 rounded-full border border-[--border-color] bg-[--surface-color] px-4 py-2.5 text-sm font-semibold text-[--text-color] shadow-lg shadow-[rgba(0,0,0,0.12)] transition-all hover:bg-[--hover-color] hover:shadow-xl active:scale-95 dark:border-transparent dark:bg-blue-500 dark:text-white dark:hover:bg-blue-600"
                   aria-label="Scroll to bottom"
                 >
-                  <span className="!text-white">↓</span>
+                  <span className="text-[--text-color] dark:!text-white">↓</span>
                   {unreadCountBelowScroll > 0 ? (
-                    <span className="!text-white">{unreadCountBelowScroll} new</span>
+                    <span className="text-[--text-color] dark:!text-white">{unreadCountBelowScroll} new</span>
                   ) : (
-                    <span className="!text-white">Jump to latest</span>
+                    <span className="text-[--text-color] dark:!text-white">Jump to latest</span>
                   )}
                 </button>
               )}
@@ -1456,12 +1476,11 @@ export function MattermostChannelView({ channelId }: Props) {
                   renderMessageContent={renderMessageContent}
                   getDecodedDisplayMessage={getDecodedDisplayMessage}
                   scrollToPost={scrollToPost}
-                  scrollToBottom={scrollToBottom}
                   onClose={() => setThreadRootId(null)}
                 />
               </div>
               <Modal
-                show={!!threadRootId}
+                show={!!threadRootId && isMobile}
                 onHide={() => setThreadRootId(null)}
                 centered
                 className="lg:hidden"
@@ -1472,17 +1491,16 @@ export function MattermostChannelView({ channelId }: Props) {
                       threadRootId={threadRootId}
                       threadRootPost={threadRootPost}
                       threadPosts={threadPosts}
-                      usersById={usersById}
-                      getDisplayName={getDisplayName}
-                      getUsername={getUsername}
-                      renderMessageContent={renderMessageContent}
-                      getDecodedDisplayMessage={getDecodedDisplayMessage}
-                      scrollToPost={scrollToPost}
-                      scrollToBottom={scrollToBottom}
-                      onClose={() => setThreadRootId(null)}
-                    />
-                  </div>
-                </ModalBody>
+                    usersById={usersById}
+                    getDisplayName={getDisplayName}
+                    getUsername={getUsername}
+                    renderMessageContent={renderMessageContent}
+                    getDecodedDisplayMessage={getDecodedDisplayMessage}
+                    scrollToPost={scrollToPost}
+                    onClose={() => setThreadRootId(null)}
+                  />
+                </div>
+              </ModalBody>
               </Modal>
             </>
           )}

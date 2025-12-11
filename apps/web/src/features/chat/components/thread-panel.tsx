@@ -14,7 +14,6 @@ interface ThreadPanelProps {
   renderMessageContent: (content: string) => React.ReactNode;
   getDecodedDisplayMessage: (post: MattermostPost) => string;
   scrollToPost: (postId: string) => void;
-  scrollToBottom: () => void;
   onClose: () => void;
 }
 
@@ -28,7 +27,6 @@ export function ThreadPanel({
   renderMessageContent,
   getDecodedDisplayMessage,
   scrollToPost,
-  scrollToBottom,
   onClose
 }: ThreadPanelProps) {
   if (!threadRootId) return null;
@@ -137,12 +135,6 @@ export function ThreadPanel({
         ) : (
           <div className="text-sm text-[--text-muted]">No messages in this thread yet.</div>
         )}
-      </div>
-
-      <div className="pt-3 mt-3 border-t border-[--border-color]">
-        <Button appearance="primary" className="w-full" onClick={scrollToBottom}>
-          Reply in thread
-        </Button>
       </div>
     </div>
   );
