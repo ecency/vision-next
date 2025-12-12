@@ -27,7 +27,7 @@ export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const { username, account, isLoading } = useActiveAccount();
+  const { username, account, isLoading, activeUser } = useActiveAccount();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
   const { videos, isNsfw, buildBody } = useThreeSpeakManager();
 
