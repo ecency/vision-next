@@ -157,7 +157,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const updateMutation = useMattermostUpdatePost(channelId);
   const banUserMutation = useMattermostAdminBanUser();
   const deleteUserPostsMutation = useMattermostAdminDeleteUserPosts();
-  const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
+  const isSubmitting = sendMutation.isPending || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
   const gifButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -565,9 +565,12 @@ export function MattermostChannelView({ channelId }: Props) {
   useEffect(() => {
     if (!focusedPostId || hasFocusedPostRef.current) return;
 
-    // Check if user is channel member
+    // Wait for initial data to load before checking membership
+    if (isLoading) return;
+
+    // Check if user is channel member (only after data has loaded)
     const channelData = data?.pages?.[0];
-    if (focusedPostId && !channelData?.member) {
+    if (data && focusedPostId && !channelData?.member) {
       setShowJoinPrompt(true);
       return;
     }
@@ -586,7 +589,7 @@ export function MattermostChannelView({ channelId }: Props) {
       // Post not loaded, trigger around fetch
       setNeedsAroundFetch(true);
     }
-  }, [focusedPostId, data, aroundQuery.data, aroundQuery.isLoading, needsAroundFetch, scrollToPost]);
+  }, [focusedPostId, data, isLoading, aroundQuery.data, aroundQuery.isLoading, needsAroundFetch, scrollToPost]);
 
   // Handle around query results
   useEffect(() => {
