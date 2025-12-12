@@ -129,7 +129,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
   try {
     const { channelId } = await params;
     const body = await req.json();
-    const message = body.message as string;
+    let message = body.message as string;
     const rootId = (body.rootId as string | null | undefined) || null;
     const props = (body.props as Record<string, unknown> | undefined) || undefined;
     if (!message) {
@@ -152,6 +152,41 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
         },
         { status: 403 }
       );
+    }
+
+    const parentUsername =
+      typeof props?.parent_username === "string" && props.parent_username.trim()
+        ? props.parent_username.trim()
+        : undefined;
+
+    if (rootId && !parentUsername) {
+      try {
+        const rootPost = await mmUserFetch<{ user_id?: string }>(`/posts/${rootId}`, token);
+
+        if (rootPost.user_id && rootPost.user_id !== currentUser.id) {
+          const rootAuthor = await mmUserFetch<{ username?: string }>(`/users/${rootPost.user_id}`, token);
+
+          if (rootAuthor.username) {
+            const escapedUsername = rootAuthor.username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const alreadyMentioned = new RegExp(`@${escapedUsername}(?![\w.-])`, "i").test(message);
+
+            if (!alreadyMentioned) {
+              message = `@${rootAuthor.username} ${message}`;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Unable to include root author mention", error);
+      }
+    }
+
+    if (parentUsername && parentUsername.toLowerCase() !== currentUser.username.toLowerCase()) {
+      const escapedUsername = parentUsername.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const alreadyMentioned = new RegExp(`@${escapedUsername}(?![\w.-])`, "i").test(message);
+
+      if (!alreadyMentioned) {
+        message = `@${parentUsername} ${message}`;
+      }
     }
 
     const hasSpecialMention = SPECIAL_MENTION_REGEX.test(message);

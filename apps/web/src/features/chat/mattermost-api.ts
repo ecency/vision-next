@@ -27,13 +27,17 @@ interface MattermostChannelSummary {
 
 export function useMattermostBootstrap(community?: string) {
   const activeUser = useClientActiveUser();
+  const username = activeUser?.username;
 
   return useQuery({
-    queryKey: ["mattermost-bootstrap", activeUser?.username, community],
-    enabled: Boolean(activeUser?.username),
+    queryKey: ["mattermost-bootstrap", username, community],
+    enabled: Boolean(username),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
-      const accessToken = getAccessToken(activeUser?.username || "");
-      const refreshToken = getRefreshToken(activeUser?.username || "");
+      const accessToken = getAccessToken(username || "");
+      const refreshToken = getRefreshToken(username || "");
 
       if (!accessToken && !refreshToken) {
         throw new Error("Authentication required");
@@ -43,10 +47,10 @@ export function useMattermostBootstrap(community?: string) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: activeUser?.username,
+          username,
           accessToken,
           refreshToken,
-          displayName: activeUser?.username,
+          displayName: username,
           community
         })
       });
@@ -62,9 +66,15 @@ export function useMattermostBootstrap(community?: string) {
 }
 
 export function useMattermostChannels(enabled: boolean) {
+  const activeUser = useClientActiveUser();
+  const username = activeUser?.username;
+
   return useQuery({
-    queryKey: ["mattermost-channels"],
-    enabled,
+    queryKey: ["mattermost-channels", username],
+    enabled: enabled && Boolean(username),
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     queryFn: async () => {
       const res = await fetch("/api/mattermost/channels");
       if (!res.ok) {
