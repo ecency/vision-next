@@ -1,7 +1,6 @@
 import { PagesMetadataGenerator } from "@/features/metadata";
 import { Metadata, ResolvingMetadata } from "next";
-import { ChatsClient } from "./_components/chats-client";
-import { ChatsPageClient } from "./_components/chats-page-client";
+import { ChatsResponsive } from "./_components/chats-responsive";
 
 export const dynamic = "force-dynamic";
 
@@ -13,14 +12,5 @@ export async function generateMetadata(
 }
 
 export default function Chats() {
-  return (
-    <>
-      <div className="h-full md:hidden">
-        <ChatsClient />
-      </div>
-      <div className="hidden h-full md:block">
-        <ChatsPageClient />
-      </div>
-    </>
-  );
+  return <ChatsResponsive />;
 }
