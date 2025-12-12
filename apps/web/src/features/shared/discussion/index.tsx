@@ -5,7 +5,6 @@ import { getDiscussionsQuery, getBotsQuery, useClientActiveUser } from "@/api/qu
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { DiscussionList } from "./discussion-list";
-import usePrevious from "react-use/lib/usePrevious";
 import { DiscussionBots } from "./discussion-bots";
 import { Community, Entry } from "@/entities";
 import { commentSvg } from "@ui/svg";
@@ -31,7 +30,6 @@ interface Props {
 export function Discussion({ parent, community, isRawContent, hideControls, onTopLevelCommentsChange }: Props) {
   const activeUser = useClientActiveUser();
   const [order, setOrder] = useState(SortOrder.created);
-  const previousIsRawContent = usePrevious(isRawContent);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const { data: allComments = [], isLoading } = getDiscussionsQuery(
@@ -68,11 +66,11 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
 
   useEffect(() => {
     updateEntryQueryData(allComments);
-  }, [allComments]);
+  }, [allComments, updateEntryQueryData]);
 
   useEffect(() => {
     onTopLevelCommentsChange?.(topLevelComments.length > 0);
-  }, [topLevelComments]);
+  }, [topLevelComments.length, onTopLevelCommentsChange]);
 
   if (isLoading) {
     return (

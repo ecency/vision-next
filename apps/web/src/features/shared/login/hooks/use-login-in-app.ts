@@ -20,6 +20,7 @@ export function useLoginInApp(username: string) {
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
   const notificationsSettingsQuery = useNotificationsSettingsQuery();
+  const refetchNotificationSettings = notificationsSettingsQuery.refetch;
 
   const handleTutorial = useAfterLoginTutorial(username);
 
@@ -48,7 +49,7 @@ export function useLoginInApp(username: string) {
 
       const notifToken = ls.get("fb-notifications-token") ?? "";
       if (notifToken) {
-        const { data: existingSettings } = await notificationsSettingsQuery.refetch();
+        const { data: existingSettings } = await refetchNotificationSettings();
 
         if (!existingSettings || existingSettings.allows_notify === -1) {
           await updateNotificationSettings({
@@ -87,7 +88,7 @@ export function useLoginInApp(username: string) {
       router,
       setActiveUser,
       updateNotificationSettings,
-      notificationsSettingsQuery
+      refetchNotificationSettings
     ]
   );
 }
