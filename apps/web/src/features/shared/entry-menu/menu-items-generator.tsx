@@ -7,6 +7,7 @@ import { bullHornSvg } from "@ui/svg";
 import i18next from "i18next";
 import { clipboard } from "@/utils/clipboard";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { MenuItem } from "@ui/dropdown";
 import { isCommunity, safeSpread } from "@/utils";
