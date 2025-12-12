@@ -77,7 +77,7 @@ export function ManageKey({ keyName }: Props) {
                       appearance="gray-link"
                       size="sm"
                       icon={<UilCopy />}
-                      onClick={() => copy(keys[keyName])}
+                      onClick={() => copy(keys[key[0]])}
                     />
                   )}
                   {!keys[key[0]] && (
