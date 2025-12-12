@@ -27,10 +27,18 @@ export const createAuthenticationActions = (
   getState: () => AuthenticationState
 ) => ({
   setActiveUser: (name: string | null) => {
+    const currentUsername = getState().activeUser?.username;
+
+    if (name === currentUsername) {
+      return;
+    }
+
+    const nextActiveUser = name ? load() : null;
+
     if (name) {
       ls.set("active_user", name);
       Cookies.set(ACTIVE_USER_COOKIE_NAME, name, { expires: 365 });
-      set({ activeUser: load() });
+      set({ activeUser: nextActiveUser });
 
       Sentry.setUser({
         username: name
@@ -38,7 +46,7 @@ export const createAuthenticationActions = (
     } else {
       ls.remove("active_user");
       Cookies.remove(ACTIVE_USER_COOKIE_NAME);
-      set({ activeUser: load() });
+      set({ activeUser: nextActiveUser });
       Sentry.setUser(null);
     }
   }
