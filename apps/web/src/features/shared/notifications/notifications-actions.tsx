@@ -1,6 +1,7 @@
 import { FormControl, Tooltip } from "@/features/ui";
 import React, { useEffect } from "react";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import i18n from "i18next";
 import { checkSvg, settingsSvg, syncSvg } from "@ui/svg";

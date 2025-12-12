@@ -5,6 +5,7 @@ import { NotificationsWebSocket } from "@/api/notifications-ws-api";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { NotifyTypes } from "@/enums";
 import { usePrevious } from "react-use";
+import { useGlobalStore } from "@/core/global-store";
 import {
   useNotificationsQuery,
   useNotificationsSettingsQuery,

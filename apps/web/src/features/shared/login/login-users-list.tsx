@@ -1,4 +1,5 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
 import i18next from "i18next";
 import Image from "next/image";
