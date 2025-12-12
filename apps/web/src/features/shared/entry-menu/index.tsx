@@ -7,6 +7,7 @@ import { useMenuItemsGenerator } from "./menu-items-generator";
 import { Entry } from "@/entities";
 import { getCommunityCache, useCommunityPin } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { useDeleteComment, usePinToBlog } from "@/api/mutations";
 import { useRouter } from "next/navigation";
 import { dotsHorizontal } from "@ui/svg";
