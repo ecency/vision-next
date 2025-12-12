@@ -103,7 +103,10 @@ interface Props {
 }
 
 export function MattermostChannelView({ channelId }: Props) {
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId);
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId, {
+    refetchInterval: isNearBottom ? 60000 : false // Poll every 60 seconds when near bottom
+  });
   const searchParams = useSearchParams();
   const focusedPostId = searchParams?.get("post");
   const [needsAroundFetch, setNeedsAroundFetch] = useState(false);
@@ -436,6 +439,9 @@ export function MattermostChannelView({ channelId }: Props) {
     // Show scroll-to-bottom button if scrolled up more than 200px
     setShowScrollToBottom(distanceFromBottom > 200);
 
+    // Track if user is near bottom for auto-refresh
+    setIsNearBottom(distanceFromBottom <= 200);
+
     // Calculate unread messages when scrolled up
     if (distanceFromBottom > 200 && firstUnreadIndex !== -1) {
       // Count all unread messages (created after last viewed time)
@@ -617,6 +623,23 @@ export function MattermostChannelView({ channelId }: Props) {
       scrollToPost(targetId, { highlight: false, behavior: "auto" })
     );
   }, [firstUnreadIndex, posts, scrollToPost]);
+
+  // Auto-scroll to bottom when new messages arrive and user is near bottom
+  const prevPostsLengthRef = useRef(posts.length);
+  useEffect(() => {
+    const hasNewMessages = posts.length > prevPostsLengthRef.current;
+    prevPostsLengthRef.current = posts.length;
+
+    if (hasNewMessages && isNearBottom && hasAutoScrolledRef.current) {
+      // Auto-scroll to show new messages
+      requestAnimationFrame(() => {
+        const container = scrollContainerRef.current;
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      });
+    }
+  }, [posts.length, isNearBottom]);
 
   const timestampFormatter = useMemo(
     () =>

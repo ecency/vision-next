@@ -408,10 +408,14 @@ export function useMattermostPosts(channelId: string | undefined) {
   });
 }
 
-export function useMattermostPostsInfinite(channelId: string | undefined) {
+export function useMattermostPostsInfinite(
+  channelId: string | undefined,
+  options?: { refetchInterval?: number | false }
+) {
   return useInfiniteQuery({
     queryKey: ["mattermost-posts-infinite", channelId],
     enabled: Boolean(channelId),
+    refetchInterval: options?.refetchInterval ?? false,
     queryFn: async ({ pageParam }) => {
       const url = pageParam
         ? `/api/mattermost/channels/${channelId}/posts?before=${pageParam}`
