@@ -27,14 +27,14 @@ export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const { username, account, isLoading, activeUser } = useActiveAccount();
+  const { username, account, isLoading } = useActiveAccount();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
   const { videos, isNsfw, buildBody } = useThreeSpeakManager();
 
   const { clearAll } = usePollsCreationManagement();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username,
     "legacy-post-created"
   );
 
@@ -119,7 +119,7 @@ export function usePublishApi(onClear: () => void) {
         permlink = unpublished3SpeakVideo.permlink;
         // update speak video with title, body and tags
         await updateSpeakVideoInfo(
-          activeUser.username,
+          username,
           buildBody(body),
           unpublished3SpeakVideo._id,
           title,
@@ -181,13 +181,13 @@ export function usePublishApi(onClear: () => void) {
         success(i18next.t("submit.published"));
         onClear();
         clearActivePoll();
-        router.push(`/@${activeUser.username}/posts`);
+        router.push(`/@${username}/posts`);
 
         //Mark speak video as published
-        if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
+        if (!!unpublished3SpeakVideo && username === unpublished3SpeakVideo.owner) {
           success(i18next.t("video-upload.publishing"));
           setTimeout(() => {
-            markAsPublished(activeUser!.username, unpublished3SpeakVideo._id);
+            markAsPublished(username!, unpublished3SpeakVideo._id);
           }, 10000);
         }
         if (isCommunity(tags[0]) && reblogSwitch) {
