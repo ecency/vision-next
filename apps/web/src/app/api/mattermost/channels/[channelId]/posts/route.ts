@@ -12,7 +12,9 @@ import {
   CHAT_BAN_PROP
 } from "@/server/mattermost";
 
-const USER_MENTION_REGEX = /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
+const USER_MENTION_REGEX =
+  /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
+
 const SPECIAL_MENTIONS = new Set(["here", "everyone"]);
 const SPECIAL_MENTION_REGEX = /(^|\s)@(here|everyone)\b/i;
 
@@ -25,14 +27,17 @@ interface MattermostUser {
   last_picture_update?: number;
 }
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ channelId: string }> }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { channelId: string } }
+) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {
-    const { channelId } = await params;
+    const { channelId } = params;
     const searchParams = req.nextUrl.searchParams;
     const before = searchParams.get("before") || "";
     const perPage = searchParams.get("per_page") || "60";
@@ -43,10 +48,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
       queryParams += `&before=${before}`;
     }
 
-    const { posts, order } = await mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
-      `/channels/${channelId}/posts?${queryParams}`,
-      token
-    );
+    const { posts, order } = await mmUserFetch<{
+      posts: Record<string, any>;
+      order: string[];
+    }>(`/channels/${channelId}/posts?${queryParams}`, token);
 
     const orderedPosts = order
       .map((id) => posts[id])
@@ -58,20 +63,29 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
       token
     );
 
-    const users = channelUsers.reduce<Record<string, MattermostUser>>((acc, user) => {
-      acc[user.id] = user;
-      return acc;
-    }, {});
+    const users = channelUsers.reduce<Record<string, MattermostUser>>(
+      (acc, user) => {
+        acc[user.id] = user;
+        return acc;
+      },
+      {}
+    );
 
-    const userIds = Array.from(new Set(orderedPosts.map((post) => post.user_id).filter(Boolean)));
+    const userIds = Array.from(
+      new Set(orderedPosts.map((post) => post.user_id).filter(Boolean))
+    );
 
     const missingUserIds = userIds.filter((id) => !users[id]);
 
     if (missingUserIds.length) {
-      const missingUsers = await mmUserFetch<MattermostUser[]>("/users/ids", token, {
-        method: "POST",
-        body: JSON.stringify(missingUserIds)
-      });
+      const missingUsers = await mmUserFetch<MattermostUser[]>(
+        "/users/ids",
+        token,
+        {
+          method: "POST",
+          body: JSON.stringify(missingUserIds)
+        }
+      );
 
       for (const user of missingUsers) {
         users[user.id] = user;
@@ -87,7 +101,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
       msg_count: number;
     }>(`/channels/${channelId}/members/me`, token);
 
-    const moderation = await getMattermostCommunityModerationContext(token, channelId);
+    const moderation = await getMattermostCommunityModerationContext(
+      token,
+      channelId
+    );
 
     // Fetch channel stats to get member count
     let memberCount: number | undefined;
@@ -103,7 +120,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
     }
 
     // Check if there are more messages by looking at the order length
-    const hasMore = order.length >= parseInt(perPage);
+    const hasMore = order.length >= parseInt(perPage, 10);
 
     return NextResponse.json({
       posts: orderedPosts,
@@ -120,33 +137,40 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ channelId: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { channelId: string } }
+) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {
-    const { channelId } = await params;
+    const { channelId } = params;
     const body = await req.json();
-    let message = body.message as string;
+
+    const message = body.message as string;
     const rootId = (body.rootId as string | null | undefined) || null;
     const props = (body.props as Record<string, unknown> | undefined) || undefined;
+
     if (!message) {
       return NextResponse.json({ error: "message required" }, { status: 400 });
     }
 
-    const currentUser = await mmUserFetch<{ id: string; username: string; props?: Record<string, string> }>(
-      `/users/me`,
-      token
-    );
+    const currentUser = await mmUserFetch<{
+      id: string;
+      username: string;
+      props?: Record<string, string>;
+    }>(`/users/me`, token);
 
     const bannedUntil = isUserChatBanned(currentUser);
-
     if (bannedUntil) {
       return NextResponse.json(
         {
-          error: `@${currentUser.username} is banned from chat until ${new Date(Number(bannedUntil)).toISOString()}`,
+          error: `@${currentUser.username} is banned from chat until ${new Date(
+            Number(bannedUntil)
+          ).toISOString()}`,
           bannedUntil,
           prop: CHAT_BAN_PROP
         },
@@ -155,75 +179,43 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
     }
 
     const parentUsername =
-      typeof props?.parent_username === "string" && props.parent_username.trim()
-        ? props.parent_username.trim()
+      typeof props?.parent_username === "string" &&
+      props.parent_username.trim()
+        ? (props.parent_username as string).trim()
         : undefined;
 
-    if (rootId && !parentUsername) {
-      try {
-        const rootPost = await mmUserFetch<{ user_id?: string }>(`/posts/${rootId}`, token);
-
-        if (rootPost.user_id && rootPost.user_id !== currentUser.id) {
-          const rootAuthor = await mmUserFetch<{ username?: string }>(`/users/${rootPost.user_id}`, token);
-
-          if (rootAuthor.username) {
-            const escapedUsername = rootAuthor.username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-            const alreadyMentioned = new RegExp(`@${escapedUsername}(?![\w.-])`, "i").test(message);
-
-            if (!alreadyMentioned) {
-              message = `@${rootAuthor.username} ${message}`;
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Unable to include root author mention", error);
-      }
-    }
-
-    if (parentUsername && parentUsername.toLowerCase() !== currentUser.username.toLowerCase()) {
-      const escapedUsername = parentUsername.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const alreadyMentioned = new RegExp(`@${escapedUsername}(?![\w.-])`, "i").test(message);
-
-      if (!alreadyMentioned) {
-        message = `@${parentUsername} ${message}`;
-      }
-    }
-
-    const parentUsername =
-      typeof props?.parent_username === "string" && props.parent_username.trim()
-        ? props.parent_username.trim()
-        : undefined;
-
+    // --- Notification targets (no auto-prepend in message) ---
     const notificationUsernames = new Set<string>();
 
-    const ensureTarget = async (username: string) => {
-      if (!username || username.toLowerCase() === currentUser.username.toLowerCase()) {
-        return;
-      }
-
-      const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const alreadyMentioned = new RegExp(`@${escapedUsername}(?![\w.-])`, "i").test(message);
-
-      if (alreadyMentioned) {
-        return;
-      }
-
-      notificationUsernames.add(username);
+    const ensureTarget = (username: string | undefined | null) => {
+      if (!username) return;
+      const normalized = username.trim();
+      if (!normalized) return;
+      if (normalized.toLowerCase() === currentUser.username.toLowerCase()) return;
+      notificationUsernames.add(normalized);
     };
 
+    // If client passes an explicit parent user, always notify them
     if (parentUsername) {
-      await ensureTarget(parentUsername);
+      ensureTarget(parentUsername);
     }
 
+    // If replying in a thread and no explicit parent target yet, notify root author
     if (rootId && notificationUsernames.size === 0) {
       try {
-        const rootPost = await mmUserFetch<{ user_id?: string }>(`/posts/${rootId}`, token);
+        const rootPost = await mmUserFetch<{ user_id?: string }>(
+          `/posts/${rootId}`,
+          token
+        );
 
         if (rootPost.user_id && rootPost.user_id !== currentUser.id) {
-          const rootAuthor = await mmUserFetch<{ username?: string }>(`/users/${rootPost.user_id}`, token);
+          const rootAuthor = await mmUserFetch<{ username?: string }>(
+            `/users/${rootPost.user_id}`,
+            token
+          );
 
           if (rootAuthor.username) {
-            await ensureTarget(rootAuthor.username);
+            ensureTarget(rootAuthor.username);
           }
         }
       } catch (error) {
@@ -231,7 +223,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
       }
     }
 
+    // --- Special mentions & regular @mentions in text ---
     const hasSpecialMention = SPECIAL_MENTION_REGEX.test(message);
+
     const mentionedUsers = Array.from(
       new Set(
         message
@@ -245,46 +239,65 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
 
     if (notificationUsernames.size) {
       const directMentions = Array.from(notificationUsernames);
-      finalProps = finalProps ? { ...finalProps, direct_mention_usernames: directMentions } : { direct_mention_usernames: directMentions };
+      finalProps = finalProps
+        ? { ...finalProps, direct_mention_usernames: directMentions }
+        : { direct_mention_usernames: directMentions };
     }
 
     if (hasSpecialMention) {
-      const moderation = await getMattermostCommunityModerationContext(token, channelId);
+      const moderation = await getMattermostCommunityModerationContext(
+        token,
+        channelId
+      );
 
       if (!moderation.canModerate) {
         return NextResponse.json(
-          { error: "Only community moderators can mention everyone in this channel." },
+          {
+            error: "Only community moderators can mention everyone in this channel."
+          },
           { status: 403 }
         );
       }
     }
 
-    const membershipTargets = new Set(mentionedUsers);
-    notificationUsernames.forEach((username) => membershipTargets.add(username.toLowerCase()));
+    // --- Ensure mentioned / notified users are members of the public channel ---
+    const membershipTargets = new Set<string>();
+    mentionedUsers.forEach((u) => membershipTargets.add(u.toLowerCase()));
+    notificationUsernames.forEach((u) =>
+      membershipTargets.add(u.toLowerCase())
+    );
 
     if (membershipTargets.size) {
-      const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token);
+      const channel = await mmUserFetch<MattermostChannel>(
+        `/channels/${channelId}`,
+        token
+      );
 
       if (channel.type === "O") {
-        for (const username of membershipTargets) {
-          try {
-            const user = await ensureMattermostUser(username);
-            await ensureUserInTeam(user.id);
-            await ensureUserInChannel(user.id, channel.id);
-          } catch (error) {
-            console.error(`Unable to ensure mentioned user ${username} in channel`, error);
-          }
-        }
+        await Promise.all(
+          Array.from(membershipTargets).map(async (username) => {
+            try {
+              const user = await ensureMattermostUser(username);
+              await ensureUserInTeam(user.id);
+              await ensureUserInChannel(user.id, channel.id);
+            } catch (error) {
+              console.error(
+                `Unable to ensure mentioned user ${username} in channel`,
+                error
+              );
+            }
+          })
+        );
       }
     }
 
     const post = await mmUserFetch(`/posts`, token, {
       method: "POST",
       body: JSON.stringify({
-          channel_id: channelId,
-          message,
-          root_id: rootId || undefined,
-          props: finalProps || undefined
+        channel_id: channelId,
+        message, // unchanged, no auto-prepend
+        root_id: rootId || undefined,
+        props: finalProps || undefined
       })
     });
 
