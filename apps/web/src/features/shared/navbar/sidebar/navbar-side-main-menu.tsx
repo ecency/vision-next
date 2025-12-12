@@ -1,5 +1,6 @@
 import { EcencyConfigManager } from "@/config";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { DraftsDialog } from "@/features/shared/drafts";
 import { FragmentsDialog } from "@/features/shared/fragments";
