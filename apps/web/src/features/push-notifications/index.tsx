@@ -33,7 +33,14 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
 
       let permission = "default";
       if ("Notification" in window) {
-        permission = await Notification.requestPermission();
+        permission = Notification.permission;
+
+        if (
+          permission === "default" &&
+          typeof Notification.requestPermission === "function"
+        ) {
+          permission = await Notification.requestPermission();
+        }
       }
 
       // Try FCM only if supported and granted
