@@ -10,6 +10,7 @@ import { CommunityCoverEditImage } from "@/app/(dynamicPages)/community/[communi
 import { SubscriptionBtn } from "@/app/communities/_components";
 import { Account, Community, FullAccount } from "@/entities";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { formattedNumber } from "@/utils";
 import { Button } from "@ui/button";
 import Link from "next/link";

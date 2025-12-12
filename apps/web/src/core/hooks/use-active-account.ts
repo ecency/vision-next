@@ -1,6 +1,8 @@
+"use client";
+
 import { getAccountFullQuery } from "@/api/queries";
 import { FullAccount } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
+import { useClientGlobalStore } from "@/core/global-store/initialization/client-init";
 
 /**
  * Hook to access the active user's account data with proper loading states.
@@ -38,18 +40,21 @@ import { useGlobalStore } from "@/core/global-store";
  * ```
  */
 export function useActiveAccount() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const activeUser = useClientGlobalStore((s) => s.activeUser);
+  const username = activeUser?.username ?? null;
 
-  const query = getAccountFullQuery(activeUser?.username).useClientQuery();
+  const query = getAccountFullQuery(username).useClientQuery();
+  const account: FullAccount | null | undefined =
+      username ? (query.data as FullAccount | null | undefined) : null;
 
   return {
     activeUser,
-    username: activeUser?.username ?? null,
-    account: query.data as FullAccount | null | undefined,
-    isLoading: query.isLoading,
-    isPending: query.isPending,
+    username: username ?? null,
+    account,
+    isLoading: !!username && query.isLoading,
+    isPending: !username || query.isPending,
     isError: query.isError,
-    isSuccess: query.isSuccess,
+    isSuccess: !!username && query.isSuccess,
     error: query.error,
     refetch: query.refetch
   };

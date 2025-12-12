@@ -2,6 +2,7 @@
 
 import {PropsWithChildren, useCallback, useEffect, useRef} from "react";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { isSupported, MessagePayload } from "@firebase/messaging";
 import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
 import * as ls from "@/utils/local-storage";

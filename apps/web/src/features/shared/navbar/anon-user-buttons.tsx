@@ -1,6 +1,7 @@
 import { Button } from "@ui/button";
 import React from "react";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { preloadLoginDialog } from "@/features/shared";
 

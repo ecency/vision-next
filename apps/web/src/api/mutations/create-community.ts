@@ -8,7 +8,6 @@ import { AccountCreateOperation, Authority, cryptoUtils, PrivateKey } from "@hiv
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import hs from "hivesigner";
 import { client } from "@/api/hive";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 function makeOperation(
   creator: string,

@@ -3,7 +3,6 @@
 import { useClientActiveUser } from "@/api/queries";
 import { CommunityListItem } from "@/app/_components";
 import { useCommunitiesCache } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
 import { Account } from "@/entities";
 import { LinearProgress } from "@/features/shared";
 import {

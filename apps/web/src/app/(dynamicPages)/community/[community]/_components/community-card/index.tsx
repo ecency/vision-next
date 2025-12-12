@@ -5,6 +5,7 @@ import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { Account, Community, FullAccount, roleMap, ROLES } from "@/entities";
 import i18next from "i18next";
 import { UserAvatar } from "@/features/shared";

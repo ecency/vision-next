@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { NotificationsContent } from "@/features/shared/notifications/notifications-content";
 import "./_index.scss";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
 import { EcencyConfigManager } from "@/config";
 

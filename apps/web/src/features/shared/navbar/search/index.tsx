@@ -5,6 +5,7 @@ import { usePrevious } from "react-use";
 import { SearchSuggester, SuggestionGroup } from "../../search-suggester";
 import { SearchBox } from "../../search-box";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { Transfer, TransferAsset, TransferMode } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
