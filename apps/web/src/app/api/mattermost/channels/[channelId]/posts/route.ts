@@ -30,7 +30,7 @@ interface MattermostUser {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { channelId: string } }
+  { params }: { params: Promise<{ channelId: string }> }
 ) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
@@ -38,7 +38,7 @@ export async function GET(
   }
 
   try {
-    const { channelId } = params;
+    const { channelId } = await params;
     const searchParams = req.nextUrl.searchParams;
     const before = searchParams.get("before") || "";
     const perPage = searchParams.get("per_page") || "60";
@@ -140,7 +140,7 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { channelId: string } }
+  { params }: { params: Promise<{ channelId: string }> }
 ) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
@@ -148,7 +148,7 @@ export async function POST(
   }
 
   try {
-    const { channelId } = params;
+    const { channelId } = await params;
     const body = await req.json();
 
     const message = body.message as string;
