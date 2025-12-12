@@ -1,7 +1,8 @@
 import { Button } from "@ui/button";
 import { UserAvatar } from "@/features/shared";
 import { emojiIconSvg } from "@ui/icons";
-import { blogSvg, deleteForeverSvg, dotsHorizontal, mailSvg } from "@ui/svg";
+import { blogSvg, deleteForeverSvg, dotsHorizontal, linkSvg, mailSvg } from "@ui/svg";
+import { clipboard } from "@/utils/clipboard";
 import {
   Dropdown,
   DropdownItemWithIcon,
@@ -22,6 +23,7 @@ interface MessageItemProps {
   isGroupStart: boolean;
   showUnreadDivider: boolean;
   firstUnreadIndex: number;
+  channelId: string;
 
   // User and channel data
   usersById: Record<string, MattermostUser>;
@@ -99,6 +101,7 @@ export function MessageItem({
   isGroupStart,
   showUnreadDivider,
   firstUnreadIndex,
+  channelId,
   usersById,
   channelData,
   activeUser,
@@ -121,6 +124,12 @@ export function MessageItem({
   reactMutationPending,
   deleteMutationPending
 }: MessageItemProps) {
+  const handleCopyLink = () => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const link = `${baseUrl}/chats/${channelId}?post=${post.id}`;
+    clipboard(link);
+  };
+
   return (
     <div
       className={clsx("space-y-1.5", !isGroupStart && "-mt-1")}
@@ -397,6 +406,11 @@ export function MessageItem({
                   icon={mailSvg}
                   label="Open thread"
                   onClick={() => openThread(post)}
+                />
+                <DropdownItemWithIcon
+                  icon={linkSvg}
+                  label="Copy link"
+                  onClick={handleCopyLink}
                 />
                 {channelData?.canModerate && (
                   <DropdownItemWithIcon

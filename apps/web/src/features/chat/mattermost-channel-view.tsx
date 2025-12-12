@@ -21,7 +21,9 @@ import {
   useMattermostReactToPost,
   useMattermostUpdatePost,
   useMattermostAdminBanUser,
-  useMattermostAdminDeleteUserPosts
+  useMattermostAdminDeleteUserPosts,
+  useMattermostPostsAround,
+  useMattermostJoinChannel
 } from "./mattermost-api";
 import { useChatAdminStore } from "./chat-admin-store";
 import {
@@ -102,6 +104,15 @@ interface Props {
 
 export function MattermostChannelView({ channelId }: Props) {
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId);
+  const searchParams = useSearchParams();
+  const focusedPostId = searchParams?.get("post");
+  const [needsAroundFetch, setNeedsAroundFetch] = useState(false);
+  const [showJoinPrompt, setShowJoinPrompt] = useState(false);
+  const aroundQuery = useMattermostPostsAround(
+    channelId,
+    focusedPostId ?? undefined,
+    needsAroundFetch
+  );
   const [message, setMessage] = useState("");
   const hasAppliedSharedText = useRef(false);
   const [mentionQuery, setMentionQuery] = useState("");
@@ -134,8 +145,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const [adminError, setAdminError] = useState<string | null>(null);
   const { data: channels } = useMattermostChannels(Boolean(channelId));
   const directChannelMutation = useMattermostDirectChannel();
+  const joinChannelMutation = useMattermostJoinChannel();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const markViewedMutation = useMattermostMarkChannelViewed();
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const lastViewUpdateRef = useRef(0);
@@ -171,11 +182,18 @@ export function MattermostChannelView({ channelId }: Props) {
     const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
 
   const posts = useMemo(() => {
-    if (!data?.pages) return [];
-    return data.pages
-      .flatMap(page => page.posts)
+    const infinitePosts = data?.pages?.flatMap(page => page.posts) || [];
+    const aroundPosts = aroundQuery.data?.posts || [];
+
+    // Merge and deduplicate by post ID
+    const postsMap = new Map<string, MattermostPost>();
+    [...infinitePosts, ...aroundPosts].forEach(post => {
+      postsMap.set(post.id, post);
+    });
+
+    return Array.from(postsMap.values())
       .sort((a, b) => Number(a.create_at) - Number(b.create_at));
-  }, [data?.pages]);
+  }, [data?.pages, aroundQuery.data]);
 
   // Group consecutive join messages and messages from same user
   const groupedPosts = useMemo<PostItem[]>(() => {
@@ -318,7 +336,6 @@ export function MattermostChannelView({ channelId }: Props) {
     return [...related].sort((a, b) => a.create_at - b.create_at);
   }, [posts, threadRootId]);
   // ThreadPanel component extracted to components/thread-panel.tsx
-  const focusedPostId = searchParams?.get("post");
 
   useEffect(() => {
     if (hasAppliedSharedText.current) {
@@ -544,16 +561,44 @@ export function MattermostChannelView({ channelId }: Props) {
     }, 500);
   }, [markChannelRead]);
 
+  // Enhanced deep linking with around-based loading
   useEffect(() => {
-    if (!focusedPostId || !posts.length || hasFocusedPostRef.current) return;
+    if (!focusedPostId || hasFocusedPostRef.current) return;
 
-    if (!posts.some((post) => post.id === focusedPostId)) return;
+    // Check if user is channel member
+    const channelData = data?.pages?.[0];
+    if (focusedPostId && !channelData?.member) {
+      setShowJoinPrompt(true);
+      return;
+    }
 
-    hasFocusedPostRef.current = true;
-    requestAnimationFrame(() =>
-      scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" })
-    );
-  }, [focusedPostId, posts, scrollToPost]);
+    // Check if post is already loaded
+    const allPosts = data?.pages?.flatMap(page => page?.posts || []) || [];
+    const postInView = allPosts.some(post => post.id === focusedPostId);
+
+    if (postInView) {
+      // Post already loaded, scroll to it
+      hasFocusedPostRef.current = true;
+      requestAnimationFrame(() =>
+        scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" })
+      );
+    } else if (!aroundQuery.data && !aroundQuery.isLoading && !needsAroundFetch) {
+      // Post not loaded, trigger around fetch
+      setNeedsAroundFetch(true);
+    }
+  }, [focusedPostId, data, aroundQuery.data, aroundQuery.isLoading, needsAroundFetch, scrollToPost]);
+
+  // Handle around query results
+  useEffect(() => {
+    if (!aroundQuery.data || !focusedPostId) return;
+
+    // Scroll to target post after around data loads
+    setTimeout(() => {
+      scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" });
+      hasFocusedPostRef.current = true;
+      setNeedsAroundFetch(false);
+    }, 100);
+  }, [aroundQuery.data, focusedPostId, scrollToPost]);
 
   useEffect(() => {
     if (hasFocusedPostRef.current || hasAutoScrolledRef.current) return;
@@ -1442,6 +1487,37 @@ export function MattermostChannelView({ channelId }: Props) {
                 No messages yet. Say hello!
               </div>
             )}
+            {showJoinPrompt && (
+              <div className="flex flex-col items-center justify-center p-8 gap-4">
+                <p className="text-[--text-muted]">
+                  You need to join this channel to view messages
+                </p>
+                <Button
+                  onClick={() => {
+                    joinChannelMutation.mutate(channelId, {
+                      onSuccess: () => {
+                        setShowJoinPrompt(false);
+                        setNeedsAroundFetch(true);
+                      }
+                    });
+                  }}
+                  isLoading={joinChannelMutation.isPending}
+                >
+                  Join Channel
+                </Button>
+              </div>
+            )}
+            {aroundQuery.isLoading && (
+              <div className="flex items-center justify-center p-8 gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500" />
+                <span className="text-[--text-muted]">Loading message...</span>
+              </div>
+            )}
+            {aroundQuery.isError && (
+              <div className="p-4 text-center text-red-500">
+                {(aroundQuery.error as Error)?.message || "Unable to load message"}
+              </div>
+            )}
             {isFetchingNextPage && (
               <div className="flex justify-center mb-4">
                 <div className="text-sm text-[--text-muted]">
@@ -1449,12 +1525,13 @@ export function MattermostChannelView({ channelId }: Props) {
                 </div>
               </div>
             )}
-            <MessageList
+            {!showJoinPrompt && <MessageList
               groupedPosts={groupedPosts}
               showUnreadDivider={showUnreadDivider}
               firstUnreadIndex={firstUnreadIndex}
               expandedJoinGroups={expandedJoinGroups}
               setExpandedJoinGroups={setExpandedJoinGroups}
+              channelId={channelId}
               usersById={usersById}
               channelData={channelData}
               activeUser={activeUser}
@@ -1476,7 +1553,7 @@ export function MattermostChannelView({ channelId }: Props) {
               deletingPostId={deletingPostId}
               reactMutationPending={reactMutation.isPending}
               deleteMutationPending={deleteMutation.isPending}
-            />
+            />}
 
             {/* Scroll to bottom button - sticky FAB */}
             {showScrollToBottom && (

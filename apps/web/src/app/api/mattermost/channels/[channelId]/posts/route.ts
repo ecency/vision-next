@@ -41,23 +41,68 @@ export async function GET(
     const { channelId } = await params;
     const searchParams = req.nextUrl.searchParams;
     const before = searchParams.get("before") || "";
+    const around = searchParams.get("around") || "";
     const perPage = searchParams.get("per_page") || "60";
 
-    // Build query params for Mattermost API
-    let queryParams = `per_page=${perPage}&page=0`;
-    if (before) {
-      queryParams += `&before=${before}`;
+    let posts: Record<string, any>;
+    let order: string[];
+    let orderedPosts: any[];
+
+    if (around) {
+      // Fetch messages around a specific message (for deep linking)
+      const [beforeData, afterData, targetPost] = await Promise.all([
+        mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
+          `/channels/${channelId}/posts?before=${around}&per_page=30`,
+          token
+        ).catch(() => ({ posts: {}, order: [] })),
+        mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
+          `/channels/${channelId}/posts?after=${around}&per_page=30`,
+          token
+        ).catch(() => ({ posts: {}, order: [] })),
+        mmUserFetch<any>(`/posts/${around}`, token).catch(() => null)
+      ]);
+
+      // Verify target post exists and belongs to this channel
+      if (!targetPost || targetPost.channel_id !== channelId) {
+        return NextResponse.json(
+          { error: "Message not found or deleted" },
+          { status: 404 }
+        );
+      }
+
+      // Merge posts: before + target + after
+      posts = {
+        ...beforeData.posts,
+        [around]: targetPost,
+        ...afterData.posts
+      };
+
+      order = [...beforeData.order, around, ...afterData.order];
+
+      orderedPosts = order
+        .map((id) => posts[id])
+        .filter(Boolean)
+        .sort((a, b) => Number(a.create_at) - Number(b.create_at));
+    } else {
+      // Existing logic for before/initial pagination
+      let queryParams = `per_page=${perPage}&page=0`;
+      if (before) {
+        queryParams += `&before=${before}`;
+      }
+
+      const response = await mmUserFetch<{
+        posts: Record<string, any>;
+        order: string[];
+      }>(`/channels/${channelId}/posts?${queryParams}`, token);
+
+      posts = response.posts;
+      order = response.order;
+
+      orderedPosts = order
+        .map((id) => posts[id])
+        .filter(Boolean)
+        .sort((a, b) => Number(a.create_at) - Number(b.create_at));
     }
-
-    const { posts, order } = await mmUserFetch<{
-      posts: Record<string, any>;
-      order: string[];
-    }>(`/channels/${channelId}/posts?${queryParams}`, token);
-
-    const orderedPosts = order
-      .map((id) => posts[id])
-      .filter(Boolean)
-      .sort((a, b) => Number(a.create_at) - Number(b.create_at));
 
     const channelUsers = await mmUserFetch<MattermostUser[]>(
       `/users?in_channel=${channelId}&per_page=200&page=0`,
@@ -121,7 +166,8 @@ export async function GET(
     }
 
     // Check if there are more messages by looking at the order length
-    const hasMore = order.length >= parseInt(perPage, 10);
+    // For "around" queries, set hasMore to true to allow infinite scroll to work
+    const hasMore = around ? true : order.length >= parseInt(perPage, 10);
 
     return NextResponse.json({
       posts: orderedPosts,

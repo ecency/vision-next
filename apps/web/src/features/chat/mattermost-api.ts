@@ -436,6 +436,31 @@ export function useMattermostPostsInfinite(channelId: string | undefined) {
   });
 }
 
+export function useMattermostPostsAround(
+  channelId: string | undefined,
+  postId: string | undefined,
+  enabled: boolean = true
+) {
+  return useQuery({
+    queryKey: ["mattermost-posts-around", channelId, postId],
+    enabled: enabled && Boolean(channelId) && Boolean(postId),
+    staleTime: 60000, // Cache for 1 minute
+    retry: 1,
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/mattermost/channels/${channelId}/posts?around=${postId}`
+      );
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "Unable to load messages");
+      }
+
+      return (await res.json()) as MattermostPostsResponse;
+    }
+  });
+}
+
 export function useMattermostDeletePost(channelId: string | undefined) {
   const queryClient = useQueryClient();
 
