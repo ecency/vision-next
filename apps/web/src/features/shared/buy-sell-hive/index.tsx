@@ -17,7 +17,7 @@ import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { KeyOrHot } from "@/features/shared/key-or-hot";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccountFull } from "@/api/hive";
 import { BuySellHiveTransactionType } from "@/enums";
 
@@ -41,7 +41,7 @@ export function BuySellHiveDialog({
   },
   onTransactionSuccess
 }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState(1);
   const [inProgress, setInProgress] = useState(false);

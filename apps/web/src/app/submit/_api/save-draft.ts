@@ -15,7 +15,7 @@ import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useSaveDraftApi() {
-  const { activeUser } = useActiveAccount();
+  const { username } = useActiveAccount();
   const { videos } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
@@ -23,7 +23,7 @@ export function useSaveDraftApi() {
   const queryClient = useQueryClient();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username,
     "legacy-draft-created"
   );
 
@@ -71,11 +71,15 @@ export function useSaveDraftApi() {
       };
 
       try {
+        if (!username) {
+          return;
+        }
+
         if (editingDraft) {
-          await updateDraft(activeUser?.username!, editingDraft._id, title, body, tagJ, draftMeta);
+          await updateDraft(username, editingDraft._id, title, body, tagJ, draftMeta);
           success(i18next.t("submit.draft-updated"));
         } else {
-          const resp = await addDraft(activeUser?.username!, title, body, tagJ, draftMeta);
+          const resp = await addDraft(username, title, body, tagJ, draftMeta);
           success(i18next.t("submit.draft-saved"));
 
           recordActivity();
@@ -83,7 +87,7 @@ export function useSaveDraftApi() {
           const { drafts } = resp;
           const draft = drafts[drafts?.length - 1];
 
-          queryClient.setQueryData([QueryIdentifiers.DRAFTS, activeUser?.username], drafts);
+          queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
 
           router.push(`/draft/${draft._id}`);
         }

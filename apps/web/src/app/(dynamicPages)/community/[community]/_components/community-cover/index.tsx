@@ -9,7 +9,7 @@ import i18next from "i18next";
 import { CommunityCoverEditImage } from "@/app/(dynamicPages)/community/[community]/_components/community-cover-edit-image";
 import { SubscriptionBtn } from "@/app/communities/_components";
 import { Account, Community, FullAccount } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { formattedNumber } from "@/utils";
 import { Button } from "@ui/button";
 import Link from "next/link";
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function CommunityCover({ community, account }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const users = useGlobalStore((state) => state.users);
   const theme = useGlobalStore((state) => state.theme);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);

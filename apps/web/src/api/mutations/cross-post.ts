@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
 import { Entry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { makeCrossPostMessage } from "@/utils/cross-post";
 import { makeApp, makeCommentOptions } from "@/utils";
 import pack from "../../../package.json";
@@ -9,7 +9,7 @@ import { comment, formatError } from "@/api/operations";
 import i18next from "i18next";
 
 export function useCrossPost(entry: Entry, onSuccess: () => void) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["crossPost"],

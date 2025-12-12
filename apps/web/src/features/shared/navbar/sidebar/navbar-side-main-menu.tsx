@@ -1,5 +1,5 @@
 import { EcencyConfigManager } from "@/config";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { DraftsDialog } from "@/features/shared/drafts";
 import { FragmentsDialog } from "@/features/shared/fragments";
@@ -36,7 +36,7 @@ interface MenuItem {
 }
 
 export function NavbarSideMainMenu({ onHide }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   const [gallery, setGallery] = useState(false);

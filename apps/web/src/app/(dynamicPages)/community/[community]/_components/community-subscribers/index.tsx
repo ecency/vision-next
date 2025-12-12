@@ -6,7 +6,7 @@ import { getCommunitySubscribersQuery, useGetAccountsQuery } from "@/api/queries
 import { Community, roleMap, Subscription } from "@/entities";
 import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { accountReputation } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { pencilOutlineSvg } from "@ui/svg";
 import { CommunityRoleEditDialog } from "@/app/(dynamicPages)/community/[community]/_components/community-role-edit";
 
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function CommunitySubscribers({ community }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const [editingSubscriber, setEditingSubscriber] = useState<Subscription>();
 
   const {

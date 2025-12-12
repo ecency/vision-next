@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 
 export function useNotificationUnreadCountQuery() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useQuery({
     queryKey: [QueryIdentifiers.NOTIFICATIONS_UNREAD_COUNT, activeUser?.username],

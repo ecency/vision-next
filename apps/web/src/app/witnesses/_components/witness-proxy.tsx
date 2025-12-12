@@ -5,7 +5,7 @@ import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { error, KeyOrHotDialog, LoginRequired } from "@/features/shared";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import "./witness-proxy.scss";
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function WitnessesProxy({ onDone }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [username, setUsername] = useState("");
   const [inProgress, setInProgress] = useState(false);

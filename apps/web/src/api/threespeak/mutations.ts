@@ -3,7 +3,7 @@ import { useState } from "react";
 import { uploadFile, uploadVideoInfo } from "./api";
 import { useThreeSpeakVideo } from "./queries";
 import { QueryIdentifiers } from "@/core/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useThreeSpeakVideoUpload(type: "video" | "thumbnail") {
   const [completed, setCompleted] = useState<number>(0);
@@ -27,7 +27,7 @@ export function useThreeSpeakVideoUpload(type: "video" | "thumbnail") {
 
 export function useUploadVideoInfo() {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data, refetch } = useThreeSpeakVideo("all");
 
   return useMutation({

@@ -15,14 +15,14 @@ import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useUpdateApi(onClear: () => void) {
-  const { activeUser } = useActiveAccount();
+  const { username } = useActiveAccount();
   const { buildBody } = useThreeSpeakManager();
   const router = useRouter();
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username,
     "legacy-post-updated"
   );
 
@@ -48,6 +48,10 @@ export function useUpdateApi(onClear: () => void) {
       }
 
       const { author, permlink, category, json_metadata } = editingEntry;
+
+      if (!username) {
+        return;
+      }
       const newBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildPatchFrom(editingEntry, body);
@@ -64,7 +68,7 @@ export function useUpdateApi(onClear: () => void) {
 
       try {
         await comment(
-          activeUser?.username!,
+          username,
           "",
           category,
           permlink,

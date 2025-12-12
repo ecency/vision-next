@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import * as ss from "@/utils/session-storage";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommentOptions, Entry, MetaData } from "@/entities";
 import { comment, formatError } from "@/api/operations";
 import { error } from "@/features/shared";
@@ -8,7 +8,7 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 
 export function useUpdateReply(entry?: Entry | null, onSuccess?: () => Promise<void>) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();

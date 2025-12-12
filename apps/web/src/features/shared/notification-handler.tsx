@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { NotificationsWebSocket } from "@/api/notifications-ws-api";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { NotifyTypes } from "@/enums";
 import { usePrevious } from "react-use";
 import {
@@ -14,7 +14,7 @@ import {
 export function NotificationHandler() {
   const nws = useRef(new NotificationsWebSocket());
 
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
   const globalNotifications = useGlobalStore((state) => state.globalNotifications);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);

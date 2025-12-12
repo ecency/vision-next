@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Account, Community, FullAccount, roleMap, ROLES } from "@/entities";
 import i18next from "i18next";
 import { UserAvatar } from "@/features/shared";
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function CommunityCard({ community, account }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const users = useGlobalStore((state) => state.users);
 
   const [info, setInfo] = useState<DialogInfo>();

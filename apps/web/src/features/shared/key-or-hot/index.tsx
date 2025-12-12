@@ -1,6 +1,6 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useIsMobile } from "@/utils";
 import { PrivateKey } from "@hiveio/dhive";
 import { Button } from "@ui/button";
@@ -21,7 +21,7 @@ interface Props {
 }
 
 export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="active" }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const isMobileBrowser = useIsMobile();
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
   const canRenderKeychain = onKc && (!isMobileBrowser || useHiveAuth);

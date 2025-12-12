@@ -7,6 +7,7 @@ import "./_index.scss";
 import {Account} from "@/entities";
 import {FollowControls} from "@/features/shared";
 import {useGlobalStore} from "@/core/global-store";
+import {useActiveAccount} from "@/core/hooks/use-active-account";
 import {FavouriteBtn} from "@/features/shared/favorite-btn";
 import {ProfileInfo} from "@/app/(dynamicPages)/profile/[username]/_components/profile-info";
 import {EcencyConfigManager} from "@/config";
@@ -24,7 +25,7 @@ export function ProfileCover({ account }: Props) {
   const [theme] = useClientTheme();
 
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const {activeUser} = useActiveAccount();
 
   const pathname = usePathname();
   const section = useMemo(() => pathname?.split("/")[2] ?? "posts", [pathname]);

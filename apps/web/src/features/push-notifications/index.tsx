@@ -1,7 +1,7 @@
 "use client";
 
 import {PropsWithChildren, useCallback, useEffect, useRef} from "react";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { isSupported, MessagePayload } from "@firebase/messaging";
 import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
 import * as ls from "@/utils/local-storage";
@@ -14,7 +14,7 @@ import {ALL_NOTIFY_TYPES} from "@/enums";
 
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const previousActiveUsr = usePrevious(activeUser);
   const wsRef = useRef(new NotificationsWebSocket());
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);

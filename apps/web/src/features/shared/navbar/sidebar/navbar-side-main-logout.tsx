@@ -1,4 +1,4 @@
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button, Popover, PopoverContent } from "@/features/ui";
 import { useRef, useState } from "react";
 import { NavbarSideMainMenuItem } from "./navbar-side-main-menu-item";
@@ -9,7 +9,7 @@ import { useClickAway } from "react-use";
 export function NavbarSideMainLogout() {
   const ref = useRef<HTMLDivElement>(null);
 
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const deleteUser = useGlobalStore((state) => state.deleteUser);
 

@@ -1,11 +1,11 @@
 import { Button } from "@ui/button";
 import React from "react";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import { preloadLoginDialog } from "@/features/shared";
 
 export function AnonUserButtons() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   return activeUser ? (

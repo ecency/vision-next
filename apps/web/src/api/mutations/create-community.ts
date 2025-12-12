@@ -5,7 +5,7 @@ import { formatError } from "@/api/operations";
 import { makeHsCode } from "@/utils";
 import { EcencyConfigManager } from "@/config";
 import { AccountCreateOperation, Authority, cryptoUtils, PrivateKey } from "@hiveio/dhive";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import hs from "hivesigner";
 import { client } from "@/api/hive";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -67,7 +67,7 @@ interface Payload {
 }
 
 export function useCreateCommunityByApi() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["createCommunity", "api"],
@@ -103,7 +103,7 @@ export function useCreateCommunityByApi() {
 }
 
 export function useCreateCommunityByHivesigner() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["createCommunity", "hs"],

@@ -4,7 +4,7 @@ import { dataLimit, getPostsRanked } from "@/api/bridge";
 import { formatError, pinPost } from "@/api/operations";
 import { Community, Entry } from "@/entities";
 import { isCommunity } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { clone } from "remeda";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
@@ -31,7 +31,7 @@ export function useCommunityPinCache(entry: Entry) {
 }
 
 export function useCommunityPin(entry: Entry, community: Community | null | undefined) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({

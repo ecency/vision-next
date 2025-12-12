@@ -1,4 +1,4 @@
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
 import { Fragment, getFragmentsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ interface Props {
 export function Fragments({ onPick, onAdd, onEdit }: Props) {
   const innerRef = useRef<HTMLInputElement | null>(null);
 
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [searchQuery, setSearchQuery] = useState("");
 

@@ -1,5 +1,5 @@
 import { MouseEvent } from "react";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@/features/ui";
 import { Fragment, useRemoveFragment } from "@ecency/sdk";
 import { UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { mutateAsync: deleteFragment, isPending: isDeleteLoading } = useRemoveFragment(
     activeUser!.username,

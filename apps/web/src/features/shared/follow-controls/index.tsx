@@ -1,7 +1,7 @@
 "use client";
 
 import { formatError } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, LoginRequired, success } from "@/features/shared";
 import { getRelationshipBetweenAccountsQueryOptions, useAccountRelationsUpdate } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +22,7 @@ interface ButtonProps {
 }
 
 function MuteButton({ disabled, following }: ButtonProps) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(activeUser?.username, following)
@@ -65,7 +65,7 @@ function MuteButton({ disabled, following }: ButtonProps) {
 }
 
 function FollowButton({ disabled, following }: ButtonProps) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(activeUser?.username, following)
@@ -95,7 +95,7 @@ function FollowButton({ disabled, following }: ButtonProps) {
 }
 
 export function FollowControls({ targetUsername, showMute = true }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { isPending } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(activeUser?.username, targetUsername)
