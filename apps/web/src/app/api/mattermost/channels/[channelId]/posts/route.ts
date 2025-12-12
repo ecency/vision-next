@@ -3,6 +3,7 @@ import {
   ensureMattermostUser,
   ensureUserInChannel,
   ensureUserInTeam,
+  followMattermostThreadForUser,
   getMattermostCommunityModerationContext,
   handleMattermostError,
   MattermostChannel,
@@ -216,6 +217,7 @@ export async function POST(
 
           if (rootAuthor.username) {
             ensureTarget(rootAuthor.username);
+            await followMattermostThreadForUser(rootPost.user_id, rootId);
           }
         }
       } catch (error) {
