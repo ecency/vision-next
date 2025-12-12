@@ -1558,6 +1558,7 @@ export function MattermostChannelView({ channelId }: Props) {
         isPublicChannel={isPublicChannel}
         channelData={channelData}
         handleMessageChange={handleMessageChange}
+        isSubmitting={isSubmitting}
         submitMessage={submitMessage}
         handleEdit={handleEdit}
         messageInputRef={messageInputRef}

@@ -31,6 +31,7 @@ interface MessageInputProps {
   handleImageUploadBegin: () => void;
   handleImageUpload: (url: string) => void;
   isUploadingImage: boolean;
+  isSubmitting: boolean;
 
   // Emoji autocomplete
   emojiQuery: string;
@@ -101,6 +102,7 @@ export function MessageInput({
   handleImageUploadBegin,
   handleImageUpload,
   isUploadingImage,
+  isSubmitting,
   emojiQuery,
   setEmojiQuery,
   emojiSuggestions,
@@ -142,8 +144,16 @@ export function MessageInput({
           e.preventDefault();
           submitMessage();
         }}
+        aria-busy={isSubmitting}
       >
         <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto">
+          {isSubmitting && (
+            <div className="flex items-center gap-2 text-xs text-[--text-muted]">
+              <span className="h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse" aria-hidden />
+              <span>Sending…</span>
+            </div>
+          )}
+
           {editingPost && (
             <div className="rounded border border-[--border-color] bg-[--background-color] p-2 text-xs text-[--text-muted]">
               <div className="flex items-center justify-between">
@@ -273,7 +283,7 @@ export function MessageInput({
                   onEnd={handleImageUpload}
                   aria-label="Attach image"
                   title="Attach image"
-                  disabled={isUploadingImage}
+                  disabled={isUploadingImage || isSubmitting}
                 />
                 {isUploadingImage && (
                   <span className="text-xs text-[--text-muted] animate-pulse">
@@ -289,6 +299,7 @@ export function MessageInput({
                   rows={1}
                   value={message}
                   onChange={handleMessageChange}
+                  disabled={isSubmitting}
                   onKeyDown={(e) => {
                     // Arrow Up - Edit last message (when input is empty)
                     if (e.key === "ArrowUp" && !message.trim() && !editingPost && !replyingTo) {
@@ -344,7 +355,8 @@ export function MessageInput({
                     "text-sm md:text-base leading-[1.4]",
                     "py-1.5",
                     "outline-none border-none",
-                    "placeholder:text-[--text-muted]"
+                    "placeholder:text-[--text-muted]",
+                    "disabled:cursor-not-allowed disabled:opacity-70"
                   )}
                 />
               </div>
@@ -359,6 +371,7 @@ export function MessageInput({
                   icon={emojiIconSvg}
                   aria-label="Add emoji"
                   title="Add emoji"
+                  disabled={isSubmitting}
                 />
 
                 <Button
@@ -369,6 +382,7 @@ export function MessageInput({
                   className="rounded-full !px-2 !py-1 font-semibold"
                   aria-label="Add GIF"
                   title="Add GIF"
+                  disabled={isSubmitting}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
