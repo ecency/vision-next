@@ -189,6 +189,48 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
       }
     }
 
+    const parentUsername =
+      typeof props?.parent_username === "string" && props.parent_username.trim()
+        ? props.parent_username.trim()
+        : undefined;
+
+    const notificationUsernames = new Set<string>();
+
+    const ensureTarget = async (username: string) => {
+      if (!username || username.toLowerCase() === currentUser.username.toLowerCase()) {
+        return;
+      }
+
+      const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const alreadyMentioned = new RegExp(`@${escapedUsername}(?![\w.-])`, "i").test(message);
+
+      if (alreadyMentioned) {
+        return;
+      }
+
+      notificationUsernames.add(username);
+    };
+
+    if (parentUsername) {
+      await ensureTarget(parentUsername);
+    }
+
+    if (rootId && notificationUsernames.size === 0) {
+      try {
+        const rootPost = await mmUserFetch<{ user_id?: string }>(`/posts/${rootId}`, token);
+
+        if (rootPost.user_id && rootPost.user_id !== currentUser.id) {
+          const rootAuthor = await mmUserFetch<{ username?: string }>(`/users/${rootPost.user_id}`, token);
+
+          if (rootAuthor.username) {
+            await ensureTarget(rootAuthor.username);
+          }
+        }
+      } catch (error) {
+        console.error("Unable to include root author notification", error);
+      }
+    }
+
     const hasSpecialMention = SPECIAL_MENTION_REGEX.test(message);
     const mentionedUsers = Array.from(
       new Set(
@@ -198,6 +240,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
           .filter((username) => !SPECIAL_MENTIONS.has(username)) || []
       )
     );
+
+    let finalProps = props ? { ...props } : undefined;
+
+    if (notificationUsernames.size) {
+      const directMentions = Array.from(notificationUsernames);
+      finalProps = finalProps ? { ...finalProps, direct_mention_usernames: directMentions } : { direct_mention_usernames: directMentions };
+    }
 
     if (hasSpecialMention) {
       const moderation = await getMattermostCommunityModerationContext(token, channelId);
@@ -210,11 +259,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
       }
     }
 
-    if (mentionedUsers.length) {
+    const membershipTargets = new Set(mentionedUsers);
+    notificationUsernames.forEach((username) => membershipTargets.add(username.toLowerCase()));
+
+    if (membershipTargets.size) {
       const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token);
 
       if (channel.type === "O") {
-        for (const username of mentionedUsers) {
+        for (const username of membershipTargets) {
           try {
             const user = await ensureMattermostUser(username);
             await ensureUserInTeam(user.id);
@@ -232,7 +284,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
           channel_id: channelId,
           message,
           root_id: rootId || undefined,
-          props: props || undefined
+          props: finalProps || undefined
       })
     });
 
