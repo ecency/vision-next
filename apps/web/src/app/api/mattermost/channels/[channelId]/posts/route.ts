@@ -179,49 +179,33 @@ export async function POST(
       );
     }
 
-    const parentUsername =
-      typeof props?.parent_username === "string" &&
-      props.parent_username.trim()
-        ? (props.parent_username as string).trim()
-        : undefined;
-
-    // --- Notification targets (no auto-prepend in message) ---
-    const notificationUsernames = new Set<string>();
-
-    const ensureTarget = (username: string | undefined | null) => {
-      if (!username) return;
-      const normalized = username.trim();
-      if (!normalized) return;
-      if (normalized.toLowerCase() === currentUser.username.toLowerCase()) return;
-      notificationUsernames.add(normalized);
-    };
-
-    // If client passes an explicit parent user, always notify them
-    if (parentUsername) {
-      ensureTarget(parentUsername);
-    }
-
-    // If replying in a thread and no explicit parent target yet, notify root author
-    if (rootId && notificationUsernames.size === 0) {
+    // --- Thread following for participants ---
+    // If replying in a thread, follow the thread for all participants
+    if (rootId) {
       try {
-        const rootPost = await mmUserFetch<{ user_id?: string }>(
-          `/posts/${rootId}`,
-          token
-        );
+        // Fetch all posts in the thread
+        const threadData = await mmUserFetch<{
+          posts: Record<string, { user_id: string }>;
+          order: string[];
+        }>(`/posts/${rootId}/thread`, token);
 
-        if (rootPost.user_id && rootPost.user_id !== currentUser.id) {
-          const rootAuthor = await mmUserFetch<{ username?: string }>(
-            `/users/${rootPost.user_id}`,
-            token
-          );
-
-          if (rootAuthor.username) {
-            ensureTarget(rootAuthor.username);
-            await followMattermostThreadForUser(rootPost.user_id, rootId);
+        // Extract unique user IDs from all posts in the thread
+        const participantIds = new Set<string>();
+        threadData.order.forEach((postId) => {
+          const post = threadData.posts[postId];
+          if (post?.user_id && post.user_id !== currentUser.id) {
+            participantIds.add(post.user_id);
           }
-        }
+        });
+
+        // Follow the thread for all participants
+        await Promise.all(
+          Array.from(participantIds).map((userId) =>
+            followMattermostThreadForUser(userId, rootId)
+          )
+        );
       } catch (error) {
-        console.error("Unable to include root author notification", error);
+        console.error("Unable to follow thread for participants", error);
       }
     }
 
@@ -236,15 +220,6 @@ export async function POST(
           .filter((username) => !SPECIAL_MENTIONS.has(username)) || []
       )
     );
-
-    let finalProps = props ? { ...props } : undefined;
-
-    if (notificationUsernames.size) {
-      const directMentions = Array.from(notificationUsernames);
-      finalProps = finalProps
-        ? { ...finalProps, direct_mention_usernames: directMentions }
-        : { direct_mention_usernames: directMentions };
-    }
 
     if (hasSpecialMention) {
       const moderation = await getMattermostCommunityModerationContext(
@@ -262,14 +237,9 @@ export async function POST(
       }
     }
 
-    // --- Ensure mentioned / notified users are members of the public channel ---
-    const membershipTargets = new Set<string>();
-    mentionedUsers.forEach((u) => membershipTargets.add(u.toLowerCase()));
-    notificationUsernames.forEach((u) =>
-      membershipTargets.add(u.toLowerCase())
-    );
-
-    if (membershipTargets.size) {
+    // --- Ensure @mentioned users are members of the public channel ---
+    // Mattermost's native @mention system will handle notifications
+    if (mentionedUsers.length) {
       const channel = await mmUserFetch<MattermostChannel>(
         `/channels/${channelId}`,
         token
@@ -277,7 +247,7 @@ export async function POST(
 
       if (channel.type === "O") {
         await Promise.all(
-          Array.from(membershipTargets).map(async (username) => {
+          mentionedUsers.map(async (username) => {
             try {
               const user = await ensureMattermostUser(username);
               await ensureUserInTeam(user.id);
@@ -297,9 +267,9 @@ export async function POST(
       method: "POST",
       body: JSON.stringify({
         channel_id: channelId,
-        message, // unchanged, no auto-prepend
+        message,
         root_id: rootId || undefined,
-        props: finalProps || undefined
+        props: props || undefined
       })
     });
 
