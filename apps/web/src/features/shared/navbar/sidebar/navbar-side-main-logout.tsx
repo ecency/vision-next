@@ -1,4 +1,5 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { Button, Popover, PopoverContent } from "@/features/ui";
 import { useRef, useState } from "react";
 import { NavbarSideMainMenuItem } from "./navbar-side-main-menu-item";
