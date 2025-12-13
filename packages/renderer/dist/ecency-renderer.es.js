@@ -11,19 +11,38 @@ function F({
   return l(() => {
     var n, t, o;
     return Array.from(((n = a.current) == null ? void 0 : n.querySelectorAll(".markdown-view:not(.markdown-view-pure) img")) ?? []).filter((s) => {
-      var i;
-      return ((i = s.parentNode) == null ? void 0 : i.nodeName) !== "A" && !s.classList.contains("medium-zoom-image") && !s.closest(".markdown-image-container");
+      try {
+        if (!s.isConnected)
+          return !1;
+        const i = s.parentNode;
+        return i ? i.nodeName !== "A" && !s.classList.contains("medium-zoom-image") && !s.closest(".markdown-image-container") : !1;
+      } catch (i) {
+        return console.warn("Error accessing image element properties:", i), !1;
+      }
     }).forEach((s) => {
       var k, g, R, T;
-      const i = document.createElement("div");
-      i.classList.add("markdown-image-container");
-      const d = s.cloneNode(!0), u = (k = s.getAttribute("title")) == null ? void 0 : k.trim(), p = (g = s.getAttribute("data-caption")) == null ? void 0 : g.trim(), f = (R = s.getAttribute("alt")) == null ? void 0 : R.trim(), y = f ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(f) : !1, v = u || p || (y ? "" : f);
-      if (v) {
-        const A = document.createElement("div");
-        A.classList.add("markdown-img-caption"), A.innerText = v, i.appendChild(d), i.appendChild(A);
-      } else
-        i.appendChild(d);
-      (T = s.parentElement) == null || T.replaceChild(i, s);
+      try {
+        if (!s.isConnected) {
+          console.warn("Image element is no longer connected to DOM, skipping");
+          return;
+        }
+        const i = s.parentElement;
+        if (!i) {
+          console.warn("Image element has no parent, skipping");
+          return;
+        }
+        const d = document.createElement("div");
+        d.classList.add("markdown-image-container");
+        const u = s.cloneNode(!0), p = (k = s.getAttribute("title")) == null ? void 0 : k.trim(), h = (g = s.getAttribute("data-caption")) == null ? void 0 : g.trim(), f = (R = s.getAttribute("alt")) == null ? void 0 : R.trim(), y = f ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(f) : !1, v = p || h || (y ? "" : f);
+        if (v) {
+          const A = document.createElement("div");
+          A.classList.add("markdown-img-caption"), A.innerText = v, d.appendChild(u), d.appendChild(A);
+        } else
+          d.appendChild(u);
+        s.isConnected && i && i.replaceChild(d, s);
+      } catch (i) {
+        console.warn("Error enhancing image element:", i);
+      }
     }), r.current = I(((t = a.current) == null ? void 0 : t.querySelectorAll(".markdown-view:not(.markdown-view-pure) img")) ?? []), (o = r.current) == null || o.update({
       background: "#131111"
     }), () => {
