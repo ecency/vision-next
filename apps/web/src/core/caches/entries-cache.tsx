@@ -4,6 +4,7 @@ import dmca from "@/dmca.json";
 import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 export namespace EcencyEntriesCacheManagement {
   export function getEntryQueryByPath(author?: string, permlink?: string) {
@@ -113,8 +114,13 @@ export namespace EcencyEntriesCacheManagement {
   export function useUpdateEntry() {
     const qc = useQueryClient();
 
+    const updateEntryQueryDataFn = useCallback(
+      (entries: Entry[]) => updateEntryQueryData(entries, qc),
+      [qc]
+    );
+
     return {
-      updateEntryQueryData: (entries: Entry[]) => updateEntryQueryData(entries, qc)
+      updateEntryQueryData: updateEntryQueryDataFn
     };
   }
 
