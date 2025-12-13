@@ -3,6 +3,7 @@ import {
   ensureMattermostUser,
   ensureUserInChannel,
   ensureUserInTeam,
+  followMattermostThreadForUser,
   getMattermostCommunityModerationContext,
   handleMattermostError,
   MattermostChannel,
@@ -12,7 +13,9 @@ import {
   CHAT_BAN_PROP
 } from "@/server/mattermost";
 
-const USER_MENTION_REGEX = /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
+const USER_MENTION_REGEX =
+  /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
+
 const SPECIAL_MENTIONS = new Set(["here", "everyone"]);
 const SPECIAL_MENTION_REGEX = /(^|\s)@(here|everyone)\b/i;
 
@@ -25,7 +28,10 @@ interface MattermostUser {
   last_picture_update?: number;
 }
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ channelId: string }> }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ channelId: string }> }
+) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -35,43 +41,97 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
     const { channelId } = await params;
     const searchParams = req.nextUrl.searchParams;
     const before = searchParams.get("before") || "";
+    const around = searchParams.get("around") || "";
     const perPage = searchParams.get("per_page") || "60";
 
-    // Build query params for Mattermost API
-    let queryParams = `per_page=${perPage}&page=0`;
-    if (before) {
-      queryParams += `&before=${before}`;
+    let posts: Record<string, any>;
+    let order: string[];
+    let orderedPosts: any[];
+
+    if (around) {
+      // Fetch messages around a specific message (for deep linking)
+      const [beforeData, afterData, targetPost] = await Promise.all([
+        mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
+          `/channels/${channelId}/posts?before=${around}&per_page=30`,
+          token
+        ).catch(() => ({ posts: {}, order: [] })),
+        mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
+          `/channels/${channelId}/posts?after=${around}&per_page=30`,
+          token
+        ).catch(() => ({ posts: {}, order: [] })),
+        mmUserFetch<any>(`/posts/${around}`, token).catch(() => null)
+      ]);
+
+      // Verify target post exists and belongs to this channel
+      if (!targetPost || targetPost.channel_id !== channelId) {
+        return NextResponse.json(
+          { error: "Message not found or deleted" },
+          { status: 404 }
+        );
+      }
+
+      // Merge posts: before + target + after
+      posts = {
+        ...beforeData.posts,
+        [around]: targetPost,
+        ...afterData.posts
+      };
+
+      order = [...beforeData.order, around, ...afterData.order];
+
+      orderedPosts = order
+        .map((id) => posts[id])
+        .filter(Boolean)
+        .sort((a, b) => Number(a.create_at) - Number(b.create_at));
+    } else {
+      // Existing logic for before/initial pagination
+      let queryParams = `per_page=${perPage}&page=0`;
+      if (before) {
+        queryParams += `&before=${before}`;
+      }
+
+      const response = await mmUserFetch<{
+        posts: Record<string, any>;
+        order: string[];
+      }>(`/channels/${channelId}/posts?${queryParams}`, token);
+
+      posts = response.posts;
+      order = response.order;
+
+      orderedPosts = order
+        .map((id) => posts[id])
+        .filter(Boolean)
+        .sort((a, b) => Number(a.create_at) - Number(b.create_at));
     }
-
-    const { posts, order } = await mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
-      `/channels/${channelId}/posts?${queryParams}`,
-      token
-    );
-
-    const orderedPosts = order
-      .map((id) => posts[id])
-      .filter(Boolean)
-      .sort((a, b) => Number(a.create_at) - Number(b.create_at));
 
     const channelUsers = await mmUserFetch<MattermostUser[]>(
       `/users?in_channel=${channelId}&per_page=200&page=0`,
       token
     );
 
-    const users = channelUsers.reduce<Record<string, MattermostUser>>((acc, user) => {
-      acc[user.id] = user;
-      return acc;
-    }, {});
+    const users = channelUsers.reduce<Record<string, MattermostUser>>(
+      (acc, user) => {
+        acc[user.id] = user;
+        return acc;
+      },
+      {}
+    );
 
-    const userIds = Array.from(new Set(orderedPosts.map((post) => post.user_id).filter(Boolean)));
+    const userIds = Array.from(
+      new Set(orderedPosts.map((post) => post.user_id).filter(Boolean))
+    );
 
     const missingUserIds = userIds.filter((id) => !users[id]);
 
     if (missingUserIds.length) {
-      const missingUsers = await mmUserFetch<MattermostUser[]>("/users/ids", token, {
-        method: "POST",
-        body: JSON.stringify(missingUserIds)
-      });
+      const missingUsers = await mmUserFetch<MattermostUser[]>(
+        "/users/ids",
+        token,
+        {
+          method: "POST",
+          body: JSON.stringify(missingUserIds)
+        }
+      );
 
       for (const user of missingUsers) {
         users[user.id] = user;
@@ -87,7 +147,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
       msg_count: number;
     }>(`/channels/${channelId}/members/me`, token);
 
-    const moderation = await getMattermostCommunityModerationContext(token, channelId);
+    const moderation = await getMattermostCommunityModerationContext(
+      token,
+      channelId
+    );
 
     // Fetch channel stats to get member count
     let memberCount: number | undefined;
@@ -103,7 +166,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
     }
 
     // Check if there are more messages by looking at the order length
-    const hasMore = order.length >= parseInt(perPage);
+    // For "around" queries, set hasMore to true to allow infinite scroll to work
+    const hasMore = around ? true : order.length >= parseInt(perPage, 10);
 
     return NextResponse.json({
       posts: orderedPosts,
@@ -120,7 +184,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ chan
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ channelId: string }> }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ channelId: string }> }
+) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -129,24 +196,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
   try {
     const { channelId } = await params;
     const body = await req.json();
+
     const message = body.message as string;
     const rootId = (body.rootId as string | null | undefined) || null;
     const props = (body.props as Record<string, unknown> | undefined) || undefined;
+
     if (!message) {
       return NextResponse.json({ error: "message required" }, { status: 400 });
     }
 
-    const currentUser = await mmUserFetch<{ id: string; username: string; props?: Record<string, string> }>(
-      `/users/me`,
-      token
-    );
+    const currentUser = await mmUserFetch<{
+      id: string;
+      username: string;
+      props?: Record<string, string>;
+    }>(`/users/me`, token);
 
     const bannedUntil = isUserChatBanned(currentUser);
-
     if (bannedUntil) {
       return NextResponse.json(
         {
-          error: `@${currentUser.username} is banned from chat until ${new Date(Number(bannedUntil)).toISOString()}`,
+          error: `@${currentUser.username} is banned from chat until ${new Date(
+            Number(bannedUntil)
+          ).toISOString()}`,
           bannedUntil,
           prop: CHAT_BAN_PROP
         },
@@ -154,7 +225,39 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
       );
     }
 
+    // --- Thread following for participants ---
+    // If replying in a thread, follow the thread for all participants
+    if (rootId) {
+      try {
+        // Fetch all posts in the thread
+        const threadData = await mmUserFetch<{
+          posts: Record<string, { user_id: string }>;
+          order: string[];
+        }>(`/posts/${rootId}/thread`, token);
+
+        // Extract unique user IDs from all posts in the thread
+        const participantIds = new Set<string>();
+        threadData.order.forEach((postId) => {
+          const post = threadData.posts[postId];
+          if (post?.user_id && post.user_id !== currentUser.id) {
+            participantIds.add(post.user_id);
+          }
+        });
+
+        // Follow the thread for all participants
+        await Promise.all(
+          Array.from(participantIds).map((userId) =>
+            followMattermostThreadForUser(userId, rootId)
+          )
+        );
+      } catch (error) {
+        console.error("Unable to follow thread for participants", error);
+      }
+    }
+
+    // --- Special mentions & regular @mentions in text ---
     const hasSpecialMention = SPECIAL_MENTION_REGEX.test(message);
+
     const mentionedUsers = Array.from(
       new Set(
         message
@@ -165,39 +268,54 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cha
     );
 
     if (hasSpecialMention) {
-      const moderation = await getMattermostCommunityModerationContext(token, channelId);
+      const moderation = await getMattermostCommunityModerationContext(
+        token,
+        channelId
+      );
 
       if (!moderation.canModerate) {
         return NextResponse.json(
-          { error: "Only community moderators can mention everyone in this channel." },
+          {
+            error: "Only community moderators can mention everyone in this channel."
+          },
           { status: 403 }
         );
       }
     }
 
+    // --- Ensure @mentioned users are members of the public channel ---
+    // Mattermost's native @mention system will handle notifications
     if (mentionedUsers.length) {
-      const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token);
+      const channel = await mmUserFetch<MattermostChannel>(
+        `/channels/${channelId}`,
+        token
+      );
 
       if (channel.type === "O") {
-        for (const username of mentionedUsers) {
-          try {
-            const user = await ensureMattermostUser(username);
-            await ensureUserInTeam(user.id);
-            await ensureUserInChannel(user.id, channel.id);
-          } catch (error) {
-            console.error(`Unable to ensure mentioned user ${username} in channel`, error);
-          }
-        }
+        await Promise.all(
+          mentionedUsers.map(async (username) => {
+            try {
+              const user = await ensureMattermostUser(username);
+              await ensureUserInTeam(user.id);
+              await ensureUserInChannel(user.id, channel.id);
+            } catch (error) {
+              console.error(
+                `Unable to ensure mentioned user ${username} in channel`,
+                error
+              );
+            }
+          })
+        );
       }
     }
 
     const post = await mmUserFetch(`/posts`, token, {
       method: "POST",
       body: JSON.stringify({
-          channel_id: channelId,
-          message,
-          root_id: rootId || undefined,
-          props: props || undefined
+        channel_id: channelId,
+        message,
+        root_id: rootId || undefined,
+        props: props || undefined
       })
     });
 

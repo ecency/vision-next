@@ -4,6 +4,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, MenuItem } from "
 import i18next from "i18next";
 import { menuDownSvg } from "@ui/svg";
 import { Button } from "@ui/button";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onChangeGlobal: (v: string) => void;
@@ -20,7 +21,7 @@ export const EntryIndexMenuDropdown = ({
   filter,
   tag
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   let dropDownItems: MenuItem[] = [

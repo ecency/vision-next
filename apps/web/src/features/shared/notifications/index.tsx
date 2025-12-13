@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { NotificationsContent } from "@/features/shared/notifications/notifications-content";
 import "./_index.scss";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
 import { EcencyConfigManager } from "@/config";
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export function NotificationsDialog({ openLinksInNewTab = false }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const showNotifications = useGlobalStore((state) => state.uiNotifications);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 

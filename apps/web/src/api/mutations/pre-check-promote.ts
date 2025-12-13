@@ -1,14 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
-import { useGlobalStore } from "@/core/global-store";
 import { EntryHeader } from "@/entities";
 import { getPostHeader } from "@/api/bridge";
 import { getPromotedPost } from "@/api/private-api";
 import i18next from "i18next";
 import { error } from "@/features/shared";
 import { formatError } from "../operations";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function usePreCheckPromote(path: string, onSuccess: () => void) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["preCheckPromote"],

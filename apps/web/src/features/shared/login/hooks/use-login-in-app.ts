@@ -14,13 +14,13 @@ export function useLoginInApp(username: string) {
 
   const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
-  const updateActiveUser = useGlobalStore((state) => state.updateActiveUser);
   const setLogin = useGlobalStore((state) => state.setLogin);
 
   const { mutateAsync: recordActivity } = useRecordUserActivity();
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
   const notificationsSettingsQuery = useNotificationsSettingsQuery();
+  const refetchNotificationSettings = notificationsSettingsQuery.refetch;
 
   const handleTutorial = useAfterLoginTutorial(username);
 
@@ -47,12 +47,9 @@ export function useLoginInApp(username: string) {
       // activate user
       setActiveUser(user.username);
 
-      // add account data of the user to the reducer
-      await updateActiveUser(account);
-
       const notifToken = ls.get("fb-notifications-token") ?? "";
       if (notifToken) {
-        const { data: existingSettings } = await notificationsSettingsQuery.refetch();
+        const { data: existingSettings } = await refetchNotificationSettings();
 
         if (!existingSettings || existingSettings.allows_notify === -1) {
           await updateNotificationSettings({
@@ -90,7 +87,8 @@ export function useLoginInApp(username: string) {
       recordActivity,
       router,
       setActiveUser,
-      updateActiveUser
+      updateNotificationSettings,
+      refetchNotificationSettings
     ]
   );
 }

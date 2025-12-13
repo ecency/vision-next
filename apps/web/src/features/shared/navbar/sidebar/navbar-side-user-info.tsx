@@ -1,18 +1,16 @@
 import React, { useMemo } from "react";
-import { useGlobalStore } from "@/core/global-store";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { chevronUpSvg } from "@ui/svg";
 import { downVotingPower, votingPower } from "@/api/hive";
-import { FullAccount } from "@/entities";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks";
 
 export function NavbarSideUserInfo() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
 
   const { upPower, downPower } = useMemo(() => {
-    const account = activeUser?.data as FullAccount | undefined;
-
-    if (!account?.__loaded) {
+    // Show loading state while fetching account data
+    if (isLoading || !account) {
       return { upPower: null, downPower: null };
     }
 
@@ -23,15 +21,15 @@ export function NavbarSideUserInfo() {
       upPower: voting,
       downPower: downVoting
     };
-  }, [activeUser?.data]);
+  }, [account, isLoading]);
 
   return (
     <div className="flex items-center gap-3 max-w-[16rem] truncate">
-      <ProfileLink username={activeUser!.username}>
-        <UserAvatar username={activeUser!.username} size="medium" />
+      <ProfileLink username={username!}>
+        <UserAvatar username={username!} size="medium" />
       </ProfileLink>
       <div>
-        <div className="font-semibold">{activeUser?.username}</div>
+        <div className="font-semibold">{username}</div>
         <div className="flex flex-col text-xs">
           <div className="flex items-center">
             <div className="[&>svg]:w-4 text-blue-dark-sky">

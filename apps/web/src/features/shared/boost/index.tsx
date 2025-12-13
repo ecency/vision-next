@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
@@ -14,7 +16,6 @@ import {
   getPointsQuery,
   useGetBoostPlusAccountPricesQuery
 } from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { boostPlus, boostPlusHot, boostPlusKc, formatError } from "@/api/operations";
 import { KeyOrHot, LinearProgress } from "@/features/shared";
@@ -25,7 +26,7 @@ interface Props {
 }
 
 export function BoostDialog({ onHide }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data: prices } = getBoostPlusPricesQuery(activeUser).useClientQuery();
 

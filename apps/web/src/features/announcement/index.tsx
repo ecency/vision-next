@@ -4,15 +4,15 @@ import * as ls from "@/utils/local-storage";
 import { Announcement, LaterAnnouncement } from "./types";
 import "./index.scss";
 import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
 import { usePathname } from "next/navigation";
 import { closeSvg } from "@ui/svg";
 import Link from "next/link";
 import i18next from "i18next";
 import { getAnnouncementsQuery } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export const Announcements = () => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const pathname = usePathname();
 

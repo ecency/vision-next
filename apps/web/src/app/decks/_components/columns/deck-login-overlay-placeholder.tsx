@@ -4,9 +4,10 @@ import { Button } from "@ui/button";
 import { useGlobalStore } from "@/core/global-store";
 import Link from "next/link";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export const DeckLoginOverlayPlaceholder = () => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   return !activeUser ? (

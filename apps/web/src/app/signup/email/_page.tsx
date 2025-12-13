@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import ReCAPTCHA from "react-google-recaptcha";
 import qrcode from "qrcode";
 import axios from "axios";
@@ -32,7 +34,7 @@ enum Stage {
 }
 
 export function SignUp() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const [lsReferral, setLsReferral] = useLocalStorage<string>(PREFIX + "_referral");

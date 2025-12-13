@@ -13,7 +13,7 @@ import {
   parseAsset,
   vestsToHp
 } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getPointsQuery } from "@/api/queries";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
@@ -30,7 +30,7 @@ interface Props {
 }
 
 export function TransferStep1({ titleLngKey }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const {
     asset,
@@ -308,7 +308,7 @@ export function TransferStep1({ titleLngKey }: Props) {
                 </div>
                 {to!.length > 0 &&
                   Number(amount) > 0 &&
-                  toData?.__loaded &&
+                  toData &&
                   mode === "delegate" && (
                     <div className="text-gray-600 mt-1 override-warning">
                       {i18next.t("transfer.override-warning-1")}

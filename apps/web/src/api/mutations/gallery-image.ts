@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteImage, UserImage } from "@/api/private-api";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { QueryIdentifiers } from "@/core/react-query";
 
 export function useDeleteGalleryImage() {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["gallery", "image", "delete"],

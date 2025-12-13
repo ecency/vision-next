@@ -11,6 +11,7 @@ import useMountedState from "react-use/lib/useMountedState";
 import "./index.scss";
 import { VideoUploadItem } from "./video-upload-item";
 import { VideoUploadRecorder } from "./video-upload-recorder";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   children?: ReactNode;
@@ -20,7 +21,7 @@ interface Props {
 }
 
 export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const {
     mutateAsync: uploadVideo,

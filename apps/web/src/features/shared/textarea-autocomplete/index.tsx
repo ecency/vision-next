@@ -4,10 +4,10 @@ import React, {
   useEffect,
   useState
 } from "react";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "./_index.scss";
 import { searchPath } from "@/api/search-api";
-import { useGlobalStore } from "@/core/global-store";
 import { lookupAccounts } from "@/api/hive";
 import { UserAvatar } from "@/features/shared";
 import i18next from "i18next";
@@ -19,7 +19,7 @@ let timer: any = null;
 
 // eslint-disable-next-line react/display-name
 export const TextareaAutocomplete = forwardRef<HTMLTextAreaElement, any>((props, ref) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const isMobile = useIsMobile();
 
   const [value, setValue] = useState(props.value);

@@ -1,12 +1,12 @@
-import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { UilCheckCircle } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function PromoteSuccess() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return (
     <motion.div

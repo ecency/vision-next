@@ -8,7 +8,6 @@ import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { usePollsCreationManagement } from "@/features/polls";
-import { useGlobalStore } from "@/core/global-store";
 import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
 import { createPermlink, isCommunity, makeApp, makeCommentOptions, tempEntry } from "@/utils";
 import appPackage from "../../../../package.json";
@@ -21,19 +20,21 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
 import { validatePostCreating } from "@/api/hive";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks";
+import { getAccountFullQuery } from "@/api/queries";
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
   const { videos, isNsfw, buildBody } = useThreeSpeakManager();
 
   const { clearAll } = usePollsCreationManagement();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username,
     "legacy-post-created"
   );
 
@@ -63,13 +64,26 @@ export function usePublishApi(onClear: () => void) {
       );
       const cbody = EntryBodyManagement.EntryBodyManager.shared.builder().buildClearBody(body);
 
-      // make sure active user fully loaded
-      if (!activeUser || !activeUser.data.__loaded) {
+      // Ensure user is logged in and account data is available
+      if (!username) {
         return [];
       }
 
-      const author = activeUser.username;
-      const authorData = activeUser.data as FullAccount;
+      // Wait for account data if still loading
+      let authorData: FullAccount;
+      if (isLoading) {
+        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        if (!accountData) {
+          return [];
+        }
+        authorData = accountData;
+      } else if (!account) {
+        return [];
+      } else {
+        authorData = account;
+      }
+
+      const author = username;
 
       let permlink = createPermlink(title);
 
@@ -105,7 +119,7 @@ export function usePublishApi(onClear: () => void) {
         permlink = unpublished3SpeakVideo.permlink;
         // update speak video with title, body and tags
         await updateSpeakVideoInfo(
-          activeUser.username,
+          username,
           buildBody(body),
           unpublished3SpeakVideo._id,
           title,
@@ -167,13 +181,13 @@ export function usePublishApi(onClear: () => void) {
         success(i18next.t("submit.published"));
         onClear();
         clearActivePoll();
-        router.push(`/@${activeUser.username}/posts`);
+        router.push(`/@${username}/posts`);
 
         //Mark speak video as published
-        if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
+        if (!!unpublished3SpeakVideo && username === unpublished3SpeakVideo.owner) {
           success(i18next.t("video-upload.publishing"));
           setTimeout(() => {
-            markAsPublished(activeUser!.username, unpublished3SpeakVideo._id);
+            markAsPublished(username!, unpublished3SpeakVideo._id);
           }, 10000);
         }
         if (isCommunity(tags[0]) && reblogSwitch) {

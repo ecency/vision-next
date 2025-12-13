@@ -3,7 +3,7 @@ import { TokenMetadata } from "@/entities";
 import { HiveEngineToken } from "@/utils";
 import { getTokenBalances, getTokens } from "@/api/hive-engine";
 import { useMemo } from "react";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   DEFAULT_DYNAMIC_PROPS,
   getAllHiveEngineTokensQuery,
@@ -80,7 +80,7 @@ export function useGetHiveEngineBalancesQuery(account?: string) {
 }
 
 export function useHiveEngineAssetWallet(asset: string) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data: wallets } = useGetHiveEngineBalancesQuery(activeUser?.username);
   return useMemo(() => wallets?.find((w) => w.symbol === asset), [wallets, asset]);
 }

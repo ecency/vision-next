@@ -1,6 +1,5 @@
 import { v4 } from "uuid";
 import { useContext } from "react";
-import { useGlobalStore } from "@/core/global-store";
 import { PollsContext } from "@/features/polls";
 import { Entry, FullAccount, WaveEntry } from "@/entities";
 import { createReplyPermlink, createWavePermlink, tempEntry } from "@/utils";
@@ -9,11 +8,12 @@ import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { validatePostCreating } from "@/api/hive";
-import { addReplyToDiscussionsList } from "@/api/queries";
+import { addReplyToDiscussionsList, getAccountFullQuery } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks";
 
 export function useWavesApi() {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
 
   const { activePoll } = useContext(PollsContext);
 
@@ -32,9 +32,24 @@ export function useWavesApi() {
       editingEntry?: WaveEntry;
       host?: string;
     }) => {
-      if (!activeUser || !activeUser.data.__loaded) {
+      if (!username) {
         throw new Error("[Wave][Thread-base][API] – No active user");
       }
+
+      // Wait for account data if still loading
+      let authorData: FullAccount;
+      if (isLoading) {
+        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        if (!accountData) {
+          throw new Error("[Wave][Thread-base][API] – Failed to load account data");
+        }
+        authorData = accountData;
+      } else if (!account) {
+        throw new Error("[Wave][Thread-base][API] – Account data not available");
+      } else {
+        authorData = account;
+      }
+
       const parentAuthor = editingEntry?.parent_author ?? entry.author;
       const parentPermlink = editingEntry?.parent_permlink ?? entry.permlink;
 
@@ -53,7 +68,7 @@ export function useWavesApi() {
         .build();
 
       await comment(
-        activeUser.username,
+        username,
         parentAuthor,
         parentPermlink,
         permlink,
@@ -67,7 +82,7 @@ export function useWavesApi() {
         // For newly created waves we still confirm blockchain propagation but
         // with shorter retry delays so the UI is not blocked for several
         // seconds when the post appears quickly.
-        await validatePostCreating(activeUser.username, permlink, 0, {
+        await validatePostCreating(username, permlink, 0, {
           delays: [750, 1500, 2250]
         });
       }
@@ -78,7 +93,7 @@ export function useWavesApi() {
             body: raw
           }
         : tempEntry({
-            author: activeUser.data as FullAccount,
+            author: authorData,
             permlink,
             parentAuthor,
             parentPermlink,

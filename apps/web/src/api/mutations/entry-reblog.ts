@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BlogEntry, Entry } from "@/entities";
 import { broadcastPostingJSON, formatError } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
 import { useRecordUserActivity } from "@/api/mutations/record-user-activity";
 import { error, info, success } from "@/features/shared";
 import i18next from "i18next";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useEntryReblog(entry: Entry) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { mutateAsync: recordUserActivity } = useRecordUserActivity();
 

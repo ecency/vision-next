@@ -1,12 +1,12 @@
 import { useSearchParams } from "next/navigation";
 import { getAccountFullQuery } from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useMemo } from "react";
 
 export function useProxyVotesQuery() {
   const searchParams = useSearchParams();
 
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const voter = searchParams?.get("voter") ?? "";
   const usernameFromParams = searchParams?.get("username") ?? searchParams?.get("account") ?? "";
 

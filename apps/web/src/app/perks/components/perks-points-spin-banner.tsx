@@ -1,6 +1,7 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { PointsSpin, SPIN_VALUES } from "@/features/points";
 import { success } from "@/features/shared";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, StyledTooltip } from "@/features/ui";
@@ -15,7 +16,7 @@ import { PerksBasicCard } from "./perks-basic-card";
 import { PerksPointsSpinCountdown } from "./perks-points-spin-countdown";
 
 export function PerksPointsSpinBanner() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [showSpinner, setShowSpinner] = useState(false);
 

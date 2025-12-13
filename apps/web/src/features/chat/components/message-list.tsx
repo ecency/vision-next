@@ -21,6 +21,7 @@ interface MessageListProps {
   firstUnreadIndex: number;
   expandedJoinGroups: Set<string>;
   setExpandedJoinGroups: React.Dispatch<React.SetStateAction<Set<string>>>;
+  channelId: string;
 
   // User and channel data
   usersById: Record<string, MattermostUser>;
@@ -59,6 +60,7 @@ export function MessageList({
   firstUnreadIndex,
   expandedJoinGroups,
   setExpandedJoinGroups,
+  channelId,
   usersById,
   channelData,
   activeUser,
@@ -142,6 +144,7 @@ export function MessageList({
             isGroupStart={isGroupStart}
             showUnreadDivider={showUnreadDivider}
             firstUnreadIndex={firstUnreadIndex}
+            channelId={channelId}
             usersById={usersById}
             channelData={channelData}
             activeUser={activeUser}

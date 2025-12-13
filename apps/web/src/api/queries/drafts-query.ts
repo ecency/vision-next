@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
 import { getDrafts } from "@/api/private-api";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useDraftsQuery() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useQuery({
     queryKey: [QueryIdentifiers.DRAFTS, activeUser?.username],

@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getNotificationSetting } from "@/api/private-api";
 import * as ls from "@/utils/local-storage";
 import { NotifyTypes } from "@/enums";
 import { ApiNotificationSetting } from "@/entities";
 
 export function useNotificationsSettingsQuery() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useQuery({
     queryKey: [QueryIdentifiers.NOTIFICATIONS_SETTINGS, activeUser?.username],

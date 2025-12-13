@@ -5,7 +5,7 @@ import { Button } from "@ui/button";
 import { error, KeyOrHotDialog, LoginRequired, ProfileLink } from "@/features/shared";
 import { formatError, witnessProxy, witnessProxyHot, witnessProxyKc } from "@/api/operations";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   username: string;
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function WitnessesActiveProxy({ username, isProxy, onDone }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [inProgress, setInProgress] = useState(false);
 

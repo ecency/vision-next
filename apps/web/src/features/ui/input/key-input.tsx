@@ -102,20 +102,20 @@ export const KeyInput = forwardRef<
   return (
     <div
       className={clsx(
-        "border-2 border-[--border-color] rounded-xl p-2 cursor-text flex flex-col items-start",
+        "border-2 border-[--border-color] rounded-xl p-2 cursor-text flex flex-col items-start bg-white dark:bg-dark-default",
         className
       )}
       onClick={() => inputRef.current?.focus()}
     >
-      <span className="text-sm font-semibold text-gray-500 -mt-5 px-1 bg-white">
+      <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 -mt-5 px-1 bg-white dark:bg-dark-default">
         {capitalizeFirstLetter(keyType)} {i18next.t("key-or-hot.key-placeholder")}
       </span>
       <div className="w-full grid gap-2 grid-cols-[max-content_1fr_max-content] items-center h-8">
-        <UilLock className="w-5 h-5 text-gray-500" />
+        <UilLock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 
         <input
           ref={inputRef}
-          className="outline-none"
+          className="outline-none bg-transparent text-gray-900 dark:text-gray-100"
           {...inputProps}
           value={key}
           type="password"

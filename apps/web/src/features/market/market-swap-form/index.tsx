@@ -11,6 +11,7 @@ import useMount from "react-use/lib/useMount";
 import { getTokenBalances, getTokens } from "@/api/hive-engine";
 import { fetchAllHiveEngineTokens } from "@/api/queries/engine";
 import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks";
 import { QueryIdentifiers } from "@/core/react-query";
 import { HiveEngineTokenInfo, Token, TokenBalance } from "@/entities";
 import { checkSvg, swapSvg } from "@ui/svg";
@@ -59,7 +60,7 @@ const formatEngineBalance = (balance?: string, symbol?: string) => {
 };
 
 export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username: activeUsername, account: activeAccount } = useActiveAccount();
   const currency = useGlobalStore((s) => s.currency);
 
   const [step, setStep] = useState(MarketSwapFormStep.FORM);
@@ -94,9 +95,9 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
   });
 
   const engineBalancesQuery = useQuery({
-    queryKey: [QueryIdentifiers.HIVE_ENGINE_TOKEN_BALANCES, activeUser?.username],
-    queryFn: () => getTokenBalances(activeUser!.username),
-    enabled: !!activeUser,
+    queryKey: [QueryIdentifiers.HIVE_ENGINE_TOKEN_BALANCES, activeUsername],
+    queryFn: () => getTokenBalances(activeUsername!),
+    enabled: !!activeUsername,
     refetchInterval: 60000
   });
 
@@ -181,7 +182,7 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
   const engineSymbol = useMemo(() => getEngineSymbolFromPair(fromAsset, toAsset), [fromAsset, toAsset]);
 
   const engineCoverageAmount = useMemo(() => {
-    if (!activeUser) {
+    if (!activeUsername) {
       return undefined;
     }
 
@@ -198,7 +199,7 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
     }
 
     return undefined;
-  }, [activeUser, engineBalancesMap, fromAsset, toAsset]);
+  }, [activeUsername, engineBalancesMap, fromAsset, toAsset]);
 
   const engineTokenDefinitionQuery = useQuery({
     queryKey: ["market-swap-engine-token", engineSymbol],
@@ -265,19 +266,19 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
   }, [data]);
 
   useEffect(() => {
-    if (!activeUser) {
+    if (!activeAccount) {
       setBalance("");
       return;
     }
 
     if (isHiveMarketAsset(fromAsset)) {
-      setBalance(getBalance(fromAsset as HiveMarketAsset, activeUser));
+      setBalance(getBalance(fromAsset as HiveMarketAsset, activeAccount));
       return;
     }
 
     const symbol = isSwapHiveAsset(fromAsset) ? SWAP_HIVE : fromAsset;
     setBalance(formatEngineBalance(engineBalancesMap.get(symbol), symbol));
-  }, [activeUser, fromAsset, engineBalancesMap]);
+  }, [activeAccount, fromAsset, engineBalancesMap]);
 
   useEffect(() => {
     if (isHiveMarketAsset(fromAsset)) {

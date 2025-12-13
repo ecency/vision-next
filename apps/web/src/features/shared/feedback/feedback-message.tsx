@@ -1,6 +1,7 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { ErrorTypes } from "@/enums";
 import {
   clearErrorFeedbackContext,
@@ -26,7 +27,7 @@ interface Props {
 
 export function FeedbackMessage({ feedback, onClose }: Props) {
   const timeoutRef = useRef<any>();
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [showDialog, setShowDialog] = useState(false);
   const errorType = (feedback as ErrorFeedbackObject).errorType;

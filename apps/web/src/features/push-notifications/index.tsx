@@ -1,6 +1,7 @@
 "use client";
 
 import {PropsWithChildren, useCallback, useEffect, useRef} from "react";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { isSupported, MessagePayload } from "@firebase/messaging";
 import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
@@ -14,7 +15,7 @@ import {ALL_NOTIFY_TYPES} from "@/enums";
 
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const previousActiveUsr = usePrevious(activeUser);
   const wsRef = useRef(new NotificationsWebSocket());
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
@@ -32,7 +33,14 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
 
       let permission = "default";
       if ("Notification" in window) {
-        permission = await Notification.requestPermission();
+        permission = Notification.permission;
+
+        if (
+          permission === "default" &&
+          typeof Notification.requestPermission === "function"
+        ) {
+          permission = await Notification.requestPermission();
+        }
       }
 
       // Try FCM only if supported and granted

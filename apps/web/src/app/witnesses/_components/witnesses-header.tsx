@@ -3,11 +3,11 @@
 import { Tsx } from "@/features/i18n/helper";
 import React from "react";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useWitnessProxyQuery, useWitnessVotesQuery } from "@/app/witnesses/_queries";
 
 export function WitnessesHeader() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data: witnessVotes } = useWitnessVotesQuery();
   const { data: proxyInfo } = useWitnessProxyQuery();
 

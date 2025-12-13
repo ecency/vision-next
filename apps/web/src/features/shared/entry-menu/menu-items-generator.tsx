@@ -6,6 +6,7 @@ import useMount from "react-use/lib/useMount";
 import { bullHornSvg } from "@ui/svg";
 import i18next from "i18next";
 import { clipboard } from "@/utils/clipboard";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { MenuItem } from "@ui/dropdown";
@@ -31,7 +32,7 @@ export function useMenuItemsGenerator(
   separatedSharing: boolean,
   extraMenuItems?: MenuItem[]
 ) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   const { data: isPinnedCached } = useCommunityPinCache(entry);

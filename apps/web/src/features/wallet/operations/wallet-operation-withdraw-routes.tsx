@@ -1,4 +1,3 @@
-import { useGlobalStore } from "@/core/global-store";
 import { Button, Table, Td, Th, Tooltip, Tr } from "@/features/ui";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -6,13 +5,14 @@ import { getHiveAssetWithdrawalRoutesQueryOptions } from "@ecency/wallets";
 import { UilTrashAlt } from "@tooni/iconscout-unicons-react";
 import React from "react";
 import { WithdrawRoutesFormData } from "./wallet-operation-withdraw-routes-form";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onDeleteRoute?: (data: WithdrawRoutesFormData) => void;
 }
 
 export function WalletOperationWithdrawRoutes({ onDeleteRoute }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data: routes } = useQuery(getHiveAssetWithdrawalRoutesQueryOptions(activeUser?.username));
 
   return (

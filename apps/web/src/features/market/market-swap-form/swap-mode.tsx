@@ -6,13 +6,14 @@ import i18next from "i18next";
 import Link from "next/link";
 import { useGlobalStore } from "@/core/global-store";
 import { MarketSwapForm } from "@/features/market";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   inline?: boolean;
 }
 
 export const SwapMode = ({ inline = false }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const form = (

@@ -2,15 +2,15 @@ import { useMutation } from "@tanstack/react-query";
 import { uploadImage } from "../misc";
 import { addImage } from "../private-api";
 import axios from "axios";
-import { useGlobalStore } from "@/core/global-store";
 import { getAccessToken } from "@/utils";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 import { EcencyConfigManager } from "@/config";
 import useConditionalMutation = EcencyConfigManager.useConditionalMutation;
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useUploadPostImage() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { mutateAsync: upload } = useMutation({
     mutationKey: ["uploadPostImage"],

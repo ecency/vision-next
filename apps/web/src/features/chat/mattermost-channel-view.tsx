@@ -21,7 +21,9 @@ import {
   useMattermostReactToPost,
   useMattermostUpdatePost,
   useMattermostAdminBanUser,
-  useMattermostAdminDeleteUserPosts
+  useMattermostAdminDeleteUserPosts,
+  useMattermostPostsAround,
+  useMattermostJoinChannel
 } from "./mattermost-api";
 import { useChatAdminStore } from "./chat-admin-store";
 import {
@@ -101,7 +103,19 @@ interface Props {
 }
 
 export function MattermostChannelView({ channelId }: Props) {
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId);
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId, {
+    refetchInterval: isNearBottom ? 60000 : false // Poll every 60 seconds when near bottom
+  });
+  const searchParams = useSearchParams();
+  const focusedPostId = searchParams?.get("post");
+  const [needsAroundFetch, setNeedsAroundFetch] = useState(false);
+  const [showJoinPrompt, setShowJoinPrompt] = useState(false);
+  const aroundQuery = useMattermostPostsAround(
+    channelId,
+    focusedPostId ?? undefined,
+    needsAroundFetch
+  );
   const [message, setMessage] = useState("");
   const hasAppliedSharedText = useRef(false);
   const [mentionQuery, setMentionQuery] = useState("");
@@ -134,8 +148,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const [adminError, setAdminError] = useState<string | null>(null);
   const { data: channels } = useMattermostChannels(Boolean(channelId));
   const directChannelMutation = useMattermostDirectChannel();
+  const joinChannelMutation = useMattermostJoinChannel();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const markViewedMutation = useMattermostMarkChannelViewed();
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const lastViewUpdateRef = useRef(0);
@@ -146,7 +160,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const updateMutation = useMattermostUpdatePost(channelId);
   const banUserMutation = useMattermostAdminBanUser();
   const deleteUserPostsMutation = useMattermostAdminDeleteUserPosts();
-  const isSubmitting = sendMutation.isLoading || updateMutation.isPending;
+  const isSubmitting = sendMutation.isPending || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
   const gifButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -171,11 +185,18 @@ export function MattermostChannelView({ channelId }: Props) {
     const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
 
   const posts = useMemo(() => {
-    if (!data?.pages) return [];
-    return data.pages
-      .flatMap(page => page.posts)
+    const infinitePosts = data?.pages?.flatMap(page => page.posts) || [];
+    const aroundPosts = aroundQuery.data?.posts || [];
+
+    // Merge and deduplicate by post ID
+    const postsMap = new Map<string, MattermostPost>();
+    [...infinitePosts, ...aroundPosts].forEach(post => {
+      postsMap.set(post.id, post);
+    });
+
+    return Array.from(postsMap.values())
       .sort((a, b) => Number(a.create_at) - Number(b.create_at));
-  }, [data?.pages]);
+  }, [data?.pages, aroundQuery.data]);
 
   // Group consecutive join messages and messages from same user
   const groupedPosts = useMemo<PostItem[]>(() => {
@@ -318,7 +339,6 @@ export function MattermostChannelView({ channelId }: Props) {
     return [...related].sort((a, b) => a.create_at - b.create_at);
   }, [posts, threadRootId]);
   // ThreadPanel component extracted to components/thread-panel.tsx
-  const focusedPostId = searchParams?.get("post");
 
   useEffect(() => {
     if (hasAppliedSharedText.current) {
@@ -418,6 +438,9 @@ export function MattermostChannelView({ channelId }: Props) {
 
     // Show scroll-to-bottom button if scrolled up more than 200px
     setShowScrollToBottom(distanceFromBottom > 200);
+
+    // Track if user is near bottom for auto-refresh
+    setIsNearBottom(distanceFromBottom <= 200);
 
     // Calculate unread messages when scrolled up
     if (distanceFromBottom > 200 && firstUnreadIndex !== -1) {
@@ -544,16 +567,47 @@ export function MattermostChannelView({ channelId }: Props) {
     }, 500);
   }, [markChannelRead]);
 
+  // Enhanced deep linking with around-based loading
   useEffect(() => {
-    if (!focusedPostId || !posts.length || hasFocusedPostRef.current) return;
+    if (!focusedPostId || hasFocusedPostRef.current) return;
 
-    if (!posts.some((post) => post.id === focusedPostId)) return;
+    // Wait for initial data to load before checking membership
+    if (isLoading) return;
 
-    hasFocusedPostRef.current = true;
-    requestAnimationFrame(() =>
-      scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" })
-    );
-  }, [focusedPostId, posts, scrollToPost]);
+    // Check if user is channel member (only after data has loaded)
+    const channelData = data?.pages?.[0];
+    if (data && focusedPostId && !channelData?.member) {
+      setShowJoinPrompt(true);
+      return;
+    }
+
+    // Check if post is already loaded
+    const allPosts = data?.pages?.flatMap(page => page?.posts || []) || [];
+    const postInView = allPosts.some(post => post.id === focusedPostId);
+
+    if (postInView) {
+      // Post already loaded, scroll to it
+      hasFocusedPostRef.current = true;
+      requestAnimationFrame(() =>
+        scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" })
+      );
+    } else if (!aroundQuery.data && !aroundQuery.isLoading && !needsAroundFetch) {
+      // Post not loaded, trigger around fetch
+      setNeedsAroundFetch(true);
+    }
+  }, [focusedPostId, data, isLoading, aroundQuery.data, aroundQuery.isLoading, needsAroundFetch, scrollToPost]);
+
+  // Handle around query results
+  useEffect(() => {
+    if (!aroundQuery.data || !focusedPostId) return;
+
+    // Scroll to target post after around data loads
+    setTimeout(() => {
+      scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" });
+      hasFocusedPostRef.current = true;
+      setNeedsAroundFetch(false);
+    }, 100);
+  }, [aroundQuery.data, focusedPostId, scrollToPost]);
 
   useEffect(() => {
     if (hasFocusedPostRef.current || hasAutoScrolledRef.current) return;
@@ -569,6 +623,23 @@ export function MattermostChannelView({ channelId }: Props) {
       scrollToPost(targetId, { highlight: false, behavior: "auto" })
     );
   }, [firstUnreadIndex, posts, scrollToPost]);
+
+  // Auto-scroll to bottom when new messages arrive and user is near bottom
+  const prevPostsLengthRef = useRef(posts.length);
+  useEffect(() => {
+    const hasNewMessages = posts.length > prevPostsLengthRef.current;
+    prevPostsLengthRef.current = posts.length;
+
+    if (hasNewMessages && isNearBottom && hasAutoScrolledRef.current) {
+      // Auto-scroll to show new messages
+      requestAnimationFrame(() => {
+        const container = scrollContainerRef.current;
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      });
+    }
+  }, [posts.length, isNearBottom]);
 
   const timestampFormatter = useMemo(
     () =>
@@ -1442,6 +1513,37 @@ export function MattermostChannelView({ channelId }: Props) {
                 No messages yet. Say hello!
               </div>
             )}
+            {showJoinPrompt && (
+              <div className="flex flex-col items-center justify-center p-8 gap-4">
+                <p className="text-[--text-muted]">
+                  You need to join this channel to view messages
+                </p>
+                <Button
+                  onClick={() => {
+                    joinChannelMutation.mutate(channelId, {
+                      onSuccess: () => {
+                        setShowJoinPrompt(false);
+                        setNeedsAroundFetch(true);
+                      }
+                    });
+                  }}
+                  isLoading={joinChannelMutation.isPending}
+                >
+                  Join Channel
+                </Button>
+              </div>
+            )}
+            {aroundQuery.isLoading && (
+              <div className="flex items-center justify-center p-8 gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500" />
+                <span className="text-[--text-muted]">Loading message...</span>
+              </div>
+            )}
+            {aroundQuery.isError && (
+              <div className="p-4 text-center text-red-500">
+                {(aroundQuery.error as Error)?.message || "Unable to load message"}
+              </div>
+            )}
             {isFetchingNextPage && (
               <div className="flex justify-center mb-4">
                 <div className="text-sm text-[--text-muted]">
@@ -1449,12 +1551,13 @@ export function MattermostChannelView({ channelId }: Props) {
                 </div>
               </div>
             )}
-            <MessageList
+            {!showJoinPrompt && <MessageList
               groupedPosts={groupedPosts}
               showUnreadDivider={showUnreadDivider}
               firstUnreadIndex={firstUnreadIndex}
               expandedJoinGroups={expandedJoinGroups}
               setExpandedJoinGroups={setExpandedJoinGroups}
+              channelId={channelId}
               usersById={usersById}
               channelData={channelData}
               activeUser={activeUser}
@@ -1476,7 +1579,7 @@ export function MattermostChannelView({ channelId }: Props) {
               deletingPostId={deletingPostId}
               reactMutationPending={reactMutation.isPending}
               deleteMutationPending={deleteMutation.isPending}
-            />
+            />}
 
             {/* Scroll to bottom button - sticky FAB */}
             {showScrollToBottom && (
@@ -1558,6 +1661,7 @@ export function MattermostChannelView({ channelId }: Props) {
         isPublicChannel={isPublicChannel}
         channelData={channelData}
         handleMessageChange={handleMessageChange}
+        isSubmitting={isSubmitting}
         submitMessage={submitMessage}
         handleEdit={handleEdit}
         messageInputRef={messageInputRef}

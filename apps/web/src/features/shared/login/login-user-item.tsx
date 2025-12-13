@@ -1,4 +1,4 @@
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { User } from "@/entities";
 import { UserAvatar } from "@/features/shared";
 import { UilExit, UilTrash } from "@tooni/iconscout-unicons-react";
@@ -16,7 +16,7 @@ interface Props {
 export function LoginUserItem({ user, compact = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [showDelete, setShowDelete] = useState(false);
 

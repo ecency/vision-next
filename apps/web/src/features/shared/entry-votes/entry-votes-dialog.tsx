@@ -9,11 +9,11 @@ import { Tooltip } from "@ui/tooltip";
 import { Pagination } from "@/features/ui";
 import React, { ReactNode, useMemo, useState } from "react";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
 import { useGetEntryActiveVotesQuery } from "@/api/queries";
 import { prepareVotes } from "@/features/shared/entry-vote-btn/utils";
 import { heartSvg } from "@ui/svg";
 import { Entry } from "@/entities";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
@@ -34,7 +34,7 @@ export function EntryVotesDialog({
 }: Props) {
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data: apiVotes, isLoading: areVotesLoading } = useGetEntryActiveVotesQuery(entry);
 
   const [searchText, setSearchText] = useState("");

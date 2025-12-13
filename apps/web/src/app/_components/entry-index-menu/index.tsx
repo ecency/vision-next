@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { EntryIndexMenuDropdown } from "../entry-index-menu-dropdown";
 import "./_index.scss";
@@ -40,7 +42,7 @@ export function EntryIndexMenu() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
   const [isGlobal, setIsGlobal] = useState(false);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { error, LoginRequired, PurchaseQrDialog, PurchaseTypes, success } from "@/features/shared";
 import { getPointsQueryOptions, useClaimPoints } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +12,7 @@ import { PointsActionCard, PointsBasicInfo } from "./_components";
 import { formatError } from "@/api/operations";
 
 export function PointsPage() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data: activeUserPoints } = useQuery(getPointsQueryOptions(activeUser?.username));
 
   const [showPurchaseQr, setShowPurchaseQr] = useState(false);

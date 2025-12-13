@@ -2,14 +2,14 @@ import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query
 import { formatError } from "@/api/operations";
 import { Operation, PrivateKey } from "@hiveio/dhive";
 import { client as hiveClient } from "@/api/hive";
-import { useGlobalStore } from "@/core/global-store";
 import * as keychain from "@/utils/keychain";
 import { error } from "@/features/shared";
 import { QueryIdentifiers } from "@/core/react-query";
 import { ProposalVote } from "@/entities";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useProposalVoteByKey(proposalId: number) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -58,7 +58,7 @@ export function useProposalVoteByKey(proposalId: number) {
 }
 
 export function useProposalVoteByKeychain(proposalId: number) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -403,7 +403,10 @@ export function ChatsClient() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 px-2">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[--text-muted]">
-                      ★ Favorites
+                      <span className="text-amber-500" style={{ color: "#f59e0b" }}>
+                        ★
+                      </span>{" "}
+                      Favorites
                     </span>
                     <div className="h-px flex-1 bg-[--border-color]" />
                   </div>
@@ -452,7 +455,12 @@ export function ChatsClient() {
                                 <div className="flex items-center gap-1 font-semibold min-w-0 flex-1">
                                   <span className="truncate">{getChannelTitle(channel)}</span>
                                   {channel.is_favorite && (
-                                    <span className="text-amber-500 flex-shrink-0 text-sm" aria-label="Favorite channel" title="Favorite channel">
+                                    <span
+                                      className="text-amber-500 flex-shrink-0 text-sm"
+                                      style={{ color: "#f59e0b" }}
+                                      aria-label="Favorite channel"
+                                      title="Favorite channel"
+                                    >
                                       ★
                                     </span>
                                   )}

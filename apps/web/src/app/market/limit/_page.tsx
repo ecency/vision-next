@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  FullAccount,
   HiveEngineTokenInfo,
   MarketStatistics,
   OpenOrdersData,
@@ -10,7 +9,6 @@ import {
 } from "@/entities";
 import { getMarketStatistics, getOpenOrder, getOrderBook, getTradeHistory } from "@/api/hive";
 import { ButtonGroup } from "@/features/ui";
-import { useGlobalStore } from "@/core/global-store";
 import { Feedback, Navbar, Skeleton } from "@/features/shared";
 import i18next from "i18next";
 import { HiveBarter } from "@/app/market/_components/hive-barter";
@@ -26,6 +24,7 @@ import { getAllHiveEngineTokensQuery } from "@/api/queries/engine";
 import { MarketTokenSelector, MarketSelection } from "@/app/market/limit/_components/token-selector";
 import { EngineMarketSection } from "@/app/market/limit/_engine";
 import "../index.scss";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function MarketLimitPage() {
   const router = useRouter();
@@ -126,7 +125,7 @@ const EngineLimitContent = ({
 };
 
 const HiveLimitContent = () => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username: activeUsername, account: activeAccount } = useActiveAccount();
 
   const [data, setData] = useState<MarketStatistics | null>(null);
   const [loading, setLoading] = useState(false);
@@ -137,6 +136,13 @@ const HiveLimitContent = () => {
   const [loadingTablesData, setLoadingTablesData] = useState(false);
   const [dataLoadedFirstTime, setDataLoadedFirstTime] = useState(false);
   const [exchangeType, setExchangeType] = useState(1);
+
+  useEffect(() => {
+    if (!activeUsername) {
+      setopenOrdersdata([]);
+      setopenOrdersDataLoading(false);
+    }
+  }, [activeUsername]);
 
   const updateData = useCallback(
     (withLoading = false) => {
@@ -156,25 +162,32 @@ const HiveLimitContent = () => {
           setTablesData({ ...res, trading });
         });
       });
-      if (activeUser) {
-        getOpenOrder(activeUser.username).then((res) => {
+      if (activeUsername) {
+        getOpenOrder(activeUsername).then((res) => {
           setopenOrdersdata(res);
           setopenOrdersDataLoading(false);
         });
+      } else if (withLoading) {
+        setopenOrdersdata([]);
+        setopenOrdersDataLoading(false);
       }
     },
-    [activeUser]
+    [activeUsername]
   );
 
   const updateOpenData = useCallback(() => {
-    if (activeUser) {
-      setopenOrdersDataLoading(true);
-      getOpenOrder(activeUser.username).then((res) => {
-        setopenOrdersdata(res);
-        setopenOrdersDataLoading(false);
-      });
+    if (!activeUsername) {
+      setopenOrdersdata([]);
+      setopenOrdersDataLoading(false);
+      return;
     }
-  }, [activeUser]);
+
+    setopenOrdersDataLoading(true);
+    getOpenOrder(activeUsername).then((res) => {
+      setopenOrdersdata(res);
+      setopenOrdersDataLoading(false);
+    });
+  }, [activeUsername]);
 
   useEffect(() => {
     updateData(true);
@@ -211,18 +224,18 @@ const HiveLimitContent = () => {
       <div className="flex justify-center">
         <div className="container my-5 mx-0">
           <div>
-            {activeUser && (
+            {activeUsername && (
               <div className="grid-cols-12 justify-between hidden px-3 md:grid">
                 <div className="col-span-12 p-0 sm:col-span-5">
                   <HiveBarter
                     type={1}
-                    available={(activeUser.data as FullAccount).hbd_balance || ""}
+                    available={activeAccount?.hbd_balance || "0"}
                     prefilledTotal={bidValues.total}
                     prefilledAmount={bidValues.amount}
                     peakValue={parseFloat(bidValues.lowest)}
                     basePeakValue={data ? parseFloat(data.lowest_ask) : 0}
                     loading={loading}
-                    username={activeUser.username}
+                    username={activeUsername}
                     onTransactionSuccess={updateOpenData}
                     onClickPeakValue={(value: any) => setBidValues({ ...bidValues, lowest: value })}
                   />
@@ -232,11 +245,11 @@ const HiveLimitContent = () => {
                     type={2}
                     prefilledTotal={bidValues.total}
                     prefilledAmount={bidValues.amount}
-                    available={(activeUser.data as FullAccount).balance || ""}
+                    available={activeAccount?.balance || "0"}
                     peakValue={parseFloat(bidValues.highest)}
                     basePeakValue={data ? parseFloat(data.highest_bid) : 0}
                     loading={loading}
-                    username={activeUser.username}
+                    username={activeUsername}
                     onTransactionSuccess={updateOpenData}
                     onClickPeakValue={(value: any) => setBidValues({ ...bidValues, highest: value })}
                   />
@@ -244,7 +257,7 @@ const HiveLimitContent = () => {
               </div>
             )}
 
-            {activeUser && (
+            {activeUsername && (
               <div className="flex flex-col md:hidden">
                 <div className="flex flex-col justify-start sm:flex-row sm:items-center sm:justify-between">
                   <div className="text-2xl">{i18next.t("market.barter")}</div>
@@ -259,11 +272,11 @@ const HiveLimitContent = () => {
                 {exchangeType === 1 ? (
                   <HiveBarter
                     type={1}
-                    available={(activeUser.data as FullAccount).hbd_balance || ""}
+                    available={activeAccount?.hbd_balance || "0"}
                     peakValue={parseFloat(bidValues.lowest)}
                     basePeakValue={data ? parseFloat(data.lowest_ask) : 0}
                     loading={loading}
-                    username={activeUser.username}
+                    username={activeUsername}
                     onTransactionSuccess={updateOpenData}
                     onClickPeakValue={() =>
                       setBidValues({
@@ -275,12 +288,12 @@ const HiveLimitContent = () => {
                 ) : (
                   <HiveBarter
                     type={2}
-                    available={(activeUser.data as FullAccount).balance || ""}
+                    available={activeAccount?.balance || "0"}
                     peakValue={parseFloat(bidValues.highest)}
                     basePeakValue={data ? parseFloat(data.highest_bid) : 0}
                     loading={loading}
                     onTransactionSuccess={updateOpenData}
-                    username={activeUser.username}
+                    username={activeUsername}
                     onClickPeakValue={() =>
                       setBidValues({
                         ...bidValues,
@@ -293,13 +306,13 @@ const HiveLimitContent = () => {
             )}
 
             <div className="mx-0 mt-5 grid grid-cols-12 justify-between">
-              {!openOrdersDataLoading && openOrdersdata.length > 0 && activeUser && (
+              {!openOrdersDataLoading && openOrdersdata.length > 0 && activeUsername && (
                 <div className="col-span-12 mb-5 px-0">
                   <OpenOrders
                     onTransactionSuccess={updateOpenData}
                     data={openOrdersdata}
                     loading={openOrdersDataLoading}
-                    username={activeUser.username}
+                    username={activeUsername}
                   />
                 </div>
               )}

@@ -2,8 +2,8 @@ import React, { useContext } from "react";
 import { DeckGridContext } from "../deck-manager";
 import { DeckHeader } from "../header/deck-header";
 import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export interface DeckProps<T extends any> {
   id: string;
@@ -31,7 +31,7 @@ export const GenericDeckColumn = ({
   id,
   isExpanded
 }: DeckProps<any>) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { deleteColumn } = useContext(DeckGridContext);
 

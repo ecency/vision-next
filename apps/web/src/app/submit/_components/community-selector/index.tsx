@@ -1,6 +1,5 @@
 import { CommunitySelectorBrowser } from "@/app/submit/_components/community-selector/community-selector-browser";
 import { getCommunityCache } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { isCommunity } from "@/utils";
@@ -10,6 +9,7 @@ import i18next from "i18next";
 import { useMemo, useState } from "react";
 import "./_index.scss";
 import Link from "next/link";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   tags: string[];
@@ -31,7 +31,7 @@ function extractCommunityName(tags: string[]) {
 }
 
 export function CommunitySelector({ tags, onSelect }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data: community } = getCommunityCache(extractCommunityName(tags)).useClientQuery();
 

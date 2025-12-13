@@ -1457,11 +1457,7 @@ export const updateProfile = (
   return broadcastPostingOperations(account.name, opArray);
 };
 
-export const grantPostingPermission = (key: PrivateKey, account: Account, pAccount: string) => {
-  if (!account.__loaded) {
-    throw "posting|memo_key|json_metadata required with account instance";
-  }
-
+export const grantPostingPermission = (key: PrivateKey, account: FullAccount, pAccount: string) => {
   const newPosting = Object.assign(
     {},
     { ...account.posting },
@@ -1488,11 +1484,7 @@ export const grantPostingPermission = (key: PrivateKey, account: Account, pAccou
   );
 };
 
-export const revokePostingPermission = (key: PrivateKey, account: Account, pAccount: string) => {
-  if (!account.__loaded) {
-    throw "posting|memo_key|json_metadata required with account instance";
-  }
-
+export const revokePostingPermission = (key: PrivateKey, account: FullAccount, pAccount: string) => {
   const newPosting = Object.assign(
     {},
     { ...account.posting },

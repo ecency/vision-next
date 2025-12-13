@@ -1,5 +1,6 @@
 import { FormControl, Tooltip } from "@/features/ui";
 import React, { useEffect } from "react";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import i18n from "i18next";
@@ -28,7 +29,7 @@ interface Props {
 }
 
 export function NotificationsActions({ filter }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const isMobile = useGlobalStore((state) => state.isMobile);
 
   const [settings, { set: setSettingItem }] = useMap<Record<NotifyTypes, boolean>>({

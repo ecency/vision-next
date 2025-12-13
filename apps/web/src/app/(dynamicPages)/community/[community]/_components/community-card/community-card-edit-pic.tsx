@@ -7,7 +7,8 @@ import { pencilOutlineSvg } from "@ui/svg";
 import { ImageUploadDialog } from "./community-image-upload-dialog";
 import { FullAccount } from "@/entities";
 import { useUpdateProfile } from "@/api/mutations";
-import { useGlobalStore } from "@/core/global-store";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 
 interface EditPicProps {
   account: FullAccount;
@@ -18,7 +19,7 @@ export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
   const [dialog, setDialog] = useState(false);
 
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile(account);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+  const qc = useQueryClient();
 
   const save = useCallback(
     async (url: string) => {
@@ -34,7 +35,11 @@ export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
       });
 
       account.profile = { ...(account.profile || {}), profile_image: url };
-      await updateActiveUser();
+
+      // Invalidate account query to refresh profile data
+      qc.invalidateQueries({
+        queryKey: [QueryIdentifiers.ACCOUNT_FULL, account.name]
+      });
 
       setDialog(false);
       onUpdate(url);
@@ -43,7 +48,7 @@ export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
       account,
       dialog,
       onUpdate,
-      updateActiveUser,
+      qc,
       updateProfile
     ]
   );

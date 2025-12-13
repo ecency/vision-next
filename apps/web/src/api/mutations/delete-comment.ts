@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { broadcastPostingOperations, formatError } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
 import { error } from "@/features/shared";
 import { Operation } from "@hiveio/dhive";
 import { QueryIdentifiers } from "@/core/react-query";
 
 export function useDeleteComment(entry: Entry, onSuccess: () => void, parent?: Entry) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({

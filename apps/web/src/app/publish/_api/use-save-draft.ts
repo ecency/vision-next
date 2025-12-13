@@ -1,5 +1,4 @@
 import { addDraft, updateDraft } from "@/api/private-api";
-import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
@@ -12,6 +11,7 @@ import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { formatError } from "@/api/operations";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 type SaveDraftOptions = {
   showToast?: boolean;
@@ -19,7 +19,7 @@ type SaveDraftOptions = {
 };
 
 export function useSaveDraftApi(draftId?: string) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const router = useRouter();
   const queryClient = useQueryClient();

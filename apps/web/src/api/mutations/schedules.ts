@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteSchedule, moveSchedule } from "@/api/private-api";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { QueryIdentifiers } from "@/core/react-query";
 
 export function useMoveSchedule() {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["schedules", "move", activeUser?.username],
@@ -18,7 +18,7 @@ export function useMoveSchedule() {
 
 export function useDeleteSchedule() {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["schedules", "delete", activeUser?.username],

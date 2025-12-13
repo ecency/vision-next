@@ -1,9 +1,10 @@
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { User } from "@/entities";
 import { useCallback } from "react";
+import { useGlobalStore } from "@/core/global-store";
 
 export function useDeleteUserFromList(user: User) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const deleteUser = useGlobalStore((state) => state.deleteUser);
 

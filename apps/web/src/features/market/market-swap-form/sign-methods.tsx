@@ -12,7 +12,6 @@ import { PrivateKey } from "@hiveio/dhive";
 import { HiveMarket } from "./api/hive";
 import { EngineMarket } from "./api/engine";
 import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
 import { getAccountFull } from "@/api/hive";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
@@ -20,6 +19,7 @@ import i18next from "i18next";
 import { hsLogoSvg, kcLogoSvg } from "@ui/svg";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export interface Props {
   disabled: boolean;
@@ -45,8 +45,7 @@ export const SignMethods = ({
   engineTokenPrecision,
   onSuccess
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
   const activeUsername = activeUser?.username;
 
@@ -132,8 +131,6 @@ export const SignMethods = ({
       }
 
       await action(amount);
-      const account = await getAccountFull(activeUser!.username);
-      await updateActiveUser(account);
       invalidateWalletQueries(queryClient, activeUsername);
       onSuccess();
     } catch (e) {

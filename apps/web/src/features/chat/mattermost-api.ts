@@ -27,13 +27,17 @@ interface MattermostChannelSummary {
 
 export function useMattermostBootstrap(community?: string) {
   const activeUser = useClientActiveUser();
+  const username = activeUser?.username;
 
   return useQuery({
-    queryKey: ["mattermost-bootstrap", activeUser?.username, community],
-    enabled: Boolean(activeUser?.username),
+    queryKey: ["mattermost-bootstrap", username, community],
+    enabled: Boolean(username),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
-      const accessToken = getAccessToken(activeUser?.username || "");
-      const refreshToken = getRefreshToken(activeUser?.username || "");
+      const accessToken = getAccessToken(username || "");
+      const refreshToken = getRefreshToken(username || "");
 
       if (!accessToken && !refreshToken) {
         throw new Error("Authentication required");
@@ -43,10 +47,10 @@ export function useMattermostBootstrap(community?: string) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: activeUser?.username,
+          username,
           accessToken,
           refreshToken,
-          displayName: activeUser?.username,
+          displayName: username,
           community
         })
       });
@@ -62,9 +66,15 @@ export function useMattermostBootstrap(community?: string) {
 }
 
 export function useMattermostChannels(enabled: boolean) {
+  const activeUser = useClientActiveUser();
+  const username = activeUser?.username;
+
   return useQuery({
-    queryKey: ["mattermost-channels"],
-    enabled,
+    queryKey: ["mattermost-channels", username],
+    enabled: enabled && Boolean(username),
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     queryFn: async () => {
       const res = await fetch("/api/mattermost/channels");
       if (!res.ok) {
@@ -398,10 +408,14 @@ export function useMattermostPosts(channelId: string | undefined) {
   });
 }
 
-export function useMattermostPostsInfinite(channelId: string | undefined) {
+export function useMattermostPostsInfinite(
+  channelId: string | undefined,
+  options?: { refetchInterval?: number | false }
+) {
   return useInfiniteQuery({
     queryKey: ["mattermost-posts-infinite", channelId],
     enabled: Boolean(channelId),
+    refetchInterval: options?.refetchInterval ?? false,
     queryFn: async ({ pageParam }) => {
       const url = pageParam
         ? `/api/mattermost/channels/${channelId}/posts?before=${pageParam}`
@@ -423,6 +437,31 @@ export function useMattermostPostsInfinite(channelId: string | undefined) {
       return undefined;
     },
     initialPageParam: undefined as string | undefined
+  });
+}
+
+export function useMattermostPostsAround(
+  channelId: string | undefined,
+  postId: string | undefined,
+  enabled: boolean = true
+) {
+  return useQuery({
+    queryKey: ["mattermost-posts-around", channelId, postId],
+    enabled: enabled && Boolean(channelId) && Boolean(postId),
+    staleTime: 60000, // Cache for 1 minute
+    retry: 1,
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/mattermost/channels/${channelId}/posts?around=${postId}`
+      );
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "Unable to load messages");
+      }
+
+      return (await res.json()) as MattermostPostsResponse;
+    }
   });
 }
 

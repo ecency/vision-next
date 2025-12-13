@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatError, updateCommunity } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "@/features/shared";
 import { getCommunityCache } from "@/core/caches";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 type UpdateCommunityPayload = NonNullable<Parameters<typeof updateCommunity>[2]>;
 
 export function useUpdateCommunity(communityName: string) {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   // we don't need `community` here anymore
   getCommunityCache(communityName).useClientQuery();
 

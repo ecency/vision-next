@@ -1,9 +1,9 @@
-import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { UilCheckCircle, UilClock } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   step: "published" | "scheduled";
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function PublishSuccessState({ step, setEditStep }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const profileHref = activeUser ? `/@${activeUser.username}/posts` : "/";
 
   return (

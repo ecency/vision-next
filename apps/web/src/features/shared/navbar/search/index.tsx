@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { usePrevious } from "react-use";
 import { SearchSuggester, SuggestionGroup } from "../../search-suggester";
 import { SearchBox } from "../../search-box";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { Transfer, TransferAsset, TransferMode } from "@/features/shared";
@@ -28,7 +29,7 @@ export function Search({ containerClassName }: Props) {
   const previousPathname = usePrevious(pathname);
 
   const searchIndexCount = useGlobalStore((state) => state.searchIndexCount);
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
 
   const [query, setQuery] = useState("");

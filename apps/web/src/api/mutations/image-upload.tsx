@@ -2,12 +2,12 @@ import { useMutation } from "@tanstack/react-query";
 import defaults from "@/defaults";
 import { appAxios } from "@/api/axios";
 import { getAccessToken } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 
 export function useImageUpload() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["upload-image"],

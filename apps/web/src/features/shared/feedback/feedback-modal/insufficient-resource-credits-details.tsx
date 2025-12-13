@@ -1,10 +1,10 @@
 import React from "react";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import { externalLink } from "@ui/svg";
 
 export const InsufficientResourceCreditsDetails = () => {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return (
     <div className="insufficient-resource-credits-details">

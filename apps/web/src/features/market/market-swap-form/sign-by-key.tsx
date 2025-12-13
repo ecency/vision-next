@@ -6,6 +6,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { error } from "@/features/shared";
 import { keySvg } from "@ui/svg";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export interface Props {
   onKey: (key: PrivateKey) => void;
@@ -14,7 +15,7 @@ export interface Props {
 }
 
 export const SignByKey = ({ onKey, onBack, isLoading }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const signingKey = useGlobalStore((s) => s.signingKey);
   const setSigningKey = useGlobalStore((s) => s.setSigningKey);
 

@@ -1,4 +1,3 @@
-import { useGlobalStore } from "@/core/global-store";
 import { EntryFilter } from "@/enums";
 import { useInfiniteDataFlow } from "@/utils";
 import { getTrendingTagsQueryOptions } from "@ecency/sdk";
@@ -7,9 +6,10 @@ import { MenuItem } from "@ui/dropdown";
 import i18next from "i18next";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useFeedMenu() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const params = useParams<{ sections: string[] }>();
   let filter = "hot";

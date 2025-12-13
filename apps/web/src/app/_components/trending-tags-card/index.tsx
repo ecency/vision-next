@@ -1,6 +1,7 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { TagLink } from "@/features/shared/tag";
 import { getTrendingTagsQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -20,7 +21,7 @@ export function TrendingTagsCard() {
     [filter = "hot", tag = ""] = params.sections;
   }
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data: trendingTagsPages } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
   const trendingTags = useMemo(() => trendingTagsPages?.pages[0], [trendingTagsPages?.pages]);

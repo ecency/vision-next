@@ -8,6 +8,7 @@ import { FullAccount } from "@/entities";
 import i18next from "i18next";
 import Image from "next/image";
 import defaults from "@/defaults";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   isExpanded: boolean;
@@ -19,7 +20,7 @@ interface Props {
 }
 
 export const DeckToolbarUser = ({ isExpanded, items, setIsExpanded }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const [showUserSide, setShowUserSide] = useState(false);

@@ -3,6 +3,7 @@ import badActors from "@hiveio/hivescript/bad-actors.json";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { useTransferSharedState } from "./transfer-shared-state";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   DEFAULT_DYNAMIC_PROPS,
   getAccountFullQuery,
@@ -11,11 +12,10 @@ import {
 } from "@/api/queries";
 import { useDebounce } from "react-use";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 
 export function useDebounceTransferAccountData() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { to, mode, setAmount, setTo } = useTransferSharedState();
 

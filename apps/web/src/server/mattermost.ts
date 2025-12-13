@@ -112,6 +112,27 @@ export async function ensureUserInTeam(userId: string) {
   }
 }
 
+export async function followMattermostThreadForUser(
+  userId: string,
+  threadId: string,
+  following = true
+) {
+  const teamId = getMattermostTeamId();
+
+  try {
+    await mmFetch(`/users/${userId}/teams/${teamId}/threads/${threadId}/following`, {
+      method: "PUT",
+      headers: getAdminHeaders(),
+      body: JSON.stringify({ following })
+    });
+  } catch (error) {
+    console.error(
+      `Unable to update Mattermost thread following for user ${userId} and thread ${threadId}`,
+      error
+    );
+  }
+}
+
 function normalizeCommunityId(community: string) {
   return community.trim().toLowerCase();
 }

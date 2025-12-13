@@ -1,11 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getNotifications } from "@/api/private-api";
 import { NotificationFilter } from "@/enums";
 
 export function useNotificationsQuery(filter: NotificationFilter | null) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useInfiniteQuery({
     queryKey: [QueryIdentifiers.NOTIFICATIONS, activeUser?.username, filter],

@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import Image from "next/image";
 import i18next from "i18next";
 import Link from "next/link";
@@ -16,7 +18,7 @@ interface Props {
 
 export function EntryListItemNsfwContent({ entry }: Props) {
   const globalNsfw = useGlobalStore((s) => s.nsfw);
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { showNsfw, setShowNsfw } = EcencyClientServerBridge.useSafeContext(EntryListItemContext);
 

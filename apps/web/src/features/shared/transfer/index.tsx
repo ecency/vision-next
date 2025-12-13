@@ -13,7 +13,7 @@ import { Account } from "@/entities";
 import { TransferStep2 } from "@/features/shared/transfer/transfer-step-2";
 import { TransferStep3 } from "@/features/shared/transfer/transfer-step-3";
 import { TransferStep4 } from "@/features/shared/transfer/transfer-step-4";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getPointsQuery } from "@/api/queries";
 
 export type TransferMode =
@@ -42,7 +42,7 @@ interface Props {
 }
 
 function TransferC({ onHide, handleClickAway, account }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const { step, asset, mode } = useTransferSharedState();
 
   const { refetch } = getPointsQuery(activeUser?.username).useClientQuery();

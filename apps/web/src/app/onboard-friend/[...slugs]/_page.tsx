@@ -10,7 +10,7 @@ import { Alert } from "@ui/alert";
 import { b64uDec, b64uEnc } from "@/utils";
 import { FullAccount } from "@/entities";
 import useMount from "react-use/lib/useMount";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -89,7 +89,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const type = slugs[0];
   const paramSecret = slugs[1];
 
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryParams = useSearchParams();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 

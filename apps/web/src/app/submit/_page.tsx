@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { PostBase, VideoProps } from "./_types";
 import {
@@ -53,7 +55,6 @@ import { Draft, Entry, RewardType } from "@/entities";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
 import { useEntryPollExtractor } from "@/features/polls";
 import { PREFIX } from "@/utils/local-storage";
-import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { EcencyConfigManager } from "@/config";
 import {
@@ -78,7 +79,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const { body, setBody } = useBodyVersioningManager();
 
   const router = useRouter();
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const previousActiveUser = usePrevious(activeUser);
 
   const [title, setTitle] = useState("");

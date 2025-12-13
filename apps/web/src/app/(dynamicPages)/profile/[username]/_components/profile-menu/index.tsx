@@ -1,9 +1,10 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useMemo } from "react";
 import { ListStyleToggle } from "@/features/shared";
 import { ProfileFilter } from "@/enums";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { kebabMenuHorizontalSvg } from "@ui/svg";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
@@ -17,7 +18,7 @@ interface Props {
 }
 
 export function ProfileMenu({ username }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const pathname = usePathname();
   const section = useMemo(() => pathname?.split("/")[2] ?? "posts", [pathname]);
 

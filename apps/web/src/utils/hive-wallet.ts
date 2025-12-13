@@ -40,10 +40,6 @@ export class HiveWallet {
     const { hivePerMVests, base, quote } = dynamicProps;
     const pricePerHive = base / quote;
 
-    if (!account.__loaded) {
-      return;
-    }
-
     this.balance = parseAsset(account.balance).amount;
     this.savingBalance = parseAsset(account.savings_balance).amount;
 

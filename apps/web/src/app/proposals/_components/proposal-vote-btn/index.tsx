@@ -1,19 +1,19 @@
 import React, { useMemo } from "react";
 import "./_index.scss";
-import { useGlobalStore } from "@/core/global-store";
 import { KeyOrHotDialog, LoginRequired } from "@/features/shared";
 import { useProposalVoteByKey, useProposalVoteByKeychain } from "@/api/mutations/proposal-vote";
 import { proposalVoteHot } from "@/api/operations";
 import { getProposalVotesQuery } from "@/api/queries";
 import { UilArrowUp } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   proposal: number;
 }
 
 export function ProposalVoteBtn({ proposal }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data, isLoading } = getProposalVotesQuery(
     proposal,

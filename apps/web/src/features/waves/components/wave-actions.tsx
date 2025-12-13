@@ -4,8 +4,8 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import React, { ReactNode } from "react";
 import { WaveEntry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import "./wave-actions.scss";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   status: string;
@@ -34,7 +34,7 @@ export function WaveActions({
   showVoteSummary = true,
   showCommentCount = true
 }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return (
     <>

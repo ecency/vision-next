@@ -6,8 +6,8 @@ import { useAccountClaiming } from "@/api/mutations";
 import { KeyOrHot } from "@/features/shared";
 import { claimAccountByHiveSigner } from "@/api/operations";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { arrowLeftSvg } from "@ui/svg";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   account: FullAccount;
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const ClaimAccountCredit = ({ account, claimAccountAmount }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const {
     mutateAsync: claimAccount,
