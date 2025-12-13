@@ -3,6 +3,7 @@ import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import "./globals.css";
 import { routeTree } from "./routeTree.gen";
+import { InstanceConfigManager } from "./core";
 
 const router = createRouter({ routeTree });
 
@@ -11,6 +12,14 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
+
+InstanceConfigManager.getConfigValue(
+  ({ configuration }) => configuration.general.styles.background
+)
+  .split(" ")
+  .forEach((className) => {
+    document.body.classList.add(className);
+  });
 
 // Render the app
 const rootElement = document.getElementById("root")!;

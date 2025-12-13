@@ -1,11 +1,19 @@
 @import "tailwindcss";
+@source "../config.json";
 
 html {
   overflow: hidden;
 }
 
+html,
 body {
-  background: var(--background);
+  min-height: 100%;
+}
+
+body {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
   color: var(--foreground);
   font-family: "Raleway", -apple-system, Helvetica, Arial, sans-serif;
 }

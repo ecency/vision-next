@@ -14,3 +14,5 @@ dist/
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+config.json
