@@ -1,7 +1,16 @@
 {
   "name": "@ecency/renderer",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "description": "React components for rendering Hive posts using Ecency extensions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ecency/vision-next",
+    "directory": "packages/renderer"
+  },
+  "homepage": "https://github.com/ecency/vision-next/tree/develop/packages/renderer",
+  "bugs": {
+    "url": "https://github.com/ecency/vision-next/issues"
+  },
   "type": "module",
   "files": ["dist", "README.md"],
   "main": "./dist/ecency-renderer.cjs",
