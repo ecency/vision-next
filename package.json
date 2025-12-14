@@ -16,9 +16,9 @@
     "dev:sdk": "pnpm --filter @ecency/sdk dev",
     "dev:wallets": "pnpm --filter @ecency/wallets dev",
     "dev:renderer": "pnpm --filter @ecency/renderer dev",
-    "publish:sdk": "pnpm --filter @ecency/sdk publish --no-git-checks",
-    "publish:wallets": "pnpm --filter @ecency/wallets publish --no-git-checks",
-    "publish:renderer": "pnpm --filter @ecency/renderer publish --no-git-checks"
+    "publish:sdk": "pnpm --filter @ecency/sdk publish --no-git-checks --provenance",
+    "publish:wallets": "pnpm --filter @ecency/wallets publish --no-git-checks --provenance",
+    "publish:renderer": "pnpm --filter @ecency/renderer publish --no-git-checks --provenance"
   },
   "packageManager": "pnpm@10.18.1",
   "devDependencies": {

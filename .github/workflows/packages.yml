@@ -79,6 +79,10 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
+      - name: Enable npm provenance
+        if: steps.packages_changed.outputs.changed == 'true'
+        run: npm config set provenance true
+
       - name: Install dependencies
         if: steps.packages_changed.outputs.changed == 'true'
         run: pnpm install --frozen-lockfile
