@@ -71,6 +71,10 @@ jobs:
           version: 10.18.1
           run_install: false
 
+      - name: Update npm (required for Trusted Publishing OIDC)
+        if: steps.packages_changed.outputs.changed == 'true'
+        run: npm i -g npm@latest
+
       - uses: actions/setup-node@v4
         if: steps.packages_changed.outputs.changed == 'true'
         with:
