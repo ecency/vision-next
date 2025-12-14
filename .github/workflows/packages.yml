@@ -76,6 +76,8 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
+          scope: '@ecency'
+          always-auth: true
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
