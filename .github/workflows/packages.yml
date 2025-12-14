@@ -104,20 +104,17 @@ jobs:
       - name: Publish @ecency/sdk
         if: steps.detect_sdk.outputs.changed == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PNPM_CONFIG_GIT_CHECKS: "false"
         run: pnpm publish:sdk
 
       - name: Publish @ecency/wallets
         if: steps.detect_wallets.outputs.changed == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PNPM_CONFIG_GIT_CHECKS: "false"
         run: pnpm publish:wallets
 
       - name: Publish @ecency/renderer
         if: steps.detect_renderer.outputs.changed == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PNPM_CONFIG_GIT_CHECKS: "false"
         run: pnpm publish:renderer
