@@ -108,6 +108,7 @@ export function MattermostChannelView({ channelId }: Props) {
     refetchInterval: isNearBottom ? 60000 : false // Poll every 60 seconds when near bottom
   });
   const searchParams = useSearchParams();
+  const shareText = searchParams?.get("text")?.trim();
   const focusedPostId = searchParams?.get("post");
   const [needsAroundFetch, setNeedsAroundFetch] = useState(false);
   const [showJoinPrompt, setShowJoinPrompt] = useState(false);
@@ -345,15 +346,13 @@ export function MattermostChannelView({ channelId }: Props) {
       return;
     }
 
-    const sharedText = searchParams?.get("text")?.trim();
-
-    if (!sharedText) {
+    if (!shareText) {
       return;
     }
 
-    setMessage((current) => current || sharedText);
+    setMessage((current) => current || shareText);
     hasAppliedSharedText.current = true;
-  }, [searchParams, setMessage]);
+  }, [shareText, setMessage]);
   const usersByUsername = useMemo(() => {
     return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
       if (user.username) {
@@ -466,12 +465,17 @@ export function MattermostChannelView({ channelId }: Props) {
     setThreadRootId(null);
     setReplyingTo(null);
     setEditingPost(null);
+    hasAppliedSharedText.current = false;
 
     // Load draft message for this channel (if not editing or replying)
     if (!editingPost && !replyingTo) {
       const draft = loadDraft(channelId);
-      if (draft) {
+      if (shareText) {
+        setMessage(shareText);
+        hasAppliedSharedText.current = true;
+      } else if (draft) {
         setMessage(draft);
+        hasAppliedSharedText.current = true;
       } else {
         setMessage("");
       }
@@ -483,7 +487,7 @@ export function MattermostChannelView({ channelId }: Props) {
         clearTimeout(draftSaveTimeoutRef.current);
       }
     };
-  }, [channelId]);
+  }, [channelId, editingPost, replyingTo, shareText]);
 
   useEffect(() => {
     hasFocusedPostRef.current = false;
