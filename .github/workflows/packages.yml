@@ -80,14 +80,6 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Clear legacy npm auth token
-        if: steps.packages_changed.outputs.changed == 'true'
-        run: npm config delete //registry.npmjs.org/:_authToken
-
-      - name: Enable npm provenance
-        if: steps.packages_changed.outputs.changed == 'true'
-        run: npm config set provenance true
-
       - name: Install dependencies
         if: steps.packages_changed.outputs.changed == 'true'
         run: pnpm install --frozen-lockfile
@@ -109,6 +101,12 @@ jobs:
       - name: Build @ecency/renderer
         if: steps.detect_renderer.outputs.changed == 'true'
         run: pnpm --filter @ecency/renderer build
+
+      - name: Debug npm versions
+        run: |
+          node -v
+          npm -v
+          npx -y npm@latest -v
 
       - name: Publish @ecency/sdk
         if: steps.detect_sdk.outputs.changed == 'true'
