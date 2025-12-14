@@ -1,38 +1,56 @@
-import O, { useRef as $, useEffect as l, useState as x, useMemo as b, useCallback as D } from "react";
+import B, { useRef as T, useEffect as l, useState as L, useMemo as b, useCallback as D } from "react";
 import { renderPostBody as j } from "@ecency/render-helper";
 import { clsx as z } from "clsx";
-import I from "medium-zoom";
-import { jsx as c, Fragment as w, jsxs as m } from "react/jsx-runtime";
-import { createRoot as h, hydrateRoot as N } from "react-dom/client";
+import $ from "medium-zoom";
+import { jsx as c, Fragment as y, jsxs as p } from "react/jsx-runtime";
+import { createRoot as f, hydrateRoot as N } from "react-dom/client";
 function F({
   containerRef: a
 }) {
-  const r = $(void 0);
+  const r = T(void 0);
   return l(() => {
     var n, t, o;
     return Array.from(((n = a.current) == null ? void 0 : n.querySelectorAll(".markdown-view:not(.markdown-view-pure) img")) ?? []).filter((s) => {
-      var i;
-      return ((i = s.parentNode) == null ? void 0 : i.nodeName) !== "A" && !s.classList.contains("medium-zoom-image") && !s.closest(".markdown-image-container");
+      try {
+        if (!s.isConnected)
+          return !1;
+        const i = s.parentNode;
+        return i ? i.nodeName !== "A" && !s.classList.contains("medium-zoom-image") && !s.closest(".markdown-image-container") : !1;
+      } catch (i) {
+        return console.warn("Error accessing image element properties:", i), !1;
+      }
     }).forEach((s) => {
-      var k, g, R, T;
-      const i = document.createElement("div");
-      i.classList.add("markdown-image-container");
-      const d = s.cloneNode(!0), u = (k = s.getAttribute("title")) == null ? void 0 : k.trim(), p = (g = s.getAttribute("data-caption")) == null ? void 0 : g.trim(), f = (R = s.getAttribute("alt")) == null ? void 0 : R.trim(), y = f ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(f) : !1, v = u || p || (y ? "" : f);
-      if (v) {
-        const A = document.createElement("div");
-        A.classList.add("markdown-img-caption"), A.innerText = v, i.appendChild(d), i.appendChild(A);
-      } else
-        i.appendChild(d);
-      (T = s.parentElement) == null || T.replaceChild(i, s);
-    }), r.current = I(((t = a.current) == null ? void 0 : t.querySelectorAll(".markdown-view:not(.markdown-view-pure) img")) ?? []), (o = r.current) == null || o.update({
+      var i, d, m;
+      try {
+        if (!s.isConnected) {
+          console.warn("Image element is no longer connected to DOM, skipping");
+          return;
+        }
+        if (!s.parentElement) {
+          console.warn("Image element has no parent, skipping");
+          return;
+        }
+        const h = document.createElement("div");
+        h.classList.add("markdown-image-container");
+        const w = s.cloneNode(!0), v = (i = s.getAttribute("title")) == null ? void 0 : i.trim(), k = (d = s.getAttribute("data-caption")) == null ? void 0 : d.trim(), g = (m = s.getAttribute("alt")) == null ? void 0 : m.trim(), O = g ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(g) : !1, R = v || k || (O ? "" : g);
+        if (R) {
+          const A = document.createElement("div");
+          A.classList.add("markdown-img-caption"), A.innerText = R, h.appendChild(w), h.appendChild(A);
+        } else
+          h.appendChild(w);
+        s.isConnected && s.parentElement && s.parentElement.replaceChild(h, s);
+      } catch (u) {
+        console.warn("Error enhancing image element:", u);
+      }
+    }), r.current = $(((t = a.current) == null ? void 0 : t.querySelectorAll(".markdown-view:not(.markdown-view-pure) img")) ?? []), (o = r.current) == null || o.update({
       background: "#131111"
     }), () => {
       var s;
       (s = r.current) == null || s.detach();
     };
-  }, []), /* @__PURE__ */ c(w, {});
+  }, []), /* @__PURE__ */ c(y, {});
 }
-function L(a) {
+function x(a) {
   try {
     const r = new URL(a, "https://ecency.com").pathname.split("/").filter(Boolean).pop() ?? "";
     return r.includes("re-ecencywaves") || r.includes("re-leothreads") || r.startsWith("wave-") || r.startsWith("re-liketu-moments");
@@ -76,15 +94,15 @@ function E(a) {
       const s = decodeURIComponent(o.pop() ?? ""), i = decodeURIComponent(o.pop() ?? "");
       if (!i.startsWith("@") || !s || !(o.length === 0 || o.length === 1 && o[0].toLowerCase().startsWith("hive-")))
         return !1;
-      const u = Z(e.innerText), p = `${i}/${s}`.toLowerCase(), f = o.length === 1 ? decodeURIComponent(o[0]).toLowerCase() : void 0, y = /* @__PURE__ */ new Set([p]);
-      return f && y.add(`${f}/${p}`), e.innerText.trim() === n.trim() || y.has(u) ? (e.classList.add("markdown-post-link"), !0) : !1;
+      const m = Z(e.innerText), u = `${i}/${s}`.toLowerCase(), h = o.length === 1 ? decodeURIComponent(o[0]).toLowerCase() : void 0, w = /* @__PURE__ */ new Set([u]);
+      return h && w.add(`${h}/${u}`), e.innerText.trim() === n.trim() || w.has(m) ? (e.classList.add("markdown-post-link"), !0) : !1;
     } catch {
       return !1;
     }
   });
 }
-const S = /* @__PURE__ */ new Map();
-function P(a) {
+const C = /* @__PURE__ */ new Map();
+function I(a) {
   try {
     const r = new URL(`https://ecency.com${a}`).pathname.split("/"), e = decodeURIComponent(r[3] || ""), n = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(e), t = /[?#]/.test(e);
     return !/^[a-z0-9-]+$/.test(e) || n || t;
@@ -92,35 +110,35 @@ function P(a) {
     return !0;
   }
 }
-function q({
+function P({
   link: a
 }) {
-  const [r, e] = x(), n = b(() => new URL(a, "https://ecency.com"), [a]), t = n.pathname.toLowerCase(), o = D(async () => {
-    var i, d, u, p;
-    if (S.has(t)) {
-      e(S.get(t));
+  const [r, e] = L(), n = b(() => new URL(a, "https://ecency.com"), [a]), t = n.pathname.toLowerCase(), o = D(async () => {
+    var i, d, m, u;
+    if (C.has(t)) {
+      e(C.get(t));
       return;
     }
-    if (P(t)) {
+    if (I(t)) {
       console.warn("[Ecency Renderer] Skipping invalid post link:", t);
       return;
     }
     try {
-      const y = await (await fetch(`https://ecency.com${t}`, {
+      const w = await (await fetch(`https://ecency.com${t}`, {
         method: "GET"
       })).text(), v = document.createElement("html");
-      v.innerHTML = y;
+      v.innerHTML = w;
       const k = (i = v.querySelector('meta[property="og:title"]')) == null ? void 0 : i.getAttribute("content");
       if (k) {
         const g = {
           title: k,
-          description: ((u = (d = v.querySelector('meta[property="og:description"]')) == null ? void 0 : d.getAttribute("content")) == null ? void 0 : u.substring(0, 71)) ?? void 0,
-          image: ((p = v.querySelector('meta[property="og:image"]')) == null ? void 0 : p.getAttribute("content")) ?? void 0
+          description: ((m = (d = v.querySelector('meta[property="og:description"]')) == null ? void 0 : d.getAttribute("content")) == null ? void 0 : m.substring(0, 71)) ?? void 0,
+          image: ((u = v.querySelector('meta[property="og:image"]')) == null ? void 0 : u.getAttribute("content")) ?? void 0
         };
-        S.set(t, g), e(g);
+        C.set(t, g), e(g);
       }
-    } catch (f) {
-      console.error(`[Ecency Renderer] Failed to fetch preview: ${a}`, f);
+    } catch (h) {
+      console.error(`[Ecency Renderer] Failed to fetch preview: ${a}`, h);
     }
   }, [t, a]);
   l(() => {
@@ -135,13 +153,13 @@ function q({
     className: "ecency-renderer-hive-post-extension-link",
     target: "_blank",
     rel: "noopener",
-    children: r ? /* @__PURE__ */ m(w, {
+    children: r ? /* @__PURE__ */ p(y, {
       children: [/* @__PURE__ */ c("div", {
         className: "ecency-renderer-hive-post-extension-link-image",
         style: {
           backgroundImage: `url(${r.image})`
         }
-      }), /* @__PURE__ */ m("div", {
+      }), /* @__PURE__ */ p("div", {
         className: "ecency-renderer-hive-post-extension-link-text-content",
         children: [/* @__PURE__ */ c("div", {
           className: "ecency-renderer-hive-post-extension-link-type",
@@ -162,10 +180,10 @@ function K({
 }) {
   return l(() => {
     const r = a.current;
-    r && E(r).filter((e) => !L(e.getAttribute("href") ?? "")).filter((e) => {
+    r && E(r).filter((e) => !x(e.getAttribute("href") ?? "")).filter((e) => {
       try {
         const n = new URL(e.getAttribute("href") ?? "", "https://ecency.com");
-        return !P(n.pathname);
+        return !I(n.pathname);
       } catch {
         return !1;
       }
@@ -176,22 +194,22 @@ function K({
       const n = document.createElement("div");
       n.classList.add("ecency-renderer-hive-post-extension");
       const t = e.getAttribute("href") ?? "";
-      h(n).render(/* @__PURE__ */ c(q, {
+      f(n).render(/* @__PURE__ */ c(P, {
         link: t
       })), (s = e.parentElement) == null || s.replaceChild(n, e);
     });
   }, []), null;
 }
-function _({
+function q({
   author: a
 }) {
   const r = `https://images.ecency.com/u${a.toLowerCase().replace("@", "")}/avatar/small`;
-  return /* @__PURE__ */ m(w, {
+  return /* @__PURE__ */ p(y, {
     children: [/* @__PURE__ */ c("img", {
       src: r,
       className: "ecency-renderer-author-extension-link-image",
       alt: a
-    }), /* @__PURE__ */ m("div", {
+    }), /* @__PURE__ */ p("div", {
       className: "ecency-renderer-author-extension-link-content",
       children: [/* @__PURE__ */ c("span", {
         className: "ecency-renderer-author-extension-link-content-label",
@@ -213,7 +231,7 @@ function G({
       const t = n.getAttribute("href");
       if (!t) return;
       const o = document.createElement("a");
-      o.setAttribute("href", t), o.setAttribute("target", "_blank"), o.setAttribute("rel", "noopener"), o.classList.add("ecency-renderer-author-extension"), o.classList.add("ecency-renderer-author-extension-link"), h(o).render(/* @__PURE__ */ c(_, {
+      o.setAttribute("href", t), o.setAttribute("target", "_blank"), o.setAttribute("rel", "noopener"), o.classList.add("ecency-renderer-author-extension"), o.classList.add("ecency-renderer-author-extension-link"), f(o).render(/* @__PURE__ */ c(q, {
         author: t
       })), (i = n.parentElement) == null || i.replaceChild(o, n), o.dataset.enhanced = "true";
     });
@@ -234,13 +252,13 @@ function Q({
     Array.from(((e = a.current) == null ? void 0 : e.querySelectorAll(".markdown-view:not(.markdown-view-pure) .markdown-tag-link")) ?? []).forEach((n) => {
       var s;
       const t = document.createElement("a");
-      t.setAttribute("href", n.getAttribute("href") ?? ""), t.setAttribute("target", "_blank"), t.setAttribute("rel", "noopener"), t.classList.add("ecency-renderer-tag-extension"), t.classList.add("ecency-renderer-tag-extension-link"), h(t).render(/* @__PURE__ */ c(J, {
+      t.setAttribute("href", n.getAttribute("href") ?? ""), t.setAttribute("target", "_blank"), t.setAttribute("rel", "noopener"), t.classList.add("ecency-renderer-tag-extension"), t.classList.add("ecency-renderer-tag-extension-link"), f(t).render(/* @__PURE__ */ c(J, {
         tag: n.innerText
       })), (s = n.parentElement) == null || s.replaceChild(t, n);
     });
   }, []), null;
 }
-function W(a) {
+function _(a) {
   try {
     const r = new URL(a);
     let e = "";
@@ -268,11 +286,11 @@ function X(a) {
   const n = parseInt(a, 10);
   return Number.isNaN(n) ? void 0 : n;
 }
-function H({
+function W({
   embedSrc: a,
   container: r
 }) {
-  const [e, n] = x(!1);
+  const [e, n] = L(!1);
   return l(() => {
     const t = () => n(!0);
     return r.addEventListener("click", t), () => r.removeEventListener("click", t);
@@ -296,62 +314,62 @@ function ee({
   return l(() => {
     var e;
     Array.from(((e = a.current) == null ? void 0 : e.querySelectorAll(".markdown-view:not(.markdown-view-pure) .markdown-video-link-youtube:not(.ecency-renderer-youtube-extension)")) ?? []).forEach((n) => {
-      const t = n.dataset.embedSrc || W(n.getAttribute("href") ?? "");
+      const t = n.dataset.embedSrc || _(n.getAttribute("href") ?? "");
       n.dataset.embedSrc = t;
       const o = document.createElement("div");
-      o.classList.add("ecency-renderer-youtube-extension-frame"), n.classList.add("ecency-renderer-youtube-extension"), N(o, /* @__PURE__ */ c(H, {
+      o.classList.add("ecency-renderer-youtube-extension-frame"), n.classList.add("ecency-renderer-youtube-extension"), N(o, /* @__PURE__ */ c(W, {
         embedSrc: t,
         container: n
       })), n.appendChild(o);
     });
-  }, []), /* @__PURE__ */ c(w, {});
+  }, []), /* @__PURE__ */ c(y, {});
 }
-const C = /* @__PURE__ */ new Map();
+const S = /* @__PURE__ */ new Map();
 async function te(a, r) {
-  if (C.has(`${a}/${r}`))
-    return C.get(`${a}/${r}`);
+  if (S.has(`${a}/${r}`))
+    return S.get(`${a}/${r}`);
   const e = await window.dHiveClient.call(
     "condenser_api",
     "get_content",
     [a, r]
   );
-  return C.set(`${a}/${r}`, e), e;
+  return S.set(`${a}/${r}`, e), e;
 }
 const re = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148.85 148.85"><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><circle class="ecency-logo-circle" cx="74.43" cy="74.43" r="74.43"/><path class="ecency-logo-sign" d="M88.27,105.71c-9,.08-30.35.27-35.13-.29-3.88-.46-11-3-11.11-12.81C42,87,41.66,64,42.46,59,44.13,48.4,47,41.77,59.05,36.33c10.26-4.44,32.17-.78,34.54,16.93.45,3.37,1.25,3.74,2.49,4,19.61,4.13,24,26.26,14.6,38.32C104.73,103.26,98.31,104.76,88.27,105.71ZM84.71,59.25c.68-11.52-11-19.82-22.82-13.66-8.42,4.39-9.15,10.76-9.68,18-.67,9.2-.25,15.91-.09,25.13.07,4.13,1.27,6.64,5.7,7,1.14.1,17,0,25.22.06,10.74.06,24.06-4.89,21.93-18a12.68,12.68,0,0,0-10.8-10.22,2.12,2.12,0,0,0-2.21,1C85,83,69.66,82.31,63.41,74.46c-5.61-7.06-2.7-18.73,4.68-21.2,2.78-.94,5.11-.11,6.25,1.86,1.84,3.18.11,6.06-2.49,7.65s-2.45,3.92-1.36,5.46c2.56,3.59,7.6,2.88,10.79-.28C83.87,65.4,84.52,62.47,84.71,59.25Z"/></g></g></svg>';
-function U({
+function H({
   link: a
 }) {
-  const [r, e] = x(), n = b(() => {
+  const [r, e] = L(), n = b(() => {
     var o, s, i, d;
     return (o = r == null ? void 0 : r.permlink) != null && o.startsWith("re-ecencywaves") || (s = r == null ? void 0 : r.permlink) != null && s.startsWith("wave-") ? "ecency.waves" : (i = r == null ? void 0 : r.permlink) != null && i.startsWith("re-leothreads") ? "threads" : (d = r == null ? void 0 : r.permlink) != null && d.startsWith("re-liketu-moments") ? "moments" : "";
   }, [r]);
   if (l(() => {
-    const [o, s, i, d, u] = new URL(a, "https://ecency.com").pathname.split("/");
-    te(d.replace("@", ""), u).then((p) => {
-      e(p);
-    }).catch((p) => console.error(p));
+    const [o, s, i, d, m] = new URL(a, "https://ecency.com").pathname.split("/");
+    te(d.replace("@", ""), m).then((u) => {
+      e(u);
+    }).catch((u) => console.error(u));
   }, []), !r)
-    return /* @__PURE__ */ c(w, {});
+    return /* @__PURE__ */ c(y, {});
   const t = `/waves/${r.author}/${r.permlink}`;
-  return /* @__PURE__ */ m("article", {
+  return /* @__PURE__ */ p("article", {
     className: "ecency-renderer-wave-like-post-extension-renderer",
     children: [/* @__PURE__ */ c("a", {
       href: t,
       "aria-label": `Open wave by @${r.author}`,
       className: "ecency-renderer-wave-like-post-extension-renderer__overlay"
-    }), /* @__PURE__ */ m("div", {
+    }), /* @__PURE__ */ p("div", {
       className: "ecency-renderer-wave-like-post-extension-renderer--author",
       children: [/* @__PURE__ */ c("img", {
         src: `https://images.ecency.com/u/${r.author}/avatar/small`,
         alt: r.author,
         className: "ecency-renderer-wave-like-post-extension-renderer--author-avatar"
-      }), /* @__PURE__ */ m("div", {
+      }), /* @__PURE__ */ p("div", {
         className: "ecency-renderer-wave-like-post-extension-renderer--author-content",
-        children: [/* @__PURE__ */ m("a", {
+        children: [/* @__PURE__ */ p("a", {
           className: "ecency-renderer-wave-like-post-extension-renderer--author-content-link",
           href: `/@${r.author}/posts`,
           children: ["@", r.author]
-        }), /* @__PURE__ */ m("div", {
+        }), /* @__PURE__ */ p("div", {
           className: "ecency-renderer-wave-like-post-extension-renderer--author-content-host",
           children: ["#", n]
         })]
@@ -375,16 +393,16 @@ function ne({
 }) {
   return l(() => {
     const r = a.current;
-    r && E(r).filter((e) => L(e.getAttribute("href") ?? "")).forEach((e) => {
+    r && E(r).filter((e) => x(e.getAttribute("href") ?? "")).forEach((e) => {
       var t;
       const n = document.createElement("div");
-      n.classList.add("ecency-renderer-wave-like-extension"), N(n, /* @__PURE__ */ c(U, {
+      n.classList.add("ecency-renderer-wave-like-extension"), N(n, /* @__PURE__ */ c(H, {
         link: e.getAttribute("href") ?? ""
       })), (t = e.parentElement) == null || t.replaceChild(n, e);
     });
-  }, []), /* @__PURE__ */ c(w, {});
+  }, []), /* @__PURE__ */ c(y, {});
 }
-function M({
+function U({
   op: a
 }) {
   const r = b(() => {
@@ -395,17 +413,17 @@ function M({
       return;
     }
   }, [a]), e = b(() => r == null ? void 0 : r[0].split("_").join(" "), [r]);
-  return /* @__PURE__ */ m(w, {
+  return /* @__PURE__ */ p(y, {
     children: [/* @__PURE__ */ c("span", {
       className: "ecency-renderer-hive-operation-extension-label",
       children: "Hive operation, click to Sign"
     }), !r && a, /* @__PURE__ */ c("div", {
       className: "ecency-renderer-hive-operation-extension-content",
-      children: r && /* @__PURE__ */ m(w, {
+      children: r && /* @__PURE__ */ p(y, {
         children: [/* @__PURE__ */ c("div", {
           className: "ecency-renderer-hive-operation-extension-type",
           children: e
-        }), e === "transfer" && /* @__PURE__ */ m("div", {
+        }), e === "transfer" && /* @__PURE__ */ p("div", {
           className: "ecency-renderer-hive-operation-extension-transfer",
           children: [/* @__PURE__ */ c("span", {
             className: "ecency-renderer-hive-operation-extension-transfer-highlight",
@@ -439,7 +457,7 @@ function ae({
       const t = document.createElement("div");
       t.classList.add("ecency-renderer-hive-operation-extension");
       const o = n.innerText.replace("hive://sign/op/", "");
-      t.addEventListener("click", () => r == null ? void 0 : r(o)), h(t).render(/* @__PURE__ */ c(M, {
+      t.addEventListener("click", () => r == null ? void 0 : r(o)), f(t).render(/* @__PURE__ */ c(U, {
         op: o
       })), (i = n.parentElement) == null || i.replaceChild(t, n);
     });
@@ -461,7 +479,7 @@ function oe({
         const i = new URL(o).pathname.split("/").pop();
         if (!i) return;
         const d = document.createElement("div");
-        d.classList.add("ecency-renderer-twitter-extension-frame"), t.classList.add("ecency-renderer-twitter-extension"), t.innerHTML = "", t.appendChild(d), h(d).render(/* @__PURE__ */ c(r, {
+        d.classList.add("ecency-renderer-twitter-extension-frame"), t.classList.add("ecency-renderer-twitter-extension"), t.innerHTML = "", t.appendChild(d), f(d).render(/* @__PURE__ */ c(r, {
           id: i
         }));
       } catch (o) {
@@ -470,11 +488,11 @@ function oe({
     });
   }, [a]), null;
 }
-function B({
+function M({
   embedSrc: a,
   container: r
 }) {
-  const [e, n] = x(!1);
+  const [e, n] = L(!1);
   return l(() => {
     const t = () => n(!0);
     return r.addEventListener("click", t), () => r.removeEventListener("click", t);
@@ -499,12 +517,12 @@ function se({
     var e;
     Array.from(((e = a.current) == null ? void 0 : e.querySelectorAll(".markdown-view:not(.markdown-view-pure) .markdown-video-link-speak:not(.ecency-renderer-speak-extension)")) ?? []).forEach((n) => {
       const t = document.createElement("div");
-      t.classList.add("ecency-renderer-speak-extension-frame"), n.classList.add("ecency-renderer-speak-extension"), N(t, /* @__PURE__ */ c(B, {
+      t.classList.add("ecency-renderer-speak-extension-frame"), n.classList.add("ecency-renderer-speak-extension"), N(t, /* @__PURE__ */ c(M, {
         embedSrc: n.dataset.embedSrc ?? "",
         container: n
       })), n.appendChild(t);
     });
-  }, []), /* @__PURE__ */ c(w, {});
+  }, []), /* @__PURE__ */ c(y, {});
 }
 function ce({
   value: a,
@@ -515,8 +533,8 @@ function ce({
   }),
   ...t
 }) {
-  const o = $(null);
-  return /* @__PURE__ */ m(w, {
+  const o = T(null);
+  return /* @__PURE__ */ p(y, {
     children: [/* @__PURE__ */ c("div", {
       ...t,
       ref: o,
@@ -525,7 +543,7 @@ function ce({
       dangerouslySetInnerHTML: {
         __html: j(a, !1)
       }
-    }), !r && /* @__PURE__ */ m(w, {
+    }), !r && /* @__PURE__ */ p(y, {
       children: [/* @__PURE__ */ c(F, {
         containerRef: o
       }), /* @__PURE__ */ c(K, {
@@ -577,29 +595,29 @@ function ie(a) {
       }
       const d = document.createElement("div");
       d.classList.add("markdown-image-container");
-      const u = n.cloneNode(!0), p = (t = n.getAttribute("title")) == null ? void 0 : t.trim(), f = (o = n.getAttribute("data-caption")) == null ? void 0 : o.trim(), y = (s = n.getAttribute("alt")) == null ? void 0 : s.trim(), v = y ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(y) : !1, k = p || f || (v ? "" : y);
+      const m = n.cloneNode(!0), u = (t = n.getAttribute("title")) == null ? void 0 : t.trim(), h = (o = n.getAttribute("data-caption")) == null ? void 0 : o.trim(), w = (s = n.getAttribute("alt")) == null ? void 0 : s.trim(), v = w ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(w) : !1, k = u || h || (v ? "" : w);
       if (k) {
         const g = document.createElement("div");
-        g.classList.add("markdown-img-caption"), g.innerText = k, d.appendChild(u), d.appendChild(g);
+        g.classList.add("markdown-img-caption"), g.innerText = k, d.appendChild(m), d.appendChild(g);
       } else
-        d.appendChild(u);
+        d.appendChild(m);
       n.isConnected && n.parentElement && n.parentElement.replaceChild(d, n);
     } catch (i) {
       console.warn("Error enhancing image element:", i);
     }
-  }), I(
+  }), $(
     a.querySelectorAll(
       ".markdown-view:not(.markdown-view-pure) img"
     )
   ).update({ background: "#131111" });
 }
 function de(a, r = E(a)) {
-  r.filter((e) => e.dataset.isInline !== "true").filter((e) => !L(e.getAttribute("href") ?? "")).forEach((e) => {
+  r.filter((e) => e.dataset.isInline !== "true").filter((e) => !x(e.getAttribute("href") ?? "")).forEach((e) => {
     var s;
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.getAttribute("href") ?? "", t = document.createElement("div");
-    t.classList.add("ecency-renderer-hive-post-extension"), h(t).render(/* @__PURE__ */ c(q, {
+    t.classList.add("ecency-renderer-hive-post-extension"), f(t).render(/* @__PURE__ */ c(P, {
       link: n
     })), (s = e.parentElement) == null || s.replaceChild(t, e);
   });
@@ -610,7 +628,7 @@ function le(a, r) {
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.innerText.replace("hive://sign/op/", ""), t = document.createElement("div");
-    t.classList.add("ecency-renderer-hive-operation-extension"), t.addEventListener("click", () => r == null ? void 0 : r(n)), h(t).render(/* @__PURE__ */ c(M, {
+    t.classList.add("ecency-renderer-hive-operation-extension"), t.addEventListener("click", () => r == null ? void 0 : r(n)), f(t).render(/* @__PURE__ */ c(U, {
       op: n
     })), (s = e.parentElement) == null || s.replaceChild(t, e);
   });
@@ -623,7 +641,7 @@ function me(a) {
     const n = e.getAttribute("href");
     if (!n) return;
     const t = document.createElement("a");
-    t.href = n, t.target = "_blank", t.rel = "noopener", t.classList.add("ecency-renderer-author-extension", "ecency-renderer-author-extension-link"), h(t).render(/* @__PURE__ */ c(_, {
+    t.href = n, t.target = "_blank", t.rel = "noopener", t.classList.add("ecency-renderer-author-extension", "ecency-renderer-author-extension-link"), f(t).render(/* @__PURE__ */ c(q, {
       author: n
     })), (s = e.parentElement) == null || s.replaceChild(t, e);
   });
@@ -639,10 +657,10 @@ function pe(a) {
   Array.from(a.querySelectorAll(".markdown-view:not(.markdown-view-pure) .markdown-video-link-youtube:not(.ecency-renderer-youtube-extension)")).forEach((e) => {
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
-    const n = e.dataset.embedSrc || W(e.getAttribute("href") ?? "");
+    const n = e.dataset.embedSrc || _(e.getAttribute("href") ?? "");
     e.dataset.embedSrc = n;
     const t = document.createElement("div");
-    t.classList.add("ecency-renderer-youtube-extension-frame"), h(t).render(/* @__PURE__ */ c(H, {
+    t.classList.add("ecency-renderer-youtube-extension-frame"), f(t).render(/* @__PURE__ */ c(W, {
       embedSrc: n,
       container: e
     })), e.appendChild(t);
@@ -653,7 +671,7 @@ function he(a) {
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.dataset.embedSrc ?? "", t = document.createElement("div");
-    t.classList.add("ecency-renderer-speak-extension-frame"), h(t).render(/* @__PURE__ */ c(B, {
+    t.classList.add("ecency-renderer-speak-extension-frame"), f(t).render(/* @__PURE__ */ c(M, {
       embedSrc: n,
       container: e
     })), e.appendChild(t);
@@ -679,7 +697,7 @@ function fe(a, r) {
       const i = new URL(t).pathname.split("/").filter(Boolean)[2];
       if (!i) return;
       const d = document.createElement("div");
-      d.classList.add("ecency-renderer-twitter-extension-frame"), n.innerHTML = "", n.appendChild(d), h(d).render(/* @__PURE__ */ c(r, {
+      d.classList.add("ecency-renderer-twitter-extension-frame"), n.innerHTML = "", n.appendChild(d), f(d).render(/* @__PURE__ */ c(r, {
         id: i
       }));
     } catch (t) {
@@ -688,17 +706,17 @@ function fe(a, r) {
   });
 }
 function we(a, r = E(a)) {
-  r.filter((e) => e.dataset.isInline !== "true").filter((e) => L(e.getAttribute("href") ?? "")).forEach((e) => {
+  r.filter((e) => e.dataset.isInline !== "true").filter((e) => x(e.getAttribute("href") ?? "")).forEach((e) => {
     var s;
     if (e.dataset.enhanced === "true") return;
     e.dataset.enhanced = "true";
     const n = e.getAttribute("href") ?? "", t = document.createElement("div");
-    t.classList.add("ecency-renderer-wave-like-extension"), h(t).render(/* @__PURE__ */ c(U, {
+    t.classList.add("ecency-renderer-wave-like-extension"), f(t).render(/* @__PURE__ */ c(H, {
       link: n
     })), (s = e.parentElement) == null || s.replaceChild(t, e);
   });
 }
-const ye = ({ id: a }) => O.createElement("div", {
+const ye = ({ id: a }) => B.createElement("div", {
   style: {
     padding: "16px",
     border: "1px solid #e1e8ed",
@@ -708,12 +726,30 @@ const ye = ({ id: a }) => O.createElement("div", {
     textAlign: "center"
   }
 }, `Failed to load tweet. View on Twitter: https://twitter.com/i/status/${a}`);
-function Le(a, r) {
+function xe(a, r) {
   ie(a);
   const e = E(a);
   de(a, e), me(a), le(a, r == null ? void 0 : r.onHiveOperationClick), ue(a), pe(a), he(a), we(a, e), fe(a, (r == null ? void 0 : r.TwitterComponent) ?? ye);
 }
 export {
+  G as AuthorLinkExtension,
+  q as AuthorLinkRenderer,
   ce as EcencyRenderer,
-  Le as setupPostEnhancements
+  ae as HiveOperationExtension,
+  U as HiveOperationRenderer,
+  K as HivePostLinkExtension,
+  P as HivePostLinkRenderer,
+  F as ImageZoomExtension,
+  Q as TagLinkExtension,
+  J as TagLinkRenderer,
+  se as ThreeSpeakVideoExtension,
+  M as ThreeSpeakVideoRenderer,
+  oe as TwitterExtension,
+  ne as WaveLikePostExtension,
+  H as WaveLikePostRenderer,
+  ee as YoutubeVideoExtension,
+  W as YoutubeVideoRenderer,
+  E as findPostLinkElements,
+  x as isWaveLikePost,
+  xe as setupPostEnhancements
 };

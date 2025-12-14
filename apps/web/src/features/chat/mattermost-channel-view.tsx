@@ -66,8 +66,9 @@ import {
   mailSvg
 } from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
+import { Popover, PopoverContent } from "@ui/popover";
 import { Modal, ModalBody } from "@ui/modal";
-import { ImageUploadButton, ProfileLink, UserAvatar } from "@/features/shared";
+import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
 import defaults from "@/defaults";
@@ -80,6 +81,12 @@ import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
 import { Element, Text } from "domhandler";
 import { marked } from "marked";
+import {
+  HivePostLinkRenderer,
+  WaveLikePostRenderer,
+  isWaveLikePost,
+} from "@ecency/renderer";
+import "@ecency/renderer/style.css";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const CHANNEL_WIDE_MENTIONS = [
@@ -94,6 +101,51 @@ const CHANNEL_WIDE_MENTIONS = [
     description: "Notify all channel members unless they muted the channel."
   }
 ] as const;
+
+const ECENCY_HOSTNAMES = new Set([
+  "ecency.com",
+  "www.ecency.com",
+  "peakd.com",
+  "www.peakd.com",
+  "hive.blog",
+  "www.hive.blog"
+]);
+
+function isEnhanceableEcencyPostLink(href: string) {
+  try {
+    const url = new URL(href, "https://ecency.com");
+
+    if (url.protocol && !/^https?:$/.test(url.protocol)) {
+      return false;
+    }
+
+    if (url.hostname && url.hostname !== "" && !ECENCY_HOSTNAMES.has(url.hostname)) {
+      return false;
+    }
+
+    if (url.hash.startsWith("#@")) {
+      return false;
+    }
+
+    const pathParts = url.pathname.split("/").filter(Boolean);
+    if (pathParts.length < 2) {
+      return false;
+    }
+
+    const permlink = decodeURIComponent(pathParts.pop() ?? "");
+    const author = decodeURIComponent(pathParts.pop() ?? "");
+
+    if (!author.startsWith("@") || !permlink) {
+      return false;
+    }
+
+    // Allow direct post links (/@author/permlink), community links (/hive-123/@author/permlink),
+    // or category links (/category/@author/permlink)
+    return pathParts.length <= 1;
+  } catch {
+    return false;
+  }
+}
 
 setProxyBase(defaults.imageServer);
 
@@ -750,12 +802,6 @@ export function MattermostChannelView({ channelId }: Props) {
   const onlineCount = onlineUsers.length;
 
   useEffect(() => {
-    if (onlineCount === 0 && showOnlineUsers) {
-      setShowOnlineUsers(false);
-    }
-  }, [onlineCount, showOnlineUsers]);
-
-  useEffect(() => {
     handleScroll();
   }, [posts.length, handleScroll]);
 
@@ -889,6 +935,8 @@ export function MattermostChannelView({ channelId }: Props) {
                 (child) => child instanceof Element && child.name === "img"
               );
 
+              const isEcencyPostLink = isEnhanceableEcencyPostLink(href);
+
               const childText = (domNode.children || [])
                 .map((child) => (child.type === "text" ? (child as Text).data?.trim() ?? "" : ""))
                 .join("")
@@ -914,6 +962,14 @@ export function MattermostChannelView({ channelId }: Props) {
                     />
                   </a>
                 );
+              }
+
+              if (isEcencyPostLink && !containsImage) {
+                if (isWaveLikePost(href)) {
+                  return <WaveLikePostRenderer link={href} />;
+                }
+
+                return <HivePostLinkRenderer link={href} />;
               }
 
               return (
@@ -1380,89 +1436,57 @@ export function MattermostChannelView({ channelId }: Props) {
               <div className="flex flex-wrap items-center gap-2 text-xs text-[--text-muted]">
                 <span className="truncate">{channelSubtitle}</span>
 
-                {onlineCount > 0 && (
-                  <>
+                <Popover
+                  behavior="click"
+                  placement="bottom-start"
+                  show={showOnlineUsers}
+                  setShow={setShowOnlineUsers}
+                  directContent={
                     <button
                       type="button"
-                      onClick={() => setShowOnlineUsers(true)}
                       className="flex items-center gap-1 rounded-full border border-[--border-color] px-2 py-1 text-[11px] text-[--text-muted] transition hover:border-blue-dark-sky hover:text-[--text-color]"
                     >
-                      <span className="text-sm leading-none" aria-hidden>
-                        🟢
-                      </span>
+                      <span
+                        className="h-2 w-2 rounded-full bg-green-500"
+                        aria-hidden
+                      />
                       <span>{onlineCount} online</span>
                     </button>
+                  }
+                >
+                  <PopoverContent className="w-64 max-h-64 overflow-y-auto rounded border border-[--border-color] bg-[--surface-color] text-[--text-color] shadow">
+                    {onlineUsers.length ? (
+                      <div className="space-y-1">
+                        {onlineUsers.map((user) => {
+                          const displayName = getUserDisplayName(user) || user.username;
 
-                    <Modal
-                      show={showOnlineUsers}
-                      onHide={() => setShowOnlineUsers(false)}
-                      centered
-                      size="sm"
-                    >
-                      <ModalBody>
-                        <div className="flex items-center justify-between gap-2 pb-3">
-                          <div className="flex items-center gap-2 text-sm font-semibold">
-                            <span className="text-sm leading-none" aria-hidden>
-                              🟢
-                            </span>
-                            <span>Online now</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setShowOnlineUsers(false)}
-                            className="text-[--text-muted] hover:text-[--text-color]"
-                            aria-label="Close online users"
-                          >
-                            ×
-                          </button>
-                        </div>
-
-                        <div className="max-h-80 overflow-y-auto">
-                          {onlineUsers.length ? (
-                            <div className="space-y-1">
-                              {onlineUsers.map((user) => {
-                                const displayName = getUserDisplayName(user) || user.username;
-
-                                if (!user.username) {
-                                  return (
-                                    <div
-                                      key={user.id}
-                                      className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color]"
-                                    >
-                                      <div className="h-7 w-7 rounded-full bg-[--background-color]" />
-                                      <div className="min-w-0">
-                                        <div className="truncate text-sm">{displayName}</div>
-                                      </div>
-                                    </div>
-                                  );
-                                }
-
-                                return (
-                                  <ProfileLink
-                                    key={user.id}
-                                    username={user.username}
-                                    afterClick={() => setShowOnlineUsers(false)}
-                                    className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-dark-sky"
-                                  >
-                                    <UserAvatar username={user.username} size="small" />
-                                    <div className="min-w-0">
-                                      <div className="truncate text-sm">{displayName}</div>
-                                      <div className="truncate text-[11px] text-[--text-muted]">@{user.username}</div>
-                                    </div>
-                                  </ProfileLink>
-                                );
-                              })}
+                          return (
+                            <div
+                              key={user.id}
+                              className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color]"
+                            >
+                              {user.username ? (
+                                <UserAvatar username={user.username} size="small" />
+                              ) : (
+                                <div className="h-7 w-7 rounded-full bg-[--background-color]" />
+                              )}
+                              <div className="min-w-0">
+                                <div className="truncate text-sm">{displayName}</div>
+                                {user.username && (
+                                  <div className="truncate text-[11px] text-[--text-muted]">@{user.username}</div>
+                                )}
+                              </div>
                             </div>
-                          ) : (
-                            <div className="px-2 py-1 text-[11px] text-[--text-muted]">
-                              No one is online right now.
-                            </div>
-                          )}
-                        </div>
-                      </ModalBody>
-                    </Modal>
-                  </>
-                )}
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="px-2 py-1 text-[11px] text-[--text-muted]">
+                        No one is online right now.
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
