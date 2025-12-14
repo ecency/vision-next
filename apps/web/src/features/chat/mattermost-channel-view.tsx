@@ -171,6 +171,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [unreadCountBelowScroll, setUnreadCountBelowScroll] = useState(0);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  const [showOnlineUsers, setShowOnlineUsers] = useState(false);
 
     type GifStyle = {
       width: string;
@@ -734,6 +735,20 @@ export function MattermostChannelView({ channelId }: Props) {
     directChannelFromList?.type,
     directChannelUser?.username
   ]);
+
+  const onlineUsers = useMemo(() => {
+    const uniqueIds = Array.from(new Set(channelData?.onlineUserIds ?? []));
+
+    const getName = (user: MattermostUser) =>
+      getUserDisplayName(user) || user.username || user.id;
+
+    return uniqueIds
+      .map((id) => usersById[id])
+      .filter((user): user is MattermostUser => Boolean(user))
+      .sort((a, b) => getName(a).localeCompare(getName(b)));
+  }, [channelData?.onlineUserIds, usersById]);
+
+  const onlineCount = onlineUsers.length;
 
   useEffect(() => {
     handleScroll();
@@ -1357,8 +1372,60 @@ export function MattermostChannelView({ channelId }: Props) {
             {/* Left: title + subtitle */}
             <div className="flex flex-col min-w-0">
               <div className="truncate text-lg font-semibold">{channelTitle}</div>
-              <div className="truncate text-xs text-[--text-muted]">
-                {channelSubtitle}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-[--text-muted]">
+                <span className="truncate">{channelSubtitle}</span>
+
+                <Popover
+                  behavior="click"
+                  placement="bottom-start"
+                  show={showOnlineUsers}
+                  setShow={setShowOnlineUsers}
+                  directContent={
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 rounded-full border border-[--border-color] px-2 py-1 text-[11px] text-[--text-muted] transition hover:border-blue-dark-sky hover:text-[--text-color]"
+                    >
+                      <span
+                        className="h-2 w-2 rounded-full bg-green-500"
+                        aria-hidden
+                      />
+                      <span>{onlineCount} online</span>
+                    </button>
+                  }
+                >
+                  <PopoverContent className="w-64 max-h-64 overflow-y-auto rounded border border-[--border-color] bg-[--surface-color] text-[--text-color] shadow">
+                    {onlineUsers.length ? (
+                      <div className="space-y-1">
+                        {onlineUsers.map((user) => {
+                          const displayName = getUserDisplayName(user) || user.username;
+
+                          return (
+                            <div
+                              key={user.id}
+                              className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color]"
+                            >
+                              {user.username ? (
+                                <UserAvatar username={user.username} size="small" />
+                              ) : (
+                                <div className="h-7 w-7 rounded-full bg-[--background-color]" />
+                              )}
+                              <div className="min-w-0">
+                                <div className="truncate text-sm">{displayName}</div>
+                                {user.username && (
+                                  <div className="truncate text-[11px] text-[--text-muted]">@{user.username}</div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="px-2 py-1 text-[11px] text-[--text-muted]">
+                        No one is online right now.
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 

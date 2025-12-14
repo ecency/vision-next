@@ -109,6 +109,26 @@ export async function GET(
       token
     );
 
+    // Fetch status for channel members to determine who is online
+    let onlineUserIds: string[] = [];
+    try {
+      const statuses = await mmUserFetch<{ user_id: string; status: string }[]>(
+        `/users/status/ids`,
+        token,
+        {
+          method: "POST",
+          body: JSON.stringify(channelUsers.map((user) => user.id))
+        }
+      );
+
+      onlineUserIds = statuses
+        .filter((status) => status.status && status.status !== "offline")
+        .map((status) => status.user_id);
+    } catch (error) {
+      // If we cannot fetch statuses, continue without online information
+      console.error("Failed to fetch channel member statuses:", error);
+    }
+
     const users = channelUsers.reduce<Record<string, MattermostUser>>(
       (acc, user) => {
         acc[user.id] = user;
@@ -177,7 +197,8 @@ export async function GET(
       community: moderation.community,
       canModerate: moderation.canModerate,
       hasMore,
-      memberCount
+      memberCount,
+      onlineUserIds
     });
   } catch (error) {
     return handleMattermostError(error);

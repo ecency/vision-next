@@ -365,6 +365,7 @@ export interface MattermostPostsResponse {
   canModerate?: boolean;
   hasMore?: boolean;
   memberCount?: number;
+  onlineUserIds?: string[];
 }
 
 export interface MattermostReaction {
