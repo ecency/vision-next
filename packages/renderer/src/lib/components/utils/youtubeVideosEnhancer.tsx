@@ -13,19 +13,33 @@ export function applyYoutubeVideos(container: HTMLElement) {
     );
 
     elements.forEach((el) => {
-        if (el.dataset.enhanced === "true") return;
-        el.dataset.enhanced = "true";
+        try {
+            if (el.dataset.enhanced === "true") return;
+            el.dataset.enhanced = "true";
 
-        const embedSrc =
-            el.dataset.embedSrc ||
-            getYoutubeEmbedUrl(el.getAttribute("href") ?? "");
-        el.dataset.embedSrc = embedSrc;
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("ecency-renderer-youtube-extension-frame");
+            // Verify element is still connected to the DOM
+            if (!el.isConnected) {
+                console.warn("YouTube video element is no longer connected to DOM, skipping");
+                return;
+            }
 
-        const root = createRoot(wrapper);
-        root.render(<YoutubeVideoRenderer embedSrc={embedSrc} container={el} />);
+            const embedSrc =
+                el.dataset.embedSrc ||
+                getYoutubeEmbedUrl(el.getAttribute("href") ?? "");
+            el.dataset.embedSrc = embedSrc;
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("ecency-renderer-youtube-extension-frame");
 
-        el.appendChild(wrapper);
+            const root = createRoot(wrapper);
+            root.render(<YoutubeVideoRenderer embedSrc={embedSrc} container={el} />);
+
+            // Final check before appending - ensure element is still in DOM
+            if (el.isConnected) {
+                el.appendChild(wrapper);
+            }
+        } catch (error) {
+            // Handle any errors during DOM manipulation gracefully
+            console.warn("Error enhancing YouTube video element:", error);
+        }
     });
 }
