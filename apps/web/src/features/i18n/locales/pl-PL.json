@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Napisz swoją odpowiedź tutaj",
     "preview": "Podgląd",
-    "success": "Twoja odpowiedź została pomyślnie utworzona!"
+    "success": "Twoja odpowiedź została pomyślnie utworzona!",
+    "retry-hint": "Twój tekst jest zachowany poniżej - spróbuj ponownie",
+    "rc-error-hint": "Niewystarczająca ilość środków na zasoby - Twój tekst jest zachowany poniżej"
   },
   "discussion": {
     "join": "Dołącz do rozmowy",
