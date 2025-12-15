@@ -20,7 +20,7 @@ export interface PostTipsResponse {
   list: PostTip[];
 }
 
-export const getPostTipsQuery = (author: string, permlink: string) =>
+export const getPostTipsQuery = (author: string, permlink: string, isEnabled = true) =>
   EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.POST_TIPS, author, permlink],
     queryFn: async () => {
@@ -34,5 +34,5 @@ export const getPostTipsQuery = (author: string, permlink: string) =>
 
       return response.data;
     },
-    enabled: !!author && !!permlink
+    enabled: !!author && !!permlink && isEnabled
   });

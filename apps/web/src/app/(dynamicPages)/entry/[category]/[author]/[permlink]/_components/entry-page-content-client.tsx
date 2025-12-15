@@ -2,6 +2,7 @@
 
 import { getPostTipsQuery } from "@/api/queries";
 import { Entry } from "@/entities";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { EntryPageBodyViewer } from "./entry-page-body-viewer";
 import { EntryPageDiscussions } from "./entry-page-discussions";
 import { EntryPageEditHistory } from "./entry-page-edit-history";
@@ -16,7 +17,12 @@ interface Props {
 
 export function EntryPageContentClient({ entry, category }: Props) {
   const { showIfNsfw } = useContext(EntryPageContext);
-  const { data: _postTips } = getPostTipsQuery(entry.author, entry.permlink).useClientQuery();
+  const { activeUser } = useActiveAccount();
+  const { data: _postTips } = getPostTipsQuery(
+    entry.author,
+    entry.permlink,
+    !!activeUser
+  ).useClientQuery();
 
   return (
     <>

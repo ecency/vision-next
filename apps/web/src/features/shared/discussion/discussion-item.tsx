@@ -67,6 +67,7 @@ export const DiscussionItem = memo(function DiscussionItem({
   const activeUser = useClientActiveUser();
   const [reply, setReply] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [failedReplyText, setFailedReplyText] = useState<string | null>(null);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const isCommunityPost = !!community?.name;
@@ -196,8 +197,15 @@ export const DiscussionItem = memo(function DiscussionItem({
     entry,
     root,
     async () => {
-      toggleReply();
+      // Only close and clear on successful blockchain confirmation
+      setReply(false);
+      setFailedReplyText(null);
       return;
+    },
+    (text, error) => {
+      // Blockchain failed - restore text and keep form open
+      setFailedReplyText(text);
+      setReply(true); // Ensure form stays open
     }
   );
   const { mutateAsync: updateReply, isPending: isUpdateReplyLoading } = useUpdateReply(
@@ -209,7 +217,14 @@ export const DiscussionItem = memo(function DiscussionItem({
   );
   const { mutateAsync: pinReply } = usePinReply(entry, root);
 
-  const toggleReply = () => edit || setReply((r) => !r);
+  const toggleReply = () => {
+    if (edit) return;
+    if (!reply) {
+      // Opening reply form - clear failed text
+      setFailedReplyText(null);
+    }
+    setReply((r) => !r);
+  };
   const toggleEdit = () => reply || setEdit((e) => !e);
 
   const submitReply = async (text: string) => {
@@ -220,7 +235,7 @@ export const DiscussionItem = memo(function DiscussionItem({
       permlink,
       point: true
     });
-    setReply(false);
+    // Don't close form here - let the mutation's onSuccess/onError handle it
   };
 
   const _updateReply = (text: string) =>
@@ -354,6 +369,7 @@ export const DiscussionItem = memo(function DiscussionItem({
           onCancel={toggleReply}
           inProgress={isCreateLoading || isUpdateReplyLoading}
           autoFocus
+          initialText={failedReplyText}
         />
       )}
 

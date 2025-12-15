@@ -18,11 +18,23 @@ export const DeckPostViewerCommentBox = ({ entry, onReplied }: Props) => {
   const location = useLocation();
 
   const [isReplying, setIsReplying] = useState(false);
+  const [failedReplyText, setFailedReplyText] = useState<string | null>(null);
 
-  const { mutateAsync: createReply } = useCreateReply(entry, entry, () => {
-    onReplied();
-    setIsReplying(false);
-  });
+  const { mutateAsync: createReply } = useCreateReply(
+    entry,
+    entry,
+    () => {
+      // Success
+      onReplied();
+      setIsReplying(false);
+      setFailedReplyText(null);
+    },
+    (text, error) => {
+      // Blockchain failed - restore text and stop loading
+      setFailedReplyText(text);
+      setIsReplying(false);
+    }
+  );
 
   const submitReply = async (text: string) => {
     if (!username || !account) {
@@ -44,6 +56,7 @@ export const DeckPostViewerCommentBox = ({ entry, onReplied }: Props) => {
       entry={entry}
       onSubmit={submitReply}
       inProgress={isReplying}
+      initialText={failedReplyText}
     />
   );
 };
