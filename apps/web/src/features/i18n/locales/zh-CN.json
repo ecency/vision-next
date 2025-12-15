@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "在此处写下您的回复",
     "preview": "预览",
-    "success": "您的回复已成功创建！"
+    "success": "您的回复已成功创建！",
+    "retry-hint": "您的文本在下面被保留 - 请重试",
+    "rc-error-hint": "资源积分不足 - 您的文本在下方保存"
   },
   "discussion": {
     "join": "立即加入对话",
