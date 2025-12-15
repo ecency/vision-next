@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "अपना उत्तर यहां लिखें",
     "preview": "पूर्वावलोकन",
-    "success": "आपका उत्तर सफलतापूर्वक बनाया गया!"
+    "success": "आपका उत्तर सफलतापूर्वक बनाया गया!",
+    "retry-hint": "Your text is preserved below - please try again",
+    "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
   "discussion": {
     "join": "अभी बातचीत में शामिल हों",
