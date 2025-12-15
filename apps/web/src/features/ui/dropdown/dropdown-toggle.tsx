@@ -6,15 +6,18 @@ import { useFilteredProps } from "@/utils/props-filter";
 
 interface Props {
   withChevron?: boolean;
+  as?: "div" | "span";
 }
 
-export function DropdownToggle(props: HTMLProps<HTMLDivElement> & Props) {
+export function DropdownToggle(props: HTMLProps<HTMLElement> & Props) {
   const { setShow, show } = useContext(DropdownContext);
 
-  const nativeProps = useFilteredProps(props, ["withChevron"]);
+  const Component = props.as ?? "div";
+
+  const nativeProps = useFilteredProps(props, ["withChevron", "as"]);
 
   return (
-    <div
+    <Component
       {...nativeProps}
       className={classNameObject({
         "cursor-pointer ecency-dropdown-toggle": true,
@@ -32,6 +35,6 @@ export function DropdownToggle(props: HTMLProps<HTMLDivElement> & Props) {
           {chevronUpSvg}
         </i>
       )}
-    </div>
+    </Component>
   );
 }

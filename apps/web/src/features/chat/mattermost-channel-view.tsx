@@ -2,6 +2,7 @@
 
 import {
   ChangeEvent,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -114,7 +115,7 @@ function isEnhanceableEcencyPostLink(href: string) {
   try {
     const url = new URL(href, "https://ecency.com");
 
-    if (url.protocol && !/^https?:$/.test(url.protocol)) {
+    if (url.protocol && url.protocol !== "http:" && url.protocol !== "https:") {
       return false;
     }
 
@@ -855,7 +856,12 @@ export function MattermostChannelView({ channelId }: Props) {
     return /https?:\/\/(?:www\.)?ecency\.com\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})/i.test(combined);
   };
 
-  const renderTextWithMentions = (content: string) => {
+  const ECENCY_POST_LINK_REGEX = useMemo(
+    () => /https?:\/\/(?:www\.)?(?:ecency\.com|peakd\.com|hive\.blog)\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})\/[^\s)]+/gi,
+    []
+  );
+
+  const renderTextWithMentions = (content: string, keyPrefix = "mention") => {
     const mentionMatcher = new RegExp(USER_MENTION_PURE_REGEX.source, "i");
     const parts = content.split(
       /(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+)/
@@ -869,13 +875,13 @@ export function MattermostChannelView({ channelId }: Props) {
           const nextPart = parts[idx + 1] || "";
 
           if (isPartOfEcencyPostLink(prevPart, part, nextPart)) {
-            return <span key={`${part}-${idx}`}>{part}</span>;
+            return <span key={`${keyPrefix}-${part}-${idx}`}>{part}</span>;
           }
 
           const username = part.slice(1);
           return (
             <MentionToken
-              key={`${part}-${idx}`}
+              key={`${keyPrefix}-${part}-${idx}`}
               username={username}
               user={usersByUsername[username.toLowerCase()]}
               currentUsername={activeUser?.username}
@@ -884,8 +890,57 @@ export function MattermostChannelView({ channelId }: Props) {
           );
         }
 
-        return <span key={`${part}-${idx}`}>{part}</span>;
+        return <span key={`${keyPrefix}-${part}-${idx}`}>{part}</span>;
       });
+  };
+
+  const trimTrailingLinkPunctuation = (link: string) => {
+    let trimmed = link;
+    while (trimmed.length && /[\).,!?:]$/.test(trimmed)) {
+      trimmed = trimmed.slice(0, -1);
+    }
+    return trimmed;
+  };
+
+  const renderTextWithEnhancements = (content: string) => {
+    const matches = Array.from(content.matchAll(ECENCY_POST_LINK_REGEX));
+
+    if (!matches.length) {
+      return renderTextWithMentions(content);
+    }
+
+    const nodes: ReactNode[] = [];
+    let cursor = 0;
+
+    matches.forEach((match, index) => {
+      const matchIndex = match.index ?? 0;
+      const matchedText = match[0];
+
+      if (matchIndex > cursor) {
+        nodes.push(...renderTextWithMentions(content.slice(cursor, matchIndex), `mention-${index}-before`));
+      }
+
+      const cleanedLink = trimTrailingLinkPunctuation(matchedText);
+      const trailing = matchedText.slice(cleanedLink.length);
+
+      if (isEnhanceableEcencyPostLink(cleanedLink)) {
+        nodes.push(<HivePostLinkRenderer key={`ecency-link-${index}`} link={cleanedLink} />);
+      } else {
+        nodes.push(...renderTextWithMentions(cleanedLink, `mention-${index}-link`));
+      }
+
+      if (trailing) {
+        nodes.push(...renderTextWithMentions(trailing, `mention-${index}-trail`));
+      }
+
+      cursor = matchIndex + matchedText.length;
+    });
+
+    if (cursor < content.length) {
+      nodes.push(...renderTextWithMentions(content.slice(cursor), "mention-tail"));
+    }
+
+    return nodes;
   };
 
   const renderMessageContent = (text: string) => {
@@ -895,7 +950,7 @@ export function MattermostChannelView({ channelId }: Props) {
         ADD_ATTR: ["target", "rel"]
       });
 
-      const parseOptions: HTMLReactParserOptions = {
+      const createParseOptions = (inLink = false): HTMLReactParserOptions => ({
         replace(domNode) {
           if (domNode.type === "text") {
             const textContent = (domNode as Text).data || "";
@@ -904,19 +959,23 @@ export function MattermostChannelView({ channelId }: Props) {
             if (isImageUrl(trimmedText) && /^https?:\/\//.test(trimmedText)) {
               const proxied = getProxiedImageUrl(trimmedText);
               return (
-                  <img
-                    src={proxied}
-                    alt="Shared image"
-                    className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
-                  />
+                <img
+                  src={proxied}
+                  alt="Shared image"
+                  className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
+                />
               );
             }
-            return <>{renderTextWithMentions(textContent)}</>;
+            return <>{inLink ? renderTextWithMentions(textContent) : renderTextWithEnhancements(textContent)}</>;
           }
 
           if (domNode instanceof Element) {
             if (domNode.name === "p") {
-              return <div className="leading-relaxed">{domToReact(domNode.children ?? [], parseOptions)}</div>;
+              return (
+                <div className="leading-relaxed">
+                  {domToReact(domNode.children ?? [], createParseOptions(inLink))}
+                </div>
+              );
             }
 
             if (domNode.name === "img") {
@@ -935,7 +994,7 @@ export function MattermostChannelView({ channelId }: Props) {
 
             if (domNode.name === "a") {
               const href = domNode.attribs?.href || "";
-              const children = domToReact(domNode.children ?? [], parseOptions);
+              const children = domToReact(domNode.children ?? [], createParseOptions(true));
               const containsImage = (domNode.children || []).some(
                 (child) => child instanceof Element && child.name === "img"
               );
@@ -992,9 +1051,9 @@ export function MattermostChannelView({ channelId }: Props) {
 
           return undefined;
         }
-      };
+      });
 
-      return htmlParse(sanitized, parseOptions);
+      return htmlParse(sanitized, createParseOptions());
     } catch (error) {
       console.error("Failed to render chat message", error);
       const fallback = DOMPurify.sanitize(text || "", { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
@@ -1964,10 +2023,24 @@ function MentionToken({
   const isSelf = currentUsername
     ? username.toLowerCase() === currentUsername.toLowerCase()
     : false;
+  const isSpecialMention = ["here", "everyone"].includes(username.toLowerCase());
+
+  if (isSpecialMention) {
+    return (
+      <span
+        className={clsx(
+          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-sm font-semibold",
+          "cursor-default bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200"
+        )}
+      >
+        @{username}
+      </span>
+    );
+  }
 
   return (
     <Dropdown className="inline-block">
-      <DropdownToggle>
+      <DropdownToggle as="span">
         <span
           className={clsx(
             "inline-flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-sm font-semibold",
