@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Schrijf jouw reactie hier",
     "preview": "Voorbeeld",
-    "success": "Uw antwoord is succesvol aangemaakt!"
+    "success": "Uw antwoord is succesvol aangemaakt!",
+    "retry-hint": "Uw tekst is hieronder bewaard - probeer het opnieuw",
+    "rc-error-hint": "Onvoldoende Grondstof Credits - je tekst wordt hieronder bewaard"
   },
   "discussion": {
     "join": "Deelnemen aan de conversatie",
