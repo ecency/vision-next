@@ -37,6 +37,12 @@ export function applyTwitterEmbeds(
             if (el.dataset.enhanced === "true") return;
             el.dataset.enhanced = "true";
 
+            // Verify element is still connected to the DOM
+            if (!el.isConnected) {
+                console.warn("Twitter embed element is no longer connected to DOM, skipping");
+                return;
+            }
+
             const href = el.getAttribute("href");
             if (!href) return;
 
@@ -47,6 +53,12 @@ export function applyTwitterEmbeds(
 
             const wrapper = document.createElement("div");
             wrapper.classList.add("ecency-renderer-twitter-extension-frame");
+
+            // Final check before manipulation - ensure element is still in DOM
+            if (!el.isConnected) {
+                console.warn("Twitter embed element became disconnected before manipulation, skipping");
+                return;
+            }
 
             el.innerHTML = ""; // clear existing link text
             el.appendChild(wrapper);

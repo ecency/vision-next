@@ -10,16 +10,37 @@ export function applyHivePostLinks(
         .filter((el) => el.dataset.isInline !== "true")
         .filter((el) => !isWaveLikePost(el.getAttribute("href") ?? ""))
         .forEach((el) => {
-            if (el.dataset.enhanced === "true") return;
-            el.dataset.enhanced = "true";
+            try {
+                if (el.dataset.enhanced === "true") return;
+                el.dataset.enhanced = "true";
 
-            const link = el.getAttribute("href") ?? "";
-            const wrapper = document.createElement("div");
-            wrapper.classList.add("ecency-renderer-hive-post-extension");
+                // Verify element is still connected to the DOM
+                if (!el.isConnected) {
+                    console.warn("Hive post link element is no longer connected to DOM, skipping");
+                    return;
+                }
 
-            const root = createRoot(wrapper);
-            root.render(<HivePostLinkRenderer link={link} />);
+                // Verify parentElement exists before attempting manipulation
+                const parentElement = el.parentElement;
+                if (!parentElement) {
+                    console.warn("Hive post link element has no parent, skipping");
+                    return;
+                }
 
-            el.parentElement?.replaceChild(wrapper, el);
+                const link = el.getAttribute("href") ?? "";
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("ecency-renderer-hive-post-extension");
+
+                const root = createRoot(wrapper);
+                root.render(<HivePostLinkRenderer link={link} />);
+
+                // Final check before replacing - ensure element is still in DOM
+                if (el.isConnected && el.parentElement) {
+                    el.parentElement.replaceChild(wrapper, el);
+                }
+            } catch (error) {
+                // Handle any errors during DOM manipulation gracefully
+                console.warn("Error enhancing hive post link element:", error);
+            }
         });
 }

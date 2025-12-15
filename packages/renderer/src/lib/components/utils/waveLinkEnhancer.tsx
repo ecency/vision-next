@@ -13,17 +13,38 @@ export function applyWaveLikePosts(
         .filter((el) => el.dataset.isInline !== "true")
         .filter((el) => isWaveLikePost(el.getAttribute("href") ?? ""))
         .forEach((el) => {
-            if (el.dataset.enhanced === "true") return;
-            el.dataset.enhanced = "true";
+            try {
+                if (el.dataset.enhanced === "true") return;
+                el.dataset.enhanced = "true";
 
-            const link = el.getAttribute("href") ?? "";
+                // Verify element is still connected to the DOM
+                if (!el.isConnected) {
+                    console.warn("Wave-like post link element is no longer connected to DOM, skipping");
+                    return;
+                }
 
-            const wrapper = document.createElement("div");
-            wrapper.classList.add("ecency-renderer-wave-like-extension");
+                // Verify parentElement exists before attempting manipulation
+                const parentElement = el.parentElement;
+                if (!parentElement) {
+                    console.warn("Wave-like post link element has no parent, skipping");
+                    return;
+                }
 
-            const root = createRoot(wrapper);
-            root.render(<WaveLikePostRenderer link={link} />);
+                const link = el.getAttribute("href") ?? "";
 
-            el.parentElement?.replaceChild(wrapper, el);
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("ecency-renderer-wave-like-extension");
+
+                const root = createRoot(wrapper);
+                root.render(<WaveLikePostRenderer link={link} />);
+
+                // Final check before replacing - ensure element is still in DOM
+                if (el.isConnected && el.parentElement) {
+                    el.parentElement.replaceChild(wrapper, el);
+                }
+            } catch (error) {
+                // Handle any errors during DOM manipulation gracefully
+                console.warn("Error enhancing wave-like post link element:", error);
+            }
         });
 }
