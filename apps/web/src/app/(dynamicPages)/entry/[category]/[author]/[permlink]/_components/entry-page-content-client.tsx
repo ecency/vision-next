@@ -1,5 +1,6 @@
 "use client";
 
+import { getPostTipsQuery } from "@/api/queries";
 import { Entry } from "@/entities";
 import { EntryPageBodyViewer } from "./entry-page-body-viewer";
 import { EntryPageDiscussions } from "./entry-page-discussions";
@@ -15,6 +16,7 @@ interface Props {
 
 export function EntryPageContentClient({ entry, category }: Props) {
   const { showIfNsfw } = useContext(EntryPageContext);
+  const { data: _postTips } = getPostTipsQuery(entry.author, entry.permlink).useClientQuery();
 
   return (
     <>

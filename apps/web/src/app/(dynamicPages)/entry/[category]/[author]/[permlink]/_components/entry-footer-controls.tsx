@@ -65,8 +65,8 @@ export function EntryFooterControls({ entry }: Props) {
         <EntryVoteBtn isPostSlider={true} entry={entry} />
         <EntryPayout entry={entry} />
         <EntryVotes entry={entry} />
-        <EntryTipBtn entry={entry} />
         {!isOwnEntry && <EntryReblogBtn entry={entry} />}
+        <EntryTipBtn entry={entry} />
       </div>
       <span className="flex-spacer" />
       <div className="flex items-center">
