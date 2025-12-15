@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Schreibe hier deine Antwort",
     "preview": "Vorschau",
-    "success": "Ihre Antwort wurde erfolgreich erstellt!"
+    "success": "Ihre Antwort wurde erfolgreich erstellt!",
+    "retry-hint": "Ihr Text ist unten erhalten - bitte versuchen Sie es erneut",
+    "rc-error-hint": "Unzureichende Ressourcen-Credits - Ihr Text ist unten erhalten"
   },
   "discussion": {
     "join": "Einer Konversation beitreten",
