@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Напишете вашият отговор тук",
     "preview": "Преглед",
-    "success": "Your reply created successfully!"
+    "success": "Your reply created successfully!",
+    "retry-hint": "Your text is preserved below - please try again",
+    "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
   "discussion": {
     "join": "Join the conversation now",
