@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Écrivez votre réponse ici",
     "preview": "Prévisualiser",
-    "success": "Votre réponse a été créée avec succès !"
+    "success": "Votre réponse a été créée avec succès !",
+    "retry-hint": "Votre texte est conservé ci-dessous - veuillez réessayer",
+    "rc-error-hint": "Crédits de ressources insuffisants - votre texte est conservé ci-dessous"
   },
   "discussion": {
     "join": "Rejoignez la conversation maintenant",
