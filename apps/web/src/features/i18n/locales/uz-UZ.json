@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Xabarni kiriting",
     "preview": "Ko'rish",
-    "success": "Sizning javobingiz muvaffaqiyatli yaratildi!"
+    "success": "Sizning javobingiz muvaffaqiyatli yaratildi!",
+    "retry-hint": "Your text is preserved below - please try again",
+    "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
   "discussion": {
     "join": "Suhbatga qo'shilish",
