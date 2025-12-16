@@ -519,18 +519,16 @@ export function MattermostChannelView({ channelId }: Props) {
     setEditingPost(null);
     hasAppliedSharedText.current = false;
 
-    // Load draft message for this channel (if not editing or replying)
-    if (!editingPost && !replyingTo) {
-      const draft = loadDraft(channelId);
-      if (shareText) {
-        setMessage(shareText);
-        hasAppliedSharedText.current = true;
-      } else if (draft) {
-        setMessage(draft);
-        hasAppliedSharedText.current = true;
-      } else {
-        setMessage("");
-      }
+    // Load draft message for this channel
+    const draft = loadDraft(channelId);
+    if (shareText) {
+      setMessage(shareText);
+      hasAppliedSharedText.current = true;
+    } else if (draft) {
+      setMessage(draft);
+      hasAppliedSharedText.current = true;
+    } else {
+      setMessage("");
     }
 
     // Cleanup: clear draft save timeout when changing channels
@@ -539,7 +537,7 @@ export function MattermostChannelView({ channelId }: Props) {
         clearTimeout(draftSaveTimeoutRef.current);
       }
     };
-  }, [channelId, editingPost, replyingTo, shareText]);
+  }, [channelId, shareText]);
 
   useEffect(() => {
     hasFocusedPostRef.current = false;
