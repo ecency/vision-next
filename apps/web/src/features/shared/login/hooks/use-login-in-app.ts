@@ -7,10 +7,12 @@ import { useCallback } from "react";
 import { useAfterLoginTutorial } from "./use-after-login-tutorial";
 import * as ls from "@/utils/local-storage";
 import { ALL_NOTIFY_TYPES } from "@/enums";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useLoginInApp(username: string) {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
@@ -47,6 +49,10 @@ export function useLoginInApp(username: string) {
       // activate user
       setActiveUser(user.username);
 
+      // Invalidate all queries immediately after setting active user
+      // This ensures fresh data is fetched for the new account
+      queryClient.invalidateQueries();
+
       const notifToken = ls.get("fb-notifications-token") ?? "";
       if (notifToken) {
         const { data: existingSettings } = await refetchNotificationSettings();
@@ -67,16 +73,20 @@ export function useLoginInApp(username: string) {
         // login activity
       await recordActivity({ty: 20});
 
+      // Close dialog before navigation/refresh
+      hide();
+
       // redirection based on path name
       if (pathname?.startsWith("/signup/wallet")) {
         router.push(`/@${token.username}`);
       } else if (pathname?.startsWith("/signup/email")) {
         router.push(`/@${token.username}/feed`);
+      } else {
+        // Refresh the page to fetch new account data
+        router.refresh();
       }
 
       handleTutorial();
-
-      hide();
     },
     [
       addUser,
@@ -84,6 +94,7 @@ export function useLoginInApp(username: string) {
       hide,
       hsTokenRenew,
       pathname,
+      queryClient,
       recordActivity,
       router,
       setActiveUser,
