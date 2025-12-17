@@ -80,7 +80,7 @@ export function NavbarDesktop({
         <div className="flex items-center ml-3 gap-3">
           <NavbarPerksButton />
           <Tooltip content={i18next.t("chat.title")}>
-            <div className="relative">
+            <div key={activeUser?.username || "anon"} className="relative">
               <Button
                 href="/chats"
                 appearance="gray-link"
@@ -101,12 +101,15 @@ export function NavbarDesktop({
               icon={<UilEditAlt width={20} height={20} />}
             />
           </Tooltip>
-          {hydrated && activeUser && <NavbarNotificationsButton />}
+          {hydrated && activeUser && (
+            <NavbarNotificationsButton key={activeUser.username} />
+          )}
         </div>
         <div className="btn-menu">
           <AnonUserButtons />
           {hydrated && activeUser && (
             <div
+              key={activeUser.username}
               className="cursor-pointer ml-4"
               onClick={() => {
                 setShowSidebar(true);
@@ -120,7 +123,9 @@ export function NavbarDesktop({
           )}
         </div>
       </div>
-      {hydrated && activeUser && <NavbarSide show={showSidebar} setShow={setShowSidebar} />}
+      {hydrated && activeUser && (
+        <NavbarSide key={activeUser.username} show={showSidebar} setShow={setShowSidebar} />
+      )}
       <NavbarMainSidebar
         show={mainBarExpanded}
         setShow={setMainBarExpanded}

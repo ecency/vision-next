@@ -60,7 +60,7 @@ export function NavbarMobile({
         onClick={() => setMainBarExpanded(true)}
       />
       <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} />
-      <div className="relative">
+      <div key={activeUser?.username || "anon"} className="relative">
         <Button href="/chats" appearance="gray-link" icon={<UilComment width={20} height={20} />} />
         {unread?.totalUnread ? (
           <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-black dark:text-white shadow">
@@ -77,7 +77,7 @@ export function NavbarMobile({
             appearance="gray-link"
             icon={<UilWallet width={20} height={20} />}
           />
-          <div onClick={() => setExpanded(true)}>
+          <div key={activeUser.username} onClick={() => setExpanded(true)}>
             <UserAvatar size="medium" username={activeUser.username} />
           </div>
         </>
@@ -95,7 +95,7 @@ export function NavbarMobile({
         </Button>
       )}
 
-      {activeUser && <NavbarSide show={expanded} setShow={setExpanded} />}
+      {activeUser && <NavbarSide key={activeUser.username} show={expanded} setShow={setExpanded} />}
       <NavbarMainSidebar setShow={setMainBarExpanded} show={mainBarExpanded} setStepOne={setStepOne} />
     </div>
   );
