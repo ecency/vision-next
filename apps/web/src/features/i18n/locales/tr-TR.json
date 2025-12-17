@@ -1773,7 +1773,12 @@
     "replied": "{{source}} sana cevap verdi",
     "reblogged": "{{source}} gönderini yeniden yayınladı",
     "transfer": "{{source}} sana {{amount}} gönderdi",
-    "delegations": "{{source}} delegated you {{amount}}"
+    "delegations": "{{source}} delegated you {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "Your content payout is ready.",
+    "payouts-amount": "You received {{amount}} payout.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "Tüm Bildirimler",
@@ -1785,6 +1790,9 @@
     "type-reblogs": "Yeniden Paylaşılanlar",
     "type-transfers": "Transferler",
     "type-delegations": "Delegations",
+    "type-checkins": "Check-ins",
+    "type-payouts": "Payouts",
+    "type-monthly-posts": "Monthly posts",
     "type-nfavorites": "Favorites",
     "type-nbookmarks": "Bookmarks",
     "group-title-recent": "Son",
@@ -1799,6 +1807,9 @@
     "reblog-str": "reblogged post",
     "transfer-str": "sent",
     "delegations-str": "delegated",
+    "checkins-title": "Great streak on @{{username}}",
+    "payouts-title": "You received a payout on @{{username}}",
+    "monthly-posts-title": "Finishing the month strong, @{{username}}",
     "spin-str": "Daha fazla Puan kazanma zamanı, Ecency Mobile uygulamasında Çarkı Çevir",
     "inactive-str": "Aktif ol! Yazı yaz, kazanmaya devam et",
     "referral-str": "joined with referral, welcome them",
