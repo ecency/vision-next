@@ -1773,7 +1773,12 @@
     "replied": "{{source}} ने आपको उत्तर दिया",
     "reblogged": "{{source}} ने आपके पोस्ट को रिबॉग किया",
     "transfer": "{{source}} ने आपको {{amount}} भेजा है",
-    "delegations": "{{source}} आपको डेलीगेटेड {{amount}}"
+    "delegations": "{{source}} आपको डेलीगेटेड {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "Your content payout is ready.",
+    "payouts-amount": "You received {{amount}} payout.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "सभी अधिसूचनाएं",
@@ -1785,6 +1790,9 @@
     "type-reblogs": "रिब्लॉग्स",
     "type-transfers": "स्थानांतरण",
     "type-delegations": "डेलीगेशन्स",
+    "type-checkins": "Check-ins",
+    "type-payouts": "Payouts",
+    "type-monthly-posts": "Monthly posts",
     "type-nfavorites": "पसंदीदा",
     "type-nbookmarks": "बुकमार्क",
     "group-title-recent": "ताजा",
@@ -1799,6 +1807,9 @@
     "reblog-str": "reblogged post",
     "transfer-str": "sent",
     "delegations-str": "delegated",
+    "checkins-title": "Great streak on @{{username}}",
+    "payouts-title": "You received a payout on @{{username}}",
+    "monthly-posts-title": "Finishing the month strong, @{{username}}",
     "spin-str": "अधिक अंक अर्जित करने का समय, इसेंसी मोबाइल ऐप पर प्ले स्पिन",
     "inactive-str": "सक्रिय हों! एक पोस्ट लिखो, कमाई जारी रखो",
     "referral-str": "joined with referral, welcome them",
