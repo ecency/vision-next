@@ -297,9 +297,12 @@ export function useMattermostAdminDeleteUserPosts() {
 }
 
 export function useMattermostUnread(enabled: boolean) {
+  const activeUser = useClientActiveUser();
+  const username = activeUser?.username;
+
   return useQuery({
-    queryKey: ["mattermost-unread"],
-    enabled,
+    queryKey: ["mattermost-unread", username],
+    enabled: enabled && Boolean(username),
     refetchInterval: 30000,
     queryFn: async () => {
       const res = await fetch("/api/mattermost/channels/unreads");
