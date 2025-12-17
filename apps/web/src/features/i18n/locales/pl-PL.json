@@ -1773,7 +1773,12 @@
     "replied": "{{source}} odpowiedział Ci",
     "reblogged": "{{source}} reblogował twój post",
     "transfer": "{{source}} wysłał(a) Ci {{amount}}",
-    "delegations": "{{source}} przekazał Ci {{amount}}"
+    "delegations": "{{source}} przekazał Ci {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "Wypłata treści jest gotowa.",
+    "payouts-amount": "Otrzymałeś(aś) wypłatę {{amount}}.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "Utworzyłeś {{count}} post{{suffix}} w tym miesiącu. Tak dalej!"
   },
   "notifications": {
     "type-all": "Wszystkie powiadomienia",
@@ -1785,6 +1790,9 @@
     "type-reblogs": "Reblogi",
     "type-transfers": "Przelewy",
     "type-delegations": "Delegatury",
+    "type-checkins": "Check-ins",
+    "type-payouts": "Wypłaty",
+    "type-monthly-posts": "Miesięczne posty",
     "type-nfavorites": "Ulubione",
     "type-nbookmarks": "Zakładki",
     "group-title-recent": "Ostatnie",
@@ -1799,6 +1807,9 @@
     "reblog-str": "reblogowany post",
     "transfer-str": "wysłane",
     "delegations-str": "delegowany",
+    "checkins-title": "Świetny ciąg na @{{username}}",
+    "payouts-title": "Otrzymałeś wypłatę na @{{username}}",
+    "monthly-posts-title": "Ukończenie miesiąca silnego, @{{username}}",
     "spin-str": "Czas na zdobycie więcej punktów, Zagraj w Spin na aplikacji Ecency Mobile",
     "inactive-str": "Bądź aktywny! Napisz post, kontynuuj zarabianie",
     "referral-str": "dołączył(a) do rekomendacji, powitaj ich",
