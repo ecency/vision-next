@@ -1773,7 +1773,12 @@
     "replied": "{{source}} respondeu-te",
     "reblogged": "{{source}} re-publicou a sua publicação",
     "transfer": "{{source}} enviou-te {{amount}}",
-    "delegations": "{{source}} delegou a você {{amount}}"
+    "delegations": "{{source}} delegou a você {{amount}}",
+    "checkins": "Você fez o check-in de {{count}} dia{{suffix}} esta semana. Continue assim!",
+    "payouts": "Seu pagamento de conteúdo está pronto.",
+    "payouts-amount": "You received {{amount}} payout.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "Todas as notificações",
@@ -1785,6 +1790,9 @@
     "type-reblogs": "Republicações",
     "type-transfers": "Transferências",
     "type-delegations": "Delegações",
+    "type-checkins": "Check-ins",
+    "type-payouts": "Pagamentos",
+    "type-monthly-posts": "Postagens mensais",
     "type-nfavorites": "Favoritos",
     "type-nbookmarks": "Favoritos",
     "group-title-recent": "Recente",
@@ -1799,6 +1807,9 @@
     "reblog-str": "post reblogado",
     "transfer-str": "enviado",
     "delegations-str": "delegado",
+    "checkins-title": "Grande sequência em @{{username}}",
+    "payouts-title": "Você recebeu um pagamento em @{{username}}",
+    "monthly-posts-title": "Finishing the month strong, @{{username}}",
     "spin-str": "Hora de ganhar mais pontos, jogue o Giro no Aplicativo Móvel da Ecency",
     "inactive-str": "Seja ativo! Escreva uma publicação, continue a ganhar",
     "referral-str": "entrou com o convite. Dê boas-vindas",
