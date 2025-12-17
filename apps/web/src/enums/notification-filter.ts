@@ -7,5 +7,8 @@ export enum NotificationFilter {
   REPLIES = "replies",
   REBLOGS = "reblogs",
   TRANSFERS = "transfers",
-  DELEGATIONS = "delegations"
+  DELEGATIONS = "delegations",
+  CHECKINS = "checkins",
+  PAYOUTS = "payouts",
+  MONTHLY_POSTS = "monthly-posts"
 }

@@ -39,6 +39,29 @@ export class NotificationsWebSocket {
         return i18next.t("notification.transfer", { source, amount: data.extra.amount });
       case "delegations":
         return i18next.t("notification.delegations", { source, amount: data.extra.amount });
+      case "checkins": {
+        const count = Number(data.extra?.count ?? 0);
+        return i18next.t("notification.checkins", {
+          count,
+          suffix: count === 1 ? "" : "s"
+        });
+      }
+      case "payouts": {
+        const amount = data.extra?.amount;
+        const title = data.extra?.title;
+        const body = amount
+          ? i18next.t("notification.payouts-amount", { amount })
+          : i18next.t("notification.payouts");
+
+        return title ? i18next.t("notification.payouts-title", { body, title }) : body;
+      }
+      case "monthly-posts": {
+        const count = Number(data.extra?.count ?? 0);
+        return i18next.t("notification.monthly-posts", {
+          count,
+          suffix: count === 1 ? "" : "s"
+        });
+      }
       default:
         return "";
     }
