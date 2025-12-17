@@ -1773,7 +1773,12 @@
     "replied": "{{source}} hat dir geantwortet",
     "reblogged": "{{source}} hat deinen Beitrag geteilt",
     "transfer": "{{source}} hat dir {{amount}} gesendet",
-    "delegations": "{{source}} hat dir {{amount}} delegiert"
+    "delegations": "{{source}} hat dir {{amount}} delegiert",
+    "checkins": "Sie haben diese Woche {{count}} Tag{{suffix}} eingecheckt. Weiter so!",
+    "payouts": "Ihre Inhaltsauszahlung ist bereit.",
+    "payouts-amount": "Sie haben {{amount}} Auszahlung erhalten.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "Sie haben {{count}} Post{{suffix}} in diesem Monat erstellt. Weiter so!"
   },
   "notifications": {
     "type-all": "Alle Benachrichtigungen",
@@ -1785,6 +1790,9 @@
     "type-reblogs": "Reblogs",
     "type-transfers": "Transfers",
     "type-delegations": "Delegationen",
+    "type-checkins": "Check-ins",
+    "type-payouts": "Auszahlungen",
+    "type-monthly-posts": "Monatliche Beiträge",
     "type-nfavorites": "Favoriten",
     "type-nbookmarks": "Lesezeichen",
     "group-title-recent": "Kürzlich",
@@ -1799,6 +1807,9 @@
     "reblog-str": "reblogged Beitrag",
     "transfer-str": "gesendet",
     "delegations-str": "delegiert",
+    "checkins-title": "Großartige Strähne auf @{{username}}",
+    "payouts-title": "Sie haben eine Auszahlung auf @{{username}} erhalten",
+    "monthly-posts-title": "Beende den Monat stark, @{{username}}",
     "spin-str": "Zeit, um mehr Punkte zu verdienen, spiele Spin in der Ecency Mobile-App",
     "inactive-str": "Sei aktiv! Schreibe einen Beitrag und verdiene weiter",
     "referral-str": "mit Empfehlung beigetreten, willkommen",
