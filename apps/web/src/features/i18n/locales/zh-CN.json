@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "在此处写下您的回复",
     "preview": "预览",
-    "success": "您的回复已成功创建！"
+    "success": "您的回复已成功创建！",
+    "retry-hint": "您的文本在下面被保留 - 请重试",
+    "rc-error-hint": "资源积分不足 - 您的文本在下方保存"
   },
   "discussion": {
     "join": "立即加入对话",
@@ -1771,7 +1773,12 @@
     "replied": "{{source}} 回复了你",
     "reblogged": "{{source}} 转发了您的帖子",
     "transfer": "{{source}} 发送给您 {{amount}}",
-    "delegations": "{{source}} delegated you {{amount}}"
+    "delegations": "{{source}} delegated you {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "您的支付已准备就绪。",
+    "payouts-amount": "You received {{amount}} payout.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "所有通知",
@@ -1783,6 +1790,7 @@
     "type-reblogs": "转发",
     "type-transfers": "转账",
     "type-delegations": "A. 代表团",
+    "type-payouts": "支付",
     "type-nfavorites": "收藏夹",
     "type-nbookmarks": "书签",
     "group-title-recent": "最近",
@@ -1797,6 +1805,9 @@
     "reblog-str": "已重新博文",
     "transfer-str": "已发送",
     "delegations-str": "授权",
+    "checkins-title": "Great streak on @{{username}}",
+    "payouts-title": "You received a payout on @{{username}}",
+    "monthly-posts-title": "Finishing the month strong, @{{username}}",
     "spin-str": "赚取更多点数的时刻，在Ecency移动版上玩转盘游戏。",
     "inactive-str": "活跃！写一个帖子，继续赚钱",
     "referral-str": "加入推荐，欢迎他们加入",

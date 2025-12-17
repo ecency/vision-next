@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Xabarni kiriting",
     "preview": "Ko'rish",
-    "success": "Sizning javobingiz muvaffaqiyatli yaratildi!"
+    "success": "Sizning javobingiz muvaffaqiyatli yaratildi!",
+    "retry-hint": "Your text is preserved below - please try again",
+    "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
   "discussion": {
     "join": "Suhbatga qo'shilish",
@@ -1771,7 +1773,12 @@
     "replied": "{{source}} sizga javob berdi",
     "reblogged": "{{source}} sizni postingizni qayta blogladi",
     "transfer": "{{source}} sizga jo'natdi {{amount}}",
-    "delegations": "{{source}} sizga jo'natdi {{amount}}"
+    "delegations": "{{source}} sizga jo'natdi {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "Your content payout is ready.",
+    "payouts-amount": "You received {{amount}} payout.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "Barcha xabarnomalar",
@@ -1783,6 +1790,7 @@
     "type-reblogs": "Qayta bloglanganlar",
     "type-transfers": "O'tkazmalar",
     "type-delegations": "Delegatsiyalar",
+    "type-payouts": "Payouts",
     "type-nfavorites": "Favorites",
     "type-nbookmarks": "Bookmarks",
     "group-title-recent": "Yaqinda",
@@ -1797,6 +1805,9 @@
     "reblog-str": "reblogged post",
     "transfer-str": "sent",
     "delegations-str": "delegated",
+    "checkins-title": "Great streak on @{{username}}",
+    "payouts-title": "You received a payout on @{{username}}",
+    "monthly-posts-title": "Finishing the month strong, @{{username}}",
     "spin-str": "Koʻproq ball toʻplash vaqti keldi, Ecency Mobile ilovasida Spin oʻynang",
     "inactive-str": "Faol bo'ling! Post yozing, daromad olishda davom eting",
     "referral-str": "joined with referral, welcome them",

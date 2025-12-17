@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Escribe tu respuesta aquí",
     "preview": "Previsualización",
-    "success": "¡Tu respuesta ha sido creada con éxito!"
+    "success": "¡Tu respuesta ha sido creada con éxito!",
+    "retry-hint": "Tu texto se conserva a continuación - por favor inténtalo de nuevo",
+    "rc-error-hint": "Créditos de recursos insuficientes - tu texto se conserva a continuación"
   },
   "discussion": {
     "join": "Únete a la conversación ahora",
@@ -1771,7 +1773,12 @@
     "replied": "{{source}} te respondió",
     "reblogged": "{{source}} ha reblogueado tu publicación",
     "transfer": "{{source}} te envió {{amount}}",
-    "delegations": "{{source}} te delegó {{amount}}"
+    "delegations": "{{source}} te delegó {{amount}}",
+    "checkins": "Has comprobado {{count}} día{{suffix}} esta semana. ¡Sigue así!",
+    "payouts": "Su pago de contenido está listo.",
+    "payouts-amount": "Has recibido el pago de {{amount}}.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "Has creado una publicación {{count}}{{suffix}} este mes. ¡Sigue así!"
   },
   "notifications": {
     "type-all": "Todas las notificaciones",
@@ -1783,6 +1790,7 @@
     "type-reblogs": "Reblogueos",
     "type-transfers": "Transacciones",
     "type-delegations": "Delegaciones",
+    "type-payouts": "Pagos",
     "type-nfavorites": "Favoritos",
     "type-nbookmarks": "Marcadores",
     "group-title-recent": "Recientes",
@@ -1797,6 +1805,9 @@
     "reblog-str": "publicación reblogueada",
     "transfer-str": "enviado",
     "delegations-str": "delegado",
+    "checkins-title": "Gran racha en @{{username}}",
+    "payouts-title": "Has recibido un pago en @{{username}}",
+    "monthly-posts-title": "Terminando el mes fuerte, @{{username}}",
     "spin-str": "Es hora de ganar más puntos, juega a Spin en la aplicación Ecency Mobile",
     "inactive-str": "¡Estate activo! Escribe un mensaje, sigue ganando",
     "referral-str": "se unió con enlace de referido, dales la bienvenida",
