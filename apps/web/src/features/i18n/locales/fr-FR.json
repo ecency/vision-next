@@ -1773,7 +1773,12 @@
     "replied": "{{source}} vous a répondu",
     "reblogged": "{{source}} a reblogué votre post",
     "transfer": "{{source}} vous a envoyé {{amount}}",
-    "delegations": "{{source}} vous a délégué {{amount}}"
+    "delegations": "{{source}} vous a délégué {{amount}}",
+    "checkins": "Vous avez déverrouillé {{count}} jour{{suffix}} cette semaine. Continuez comme ça !",
+    "payouts": "Votre paiement de contenu est prêt.",
+    "payouts-amount": "Vous avez reçu le paiement {{amount}}.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "Vous avez créé un post {{count}}{{suffix}} ce mois-ci. Continuez comme ça !"
   },
   "notifications": {
     "type-all": "Toutes les notifications",
@@ -1785,6 +1790,9 @@
     "type-reblogs": "Reblogues",
     "type-transfers": "Transferts",
     "type-delegations": "Délégations",
+    "type-checkins": "Check-ins",
+    "type-payouts": "Paiements",
+    "type-monthly-posts": "Messages mensuels",
     "type-nfavorites": "Favoris",
     "type-nbookmarks": "Signets",
     "group-title-recent": "Récent",
@@ -1799,6 +1807,9 @@
     "reblog-str": "message reblogué",
     "transfer-str": "envoyé",
     "delegations-str": "délégué",
+    "checkins-title": "Bonne série sur @{{username}}",
+    "payouts-title": "Vous avez reçu un paiement le @{{username}}",
+    "monthly-posts-title": "Fin du mois fort, @{{username}}",
     "spin-str": "Il est temps de gagner plus de Points, Play Spin sur l'application Ecency Mobile",
     "inactive-str": "Soyez actif! Écrivez un post, continuez à gagner des gains",
     "referral-str": "rejoint avec une recommandation, bienvenue à eux",
