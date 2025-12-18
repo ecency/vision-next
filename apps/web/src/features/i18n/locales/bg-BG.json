@@ -445,7 +445,10 @@
     "delete-success": "Споделянето е отменено"
   },
   "entry-tip": {
-    "title": "Бакшиш"
+    "title": "Бакшиш",
+    "send-tip": "Send a tip",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Share"
