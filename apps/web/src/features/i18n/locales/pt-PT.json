@@ -445,7 +445,10 @@
     "delete-success": "Reblog removido"
   },
   "entry-tip": {
-    "title": "Dica"
+    "title": "Dica",
+    "send-tip": "Enviar uma dica",
+    "count": "{{count}} tip",
+    "count_plural": "Dicas de {{count}}"
   },
   "entry-share": {
     "title": "Compartilhar"
