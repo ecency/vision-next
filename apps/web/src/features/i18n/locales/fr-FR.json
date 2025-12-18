@@ -445,7 +445,10 @@
     "delete-success": "Reblog supprimé"
   },
   "entry-tip": {
-    "title": "Pourboire"
+    "title": "Pourboire",
+    "send-tip": "Envoyer une astuce",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} conseils"
   },
   "entry-share": {
     "title": "Partager"
