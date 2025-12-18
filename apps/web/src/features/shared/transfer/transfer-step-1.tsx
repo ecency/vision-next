@@ -213,6 +213,15 @@ export function TransferStep1({ titleLngKey }: Props) {
     w
   ]);
 
+  const assetPrecision = useMemo(() => {
+    const engineToken = engineBalances?.find((t) => t.symbol === asset);
+    if (engineToken?.precision !== undefined) {
+      return engineToken.precision;
+    }
+
+    return 3;
+  }, [asset, engineBalances]);
+
   useEffect(() => {
     if ((asset === "HIVE" || asset === "HBD" || asset === "HP") && !isAccountPending) {
       refetchAccount();
@@ -233,13 +242,13 @@ export function TransferStep1({ titleLngKey }: Props) {
     const dotParts = amount.split(".");
     if (dotParts.length > 1) {
       const precision = dotParts[1];
-      if (precision.length > 3) {
+      if (precision.length > assetPrecision) {
         setAmountError(i18next.t("transfer.amount-precision-error"));
         return;
       }
     }
 
-    let balance = Number(formatNumber(getBalance(), 3));
+    let balance = Number(formatNumber(getBalance(), assetPrecision));
 
     if (parseFloat(amount) > balance + delegatedAmount) {
       setAmountError(i18next.t("trx-common.insufficient-funds"));
@@ -247,17 +256,17 @@ export function TransferStep1({ titleLngKey }: Props) {
     }
 
     setAmountError("");
-  }, [amount, delegatedAmount, getBalance, setAmountError]);
+  }, [amount, assetPrecision, delegatedAmount, getBalance, setAmountError]);
 
   const balance = useMemo(() => {
-    let balance: string | number = formatNumber(getBalance(), 3);
+    let balance: string | number = formatNumber(getBalance(), assetPrecision);
     if (delegatedAmount) {
       balance = Number(balance) + delegatedAmount;
-      balance = Number(balance).toFixed(3);
+      balance = Number(balance).toFixed(assetPrecision);
     }
 
     return balance;
-  }, [delegatedAmount, getBalance]);
+  }, [assetPrecision, delegatedAmount, getBalance]);
 
   useEffect(() => {
     if (EXCHANGE_ACCOUNTS.includes(to)) {
@@ -275,11 +284,10 @@ export function TransferStep1({ titleLngKey }: Props) {
   }, [setAmount, setStep]);
 
   const next = useCallback(() => {
-    // make sure 3 decimals in amount
-    const fixedAmount = formatNumber(amount, 3);
+    const fixedAmount = formatNumber(amount, assetPrecision);
     setAmount(fixedAmount);
     setStep(2);
-  }, [amount, setAmount, setStep]);
+  }, [amount, assetPrecision, setAmount, setStep]);
 
   const memoChanged = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>): void => {
