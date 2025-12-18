@@ -445,7 +445,10 @@
     "delete-success": "Репост удалён"
   },
   "entry-tip": {
-    "title": "Чаевые"
+    "title": "Чаевые",
+    "send-tip": "Подсказка",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Поделиться"
