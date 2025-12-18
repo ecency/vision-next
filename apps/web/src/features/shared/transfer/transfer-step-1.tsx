@@ -14,7 +14,12 @@ import {
   vestsToHp
 } from "@/utils";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getPointsQuery } from "@/api/queries";
+import {
+  DEFAULT_DYNAMIC_PROPS,
+  getDynamicPropsQuery,
+  getPointsQuery,
+  getSpkWalletQuery
+} from "@/api/queries";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
 import { EXCHANGE_ACCOUNTS } from "@/consts";
@@ -24,13 +29,15 @@ import { amountFormatCheck } from "@/utils/amount-format-check";
 import { cryptoUtils } from "@hiveio/dhive";
 import { EcencyConfigManager } from "@/config";
 import { TransferStep1To } from "@/features/shared/transfer/transfer-step-1-to";
+import { useGetHiveEngineBalancesQuery } from "@/api/queries/engine";
 
 interface Props {
   titleLngKey: string;
 }
 
 export function TransferStep1({ titleLngKey }: Props) {
-  const { activeUser } = useActiveAccount();
+  const { activeUser, account, refetch: refetchAccount, isPending: isAccountPending } =
+    useActiveAccount();
 
   const {
     asset,
@@ -53,14 +60,54 @@ export function TransferStep1({ titleLngKey }: Props) {
 
   const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: spkWallet } = getSpkWalletQuery(activeUser?.username).useClientQuery();
+  const { data: engineBalances } = useGetHiveEngineBalancesQuery(
+    activeUser?.username
+  );
   const { toWarning, toData, delegatedAmount, toError, delegateAccount } =
     useDebounceTransferAccountData();
 
+  const hiveAccount = useMemo(() => account ?? activeUser?.data, [account, activeUser?.data]);
+
   const w = useMemo(
-    () => new HiveWallet(activeUser!.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS),
-    [activeUser, dynamicProps]
+    () => (hiveAccount ? new HiveWallet(hiveAccount, dynamicProps ?? DEFAULT_DYNAMIC_PROPS) : null),
+    [hiveAccount, dynamicProps]
   );
   const subTitleLngKey = useMemo(() => `${mode}-sub-title`, [mode]);
+
+  const engineAssets = useMemo(
+    () => (engineBalances ?? []).map((token) => token.symbol as TransferAsset),
+    [engineBalances]
+  );
+
+  const sortedEngineAssets = useMemo(
+    () => [...engineAssets].sort((a, b) => a.localeCompare(b)),
+    [engineAssets]
+  );
+
+  const engineTokenIcons = useMemo(
+    () =>
+      Object.fromEntries(
+        (engineBalances ?? []).map((token) => [token.symbol as TransferAsset, token.icon])
+      ),
+    [engineBalances]
+  );
+
+  const spkAssets = useMemo(() => {
+    const assets: TransferAsset[] = [];
+    if (parseFloat(spkWallet?.tokenBalance ?? "0") > 0) {
+      assets.push("SPK");
+    }
+    if (parseFloat(spkWallet?.larynxTokenBalance ?? "0") > 0) {
+      assets.push("LARYNX");
+    }
+    return assets;
+  }, [spkWallet?.larynxTokenBalance, spkWallet?.tokenBalance]);
+
+  const orderedSpkAssets = useMemo(
+    () => ["SPK", "LARYNX"].filter((asset) => spkAssets.includes(asset as TransferAsset)),
+    [spkAssets]
+  );
 
   const showTo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving", "power-up", "delegate"].includes(mode),
@@ -80,13 +127,17 @@ export function TransferStep1({ titleLngKey }: Props) {
   const assets = useMemo(() => {
     let assets: TransferAsset[] = [];
     switch (mode) {
-      case "transfer":
-        if (EcencyConfigManager.CONFIG.visionFeatures.points.enabled) {
-          assets = ["HIVE", "HBD", "POINT"];
-        } else {
-          assets = ["HIVE", "HBD"];
-        }
+      case "transfer": {
+        const baseAssets: TransferAsset[] = ["HBD", "HIVE"];
+
+        assets = [
+          ...(EcencyConfigManager.CONFIG.visionFeatures.points.enabled ? ["POINT"] : []),
+          ...baseAssets,
+          ...orderedSpkAssets,
+          ...sortedEngineAssets
+        ];
         break;
+      }
       case "transfer-saving":
       case "withdraw-saving":
         assets = ["HIVE", "HBD"];
@@ -106,18 +157,30 @@ export function TransferStep1({ titleLngKey }: Props) {
         break;
     }
 
-    return assets;
-  }, [mode]);
+    return Array.from(new Set(assets));
+  }, [mode, orderedSpkAssets, sortedEngineAssets]);
   const showMemo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving"].includes(mode),
     [mode]
   );
 
   const getBalance = useCallback((): number => {
+    if (!hiveAccount || !w) {
+      return 0;
+    }
     if (asset === "POINT") {
       return parseAsset(activeUserPoints?.points ?? "0.0").amount;
     }
-    const w = new HiveWallet(activeUser!.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS);
+    if (asset === "SPK") {
+      return parseFloat(spkWallet?.tokenBalance ?? "0");
+    }
+    if (asset === "LARYNX") {
+      return parseFloat(spkWallet?.larynxTokenBalance ?? "0");
+    }
+    const engineToken = engineBalances?.find((t) => t.symbol === asset);
+    if (engineToken) {
+      return engineToken.balance;
+    }
 
     if (mode === "withdraw-saving" || mode === "claim-interest") {
       return asset === "HIVE" ? w.savingBalance : w.savingBalanceHbd;
@@ -138,7 +201,23 @@ export function TransferStep1({ titleLngKey }: Props) {
     }
 
     return 0;
-  }, [activeUser, activeUserPoints?.points, asset, dynamicProps, mode]);
+  }, [
+    activeUserPoints?.points,
+    asset,
+    dynamicProps,
+    engineBalances,
+    hiveAccount,
+    mode,
+    spkWallet?.larynxTokenBalance,
+    spkWallet?.tokenBalance,
+    w
+  ]);
+
+  useEffect(() => {
+    if ((asset === "HIVE" || asset === "HBD" || asset === "HP") && !isAccountPending) {
+      refetchAccount();
+    }
+  }, [asset, isAccountPending, refetchAccount]);
 
   useEffect(() => {
     if (amount === "") {
@@ -214,7 +293,7 @@ export function TransferStep1({ titleLngKey }: Props) {
 
   return (
     <>
-      {step === 1 && mode === "power-down" && w.isPoweringDown && (
+      {step === 1 && mode === "power-down" && w && w.isPoweringDown && (
         <div className="transfer-dialog-content">
           <div className="transaction-form">
             <TransferFormHeader title={titleLngKey} step={step} subtitle={subTitleLngKey} />
@@ -240,7 +319,7 @@ export function TransferStep1({ titleLngKey }: Props) {
           </div>
         </div>
       )}
-      {step === 1 && (mode !== "power-down" || !w.isPoweringDown) && (
+      {step === 1 && (mode !== "power-down" || !w?.isPoweringDown) && (
         <div className="transaction-form">
           <TransferFormHeader title={titleLngKey} step={step} subtitle={subTitleLngKey} />
           <Form className="transaction-form-body">
@@ -279,6 +358,7 @@ export function TransferStep1({ titleLngKey }: Props) {
                   <TransferAssetSwitch
                     options={assets}
                     selected={asset}
+                    tokenIcons={engineTokenIcons}
                     onChange={(e) => setAsset(e)}
                   />
                 )}
