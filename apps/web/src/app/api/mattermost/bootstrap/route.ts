@@ -133,7 +133,12 @@ export async function POST(req: Request) {
         );
     }
 
-    const response = NextResponse.json({ ok: true, userId: user.id, channelId });
+    const response = NextResponse.json({
+        ok: true,
+        userId: user.id,
+        channelId,
+        token: personalToken
+    });
     return withMattermostTokenCookie(response, personalToken);
     } catch (error) {
         console.error("MM bootstrap: unexpected top-level error", error);

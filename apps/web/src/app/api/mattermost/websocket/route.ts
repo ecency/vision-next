@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 export const runtime = "edge";
 
 const MATTERMOST_TOKEN_COOKIE = "mm_pat";
+const TOKEN_QUERY_PARAM = "token";
 
 function requireEnv(value: string | undefined, name: string) {
   if (!value) {
@@ -27,12 +28,26 @@ function buildAuthenticationChallenge(token: string) {
   });
 }
 
+function getToken(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.toLowerCase().startsWith("bearer ")) {
+    return authHeader.slice("bearer ".length).trim();
+  }
+
+  const queryToken = request.nextUrl.searchParams.get(TOKEN_QUERY_PARAM);
+  if (queryToken) {
+    return queryToken;
+  }
+
+  return request.cookies.get(MATTERMOST_TOKEN_COOKIE)?.value;
+}
+
 export async function GET(request: NextRequest) {
   if (request.headers.get("upgrade") !== "websocket") {
     return new Response("Expected websocket", { status: 400 });
   }
 
-  const token = request.cookies.get(MATTERMOST_TOKEN_COOKIE)?.value;
+  const token = getToken(request);
 
   if (!token) {
     return new Response("Unauthorized", { status: 401 });
