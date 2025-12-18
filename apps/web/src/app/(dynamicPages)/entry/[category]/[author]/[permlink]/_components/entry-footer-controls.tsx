@@ -20,6 +20,7 @@ import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]
 import { Button } from "@ui/button";
 import { UilAlignAlt } from "@tooni/iconscout-unicons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { getPostTipsQuery } from "@/api/queries";
 
 interface Props {
   entry: Entry;
@@ -54,6 +55,8 @@ export function EntryFooterControls({ entry }: Props) {
     [activeUser?.username, entry.author]
   );
 
+  const { data: postTips } = getPostTipsQuery(entry.author, entry.permlink).useClientQuery();
+
   useDistanceDetector(ref, showProfileBox, setShowProfileBox);
 
   return (
@@ -66,7 +69,7 @@ export function EntryFooterControls({ entry }: Props) {
         <EntryPayout entry={entry} />
         <EntryVotes entry={entry} />
         {!isOwnEntry && <EntryReblogBtn entry={entry} />}
-        <EntryTipBtn entry={entry} />
+        <EntryTipBtn entry={entry} postTips={postTips} />
       </div>
       <span className="flex-spacer" />
       <div className="flex items-center">

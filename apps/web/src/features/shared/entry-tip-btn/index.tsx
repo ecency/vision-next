@@ -13,34 +13,97 @@ import { giftOutlineSvg } from "@ui/svg";
 import useMount from "react-use/lib/useMount";
 import useUnmount from "react-use/lib/useUnmount";
 import { EcencyConfigManager } from "@/config";
+import { PostTipsResponse } from "@/api/queries/get-post-tips-query";
+import { Popover, PopoverContent } from "@/features/ui";
+import { formattedNumber } from "@/utils";
 
 interface Props {
   entry: Entry;
   account?: Account;
   setTipDialogMounted?: (d: boolean) => void;
   handleClickAway?: () => void;
+  postTips?: PostTipsResponse;
 }
 
-export function EntryTipBtn({ entry, setTipDialogMounted, handleClickAway, account }: Props) {
+export function EntryTipBtn({
+  entry,
+  setTipDialogMounted,
+  handleClickAway,
+  account,
+  postTips
+}: Props) {
   const { activeUser } = useActiveAccount();
 
   const [dialog, setDialog] = useState(false);
+  const [showPopover, setShowPopover] = useState(false);
 
   const to = useMemo(() => entry.author, [entry]);
   const memo = useMemo(() => `Tip for @${entry.author}/${entry.permlink}`, [entry]);
+  const tipCount = postTips?.meta.count ?? 0;
+  const tipTotals = Object.entries(postTips?.meta.totals ?? {});
+  const tipCountLabel =
+    tipCount === 1
+      ? i18next.t("entry-tip.count", { count: tipCount })
+      : i18next.t("entry-tip.count_plural", { count: tipCount });
 
   useMount(() => setTipDialogMounted?.(true));
   useUnmount(() => setTipDialogMounted?.(false));
 
+  const openTransferDialog = () => {
+    setShowPopover(false);
+    setDialog(true);
+  };
+
+  const tipButton = (
+    <div
+      className="entry-tip-btn"
+      onClick={() => {
+        if (tipCount > 0) {
+          setShowPopover((state) => !state);
+        } else {
+          openTransferDialog();
+        }
+      }}
+    >
+      <Tooltip content={i18next.t("entry-tip.title")}>
+        <span className="inner-btn">
+          {giftOutlineSvg}
+          <span className="tip-count">{tipCount > 0 ? tipCount : ""}</span>
+        </span>
+      </Tooltip>
+    </div>
+  );
+
   return (
     <>
-      {" "}
       <LoginRequired>
-        <div className="entry-tip-btn" onClick={() => setDialog(true)}>
-          <Tooltip content={i18next.t("entry-tip.title")}>
-            <span className="inner-btn">{giftOutlineSvg}</span>
-          </Tooltip>
-        </div>
+        {tipCount > 0 ? (
+          <Popover directContent={tipButton} behavior="click" show={showPopover} setShow={setShowPopover}>
+            <PopoverContent>
+              <div className="tip-popover">
+                <div className="tip-popover-title">
+                  {i18next.t("entry-tip.title")}
+                  <span className="tip-popover-count">
+                    {tipCountLabel}
+                  </span>
+                </div>
+                <div className="tip-popover-grid">
+                  {tipTotals.map(([currency, amount]) => (
+                    <div className="tip-row" key={currency}>
+                      <span className="tip-currency">{currency}</span>
+                      <span className="tip-amount">{formattedNumber(amount, { fractionDigits: 3 })}</span>
+                    </div>
+                  ))}
+                </div>
+                <button className="tip-action" type="button" onClick={openTransferDialog}>
+                  {i18next.t("entry-tip.send-tip")}
+                </button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        ) : (
+          tipButton
+        )}
       </LoginRequired>
       {dialog && activeUser && (
         <Modal

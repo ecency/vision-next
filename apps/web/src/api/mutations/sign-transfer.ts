@@ -29,11 +29,24 @@ import {
   withdrawVestingHot,
   withdrawVestingKc
 } from "@/api/operations";
+import {
+  transferEngineTokenByHs,
+  transferEngineTokenByKey,
+  transferEngineTokenByKeychain
+} from "@/api/hive-engine";
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
 import { error, TransferAsset, TransferMode } from "@/features/shared";
 import { PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { TxResponse } from "@/types";
+import {
+  sendLarynxByHs,
+  sendSpkByHs,
+  transferLarynxByKey,
+  transferLarynxByKc,
+  transferSpkByKey,
+  transferSpkByKc
+} from "@/api/spk-api";
 
 // Helper to safely read hivePerMVests with a typed fallback
 const useHivePerMVests = () => {
@@ -68,10 +81,17 @@ export function useSignTransferByKey(mode: TransferMode, asset: TransferAsset) {
 
       switch (mode) {
         case "transfer":
-          promise =
-              asset === "POINT"
-                  ? transferPoint(username, key, to, fullAmount, memo)
-                  : transfer(username, key, to, fullAmount, memo);
+          if (asset === "POINT") {
+            promise = transferPoint(username, key, to, fullAmount, memo);
+          } else if (asset === "SPK") {
+            promise = transferSpkByKey(username, key, to, amount, memo);
+          } else if (asset === "LARYNX") {
+            promise = transferLarynxByKey(username, key, to, amount, memo);
+          } else if (asset !== "HIVE" && asset !== "HBD") {
+            promise = transferEngineTokenByKey(username, key, to, asset, amount, memo);
+          } else {
+            promise = transfer(username, key, to, fullAmount, memo);
+          }
           break;
 
         case "transfer-saving":
@@ -138,10 +158,17 @@ export function useSignTransferByKeychain(mode: TransferMode, asset: TransferAss
 
       switch (mode) {
         case "transfer":
-          promise =
-              asset === "POINT"
-                  ? transferPointKc(username, to, fullAmount, memo)
-                  : transferKc(username, to, fullAmount, memo);
+          if (asset === "POINT") {
+            promise = transferPointKc(username, to, fullAmount, memo);
+          } else if (asset === "SPK") {
+            promise = transferSpkByKc(username, to, amount, memo);
+          } else if (asset === "LARYNX") {
+            promise = transferLarynxByKc(username, to, amount, memo);
+          } else if (asset !== "HIVE" && asset !== "HBD") {
+            promise = transferEngineTokenByKeychain(username, to, asset, amount, memo);
+          } else {
+            promise = transferKc(username, to, fullAmount, memo);
+          }
           break;
 
         case "transfer-saving":
@@ -208,6 +235,12 @@ export function useSignTransferByHiveSigner(mode: TransferMode, asset: TransferA
         case "transfer":
           if (asset === "POINT") {
             transferPointHot(username, to, fullAmount, memo);
+          } else if (asset === "SPK") {
+            sendSpkByHs(username, to, amount, memo);
+          } else if (asset === "LARYNX") {
+            sendLarynxByHs(username, to, amount, memo);
+          } else if (asset !== "HIVE" && asset !== "HBD") {
+            transferEngineTokenByHs(username, to, asset, amount, memo);
           } else {
             transferHot(username, to, fullAmount, memo);
           }

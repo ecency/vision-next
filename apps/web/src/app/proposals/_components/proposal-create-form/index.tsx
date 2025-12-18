@@ -7,7 +7,7 @@ import { PrivateKey } from "@hiveio/dhive";
 import { useQueryClient } from "@tanstack/react-query";
 import numeral from "numeral";
 import { Button } from "@ui/button";
-import { Popover, PopoverContent } from "@ui/popover";
+import { Popover, PopoverContent } from "@features/ui";
 import { Form } from "@ui/form";
 import { FormControl } from "@ui/input";
 import { Datepicker } from "@/features/ui";

@@ -24,6 +24,7 @@ import { client as hiveClient } from "./hive";
 
 const ENGINE_CONTRACT_ID = "ssc-mainnet-hive";
 const ENGINE_RPC_HEADERS = { headers: { "Content-type": "application/json" } };
+const ENGINE_TRANSFER_MESSAGE = "Engine token transfer";
 
 export type EngineOrderSignMethod = "key" | "keychain" | "hivesigner" | "hiveauth";
 
@@ -65,6 +66,29 @@ function buildEngineCancelPayload(type: "buy" | "sell", orderId: string) {
     }
   };
 }
+
+const buildEngineTransferPayload = (
+  symbol: string,
+  to: string,
+  quantity: string,
+  memo?: string
+) => ({
+  contractName: "tokens",
+  contractAction: "transfer",
+  contractPayload: {
+    symbol,
+    to,
+    quantity,
+    ...(memo ? { memo } : {})
+  }
+});
+
+const buildEngineTransferOperation = (account: string, payload: ReturnType<typeof buildEngineTransferPayload>) => ({
+  id: ENGINE_CONTRACT_ID,
+  required_auths: [account],
+  required_posting_auths: [],
+  json: JSON.stringify(payload)
+});
 
 function buildEngineOperation(
   account: string,
@@ -128,6 +152,52 @@ function broadcastEngineOperation(
     }
     default:
       return broadcastActiveJSON(account, ENGINE_CONTRACT_ID, payload, ENGINE_ORDER_MESSAGES[action]);
+  }
+}
+
+function broadcastEngineTransfer(
+  account: string,
+  payload: ReturnType<typeof buildEngineTransferPayload>,
+  options?: EngineOrderBroadcastOptions
+): Promise<TransactionConfirmation> {
+  if (!options?.method) {
+    return broadcastActiveJSON(account, ENGINE_CONTRACT_ID, payload, ENGINE_TRANSFER_MESSAGE);
+  }
+
+  const operation = buildEngineTransferOperation(account, payload);
+  const opTuple: Operation = ["custom_json", operation];
+
+  switch (options.method) {
+    case "key": {
+      if (!options.key) {
+        return Promise.reject(new Error("Active key is required"));
+      }
+      return hiveClient.broadcast.json(operation, options.key);
+    }
+    case "keychain":
+      return keychain
+        .customJson(account, ENGINE_CONTRACT_ID, "Active", operation.json, ENGINE_TRANSFER_MESSAGE)
+        .then((r: any) => r.result);
+    case "hiveauth":
+      return broadcastWithHiveAuth(account, [opTuple], "active");
+    case "hivesigner": {
+      hotSign(
+        "custom-json",
+        {
+          authority: "active",
+          required_auths: JSON.stringify([account]),
+          required_posting_auths: "[]",
+          id: ENGINE_CONTRACT_ID,
+          json: operation.json,
+          display_msg: ENGINE_TRANSFER_MESSAGE
+        },
+        `@${account}/wallet/engine`
+      );
+
+      return Promise.resolve(0 as unknown as TransactionConfirmation);
+    }
+    default:
+      return broadcastActiveJSON(account, ENGINE_CONTRACT_ID, payload, ENGINE_TRANSFER_MESSAGE);
   }
 }
 
@@ -202,6 +272,40 @@ export const getUnclaimedRewards = async (account: string): Promise<TokenStatus[
   ).catch(() => {
     return [];
   });
+};
+
+export const transferEngineTokenByKey = (
+  from: string,
+  key: PrivateKey,
+  to: string,
+  symbol: string,
+  quantity: string,
+  memo?: string
+): Promise<TransactionConfirmation> => {
+  const payload = buildEngineTransferPayload(symbol, to, quantity, memo);
+  return broadcastEngineTransfer(from, payload, { method: "key", key });
+};
+
+export const transferEngineTokenByKeychain = (
+  from: string,
+  to: string,
+  symbol: string,
+  quantity: string,
+  memo?: string
+): Promise<TransactionConfirmation> => {
+  const payload = buildEngineTransferPayload(symbol, to, quantity, memo);
+  return broadcastEngineTransfer(from, payload, { method: "keychain" });
+};
+
+export const transferEngineTokenByHs = (
+  from: string,
+  to: string,
+  symbol: string,
+  quantity: string,
+  memo?: string
+) => {
+  const payload = buildEngineTransferPayload(symbol, to, quantity, memo);
+  return broadcastEngineTransfer(from, payload, { method: "hivesigner" });
 };
 
 export const claimRewards = async (
