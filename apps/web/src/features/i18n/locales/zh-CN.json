@@ -445,7 +445,10 @@
     "delete-success": "转发已删除"
   },
   "entry-tip": {
-    "title": "礼物"
+    "title": "礼物",
+    "send-tip": "发送提示",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "分享"
