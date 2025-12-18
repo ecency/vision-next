@@ -445,7 +445,10 @@
     "delete-success": "Ulashish bekor qilindi"
   },
   "entry-tip": {
-    "title": "Sovg'a"
+    "title": "Sovg'a",
+    "send-tip": "Send a tip",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Bo‘lishish"
