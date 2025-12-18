@@ -445,7 +445,10 @@
     "delete-success": "Репост видалено"
   },
   "entry-tip": {
-    "title": "Порада"
+    "title": "Порада",
+    "send-tip": "Надіслати пораду",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Поділитися"
