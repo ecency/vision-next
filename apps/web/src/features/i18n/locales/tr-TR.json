@@ -445,7 +445,10 @@
     "delete-success": "Yeniden paylaşım silindi"
   },
   "entry-tip": {
-    "title": "Bahşiş"
+    "title": "Bahşiş",
+    "send-tip": "Send a tip",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Paylaş"
