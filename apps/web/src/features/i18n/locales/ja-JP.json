@@ -445,7 +445,10 @@
     "delete-success": "リブログを削除しました"
   },
   "entry-tip": {
-    "title": "Tip"
+    "title": "Tip",
+    "send-tip": "ヒントを送信",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} のヒント"
   },
   "entry-share": {
     "title": "共有"
