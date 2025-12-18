@@ -445,7 +445,10 @@
     "delete-success": "gedeelde bericht verwijderd"
   },
   "entry-tip": {
-    "title": "Tip"
+    "title": "Tip",
+    "send-tip": "Stuur een tip",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Delen"
