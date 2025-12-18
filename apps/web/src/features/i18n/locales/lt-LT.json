@@ -445,7 +445,10 @@
     "delete-success": "Tinklaraščio pasidalinimas pašalintas"
   },
   "entry-tip": {
-    "title": "Arbatpinigiai"
+    "title": "Arbatpinigiai",
+    "send-tip": "Send a tip",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Dalintis"
