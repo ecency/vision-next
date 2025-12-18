@@ -445,7 +445,10 @@
     "delete-success": "Reblog usunięty"
   },
   "entry-tip": {
-    "title": "Napiwek"
+    "title": "Napiwek",
+    "send-tip": "Wyślij napiwk",
+    "count": "{{count}} tip",
+    "count_plural": "Porady {{count}}"
   },
   "entry-share": {
     "title": "Udostępnij"
