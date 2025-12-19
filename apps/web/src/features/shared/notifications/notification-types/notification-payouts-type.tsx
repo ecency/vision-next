@@ -21,7 +21,7 @@ export function NotificationPayoutsType({ sourceLink, notification }: Props) {
       <div className="first-line">
         {sourceLink}
         <span className="item-action">
-          {i18next.t("notifications.payouts-title", { username: notification.source })}
+          {i18next.t("notifications.payouts-title", { username: notification.target })}
         </span>
       </div>
       <div className="second-line">{message}</div>

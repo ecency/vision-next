@@ -18,6 +18,7 @@ export const notificationsTitles: Record<string, string> = {
   follows: i18next.t("decks.columns.follows"),
   replies: i18next.t("decks.columns.replies"),
   reblogs: i18next.t("decks.columns.reblogs"),
+  payouts: i18next.t("decks.columns.payouts"),
   transfers: i18next.t("decks.columns.transfers"),
   delegations: i18next.t("decks.columns.delegations")
 };
