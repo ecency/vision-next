@@ -97,6 +97,13 @@ export interface WsCheckinsNotification extends BaseWsNotification {
   };
 }
 
+export interface WsCheckinNotification extends BaseWsNotification {
+  type: "checkin";
+  extra?: {
+    count?: number;
+  };
+}
+
 export interface WsPayoutsNotification extends BaseWsNotification {
   type: "payouts";
   extra?: {
@@ -108,6 +115,14 @@ export interface WsPayoutsNotification extends BaseWsNotification {
 
 export interface WsMonthlyPostsNotification extends BaseWsNotification {
   type: "monthly-posts";
+  extra?: {
+    count?: number;
+    title?: string | null;
+  };
+}
+
+export interface WsMonthlyPostsUnderscoreNotification extends BaseWsNotification {
+  type: "monthly_posts";
   extra?: {
     count?: number;
     title?: string | null;
@@ -139,9 +154,11 @@ export type WsNotification =
   | WsInactiveNotification
   | WsReferralNotification
   | WsDelegationsNotification
+  | WsCheckinNotification
   | WsCheckinsNotification
   | WsPayoutsNotification
-  | WsMonthlyPostsNotification;
+  | WsMonthlyPostsNotification
+  | WsMonthlyPostsUnderscoreNotification;
 
 // HTTP api notification _types
 
@@ -254,6 +271,11 @@ export interface ApiCheckinsNotification extends BaseAPiNotification {
   count?: number;
 }
 
+export interface ApiCheckinNotification extends BaseAPiNotification {
+  type: "checkin";
+  count?: number;
+}
+
 export interface ApiPayoutsNotification extends BaseAPiNotification {
   type: "payouts";
   amount?: string;
@@ -261,7 +283,7 @@ export interface ApiPayoutsNotification extends BaseAPiNotification {
 }
 
 export interface ApiMonthlyPostsNotification extends BaseAPiNotification {
-  type: "monthly-posts";
+  type: "monthly-posts" | "monthly_posts";
   count?: number;
   title?: string | null;
 }
@@ -286,6 +308,7 @@ export type ApiNotification =
   | ApiInactiveNotification
   | ApiReferralNotification
   | ApiDelegationsNotification
+  | ApiCheckinNotification
   | ApiCheckinsNotification
   | ApiPayoutsNotification
   | ApiMonthlyPostsNotification;

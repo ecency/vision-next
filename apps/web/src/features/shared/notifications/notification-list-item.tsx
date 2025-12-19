@@ -200,13 +200,13 @@ export function NotificationListItem({
           {notification.type === "delegations" && (
             <NotificationDelegationsType sourceLink={sourceLink} notification={notification} />
           )}
-          {notification.type === "checkins" && (
+          {(notification.type === "checkins" || notification.type === "checkin") && (
             <NotificationCheckinsType sourceLink={sourceLink} notification={notification} />
           )}
           {notification.type === "payouts" && (
             <NotificationPayoutsType sourceLink={sourceLink} notification={notification} />
           )}
-          {notification.type === "monthly-posts" && (
+          {(notification.type === "monthly-posts" || notification.type === "monthly_posts") && (
             <NotificationMonthlyPostsType sourceLink={sourceLink} notification={notification} />
           )}
           {notification.type === "spin" && <NotificationSpinType sourceLink={sourceLink} />}

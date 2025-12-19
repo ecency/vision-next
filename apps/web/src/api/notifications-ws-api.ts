@@ -46,6 +46,13 @@ export class NotificationsWebSocket {
           suffix: count === 1 ? "" : "s"
         });
       }
+      case "checkin": {
+        const count = Number(data.extra?.count ?? 0);
+        return i18next.t("notification.checkins", {
+          count,
+          suffix: count === 1 ? "" : "s"
+        });
+      }
       case "payouts": {
         const amount = data.extra?.amount;
         const title = data.extra?.title;
@@ -56,6 +63,13 @@ export class NotificationsWebSocket {
         return title ? i18next.t("notification.payouts-title", { body, title }) : body;
       }
       case "monthly-posts": {
+        const count = Number(data.extra?.count ?? 0);
+        return i18next.t("notification.monthly-posts", {
+          count,
+          suffix: count === 1 ? "" : "s"
+        });
+      }
+      case "monthly_posts": {
         const count = Number(data.extra?.count ?? 0);
         return i18next.t("notification.monthly-posts", {
           count,

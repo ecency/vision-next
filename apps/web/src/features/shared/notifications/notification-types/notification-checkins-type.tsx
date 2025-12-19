@@ -1,10 +1,12 @@
 import React, { ReactElement } from "react";
 import i18next from "i18next";
-import { ApiCheckinsNotification } from "@/entities";
+import { ApiCheckinNotification, ApiCheckinsNotification } from "@/entities";
+
+type CheckinNotification = ApiCheckinsNotification | ApiCheckinNotification;
 
 interface Props {
   sourceLink: ReactElement;
-  notification: ApiCheckinsNotification;
+  notification: CheckinNotification;
 }
 
 export function NotificationCheckinsType({ sourceLink, notification }: Props) {
