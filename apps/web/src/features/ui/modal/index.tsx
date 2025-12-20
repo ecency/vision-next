@@ -2,10 +2,11 @@
 
 import { classNameObject, useFilteredProps } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
-import { createContext, HTMLProps, useEffect, useMemo, useState } from "react";
+import { HTMLProps, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMount, useUnmount } from "react-use";
 import useMountedState from "react-use/lib/useMountedState";
+import { ModalContext } from "./modal-context";
 
 interface Props {
   show: boolean;
@@ -17,14 +18,6 @@ interface Props {
   overlayClassName?: string;
   raw?: boolean;
 }
-
-export const ModalContext = createContext<{
-  show: boolean | undefined;
-  setShow: (v: boolean) => void;
-}>({
-  show: false,
-  setShow: () => {}
-});
 
 export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   const [show, setShow] = useState<boolean>();
@@ -160,6 +153,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   );
 }
 
+export * from "./modal-context";
 export * from "./modal-body";
 export * from "./modal-footer";
 export * from "./modal-header";

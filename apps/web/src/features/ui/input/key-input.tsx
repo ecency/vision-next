@@ -1,7 +1,7 @@
 "use client";
 
 import { UilLock } from "@tooni/iconscout-unicons-react";
-import { Button } from "..";
+import { Button } from "@ui/button";
 import i18next from "i18next";
 import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
 import {
