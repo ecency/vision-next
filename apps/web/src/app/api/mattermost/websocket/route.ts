@@ -1,18 +1,40 @@
 import { NextRequest } from "next/server";
+import { WebSocket } from "ws";
+import type { WebSocketServer } from "ws";
 
-export const runtime = "edge";
+const MATTERMOST_TOKEN_COOKIE = "mm_pat" as const;
+const TOKEN_QUERY_PARAM = "token" as const;
 
-const MATTERMOST_TOKEN_COOKIE = "mm_pat";
-const TOKEN_QUERY_PARAM = "token";
+// Allowed origins for CORS - configurable via env
+function getAllowedOrigins(): string[] {
+  const defaultOrigins: (string | undefined)[] = [
+    "https://ecency.com",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    process.env.NEXT_PUBLIC_APP_BASE
+  ];
 
-function requireEnv(value: string | undefined, name: string) {
+  if (process.env.MATTERMOST_WS_ALLOWED_ORIGINS) {
+    const customOrigins = process.env.MATTERMOST_WS_ALLOWED_ORIGINS
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean);
+    return [...defaultOrigins, ...customOrigins].filter((o): o is string => Boolean(o));
+  }
+
+  return defaultOrigins.filter((o): o is string => Boolean(o));
+}
+
+const ALLOWED_ORIGINS = getAllowedOrigins();
+
+function requireEnv(value: string | undefined, name: string): string {
   if (!value) {
     throw new Error(`${name} is not configured`);
   }
   return value;
 }
 
-function getMattermostWebsocketUrl() {
+function getMattermostWebsocketUrl(): string {
   const base = requireEnv(process.env.MATTERMOST_BASE_URL, "MATTERMOST_BASE_URL");
   const baseUrl = new URL(base);
   baseUrl.protocol = baseUrl.protocol === "https:" ? "wss:" : "ws:";
@@ -20,7 +42,7 @@ function getMattermostWebsocketUrl() {
   return baseUrl.toString();
 }
 
-function buildAuthenticationChallenge(token: string) {
+function buildAuthenticationChallenge(token: string): string {
   return JSON.stringify({
     seq: 1,
     action: "authentication_challenge",
@@ -28,45 +50,67 @@ function buildAuthenticationChallenge(token: string) {
   });
 }
 
-function getToken(request: NextRequest) {
+function getToken(request: NextRequest): string | undefined {
+  // Check Authorization header
   const authHeader = request.headers.get("authorization");
   if (authHeader?.toLowerCase().startsWith("bearer ")) {
     return authHeader.slice("bearer ".length).trim();
   }
 
+  // Check query parameter
   const queryToken = request.nextUrl.searchParams.get(TOKEN_QUERY_PARAM);
   if (queryToken) {
     return queryToken;
   }
 
+  // Check cookie
   return request.cookies.get(MATTERMOST_TOKEN_COOKIE)?.value;
 }
 
-export async function GET(request: NextRequest) {
-  if (request.headers.get("upgrade") !== "websocket") {
-    return new Response("Expected websocket", { status: 400 });
+function checkOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+
+  if (!origin) {
+    // Same-origin requests don't have Origin header
+    return true;
   }
 
+  return ALLOWED_ORIGINS.includes(origin);
+}
+
+export function UPGRADE(
+  client: WebSocket,
+  request: NextRequest,
+  server: WebSocketServer
+): void {
+  // Check origin for CORS
+  if (!checkOrigin(request)) {
+    console.log("MM websocket: origin not allowed", request.headers.get("origin"));
+    client.close(1008, "Origin not allowed");
+    return;
+  }
+
+  // Get authentication token
   const token = getToken(request);
-
   if (!token) {
-    return new Response("Unauthorized", { status: 401 });
+    console.log("MM websocket: no token provided");
+    client.close(1008, "Unauthorized");
+    return;
   }
 
-  const { 0: client, 1: server } = new WebSocketPair();
-  const downstream = client as WebSocket;
-
+  // Connect to upstream Mattermost WebSocket
   let upstream: WebSocket;
   try {
     upstream = new WebSocket(getMattermostWebsocketUrl());
   } catch (error) {
     console.error("MM websocket: failed to connect upstream", error);
-    return new Response("Chat service unavailable", { status: 502 });
+    client.close(1011, "Chat service unavailable");
+    return;
   }
 
   const closeBoth = (code = 1011, reason = "websocket error") => {
     try {
-      downstream.close(code, reason);
+      client.close(code, reason);
     } catch (error) {
       console.error("MM websocket: failed closing downstream", error);
     }
@@ -78,32 +122,37 @@ export async function GET(request: NextRequest) {
     }
   };
 
-  downstream.accept();
-
-  downstream.addEventListener("message", (event) => {
+  // Client -> Upstream forwarding
+  client.on("message", (data, isBinary) => {
     try {
-      upstream.send(event.data);
+      if (upstream.readyState === WebSocket.OPEN) {
+        upstream.send(data, { binary: isBinary });
+      }
     } catch (error) {
       console.error("MM websocket: unable to forward client message", error);
       closeBoth(1011, "forward error");
     }
   });
 
-  downstream.addEventListener("close", (event) => {
+  client.on("close", (code, reason) => {
     try {
-      upstream.close(event.code, event.reason);
+      if (upstream.readyState === WebSocket.OPEN) {
+        upstream.close(code, reason);
+      }
     } catch (error) {
       console.error("MM websocket: failed closing upstream after client close", error);
     }
   });
 
-  downstream.addEventListener("error", (event) => {
-    console.error("MM websocket: client socket error", event);
+  client.on("error", (error) => {
+    console.error("MM websocket: client socket error", error);
     closeBoth(1011, "client error");
   });
 
-  upstream.addEventListener("open", () => {
+  // Upstream -> Client forwarding
+  upstream.on("open", () => {
     try {
+      // Send authentication challenge with token
       upstream.send(buildAuthenticationChallenge(token));
     } catch (error) {
       console.error("MM websocket: unable to send auth challenge", error);
@@ -111,27 +160,29 @@ export async function GET(request: NextRequest) {
     }
   });
 
-  upstream.addEventListener("message", (event) => {
+  upstream.on("message", (data, isBinary) => {
     try {
-      downstream.send(event.data);
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(data, { binary: isBinary });
+      }
     } catch (error) {
       console.error("MM websocket: unable to forward upstream message", error);
       closeBoth(1011, "forward error");
     }
   });
 
-  upstream.addEventListener("close", (event) => {
+  upstream.on("close", (code, reason) => {
     try {
-      downstream.close(event.code, event.reason);
+      if (client.readyState === WebSocket.OPEN) {
+        client.close(code, reason);
+      }
     } catch (error) {
       console.error("MM websocket: failed closing downstream after upstream close", error);
     }
   });
 
-  upstream.addEventListener("error", (event) => {
-    console.error("MM websocket: upstream socket error", event);
+  upstream.on("error", (error) => {
+    console.error("MM websocket: upstream socket error", error);
     closeBoth(1011, "upstream error");
   });
-
-  return new Response(null, { status: 101, webSocket: server });
 }

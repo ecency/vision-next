@@ -20,7 +20,7 @@
     "publish:wallets": "cd packages/wallets && npx -y npm@latest publish --access public",
     "publish:renderer": "cd packages/renderer && npx -y npm@latest publish --access public"
   },
-  "packageManager": "pnpm@10.18.1",
+  "packageManager": "pnpm@10.26.1",
   "devDependencies": {
     "@types/node": "^20",
     "eslint": "^8",
