@@ -204,7 +204,13 @@ export function NotificationListItem({
             <NotificationCheckinsType sourceLink={sourceLink} notification={notification} />
           )}
           {notification.type === "payouts" && (
-            <NotificationPayoutsType sourceLink={sourceLink} notification={notification} />
+            <NotificationPayoutsType
+              onLinkClick={onLinkClick}
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              notification={notification}
+              openLinksInNewTab={openLinksInNewTab}
+            />
           )}
           {(notification.type === "monthly-posts" || notification.type === "monthly_posts") && (
             <NotificationMonthlyPostsType sourceLink={sourceLink} notification={notification} />

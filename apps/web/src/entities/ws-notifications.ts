@@ -280,6 +280,8 @@ export interface ApiPayoutsNotification extends BaseAPiNotification {
   type: "payouts";
   amount?: string;
   title?: string | null;
+  author: string;
+  permlink: string;
 }
 
 export interface ApiMonthlyPostsNotification extends BaseAPiNotification {
