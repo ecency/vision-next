@@ -446,9 +446,9 @@
   },
   "entry-tip": {
     "title": "Sugerencia",
-    "send-tip": "Enviar un consejo",
-    "count": "{{count}} tip",
-    "count_plural": "Consejos {{count}}"
+    "send-tip": "Enviar una propina",
+    "count": "{{count}} propina",
+    "count_plural": "{{count}} propinas"
   },
   "entry-share": {
     "title": "Compartir"
@@ -1781,7 +1781,7 @@
     "payouts": "Su pago de contenido está listo.",
     "payouts-amount": "Has recibido el pago de {{amount}}.",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "Has creado una publicación {{count}}{{suffix}} este mes. ¡Sigue así!"
+    "monthly-posts": "Has creado {{count}} publicación{{suffix}} este mes. ¡Sigue así!"
   },
   "notifications": {
     "type-all": "Todas las notificaciones",
