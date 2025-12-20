@@ -1535,7 +1535,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Meld je aan met HiveAuth"
+    "with-hiveauth": "Meld je aan met HiveAuth",
+    "invalid-key": "Ongeldige sleutelformaat. Controleer op ongeldige tekens.",
+    "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is."
   },
   "hive-auth": {
     "pending-request": "HiveAuth aanvraag in behandeling. Koppel ID {{id}} in uw portemonnee."
