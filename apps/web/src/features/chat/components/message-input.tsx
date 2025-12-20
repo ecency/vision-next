@@ -86,6 +86,9 @@ interface MessageInputProps {
 
   // Posts array (for arrow up edit feature)
   posts: MattermostPost[];
+
+  // Typing indicators
+  typingUsernames?: string[];
 }
 
 export function MessageInput({
@@ -134,10 +137,20 @@ export function MessageInput({
   getDisplayName,
   getDecodedDisplayMessage,
   renderMessageContent,
-  posts
+  posts,
+  typingUsernames
 }: MessageInputProps) {
   return (
     <>
+      {/* Typing indicators */}
+      {typingUsernames && typingUsernames.length > 0 && (
+        <div className="px-4 py-2 text-xs text-[--text-muted] italic bg-[--surface-color]">
+          {typingUsernames.length === 1 && `${typingUsernames[0]} is typing...`}
+          {typingUsernames.length === 2 && `${typingUsernames[0]} and ${typingUsernames[1]} are typing...`}
+          {typingUsernames.length > 2 && `${typingUsernames[0]}, ${typingUsernames[1]}, and ${typingUsernames.length - 2} other${typingUsernames.length - 2 > 1 ? 's' : ''} are typing...`}
+        </div>
+      )}
+
       <form
         className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-white md:px-4 md:py-3 md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
         onSubmit={(e) => {

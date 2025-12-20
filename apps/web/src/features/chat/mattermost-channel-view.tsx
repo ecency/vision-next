@@ -24,7 +24,10 @@ import {
   useMattermostAdminBanUser,
   useMattermostAdminDeleteUserPosts,
   useMattermostPostsAround,
-  useMattermostJoinChannel
+  useMattermostJoinChannel,
+  useMattermostPinnedPosts,
+  useMattermostPinPost,
+  useMattermostUnpinPost
 } from "./mattermost-api";
 import { useChatAdminStore } from "./chat-admin-store";
 import {
@@ -52,6 +55,8 @@ import { ThreadPanel } from "./components/thread-panel";
 import { MessageInput } from "./components/message-input";
 import { MessageItem } from "./components/message-item";
 import { MessageList, type PostItem } from "./components/message-list";
+import { PinnedMessagesBanner } from "./components/pinned-messages-banner";
+import { MattermostWebSocket } from "./mattermost-websocket";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import {
@@ -71,6 +76,7 @@ import { Modal, ModalBody } from "@ui/modal";
 import { ImageUploadButton, ProfileLink, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
+import { useQueryClient } from "@tanstack/react-query";
 import defaults from "@/defaults";
 import { useRouter, useSearchParams } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
@@ -155,8 +161,10 @@ interface Props {
 
 export function MattermostChannelView({ channelId }: Props) {
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const [isWebSocketActive, setIsWebSocketActive] = useState(true);
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId, {
-    refetchInterval: isNearBottom ? 60000 : false // Poll every 60 seconds when near bottom
+    // Only poll if WebSocket inactive or user scrolled away
+    refetchInterval: (!isWebSocketActive || !isNearBottom) ? 60000 : false
   });
   const searchParams = useSearchParams();
   const shareText = searchParams?.get("text")?.trim();
@@ -212,6 +220,10 @@ export function MattermostChannelView({ channelId }: Props) {
   const updateMutation = useMattermostUpdatePost(channelId);
   const banUserMutation = useMattermostAdminBanUser();
   const deleteUserPostsMutation = useMattermostAdminDeleteUserPosts();
+  const pinnedPostsQuery = useMattermostPinnedPosts(channelId);
+  const pinPostMutation = useMattermostPinPost(channelId);
+  const unpinPostMutation = useMattermostUnpinPost(channelId);
+  const [showPinnedBanner, setShowPinnedBanner] = useState(true);
   const isSubmitting = sendMutation.isPending || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -223,6 +235,10 @@ export function MattermostChannelView({ channelId }: Props) {
   const [unreadCountBelowScroll, setUnreadCountBelowScroll] = useState(0);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
   const [showOnlineUsers, setShowOnlineUsers] = useState(false);
+  const websocketRef = useRef<MattermostWebSocket | null>(null);
+  const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
+  const TYPING_TIMEOUT = 5000; // 5 seconds
+  const queryClient = useQueryClient();
 
     type GifStyle = {
       width: string;
@@ -416,6 +432,32 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const isPublicChannel = channelData?.channel?.type === "O";
   const normalizedMentionQuery = mentionQuery.trim().toLowerCase();
+  const canPin = useMemo(() => {
+    const isDirectChannel = channelData?.channel?.type === "D";
+    const isModerator = channelData?.canModerate;
+    return isDirectChannel || isModerator || false;
+  }, [channelData?.channel?.type, channelData?.canModerate]);
+
+  // Compute typing usernames for display
+  const typingUsernames = useMemo(() => {
+    return Array.from(typingUsers.keys())
+      .map(userId => usersById[userId])
+      .filter(Boolean)
+      .map(user => getUserDisplayName(user) || user.username)
+      .slice(0, 3); // Max 3 names shown
+  }, [typingUsers, usersById]);
+
+  // Debounced typing sender
+  const sendTypingDebounced = useMemo(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        websocketRef.current?.sendTyping(channelId);
+      }, 500);
+    };
+  }, [channelId]);
+
   const channelWideMentionOptions = useMemo(
     () =>
       CHANNEL_WIDE_MENTIONS.filter((mention) =>
@@ -578,6 +620,61 @@ export function MattermostChannelView({ channelId }: Props) {
       markChannelRead();
     }
   }, [data, markChannelRead]);
+
+  // WebSocket initialization
+  useEffect(() => {
+    if (!channelId) return;
+
+    // Get token from cookie
+    const getCookie = (name: string): string | null => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+      return null;
+    };
+
+    const token = getCookie('mm_pat');
+    if (!token) return;
+
+    const ws = new MattermostWebSocket()
+      .withChannel(channelId)
+      .withToken(token)
+      .withQueryClient(queryClient)
+      .onConnectionChange(setIsWebSocketActive)
+      .onTyping((userId) => {
+        setTypingUsers(prev => new Map(prev).set(userId, Date.now()));
+      });
+
+    websocketRef.current = ws;
+    ws.connect();
+
+    return () => {
+      ws.disconnect();
+      websocketRef.current = null;
+    };
+  }, [channelId, queryClient]);
+
+  // Typing indicators auto-cleanup
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTypingUsers(prev => {
+        const now = Date.now();
+        const updated = new Map(prev);
+        let changed = false;
+
+        for (const [userId, timestamp] of updated.entries()) {
+          if (now - timestamp > TYPING_TIMEOUT) {
+            updated.delete(userId);
+            changed = true;
+          }
+        }
+
+        return changed ? updated : prev;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [TYPING_TIMEOUT]);
 
   const scrollToPost = useCallback(
     (postId: string, options?: { highlight?: boolean; behavior?: ScrollBehavior }) => {
@@ -1180,6 +1277,11 @@ export function MattermostChannelView({ channelId }: Props) {
     updateMentionState(value, cursor);
     updateEmojiState(value, cursor);
 
+    // Send typing indicator via WebSocket
+    if (value.length > 0) {
+      sendTypingDebounced();
+    }
+
     autoResize();
   };
 
@@ -1486,6 +1588,23 @@ export function MattermostChannelView({ channelId }: Props) {
     [updateEmojiState, updateMentionState]
   );
 
+  const handlePinToggle = useCallback((postId: string, isPinned: boolean) => {
+    if (!canPin) return;
+
+    // Check 5-pin limit before pinning
+    if (!isPinned && (pinnedPostsQuery.data?.posts.length ?? 0) >= 5) {
+      setMessageError("Cannot pin more than 5 messages per channel");
+      return;
+    }
+
+    const mutation = isPinned ? unpinPostMutation : pinPostMutation;
+    mutation.mutate(postId, {
+      onError: (err) => {
+        setMessageError((err as Error)?.message || "Unable to update pin");
+      }
+    });
+  }, [canPin, pinnedPostsQuery.data?.posts.length, pinPostMutation, unpinPostMutation]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex flex-1 flex-col gap-0 md:pb-0 min-h-0">
@@ -1619,6 +1738,20 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           </div>
         </div>
+
+        {showPinnedBanner && pinnedPostsQuery.data?.posts && pinnedPostsQuery.data.posts.length > 0 && (
+          <PinnedMessagesBanner
+            channelId={channelId}
+            pinnedPosts={pinnedPostsQuery.data.posts}
+            usersById={usersById}
+            canPin={canPin}
+            onScrollToPost={scrollToPost}
+            onUnpin={(postId) => handlePinToggle(postId, true)}
+            getDisplayName={getDisplayName}
+            getDecodedDisplayMessage={getDecodedDisplayMessage}
+            onDismiss={() => setShowPinnedBanner(false)}
+          />
+        )}
 
         {isEcencyAdmin && showAdminTools && (
           <div className="mt-3 space-y-3 rounded border border-[--border-color] bg-[--surface-color] p-4">
@@ -1799,12 +1932,15 @@ export function MattermostChannelView({ channelId }: Props) {
               handleReply={handleReply}
               handleEdit={handleEdit}
               handleDelete={handleDelete}
+              handlePinToggle={handlePinToggle}
               toggleReaction={toggleReaction}
               openReactionPostId={openReactionPostId}
               setOpenReactionPostId={setOpenReactionPostId}
               deletingPostId={deletingPostId}
               reactMutationPending={reactMutation.isPending}
               deleteMutationPending={deleteMutation.isPending}
+              canPin={canPin}
+              pinMutationPending={pinPostMutation.isPending || unpinPostMutation.isPending}
             />}
 
             {/* Scroll to bottom button - sticky FAB */}
@@ -1902,6 +2038,7 @@ export function MattermostChannelView({ channelId }: Props) {
         getDecodedDisplayMessage={getDecodedDisplayMessage}
         renderMessageContent={renderMessageContent}
         posts={posts}
+        typingUsernames={typingUsernames}
       />
 
       {/* Keyboard Shortcuts Modal */}

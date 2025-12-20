@@ -1,7 +1,7 @@
 import { Button } from "@ui/button";
 import { UserAvatar } from "@/features/shared";
 import { emojiIconSvg } from "@ui/icons";
-import { blogSvg, deleteForeverSvg, dotsHorizontal, linkSvg, mailSvg } from "@ui/svg";
+import { blogSvg, deleteForeverSvg, dotsHorizontal, linkSvg, mailSvg, pinSvg } from "@ui/svg";
 import { clipboard } from "@/utils/clipboard";
 import {
   Dropdown,
@@ -46,6 +46,7 @@ interface MessageItemProps {
   handleReply: (post: MattermostPost) => void;
   handleEdit: (post: MattermostPost) => void;
   handleDelete: (postId: string) => void;
+  handlePinToggle: (postId: string, isPinned: boolean) => void;
   toggleReaction: (post: MattermostPost, emojiName: string, closePopover?: boolean) => void;
 
   // State
@@ -54,6 +55,8 @@ interface MessageItemProps {
   deletingPostId: string | null;
   reactMutationPending: boolean;
   deleteMutationPending: boolean;
+  canPin: boolean;
+  pinMutationPending: boolean;
 }
 
 function UsernameActions({
@@ -117,12 +120,15 @@ export function MessageItem({
   handleReply,
   handleEdit,
   handleDelete,
+  handlePinToggle,
   toggleReaction,
   openReactionPostId,
   setOpenReactionPostId,
   deletingPostId,
   reactMutationPending,
-  deleteMutationPending
+  deleteMutationPending,
+  canPin,
+  pinMutationPending
 }: MessageItemProps) {
   const handleCopyLink = () => {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -412,6 +418,14 @@ export function MessageItem({
                   label="Copy link"
                   onClick={handleCopyLink}
                 />
+                {canPin && (
+                  <DropdownItemWithIcon
+                    icon={pinSvg}
+                    label={post.is_pinned ? "Unpin message" : "Pin message"}
+                    onClick={() => handlePinToggle(post.id, post.is_pinned ?? false)}
+                    disabled={pinMutationPending}
+                  />
+                )}
                 {channelData?.canModerate && (
                   <DropdownItemWithIcon
                     icon={deleteForeverSvg}

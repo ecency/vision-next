@@ -573,6 +573,7 @@ export interface MattermostPost {
   edit_at?: number;
   type?: string;
   root_id?: string | null;
+  is_pinned?: boolean;
   metadata?: {
     reactions?: MattermostReaction[];
   };
@@ -634,6 +635,70 @@ export function useMattermostUpdatePost(channelId: string | undefined) {
     },
     onSuccess: async () => {
       await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+      ]);
+    }
+  });
+}
+
+export function useMattermostPinnedPosts(channelId: string | undefined) {
+  return useQuery({
+    queryKey: ["mattermost-pinned-posts", channelId],
+    enabled: Boolean(channelId),
+    staleTime: 30000, // 30 seconds
+    queryFn: async () => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/pinned`);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to load pinned messages");
+      }
+      return (await res.json()) as { posts: MattermostPost[]; users: Record<string, MattermostUser> };
+    }
+  });
+}
+
+export function useMattermostPinPost(channelId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/posts/${postId}/pin`, {
+        method: "POST"
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to pin message");
+      }
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-pinned-posts", channelId] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+      ]);
+    }
+  });
+}
+
+export function useMattermostUnpinPost(channelId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/posts/${postId}/pin`, {
+        method: "DELETE"
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to unpin message");
+      }
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-pinned-posts", channelId] }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
       ]);
