@@ -1535,7 +1535,9 @@
     "key-placeholder": "Private key, master password or seed",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain",
-    "with-hiveauth": "Sign with HiveAuth"
+    "with-hiveauth": "Sign with HiveAuth",
+    "invalid-key": "Invalid key format. Please check for invalid characters.",
+    "key-error": "Failed to process the key. Please verify it is correct."
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."

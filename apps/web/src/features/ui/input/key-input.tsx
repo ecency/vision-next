@@ -66,24 +66,32 @@ export const KeyInput = forwardRef<
 
       let privateKey: PrivateKey;
 
-      if (cryptoUtils.isWif(key)) {
-        privateKey = PrivateKey.fromString(key);
-      } else {
-        const derivation = await detectHiveKeyDerivation(
-          activeUser.username,
-          key,
-          keyType
-        );
-
-        if (derivation === "bip44") {
-          const keys = deriveHiveKeys(key);
-          const derivedKey = keyType === "active" ? keys.active : keys.owner;
-          privateKey = PrivateKey.fromString(derivedKey);
-        } else if (derivation === "master-password") {
-          privateKey = PrivateKey.fromLogin(activeUser.username, key, keyType);
+      try {
+        if (cryptoUtils.isWif(key)) {
+          privateKey = PrivateKey.fromString(key);
         } else {
-          privateKey = PrivateKey.from(key);
+          const derivation = await detectHiveKeyDerivation(
+            activeUser.username,
+            key,
+            keyType
+          );
+
+          if (derivation === "bip44") {
+            const keys = deriveHiveKeys(key);
+            const derivedKey = keyType === "active" ? keys.active : keys.owner;
+            privateKey = PrivateKey.fromString(derivedKey);
+          } else if (derivation === "master-password") {
+            privateKey = PrivateKey.fromLogin(activeUser.username, key, keyType);
+          } else {
+            privateKey = PrivateKey.from(key);
+          }
         }
+      } catch (err) {
+        const errorMessage = err instanceof Error && err.message.includes("base58")
+          ? i18next.t("key-or-hot.invalid-key")
+          : i18next.t("key-or-hot.key-error");
+        error(errorMessage);
+        throw new Error("Invalid private key format");
       }
 
       setSigningKey(key);
