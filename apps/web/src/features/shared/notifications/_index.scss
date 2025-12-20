@@ -375,4 +375,11 @@
   .modal-dialog {
     top: 0 !important;
   }
+
+  // Prevent external link icons on deck notifications (links open in new tab for in-app navigation)
+  a[target="_blank"] {
+    &:after {
+      display: none;
+    }
+  }
 }
