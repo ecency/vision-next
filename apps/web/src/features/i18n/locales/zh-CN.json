@@ -1535,7 +1535,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "使用 HiveAuth 登录"
+    "with-hiveauth": "使用 HiveAuth 登录",
+    "invalid-key": "密钥格式无效。请检查无效字符。",
+    "key-error": "处理密钥失败。请验证它是否正确。"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
