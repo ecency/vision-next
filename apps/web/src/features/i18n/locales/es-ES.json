@@ -1535,7 +1535,9 @@
     "key-placeholder": "Clave privada, contraseña maestra o semilla",
     "with-hivesigner": "Iniciar Sesión con hivesigner",
     "with-keychain": "Iniciar sesión con KeyChain",
-    "with-hiveauth": "Firmar con HiveAuth"
+    "with-hiveauth": "Firmar con HiveAuth",
+    "invalid-key": "Formato de clave no válido. Por favor, compruebe los caracteres no válidos.",
+    "key-error": "Error al procesar la clave. Por favor, compruebe que es correcta."
   },
   "hive-auth": {
     "pending-request": "Solicitud de HiveAuth pendiente. Coincide con el ID {{id}} en tu cartera."
