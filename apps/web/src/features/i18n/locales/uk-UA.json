@@ -1535,7 +1535,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Увійти за допомогою HiveAuth"
+    "with-hiveauth": "Увійти за допомогою HiveAuth",
+    "invalid-key": "Невірний формат ключа. Будь ласка, перевірте неправильні символи.",
+    "key-error": "Не вдалося обробити ключ. Будь ласка, перевірте його правильність."
   },
   "hive-auth": {
     "pending-request": "Очікується запит HiveAuth. Матч з ID {{id}} у вашому гаманці."
