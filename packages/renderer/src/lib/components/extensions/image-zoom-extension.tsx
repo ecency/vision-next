@@ -91,14 +91,30 @@ export function ImageZoomExtension({
       }
     });
 
-    // Apply zoom after modifications
-    zoomRef.current = mediumZoom(
+    // Apply zoom after modifications with final safety check
+    try {
+      // Filter elements one more time to ensure they're still connected before passing to medium-zoom
+      // This prevents "Cannot read property 'parentNode' of null" errors during hydration
+      const zoomableImages = Array.from(
         containerRef.current?.querySelectorAll<HTMLImageElement>(
-            ".markdown-view:not(.markdown-view-pure) img"
+          ".markdown-view:not(.markdown-view-pure) img"
         ) ?? []
-    );
+      ).filter((img) => {
+        try {
+          return img.isConnected && img.parentNode !== null;
+        } catch {
+          return false;
+        }
+      });
 
-    zoomRef.current?.update({ background: "#131111" });
+      if (zoomableImages.length > 0) {
+        zoomRef.current = mediumZoom(zoomableImages);
+        zoomRef.current?.update({ background: "#131111" });
+      }
+    } catch (error) {
+      // Gracefully handle any medium-zoom initialization errors
+      console.warn("Failed to initialize medium-zoom:", error);
+    }
 
     return () => {
       zoomRef.current?.detach();
