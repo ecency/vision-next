@@ -1535,7 +1535,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Signer avec HiveAuth"
+    "with-hiveauth": "Signer avec HiveAuth",
+    "invalid-key": "Format de clé invalide. Veuillez vérifier s'il y a des caractères non valides.",
+    "key-error": "Impossible de traiter la clé. Veuillez vérifier qu'elle est correcte."
   },
   "hive-auth": {
     "pending-request": "Requête HiveAuth en attente. ID {{id}} dans votre portefeuille."
