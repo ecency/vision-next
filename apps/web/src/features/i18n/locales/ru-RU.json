@@ -1535,7 +1535,9 @@
     "key-placeholder": "Введите активный/владелец/мастер-ключ или сид",
     "with-hivesigner": "Подписать с помощью hivesigner",
     "with-keychain": "Подписать с помощью keychain",
-    "with-hiveauth": "Подписать через HiveAuth"
+    "with-hiveauth": "Подписать через HiveAuth",
+    "invalid-key": "Неверный формат ключа. Пожалуйста, проверьте недопустимые символы.",
+    "key-error": "Не удалось обработать ключ. Пожалуйста, проверьте правильность."
   },
   "hive-auth": {
     "pending-request": "HiveAuth запрос в ожидании. ID {{id}} в вашем кошельке."
