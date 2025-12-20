@@ -1535,7 +1535,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "HiveAuthでサインイン"
+    "with-hiveauth": "HiveAuthでサインイン",
+    "invalid-key": "無効なキーフォーマットです。無効な文字を確認してください。",
+    "key-error": "キーの処理に失敗しました。正しいことを確認してください。"
   },
   "hive-auth": {
     "pending-request": "HiveAuthリクエストは保留中です。ウォレット内のマッチID {{id}}。"
