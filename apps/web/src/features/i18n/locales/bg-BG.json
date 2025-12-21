@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "Enter chat private key to import all chats",
     "message-search-results": "Message search results",
     "no-messages-found": "No messages found.",
-    "no-message": "No message content."
+    "no-message": "No message content.",
+    "translate": "Translate",
+    "translate-target-language": "Target language",
+    "pinned-messages": "Pinned messages",
+    "pin-message": "Pin message",
+    "unpin-message": "Unpin message"
   },
   "add-image": {
     "title": "Добави Снимка",
