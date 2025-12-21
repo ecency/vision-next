@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "Chat-Privatschlüssel eingeben um alle Chats zu importieren",
     "message-search-results": "Nachrichten Suchergebnisse",
     "no-messages-found": "Keine Nachrichten gefunden.",
-    "no-message": "Kein Nachrichteninhalt."
+    "no-message": "Kein Nachrichteninhalt.",
+    "translate": "Übersetzen",
+    "translate-target-language": "Zielsprache",
+    "pinned-messages": "Angeheftete Nachrichten",
+    "pin-message": "Nachricht anheften",
+    "unpin-message": "Nachricht lösen"
   },
   "add-image": {
     "title": "Bild hinzufügen",
