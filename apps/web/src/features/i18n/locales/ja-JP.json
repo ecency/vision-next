@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "すべてのチャットをインポートするにはチャット秘密鍵を入力してください",
     "message-search-results": "メッセージ検索結果",
     "no-messages-found": "メッセージが見つかりません。",
-    "no-message": "メッセージの内容がありません。"
+    "no-message": "メッセージの内容がありません。",
+    "translate": "翻訳する",
+    "translate-target-language": "翻訳先の言語",
+    "pinned-messages": "僅用於中文",
+    "pin-message": "メッセージをピン留めする",
+    "unpin-message": "メッセージのピン留めを解除"
   },
   "add-image": {
     "title": "画像を追加",
