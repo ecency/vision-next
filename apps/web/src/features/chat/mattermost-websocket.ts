@@ -135,7 +135,10 @@ export class MattermostWebSocket {
         this.connectionState = "error";
         this.reconnectAttempts++;
 
-        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+        // Close the errored connection and trigger reconnect via onclose
+        if (this.ws && this.reconnectAttempts < this.maxReconnectAttempts) {
+          this.ws.close();
+        } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
           console.log("✗ Chat WebSocket disconnected (using polling)");
           this.onConnectionChangeCallback?.(false);
         }
@@ -175,6 +178,9 @@ export class MattermostWebSocket {
 
     // Stop ping interval
     this.stopPingInterval();
+
+    // Clear typing throttle map to prevent memory leak
+    this.typingThrottle.clear();
 
     // Close WebSocket
     if (this.ws) {
@@ -333,6 +339,14 @@ export class MattermostWebSocket {
     }
 
     this.typingThrottle.set(channelId, now);
+
+    // Clean up old entries from map to prevent memory leak
+    // Keep entries less than 10 seconds old
+    for (const [key, timestamp] of this.typingThrottle.entries()) {
+      if (now - timestamp > 10000) {
+        this.typingThrottle.delete(key);
+      }
+    }
 
     const payload = {
       action: "user_typing",

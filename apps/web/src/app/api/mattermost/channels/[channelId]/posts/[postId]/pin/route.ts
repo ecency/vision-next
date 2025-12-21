@@ -38,6 +38,19 @@ export async function POST(_req: Request, { params }: { params: Promise<{ channe
       }
     }
 
+    // Check 5-pin limit before pinning (server-side enforcement)
+    const pinnedResponse = await mmUserFetch<{
+      posts: Record<string, any>;
+      order: string[];
+    }>(`/channels/${channelId}/pinned`, token);
+
+    if (pinnedResponse.order && pinnedResponse.order.length >= 5) {
+      return NextResponse.json(
+        { error: "Cannot pin more than 5 messages per channel" },
+        { status: 400 }
+      );
+    }
+
     // Pin the post via Mattermost API
     await mmUserFetch(`/posts/${postId}/pin`, token, {
       method: "POST"

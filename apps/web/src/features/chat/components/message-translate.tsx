@@ -13,23 +13,38 @@ interface Props {
 export function MessageTranslate({ messageText, onHide }: Props) {
   const [translated, setTranslated] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
   const [languages, setLanguages] = useState<Language[]>([]);
+  const [loadingLanguages, setLoadingLanguages] = useState(true);
   const [target, setTarget] = useState<string>(
     i18next.language.split("-")[0]
   );
 
   useEffect(() => {
-    getLanguages().then(setLanguages);
+    getLanguages()
+      .then(setLanguages)
+      .catch(() => {
+        setError("Failed to load languages");
+      })
+      .finally(() => {
+        setLoadingLanguages(false);
+      });
   }, []);
 
   useEffect(() => {
     let canceled = false;
     setLoading(true);
     setTranslated("");
+    setError("");
     getTranslation(messageText, "auto", target)
       .then((r) => {
         if (!canceled) {
           setTranslated(r.translatedText);
+        }
+      })
+      .catch((err) => {
+        if (!canceled) {
+          setError(err?.message || "Translation failed. Please try again.");
         }
       })
       .finally(() => {
@@ -60,15 +75,26 @@ export function MessageTranslate({ messageText, onHide }: Props) {
             value={target}
             size="sm"
             onChange={(e) => setTarget(e.currentTarget.value)}
+            disabled={loadingLanguages || languages.length === 0}
           >
-            {languages.map((lang) => (
-              <option key={lang.code} value={lang.code}>
-                {lang.name}
-              </option>
-            ))}
+            {loadingLanguages ? (
+              <option>Loading languages...</option>
+            ) : languages.length === 0 ? (
+              <option>No languages available</option>
+            ) : (
+              languages.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))
+            )}
           </Select>
         </div>
-        {loading ? (
+        {error ? (
+          <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded">
+            {error}
+          </div>
+        ) : loading ? (
           <div className="flex justify-center p-3">
             <Spinner className="w-4 h-4" />
           </div>
