@@ -273,8 +273,11 @@ export class MattermostWebSocket {
   }
 
   private handleTyping(message: MattermostWSEvent): void {
+    const channelId = message.broadcast?.channel_id;
     const userId = message.data?.user_id;
-    if (userId && this.onTypingCallback) {
+
+    // Only forward typing events for the active channel
+    if (channelId === this.channelId && userId && this.onTypingCallback) {
       this.onTypingCallback(userId);
     }
   }
