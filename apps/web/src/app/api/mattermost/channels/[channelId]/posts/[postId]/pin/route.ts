@@ -6,14 +6,16 @@ import {
   mmUserFetch
 } from "@/server/mattermost";
 
-export async function POST(_req: Request, { params }: { params: { channelId: string; postId: string } }) {
+export async function POST(_req: Request, { params }: { params: Promise<{ channelId: string; postId: string }> }) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  const { channelId, postId } = await params;
+
   try {
-    const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+    const moderation = await getMattermostCommunityModerationContext(token, channelId);
 
     // Check permissions based on channel type
     if (moderation.channel.type === "O") {
@@ -27,7 +29,7 @@ export async function POST(_req: Request, { params }: { params: { channelId: str
     } else if (moderation.channel.type === "D" || moderation.channel.type === "G") {
       // Direct message or group message - check membership
       const member = await mmUserFetch(
-        `/channels/${params.channelId}/members/me`,
+        `/channels/${channelId}/members/me`,
         token
       ).catch(() => null);
 
@@ -37,7 +39,7 @@ export async function POST(_req: Request, { params }: { params: { channelId: str
     }
 
     // Pin the post via Mattermost API
-    await mmUserFetch(`/posts/${params.postId}/pin`, token, {
+    await mmUserFetch(`/posts/${postId}/pin`, token, {
       method: "POST"
     });
 
@@ -47,14 +49,16 @@ export async function POST(_req: Request, { params }: { params: { channelId: str
   }
 }
 
-export async function DELETE(_req: Request, { params }: { params: { channelId: string; postId: string } }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ channelId: string; postId: string }> }) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  const { channelId, postId } = await params;
+
   try {
-    const moderation = await getMattermostCommunityModerationContext(token, params.channelId);
+    const moderation = await getMattermostCommunityModerationContext(token, channelId);
 
     // Check permissions based on channel type
     if (moderation.channel.type === "O") {
@@ -68,7 +72,7 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
     } else if (moderation.channel.type === "D" || moderation.channel.type === "G") {
       // Direct message or group message - check membership
       const member = await mmUserFetch(
-        `/channels/${params.channelId}/members/me`,
+        `/channels/${channelId}/members/me`,
         token
       ).catch(() => null);
 
@@ -78,7 +82,7 @@ export async function DELETE(_req: Request, { params }: { params: { channelId: s
     }
 
     // Unpin the post via Mattermost API
-    await mmUserFetch(`/posts/${params.postId}/unpin`, token, {
+    await mmUserFetch(`/posts/${postId}/unpin`, token, {
       method: "POST"
     });
 

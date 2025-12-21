@@ -142,24 +142,33 @@ export function MessageInput({
 }: MessageInputProps) {
   return (
     <>
-      {/* Typing indicators */}
-      {typingUsernames && typingUsernames.length > 0 && (
-        <div className="px-4 py-2 text-xs text-[--text-muted] italic bg-[--surface-color]">
-          {typingUsernames.length === 1 && `${typingUsernames[0]} is typing...`}
-          {typingUsernames.length === 2 && `${typingUsernames[0]} and ${typingUsernames[1]} are typing...`}
-          {typingUsernames.length > 2 && `${typingUsernames[0]}, ${typingUsernames[1]}, and ${typingUsernames.length - 2} other${typingUsernames.length - 2 > 1 ? 's' : ''} are typing...`}
-        </div>
-      )}
-
       <form
-        className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col gap-3 border-t border-[--border-color] bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-white md:px-4 md:py-3 md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
+        className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+72px)] z-20 flex flex-col border-t border-[--border-color] bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:sticky md:inset-x-0 md:bottom-0 md:border-t md:bg-white md:shadow-[0_-8px_24px_rgba(0,0,0,0.04)]"
         onSubmit={(e) => {
           e.preventDefault();
           submitMessage();
         }}
         aria-busy={isSubmitting}
       >
-        <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto">
+        {/* Typing indicators */}
+        {typingUsernames && typingUsernames.length > 0 && (
+          <div className="px-4 py-2 text-xs italic border-b border-[--border-color] bg-[--surface-color]">
+            <div className="flex items-center gap-2 max-w-4xl w-full mx-auto text-[--text-muted]">
+              <span className="inline-flex gap-1" aria-label="typing">
+                <span className="h-1.5 w-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="h-1.5 w-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="h-1.5 w-1.5 rounded-full bg-[--text-muted] animate-bounce" style={{ animationDelay: '300ms' }} />
+              </span>
+              <span>
+                {typingUsernames.length === 1 && `${typingUsernames[0]} is typing...`}
+                {typingUsernames.length === 2 && `${typingUsernames[0]} and ${typingUsernames[1]} are typing...`}
+                {typingUsernames.length > 2 && `${typingUsernames[0]}, ${typingUsernames[1]}, and ${typingUsernames.length - 2} other${typingUsernames.length - 2 > 1 ? 's' : ''} are typing...`}
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 max-w-4xl w-full mx-auto px-4 py-3">
           {isSubmitting && (
             <div className="flex items-center gap-2 text-xs text-[--text-muted]">
               <span className="h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse" aria-hidden />

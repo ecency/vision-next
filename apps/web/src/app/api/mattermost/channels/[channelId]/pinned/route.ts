@@ -14,18 +14,20 @@ interface MattermostUser {
   last_picture_update?: number;
 }
 
-export async function GET(_req: Request, { params }: { params: { channelId: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ channelId: string }> }) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+
+  const { channelId } = await params;
 
   try {
     // Fetch pinned posts from Mattermost
     const response = await mmUserFetch<{
       posts: Record<string, any>;
       order: string[];
-    }>(`/channels/${params.channelId}/pinned`, token);
+    }>(`/channels/${channelId}/pinned`, token);
 
     const posts = response.posts;
     const order = response.order;

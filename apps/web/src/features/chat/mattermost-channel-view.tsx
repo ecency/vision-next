@@ -55,7 +55,6 @@ import { ThreadPanel } from "./components/thread-panel";
 import { MessageInput } from "./components/message-input";
 import { MessageItem } from "./components/message-item";
 import { MessageList, type PostItem } from "./components/message-list";
-import { PinnedMessagesBanner } from "./components/pinned-messages-banner";
 import { MattermostWebSocket } from "./mattermost-websocket";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
@@ -223,7 +222,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const pinnedPostsQuery = useMattermostPinnedPosts(channelId);
   const pinPostMutation = useMattermostPinPost(channelId);
   const unpinPostMutation = useMattermostUnpinPost(channelId);
-  const [showPinnedBanner, setShowPinnedBanner] = useState(true);
+  const [showPinnedModal, setShowPinnedModal] = useState(false);
   const isSubmitting = sendMutation.isPending || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -447,16 +446,21 @@ export function MattermostChannelView({ channelId }: Props) {
       .slice(0, 3); // Max 3 names shown
   }, [typingUsers, usersById]);
 
-  // Debounced typing sender
+  // Debounced typing sender with auto-reconnect
   const sendTypingDebounced = useMemo(() => {
     let timeoutId: NodeJS.Timeout | null = null;
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        websocketRef.current?.sendTyping(channelId);
+        const ws = websocketRef.current;
+        if (ws) {
+          // Attempt to reconnect if disconnected
+          if (!isWebSocketActive) ws.connect();
+          ws.sendTyping(channelId);
+        }
       }, 500);
     };
-  }, [channelId]);
+  }, [channelId, isWebSocketActive]);
 
   const channelWideMentionOptions = useMemo(
     () =>
@@ -625,34 +629,32 @@ export function MattermostChannelView({ channelId }: Props) {
   useEffect(() => {
     if (!channelId) return;
 
-    // Get token from cookie
-    const getCookie = (name: string): string | null => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-      return null;
-    };
+    const currentUserId = channelData?.member?.user_id;
 
-    const token = getCookie('mm_pat');
-    if (!token) return;
+    try {
+      const ws = new MattermostWebSocket()
+        .withChannel(channelId)
+        .withQueryClient(queryClient)
+        .onConnectionChange(setIsWebSocketActive)
+        .onTyping((userId) => {
+          // Don't show typing indicator for current user
+          if (userId === currentUserId) return;
+          setTypingUsers(prev => new Map(prev).set(userId, Date.now()));
+        });
 
-    const ws = new MattermostWebSocket()
-      .withChannel(channelId)
-      .withToken(token)
-      .withQueryClient(queryClient)
-      .onConnectionChange(setIsWebSocketActive)
-      .onTyping((userId) => {
-        setTypingUsers(prev => new Map(prev).set(userId, Date.now()));
-      });
-
-    websocketRef.current = ws;
-    ws.connect();
+      websocketRef.current = ws;
+      ws.connect();
+    } catch (error) {
+      console.error("Failed to initialize chat WebSocket:", error);
+    }
 
     return () => {
-      ws.disconnect();
-      websocketRef.current = null;
+      if (websocketRef.current) {
+        websocketRef.current.disconnect();
+        websocketRef.current = null;
+      }
     };
-  }, [channelId, queryClient]);
+  }, [channelId, queryClient, channelData?.member?.user_id]);
 
   // Typing indicators auto-cleanup
   useEffect(() => {
@@ -1019,7 +1021,9 @@ export function MattermostChannelView({ channelId }: Props) {
       const trailing = matchedText.slice(cleanedLink.length);
 
       if (isEnhanceableEcencyPostLink(cleanedLink)) {
-        nodes.push(<HivePostLinkRenderer key={`ecency-link-${index}`} link={cleanedLink} />);
+        // Use link hash in key to ensure uniqueness even for duplicate links in same message
+        const linkHash = cleanedLink.split('/').pop() || index;
+        nodes.push(<HivePostLinkRenderer key={`ecency-link-${index}-${linkHash}`} link={cleanedLink} />);
       } else {
         nodes.push(...renderTextWithMentions(cleanedLink, `mention-${index}-link`));
       }
@@ -1123,14 +1127,9 @@ export function MattermostChannelView({ channelId }: Props) {
                 );
               }
 
-              if (isEcencyPostLink && !containsImage) {
-                if (isWaveLikePost(href)) {
-                  return <WaveLikePostRenderer link={href} />;
-                }
-
-                return <HivePostLinkRenderer link={href} />;
-              }
-
+              // Don't use HivePostLinkRenderer/WaveLikePostRenderer for markdown links
+              // to avoid nested <a> tags. These renderers should only be used for bare
+              // URLs detected in plain text (via renderTextWithEnhancements).
               return (
                 <a
                   href={href}
@@ -1617,6 +1616,19 @@ export function MattermostChannelView({ channelId }: Props) {
               <div className="flex flex-wrap items-center gap-2 text-xs text-[--text-muted]">
                 <span className="truncate">{channelSubtitle}</span>
 
+                {pinnedPostsQuery.data?.posts && pinnedPostsQuery.data.posts.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPinnedModal(true)}
+                    className="flex items-center gap-1 rounded-full border border-[--border-color] px-2 py-1 text-[11px] text-[--text-muted] transition hover:border-blue-dark-sky hover:text-[--text-color]"
+                  >
+                    <span className="text-sm leading-none" aria-hidden>
+                      📌
+                    </span>
+                    <span>{pinnedPostsQuery.data.posts.length} pinned</span>
+                  </button>
+                )}
+
                 {onlineCount > 0 && (
                   <>
                     <button
@@ -1703,6 +1715,88 @@ export function MattermostChannelView({ channelId }: Props) {
               </div>
             </div>
 
+            {/* Pinned Messages Modal */}
+            <Modal
+              show={showPinnedModal}
+              onHide={() => setShowPinnedModal(false)}
+              centered
+              size="sm"
+            >
+              <ModalBody>
+                <div className="flex items-center justify-between gap-2 pb-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <span className="text-sm leading-none" aria-hidden>
+                      📌
+                    </span>
+                    <span>Pinned Messages</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPinnedModal(false)}
+                    className="text-[--text-muted] hover:text-[--text-color]"
+                    aria-label="Close pinned messages"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="max-h-80 overflow-y-auto">
+                  {pinnedPostsQuery.data?.posts && pinnedPostsQuery.data.posts.length > 0 ? (
+                    <div className="space-y-2">
+                      {pinnedPostsQuery.data.posts.map((post) => {
+                        const author = usersById[post.user_id];
+                        const displayName = author ? (getUserDisplayName(author) || author.username) : 'Unknown';
+                        const message = getDecodedDisplayMessage(post);
+
+                        return (
+                          <div
+                            key={post.id}
+                            className="group rounded border border-[--border-color] bg-[--background-color] p-2 hover:border-blue-dark-sky cursor-pointer transition"
+                            onClick={() => {
+                              scrollToPost(post.id);
+                              setShowPinnedModal(false);
+                            }}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 text-xs text-[--text-muted] mb-1">
+                                  <span className="font-semibold text-[--text-color]">{displayName}</span>
+                                  <span>•</span>
+                                  <span>{formatTimestamp(post.create_at)}</span>
+                                </div>
+                                <div className="text-sm line-clamp-3 break-words">
+                                  {message}
+                                </div>
+                              </div>
+                              {canPin && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePinToggle(post.id, true);
+                                  }}
+                                  disabled={unpinPostMutation.isPending}
+                                  className="opacity-0 group-hover:opacity-100 text-[--text-muted] hover:text-red-500 p-1 transition"
+                                  aria-label="Unpin message"
+                                  title="Unpin message"
+                                >
+                                  {unpinPostMutation.isPending ? '⏳' : '📌'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="px-2 py-4 text-center text-[11px] text-[--text-muted]">
+                      No pinned messages
+                    </div>
+                  )}
+                </div>
+              </ModalBody>
+            </Modal>
+
             {/* Right side: last viewed + keyboard shortcuts + X (mobile only) */}
             <div className="flex items-center gap-3 shrink-0">
               {effectiveLastViewedAt > 0 && (
@@ -1738,20 +1832,6 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           </div>
         </div>
-
-        {showPinnedBanner && pinnedPostsQuery.data?.posts && pinnedPostsQuery.data.posts.length > 0 && (
-          <PinnedMessagesBanner
-            channelId={channelId}
-            pinnedPosts={pinnedPostsQuery.data.posts}
-            usersById={usersById}
-            canPin={canPin}
-            onScrollToPost={scrollToPost}
-            onUnpin={(postId) => handlePinToggle(postId, true)}
-            getDisplayName={getDisplayName}
-            getDecodedDisplayMessage={getDecodedDisplayMessage}
-            onDismiss={() => setShowPinnedBanner(false)}
-          />
-        )}
 
         {isEcencyAdmin && showAdminTools && (
           <div className="mt-3 space-y-3 rounded border border-[--border-color] bg-[--surface-color] p-4">

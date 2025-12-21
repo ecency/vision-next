@@ -45,6 +45,15 @@ const config = {
         sass: "sass-embedded"
     };
 
+    // Exclude WebSocket native modules from bundling (server-side only)
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        'bufferutil': 'commonjs bufferutil',
+        'utf-8-validate': 'commonjs utf-8-validate',
+      });
+    }
+
     const reactQueryPackagePath = path.dirname(
       require.resolve("@tanstack/react-query/package.json")
     );

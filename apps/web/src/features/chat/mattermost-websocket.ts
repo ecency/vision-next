@@ -6,6 +6,32 @@ declare global {
   }
 }
 
+/**
+ * WebSocket client for Mattermost real-time messaging
+ *
+ * Authentication:
+ * - First-party web app: Uses httpOnly cookie automatically (don't call withToken())
+ * - Third-party apps: Call withToken(token) to pass token as query parameter
+ *
+ * Example usage:
+ * ```typescript
+ * // First-party (web app) - uses httpOnly cookie
+ * const ws = new MattermostWebSocket()
+ *   .withChannel(channelId)
+ *   .withQueryClient(queryClient)
+ *   .onConnectionChange(setIsActive)
+ *   .onTyping(handleTyping);
+ * await ws.connect();
+ *
+ * // Third-party app - uses token parameter
+ * const ws = new MattermostWebSocket()
+ *   .withChannel(channelId)
+ *   .withToken(apiToken)
+ *   .onTyping(handleTyping);
+ * await ws.connect();
+ * ```
+ */
+
 interface MattermostWSEvent {
   event: string;
   data: {
@@ -45,6 +71,7 @@ export class MattermostWebSocket {
     return this;
   }
 
+  // Optional: for third-party apps that can't use cookies
   public withToken(token: string): this {
     this.token = token;
     return this;
@@ -71,22 +98,21 @@ export class MattermostWebSocket {
       return;
     }
 
-    if (!this.token) {
-      console.error("Cannot connect to Mattermost WebSocket: no token provided");
-      return;
-    }
-
     this.connectionState = "connecting";
 
     try {
-      const wsUrl = `/api/mattermost/websocket?token=${this.token}`;
+      // If token is provided (third-party apps), use it in query param
+      // Otherwise rely on httpOnly cookie sent automatically by browser (first-party app)
+      const wsUrl = this.token
+        ? `/api/mattermost/websocket?token=${this.token}`
+        : `/api/mattermost/websocket`;
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const fullUrl = `${protocol}//${window.location.host}${wsUrl}`;
 
       this.ws = new WebSocket(fullUrl);
 
       this.ws.onopen = () => {
-        console.log("Mattermost WebSocket connected");
+        console.log("✓ Chat WebSocket connected");
         this.isConnected = true;
         this.connectionState = "connected";
         this.reconnectAttempts = 0;
@@ -105,26 +131,23 @@ export class MattermostWebSocket {
         }
       };
 
-      this.ws.onerror = (error) => {
-        console.error("Mattermost WebSocket error:", error);
+      this.ws.onerror = () => {
         this.connectionState = "error";
         this.reconnectAttempts++;
 
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-          console.log("Max reconnect attempts reached, falling back to polling");
+          console.log("✗ Chat WebSocket disconnected (using polling)");
           this.onConnectionChangeCallback?.(false);
         }
       };
 
       this.ws.onclose = (evt: CloseEvent) => {
-        console.log("Mattermost WebSocket disconnected");
         this.isConnected = false;
         this.connectionState = "disconnected";
         this.stopPingInterval();
 
         if (!evt.wasClean && this.reconnectAttempts < this.maxReconnectAttempts) {
           // Auto-reconnect after 2 seconds
-          console.log("Attempting to reconnect...");
           this.reconnectTimeout = setTimeout(() => {
             this.connect();
           }, 2000);
@@ -251,9 +274,9 @@ export class MattermostWebSocket {
 
   private handleTyping(message: MattermostWSEvent): void {
     const userId = message.data?.user_id;
-    if (!userId || !this.onTypingCallback) return;
-
-    this.onTypingCallback(userId);
+    if (userId && this.onTypingCallback) {
+      this.onTypingCallback(userId);
+    }
   }
 
   private handleReaction(message: MattermostWSEvent): void {
@@ -290,7 +313,9 @@ export class MattermostWebSocket {
 
   // Utility methods
   public sendTyping(channelId: string): void {
-    if (!this.ws || this.connectionState !== "connected") return;
+    if (!this.ws || this.connectionState !== "connected") {
+      return;
+    }
 
     const lastSent = this.typingThrottle.get(channelId);
     const now = Date.now();
