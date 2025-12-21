@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "输入私钥导入所有聊天",
     "message-search-results": "消息搜索结果",
     "no-messages-found": "未找到消息。",
-    "no-message": "没有消息内容。"
+    "no-message": "没有消息内容。",
+    "translate": "翻译",
+    "translate-target-language": "目标语言",
+    "pinned-messages": "置頂消息",
+    "pin-message": "置顶消息",
+    "unpin-message": "取消置顶消息"
   },
   "add-image": {
     "title": "添加图像",
