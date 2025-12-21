@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "Wprowadź klucz prywatny czatu, aby zaimportować wszystkie czaty",
     "message-search-results": "Wyniki wyszukiwania wiadomości",
     "no-messages-found": "Nie znaleziono wiadomości.",
-    "no-message": "Brak zawartości wiadomości."
+    "no-message": "Brak zawartości wiadomości.",
+    "translate": "Przetłumacz",
+    "translate-target-language": "Docelowy język",
+    "pinned-messages": "Przypięte wiadomości",
+    "pin-message": "Przypnij wiadomość",
+    "unpin-message": "Odepnij wiadomość"
   },
   "add-image": {
     "title": "Dodaj obraz",
