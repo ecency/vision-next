@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "Введите приватный ключ чата для импорта всех чатов",
     "message-search-results": "Результаты поиска сообщений",
     "no-messages-found": "Сообщения не найдены.",
-    "no-message": "Нет содержания сообщения."
+    "no-message": "Нет содержания сообщения.",
+    "translate": "Перевести",
+    "translate-target-language": "Целевой язык",
+    "pinned-messages": "Закрепленные сообщения",
+    "pin-message": "Закрепить сообщение",
+    "unpin-message": "Открепить сообщение"
   },
   "add-image": {
     "title": "Добавить изображение",
