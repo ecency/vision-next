@@ -78,14 +78,23 @@ function checkOrigin(request: NextRequest): boolean {
   return ALLOWED_ORIGINS.includes(origin);
 }
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export function GET(): Response {
+  return new Response("WebSocket endpoint. Use a WebSocket client to connect.", {
+    status: 426,
+    headers: { Upgrade: "websocket" }
+  });
+}
+
 export function UPGRADE(
   client: WebSocket,
-  request: NextRequest,
-  server: WebSocketServer
+  _server: WebSocketServer,
+  request: NextRequest
 ): void {
   // Check origin for CORS
   if (!checkOrigin(request)) {
-    console.log("MM websocket: origin not allowed", request.headers.get("origin"));
     client.close(1008, "Origin not allowed");
     return;
   }
@@ -93,7 +102,6 @@ export function UPGRADE(
   // Get authentication token
   const token = getToken(request);
   if (!token) {
-    console.log("MM websocket: no token provided");
     client.close(1008, "Unauthorized");
     return;
   }
@@ -103,7 +111,7 @@ export function UPGRADE(
   try {
     upstream = new WebSocket(getMattermostWebsocketUrl());
   } catch (error) {
-    console.error("MM websocket: failed to connect upstream", error);
+    console.error("Chat WebSocket: failed to connect upstream", error);
     client.close(1011, "Chat service unavailable");
     return;
   }
@@ -129,7 +137,6 @@ export function UPGRADE(
         upstream.send(data, { binary: isBinary });
       }
     } catch (error) {
-      console.error("MM websocket: unable to forward client message", error);
       closeBoth(1011, "forward error");
     }
   });
@@ -140,22 +147,20 @@ export function UPGRADE(
         upstream.close(code, reason);
       }
     } catch (error) {
-      console.error("MM websocket: failed closing upstream after client close", error);
+      // Silent - connection already closing
     }
   });
 
-  client.on("error", (error) => {
-    console.error("MM websocket: client socket error", error);
+  client.on("error", () => {
     closeBoth(1011, "client error");
   });
 
   // Upstream -> Client forwarding
   upstream.on("open", () => {
     try {
-      // Send authentication challenge with token
       upstream.send(buildAuthenticationChallenge(token));
     } catch (error) {
-      console.error("MM websocket: unable to send auth challenge", error);
+      console.error("Chat WebSocket: auth challenge failed", error);
       closeBoth(1011, "auth error");
     }
   });
@@ -166,7 +171,7 @@ export function UPGRADE(
         client.send(data, { binary: isBinary });
       }
     } catch (error) {
-      console.error("MM websocket: unable to forward upstream message", error);
+      console.error("Chat WebSocket: message forward failed", error);
       closeBoth(1011, "forward error");
     }
   });
@@ -177,12 +182,12 @@ export function UPGRADE(
         client.close(code, reason);
       }
     } catch (error) {
-      console.error("MM websocket: failed closing downstream after upstream close", error);
+      console.error("Chat WebSocket: close failed", error);
     }
   });
 
   upstream.on("error", (error) => {
-    console.error("MM websocket: upstream socket error", error);
+    console.error("Chat WebSocket: upstream error", error);
     closeBoth(1011, "upstream error");
   });
 }

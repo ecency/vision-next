@@ -44,6 +44,7 @@ interface MessageListProps {
   handleReply: (post: MattermostPost) => void;
   handleEdit: (post: MattermostPost) => void;
   handleDelete: (postId: string) => void;
+  handlePinToggle: (postId: string, isPinned: boolean) => void;
   toggleReaction: (post: MattermostPost, emojiName: string, closePopover?: boolean) => void;
 
   // State
@@ -52,6 +53,8 @@ interface MessageListProps {
   deletingPostId: string | null;
   reactMutationPending: boolean;
   deleteMutationPending: boolean;
+  canPin: boolean;
+  pinMutationPending: boolean;
 }
 
 export function MessageList({
@@ -76,12 +79,15 @@ export function MessageList({
   handleReply,
   handleEdit,
   handleDelete,
+  handlePinToggle,
   toggleReaction,
   openReactionPostId,
   setOpenReactionPostId,
   deletingPostId,
   reactMutationPending,
-  deleteMutationPending
+  deleteMutationPending,
+  canPin,
+  pinMutationPending
 }: MessageListProps) {
   return (
     <div className="space-y-2.5">
@@ -160,12 +166,15 @@ export function MessageList({
             handleReply={handleReply}
             handleEdit={handleEdit}
             handleDelete={handleDelete}
+            handlePinToggle={handlePinToggle}
             toggleReaction={toggleReaction}
             openReactionPostId={openReactionPostId}
             setOpenReactionPostId={setOpenReactionPostId}
             deletingPostId={deletingPostId}
             reactMutationPending={reactMutationPending}
             deleteMutationPending={deleteMutationPending}
+            canPin={canPin}
+            pinMutationPending={pinMutationPending}
           />
         );
       })}
