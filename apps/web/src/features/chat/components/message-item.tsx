@@ -1,7 +1,7 @@
 import { Button } from "@ui/button";
 import { UserAvatar } from "@/features/shared";
 import { emojiIconSvg } from "@ui/icons";
-import { blogSvg, deleteForeverSvg, dotsHorizontal, linkSvg, mailSvg, pinSvg } from "@ui/svg";
+import { blogSvg, deleteForeverSvg, dotsHorizontal, earthSvg, linkSvg, mailSvg, pinSvg } from "@ui/svg";
 import { clipboard } from "@/utils/clipboard";
 import {
   Dropdown,
@@ -12,7 +12,9 @@ import {
 import { Popover, PopoverContent } from "@ui/popover";
 import { formatRelativeTime, getAvatarUrl } from "../format-utils";
 import { getNativeEmojiFromShortcode, decodeMessageEmojis } from "../emoji-utils";
+import { MessageTranslate } from "./message-translate";
 import clsx from "clsx";
+import { useState } from "react";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
@@ -130,6 +132,8 @@ export function MessageItem({
   canPin,
   pinMutationPending
 }: MessageItemProps) {
+  const [showTranslateModal, setShowTranslateModal] = useState(false);
+
   const handleCopyLink = () => {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
     const link = `${baseUrl}/chats/${channelId}?post=${post.id}`;
@@ -418,6 +422,11 @@ export function MessageItem({
                   label="Copy link"
                   onClick={handleCopyLink}
                 />
+                <DropdownItemWithIcon
+                  icon={earthSvg}
+                  label="Translate"
+                  onClick={() => setShowTranslateModal(true)}
+                />
                 {canPin && (
                   <DropdownItemWithIcon
                     icon={pinSvg}
@@ -441,6 +450,12 @@ export function MessageItem({
           </div>
         )}
       </div>
+      {showTranslateModal && (
+        <MessageTranslate
+          messageText={getDecodedDisplayMessage(post)}
+          onHide={() => setShowTranslateModal(false)}
+        />
+      )}
     </div>
   );
 }
