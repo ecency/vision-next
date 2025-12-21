@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "Introduza a chave privada para importar todas as conversas",
     "message-search-results": "Resultados da pesquisa de mensagens",
     "no-messages-found": "Nenhuma mensagem encontrada.",
-    "no-message": "Nenhum conteúdo de mensagem."
+    "no-message": "Nenhum conteúdo de mensagem.",
+    "translate": "Traduzir",
+    "translate-target-language": "Idioma alvo",
+    "pinned-messages": "Mensagens fixadas",
+    "pin-message": "Fixar mensagem",
+    "unpin-message": "Desafixar mensagem"
   },
   "add-image": {
     "title": "Adicionar imagem",
