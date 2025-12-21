@@ -40,7 +40,7 @@ export function ChatsClient() {
   const shareText = searchParams?.get("text")?.trim();
   const isShareMode = Boolean(shareText);
 
-  const { data: bootstrap, isLoading, error } = useMattermostBootstrap();
+  const { data: bootstrap, isLoading, error, refetch: refetchBootstrap } = useMattermostBootstrap();
   const {
     data: channels,
     isLoading: channelsLoading,
@@ -345,10 +345,31 @@ export function ChatsClient() {
               Your chat session has expired
             </div>
             <LoginRequired />
+            <button
+              onClick={() => refetchBootstrap()}
+              className="mt-4 text-sm text-blue-500 hover:text-blue-600 underline"
+            >
+              Try again
+            </button>
           </div>
         </div>
       );
     }
+
+    // Show other errors with retry button
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-4">
+        <div className="text-sm text-red-500">
+          Chat initialization failed: {error.message}
+        </div>
+        <button
+          onClick={() => refetchBootstrap()}
+          className="rounded-lg border border-[--border-color] bg-[--surface-color] px-4 py-2 text-sm hover:bg-[--hover-color]"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (

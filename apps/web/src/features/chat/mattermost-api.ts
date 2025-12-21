@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useClientActiveUser } from "@/api/queries";
 import { getAccessToken, getRefreshToken } from "@/utils";
+import { useGlobalStore } from "@/core/global-store";
+import { hsTokenRenew } from "@/api/auth-api";
 
 interface MattermostChannel {
   id: string;
@@ -28,22 +30,40 @@ interface MattermostChannelSummary {
 export function useMattermostBootstrap(community?: string) {
   const activeUser = useClientActiveUser();
   const username = activeUser?.username;
+  const addUser = useGlobalStore((state) => state.addUser);
 
   return useQuery({
     queryKey: ["mattermost-bootstrap", username, community],
     enabled: Boolean(username),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // Auto-retry when user returns to tab
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors after refresh attempt fails
+      const errorMessage = (error as Error)?.message?.toLowerCase() || "";
+      const isAuthError =
+        errorMessage.includes("unauthorized") ||
+        errorMessage.includes("invalid token") ||
+        errorMessage.includes("authentication required");
+
+      if (isAuthError) {
+        return false; // Don't retry auth errors
+      }
+
+      // Retry other errors (network, server issues) up to 3 times
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
     queryFn: async () => {
-      const accessToken = getAccessToken(username || "");
-      const refreshToken = getRefreshToken(username || "");
+      let accessToken = getAccessToken(username || "");
+      let refreshToken = getRefreshToken(username || "");
 
       if (!accessToken && !refreshToken) {
         throw new Error("Authentication required");
       }
 
-      const res = await fetch("/api/mattermost/bootstrap", {
+      // First attempt with existing tokens
+      let res = await fetch("/api/mattermost/bootstrap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -54,6 +74,44 @@ export function useMattermostBootstrap(community?: string) {
           community
         })
       });
+
+      // If unauthorized and we have a refresh token, attempt token refresh
+      if (res.status === 401 && refreshToken) {
+        try {
+          console.log("Chat token expired, attempting auto-refresh...");
+
+          // Call HiveSigner to refresh tokens
+          const refreshedTokens = await hsTokenRenew(refreshToken);
+
+          // Update tokens in global store (saves to localStorage)
+          addUser({
+            username: refreshedTokens.username,
+            accessToken: refreshedTokens.access_token,
+            refreshToken: refreshedTokens.refresh_token,
+            expiresIn: refreshedTokens.expires_in,
+            postingKey: activeUser?.postingKey,
+            loginType: activeUser?.loginType
+          });
+
+          console.log("✓ Chat tokens refreshed successfully");
+
+          // Retry bootstrap with refreshed tokens
+          res = await fetch("/api/mattermost/bootstrap", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username,
+              accessToken: refreshedTokens.access_token,
+              refreshToken: refreshedTokens.refresh_token,
+              displayName: username,
+              community
+            })
+          });
+        } catch (refreshError) {
+          console.error("Failed to refresh tokens:", refreshError);
+          throw new Error("Authentication required - please log in again");
+        }
+      }
 
       if (!res.ok) {
         const data = await res.json();
