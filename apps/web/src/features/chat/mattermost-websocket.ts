@@ -256,6 +256,11 @@ export class MattermostWebSocket {
     this.queryClient.invalidateQueries({
       queryKey: ["mattermost-posts-infinite", channelId]
     });
+
+    // Also invalidate pinned posts in case the edit was a pin/unpin action
+    this.queryClient.invalidateQueries({
+      queryKey: ["mattermost-pinned-posts", channelId]
+    });
   }
 
   private handlePostDeleted(message: MattermostWSEvent): void {
