@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "Введіть приватний ключ чату для імпорту всіх чатів",
     "message-search-results": "Результати пошуку повідомлення",
     "no-messages-found": "Не знайдено жодного повідомлення.",
-    "no-message": "Немає вмісту повідомлення."
+    "no-message": "Немає вмісту повідомлення.",
+    "translate": "Переклад",
+    "translate-target-language": "Цільова мова",
+    "pinned-messages": "Закріплені повідомлення",
+    "pin-message": "Закріпити повідомлення",
+    "unpin-message": "Відкріпити повідомлення"
   },
   "add-image": {
     "title": "Додати зображення",
