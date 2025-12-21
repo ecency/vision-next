@@ -2138,7 +2138,12 @@
     "enter-private-key-detail": "Voer de privésleutel in om alle chats te importeren",
     "message-search-results": "Resultaten van berichten",
     "no-messages-found": "Geen berichten gevonden.",
-    "no-message": "Geen inhoud van berichten"
+    "no-message": "Geen inhoud van berichten",
+    "translate": "Vertalen",
+    "translate-target-language": "Taal van doel",
+    "pinned-messages": "Vastgezette berichten",
+    "pin-message": "Bericht vastmaken",
+    "unpin-message": "Bericht losmaken"
   },
   "add-image": {
     "title": "Afbeelding toevoegen",
