@@ -325,6 +325,32 @@ export function ChatsClient() {
     );
   }
 
+  // Handle authentication errors from bootstrap
+  if (!bootstrap && !isLoading && error) {
+    const errorMessage = error?.message?.toLowerCase() || "";
+    const isAuthError =
+      errorMessage.includes("unauthorized") ||
+      errorMessage.includes("authentication") ||
+      errorMessage.includes("invalid token") ||
+      errorMessage.includes("username");
+
+    if (isAuthError) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-4 p-4">
+          <div className="text-center">
+            <div className="text-sm text-[--text-muted] mb-2">
+              {i18next.t("chat.page-title")}
+            </div>
+            <div className="text-sm text-[--text-muted] mb-4">
+              Your chat session has expired
+            </div>
+            <LoginRequired />
+          </div>
+        </div>
+      );
+    }
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex flex-col gap-3 border-b border-[--border-color] p-4">

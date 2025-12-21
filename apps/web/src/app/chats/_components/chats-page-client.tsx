@@ -42,8 +42,36 @@ export function ChatsPageClient() {
     );
   }
 
-  if (!bootstrap && !isLoading && error?.message.includes("username")) {
-    return <LoginRequired />;
+  // Handle all authentication errors
+  if (!bootstrap && !isLoading && error) {
+    const errorMessage = error?.message?.toLowerCase() || "";
+    const isAuthError =
+      errorMessage.includes("unauthorized") ||
+      errorMessage.includes("authentication") ||
+      errorMessage.includes("invalid token") ||
+      errorMessage.includes("username");
+
+    if (isAuthError) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-4 p-4">
+          <div className="text-center">
+            <div className="text-sm text-[--text-muted] mb-2">
+              Your chat session has expired
+            </div>
+            <LoginRequired />
+          </div>
+        </div>
+      );
+    }
+
+    // Show other errors
+    return (
+      <div className="flex h-full items-center justify-center p-4">
+        <div className="text-sm text-red-500">
+          Chat initialization failed: {error.message}
+        </div>
+      </div>
+    );
   }
 
   if (!defaultChannelId) {
