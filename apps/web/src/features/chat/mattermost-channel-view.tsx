@@ -432,10 +432,22 @@ export function MattermostChannelView({ channelId }: Props) {
   const isPublicChannel = channelData?.channel?.type === "O";
   const normalizedMentionQuery = mentionQuery.trim().toLowerCase();
   const canPin = useMemo(() => {
-    const isDirectChannel = channelData?.channel?.type === "D";
+    const channelType = channelData?.channel?.type;
     const isModerator = channelData?.canModerate;
-    return isDirectChannel || isModerator || false;
-  }, [channelData?.channel?.type, channelData?.canModerate]);
+    const isMember = !!channelData?.member;
+
+    // Public channels (O): only moderators can pin
+    if (channelType === "O") {
+      return isModerator || false;
+    }
+
+    // Direct (D), Group (G), and Private (P): any member can pin
+    if (channelType === "D" || channelType === "G" || channelType === "P") {
+      return isMember;
+    }
+
+    return false;
+  }, [channelData?.channel?.type, channelData?.canModerate, channelData?.member]);
 
   // Compute typing usernames for display
   const typingUsernames = useMemo(() => {
