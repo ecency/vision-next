@@ -1,5 +1,5 @@
 import { EcencyRenderer } from "@ecency/renderer";
-import { postBodySummary } from "@ecency/render-helper";
+import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { Entry } from "@ecency/sdk";
 import {
   UilComment,
@@ -59,20 +59,16 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
     return;
   }, [entryData]);
 
-  return (
-    <motion.article
-      className={clsx(
-        "py-6 px-4 rounded-2xl bg-white dark:bg-gray-900 border border-blue-100",
-        listType === "list" && "sticky top-0"
-      )}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.4,
-        delay: index * 0.1,
-        ease: [0.25, 0.1, 0.25, 1],
-      }}
-    >
+  const imageUrl = useMemo(() => {
+    const firstImage = entryData.json_metadata?.image?.[0];
+    if (firstImage) {
+      return catchPostImage(firstImage, 800, 600) || firstImage;
+    }
+    return null;
+  }, [entryData]);
+
+  const contentSection = (
+    <>
       <div className="mb-3">
         {entryData.community && entryData.community_title && (
           <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
@@ -93,6 +89,21 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
           {entryData.title}
         </a>
       </h2>
+
+      {listType === "grid" && imageUrl && (
+        <div className="mb-4 rounded-lg overflow-hidden">
+          <a
+            href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
+          >
+            <img
+              src={imageUrl}
+              alt={entryData.title}
+              className="w-full h-auto object-cover"
+              loading="lazy"
+            />
+          </a>
+        </div>
+      )}
 
       {location && (
         <div className="mb-2 flex items-center text-sm text-gray-600 dark:text-gray-400">
@@ -132,6 +143,42 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
           {new Date(entryData.created).toLocaleDateString()}
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <motion.article
+      className={clsx(
+        "py-6 px-4 rounded-2xl bg-white dark:bg-gray-900 border border-blue-100",
+        listType === "list" && "sticky top-0"
+      )}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.4,
+        delay: index * 0.1,
+        ease: [0.25, 0.1, 0.25, 1],
+      }}
+    >
+      {listType === "list" && imageUrl ? (
+        <div className="flex gap-4">
+          <div className="flex-1">{contentSection}</div>
+          <div className="shrink-0 w-48">
+            <a
+              href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
+            >
+              <img
+                src={imageUrl}
+                alt={entryData.title}
+                className="w-full h-32 object-cover rounded-lg"
+                loading="lazy"
+              />
+            </a>
+          </div>
+        </div>
+      ) : (
+        contentSection
+      )}
     </motion.article>
   );
 }

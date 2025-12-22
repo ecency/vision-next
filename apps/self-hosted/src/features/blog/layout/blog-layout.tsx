@@ -5,10 +5,10 @@ import { BlogNavigation } from "./blog-navigation";
 
 export function BlogLayout(props: PropsWithChildren) {
   return (
-    <div className="px-2 container mx-auto">
+    <div className="px-2 container mx-auto grid grid-cols-[1fr_300px] items-start gap-4">
       <BlogNavigation />
-      <BlogSidebar />
       <BlogPage>{props.children}</BlogPage>
+      <BlogSidebar />
     </div>
   );
 }
