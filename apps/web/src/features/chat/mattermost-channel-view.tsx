@@ -1350,6 +1350,8 @@ export function MattermostChannelView({ channelId }: Props) {
               if (container) {
                 container.scrollTop = container.scrollHeight;
               }
+              // Refocus input after editing
+              messageInputRef.current?.focus();
             });
             markChannelRead();
           }
@@ -1391,6 +1393,8 @@ export function MattermostChannelView({ channelId }: Props) {
             if (container) {
               container.scrollTop = container.scrollHeight;
             }
+            // Refocus input after sending
+            messageInputRef.current?.focus();
           });
           markChannelRead();
         }
