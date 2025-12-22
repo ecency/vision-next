@@ -1,9 +1,6 @@
 import { existsSync, readFileSync } from "fs";
-import { createRequire } from "module";
 import { dirname, join } from "path";
 import { NextResponse } from "next/server";
-
-const require = createRequire(import.meta.url);
 
 type PatchTrace = {
   patch?: string;
@@ -11,31 +8,52 @@ type PatchTrace = {
 };
 
 function getPatchStatus() {
-  const nextPackagePath = require.resolve("next/package.json");
-  const nextWsPackagePath = require.resolve("next-ws/package.json");
-  const tracePath = join(dirname(nextPackagePath), ".next-ws-trace.json");
+  try {
+    // Use dynamic require for CommonJS compatibility
+    const path = require("path");
+    const nextPackagePath = path.join(process.cwd(), "node_modules", "next", "package.json");
+    const nextWsPackagePath = path.join(process.cwd(), "node_modules", "next-ws", "package.json");
+    const tracePath = path.join(process.cwd(), "node_modules", "next", ".next-ws-trace.json");
 
-  let trace: PatchTrace | null = null;
-  let traceError: string | null = null;
+    let trace: PatchTrace | null = null;
+    let traceError: string | null = null;
 
-  if (existsSync(tracePath)) {
-    try {
-      trace = JSON.parse(readFileSync(tracePath, "utf8")) as PatchTrace;
-    } catch (error) {
-      traceError = error instanceof Error ? error.message : "Unknown trace parse error";
+    if (existsSync(tracePath)) {
+      try {
+        trace = JSON.parse(readFileSync(tracePath, "utf8")) as PatchTrace;
+      } catch (error) {
+        traceError = error instanceof Error ? error.message : "Unknown trace parse error";
+      }
+    } else {
+      traceError = "Trace file not found";
     }
-  } else {
-    traceError = "Trace file not found";
-  }
 
-  return {
-    tracePath,
-    nextVersion: (require(nextPackagePath) as { version?: string }).version ?? "unknown",
-    nextWsVersion: (require(nextWsPackagePath) as { version?: string }).version ?? "unknown",
-    patchApplied: Boolean(trace?.patch) && Boolean(trace?.version),
-    traceError,
-    trace
-  };
+    const nextVersion = existsSync(nextPackagePath)
+      ? JSON.parse(readFileSync(nextPackagePath, "utf8")).version
+      : "unknown";
+
+    const nextWsVersion = existsSync(nextWsPackagePath)
+      ? JSON.parse(readFileSync(nextWsPackagePath, "utf8")).version
+      : "unknown";
+
+    return {
+      tracePath,
+      nextVersion,
+      nextWsVersion,
+      patchApplied: Boolean(trace?.patch) && Boolean(trace?.version),
+      traceError,
+      trace
+    };
+  } catch (error) {
+    return {
+      tracePath: "error",
+      nextVersion: "error",
+      nextWsVersion: "error",
+      patchApplied: false,
+      traceError: error instanceof Error ? error.message : "Unknown error",
+      trace: null
+    };
+  }
 }
 
 export const runtime = "nodejs";

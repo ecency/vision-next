@@ -109,7 +109,15 @@ export function UPGRADE(
   // Connect to upstream Mattermost WebSocket
   let upstream: WebSocket;
   try {
-    upstream = new WebSocket(getMattermostWebsocketUrl());
+    const mattermostWsUrl = getMattermostWebsocketUrl();
+    const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_BASE || "https://ecency.com";
+
+    upstream = new WebSocket(mattermostWsUrl, {
+      headers: {
+        "Origin": origin,
+        "User-Agent": "Ecency-WebSocket-Proxy/1.0"
+      }
+    });
   } catch (error) {
     console.error("Chat WebSocket: failed to connect upstream", error);
     client.close(1011, "Chat service unavailable");
