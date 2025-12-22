@@ -37,6 +37,9 @@ importers:
 
   apps/self-hosted:
     dependencies:
+      '@ecency/render-helper':
+        specifier: ^2.3.17
+        version: 2.3.17
       '@ecency/renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
@@ -52,12 +55,18 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.132.27
         version: 1.141.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      '@tooni/iconscout-unicons-react':
+        specifier: ^1.0.1
+        version: 1.0.1(react@19.2.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      framer-motion:
+        specifier: ^11.18.2
+        version: 11.18.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       motion:
         specifier: ^12.23.22
         version: 12.23.26(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -86,6 +95,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.13
         version: 4.1.17
+      '@tanstack/react-query-devtools':
+        specifier: ^5.90.2
+        version: 5.90.2(@tanstack/react-query@5.90.2(react@19.2.1))(react@19.2.1)
       '@tanstack/router-plugin':
         specifier: ^1.132.27
         version: 1.141.0(@rsbuild/core@1.6.14)(@tanstack/react-router@1.141.0(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(vite@7.1.9(@types/node@24.10.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.21.0))(webpack@5.102.1(esbuild@0.25.10))
@@ -12938,6 +12950,12 @@ snapshots:
       '@tanstack/react-query': 5.90.2(react@18.3.1)
       react: 18.3.1
 
+  '@tanstack/react-query-devtools@5.90.2(@tanstack/react-query@5.90.2(react@19.2.1))(react@19.2.1)':
+    dependencies:
+      '@tanstack/query-devtools': 5.90.1
+      '@tanstack/react-query': 5.90.2(react@19.2.1)
+      react: 19.2.1
+
   '@tanstack/react-query@5.90.2(react@18.3.1)':
     dependencies:
       '@tanstack/query-core': 5.90.2
@@ -13311,6 +13329,10 @@ snapshots:
   '@tooni/iconscout-unicons-react@1.0.1(react@18.3.1)':
     dependencies:
       react: 18.3.1
+
+  '@tooni/iconscout-unicons-react@1.0.1(react@19.2.1)':
+    dependencies:
+      react: 19.2.1
 
   '@tootallnate/once@2.0.0': {}
 
@@ -15971,6 +15993,15 @@ snapshots:
     optionalDependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  framer-motion@11.18.2(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
+    dependencies:
+      motion-dom: 11.18.1
+      motion-utils: 11.18.1
+      tslib: 2.8.1
+    optionalDependencies:
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
 
   framer-motion@12.23.26(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
     dependencies:

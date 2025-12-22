@@ -1,10 +1,6 @@
 @import "tailwindcss";
 @source "../config.json";
 
-html {
-  overflow: hidden;
-}
-
 html,
 body {
   min-height: 100%;

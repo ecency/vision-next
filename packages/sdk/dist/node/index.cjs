@@ -414,6 +414,374 @@ function getDynamicPropsQueryOptions() {
     }
   });
 }
+
+// src/modules/core/dmca-accounts.json
+var dmca_accounts_default = [
+  "aasdaura",
+  "aditya01103",
+  "ah3p5idsebhn",
+  "aishacorona",
+  "allenk",
+  "andrew01",
+  "andrewmiller",
+  "andrewson",
+  "anny08",
+  "arefinishingpros",
+  "beeryallen",
+  "billjd",
+  "binance.help",
+  "binance.support",
+  "binanceehelp",
+  "binancesupport",
+  "binancesupport1",
+  "binancesupportt",
+  "binancetoll",
+  "bio9kftyptni",
+  "bitcoinsmarkett",
+  "blockchaink",
+  "blockdifind",
+  "borajogar",
+  "bqtumaeso0zl",
+  "brbaramille",
+  "btcbtcgvsagvcsa",
+  "btccare",
+  "btcservice",
+  "btcsupportcare",
+  "c4bqqi5jzf46",
+  "callcbsupport",
+  "callscoinbase",
+  "carenumber",
+  "caresuppoert",
+  "caval",
+  "cbservice",
+  "cbsupport",
+  "cbsupportnumber",
+  "cbsupportservice",
+  "cex.iosupport",
+  "coinbase-usa",
+  "coinbase.care",
+  "coinbase.help",
+  "coinbase.service",
+  "coinbase.support",
+  "coinbasecall",
+  "coinbasecall1",
+  "coinbasecalls",
+  "coinbasecare",
+  "coinbasedesk",
+  "coinbaseeus",
+  "coinbasefree",
+  "coinbasegold",
+  "coinbasehelpline",
+  "coinbasehelps",
+  "coinbaselogin",
+  "coinbaseloginn",
+  "coinbaseno",
+  "coinbasepay",
+  "coinbasephn",
+  "coinbasereal",
+  "coinbasertss",
+  "coinbaseservice",
+  "coinbaseservicen",
+  "coinbaseservices",
+  "coinbasessup",
+  "coinbassupport",
+  "coinbasesupp",
+  "coinbasesupport",
+  "coinbasesupportc",
+  "coinbasesupportp",
+  "coinbasesupports",
+  "coinbasesupportt",
+  "coinbasesuprt",
+  "coinbasetollfree",
+  "coinbasetollfree",
+  "coinbaseuk",
+  "coinbaseuk",
+  "coinbaseus",
+  "coinbaseus.com",
+  "coinbaseusa",
+  "coinbasewallet",
+  "coinbascare",
+  "coinbbasepro",
+  "coinbashelp",
+  "coinbesesupport",
+  "coinsbasesup",
+  "communicateus",
+  "communityus",
+  "contactmetamask",
+  "costaricht",
+  "cplahariya72",
+  "cryptoservice",
+  "cryptosupports",
+  "cryptotokens",
+  "cryptousero1",
+  "customer.service",
+  "customer800",
+  "customercare",
+  "customerlive",
+  "customeronline",
+  "customerservice",
+  "customerservice",
+  "customersupport",
+  "customtoll",
+  "customtoll",
+  "customerwallet",
+  "cxcbnxzcb",
+  "damiwiy184",
+  "darkknight11",
+  "davidsenk",
+  "devisoncik",
+  "dfdsfd45",
+  "dialcoinbase",
+  "diego-dumalo",
+  "djwtu",
+  "duncanjosie918",
+  "ecencepop",
+  "ecency01",
+  "ecencymaster",
+  "edwardspensor",
+  "ellamason612",
+  "emailbackup",
+  "ericahonolu",
+  "eseoexpert",
+  "evamay",
+  "faumaulloin",
+  "ficih425",
+  "foul1uxqcse6",
+  "frankkohn",
+  "geminiusa",
+  "genegg691",
+  "gharkibook897",
+  "ggyivaiapyju",
+  "ginas1900",
+  "greekbar",
+  "gugytgydvvv",
+  "gunman4466",
+  "guthrie121",
+  "hackmon90",
+  "harryxosborn",
+  "hasnain-khan",
+  "havrecamey",
+  "help.coinbase",
+  "helpbinancee",
+  "helpcoinbas",
+  "helpcoinbase",
+  "helplinesupport",
+  "hikccbsc5k",
+  "hoachatgiahoang",
+  "iag9479",
+  "isaacsmith",
+  "istoprocent",
+  "jack0vdug3wp",
+  "jack0w0qdnqn",
+  "jack1lztfaow",
+  "jack38x8jq2a",
+  "jack3ilzkctt",
+  "jack42beq2my",
+  "jack5ft0p6iu",
+  "jack5ivh6uxt",
+  "jack5tq5vy3f",
+  "jack6ha8jmjy",
+  "jack7hn6sds8",
+  "jack7u0ss1qr",
+  "jack8w0y7qs6",
+  "jackg87s0zx7",
+  "jackgpvkd22t",
+  "jackmop0vhoy",
+  "jacknpgoya4o",
+  "jackocd64ha0",
+  "jackph9ajwab",
+  "jackufaghpz6",
+  "jackv075h3rc",
+  "jackyykb7gk1",
+  "jacksparrowcz",
+  "jacksparrowzx",
+  "jaibalaj123",
+  "jakelaw915",
+  "jallhlcv8",
+  "jameesspaul",
+  "james326",
+  "jamesniton675",
+  "janeliz72",
+  "janiceadams",
+  "jayapartha",
+  "jhagsdh265",
+  "jimmyshergillxz",
+  "joannegdunn",
+  "jonathonsmithsz",
+  "jonydevitis",
+  "justinkanwal",
+  "jundi1",
+  "kalimkopaaer",
+  "karolinalowe",
+  "kclentroaster",
+  "kirstyxnaylor",
+  "kissmenotddvf",
+  "krakensupport",
+  "lawadvisorbd",
+  "leasha",
+  "ledgernano",
+  "ledgernanohelp",
+  "ledgernanox",
+  "ledgernanoy",
+  "lindacare87",
+  "lisachapaul",
+  "lobstrsupport",
+  "lobstrusa",
+  "loginpending",
+  "londonclimate",
+  "lumiwallet",
+  "lylezmclean",
+  "marianagtz",
+  "mariasmith",
+  "marimcalister4",
+  "markalan",
+  "marquisea",
+  "marsila",
+  "masonalistair",
+  "meaghanhowe",
+  "melodi",
+  "metamask.support",
+  "metamasklive",
+  "metamaskliveus",
+  "metamaskloginus",
+  "metamasksupport",
+  "metamasksupportu",
+  "metamaskus",
+  "mmcrypto1",
+  "mmfuture",
+  "mondkratzert5445",
+  "moonpay.wallet",
+  "moonpaysupport",
+  "morisjay",
+  "mzibli",
+  "nalucasino22",
+  "naomismith113",
+  "narniatailor",
+  "nehemiahc",
+  "nickfurrie",
+  "nickfuryx",
+  "npleasent",
+  "nwekennmd",
+  "nzjow69",
+  "oliver7219jeny",
+  "oliviajames7",
+  "omotayoaina",
+  "onobel",
+  "p90usskw36tv",
+  "paulfjones966",
+  "perciejacksondxc",
+  "pesen05",
+  "phbgg",
+  "pintowallet",
+  "poilebraubragra",
+  "pramodranis",
+  "precimeasure",
+  "psejsvtk9547",
+  "qctaviwx",
+  "rajniraraa",
+  "rarec44537",
+  "razvape",
+  "razvapes",
+  "rcxrvaarejthw",
+  "recoversupport",
+  "rejora",
+  "rewqas568",
+  "ronkasp",
+  "samuel2000",
+  "samuel2004",
+  "samuel2005",
+  "samuel2006",
+  "samuel2007",
+  "samuel2008",
+  "samuel2009",
+  "samuel2011",
+  "samuel2012",
+  "samuel2015",
+  "samuel2016",
+  "samuel2018",
+  "samuel210",
+  "samueldoctor2019",
+  "sanjiv",
+  "sdeborah824",
+  "service.customer",
+  "servicecoinbase",
+  "servicehelp",
+  "shaunxcannon",
+  "shepardbernard2",
+  "slavedirk",
+  "sofiazwayne",
+  "starct053",
+  "stayrene",
+  "stelladario123",
+  "stephenyjohnsn",
+  "sterex",
+  "stoponyavin",
+  "sscomm",
+  "support.binance",
+  "support.coinbase",
+  "support.gemini",
+  "support.metamask",
+  "support.tollfree",
+  "support.wallet",
+  "supportcare",
+  "supportcoinbase",
+  "supportdodge",
+  "supporthelp",
+  "supporthelp",
+  "supportnumber",
+  "supportnumberbit",
+  "supportnumberus",
+  "supportrefund",
+  "sylvestestalom",
+  "synyppzvv3ub",
+  "systembuster",
+  "tedsx7347848",
+  "techonoal",
+  "technicalusa",
+  "techsupport1",
+  "tenda",
+  "terimaachuma",
+  "tklbidramu",
+  "tollfree",
+  "tollfrenumber",
+  "trustcrypto",
+  "trusttwallet",
+  "trustwallett",
+  "trustwalletuk",
+  "trustwalletus",
+  "ttja0lfaccoz",
+  "tyuq3wg",
+  "tzhpof",
+  "unikarl",
+  "uniswap24",
+  "uniswaphelp",
+  "uniswapsupport",
+  "usacbservice",
+  "usacoinbase",
+  "uscoinbase.care",
+  "usercoinbaseapp",
+  "ustrustwallet",
+  "venomawn",
+  "veronicaxwilson",
+  "veudufideprei",
+  "vfdbvfgbvdfgdf",
+  "vnpst9lynksk",
+  "vohoho",
+  "vojsjh79vzqu",
+  "vzo6b8fs6ifu",
+  "wallet.trust",
+  "wallet.usa",
+  "walletcrypto",
+  "walletuscoin",
+  "walletusa",
+  "walletusa",
+  "xcoinbbaseproxx",
+  "xpertpackindia",
+  "yedanad275",
+  "zakiartist85y",
+  "zhgsildfh",
+  "zkbvu0tcv2la"
+];
 function getAccountFullQueryOptions(username) {
   return reactQuery.queryOptions({
     queryKey: ["get-account-full", username],
@@ -1316,6 +1684,194 @@ function getPromotedPostsQuery(type = "feed") {
     }
   });
 }
+
+// src/modules/posts/functions/validate-entry.ts
+function validateEntry(entry) {
+  const requiredStringProps = [
+    "author",
+    "title",
+    "body",
+    "created",
+    "category",
+    "permlink",
+    "url",
+    "updated"
+  ];
+  for (const prop of requiredStringProps) {
+    if (entry[prop] == null) {
+      console.warn(
+        `Entry validation: ${prop} is null/undefined for @${entry.author || "unknown"}/${entry.permlink || "unknown"}, setting to empty string`
+      );
+      entry[prop] = "";
+    }
+  }
+  if (entry.author_reputation == null) {
+    console.warn(
+      `Entry validation: author_reputation is null/undefined for @${entry.author}/${entry.permlink}, setting to 0`
+    );
+    entry.author_reputation = 0;
+  }
+  if (entry.children == null) {
+    entry.children = 0;
+  }
+  if (entry.depth == null) {
+    entry.depth = 0;
+  }
+  if (entry.net_rshares == null) {
+    entry.net_rshares = 0;
+  }
+  if (entry.payout == null) {
+    entry.payout = 0;
+  }
+  if (entry.percent_hbd == null) {
+    entry.percent_hbd = 0;
+  }
+  if (!Array.isArray(entry.active_votes)) {
+    entry.active_votes = [];
+  }
+  if (!Array.isArray(entry.beneficiaries)) {
+    entry.beneficiaries = [];
+  }
+  if (!Array.isArray(entry.blacklists)) {
+    entry.blacklists = [];
+  }
+  if (!Array.isArray(entry.replies)) {
+    entry.replies = [];
+  }
+  if (!entry.stats) {
+    entry.stats = {
+      flag_weight: 0,
+      gray: false,
+      hide: false,
+      total_votes: 0
+    };
+  }
+  if (entry.author_payout_value == null) {
+    entry.author_payout_value = "0.000 HBD";
+  }
+  if (entry.curator_payout_value == null) {
+    entry.curator_payout_value = "0.000 HBD";
+  }
+  if (entry.max_accepted_payout == null) {
+    entry.max_accepted_payout = "1000000.000 HBD";
+  }
+  if (entry.payout_at == null) {
+    entry.payout_at = "";
+  }
+  if (entry.pending_payout_value == null) {
+    entry.pending_payout_value = "0.000 HBD";
+  }
+  if (entry.promoted == null) {
+    entry.promoted = "0.000 HBD";
+  }
+  if (entry.is_paidout == null) {
+    entry.is_paidout = false;
+  }
+  return entry;
+}
+
+// src/modules/posts/queries/get-post-query-options.ts
+function getPostQueryOptions(author, permlink, observer = "", num) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "post", author, permlink],
+    queryFn: async () => {
+      const resp = await CONFIG.hiveClient.call("bridge", "get_post", {
+        author,
+        permlink,
+        observer
+      });
+      if (resp) {
+        const validatedEntry = validateEntry(resp);
+        const post = await resolvePost(validatedEntry, observer, num);
+        if (dmca_accounts_default.some(
+          (rx) => new RegExp(rx).test(`@${post.author}/${post.permlink}`)
+        )) {
+          post.body = "This post is not available due to a copyright/fraudulent claim.";
+          post.title = "";
+        }
+        return post;
+      }
+      return void 0;
+    }
+  });
+}
+async function resolvePost(post, observer, num) {
+  const { json_metadata: json } = post;
+  if (json?.original_author && json?.original_permlink && json.tags?.[0] === "cross-post") {
+    try {
+      const query = getPostQueryOptions(
+        json.original_author,
+        json.original_permlink,
+        observer,
+        num
+      );
+      await CONFIG.queryClient.prefetchQuery(query);
+      const resp = await CONFIG.queryClient.getQueryData(query.queryKey);
+      if (resp) {
+        return {
+          ...post,
+          original_entry: resp,
+          num
+        };
+      }
+      return post;
+    } catch (e) {
+      return post;
+    }
+  }
+  return { ...post, num };
+}
+
+// src/modules/posts/queries/get-account-posts-query-options.ts
+var getAccountPostsQueryOptions = ({
+  username,
+  filter = "posts",
+  limit = 20,
+  observer = "",
+  enabled = true
+}) => reactQuery.infiniteQueryOptions({
+  queryKey: ["posts", "account-posts", username, filter, limit],
+  enabled: !!username && enabled,
+  initialData: { pages: [], pageParams: [] },
+  initialPageParam: {
+    author: void 0,
+    permlink: void 0,
+    hasNextPage: true
+  },
+  queryFn: async ({ pageParam }) => {
+    if (!pageParam.hasNextPage || !username) return [];
+    const rpcParams = {
+      sort: filter,
+      account: username,
+      limit,
+      ...observer !== void 0 ? { observer } : {},
+      ...pageParam.author ? { start_author: pageParam.author } : {},
+      ...pageParam.permlink ? { start_permlink: pageParam.permlink } : {}
+    };
+    try {
+      if (dmca_accounts_default.includes(username)) return [];
+      const resp = await CONFIG.hiveClient.call(
+        "bridge",
+        "get_account_posts",
+        rpcParams
+      );
+      if (resp && Array.isArray(resp)) {
+        return Promise.all(resp.map((p) => resolvePost(p, observer)));
+      }
+      return [];
+    } catch (err) {
+      return [];
+    }
+  },
+  getNextPageParam: (lastPage) => {
+    const last = lastPage?.[lastPage.length - 1];
+    return {
+      author: last?.author,
+      permlink: last?.permlink,
+      hasNextPage: (lastPage?.length ?? 0) > 0
+    };
+  }
+});
 function useAddFragment(username) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "add-fragment", username],
@@ -1780,11 +2336,13 @@ exports.buildProfileMetadata = buildProfileMetadata;
 exports.checkUsernameWalletsPendingQueryOptions = checkUsernameWalletsPendingQueryOptions;
 exports.decodeObj = decodeObj;
 exports.dedupeAndSortKeyAuths = dedupeAndSortKeyAuths;
+exports.dmca_accounts = dmca_accounts_default;
 exports.encodeObj = encodeObj;
 exports.extractAccountProfile = extractAccountProfile;
 exports.getAccessToken = getAccessToken;
 exports.getAccountFullQueryOptions = getAccountFullQueryOptions;
 exports.getAccountPendingRecoveryQueryOptions = getAccountPendingRecoveryQueryOptions;
+exports.getAccountPostsQueryOptions = getAccountPostsQueryOptions;
 exports.getAccountRcQueryOptions = getAccountRcQueryOptions;
 exports.getAccountRecoveriesQueryOptions = getAccountRecoveriesQueryOptions;
 exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOptions;

@@ -617,6 +617,373 @@ declare function parseAsset(sval: string | SMTAsset): Asset;
 
 declare function getBoundFetch(): typeof fetch;
 
+var dmcaAccounts = [
+	"aasdaura",
+	"aditya01103",
+	"ah3p5idsebhn",
+	"aishacorona",
+	"allenk",
+	"andrew01",
+	"andrewmiller",
+	"andrewson",
+	"anny08",
+	"arefinishingpros",
+	"beeryallen",
+	"billjd",
+	"binance.help",
+	"binance.support",
+	"binanceehelp",
+	"binancesupport",
+	"binancesupport1",
+	"binancesupportt",
+	"binancetoll",
+	"bio9kftyptni",
+	"bitcoinsmarkett",
+	"blockchaink",
+	"blockdifind",
+	"borajogar",
+	"bqtumaeso0zl",
+	"brbaramille",
+	"btcbtcgvsagvcsa",
+	"btccare",
+	"btcservice",
+	"btcsupportcare",
+	"c4bqqi5jzf46",
+	"callcbsupport",
+	"callscoinbase",
+	"carenumber",
+	"caresuppoert",
+	"caval",
+	"cbservice",
+	"cbsupport",
+	"cbsupportnumber",
+	"cbsupportservice",
+	"cex.iosupport",
+	"coinbase-usa",
+	"coinbase.care",
+	"coinbase.help",
+	"coinbase.service",
+	"coinbase.support",
+	"coinbasecall",
+	"coinbasecall1",
+	"coinbasecalls",
+	"coinbasecare",
+	"coinbasedesk",
+	"coinbaseeus",
+	"coinbasefree",
+	"coinbasegold",
+	"coinbasehelpline",
+	"coinbasehelps",
+	"coinbaselogin",
+	"coinbaseloginn",
+	"coinbaseno",
+	"coinbasepay",
+	"coinbasephn",
+	"coinbasereal",
+	"coinbasertss",
+	"coinbaseservice",
+	"coinbaseservicen",
+	"coinbaseservices",
+	"coinbasessup",
+	"coinbassupport",
+	"coinbasesupp",
+	"coinbasesupport",
+	"coinbasesupportc",
+	"coinbasesupportp",
+	"coinbasesupports",
+	"coinbasesupportt",
+	"coinbasesuprt",
+	"coinbasetollfree",
+	"coinbasetollfree",
+	"coinbaseuk",
+	"coinbaseuk",
+	"coinbaseus",
+	"coinbaseus.com",
+	"coinbaseusa",
+	"coinbasewallet",
+	"coinbascare",
+	"coinbbasepro",
+	"coinbashelp",
+	"coinbesesupport",
+	"coinsbasesup",
+	"communicateus",
+	"communityus",
+	"contactmetamask",
+	"costaricht",
+	"cplahariya72",
+	"cryptoservice",
+	"cryptosupports",
+	"cryptotokens",
+	"cryptousero1",
+	"customer.service",
+	"customer800",
+	"customercare",
+	"customerlive",
+	"customeronline",
+	"customerservice",
+	"customerservice",
+	"customersupport",
+	"customtoll",
+	"customtoll",
+	"customerwallet",
+	"cxcbnxzcb",
+	"damiwiy184",
+	"darkknight11",
+	"davidsenk",
+	"devisoncik",
+	"dfdsfd45",
+	"dialcoinbase",
+	"diego-dumalo",
+	"djwtu",
+	"duncanjosie918",
+	"ecencepop",
+	"ecency01",
+	"ecencymaster",
+	"edwardspensor",
+	"ellamason612",
+	"emailbackup",
+	"ericahonolu",
+	"eseoexpert",
+	"evamay",
+	"faumaulloin",
+	"ficih425",
+	"foul1uxqcse6",
+	"frankkohn",
+	"geminiusa",
+	"genegg691",
+	"gharkibook897",
+	"ggyivaiapyju",
+	"ginas1900",
+	"greekbar",
+	"gugytgydvvv",
+	"gunman4466",
+	"guthrie121",
+	"hackmon90",
+	"harryxosborn",
+	"hasnain-khan",
+	"havrecamey",
+	"help.coinbase",
+	"helpbinancee",
+	"helpcoinbas",
+	"helpcoinbase",
+	"helplinesupport",
+	"hikccbsc5k",
+	"hoachatgiahoang",
+	"iag9479",
+	"isaacsmith",
+	"istoprocent",
+	"jack0vdug3wp",
+	"jack0w0qdnqn",
+	"jack1lztfaow",
+	"jack38x8jq2a",
+	"jack3ilzkctt",
+	"jack42beq2my",
+	"jack5ft0p6iu",
+	"jack5ivh6uxt",
+	"jack5tq5vy3f",
+	"jack6ha8jmjy",
+	"jack7hn6sds8",
+	"jack7u0ss1qr",
+	"jack8w0y7qs6",
+	"jackg87s0zx7",
+	"jackgpvkd22t",
+	"jackmop0vhoy",
+	"jacknpgoya4o",
+	"jackocd64ha0",
+	"jackph9ajwab",
+	"jackufaghpz6",
+	"jackv075h3rc",
+	"jackyykb7gk1",
+	"jacksparrowcz",
+	"jacksparrowzx",
+	"jaibalaj123",
+	"jakelaw915",
+	"jallhlcv8",
+	"jameesspaul",
+	"james326",
+	"jamesniton675",
+	"janeliz72",
+	"janiceadams",
+	"jayapartha",
+	"jhagsdh265",
+	"jimmyshergillxz",
+	"joannegdunn",
+	"jonathonsmithsz",
+	"jonydevitis",
+	"justinkanwal",
+	"jundi1",
+	"kalimkopaaer",
+	"karolinalowe",
+	"kclentroaster",
+	"kirstyxnaylor",
+	"kissmenotddvf",
+	"krakensupport",
+	"lawadvisorbd",
+	"leasha",
+	"ledgernano",
+	"ledgernanohelp",
+	"ledgernanox",
+	"ledgernanoy",
+	"lindacare87",
+	"lisachapaul",
+	"lobstrsupport",
+	"lobstrusa",
+	"loginpending",
+	"londonclimate",
+	"lumiwallet",
+	"lylezmclean",
+	"marianagtz",
+	"mariasmith",
+	"marimcalister4",
+	"markalan",
+	"marquisea",
+	"marsila",
+	"masonalistair",
+	"meaghanhowe",
+	"melodi",
+	"metamask.support",
+	"metamasklive",
+	"metamaskliveus",
+	"metamaskloginus",
+	"metamasksupport",
+	"metamasksupportu",
+	"metamaskus",
+	"mmcrypto1",
+	"mmfuture",
+	"mondkratzert5445",
+	"moonpay.wallet",
+	"moonpaysupport",
+	"morisjay",
+	"mzibli",
+	"nalucasino22",
+	"naomismith113",
+	"narniatailor",
+	"nehemiahc",
+	"nickfurrie",
+	"nickfuryx",
+	"npleasent",
+	"nwekennmd",
+	"nzjow69",
+	"oliver7219jeny",
+	"oliviajames7",
+	"omotayoaina",
+	"onobel",
+	"p90usskw36tv",
+	"paulfjones966",
+	"perciejacksondxc",
+	"pesen05",
+	"phbgg",
+	"pintowallet",
+	"poilebraubragra",
+	"pramodranis",
+	"precimeasure",
+	"psejsvtk9547",
+	"qctaviwx",
+	"rajniraraa",
+	"rarec44537",
+	"razvape",
+	"razvapes",
+	"rcxrvaarejthw",
+	"recoversupport",
+	"rejora",
+	"rewqas568",
+	"ronkasp",
+	"samuel2000",
+	"samuel2004",
+	"samuel2005",
+	"samuel2006",
+	"samuel2007",
+	"samuel2008",
+	"samuel2009",
+	"samuel2011",
+	"samuel2012",
+	"samuel2015",
+	"samuel2016",
+	"samuel2018",
+	"samuel210",
+	"samueldoctor2019",
+	"sanjiv",
+	"sdeborah824",
+	"service.customer",
+	"servicecoinbase",
+	"servicehelp",
+	"shaunxcannon",
+	"shepardbernard2",
+	"slavedirk",
+	"sofiazwayne",
+	"starct053",
+	"stayrene",
+	"stelladario123",
+	"stephenyjohnsn",
+	"sterex",
+	"stoponyavin",
+	"sscomm",
+	"support.binance",
+	"support.coinbase",
+	"support.gemini",
+	"support.metamask",
+	"support.tollfree",
+	"support.wallet",
+	"supportcare",
+	"supportcoinbase",
+	"supportdodge",
+	"supporthelp",
+	"supporthelp",
+	"supportnumber",
+	"supportnumberbit",
+	"supportnumberus",
+	"supportrefund",
+	"sylvestestalom",
+	"synyppzvv3ub",
+	"systembuster",
+	"tedsx7347848",
+	"techonoal",
+	"technicalusa",
+	"techsupport1",
+	"tenda",
+	"terimaachuma",
+	"tklbidramu",
+	"tollfree",
+	"tollfrenumber",
+	"trustcrypto",
+	"trusttwallet",
+	"trustwallett",
+	"trustwalletuk",
+	"trustwalletus",
+	"ttja0lfaccoz",
+	"tyuq3wg",
+	"tzhpof",
+	"unikarl",
+	"uniswap24",
+	"uniswaphelp",
+	"uniswapsupport",
+	"usacbservice",
+	"usacoinbase",
+	"uscoinbase.care",
+	"usercoinbaseapp",
+	"ustrustwallet",
+	"venomawn",
+	"veronicaxwilson",
+	"veudufideprei",
+	"vfdbvfgbvdfgdf",
+	"vnpst9lynksk",
+	"vohoho",
+	"vojsjh79vzqu",
+	"vzo6b8fs6ifu",
+	"wallet.trust",
+	"wallet.usa",
+	"walletcrypto",
+	"walletuscoin",
+	"walletusa",
+	"walletusa",
+	"xcoinbbaseproxx",
+	"xpertpackindia",
+	"yedanad275",
+	"zakiartist85y",
+	"zhgsildfh",
+	"zkbvu0tcv2la"
+];
+
 declare function getTrendingTagsQueryOptions(limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<string[], Error, _tanstack_react_query.InfiniteData<string[], unknown>, string[], {
     afterTag: string;
 }>, "queryFn"> & {
@@ -645,6 +1012,114 @@ interface Fragment {
     modified: string;
 }
 
+interface EntryBeneficiaryRoute {
+    account: string;
+    weight: number;
+}
+interface EntryVote {
+    voter: string;
+    rshares: number;
+}
+interface EntryStat {
+    flag_weight: number;
+    gray: boolean;
+    hide: boolean;
+    total_votes: number;
+    is_pinned?: boolean;
+}
+interface JsonMetadata {
+    tags?: string[];
+    description?: string | null;
+    app?: any;
+    canonical_url?: string;
+    format?: string;
+    original_author?: string;
+    original_permlink?: string;
+    image?: string[];
+    pinned_reply?: string;
+    location?: {
+        coordinates: {
+            lat: number;
+            lng: number;
+        };
+        address?: string;
+    };
+}
+interface JsonPollMetadata {
+    content_type: "poll";
+    version: number;
+    question: string;
+    choices: string[];
+    preferred_interpretation: string;
+    token: string;
+    vote_change: boolean;
+    hide_votes: boolean;
+    filters: {
+        account_age: number;
+    };
+    end_time: number;
+    max_choices_voted?: number;
+}
+interface Entry {
+    last_update?: string;
+    active_votes: EntryVote[];
+    author: string;
+    author_payout_value: string;
+    author_reputation: number;
+    author_role?: string;
+    author_title?: string;
+    beneficiaries: EntryBeneficiaryRoute[];
+    blacklists: string[];
+    body: string;
+    category: string;
+    children: number;
+    community?: string;
+    community_title?: string;
+    created: string;
+    total_votes?: number;
+    curator_payout_value: string;
+    depth: number;
+    is_paidout: boolean;
+    json_metadata: JsonMetadata | null;
+    max_accepted_payout: string;
+    net_rshares: number;
+    parent_author?: string;
+    parent_permlink?: string;
+    payout: number;
+    payout_at: string;
+    pending_payout_value: string;
+    percent_hbd: number;
+    permlink: string;
+    post_id: any;
+    id?: number;
+    num?: number;
+    promoted: string;
+    reblogs?: number;
+    reblogged_by?: string[] | any;
+    replies: any[];
+    stats: EntryStat | null;
+    title: string;
+    updated: string;
+    url: string;
+    original_entry?: Entry;
+    is_optimistic?: boolean;
+}
+interface EntryHeader {
+    author: string;
+    category: string;
+    permlink: string;
+    depth: number;
+}
+interface EntryGroup {
+    entries: Entry[];
+    error: string | null;
+    sid: string;
+    loading: boolean;
+    hasMore: boolean;
+}
+interface Entries extends Record<string, EntryGroup> {
+}
+
 declare function getFragmentsQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Fragment[], Error, Fragment[], string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Fragment[], string[], never> | undefined;
 } & {
@@ -659,6 +1134,26 @@ declare function getPromotedPostsQuery<T extends any>(type?: "feed" | "waves"): 
 } & {
     queryKey: string[] & {
         [dataTagSymbol]: T[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+type PageParam = {
+    author: string | undefined;
+    permlink: string | undefined;
+    hasNextPage: boolean;
+};
+declare const getAccountPostsQueryOptions: ({ username, filter, limit, observer, enabled, }: {
+    username: string | undefined;
+    filter?: string;
+    limit?: number;
+    observer?: string;
+    enabled?: boolean;
+}) => _tanstack_react_query.UseInfiniteQueryOptions<Entry[], Error, _tanstack_react_query.InfiniteData<Entry[], unknown>, (string | number | undefined)[], PageParam> & {
+    initialData: _tanstack_react_query.InfiniteData<Entry[], PageParam> | (() => _tanstack_react_query.InfiniteData<Entry[], PageParam>) | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Entry[], unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1039,4 +1534,4 @@ declare function getCommunityPermissions({ communityType, userRole, subscribed, 
     isModerator: boolean;
 };
 
-export { type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type Asset, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, keychain as Keychain, type Keys, NaiMap, type Payer, type ProfileTokens, ROLES, type RcStats, type Recoveries, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type WalletMetadataCandidate, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type Asset, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Entries, type Entry, type EntryBeneficiaryRoute, type EntryGroup, type EntryHeader, type EntryStat, type EntryVote, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, NaiMap, type Payer, type ProfileTokens, ROLES, type RcStats, type Recoveries, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type WalletMetadataCandidate, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, dmcaAccounts as dmca_accounts, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };

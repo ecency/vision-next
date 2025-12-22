@@ -6,3 +6,7 @@ export * from "./queries-manager";
 export * from "./queries";
 export * from "./types";
 export * from "./utils";
+
+import dmca_accounts from "./dmca-accounts.json";
+
+export { dmca_accounts };
