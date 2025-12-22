@@ -49,6 +49,8 @@ interface MattermostWSEvent {
   seq?: number;
 }
 
+export type ConnectionStatus = "live" | "connected" | "paused" | "disconnected";
+
 export class MattermostWebSocket {
   private ws: WebSocket | null = null;
   private channelId: string | null = null;
@@ -60,10 +62,32 @@ export class MattermostWebSocket {
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private pingInterval: NodeJS.Timeout | null = null;
   private onConnectionChangeCallback: ((active: boolean) => void) | null = null;
+  private onConnectionStatusCallback: ((status: ConnectionStatus) => void) | null = null;
   private onTypingCallback: ((userId: string) => void) | null = null;
   private typingThrottle = new Map<string, number>();
   private readonly TYPING_THROTTLE_MS = 3000;
   private isConnected = false;
+
+  // Sequence number for WebSocket messages (required by Mattermost)
+  private messageSeq = 1;
+
+  // Idle management
+  private lastActivityTime = Date.now();
+  private idleCheckInterval: NodeJS.Timeout | null = null;
+  private pollInterval: NodeJS.Timeout | null = null;
+  private currentStatus: ConnectionStatus = "disconnected";
+
+  // Idle thresholds
+  private readonly IDLE_WARNING_MS = 5 * 60 * 1000;      // 5 min - reduce ping frequency
+  private readonly IDLE_DISCONNECT_MS = 15 * 60 * 1000;  // 15 min - disconnect and poll
+  private readonly POLL_INTERVAL_MS = 60 * 1000;         // 1 min - polling when disconnected
+
+  // Ping intervals
+  private readonly PING_ACTIVE = 30 * 1000;      // 30s when active
+  private readonly PING_IDLE = 120 * 1000;       // 2 min when idle but connected
+  private readonly PING_BACKGROUND = 180 * 1000; // 3 min when tab hidden
+
+  private currentPingInterval = this.PING_ACTIVE;
 
   // Builder pattern methods
   public withChannel(channelId: string): this {
@@ -84,6 +108,11 @@ export class MattermostWebSocket {
 
   public onConnectionChange(callback: (active: boolean) => void): this {
     this.onConnectionChangeCallback = callback;
+    return this;
+  }
+
+  public onConnectionStatus(callback: (status: ConnectionStatus) => void): this {
+    this.onConnectionStatusCallback = callback;
     return this;
   }
 
@@ -112,14 +141,21 @@ export class MattermostWebSocket {
       this.ws = new WebSocket(fullUrl);
 
       this.ws.onopen = () => {
-        console.log("✓ Chat WebSocket connected");
         this.isConnected = true;
         this.connectionState = "connected";
         this.reconnectAttempts = 0;
+        this.lastActivityTime = Date.now();
+        this.updateStatus("live");
         this.onConnectionChangeCallback?.(true);
 
         // Start ping interval to keep connection alive
         this.startPingInterval();
+
+        // Start idle management
+        this.startIdleManagement();
+
+        // Monitor page visibility for background optimization
+        this.setupPageVisibilityListener();
       };
 
       this.ws.onmessage = (event) => {
@@ -139,7 +175,6 @@ export class MattermostWebSocket {
         if (this.ws && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.ws.close();
         } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-          console.log("✗ Chat WebSocket disconnected (using polling)");
           this.onConnectionChangeCallback?.(false);
         }
       };
@@ -179,6 +214,12 @@ export class MattermostWebSocket {
     // Stop ping interval
     this.stopPingInterval();
 
+    // Stop idle management
+    this.stopIdleManagement();
+
+    // Stop polling
+    this.stopPolling();
+
     // Clear typing throttle map to prevent memory leak
     this.typingThrottle.clear();
 
@@ -194,6 +235,7 @@ export class MattermostWebSocket {
 
     this.isConnected = false;
     this.connectionState = "disconnected";
+    this.updateStatus("disconnected");
     this.onConnectionChangeCallback?.(false);
   }
 
@@ -234,7 +276,7 @@ export class MattermostWebSocket {
   }
 
   private handleHello(message: MattermostWSEvent): void {
-    console.log("Mattermost WebSocket authenticated");
+    // WebSocket authenticated successfully
   }
 
   private handlePosted(message: MattermostWSEvent): void {
@@ -328,6 +370,10 @@ export class MattermostWebSocket {
   // Utility methods
   public sendTyping(channelId: string): void {
     if (!this.ws || this.connectionState !== "connected") {
+      // If disconnected but polling, try to reconnect
+      if (this.currentStatus === "paused") {
+        this.resumeConnection();
+      }
       return;
     }
 
@@ -348,9 +394,12 @@ export class MattermostWebSocket {
       }
     }
 
+    // Record activity
+    this.recordActivity();
+
     const payload = {
       action: "user_typing",
-      seq: Date.now(),
+      seq: this.messageSeq++,
       data: {
         channel_id: channelId,
         parent_id: ""
@@ -364,17 +413,32 @@ export class MattermostWebSocket {
     }
   }
 
+  // Record user activity to reset idle timer
+  private recordActivity(): void {
+    this.lastActivityTime = Date.now();
+
+    // If we were idle/paused, go back to live
+    if (this.currentStatus !== "live" && this.isConnected) {
+      this.updateStatus("live");
+      this.adjustPingInterval(this.PING_ACTIVE);
+    }
+  }
+
   // Keep connection alive with periodic pings
   private startPingInterval(): void {
+    this.stopPingInterval(); // Clear any existing interval
     this.pingInterval = setInterval(() => {
       if (this.ws && this.connectionState === "connected") {
         try {
-          this.ws.send(JSON.stringify({ action: "ping" }));
+          this.ws.send(JSON.stringify({
+            action: "ping",
+            seq: this.messageSeq++
+          }));
         } catch (error) {
           console.error("Failed to send ping:", error);
         }
       }
-    }, 30000); // Ping every 30 seconds
+    }, this.currentPingInterval);
   }
 
   private stopPingInterval(): void {
@@ -382,5 +446,137 @@ export class MattermostWebSocket {
       clearInterval(this.pingInterval);
       this.pingInterval = null;
     }
+  }
+
+  private adjustPingInterval(newInterval: number): void {
+    if (this.currentPingInterval === newInterval) return;
+
+    this.currentPingInterval = newInterval;
+    if (this.isConnected) {
+      this.startPingInterval(); // Restart with new interval
+    }
+  }
+
+  // Idle management
+  private startIdleManagement(): void {
+    this.stopIdleManagement(); // Clear any existing interval
+    this.idleCheckInterval = setInterval(() => {
+      this.checkIdleState();
+    }, 30000); // Check every 30 seconds
+  }
+
+  private stopIdleManagement(): void {
+    if (this.idleCheckInterval) {
+      clearInterval(this.idleCheckInterval);
+      this.idleCheckInterval = null;
+    }
+  }
+
+  private checkIdleState(): void {
+    const now = Date.now();
+    const idleTime = now - this.lastActivityTime;
+
+    // Don't change state if tab is hidden (page visibility handles that)
+    if (document.hidden) return;
+
+    if (idleTime >= this.IDLE_DISCONNECT_MS) {
+      // Idle for 15+ minutes - disconnect and start polling
+      this.disconnectAndPoll();
+    } else if (idleTime >= this.IDLE_WARNING_MS) {
+      // Idle for 5+ minutes - reduce ping frequency but stay connected
+      if (this.currentStatus === "live") {
+        this.updateStatus("connected");
+        this.adjustPingInterval(this.PING_IDLE);
+      }
+    }
+  }
+
+  private disconnectAndPoll(): void {
+    if (this.currentStatus === "paused") return; // Already polling
+
+    // Close WebSocket but don't trigger full disconnect
+    this.stopPingInterval();
+    this.stopIdleManagement();
+
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+
+    this.isConnected = false;
+    this.updateStatus("paused");
+    this.onConnectionChangeCallback?.(false);
+
+    // Start polling for new messages
+    this.startPolling();
+  }
+
+  private startPolling(): void {
+    this.stopPolling(); // Clear any existing polling
+
+    this.pollInterval = setInterval(() => {
+      // Invalidate queries to fetch new messages
+      if (this.queryClient && this.channelId) {
+        this.queryClient.invalidateQueries({
+          queryKey: ["mattermost-posts-infinite", this.channelId]
+        });
+        this.queryClient.invalidateQueries({
+          queryKey: ["mattermost-unread"]
+        });
+      }
+    }, this.POLL_INTERVAL_MS);
+  }
+
+  private stopPolling(): void {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  }
+
+  // Resume real-time connection from paused state
+  public resumeConnection(): void {
+    if (this.currentStatus !== "paused") return;
+
+    this.stopPolling();
+    this.lastActivityTime = Date.now();
+    this.connect(); // Reconnect WebSocket
+  }
+
+  // Page visibility handling
+  private setupPageVisibilityListener(): void {
+    if (typeof document === "undefined") return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Tab hidden - reduce ping frequency to save resources
+        if (this.isConnected) {
+          this.adjustPingInterval(this.PING_BACKGROUND);
+        }
+      } else {
+        // Tab visible - check if we need to resume
+        if (this.currentStatus === "paused") {
+          // User returned to tab, resume connection
+          this.resumeConnection();
+        } else if (this.isConnected) {
+          // Restore active ping interval
+          const idleTime = Date.now() - this.lastActivityTime;
+          if (idleTime < this.IDLE_WARNING_MS) {
+            this.adjustPingInterval(this.PING_ACTIVE);
+          } else {
+            this.adjustPingInterval(this.PING_IDLE);
+          }
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  }
+
+  private updateStatus(status: ConnectionStatus): void {
+    if (this.currentStatus === status) return;
+
+    this.currentStatus = status;
+    this.onConnectionStatusCallback?.(status);
   }
 }
