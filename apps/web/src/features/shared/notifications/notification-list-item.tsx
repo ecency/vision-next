@@ -215,7 +215,13 @@ export function NotificationListItem({
           {(notification.type === "monthly-posts" || notification.type === "monthly_posts") && (
             <NotificationMonthlyPostsType sourceLink={sourceLink} notification={notification} />
           )}
-          {notification.type === "spin" && <NotificationSpinType sourceLink={sourceLink} />}
+          {notification.type === "spin" && (
+            <NotificationSpinType
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
           {notification.type === "inactive" && <NotificationInactiveType sourceLink={sourceLink} />}
           {notification.type === "referral" && <NotificationReferralType sourceLink={sourceLink} />}
         </div>
