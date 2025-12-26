@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @source "../config.json";
+@import "./styles/blog-markdown.css";
 
 html,
 body {

@@ -16,7 +16,7 @@ export function BlogPostBody({ entry, isRawContent }: Props) {
 
   if (isRawContent) {
     return (
-      <div className="mb-8">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
         <pre className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 text-sm font-mono whitespace-pre-wrap break-words overflow-x-auto">
           {entryData.body}
         </pre>
@@ -25,9 +25,10 @@ export function BlogPostBody({ entry, isRawContent }: Props) {
   }
 
   return (
-    <div className="mb-8 prose prose-lg dark:prose-invert max-w-none">
-      <MemoEcencyRenderer value={entryData.body} />
+    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
+      <div className="markdown-body prose prose-lg dark:prose-invert max-w-none">
+        <MemoEcencyRenderer value={entryData.body} />
+      </div>
     </div>
   );
 }
-

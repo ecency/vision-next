@@ -28,14 +28,14 @@ export function BlogPostFooter({ entry }: Props) {
   }, [entryData]);
 
   return (
-    <footer className="mb-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+    <footer className="bg-white dark:bg-gray-900 rounded-2xl p-6">
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-6">
           {tags.map((tag) => (
             <a
               key={tag}
               href={`/trending/${tag}`}
-              className="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
+              className="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
             >
               #{tag}
             </a>
@@ -43,7 +43,7 @@ export function BlogPostFooter({ entry }: Props) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+      <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400 pt-6 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-1">
           <UilHeart className="w-4 h-4" />
           <span>{likesCount} likes</span>
@@ -60,4 +60,3 @@ export function BlogPostFooter({ entry }: Props) {
     </footer>
   );
 }
-

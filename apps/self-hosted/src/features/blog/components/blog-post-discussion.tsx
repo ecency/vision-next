@@ -15,14 +15,27 @@ interface Props {
 
 type SortOrder = "trending" | "author_reputation" | "votes" | "created";
 
-function sortDiscussions(entry: Entry, discussions: Entry[], order: SortOrder): Entry[] {
-  const isPinned = (a: Entry) => entry.json_metadata?.pinned_reply === `${a.author}/${a.permlink}`;
+function sortDiscussions(
+  entry: Entry,
+  discussions: Entry[],
+  order: SortOrder
+): Entry[] {
+  const isPinned = (a: Entry) =>
+    entry.json_metadata?.pinned_reply === `${a.author}/${a.permlink}`;
 
   const sortFunctions = {
     trending: (a: Entry, b: Entry) => {
       if (a.net_rshares < 0) return 1;
       if (b.net_rshares < 0) return -1;
-      return (b.pending_payout_value || 0) - (a.pending_payout_value || 0);
+      const aPayout =
+        typeof a.pending_payout_value === "string"
+          ? parseFloat(a.pending_payout_value) || 0
+          : a.pending_payout_value || 0;
+      const bPayout =
+        typeof b.pending_payout_value === "string"
+          ? parseFloat(b.pending_payout_value) || 0
+          : b.pending_payout_value || 0;
+      return bPayout - aPayout;
     },
     author_reputation: (a: Entry, b: Entry) => {
       return (b.author_reputation || 0) - (a.author_reputation || 0);
@@ -54,11 +67,15 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
   const { data: allComments = [], isLoading } = useQuery({
     queryKey: ["discussions", entryData.author, entryData.permlink, order],
     queryFn: async () => {
-      const response = await CONFIG.hiveClient.call("bridge", "get_discussion", {
-        author: entryData.author,
-        permlink: entryData.permlink,
-        observer: entryData.author,
-      });
+      const response = await CONFIG.hiveClient.call(
+        "bridge",
+        "get_discussion",
+        {
+          author: entryData.author,
+          permlink: entryData.permlink,
+          observer: entryData.author,
+        }
+      );
 
       if (response && typeof response === "object") {
         const comments = Object.values(response) as Entry[];
@@ -81,33 +98,38 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
 
   if (isLoading) {
     return (
-      <div className="mt-8 text-center py-8 text-gray-500 dark:text-gray-400">
-        Loading comments...
+      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          Loading comments...
+        </div>
       </div>
     );
   }
 
   if (topLevelComments.length === 0) {
     return (
-      <div className="mt-8 text-center py-8 text-gray-500 dark:text-gray-400">
-        No comments yet.
+      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          No comments yet.
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mt-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
+      <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
-          <UilComment className="w-5 h-5" />
-          <h2 className="text-xl font-semibold">
-            {topLevelComments.length} {topLevelComments.length === 1 ? "Comment" : "Comments"}
+          <UilComment className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            {topLevelComments.length}{" "}
+            {topLevelComments.length === 1 ? "Comment" : "Comments"}
           </h2>
         </div>
         <select
           value={order}
           onChange={(e) => setOrder(e.target.value as SortOrder)}
-          className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm"
+          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="trending">Trending</option>
           <option value="author_reputation">Reputation</option>
@@ -125,4 +147,3 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
     </div>
   );
 }
-

@@ -10,7 +10,10 @@ interface Props {
 }
 
 function countWords(text: string): number {
-  return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
 }
 
 function calculateReadTime(body: string): number {
@@ -49,12 +52,12 @@ export function BlogPostHeader({ entry }: Props) {
   );
 
   return (
-    <header className="mb-8">
-      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white break-words">
+    <header className="bg-white dark:bg-gray-900 rounded-2xl p-6">
+      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-gray-900 dark:text-white break-words">
         {entryData.title}
       </h1>
 
-      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
         <div className="flex items-center gap-1">
           <UilHeart className="w-4 h-4" />
           <span>{likesCount}</span>
@@ -74,7 +77,7 @@ export function BlogPostHeader({ entry }: Props) {
       </div>
 
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
             <a
               key={tag}
@@ -89,4 +92,3 @@ export function BlogPostHeader({ entry }: Props) {
     </header>
   );
 }
-
