@@ -101,7 +101,27 @@ export function useSaveDraftApi(draftId?: string) {
           // Wait for any pending uploads before redirecting
           if (uploadTracker?.hasPendingUploads) {
             info(i18next.t("publish.waiting-for-uploads", { defaultValue: "Waiting for images to upload..." }));
-            await uploadTracker.waitForUploads();
+            const uploadResult = await uploadTracker.waitForUploads();
+
+            // Show warning if some uploads failed
+            if (!uploadResult.allSucceeded && uploadResult.failed > 0) {
+              error(
+                i18next.t("publish.some-uploads-failed", {
+                  defaultValue: `${uploadResult.failed} image(s) failed to upload`,
+                  count: uploadResult.failed
+                })
+              );
+            }
+
+            // Show warning if some uploads timed out
+            if (uploadResult.timedOut > 0) {
+              error(
+                i18next.t("publish.uploads-timed-out", {
+                  defaultValue: `${uploadResult.timedOut} image upload(s) timed out`,
+                  count: uploadResult.timedOut
+                })
+              );
+            }
           }
           router.push(`/publish/drafts/${draft._id}`);
         }

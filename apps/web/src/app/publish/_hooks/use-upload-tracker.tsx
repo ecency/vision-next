@@ -10,12 +10,20 @@ import {
   useState
 } from "react";
 
-type UploadStatus = "pending" | "completed" | "failed";
+export type UploadStatus = "pending" | "completed" | "failed";
 
-interface UploadInfo {
+export interface UploadInfo {
   id: string;
   status: UploadStatus;
   abortController?: AbortController;
+}
+
+export interface UploadResult {
+  completed: number;
+  failed: number;
+  timedOut: number;
+  total: number;
+  allSucceeded: boolean;
 }
 
 interface UploadTrackerContextValue {
@@ -24,7 +32,7 @@ interface UploadTrackerContextValue {
   registerUpload: (id: string, abortController?: AbortController) => void;
   markComplete: (id: string) => void;
   markFailed: (id: string) => void;
-  waitForUploads: (timeoutMs?: number) => Promise<void>;
+  waitForUploads: (timeoutMs?: number) => Promise<UploadResult>;
 }
 
 const UploadTrackerContext = createContext<UploadTrackerContextValue | undefined>(undefined);
@@ -86,14 +94,20 @@ export function UploadTrackerProvider({ children }: PropsWithChildren) {
   }, []);
 
   const waitForUploads = useCallback(
-    (timeoutMs: number = UPLOAD_TIMEOUT_MS): Promise<void> => {
-      return new Promise((resolve, reject) => {
+    (timeoutMs: number = UPLOAD_TIMEOUT_MS): Promise<UploadResult> => {
+      return new Promise((resolve) => {
         const startTime = Date.now();
         const uploadStartCount = uploadsRef.current.size;
 
-        // If no uploads pending, resolve immediately
+        // If no uploads pending, resolve immediately with success
         if (uploadStartCount === 0) {
-          resolve();
+          resolve({
+            completed: 0,
+            failed: 0,
+            timedOut: 0,
+            total: 0,
+            allSucceeded: true
+          });
           return;
         }
 
@@ -106,7 +120,22 @@ export function UploadTrackerProvider({ children }: PropsWithChildren) {
           // All uploads completed or failed
           if (pendingCount === 0) {
             clearInterval(checkInterval);
-            resolve();
+
+            // Calculate results
+            const completed = Array.from(currentUploads.values()).filter(
+              (u) => u.status === "completed"
+            ).length;
+            const failed = Array.from(currentUploads.values()).filter(
+              (u) => u.status === "failed"
+            ).length;
+
+            resolve({
+              completed,
+              failed,
+              timedOut: 0,
+              total: uploadStartCount,
+              allSucceeded: failed === 0
+            });
             return;
           }
 
@@ -114,16 +143,34 @@ export function UploadTrackerProvider({ children }: PropsWithChildren) {
           const elapsed = Date.now() - startTime;
           if (elapsed > timeoutMs * uploadStartCount) {
             clearInterval(checkInterval);
+
+            const timedOutCount = pendingCount;
             console.warn(
-              `Upload tracker timeout: ${pendingCount} uploads still pending after ${elapsed}ms`
+              `Upload tracker timeout: ${timedOutCount} uploads still pending after ${elapsed}ms`
             );
+
             // Mark remaining uploads as failed
             currentUploads.forEach((upload) => {
               if (upload.status === "pending") {
                 markFailed(upload.id);
               }
             });
-            resolve(); // Resolve anyway to allow navigation
+
+            // Calculate results including timed out uploads
+            const completed = Array.from(currentUploads.values()).filter(
+              (u) => u.status === "completed"
+            ).length;
+            const failed = Array.from(currentUploads.values()).filter(
+              (u) => u.status === "failed"
+            ).length;
+
+            resolve({
+              completed,
+              failed: failed - timedOutCount, // Subtract timed out from failed count
+              timedOut: timedOutCount,
+              total: uploadStartCount,
+              allSucceeded: false
+            });
           }
         }, CHECK_INTERVAL_MS);
       });

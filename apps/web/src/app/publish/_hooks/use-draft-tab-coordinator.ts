@@ -20,6 +20,7 @@ export function useDraftTabCoordinator(draftId: string | undefined) {
   const [isActiveTab, setIsActiveTab] = useState(true);
   const tabIdRef = useRef<string>(uuidv4());
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const initialTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // No coordination needed if no draft ID
@@ -102,12 +103,19 @@ export function useDraftTabCoordinator(draftId: string | undefined) {
       }
     };
 
-    // Initial check and heartbeat
+    // Initial check and heartbeat with random jitter to prevent race conditions
+    // when multiple tabs open simultaneously
     checkActiveStatus();
-    writeHeartbeat();
 
-    // Set up heartbeat interval
-    heartbeatIntervalRef.current = setInterval(writeHeartbeat, HEARTBEAT_INTERVAL_MS);
+    // Add random jitter (0-500ms) before first heartbeat write to reduce
+    // likelihood of simultaneous writes from multiple tabs
+    const jitter = Math.random() * 500;
+    initialTimeoutRef.current = setTimeout(() => {
+      writeHeartbeat();
+      // Set up heartbeat interval after initial write
+      heartbeatIntervalRef.current = setInterval(writeHeartbeat, HEARTBEAT_INTERVAL_MS);
+      initialTimeoutRef.current = null;
+    }, jitter);
 
     // Listen for storage events from other tabs
     window.addEventListener("storage", handleStorageChange);
@@ -115,14 +123,24 @@ export function useDraftTabCoordinator(draftId: string | undefined) {
 
     // Cleanup on unmount
     return () => {
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
+      // Clear initial timeout if it hasn't fired yet
+      if (initialTimeoutRef.current) {
+        clearTimeout(initialTimeoutRef.current);
+        initialTimeoutRef.current = null;
       }
 
+      // Clear interval to prevent any pending writes
+      if (heartbeatIntervalRef.current) {
+        clearInterval(heartbeatIntervalRef.current);
+        heartbeatIntervalRef.current = null;
+      }
+
+      // Remove event listeners
       window.removeEventListener("storage", handleStorageChange);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
 
-      // Clear our heartbeat if we're the active tab
+      // Clear our heartbeat from localStorage if we're the active tab
+      // This prevents stale entries and allows other tabs to claim ownership
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) {
