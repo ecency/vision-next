@@ -1,19 +1,21 @@
 import { InstanceConfigManager } from "@/core";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
+import { UserAvatar } from "@/features/shared/user-avatar";
 
 export function BlogSidebar() {
-  const { data } = useQuery(
-    getAccountFullQueryOptions(
-      InstanceConfigManager.getConfigValue(
-        ({ configuration }) => configuration.instanceConfiguration.username
-      )
-    )
+  const username = InstanceConfigManager.getConfigValue(
+    ({ configuration }) => configuration.instanceConfiguration.username
   );
+
+  const { data } = useQuery(getAccountFullQueryOptions(username));
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 sticky top-4">
-      <div className="text-lg font-bold">{data?.name}</div>
+      <div className="flex items-center gap-3 mb-3">
+        <UserAvatar username={username} size="sLarge" />
+        <div className="text-lg font-bold">{data?.name || username}</div>
+      </div>
       <div className="text-sm text-gray-500 dark:text-gray-400">
         {data?.profile?.about}
       </div>

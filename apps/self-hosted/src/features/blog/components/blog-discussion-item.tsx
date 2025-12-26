@@ -6,6 +6,7 @@ import { EcencyRenderer } from "@ecency/renderer";
 import { formatDistanceToNow } from "date-fns";
 import { UilHeart, UilComment } from "@tooni/iconscout-unicons-react";
 import { BlogDiscussionList } from "./blog-discussion-list";
+import { UserAvatar } from "@/features/shared/user-avatar";
 import { memo } from "react";
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
@@ -25,15 +26,14 @@ export function BlogDiscussionItem({
 }: Props) {
   const [showReplies, setShowReplies] = useState(false);
 
-  const likesCount = useMemo(
-    () => entry.active_votes?.length || 0,
-    [entry]
-  );
+  const likesCount = useMemo(() => entry.active_votes?.length || 0, [entry]);
 
   const repliesCount = useMemo(
     () =>
       discussionList.filter(
-        (x) => x.parent_author === entry.author && x.parent_permlink === entry.permlink
+        (x) =>
+          x.parent_author === entry.author &&
+          x.parent_permlink === entry.permlink
       ).length,
     [discussionList, entry]
   );
@@ -57,10 +57,8 @@ export function BlogDiscussionItem({
   return (
     <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 py-2">
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">
-            {entry.author.charAt(0).toUpperCase()}
-          </div>
+        <div className="shrink-0">
+          <UserAvatar username={entry.author} size="medium" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -124,4 +122,3 @@ export function BlogDiscussionItem({
     </div>
   );
 }
-
