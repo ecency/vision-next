@@ -41,7 +41,7 @@ export function usePublishAutosave() {
       }
 
       const id = await saveToDraft({ showToast: false, redirect: false });
-      // Only create returns an ID
+      // Only create returns an ID (first save creates draft)
       if (id) {
         setDraftId(id);
       }
@@ -64,5 +64,5 @@ export function usePublishAutosave() {
     ]
   );
 
-  return { lastSaved, isActiveTab };
+  return { lastSaved, isActiveTab, draftId };
 }

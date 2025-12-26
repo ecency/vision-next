@@ -24,7 +24,7 @@ export default function Publish() {
   const { tags, setTags } = usePublishState();
   const appliedCommunityRef = useRef<string | null>(null);
 
-  const { isActiveTab } = usePublishAutosave();
+  const { isActiveTab, lastSaved, draftId } = usePublishAutosave();
 
   useEffect(() => {
     const communityParam = searchParams?.get("com");
@@ -61,6 +61,11 @@ export default function Publish() {
           <div className="container max-w-[1024px] mx-auto text-xs text-gray-600 dark:text-gray-400 p-2 md:p-0">
             <div className="flex flex-wrap justify-between items-center">
               <span>{i18next.t("publish.new-content")}</span>
+              {lastSaved && draftId && (
+                <span className="text-gray-500 dark:text-gray-400">
+                  {i18next.t("publish.auto-save")}: {lastSaved.toLocaleTimeString()}
+                </span>
+              )}
             </div>
           </div>
           <PublishActionBar
