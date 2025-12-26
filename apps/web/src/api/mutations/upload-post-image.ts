@@ -26,8 +26,19 @@ export function useUploadPostImage() {
       return uploadImage(file, token);
     },
     onError: (e: Error) => {
-      if (axios.isAxiosError(e) && e.response?.status === 413) {
-        error(i18next.t("editor-toolbar.image-error-size"));
+      if (axios.isAxiosError(e)) {
+        const status = e.response?.status;
+        if (status === 413) {
+          error(i18next.t("editor-toolbar.image-error-size"));
+        } else if (status === 429) {
+          error("Too many upload requests. Please wait a moment and try again.");
+        } else if (status === 503) {
+          error("Image upload service is temporarily unavailable. Please try again later.");
+        } else if (status === 401 || status === 403) {
+          error("Authentication expired. Please refresh the page and try again.");
+        } else {
+          error(i18next.t("editor-toolbar.image-error"));
+        }
       } else if (e.message === "Token missed") {
         error(i18next.t("g.image-error-cache"));
       } else {

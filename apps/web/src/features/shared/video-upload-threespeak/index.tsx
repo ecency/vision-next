@@ -36,6 +36,8 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
   const { mutateAsync: uploadInfo } = useUploadVideoInfo();
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const selectedFileUrlRef = useRef<string>();
+  const coverImageUrlRef = useRef<string>();
 
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [coverImage, setCoverImage] = useState<string>();
@@ -57,6 +59,15 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
   // Reset on dialog hide
   useEffect(() => {
     if (!props.show) {
+      // Clean up blob URLs before resetting
+      if (selectedFileUrlRef.current) {
+        URL.revokeObjectURL(selectedFileUrlRef.current);
+        selectedFileUrlRef.current = undefined;
+      }
+      if (coverImageUrlRef.current) {
+        URL.revokeObjectURL(coverImageUrlRef.current);
+        coverImageUrlRef.current = undefined;
+      }
       setSelectedFile(null);
       setCoverImage(undefined);
       setFileName("");
@@ -112,7 +123,13 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
       return;
     }
     onChange(e, "thumbnail");
-    setCoverImage(URL?.createObjectURL(file));
+    // Clean up old cover image URL before creating new one
+    if (coverImageUrlRef.current) {
+      URL.revokeObjectURL(coverImageUrlRef.current);
+    }
+    const imageUrl = URL?.createObjectURL(file);
+    coverImageUrlRef.current = imageUrl;
+    setCoverImage(imageUrl);
   };
 
   const handleVideoChange = (e: ChangeEvent<HTMLInputElement | any>) => {
@@ -121,7 +138,13 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
       return;
     }
     onChange(e, "video");
-    setSelectedFile(URL?.createObjectURL(file));
+    // Clean up old selected file URL before creating new one
+    if (selectedFileUrlRef.current) {
+      URL.revokeObjectURL(selectedFileUrlRef.current);
+    }
+    const fileUrl = URL?.createObjectURL(file);
+    selectedFileUrlRef.current = fileUrl;
+    setSelectedFile(fileUrl);
   };
 
   const uploadVideoModal = (
@@ -181,7 +204,13 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
           if (!thumbUrl) {
             const file = await createFile("/assets/thumbnail-play.jpg");
             onChange({ target: { files: [file] } } as any, "thumbnail");
-            setCoverImage(URL?.createObjectURL(file));
+            // Clean up old cover image URL before creating new one
+            if (coverImageUrlRef.current) {
+              URL.revokeObjectURL(coverImageUrlRef.current);
+            }
+            const imageUrl = URL?.createObjectURL(file);
+            coverImageUrlRef.current = imageUrl;
+            setCoverImage(imageUrl);
           }
           setStep("preview");
         }}

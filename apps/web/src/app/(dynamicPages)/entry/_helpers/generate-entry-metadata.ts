@@ -50,7 +50,7 @@ export async function generateEntryMetadata(
         // fallback to direct content API
         entry = await getContent(cleanAuthor, cleanPermlink);
       } catch (e) {
-        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, cleanPermlink, e);
+        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, cleanPermlink);
         return {};
       }
 

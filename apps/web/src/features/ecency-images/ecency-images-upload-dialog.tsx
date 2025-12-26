@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { Modal, ModalBody, ModalHeader, Button } from "../ui";
 import { EcencyImagesUploadForm } from "./ecency-images-upload-form";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { UilCheck } from "@tooni/iconscout-unicons-react";
 import { Spinner } from "@ui/spinner";
 import { useUploadPostImage } from "@/api/mutations";
@@ -23,6 +23,21 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
   const { mutateAsync: upload } = useUploadPostImage();
   const cancelRef = useRef(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const itemsRef = useRef<UploadItem[]>([]);
+
+  // Keep track of current items for cleanup
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  // Cleanup blob URLs only on unmount
+  useEffect(() => {
+    return () => {
+      itemsRef.current.forEach((item) => {
+        URL.revokeObjectURL(item.preview);
+      });
+    };
+  }, []);
 
   const startUpload = async () => {
     cancelRef.current = false;
@@ -62,6 +77,10 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
     }
 
     if (!cancelRef.current) {
+      // Clean up blob URLs before clearing items
+      items.forEach((item) => {
+        URL.revokeObjectURL(item.preview);
+      });
       setItems([]);
       setShow(false);
     }
@@ -121,6 +140,10 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
                     cancelRef.current = true;
                     setIsCancelling(true);
                   }
+                  // Clean up blob URLs before clearing items
+                  items.forEach((item) => {
+                    URL.revokeObjectURL(item.preview);
+                  });
                   setItems([]);
                 }}
               >
