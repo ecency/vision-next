@@ -43,17 +43,17 @@ export function BlogNavigation() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto border-b border-gray-200 pb-4 mb-8">
-      <div className="flex items-center gap-4 mb-6">
+    <div className="max-w-3xl mx-auto border-b border-gray-200 pb-3 sm:pb-4 mb-6 sm:mb-8">
+      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         {blogLogo && (
           <img
             src={blogLogo}
             alt={blogTitle}
-            className="h-10 w-10 object-contain"
+            className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
           />
         )}
         <h1
-          className="text-2xl font-bold"
+          className="text-xl sm:text-2xl font-bold"
           style={{
             fontFamily:
               '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
@@ -64,7 +64,7 @@ export function BlogNavigation() {
         </h1>
       </div>
 
-      <nav className="flex gap-6 pt-4">
+      <nav className="flex gap-4 sm:gap-6 pt-3 sm:pt-4 overflow-x-auto">
         {availableFilters.map((filter) => {
           const isActive = currentFilter === filter;
           return (

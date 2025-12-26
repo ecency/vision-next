@@ -11,11 +11,11 @@ export function BlogSidebar() {
   const { data } = useQuery(getAccountFullQueryOptions(username));
 
   return (
-    <div className="sticky top-0 border-l border-gray-200 p-6 h-screen">
+    <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-gray-200 p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
       <div className="flex items-center gap-3 mb-4">
         <UserAvatar username={username} size="sLarge" />
         <div
-          className="text-base font-bold"
+          className="text-sm sm:text-base font-bold"
           style={{
             fontFamily:
               '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',

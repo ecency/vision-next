@@ -11,11 +11,24 @@ body {
   background-color: #ffffff;
   color: #242424;
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 21px;
+  font-size: 18px;
   line-height: 1.58;
   letter-spacing: -0.003em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive font sizes */
+@media (min-width: 640px) {
+  body {
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 21px;
+  }
 }
 
 * {

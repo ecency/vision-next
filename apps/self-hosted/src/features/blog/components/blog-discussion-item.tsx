@@ -55,14 +55,14 @@ export function BlogDiscussionItem({
   }, [entry]);
 
   return (
-    <div className="border-l-2 border-gray-200 pl-6 py-4">
-      <div className="flex items-start gap-3">
+    <div className="border-l-2 border-gray-200 pl-3 sm:pl-6 py-3 sm:py-4">
+      <div className="flex items-start gap-2 sm:gap-3">
         <div className="shrink-0">
           <UserAvatar username={entry.author} size="medium" />
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="flex items-center gap-2 mb-2 text-sm"
+            className="flex items-center gap-1.5 sm:gap-2 mb-2 text-xs sm:text-sm"
             style={{
               color: "rgba(0, 0, 0, 0.54)",
               fontFamily:
@@ -98,7 +98,7 @@ export function BlogDiscussionItem({
           </div>
 
           <div
-            className="flex items-center gap-4 mt-3 text-xs"
+            className="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3 text-xs"
             style={{
               color: "rgba(0, 0, 0, 0.54)",
               fontFamily:

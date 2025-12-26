@@ -123,12 +123,12 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
   }
 
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
+    <div className="mb-6 sm:mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <UilComment className="w-5 h-5" style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
+          <UilComment className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
           <h2 
-            className="text-xl font-semibold"
+            className="text-lg sm:text-xl font-semibold"
             style={{ 
               fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
               color: 'rgba(0, 0, 0, 0.84)'
@@ -141,7 +141,7 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
         <select
           value={order}
           onChange={(e) => setOrder(e.target.value as SortOrder)}
-          className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-opacity hover:opacity-70"
+          className="px-3 py-2 border border-gray-300 rounded text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-opacity hover:opacity-70 w-full sm:w-auto"
           style={{ 
             backgroundColor: 'white',
             color: 'rgba(0, 0, 0, 0.84)',

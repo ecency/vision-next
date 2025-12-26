@@ -97,7 +97,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       </div>
 
       <h2
-        className="text-2xl font-bold mb-3 transition-opacity hover:opacity-70"
+        className="text-xl sm:text-2xl font-bold mb-3 transition-opacity hover:opacity-70"
         style={{
           fontFamily:
             '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
@@ -140,8 +140,8 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
 
       <div className="mb-4">
         <div
-          className="markdown-body text-base max-w-none"
-          style={{ fontSize: "18px", lineHeight: "1.58" }}
+          className="markdown-body text-sm sm:text-base max-w-none"
+          style={{ fontSize: "clamp(16px, 4vw, 18px)", lineHeight: "1.58" }}
         >
           <MemoEcencyRenderer value={summary} />
         </div>
@@ -191,7 +191,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
 
   return (
     <motion.article
-      className={clsx("py-8 border-b border-gray-200")}
+      className={clsx("py-6 sm:py-8 border-b border-gray-200")}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -201,16 +201,16 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       }}
     >
       {listType === "list" && imageUrl ? (
-        <div className="flex gap-6">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
           <div className="flex-1">{contentSection}</div>
-          <div className="shrink-0 w-48">
+          <div className="shrink-0 w-full sm:w-48">
             <a
               href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
             >
               <img
                 src={imageUrl}
                 alt={entryData.title}
-                className="w-full h-32 object-cover"
+                className="w-full h-48 sm:h-32 object-cover"
                 loading="lazy"
               />
             </a>

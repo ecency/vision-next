@@ -53,7 +53,7 @@ export function BlogPostPage() {
 
   return (
     <BlogLayout>
-      <article className="space-y-6">
+      <article className="space-y-4 sm:space-y-6">
         <BlogPostHeader entry={entry} />
         <BlogPostBody entry={entry} isRawContent={isRawContent} />
         <BlogPostFooter entry={entry} />

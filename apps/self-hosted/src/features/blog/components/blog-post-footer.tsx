@@ -28,14 +28,14 @@ export function BlogPostFooter({ entry }: Props) {
   }, [entryData]);
 
   return (
-    <footer className="mb-8 pt-8 border-t border-gray-200">
+    <footer className="mb-6 sm:mb-8 pt-6 sm:pt-8 border-t border-gray-200">
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
           {tags.map((tag) => (
             <a
               key={tag}
               href={`/trending/${tag}`}
-              className="text-sm px-2 py-1 rounded-full transition-opacity hover:opacity-70"
+              className="text-xs sm:text-sm px-2 py-1 rounded-full transition-opacity hover:opacity-70"
               style={{ 
                 backgroundColor: 'rgba(0, 0, 0, 0.05)',
                 color: 'rgba(0, 0, 0, 0.68)',
@@ -49,7 +49,7 @@ export function BlogPostFooter({ entry }: Props) {
       )}
 
       <div 
-        className="flex flex-wrap items-center gap-6 text-sm"
+        className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm"
         style={{ color: 'rgba(0, 0, 0, 0.54)', fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif' }}
       >
         <div className="flex items-center gap-1">
