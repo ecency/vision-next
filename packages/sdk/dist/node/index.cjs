@@ -77,7 +77,7 @@ var CONFIG = {
       consoleOnFailover: true
     }
   ),
-  heliusApiKey: process.env.VITE_HELIUS_API_KEY,
+  heliusApiKey: "process.env.VITE_HELIUS_API_KEY",
   queryClient: new reactQuery.QueryClient(),
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz"
@@ -2359,6 +2359,7 @@ exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
 exports.getGameStatusCheckQueryOptions = getGameStatusCheckQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
 exports.getLoginType = getLoginType;
+exports.getPostQueryOptions = getPostQueryOptions;
 exports.getPostingKey = getPostingKey;
 exports.getPromotedPostsQuery = getPromotedPostsQuery;
 exports.getQueryClient = getQueryClient;
@@ -2372,6 +2373,7 @@ exports.getUser = getUser;
 exports.makeQueryClient = makeQueryClient;
 exports.parseAsset = parseAsset;
 exports.parseProfileMetadata = parseProfileMetadata;
+exports.resolvePost = resolvePost;
 exports.roleMap = roleMap;
 exports.useAccountFavouriteAdd = useAccountFavouriteAdd;
 exports.useAccountFavouriteDelete = useAccountFavouriteDelete;

@@ -24,7 +24,7 @@ export const CONFIG = {
     {
       timeout: 2000,
       failoverThreshold: 2,
-      consoleOnFailover: true
+      consoleOnFailover: true,
     }
   ),
   heliusApiKey: process.env.VITE_HELIUS_API_KEY,
