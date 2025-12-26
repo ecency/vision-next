@@ -47,9 +47,9 @@ export function BlogPostsList({ filter = "posts", limit = 20 }: Props) {
       )}
     >
       {data.length === 0 && !isFetching && (
-        <div 
+        <div
           className="text-center py-12"
-          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
+          style={{ color: "rgba(0, 0, 0, 0.54)" }}
         >
           No posts found.
         </div>
@@ -70,9 +70,9 @@ export function BlogPostsList({ filter = "posts", limit = 20 }: Props) {
       {hasNextPage && <DetectBottom onBottom={() => fetchNextPage()} />}
 
       {isFetching && (
-        <div 
+        <div
           className="text-center py-8"
-          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
+          style={{ color: "rgba(0, 0, 0, 0.54)" }}
         >
           Loading more posts...
         </div>

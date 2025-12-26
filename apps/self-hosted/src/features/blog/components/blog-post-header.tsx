@@ -53,21 +53,26 @@ export function BlogPostHeader({ entry }: Props) {
 
   return (
     <header className="mb-8">
-      <h1 
+      <h1
         className="text-4xl md:text-5xl font-bold mb-6 break-words"
-        style={{ 
-          fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-          color: 'rgba(0, 0, 0, 0.84)',
-          letterSpacing: '-0.015em',
-          lineHeight: '1.04'
+        style={{
+          fontFamily:
+            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+          color: "rgba(0, 0, 0, 0.84)",
+          letterSpacing: "-0.015em",
+          lineHeight: "1.04",
         }}
       >
         {entryData.title}
       </h1>
 
-      <div 
+      <div
         className="flex flex-wrap items-center gap-3 text-sm mb-6"
-        style={{ color: 'rgba(0, 0, 0, 0.54)', fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif' }}
+        style={{
+          color: "rgba(0, 0, 0, 0.54)",
+          fontFamily:
+            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+        }}
       >
         <div className="flex items-center gap-1">
           <UilHeart className="w-4 h-4" />
@@ -94,10 +99,11 @@ export function BlogPostHeader({ entry }: Props) {
               key={tag}
               href={`/trending/${tag}`}
               className="text-sm px-2 py-1 rounded-full transition-opacity hover:opacity-70"
-              style={{ 
-                backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                color: 'rgba(0, 0, 0, 0.68)',
-                fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'
+              style={{
+                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                color: "rgba(0, 0, 0, 0.68)",
+                fontFamily:
+                  '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
               }}
             >
               #{tag}
