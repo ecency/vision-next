@@ -11,7 +11,7 @@ export function useImageUpload() {
 
   return useMutation({
     mutationKey: ["upload-image"],
-    mutationFn: async ({ file }: { file: File }) => {
+    mutationFn: async ({ file, signal }: { file: File; signal?: AbortSignal }) => {
       const fData = new FormData();
       fData.append("file", file);
 
@@ -21,7 +21,8 @@ export function useImageUpload() {
       const r = await appAxios.post(postUrl, fData, {
         headers: {
           "Content-Type": "multipart/form-data"
-        }
+        },
+        signal
       });
       return r.data;
     },

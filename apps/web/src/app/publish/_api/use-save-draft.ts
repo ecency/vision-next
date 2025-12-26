@@ -2,12 +2,13 @@ import { addDraft, updateDraft } from "@/api/private-api";
 import { QueryIdentifiers } from "@/core/react-query";
 import { DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
-import { error, success } from "@/features/shared";
+import { error, success, info } from "@/features/shared";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
+import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { formatError } from "@/api/operations";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
@@ -23,6 +24,7 @@ export function useSaveDraftApi(draftId?: string) {
 
   const router = useRouter();
   const queryClient = useQueryClient();
+  const uploadTracker = useOptionalUploadTracker();
 
   const {
     title,
@@ -96,6 +98,11 @@ export function useSaveDraftApi(draftId?: string) {
         queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
 
         if (redirect) {
+          // Wait for any pending uploads before redirecting
+          if (uploadTracker?.hasPendingUploads) {
+            info(i18next.t("publish.waiting-for-uploads", { defaultValue: "Waiting for images to upload..." }));
+            await uploadTracker.waitForUploads();
+          }
           router.push(`/publish/drafts/${draft._id}`);
         }
 

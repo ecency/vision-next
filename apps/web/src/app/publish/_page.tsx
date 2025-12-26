@@ -1,6 +1,11 @@
 "use client";
 
-import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publish/_components";
+import {
+  PublishActionBar,
+  PublishEditor,
+  PublishValidatePost,
+  PublishMultiTabWarning
+} from "@/app/publish/_components";
 import { usePublishAutosave, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { isCommunity } from "@/utils";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,7 +24,7 @@ export default function Publish() {
   const { tags, setTags } = usePublishState();
   const appliedCommunityRef = useRef<string | null>(null);
 
-  usePublishAutosave();
+  const { isActiveTab } = usePublishAutosave();
 
   useEffect(() => {
     const communityParam = searchParams?.get("com");
@@ -50,6 +55,7 @@ export default function Publish() {
 
   return (
     <>
+      <PublishMultiTabWarning isActiveTab={isActiveTab} />
       {step === "edit" && (
         <>
           <div className="container max-w-[1024px] mx-auto text-xs text-gray-600 dark:text-gray-400 p-2 md:p-0">

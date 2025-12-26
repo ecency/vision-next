@@ -26,8 +26,10 @@ import { usePathname } from "next/navigation";
 import { PropsWithChildren, useState } from "react";
 import { useSaveDraftApi } from "../_api";
 import { useDefaultBeneficiary, usePublishState } from "../_hooks";
+import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
 import { hasPublishContent } from "../_utils/content";
+import { Spinner } from "@ui/spinner";
 
 interface Props {
   onPublish: () => void;
@@ -55,6 +57,7 @@ export function PublishActionBar({
   const canContinue = !!title?.trim() && hasPublishContent(content);
 
   const { mutateAsync: saveToDraft, isPending: isDraftPending } = useSaveDraftApi(draftId);
+  const uploadTracker = useOptionalUploadTracker();
   const [_, setShowGuide] = useSynchronizedLocalStorage(PREFIX + "_pub_onboarding_passed", true);
 
   return (
@@ -78,6 +81,13 @@ export function PublishActionBar({
           </Button>
         </LoginRequired>
         {children}
+
+        {uploadTracker?.hasPendingUploads && (
+          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+            <Spinner className="w-3 h-3" />
+            <span>{i18next.t("publish.uploading-images", { defaultValue: "Uploading..." })}</span>
+          </div>
+        )}
 
         <LoginRequired>
           <Button

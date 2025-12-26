@@ -2,7 +2,12 @@
 
 import "../../page.scss";
 
-import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publish/_components";
+import {
+  PublishActionBar,
+  PublishEditor,
+  PublishValidatePost,
+  PublishMultiTabWarning
+} from "@/app/publish/_components";
 import { usePublishEditor, usePublishState, useAutoSavePublishDraft } from "@/app/publish/_hooks";
 import { useApiDraftDetector } from "@/app/submit/_hooks";
 import { AnimatePresence } from "framer-motion";
@@ -60,10 +65,11 @@ export default function PublishPage() {
     },
     () => setStep("no-draft")
   );
-  const lastSaved = useAutoSavePublishDraft(step, draftId);
+  const { lastSaved, isActiveTab } = useAutoSavePublishDraft(step, draftId);
 
   return (
     <>
+      <PublishMultiTabWarning isActiveTab={isActiveTab} />
       <AnimatePresence>
         {step === "edit" && (
           <>

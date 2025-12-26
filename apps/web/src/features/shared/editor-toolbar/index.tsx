@@ -41,6 +41,7 @@ import { AddLink } from "@/features/shared/editor-toolbar/add-link";
 import { AddImageMobile } from "@/features/shared/editor-toolbar/add-image-mobile";
 import useMount from "react-use/lib/useMount";
 import { EcencyConfigManager } from "@/config";
+import { useOptionalUploadTracker } from "@/app/publish/_hooks";
 
 interface Props {
   sm?: boolean;
@@ -97,6 +98,7 @@ export function EditorToolbar({
   const headers = useMemo(() => Array.from(new Array(3).keys()), []);
 
   const uploadImage = useUploadPostImage();
+  const uploadTracker = useOptionalUploadTracker();
   const uploadQueueRef = useRef<Promise<void | undefined>>(Promise.resolve());
   const isMounted = useMountedState();
   useEffect(() => {
@@ -216,14 +218,21 @@ export function EditorToolbar({
     const tempImgTag = `![Uploading ${file.name} #${Math.floor(Math.random() * 99)}]()\n\n`;
     insertText(tempImgTag);
 
+    // Register upload with tracker
+    const uploadId = `toolbar-${Date.now()}-${Math.random()}`;
+    const abortController = new AbortController();
+    uploadTracker?.registerUpload(uploadId, abortController);
+
     uploadQueueRef.current = uploadQueueRef.current
       .catch(() => undefined)
       .then(async () => {
         try {
-          const { url } = await uploadImage.mutateAsync({ file });
+          const { url } = await uploadImage.mutateAsync({ file, signal: abortController.signal });
+          uploadTracker?.markComplete(uploadId);
           const imgTag = url.length > 0 && `![](${url})\n\n`;
           imgTag ? replaceText(tempImgTag, imgTag) : replaceText(tempImgTag, "");
         } catch {
+          uploadTracker?.markFailed(uploadId);
           replaceText(tempImgTag, "");
         }
       });

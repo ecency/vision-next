@@ -3,7 +3,8 @@ import { appAxios } from "@/api/axios";
 
 export const uploadImage = async (
   file: File,
-  token: string
+  token: string,
+  signal?: AbortSignal
 ): Promise<{
   url: string;
 }> => {
@@ -17,7 +18,8 @@ export const uploadImage = async (
       headers: {
         "Content-Type": "multipart/form-data"
       },
-      timeout: Infinity
+      timeout: Infinity,
+      signal
     })
     .then((r) => r.data);
 };
