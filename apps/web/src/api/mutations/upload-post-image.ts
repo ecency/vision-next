@@ -14,7 +14,7 @@ export function useUploadPostImage() {
 
   const { mutateAsync: upload } = useMutation({
     mutationKey: ["uploadPostImage"],
-    mutationFn: async ({ file }: { file: File }) => {
+    mutationFn: async ({ file, signal }: { file: File; signal?: AbortSignal }) => {
       const username = activeUser?.username!;
       let token = getAccessToken(username);
 
@@ -23,7 +23,7 @@ export function useUploadPostImage() {
         throw new Error("Token missed");
       }
 
-      return uploadImage(file, token);
+      return uploadImage(file, token, signal);
     },
     onError: (e: Error) => {
       if (axios.isAxiosError(e)) {
@@ -83,8 +83,8 @@ export function useUploadPostImage() {
 
   return useMutation({
     mutationKey: ["uploadAndAddPostImage"],
-    mutationFn: async ({ file }: { file: File }) => {
-      const response = await upload({ file });
+    mutationFn: async ({ file, signal }: { file: File; signal?: AbortSignal }) => {
+      const response = await upload({ file, signal });
       try {
         await add(response);
       } catch (e) {
