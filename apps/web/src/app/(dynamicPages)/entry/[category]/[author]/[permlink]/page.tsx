@@ -19,7 +19,9 @@ interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-export const dynamic = "force-dynamic";
+// Enable ISR with 60 second revalidation - posts don't change often after publishing
+// This provides massive performance improvement for one of the most visited page types
+export const revalidate = 60;
 
 export async function generateMetadata(
   props: Props,

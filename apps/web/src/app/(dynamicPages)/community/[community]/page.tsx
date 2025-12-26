@@ -15,6 +15,9 @@ interface Props {
   params: Promise<{ community: string }>;
 }
 
+// Enable ISR with 60 second revalidation for better performance
+export const revalidate = 60;
+
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params;
   return generateCommunityMetadata(params.community, "created");
