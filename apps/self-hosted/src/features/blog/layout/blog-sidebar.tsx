@@ -11,42 +11,70 @@ export function BlogSidebar() {
   const { data } = useQuery(getAccountFullQueryOptions(username));
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 sticky top-4">
-      <div className="flex items-center gap-3 mb-3">
+    <div className="sticky top-0 border-l border-gray-200 p-6 h-screen">
+      <div className="flex items-center gap-3 mb-4">
         <UserAvatar username={username} size="sLarge" />
-        <div className="text-lg font-bold">{data?.name || username}</div>
+        <div
+          className="text-base font-bold"
+          style={{
+            fontFamily:
+              '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+            color: "rgba(0, 0, 0, 0.84)",
+          }}
+        >
+          {data?.name || username}
+        </div>
       </div>
-      <div className="text-sm text-gray-500 dark:text-gray-400">
-        {data?.profile?.about}
-      </div>
+      {data?.profile?.about && (
+        <div
+          className="text-sm mb-4"
+          style={{ color: "rgba(0, 0, 0, 0.54)", lineHeight: "1.58" }}
+        >
+          {data.profile.about}
+        </div>
+      )}
       {data?.follow_stats && (
-        <div className="grid grid-cols-2 gap-4 mt-2">
+        <div className="flex gap-6 mb-4">
           <div className="flex flex-col">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
               Followers
             </div>
-            <div className="text-sm text-blue-500 dark:text-blue-400 font-medium">
+            <div
+              className="text-sm font-medium"
+              style={{ color: "rgba(0, 0, 0, 0.84)" }}
+            >
               {data.follow_stats.follower_count}
             </div>
           </div>
           <div className="flex flex-col">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
               Following
             </div>
-            <div className="text-sm text-blue-500 dark:text-blue-400 font-medium">
+            <div
+              className="text-sm font-medium"
+              style={{ color: "rgba(0, 0, 0, 0.84)" }}
+            >
               {data.follow_stats.following_count}
             </div>
           </div>
         </div>
       )}
       {data?.profile?.location && (
-        <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+        <div className="text-xs mb-2" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
           <span className="font-medium">Location:</span> {data.profile.location}
         </div>
       )}
       {data?.profile?.website && (
-        <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-          <span className="font-medium">Website:</span> {data.profile.website}
+        <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
+          <span className="font-medium">Website:</span>{" "}
+          <a
+            href={data.profile.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            {data.profile.website}
+          </a>
         </div>
       )}
     </div>

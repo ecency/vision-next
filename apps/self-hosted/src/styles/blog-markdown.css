@@ -130,13 +130,15 @@
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   margin: 0;
-  color: var(--fgColor-default);
-  background-color: var(--bgColor-default);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans",
-    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  color: rgba(0, 0, 0, 0.84);
+  background-color: transparent;
+  font-family: "Georgia", "Times New Roman", serif;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
   word-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .markdown-body .octicon {
@@ -176,8 +178,14 @@
 
 .markdown-body a {
   background-color: transparent;
-  color: var(--fgColor-accent);
-  text-decoration: none;
+  color: rgba(0, 0, 0, 0.84);
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 0, 0, 0.3);
+  transition: text-decoration-color 0.2s;
+}
+
+.markdown-body a:hover {
+  text-decoration-color: rgba(0, 0, 0, 0.84);
 }
 
 .markdown-body abbr[title] {
@@ -197,10 +205,14 @@
 
 .markdown-body h1 {
   margin: 0.67em 0;
-  font-weight: var(--base-text-weight-semibold, 600);
-  padding-bottom: 0.3em;
+  font-weight: 700;
+  padding-bottom: 0;
   font-size: 2em;
-  border-bottom: 1px solid var(--borderColor-muted);
+  border-bottom: none;
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  letter-spacing: -0.015em;
+  color: rgba(0, 0, 0, 0.84);
 }
 
 .markdown-body mark {
@@ -232,6 +244,8 @@
   border-style: none;
   max-width: 100%;
   box-sizing: content-box;
+  margin: 29px 0;
+  display: block;
 }
 
 .markdown-body code,
@@ -300,10 +314,6 @@
   -webkit-appearance: button;
   appearance: button;
   font: inherit;
-}
-
-.markdown-body a:hover {
-  text-decoration: underline;
 }
 
 .markdown-body ::placeholder {
@@ -405,56 +415,85 @@
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  margin-top: var(--base-size-24);
-  margin-bottom: var(--base-size-16);
-  font-weight: var(--base-text-weight-semibold, 600);
-  line-height: 1.25;
+  margin-top: 29px;
+  margin-bottom: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  letter-spacing: -0.015em;
+  color: rgba(0, 0, 0, 0.84);
 }
 
 .markdown-body h2 {
-  font-weight: var(--base-text-weight-semibold, 600);
-  padding-bottom: 0.3em;
+  font-weight: 700;
+  padding-bottom: 0;
   font-size: 1.5em;
-  border-bottom: 1px solid var(--borderColor-muted);
+  border-bottom: none;
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  letter-spacing: -0.015em;
+  color: rgba(0, 0, 0, 0.84);
 }
 
 .markdown-body h3 {
-  font-weight: var(--base-text-weight-semibold, 600);
+  font-weight: 700;
   font-size: 1.25em;
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  letter-spacing: -0.015em;
+  color: rgba(0, 0, 0, 0.84);
 }
 
 .markdown-body h4 {
-  font-weight: var(--base-text-weight-semibold, 600);
+  font-weight: 700;
   font-size: 1em;
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  letter-spacing: -0.015em;
+  color: rgba(0, 0, 0, 0.84);
 }
 
 .markdown-body h5 {
-  font-weight: var(--base-text-weight-semibold, 600);
+  font-weight: 700;
   font-size: 0.875em;
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  letter-spacing: -0.015em;
+  color: rgba(0, 0, 0, 0.84);
 }
 
 .markdown-body h6 {
-  font-weight: var(--base-text-weight-semibold, 600);
+  font-weight: 700;
   font-size: 0.85em;
-  color: var(--fgColor-muted);
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  letter-spacing: -0.015em;
+  color: rgba(0, 0, 0, 0.68);
 }
 
 .markdown-body p {
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 29px;
+  font-size: 16px;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
 }
 
 .markdown-body blockquote {
-  margin: 0;
-  padding: 0 1em;
-  color: var(--fgColor-muted);
-  border-left: 0.25em solid var(--borderColor-default);
+  margin: 0 0 29px 0;
+  padding: 0 0 0 29px;
+  color: rgba(0, 0, 0, 0.68);
+  border-left: 3px solid rgba(0, 0, 0, 0.84);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.58;
 }
 
 .markdown-body ul,
 .markdown-body ol {
   margin-top: 0;
-  margin-bottom: 0;
+  margin-bottom: 29px;
   padding-left: 2em;
 }
 
@@ -691,7 +730,8 @@
 }
 
 .markdown-body li > p {
-  margin-top: var(--base-size-16);
+  margin-top: 13px;
+  margin-bottom: 13px;
 }
 
 .markdown-body li + li {
@@ -846,12 +886,13 @@
 
 .markdown-body code,
 .markdown-body tt {
-  padding: 0.2em 0.4em;
+  padding: 2px 4px;
   margin: 0;
-  font-size: 85%;
+  font-size: 0.9em;
   white-space: break-spaces;
-  background-color: var(--bgColor-neutral-muted);
-  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  font-family: "Courier New", Courier, monospace;
 }
 
 .markdown-body code br,
@@ -891,13 +932,14 @@
 
 .markdown-body .highlight pre,
 .markdown-body pre {
-  padding: var(--base-size-16);
+  padding: 20px;
   overflow: auto;
-  font-size: 85%;
+  font-size: 16px;
   line-height: 1.45;
-  color: var(--fgColor-default);
-  background-color: var(--bgColor-muted);
-  border-radius: 6px;
+  color: rgba(0, 0, 0, 0.84);
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  font-family: "Courier New", Courier, monospace;
 }
 
 .markdown-body pre code,

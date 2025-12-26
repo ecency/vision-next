@@ -98,8 +98,11 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+      <div className="mb-8">
+        <div 
+          className="text-center py-8"
+          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
+        >
           Loading comments...
         </div>
       </div>
@@ -108,8 +111,11 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
 
   if (topLevelComments.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+      <div className="mb-8">
+        <div 
+          className="text-center py-8"
+          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
+        >
           No comments yet.
         </div>
       </div>
@@ -117,11 +123,17 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <UilComment className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <UilComment className="w-5 h-5" style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
+          <h2 
+            className="text-xl font-semibold"
+            style={{ 
+              fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+              color: 'rgba(0, 0, 0, 0.84)'
+            }}
+          >
             {topLevelComments.length}{" "}
             {topLevelComments.length === 1 ? "Comment" : "Comments"}
           </h2>
@@ -129,7 +141,12 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
         <select
           value={order}
           onChange={(e) => setOrder(e.target.value as SortOrder)}
-          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-opacity hover:opacity-70"
+          style={{ 
+            backgroundColor: 'white',
+            color: 'rgba(0, 0, 0, 0.84)',
+            fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'
+          }}
         >
           <option value="trending">Trending</option>
           <option value="author_reputation">Reputation</option>

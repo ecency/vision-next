@@ -28,14 +28,19 @@ export function BlogPostFooter({ entry }: Props) {
   }, [entryData]);
 
   return (
-    <footer className="bg-white dark:bg-gray-900 rounded-2xl p-6">
+    <footer className="mb-8 pt-8 border-t border-gray-200">
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
           {tags.map((tag) => (
             <a
               key={tag}
               href={`/trending/${tag}`}
-              className="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors"
+              className="text-sm px-2 py-1 rounded-full transition-opacity hover:opacity-70"
+              style={{ 
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                color: 'rgba(0, 0, 0, 0.68)',
+                fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'
+              }}
             >
               #{tag}
             </a>
@@ -43,7 +48,10 @@ export function BlogPostFooter({ entry }: Props) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div 
+        className="flex flex-wrap items-center gap-6 text-sm"
+        style={{ color: 'rgba(0, 0, 0, 0.54)', fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif' }}
+      >
         <div className="flex items-center gap-1">
           <UilHeart className="w-4 h-4" />
           <span>{likesCount} likes</span>

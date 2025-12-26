@@ -55,51 +55,66 @@ export function BlogDiscussionItem({
   }, [entry]);
 
   return (
-    <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 py-2">
+    <div className="border-l-2 border-gray-200 pl-6 py-4">
       <div className="flex items-start gap-3">
         <div className="shrink-0">
           <UserAvatar username={entry.author} size="medium" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div
+            className="flex items-center gap-2 mb-2 text-sm"
+            style={{
+              color: "rgba(0, 0, 0, 0.54)",
+              fontFamily:
+                '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+            }}
+          >
             <a
               href={`/@${entry.author}`}
-              className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+              className="font-semibold transition-opacity hover:opacity-70"
+              style={{ color: "rgba(0, 0, 0, 0.84)" }}
             >
               @{entry.author}
             </a>
-            <span className="text-gray-500 dark:text-gray-400 text-sm">•</span>
-            <a
-              href={entryLink}
-              className="text-gray-500 dark:text-gray-400 text-sm hover:text-gray-700 dark:hover:text-gray-300"
-            >
+            <span>•</span>
+            <a href={entryLink} className="transition-opacity hover:opacity-70">
               {createdDate}
             </a>
           </div>
 
           <div className="mt-2">
             {isRawContent ? (
-              <pre className="text-sm font-mono whitespace-pre-wrap break-words bg-gray-100 dark:bg-gray-900 p-2 rounded">
+              <pre
+                className="text-sm font-mono whitespace-pre-wrap break-words bg-gray-50 p-2 rounded"
+                style={{ color: "rgba(0, 0, 0, 0.84)" }}
+              >
                 {entry.body}
               </pre>
             ) : (
-              <div className="prose prose-sm dark:prose-invert max-w-none">
+              <div className="markdown-body text-sm! max-w-none">
                 <MemoEcencyRenderer value={entry.body} />
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-4 mt-3 text-sm text-gray-600 dark:text-gray-400">
+          <div
+            className="flex items-center gap-4 mt-3 text-xs"
+            style={{
+              color: "rgba(0, 0, 0, 0.54)",
+              fontFamily:
+                '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+            }}
+          >
             <div className="flex items-center gap-1">
-              <UilHeart className="w-4 h-4" />
+              <UilHeart className="w-3 h-3" />
               <span>{likesCount}</span>
             </div>
             {hasReplies && (
               <button
                 onClick={() => setShowReplies(!showReplies)}
-                className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
+                className="flex items-center gap-1 transition-opacity hover:opacity-70"
               >
-                <UilComment className="w-4 h-4" />
+                <UilComment className="w-3 h-3" />
                 <span>
                   {repliesCount} {repliesCount === 1 ? "reply" : "replies"}
                 </span>

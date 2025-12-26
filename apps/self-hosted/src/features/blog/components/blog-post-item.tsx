@@ -69,20 +69,43 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
 
   const contentSection = (
     <>
-      <div className="mb-3">
+      <div className="mb-2">
         {entryData.community && entryData.community_title && (
-          <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+          <span
+            className="text-xs font-medium"
+            style={{
+              color: "rgba(0, 0, 0, 0.54)",
+              fontFamily:
+                '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+            }}
+          >
             Community: {entryData.community_title}
           </span>
         )}
         {!entryData.community && entryData.category && (
-          <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+          <span
+            className="text-xs font-medium"
+            style={{
+              color: "rgba(0, 0, 0, 0.54)",
+              fontFamily:
+                '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+            }}
+          >
             {entryData.category}
           </span>
         )}
       </div>
 
-      <h2 className="text-2xl font-bold mb-3 hover:text-blue-600 dark:hover:text-blue-400">
+      <h2
+        className="text-2xl font-bold mb-3 transition-opacity hover:opacity-70"
+        style={{
+          fontFamily:
+            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+          color: "rgba(0, 0, 0, 0.84)",
+          letterSpacing: "-0.015em",
+          lineHeight: "1.15",
+        }}
+      >
         <a
           href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
         >
@@ -91,7 +114,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       </h2>
 
       {listType === "grid" && imageUrl && (
-        <div className="mb-4 rounded-lg overflow-hidden">
+        <div className="mb-4 overflow-hidden">
           <a
             href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
           >
@@ -106,14 +129,22 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       )}
 
       {location && (
-        <div className="mb-2 flex items-center text-sm text-gray-600 dark:text-gray-400">
-          <UilMapPinAlt className="w-4 h-4 mr-1" />
+        <div
+          className="mb-3 flex items-center text-xs"
+          style={{ color: "rgba(0, 0, 0, 0.54)" }}
+        >
+          <UilMapPinAlt className="w-3 h-3 mr-1" />
           <span>{location}</span>
         </div>
       )}
 
-      <div className="mb-4 prose prose-sm dark:prose-invert max-w-none">
-        <MemoEcencyRenderer value={summary} />
+      <div className="mb-4">
+        <div
+          className="markdown-body text-base max-w-none"
+          style={{ fontSize: "18px", lineHeight: "1.58" }}
+        >
+          <MemoEcencyRenderer value={summary} />
+        </div>
       </div>
 
       {tags.length > 0 && (
@@ -122,7 +153,13 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
             <a
               key={tag}
               href={`/trending/${tag}`}
-              className="text-sm px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              className="text-xs px-2 py-1 rounded-full transition-opacity hover:opacity-70"
+              style={{
+                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                color: "rgba(0, 0, 0, 0.68)",
+                fontFamily:
+                  '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+              }}
             >
               #{tag}
             </a>
@@ -130,28 +167,31 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
         </div>
       )}
 
-      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+      <div
+        className="flex items-center gap-4 text-xs"
+        style={{
+          color: "rgba(0, 0, 0, 0.54)",
+          fontFamily:
+            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+        }}
+      >
         <div className="flex items-center gap-1">
-          <UilHeart className="w-4 h-4" />
+          <UilHeart className="w-3 h-3" />
           <span>{likesCount}</span>
         </div>
         <div className="flex items-center gap-1">
-          <UilComment className="w-4 h-4" />
+          <UilComment className="w-3 h-3" />
           <span>{commentsCount}</span>
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-500">
-          {new Date(entryData.created).toLocaleDateString()}
-        </div>
+        <span>•</span>
+        <span>{new Date(entryData.created).toLocaleDateString()}</span>
       </div>
     </>
   );
 
   return (
     <motion.article
-      className={clsx(
-        "py-6 px-4 rounded-2xl bg-white dark:bg-gray-900 border border-blue-100",
-        listType === "list" && "sticky top-0"
-      )}
+      className={clsx("py-8 border-b border-gray-200")}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -161,7 +201,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       }}
     >
       {listType === "list" && imageUrl ? (
-        <div className="flex gap-4">
+        <div className="flex gap-6">
           <div className="flex-1">{contentSection}</div>
           <div className="shrink-0 w-48">
             <a
@@ -170,7 +210,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
               <img
                 src={imageUrl}
                 alt={entryData.title}
-                className="w-full h-32 object-cover rounded-lg"
+                className="w-full h-32 object-cover"
                 loading="lazy"
               />
             </a>

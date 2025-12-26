@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
 
 export function BlogPage(props: PropsWithChildren) {
-  return <div>{props.children}</div>;
+  return <div className="max-w-3xl mx-auto">{props.children}</div>;
 }

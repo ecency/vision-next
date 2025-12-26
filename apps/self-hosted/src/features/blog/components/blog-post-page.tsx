@@ -28,7 +28,10 @@ export function BlogPostPage() {
   if (isLoading) {
     return (
       <BlogLayout>
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div 
+          className="text-center py-12"
+          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
+        >
           Loading post...
         </div>
       </BlogLayout>
@@ -38,7 +41,10 @@ export function BlogPostPage() {
   if (error || !entry) {
     return (
       <BlogLayout>
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div 
+          className="text-center py-12"
+          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
+        >
           Post not found.
         </div>
       </BlogLayout>
@@ -47,7 +53,7 @@ export function BlogPostPage() {
 
   return (
     <BlogLayout>
-      <article className="mx-auto space-y-6">
+      <article className="space-y-6">
         <BlogPostHeader entry={entry} />
         <BlogPostBody entry={entry} isRawContent={isRawContent} />
         <BlogPostFooter entry={entry} />

@@ -8,8 +8,18 @@ import { useMemo } from "react";
 export function BlogNavigation() {
   const location = useLocation();
   const currentFilter = useMemo(() => {
-    const searchParams = new URLSearchParams(location.search);
-    return searchParams.get("filter") || "posts";
+    if (typeof location.search === "string") {
+      const searchParams = new URLSearchParams(location.search);
+      return searchParams.get("filter") || "posts";
+    }
+    if (
+      location.search &&
+      typeof location.search === "object" &&
+      "filter" in location.search
+    ) {
+      return (location.search.filter as string) || "posts";
+    }
+    return "posts";
   }, [location.search]);
 
   const blogTitle = InstanceConfigManager.getConfigValue(
@@ -33,21 +43,28 @@ export function BlogNavigation() {
   };
 
   return (
-    <div className="col-span-2 mb-6">
+    <div className="max-w-3xl mx-auto border-b border-gray-200 pb-4 mb-8">
       <div className="flex items-center gap-4 mb-6">
         {blogLogo && (
           <img
             src={blogLogo}
             alt={blogTitle}
-            className="h-12 w-12 object-contain"
+            className="h-10 w-10 object-contain"
           />
         )}
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1
+          className="text-2xl font-bold"
+          style={{
+            fontFamily:
+              '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+            color: "rgba(0, 0, 0, 0.84)",
+          }}
+        >
           {blogTitle}
         </h1>
       </div>
 
-      <nav className="flex gap-2 flex-wrap">
+      <nav className="flex gap-6 pt-4">
         {availableFilters.map((filter) => {
           const isActive = currentFilter === filter;
           return (
@@ -56,11 +73,15 @@ export function BlogNavigation() {
               to="/blog"
               search={{ filter }}
               className={clsx(
-                "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                "text-sm font-normal transition-opacity pb-2 border-b-2",
                 isActive
-                  ? "bg-blue-600 text-white dark:bg-blue-500"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-600 hover:text-black hover:border-gray-300"
               )}
+              style={{
+                fontFamily:
+                  '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+              }}
             >
               {filterLabels[filter] ||
                 filter.charAt(0).toUpperCase() + filter.slice(1)}

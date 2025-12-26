@@ -52,12 +52,23 @@ export function BlogPostHeader({ entry }: Props) {
   );
 
   return (
-    <header className="bg-white dark:bg-gray-900 rounded-2xl p-6">
-      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-gray-900 dark:text-white break-words">
+    <header className="mb-8">
+      <h1 
+        className="text-4xl md:text-5xl font-bold mb-6 break-words"
+        style={{ 
+          fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+          color: 'rgba(0, 0, 0, 0.84)',
+          letterSpacing: '-0.015em',
+          lineHeight: '1.04'
+        }}
+      >
         {entryData.title}
       </h1>
 
-      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
+      <div 
+        className="flex flex-wrap items-center gap-3 text-sm mb-6"
+        style={{ color: 'rgba(0, 0, 0, 0.54)', fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif' }}
+      >
         <div className="flex items-center gap-1">
           <UilHeart className="w-4 h-4" />
           <span>{likesCount}</span>
@@ -70,9 +81,9 @@ export function BlogPostHeader({ entry }: Props) {
           <UilRedo className="w-4 h-4" />
           <span>{reblogsCount}</span>
         </div>
-        <span className="separator">•</span>
+        <span>•</span>
         <span>{readTime} min read</span>
-        <span className="separator">•</span>
+        <span>•</span>
         <span>{createdDate}</span>
       </div>
 
@@ -82,7 +93,12 @@ export function BlogPostHeader({ entry }: Props) {
             <a
               key={tag}
               href={`/trending/${tag}`}
-              className="text-sm px-3 py-1 bg-blue-100 dark:bg-blue-900 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-colors"
+              className="text-sm px-2 py-1 rounded-full transition-opacity hover:opacity-70"
+              style={{ 
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                color: 'rgba(0, 0, 0, 0.68)',
+                fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'
+              }}
             >
               #{tag}
             </a>
