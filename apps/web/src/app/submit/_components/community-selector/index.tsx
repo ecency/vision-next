@@ -71,7 +71,7 @@ export function CommunitySelector({ tags, onSelect }: Props) {
         <ModalBody>
           <div className="text-sm text-gray-600 dark:text-gray-400 pb-4">
             {i18next.t("community-selector.types-hint")}
-            <Link className="pl-1" href="https://docs.ecency.com/communities/types" target="_blank">
+            <Link className="pl-1" href="https://docs.ecency.com/hive/communities/#types-of-communities" target="_blank">
               Ecency docs
             </Link>
           </div>

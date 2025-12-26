@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Tulis balasan Anda disini",
     "preview": "Tinjauan",
-    "success": "Your reply created successfully!"
+    "success": "Your reply created successfully!",
+    "retry-hint": "Your text is preserved below - please try again",
+    "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
   "discussion": {
     "join": "Join the conversation now",
@@ -1771,7 +1773,12 @@
     "replied": "{{source}} membalas anda",
     "reblogged": "{{source}} menampilkan kembali postingan Anda",
     "transfer": "{{source}} mengirimkan Anda {{amount}}",
-    "delegations": "{{source}} delegated you {{amount}}"
+    "delegations": "{{source}} delegated you {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "Your content payout is ready.",
+    "payouts-amount": "You received {{amount}} payout.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "Semua Notifikasi",
@@ -1783,6 +1790,7 @@
     "type-reblogs": "Tampilkan kembali",
     "type-transfers": "Transfer",
     "type-delegations": "Delegations",
+    "type-payouts": "Payouts",
     "type-nfavorites": "Favorites",
     "type-nbookmarks": "Bookmarks",
     "group-title-recent": "Terbaru",
@@ -1797,6 +1805,9 @@
     "reblog-str": "reblogged post",
     "transfer-str": "sent",
     "delegations-str": "delegated",
+    "checkins-title": "Great streak on @{{username}}",
+    "payouts-title": "You received a payout on @{{username}}",
+    "monthly-posts-title": "Finishing the month strong, @{{username}}",
     "spin-str": "Saatnya memperoleh lebih banyak Poin, Mainkan Putaran di Ecency Mobile",
     "inactive-str": "Ayo aktif! Tulislah postingan, teruskan mengumpulkan pendapatan",
     "referral-str": "joined with referral, welcome them",

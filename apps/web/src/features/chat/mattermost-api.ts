@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useClientActiveUser } from "@/api/queries";
 import { getAccessToken, getRefreshToken } from "@/utils";
+import { useGlobalStore } from "@/core/global-store";
+import { hsTokenRenew } from "@/api/auth-api";
 
 interface MattermostChannel {
   id: string;
@@ -28,22 +30,40 @@ interface MattermostChannelSummary {
 export function useMattermostBootstrap(community?: string) {
   const activeUser = useClientActiveUser();
   const username = activeUser?.username;
+  const addUser = useGlobalStore((state) => state.addUser);
 
   return useQuery({
     queryKey: ["mattermost-bootstrap", username, community],
     enabled: Boolean(username),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // Auto-retry when user returns to tab
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors after refresh attempt fails
+      const errorMessage = (error as Error)?.message?.toLowerCase() || "";
+      const isAuthError =
+        errorMessage.includes("unauthorized") ||
+        errorMessage.includes("invalid token") ||
+        errorMessage.includes("authentication required");
+
+      if (isAuthError) {
+        return false; // Don't retry auth errors
+      }
+
+      // Retry other errors (network, server issues) up to 3 times
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
     queryFn: async () => {
-      const accessToken = getAccessToken(username || "");
-      const refreshToken = getRefreshToken(username || "");
+      let accessToken = getAccessToken(username || "");
+      let refreshToken = getRefreshToken(username || "");
 
       if (!accessToken && !refreshToken) {
         throw new Error("Authentication required");
       }
 
-      const res = await fetch("/api/mattermost/bootstrap", {
+      // First attempt with existing tokens
+      let res = await fetch("/api/mattermost/bootstrap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -54,6 +74,44 @@ export function useMattermostBootstrap(community?: string) {
           community
         })
       });
+
+      // If unauthorized and we have a refresh token, attempt token refresh
+      if (res.status === 401 && refreshToken) {
+        try {
+          console.log("Chat token expired, attempting auto-refresh...");
+
+          // Call HiveSigner to refresh tokens
+          const refreshedTokens = await hsTokenRenew(refreshToken);
+
+          // Update tokens in global store (saves to localStorage)
+          addUser({
+            username: refreshedTokens.username,
+            accessToken: refreshedTokens.access_token,
+            refreshToken: refreshedTokens.refresh_token,
+            expiresIn: refreshedTokens.expires_in,
+            postingKey: activeUser?.postingKey,
+            loginType: activeUser?.loginType
+          });
+
+          console.log("✓ Chat tokens refreshed successfully");
+
+          // Retry bootstrap with refreshed tokens
+          res = await fetch("/api/mattermost/bootstrap", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username,
+              accessToken: refreshedTokens.access_token,
+              refreshToken: refreshedTokens.refresh_token,
+              displayName: username,
+              community
+            })
+          });
+        } catch (refreshError) {
+          console.error("Failed to refresh tokens:", refreshError);
+          throw new Error("Authentication required - please log in again");
+        }
+      }
 
       if (!res.ok) {
         const data = await res.json();
@@ -297,9 +355,12 @@ export function useMattermostAdminDeleteUserPosts() {
 }
 
 export function useMattermostUnread(enabled: boolean) {
+  const activeUser = useClientActiveUser();
+  const username = activeUser?.username;
+
   return useQuery({
-    queryKey: ["mattermost-unread"],
-    enabled,
+    queryKey: ["mattermost-unread", username],
+    enabled: enabled && Boolean(username),
     refetchInterval: 30000,
     queryFn: async () => {
       const res = await fetch("/api/mattermost/channels/unreads");
@@ -365,6 +426,7 @@ export interface MattermostPostsResponse {
   canModerate?: boolean;
   hasMore?: boolean;
   memberCount?: number;
+  onlineUserIds?: string[];
 }
 
 export interface MattermostReaction {
@@ -569,6 +631,7 @@ export interface MattermostPost {
   edit_at?: number;
   type?: string;
   root_id?: string | null;
+  is_pinned?: boolean;
   metadata?: {
     reactions?: MattermostReaction[];
   };
@@ -630,6 +693,70 @@ export function useMattermostUpdatePost(channelId: string | undefined) {
     },
     onSuccess: async () => {
       await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+      ]);
+    }
+  });
+}
+
+export function useMattermostPinnedPosts(channelId: string | undefined) {
+  return useQuery({
+    queryKey: ["mattermost-pinned-posts", channelId],
+    enabled: Boolean(channelId),
+    staleTime: 30000, // 30 seconds
+    queryFn: async () => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/pinned`);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to load pinned messages");
+      }
+      return (await res.json()) as { posts: MattermostPost[]; users: Record<string, MattermostUser> };
+    }
+  });
+}
+
+export function useMattermostPinPost(channelId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/posts/${postId}/pin`, {
+        method: "POST"
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to pin message");
+      }
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-pinned-posts", channelId] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+      ]);
+    }
+  });
+}
+
+export function useMattermostUnpinPost(channelId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const res = await fetch(`/api/mattermost/channels/${channelId}/posts/${postId}/pin`, {
+        method: "DELETE"
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to unpin message");
+      }
+      return (await res.json()) as { ok: boolean };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-pinned-posts", channelId] }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
       ]);

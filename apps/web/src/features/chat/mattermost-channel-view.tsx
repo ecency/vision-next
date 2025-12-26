@@ -2,6 +2,7 @@
 
 import {
   ChangeEvent,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -23,7 +24,10 @@ import {
   useMattermostAdminBanUser,
   useMattermostAdminDeleteUserPosts,
   useMattermostPostsAround,
-  useMattermostJoinChannel
+  useMattermostJoinChannel,
+  useMattermostPinnedPosts,
+  useMattermostPinPost,
+  useMattermostUnpinPost
 } from "./mattermost-api";
 import { useChatAdminStore } from "./chat-admin-store";
 import {
@@ -51,6 +55,7 @@ import { ThreadPanel } from "./components/thread-panel";
 import { MessageInput } from "./components/message-input";
 import { MessageItem } from "./components/message-item";
 import { MessageList, type PostItem } from "./components/message-list";
+import { MattermostWebSocket } from "./mattermost-websocket";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import {
@@ -66,11 +71,11 @@ import {
   mailSvg
 } from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
-import { Popover, PopoverContent } from "@ui/popover";
 import { Modal, ModalBody } from "@ui/modal";
-import { ImageUploadButton, UserAvatar } from "@/features/shared";
+import { ImageUploadButton, ProfileLink, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { useClientActiveUser } from "@/api/queries";
+import { useQueryClient } from "@tanstack/react-query";
 import defaults from "@/defaults";
 import { useRouter, useSearchParams } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
@@ -81,6 +86,12 @@ import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
 import { Element, Text } from "domhandler";
 import { marked } from "marked";
+import {
+  HivePostLinkRenderer,
+  WaveLikePostRenderer,
+  isWaveLikePost,
+} from "@ecency/renderer";
+import "@ecency/renderer/style.css";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const CHANNEL_WIDE_MENTIONS = [
@@ -96,6 +107,51 @@ const CHANNEL_WIDE_MENTIONS = [
   }
 ] as const;
 
+const ECENCY_HOSTNAMES = new Set([
+  "ecency.com",
+  "www.ecency.com",
+  "peakd.com",
+  "www.peakd.com",
+  "hive.blog",
+  "www.hive.blog"
+]);
+
+function isEnhanceableEcencyPostLink(href: string) {
+  try {
+    const url = new URL(href, "https://ecency.com");
+
+    if (url.protocol && url.protocol !== "http:" && url.protocol !== "https:") {
+      return false;
+    }
+
+    if (url.hostname && url.hostname !== "" && !ECENCY_HOSTNAMES.has(url.hostname)) {
+      return false;
+    }
+
+    if (url.hash.startsWith("#@")) {
+      return false;
+    }
+
+    const pathParts = url.pathname.split("/").filter(Boolean);
+    if (pathParts.length < 2) {
+      return false;
+    }
+
+    const permlink = decodeURIComponent(pathParts.pop() ?? "");
+    const author = decodeURIComponent(pathParts.pop() ?? "");
+
+    if (!author.startsWith("@") || !permlink) {
+      return false;
+    }
+
+    // Allow direct post links (/@author/permlink), community links (/hive-123/@author/permlink),
+    // or category links (/category/@author/permlink)
+    return pathParts.length <= 1;
+  } catch {
+    return false;
+  }
+}
+
 setProxyBase(defaults.imageServer);
 
 interface Props {
@@ -104,10 +160,13 @@ interface Props {
 
 export function MattermostChannelView({ channelId }: Props) {
   const [isNearBottom, setIsNearBottom] = useState(true);
+  const [isWebSocketActive, setIsWebSocketActive] = useState(true);
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId, {
-    refetchInterval: isNearBottom ? 60000 : false // Poll every 60 seconds when near bottom
+    // Only poll if WebSocket inactive or user scrolled away
+    refetchInterval: (!isWebSocketActive || !isNearBottom) ? 60000 : false
   });
   const searchParams = useSearchParams();
+  const shareText = searchParams?.get("text")?.trim();
   const focusedPostId = searchParams?.get("post");
   const [needsAroundFetch, setNeedsAroundFetch] = useState(false);
   const [showJoinPrompt, setShowJoinPrompt] = useState(false);
@@ -160,6 +219,10 @@ export function MattermostChannelView({ channelId }: Props) {
   const updateMutation = useMattermostUpdatePost(channelId);
   const banUserMutation = useMattermostAdminBanUser();
   const deleteUserPostsMutation = useMattermostAdminDeleteUserPosts();
+  const pinnedPostsQuery = useMattermostPinnedPosts(channelId);
+  const pinPostMutation = useMattermostPinPost(channelId);
+  const unpinPostMutation = useMattermostUnpinPost(channelId);
+  const [showPinnedModal, setShowPinnedModal] = useState(false);
   const isSubmitting = sendMutation.isPending || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -170,6 +233,11 @@ export function MattermostChannelView({ channelId }: Props) {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [unreadCountBelowScroll, setUnreadCountBelowScroll] = useState(0);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  const [showOnlineUsers, setShowOnlineUsers] = useState(false);
+  const websocketRef = useRef<MattermostWebSocket | null>(null);
+  const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
+  const TYPING_TIMEOUT = 5000; // 5 seconds
+  const queryClient = useQueryClient();
 
     type GifStyle = {
       width: string;
@@ -345,15 +413,13 @@ export function MattermostChannelView({ channelId }: Props) {
       return;
     }
 
-    const sharedText = searchParams?.get("text")?.trim();
-
-    if (!sharedText) {
+    if (!shareText) {
       return;
     }
 
-    setMessage((current) => current || sharedText);
+    setMessage((current) => current || shareText);
     hasAppliedSharedText.current = true;
-  }, [searchParams, setMessage]);
+  }, [shareText, setMessage]);
   const usersByUsername = useMemo(() => {
     return Object.values(usersById).reduce<Record<string, MattermostUser>>((acc, user) => {
       if (user.username) {
@@ -365,6 +431,49 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const isPublicChannel = channelData?.channel?.type === "O";
   const normalizedMentionQuery = mentionQuery.trim().toLowerCase();
+  const canPin = useMemo(() => {
+    const channelType = channelData?.channel?.type;
+    const isModerator = channelData?.canModerate;
+    const isMember = !!channelData?.member;
+
+    // Public channels (O): only moderators can pin
+    if (channelType === "O") {
+      return isModerator || false;
+    }
+
+    // Direct (D), Group (G), and Private (P): any member can pin
+    if (channelType === "D" || channelType === "G" || channelType === "P") {
+      return isMember;
+    }
+
+    return false;
+  }, [channelData?.channel?.type, channelData?.canModerate, channelData?.member]);
+
+  // Compute typing usernames for display
+  const typingUsernames = useMemo(() => {
+    return Array.from(typingUsers.keys())
+      .map(userId => usersById[userId])
+      .filter(Boolean)
+      .map(user => getUserDisplayName(user) || user.username)
+      .slice(0, 3); // Max 3 names shown
+  }, [typingUsers, usersById]);
+
+  // Debounced typing sender with auto-reconnect
+  const sendTypingDebounced = useMemo(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const ws = websocketRef.current;
+        if (ws) {
+          // Attempt to reconnect if disconnected
+          if (!isWebSocketActive) ws.connect();
+          ws.sendTyping(channelId);
+        }
+      }, 500);
+    };
+  }, [channelId, isWebSocketActive]);
+
   const channelWideMentionOptions = useMemo(
     () =>
       CHANNEL_WIDE_MENTIONS.filter((mention) =>
@@ -466,15 +575,18 @@ export function MattermostChannelView({ channelId }: Props) {
     setThreadRootId(null);
     setReplyingTo(null);
     setEditingPost(null);
+    hasAppliedSharedText.current = false;
 
-    // Load draft message for this channel (if not editing or replying)
-    if (!editingPost && !replyingTo) {
-      const draft = loadDraft(channelId);
-      if (draft) {
-        setMessage(draft);
-      } else {
-        setMessage("");
-      }
+    // Load draft message for this channel
+    const draft = loadDraft(channelId);
+    if (shareText) {
+      setMessage(shareText);
+      hasAppliedSharedText.current = true;
+    } else if (draft) {
+      setMessage(draft);
+      hasAppliedSharedText.current = true;
+    } else {
+      setMessage("");
     }
 
     // Cleanup: clear draft save timeout when changing channels
@@ -483,7 +595,7 @@ export function MattermostChannelView({ channelId }: Props) {
         clearTimeout(draftSaveTimeoutRef.current);
       }
     };
-  }, [channelId]);
+  }, [channelId, shareText]);
 
   useEffect(() => {
     hasFocusedPostRef.current = false;
@@ -524,6 +636,59 @@ export function MattermostChannelView({ channelId }: Props) {
       markChannelRead();
     }
   }, [data, markChannelRead]);
+
+  // WebSocket initialization
+  useEffect(() => {
+    if (!channelId) return;
+
+    const currentUserId = channelData?.member?.user_id;
+
+    try {
+      const ws = new MattermostWebSocket()
+        .withChannel(channelId)
+        .withQueryClient(queryClient)
+        .onConnectionChange(setIsWebSocketActive)
+        .onTyping((userId) => {
+          // Don't show typing indicator for current user
+          if (userId === currentUserId) return;
+          setTypingUsers(prev => new Map(prev).set(userId, Date.now()));
+        });
+
+      websocketRef.current = ws;
+      ws.connect();
+    } catch (error) {
+      console.error("Failed to initialize chat WebSocket:", error);
+    }
+
+    return () => {
+      if (websocketRef.current) {
+        websocketRef.current.disconnect();
+        websocketRef.current = null;
+      }
+    };
+  }, [channelId, queryClient, channelData?.member?.user_id]);
+
+  // Typing indicators auto-cleanup
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTypingUsers(prev => {
+        const now = Date.now();
+        const updated = new Map(prev);
+        let changed = false;
+
+        for (const [userId, timestamp] of updated.entries()) {
+          if (now - timestamp > TYPING_TIMEOUT) {
+            updated.delete(userId);
+            changed = true;
+          }
+        }
+
+        return changed ? updated : prev;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [TYPING_TIMEOUT]);
 
   const scrollToPost = useCallback(
     (postId: string, options?: { highlight?: boolean; behavior?: ScrollBehavior }) => {
@@ -731,6 +896,26 @@ export function MattermostChannelView({ channelId }: Props) {
     directChannelUser?.username
   ]);
 
+  const onlineUsers = useMemo(() => {
+    const uniqueIds = Array.from(new Set(channelData?.onlineUserIds ?? []));
+
+    const getName = (user: MattermostUser) =>
+      getUserDisplayName(user) || user.username || user.id;
+
+    return uniqueIds
+      .map((id) => usersById[id])
+      .filter((user): user is MattermostUser => Boolean(user))
+      .sort((a, b) => getName(a).localeCompare(getName(b)));
+  }, [channelData?.onlineUserIds, usersById]);
+
+  const onlineCount = onlineUsers.length;
+
+  useEffect(() => {
+    if (onlineCount === 0 && showOnlineUsers) {
+      setShowOnlineUsers(false);
+    }
+  }, [onlineCount, showOnlineUsers]);
+
   useEffect(() => {
     handleScroll();
   }, [posts.length, handleScroll]);
@@ -780,7 +965,12 @@ export function MattermostChannelView({ channelId }: Props) {
     return /https?:\/\/(?:www\.)?ecency\.com\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})/i.test(combined);
   };
 
-  const renderTextWithMentions = (content: string) => {
+  const ECENCY_POST_LINK_REGEX = useMemo(
+    () => /https?:\/\/(?:www\.)?(?:ecency\.com|peakd\.com|hive\.blog)\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})\/[^\s)]+/gi,
+    []
+  );
+
+  const renderTextWithMentions = (content: string, keyPrefix = "mention") => {
     const mentionMatcher = new RegExp(USER_MENTION_PURE_REGEX.source, "i");
     const parts = content.split(
       /(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+)/
@@ -794,13 +984,13 @@ export function MattermostChannelView({ channelId }: Props) {
           const nextPart = parts[idx + 1] || "";
 
           if (isPartOfEcencyPostLink(prevPart, part, nextPart)) {
-            return <span key={`${part}-${idx}`}>{part}</span>;
+            return <span key={`${keyPrefix}-${part}-${idx}`}>{part}</span>;
           }
 
           const username = part.slice(1);
           return (
             <MentionToken
-              key={`${part}-${idx}`}
+              key={`${keyPrefix}-${part}-${idx}`}
               username={username}
               user={usersByUsername[username.toLowerCase()]}
               currentUsername={activeUser?.username}
@@ -809,8 +999,59 @@ export function MattermostChannelView({ channelId }: Props) {
           );
         }
 
-        return <span key={`${part}-${idx}`}>{part}</span>;
+        return <span key={`${keyPrefix}-${part}-${idx}`}>{part}</span>;
       });
+  };
+
+  const trimTrailingLinkPunctuation = (link: string) => {
+    let trimmed = link;
+    while (trimmed.length && /[\).,!?:]$/.test(trimmed)) {
+      trimmed = trimmed.slice(0, -1);
+    }
+    return trimmed;
+  };
+
+  const renderTextWithEnhancements = (content: string) => {
+    const matches = Array.from(content.matchAll(ECENCY_POST_LINK_REGEX));
+
+    if (!matches.length) {
+      return renderTextWithMentions(content);
+    }
+
+    const nodes: ReactNode[] = [];
+    let cursor = 0;
+
+    matches.forEach((match, index) => {
+      const matchIndex = match.index ?? 0;
+      const matchedText = match[0];
+
+      if (matchIndex > cursor) {
+        nodes.push(...renderTextWithMentions(content.slice(cursor, matchIndex), `mention-${index}-before`));
+      }
+
+      const cleanedLink = trimTrailingLinkPunctuation(matchedText);
+      const trailing = matchedText.slice(cleanedLink.length);
+
+      if (isEnhanceableEcencyPostLink(cleanedLink)) {
+        // Use link hash in key to ensure uniqueness even for duplicate links in same message
+        const linkHash = cleanedLink.split('/').pop() || index;
+        nodes.push(<HivePostLinkRenderer key={`ecency-link-${index}-${linkHash}`} link={cleanedLink} />);
+      } else {
+        nodes.push(...renderTextWithMentions(cleanedLink, `mention-${index}-link`));
+      }
+
+      if (trailing) {
+        nodes.push(...renderTextWithMentions(trailing, `mention-${index}-trail`));
+      }
+
+      cursor = matchIndex + matchedText.length;
+    });
+
+    if (cursor < content.length) {
+      nodes.push(...renderTextWithMentions(content.slice(cursor), "mention-tail"));
+    }
+
+    return nodes;
   };
 
   const renderMessageContent = (text: string) => {
@@ -820,7 +1061,7 @@ export function MattermostChannelView({ channelId }: Props) {
         ADD_ATTR: ["target", "rel"]
       });
 
-      const parseOptions: HTMLReactParserOptions = {
+      const createParseOptions = (inLink = false): HTMLReactParserOptions => ({
         replace(domNode) {
           if (domNode.type === "text") {
             const textContent = (domNode as Text).data || "";
@@ -829,19 +1070,23 @@ export function MattermostChannelView({ channelId }: Props) {
             if (isImageUrl(trimmedText) && /^https?:\/\//.test(trimmedText)) {
               const proxied = getProxiedImageUrl(trimmedText);
               return (
-                  <img
-                    src={proxied}
-                    alt="Shared image"
-                    className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
-                  />
+                <img
+                  src={proxied}
+                  alt="Shared image"
+                  className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
+                />
               );
             }
-            return <>{renderTextWithMentions(textContent)}</>;
+            return <>{inLink ? renderTextWithMentions(textContent) : renderTextWithEnhancements(textContent)}</>;
           }
 
           if (domNode instanceof Element) {
             if (domNode.name === "p") {
-              return <div className="leading-relaxed">{domToReact(domNode.children ?? [], parseOptions)}</div>;
+              return (
+                <div className="leading-relaxed">
+                  {domToReact(domNode.children ?? [], createParseOptions(inLink))}
+                </div>
+              );
             }
 
             if (domNode.name === "img") {
@@ -860,10 +1105,12 @@ export function MattermostChannelView({ channelId }: Props) {
 
             if (domNode.name === "a") {
               const href = domNode.attribs?.href || "";
-              const children = domToReact(domNode.children ?? [], parseOptions);
+              const children = domToReact(domNode.children ?? [], createParseOptions(true));
               const containsImage = (domNode.children || []).some(
                 (child) => child instanceof Element && child.name === "img"
               );
+
+              const isEcencyPostLink = isEnhanceableEcencyPostLink(href);
 
               const childText = (domNode.children || [])
                 .map((child) => (child.type === "text" ? (child as Text).data?.trim() ?? "" : ""))
@@ -892,6 +1139,9 @@ export function MattermostChannelView({ channelId }: Props) {
                 );
               }
 
+              // Don't use HivePostLinkRenderer/WaveLikePostRenderer for markdown links
+              // to avoid nested <a> tags. These renderers should only be used for bare
+              // URLs detected in plain text (via renderTextWithEnhancements).
               return (
                 <a
                   href={href}
@@ -907,9 +1157,9 @@ export function MattermostChannelView({ channelId }: Props) {
 
           return undefined;
         }
-      };
+      });
 
-      return htmlParse(sanitized, parseOptions);
+      return htmlParse(sanitized, createParseOptions());
     } catch (error) {
       console.error("Failed to render chat message", error);
       const fallback = DOMPurify.sanitize(text || "", { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
@@ -1038,6 +1288,11 @@ export function MattermostChannelView({ channelId }: Props) {
     updateMentionState(value, cursor);
     updateEmojiState(value, cursor);
 
+    // Send typing indicator via WebSocket
+    if (value.length > 0) {
+      sendTypingDebounced();
+    }
+
     autoResize();
   };
 
@@ -1095,6 +1350,8 @@ export function MattermostChannelView({ channelId }: Props) {
               if (container) {
                 container.scrollTop = container.scrollHeight;
               }
+              // Refocus input after editing
+              messageInputRef.current?.focus();
             });
             markChannelRead();
           }
@@ -1136,6 +1393,8 @@ export function MattermostChannelView({ channelId }: Props) {
             if (container) {
               container.scrollTop = container.scrollHeight;
             }
+            // Refocus input after sending
+            messageInputRef.current?.focus();
           });
           markChannelRead();
         }
@@ -1344,6 +1603,23 @@ export function MattermostChannelView({ channelId }: Props) {
     [updateEmojiState, updateMentionState]
   );
 
+  const handlePinToggle = useCallback((postId: string, isPinned: boolean) => {
+    if (!canPin) return;
+
+    // Check 5-pin limit before pinning
+    if (!isPinned && (pinnedPostsQuery.data?.posts.length ?? 0) >= 5) {
+      setMessageError("Cannot pin more than 5 messages per channel");
+      return;
+    }
+
+    const mutation = isPinned ? unpinPostMutation : pinPostMutation;
+    mutation.mutate(postId, {
+      onError: (err) => {
+        setMessageError((err as Error)?.message || "Unable to update pin");
+      }
+    });
+  }, [canPin, pinnedPostsQuery.data?.posts.length, pinPostMutation, unpinPostMutation]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex flex-1 flex-col gap-0 md:pb-0 min-h-0">
@@ -1353,10 +1629,189 @@ export function MattermostChannelView({ channelId }: Props) {
             {/* Left: title + subtitle */}
             <div className="flex flex-col min-w-0">
               <div className="truncate text-lg font-semibold">{channelTitle}</div>
-              <div className="truncate text-xs text-[--text-muted]">
-                {channelSubtitle}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-[--text-muted]">
+                <span className="truncate">{channelSubtitle}</span>
+
+                {pinnedPostsQuery.data?.posts && pinnedPostsQuery.data.posts.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPinnedModal(true)}
+                    className="flex items-center gap-1 rounded-full border border-[--border-color] px-2 py-1 text-[11px] text-[--text-muted] transition hover:border-blue-dark-sky hover:text-[--text-color]"
+                  >
+                    <span className="text-sm leading-none" aria-hidden>
+                      📌
+                    </span>
+                    <span>{pinnedPostsQuery.data.posts.length} pinned</span>
+                  </button>
+                )}
+
+                {onlineCount > 0 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowOnlineUsers(true)}
+                      className="flex items-center gap-1 rounded-full border border-[--border-color] px-2 py-1 text-[11px] text-[--text-muted] transition hover:border-blue-dark-sky hover:text-[--text-color]"
+                    >
+                      <span className="text-sm leading-none" aria-hidden>
+                        🟢
+                      </span>
+                      <span>{onlineCount} online</span>
+                    </button>
+
+                    <Modal
+                      show={showOnlineUsers}
+                      onHide={() => setShowOnlineUsers(false)}
+                      centered
+                      size="sm"
+                    >
+                      <ModalBody>
+                        <div className="flex items-center justify-between gap-2 pb-3">
+                          <div className="flex items-center gap-2 text-sm font-semibold">
+                            <span className="text-sm leading-none" aria-hidden>
+                              🟢
+                            </span>
+                            <span>Online now</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setShowOnlineUsers(false)}
+                            className="text-[--text-muted] hover:text-[--text-color]"
+                            aria-label="Close online users"
+                          >
+                            ×
+                          </button>
+                        </div>
+
+                        <div className="max-h-80 overflow-y-auto">
+                          {onlineUsers.length ? (
+                            <div className="space-y-1">
+                              {onlineUsers.map((user) => {
+                                const displayName = getUserDisplayName(user) || user.username;
+
+                                if (!user.username) {
+                                  return (
+                                    <div
+                                      key={user.id}
+                                      className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color]"
+                                    >
+                                      <div className="h-7 w-7 rounded-full bg-[--background-color]" />
+                                      <div className="min-w-0">
+                                        <div className="truncate text-sm">{displayName}</div>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+
+                                return (
+                                  <ProfileLink
+                                    key={user.id}
+                                    username={user.username}
+                                    afterClick={() => setShowOnlineUsers(false)}
+                                    className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-dark-sky"
+                                  >
+                                    <UserAvatar username={user.username} size="small" />
+                                    <div className="min-w-0">
+                                      <div className="truncate text-sm">{displayName}</div>
+                                      <div className="truncate text-[11px] text-[--text-muted]">@{user.username}</div>
+                                    </div>
+                                  </ProfileLink>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="px-2 py-1 text-[11px] text-[--text-muted]">
+                              No one is online right now.
+                            </div>
+                          )}
+                        </div>
+                      </ModalBody>
+                    </Modal>
+                  </>
+                )}
               </div>
             </div>
+
+            {/* Pinned Messages Modal */}
+            <Modal
+              show={showPinnedModal}
+              onHide={() => setShowPinnedModal(false)}
+              centered
+              size="sm"
+            >
+              <ModalBody>
+                <div className="flex items-center justify-between gap-2 pb-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <span className="text-sm leading-none" aria-hidden>
+                      📌
+                    </span>
+                    <span>Pinned Messages</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPinnedModal(false)}
+                    className="text-[--text-muted] hover:text-[--text-color]"
+                    aria-label="Close pinned messages"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="max-h-80 overflow-y-auto">
+                  {pinnedPostsQuery.data?.posts && pinnedPostsQuery.data.posts.length > 0 ? (
+                    <div className="space-y-2">
+                      {pinnedPostsQuery.data.posts.map((post) => {
+                        const author = usersById[post.user_id];
+                        const displayName = author ? (getUserDisplayName(author) || author.username) : 'Unknown';
+                        const message = getDecodedDisplayMessage(post);
+
+                        return (
+                          <div
+                            key={post.id}
+                            className="group rounded border border-[--border-color] bg-[--background-color] p-2 hover:border-blue-dark-sky cursor-pointer transition"
+                            onClick={() => {
+                              scrollToPost(post.id);
+                              setShowPinnedModal(false);
+                            }}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 text-xs text-[--text-muted] mb-1">
+                                  <span className="font-semibold text-[--text-color]">{displayName}</span>
+                                  <span>•</span>
+                                  <span>{formatTimestamp(post.create_at)}</span>
+                                </div>
+                                <div className="text-sm line-clamp-3 break-words">
+                                  {message}
+                                </div>
+                              </div>
+                              {canPin && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePinToggle(post.id, true);
+                                  }}
+                                  disabled={unpinPostMutation.isPending}
+                                  className="opacity-0 group-hover:opacity-100 text-[--text-muted] hover:text-red-500 p-1 transition"
+                                  aria-label="Unpin message"
+                                  title="Unpin message"
+                                >
+                                  {unpinPostMutation.isPending ? '⏳' : '📌'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="px-2 py-4 text-center text-[11px] text-[--text-muted]">
+                      No pinned messages
+                    </div>
+                  )}
+                </div>
+              </ModalBody>
+            </Modal>
 
             {/* Right side: last viewed + keyboard shortcuts + X (mobile only) */}
             <div className="flex items-center gap-3 shrink-0">
@@ -1573,12 +2028,15 @@ export function MattermostChannelView({ channelId }: Props) {
               handleReply={handleReply}
               handleEdit={handleEdit}
               handleDelete={handleDelete}
+              handlePinToggle={handlePinToggle}
               toggleReaction={toggleReaction}
               openReactionPostId={openReactionPostId}
               setOpenReactionPostId={setOpenReactionPostId}
               deletingPostId={deletingPostId}
               reactMutationPending={reactMutation.isPending}
               deleteMutationPending={deleteMutation.isPending}
+              canPin={canPin}
+              pinMutationPending={pinPostMutation.isPending || unpinPostMutation.isPending}
             />}
 
             {/* Scroll to bottom button - sticky FAB */}
@@ -1676,6 +2134,7 @@ export function MattermostChannelView({ channelId }: Props) {
         getDecodedDisplayMessage={getDecodedDisplayMessage}
         renderMessageContent={renderMessageContent}
         posts={posts}
+        typingUsernames={typingUsernames}
       />
 
       {/* Keyboard Shortcuts Modal */}
@@ -1795,10 +2254,24 @@ function MentionToken({
   const isSelf = currentUsername
     ? username.toLowerCase() === currentUsername.toLowerCase()
     : false;
+  const isSpecialMention = ["here", "everyone"].includes(username.toLowerCase());
+
+  if (isSpecialMention) {
+    return (
+      <span
+        className={clsx(
+          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-sm font-semibold",
+          "cursor-default bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200"
+        )}
+      >
+        @{username}
+      </span>
+    );
+  }
 
   return (
     <Dropdown className="inline-block">
-      <DropdownToggle>
+      <DropdownToggle as="span">
         <span
           className={clsx(
             "inline-flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-sm font-semibold",

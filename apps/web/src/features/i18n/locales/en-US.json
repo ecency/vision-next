@@ -445,7 +445,10 @@
     "delete-success": "Reblog removed"
   },
   "entry-tip": {
-    "title": "Tip"
+    "title": "Tip",
+    "send-tip": "Send a tip",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Share"
@@ -884,7 +887,9 @@
   "comment": {
     "body-placeholder": "Write your reply here",
     "preview": "Preview",
-    "success": "Your reply created successfully!"
+    "success": "Your reply created successfully!",
+    "retry-hint": "Your text is preserved below - please try again",
+    "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
   "discussion": {
     "join": "Join the conversation now",
@@ -1530,7 +1535,9 @@
     "key-placeholder": "Private key, master password or seed",
     "with-hivesigner": "Sign with Hivesigner",
     "with-keychain": "Sign with Keychain",
-    "with-hiveauth": "Sign with HiveAuth"
+    "with-hiveauth": "Sign with HiveAuth",
+    "invalid-key": "Invalid key format. Please check for invalid characters.",
+    "key-error": "Failed to process the key. Please verify it is correct."
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -1771,7 +1778,12 @@
     "replied": "{{source}} replied you",
     "reblogged": "{{source}} reblogged your post",
     "transfer": "{{source}} sent you {{amount}}",
-    "delegations": "{{source}} delegated you {{amount}}"
+    "delegations": "{{source}} delegated you {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "Your content payout is ready.",
+    "payouts-amount": "You received {{amount}} payout.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "All Notifications",
@@ -1783,6 +1795,7 @@
     "type-reblogs": "Reblogs",
     "type-transfers": "Transfers",
     "type-delegations": "Delegations",
+    "type-payouts": "Payouts",
     "type-nfavorites": "Favorites",
     "type-nbookmarks": "Bookmarks",
     "group-title-recent": "Recent",
@@ -1797,7 +1810,10 @@
     "reblog-str": "reblogged post",
     "transfer-str": "sent",
     "delegations-str": "delegated",
-    "spin-str": "Time to earn more Points, Play Spin on Ecency Mobile app",
+    "checkins-title": "Great streak on @{{username}}",
+    "payouts-title": "You received a payout on @{{username}}",
+    "monthly-posts-title": "Finishing the month strong, @{{username}}",
+    "spin-str": "Time to earn more Points, Play Spin!",
     "inactive-str": "Be active! Write a post, continue earning",
     "referral-str": "joined with referral, welcome them",
     "refresh": "Refresh",
@@ -2122,7 +2138,12 @@
     "enter-private-key-detail": "Enter chat private key to import all chats",
     "message-search-results": "Message search results",
     "no-messages-found": "No messages found.",
-    "no-message": "No message content."
+    "no-message": "No message content.",
+    "translate": "Translate",
+    "translate-target-language": "Target language",
+    "pinned-messages": "Pinned messages",
+    "pin-message": "Pin message",
+    "unpin-message": "Unpin message"
   },
   "add-image": {
     "title": "Add Image",

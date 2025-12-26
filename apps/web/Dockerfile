@@ -42,6 +42,10 @@ RUN pnpm deploy --filter @ecency/web --prod --legacy /var/app/.deploy-workdir \
   && mv /var/app/.deploy-workdir/node_modules apps/web/node_modules \
   && rm -rf /var/app/.deploy-workdir
 
+# Re-apply next-ws patch after pnpm deploy (deploy creates fresh node_modules without the patch)
+# Use node to run the CLI directly from node_modules
+RUN cd apps/web && node node_modules/next-ws/dist/cli.cjs patch
+
 # ---------- production ----------
 FROM node:20.12 AS production
 WORKDIR /var/app

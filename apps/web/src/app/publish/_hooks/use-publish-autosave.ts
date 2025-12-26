@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDebounce } from "react-use";
 import { useSaveDraftApi } from "../_api";
 import { usePublishState } from "./use-publish-state";
+import { useDraftTabCoordinator } from "./use-draft-tab-coordinator";
 
 /**
  * This hook auto-save publish page content to draft whenever post changes
@@ -26,6 +27,7 @@ export function usePublishAutosave() {
   } = usePublishState();
 
   const { mutateAsync: saveToDraft } = useSaveDraftApi(draftId);
+  const { isActiveTab } = useDraftTabCoordinator(draftId);
 
   useDebounce(
     async () => {
@@ -33,8 +35,13 @@ export function usePublishAutosave() {
         return;
       }
 
-      const id = await saveToDraft({ showToast: false });
-      // Only create returns an ID
+      // Only auto-save if this is the active tab
+      if (!isActiveTab) {
+        return;
+      }
+
+      const id = await saveToDraft({ showToast: false, redirect: false });
+      // Only create returns an ID (first save creates draft)
       if (id) {
         setDraftId(id);
       }
@@ -52,9 +59,10 @@ export function usePublishAutosave() {
       poll,
       postLinks,
       publishingVideo,
-      location
+      location,
+      isActiveTab
     ]
   );
 
-  return lastSaved;
+  return { lastSaved, isActiveTab, draftId };
 }

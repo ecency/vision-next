@@ -80,11 +80,28 @@ export function applyImageZoom(container: HTMLElement) {
         }
     });
 
-    // apply medium zoom
-    const zoom = mediumZoom(
-        container.querySelectorAll<HTMLImageElement>(
-            ".markdown-view:not(.markdown-view-pure) img"
-        )
-    );
-    zoom.update({ background: "#131111" });
+    // apply medium zoom with final safety check
+    try {
+        // Filter elements one more time to ensure they're still connected before passing to medium-zoom
+        // This prevents "Cannot read property 'parentNode' of null" errors during hydration
+        const zoomableImages = Array.from(
+            container.querySelectorAll<HTMLImageElement>(
+                ".markdown-view:not(.markdown-view-pure) img"
+            )
+        ).filter((img) => {
+            try {
+                return img.isConnected && img.parentNode !== null;
+            } catch {
+                return false;
+            }
+        });
+
+        if (zoomableImages.length > 0) {
+            const zoom = mediumZoom(zoomableImages);
+            zoom.update({ background: "#131111" });
+        }
+    } catch (error) {
+        // Gracefully handle any medium-zoom initialization errors
+        console.warn("Failed to initialize medium-zoom:", error);
+    }
 }

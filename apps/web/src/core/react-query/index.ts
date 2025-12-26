@@ -27,6 +27,7 @@ export enum QueryIdentifiers {
   TRANSACTIONS = "transactions",
   VESTING_DELEGATIONS = "vesting-delegations",
   REBLOGS = "reblogs",
+  POST_TIPS = "post-tips",
   MUTED_USERS = "muted-users",
   PROMOTED_ENTRIES = "promoted-entries",
   SEARCH_API = "search-api",

@@ -40,6 +40,7 @@ export * from "./get-proposals-query";
 export * from "./get-proposal-query";
 export * from "./get-friends-query";
 export * from "./get-post-query";
+export * from "./get-post-tips-query";
 export * from "./get-account-vote-history-query";
 export * from "./get-withdraw-routes-query";
 export * from "./get-open-orders-query";

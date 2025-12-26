@@ -5,6 +5,7 @@ import { useDebounce } from "react-use";
 import isEqual from "react-fast-compare";
 import { useSaveDraftApi } from "../_api";
 import { usePublishState } from "./use-publish-state";
+import { useDraftTabCoordinator } from "./use-draft-tab-coordinator";
 
 export function useAutoSavePublishDraft(step: string, draftId?: string) {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -25,11 +26,15 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
     } = usePublishState();
 
     const { mutateAsync: saveToDraft } = useSaveDraftApi(draftId);
+    const { isActiveTab } = useDraftTabCoordinator(draftId);
 
     useDebounce(
         () => {
             if (step !== "edit") return;
             if (!title?.trim() && !content?.trim()) return;
+
+            // Only auto-save if this is the active tab
+            if (!isActiveTab) return;
 
             const snapshot = {
                 title,
@@ -48,7 +53,7 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
             if (isEqual(prevSnapshotRef.current, snapshot)) return;
             prevSnapshotRef.current = snapshot;
 
-            saveToDraft({ showToast: false })
+            saveToDraft({ showToast: false, redirect: false })
                 .then(() => {
                     setLastSaved(new Date());
                 })
@@ -69,9 +74,10 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
             poll,
             postLinks,
             publishingVideo,
-            location
+            location,
+            isActiveTab
         ]
     );
 
-    return lastSaved;
+    return { lastSaved, isActiveTab };
 }

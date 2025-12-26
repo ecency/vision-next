@@ -28,7 +28,7 @@ export type TransferMode =
   | "stake"
   | "unstake"
   | "claim-interest";
-export type TransferAsset = "HIVE" | "HBD" | "HP" | "POINT";
+export type TransferAsset = "HIVE" | "HBD" | "HP" | "POINT" | "SPK" | "LARYNX" | string;
 
 interface Props {
   mode: TransferMode;
@@ -42,7 +42,7 @@ interface Props {
 }
 
 function TransferC({ onHide, handleClickAway, account }: Props) {
-  const { activeUser } = useActiveAccount();
+  const { activeUser, refetch: refetchAccount } = useActiveAccount();
   const { step, asset, mode } = useTransferSharedState();
 
   const { refetch } = getPointsQuery(activeUser?.username).useClientQuery();
@@ -57,7 +57,8 @@ function TransferC({ onHide, handleClickAway, account }: Props) {
 
   useEffect(() => {
     refetch();
-  }, [refetch]);
+    refetchAccount();
+  }, [refetch, refetchAccount]);
 
   return (
     <Modal show={true} centered={true} onHide={onHide} className="transfer-dialog" size="lg">

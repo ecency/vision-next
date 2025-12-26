@@ -47,6 +47,7 @@ interface Props {
   inputRef?: Ref<HTMLTextAreaElement>;
   clearOnSubmit?: boolean;
   isEdit?: boolean;
+  initialText?: string | null;
 }
 
 export function Comment({
@@ -59,7 +60,8 @@ export function Comment({
   inProgress,
   autoFocus,
   isEdit,
-  clearOnSubmit = true
+  clearOnSubmit = true,
+  initialText = null
 }: Props) {
   const commentBodyRef = useRef<HTMLDivElement>(null);
   const activeUser = useClientActiveUser();
@@ -67,7 +69,7 @@ export function Comment({
 
   const [text, setText] = useLocalStorage(
     PREFIX + `_reply_text_${entry.author}_${entry.permlink}`,
-    ""
+    initialText ?? ""
   );
   const [inputHeight, setInputHeight] = useState(0);
   const [preview, setPreview] = useState("");
@@ -129,6 +131,13 @@ export function Comment({
     50,
     [text]
   );
+
+  // Restore failed text when blockchain submission fails
+  useEffect(() => {
+    if (initialText !== null && initialText !== text) {
+      setText(initialText);
+    }
+  }, [initialText]);
 
   useMount(() => {
     if (isEdit) {

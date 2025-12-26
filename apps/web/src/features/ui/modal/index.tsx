@@ -2,10 +2,11 @@
 
 import { classNameObject, useFilteredProps } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
-import { createContext, HTMLProps, useEffect, useMemo, useState } from "react";
+import { HTMLProps, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMount, useUnmount } from "react-use";
 import useMountedState from "react-use/lib/useMountedState";
+import { ModalContext } from "./modal-context";
 
 interface Props {
   show: boolean;
@@ -17,14 +18,6 @@ interface Props {
   overlayClassName?: string;
   raw?: boolean;
 }
-
-export const ModalContext = createContext<{
-  show: boolean | undefined;
-  setShow: (v: boolean) => void;
-}>({
-  show: false,
-  setShow: () => {}
-});
 
 export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   const [show, setShow] = useState<boolean>();
@@ -96,7 +89,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
                   opacity: 0
                 }}
                 className={classNameObject({
-                  "bg-black z-[1040] fixed top-0 left-0 right-0 bottom-0": true,
+                  "bg-black z-[1100] fixed top-0 left-0 right-0 bottom-0": true,
                   [props.overlayClassName ?? ""]: !!props.overlayClassName
                 })}
               />
@@ -111,7 +104,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
           <div
             {...nativeProps}
             className={classNameObject({
-              "z-[1040] fixed top-0 pt-24 sm:py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full sm:h-auto":
+              "z-[1100] fixed top-0 pt-24 sm:py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full sm:h-auto":
                 true,
               [props.className ?? ""]: true,
               "flex justify-center items-start": props.centered
@@ -160,6 +153,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
   );
 }
 
+export * from "./modal-context";
 export * from "./modal-body";
 export * from "./modal-footer";
 export * from "./modal-header";

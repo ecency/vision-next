@@ -12,7 +12,7 @@ const TOWN_HALL_CHANNEL_NAME = "town-hall";
 export function ChatsPageClient() {
   const activeUser = useClientActiveUser();
   const hydrated = useHydrated();
-  const { data: bootstrap, isLoading, error } = useMattermostBootstrap();
+  const { data: bootstrap, isLoading, error, refetch } = useMattermostBootstrap();
   const { data: channels, isLoading: channelsLoading } = useMattermostChannels(Boolean(bootstrap?.ok));
 
   const defaultChannelId = useMemo(() => {
@@ -42,8 +42,48 @@ export function ChatsPageClient() {
     );
   }
 
-  if (!bootstrap && !isLoading && error?.message.includes("username")) {
-    return <LoginRequired />;
+  // Handle all authentication errors
+  if (!bootstrap && !isLoading && error) {
+    const errorMessage = error?.message?.toLowerCase() || "";
+    const isAuthError =
+      errorMessage.includes("unauthorized") ||
+      errorMessage.includes("authentication") ||
+      errorMessage.includes("invalid token") ||
+      errorMessage.includes("username");
+
+    if (isAuthError) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-4 p-4">
+          <div className="text-center">
+            <div className="text-sm text-[--text-muted] mb-2">
+              Your chat session has expired
+            </div>
+            <LoginRequired />
+            <button
+              onClick={() => refetch()}
+              className="mt-4 text-sm text-blue-500 hover:text-blue-600 underline"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Show other errors with retry button
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-4">
+        <div className="text-sm text-red-500">
+          Chat initialization failed: {error.message}
+        </div>
+        <button
+          onClick={() => refetch()}
+          className="rounded-lg border border-[--border-color] bg-[--surface-color] px-4 py-2 text-sm hover:bg-[--hover-color]"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   if (!defaultChannelId) {

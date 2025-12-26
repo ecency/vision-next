@@ -5,10 +5,11 @@ import { activeUserMaker } from "@/specs/test-helper";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import * as Sentry from "@sentry/nextjs";
 
-const load = (): ActiveUser | null => {
-  const name = ls.get("active_user");
-  if (name && ls.get(`user_${name}`)) {
-    return activeUserMaker(name);
+const load = (name?: string | null): ActiveUser | null => {
+  const username = name ?? ls.get("active_user");
+
+  if (username && ls.get(`user_${username}`)) {
+    return activeUserMaker(username);
   }
 
   return null;
@@ -33,7 +34,7 @@ export const createAuthenticationActions = (
       return;
     }
 
-    const nextActiveUser = name ? load() : null;
+    const nextActiveUser = name ? load(name) : null;
 
     if (name) {
       ls.set("active_user", name);

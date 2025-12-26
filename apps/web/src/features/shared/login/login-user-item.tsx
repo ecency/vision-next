@@ -1,7 +1,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { User } from "@/entities";
 import { UserAvatar } from "@/features/shared";
-import { UilExit, UilTrash } from "@tooni/iconscout-unicons-react";
+import { UilTrash } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { PopoverConfirm } from "@ui/popover-confirm";
 import { classNameObject } from "@ui/util";
@@ -53,7 +53,7 @@ export function LoginUserItem({ user, compact = false }: Props) {
           trigger="click"
           containerRef={containerRef}
         >
-          <Button appearance="gray-link" size="sm" type="button" icon={<UilExit />} />
+          <Button appearance="gray-link" size="sm" type="button" icon={<UilTrash />} />
         </PopoverConfirm>
       )}
     </div>

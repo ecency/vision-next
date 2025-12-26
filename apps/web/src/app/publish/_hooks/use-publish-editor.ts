@@ -27,7 +27,7 @@ import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import {
   TEXT_COLOR_CLASS_PREFIX,
@@ -145,12 +145,17 @@ const PublishTextStyle = TextStyle.extend({
 });
 
 export function usePublishEditor(onHtmlPaste: () => void) {
+  const clipboardStrategyRef = useRef<ReturnType<typeof clipboardPlugin> | null>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     editorProps: {
-      handlePaste: ((_: any, event: ClipboardEvent, __: any) =>
-        clipboardPlugin(event, editor, onHtmlPaste).handle(event)) as any
+      handlePaste: ((_: any, event: ClipboardEvent, __: any) => {
+        // Store the strategy instance so we can clean it up later
+        clipboardStrategyRef.current = clipboardPlugin(event, editor, onHtmlPaste);
+        return clipboardStrategyRef.current.handle(event);
+      }) as any
     },
     extensions: [
       StarterKit.configure({
@@ -246,6 +251,15 @@ export function usePublishEditor(onHtmlPaste: () => void) {
       setEditorContent(publishState.content);
     }
   }, [editor]);
+
+  // Cleanup clipboard plugin blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (clipboardStrategyRef.current && "destroy" in clipboardStrategyRef.current) {
+        (clipboardStrategyRef.current as any).destroy();
+      }
+    };
+  }, []);
 
   return { editor, setEditorContent };
 }

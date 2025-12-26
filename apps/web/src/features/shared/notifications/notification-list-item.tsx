@@ -12,6 +12,9 @@ import { NotificationFavouriteType } from "@/features/shared/notifications/notif
 import { NotificationMentionType } from "@/features/shared/notifications/notification-types/notification-mention-type";
 import { NotificationReplyType } from "@/features/shared/notifications/notification-types/notification-reply-type";
 import { NotificationVoteType } from "@/features/shared/notifications/notification-types/notification-vote-type";
+import { NotificationCheckinsType } from "@/features/shared/notifications/notification-types/notification-checkins-type";
+import { NotificationPayoutsType } from "@/features/shared/notifications/notification-types/notification-payouts-type";
+import { NotificationMonthlyPostsType } from "@/features/shared/notifications/notification-types/notification-monthly-posts-type";
 import i18next from "i18next";
 import { Tooltip } from "@ui/tooltip";
 import { classNameObject } from "@ui/util";
@@ -197,7 +200,28 @@ export function NotificationListItem({
           {notification.type === "delegations" && (
             <NotificationDelegationsType sourceLink={sourceLink} notification={notification} />
           )}
-          {notification.type === "spin" && <NotificationSpinType sourceLink={sourceLink} />}
+          {(notification.type === "checkins" || notification.type === "checkin") && (
+            <NotificationCheckinsType sourceLink={sourceLink} notification={notification} />
+          )}
+          {notification.type === "payouts" && (
+            <NotificationPayoutsType
+              onLinkClick={onLinkClick}
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              notification={notification}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
+          {(notification.type === "monthly-posts" || notification.type === "monthly_posts") && (
+            <NotificationMonthlyPostsType sourceLink={sourceLink} notification={notification} />
+          )}
+          {notification.type === "spin" && (
+            <NotificationSpinType
+              sourceLink={sourceLink}
+              afterClick={afterClick}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          )}
           {notification.type === "inactive" && <NotificationInactiveType sourceLink={sourceLink} />}
           {notification.type === "referral" && <NotificationReferralType sourceLink={sourceLink} />}
         </div>

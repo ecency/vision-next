@@ -884,7 +884,9 @@
   "comment": {
     "body-placeholder": "Schrijf jouw reactie hier",
     "preview": "Voorbeeld",
-    "success": "Uw antwoord is succesvol aangemaakt!"
+    "success": "Uw antwoord is succesvol aangemaakt!",
+    "retry-hint": "Uw tekst is hieronder bewaard - probeer het opnieuw",
+    "rc-error-hint": "Onvoldoende Grondstof Credits - je tekst wordt hieronder bewaard"
   },
   "discussion": {
     "join": "Deelnemen aan de conversatie",
@@ -1771,7 +1773,12 @@
     "replied": "{{source}} antwoordde je",
     "reblogged": "{{source}} heeft je bericht gedeeld",
     "transfer": "{{source}} heeft jou {{amount}} gestuurd",
-    "delegations": "{{source}} heeft u gedelegeerd {{amount}}"
+    "delegations": "{{source}} heeft u gedelegeerd {{amount}}",
+    "checkins": "Je hebt deze week {{count}} dag{{suffix}} gecontroleerd. Ga zo door!",
+    "payouts": "De uitbetaling van uw inhoud is klaar.",
+    "payouts-amount": "Je hebt {{amount}} uitbetaling ontvangen.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "Je hebt {{count}} post{{suffix}} deze maand aangemaakt. Ga zo door!"
   },
   "notifications": {
     "type-all": "Alle notificaties",
@@ -1783,6 +1790,7 @@
     "type-reblogs": "Herblogs",
     "type-transfers": "Overdrachten",
     "type-delegations": "Overdrachten",
+    "type-payouts": "Uitbetalingen",
     "type-nfavorites": "Favorieten",
     "type-nbookmarks": "Bladwijzers",
     "group-title-recent": "Recentelijk",
@@ -1797,6 +1805,9 @@
     "reblog-str": "gedeeld bericht",
     "transfer-str": "verzonden",
     "delegations-str": "gedelegeerd",
+    "checkins-title": "Geweldige reeks op @{{username}}",
+    "payouts-title": "U heeft een uitbetaling ontvangen op @{{username}}",
+    "monthly-posts-title": "Voltooi de maand sterk, @{{username}}",
     "spin-str": "Tijd om meer punten te verdienen, speel Spin op Ecency Mobile app",
     "inactive-str": "Wees actief! Schrijf een bericht, blijf verdienen",
     "referral-str": "Verwijzend ingeschreven, welkom hen",

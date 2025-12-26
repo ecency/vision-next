@@ -40,7 +40,7 @@ export function ChatsClient() {
   const shareText = searchParams?.get("text")?.trim();
   const isShareMode = Boolean(shareText);
 
-  const { data: bootstrap, isLoading, error } = useMattermostBootstrap();
+  const { data: bootstrap, isLoading, error, refetch: refetchBootstrap } = useMattermostBootstrap();
   const {
     data: channels,
     isLoading: channelsLoading,
@@ -321,6 +321,53 @@ export function ChatsClient() {
     return (
       <div className="flex h-full items-center justify-center p-4">
         <LoginRequired />
+      </div>
+    );
+  }
+
+  // Handle authentication errors from bootstrap
+  if (!bootstrap && !isLoading && error) {
+    const errorMessage = error?.message?.toLowerCase() || "";
+    const isAuthError =
+      errorMessage.includes("unauthorized") ||
+      errorMessage.includes("authentication") ||
+      errorMessage.includes("invalid token") ||
+      errorMessage.includes("username");
+
+    if (isAuthError) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-4 p-4">
+          <div className="text-center">
+            <div className="text-sm text-[--text-muted] mb-2">
+              {i18next.t("chat.page-title")}
+            </div>
+            <div className="text-sm text-[--text-muted] mb-4">
+              Your chat session has expired
+            </div>
+            <LoginRequired />
+            <button
+              onClick={() => refetchBootstrap()}
+              className="mt-4 text-sm text-blue-500 hover:text-blue-600 underline"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Show other errors with retry button
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-4">
+        <div className="text-sm text-red-500">
+          Chat initialization failed: {error.message}
+        </div>
+        <button
+          onClick={() => refetchBootstrap()}
+          className="rounded-lg border border-[--border-color] bg-[--surface-color] px-4 py-2 text-sm hover:bg-[--hover-color]"
+        >
+          Retry
+        </button>
       </div>
     );
   }
