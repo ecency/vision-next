@@ -47,6 +47,7 @@
     "hot": "feed",
     "trending": "feed",
     "created": "feed",
+    "promoted": "promosso",
     "muted": "silenziati",
     "trail": "sentiero",
     "controversial": "controverso",
