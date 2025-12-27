@@ -47,6 +47,7 @@
     "hot": "feed",
     "trending": "feed",
     "created": "feed",
+    "promoted": "promosso",
     "muted": "silenziati",
     "trail": "sentiero",
     "controversial": "controverso",
@@ -445,7 +446,10 @@
     "delete-success": "Reblog rimosso"
   },
   "entry-tip": {
-    "title": "Invia omaggio"
+    "title": "Invia omaggio",
+    "send-tip": "Invia un suggerimento",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} suggerimenti"
   },
   "entry-share": {
     "title": "Condividi"
@@ -1532,7 +1536,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Firma con HiveAuth"
+    "with-hiveauth": "Firma con HiveAuth",
+    "invalid-key": "Formato chiave non valido. Si prega di verificare la presenza di caratteri non validi.",
+    "key-error": "Impossibile elaborare la chiave. Verifica che sia corretta."
   },
   "hive-auth": {
     "pending-request": "Richiesta HiveAuth in sospeso. Partita con ID {{id}} nel tuo portafoglio."
@@ -1808,7 +1814,7 @@
     "checkins-title": "Grande serie su @{{username}}",
     "payouts-title": "Hai ricevuto una vincita su @{{username}}",
     "monthly-posts-title": "Finendo il mese forte, @{{username}}",
-    "spin-str": "Tempo di guadagnare più punti, divertiti sull'app mobile Ecency",
+    "spin-str": "È ora di guadagnare più punti, Gioca giro!",
     "inactive-str": "Rimani attivo! Scrivi un post, continua a guadagnare",
     "referral-str": "si è unito con la consultazione, benvenuti",
     "refresh": "Ricarica",
@@ -2133,7 +2139,12 @@
     "enter-private-key-detail": "Inserisci la chiave privata di chat per importare tutte le chat",
     "message-search-results": "Risultati ricerca messaggi",
     "no-messages-found": "Nessun messaggio trovato.",
-    "no-message": "Nessun contenuto del messaggio."
+    "no-message": "Nessun contenuto del messaggio.",
+    "translate": "Trasla",
+    "translate-target-language": "Lingua di destinazione",
+    "pinned-messages": "Messaggi bloccati",
+    "pin-message": "Messaggio di pin",
+    "unpin-message": "Sblocca messaggio"
   },
   "add-image": {
     "title": "Aggiungi immagine",

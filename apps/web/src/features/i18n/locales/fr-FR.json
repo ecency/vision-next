@@ -47,6 +47,7 @@
     "hot": "fil d'actualités",
     "trending": "fil d'actualités",
     "created": "fil d'actualités",
+    "promoted": "promu",
     "muted": "mis en sourdine",
     "trail": "traînée",
     "controversial": "controversé",
@@ -445,7 +446,10 @@
     "delete-success": "Reblog supprimé"
   },
   "entry-tip": {
-    "title": "Pourboire"
+    "title": "Pourboire",
+    "send-tip": "Envoyer une astuce",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} conseils"
   },
   "entry-share": {
     "title": "Partager"
@@ -1532,7 +1536,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Signer avec HiveAuth"
+    "with-hiveauth": "Signer avec HiveAuth",
+    "invalid-key": "Format de clé invalide. Veuillez vérifier s'il y a des caractères non valides.",
+    "key-error": "Impossible de traiter la clé. Veuillez vérifier qu'elle est correcte."
   },
   "hive-auth": {
     "pending-request": "Requête HiveAuth en attente. ID {{id}} dans votre portefeuille."
@@ -1808,7 +1814,7 @@
     "checkins-title": "Bonne série sur @{{username}}",
     "payouts-title": "Vous avez reçu un paiement le @{{username}}",
     "monthly-posts-title": "Fin du mois fort, @{{username}}",
-    "spin-str": "Il est temps de gagner plus de Points, Play Spin sur l'application Ecency Mobile",
+    "spin-str": "Il est temps de gagner plus de Points, Jouez au Tournoi !",
     "inactive-str": "Soyez actif! Écrivez un post, continuez à gagner des gains",
     "referral-str": "rejoint avec une recommandation, bienvenue à eux",
     "refresh": "Rafraîchir",
@@ -2133,7 +2139,12 @@
     "enter-private-key-detail": "Entrez la clé privée du chat pour importer toutes les conversations",
     "message-search-results": "Résultats de la recherche de messages",
     "no-messages-found": "Aucun message trouvé.",
-    "no-message": "Aucun contenu de message."
+    "no-message": "Aucun contenu de message.",
+    "translate": "Traduire",
+    "translate-target-language": "Langue cible",
+    "pinned-messages": "Messages épinglés",
+    "pin-message": "Épingler le message",
+    "unpin-message": "Désépingler le message"
   },
   "add-image": {
     "title": "Ajouter une image",

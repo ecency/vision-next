@@ -47,6 +47,7 @@
     "hot": "kanał",
     "trending": "kanał",
     "created": "kanał",
+    "promoted": "promowane",
     "muted": "wyciszony",
     "trail": "ślad",
     "controversial": "kontrowersyjne",
@@ -445,7 +446,10 @@
     "delete-success": "Reblog usunięty"
   },
   "entry-tip": {
-    "title": "Napiwek"
+    "title": "Napiwek",
+    "send-tip": "Wyślij napiwk",
+    "count": "{{count}} tip",
+    "count_plural": "Porady {{count}}"
   },
   "entry-share": {
     "title": "Udostępnij"
@@ -1532,7 +1536,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Podpisz z HiveAuth"
+    "with-hiveauth": "Podpisz z HiveAuth",
+    "invalid-key": "Nieprawidłowy format klucza. Sprawdź czy nie występują nieprawidłowe znaki.",
+    "key-error": "Przetwarzanie klucza nie powiodło się. Sprawdź, czy jest poprawne."
   },
   "hive-auth": {
     "pending-request": "Żądanie HiveAuth w toku. Dopasuj ID {{id}} w portfelu."
@@ -1808,7 +1814,7 @@
     "checkins-title": "Świetny ciąg na @{{username}}",
     "payouts-title": "Otrzymałeś wypłatę na @{{username}}",
     "monthly-posts-title": "Ukończenie miesiąca silnego, @{{username}}",
-    "spin-str": "Czas na zdobycie więcej punktów, Zagraj w Spin na aplikacji Ecency Mobile",
+    "spin-str": "Czas na zdobycie więcej punktów, zagraj w Spina!",
     "inactive-str": "Bądź aktywny! Napisz post, kontynuuj zarabianie",
     "referral-str": "dołączył(a) do rekomendacji, powitaj ich",
     "refresh": "Odśwież",
@@ -2133,7 +2139,12 @@
     "enter-private-key-detail": "Wprowadź klucz prywatny czatu, aby zaimportować wszystkie czaty",
     "message-search-results": "Wyniki wyszukiwania wiadomości",
     "no-messages-found": "Nie znaleziono wiadomości.",
-    "no-message": "Brak zawartości wiadomości."
+    "no-message": "Brak zawartości wiadomości.",
+    "translate": "Przetłumacz",
+    "translate-target-language": "Docelowy język",
+    "pinned-messages": "Przypięte wiadomości",
+    "pin-message": "Przypnij wiadomość",
+    "unpin-message": "Odepnij wiadomość"
   },
   "add-image": {
     "title": "Dodaj obraz",

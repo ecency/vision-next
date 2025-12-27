@@ -47,6 +47,7 @@
     "hot": "Гаряча стрічка",
     "trending": "стрічка",
     "created": "стрічка",
+    "promoted": "підвищено",
     "muted": "заблокований",
     "trail": "слід",
     "controversial": "суперечливий",
@@ -445,7 +446,10 @@
     "delete-success": "Репост видалено"
   },
   "entry-tip": {
-    "title": "Порада"
+    "title": "Порада",
+    "send-tip": "Надіслати пораду",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Поділитися"
@@ -1532,7 +1536,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Увійти за допомогою HiveAuth"
+    "with-hiveauth": "Увійти за допомогою HiveAuth",
+    "invalid-key": "Невірний формат ключа. Будь ласка, перевірте неправильні символи.",
+    "key-error": "Не вдалося обробити ключ. Будь ласка, перевірте його правильність."
   },
   "hive-auth": {
     "pending-request": "Очікується запит HiveAuth. Матч з ID {{id}} у вашому гаманці."
@@ -1808,7 +1814,7 @@
     "checkins-title": "Чудова серія на @{{username}}",
     "payouts-title": "Ви отримали виплату на @{{username}}",
     "monthly-posts-title": "Завершення місяця міцний, @{{username}}",
-    "spin-str": "Час заробити більше балів, грайте на Ecency Mobile",
+    "spin-str": "Час заробити більше балів, грати в хребті!",
     "inactive-str": "Будьте активними! Напишіть допис, продовжуйте заробляти",
     "referral-str": "приєднався з рефералом, вітаємо їх",
     "refresh": "Оновити",
@@ -2133,7 +2139,12 @@
     "enter-private-key-detail": "Введіть приватний ключ чату для імпорту всіх чатів",
     "message-search-results": "Результати пошуку повідомлення",
     "no-messages-found": "Не знайдено жодного повідомлення.",
-    "no-message": "Немає вмісту повідомлення."
+    "no-message": "Немає вмісту повідомлення.",
+    "translate": "Переклад",
+    "translate-target-language": "Цільова мова",
+    "pinned-messages": "Закріплені повідомлення",
+    "pin-message": "Закріпити повідомлення",
+    "unpin-message": "Відкріпити повідомлення"
   },
   "add-image": {
     "title": "Додати зображення",

@@ -47,6 +47,7 @@
     "hot": "фид",
     "trending": "фид",
     "created": "фид",
+    "promoted": "продвигается",
     "muted": "игнорируется",
     "trail": "тропа",
     "controversial": "спорно",
@@ -445,7 +446,10 @@
     "delete-success": "Репост удалён"
   },
   "entry-tip": {
-    "title": "Чаевые"
+    "title": "Чаевые",
+    "send-tip": "Подсказка",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Поделиться"
@@ -1532,7 +1536,9 @@
     "key-placeholder": "Введите активный/владелец/мастер-ключ или сид",
     "with-hivesigner": "Подписать с помощью hivesigner",
     "with-keychain": "Подписать с помощью keychain",
-    "with-hiveauth": "Подписать через HiveAuth"
+    "with-hiveauth": "Подписать через HiveAuth",
+    "invalid-key": "Неверный формат ключа. Пожалуйста, проверьте недопустимые символы.",
+    "key-error": "Не удалось обработать ключ. Пожалуйста, проверьте правильность."
   },
   "hive-auth": {
     "pending-request": "HiveAuth запрос в ожидании. ID {{id}} в вашем кошельке."
@@ -1808,7 +1814,7 @@
     "checkins-title": "Отличная серия на @{{username}}",
     "payouts-title": "Вы получили выплату @{{username}}",
     "monthly-posts-title": "Завершение работы месяца, @{{username}}",
-    "spin-str": "Пора заработать больше баллов, сыграйте в Рулетку в мобильном приложении Ecency",
+    "spin-str": "Время заработать больше очков, Сыграй в битву!",
     "inactive-str": "Будьте активны! Напишите пост, продолжайте зарабатывать",
     "referral-str": "присоединился реферал, поприветствуйте его",
     "refresh": "Обновить",
@@ -2133,7 +2139,12 @@
     "enter-private-key-detail": "Введите приватный ключ чата для импорта всех чатов",
     "message-search-results": "Результаты поиска сообщений",
     "no-messages-found": "Сообщения не найдены.",
-    "no-message": "Нет содержания сообщения."
+    "no-message": "Нет содержания сообщения.",
+    "translate": "Перевести",
+    "translate-target-language": "Целевой язык",
+    "pinned-messages": "Закрепленные сообщения",
+    "pin-message": "Закрепить сообщение",
+    "unpin-message": "Открепить сообщение"
   },
   "add-image": {
     "title": "Добавить изображение",

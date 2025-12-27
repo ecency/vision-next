@@ -47,6 +47,7 @@
     "hot": "inicio",
     "trending": "inicio",
     "created": "inicio",
+    "promoted": "promocionado",
     "muted": "silenciado",
     "trail": "sendero",
     "controversial": "polémico",
@@ -445,7 +446,10 @@
     "delete-success": "Reblog eliminado"
   },
   "entry-tip": {
-    "title": "Sugerencia"
+    "title": "Sugerencia",
+    "send-tip": "Enviar una propina",
+    "count": "{{count}} propina",
+    "count_plural": "{{count}} propinas"
   },
   "entry-share": {
     "title": "Compartir"
@@ -1532,7 +1536,9 @@
     "key-placeholder": "Clave privada, contraseña maestra o semilla",
     "with-hivesigner": "Iniciar Sesión con hivesigner",
     "with-keychain": "Iniciar sesión con KeyChain",
-    "with-hiveauth": "Firmar con HiveAuth"
+    "with-hiveauth": "Firmar con HiveAuth",
+    "invalid-key": "Formato de clave no válido. Por favor, compruebe los caracteres no válidos.",
+    "key-error": "Error al procesar la clave. Por favor, compruebe que es correcta."
   },
   "hive-auth": {
     "pending-request": "Solicitud de HiveAuth pendiente. Coincide con el ID {{id}} en tu cartera."
@@ -1778,7 +1784,7 @@
     "payouts": "Su pago de contenido está listo.",
     "payouts-amount": "Has recibido el pago de {{amount}}.",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "Has creado una publicación {{count}}{{suffix}} este mes. ¡Sigue así!"
+    "monthly-posts": "Has creado {{count}} publicación{{suffix}} este mes. ¡Sigue así!"
   },
   "notifications": {
     "type-all": "Todas las notificaciones",
@@ -1808,7 +1814,7 @@
     "checkins-title": "Gran racha en @{{username}}",
     "payouts-title": "Has recibido un pago en @{{username}}",
     "monthly-posts-title": "Terminando el mes fuerte, @{{username}}",
-    "spin-str": "Es hora de ganar más puntos, juega a Spin en la aplicación Ecency Mobile",
+    "spin-str": "Es hora de ganar más puntos, ¡Juega un giro!",
     "inactive-str": "¡Estate activo! Escribe un mensaje, sigue ganando",
     "referral-str": "se unió con enlace de referido, dales la bienvenida",
     "refresh": "Actualizar",
@@ -1959,7 +1965,7 @@
     "create": {
       "step-setup-title": "Establecer detalles de la propuesta",
       "step-setup-sub-title": "Describa la propuesta que desea enviar al DHF.",
-      "description": "<p>Before submitting a proposal make sure you have published a Hive post that explains the scope of the work and link to it below. Creating a proposal costs <strong>10 HBD</strong> plus <strong>1 HBD</strong> for each day over 60.</p>",
+      "description": "<p>Antes de enviar una propuesta, asegúrate de hacer una publicar en Hive que explique el alcance del trabajo y enlazarla a la propuesta. Crear una propuesta cuesta <strong>10 HBD</strong> más <strong>1 HBD</strong> por cada día más allá de los 60 días.</p>",
       "subject-label": "Título",
       "subject-placeholder": "Título público corto",
       "subject-help": "Esto aparece en la lista de propuestas. Manténgalo conciso (máximo 80 caracteres).",
@@ -2107,7 +2113,7 @@
     "search-channels": "Buscar canales, usuarios o DMs",
     "loading": "Cargando…",
     "mark-as-read": "Marcar como leído",
-    "marking-as-read": "Marking…",
+    "marking-as-read": "Marcando…",
     "channel-type-dm": "DM",
     "channel-type": "Canal",
     "favorite-channel": "Canal favorito",
@@ -2122,7 +2128,7 @@
     "channel-type-public": "Canal público",
     "channel-type-private": "Canal privado",
     "join-channel-action": "Unirse",
-    "joining-channel": "Joining…",
+    "joining-channel": "Uniéndose…",
     "no-additional-channels": "No se encontraron canales adicionales.",
     "title": "Chats",
     "no-admin": "No hay administrador o moderador para este chat de la comunidad.",
@@ -2133,7 +2139,12 @@
     "enter-private-key-detail": "Introduzca la clave privada del chat para importar todos los chats",
     "message-search-results": "Resultados de búsqueda de mensajes",
     "no-messages-found": "No se encontraron mensajes.",
-    "no-message": "Sin contenido de mensaje."
+    "no-message": "Sin contenido de mensaje.",
+    "translate": "Traducir",
+    "translate-target-language": "Idioma destino",
+    "pinned-messages": "Mensajes Anclados",
+    "pin-message": "Anclar mensaje",
+    "unpin-message": "Desanclar mensaje"
   },
   "add-image": {
     "title": "Añadir imagen",

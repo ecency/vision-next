@@ -47,6 +47,7 @@
     "hot": "フィード",
     "trending": "フィード",
     "created": "フィード",
+    "promoted": "昇格しました",
     "muted": "ミュート",
     "trail": "軌跡|軌跡|軌跡|軌跡|道",
     "controversial": "論争の的になる",
@@ -445,7 +446,10 @@
     "delete-success": "リブログを削除しました"
   },
   "entry-tip": {
-    "title": "Tip"
+    "title": "Tip",
+    "send-tip": "ヒントを送信",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} のヒント"
   },
   "entry-share": {
     "title": "共有"
@@ -1532,7 +1536,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "HiveAuthでサインイン"
+    "with-hiveauth": "HiveAuthでサインイン",
+    "invalid-key": "無効なキーフォーマットです。無効な文字を確認してください。",
+    "key-error": "キーの処理に失敗しました。正しいことを確認してください。"
   },
   "hive-auth": {
     "pending-request": "HiveAuthリクエストは保留中です。ウォレット内のマッチID {{id}}。"
@@ -1808,7 +1814,7 @@
     "checkins-title": "連続@{{username}}",
     "payouts-title": "@{{username}}で支払いを受け取りました",
     "monthly-posts-title": "強力な月を終了しました。@{{username}}",
-    "spin-str": "より多くのポイントを獲得しましょう。Ecency Mobile アプリでスピンをプレイしましょう",
+    "spin-str": "時間を稼ぐより多くのポイントを獲得します。回りましょう！",
     "inactive-str": "アクティブにしましょう！投稿を書き、獲得を続けましょう",
     "referral-str": "紹介を受けて歓迎します",
     "refresh": "更新",
@@ -2133,7 +2139,12 @@
     "enter-private-key-detail": "すべてのチャットをインポートするにはチャット秘密鍵を入力してください",
     "message-search-results": "メッセージ検索結果",
     "no-messages-found": "メッセージが見つかりません。",
-    "no-message": "メッセージの内容がありません。"
+    "no-message": "メッセージの内容がありません。",
+    "translate": "翻訳する",
+    "translate-target-language": "翻訳先の言語",
+    "pinned-messages": "僅用於中文",
+    "pin-message": "メッセージをピン留めする",
+    "unpin-message": "メッセージのピン留めを解除"
   },
   "add-image": {
     "title": "画像を追加",

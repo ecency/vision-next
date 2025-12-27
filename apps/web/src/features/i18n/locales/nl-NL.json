@@ -47,6 +47,7 @@
     "hot": "kanaal",
     "trending": "kanaal",
     "created": "kanaal",
+    "promoted": "gepromoveerd",
     "muted": "negeren",
     "trail": "spoor",
     "controversial": "Controversieel",
@@ -445,7 +446,10 @@
     "delete-success": "gedeelde bericht verwijderd"
   },
   "entry-tip": {
-    "title": "Tip"
+    "title": "Tip",
+    "send-tip": "Stuur een tip",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Delen"
@@ -1532,7 +1536,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Meld je aan met HiveAuth"
+    "with-hiveauth": "Meld je aan met HiveAuth",
+    "invalid-key": "Ongeldige sleutelformaat. Controleer op ongeldige tekens.",
+    "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is."
   },
   "hive-auth": {
     "pending-request": "HiveAuth aanvraag in behandeling. Koppel ID {{id}} in uw portemonnee."
@@ -1808,7 +1814,7 @@
     "checkins-title": "Geweldige reeks op @{{username}}",
     "payouts-title": "U heeft een uitbetaling ontvangen op @{{username}}",
     "monthly-posts-title": "Voltooi de maand sterk, @{{username}}",
-    "spin-str": "Tijd om meer punten te verdienen, speel Spin op Ecency Mobile app",
+    "spin-str": "Tijd om meer punten te verdienen, speel Spin!",
     "inactive-str": "Wees actief! Schrijf een bericht, blijf verdienen",
     "referral-str": "Verwijzend ingeschreven, welkom hen",
     "refresh": "Vernieuwen",
@@ -2133,7 +2139,12 @@
     "enter-private-key-detail": "Voer de privésleutel in om alle chats te importeren",
     "message-search-results": "Resultaten van berichten",
     "no-messages-found": "Geen berichten gevonden.",
-    "no-message": "Geen inhoud van berichten"
+    "no-message": "Geen inhoud van berichten",
+    "translate": "Vertalen",
+    "translate-target-language": "Taal van doel",
+    "pinned-messages": "Vastgezette berichten",
+    "pin-message": "Bericht vastmaken",
+    "unpin-message": "Bericht losmaken"
   },
   "add-image": {
     "title": "Afbeelding toevoegen",
