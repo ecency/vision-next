@@ -17,7 +17,7 @@ export function NotificationCheckinsType({ sourceLink, notification }: Props) {
       <div className="first-line">
         {sourceLink}
         <span className="item-action">
-          {i18next.t("notifications.checkins-title", { username: notification.source })}
+          {i18next.t("notifications.checkins-title", { username: notification.target })}
         </span>
       </div>
       <div className="second-line">
