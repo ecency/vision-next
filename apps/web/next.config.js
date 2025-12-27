@@ -229,15 +229,15 @@ const config = {
         destination: "/feed/created/:tag"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag/:sub",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)/:tag/:sub",
         destination: "/feed/:filter/:tag/:sub"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)/:tag",
         destination: "/feed/:filter/:tag"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)",
         destination: "/feed/:filter"
       }
     ];

@@ -43,8 +43,8 @@ export function FeedList({ filter, tag, observer, now }: Props) {
   const showLoading = isLoadingData || isFetchingNextPage;
 
   // Check if this is a global feed (should never show empty state)
-  // Global feed = trending/hot/created without a tag (tag="" means global, tag="my" means personalized)
-  const isGlobalFeed = ["trending", "hot", "created"].includes(filter) && tag !== "my";
+  // Global feed = trending/hot/created/payout/muted/promoted (always has content)
+  const isGlobalFeed = ["trending", "hot", "created", "payout", "muted", "promoted"].includes(filter) && tag !== "my";
 
   // Only show empty state for personalized feeds, never for global feeds
   const shouldShowEmpty = isEmpty && !isGlobalFeed;

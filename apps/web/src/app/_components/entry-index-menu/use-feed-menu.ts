@@ -33,6 +33,20 @@ export function useFeedMenu() {
   const secondaryMenu = useMemo(
     () => [
       {
+        label: i18next.t(`entry-filter.filter-payout`),
+        href: `/payout`,
+        selected: filter === "payout",
+        id: "payout",
+        onClick: () => router.push("/payout")
+      },
+      {
+        label: i18next.t(`entry-filter.filter-muted`),
+        href: `/muted`,
+        selected: filter === "muted",
+        id: "muted",
+        onClick: () => router.push("/muted")
+      },
+      {
         label: i18next.t(`entry-filter.filter-promoted`),
         href: `/promoted`,
         selected: filter === "promoted",
