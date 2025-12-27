@@ -24,7 +24,8 @@ export const getPromotedEntriesInfiniteQuery = () =>
         ({ visionFeatures }) => visionFeatures.promotions.enabled,
         {
             queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "infinite"],
-            initialData: { pages: [], pageParams: [] },
+            // Don't set initialData here - let it use prefetched data from server
+            // initialData: { pages: [], pageParams: [] },
             initialPageParam: "empty" as PromotedCursor,
 
             // ⬇️ annotate pageParam

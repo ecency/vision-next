@@ -14,6 +14,9 @@ interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
+// Enable ISR with 60 second revalidation for better profile page performance
+export const revalidate = 60;
+
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username } = await props.params;
   return generateProfileMetadata(username.replace("%40", ""));

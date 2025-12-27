@@ -2,6 +2,7 @@
 
 import htmlParse from "html-react-parser";
 import "./_index.scss";
+import "@/styles/static-pages.scss"; // Page-specific styles for LCP optimization
 import { FormEvent, useRef, useState } from "react";
 import { apiBase } from "@/api/helper";
 import { useGlobalStore } from "@/core/global-store";

@@ -4,7 +4,50 @@ const path = require("path");
 const withPWA = require("next-pwa")({
   dest: "public",
   // Raise the max size to precache large chunks:
-  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024 // 8MB
+  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
+  // Advanced caching strategies for better performance
+  runtimeCaching: [
+    {
+      // Cache API responses with network-first strategy
+      urlPattern: /^https:\/\/ecency\.com\/api\/.*/i,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'ecency-api',
+        networkTimeoutSeconds: 3,
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 5 * 60 // 5 minutes
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      // Cache local images and static assets
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'local-images',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+        }
+      }
+    },
+    {
+      // Cache fonts
+      urlPattern: /\.(?:woff|woff2|ttf|otf|eot)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'fonts',
+        expiration: {
+          maxEntries: 20,
+          maxAgeSeconds: 365 * 24 * 60 * 60 // 1 year
+        }
+      }
+    }
+  ]
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
@@ -186,15 +229,15 @@ const config = {
         destination: "/feed/created/:tag"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag/:sub",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)/:tag/:sub",
         destination: "/feed/:filter/:tag/:sub"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)/:tag",
         destination: "/feed/:filter/:tag"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)",
         destination: "/feed/:filter"
       }
     ];

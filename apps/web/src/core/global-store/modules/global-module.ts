@@ -32,7 +32,7 @@ export function createGlobalState() {
     currencySymbol: initialCurrencySymbol,
     lang: ls.get("lang") || ls.get("current-language") || "en-US",
     searchIndexCount: 0,
-    canUseWebp: false,
+    canUseWebp: true, // WebP supported by >95% of modern browsers - defaults to true for LCP optimization
     hasKeyChain: false,
     newVersion: null,
     globalNotifications: true,

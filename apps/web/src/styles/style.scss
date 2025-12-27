@@ -12,7 +12,8 @@
 @import "./theme-day";
 @import "./theme-night";
 
-@import "static-pages";
+/* Static pages CSS moved to page-level imports for better LCP performance */
+/* Import in specific pages that need it: landing page, FAQ, about, etc. */
 
 @tailwind utilities;
 
