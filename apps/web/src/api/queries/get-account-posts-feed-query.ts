@@ -1,5 +1,4 @@
 import { getAccountPostsQuery } from "@/api/queries/get-account-posts-query";
-import { getControversialRisingQuery } from "@/api/queries/get-controversial-rising-query";
 import { getPostsRankedQuery } from "@/api/queries/get-posts-ranked-query";
 import { getPromotedEntriesInfiniteQuery } from "@/api/queries/get-promoted-entries-query";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
@@ -15,11 +14,8 @@ export async function prefetchGetPostsFeedQuery(
     limit = 20,
     observer?: string
 ): Promise<FeedInfinite | undefined> {
-  const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-
-  const isAccountPosts = isUser && !isControversial;
-  const isControversialPosts = !isUser && isControversial;
+  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
@@ -34,10 +30,6 @@ export async function prefetchGetPostsFeedQuery(
         observer ?? "",
         true
     ).prefetch() as Promise<FeedInfinite | undefined>;
-  }
-
-  if (isControversialPosts) {
-    return getControversialRisingQuery(what, tag).prefetch() as Promise<FeedInfinite | undefined>;
   }
 
   if (what === "feed") {
@@ -62,11 +54,8 @@ export function getPostsFeedQueryData(
     limit = 20,
     observer?: string
 ): FeedInfinite | undefined {
-  const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-
-  const isAccountPosts = isUser && !isControversial;
-  const isControversialPosts = !isUser && isControversial;
+  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
@@ -81,10 +70,6 @@ export function getPostsFeedQueryData(
         observer ?? "",
         true
     ).getData() as FeedInfinite | undefined;
-  }
-
-  if (isControversialPosts) {
-    return getControversialRisingQuery(what, tag).getData() as FeedInfinite | undefined;
   }
 
   if (what === "feed") {
@@ -109,11 +94,8 @@ export function usePostsFeedQuery(
     observer?: string,
     limit = 20
 ): UseInfiniteQueryResult<Page, Error> {
-  const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-
-  const isAccountPosts = isUser && !isControversial;
-  const isControversialPosts = !isUser && isControversial;
+  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
   const query =
@@ -127,16 +109,14 @@ export function usePostsFeedQuery(
                   observer ?? "",
                   true
               )
-              : isControversialPosts
-                  ? getControversialRisingQuery(what, tag)
-                  : getPostsRankedQuery(
-                        what,
-                        tag,
-                        limit,
-                        observer ?? "",
-                        true,
-                        what === "feed" ? { resolvePosts: false } : undefined
-                    );
+              : getPostsRankedQuery(
+                    what,
+                    tag,
+                    limit,
+                    observer ?? "",
+                    true,
+                    what === "feed" ? { resolvePosts: false } : undefined
+                );
 
   // unify result type for callers
   return query.useClientQuery() as unknown as UseInfiniteQueryResult<Page, Error>;

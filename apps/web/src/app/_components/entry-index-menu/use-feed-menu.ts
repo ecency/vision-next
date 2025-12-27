@@ -33,20 +33,6 @@ export function useFeedMenu() {
   const secondaryMenu = useMemo(
     () => [
       {
-        label: i18next.t(`entry-filter.filter-controversial`),
-        href: `/controversial/week`,
-        selected: filter === "controversial",
-        id: "controversial",
-        onClick: () => router.push("/controversial/week")
-      },
-      {
-        label: i18next.t(`entry-filter.filter-rising`),
-        href: `/rising/week`,
-        selected: filter === "rising",
-        id: "rising",
-        onClick: () => router.push("/rising/week")
-      },
-      {
         label: i18next.t(`entry-filter.filter-promoted`),
         href: `/promoted`,
         selected: filter === "promoted",
@@ -71,14 +57,20 @@ export function useFeedMenu() {
           ]
         : []),
       ...[EntryFilter.trending, EntryFilter.hot, EntryFilter.created].map((x) => {
-        const tagSegment =
-          tag === "global"
-            ? "global"
-            : isMy || (activeUser && !tag)
-              ? "my"
-              : allTrendingTags.includes(tag)
-                ? tag
-                : "";
+        // Determine tag segment based on current context
+        let tagSegment = "";
+
+        if (filter === "feed") {
+          // When switching FROM feed TO trending/hot/created:
+          // - If it's your own feed (@username === activeUser), go to /my
+          // - Otherwise go to global (no tag)
+          const isOwnFeed = activeUser && tag === `@${activeUser.username}`;
+          tagSegment = isOwnFeed ? "my" : "";
+        } else {
+          // When already on trending/hot/created, preserve the tag context
+          tagSegment = tag === "global" ? "" : tag;
+        }
+
         const href = `/${x}${tagSegment ? `/${tagSegment}` : ""}`;
 
         return {
