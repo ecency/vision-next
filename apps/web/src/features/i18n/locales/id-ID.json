@@ -1406,6 +1406,7 @@
     "to-placeholder": "nama pengguna",
     "to-not-found": "Pengguna yang anda coba transfer dana tidak ditemukan!",
     "to-bad-actor": "Berhati-hatilah mengirim ke akun ini. Periksa kembali ejaan Anda untuk kemungkinan phising.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Jumlah",
     "amount-placeholder": "jumlah",
     "wrong-amount": "Nilai jumlah dana yang salah",
