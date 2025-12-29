@@ -1406,6 +1406,7 @@
     "to-placeholder": "nom d'utilisateur",
     "to-not-found": "L'utilisateur auquel vous essayez d'envoyer des fonds n'existe pas !",
     "to-bad-actor": "Faites preuve de prudence en envoyant à ce compte. Veuillez vérifier votre orthographe pour de possibles hameçonnages.",
+    "external-wallets-label": "Portefeuille (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Montant",
     "amount-placeholder": "montant",
     "wrong-amount": "Mauvaise valeur de montant",
