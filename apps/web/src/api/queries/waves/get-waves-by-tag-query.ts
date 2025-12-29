@@ -17,7 +17,8 @@ export const getWavesByTagQuery = (host: string, tag: string, limit = DEFAULT_TA
   EcencyQueriesManager.generateClientServerInfiniteQuery<WaveEntry[], void>({
     queryKey: [QueryIdentifiers.THREADS, host, "tag", tag],
     initialPageParam: undefined,
-    initialData: { pages: [], pageParams: [] },
+    // Don't set initialData here - let it use prefetched data from server
+    // initialData: { pages: [], pageParams: [] },
     queryFn: async () => {
       try {
         const { data } = await appAxios.get<WavesTagEntryResponse[]>(
