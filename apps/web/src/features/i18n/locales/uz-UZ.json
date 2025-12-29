@@ -1406,6 +1406,7 @@
     "to-placeholder": "foydalanuvchi nomi",
     "to-not-found": "Siz pul o'tkazmoqchi bo'lgan foydalanuvchi mavjud emas!",
     "to-bad-actor": "Ushbu hisobga yuborishda ehtiyot bo'ling. Iltimos, imloni tekshirib ko'ring.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Miqdor",
     "amount-placeholder": "miqdor",
     "wrong-amount": "Noto'g'ri miqdor qiymati",
