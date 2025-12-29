@@ -60,6 +60,25 @@ export function useDebounceTransferAccountData() {
     ];
   }, [activeUser?.username, dynamicProps, to, vestingDelegations]);
 
+  const externalWallets = useMemo(() => {
+    if (!toData?.profile?.tokens || !Array.isArray(toData.profile.tokens)) {
+      return [];
+    }
+
+    return toData.profile.tokens
+      .filter((token) => {
+        const hasAddress =
+          token.meta?.address &&
+          typeof token.meta.address === "string" &&
+          token.meta.address.trim().length > 0;
+        return hasAddress && token.type === "CHAIN";
+      })
+      .map((token) => ({
+        symbol: token.symbol.toUpperCase(),
+        address: (token.meta.address as string).trim()
+      }));
+  }, [toData]);
+
   useDebounce(
     () => {
       if (to === "") {
@@ -117,6 +136,7 @@ export function useDebounceTransferAccountData() {
     }, [activeUser?.data, mode, toData]),
     toError,
     delegateAccount,
-    isLoading: useMemo(() => toLoading || vestingLoading, [toLoading, vestingLoading])
+    isLoading: useMemo(() => toLoading || vestingLoading, [toLoading, vestingLoading]),
+    externalWallets
   };
 }
