@@ -1406,6 +1406,7 @@
     "to-placeholder": "उपयोगकर्ता नाम",
     "to-not-found": "जिस उपयोगकर्ता को आप धनराशि स्थानांतरित करने का प्रयास कर रहे हैं वह मौजूद नहीं है!",
     "to-bad-actor": "इस खाते पर संदेश भेजते समय सावधानी बरतें। कृपया संभावित फ़िशिंग के लिए अपनी वर्तनी दोबारा जाँच लें।",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "रकम",
     "amount-placeholder": "रकम",
     "wrong-amount": "गलत राशि मान",
