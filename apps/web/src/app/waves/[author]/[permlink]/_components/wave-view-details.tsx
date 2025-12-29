@@ -12,6 +12,7 @@ import { PostContentRenderer } from "@/features/shared";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 import { usePathname, useRouter } from "next/navigation";
 import { useOptionalWavesTagFilter } from "@/app/waves/_context";
+import { getPostTipsQuery } from "@/api/queries";
 
 interface Props {
   entry: WaveEntry;
@@ -26,6 +27,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
   const tagFilter = useOptionalWavesTagFilter();
 
   const poll = useEntryPollExtractor(entry);
+  const { data: postTips } = getPostTipsQuery(entry?.author ?? "", entry?.permlink ?? "").useClientQuery();
 
   const status = "default";
 
@@ -74,6 +76,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
         hasParent={false}
         pure={false}
         onEdit={() => setShowEditModal(true)}
+        postTips={postTips}
       />
       <div className="border-t border-[--border-color]"></div>
       <WaveForm entry={undefined} replySource={entry} />
