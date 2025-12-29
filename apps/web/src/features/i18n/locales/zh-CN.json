@@ -1406,6 +1406,7 @@
     "to-placeholder": "用户名",
     "to-not-found": "您正在尝试转账资金的用户不存在！",
     "to-bad-actor": "请谨慎发送到此账户。请仔细检查您的拼写，以免误入可疑的钓鱼账号。",
+    "external-wallets-label": "钱包 (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "数量",
     "amount-placeholder": "数量",
     "wrong-amount": "错误数量",
