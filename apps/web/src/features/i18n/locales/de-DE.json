@@ -1406,6 +1406,7 @@
     "to-placeholder": "Benutzername",
     "to-not-found": "Der Benutzer dem Du die Mittel überweisen möchtest, existiert nicht!",
     "to-bad-actor": "Sei vorsichtig beim Senden an dieses Konto. Bitte überprüfe die Rechtschreibung auf mögliche Phishing-Versuche.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Betrag",
     "amount-placeholder": "Menge",
     "wrong-amount": "Falsche Menge",
