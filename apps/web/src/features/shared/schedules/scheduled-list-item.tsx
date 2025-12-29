@@ -29,7 +29,7 @@ export function ScheduledListItem({ post }: Props) {
   const reputation = account?.reputation;
 
   const tag = post.tags_arr[0] || "";
-  const img = catchPostImage(post.body, 600, 500, canUseWebp ? "webp" : "match") || noImage;
+  const img = catchPostImage(post.body, 600, 500, canUseWebp ? "webp" : "match") || noImage.src;
   const summary = postBodySummary(post.body, 200);
 
   const dateRelative = useMemo(() => dateToFullRelative(post.schedule), [post]);
@@ -77,8 +77,8 @@ export function ScheduledListItem({ post }: Props) {
               target.src = fallbackImage.src;
             }}
             className={classNameObject({
-              "w-full h-auto": img !== noImage,
-              "w-[40px] h-auto": img === noImage
+              "w-full h-auto": img !== noImage.src,
+              "w-[40px] h-auto": img === noImage.src
             })}
           />
         </div>

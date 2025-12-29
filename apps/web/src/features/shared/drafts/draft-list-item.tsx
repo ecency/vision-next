@@ -26,7 +26,7 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
 
   const tags = draft.tags ? draft.tags.split(/[ ,]+/) : [];
   const tag = tags[0] || "";
-  const img = catchPostImage(draft.body, 600, 500, canUseWebp ? "webp" : "match") || noImage;
+  const img = catchPostImage(draft.body, 600, 500, canUseWebp ? "webp" : "match") || noImage.src;
   const summary = postBodySummary(draft.body, 200);
 
   const { data: community } = getCommunityCache(tag).useClientQuery();
@@ -78,8 +78,8 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
               target.src = fallbackImage.src;
             }}
             className={classNameObject({
-              "w-full h-auto": img !== noImage,
-              "w-[40px] h-auto": img === noImage
+              "w-full h-auto": img !== noImage.src,
+              "w-[40px] h-auto": img === noImage.src
             })}
           />
         </div>
