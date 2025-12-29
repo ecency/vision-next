@@ -1406,6 +1406,7 @@
     "to-placeholder": "gebruikersnaam",
     "to-not-found": "De gebruiker naar wie je probeert over te schrijven bestaat niet!",
     "to-bad-actor": "Wees voorzichtig met verzenden naar dit account. Controleer je spelling extra goed voor mogelijke phishing.",
+    "external-wallets-label": "Portemonnee (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Aantal",
     "amount-placeholder": "aantal",
     "wrong-amount": "Verkeerde hoeveelheid waarde",
