@@ -1406,6 +1406,7 @@
     "to-placeholder": "ユーザー名",
     "to-not-found": "送金先のユーザーが存在しません！",
     "to-bad-actor": "このアカウントに送金する際は注意してください。フィッシングの可能性があるためスペルを再確認してください。",
+    "external-wallets-label": "ウォレット (BTC、ETH、SOL、BNB、TRX、TON、APT)",
     "amount": "金額",
     "amount-placeholder": "数量",
     "wrong-amount": "間違った金額",
