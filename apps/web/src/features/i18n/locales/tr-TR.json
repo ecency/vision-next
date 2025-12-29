@@ -1406,6 +1406,7 @@
     "to-placeholder": "kullanıcı adı",
     "to-not-found": "Fonları aktarmaya çalıştığınız kullanıcı mevcut değil!",
     "to-bad-actor": "Bu hesaba aktarım yaparken dikkatli olun. Kimlik avı olasılığına karşı lütfen girdiğiniz bilgileri iyi kontrol edin.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Miktar",
     "amount-placeholder": "miktar",
     "wrong-amount": "Hatalı miktar değeri",
