@@ -1406,6 +1406,7 @@
     "to-placeholder": "guy-name",
     "to-not-found": "The person wey you dey try transfer money to no dey exist!",
     "to-bad-actor": "Make you dey careful dey send go this account.  Abeg check your spelling wella so that dem no go hack you. ",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Amount",
     "amount-placeholder": "amount",
     "wrong-amount": "The amount you type no correct",
