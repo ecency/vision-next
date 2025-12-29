@@ -1406,6 +1406,7 @@
     "to-placeholder": "korisničko ime",
     "to-not-found": "Korisnik kome želite poslati sredstva ne postoji!",
     "to-bad-actor": "Budite oprezni pri slanju na ovaj račun. Molim, dodatno proverite slova zbog moguće prevare.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Iznos",
     "amount-placeholder": "iznos",
     "wrong-amount": "Pogrešna vrednost iznosa",
