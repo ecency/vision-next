@@ -1406,6 +1406,7 @@
     "to-placeholder": "nombre de Usuario",
     "to-not-found": "¡El usuario al que estás intentando transferir fondos no existe!",
     "to-bad-actor": "Tenga cuidado enviando a esta cuenta. Por favor verifique la ortografía ante posible suplantación de identidad (phishing).",
+    "external-wallets-label": "Cartera (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Cantidad",
     "amount-placeholder": "cantidad",
     "wrong-amount": "Cantidad incorrecta",
