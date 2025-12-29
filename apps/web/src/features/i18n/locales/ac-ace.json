@@ -1406,6 +1406,7 @@
     "to-placeholder": "nan pengguna",
     "to-not-found": "Ureung yang droen meujak transfer dana, hana diteumee!",
     "to-bad-actor": "Use caution sending to this account. Please double check your spelling for possible phishing.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Jeumlah",
     "amount-placeholder": "jeumlah",
     "wrong-amount": "Salah pasoe angka",
