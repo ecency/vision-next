@@ -43,9 +43,11 @@ export default async function Page({ params, searchParams }: Props) {
       "newest",
       false
     ).prefetch();
-    searchData = searchPages!!.pages[0].results.sort(
-      (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-    );
+    if (searchPages?.pages?.[0]?.results) {
+      searchData = searchPages.pages[0].results.sort(
+        (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
+      );
+    }
   } else {
     const prefetched = await prefetchGetPostsFeedQuery("posts", `@${username}`);
     initialFeed = prefetched as InfiniteData<Entry[], unknown> | undefined;

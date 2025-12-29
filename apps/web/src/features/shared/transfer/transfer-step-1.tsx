@@ -3,8 +3,9 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { TransferAsset } from "@/features/shared";
 import { Form } from "@ui/form";
-import { FormControl, InputGroup } from "@ui/input";
-import React, { useCallback, useEffect, useMemo } from "react";
+import { FormControl, InputGroup, InputGroupCopyClipboard } from "@ui/input";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { UilAngleDown, UilAngleUp } from "@tooni/iconscout-unicons-react";
 import {
   dateToFullRelative,
   formatNumber,
@@ -64,8 +65,10 @@ export function TransferStep1({ titleLngKey }: Props) {
   const { data: engineBalances } = useGetHiveEngineBalancesQuery(
     activeUser?.username
   );
-  const { toWarning, toData, delegatedAmount, toError, delegateAccount } =
+  const { toWarning, toData, delegatedAmount, toError, delegateAccount, externalWallets } =
     useDebounceTransferAccountData();
+
+  const [isExternalWalletsExpanded, setIsExternalWalletsExpanded] = useState(false);
 
   const hiveAccount = useMemo(() => account ?? activeUser?.data, [account, activeUser?.data]);
 
@@ -343,6 +346,42 @@ export function TransferStep1({ titleLngKey }: Props) {
             </div>
 
             {showTo && <TransferStep1To toError={toError} toWarning={toWarning} />}
+
+            {showTo && externalWallets.length > 0 && (
+              <div className="grid items-center grid-cols-12 mb-4">
+                <div className="col-span-12 sm:col-span-10 sm:col-start-3">
+                  <div className="border-t border-[--border-color] pt-3">
+                    <div
+                      className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity mb-2"
+                      onClick={() => setIsExternalWalletsExpanded(!isExternalWalletsExpanded)}
+                    >
+                      <div className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+                        {i18next.t("transfer.external-wallets-label")}
+                      </div>
+                      <div className="text-gray-500 dark:text-gray-400">
+                        {isExternalWalletsExpanded ? (
+                          <UilAngleUp className="w-4 h-4" />
+                        ) : (
+                          <UilAngleDown className="w-4 h-4" />
+                        )}
+                      </div>
+                    </div>
+                    {isExternalWalletsExpanded && (
+                      <div className="flex flex-col gap-2">
+                        {externalWallets.map(({ symbol, address }) => (
+                          <div key={symbol} className="flex flex-col gap-1">
+                            <div className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                              {symbol}
+                            </div>
+                            <InputGroupCopyClipboard value={address} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="grid items-center grid-cols-12">
               <div className="col-span-12 sm:col-span-2">
