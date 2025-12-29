@@ -1406,6 +1406,7 @@
     "to-placeholder": "vartotojo vardas",
     "to-not-found": "Vartotojas, kuriam norite pervesti lėšas, neegzistuoja!",
     "to-bad-actor": "Būkite atsargūs siųsdami šiai paskyrai. Dėl galimo sukčiavimo įsitikinkite ar rašyba teisinga.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Kiekis",
     "amount-placeholder": "kiekis",
     "wrong-amount": "Klaidinga sumos vertė",
