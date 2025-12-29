@@ -53,7 +53,11 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
   }, [activeUser, entry?.active_votes]);
 
   useClickAway(rootRef, (e) => {
-    const target = e.target as HTMLElement;
+    if (!(e.target instanceof HTMLElement)) {
+      return;
+    }
+
+    const target = e.target;
 
     // Ignore clicks inside the tipping modal container
     if (target.closest("#modal-dialog-container")) {

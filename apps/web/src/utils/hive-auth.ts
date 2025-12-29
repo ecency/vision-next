@@ -98,7 +98,10 @@ let nonceIncrement = 0;
 type InternalHasClient = HasClient & {
   __ecencyLastSignReqData?: HiveAuthSignRequestPayload;
   authKey: string;
+  websocket?: WebSocket;
 };
+
+let hasPatchedHiveAuthSend = false;
 
 interface HiveAuthSignRequestPayload {
   key_type: string;
@@ -315,6 +318,69 @@ function patchHiveAuthBroadcast() {
   hasPatchedHiveAuthBroadcast = true;
 }
 
+function patchHiveAuthSend() {
+  if (hasPatchedHiveAuthSend) return;
+
+  const prototype = HasClient.prototype as any;
+
+  if (!prototype || typeof prototype.send !== "function") {
+    return;
+  }
+
+  const originalConnect: (() => Promise<unknown>) | undefined =
+    typeof prototype.connect === "function" ? prototype.connect : undefined;
+
+  const openState = typeof WebSocket !== "undefined" ? WebSocket.OPEN : 1;
+  const connectingState = typeof WebSocket !== "undefined" ? WebSocket.CONNECTING : 0;
+
+  const ensureSocket = async (client: InternalHasClient) => {
+    if (client.websocket && typeof client.websocket.send === "function") {
+      const state = client.websocket.readyState;
+      if (state === openState || state === connectingState) {
+        return client.websocket;
+      }
+    }
+
+    client.websocket = undefined;
+    client.isConnected = false as unknown as boolean;
+
+    if (originalConnect) {
+      await originalConnect.call(client);
+    }
+
+    return client.websocket && typeof client.websocket.send === "function"
+      ? client.websocket
+      : undefined;
+  };
+
+  prototype.send = async function patchedSend(this: InternalHasClient, message: string) {
+    const socket = await ensureSocket(this);
+
+    if (!socket) {
+      throw new Error("HiveAuth websocket is unavailable");
+    }
+
+    this.log(`[SEND] ${message}`);
+
+    try {
+      socket.send(message);
+    } catch (err) {
+      this.websocket = undefined;
+      this.isConnected = false as unknown as boolean;
+
+      const retrySocket = await ensureSocket(this);
+
+      if (!retrySocket) {
+        throw err;
+      }
+
+      retrySocket.send(message);
+    }
+  } as typeof HasClient.prototype.send;
+
+  hasPatchedHiveAuthSend = true;
+}
+
 function getLastSignRequestPayload(client: HasClient): HiveAuthSignRequestPayload | undefined {
   return (client as InternalHasClient).__ecencyLastSignReqData;
 }
@@ -342,6 +408,7 @@ function getClient(): HasClient {
   if (typeof window === "undefined") {
     throw new Error("HiveAuth client is only available in the browser");
   }
+  patchHiveAuthSend();
   patchHiveAuthBroadcast();
   if (hiveAuthClient) {
     try {

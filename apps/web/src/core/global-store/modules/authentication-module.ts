@@ -1,15 +1,21 @@
-import { ActiveUser } from "@/entities";
+import { Account, ActiveUser } from "@/entities";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
-import { activeUserMaker } from "@/specs/test-helper";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import * as Sentry from "@sentry/nextjs";
+
+const makeActiveUser = (username: string): ActiveUser => ({
+  username,
+  data: {
+    name: username
+  } as Account
+});
 
 const load = (name?: string | null): ActiveUser | null => {
   const username = name ?? ls.get("active_user");
 
   if (username && ls.get(`user_${username}`)) {
-    return activeUserMaker(username);
+    return makeActiveUser(username);
   }
 
   return null;
