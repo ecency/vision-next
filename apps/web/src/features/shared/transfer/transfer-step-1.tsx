@@ -369,7 +369,7 @@ export function TransferStep1({ titleLngKey }: Props) {
                     {isExternalWalletsExpanded && (
                       <div className="flex flex-col gap-2">
                         {externalWallets.map(({ symbol, address }) => (
-                          <div key={symbol} className="flex flex-col gap-1">
+                          <div key={`${symbol}-${address}`} className="flex flex-col gap-1">
                             <div className="text-xs font-semibold text-gray-600 dark:text-gray-300">
                               {symbol}
                             </div>
