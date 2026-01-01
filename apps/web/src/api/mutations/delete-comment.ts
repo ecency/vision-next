@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { broadcastPostingOperations, formatError } from "@/api/operations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";

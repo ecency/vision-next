@@ -38,7 +38,7 @@ export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
 
       // Invalidate account query to refresh profile data
       qc.invalidateQueries({
-        queryKey: [QueryIdentifiers.ACCOUNT_FULL, account.name]
+        queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, account.name]
       });
 
       setDialog(false);

@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatError, updateCommunity } from "@/api/operations";
 import { QueryIdentifiers } from "@/core/react-query";

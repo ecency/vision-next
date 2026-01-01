@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Entry, FullAccount } from "@/entities";
 import { error, success } from "@/features/shared";
@@ -34,7 +36,7 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
 
         // Invalidate account query to refresh profile data
         qc.invalidateQueries({
-          queryKey: [QueryIdentifiers.ACCOUNT_FULL, name]
+          queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, name]
         });
       } else if (ownEntry && !pin && profile && activeUser) {
         await updateProfile({
@@ -52,7 +54,7 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
 
         // Invalidate account query to refresh profile data
         qc.invalidateQueries({
-          queryKey: [QueryIdentifiers.ACCOUNT_FULL, name]
+          queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, name]
         });
       }
     },

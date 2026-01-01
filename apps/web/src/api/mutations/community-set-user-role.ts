@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient, UseQueryResult } from "@tanstack/react-query";
 import { Community, CommunityTeam } from "@/entities";
 import { formatError, setUserRole } from "@/api/operations";

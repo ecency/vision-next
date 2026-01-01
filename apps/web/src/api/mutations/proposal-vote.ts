@@ -1,3 +1,5 @@
+"use client";
+
 import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatError } from "@/api/operations";
 import { Operation, PrivateKey } from "@hiveio/dhive";

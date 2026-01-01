@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import { Operation, PrivateKey } from "@hiveio/dhive";
 import { client as hiveClient } from "@/api/hive";

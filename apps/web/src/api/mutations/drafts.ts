@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Draft, DraftMetadata } from "@/entities";

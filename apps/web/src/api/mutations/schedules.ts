@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteSchedule, moveSchedule } from "@/api/private-api";
 import { useActiveAccount } from "@/core/hooks/use-active-account";

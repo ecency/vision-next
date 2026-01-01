@@ -1,3 +1,5 @@
+"use client";
+
 import { getAccessToken } from "@/utils";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import { EntryHeader } from "@/entities";
 import { getPostHeader } from "@/api/bridge";

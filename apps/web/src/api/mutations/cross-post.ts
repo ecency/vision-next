@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
 import { Entry } from "@/entities";
