@@ -83,6 +83,7 @@ export function EditorToolbar({
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const emojiButtonRef = useRef<HTMLDivElement | null>(null);
 
   const [gallery, setGallery] = useState(false);
   const [fragments, setFragments] = useState(false);
@@ -90,6 +91,7 @@ export function EditorToolbar({
   const [link, setLink] = useState(false);
   const [mobileImage, setMobileImage] = useState(false);
   const [gif, setGif] = useState(false);
+  const [emoji, setEmoji] = useState(false);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showPollsCreation, setShowPollsCreation] = useState(false);
@@ -466,19 +468,21 @@ export function EditorToolbar({
             </Tooltip>
           </EcencyConfigManager.Conditional>
         )}
-        {isMounted() && (
-          <Tooltip content={i18next.t("editor-toolbar.emoji")}>
-            <div className="editor-tool" id={"editor-tool-emoji-picker-" + toolbarId} role="none">
+        <Tooltip content={i18next.t("editor-toolbar.emoji")}>
+          <div className="editor-tool" role="none">
+            <div ref={emojiButtonRef} onClick={() => setEmoji(!emoji)}>
               {emoticonHappyOutlineSvg}
-              <EmojiPicker
-                anchor={
-                  document.querySelector("#editor-tool-emoji-picker-" + toolbarId)!! as HTMLElement
-                }
-                onSelect={(e) => insertText(e, "")}
-              />
             </div>
-          </Tooltip>
-        )}
+            {emoji && (
+              <EmojiPicker
+                show={emoji}
+                changeState={(state) => setEmoji(state)}
+                onSelect={(e) => insertText(e, "")}
+                buttonRef={emojiButtonRef}
+              />
+            )}
+          </div>
+        </Tooltip>
         <Tooltip content={i18next.t("Gif")}>
           <div className="editor-tool" role="none">
             <div className="editor-tool-gif-icon" onClick={() => setGif(!gif)}>
