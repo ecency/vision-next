@@ -14,7 +14,6 @@ import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { getGifsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
-import useMount from "react-use/lib/useMount";
 import { GifPickerBottom } from "./gif-picker-bottom";
 
 interface Props {
@@ -46,12 +45,6 @@ export function GifPicker(props: Props) {
 
   const { data, refetch, fetchNextPage, hasNextPage } = getGifsQuery(filter).useClientQuery();
   const dataFlow = useInfiniteDataFlow(data);
-
-  useMount(() => {
-    if (dataFlow.length === 0) {
-      refetch();
-    }
-  });
 
   useEffect(() => {
     refetch();

@@ -16,7 +16,7 @@ export function useEntryPollExtractor(entry?: Entry | null) {
       const maxChoices =
         typeof pollMetadata?.max_choices_voted === "number" && pollMetadata.max_choices_voted > 0
           ? pollMetadata.max_choices_voted
-          : 1;
+          : (choices.length || 1);
 
       return {
         title: pollMetadata?.question ?? "",

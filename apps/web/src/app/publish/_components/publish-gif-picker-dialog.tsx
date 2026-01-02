@@ -3,7 +3,6 @@ import i18next from "i18next";
 import React, { useCallback, useEffect, useState } from "react";
 import { getGifsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
-import useMount from "react-use/lib/useMount";
 import { SearchBox } from "@/features/shared";
 import Image from "next/image";
 import { GifPickerBottom } from "@ui/gif-picker/gif-picker-bottom";
@@ -20,12 +19,6 @@ export function PublishGifPickerDialog({ show, setShow, onPick }: Props) {
 
   const { data, refetch, fetchNextPage, hasNextPage } = getGifsQuery(filter).useClientQuery();
   const dataFlow = useInfiniteDataFlow(data);
-
-  useMount(() => {
-    if (dataFlow.length === 0) {
-      refetch();
-    }
-  });
 
   useEffect(() => {
     refetch();

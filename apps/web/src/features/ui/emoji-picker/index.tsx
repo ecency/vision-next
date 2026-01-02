@@ -86,6 +86,12 @@ export function EmojiPicker({
         return;
       }
 
+      // Don't close if clicking the button that opens the picker
+      // This prevents the picker from closing on pointerdown then reopening on click
+      if (buttonRef?.current?.contains(targetNode)) {
+        return;
+      }
+
       changeState(false);
     };
 
@@ -94,7 +100,7 @@ export function EmojiPicker({
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [show, changeState]);
+  }, [show, changeState, buttonRef]);
 
   const mergedStyle: CSSProperties = {
     position: "fixed",
