@@ -89,7 +89,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const type = slugs[0];
   const paramSecret = slugs[1];
 
-  const { activeUser } = useActiveAccount();
+  const { activeUser, account } = useActiveAccount();
   const queryParams = useSearchParams();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
@@ -142,10 +142,10 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   }, [type, seedPhrase, decodedInfo]);
 
   useEffect(() => {
-    (activeUser?.data as FullAccount) &&
-      (activeUser?.data as FullAccount).pending_claimed_accounts &&
-      setAccountCredit((activeUser?.data as FullAccount).pending_claimed_accounts);
-  }, [activeUser]);
+    if (account?.pending_claimed_accounts) {
+      setAccountCredit(account.pending_claimed_accounts);
+    }
+  }, [account]);
 
   useEffect(() => {
     if (decodedInfo) {

@@ -2,12 +2,8 @@ import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import { PollSnapshot } from "../../polls";
 import appPackage from "../../../../package.json";
 import { getDimensionsFromDataUrl } from "./get-dimensions-from-data-url";
-import {
-  ensureValidPermlink,
-  extractMetaData,
-  makeApp,
-  makeEntryPath
-} from "@/utils";
+import { ensureValidPermlink, extractMetaData, makeApp } from "@/utils/posting";
+import { makeEntryPath } from "@/utils/make-path";
 import { Entry, MetaData } from "@/entities";
 import { ThreeSpeakVideo } from "@/api/threespeak";
 

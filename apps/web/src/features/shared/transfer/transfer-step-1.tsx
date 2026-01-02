@@ -70,7 +70,7 @@ export function TransferStep1({ titleLngKey }: Props) {
 
   const [isExternalWalletsExpanded, setIsExternalWalletsExpanded] = useState(false);
 
-  const hiveAccount = useMemo(() => account ?? activeUser?.data, [account, activeUser?.data]);
+  const hiveAccount = useMemo(() => account, [account]);
 
   const w = useMemo(
     () => (hiveAccount ? new HiveWallet(hiveAccount, dynamicProps ?? DEFAULT_DYNAMIC_PROPS) : null),

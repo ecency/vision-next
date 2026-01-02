@@ -32,7 +32,7 @@ export function useMenuItemsGenerator(
   separatedSharing: boolean,
   extraMenuItems?: MenuItem[]
 ) {
-  const { activeUser } = useActiveAccount();
+  const { activeUser, account } = useActiveAccount();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   const { data: isPinnedCached } = useCommunityPinCache(entry);
@@ -131,8 +131,7 @@ export function useMenuItemsGenerator(
     const isOwn = !!activeUser && activeUser.username === entry.author;
     const isCross = activeUser && !isComment && isCommunity(entry.category);
     const isDeletable = isOwn && !(entry.children > 0 || entry.net_rshares > 0 || entry.is_paidout);
-    const activeUserWithProfile = activeUser?.data as FullAccount;
-    const profile = activeUserWithProfile && activeUserWithProfile.profile;
+    const profile = account?.profile;
     const canUnpinCommunity = isTeamManager() && isPinned;
     const canUnpinBlog = isOwn && entry.permlink === profile?.pinned;
     const canPinCommunity = isTeamManager() && !canUnpinCommunity;

@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function BuyWithHiveForm({ onSubmit }: Props) {
-  const { activeUser } = useActiveAccount();
+  const { account } = useActiveAccount();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
   const [amount, setAmount] = useState("0");
@@ -21,10 +21,10 @@ export function BuyWithHiveForm({ onSubmit }: Props) {
 
   const w = useMemo(
     () =>
-      activeUser
-        ? new HiveWallet(activeUser?.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS)
+      account
+        ? new HiveWallet(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS)
         : ({ balance: 0 } as HiveWallet),
-    [activeUser, dynamicProps]
+    [account, dynamicProps]
   );
   const usdRate = useMemo(() => {
     if (asset === MarketAsset.HIVE) {

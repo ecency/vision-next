@@ -1,6 +1,6 @@
 "use client";
 
-import { getAccountFullQuery } from "@/api/queries";
+import { getAccountFullQuery } from "@/api/queries/get-account-full-query";
 import { FullAccount } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 

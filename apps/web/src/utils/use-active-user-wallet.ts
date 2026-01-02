@@ -4,11 +4,11 @@ import { HiveWallet } from "./hive-wallet";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useActiveUserWallet() {
-  const { activeUser } = useActiveAccount();
+  const { account } = useActiveAccount();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
   return useMemo(
-    () => (activeUser && dynamicProps ? new HiveWallet(activeUser.data, dynamicProps) : undefined),
-    [activeUser, dynamicProps]
+    () => (account && dynamicProps ? new HiveWallet(account, dynamicProps) : undefined),
+    [account, dynamicProps]
   );
 }

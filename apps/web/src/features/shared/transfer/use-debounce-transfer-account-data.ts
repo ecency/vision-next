@@ -15,7 +15,7 @@ import i18next from "i18next";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 
 export function useDebounceTransferAccountData() {
-  const { activeUser } = useActiveAccount();
+  const { activeUser, account } = useActiveAccount();
 
   const { to, mode, setAmount, setTo } = useTransferSharedState();
 
@@ -129,11 +129,11 @@ export function useDebounceTransferAccountData() {
           "claim-interest"
         ].includes(mode)
       ) {
-        return activeUser?.data;
+        return account;
       }
 
       return toData;
-    }, [activeUser?.data, mode, toData]),
+    }, [account, mode, toData]),
     toError,
     delegateAccount,
     isLoading: useMemo(() => toLoading || vestingLoading, [toLoading, vestingLoading]),

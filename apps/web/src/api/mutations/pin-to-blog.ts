@@ -9,16 +9,20 @@ import { QueryIdentifiers } from "@/core/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function usePinToBlog(entry: Entry, onSuccess: () => void) {
-  const { activeUser } = useActiveAccount();
+  const { activeUser, account } = useActiveAccount();
   const qc = useQueryClient();
 
-  const { mutateAsync: updateProfile } = useUpdateProfile(activeUser?.data as FullAccount);
+  const { mutateAsync: updateProfile } = useUpdateProfile(account!);
 
   return useMutation({
     mutationKey: ["pinToBlog"],
     mutationFn: async ({ pin }: { pin: boolean }) => {
+      if (!account) {
+        throw new Error("Account not loaded");
+      }
+
       const ownEntry = activeUser && activeUser.username === entry.author;
-      const { profile, name } = activeUser!.data as FullAccount;
+      const { profile, name } = account;
 
       if (ownEntry && pin && profile && activeUser) {
         await updateProfile({
