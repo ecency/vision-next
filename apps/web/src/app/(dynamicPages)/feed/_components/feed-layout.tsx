@@ -27,7 +27,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
 
   // 👇 Make the hook result explicitly an infinite query over Page
   const result = usePostsFeedQuery(props.filter, props.tag, props.observer) as UseInfiniteQueryResult<Page, Error>;
-  const isLoading = result.isLoading;
+  const isFetching = result.isFetching;
   const data = result.data as InfiniteData<Page, unknown> | undefined;
 
   const [pending, setPending] = useState<Entry[]>([]);
@@ -148,7 +148,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
         )}
 
         <div className={`entry-list-body ${listStyle === ListStyle.grid ? "grid-view" : ""}`}>
-          {isLoading && <LinearProgress />}
+          {isFetching && <LinearProgress />}
 
           {extra.length > 0 && (
               <EntryListContent

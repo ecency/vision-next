@@ -43,7 +43,7 @@ export function ProfileEntriesInfiniteList({
   const totalEntriesCount = initialEntriesCount + entryList.length;
   const hasClientData = (data?.pages?.length ?? 0) > 0;
   const isDataReady = initialDataLoaded || hasClientData;
-  const isFetchingData = isLoading || isFetching || isFetchingNextPage;
+  const isFetchingData = isFetching || isFetchingNextPage;
   const shouldShowEmptyState =
     isDataReady && !isFetchingData && totalEntriesCount === 0;
 
