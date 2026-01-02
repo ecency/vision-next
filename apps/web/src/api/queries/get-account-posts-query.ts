@@ -31,8 +31,8 @@ export const getAccountPostsQuery = (
         } as PageParam,
 
         // 👇 type the destructured arg
-        queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
-            if (!pageParam.hasNextPage || !username) return [];
+        queryFn: async ({ pageParam }: { pageParam?: PageParam }) => {
+            if (!pageParam?.hasNextPage || !username) return [];
 
             interface AccountPostsParams {
                 sort: string;
@@ -82,12 +82,18 @@ export const getAccountPostsQuery = (
             }
         },
 
-        getNextPageParam: (lastPage: Page): PageParam => {
+        getNextPageParam: (lastPage: Page): PageParam | undefined => {
             const last = lastPage?.[lastPage.length - 1];
+            const hasNextPage = (lastPage?.length ?? 0) > 0;
+
+            if (!hasNextPage) {
+                return undefined;
+            }
+
             return {
                 author: last?.author,
                 permlink: last?.permlink,
-                hasNextPage: (lastPage?.length ?? 0) > 0,
+                hasNextPage,
             };
         },
     });

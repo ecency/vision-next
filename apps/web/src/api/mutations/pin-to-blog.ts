@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Entry, FullAccount } from "@/entities";
-import { error, success } from "@/features/shared";
+import { error } from "@/features/shared";
 import i18next from "i18next";
 import { useUpdateProfile } from "@/api/mutations/update-profile";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -36,7 +36,6 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
             pinned: entry.permlink
           }
         });
-        success(i18next.t("entry-menu.pin-success"));
 
         // Invalidate account query to refresh profile data
         qc.invalidateQueries({
@@ -54,7 +53,6 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
             pinned: ""
           }
         });
-        success(i18next.t("entry-menu.unpin-success"));
 
         // Invalidate account query to refresh profile data
         qc.invalidateQueries({
