@@ -125,18 +125,15 @@ export const DecksSettings = ({ show, setShow, deck }: Props) => {
                     >
                       {icon ? icon : emoticonHappyOutlineSvg}
                     </Button>
-                    {showEmoji ? (
-                      <ClickAwayListener onClickAway={() => setShowEmoji(false)}>
-                        <EmojiPicker
-                          anchor={anchorRef.current}
-                          onSelect={(value) => {
-                            setIcon(value);
-                            setShowEmoji(false);
-                          }}
-                        />
-                      </ClickAwayListener>
-                    ) : (
-                      <></>
+                    {showEmoji && (
+                      <EmojiPicker
+                        show={showEmoji}
+                        changeState={(state) => setShowEmoji(state)}
+                        onSelect={(value) => {
+                          setIcon(value);
+                        }}
+                        buttonRef={anchorRef}
+                      />
                     )}
                   </>
                 }

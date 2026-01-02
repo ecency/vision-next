@@ -1,4 +1,4 @@
-import { type ChangeEvent, type CSSProperties } from "react";
+import { type ChangeEvent, type CSSProperties, useState } from "react";
 import { Button } from "@ui/button";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { emojiIconSvg } from "@ui/icons";
@@ -140,6 +140,8 @@ export function MessageInput({
   posts,
   typingUsernames
 }: MessageInputProps) {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   return (
     <>
       <form
@@ -393,6 +395,11 @@ export function MessageInput({
                   aria-label="Add emoji"
                   title="Add emoji"
                   disabled={isSubmitting}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowEmojiPicker((prev) => !prev);
+                  }}
                 />
 
                 <Button
@@ -521,13 +528,17 @@ export function MessageInput({
           )}
         </div>
       </form>
-      <EmojiPicker
-        anchor={emojiButtonRef.current}
-        position="top"
-        onSelect={(emoji: string) => {
-          setMessage((prev) => prev + emoji);
-        }}
-      />
+      {showEmojiPicker && (
+        <EmojiPicker
+          show={showEmojiPicker}
+          changeState={(state) => setShowEmojiPicker(state)}
+          onSelect={(emoji: string) => {
+            setMessage((prev) => prev + emoji);
+          }}
+          buttonRef={emojiButtonRef}
+          position="top"
+        />
+      )}
       {showGifPicker && gifPickerStyle && (
         <GifPicker
           rootRef={gifPickerRef}
