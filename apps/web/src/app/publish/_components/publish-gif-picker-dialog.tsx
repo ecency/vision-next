@@ -1,6 +1,6 @@
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import i18next from "i18next";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getGifsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
 import useMount from "react-use/lib/useMount";
@@ -26,6 +26,10 @@ export function PublishGifPickerDialog({ show, setShow, onPick }: Props) {
       refetch();
     }
   });
+
+  useEffect(() => {
+    refetch();
+  }, [filter, refetch]);
 
   const itemClicked = useCallback(
     async (gif: GiphyResponse["data"][0]) => {

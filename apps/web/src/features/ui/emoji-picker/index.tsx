@@ -6,7 +6,6 @@ import "./_index.scss";
 import { v4 } from "uuid";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
-import useClickAway from "react-use/lib/useClickAway";
 import { useGlobalStore } from "@/core/global-store";
 import { classNameObject } from "@ui/util";
 
@@ -30,9 +29,32 @@ export function EmojiPicker({ anchor, onSelect, position = "bottom", isDisabled 
   const dialogId = useMemo(() => v4(), []);
   const isMounted = useMountedState();
 
-  useClickAway(ref, () => {
-    setShow(false);
-  });
+  // Handle click outside to close picker (same pattern as GIF picker)
+  useEffect(() => {
+    if (!show) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const targetNode = event.target as Node | null;
+
+      if (!targetNode) {
+        return;
+      }
+
+      if (ref.current?.contains(targetNode)) {
+        return;
+      }
+
+      setShow(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [show]);
 
   useEffect(() => {
     if (!anchor) return;

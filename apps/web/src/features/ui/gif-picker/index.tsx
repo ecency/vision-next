@@ -53,6 +53,10 @@ export function GifPicker(props: Props) {
     }
   });
 
+  useEffect(() => {
+    refetch();
+  }, [filter, refetch]);
+
   const itemClicked = useCallback(
     async (url: string, _filter?: string | any) => {
       const gifTitles: string[] = dataFlow.map((i) => i.title);
