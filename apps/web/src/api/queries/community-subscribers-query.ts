@@ -1,16 +1,9 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { Community, Subscription } from "@/entities";
-import { bridgeApiCall } from "@/api/bridge";
+import { EcencyQueriesManager } from "@/core/react-query";
+import { Community } from "@/entities";
+import { getCommunitySubscribersQueryOptions } from "@ecency/sdk";
 
 export function getCommunitySubscribersQuery(community: Community) {
-  return EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.COMMUNITY_SUBSCRIBERS, community.id],
-    queryFn: async () => {
-      const response = await bridgeApiCall<Subscription[] | null>("list_subscribers", {
-        community: community.name
-      });
-      return response ?? [];
-    },
-    staleTime: 60000
-  });
+  return EcencyQueriesManager.generateClientServerQuery(
+    getCommunitySubscribersQueryOptions(community.name)
+  );
 }

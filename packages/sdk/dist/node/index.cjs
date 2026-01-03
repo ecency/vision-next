@@ -652,6 +652,17 @@ function getMutedUsersQueryOptions(username, limit = 100) {
     enabled: !!username
   });
 }
+function lookupAccountsQueryOptions(query, limit = 50) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "lookup", query, limit],
+    queryFn: () => CONFIG.hiveClient.database.call("lookup_accounts", [
+      query,
+      limit
+    ]),
+    enabled: !!query,
+    staleTime: Infinity
+  });
+}
 function getSearchAccountsByUsernameQueryOptions(query, limit = 5, excludeList = []) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "search", query, excludeList],
@@ -2079,6 +2090,18 @@ function getCommunityContextQueryOptions(username, communityName) {
     }
   });
 }
+function getCommunitySubscribersQueryOptions(communityName) {
+  return reactQuery.queryOptions({
+    queryKey: ["communities", "subscribers", communityName],
+    queryFn: async () => {
+      const response = await CONFIG.hiveClient.call("bridge", "list_subscribers", {
+        community: communityName
+      });
+      return response ?? [];
+    },
+    staleTime: 6e4
+  });
+}
 
 // src/modules/communities/types/community.ts
 var ROLES = /* @__PURE__ */ ((ROLES2) => {
@@ -2479,6 +2502,7 @@ exports.getCollateralizedConversionRequestsQueryOptions = getCollateralizedConve
 exports.getCommunitiesQueryOptions = getCommunitiesQueryOptions;
 exports.getCommunityContextQueryOptions = getCommunityContextQueryOptions;
 exports.getCommunityPermissions = getCommunityPermissions;
+exports.getCommunitySubscribersQueryOptions = getCommunitySubscribersQueryOptions;
 exports.getCommunityType = getCommunityType;
 exports.getConversionRequestsQueryOptions = getConversionRequestsQueryOptions;
 exports.getDiscussionsQueryOptions = getDiscussionsQueryOptions;
@@ -2518,6 +2542,7 @@ exports.getUserProposalVotesQueryOptions = getUserProposalVotesQueryOptions;
 exports.getVestingDelegationsQueryOptions = getVestingDelegationsQueryOptions;
 exports.getWithdrawRoutesQueryOptions = getWithdrawRoutesQueryOptions;
 exports.getWitnessesInfiniteQueryOptions = getWitnessesInfiniteQueryOptions;
+exports.lookupAccountsQueryOptions = lookupAccountsQueryOptions;
 exports.makeQueryClient = makeQueryClient;
 exports.parseAccounts = parseAccounts;
 exports.parseAsset = parseAsset;
