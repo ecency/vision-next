@@ -24,6 +24,9 @@ export function getNotificationsSettingsQueryOptions(
           },
         }
       );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch notification settings: ${response.status}`);
+      }
       return response.json() as Promise<ApiNotificationSetting>;
     },
     enabled: !!activeUsername,
