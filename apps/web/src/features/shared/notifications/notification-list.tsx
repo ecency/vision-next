@@ -29,7 +29,10 @@ export function NotificationList({
     getNotificationsInfiniteQueryOptions(activeUser?.username, filter)
   );
 
-  const dataFlow = useMemo(() => data?.pages.reduce((acc, page) => [...acc, ...page], []), [data]);
+  const dataFlow = useMemo(
+    () => data?.pages.reduce((acc, page) => [...acc, ...page], []) ?? [],
+    [data]
+  );
 
   return (
     <>
