@@ -1,7 +1,7 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { UseMutationOptions, MutationKey, QueryClient, QueryKey, InfiniteData, UseQueryOptions, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import * as _hiveio_dhive from '@hiveio/dhive';
-import { Authority, PrivateKey, AuthorityType, PublicKey, Operation, Client, SMTAsset } from '@hiveio/dhive';
+import { Authority, SMTAsset, PrivateKey, AuthorityType, PublicKey, Operation, Client } from '@hiveio/dhive';
 import * as _hiveio_dhive_lib_chain_rc from '@hiveio/dhive/lib/chain/rc';
 
 interface AccountFollowStats {
@@ -121,6 +121,204 @@ interface Follow {
     following: string;
     what: string[];
 }
+
+interface BaseTransaction {
+    num: number;
+    type: string;
+    timestamp: string;
+    trx_id: string;
+}
+interface CurationReward extends BaseTransaction {
+    type: "curation_reward";
+    comment_author?: string;
+    comment_permlink?: string;
+    author?: string;
+    permlink?: string;
+    curator: string;
+    reward: string;
+}
+interface AuthorReward extends BaseTransaction {
+    type: "author_reward";
+    author: string;
+    permlink: string;
+    hbd_payout: string;
+    hive_payout: string;
+    vesting_payout: string;
+}
+interface CommentBenefactor extends BaseTransaction {
+    type: "comment_benefactor_reward";
+    benefactor: string;
+    author: string;
+    permlink: string;
+    hbd_payout: string;
+    hive_payout: string;
+    vesting_payout: string;
+}
+interface ClaimRewardBalance extends BaseTransaction {
+    type: "claim_reward_balance";
+    account: string;
+    reward_hbd: string;
+    reward_hive: string;
+    reward_vests: string;
+}
+interface Transfer extends BaseTransaction {
+    type: "transfer";
+    amount: string;
+    memo: string;
+    from: string;
+    to: string;
+}
+interface TransferToVesting extends BaseTransaction {
+    type: "transfer_to_vesting";
+    amount: string;
+    memo?: string;
+    from: string;
+    to: string;
+}
+interface SetWithdrawRoute extends BaseTransaction {
+    type: "set_withdraw_vesting_route";
+    from_account: string;
+    to_account: string;
+    percent: number;
+    auto_vest: boolean;
+}
+interface TransferToSavings extends BaseTransaction {
+    type: "transfer_to_savings";
+    amount: string;
+    memo?: string;
+    from: string;
+    to: string;
+}
+interface CancelTransferFromSavings extends BaseTransaction {
+    from: string;
+    request_id: number;
+    type: "cancel_transfer_from_savings";
+}
+interface WithdrawVesting extends BaseTransaction {
+    type: "withdraw_vesting";
+    acc: string;
+    vesting_shares: string;
+}
+interface FillOrder extends BaseTransaction {
+    type: "fill_order";
+    current_pays: string;
+    open_pays: string;
+}
+interface LimitOrderCancel extends BaseTransaction {
+    type: "limit_order_cancel";
+    owner: string;
+    orderid: number;
+    num: number;
+}
+interface ProducerReward extends BaseTransaction {
+    type: "producer_reward";
+    vesting_shares: string;
+    producer: string;
+}
+interface Interest extends BaseTransaction {
+    type: "interest";
+    owner: string;
+    interest: string;
+}
+interface FillConvertRequest extends BaseTransaction {
+    type: "fill_convert_request";
+    amount_in: string;
+    amount_out: string;
+}
+interface FillCollateralizedConvertRequest extends BaseTransaction {
+    type: "fill_collateralized_convert_request";
+    owner: string;
+    requestid: number;
+    amount_in: string;
+    amount_out: string;
+    excess_collateral: string;
+}
+interface ReturnVestingDelegation extends BaseTransaction {
+    type: "return_vesting_delegation";
+    vesting_shares: string;
+}
+interface ProposalPay extends BaseTransaction {
+    type: "proposal_pay";
+    payment: string;
+}
+interface UpdateProposalVotes extends BaseTransaction {
+    type: "update_proposal_votes";
+    voter: string;
+    proposal_ids: [number];
+    approve: boolean;
+}
+interface CommentPayoutUpdate extends BaseTransaction {
+    type: "comment_payout_update";
+    author: string;
+    permlink: string;
+}
+interface CommentReward extends BaseTransaction {
+    type: "comment_reward";
+    author: string;
+    permlink: string;
+    payout: string;
+}
+interface CollateralizedConvert extends BaseTransaction {
+    type: "collateralized_convert";
+    owner: string;
+    requestid: number;
+    amount: string;
+}
+interface RecurrentTransfers extends BaseTransaction {
+    type: "recurrent_transfer";
+    amount: string;
+    memo: string;
+    from: string;
+    to: string;
+    recurrence: number;
+    executions: number;
+}
+interface FillRecurrentTransfers extends BaseTransaction {
+    type: "fill_recurrent_transfer";
+    amount: SMTAsset;
+    memo: string;
+    from: string;
+    to: string;
+    remaining_executions: number;
+}
+interface DelegateVestingShares extends BaseTransaction {
+    type: "delegate_vesting_shares";
+    delegator: string;
+    delegatee: string;
+    vesting_shares: string;
+}
+interface LimitOrderCreate extends BaseTransaction {
+    type: "limit_order_create";
+    owner: string;
+    orderid: number;
+    amount_to_sell: string;
+    min_to_receive: string;
+    expiration: string;
+}
+interface FillVestingWithdraw extends BaseTransaction {
+    type: "fill_vesting_withdraw";
+    from_account: string;
+    to_account: string;
+    withdrawn: string;
+    deposited: string;
+}
+interface EffectiveCommentVote extends BaseTransaction {
+    type: "effective_comment_vote";
+    voter: string;
+    author: string;
+    permlink: string;
+    pending_payout: string;
+    total_vote_weight: number;
+    rshares: number;
+    weight: number;
+}
+interface VoteProxy extends BaseTransaction {
+    type: "account_witness_proxy";
+    account: string;
+    proxy: string;
+}
+type Transaction = CurationReward | AuthorReward | CommentBenefactor | ClaimRewardBalance | Transfer | TransferToVesting | TransferToSavings | CancelTransferFromSavings | WithdrawVesting | SetWithdrawRoute | FillOrder | ProducerReward | Interest | FillConvertRequest | FillCollateralizedConvertRequest | ReturnVestingDelegation | ProposalPay | UpdateProposalVotes | CommentPayoutUpdate | CommentReward | CollateralizedConvert | RecurrentTransfers | FillRecurrentTransfers | LimitOrderCreate | LimitOrderCancel | FillVestingWithdraw | EffectiveCommentVote | VoteProxy | DelegateVestingShares;
+type OperationGroup = "transfers" | "market-orders" | "interests" | "stake-operations" | "rewards";
 
 interface Payload$4 {
     profile: Partial<AccountProfile>;
@@ -539,6 +737,25 @@ declare function getAccountPendingRecoveryQueryOptions(username: string | undefi
 } & {
     queryKey: (string | undefined)[] & {
         [dataTagSymbol]: any;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]>;
+declare const ALL_ACCOUNT_OPERATIONS: number[];
+type TxPage = Transaction[];
+/**
+ * Get account transaction history with pagination and filtering
+ *
+ * @param username - Account name to get transactions for
+ * @param limit - Number of transactions per page
+ * @param group - Filter by operation group (transfers, market-orders, etc.)
+ */
+declare function getTransactionsInfiniteQueryOptions(username?: string, limit?: number, group?: OperationGroup | ""): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<TxPage, Error, TxPage, (string | number)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<TxPage, (string | number)[], number> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<TxPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1766,6 +1983,16 @@ interface OpenOrdersData {
     rewarded: boolean;
 }
 
+interface RcDirectDelegation {
+    from: string;
+    to: string;
+    delegated_rc: string;
+}
+interface RcDirectDelegationsResponse {
+    rc_direct_delegations: RcDirectDelegation[];
+    next_start?: [string, string] | null;
+}
+
 /**
  * Get vesting delegations for an account
  *
@@ -1852,6 +2079,23 @@ declare function getOpenOrdersQueryOptions(user: string): _tanstack_react_query.
     };
 };
 
+type RcPage = RcDirectDelegation[];
+type RcCursor = string | null;
+/**
+ * Get outgoing RC delegations for an account
+ *
+ * @param username - Account name to get delegations for
+ * @param limit - Number of delegations per page
+ */
+declare function getOutgoingRcDelegationsInfiniteQueryOptions(username: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<RcPage, Error, RcPage, (string | number)[], RcCursor>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<RcPage, (string | number)[], RcCursor> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<RcPage, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
 interface Witness {
     total_missed: number;
     url: string;
@@ -1916,4 +2160,4 @@ declare function getOrderBookQueryOptions(limit?: number): _tanstack_react_query
     };
 };
 
-export { ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type BlogEntry, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type CollateralizedConversionRequest, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type DelegatedVestingShare, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type Follow, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OrdersData, type OrdersDataItem, type Payer, type ProfileTokens, type Proposal, type ProposalVote, type ProposalVoteRow, ROLES, type RcStats, type Reblog, type Recoveries, type SavingsWithdrawRequest, SortOrder, type StatsResponse, type StoringUser, type Subscription, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type Vote, type WalletMetadataCandidate, type WithdrawRoute, type Witness, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthorReward, type BlogEntry, type BuildProfileMetadataArgs, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationReward, type DelegateVestingShares, type DelegatedVestingShare, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type Interest, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, type LimitOrderCancel, type LimitOrderCreate, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OperationGroup, type OrdersData, type OrdersDataItem, type Payer, type ProducerReward, type ProfileTokens, type Proposal, type ProposalPay, type ProposalVote, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type Recoveries, type RecurrentTransfers, type ReturnVestingDelegation, type SavingsWithdrawRequest, type SetWithdrawRoute, SortOrder, type StatsResponse, type StoringUser, type Subscription, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferToSavings, type TransferToVesting, type TrendingTag, type UpdateProposalVotes, type Vote, type VoteProxy, type WalletMetadataCandidate, type WithdrawRoute, type WithdrawVesting, type Witness, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };

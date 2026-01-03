@@ -882,6 +882,104 @@ function getAccountPendingRecoveryQueryOptions(username) {
     )
   });
 }
+var ops = dhive.utils.operationOrders;
+var ACCOUNT_OPERATION_GROUPS = {
+  transfers: [
+    ops.transfer,
+    ops.transfer_to_savings,
+    ops.transfer_from_savings,
+    ops.cancel_transfer_from_savings,
+    ops.recurrent_transfer,
+    ops.fill_recurrent_transfer,
+    ops.escrow_transfer,
+    ops.fill_recurrent_transfer
+  ],
+  "market-orders": [
+    ops.fill_convert_request,
+    ops.fill_order,
+    ops.fill_collateralized_convert_request,
+    ops.limit_order_create2,
+    ops.limit_order_create,
+    ops.limit_order_cancel
+  ],
+  interests: [ops.interest],
+  "stake-operations": [
+    ops.return_vesting_delegation,
+    ops.withdraw_vesting,
+    ops.transfer_to_vesting,
+    ops.set_withdraw_vesting_route,
+    ops.update_proposal_votes,
+    ops.fill_vesting_withdraw,
+    ops.account_witness_proxy,
+    ops.delegate_vesting_shares
+  ],
+  rewards: [
+    ops.author_reward,
+    ops.curation_reward,
+    ops.producer_reward,
+    ops.claim_reward_balance,
+    ops.comment_benefactor_reward,
+    ops.liquidity_reward,
+    ops.proposal_pay
+  ]
+};
+var ALL_ACCOUNT_OPERATIONS = [...Object.values(ACCOUNT_OPERATION_GROUPS)].reduce(
+  (acc, val) => acc.concat(val),
+  []
+);
+function getTransactionsInfiniteQueryOptions(username, limit = 20, group = "") {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["accounts", "transactions", username ?? "", group, limit],
+    initialPageParam: -1,
+    queryFn: async ({ pageParam }) => {
+      if (!username) {
+        return [];
+      }
+      let filters;
+      switch (group) {
+        case "transfers":
+          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
+          break;
+        case "market-orders":
+          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["market-orders"]);
+          break;
+        case "interests":
+          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["interests"]);
+          break;
+        case "stake-operations":
+          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["stake-operations"]);
+          break;
+        case "rewards":
+          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["rewards"]);
+          break;
+        default:
+          filters = dhive.utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS);
+      }
+      const response = await (filters ? CONFIG.hiveClient.call("condenser_api", "get_account_history", [
+        username,
+        pageParam,
+        limit,
+        ...filters
+      ]) : CONFIG.hiveClient.call("condenser_api", "get_account_history", [
+        username,
+        pageParam,
+        limit
+      ]));
+      const mapped = response.map(([num, operation]) => {
+        const base = {
+          num,
+          type: operation.op[0],
+          timestamp: operation.timestamp,
+          trx_id: operation.trx_id
+        };
+        const payload = operation.op[1];
+        return { ...base, ...payload };
+      }).filter(Boolean).sort((a, b) => b.num - a.num);
+      return mapped;
+    },
+    getNextPageParam: (lastPage) => lastPage?.length ? (lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1
+  });
+}
 
 // src/modules/accounts/mutations/use-account-update.ts
 function useAccountUpdate(username) {
@@ -2462,6 +2560,24 @@ function getOpenOrdersQueryOptions(user) {
     enabled: !!user
   });
 }
+function getOutgoingRcDelegationsInfiniteQueryOptions(username, limit = 100) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["wallet", "outgoing-rc-delegations", username, limit],
+    initialPageParam: null,
+    queryFn: async ({ pageParam }) => {
+      const response = await CONFIG.hiveClient.call("rc_api", "list_rc_direct_delegations", {
+        start: [username, pageParam ?? ""],
+        limit
+      }).then((r) => r);
+      let delegations = response.rc_direct_delegations || [];
+      if (pageParam) {
+        delegations = delegations.filter((delegation) => delegation.to !== pageParam);
+      }
+      return delegations;
+    },
+    getNextPageParam: (lastPage) => lastPage.length === limit ? lastPage[lastPage.length - 1].to : null
+  });
+}
 function getWitnessesInfiniteQueryOptions(limit) {
   return reactQuery.infiniteQueryOptions({
     queryKey: ["witnesses", "list", limit],
@@ -2485,6 +2601,8 @@ function getOrderBookQueryOptions(limit = 500) {
   });
 }
 
+exports.ACCOUNT_OPERATION_GROUPS = ACCOUNT_OPERATION_GROUPS;
+exports.ALL_ACCOUNT_OPERATIONS = ALL_ACCOUNT_OPERATIONS;
 exports.ALL_NOTIFY_TYPES = ALL_NOTIFY_TYPES;
 exports.CONFIG = CONFIG;
 exports.EcencyAnalytics = mutations_exports;
@@ -2540,6 +2658,7 @@ exports.getNotificationsSettingsQueryOptions = getNotificationsSettingsQueryOpti
 exports.getNotificationsUnreadCountQueryOptions = getNotificationsUnreadCountQueryOptions;
 exports.getOpenOrdersQueryOptions = getOpenOrdersQueryOptions;
 exports.getOrderBookQueryOptions = getOrderBookQueryOptions;
+exports.getOutgoingRcDelegationsInfiniteQueryOptions = getOutgoingRcDelegationsInfiniteQueryOptions;
 exports.getPostHeaderQueryOptions = getPostHeaderQueryOptions;
 exports.getPostQueryOptions = getPostQueryOptions;
 exports.getPostingKey = getPostingKey;
@@ -2556,6 +2675,7 @@ exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccou
 exports.getSavingsWithdrawFromQueryOptions = getSavingsWithdrawFromQueryOptions;
 exports.getSearchAccountsByUsernameQueryOptions = getSearchAccountsByUsernameQueryOptions;
 exports.getStatsQueryOptions = getStatsQueryOptions;
+exports.getTransactionsInfiniteQueryOptions = getTransactionsInfiniteQueryOptions;
 exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
 exports.getUser = getUser;
 exports.getUserProposalVotesQueryOptions = getUserProposalVotesQueryOptions;
