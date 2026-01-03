@@ -42,7 +42,12 @@ export function ProposalsPage() {
 
   // Create a Set of proposal IDs that the user voted on for fast lookup
   const userVotedProposalIds = useMemo(
-    () => new Set(userVotes?.map((v) => v.proposal.proposal_id) ?? []),
+    () =>
+      new Set(
+        userVotes
+          ?.map((v) => v.proposal?.proposal_id)
+          .filter((id): id is number => id !== undefined) ?? []
+      ),
     [userVotes]
   );
 
