@@ -1824,6 +1824,21 @@ function getDraftsQueryOptions(activeUsername) {
     enabled: !!activeUsername
   });
 }
+async function fetchUserImages(username) {
+  const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      code: getAccessToken(username)
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch images: ${response.status}`);
+  }
+  return response.json();
+}
 function getImagesQueryOptions(username) {
   return queryOptions({
     queryKey: ["posts", "images", username],
@@ -1831,19 +1846,7 @@ function getImagesQueryOptions(username) {
       if (!username) {
         return [];
       }
-      const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          code: getAccessToken(username)
-        })
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch images: ${response.status}`);
-      }
-      return response.json();
+      return fetchUserImages(username);
     },
     enabled: !!username
   });
@@ -1855,19 +1858,7 @@ function getGalleryImagesQueryOptions(activeUsername) {
       if (!activeUsername) {
         return [];
       }
-      const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          code: getAccessToken(activeUsername)
-        })
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch gallery images: ${response.status}`);
-      }
-      return response.json();
+      return fetchUserImages(activeUsername);
     },
     enabled: !!activeUsername
   });
@@ -1875,7 +1866,7 @@ function getGalleryImagesQueryOptions(activeUsername) {
 function getCommentHistoryQueryOptions(author, permlink) {
   return queryOptions({
     queryKey: ["posts", "comment-history", author, permlink],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
         method: "POST",
         headers: {
@@ -1884,7 +1875,8 @@ function getCommentHistoryQueryOptions(author, permlink) {
         body: JSON.stringify({
           author,
           permlink
-        })
+        }),
+        signal
       });
       if (!response.ok) {
         throw new Error(`Failed to fetch comment history: ${response.status}`);
@@ -1892,6 +1884,57 @@ function getCommentHistoryQueryOptions(author, permlink) {
       return response.json();
     },
     enabled: !!author && !!permlink
+  });
+}
+function makeEntryPath2(author, permlink) {
+  const cleanAuthor = author?.trim();
+  const cleanPermlink = permlink?.trim();
+  if (!cleanAuthor || !cleanPermlink) {
+    throw new Error("Invalid entry path: author and permlink are required");
+  }
+  const normalizedAuthor = cleanAuthor.replace(/^@+/, "");
+  const normalizedPermlink = cleanPermlink.replace(/^\/+/, "");
+  if (!normalizedAuthor || !normalizedPermlink) {
+    throw new Error("Invalid entry path: author and permlink cannot be empty after normalization");
+  }
+  return `@${normalizedAuthor}/${normalizedPermlink}`;
+}
+function getDeletedEntryQueryOptions(author, permlink) {
+  const cleanPermlink = permlink?.trim();
+  const cleanAuthor = author?.trim();
+  const isValid = !!cleanAuthor && !!cleanPermlink && cleanPermlink !== "undefined";
+  const entryPath = isValid ? makeEntryPath2(cleanAuthor, cleanPermlink) : "";
+  return queryOptions({
+    queryKey: ["posts", "deleted-entry", entryPath],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          author,
+          permlink: cleanPermlink || ""
+        }),
+        signal
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch comment history: ${response.status}`);
+      }
+      return response.json();
+    },
+    select: (history) => {
+      if (!history?.list?.[0]) {
+        return null;
+      }
+      const { body, title, tags } = history.list[0];
+      return {
+        body,
+        title,
+        tags
+      };
+    },
+    enabled: isValid
   });
 }
 function useAddFragment(username) {
@@ -2879,6 +2922,6 @@ function getSimilarEntriesQueryOptions(entry) {
   });
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountsByUsernameQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDeletedEntryQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountsByUsernameQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

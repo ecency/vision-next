@@ -4195,6 +4195,7 @@ exports.getPointsAssetTransactionsQueryOptions = getPointsAssetTransactionsQuery
 exports.getPointsQueryOptions = getPointsQueryOptions;
 exports.getSpkAssetGeneralInfoQueryOptions = getSpkAssetGeneralInfoQueryOptions;
 exports.getSpkMarketsQueryOptions = getSpkMarketsQueryOptions;
+exports.getSpkWalletQueryOptions = getSpkWalletQueryOptions;
 exports.getTokenOperationsQueryOptions = getTokenOperationsQueryOptions;
 exports.getTokenPriceQueryOptions = getTokenPriceQueryOptions;
 exports.getVisionPortfolioQueryOptions = getVisionPortfolioQueryOptions;

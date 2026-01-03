@@ -93,6 +93,158 @@ Packages use **dual builds** (tsup) to optimize for different environments:
 
 Exports are platform-specific via package.json `exports` field.
 
+### Package Architecture & Boundaries
+
+The monorepo follows a **layered architecture** with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────┐
+│         @ecency/web (Next.js App)       │
+│   - UI Components & Pages               │
+│   - App-specific queries/mutations      │
+│   - Feature modules                     │
+└─────────────────┬───────────────────────┘
+                  │ imports
+        ┌─────────┴─────────┐
+        │                   │
+        ▼                   ▼
+┌───────────────┐   ┌──────────────────┐
+│ @ecency/      │   │ @ecency/renderer │
+│ wallets       │   │ - Post rendering │
+│ - Multi-chain │   │ - Markdown       │
+│   wallets     │   └──────────────────┘
+│ - Assets      │
+└───────┬───────┘
+        │ imports
+        ▼
+┌───────────────┐
+│ @ecency/sdk   │
+│ - Hive API    │
+│ - Core types  │
+└───────────────┘
+```
+
+#### @ecency/sdk - Core Hive SDK
+
+**Purpose**: Pure Hive blockchain functionality
+
+**Scope**:
+- ✅ Hive blockchain queries (posts, comments, accounts, communities)
+- ✅ Hive notifications
+- ✅ Core Hive types and interfaces
+- ✅ React Query integration for Hive APIs
+- ✅ Lightweight utilities (no heavy dependencies)
+
+**Dependencies**: NONE (except peer deps: @hiveio/dhive, hivesigner, @tanstack/react-query)
+
+**Bundle Size**: ~91KB
+
+**Why separate**: This package is published to npm for use by other Hive applications. It must remain focused and lightweight.
+
+#### @ecency/wallets - Multi-chain Wallet Management
+
+**Purpose**: Asset and wallet management across multiple blockchains
+
+**Scope**:
+- ✅ Hive assets (HIVE, HBD, Hive Power)
+- ✅ Hive Engine tokens
+- ✅ SPK Network (SPK, LARYNX)
+- ✅ Points system
+- ✅ External blockchains (BTC, ETH, SOL, TON, TRON, APT, BNB)
+- ✅ Wallet operations (balances, transactions, delegations)
+- ✅ Multi-chain key management
+
+**Dependencies**:
+- @ecency/sdk (for Hive core functionality)
+- @okxweb3 packages (for external blockchain support)
+- Heavy crypto libraries
+
+**Bundle Size**: ~131KB
+
+**Why separate**: Wallet functionality requires heavy external dependencies. Users who only need Hive SDK shouldn't be forced to download BTC/ETH/SOL libraries.
+
+#### @ecency/renderer - Content Rendering
+
+**Purpose**: Post and markdown rendering
+
+**Scope**:
+- ✅ Markdown to HTML conversion
+- ✅ Content sanitization
+- ✅ Post formatting
+
+**Dependencies**: Minimal
+
+**Why separate**: Can be reused by other applications that need to render Hive content.
+
+#### @ecency/web - Main Application
+
+**Purpose**: Full-featured Hive web client
+
+**Scope**:
+- ✅ All UI components and pages
+- ✅ App-specific business logic
+- ✅ Feature modules
+- ✅ App-specific query wrappers (using both SDK and wallets)
+- ✅ State management (Zustand + React Query)
+
+**Dependencies**: All workspace packages + app-specific libraries
+
+### Important Package Guidelines
+
+**❌ DO NOT**:
+- Move wallet/asset queries from `@ecency/wallets` to `@ecency/sdk`
+  - Reason: Would bloat SDK with multi-chain dependencies
+- Add heavy dependencies to `@ecency/sdk`
+  - Reason: SDK must remain lightweight for external consumers
+- Create circular dependencies between packages
+  - Reason: Breaks build order and package independence
+- Add app-specific logic to packages
+  - Reason: Packages should be reusable
+
+**✅ DO**:
+- Keep `@ecency/sdk` focused on Hive blockchain only
+- Put all wallet/asset functionality in `@ecency/wallets`
+- Use packages in the web app by importing from both as needed
+- Add new Hive blockchain features to `@ecency/sdk`
+- Add new wallet/asset features to `@ecency/wallets`
+- Rebuild packages after changes: `pnpm build:packages`
+
+**Query Organization**:
+```typescript
+// In @ecency/sdk - Hive blockchain queries
+export function getPostQueryOptions(author: string, permlink: string) { ... }
+export function getAccountQueryOptions(username: string) { ... }
+
+// In @ecency/wallets - Asset/wallet queries
+export function getHiveEngineTokensBalancesQueryOptions(username: string) { ... }
+export function getSpkWalletQueryOptions(username?: string) { ... }
+
+// In @ecency/web - App-specific wrappers
+import { getPostQueryOptions } from "@ecency/sdk";
+import { getSpkWalletQueryOptions } from "@ecency/wallets";
+
+export const getPostQuery = (author: string, permlink: string) => {
+  return EcencyQueriesManager.generateClientServerQuery(
+    getPostQueryOptions(author, permlink)
+  );
+};
+```
+
+### When to Rebuild Packages
+
+After modifying files in `packages/sdk` or `packages/wallets`:
+
+```bash
+# Rebuild all packages
+pnpm build:packages
+
+# Or rebuild individual packages
+pnpm --filter @ecency/sdk build
+pnpm --filter @ecency/wallets build
+```
+
+The web app will not see package changes until they are rebuilt.
+
 ## Main Application Architecture
 
 ### Technology Stack
