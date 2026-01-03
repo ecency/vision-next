@@ -49,6 +49,6 @@ export function getDeletedEntryQueryOptions(author: string, permlink: string) {
       };
     },
     enabled:
-      !!author && !!cleanPermlink && cleanPermlink !== "" && cleanPermlink !== "undefined",
+      !!author && !!cleanPermlink && cleanPermlink !== "undefined",
   });
 }
