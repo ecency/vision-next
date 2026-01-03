@@ -52,7 +52,7 @@ export function NotificationsActions({ filter }: Props) {
     isLoading: isUnreadLoading
   } = useQuery(getNotificationsUnreadCountQueryOptions(activeUser?.username));
   const { refetch: refetchData, isLoading: isDataLoading } = useInfiniteQuery(
-    getNotificationsInfiniteQueryOptions(filter)
+    getNotificationsInfiniteQueryOptions(activeUser?.username, filter)
   );
 
   const markNotifications = useMarkNotifications();
