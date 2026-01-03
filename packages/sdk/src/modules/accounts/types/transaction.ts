@@ -98,7 +98,6 @@ export interface LimitOrderCancel extends BaseTransaction {
   type: "limit_order_cancel";
   owner: string;
   orderid: number;
-  num: number;
 }
 
 export interface ProducerReward extends BaseTransaction {
