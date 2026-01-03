@@ -2,7 +2,7 @@ import { Button } from "@/features/ui";
 import { UilBars } from "@tooni/iconscout-unicons-react";
 import Image from "next/image";
 import Link from "next/link";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   onClick: () => void;

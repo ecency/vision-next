@@ -90,6 +90,45 @@ export interface WsDelegationsNotification extends BaseWsNotification {
   };
 }
 
+export interface WsCheckinsNotification extends BaseWsNotification {
+  type: "checkins";
+  extra?: {
+    count?: number;
+  };
+}
+
+export interface WsCheckinNotification extends BaseWsNotification {
+  type: "checkin";
+  extra?: {
+    count?: number;
+  };
+}
+
+export interface WsPayoutsNotification extends BaseWsNotification {
+  type: "payouts";
+  extra?: {
+    amount?: string;
+    title?: string | null;
+    permlink?: string;
+  };
+}
+
+export interface WsMonthlyPostsNotification extends BaseWsNotification {
+  type: "monthly-posts";
+  extra?: {
+    count?: number;
+    title?: string | null;
+  };
+}
+
+export interface WsMonthlyPostsUnderscoreNotification extends BaseWsNotification {
+  type: "monthly_posts";
+  extra?: {
+    count?: number;
+    title?: string | null;
+  };
+}
+
 export interface WsSpinNotification extends BaseWsNotification {
   type: "spin";
 }
@@ -114,7 +153,12 @@ export type WsNotification =
   | WsSpinNotification
   | WsInactiveNotification
   | WsReferralNotification
-  | WsDelegationsNotification;
+  | WsDelegationsNotification
+  | WsCheckinNotification
+  | WsCheckinsNotification
+  | WsPayoutsNotification
+  | WsMonthlyPostsNotification
+  | WsMonthlyPostsUnderscoreNotification;
 
 // HTTP api notification _types
 
@@ -222,6 +266,30 @@ export interface ApiDelegationsNotification extends BaseAPiNotification {
   amount: string;
 }
 
+export interface ApiCheckinsNotification extends BaseAPiNotification {
+  type: "checkins";
+  count?: number;
+}
+
+export interface ApiCheckinNotification extends BaseAPiNotification {
+  type: "checkin";
+  count?: number;
+}
+
+export interface ApiPayoutsNotification extends BaseAPiNotification {
+  type: "payouts";
+  amount?: string;
+  title?: string | null;
+  author: string;
+  permlink: string;
+}
+
+export interface ApiMonthlyPostsNotification extends BaseAPiNotification {
+  type: "monthly-posts" | "monthly_posts";
+  count?: number;
+  title?: string | null;
+}
+
 export interface ApiNotificationSetting {
   system: string; //"web" | "desktop"
   allows_notify: number; //0|1
@@ -241,7 +309,11 @@ export type ApiNotification =
   | ApiSpinNotification
   | ApiInactiveNotification
   | ApiReferralNotification
-  | ApiDelegationsNotification;
+  | ApiDelegationsNotification
+  | ApiCheckinNotification
+  | ApiCheckinsNotification
+  | ApiPayoutsNotification
+  | ApiMonthlyPostsNotification;
 
 export interface Notifications {
   filter: NotificationFilter | null;

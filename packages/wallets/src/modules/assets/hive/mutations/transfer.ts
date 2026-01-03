@@ -1,8 +1,9 @@
 import { CONFIG } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
-import { parseAsset } from "../../utils";
+import { Symbol as AssetSymbol, parseAsset } from "../../utils";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
 export interface TransferPayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -19,16 +20,29 @@ export async function transferHive<T extends HiveBasedAssetSignType>(
 ) {
   const parsedAsset = parseAsset(payload.amount);
   const token = parsedAsset.symbol;
+  const precision = token === AssetSymbol.VESTS ? 6 : 3;
+  const formattedAmount = parsedAsset.amount.toFixed(precision);
+  const amountWithSymbol = `${formattedAmount} ${token}`;
+
+  const operation: Operation = [
+    "transfer",
+    {
+      from: payload.from,
+      to: payload.to,
+      amount: amountWithSymbol,
+      memo: payload.memo,
+    },
+  ];
 
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
-    // params contains from, to, amount (with correct token string), memo
+    // params contains from, to, amount, memo
     // broadcast.transfer expects amount string like "1.000 HIVE" or "1.000 HBD"
     return CONFIG.hiveClient.broadcast.transfer(
       {
         from: params.from,
         to: params.to,
-        amount: params.amount,
+        amount: amountWithSymbol,
         memo: params.memo,
       },
       key
@@ -38,7 +52,7 @@ export async function transferHive<T extends HiveBasedAssetSignType>(
       (window as any).hive_keychain?.requestTransfer(
         payload.from,
         payload.to,
-        payload.amount,
+        formattedAmount,
         payload.memo,
         token,
         (resp: { success: boolean }) => {
@@ -52,18 +66,12 @@ export async function transferHive<T extends HiveBasedAssetSignType>(
         null
       )
     );
+  } else if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     // For hivesigner, include the same payload fields; amount already contains token denomination
     return hs.sendOperation(
-      [
-        "transfer",
-        {
-          from: payload.from,
-          to: payload.to,
-          amount: payload.amount,
-          memo: payload.memo,
-        },
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {}
     );

@@ -1,22 +1,24 @@
 import React, { useCallback, useRef, useState } from "react";
 import { Spinner } from "@ui/spinner";
-import { Button } from "@ui/button";
+import { Button, ButtonProps } from "@ui/button";
 import { uploadSvg } from "@ui/svg";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 import { getAccessToken } from "@/utils";
 import { uploadImage } from "@/api/misc";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface UploadButtonProps {
   onBegin: () => void;
   onEnd: (url: string) => void;
+  size?: ButtonProps["size"];
+  className?: string;
 }
 
-export function ImageUploadButton({ onBegin, onEnd }: UploadButtonProps) {
+export function ImageUploadButton({ onBegin, onEnd, size = "sm", className }: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const [inProgress, setInProgress] = useState(false);
 
   const handleFileInput = useCallback(
@@ -54,10 +56,11 @@ export function ImageUploadButton({ onBegin, onEnd }: UploadButtonProps) {
   return (
     <>
       <Button
-        size="sm"
+        size={size}
         disabled={inProgress}
         onClick={() => inputRef.current?.click()}
         icon={inProgress ? <Spinner className="w-3.5 h-3.5" /> : uploadSvg}
+        className={className}
       />
       <input
         type="file"

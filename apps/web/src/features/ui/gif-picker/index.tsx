@@ -1,4 +1,11 @@
-import React, { MutableRefObject, useCallback, useRef, useState } from "react";
+import React, {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import "./_index.scss";
 import { SearchBox } from "@/features/shared";
 import Image from "next/image";
@@ -7,7 +14,6 @@ import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { getGifsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
-import useMount from "react-use/lib/useMount";
 import { GifPickerBottom } from "./gif-picker-bottom";
 
 interface Props {
@@ -31,7 +37,8 @@ interface Props {
 }
 
 export function GifPicker(props: Props) {
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const internalRootRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = props.rootRef ?? internalRootRef;
   const targetRef = useRef<HTMLInputElement | null>(null);
 
   const [filter, setFilter] = useState("");
@@ -39,11 +46,9 @@ export function GifPicker(props: Props) {
   const { data, refetch, fetchNextPage, hasNextPage } = getGifsQuery(filter).useClientQuery();
   const dataFlow = useInfiniteDataFlow(data);
 
-  useMount(() => {
-    if (dataFlow.length === 0) {
-      refetch();
-    }
-  });
+  useEffect(() => {
+    refetch();
+  }, [filter, refetch]);
 
   const itemClicked = useCallback(
     async (url: string, _filter?: string | any) => {
@@ -61,6 +66,41 @@ export function GifPicker(props: Props) {
     [dataFlow, props]
   );
 
+  const mergedStyle = useMemo(
+    () => ({
+      position: "fixed" as const,
+      right: "auto",
+      ...props.style
+    }),
+    [props.style]
+  );
+
+  useEffect(() => {
+    if (!props.shGif) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const targetNode = event.target as Node | null;
+
+      if (!targetNode) {
+        return;
+      }
+
+      if (rootRef.current?.contains(targetNode)) {
+        return;
+      }
+
+      props.changeState(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [props.changeState, props.shGif]);
+
   return (
     <div
       ref={rootRef}
@@ -68,13 +108,14 @@ export function GifPicker(props: Props) {
         "gif-picker": true,
         "emoji-picker gif": !props.pureStyle
       })}
-      style={props.style}
+      style={mergedStyle}
     >
       <SearchBox
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"
+        value={filter}
         placeholder={i18next.t("gif-picker.filter-placeholder")}
         onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
           setFilter(e.target.value)

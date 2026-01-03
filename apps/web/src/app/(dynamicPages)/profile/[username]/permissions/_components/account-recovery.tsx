@@ -104,7 +104,7 @@ export function AccountRecovery() {
   }, [newRecoveryAccount]);
 
   return (
-    <div className="rounded-xl bg-white bg-opacity-75">
+    <div className="rounded-xl bg-white/80 dark:bg-dark-200/90 text-gray-900 dark:text-white">
       <div className="px-4 pt-4 pb-1 text-sm md:text-lg font-bold">
         {i18next.t("permissions.recovery.title")}
       </div>

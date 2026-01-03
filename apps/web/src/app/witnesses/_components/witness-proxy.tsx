@@ -5,15 +5,15 @@ import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { error, KeyOrHotDialog, LoginRequired } from "@/features/shared";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import "./witness-proxy.scss";
 
 interface Props {
-  onDone: (username: string) => void;
+  onDone: () => void;
 }
 
-export function WitnessesProxy(props: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+export function WitnessesProxy({ onDone }: Props) {
+  const { activeUser } = useActiveAccount();
 
   const [username, setUsername] = useState("");
   const [inProgress, setInProgress] = useState(false);
@@ -26,10 +26,11 @@ export function WitnessesProxy(props: Props) {
       if (typeof call?.then === "function") {
         setInProgress(true);
 
-        call
-          .then(() => {
-            props.onDone(username);
-          })
+          call
+            .then(() => {
+              onDone();
+              setUsername("");
+            })
           .catch((e: any) => {
             error(...formatError(e));
           })
@@ -38,7 +39,7 @@ export function WitnessesProxy(props: Props) {
           });
       }
     },
-    [username, props]
+      [username, onDone]
   );
 
   return (
@@ -57,11 +58,23 @@ export function WitnessesProxy(props: Props) {
         </div>
         <div>
           {activeUser ? (
-            <KeyOrHotDialog
-              onKey={(key) => proxy(witnessProxy, [activeUser!.username, key, username])}
-              onHot={() => proxy(witnessProxyHot, [activeUser!.username, username])}
-              onKc={() => proxy(witnessProxyKc, [activeUser!.username, username])}
-            />
+            username ? (
+              <KeyOrHotDialog
+                onKey={(key) => proxy(witnessProxy, [activeUser!.username, key, username])}
+                onHot={() => proxy(witnessProxyHot, [activeUser!.username, username])}
+                onKc={() => proxy(witnessProxyKc, [activeUser!.username, username])}
+              >
+                <Button
+                  disabled={inProgress}
+                  icon={inProgress && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+                  iconPlacement="left"
+                >
+                  {i18next.t("witnesses.proxy-btn-label")}
+                </Button>
+              </KeyOrHotDialog>
+            ) : (
+              <Button disabled={true}>{i18next.t("witnesses.proxy-btn-label")}</Button>
+            )
           ) : (
             <LoginRequired>
               <Button

@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { PostBase, VideoProps } from "./_types";
 import {
@@ -33,6 +35,7 @@ import {
 } from "@/app/submit/_components";
 import "./_index.scss";
 import { useThreeSpeakMigrationAdapter } from "@/app/submit/_hooks/three-speak-migration-adapter";
+import { mergeThreeSpeakBeneficiaries } from "@/features/3speak";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { PollsContext, PollsManager } from "@/app/submit/_hooks/polls-manager";
@@ -52,7 +55,6 @@ import { Draft, Entry, RewardType } from "@/entities";
 import { TextareaAutocomplete } from "@/features/shared/textarea-autocomplete";
 import { useEntryPollExtractor } from "@/features/polls";
 import { PREFIX } from "@/utils/local-storage";
-import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { EcencyConfigManager } from "@/config";
 import {
@@ -77,7 +79,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const { body, setBody } = useBodyVersioningManager();
 
   const router = useRouter();
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const previousActiveUser = usePrevious(activeUser);
 
   const [title, setTitle] = useState("");
@@ -331,16 +333,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   };
 
   const setVideoEncoderBeneficiary = async (video: VideoProps) => {
-    const videoBeneficiary = JSON.parse(video.beneficiaries);
-    const videoEncoders = [
-      {
-        account: "spk.beneficiary",
-        src: "ENCODER_PAY",
-        weight: 1000
-      }
-    ];
-    const joinedBeneficiary = [...videoBeneficiary, ...videoEncoders];
-    setBeneficiaries(joinedBeneficiary);
+    setBeneficiaries(mergeThreeSpeakBeneficiaries(video.beneficiaries, beneficiaries));
   };
 
   const focusInput = (parentSelector: string): void => {

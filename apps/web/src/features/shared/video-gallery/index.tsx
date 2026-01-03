@@ -4,12 +4,12 @@ import { VideoGalleryItem } from "./video-gallery-item";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
 import { ThreeSpeakVideo, useThreeSpeakVideo } from "@/api/threespeak";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { LinearProgress } from "@/features/shared";
 import { refreshSvg } from "@ui/svg";
 import { useThreeSpeakManager } from "@/features/3speak";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   showGallery: boolean;
@@ -28,7 +28,7 @@ export const VideoGallery = ({
   toggleNsfwC,
   setVideoMetadata
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { isEditing } = useThreeSpeakManager();
 
   const [label, setLabel] = useState("All");

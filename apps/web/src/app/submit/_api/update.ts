@@ -3,7 +3,6 @@ import { comment, formatError } from "@/api/operations";
 import dayjs from "@/utils/dayjs";
 import { useThreeSpeakManager } from "../_hooks";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
-import { useGlobalStore } from "@/core/global-store";
 import { Entry } from "@/entities";
 import { correctIsoDate, makeEntryPath } from "@/utils";
 import { error, success } from "@/features/shared";
@@ -13,16 +12,17 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useUpdateApi(onClear: () => void) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username } = useActiveAccount();
   const { buildBody } = useThreeSpeakManager();
   const router = useRouter();
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username,
     "legacy-post-updated"
   );
 
@@ -48,6 +48,10 @@ export function useUpdateApi(onClear: () => void) {
       }
 
       const { author, permlink, category, json_metadata } = editingEntry;
+
+      if (!username) {
+        return;
+      }
       const newBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildPatchFrom(editingEntry, body);
@@ -64,7 +68,7 @@ export function useUpdateApi(onClear: () => void) {
 
       try {
         await comment(
-          activeUser?.username!,
+          username,
           "",
           category,
           permlink,

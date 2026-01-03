@@ -7,26 +7,15 @@ import {
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import {
-  UilArrowDownRight,
   UilArrowRight,
-  UilArrowsHAlt,
-  UilBoltAlt,
-  UilChartBar,
-  UilCodeBranch,
-  UilGift,
-  UilLock,
-  UilMoneybag,
-  UilPlus,
   UilSpinner,
-  UilUnlock,
-  UilUserPlus,
   UilQrcodeScan
 } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import i18next from "i18next";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   ModalBody,
@@ -36,25 +25,10 @@ import {
 } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import qrcode from "qrcode";
-
-const operationsIcons: Partial<Record<AssetOperation, ReactNode>> = {
-  [AssetOperation.Transfer]: <UilArrowRight />,
-  [AssetOperation.TransferToSavings]: <UilMoneybag />,
-  [AssetOperation.PowerUp]: <UilBoltAlt />,
-  [AssetOperation.PowerDown]: <UilArrowDownRight />,
-  [AssetOperation.WithdrawRoutes]: <UilCodeBranch />,
-  [AssetOperation.WithdrawFromSavings]: <UilArrowDownRight />,
-  [AssetOperation.Delegate]: <UilUserPlus />,
-  [AssetOperation.Swap]: <UilArrowsHAlt />,
-  [AssetOperation.Gift]: <UilGift />,
-  [AssetOperation.Promote]: <UilChartBar />,
-  [AssetOperation.Claim]: <UilPlus />,
-  [AssetOperation.Buy]: <UilBoltAlt />,
-  [AssetOperation.LockLiquidity]: <UilLock />,
-  [AssetOperation.Stake]: <UilLock />,
-  [AssetOperation.Unstake]: <UilUnlock />,
-  [AssetOperation.ClaimInterest]: <UilMoneybag />,
-};
+import {
+  getProfileWalletOperationLabel,
+  profileWalletOperationIcons,
+} from "./profile-wallet-token-operation-helpers";
 
 export function ProfileWalletTokenActions() {
   const activeUser = useClientActiveUser();
@@ -222,14 +196,7 @@ export function ProfileWalletTokenActions() {
         {filteredOperations.map((operation, index) => {
           const key = `operation-${operation}-${index}`;
 
-          const operationLabel =
-            operation === AssetOperation.WithdrawFromSavings
-              ? i18next.t("transfer.withdraw-saving-title")
-              : operation === AssetOperation.ClaimInterest
-              ? i18next.t("transfer.claim-interest-title")
-              : operation === AssetOperation.WithdrawRoutes
-              ? i18next.t("profile-wallet.operations.withdraw-saving")
-              : i18next.t(`profile-wallet.operations.${operation}`);
+          const operationLabel = getProfileWalletOperationLabel(operation);
 
           if ([AssetOperation.Buy, AssetOperation.Promote].includes(operation)) {
             return (
@@ -246,7 +213,7 @@ export function ProfileWalletTokenActions() {
                   AssetOperation.Buy === operation && "text-blue-dark-sky border-blue-dark-sky"
                 )}
               >
-                {operationsIcons[operation]}
+                {profileWalletOperationIcons[operation]}
                 <div className="w-full font-bold">
                   {operationLabel}
                 </div>
@@ -265,7 +232,7 @@ export function ProfileWalletTokenActions() {
                   cleanUsername && cleanUsername !== activeUser?.username ? cleanUsername : undefined
                 }
               >
-                {operationsIcons[operation]}
+                {profileWalletOperationIcons[operation]}
                 <div className="w-full font-bold">
                   {operationLabel}
                 </div>

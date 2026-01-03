@@ -12,7 +12,7 @@ import Image from "next/image";
 import i18next from "i18next";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import { Alert } from "@ui/alert";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 export function AuthPage() {
   const searchParams = useSearchParams();
@@ -20,7 +20,6 @@ export function AuthPage() {
 
   const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((s) => s.setActiveUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
   const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
 
   const { mutateAsync: recordActivity } = useRecordUserActivity();
@@ -50,7 +49,6 @@ export function AuthPage() {
       addUser(user);
       setActiveUser(user.username);
 
-      await updateActiveUser();
       recordActivity({ ty: 20 });
 
       router.push(`/@${user.username}/feed`);
@@ -64,8 +62,7 @@ export function AuthPage() {
     router,
     searchParams,
     setActiveUser,
-    toggleUiProp,
-    updateActiveUser
+    toggleUiProp
   ]);
 
   useMount(() => {

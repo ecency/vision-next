@@ -179,7 +179,42 @@
     "placeholder-count": "从 {{n}} 个帖子中搜索",
     "header-tag": "标签",
     "header-account": "用户",
-    "header-community": "社区"
+    "header-community": "社区",
+    "header-actions": "快速操作",
+    "action-transfer-hive": "传输艾滋病毒抗性",
+    "action-transfer-hbd": "传输 HBD",
+    "action-transfer-points": "传输兴趣点",
+    "action-transfer-description": "Send {{token}} instantly",
+    "action-delegate-hp": "代表Hive 功率",
+    "action-delegate-hp-description": "委派HP到另一个帐户",
+    "action-power-up": "上电",
+    "action-power-up-description": "将艾滋病毒转换为Hive 功率",
+    "action-power-down": "关机",
+    "action-power-down-description": "将Hive 电源转换为HIVE",
+    "action-claim-hive": "领取待补艾滋病毒奖励",
+    "action-claim-points": "领取待定点数奖励",
+    "action-signup-email": "用电子邮件注册",
+    "action-signup-crypto": "用加密方式注册",
+    "action-browse-communities": "探索社区",
+    "action-visit-ecency-community": "访问生态社区",
+    "action-market-swap": "交换令牌",
+    "action-market-swap-description": "快速交换艾滋病毒和HBD",
+    "action-market-trade": "打开交易终端",
+    "action-market-trade-description": "高级图表和订购书",
+    "action-market-exchange": "兑换令牌",
+    "action-market-exchange-description": "浏览市场价格和历史记录",
+    "action-my-profile": "我的个人资料",
+    "action-my-bookmarks": "我的书签",
+    "action-my-drafts": "我的草稿",
+    "action-my-gallery": "我的相册",
+    "action-my-decks": "我的牌组",
+    "action-my-communities": "我的社区",
+    "action-my-blog": "我的博客",
+    "action-my-wallet": "我的钱包",
+    "action-witnesses": "证人",
+    "action-witnesses-description": "探索顶级目击者和块生产者",
+    "action-proposals": "建议",
+    "action-proposals-description": "审查分散化的Hive 基金"
   },
   "tag": {
     "unmoderated": "未审核的主题",
@@ -288,6 +323,7 @@
     "username-contains-double-hyphens": "不应包含双Hyphens",
     "username-exists": "此用户名已被注册。请尝试另一个",
     "username-starts-number": "不应以数字开始",
+    "username-required": "必须输入用户名",
     "username-in-use": "用户名已经存在。请另设一个",
     "referral-invalid": "此推荐无效。请再试一次",
     "referral-min-length-error": "推荐时间长度应至少为 3 个字符",
@@ -370,9 +406,6 @@
     "sort": "排序",
     "ascending": "升序",
     "descending": "降序"
-  },
-  "selected-tags": {
-    "title": "精选"
   },
   "entry-list-item": {
     "cross-posted": "转发帖子",
@@ -677,6 +710,7 @@
     "pending-orders": "待定订单",
     "type": "类型",
     "mode-limit": "限制",
+    "mode-engine": "引擎",
     "mode-swap": "切换",
     "mode-advanced": "高级版",
     "action": "行 动",
@@ -710,6 +744,8 @@
     "success-title": "交易已完成",
     "more-than-balance": "您输入的余额超过可用余额",
     "invalid-amount": "金额无效。请输入更少的值",
+    "engine-orderbook-thin": "此市场的流动性有限。请尝试少量金额或稍后再试。",
+    "engine-orderbook-empty": "此市场现在没有活动订单。",
     "too-much-slippage": "我们强烈建议您减少金额以获得更好的价格！",
     "auth-required-title": "需要授权",
     "auth-required-desc": "您必须被授权来交换资金",
@@ -717,6 +753,10 @@
     "signing": "正在签名...",
     "success-swap": "成功交换！",
     "calculating-in": "正在计算",
+    "asset-selector": {
+      "title": "选择一个令牌",
+      "search-placeholder": "搜索令牌"
+    },
     "advanced": {
       "history": "历史记录",
       "stake": "订单簿",
@@ -737,11 +777,49 @@
         "amount": "金额",
         "volume": "音量",
         "time": "时间"
+      },
+      "variant-hive": "艾滋病毒／HBD",
+      "variant-engine": "引擎令牌"
+    },
+    "limit": {
+      "layer-core": "核心·图层 1",
+      "layer-engine": "引擎 · 图层 2",
+      "token-selector": {
+        "label": "交易对",
+        "title": "选择交易对",
+        "search-placeholder": "搜索令牌",
+        "core-description": "贸易六溴/艾滋病毒核心市场。",
+        "engine-description": "Layer-2 令牌交易与 SWAP.HIVE 。",
+        "no-results": "没有令牌匹配您的搜索。"
       }
+    },
+    "engine": {
+      "title": "Hive 引擎市场",
+      "description": "直接从您的 Hive 帐户中交易限制订单的 Hive 引擎令牌。",
+      "token": "令牌",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "最后价格",
+      "price-change": "24 小时变化",
+      "volume-label": "24h volume ({{symbol}})",
+      "bids": "购买订单",
+      "asks": "销售订单",
+      "price": "价格",
+      "amount": "Amount ({{symbol}})",
+      "total": "总计",
+      "recent-trades": "最近交易",
+      "time": "时间",
+      "type": "类型",
+      "no-open-orders": "您还没有此市场的开放订单。",
+      "use-best": "使用最佳价格",
+      "use-max": "使用最大值",
+      "invalid-order": "输入一个大于零的有效金额和价格。",
+      "login-required": "请登录 Hive 引擎令牌。",
+      "order-placed": "已下订单",
+      "order-cancelled": "订单已取消",
+      "login-to-trade": "登录以管理您的 Hive 引擎交易。",
+      "deposit": "存入艾滋病毒值",
+      "deposit-instructions": "Send HIVE to @honey-swap with memo {{memo}} to receive SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "切换列表样式"
   },
   "entry-votes": {
     "title": "1个投票",
@@ -806,7 +884,9 @@
   "comment": {
     "body-placeholder": "在此处写下您的回复",
     "preview": "预览",
-    "success": "您的回复已成功创建！"
+    "success": "您的回复已成功创建！",
+    "retry-hint": "您的文本在下面被保留 - 请重试",
+    "rc-error-hint": "资源积分不足 - 您的文本在下方保存"
   },
   "discussion": {
     "join": "立即加入对话",
@@ -965,6 +1045,7 @@
     "section-replies": "回复",
     "section-communities": "社区",
     "section-wallet": "钱包",
+    "section-insights": "洞察力",
     "section-settings": "设置",
     "section-referrals": "引用",
     "section-permission": "权限",
@@ -995,6 +1076,22 @@
     "link-copied": "搜索链接已复制到剪贴板",
     "no-posts-found": "找不到任何东西！",
     "subscribe": "订阅"
+  },
+  "profile-insights": {
+    "description": "看看你的帖子中哪一个与读者最为共鸣。",
+    "today": "今日：",
+    "yesterday": "昨日",
+    "last-7": "过去 7 天",
+    "last-30": "过去 30 天",
+    "all-time": "全部时间",
+    "page": "页",
+    "views": "视图",
+    "uniques": "唯一视图",
+    "minutes": "分钟",
+    "no-data": "此范围内尚无页面查看。",
+    "range": "Date range",
+    "disabled": "眼光目前已被禁用。",
+    "error": "无法加载洞察力。"
   },
   "rc-info": {
     "available": "可用",
@@ -1185,24 +1282,6 @@
       "larynx-locked-description": "锁定令牌为网络提供流动性，帮助确定共识，为节点运行者赚取奖励"
     }
   },
-  "wallet-engine": {
-    "title": "Hive 引擎令牌",
-    "description": "Hive 引擎是 Hive 区块链的一个智能合约侧链平台。",
-    "no-results": "未找到令牌。",
-    "token": "令牌",
-    "balance": "余额",
-    "staked": "已关注"
-  },
-  "sort-engine-tokens": {
-    "sort": "排序",
-    "sort-in-ascending": "升序",
-    "sort-in-descending": "降序",
-    "sort-by-value": "值",
-    "sort-by-balance": "余额",
-    "sort-by-stake": "拉克",
-    "sort-by-delegations-in": "代表团在",
-    "sort-by-delegations-out": "代表团退出"
-  },
   "wallet-engine-estimated": {
     "title": "估计令牌值",
     "description": "您钱包中所有引擎代币的大约美元值。"
@@ -1263,12 +1342,6 @@
     "filter-998": "转出传输",
     "filter-999": "传入传输"
   },
-  "purchase": {
-    "select-asset": "选择资产",
-    "slider-hint": "拖动滑块来调整金额。",
-    "submit": "购买",
-    "purchase-message": "或者发送任何金额到 @eseem.app 与 `points` 作为购买点数的备注。"
-  },
   "purchase-qr": {
     "scan-code": "使用 Ecency 移动应用程序扫描以继续",
     "select-user": "请选择一个用户",
@@ -1286,14 +1359,6 @@
     "sub-title": "推广您的帖子",
     "duration": "周期",
     "learn-more": "了解更多关于推广的信息"
-  },
-  "boost": {
-    "title": "推荐",
-    "sub-title": "推荐您的帖子",
-    "amount": "数量",
-    "slider-hint": "拖动滑块来调整金额。",
-    "hint": "您收到的票数的实际值可能有所变化",
-    "learn-more": "了解更多关于提升的信息"
   },
   "redeem-common": {
     "balance": "余额",
@@ -1466,7 +1531,11 @@
     "sign": "签名",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "使用 HiveAuth 登录"
+  },
+  "hive-auth": {
+    "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
   },
   "delegated-vesting": {
     "title": "已委托的 Hive Power",
@@ -1651,11 +1720,6 @@
     "refresh": "刷新以获取更新状态",
     "video-info": "视频由SPK网络存储和供电，可能需要一些存储和编码费用。"
   },
-  "nsfw-content": {
-    "title": "NSFW内容",
-    "warning": "请检查您的内容是否为 NSFW",
-    "continue": "继续"
-  },
   "tag-selector": {
     "placeholder-empty": "标签：第一个标签是主要分类，可排序。",
     "placeholder-focus": "输入标签",
@@ -1709,7 +1773,12 @@
     "replied": "{{source}} 回复了你",
     "reblogged": "{{source}} 转发了您的帖子",
     "transfer": "{{source}} 发送给您 {{amount}}",
-    "delegations": "{{source}} delegated you {{amount}}"
+    "delegations": "{{source}} delegated you {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "您的支付已准备就绪。",
+    "payouts-amount": "You received {{amount}} payout.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "所有通知",
@@ -1721,6 +1790,7 @@
     "type-reblogs": "转发",
     "type-transfers": "转账",
     "type-delegations": "A. 代表团",
+    "type-payouts": "支付",
     "type-nfavorites": "收藏夹",
     "type-nbookmarks": "书签",
     "group-title-recent": "最近",
@@ -1735,6 +1805,9 @@
     "reblog-str": "已重新博文",
     "transfer-str": "已发送",
     "delegations-str": "授权",
+    "checkins-title": "Great streak on @{{username}}",
+    "payouts-title": "You received a payout on @{{username}}",
+    "monthly-posts-title": "Finishing the month strong, @{{username}}",
     "spin-str": "赚取更多点数的时刻，在Ecency移动版上玩转盘游戏。",
     "inactive-str": "活跃！写一个帖子，继续赚钱",
     "referral-str": "加入推荐，欢迎他们加入",
@@ -1762,9 +1835,6 @@
     "header-reward": "奖励",
     "header-votes": "票",
     "header-votes-tip": "在此期间的投票数"
-  },
-  "popular-users": {
-    "title": "受欢迎的用户"
   },
   "discover": {
     "title": "发现",
@@ -1872,6 +1942,7 @@
     "filter-active": "活跃",
     "filter-inactive": "即将开始",
     "filter-team": "Ecency 项目",
+    "filter-create": "新的",
     "return-description": "这是基础返回提案。每个票数较少的提案都不会收到资金。",
     "threshold-description": "这是一个临界建议。",
     "votes-dialog-title": "对提议#{{n}} 投票",
@@ -1884,7 +1955,53 @@
     "sort-reputation": "信誉积分",
     "sort-hp": "Hive 功率",
     "no-results": "未找到结果",
-    "searching": "搜索中"
+    "searching": "搜索中",
+    "create": {
+      "step-setup-title": "设置提案详细信息",
+      "step-setup-sub-title": "请描述您想要向DHF提交的建议。",
+      "description": "<p>Before submitting a proposal make sure you have published a Hive post that explains the scope of the work and link to it below. Creating a proposal costs <strong>10 HBD</strong> plus <strong>1 HBD</strong> for each day over 60.</p>",
+      "subject-label": "标题",
+      "subject-placeholder": "短公开标题",
+      "subject-help": "这显示在提案列表中，保持简洁(最多80个字符)。",
+      "subject-error": "输入介于 3 到 80 个字符之间的标题。",
+      "permlink-label": "建议允许链接",
+      "permlink-placeholder": "拟议更新员额",
+      "permlink-help": "使用描述您建议的 Hive 帖子的许可链接 (没有 @username/part )。 您可以在关注此字段时从列表中选择您最近发布的帖子。",
+      "permlink-suggestions-title": "最近的帖子",
+      "permlink-suggestions-loading": "正在加载最近帖子...",
+      "permlink-suggestions-empty": "您的帐户没有发现最近的帖子。",
+      "permlink-suggestions-error": "无法加载最近的帖子，请重试。",
+      "permlink-error": "Permlink 只能包含小写字母、数字和连字符。",
+      "receiver-label": "接收者",
+      "receiver-placeholder": "账户名称",
+      "receiver-help": "为建议提供资金时接收付款的帐户。",
+      "receiver-error": "输入一个有效的 Hive 帐户名称。",
+      "start-label": "开始日期",
+      "start-placeholder": "选择开始日期",
+      "start-error": "选择一个开始日期，在将来至少一个小时。",
+      "end-label": "结束日期",
+      "end-placeholder": "选择结束日期",
+      "end-error": "结束日期必须在开始日期之后。",
+      "daily-pay-label": "每日支付 (HBD)",
+      "daily-pay-help": "每天请求的 HBD 量。",
+      "daily-pay-error": "输入一个正值的日薪金额。",
+      "summary-title": "Summary",
+      "summary-duration": "Duration: {{days}} days",
+      "summary-daily-pay": "Daily pay: {{amount}} HBD",
+      "summary-total-pay": "Total payout ≈ {{amount}} HBD",
+      "summary-creation-fee": "Creation fee ≈ {{fee}} HBD",
+      "step-sign-sub-title": "使用您的活动授权签名交易。",
+      "sign-hint": "您可以使用您的活动密钥，HiveAuth ，Hive Keychain 或 HiveSigner登录。",
+      "success-title": "提交的提案",
+      "success-sub-title": "交易广播",
+      "success-description": "新提案列入名单可能需要几分钟时间。",
+      "success-toast": "建议交易广播。",
+      "external-sign": "继续在新窗口中签名以完成创建提案。",
+      "new-proposal": "创建另一个提案",
+      "login-button": "登录",
+      "open-form": "创建提案",
+      "hide-form": "隐藏提案表"
+    }
   },
   "gallery": {
     "title": "图库",
@@ -1929,19 +2046,6 @@
     "validation-label": "请勾选此框以继续。",
     "updated": "密码更新成功！",
     "hint": "此时，您只能通过设置新的种子短语生成密钥。不支持更新到任何其他类型的密码。 它有助于我们将生态和Hive 帐户保持在网页3.0 的标准中。"
-  },
-  "view-keys": {
-    "title": "查看私钥",
-    "header": "管理密钥",
-    "account": "账户",
-    "cur-pass": "当前密码",
-    "owner": "所有者",
-    "active": "活动",
-    "posting": "发送中",
-    "memo": "备注",
-    "view-keys": "点击查看密钥",
-    "copied": "私钥已复制到剪贴板",
-    "error": "密码似乎不正确，请重复检查！"
   },
   "manage-authorities": {
     "title": "管理授权",
@@ -1993,118 +2097,43 @@
     "update-success-message": "您的恢复电子邮件已成功更新"
   },
   "chat": {
-    "page-title": "对话",
-    "read-only": "只读",
-    "why-read-only": "此用户已更改了他们的聊天密钥。请在上面的搜索中通过用户名查找新帐户。",
-    "user-not-joined": "尚未加入",
-    "title": "聊天",
-    "messages": "留言",
-    "key": "生态聊天键",
-    "new-message": "新消息",
-    "direct-messages": "直接消息",
-    "collapse": "收起",
-    "expand": "扩展",
-    "scroll-to-bottom": "滚动到底部",
-    "joined": "已加入",
-    "followers": "关注者",
-    "start-chat-placeholder": "开始一个新消息",
-    "search": "搜索人或社区",
-    "join-chat": "加入聊天",
-    "join-channel": "加入频道",
-    "back": "后退",
-    "no-chat": "没有找到对话",
-    "start-chat": "开始聊天",
-    "not-joined": "此用户尚未加入聊天",
-    "subscribers": "订阅者",
-    "invite": "邀请",
-    "send-invite": "发送邀请",
-    "leave:": "退出",
-    "refresh": "刷新",
-    "message-warning": "您不能在此群组中发送消息。",
-    "edit-community-roles": "编辑社区角色",
-    "add": "添加",
-    "no-admin": "没有这个社区聊天的管理员或版主。",
-    "blocked-users": "被屏蔽的用户",
-    "action": "行 动",
-    "unblock": "取消屏蔽",
-    "ecency-key": "生态密钥",
-    "no-locked-user": "未找到被阻止的用户",
-    "no-hidden-messages": "找不到隐藏消息",
-    "enter-private-key": "输入私钥",
-    "enter-private-key-detail": "输入私钥导入所有聊天",
-    "close": "关闭",
-    "confirm": "确认",
-    "error-updating-community": "更新社区时出错",
-    "leave-channel": "离开频道",
-    "leaving": "离开",
-    "edit-roles": "编辑角色",
-    "manage-chat-key": "凭据信息",
-    "block": "封禁",
-    "communities": "社区",
-    "dms": "直接消息",
-    "import-chat": "导入聊天",
-    "create-new-account": "创建新账户",
+    "page-title": "开始直接消息或加入频道以便与生态社区进行聊天。",
+    "loading-chats": "加载聊天…",
+    "start-dm-button": "启动 DM",
+    "starting-dm": "Starting…",
+    "search-user": "搜索用户",
+    "searching": "搜索中...",
+    "no-user": "未找到用户。",
+    "search-channels": "搜索频道或直接消息",
     "loading": "加载中...",
-    "blocked-user-message": "您已被此社区阻止了",
-    "start-community-channel": "Start community channel",
+    "mark-as-read": "标记为已读",
+    "marking-as-read": "Marking…",
+    "channel-type-dm": "私信",
+    "channel-type": "频道",
+    "favorite-channel": "喜欢的频道",
+    "channel-muted": "静音",
+    "mute-channel": "静音频道",
+    "unmute-channel": "取消静音频道",
+    "leave-channel": "离开频道",
+    "no-channels": "尚未分配频道。",
+    "no-channels-search": "没有匹配您搜索的频道。",
+    "joinable-channels": "可加入的频道",
+    "searching-channels": "正在搜索…",
+    "channel-type-public": "公共频道",
+    "channel-type-private": "私人频道",
+    "join-channel-action": "加入",
+    "joining-channel": "正在加入…",
+    "no-additional-channels": "未找到其他频道。",
+    "title": "聊天",
+    "no-admin": "没有这个社区聊天的管理员或版主。",
     "view-community-channel": "社区聊天",
-    "submit": "提交",
-    "chat-priv-key": "请点击下载按钮或扫描二维码来保存聊天键以恢复您的对话。",
     "public-key": "公钥",
     "private-key": "私钥",
-    "copy-priv-key": "复制私钥",
-    "extended-view": "扩展视图",
-    "you-haven-t-joined": "您尚未加入聊天。请加入以开始！",
-    "invalid-private-key": "私钥无效",
-    "enter-username": "输入临时用户名",
     "hide-message": "隐藏消息",
-    "block-author": "阻止作者",
-    "unblock-author": "取消屏蔽作者",
-    "create-an-account": "创建聊天账户",
-    "create-description": "欢迎登陆！您的帐户即将就绪。深入到对话中，享受与其他人的私人连接。",
-    "create-pin-description": "请设置 PIN 用于从任何设备访问您的聊天",
-    "logout": "注销",
-    "specify-invitation-message": "此邀请消息将作为评论发送给最新用户帖子",
-    "successfully-invited": "成功邀请！",
-    "invite-couldnt-be-sent": "邀请无法发送，因为用户还没有任何帖子",
-    "no-posts-for-invite": "很抱歉，用户似乎没有激活，也没有发布任何帖子。",
-    "warn-key-saving": "备份您的聊天密钥以保持帐户安全，同时提供不间断的服务！",
-    "view-and-save": "显示密钥并保存",
-    "blocked-users-management": "被屏蔽的用户管理",
-    "unlock-the-section": "请输入您的 PIN 码以查看您的凭据信息",
-    "no-contacts-or-channels": "尚无对话",
-    "upload-image": "上传图片",
-    "hidden-messages": "隐藏消息",
-    "hidden-messages-management": "隐藏消息管理",
-    "saved-messages": "已保存的消息",
-    "fetch-error": "当您离开时，检测到网络更改。现在重新加载页面获取新数据",
-    "pin": "置顶",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "选择联系人或频道",
-    "message-forwarding": "消息转发中",
-    "forward": "转发消息",
-    "forwarded-from": "转发的消息",
-    "welcome": {
-      "title": "欢迎使用聊天",
-      "description": "使用聊天开始创建或导入账户",
-      "already-joined-title": "看起来你已经加入了聊天",
-      "already-joined-hint": "请验证您的帐户并通过输入PIN来获得访问",
-      "pin-failed": "无效的 PIN。验证失败。",
-      "oops": "哎呀！",
-      "user-not-joined-yet": "您不能发送消息。此用户或频道尚未加入聊天。",
-      "hello": "您好",
-      "start-description": "搜索一个人或社区并开始消息",
-      "join-description": "您不是频道的一部分。",
-      "rejoin-description": "您已离开这个社区聊天。现在重新加入聊天！"
-    },
-    "import": {
-      "title": "导入帐户",
-      "description": "请输入公钥和私钥对以导入您现有的帐户",
-      "button": "导入",
-      "iv": "初始矢量值"
-    },
-    "reply": "答复",
-    "reply-to": "Replying to {{account}}"
+    "enter-private-key-detail": "输入私钥导入所有聊天",
+    "message-search-results": "消息搜索结果",
+    "no-messages-found": "未找到消息。",
+    "no-message": "没有消息内容。"
   },
   "add-image": {
     "title": "添加图像",
@@ -2140,6 +2169,46 @@
       "contact-blog": "创始人博客",
       "contact-news": "Hive 新闻",
       "contact-email": "给我们发电子邮件"
+    },
+    "mobile": {
+      "page-title": "生态移动版",
+      "hero-title": "Your community, anywhere with <span>Ecency Mobile</span>",
+      "hero-subtitle": "保持靠近Hive 社群，响应对话并管理奖励。",
+      "hero-footnote": "可用于 iOS、iPadOS 和 Android 设备。",
+      "cta-ios": "在 App Store 下载",
+      "cta-android": "在 Google Play 上获取",
+      "benefits-title": "为什么你会喜欢生态移动设备",
+      "benefits": {
+        "communities-title": "口袋中的社区",
+        "communities-description": "关注种子，探索热门标签，与你关心的人和主题保持密切联系。",
+        "create-title": "在任何地方发布",
+        "create-description": "帖子草稿，分享更新和回复您在桌面上使用的强大编辑器的评论。",
+        "wallet-title": "一目了然的钱包",
+        "wallet-description": "核对余额，领取奖励并管理Hive Power 或 HBD ，只需几盘磁带即可。",
+        "notifications-title": "永远不要错过一个引用",
+        "notifications-description": "推送通知高亮显示新的关注者、提及和奖励，以便您能够及时庆祝。"
+      },
+      "features-title": "为创作者和社区设计",
+      "features": {
+        "interface-title": "为移动制造的",
+        "interface-description": "享受本机导航、手势友好的控制和布局，在手机和平板电脑上感觉正常。",
+        "themes-title": "白天和夜晚主题",
+        "themes-description": "在轻暗主题之间切换，随时阅读和写入时保持舒适。",
+        "opensource-title": "开放和社区驱动的",
+        "opensource-description": "在 GitHub 上作出贡献，帮助翻译或直接分享应用的反馈。"
+      },
+      "screenshots-title": "见生态移动电话。",
+      "screenshots-description": "清理您在手机和平板电脑上阅读、发布和管理个人资料的视图。",
+      "screenshots-tablet-alt": "平板电脑上显示生态移动接口",
+      "screenshots-phone-alt": "在手机上显示生态移动订阅视图",
+      "screenshots-desktop-alt": "桌面接口旁边的生态移动屏幕",
+      "screenshots-dark-alt": "暗色主题中的生态移动应用",
+      "resources-title": "有益的资源",
+      "resources": {
+        "faq": "访问常见问题解答",
+        "blog": "阅读最新的移动版本便笺",
+        "github": "探索开源移动代码库"
+      }
     },
     "faq": {
       "about-ecency": "关于生态性",
@@ -2421,26 +2490,10 @@
     "title": "贡献者",
     "description": "这些伟大的人以这样或那样的方式为生态作出了贡献，我们要感谢他们所有人。 如果你想加入我们的团队，通过翻译、思想、发展、设计和社会意识作出贡献，请随意加入。 要了解更多信息，请阅读我们的 <a href=\"/faq#how-to-contribute\">常见问题</a>。"
   },
-  "context-menu": {
-    "cut": "剪切",
-    "copy": "复制",
-    "paste": "粘帖",
-    "open-image-browser": "在浏览器中打开图片",
-    "copy-image-url": "复制图片网址"
-  },
-  "updater": {
-    "new-version-available": "有新版本可用！",
-    "download": "下载",
-    "update": "更新",
-    "dismiss": "忽略",
-    "downloading": "正在下载新版本......",
-    "download-completed": "下载完成",
-    "restart": "重启"
-  },
   "chain-error": {
     "min-root-comment": "您只能每五分钟发布一次。",
     "identical-vote": "您当前对此内容的投票与本次投票完全相同。",
-    "must-claim": "没有索要余额或已经索要。",
+    "must-claim": "待处理奖励已经领取。",
     "insufficient-resource": "资源积分不足。",
     "delete-comment-with-vote": "不能删除正等待奖励的内容。",
     "comment-cashout": "不能删除他们付款后的内容。",
@@ -2639,7 +2692,8 @@
     "faq": "常见问题",
     "chats": "聊天",
     "news": "新闻",
-    "chats-page-placeholder": "聊天已在扩展视图中打开"
+    "chats-page-placeholder": "聊天已在扩展视图中打开",
+    "open-chats": "打开聊天"
   },
   "not-found": {
     "title": "找不到",
@@ -2656,12 +2710,6 @@
     "email-placeholder": "您的电子邮件(可选)",
     "message-placeholder": "请描述您的报告",
     "issue-reported": "问题报告成功"
-  },
-  "entry-preview": {
-    "searching-title": "搜索帖子",
-    "searching-description": "我们正在试图找到这个帖子...",
-    "title": "预览",
-    "description": "此帖子正在创建。当此消息将消失时，您可以与它进行交互。"
   },
   "banners": {
     "no-ls-title": "无法使用本地数据",
@@ -2922,6 +2970,7 @@
     "pick-tokens": "选择要显示的标记",
     "search-token": "搜索令牌",
     "setup-tokens": "管理令牌",
+    "trade-tokens": "交易令牌",
     "asset-name": "资产名称",
     "price": "价格",
     "balance": "余额",
@@ -2930,10 +2979,14 @@
     "apr": "APR 奖励",
     "apr-hint": "每年的百分比率 — — 您将在选定的时间框架内以Cryptocurency方式获得的奖励的估计",
     "delegations": "A. 代表团",
+    "hp-total-balance": "HP总余额",
+    "delegations-outgoing": "发出的代表团",
+    "delegations-incoming": "来到的代表团",
     "external-wallets-offer": {
       "title": "将您的加密带到生态环境",
       "description": "直接从 Trust 或 Exodus 等应用创建或导入BTC、ETH 、BNB、SOL、TRX、APT 和 TON 的钱包 并开始在Hive 生态系统内无缝使用它们。",
-      "hint": "创建和导入令牌的信息将存储在 Ecency 和 Hive 账户元数据中"
+      "hint": "创建和导入令牌的信息将存储在 Ecency 和 Hive 账户元数据中",
+      "dismiss": "稍后再说"
     },
     "external-wallets-signup": {
       "create-wallet-title": "创建并链接到Hive 帐户",
@@ -2948,7 +3001,7 @@
     },
     "operations": {
       "transfer": "转移",
-      "transfer-saving": "储蓄账户",
+      "transfer-saving": "储蓄存款",
       "power-up": "电源上移",
       "power-down": "电源断开",
       "swap": "切换",
@@ -2963,10 +3016,29 @@
       "unstake": "取消利害关系",
       "undelegate": "取消授权"
     },
+    "hbd-interest": {
+      "title": "HBD 储蓄兴趣",
+      "next-label": "下一个索赔",
+      "next-ready": "现在就准备索取了",
+      "next-in": "Available {{relative}}",
+      "next-unknown": "利息计划不可用",
+      "next-date": "On {{date}}",
+      "balance-label": "储蓄余额",
+      "minimum-balance": "Interest accrues once you hold at least {{amount}} HBD in savings.",
+      "note": "Interest is calculated continuously at {{apr}}% APR.",
+      "claim-button": "B. 索赔利 息"
+    },
     "claim-rewards": "认领奖励",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "正在补全...",
     "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% APR 加速",
+      "title": "使用你的Hive 能量来进行生态管理",
+      "description": "委派你的Hive Power 到 @ecency 来激活由我们的管理团队管理的活动管理。 主动管理可以添加大约10% APR，100%的管理奖励将返还给你。",
+      "button": "代表 @ecency",
+      "dismiss": "稍后再说"
+    },
     "external": {
       "receive-button": "接收",
       "transfer-soon": "转让(即将)",

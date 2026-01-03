@@ -1,72 +1,110 @@
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import { useEffect, useRef, useState } from "react";
+import i18next from "i18next";
+import { useEffect, useRef } from "react";
 
 interface Props {
   selectedAddress: string;
-  selectedPlace: google.maps.places.PlaceResult | null;
   setSelectedPlace: (v: google.maps.places.PlaceResult) => void;
 }
 
 export function PublishEditorGeoTagAutocomplete({
-  selectedPlace,
   selectedAddress,
   setSelectedPlace
 }: Props) {
-  const inputContainerRef = useRef<HTMLDivElement>(null);
-
   const places = useMapsLibrary("places");
-
-  const [placeAutocomplete, setPlaceAutocomplete] = useState<any>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
 
   useEffect(() => {
-    const container = inputContainerRef.current;
+    if (!places || placesServiceRef.current) {
+      return;
+    }
 
-    if (!places || !container) return;
+    const googleMaps = window.google?.maps;
 
-    const autocomplete = new (places as any).PlaceAutocompleteElement();
-    setPlaceAutocomplete(autocomplete);
+    if (!googleMaps?.places?.PlacesService) {
+      return;
+    }
 
-    container.appendChild(autocomplete);
+    placesServiceRef.current = new googleMaps.places.PlacesService(document.createElement("div"));
+  }, [places]);
 
-    const handler = async ({ placePrediction }: any) => {
-      const place = placePrediction.toPlace();
-      await place.fetchFields({ fields: ["displayName", "formattedAddress", "location"] });
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = selectedAddress ?? "";
+    }
+  }, [selectedAddress]);
 
-      // Update parent state
-      setSelectedPlace({
-        name: place.displayName,
-        formatted_address: place.formattedAddress,
-        geometry: { location: place.location }
-      } as google.maps.places.PlaceResult);
-    };
+  useEffect(() => {
+    const input = inputRef.current;
 
-    autocomplete.addEventListener("gmp-select", handler);
+    if (!places || !input) return;
+
+    const googleMaps = window.google?.maps;
+
+    if (!googleMaps?.places?.Autocomplete) {
+      return;
+    }
+
+    const autocomplete = new googleMaps.places.Autocomplete(input, {
+      fields: ["name", "formatted_address", "geometry", "place_id"]
+    });
+
+    const listener = autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+
+      if (!place) {
+        return;
+      }
+
+      const location = place.geometry?.location;
+
+      if (location) {
+        setSelectedPlace({
+          ...place,
+          geometry: { location }
+        } as google.maps.places.PlaceResult);
+        return;
+      }
+
+      if (!place.place_id || !placesServiceRef.current) {
+        return;
+      }
+
+      placesServiceRef.current.getDetails(
+        {
+          placeId: place.place_id,
+          fields: ["name", "formatted_address", "geometry.location"]
+        },
+        (result, status) => {
+          if (status !== google.maps.places.PlacesServiceStatus.OK || !result) {
+            return;
+          }
+
+          if (!result.geometry?.location) {
+            return;
+          }
+
+          setSelectedPlace(result);
+        }
+      );
+    });
 
     return () => {
-      autocomplete.removeEventListener("gmp-select", handler);
-
-      if (typeof autocomplete.remove === "function") {
-        try {
-          autocomplete.remove();
-          return;
-        } catch (e) {
-          // If the element was already detached by the modal cleanup, fall back
-          // to removing it from the container manually below.
-          console.error("Failed to remove autocomplete element", e);
-        }
-      }
-
-      const parentNode = autocomplete.parentNode as Node | null;
-
-      if (parentNode?.contains(autocomplete)) {
-        parentNode.removeChild(autocomplete);
-      }
+      listener.remove();
+      googleMaps.event?.clearInstanceListeners(autocomplete);
     };
-  }, [places]);
+  }, [places, setSelectedPlace]);
 
   return (
     <div className="autocomplete-control mb-4">
-      <div className="autocomplete-container" ref={inputContainerRef} />
+      <input
+        ref={inputRef}
+        className="form-control"
+        placeholder={i18next.t("publish.geo-tag.location-placeholder")}
+        type="text"
+        aria-label={i18next.t("publish.geo-tag.location-placeholder")}
+      />
     </div>
   );
 }

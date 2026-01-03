@@ -1,7 +1,7 @@
 import useInterval from "react-use/lib/useInterval";
 import * as bridgeApi from "@/api/bridge";
-import { useGlobalStore } from "@/core/global-store";
 import { Entry } from "@/entities";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useEntryChecking(
   initialEntry: Entry | undefined,
@@ -9,7 +9,7 @@ export function useEntryChecking(
   onSuccessCheck: (entry: Entry) => void,
   customCondition?: (e1: Entry, e2: Entry | null) => boolean
 ) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const isLocal = ({ post_id }: Entry) => post_id === 1 || typeof post_id === "string" || !post_id;
 

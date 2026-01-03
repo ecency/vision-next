@@ -2,6 +2,7 @@ import {
   createPatch,
   createPermlink,
   createReplyPermlink,
+  ensureValidPermlink,
   extractMetaData,
   makeCommentOptions,
   makeJsonMetaData,
@@ -15,19 +16,39 @@ describe("Posting", () => {
   });
 
   it("createPermlink random", () => {
-    jest.spyOn(Math, "random").mockImplementation(() => {
+    const randomSpy = jest.spyOn(Math, "random").mockImplementation(() => {
       return 1.95136022969379;
     });
     const input = "lorem ipsum dolor sit amet";
     expect(createPermlink(input, true)).toMatchSnapshot();
+    randomSpy.mockRestore();
   });
 
   it("createPermlink non-latin chars", () => {
-    jest.spyOn(Math, "random").mockImplementation(() => {
+    const randomSpy = jest.spyOn(Math, "random").mockImplementation(() => {
       return 1.95136022969379;
     });
     const input = "ปลาตัวใหญ่สีเหลืองทอง";
     expect(createPermlink(input)).toMatchSnapshot();
+    randomSpy.mockRestore();
+  });
+
+  it("ensureValidPermlink returns valid permlink unchanged", () => {
+    expect(ensureValidPermlink("valid-permlink-1", "fallback title")).toBe(
+      "valid-permlink-1"
+    );
+  });
+
+  it("ensureValidPermlink sanitizes invalid permlink", () => {
+    const randomSpy = jest.spyOn(Math, "random").mockImplementation(() => {
+      return 1.95136022969379;
+    });
+
+    expect(ensureValidPermlink("Not Ready Yet", "fallback title")).toBe(
+      "not-ready-yet"
+    );
+
+    randomSpy.mockRestore();
   });
 
   it("(1) extractMetadata", () => {

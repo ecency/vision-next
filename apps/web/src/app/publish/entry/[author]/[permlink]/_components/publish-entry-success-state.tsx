@@ -1,5 +1,4 @@
 import { usePublishState } from "@/app/publish/_hooks";
-import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { makeEntryPath } from "@/utils";
 import { Entry } from "@/entities";
@@ -8,13 +7,14 @@ import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   entry?: Entry;
 }
 
 export function PublishEntrySuccessState({ entry }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { tags } = usePublishState();
 
   const params = useParams();

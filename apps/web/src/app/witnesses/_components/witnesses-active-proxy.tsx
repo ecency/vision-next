@@ -5,7 +5,7 @@ import { Button } from "@ui/button";
 import { error, KeyOrHotDialog, LoginRequired, ProfileLink } from "@/features/shared";
 import { formatError, witnessProxy, witnessProxyHot, witnessProxyKc } from "@/api/operations";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   username: string;
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function WitnessesActiveProxy({ username, isProxy, onDone }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [inProgress, setInProgress] = useState(false);
 
@@ -54,7 +54,16 @@ export function WitnessesActiveProxy({ username, isProxy, onDone }: Props) {
                 onKey={(key) => proxy(witnessProxy, [activeUser!.username, key, ""])}
                 onHot={() => proxy(witnessProxyHot, [activeUser!.username, ""])}
                 onKc={() => proxy(witnessProxyKc, [activeUser!.username, ""])}
-              />
+              >
+                <Button
+                  disabled={inProgress}
+                  icon={inProgress && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+                  iconPlacement="left"
+                  appearance="secondary"
+                >
+                  {i18next.t("witnesses.proxy-active-btn-label")}
+                </Button>
+              </KeyOrHotDialog>
             ) : (
               <LoginRequired>
                 <Button
@@ -73,7 +82,7 @@ export function WitnessesActiveProxy({ username, isProxy, onDone }: Props) {
       ) : (
         <div className="current-proxy">
           <ProfileLink username={username}>
-            <span>{`@${username}'s`}</span>
+            <span>{`@${username}'s `}</span>
           </ProfileLink>
           {i18next.t("witnesses.check-witness-highlighted")}
         </div>

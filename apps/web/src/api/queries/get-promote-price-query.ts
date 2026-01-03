@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getAccessToken } from "@/utils";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
-import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { PromotePrice } from "@/entities";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useGetPromotePriceQuery() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useQuery({
     queryKey: [QueryIdentifiers.PROMOTE_PRICE],

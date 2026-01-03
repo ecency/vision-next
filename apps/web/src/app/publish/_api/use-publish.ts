@@ -1,16 +1,21 @@
 import { validatePostCreating } from "@/api/hive";
 import { comment, reblog } from "@/api/operations";
-import { getPostHeaderQuery } from "@/api/queries";
+import { getAccountFullQuery, getPostHeaderQuery } from "@/api/queries";
 import { updateSpeakVideoInfo } from "@/api/threespeak";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
 import { FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { success } from "@/features/shared";
-import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
+import {
+  createPermlink,
+  ensureValidPermlink,
+  isCommunity,
+  makeCommentOptions,
+  tempEntry
+} from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,11 +23,12 @@ import i18next from "i18next";
 import { usePublishState } from "../_hooks";
 import * as Sentry from "@sentry/nextjs";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
+import { useActiveAccount } from "@/core/hooks";
 
 export function usePublishApi() {
   const queryClient = useQueryClient();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const {
     title,
     content,
@@ -40,11 +46,11 @@ export function usePublishApi() {
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username ?? undefined,
     "post-created"
   );
   const { mutateAsync: recordUploadVideoActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username ?? undefined,
     "video-published"
   );
 
@@ -59,13 +65,26 @@ export function usePublishApi() {
         .builder()
         .withLocation(cleanBody, location);
 
-      // make sure active user fully loaded
-      if (!activeUser || !activeUser.data.__loaded) {
+      // Ensure user is logged in and account data is available
+      if (!username) {
         throw new Error("[Publish] No active user");
       }
 
-      const author = activeUser.username;
-      const authorData = activeUser.data as FullAccount;
+      // Wait for account data if still loading
+      let authorData: FullAccount;
+      if (isLoading) {
+        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        if (!accountData) {
+          throw new Error("[Publish] Failed to load account data");
+        }
+        authorData = accountData;
+      } else if (!account) {
+        throw new Error("[Publish] Account data not available");
+      } else {
+        authorData = account;
+      }
+
+      const author = username;
 
       let permlink = createPermlink(title!);
 
@@ -80,6 +99,16 @@ export function usePublishApi() {
       } catch (e) {}
 
       const [parentPermlink] = tags!;
+      const videoMetadata = publishingVideo
+        ? {
+            ...publishingVideo,
+            permlink: ensureValidPermlink(
+              publishingVideo.permlink,
+              title || publishingVideo.title
+            )
+          }
+        : undefined;
+
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
@@ -93,20 +122,20 @@ export function usePublishApi() {
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
-        .withVideo(title!, metaDescription!, publishingVideo)
+        .withVideo(title!, metaDescription!, videoMetadata)
         .withPoll(poll)
         .build();
 
       // If post has one unpublished video need to modify
       //    json metadata which matches to 3Speak
-      if (publishingVideo) {
+      if (videoMetadata) {
         // Permlink should be got from 3speak video metadata
-        permlink = publishingVideo.permlink;
+        permlink = videoMetadata.permlink;
         // Update speak video with title, body and tags
         await updateSpeakVideoInfo(
-          activeUser.username,
+          username,
           content!,
-          publishingVideo._id,
+          videoMetadata._id,
           title!,
           tags ?? [],
           // isNsfw,

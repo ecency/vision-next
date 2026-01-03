@@ -1,16 +1,38 @@
-import { parseDate, truncate } from "@/utils";
+import { accountReputation, parseDate, safeDecodeURIComponent, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import {getContent} from "@/api/hive";
-import {getPostQuery} from "@/api/queries";
+import { getContent } from "@/api/hive";
+import { getProfiles, Profile } from "@/api/bridge";
+import { getPostQuery } from "@/api/queries";
+import { getServerAppBase } from "@/utils/server-app-base";
+import { FullAccount } from "@/entities";
+
+const NOINDEX_REPUTATION_THRESHOLD = 40;
+
+type ReputationSource = Pick<FullAccount, "reputation" | "post_count"> | Profile | null;
+
+const shouldApplyNoIndex = (
+  account: ReputationSource,
+  fallbackReputation: number
+): boolean => {
+  const reputationScore = accountReputation(account?.reputation ?? fallbackReputation ?? 0);
+  const postCount = typeof account?.post_count === "number" ? account.post_count : 0;
+
+  const meetsReputationGate = reputationScore < NOINDEX_REPUTATION_THRESHOLD;
+  const lacksPostingHistory = postCount <= 3;
+
+  // Accounts are no-indexed when they lack reputation or meaningful posting history, regardless of age.
+  return meetsReputationGate || lacksPostingHistory;
+};
 
 
 export async function generateEntryMetadata(
   username: string,
   permlink: string
 ): Promise<Metadata> {
-  const cleanPermlink = decodeURIComponent(permlink).trim();
+  const cleanPermlink = safeDecodeURIComponent(permlink).trim();
+  const base = await getServerAppBase();
   if (!username || !cleanPermlink || cleanPermlink === "undefined" || !isValidPermlink(cleanPermlink)) {
     console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
     return {};
@@ -28,7 +50,7 @@ export async function generateEntryMetadata(
         // fallback to direct content API
         entry = await getContent(cleanAuthor, cleanPermlink);
       } catch (e) {
-        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, cleanPermlink, e);
+        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, cleanPermlink);
         return {};
       }
 
@@ -46,23 +68,39 @@ export async function generateEntryMetadata(
       title = `@${entry.author}: ${rawCommentTitle}`;
     }
 
-    const summary = entry.json_metadata?.description
-        || truncate(postBodySummary(entry.body, 210), 140);
+    const summary =
+      entry.json_metadata?.description || truncate(postBodySummary(entry.body, 210), 140);
 
-    const image = catchPostImage(entry, 600, 500, "match")
+    const image = catchPostImage(entry, 600, 500, "match");
     const urlParts = entry.url.split("#");
-    const fullUrl = isComment && urlParts[1]
-        ? `https://ecency.com/${urlParts[1]}`
-        : `https://ecency.com${entry.url}`;
-    const authorUrl = `https://ecency.com/@${entry.author}`;
+    const fullUrl = isComment && urlParts[1] ? `${base}/${urlParts[1]}` : `${base}${entry.url}`;
+    const authorUrl = `${base}/@${entry.author}`;
     const createdAt = parseDate(entry.created ?? new Date().toISOString());
     const updatedAt = parseDate(entry.updated ?? entry.last_update ?? entry.created ?? new Date().toISOString());
-    const canonical = entryCanonical(entry);
+    const canonical = entryCanonical(entry, false, base);
     const finalCanonical = canonical ?? fullUrl;
+
+    let authorAccount: ReputationSource = null;
+    let accountFetchFailed = false;
+
+    try {
+      const profiles = await getProfiles([entry.author]);
+      authorAccount = profiles?.[0] ?? null;
+    } catch (e) {
+      accountFetchFailed = true;
+      console.warn("generateEntryMetadata: failed to load author account", e);
+    }
+
+    const applyNoIndex = accountFetchFailed
+      ? false
+      : shouldApplyNoIndex(authorAccount, entry.author_reputation ?? 0);
+
+    const robots = applyNoIndex ? "noindex, nofollow" : undefined;
 
     return {
       title,
       description: `${summary} by @${entry.author}`,
+      robots,
       openGraph: {
         title,
         description: summary,

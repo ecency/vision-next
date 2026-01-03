@@ -1,5 +1,7 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { witnessVote, witnessVoteHot, witnessVoteKc } from "@/api/operations";
 import { PrivateKey } from "@hiveio/dhive";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -16,7 +18,7 @@ interface PayloadApp extends KindOfPayload<"app"> {
 type Payload = KindOfPayload<"hot"> | KindOfPayload<"kc"> | PayloadApp;
 
 export function useVoteWitness(witness: string) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({

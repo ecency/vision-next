@@ -34,7 +34,7 @@ export function WitnessesList() {
 
   const { data, isPending, fetchNextPage } = getWitnessesQuery(limit).useClientQuery();
   const { data: proxyVotes } = useProxyVotesQuery();
-  const { data: proxy } = useWitnessProxyQuery();
+  const { data: proxyInfo } = useWitnessProxyQuery();
 
   const currentPageData = useMemo(() => data?.pages[page - 1] ?? [], [data, page]);
   const transformedWitnesses = useMemo(
@@ -73,15 +73,25 @@ export function WitnessesList() {
     }
   }, [fetchNextPage, page, previousPage]);
 
+  const usernameParam = searchParams?.get("username");
+  const accountParam = searchParams?.get("account");
+  const highlightedProxy = proxyInfo?.highlightedProxy ?? "";
+  const activeUserProxy = proxyInfo?.activeUserProxy ?? "";
+  const highlightedUsername = usernameParam ?? accountParam ?? highlightedProxy ?? "";
+  const shouldShowHighlightBanner = Boolean(highlightedUsername);
+  const isActiveUserProxy = Boolean(!usernameParam && !accountParam && activeUserProxy);
+
   return isPending ? (
     <LinearProgress />
   ) : (
     <>
-      {(proxy || searchParams?.get("username") || searchParams?.get("account")) && (
+      {shouldShowHighlightBanner && highlightedUsername && (
         <WitnessesActiveProxy
-          isProxy={!proxy}
-          username={searchParams?.get("username") ?? searchParams?.get("account") ?? proxy}
-          onDone={() => queryClient.setQueryData<string>([QueryIdentifiers.WITNESSES, "proxy"], "")}
+          isProxy={isActiveUserProxy}
+          username={highlightedUsername}
+          onDone={() =>
+            queryClient.invalidateQueries({ queryKey: [QueryIdentifiers.WITNESSES, "proxy"] })
+          }
         />
       )}
       <div className="mb-3 w-full">

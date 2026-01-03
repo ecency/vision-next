@@ -1,5 +1,7 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Draft, DraftMetadata } from "@/entities";
 import i18next from "i18next";
 import { addDraft, deleteDraft } from "@/api/private-api";
@@ -8,7 +10,7 @@ import { QueryIdentifiers } from "@/core/react-query";
 
 export function useCloneDraft(onSuccess: () => void) {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["drafts", "clone"],
@@ -31,7 +33,7 @@ export function useCloneDraft(onSuccess: () => void) {
 
 export function useDeleteDraft(onSuccess: (id: string) => void) {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["drafts", "delete"],

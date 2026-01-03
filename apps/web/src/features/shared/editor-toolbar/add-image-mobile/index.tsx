@@ -6,8 +6,9 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
 import { getImagesQuery } from "@/api/queries";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 setProxyBase(defaults.imageServer);
 
@@ -19,7 +20,7 @@ interface Props {
 }
 
 export function AddImageMobile({ onHide, onPick, onUpload, onGallery }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
   const { data: items } = getImagesQuery(activeUser?.username).useClientQuery();

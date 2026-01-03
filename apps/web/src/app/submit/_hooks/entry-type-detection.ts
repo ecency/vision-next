@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useEntryTypeDetection(
   path: string,
@@ -7,7 +7,7 @@ export function useEntryTypeDetection(
   permlink: string | undefined,
   draftId: string | undefined
 ) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [isEntry, setIsEntry] = useState(false);
   const [isDraft, setIsDraft] = useState(false);

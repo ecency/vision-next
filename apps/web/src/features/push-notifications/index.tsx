@@ -3,7 +3,7 @@
 import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
 import { useUpdateNotificationsSettings } from "@/api/mutations";
 import { NotificationsWebSocket } from "@/api/notifications-ws-api";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { ALL_NOTIFY_TYPES } from "@/enums";
 import { playNotificationSound } from "@/utils";
@@ -18,7 +18,7 @@ import { PropsWithChildren, useCallback, useEffect, useRef } from "react";
 import usePrevious from "react-use/lib/usePrevious";
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const previousActiveUsr = usePrevious(activeUser);
   const wsRef = useRef(new NotificationsWebSocket());
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
@@ -40,7 +40,14 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
 
       let permission = "default";
       if ("Notification" in window) {
-        permission = await Notification.requestPermission();
+        permission = Notification.permission;
+
+        if (
+          permission === "default" &&
+          typeof Notification.requestPermission === "function"
+        ) {
+          permission = await Notification.requestPermission();
+        }
       }
 
       // Try FCM only if supported and granted

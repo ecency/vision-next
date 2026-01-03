@@ -1,3 +1,13 @@
+jest.mock("@/features/shared", () => ({
+  error: jest.fn()
+}));
+jest.mock("@/features/tiptap-editor/extensions", () => ({
+  HIVE_POST_PURE_REGEX: /$a^/,
+  TAG_MENTION_PURE_REGEX: /$a^/,
+  USER_MENTION_PURE_REGEX: /$a^/,
+  YOUTUBE_REGEX: /$a^/
+}));
+
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 
@@ -66,6 +76,69 @@ describe("editor formatting persistence", () => {
     expect(reopenedHtml).toContain("<strong>Bold text</strong>");
     expect(markdownAfterPublishing).toContain("**Bold text**");
     expect(postEditHtml).toContain("<strong>Bold text</strong>");
+  });
+
+  it("keeps strikethrough formatting across the editor lifecycle", async () => {
+    const initialHtml = "<p><del>Struck text</del></p>";
+
+    const {
+      markdownAfterSave,
+      reopenedHtml,
+      markdownAfterPublishing,
+      postEditHtml
+    } = await runEditorRoundTrip(initialHtml);
+
+    expect(markdownAfterSave).toContain("~~Struck text~~");
+    expect(reopenedHtml).toContain("<del>Struck text</del>");
+    expect(markdownAfterPublishing).toContain("~~Struck text~~");
+    expect(postEditHtml).toContain("<del>Struck text</del>");
+  });
+
+  it("converts legacy <s> tags to <del> when reloading content", async () => {
+    const initialHtml = "<p><s>Legacy struck</s></p>";
+
+    const { reopenedHtml, postEditHtml } = await runEditorRoundTrip(initialHtml);
+
+    expect(reopenedHtml).toContain("<del>Legacy struck</del>");
+    expect(postEditHtml).toContain("<del>Legacy struck</del>");
+  });
+
+  it("keeps strikethrough formatting applied to headings", async () => {
+    const initialHtml = "<h2><del>Struck heading</del></h2>";
+
+    const {
+      markdownAfterSave,
+      reopenedHtml,
+      markdownAfterPublishing,
+      postEditHtml
+    } = await runEditorRoundTrip(initialHtml);
+
+    expect(markdownAfterSave).toMatch(/~~Struck heading~~\n[-=]+/);
+    expect(reopenedHtml).toContain("<h2");
+    expect(reopenedHtml).toContain("<del>Struck heading</del>");
+    expect(markdownAfterPublishing).toMatch(/~~Struck heading~~\n[-=]+/);
+    expect(postEditHtml).toContain("<h2");
+    expect(postEditHtml).toContain("<del>Struck heading</del>");
+  });
+
+  it("keeps mixed strikethrough text inside headings", async () => {
+    const initialHtml = "<h3><del>Struck</del> and plain</h3>";
+
+    const {
+      markdownAfterSave,
+      reopenedHtml,
+      markdownAfterPublishing,
+      postEditHtml
+    } = await runEditorRoundTrip(initialHtml);
+
+    expect(markdownAfterSave).toMatch(/~~Struck~~ and plain/);
+    expect(reopenedHtml).toContain("<h3");
+    expect(reopenedHtml).toContain("<del>Struck</del>");
+    expect(reopenedHtml).toContain("and plain");
+    expect(markdownAfterPublishing).toMatch(/~~Struck~~ and plain/);
+    expect(postEditHtml).toContain("<h3");
+    expect(postEditHtml).toContain("<del>Struck</del>");
+    expect(postEditHtml).toContain("and plain");
   });
 
   it("keeps paragraph alignment metadata for non-image content", async () => {

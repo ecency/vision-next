@@ -1,11 +1,12 @@
-import { MarketAsset } from "../market-pair";
-import { ActiveUser, FullAccount } from "@/entities";
+import { HiveMarketAsset, MarketAsset } from "../market-pair";
+import { FullAccount } from "@/entities";
 
-export const getBalance = (asset: MarketAsset, activeUser: ActiveUser): string => {
+export const getBalance = (asset: MarketAsset, account: FullAccount): string => {
   switch (asset) {
-    case MarketAsset.HBD:
-      return (activeUser.data as FullAccount).hbd_balance;
-    case MarketAsset.HIVE:
-      return (activeUser.data as FullAccount).balance;
+    case HiveMarketAsset.HBD:
+      return account.hbd_balance;
+    case HiveMarketAsset.HIVE:
+      return account.balance;
   }
+  return "";
 };

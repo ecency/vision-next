@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import "./_index.scss";
 import Link from "next/link";
 import { makePath } from "@/utils";

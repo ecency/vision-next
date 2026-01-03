@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import ReCAPTCHA from "react-google-recaptcha";
 import qrcode from "qrcode";
 import axios from "axios";
@@ -23,7 +25,7 @@ import { appleSvg, checkSvg, googleSvg, hiveSvg } from "@ui/svg";
 import { Tsx } from "@/features/i18n/helper";
 import { useGlobalStore } from "@/core/global-store";
 import Link from "next/link";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 enum Stage {
   FORM = "form",
@@ -32,7 +34,7 @@ enum Stage {
 }
 
 export function SignUp() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const [lsReferral, setLsReferral] = useLocalStorage<string>(PREFIX + "_referral");
@@ -67,6 +69,7 @@ export function SignUp() {
     if (referral && typeof referral === "string") {
       setReferral(referral);
       setLockReferral(true);
+      setLsReferral(referral);
     } else if (lsReferral && typeof lsReferral === "string") {
       router.push(`/signup/email?referral=${lsReferral}`);
       setReferral(lsReferral);

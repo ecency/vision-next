@@ -1,24 +1,28 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, useClientActiveUser } from "@/api/queries";
 import { WalletOperationsDialog } from "@/features/wallet";
 import { Button } from "@/features/ui";
-import { AssetOperation, getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { AssetOperation } from "@ecency/wallets";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
-import { dayjs, parseAsset } from "@/utils";
+import { dayjs, formattedNumber, parseAsset, secondDiff } from "@/utils";
 
 interface Props {
   username: string;
   className?: string;
 }
 
-const MINIMUM_SAVINGS_BALANCE = 0.01;
+// Hive stores HBD balances with three decimal places, so accruing interest
+// effectively requires holding at least 0.001 HBD in savings. Below that
+// threshold there are no satoshis to accumulate seconds against.
+const MINIMUM_SAVINGS_BALANCE = 0.001;
 const INTEREST_INTERVAL_DAYS = 30;
 const SECONDS_PER_YEAR = 365 * 24 * 60 * 60;
+const UNIX_EPOCH = "1970-01-01T00:00:00";
 
 export function ProfileWalletHbdInterest({ username, className }: Props) {
   const activeUser = useClientActiveUser();
@@ -29,53 +33,94 @@ export function ProfileWalletHbdInterest({ username, className }: Props) {
     enabled: Boolean(username),
   });
 
-  const { data: assetInfo } = useQuery({
-    ...getAccountWalletAssetInfoQueryOptions(username, "HBD"),
-    enabled: Boolean(username),
-  });
+  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
-  const aprPercent = useMemo(() => {
-    const parsed = Number.parseFloat(assetInfo?.apr ?? "0");
-    return Number.isFinite(parsed) ? parsed : 0;
-  }, [assetInfo?.apr]);
+  const { hbdInterestRate } = useMemo(
+    () => dynamicProps ?? DEFAULT_DYNAMIC_PROPS,
+    [dynamicProps]
+  );
+
+  const aprAnnualPercent = useMemo(() => hbdInterestRate / 100, [hbdInterestRate]);
 
   const savingsBalance = useMemo(() => {
     const balanceString = account?.savings_hbd_balance ?? "0.000 HBD";
     return parseAsset(balanceString).amount;
   }, [account?.savings_hbd_balance]);
 
-  const savingsSeconds = useMemo(() => {
-    const parsed = Number(account?.savings_hbd_seconds ?? "0");
-    return Number.isFinite(parsed) ? parsed : 0;
+  const trackedHbdSeconds = useMemo(() => {
+    const value = account?.savings_hbd_seconds;
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value / 1000;
+    }
+
+    if (typeof value === "string") {
+      const parsed = Number.parseFloat(value);
+      if (Number.isFinite(parsed)) {
+        return parsed / 1000;
+      }
+    }
+
+    return 0;
   }, [account?.savings_hbd_seconds]);
 
   const lastUpdate = useMemo(() => {
     const value = account?.savings_hbd_seconds_last_update;
-    const parsed = value ? dayjs(value) : null;
-    return parsed && parsed.isValid() ? parsed : null;
+    if (!value || value === UNIX_EPOCH) {
+      return null;
+    }
+
+    const parsed = dayjs(value);
+    return parsed.isValid() ? parsed : null;
   }, [account?.savings_hbd_seconds_last_update]);
 
+  const lastInterestPayment = useMemo(() => {
+    const value = account?.savings_hbd_last_interest_payment;
+    if (!value || value === UNIX_EPOCH) {
+      return null;
+    }
+    const parsed = dayjs(value);
+    return parsed.isValid() ? parsed : null;
+  }, [account?.savings_hbd_last_interest_payment]);
+
   const now = dayjs();
-  const secondsSinceLastUpdate = lastUpdate
-    ? Math.max(0, now.diff(lastUpdate, "second"))
-    : 0;
-  const accruedSeconds = savingsSeconds + secondsSinceLastUpdate * savingsBalance;
 
-  const estimatedInterest =
-    (accruedSeconds * (aprPercent / 100)) / SECONDS_PER_YEAR;
-  const estimatedInterestDisplay = Number.isFinite(estimatedInterest)
-    ? estimatedInterest
-    : 0;
+  const claimReferenceDate = lastInterestPayment ?? lastUpdate;
 
-  const nextClaimDate = lastUpdate
-    ? lastUpdate.add(INTEREST_INTERVAL_DAYS, "day")
+  const secondsSinceLastUpdate = useMemo(() => {
+    const value = account?.savings_hbd_seconds_last_update;
+    if (!value || value === UNIX_EPOCH) {
+      return 0;
+    }
+
+    return secondDiff(value);
+  }, [account?.savings_hbd_seconds_last_update]);
+
+  const pendingSeconds = savingsBalance * secondsSinceLastUpdate;
+  const secondsToEstimate = trackedHbdSeconds + pendingSeconds;
+
+  const pendingInterest = useMemo(() => {
+    if (hbdInterestRate <= 0) {
+      return 0;
+    }
+
+    const aprDecimal = hbdInterestRate / 10000;
+    return (secondsToEstimate / SECONDS_PER_YEAR) * aprDecimal;
+  }, [hbdInterestRate, secondsToEstimate]);
+
+  const pendingInterestDisplay = formattedNumber(pendingInterest);
+  const hasPendingInterest = pendingInterest >= MINIMUM_SAVINGS_BALANCE;
+
+  const nextClaimDate = claimReferenceDate
+    ? claimReferenceDate.add(INTEREST_INTERVAL_DAYS, "day")
     : null;
 
   const hasMinimumBalance = savingsBalance >= MINIMUM_SAVINGS_BALANCE;
   const canClaim = Boolean(
     hasMinimumBalance &&
       nextClaimDate &&
-      now.isAfter(nextClaimDate)
+      now.isAfter(nextClaimDate) &&
+      hasPendingInterest
   );
 
   const nextClaimDescription = (() => {
@@ -102,9 +147,13 @@ export function ProfileWalletHbdInterest({ username, className }: Props) {
 
   const helperText = hasMinimumBalance
     ? i18next.t("profile-wallet.hbd-interest.note", {
-        apr: aprPercent.toFixed(3),
+        apr: aprAnnualPercent.toFixed(3),
       })
     : undefined;
+
+  if (savingsBalance < MINIMUM_SAVINGS_BALANCE) {
+    return null;
+  }
 
   const claimButton = (
     <Button
@@ -130,7 +179,7 @@ export function ProfileWalletHbdInterest({ username, className }: Props) {
             {i18next.t("profile-wallet.hbd-interest.title")}
           </div>
           <div className="text-2xl font-semibold">
-            {estimatedInterestDisplay.toFixed(3)} HBD
+            {pendingInterestDisplay} HBD
           </div>
         </div>
         {isOwnProfile && canClaim ? (

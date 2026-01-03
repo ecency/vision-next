@@ -6,6 +6,9 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_GMAPS_API_KEY: ${{ secrets.GMAPS_API_KEY }}
+      NEXT_PUBLIC_GMAPS_MAP_ID: ${{ secrets.GMAPS_MAP_ID }}
     strategy:
       matrix:
         node-version: [20.x]
@@ -43,19 +46,18 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        id: docker_build
         uses: docker/build-push-action@v2
-        env:
-          SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
         with:
           context: .
           file: ./apps/web/Dockerfile
           push: true
           tags: ecency/vision-next:develop
           build-args: |
-            "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}"
-            "NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}"
-            "NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}"
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+            SENTRY_ORG=ecency
+            SENTRY_PROJECT=ecency-next
+            NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}
+            NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}
             PNPM_VERSION=10.18.1
 
       - name: Image digest
@@ -79,12 +81,16 @@ jobs:
         CHAINZ_API_KEY: ${{secrets.CHAINZ_API_KEY}}
         BLOCKSTREAM_CLIENT_ID: ${{secrets.BLOCKSTREAM_CLIENT_ID}}
         BLOCKSTREAM_CLIENT_SECRET: ${{secrets.BLOCKSTREAM_CLIENT_SECRET}}
+        MATTERMOST_BASE_URL: ${{secrets.MATTERMOST_BASE_URL}}
+        MATTERMOST_ADMIN_TOKEN: ${{secrets.MATTERMOST_ADMIN_TOKEN}}
+        MATTERMOST_TEAM_ID: ${{secrets.MATTERMOST_TEAM_ID}}
+        MATTERMOST_WS_ALLOWED_ORIGINS: ${{secrets.MATTERMOST_WS_ALLOWED_ORIGINS}}
       with:
         host: ${{ secrets.SSH_STAGING_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY,CHAINSTACK_API_KEY,CHAINZ_API_KEY,BLOCKSTREAM_CLIENT_ID,BLOCKSTREAM_CLIENT_SECRET
+        envs: USE_PRIVATE,PRIVATE_API_ADDR,PRIVATE_API_AUTH,HIVESIGNER_SECRET,SEARCH_API_ADDR,SEARCH_API_SECRET,PLAUSIBLE_API_KEY,CHAINSTACK_API_KEY,CHAINZ_API_KEY,BLOCKSTREAM_CLIENT_ID,BLOCKSTREAM_CLIENT_SECRET,MATTERMOST_TEAM_ID,MATTERMOST_ADMIN_TOKEN,MATTERMOST_BASE_URL, MATTERMOST_WS_ALLOWED_ORIGINS
         script: |
           export USE_PRIVATE=$USE_PRIVATE
           export PRIVATE_API_ADDR=$PRIVATE_API_ADDR

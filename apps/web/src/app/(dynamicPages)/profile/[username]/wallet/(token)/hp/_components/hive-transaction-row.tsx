@@ -16,6 +16,27 @@ interface Props {
   onMounted?: () => void;
 }
 
+function ParticipantBadge({ username }: { username: string }) {
+  return (
+    <ProfileLink username={username} className="max-w-full">
+      <Badge className="flex max-w-full items-center gap-1 pl-0.5 pr-1 text-left text-sm leading-tight break-all">
+        <UserAvatar username={username} size="small" />
+        <span className="break-all">{username}</span>
+      </Badge>
+    </ProfileLink>
+  );
+}
+
+function TransferParticipants({ from, to }: { from: string; to: string }) {
+  return (
+    <div className="flex min-w-0 flex-wrap items-center gap-2">
+      <ParticipantBadge username={from} />
+      <UilArrowRight className="shrink-0 text-gray-400 dark:text-gray-600" />
+      <ParticipantBadge username={to} />
+    </div>
+  );
+}
+
 export function HiveTransactionRow({ entry, transaction: tr }: Props) {
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
@@ -98,23 +119,11 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     icon = <UilArrowRight className="w-4 h-4" />;
 
     details = (
-      <div>
-        <div className="flex gap-2 items-center">
-          <ProfileLink username={tr.from}>
-            <Badge className="flex gap-1 pl-0.5 items-center">
-              <UserAvatar username={tr.from} size="small" />
-              {tr.from}
-            </Badge>
-          </ProfileLink>
-          <UilArrowRight className="text-gray-400 dark:text-gray-600" />
-          <ProfileLink username={tr.to}>
-            <Badge className="flex gap-1 pl-0.5 items-center">
-              <UserAvatar username={tr.to} size="small" />
-              {tr.to}
-            </Badge>
-          </ProfileLink>
-        </div>
-        {tr.memo && <div className="text-sm opacity-75">{tr.memo}</div>}
+      <div className="space-y-2">
+        <TransferParticipants from={tr.from} to={tr.to} />
+        {tr.memo ? (
+          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+        ) : null}
       </div>
     );
 
@@ -123,52 +132,45 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     icon = <TwoUserAvatar from={tr.from_account} to={tr.to_account} size="small" />;
 
     details = (
-      <span>
-        {"Auto Vest:"} {tr.auto_vest} <br />
-        {"Percent:"} {tr.percent} <br />
-        <>
-          <strong>@{tr.from_account}</strong> -&gt; <strong>@{tr.to_account}</strong>
-        </>
-      </span>
+      <div className="space-y-2">
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          {"Auto Vest:"} {tr.auto_vest}
+          <br />
+          {"Percent:"} {tr.percent}
+        </div>
+        <TransferParticipants from={tr.from_account} to={tr.to_account} />
+      </div>
     );
 
     numbers = <span className="number">{tr.percent}</span>;
   } else if (tr.type === "recurrent_transfer" || tr.type === "fill_recurrent_transfer") {
     icon = <UilRefresh className="w-4 h-4" />;
 
+    const recurrentDescription =
+      tr.type === "recurrent_transfer" ? (
+        <Tsx
+          k="transactions.type-recurrent_transfer-detail"
+          args={{ executions: tr.executions, recurrence: tr.recurrence }}
+        >
+          <span className="block" />
+        </Tsx>
+      ) : (
+        <Tsx
+          k="transactions.type-fill_recurrent_transfer-detail"
+          args={{ remaining_executions: tr.remaining_executions }}
+        >
+          <span className="block" />
+        </Tsx>
+      );
+
     details = (
-      <span>
+      <div className="space-y-2">
         {tr.memo ? (
-          <>
-            {tr.memo} <br /> <br />
-          </>
+          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
         ) : null}
-        {tr.type === "recurrent_transfer" ? (
-          <>
-            <Tsx
-              k="transactions.type-recurrent_transfer-detail"
-              args={{ executions: tr.executions, recurrence: tr.recurrence }}
-            >
-              <span />
-            </Tsx>
-            <br />
-            <br />
-            <strong>@{tr.from}</strong> -&gt; <strong>@{tr.to}</strong>
-          </>
-        ) : (
-          <>
-            <Tsx
-              k="transactions.type-fill_recurrent_transfer-detail"
-              args={{ remaining_executions: tr.remaining_executions }}
-            >
-              <span />
-            </Tsx>
-            <br />
-            <br />
-            <strong>@{tr.from}</strong> -&gt; <strong>@{tr.to}</strong>
-          </>
-        )}
-      </span>
+        <div className="text-sm text-gray-600 dark:text-gray-400">{recurrentDescription}</div>
+        <TransferParticipants from={tr.from} to={tr.to} />
+      </div>
     );
     let aam = tr.amount as any;
     if (tr.type === "fill_recurrent_transfer") {
@@ -202,21 +204,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     );
 
     details = tr.delegatee ? (
-      <div className="flex gap-2 items-center">
-        <ProfileLink username={tr.delegator}>
-          <Badge className="flex gap-1 pl-0.5 items-center">
-            <UserAvatar username={tr.delegator} size="small" />
-            {tr.delegator}
-          </Badge>
-        </ProfileLink>
-        <UilArrowRight className="text-gray-400 dark:text-gray-600" />
-        <ProfileLink username={tr.delegatee}>
-          <Badge className="flex gap-1 pl-0.5 items-center">
-            <UserAvatar username={tr.delegatee} size="small" />
-            {tr.delegatee}
-          </Badge>
-        </ProfileLink>
-      </div>
+      <TransferParticipants from={tr.delegator} to={tr.delegatee} />
     ) : null;
   } else if (tr.type === "fill_vesting_withdraw") {
     icon = powerDownSvg;
@@ -224,21 +212,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     numbers = <span className="number">{tr.deposited}</span>;
 
     details = tr.from_account ? (
-      <div className="flex gap-2 items-center">
-        <ProfileLink username={tr.from_account}>
-          <Badge className="flex gap-1 pl-0.5 items-center">
-            <UserAvatar username={tr.from_account} size="small" />
-            {tr.from_account}
-          </Badge>
-        </ProfileLink>
-        <UilArrowRight className="text-gray-400 dark:text-gray-600" />
-        <ProfileLink username={tr.to_account}>
-          <Badge className="flex gap-1 pl-0.5 items-center">
-            <UserAvatar username={tr.to_account} size="small" />
-            {tr.to_account}
-          </Badge>
-        </ProfileLink>
-      </div>
+      <TransferParticipants from={tr.from_account} to={tr.to_account} />
     ) : null;
   } else if (tr.type === "producer_reward") {
     icon = pickAxeSvg;
@@ -271,6 +245,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
         type={tr.type}
         timestamp={tr.timestamp}
         numbers={numbers}
+        rawDetails={tr}
       >
         {details}
       </ProfileWalletTokenHistoryHiveItem>
@@ -283,6 +258,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       type={tr.type}
       timestamp={tr.timestamp}
       numbers={numbers}
+      rawDetails={tr}
     >
       <code>{JSON.stringify(tr)}</code>
     </ProfileWalletTokenHistoryHiveItem>

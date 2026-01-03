@@ -54,7 +54,8 @@ export const getPostsRankedQuery = (
       return [];
     },
     enabled,
-    initialData: { pages: [], pageParams: [] },
+    // Don't set initialData here - let it use prefetched data from server
+    // initialData: { pages: [], pageParams: [] },
     initialPageParam: { author: undefined, permlink: undefined, hasNextPage: true } as PageParam,
     getNextPageParam: (lastPage: Entry[]) => {
       const last = lastPage?.[lastPage!.length - 1];

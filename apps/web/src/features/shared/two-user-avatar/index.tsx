@@ -1,4 +1,4 @@
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import "./_index.scss";
 import { useGlobalStore } from "@/core/global-store";
 

@@ -8,9 +8,9 @@ import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { delegateRC } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
 import { rcFormatter } from "@/utils";
 import { FullAccount } from "@/entities";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   showDelegation: () => void;
@@ -33,7 +33,7 @@ export const RcDelegationsList = ({
   setShowDelegationsList,
   account
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const otherUser = account.name;
   const {
@@ -212,7 +212,7 @@ interface ConfirmDeleteProps {
 }
 
 export const ConfirmDelete = ({ to, hideConfirmDelete }: ConfirmDeleteProps) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   return (
     <>
       <div className="container">

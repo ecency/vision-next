@@ -15,7 +15,7 @@ export function Followers({ onHide, account }: Props) {
     <Modal onHide={onHide} show={true} centered={true} size="lg">
       <ModalHeader closeButton={true}>
         <ModalTitle>
-          {account.__loaded && account.follow_stats
+          {account.follow_stats
             ? i18next.t("friends.followers", {
                 n: formattedNumber(account.follow_stats.follower_count, { fractionDigits: 0 })
               })
@@ -34,7 +34,7 @@ export function Following({ onHide, account }: Props) {
     <Modal onHide={onHide} show={true} centered={true} size="lg">
       <ModalHeader closeButton={true}>
         <ModalTitle>
-          {account.__loaded && account.follow_stats
+          {account.follow_stats
             ? i18next.t("friends.following", {
                 n: formattedNumber(account.follow_stats.following_count, { fractionDigits: 0 })
               })

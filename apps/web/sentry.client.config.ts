@@ -28,9 +28,16 @@ Sentry.init({
     "Cannot set property tron of #<Window> which has only a getter",
     "Cannot set property ethereum of #<Window> which has only a getter",
     "window.ethereum._handleChainChanged is not a function",
-    "Cannot destructure property 'register' of 'undefined' as it is undefined."
+    "Cannot destructure property 'register' of 'undefined' as it is undefined.",
+    // iOS Safari cross-origin security errors from @ecency/renderer library
+    "null is not an object (evaluating 'c.parentNode')",
+    "null is not an object (evaluating 'b.parentNode')"
   ],
   // Filter out errors originating from browser extension
-  denyUrls: [/sui\.js/]
+  denyUrls: [
+    /sui\.js/,
+    /extensionServiceWorker\.js$/,
+    /chrome-extension:\/\//
+  ]
 });
 Sentry.setTag("source", "client");

@@ -1,12 +1,13 @@
 "use client";
 
 import React, {useMemo} from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import {proxifyImageSrc, setProxyBase} from "@ecency/render-helper";
 import "./_index.scss";
 import {Account} from "@/entities";
 import {FollowControls} from "@/features/shared";
 import {useGlobalStore} from "@/core/global-store";
+import {useActiveAccount} from "@/core/hooks/use-active-account";
 import {FavouriteBtn} from "@/features/shared/favorite-btn";
 import {ProfileInfo} from "@/app/(dynamicPages)/profile/[username]/_components/profile-info";
 import {EcencyConfigManager} from "@/config";
@@ -24,7 +25,7 @@ export function ProfileCover({ account }: Props) {
   const [theme] = useClientTheme();
 
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const {activeUser} = useActiveAccount();
 
   const pathname = usePathname();
   const section = useMemo(() => pathname?.split("/")[2] ?? "posts", [pathname]);
@@ -33,7 +34,7 @@ export function ProfileCover({ account }: Props) {
   const coverFallbackNight = "/assets/cover-fallback-night.png";
   let bgImage = "";
 
-  if (account?.__loaded) {
+  if (account) {
     bgImage = theme === Theme.day ? coverFallbackDay : coverFallbackNight;
     if (account.profile?.cover_image) {
       bgImage = proxifyImageSrc(account.profile.cover_image, 0, 0, canUseWebp ? "webp" : "match");

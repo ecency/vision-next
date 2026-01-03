@@ -1,4 +1,3 @@
-import hs from "hivesigner";
 import * as keychain from "@/utils/keychain";
 import {
   AccountUpdateOperation,
@@ -21,7 +20,9 @@ import {
   hotSign,
   parseAsset
 } from "@/utils";
+import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
+import { buildProfileMetadata, parseProfileMetadata } from "@ecency/sdk";
 
 const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
   if (/You may only post once every/.test(strErr)) {
@@ -29,6 +30,8 @@ const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
   } else if (/Your current vote on this comment is identical/.test(strErr)) {
     return [i18next.t("chain-error.identical-vote"), ErrorTypes.INFO];
   } else if (/Must claim something/.test(strErr)) {
+    return [i18next.t("chain-error.must-claim"), ErrorTypes.INFO];
+  } else if (/Cannot claim that much VESTS/.test(strErr)) {
     return [i18next.t("chain-error.must-claim"), ErrorTypes.INFO];
   } else if (/Please wait to transact, or power up/.test(strErr)) {
     return [
@@ -79,45 +82,147 @@ export const formatError = (err: any): [string, ErrorTypes] => {
   return ["", ErrorTypes.COMMON];
 };
 
+let hasBoundWindowFetch = false;
+
+const ensureBoundWindowFetch = () => {
+  if (hasBoundWindowFetch) {
+    return;
+  }
+
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const fetchFn = window.fetch;
+  if (typeof fetchFn !== "function") {
+    return;
+  }
+
+  (window as any).fetch = fetchFn.bind(window);
+  hasBoundWindowFetch = true;
+};
+
+type HiveSignerModule = typeof import("hivesigner");
+
+let hiveSignerModulePromise: Promise<HiveSignerModule> | null = null;
+
+const getHiveSignerModule = (): Promise<HiveSignerModule> => {
+  if (!hiveSignerModulePromise) {
+    ensureBoundWindowFetch();
+    hiveSignerModulePromise = import("hivesigner");
+  } else {
+    ensureBoundWindowFetch();
+  }
+
+  return hiveSignerModulePromise;
+};
+
+const withHiveSigner = async <T>(
+  callback: (hs: HiveSignerModule["default"]) => T | Promise<T>
+): Promise<T> => {
+  const hiveSigner = await getHiveSignerModule();
+  return callback(hiveSigner.default);
+};
+
+const getCustomJsonHotSignRedirect = (username: string, id: string): string => {
+  if (id === "ssc-mainnet-hive") {
+    return `@${username}/wallet/engine`;
+  }
+
+  if (id.startsWith("ecency_")) {
+    return `@${username}/points`;
+  }
+
+  return `@${username}/wallet`;
+};
+
+const broadcastCustomJSON = (
+  username: string,
+  id: string,
+  json: {},
+  authority: "posting" | "active",
+  keychainLabel: string = "Custom json"
+): Promise<TransactionConfirmation> => {
+  const payload = JSON.stringify(json);
+  const operation: CustomJsonOperation[1] = {
+    id,
+    required_auths: authority === "active" ? [username] : [],
+    required_posting_auths: authority === "posting" ? [username] : [],
+    json: payload
+  };
+
+  if (authority === "posting") {
+    const postingKey = getPostingKey(username);
+    if (postingKey) {
+      const privateKey = PrivateKey.fromString(postingKey);
+      return hiveClient.broadcast.json(operation, privateKey);
+    }
+  }
+
+  const customJsonOperation: Operation = ["custom_json", operation];
+
+  ensureBoundWindowFetch();
+
+  return sendWithHiveAuthOrHiveSigner(username, [customJsonOperation], authority, async () => {
+    const loginType = getLoginType(username);
+    if (loginType === "keychain") {
+      return keychain
+        .customJson(
+          username,
+          id,
+          authority === "active" ? "Active" : "Posting",
+          payload,
+          keychainLabel
+        )
+        .then((r: any) => r.result);
+    }
+
+    const token = getAccessToken(username);
+    if (token) {
+      if (authority === "posting") {
+        const hiveSigner = await getHiveSignerModule();
+
+        return new hiveSigner.Client({ accessToken: token })
+          .customJson(
+            [],
+            [username],
+            id,
+            payload
+          )
+          .then((r: any) => r.result);
+      }
+
+      const params = {
+        authority,
+        required_auths: JSON.stringify([username]),
+        required_posting_auths: "[]",
+        id,
+        json: payload,
+        display_msg: keychainLabel
+      };
+
+      hotSign("custom-json", params, getCustomJsonHotSignRedirect(username, id));
+
+      return Promise.resolve(0 as unknown as TransactionConfirmation);
+    }
+
+    return Promise.resolve(0 as unknown as TransactionConfirmation);
+  });
+};
+
 export const broadcastPostingJSON = (
   username: string,
   id: string,
   json: {}
-): Promise<TransactionConfirmation> => {
-  // With posting private key
-  const postingKey = getPostingKey(username);
-  if (postingKey) {
-    const privateKey = PrivateKey.fromString(postingKey);
+): Promise<TransactionConfirmation> => broadcastCustomJSON(username, id, json, "posting");
 
-    const operation: CustomJsonOperation[1] = {
-      id,
-      required_auths: [],
-      required_posting_auths: [username],
-      json: JSON.stringify(json)
-    };
-
-    return hiveClient.broadcast.json(operation, privateKey);
-  }
-
-  const loginType = getLoginType(username);
-
-  if (loginType && loginType == "keychain") {
-    return keychain
-      .customJson(username, id, "Posting", JSON.stringify(json), "Custom json")
-      .then((r: any) => r.result);
-  }
-
-  // With hivesigner access token
-
-  let token = getAccessToken(username);
-  return token
-    ? new hs.Client({
-        accessToken: token
-      })
-        .customJson([], [username], id, JSON.stringify(json))
-        .then((r: any) => r.result)
-    : Promise.resolve(0 as unknown as TransactionConfirmation);
-};
+export const broadcastActiveJSON = (
+  username: string,
+  id: string,
+  json: {},
+  keychainLabel: string = "Custom json"
+): Promise<TransactionConfirmation> =>
+  broadcastCustomJSON(username, id, json, "active", keychainLabel);
 
 export const broadcastPostingOperations = (
   username: string,
@@ -131,21 +236,43 @@ export const broadcastPostingOperations = (
     return hiveClient.broadcast.sendOperations(operations, privateKey);
   }
 
-  const loginType = getLoginType(username);
-  if (loginType == "keychain") {
-    return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result);
-  }
+  return sendWithHiveAuthOrHiveSigner(username, operations, "posting", async () => {
+    const loginType = getLoginType(username);
+    if (loginType === "keychain") {
+      return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result);
+    }
 
-  // With hivesigner access token
-  let token = getAccessToken(username);
-  return token
-    ? new hs.Client({
+    const token = getAccessToken(username);
+    if (token) {
+      const hiveSigner = await getHiveSignerModule();
+
+      return new hiveSigner.Client({
         accessToken: token
       })
         .broadcast(operations)
-        .then((r: any) => r.result)
-    : Promise.resolve(0 as unknown as TransactionConfirmation);
+        .then((r: any) => r.result);
+    }
+
+    return Promise.resolve(0 as unknown as TransactionConfirmation);
+  });
 };
+
+function sendWithHiveAuthOrHiveSigner(
+  username: string,
+  operations: Operation[],
+  authority: "posting" | "active",
+  fallback: () => Promise<any> | void
+) {
+  const loginType = getLoginType(username);
+  if (loginType === "hiveauth" || shouldUseHiveAuth(username)) {
+    return broadcastWithHiveAuth(username, operations, authority).catch((err) => {
+      console.error("HiveAuth broadcast failed", err);
+      return fallback();
+    });
+  }
+
+  return fallback();
+}
 
 export const reblog = (
   username: string,
@@ -311,7 +438,9 @@ export const transferHot = (from: string, to: string, amount: string, memo: stri
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const transferKc = (from: string, to: string, amount: string, memo: string) => {
@@ -403,7 +532,9 @@ export const transferToSavingsHot = (from: string, to: string, amount: string, m
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const transferToSavingsKc = (from: string, to: string, amount: string, memo: string) => {
@@ -512,7 +643,9 @@ export const limitOrderCreateHot = (
   const params: Parameters = {
     callback: `https://ecency.com/market${idPrefix === OrderIdPrefix.SWAP ? "#swap" : ""}`
   };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const limitOrderCancelHot = (owner: string, orderid: number) => {
@@ -525,7 +658,9 @@ export const limitOrderCancelHot = (owner: string, orderid: number) => {
   ];
 
   const params: Parameters = { callback: `https://ecency.com/market` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const limitOrderCreateKc = (
@@ -605,7 +740,9 @@ export const convertHot = (owner: string, amount: string) => {
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${owner}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const convertKc = (owner: string, amount: string) => {
@@ -655,7 +792,9 @@ export const transferFromSavingsHot = (from: string, to: string, amount: string,
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const transferFromSavingsKc = (from: string, to: string, amount: string, memo: string) => {
@@ -723,7 +862,9 @@ export const claimInterestHot = (from: string, to: string, amount: string, memo:
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperations([op, cop], params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op, cop], "active", () =>
+    withHiveSigner((hs) => hs.sendOperations([op, cop], params, () => {}))
+  );
 };
 
 export const claimInterestKc = (from: string, to: string, amount: string, memo: string) => {
@@ -778,7 +919,9 @@ export const transferToVestingHot = (from: string, to: string, amount: string) =
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const transferToVestingKc = (from: string, to: string, amount: string) => {
@@ -827,7 +970,9 @@ export const delegateVestingSharesHot = (
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${delegator}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(delegator, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const delegateVestingSharesKc = (
@@ -890,7 +1035,9 @@ export const withdrawVestingHot = (account: string, vestingShares: string) => {
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${account}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(account, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const withdrawVestingKc = (account: string, vestingShares: string) => {
@@ -942,7 +1089,9 @@ export const setWithdrawVestingRouteHot = (
   ];
 
   const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return hs.sendOperation(op, params, () => {});
+  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
+    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
+  );
 };
 
 export const setWithdrawVestingRouteKc = (
@@ -1023,6 +1172,69 @@ export const witnessProxyHot = (account: string, proxy: string) => {
 
 export const witnessProxyKc = (account: string, witness: string) => {
   return keychain.witnessProxy(account, witness);
+};
+
+type ProposalCreatePayload = {
+  receiver: string;
+  subject: string;
+  permlink: string;
+  start: string;
+  end: string;
+  dailyPay: string;
+};
+
+export const proposalCreate = (
+  account: string,
+  key: PrivateKey,
+  payload: ProposalCreatePayload
+): Promise<TransactionConfirmation> => {
+  const op: Operation = [
+    "create_proposal",
+    {
+      creator: account,
+      receiver: payload.receiver,
+      start_date: payload.start,
+      end_date: payload.end,
+      daily_pay: payload.dailyPay,
+      subject: payload.subject,
+      permlink: payload.permlink,
+      extensions: []
+    }
+  ];
+
+  return hiveClient.broadcast.sendOperations([op], key);
+};
+
+export const proposalCreateHot = (account: string, payload: ProposalCreatePayload) => {
+  const params = {
+    creator: account,
+    receiver: payload.receiver,
+    start_date: payload.start,
+    end_date: payload.end,
+    daily_pay: payload.dailyPay,
+    subject: payload.subject,
+    permlink: payload.permlink
+  };
+
+  hotSign("create-proposal", params, "proposals");
+};
+
+export const proposalCreateKc = (account: string, payload: ProposalCreatePayload) => {
+  const op: Operation = [
+    "create_proposal",
+    {
+      creator: account,
+      receiver: payload.receiver,
+      start_date: payload.start,
+      end_date: payload.end,
+      daily_pay: payload.dailyPay,
+      subject: payload.subject,
+      permlink: payload.permlink,
+      extensions: []
+    }
+  ];
+
+  return keychain.broadcast(account, [op], "Active");
 };
 
 export const proposalVote = (
@@ -1223,10 +1435,20 @@ export const updateProfile = (
   account: Account,
   newProfile: any
 ): Promise<TransactionConfirmation> => {
+  const existingProfile =
+    "posting_json_metadata" in account
+      ? parseProfileMetadata(account.posting_json_metadata)
+      : undefined;
+
+  const profile = buildProfileMetadata({
+    existingProfile,
+    profile: newProfile,
+  });
+
   const params = {
     account: account.name,
     json_metadata: "",
-    posting_json_metadata: JSON.stringify({ profile: { ...newProfile, version: 2 } }),
+    posting_json_metadata: JSON.stringify({ profile }),
     extensions: []
   };
 
@@ -1235,11 +1457,7 @@ export const updateProfile = (
   return broadcastPostingOperations(account.name, opArray);
 };
 
-export const grantPostingPermission = (key: PrivateKey, account: Account, pAccount: string) => {
-  if (!account.__loaded) {
-    throw "posting|memo_key|json_metadata required with account instance";
-  }
-
+export const grantPostingPermission = (key: PrivateKey, account: FullAccount, pAccount: string) => {
   const newPosting = Object.assign(
     {},
     { ...account.posting },
@@ -1266,11 +1484,7 @@ export const grantPostingPermission = (key: PrivateKey, account: Account, pAccou
   );
 };
 
-export const revokePostingPermission = (key: PrivateKey, account: Account, pAccount: string) => {
-  if (!account.__loaded) {
-    throw "posting|memo_key|json_metadata required with account instance";
-  }
-
+export const revokePostingPermission = (key: PrivateKey, account: FullAccount, pAccount: string) => {
   const newPosting = Object.assign(
     {},
     { ...account.posting },
@@ -1471,7 +1685,9 @@ export const createAccountHs = async (data: any, creator_account: string, hash: 
       const params: Parameters = {
         callback: `https://ecency.com/onboard-friend/confirming/${hash}?tid={{id}}`
       };
-      return hs.sendOperation(operation, params, () => {});
+      return sendWithHiveAuthOrHiveSigner(creator_account, [operation], "active", () =>
+        withHiveSigner((hs) => hs.sendOperation(operation, params, () => {}))
+      );
     } catch (err: any) {
       console.log(err);
       return err.jse_info.name;
@@ -1660,7 +1876,9 @@ export const createAccountWithCreditHs = async (
       const params: Parameters = {
         callback: `https://ecency.com/onboard-friend/confirming/${hash}?tid={{id}}`
       };
-      return hs.sendOperation(operation, params, () => {});
+      return sendWithHiveAuthOrHiveSigner(creator_account, [operation], "active", () =>
+        withHiveSigner((hs) => hs.sendOperation(operation, params, () => {}))
+      );
     } catch (err: any) {
       console.log(err);
       return err.jse_info.name;

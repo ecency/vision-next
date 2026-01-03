@@ -1,6 +1,6 @@
 "use client";
 
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { Entry } from "@/entities";
 import { AvailableCredits, handleAndReportError, LoginRequired } from "@/features/shared";
 import { CommentPreview } from "@/features/shared/comment/comment-preview";
@@ -47,6 +47,7 @@ interface Props {
   inputRef?: Ref<HTMLTextAreaElement>;
   clearOnSubmit?: boolean;
   isEdit?: boolean;
+  initialText?: string | null;
 }
 
 export function Comment({
@@ -59,7 +60,8 @@ export function Comment({
   inProgress,
   autoFocus,
   isEdit,
-  clearOnSubmit = true
+  clearOnSubmit = true,
+  initialText = null
 }: Props) {
   const commentBodyRef = useRef<HTMLDivElement>(null);
   const activeUser = useClientActiveUser();
@@ -67,7 +69,7 @@ export function Comment({
 
   const [text, setText] = useLocalStorage(
     PREFIX + `_reply_text_${entry.author}_${entry.permlink}`,
-    ""
+    initialText ?? ""
   );
   const [inputHeight, setInputHeight] = useState(0);
   const [preview, setPreview] = useState("");
@@ -91,7 +93,7 @@ export function Comment({
     if (selection) {
       setText((prev) => `${selection}${prev ?? ""}`);
       const el = (inputRef as any)?.current as HTMLTextAreaElement | null;
-      
+
       // Enhanced validation to ensure element is fully initialized
       if (el && el.scrollHeight !== undefined && typeof el.scrollHeight === 'number') {
         try {
@@ -103,12 +105,12 @@ export function Comment({
           }
           setInputHeight(scHeight);
           const caret = selection.length;
-          
+
           // Re-validate element existence and method availability in requestAnimationFrame
           requestAnimationFrame(() => {
             const currentEl = (inputRef as any)?.current as HTMLTextAreaElement | null;
-            if (currentEl && 
-                typeof currentEl.setSelectionRange === 'function' && 
+            if (currentEl &&
+                typeof currentEl.setSelectionRange === 'function' &&
                 currentEl.isConnected) {
               currentEl.setSelectionRange(caret, caret);
             }
@@ -129,6 +131,13 @@ export function Comment({
     50,
     [text]
   );
+
+  // Restore failed text when blockchain submission fails
+  useEffect(() => {
+    if (initialText !== null && initialText !== text) {
+      setText(initialText);
+    }
+  }, [initialText]);
 
   useMount(() => {
     if (isEdit) {

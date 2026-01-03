@@ -1,8 +1,8 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { BaseWallet, SignTxParams } from '@okxweb3/coin-base';
-import { SMTAsset, OperationName, PrivateKey, Client } from '@hiveio/dhive';
-import { Transaction, SignedTransaction, TransactionConfirmation } from '@hiveio/dhive/lib/chain/transaction';
+import { OperationName, VirtualOperationName, SMTAsset, PrivateKey, Operation, TransactionConfirmation, Client } from '@hiveio/dhive';
+import { Transaction, SignedTransaction, TransactionConfirmation as TransactionConfirmation$1 } from '@hiveio/dhive/lib/chain/transaction';
 import { utxoTx } from '@okxweb3/coin-bitcoin/dist/type';
 import { Network } from '@okxweb3/coin-bitcoin/dist/bitcoinjs-lib';
 import { EthTxParams } from '@okxweb3/coin-ethereum/dist/EthWallet';
@@ -349,6 +349,11 @@ declare function getHbdAssetGeneralInfoQueryOptions(username: string): _tanstack
 
 type HiveOperationGroup = "" | "transfers" | "market-orders" | "interests" | "stake-operations" | "rewards";
 
+type HiveOperationName = OperationName | VirtualOperationName;
+type HiveOperationFilterValue = HiveOperationGroup | HiveOperationName;
+type HiveOperationFilter = HiveOperationFilterValue | HiveOperationFilterValue[];
+type HiveOperationFilterKey = string;
+
 interface BaseTransaction {
     num: number;
     type: string;
@@ -546,6 +551,26 @@ interface VoteProxy extends BaseTransaction {
 }
 type HiveTransaction = CurationReward | AuthorReward | CommentBenefactor | ClaimRewardBalance | Transfer | TransferToVesting | TransferToSavings | CancelTransferFromSavings | WithdrawVesting | SetWithdrawRoute | FillOrder | ProducerReward | Interest | FillConvertRequest | FillCollateralizedConvertRequest | ReturnVestingDelegation | ProposalPay | UpdateProposalVotes | CommentPayoutUpdate | CommentReward | CollateralizedConvert | RecurrentTransfers | FillRecurrentTransfers | LimitOrderCreate | LimitOrderCancel | FillVestingWithdraw | EffectiveCommentVote | VoteProxy | DelegateVestingShares;
 
+interface HiveMarketMetric {
+    hive: {
+        high: number;
+        low: number;
+        open: number;
+        close: number;
+        volume: number;
+    };
+    id: number;
+    non_hive: {
+        high: number;
+        low: number;
+        open: number;
+        close: number;
+        volume: number;
+    };
+    open: string;
+    seconds: number;
+}
+
 interface HiveWithdrawRoute {
     auto_vest: boolean;
     from_account: string;
@@ -569,7 +594,11 @@ interface ReceivedVestingShare {
     vesting_shares: string;
 }
 
-declare function getHiveAssetTransactionsQueryOptions(username: string | undefined, limit: number | undefined, group: HiveOperationGroup): _tanstack_react_query.UseInfiniteQueryOptions<HiveTransaction[], Error, _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>, readonly unknown[], unknown> & {
+declare function resolveHiveOperationFilters(filters: HiveOperationFilter): {
+    filterKey: HiveOperationFilterKey;
+    filterArgs: any[];
+};
+declare function getHiveAssetTransactionsQueryOptions(username: string | undefined, limit?: number, filters?: HiveOperationFilter): _tanstack_react_query.UseInfiniteQueryOptions<HiveTransaction[], Error, _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>, readonly unknown[], unknown> & {
     initialData: _tanstack_react_query.InfiniteData<HiveTransaction[], unknown> | (() => _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>) | undefined;
 } & {
     queryKey: readonly unknown[] & {
@@ -578,7 +607,7 @@ declare function getHiveAssetTransactionsQueryOptions(username: string | undefin
     };
 };
 
-declare function getHivePowerAssetTransactionsQueryOptions(username: string | undefined, limit: number | undefined, group: HiveOperationGroup): _tanstack_react_query.UseInfiniteQueryOptions<HiveTransaction[], Error, _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>, readonly unknown[], unknown> & {
+declare function getHivePowerAssetTransactionsQueryOptions(username: string | undefined, limit?: number, filters?: HiveOperationFilter): _tanstack_react_query.UseInfiniteQueryOptions<HiveTransaction[], Error, _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>, readonly unknown[], unknown> & {
     initialData: _tanstack_react_query.InfiniteData<HiveTransaction[], unknown> | (() => _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>) | undefined;
 } & {
     queryKey: readonly unknown[] & {
@@ -587,7 +616,7 @@ declare function getHivePowerAssetTransactionsQueryOptions(username: string | un
     };
 };
 
-declare function getHbdAssetTransactionsQueryOptions(username: string | undefined, limit: number | undefined, group: HiveOperationGroup): _tanstack_react_query.UseInfiniteQueryOptions<HiveTransaction[], Error, _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>, readonly unknown[], unknown> & {
+declare function getHbdAssetTransactionsQueryOptions(username: string | undefined, limit?: number, filters?: HiveOperationFilter): _tanstack_react_query.UseInfiniteQueryOptions<HiveTransaction[], Error, _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>, readonly unknown[], unknown> & {
     initialData: _tanstack_react_query.InfiniteData<HiveTransaction[], unknown> | (() => _tanstack_react_query.InfiniteData<HiveTransaction[], unknown>) | undefined;
 } & {
     queryKey: readonly unknown[] & {
@@ -767,7 +796,7 @@ interface GeneralAssetTransaction {
     memo?: string;
 }
 
-type HiveBasedAssetSignType = "key" | "keychain" | "hivesigner";
+type HiveBasedAssetSignType = "key" | "keychain" | "hivesigner" | "hiveauth";
 
 interface TransferPayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -863,6 +892,13 @@ declare function claimInterestHive<T extends HiveBasedAssetSignType>(payload: T 
     key: PrivateKey;
 } : PayloadWithKey<T>): Promise<unknown>;
 
+declare const HIVE_ACCOUNT_OPERATION_GROUPS: Record<HiveOperationGroup, number[]>;
+
+declare const HIVE_OPERATION_LIST: HiveOperationName[];
+
+declare const HIVE_OPERATION_ORDERS: Record<HiveOperationName, number>;
+declare const HIVE_OPERATION_NAME_BY_ID: Record<number, HiveOperationName>;
+
 declare enum Symbol {
     HIVE = "HIVE",
     HBD = "HBD",
@@ -885,6 +921,14 @@ declare function isEmptyDate(s: string | undefined): boolean;
 declare function vestsToHp(vests: number, hivePerMVests: number): number;
 
 declare function rewardSpk(data: SpkApiWallet, sstats: any): number;
+
+type HiveAuthKeyType$1 = "posting" | "active";
+type HiveAuthBroadcastHandler = (username: string, operations: Operation[], keyType: HiveAuthKeyType$1) => Promise<TransactionConfirmation>;
+
+type HiveAuthKeyType = "posting" | "active";
+declare function registerWalletHiveAuthBroadcast(handler: HiveAuthBroadcastHandler): void;
+declare function broadcastWithWalletHiveAuth(username: string, operations: Operation[], keyType: HiveAuthKeyType): Promise<TransactionConfirmation>;
+declare function hasWalletHiveAuthBroadcast(): boolean;
 
 interface SpkTransferPayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1362,7 +1406,7 @@ declare function transferEngineToken<T extends HiveBasedAssetSignType>(payload: 
 
 declare function useClaimPoints(username: string | undefined, onSuccess?: () => void, onError?: Parameters<typeof useMutation>["0"]["onError"]): _tanstack_react_query.UseMutationResult<Response, unknown, unknown, unknown>;
 
-type PointsSignType = "key" | "keychain" | "hivesigner";
+type PointsSignType = "key" | "keychain" | "hivesigner" | "hiveauth";
 interface PointsTransferPayloadBase {
     from: string;
     to: string;
@@ -1607,6 +1651,25 @@ declare function getTokenOperationsQueryOptions(token: string, username: string,
 
 declare function useWalletsCacheQuery(username?: string): _tanstack_react_query.DefinedUseQueryResult<Map<EcencyWalletCurrency, EcencyTokenMetadata>, Error>;
 
+interface VisionPortfolioWalletItem {
+    symbol: string;
+    info: GeneralAssetInfo;
+    operations: AssetOperation[];
+}
+interface VisionPortfolioResponse {
+    username: string;
+    currency?: string;
+    wallets: VisionPortfolioWalletItem[];
+}
+declare function getVisionPortfolioQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<VisionPortfolioResponse, Error, VisionPortfolioResponse, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<VisionPortfolioResponse, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: VisionPortfolioResponse;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
 declare function delay(ms: number): Promise<unknown>;
 
 declare function getWallet(currency: EcencyWalletCurrency): BaseWallet | undefined;
@@ -1675,7 +1738,7 @@ declare function signTx(tx: Transaction, privateKey: string, chainId?: string): 
  * @param chainId Optional chain id as a hex string.
  * @returns Broadcast confirmation.
  */
-declare function signTxAndBroadcast(client: Client, tx: Transaction, privateKey: string, chainId?: string): Promise<TransactionConfirmation>;
+declare function signTxAndBroadcast(client: Client, tx: Transaction, privateKey: string, chainId?: string): Promise<TransactionConfirmation$1>;
 
 /**
  * Encrypt a memo using explicit keys.
@@ -1766,4 +1829,4 @@ declare function buildExternalTx(currency: EcencyWalletCurrency, tx: ExternalTxP
 
 declare function getBoundFetch(): typeof fetch;
 
-export { type AccountPointsResponse, type Asset, AssetOperation, type DelegateEnginePayload, type EcencyHiveKeys, type EcencyTokenMetadata, EcencyWalletBasicTokens, EcencyWalletCurrency, index as EcencyWalletsPrivateApi, type ExternalTxParams, type ExternalWalletBalance, type GeneralAssetInfo, type GeneralAssetTransaction, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineTokenBalance, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveKeyDerivation, type HiveRole, NaiMap, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type SpkApiWallet, type SpkMarkets, type StakeEnginePayload, Symbol, type TransferEnginePayload, type TransferPayload, type TransformedSpkMarkets, type UndelegateEnginePayload, type UnstakeEnginePayload, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+export { type AccountPointsResponse, type Asset, AssetOperation, type AuthorReward, type CancelTransferFromSavings, type ClaimRewardBalance, type CollateralizedConvert, type CommentBenefactor, type CommentPayoutUpdate, type CommentReward, type CurationReward, type DelegateEnginePayload, type DelegateVestingShares, type DelegatedVestingShare, type EcencyHiveKeys, type EcencyTokenMetadata, EcencyWalletBasicTokens, EcencyWalletCurrency, index as EcencyWalletsPrivateApi, type EffectiveCommentVote, type ExternalTxParams, type ExternalWalletBalance, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type GeneralAssetInfo, type GeneralAssetTransaction, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, type HiveAuthBroadcastHandler, type HiveAuthKeyType, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineTokenBalance, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveKeyDerivation, type HiveMarketMetric, type HiveOperationFilter, type HiveOperationFilterKey, type HiveOperationFilterValue, type HiveOperationGroup, type HiveOperationName, type HiveRole, type HiveTransaction, type HiveWithdrawRoute, type Interest, type LimitOrderCancel, type LimitOrderCreate, NaiMap, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type ProducerReward, type ProposalPay, type ReceivedVestingShare, type RecurrentTransfers, type ReturnVestingDelegation, type SetWithdrawRoute, type SpkApiWallet, type SpkMarkets, type StakeEnginePayload, Symbol, type Transfer, type TransferEnginePayload, type TransferPayload, type TransferToSavings, type TransferToVesting, type TransformedSpkMarkets, type UndelegateEnginePayload, type UnstakeEnginePayload, type UpdateProposalVotes, type VisionPortfolioResponse, type VisionPortfolioWalletItem, type VoteProxy, type WithdrawVesting, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getVisionPortfolioQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };

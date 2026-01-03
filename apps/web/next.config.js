@@ -4,18 +4,60 @@ const path = require("path");
 const withPWA = require("next-pwa")({
   dest: "public",
   // Raise the max size to precache large chunks:
-  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024 // 8MB
+  maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
+  // Advanced caching strategies for better performance
+  runtimeCaching: [
+    {
+      // Cache API responses with network-first strategy
+      urlPattern: /^https:\/\/ecency\.com\/api\/.*/i,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'ecency-api',
+        networkTimeoutSeconds: 3,
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 5 * 60 // 5 minutes
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      // Cache local images and static assets
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'local-images',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
+        }
+      }
+    },
+    {
+      // Cache fonts
+      urlPattern: /\.(?:woff|woff2|ttf|otf|eot)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'fonts',
+        expiration: {
+          maxEntries: 20,
+          maxAgeSeconds: 365 * 24 * 60 * 60 // 1 year
+        }
+      }
+    }
+  ]
 });
 const appPackage = require("./package.json");
 const { v4 } = require("uuid");
-const sassEmbedded = require("sass-embedded");
 
 const config = {
   productionBrowserSourceMaps: true,
   htmlLimitedBots:
     /Mediapartners-Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/,
   sassOptions: {
-    implementation: sassEmbedded,
+    implementation: require.resolve("sass-embedded"),
     includePaths: [path.join(__dirname), path.join(__dirname, "src/styles")],
     silenceDeprecations: ["legacy-js-api", "import", "global-builtin", "color-functions"]
   },
@@ -45,6 +87,15 @@ const config = {
         ...(config.resolve.alias || {}),
         sass: "sass-embedded"
     };
+
+    // Exclude WebSocket native modules from bundling (server-side only)
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        'bufferutil': 'commonjs bufferutil',
+        'utf-8-validate': 'commonjs utf-8-validate',
+      });
+    }
 
     const reactQueryPackagePath = path.dirname(
       require.resolve("@tanstack/react-query/package.json")
@@ -131,7 +182,7 @@ const config = {
       },
       {
         source:
-          "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|wallet|settings|referrals|permissions|rss|rss.xml)",
+          "/:author(@.+)/:section(posts|blog|comments|replies|communities|trail|wallet|settings|insights|referrals|permissions|rss|rss.xml)",
         destination: "/profile/:author/:section"
       },
       {
@@ -178,15 +229,15 @@ const config = {
         destination: "/feed/created/:tag"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag/:sub",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)/:tag/:sub",
         destination: "/feed/:filter/:tag/:sub"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)/:tag",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)/:tag",
         destination: "/feed/:filter/:tag"
       },
       {
-        source: "/:filter(hot|created|trending|controversial|rising|promoted)",
+        source: "/:filter(hot|created|trending|payout|muted|promoted)",
         destination: "/feed/:filter"
       }
     ];

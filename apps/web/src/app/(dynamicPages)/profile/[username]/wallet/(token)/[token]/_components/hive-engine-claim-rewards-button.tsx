@@ -13,6 +13,7 @@ import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { getHiveEngineUnclaimedRewardsQueryOptions } from "@ecency/wallets";
+import { UilPlus } from "@tooni/iconscout-unicons-react";
 
 type PendingAmountInfo = {
   formatted: string;
@@ -20,32 +21,55 @@ type PendingAmountInfo = {
 
 export type HiveEngineClaimRewardsButtonProps = {
   className?: string;
+  tokenSymbol?: string;
+  username?: string;
+  showIcon?: boolean;
+  fullWidth?: boolean;
 };
 
-export function HiveEngineClaimRewardsButton({ className }: HiveEngineClaimRewardsButtonProps) {
-  const { token, username } = useParams();
-  const activeUser = useClientActiveUser();
-  const queryClient = useQueryClient();
+type HiveEngineClaimRewardsState = {
+  tokenSymbol?: string;
+  username?: string;
+  pendingAmountInfo?: PendingAmountInfo;
+  hasPendingRewards: boolean;
+  canClaim: boolean;
+  isOwnProfile: boolean;
+};
 
-  const tokenSymbol = typeof token === "string" ? token.toUpperCase() : undefined;
-  const cleanUsername = typeof username === "string" ? username.replace("%40", "") : undefined;
+export function useHiveEngineClaimRewardsState(
+  username?: string,
+  tokenSymbol?: string,
+  enabled = true
+): HiveEngineClaimRewardsState {
+  const activeUser = useClientActiveUser();
+
+  const sanitizedTokenSymbol = tokenSymbol?.toUpperCase();
+  const sanitizedUsername =
+    typeof username === "string" ? username.replace("%40", "") : undefined;
+
+  const shouldQuery =
+    enabled &&
+    Boolean(sanitizedUsername) &&
+    activeUser?.username === sanitizedUsername;
 
   const { data: unclaimedRewards } = useQuery(
     getHiveEngineUnclaimedRewardsQueryOptions(
-      activeUser?.username === cleanUsername ? cleanUsername : undefined
+      shouldQuery && sanitizedUsername ? sanitizedUsername : undefined
     )
   );
 
   const pendingReward = useMemo(
     () =>
-      tokenSymbol
-        ? unclaimedRewards?.find((reward) => reward.symbol?.toUpperCase() === tokenSymbol)
+      enabled && sanitizedTokenSymbol
+        ? unclaimedRewards?.find(
+            (reward) => reward.symbol?.toUpperCase() === sanitizedTokenSymbol
+          )
         : undefined,
-    [tokenSymbol, unclaimedRewards]
+    [enabled, sanitizedTokenSymbol, unclaimedRewards]
   );
 
   const pendingAmountInfo = useMemo<PendingAmountInfo | undefined>(() => {
-    if (!pendingReward) {
+    if (!enabled || !pendingReward) {
       return undefined;
     }
 
@@ -67,10 +91,52 @@ export function HiveEngineClaimRewardsButton({ className }: HiveEngineClaimRewar
     return {
       formatted: formattedNumber(amount, { fractionDigits: decimals })
     };
-  }, [pendingReward]);
+  }, [enabled, pendingReward]);
 
-  const canClaim = Boolean(
-    tokenSymbol && cleanUsername && activeUser?.username === cleanUsername && pendingAmountInfo
+  const hasPendingRewards = Boolean(pendingAmountInfo);
+  const isOwnProfile = Boolean(
+    sanitizedUsername && activeUser?.username === sanitizedUsername
+  );
+  const canClaim = hasPendingRewards && isOwnProfile;
+
+  return {
+    tokenSymbol: sanitizedTokenSymbol,
+    username: sanitizedUsername,
+    pendingAmountInfo,
+    hasPendingRewards,
+    canClaim,
+    isOwnProfile,
+  };
+}
+
+export function HiveEngineClaimRewardsButton({
+  className,
+  tokenSymbol: tokenSymbolProp,
+  username: usernameProp,
+  showIcon = false,
+  fullWidth = false,
+}: HiveEngineClaimRewardsButtonProps) {
+  const params = useParams();
+  const { token, username } = params ?? {};
+  const queryClient = useQueryClient();
+
+  const tokenFromParams =
+    typeof token === "string" ? token.toUpperCase() : undefined;
+  const usernameFromParams =
+    typeof username === "string"
+      ? username.replace("%40", "")
+      : undefined;
+
+  const {
+    tokenSymbol,
+    username: cleanUsername,
+    pendingAmountInfo,
+    hasPendingRewards,
+    canClaim,
+  } = useHiveEngineClaimRewardsState(
+    usernameProp ?? usernameFromParams,
+    tokenSymbolProp ?? tokenFromParams,
+    Boolean(tokenSymbolProp ?? tokenFromParams)
   );
 
   const { mutate: claimTokenRewards, isPending: isClaiming } = useMutation({
@@ -112,23 +178,32 @@ export function HiveEngineClaimRewardsButton({ className }: HiveEngineClaimRewar
     onError: (err) => error(...formatError(err))
   });
 
-  if (!canClaim || !pendingAmountInfo) {
+  if (!hasPendingRewards || !pendingAmountInfo || !tokenSymbol) {
     return null;
   }
+
+  const icon = showIcon ? (
+    <UilPlus className="w-3 h-3 text-current" />
+  ) : undefined;
+  const iconClassName = showIcon
+    ? "!w-6 !h-6 rounded-full bg-white text-blue-dark-sky shrink-0"
+    : undefined;
+  const buttonLabel = `${pendingAmountInfo.formatted} ${tokenSymbol}`.trim();
 
   return (
     <Button
       size="sm"
       appearance="primary"
       className={clsx("sm:w-auto", className)}
-      onClick={() => claimTokenRewards(pendingAmountInfo)}
+      full={fullWidth}
+      icon={icon}
+      iconClassName={iconClassName}
+      onClick={() => canClaim && claimTokenRewards(pendingAmountInfo)}
+      disabled={!canClaim || isClaiming}
       isLoading={isClaiming}
       loadingText={i18next.t("profile-wallet.claim-rewards-loading")}
     >
-      {i18next.t("profile-wallet.claim-rewards-with-amount", {
-        amount: pendingAmountInfo.formatted,
-        token: tokenSymbol
-      })}
+      {buttonLabel}
     </Button>
   );
 }

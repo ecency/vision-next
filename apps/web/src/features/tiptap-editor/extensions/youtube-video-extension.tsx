@@ -89,11 +89,7 @@ export const YoutubeVideoExtension = Node.create({
   },
   renderHTML({ HTMLAttributes }) {
     const { src, thumbnail, ...rest } = HTMLAttributes;
-    return [
-      "p",
-      mergeAttributes(rest),
-      ["a", { href: src }, ["img", { src: thumbnail, alt: "" }]]
-    ];
+    return ["p", mergeAttributes(rest), src];
   },
 
   addNodeView() {
@@ -127,4 +123,3 @@ export const YoutubeVideoExtension = Node.create({
     ];
   }
 });
-

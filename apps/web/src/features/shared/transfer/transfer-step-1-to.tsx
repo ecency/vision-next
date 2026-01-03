@@ -5,7 +5,7 @@ import { TransferFormText } from "@/features/shared/transfer/transfer-form-text"
 import React, { useContext, useMemo } from "react";
 import { TransferSharedStateContext } from "@/features/shared/transfer/transfer-shared-state";
 import { getTransactionsQuery } from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   toWarning: string | undefined;
@@ -15,7 +15,7 @@ interface Props {
 export function TransferStep1To({ toWarning, toError }: Props) {
   const { setTo, to, exchangeWarning } = useContext(TransferSharedStateContext);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data: transactions } = getTransactionsQuery(activeUser?.username).useClientQuery();
   const transactionsFlow = useMemo(

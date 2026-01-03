@@ -19,10 +19,10 @@ export function EntryLink({ children, entry, target, className }: PropsWithChild
   const path = makeEntryPath(entry.category, entry.author, entry.permlink);
 
   return (
-    <Link legacyBehavior={true} href={path} target={target}>
-      <a className={className + " no-style"} href={path}>
-        {children}
-      </a>
+    <Link href={path} target={target} className={className + " no-style"}>
+
+      {children}
+
     </Link>
   );
 }

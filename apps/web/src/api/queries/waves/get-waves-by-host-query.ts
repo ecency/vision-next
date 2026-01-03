@@ -99,7 +99,8 @@ export const getWavesByHostQuery = (host: string) => {
     WavesCursor
   >({
     queryKey,
-    initialData: cached ?? { pages: [], pageParams: [] },
+    // Don't set initialData here - let it use prefetched data from server
+    // initialData: cached ?? { pages: [], pageParams: [] },
     placeholderData: () => cached,
     refetchOnMount: cached ? "always" : true,
     initialPageParam: undefined as WavesCursor,

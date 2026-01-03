@@ -1,6 +1,6 @@
 import { useMarkNotifications, useUpdateNotificationsSettings } from "@/api/mutations";
 import { hiveNotifySetLastRead } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { NotificationFilter, NotifyTypes } from "@/enums";
 import { FormControl, Tooltip } from "@/features/ui";
@@ -28,7 +28,7 @@ interface Props {
 }
 
 export function NotificationsActions({ filter }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isMobile = useGlobalStore((state) => state.isMobile);
 
   const [settings, { set: setSettingItem }] = useMap<Record<NotifyTypes, boolean>>({

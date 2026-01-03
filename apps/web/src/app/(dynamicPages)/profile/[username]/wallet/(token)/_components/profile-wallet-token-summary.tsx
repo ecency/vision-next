@@ -1,9 +1,10 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
+import { formatApr } from "@/utils";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, usePathname } from "next/navigation";
@@ -25,7 +26,6 @@ import {
   useProfileWalletHiveClaimState,
 } from "./profile-wallet-hive-claim-rewards-button";
 import { ProfileWalletHbdInterest } from "./profile-wallet-hbd-interest";
-import i18next from "i18next";
 
 function format(value: number) {
   const formatter = new Intl.NumberFormat();
@@ -91,20 +91,18 @@ export function ProfileWalletTokenSummary() {
       : `${normalizedCurrency ?? "USD"} Balance`;
 
   const fiatBalance = liquidBalance * (data?.price ?? 0);
-
+  const formattedApr = formatApr(data?.apr);
   const cards: { label: string; value: ReactNode }[] = [
     {
       label: hasSavingsBalance
         ? "Current Balance"
-        : hasStakedBalance
-        ? "Liquid Balance"
-        : "Balance",
+        : "Available",
       value: format(liquidBalance),
     },
     ...(hasStakedBalance
       ? [
           {
-            label: "Staked Balance",
+            label: "Staked",
             value: format(stakedBalance),
           },
         ]
@@ -121,11 +119,11 @@ export function ProfileWalletTokenSummary() {
       label: fiatBalanceLabel,
       value: <FormattedCurrency value={fiatBalance} />,
     },
-    ...(data?.apr
+    ...(formattedApr
       ? [
           {
             label: "APR",
-            value: `${+data.apr}%`,
+            value: `${formattedApr}%`,
           },
         ]
       : []),
@@ -153,10 +151,11 @@ export function ProfileWalletTokenSummary() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
-          <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
+    <>
+      <div className="flex flex-col gap-4">
+        <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
+            <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
             <div className="mt-1">{logo}</div>
             <div>
               <div className="text-xl font-bold">{data?.title}</div>
@@ -176,48 +175,28 @@ export function ProfileWalletTokenSummary() {
           </div>
           <HiveEngineClaimRewardsButton className="w-full sm:w-auto" />
           {tokenWithFallback === "POINTS" && hasPendingPoints && (
-            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {i18next.t("wallet.unclaimed-rewards")}
-              </div>
-              <ProfileWalletClaimPointsButton
-                username={cleanUsername}
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <ProfileWalletClaimPointsButton
+              username={cleanUsername}
+              className="w-full sm:w-auto"
+            />
           )}
           {tokenWithFallback === "HP" && hasHpRewards && (
-            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {i18next.t("wallet.unclaimed-rewards")}
-              </div>
-              <ProfileWalletHpClaimRewardsButton
-                username={cleanUsername}
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <ProfileWalletHpClaimRewardsButton
+              username={cleanUsername}
+              className="w-full sm:w-auto"
+            />
           )}
           {tokenWithFallback === "HBD" && hasHbdRewards && (
-            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {i18next.t("wallet.unclaimed-rewards")}
-              </div>
-              <ProfileWalletHbdClaimRewardsButton
-                username={cleanUsername}
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <ProfileWalletHbdClaimRewardsButton
+              username={cleanUsername}
+              className="w-full sm:w-auto"
+            />
           )}
           {tokenWithFallback === "HIVE" && hasHiveRewards && (
-            <div className="flex flex-col gap-1 w-full sm:w-auto sm:items-end">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {i18next.t("wallet.unclaimed-rewards")}
-              </div>
-              <ProfileWalletHiveClaimRewardsButton
-                username={cleanUsername}
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <ProfileWalletHiveClaimRewardsButton
+              username={cleanUsername}
+              className="w-full sm:w-auto"
+            />
           )}
         </div>
       </div>
@@ -234,5 +213,6 @@ export function ProfileWalletTokenSummary() {
         <ProfileWalletHbdInterest username={cleanUsername} />
       )}
     </div>
+    </>
   );
 }

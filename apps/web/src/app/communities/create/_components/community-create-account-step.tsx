@@ -1,6 +1,6 @@
 import { getAccountsQuery } from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
 import { ProfileLink, UserAvatar } from "@/features/shared";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   Badge,
   Button,
@@ -37,7 +37,7 @@ export function CommunityCreateAccountStep({
   setDefaultBeneficiary
 }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data: accounts } = getAccountsQuery([username]).useClientQuery();
   const usernameStatus = useMemo(() => {

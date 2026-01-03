@@ -10,7 +10,7 @@ import { makeEntryPath } from "@/utils";
 import { formatError } from "@/api/operations";
 import { BeneficiaryRoute, Draft, Entry, RewardType } from "@/entities";
 import { useRouter } from "next/navigation";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   editingEntry: Entry | null;
@@ -49,7 +49,7 @@ export function EditorActions({
   selectedThumbnail,
   validate
 }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const router = useRouter();
 
   const { mutateAsync: doSchedule, isPending: scheduling } = useScheduleApi(onClear);

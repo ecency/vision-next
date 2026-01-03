@@ -3,16 +3,14 @@ import { catchPostImage, postBodySummary } from "@ecency/render-helper";
 import { PopoverConfirm } from "@ui/popover-confirm";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
-import { Draft, FullAccount } from "@/entities";
+import { Draft } from "@/entities";
 import { useGlobalStore } from "@/core/global-store";
 import fallbackImage from "../../../../public/assets/fallback.png";
 import noImage from "@/assets/img/noimage.svg";
 import { getCommunityCache } from "@/core/caches";
-import { accountReputation, dateToFormatted, dateToFullRelative } from "@/utils";
-import { UserAvatar } from "@/features/shared";
+import { dateToFormatted, dateToFullRelative } from "@/utils";
 import Image from "next/image";
 import { classNameObject } from "@ui/util";
-import { cloneOutlineSvg, deleteForeverSvg, pencilOutlineSvg } from "@ui/svg";
 import i18next from "i18next";
 import { UilCopy, UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
 
@@ -24,17 +22,11 @@ interface Props {
 }
 
 export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
-  const account = useMemo(() => activeUser?.data as FullAccount, [activeUser]);
-
-  const author = account.name;
-  const reputation = account.reputation;
 
   const tags = draft.tags ? draft.tags.split(/[ ,]+/) : [];
   const tag = tags[0] || "";
-  const img = catchPostImage(draft.body, 600, 500, canUseWebp ? "webp" : "match") || noImage;
+  const img = catchPostImage(draft.body, 600, 500, canUseWebp ? "webp" : "match") || noImage.src;
   const summary = postBodySummary(draft.body, 200);
 
   const { data: community } = getCommunityCache(tag).useClientQuery();
@@ -42,7 +34,7 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
   const dateRelative = useMemo(() => dateToFullRelative(draft.created), [draft]);
   const dateFormatted = useMemo(() => dateToFormatted(draft.created), [draft]);
 
-  return !activeUser?.data.__loaded ? null : (
+  return (
     <div className="drafts-list-item border dark:border-dark-400 rounded-3xl overflow-hidden">
       <div className="flex items-center justify-between border-b dark:border-dark-300 mb-4 p-2 bg-gray-100 dark:bg-dark-500">
         <div className="flex items-center gap-3">
@@ -86,8 +78,8 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
               target.src = fallbackImage.src;
             }}
             className={classNameObject({
-              "w-full h-auto": img !== noImage,
-              "w-[40px] h-auto": img === noImage
+              "w-full h-auto": img !== noImage.src,
+              "w-[40px] h-auto": img === noImage.src
             })}
           />
         </div>

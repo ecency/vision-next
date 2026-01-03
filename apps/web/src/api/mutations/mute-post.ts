@@ -1,11 +1,13 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import { Community, Entry } from "@/entities";
 import { formatError, mutePost } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error } from "@/features/shared";
 
 export function useMutePost(entry: Entry, community: Community) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["mutePost", entry?.author, entry?.permlink],

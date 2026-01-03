@@ -92,7 +92,7 @@ export function CommunityCreateDetailsStep({
       </div>
 
       <div className="flex justify-between items-center">
-        <Link target="_blank" className="text-sm" href="https://docs.ecency.com/communities/types">
+        <Link target="_blank" className="text-sm" href="https://docs.ecency.com/hive/communities/#types-of-communities">
           {i18next.t("communities-create.types-hint")}
         </Link>
         <LoginRequired>

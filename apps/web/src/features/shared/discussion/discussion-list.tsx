@@ -51,27 +51,22 @@ export function DiscussionList({
         [discussionList, parent]
     );
 
-    const mutedContent = useMemo(
+    const hiddenContent = useMemo(
         () =>
             filtered.filter(
                 (item) =>
-                    activeUser &&
-                    mutedUsers.includes(item.author) &&
-                    item.depth === 1 &&
-                    item.parent_author === parent.author
+                    item.parent_author === parent.author &&
+                    ((!!activeUser && mutedUsers.includes(item.author)) || item.author_reputation < 0)
             ),
         [activeUser, filtered, mutedUsers, parent.author]
     );
 
     const data = useMemo(() => {
-        if (!activeUser) {
-            return filtered;
-        }
-        const unMutedContent = filtered.filter(
-            (md) => !mutedContent.some((fd) => fd.post_id === md.post_id)
+        const visibleContent = filtered.filter(
+            (md) => !hiddenContent.some((fd) => fd.post_id === md.post_id)
         );
-        return isHiddenPermitted ? [...unMutedContent, ...mutedContent] : unMutedContent;
-    }, [activeUser, filtered, isHiddenPermitted, mutedContent]);
+        return isHiddenPermitted ? [...visibleContent, ...hiddenContent] : visibleContent;
+    }, [filtered, hiddenContent, isHiddenPermitted]);
 
     const botsFreeData = useMemo(
         () =>
@@ -121,7 +116,7 @@ export function DiscussionList({
                     canMute={canMute}
                 />
             ))}
-            {!isHiddenPermitted && mutedContent.length > 0 && activeUser?.username && (
+            {!isHiddenPermitted && hiddenContent.length > 0 && (
                 <div className="hidden-warning flex justify-between flex-1 items-center mt-3">
                     <div className="flex-1">
                         {i18next.t("discussion.reveal-muted-long-description")}

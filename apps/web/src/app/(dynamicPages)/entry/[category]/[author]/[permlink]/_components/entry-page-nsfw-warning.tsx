@@ -1,7 +1,8 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { NsfwSignupMessage } from "@/features/i18n/nsfw-signup-message";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
@@ -10,7 +11,7 @@ import { useContext } from "react";
 export function EntryPageNsfwWarning() {
   const router = useRouter();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { setShowIfNsfw } = useContext(EntryPageContext);
 

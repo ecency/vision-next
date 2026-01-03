@@ -1,21 +1,36 @@
 import { useContext } from "react";
-import { useGlobalStore } from "@/core/global-store";
 import { PollsContext } from "@/features/polls";
 import { Entry, FullAccount } from "@/entities";
 import { createPermlink, makeCommentOptions, tempEntry } from "@/utils";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useActiveAccount } from "@/core/hooks";
+import { getAccountFullQuery } from "@/api/queries";
 
 export function useCommunityApi() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const { activePoll } = useContext(PollsContext);
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const request = async (host: string, raw: string, editingEntry?: Entry) => {
-    if (!activeUser || !activeUser.data.__loaded) {
+    if (!username) {
       throw new Error("No user");
+    }
+
+    // Wait for account data if still loading
+    let authorData: FullAccount;
+    if (isLoading) {
+      const accountData = await getAccountFullQuery(username).fetchAndGet();
+      if (!accountData) {
+        throw new Error("[Deck][Community-API] – Failed to load account data");
+      }
+      authorData = accountData;
+    } else if (!account) {
+      throw new Error("[Deck][Community-API] – Account data not available");
+    } else {
+      authorData = account;
     }
 
     let hostTag = "";
@@ -26,8 +41,7 @@ export function useCommunityApi() {
 
     // clean body
     const cleanedRaw = raw.replace(/[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, "");
-    const author = activeUser.username;
-    const authorData = activeUser.data as FullAccount;
+    const author = username;
     const permlink = editingEntry?.permlink ?? createPermlink("", true);
     const options = makeCommentOptions(author, permlink, "default");
 
@@ -46,7 +60,7 @@ export function useCommunityApi() {
 
     const entry = {
       ...tempEntry({
-        author: authorData!,
+        author: authorData,
         permlink,
         parentAuthor: "",
         parentPermlink: "",

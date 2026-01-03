@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useMemo } from "react";
 import { arrangeSunflowerSeeds } from "./utils/sunflower-seed-arrangement";
 import clsx from "clsx";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   options: number[];

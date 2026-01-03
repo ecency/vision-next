@@ -1,7 +1,8 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { getFollowingQuery } from "@/api/queries";
 import { useMemo } from "react";
 import { Entry } from "@/entities";
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function EntryPageMightContainsMutedCommentsWarning({ entry }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data: followingsRaw } = getFollowingQuery(
       activeUser?.username,

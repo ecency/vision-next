@@ -1,7 +1,7 @@
 "use client";
 
 import { useClientActiveUser } from "@/api/queries";
-import { success } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useClaimRewards } from "@ecency/wallets";
@@ -9,15 +9,19 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
+import { UilPlus } from "@tooni/iconscout-unicons-react";
+import { formatError } from "@/api/operations";
 
 type Props = {
   username: string;
   className?: string;
+  showIcon?: boolean;
 };
 
 type ClaimState = {
   isOwnProfile: boolean;
   rewardBalance: string;
+  rewardAmount: number;
   hasRewards: boolean;
 };
 
@@ -49,6 +53,7 @@ export function useProfileWalletHbdClaimState(
   return {
     isOwnProfile,
     rewardBalance,
+    rewardAmount,
     hasRewards,
   };
 }
@@ -56,6 +61,7 @@ export function useProfileWalletHbdClaimState(
 export function ProfileWalletHbdClaimRewardsButton({
   username,
   className,
+  showIcon = false,
 }: Props) {
   const { isOwnProfile, rewardBalance, hasRewards } =
     useProfileWalletHbdClaimState(username);
@@ -69,6 +75,25 @@ export function ProfileWalletHbdClaimRewardsButton({
     return null;
   }
 
+  const icon = showIcon ? (
+    <UilPlus className="w-3 h-3 text-current" />
+  ) : undefined;
+  const iconClassName = showIcon
+    ? "!w-6 !h-6 rounded-full bg-white text-blue-dark-sky shrink-0"
+    : undefined;
+
+  const handleClaim = async () => {
+    if (!isOwnProfile) {
+      return;
+    }
+
+    try {
+      await claimRewards();
+    } catch (e) {
+      error(...formatError(e));
+    }
+  };
+
   return (
     <Button
       size="sm"
@@ -76,7 +101,9 @@ export function ProfileWalletHbdClaimRewardsButton({
       className={clsx("sm:w-auto", className)}
       disabled={!isOwnProfile || isPending}
       isLoading={isPending}
-      onClick={() => isOwnProfile && claimRewards()}
+      onClick={handleClaim}
+      icon={icon}
+      iconClassName={iconClassName}
     >
       {rewardBalance}
     </Button>

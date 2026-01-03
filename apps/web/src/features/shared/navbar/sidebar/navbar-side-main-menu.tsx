@@ -1,9 +1,11 @@
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { DraftsDialog } from "@/features/shared/drafts";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { GalleryDialog } from "@/features/shared/gallery";
+import { preloadLoginDialog } from "@/features/shared";
 import { SchedulesDialog } from "@/features/shared/schedules";
 import {
   UilArchive,
@@ -35,7 +37,7 @@ interface MenuItem {
 }
 
 export function NavbarSideMainMenu({ onHide }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   const [gallery, setGallery] = useState(false);
@@ -133,7 +135,13 @@ export function NavbarSideMainMenu({ onHide }: Props) {
         <hr className="my-2 border-[--border-color]" />
         <NavbarSideMainMenuItem
           label={i18next.t("g.login-as")}
-          onClick={() => toggleUIProp("login")}
+          onClick={() => {
+            preloadLoginDialog();
+            toggleUIProp("login");
+          }}
+          onPointerEnter={preloadLoginDialog}
+          onPointerDown={preloadLoginDialog}
+          onFocus={preloadLoginDialog}
           icon={<UilSignin size={16} />}
         />
         <NavbarSideMainLogout />

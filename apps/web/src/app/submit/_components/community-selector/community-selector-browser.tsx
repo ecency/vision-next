@@ -1,5 +1,5 @@
 import { CommunitySelectorItem } from "@/app/submit/_components/community-selector/community-selector-item";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Community } from "@/entities";
 import { LinearProgress } from "@/features/shared";
 import { getAccountSubscriptionsQueryOptions, getCommunitiesQueryOptions } from "@ecency/sdk";
@@ -36,7 +36,7 @@ type SearchResult = {
 };
 
 export function CommunitySelectorBrowser({ onSelect, onHide }: BrowserProps) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const {
     data: subscriptions,
     refetch,

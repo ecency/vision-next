@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import i18next from "i18next";
 import {
   BookmarkBtn,
@@ -12,13 +14,13 @@ import {
 } from "@/features/shared";
 import { Entry } from "@/entities";
 import { Tooltip } from "@ui/tooltip";
-import { useGlobalStore } from "@/core/global-store";
 import { useContext, useMemo, useRef, useCallback } from "react";
 import { useDistanceDetector } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/distance-detector";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 import { Button } from "@ui/button";
 import { UilAlignAlt } from "@tooni/iconscout-unicons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { getPostTipsQuery } from "@/api/queries";
 
 interface Props {
   entry: Entry;
@@ -47,11 +49,13 @@ export function EntryFooterControls({ entry }: Props) {
     router.replace(qs ? `${pathname}?${qs}` : pathname);
   }, [isRawContent, pathname, router, searchParams, setIsRawContent]);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const isOwnEntry = useMemo(
     () => activeUser?.username === entry.author,
     [activeUser?.username, entry.author]
   );
+
+  const { data: postTips } = getPostTipsQuery(entry.author, entry.permlink).useClientQuery();
 
   useDistanceDetector(ref, showProfileBox, setShowProfileBox);
 
@@ -64,8 +68,8 @@ export function EntryFooterControls({ entry }: Props) {
         <EntryVoteBtn isPostSlider={true} entry={entry} />
         <EntryPayout entry={entry} />
         <EntryVotes entry={entry} />
-        <EntryTipBtn entry={entry} />
         {!isOwnEntry && <EntryReblogBtn entry={entry} />}
+        <EntryTipBtn entry={entry} postTips={postTips} />
       </div>
       <span className="flex-spacer" />
       <div className="flex items-center">

@@ -27,8 +27,12 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
   let description = "";
   let buttonText = "";
   let buttonTo = "";
+
+  // Check if this is a personalized feed (feed, trending/my, hot/my, created/my)
+  const isPersonalizedFeed = section === "feed" || (["trending","hot","created"].includes(section) && !username && activeUser);
+
   if (isMyProfile && section !== "trail") {
-    if (["feed","trending","hot","created"].includes(section)) {
+    if (isPersonalizedFeed) {
       title = `${t("g.nothing-found-in", "Nothing found in")} ${t("g.feed", "feed")}`;
       description = t(
         "g.fill-feed",
@@ -50,14 +54,14 @@ export function EntryListContentNoData({ username, section, loading }: Props) {
     description = `${t("g.no", "No")} ${t(`g.${section}`, section)} ${t("g.found", "found")}.`;
     buttonText = t("profile-info.create-posts", "Create post");
     buttonTo = `/submit?cat=${username}`;
-  } else if ( ["trending","hot","created"].includes(section) && !username) {
-    title = t("g.no-matches", "Nothing found");
+  } else if (isPersonalizedFeed) {
+    title = `${t("g.nothing-found-in", "Nothing found in")} ${t("g.feed", "feed")}`;
     description = t(
-      "g.fill-community-feed",
-      "You can join more communities to fill up this feed."
+      "g.fill-feed",
+      "You can follow accounts and join communities to fill this feed."
     );
-    buttonText = t("navbar.communities", "Discover");
-    buttonTo = "/communities";
+    buttonText = t("navbar.discover", "Discover");
+    buttonTo = "/discover";
   } else {
     title = t("profile-info.no-posts-user", "No posts yet");
     description = `${t("g.nothing-found-in", "Nothing found in")} ${

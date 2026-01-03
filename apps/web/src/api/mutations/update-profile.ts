@@ -12,8 +12,9 @@ export function useUpdateProfile(account: FullAccount) {
     mutationKey: ["update-profile", account],
     mutationFn: async ({ nextProfile }: { nextProfile: AccountProfile }) => {
       const profile = account.profile;
-      await updateProfile(account, { ...profile, ...nextProfile });
-      return profile;
+      const mergedProfile = { ...profile, ...nextProfile };
+      await updateProfile(account, mergedProfile);
+      return mergedProfile;
     },
     onSuccess: (profile) => {
       success(i18next.t("g.success"));

@@ -1,11 +1,13 @@
-import { useGlobalStore } from "@/core/global-store";
+"use client";
+
 import { getAccessToken } from "@/utils";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useRecordUserActivity() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return EcencyConfigManager.useConditionalMutation(
     ({ visionFeatures }) => visionFeatures.userActivityTracking.enabled,

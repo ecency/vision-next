@@ -1,8 +1,9 @@
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import { CONFIG, Keychain } from "@ecency/sdk";
 import hs from "hivesigner";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
-type PointsSignType = "key" | "keychain" | "hivesigner";
+type PointsSignType = "key" | "keychain" | "hivesigner" | "hiveauth";
 
 interface PointsTransferPayloadBase {
   from: string;
@@ -24,7 +25,7 @@ export async function transferPoint<T extends PointsSignType>({
   type,
   ...payload
 }: PointsTransferPayload<T>) {
-  const op = [
+  const op: Operation = [
     "custom_json",
     {
       id: "ecency_point_transfer",
@@ -37,7 +38,7 @@ export async function transferPoint<T extends PointsSignType>({
       required_auths: [from],
       required_posting_auths: [],
     },
-  ] as const;
+  ];
 
   if (type === "key" && "key" in payload) {
     const { key } = payload as PointsTransferPayload<"key">;
@@ -50,10 +51,10 @@ export async function transferPoint<T extends PointsSignType>({
     return Keychain.broadcast(from, [op], "Active") as Promise<unknown>;
   }
 
+  if (type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(from, [op], "active");
+  }
+
   // Default to hivesigner
-  return hs.sendOperation(
-    op,
-    { callback: `https://ecency.com/@${from}/wallet` },
-    () => {}
-  );
+  return hs.sendOperation(op, { callback: `https://ecency.com/@${from}/wallet` }, () => {});
 }

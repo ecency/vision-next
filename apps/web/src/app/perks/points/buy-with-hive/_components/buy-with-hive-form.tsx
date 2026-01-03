@@ -1,19 +1,19 @@
 import { MarketAsset } from "@/api/market-pair";
 import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
 import { SwapAmountControl } from "@/features/market/market-swap-form/swap-amount-control";
 import { Button } from "@/features/ui";
 import { HiveWallet } from "@/utils";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onSubmit: (amount: string, asset: string, pointsAmount: string) => void;
 }
 
 export function BuyWithHiveForm({ onSubmit }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { account } = useActiveAccount();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
   const [amount, setAmount] = useState("0");
@@ -21,10 +21,10 @@ export function BuyWithHiveForm({ onSubmit }: Props) {
 
   const w = useMemo(
     () =>
-      activeUser
-        ? new HiveWallet(activeUser?.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS)
+      account
+        ? new HiveWallet(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS)
         : ({ balance: 0 } as HiveWallet),
-    [activeUser, dynamicProps]
+    [account, dynamicProps]
   );
   const usdRate = useMemo(() => {
     if (asset === MarketAsset.HIVE) {

@@ -2,7 +2,7 @@
 
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 import { SimilarEntries } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/similar-entries";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { EditHistory, Navbar, ScrollToTop, StaticNavbar, Theme } from "@/features/shared";
 import { renderPostBody, setProxyBase } from "@ecency/render-helper";
 import i18next from "i18next";

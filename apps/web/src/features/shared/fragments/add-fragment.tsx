@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { FragmentForm } from "./fragment-form";
 import { useAddFragment } from "@ecency/sdk";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useCallback } from "react";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function AddFragment({ onAdd, onCancel }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const { mutateAsync: addFragment, isPending } = useAddFragment(activeUser!.username);
 
   const submit = useCallback(

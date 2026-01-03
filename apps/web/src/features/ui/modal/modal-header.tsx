@@ -1,5 +1,5 @@
 import React, { HTMLProps, useContext } from "react";
-import { ModalContext } from "./index";
+import { ModalContext } from "./modal-context";
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
 import { Button } from "@ui/button";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";

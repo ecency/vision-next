@@ -1,5 +1,5 @@
 import React from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";

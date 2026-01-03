@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EcencyConfigManager } from "@/config";
+import { safeDecodeURIComponent } from "@/utils";
 
 export async function POST(request: NextRequest) {
   const isEnabled = EcencyConfigManager.getConfigValue(
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
         ({ visionFeatures }) => visionFeatures.plausible.siteId
       ),
       metrics,
-      filters: [["contains", "event:page", [decodeURIComponent(url)]]],
+      filters: [["contains", "event:page", [safeDecodeURIComponent(url)]]],
       dimensions,
       date_range: dateRange
     }),

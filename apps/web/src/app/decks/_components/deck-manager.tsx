@@ -5,10 +5,10 @@ import * as uuid from "uuid";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { createDeck, deleteDeck, getDecks, updateDeck } from "./deck-api";
 import usePrevious from "react-use/lib/usePrevious";
-import { useGlobalStore } from "@/core/global-store";
 import { PREFIX } from "@/utils/local-storage";
 import { error } from "@/features/shared";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Context {
   layout: DeckGrid;
@@ -51,7 +51,7 @@ interface Props {
 }
 
 export const DeckManager = ({ children }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const previousActiveUser = usePrevious(activeUser);
 
   const [localDecks, setLocalDecks] = useLocalStorage(PREFIX + "_d", DEFAULT_LAYOUT);

@@ -1,10 +1,19 @@
 import i18next from "i18next";
-import { ProfileWalletTokenHistoryCard } from "../../_components";
+import {
+  ProfileWalletHpDelegationPromo,
+  ProfileWalletTokenHistoryCard,
+} from "../../_components";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { ReceivedVesting } from "./received-vesting-dialog";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DelegatedVesting } from "./delegated-vesting-dialog";
+import { Transfer } from "@/features/shared";
+import { useClientActiveUser } from "@/api/queries";
+import useLocalStorage from "react-use/lib/useLocalStorage";
+
+const HP_PROMO_STORAGE_KEY_PREFIX = "hpDelegationPromoDismissed";
+const THIRTY_DAYS_IN_MS = 1000 * 60 * 60 * 24 * 30;
 
 interface Props {
   username: string;
@@ -17,6 +26,34 @@ export function HpDelegationsCard({ username }: Props) {
 
   const [showDelegated, setShowDelegated] = useState(false);
   const [showReceived, setShowReceived] = useState(false);
+  const [showDelegateDialog, setShowDelegateDialog] = useState(false);
+
+  const activeUser = useClientActiveUser();
+  const isOwnProfile = activeUser?.username === username;
+
+  const storageKey = `${HP_PROMO_STORAGE_KEY_PREFIX}:${username || "unknown"}`;
+  const [promoDismissedAt, setPromoDismissedAt, removePromoDismissedAt] =
+    useLocalStorage<number | null>(storageKey, null);
+
+  const isPromoDismissed = useMemo(() => {
+    if (!promoDismissedAt) {
+      return false;
+    }
+
+    return Date.now() - promoDismissedAt < THIRTY_DAYS_IN_MS;
+  }, [promoDismissedAt]);
+
+  useEffect(() => {
+    if (!promoDismissedAt) {
+      return;
+    }
+
+    if (Date.now() - promoDismissedAt >= THIRTY_DAYS_IN_MS) {
+      removePromoDismissedAt();
+    }
+  }, [promoDismissedAt, removePromoDismissedAt]);
+
+  const shouldShowPromo = isOwnProfile && !isPromoDismissed;
 
   const outgoingDelegations =
     data?.parts?.find((part) =>
@@ -50,6 +87,14 @@ export function HpDelegationsCard({ username }: Props) {
             <div className="text-xl font-bold">{format.format(incomingDelegations)}</div>
           </div>
         </div>
+        {shouldShowPromo && (
+          <div className="px-4 pb-4">
+            <ProfileWalletHpDelegationPromo
+              onDelegate={() => setShowDelegateDialog(true)}
+              onDismiss={() => setPromoDismissedAt(Date.now())}
+            />
+          </div>
+        )}
       </ProfileWalletTokenHistoryCard>
       <ReceivedVesting username={username} show={showReceived} setShow={setShowReceived} />
       <DelegatedVesting
@@ -58,6 +103,14 @@ export function HpDelegationsCard({ username }: Props) {
         setShow={setShowDelegated}
         totalDelegated={`${outgoingDelegations}`}
       />
+      {showDelegateDialog && (
+        <Transfer
+          mode="delegate"
+          asset="HP"
+          to="ecency"
+          onHide={() => setShowDelegateDialog(false)}
+        />
+      )}
     </>
   );
 }

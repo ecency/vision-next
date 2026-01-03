@@ -26,7 +26,8 @@ const inter = localFont({
     { path: "../../public/fonts/inter/Inter-MediumItalic.ttf", weight: "500", style: "italic" }
   ],
   variable: "--font-inter",
-  display: "swap"
+  display: "swap",
+  preload: true // Enable preloading for critical fonts
 });
 
 const lora = localFont({
@@ -43,6 +44,35 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className={`${lora.variable} ${inter.variable}`}>
+      <head>
+        {/* Preload critical fonts for LCP optimization */}
+        <link
+          rel="preload"
+          href="/fonts/inter/Inter-Regular.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/inter/Inter-Bold.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+        {/* Preload hero image for LCP optimization (WebP format - 12KB vs 29KB PNG) */}
+        <link
+          rel="preload"
+          href="https://images.ecency.com/assets/illustration-earn-money.webp"
+          as="image"
+          type="image/webp"
+          imageSizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"
+        />
+        <link rel="dns-prefetch" href="https://images.ecency.com" />
+        <link rel="dns-prefetch" href="https://ecency.com" />
+        <link rel="preconnect" href="https://images.ecency.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://ecency.com" crossOrigin="anonymous" />
+      </head>
       <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />

@@ -41,6 +41,7 @@ import { AddLink } from "@/features/shared/editor-toolbar/add-link";
 import { AddImageMobile } from "@/features/shared/editor-toolbar/add-image-mobile";
 import useMount from "react-use/lib/useMount";
 import { EcencyConfigManager } from "@/config";
+import { useOptionalUploadTracker } from "@/app/publish/_hooks";
 
 interface Props {
   sm?: boolean;
@@ -82,6 +83,7 @@ export function EditorToolbar({
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const emojiButtonRef = useRef<HTMLDivElement | null>(null);
 
   const [gallery, setGallery] = useState(false);
   const [fragments, setFragments] = useState(false);
@@ -89,6 +91,7 @@ export function EditorToolbar({
   const [link, setLink] = useState(false);
   const [mobileImage, setMobileImage] = useState(false);
   const [gif, setGif] = useState(false);
+  const [emoji, setEmoji] = useState(false);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showPollsCreation, setShowPollsCreation] = useState(false);
@@ -97,6 +100,8 @@ export function EditorToolbar({
   const headers = useMemo(() => Array.from(new Array(3).keys()), []);
 
   const uploadImage = useUploadPostImage();
+  const uploadTracker = useOptionalUploadTracker();
+  const uploadQueueRef = useRef<Promise<void | undefined>>(Promise.resolve());
   const isMounted = useMountedState();
   useEffect(() => {
     activeUserRef.current = activeUser;
@@ -205,27 +210,34 @@ export function EditorToolbar({
       e.preventDefault();
     }
 
-    files.forEach((file) =>
-      upload(file).catch(() => {
-        /* handled in mutation */
-      })
-    );
+    files.forEach((file) => enqueueUpload(file));
 
     // reset input
     e.target.value = "";
   };
 
-  const upload = async (file: File) => {
+  const enqueueUpload = (file: File) => {
     const tempImgTag = `![Uploading ${file.name} #${Math.floor(Math.random() * 99)}]()\n\n`;
     insertText(tempImgTag);
 
-    try {
-      const { url } = await uploadImage.mutateAsync({ file });
-      const imgTag = url.length > 0 && `![](${url})\n\n`;
-      imgTag && replaceText(tempImgTag, imgTag);
-    } catch {
-      replaceText(tempImgTag, "");
-    }
+    // Register upload with tracker
+    const uploadId = `toolbar-${Date.now()}-${Math.random()}`;
+    const abortController = new AbortController();
+    uploadTracker?.registerUpload(uploadId, abortController);
+
+    uploadQueueRef.current = uploadQueueRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        try {
+          const { url } = await uploadImage.mutateAsync({ file, signal: abortController.signal });
+          uploadTracker?.markComplete(uploadId);
+          const imgTag = url.length > 0 && `![](${url})\n\n`;
+          imgTag ? replaceText(tempImgTag, imgTag) : replaceText(tempImgTag, "");
+        } catch {
+          uploadTracker?.markFailed(uploadId);
+          replaceText(tempImgTag, "");
+        }
+      });
   };
 
   const checkFile = (filename: string) =>
@@ -258,7 +270,7 @@ export function EditorToolbar({
       .filter((i) => i);
 
     if (files.length > 0) {
-      files.forEach((file) => upload(file));
+      files.forEach((file) => enqueueUpload(file));
     }
   };
 
@@ -284,7 +296,11 @@ export function EditorToolbar({
       e.preventDefault();
 
       files.forEach((file) => {
-        if (file) upload(file).then();
+        if (!file) {
+          return;
+        }
+
+        enqueueUpload(file);
       });
     }
   };
@@ -452,19 +468,21 @@ export function EditorToolbar({
             </Tooltip>
           </EcencyConfigManager.Conditional>
         )}
-        {isMounted() && (
-          <Tooltip content={i18next.t("editor-toolbar.emoji")}>
-            <div className="editor-tool" id={"editor-tool-emoji-picker-" + toolbarId} role="none">
+        <Tooltip content={i18next.t("editor-toolbar.emoji")}>
+          <div className="editor-tool" role="none">
+            <div ref={emojiButtonRef} onClick={() => setEmoji(!emoji)}>
               {emoticonHappyOutlineSvg}
-              <EmojiPicker
-                anchor={
-                  document.querySelector("#editor-tool-emoji-picker-" + toolbarId)!! as HTMLElement
-                }
-                onSelect={(e) => insertText(e, "")}
-              />
             </div>
-          </Tooltip>
-        )}
+            {emoji && (
+              <EmojiPicker
+                show={emoji}
+                changeState={(state) => setEmoji(state)}
+                onSelect={(e) => insertText(e, "")}
+                buttonRef={emojiButtonRef}
+              />
+            )}
+          </div>
+        </Tooltip>
         <Tooltip content={i18next.t("Gif")}>
           <div className="editor-tool" role="none">
             <div className="editor-tool-gif-icon" onClick={() => setGif(!gif)}>

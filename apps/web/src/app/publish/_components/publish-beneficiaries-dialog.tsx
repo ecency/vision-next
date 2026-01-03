@@ -10,9 +10,9 @@ import { FormControl, InputGroup } from "@ui/input";
 import { handleInvalid, handleOnInput } from "@/utils";
 import { deleteForeverSvg, plusSvg } from "@ui/svg";
 import { Form } from "@ui/form";
-import { useGlobalStore } from "@/core/global-store";
 import { useThreeSpeakManager } from "@/features/3speak";
 import { Alert } from "@ui/alert";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   show: boolean;
@@ -22,7 +22,7 @@ interface Props {
 export function PublishBeneficiariesDialog({ show, setShow }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { videos } = useThreeSpeakManager();
 
   const { beneficiaries, setBeneficiaries } = usePublishState();

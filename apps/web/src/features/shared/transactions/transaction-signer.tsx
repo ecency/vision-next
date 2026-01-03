@@ -1,5 +1,6 @@
 import { useGlobalStore } from "@/core/global-store";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   useSignOperationByHivesigner,
   useSignOperationByKey,
@@ -25,7 +26,7 @@ interface Props {
 }
 
 export default function TransactionSigner({ show, onHide, operation }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
 
   const pathname = usePathname();

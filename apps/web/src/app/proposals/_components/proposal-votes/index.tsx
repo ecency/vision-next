@@ -31,8 +31,11 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   const {
     data: votesPages,
     isFetching,
-    fetchNextPage
+    fetchNextPage,
+    error,
+    isError
   } = getProposalVotesQuery(proposal.proposal_id, "", 1000).useClientQuery();
+
   const votes = useMemo(
     () => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []),
     [votesPages?.pages]
@@ -109,6 +112,26 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
       </div>
       <ModalBody>
         {isFetching && <LinearProgress />}
+
+        {isError && (
+          <div className="p-4 mb-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
+            <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
+              {i18next.t("g.server-error")}
+            </p>
+            <p className="text-red-700 dark:text-red-300 text-sm">
+              Failed to load proposal votes. This might be due to browser privacy settings blocking API requests.
+              {error instanceof Error && (
+                <>
+                  <br />
+                  <span className="text-xs opacity-75">Error: {error.message}</span>
+                </>
+              )}
+            </p>
+            <p className="text-red-700 dark:text-red-300 text-sm mt-2">
+              Try: Opening browser console (F12), checking for blocked requests, or trying a different browser.
+            </p>
+          </div>
+        )}
 
         <div className="voters-list mb-4">
           <List grid={true} inline={true} defer={true}>

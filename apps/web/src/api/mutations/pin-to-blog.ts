@@ -1,22 +1,28 @@
-import { useMutation } from "@tanstack/react-query";
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Entry, FullAccount } from "@/entities";
-import { error, success } from "@/features/shared";
+import { error } from "@/features/shared";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { useUpdateProfile } from "@/api/mutations/update-profile";
-import { getAccount } from "@/api/hive";
+import { QueryIdentifiers } from "@/core/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function usePinToBlog(entry: Entry, onSuccess: () => void) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+  const { activeUser, account } = useActiveAccount();
+  const qc = useQueryClient();
 
-  const { mutateAsync: updateProfile } = useUpdateProfile(activeUser?.data as FullAccount);
+  const { mutateAsync: updateProfile } = useUpdateProfile(account!);
 
   return useMutation({
     mutationKey: ["pinToBlog"],
     mutationFn: async ({ pin }: { pin: boolean }) => {
+      if (!account) {
+        throw new Error("Account not loaded");
+      }
+
       const ownEntry = activeUser && activeUser.username === entry.author;
-      const { profile, name } = activeUser!.data as FullAccount;
+      const { profile, name } = account;
 
       if (ownEntry && pin && profile && activeUser) {
         await updateProfile({
@@ -30,10 +36,11 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
             pinned: entry.permlink
           }
         });
-        success(i18next.t("entry-menu.pin-success"));
 
-        const account = await getAccount(name);
-        await updateActiveUser(account);
+        // Invalidate account query to refresh profile data
+        qc.invalidateQueries({
+          queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, name]
+        });
       } else if (ownEntry && !pin && profile && activeUser) {
         await updateProfile({
           nextProfile: {
@@ -46,10 +53,11 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
             pinned: ""
           }
         });
-        success(i18next.t("entry-menu.unpin-success"));
 
-        const account = await getAccount(name);
-        await updateActiveUser(account);
+        // Invalidate account query to refresh profile data
+        qc.invalidateQueries({
+          queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, name]
+        });
       }
     },
     onSuccess,

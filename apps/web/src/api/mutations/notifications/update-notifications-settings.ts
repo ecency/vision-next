@@ -1,5 +1,7 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { NotifyTypes } from "@/enums";
 import { QueryIdentifiers } from "@/core/react-query";
 import * as ls from "@/utils/local-storage";
@@ -12,7 +14,7 @@ import { getNotificationSetting } from "@/api/private-api";
 import { ApiNotificationSetting } from "@/entities";
 
 export function useUpdateNotificationsSettings() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({

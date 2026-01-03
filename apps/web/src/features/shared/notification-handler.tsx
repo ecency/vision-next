@@ -1,7 +1,7 @@
 "use client";
 
 import { NotificationsWebSocket } from "@/api/notifications-ws-api";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { NotifyTypes } from "@/enums";
 import {
@@ -16,7 +16,7 @@ import { usePrevious } from "react-use";
 export function NotificationHandler() {
   const nws = useRef(new NotificationsWebSocket());
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
   const globalNotifications = useGlobalStore((state) => state.globalNotifications);
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);

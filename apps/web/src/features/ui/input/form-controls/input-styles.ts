@@ -12,7 +12,8 @@ export const INPUT_IN_GROUP =
   "[&>input]:rounded-[0] [&>input:first-child]:rounded-l-xl [&>input:last-child]:rounded-r-xl";
 
 export const INPUT_SIZES: Record<"sm" | "md" | "xs", string> = {
-  sm: "text-sm py-1 px-2 rounded-lg",
-  md: "py-2 px-3 rounded-xl",
-  xs: "px-2 py-1 text-sm"
+  // Ensure a minimum 16px font size on inputs to avoid mobile browsers zooming on focus
+  sm: "text-base py-1 px-2 rounded-lg",
+  md: "text-base py-2 px-3 rounded-xl",
+  xs: "px-2 py-1 text-base"
 };

@@ -3,7 +3,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import { Entry, WaveEntry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { PollsContext, PollsManager, useEntryPollExtractor } from "@/features/polls";
 import { useClickAway, useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
@@ -15,7 +14,12 @@ import { Button } from "@ui/button";
 import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form-toolbar";
 import { useWaveSubmit } from "@/features/waves";
 import { useOptionalWavesHost } from "@/app/waves/_context";
-import { useClientActiveUser } from "@/api/queries";
+import axios from "axios";
+import { uploadImage } from "@/api/misc";
+import { getAccessToken } from "@/utils";
+import { error } from "@/features/shared";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   className?: string;
@@ -33,7 +37,7 @@ const WaveFormComponent = ({
   hideAvatar = false,
   entry
 }: Props) => {
-  const activeUser = useClientActiveUser();
+  const { username: activeUsername, account, isLoading: isAccountLoading } = useActiveAccount();
 
   const rootRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -45,6 +49,9 @@ const WaveFormComponent = ({
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const hasAppliedSharedText = useRef(false);
 
   const entryDepth = entry?.depth;
   const entryParentAuthor = entry?.parent_author;
@@ -56,10 +63,6 @@ const WaveFormComponent = ({
   const textLength = text?.length ?? 0;
   const exceedsCharacterLimit = textLength > characterLimit;
 
-  const disabled = useMemo(
-    () => !text || !threadHost || (isReply && exceedsCharacterLimit),
-    [exceedsCharacterLimit, isReply, text, threadHost]
-  );
   const poll = useEntryPollExtractor(entry);
   useEffect(() => {
     if (poll) {
@@ -86,6 +89,22 @@ const WaveFormComponent = ({
       setText(nextText);
     }
   }, [entry, setImage, setText]);
+
+  useEffect(() => {
+    if (entry || hasAppliedSharedText.current) {
+      return;
+    }
+
+    const sharedText = searchParams?.get("text")?.trim();
+
+    if (!sharedText) {
+      return;
+    }
+
+    setText(sharedText);
+    hasAppliedSharedText.current = true;
+    router.replace("/waves");
+  }, [entry, router, searchParams, setText]);
 
   const contextHost = wavesHostContext?.host;
 
@@ -115,6 +134,23 @@ const WaveFormComponent = ({
     clear();
     onSuccess?.(item);
   });
+
+  const formInteractivityDisabled = isAccountLoading || isPending;
+
+  const submitDisabled = useMemo(
+    () =>
+      formInteractivityDisabled ||
+      !text ||
+      !threadHost ||
+      (isReply && exceedsCharacterLimit),
+    [
+      exceedsCharacterLimit,
+      formInteractivityDisabled,
+      isReply,
+      text,
+      threadHost
+    ]
+  );
 
   const handleEmojiPick = useCallback(
     (emoji: string) => {
@@ -149,11 +185,68 @@ const WaveFormComponent = ({
     [setText, text]
   );
 
+  const handlePasteImage = useCallback(
+    (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const clipboardData = event.clipboardData;
+
+      if (!clipboardData) {
+        return;
+      }
+
+      const pastedText = clipboardData.getData("text/plain");
+
+      if (pastedText && pastedText.length >= 50) {
+        return;
+      }
+
+      const files = Array.from(clipboardData.items ?? [])
+        .map((item) => (item.type.includes("image") ? item.getAsFile() : null))
+        .filter((file): file is File => Boolean(file));
+
+      if (!files.length) {
+        return;
+      }
+
+      if (!activeUsername) {
+        return;
+      }
+
+      const token = getAccessToken(activeUsername);
+
+      if (!token) {
+        error(i18next.t("editor-toolbar.image-error-cache"));
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      void (async () => {
+        for (const file of files) {
+          try {
+            const { url } = await uploadImage(file, token);
+            setImage(url);
+            setImageName(file.name);
+            break;
+          } catch (err) {
+            if (axios.isAxiosError(err) && err.response?.status === 413) {
+              error(i18next.t("editor-toolbar.image-error-size"));
+            } else {
+              error(i18next.t("editor-toolbar.image-error"));
+            }
+            break;
+          }
+        }
+      })();
+    },
+    [activeUsername, setImage, setImageName]
+  );
+
   return (
     <div ref={rootRef} className="wave-form relative flex items-start px-4 pt-4 w-full">
-      {!hideAvatar && activeUser?.username && (
+      {!hideAvatar && activeUsername && (
         <UserAvatar
-          username={activeUser?.username ?? ""}
+          username={activeUsername}
           size={replySource ? "deck-item" : "medium"}
         />
       )}
@@ -177,13 +270,21 @@ const WaveFormComponent = ({
           clearSelectedImage={clearImage}
           placeholder={placeholder}
           characterLimit={characterLimit}
+          onPasteImage={formInteractivityDisabled ? undefined : handlePasteImage}
+          disabled={formInteractivityDisabled}
         />
-        {activeUser && (
-          <AvailableCredits username={activeUser.username} operation="comment_operation" />
+        {isAccountLoading && (
+          <div className="text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
+            {i18next.t("g.loading")}...
+          </div>
+        )}
+        {activeUsername && account && (
+          <AvailableCredits username={activeUsername} operation="comment_operation" />
         )}
 
         <WaveFormToolbar
           isEdit={!!entry}
+          disabled={formInteractivityDisabled}
           onAddImage={(url, name) => {
             setImage(url);
             setImageName(name);
@@ -193,7 +294,7 @@ const WaveFormComponent = ({
           submit={
             <Button
               onClick={() =>
-                !disabled &&
+                !submitDisabled &&
                 submit({
                   text: text!!,
                   imageName: imageName!!,
@@ -202,23 +303,23 @@ const WaveFormComponent = ({
                   video: video!!
                 })
               }
-              disabled={disabled}
+              disabled={submitDisabled}
               isLoading={isPending}
               className="justify-self-end"
               size="sm"
             >
-              {!activeUser &&
+              {!activeUsername &&
                 !entry &&
                 !exceedsCharacterLimit &&
                 i18next.t("decks.threads-form.login-and-publish")}
-              {activeUser &&
+              {activeUsername &&
                 !replySource &&
                 !entry &&
                 !exceedsCharacterLimit &&
                 (isPending
                   ? i18next.t("decks.threads-form.publishing")
                   : i18next.t("decks.threads-form.publish"))}
-              {activeUser &&
+              {activeUsername &&
                 replySource &&
                 !entry &&
                 !exceedsCharacterLimit &&

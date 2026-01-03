@@ -1,11 +1,12 @@
-import { EntryMenu, EntryStats, EntryVoteBtn, EntryVotes, UserAvatar } from "@/features/shared";
+import { EntryMenu, EntryStats, EntryTipBtn, EntryVoteBtn, EntryVotes, UserAvatar } from "@/features/shared";
 import { commentSvg, voteSvg } from "@/app/decks/_components/icons";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import React, { ReactNode } from "react";
 import { WaveEntry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import "./wave-actions.scss";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { PostTipsResponse } from "@/api/queries/get-post-tips-query";
 
 interface Props {
   status: string;
@@ -19,6 +20,7 @@ interface Props {
   showStats?: boolean;
   showVoteSummary?: boolean;
   showCommentCount?: boolean;
+  postTips?: PostTipsResponse;
 }
 
 export function WaveActions({
@@ -32,9 +34,10 @@ export function WaveActions({
   onEdit,
   showStats = false,
   showVoteSummary = true,
-  showCommentCount = true
+  showCommentCount = true,
+  postTips
 }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return (
     <>
@@ -60,6 +63,7 @@ export function WaveActions({
                 {commentsSlot ?? entry?.children}
               </div>
             </Button>
+            <EntryTipBtn entry={entry!} postTips={postTips} />
           </div>
           <div>
             <EntryMenu entry={entry!} />

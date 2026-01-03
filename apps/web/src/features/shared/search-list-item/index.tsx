@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { catchPostImage, postBodySummary, setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { SearchResult } from "@/entities";
 import { EntryLink, FormattedCurrency, ProfileLink, UserAvatar } from "@/features/shared";
 import { TagLink } from "../tag";

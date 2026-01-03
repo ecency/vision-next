@@ -1,8 +1,14 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { ErrorTypes } from "@/enums";
-import { ErrorFeedbackObject, FeedbackObject } from "./feedback-events";
+import {
+  clearErrorFeedbackContext,
+  consumeErrorFeedbackContext,
+  ErrorFeedbackObject,
+  FeedbackObject
+} from "./feedback-events";
 import { FeedbackModal } from "./feedback-modal";
 import { UilCheckCircle, UilExclamationCircle, UilMultiply } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
@@ -10,8 +16,9 @@ import clsx from "clsx";
 import i18next from "i18next";
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
-import { useMount } from "react-use";
+import { useMount, useUnmount } from "react-use";
 import * as Sentry from "@sentry/nextjs";
+import { getConsoleHistory } from "@/utils/console-msg";
 
 interface Props {
   feedback: FeedbackObject;
@@ -20,19 +27,28 @@ interface Props {
 
 export function FeedbackMessage({ feedback, onClose }: Props) {
   const timeoutRef = useRef<any>();
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [showDialog, setShowDialog] = useState(false);
   const errorType = (feedback as ErrorFeedbackObject).errorType;
+
+  const handleClose = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    clearErrorFeedbackContext(feedback.id);
+    onClose();
+  }, [feedback.id, onClose]);
 
   const initTimeout = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    timeoutRef.current = setTimeout(onClose, 5000);
-  }, []);
+    timeoutRef.current = setTimeout(handleClose, 5000);
+  }, [handleClose]);
 
   useMount(() => initTimeout());
+  useUnmount(() => clearErrorFeedbackContext(feedback.id));
 
   return (
     <div
@@ -64,7 +80,7 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
               className="!w-6 !h-6"
               icon={<UilMultiply className="!w-3" />}
               appearance="gray"
-              onClick={onClose}
+              onClick={handleClose}
             />
           </div>
           <div className="text-gray-600 dark:text-gray-400">{feedback.message}</div>
@@ -96,8 +112,36 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
               size="xs"
               appearance="gray"
               onClick={() => {
-                Sentry.captureException(feedback.message);
-                onClose();
+                if (timeoutRef.current) {
+                  clearTimeout(timeoutRef.current);
+                }
+
+                const context = consumeErrorFeedbackContext(feedback.id);
+
+                Sentry.withScope((scope) => {
+                  scope.setExtra("feedbackId", feedback.id);
+                  scope.setExtra("feedbackMessage", feedback.message);
+
+                  if (context?.consoleHistory?.length) {
+                    scope.setExtra("consoleHistory", context.consoleHistory);
+                  } else {
+                    const history = getConsoleHistory();
+                    if (history.length) {
+                      scope.setExtra("consoleHistory", history);
+                    }
+                  }
+
+                  if (context?.contextTag) {
+                    scope.setTag("context", context.contextTag);
+                  }
+
+                  scope.setTag("reported_via", "feedback-toast-report");
+
+                  const errorPayload = context?.error ?? new Error(feedback.message);
+                  Sentry.captureException(errorPayload);
+                });
+
+                handleClose();
               }}
             >
               {i18next.t("feedback-modal.report")}

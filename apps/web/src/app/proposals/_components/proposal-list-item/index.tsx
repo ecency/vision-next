@@ -11,32 +11,24 @@ import { linkSvg } from "@ui/svg";
 import Link from "next/link";
 import { parseAsset } from "@/utils";
 import { ProposalVoteBtn, ProposalVotes } from "@/app/proposals/_components";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
-import { useSearchParams } from "next/navigation";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
 import { Badge } from "@ui/badge";
 
 interface Props {
   proposal: Proposal;
   isReturnProposalId?: number;
   thresholdProposalId?: number | null;
+  votedByViewer?: boolean; // Passed down from parent (optimized!)
 }
 
-export function ProposalListItem({ proposal, isReturnProposalId, thresholdProposalId }: Props) {
-  const params = useSearchParams();
+export function ProposalListItem({
+  proposal,
+  isReturnProposalId,
+  thresholdProposalId,
+  votedByViewer = false
+}: Props) {
   const [show, setShow] = useState(false);
-
-  const { data: votesPages, isLoading } = getProposalVotesQuery(
-    proposal.proposal_id,
-    params?.get("voter") ?? "",
-    1000
-  ).useClientQuery();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const votes = useMemo(() => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []), []);
-
-  const votedByVoter = useMemo(
-    () => (votes?.length ?? 0) > 0 && votes?.[0].voter === params?.get("voter"),
-    [params, votes]
-  );
 
   const startDate = dayjs(proposal.start_date);
   const endDate = dayjs(proposal.end_date);
@@ -54,10 +46,8 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
   const diff = endDate.diff(dayjs(), "day");
   const remaining = diff < 0 ? 0 : diff;
 
-  return isLoading ? (
-    <Skeleton className="w-full loadingSearch mb-3 shadow" />
-  ) : (
-    <div className={`proposal-list-item ${votedByVoter ? "voted-by-voter" : ""}`}>
+  return (
+    <div className={`proposal-list-item ${votedByViewer ? "voted-by-voter" : ""}`}>
       <div className="item-content">
         <div className="left-side">
           <div className="proposal-users-card">

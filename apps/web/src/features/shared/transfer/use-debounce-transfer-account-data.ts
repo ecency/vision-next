@@ -3,6 +3,7 @@ import badActors from "@hiveio/hivescript/bad-actors.json";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { useTransferSharedState } from "./transfer-shared-state";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   DEFAULT_DYNAMIC_PROPS,
   getAccountFullQuery,
@@ -11,11 +12,10 @@ import {
 } from "@/api/queries";
 import { useDebounce } from "react-use";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 
 export function useDebounceTransferAccountData() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser, account } = useActiveAccount();
 
   const { to, mode, setAmount, setTo } = useTransferSharedState();
 
@@ -59,6 +59,25 @@ export function useDebounceTransferAccountData() {
       delegateAccount
     ];
   }, [activeUser?.username, dynamicProps, to, vestingDelegations]);
+
+  const externalWallets = useMemo(() => {
+    if (!toData?.profile?.tokens || !Array.isArray(toData.profile.tokens)) {
+      return [];
+    }
+
+    return toData.profile.tokens
+      .filter((token) => {
+        const hasAddress =
+          token.meta?.address &&
+          typeof token.meta.address === "string" &&
+          token.meta.address.trim().length > 0;
+        return hasAddress && token.type === "CHAIN";
+      })
+      .map((token) => ({
+        symbol: token.symbol.toUpperCase(),
+        address: (token.meta.address as string).trim()
+      }));
+  }, [toData]);
 
   useDebounce(
     () => {
@@ -110,13 +129,14 @@ export function useDebounceTransferAccountData() {
           "claim-interest"
         ].includes(mode)
       ) {
-        return activeUser?.data;
+        return account;
       }
 
       return toData;
-    }, [activeUser?.data, mode, toData]),
+    }, [account, mode, toData]),
     toError,
     delegateAccount,
-    isLoading: useMemo(() => toLoading || vestingLoading, [toLoading, vestingLoading])
+    isLoading: useMemo(() => toLoading || vestingLoading, [toLoading, vestingLoading]),
+    externalWallets
   };
 }

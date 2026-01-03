@@ -18,6 +18,8 @@ interface Props {
   clearSelectedImage: () => void;
   placeholder?: string;
   characterLimit: number;
+  onPasteImage?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
+  disabled?: boolean;
 }
 
 export const WaveFormControl = ({
@@ -27,7 +29,9 @@ export const WaveFormControl = ({
   clearSelectedImage,
   characterLimit,
   placeholder,
-  textareaRef
+  textareaRef,
+  onPasteImage,
+  disabled
 }: Props) => {
   const { activePoll } = useContext(PollsContext);
   const textLength = text?.length ?? 0;
@@ -44,11 +48,16 @@ export const WaveFormControl = ({
     <div className="flex items-start gap-4 flex-wrap py-4">
       <div className="w-full">
         <TextareaAutosize
-          className="w-full rounded-xl px-3 py-2 lg:px-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none min-h-[3.5rem] text-[0.95rem] leading-6 focus-visible:ring-2 focus-visible:ring-blue-dark-sky"
+          disabled={disabled}
+          className={clsx(
+            "w-full rounded-xl px-3 py-2 lg:px-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none min-h-[3.5rem] text-[0.95rem] leading-6 focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
+            disabled && "opacity-60 cursor-not-allowed"
+          )}
           placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}
           value={text}
           onChange={(e) => setText(e.target.value)}
           ref={textareaRef}
+          onPaste={onPasteImage}
         />
         <div className={counterClassName} aria-live="polite">
           {textLength}/{characterLimit}

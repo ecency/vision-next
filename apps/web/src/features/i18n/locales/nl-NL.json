@@ -179,7 +179,42 @@
     "placeholder-count": "Zoek {{n}} publicaties",
     "header-tag": "Labels",
     "header-account": "Gebruikers",
-    "header-community": "Gemeenschappen"
+    "header-community": "Gemeenschappen",
+    "header-actions": "Snelle acties",
+    "action-transfer-hive": "HIVE overdragen",
+    "action-transfer-hbd": "Overdracht HBD",
+    "action-transfer-points": "Overdracht van POINTS",
+    "action-transfer-description": "Stuur {{token}} direct",
+    "action-delegate-hp": "Verkiezing Korf Kracht",
+    "action-delegate-hp-description": "HP overdragen aan een ander account",
+    "action-power-up": "Power up",
+    "action-power-up-description": "Converteer HIVE naar hive Power",
+    "action-power-down": "Power down",
+    "action-power-down-description": "Converteer Hive Kracht terug naar HIVE",
+    "action-claim-hive": "Beloningen opeisen in afwachting van HIVE",
+    "action-claim-points": "PUNINTS beloningen opeisen",
+    "action-signup-email": "Registreer met e-mail",
+    "action-signup-crypto": "Registreer met crypto",
+    "action-browse-communities": "Ontdek gemeenschappen",
+    "action-visit-ecency-community": "Bezoek Ecency Gemeenschap",
+    "action-market-swap": "Tokens omwisselen",
+    "action-market-swap-description": "Snel HIVE en HBD wisselen",
+    "action-market-trade": "Open trading terminal",
+    "action-market-trade-description": "Geavanceerde grafieken en orderboeken",
+    "action-market-exchange": "Exchange tokens",
+    "action-market-exchange-description": "Bekijk de marktprijzen en geschiedenis",
+    "action-my-profile": "Mijn profiel",
+    "action-my-bookmarks": "Mijn bladwijzers",
+    "action-my-drafts": "Mijn concepten",
+    "action-my-gallery": "Mijn galerij",
+    "action-my-decks": "Mijn sets",
+    "action-my-communities": "Mijn gemeenschappen",
+    "action-my-blog": "Mijn blog",
+    "action-my-wallet": "Mijn portemonnee",
+    "action-witnesses": "Getuigen",
+    "action-witnesses-description": "Verken topgetuigen en blokproducenten",
+    "action-proposals": "Voorstellen",
+    "action-proposals-description": "Controleer het Decentralized Hive Fund"
   },
   "tag": {
     "unmoderated": "Ongemodereerde onderwerpen",
@@ -288,6 +323,7 @@
     "username-contains-double-hyphens": "Mag geen dubbele Hyphens bevatten",
     "username-exists": "Deze gebruikersnaam is al in gebruik. Probeer een andere",
     "username-starts-number": "Mag niet beginnen met getallen",
+    "username-required": "Gebruikersnaam is verplicht",
     "username-in-use": "Deze gebruikersnaam bestaat al. Stel een andere in",
     "referral-invalid": "Deze aanbeveling is ongeldig. Probeer een andere aanbeveling.",
     "referral-min-length-error": "Lengte van de verwijzing moet ten minste 3 tekens bevatten",
@@ -370,9 +406,6 @@
     "sort": "Sorteren",
     "ascending": "Oplopend",
     "descending": "Aflopend"
-  },
-  "selected-tags": {
-    "title": "Uitgelicht"
   },
   "entry-list-item": {
     "cross-posted": "gedeelde post",
@@ -677,6 +710,7 @@
     "pending-orders": "Openstaande bestellingen",
     "type": "Type",
     "mode-limit": "Limiet",
+    "mode-engine": "Motor",
     "mode-swap": "Ruilen",
     "mode-advanced": "Geavanceerd",
     "action": "actie",
@@ -710,6 +744,8 @@
     "success-title": "Transactie voltooid",
     "more-than-balance": "Je hebt meer dan je beschikbare saldo ingevoerd",
     "invalid-amount": "Ongeldig bedrag. Verlaag de waarde",
+    "engine-orderbook-thin": "Deze markt heeft beperkte liquiditeit. Probeer een kleiner bedrag of probeer het later.",
+    "engine-orderbook-empty": "Er zijn momenteel geen actieve bestellingen voor deze markt beschikbaar.",
     "too-much-slippage": "We raden u ten zeerste aan het aantal te verlagen voor betere prijzen!",
     "auth-required-title": "Autorisatie vereist",
     "auth-required-desc": "U dient gemachtigd te zijn om eigen tegoeden te wisselen",
@@ -717,6 +753,10 @@
     "signing": "Bezig met ondertekenen..",
     "success-swap": "Omwisselen gelukt!",
     "calculating-in": "Berekenen in",
+    "asset-selector": {
+      "title": "Selecteer een token",
+      "search-placeholder": "Tokens zoeken"
+    },
     "advanced": {
       "history": "Geschiedenis",
       "stake": "Boek bestellen",
@@ -737,11 +777,49 @@
         "amount": "Hoeveelheid",
         "volume": "Volume",
         "time": "Tijd"
+      },
+      "variant-hive": "HIV/HBD",
+      "variant-engine": "Motor tokens"
+    },
+    "limit": {
+      "layer-core": "Kern · Laag 1",
+      "layer-engine": "Motor · Laag 2",
+      "token-selector": {
+        "label": "Trading pair",
+        "title": "Kies een trading paar",
+        "search-placeholder": "Tokens zoeken",
+        "core-description": "Handel in de HBD/HIVE kernmarkt.",
+        "engine-description": "Layer-2 token transacties tegen SWAP.HIVE.",
+        "no-results": "Er komen geen tokens overeen met je zoekopdracht."
       }
+    },
+    "engine": {
+      "title": "Korf machinemarkt",
+      "description": "Trade Hive Engine Tokens met limietorders rechtstreeks vanuit uw Hive account.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Laatste prijs",
+      "price-change": "24u wijziging",
+      "volume-label": "24u volume ({{symbol}})",
+      "bids": "Koop bestellingen",
+      "asks": "Verkoop bestellingen",
+      "price": "Prijs",
+      "amount": "Bedrag ({{symbol}})",
+      "total": "Totaal",
+      "recent-trades": "Recente transacties",
+      "time": "Tijd",
+      "type": "Type",
+      "no-open-orders": "U heeft nog geen open orders voor deze markt.",
+      "use-best": "Gebruik de beste prijs",
+      "use-max": "Gebruik max",
+      "invalid-order": "Voer een geldig bedrag en prijs in groter dan nul.",
+      "login-required": "Log in om Hive Engine tokens te verhandelen.",
+      "order-placed": "Bestelling geplaatst",
+      "order-cancelled": "Bestelling geannuleerd",
+      "login-to-trade": "Log in om uw Hive Engine Trades te beheren.",
+      "deposit": "HIVE storten",
+      "deposit-instructions": "Stuur HIVE naar @honey-swap met memo {{memo}} om SWAP.HIVE te ontvangen."
     }
-  },
-  "list-style": {
-    "title": "Schakelaar stijl"
   },
   "entry-votes": {
     "title": "1 Stem",
@@ -806,7 +884,9 @@
   "comment": {
     "body-placeholder": "Schrijf jouw reactie hier",
     "preview": "Voorbeeld",
-    "success": "Uw antwoord is succesvol aangemaakt!"
+    "success": "Uw antwoord is succesvol aangemaakt!",
+    "retry-hint": "Uw tekst is hieronder bewaard - probeer het opnieuw",
+    "rc-error-hint": "Onvoldoende Grondstof Credits - je tekst wordt hieronder bewaard"
   },
   "discussion": {
     "join": "Deelnemen aan de conversatie",
@@ -965,6 +1045,7 @@
     "section-replies": "Antwoorden",
     "section-communities": "Gemeenschappen",
     "section-wallet": "Portemonnee",
+    "section-insights": "Inzichten",
     "section-settings": "Instellingen",
     "section-referrals": "Aangebrachten leden",
     "section-permission": "Bevoegdheden",
@@ -995,6 +1076,22 @@
     "link-copied": "Gezochte link gekopieerd naar klembord",
     "no-posts-found": "Niets gevonden!",
     "subscribe": "Abonneren"
+  },
+  "profile-insights": {
+    "description": "Zie welke berichten het meest tot de lezers behoren.",
+    "today": "vandaag",
+    "yesterday": "gisteren",
+    "last-7": "Afgelopen 7 dagen",
+    "last-30": "Laatste 30 dagen",
+    "all-time": "Gehele tijd",
+    "page": "Pagina",
+    "views": "Weergaven",
+    "uniques": "Unieke weergaven",
+    "minutes": "minuten",
+    "no-data": "Voor dit bereik zijn nog geen paginaweergaven beschikbaar.",
+    "range": "Date range",
+    "disabled": "Inzichten zijn op dit moment uitgeschakeld.",
+    "error": "Kan geen inzichten laden."
   },
   "rc-info": {
     "available": "Beschikbaar",
@@ -1185,24 +1282,6 @@
       "larynx-locked-description": "Vergrendelde tokens bieden liquiditeit aan het netwerk, hulp bij het bepalen van consensus, en verdienen beloningen voor node runners"
     }
   },
-  "wallet-engine": {
-    "title": "Hive Engine Tokens",
-    "description": "Hive Engine is een transactie platform voor de Hive blockchain.",
-    "no-results": "Geen token gevonden.",
-    "token": "Token",
-    "balance": "Saldo",
-    "staked": "Gestaked"
-  },
-  "sort-engine-tokens": {
-    "sort": "Sorteren",
-    "sort-in-ascending": "Oplopend",
-    "sort-in-descending": "Aflopend",
-    "sort-by-value": "Waarde",
-    "sort-by-balance": "Saldo",
-    "sort-by-stake": "Uitzetten",
-    "sort-by-delegations-in": "Delegaties in",
-    "sort-by-delegations-out": "Overdrachten uit"
-  },
   "wallet-engine-estimated": {
     "title": "Geschatte Tokens Waarde",
     "description": "De geschatte waarde voor alle engine tokens in uw portemonnee in US-dollar."
@@ -1263,12 +1342,6 @@
     "filter-998": "Uitgaande overschrijving",
     "filter-999": "Binnenkomende overschrijving"
   },
-  "purchase": {
-    "select-asset": "Selecteer bezitting",
-    "slider-hint": "Sleep de schuifregelaar om het bedrag aan te passen.",
-    "submit": "Koop",
-    "purchase-message": "Of stuur een willekeurig aantal naar @esteem.app met `points` als memo om punten te kopen."
-  },
   "purchase-qr": {
     "scan-code": "Scan met Ecency mobiele app om door te gaan",
     "select-user": "Selecteer een gebruiker",
@@ -1286,14 +1359,6 @@
     "sub-title": "Promoot je bericht",
     "duration": "Duur",
     "learn-more": "Meer informatie over promotie"
-  },
-  "boost": {
-    "title": "Versterken",
-    "sub-title": "Boost je bericht",
-    "amount": "Hoeveelheid",
-    "slider-hint": "Sleep de schuifregelaar om het bedrag aan te passen.",
-    "hint": "De werkelijke stemwaarde kan variëren",
-    "learn-more": "Meer informatie over boosten"
   },
   "redeem-common": {
     "balance": "Saldo",
@@ -1466,7 +1531,11 @@
     "sign": "Ondertekenen",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Meld je aan met HiveAuth"
+  },
+  "hive-auth": {
+    "pending-request": "HiveAuth aanvraag in behandeling. Koppel ID {{id}} in uw portemonnee."
   },
   "delegated-vesting": {
     "title": "Toegewezene Korf Kracht",
@@ -1651,11 +1720,6 @@
     "refresh": "Vernieuwen voor geactualiseerde status",
     "video-info": "Video's worden opgeslagen en aangedreven door SPK netwerk, kunnen wat opslag- en codering kosten hebben."
   },
-  "nsfw-content": {
-    "title": "NSFW inhoud",
-    "warning": "Controleer dit als uw inhoud NSFW is",
-    "continue": "Doorgaan"
-  },
   "tag-selector": {
     "placeholder-empty": "Tags. Eerste tag is hoofdcategorie. Sortablet.",
     "placeholder-focus": "Voer label in",
@@ -1709,7 +1773,12 @@
     "replied": "{{source}} antwoordde je",
     "reblogged": "{{source}} heeft je bericht gedeeld",
     "transfer": "{{source}} heeft jou {{amount}} gestuurd",
-    "delegations": "{{source}} heeft u gedelegeerd {{amount}}"
+    "delegations": "{{source}} heeft u gedelegeerd {{amount}}",
+    "checkins": "Je hebt deze week {{count}} dag{{suffix}} gecontroleerd. Ga zo door!",
+    "payouts": "De uitbetaling van uw inhoud is klaar.",
+    "payouts-amount": "Je hebt {{amount}} uitbetaling ontvangen.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "Je hebt {{count}} post{{suffix}} deze maand aangemaakt. Ga zo door!"
   },
   "notifications": {
     "type-all": "Alle notificaties",
@@ -1721,6 +1790,7 @@
     "type-reblogs": "Herblogs",
     "type-transfers": "Overdrachten",
     "type-delegations": "Overdrachten",
+    "type-payouts": "Uitbetalingen",
     "type-nfavorites": "Favorieten",
     "type-nbookmarks": "Bladwijzers",
     "group-title-recent": "Recentelijk",
@@ -1735,6 +1805,9 @@
     "reblog-str": "gedeeld bericht",
     "transfer-str": "verzonden",
     "delegations-str": "gedelegeerd",
+    "checkins-title": "Geweldige reeks op @{{username}}",
+    "payouts-title": "U heeft een uitbetaling ontvangen op @{{username}}",
+    "monthly-posts-title": "Voltooi de maand sterk, @{{username}}",
     "spin-str": "Tijd om meer punten te verdienen, speel Spin op Ecency Mobile app",
     "inactive-str": "Wees actief! Schrijf een bericht, blijf verdienen",
     "referral-str": "Verwijzend ingeschreven, welkom hen",
@@ -1762,9 +1835,6 @@
     "header-reward": "Beloning",
     "header-votes": "Stemming",
     "header-votes-tip": "Aantal stemmen in deze periode"
-  },
-  "popular-users": {
-    "title": "Populaire gebruikers"
   },
   "discover": {
     "title": "Ontdek",
@@ -1872,6 +1942,7 @@
     "filter-active": "actief",
     "filter-inactive": "Aankomende",
     "filter-team": "Ecency Projecten",
+    "filter-create": "Nieuw",
     "return-description": "Dit is het voorstel voor een basisterugkeer, want elk voorstel met minder stemmen zal geen geld krijgen.",
     "threshold-description": "Dit is een drempelvoorstel.",
     "votes-dialog-title": "Stemmen op voorstel #{{n}}",
@@ -1884,7 +1955,53 @@
     "sort-reputation": "Reputatie",
     "sort-hp": "Korf Kracht",
     "no-results": "Geen resultaten gevonden",
-    "searching": "Zoeken"
+    "searching": "Zoeken",
+    "create": {
+      "step-setup-title": "Stel voorstel details in",
+      "step-setup-sub-title": "Beschrijf het voorstel dat u wilt indienen bij het DHF.",
+      "description": "<p>Controleer voordat je een voorstel indient, of je een Hive bericht hebt gepubliceerd dat de reikwijdte van het werk uitlegt en er hieronder naar linkt. Het creëren van een voorstel kost <strong>10 HBD</strong> plus <strong>1 HBD</strong> voor elke dag ouder dan 60.</p>",
+      "subject-label": "Aanspreektitel",
+      "subject-placeholder": "Korte openbare titel",
+      "subject-help": "Dit verschijnt in de lijst met voorstellen. Houd het kort (max 80 karakters).",
+      "subject-error": "Voer een titel in tussen de 3 en 80 tekens.",
+      "permlink-label": "Voorstel permlink",
+      "permlink-placeholder": "voor-update-post",
+      "permlink-help": "Gebruik de permlink van de Hive post die uw voorstel beschrijft (zonder de @username/part). U kunt één van uw recente berichten kiezen uit de lijst wanneer u dit veld focusst.",
+      "permlink-suggestions-title": "Recente berichten",
+      "permlink-suggestions-loading": "Recente berichten laden...",
+      "permlink-suggestions-empty": "Geen recente berichten gevonden voor uw account.",
+      "permlink-suggestions-error": "Kan recente berichten niet laden. Probeer het opnieuw.",
+      "permlink-error": "Permlink kan alleen kleine letters, cijfers en koppeltekens bevatten.",
+      "receiver-label": "Ontvanger",
+      "receiver-placeholder": "account naam",
+      "receiver-help": "Rekening die de betalingen ontvangt wanneer het voorstel wordt gefinancierd.",
+      "receiver-error": "Voer een geldige Hive accountnaam in.",
+      "start-label": "Start datum",
+      "start-placeholder": "Selecteer startdatum",
+      "start-error": "Selecteer een startdatum ten minste één uur in de toekomst.",
+      "end-label": "End Date",
+      "end-placeholder": "Selecteer einddatum",
+      "end-error": "Einddatum moet na de startdatum liggen.",
+      "daily-pay-label": "Dagelijkse betaling (HBD)",
+      "daily-pay-help": "Hoeveelheid HBD dat u per dag vraagt.",
+      "daily-pay-error": "Vul een positief bedrag in voor dagelijks loon.",
+      "summary-title": "Summary",
+      "summary-duration": "Duur: {{days}} dagen",
+      "summary-daily-pay": "Dagelijks betalen: {{amount}} HBD",
+      "summary-total-pay": "Totaal uitbetaald {{amount}} HBD",
+      "summary-creation-fee": "Aanmaken vergoeding Kof {{fee}} HBD",
+      "step-sign-sub-title": "Onderteken de transactie met je actieve autoriteit.",
+      "sign-hint": "Je kunt ondertekenen met je actieve sleutel, HiveAuth, Hive Keychain of HiveSigner.",
+      "success-title": "Voorstel ingediend",
+      "success-sub-title": "Transactie uitzending",
+      "success-description": "Het kan enkele minuten duren voordat het nieuwe voorstel op de lijst staat.",
+      "success-toast": "Voorstel transactie uitzending.",
+      "external-sign": "Blijf ondertekenen in het nieuwe venster om het voorstel af te ronden.",
+      "new-proposal": "Maak een ander voorstel",
+      "login-button": "Log in",
+      "open-form": "Maak een voorstel",
+      "hide-form": "Formulier verbergen"
+    }
   },
   "gallery": {
     "title": "Galerij",
@@ -1929,19 +2046,6 @@
     "validation-label": "Vink dit vakje aan om verder te gaan.",
     "updated": "Wachtwoord succesvol bijgewerkt!",
     "hint": "Op dit moment kunt u sleutels alleen genereren door het instellen van een nieuwe herstelzin. Het bijwerken van een ander soort wachtwoord wordt niet ondersteund. Het helpt ons om rekeningen van Ecency en Hive in een standaard van Web 3.0 te houden."
-  },
-  "view-keys": {
-    "title": "Privésleutels bekijken",
-    "header": "Beheer sleutels",
-    "account": "Rekening",
-    "cur-pass": "Huidig wachtwoord",
-    "owner": "Eigenaar",
-    "active": "actief",
-    "posting": "Plaatsen",
-    "memo": "Notitie",
-    "view-keys": "Klik om sleutels te bekijken",
-    "copied": "Privésleutel gekopieerd naar klembord",
-    "error": "Wachtwoord lijkt onjuist, controleer het nog eens!"
   },
   "manage-authorities": {
     "title": "Autoriteiten beheren",
@@ -1993,118 +2097,43 @@
     "update-success-message": "Uw herstel-e-mail is met succes bijgewerkt"
   },
   "chat": {
-    "page-title": "Gesprekken",
-    "read-only": "Alleen-lezen",
-    "why-read-only": "Deze gebruiker heeft de chatsleutel gewijzigd. Zoek een nieuw account op de gebruikersnaam in bovenstaand zoekopdracht.",
-    "user-not-joined": "Nog niet toegetreden",
-    "title": "Chats",
-    "messages": "berichten",
-    "key": "Ecency chat sleutel",
-    "new-message": "Nieuw bericht",
-    "direct-messages": "Directe berichten",
-    "collapse": "Samenvouwen",
-    "expand": "Uitklappen",
-    "scroll-to-bottom": "Naar beneden scrollen",
-    "joined": "Aangesloten",
-    "followers": "Volgers",
-    "start-chat-placeholder": "Start een nieuw bericht",
-    "search": "Zoek mensen of gemeenschappen",
-    "join-chat": "Deelnemen aan chat",
-    "join-channel": "Kanaal samenvoegen",
-    "back": "Achterzijde",
-    "no-chat": "Geen gesprek gevonden",
-    "start-chat": "Chatten starten",
-    "not-joined": "Deze gebruiker heeft zich nog niet aangesloten bij de chat",
-    "subscribers": "Ontvangers",
-    "invite": "Uitnodigen",
-    "send-invite": "Stuur een uitnodiging",
-    "leave:": "Verlaat",
-    "refresh": "Vernieuwen",
-    "message-warning": "U kunt geen berichten verzenden in deze groep.",
-    "edit-community-roles": "Bewerk Community Rollen",
-    "add": "Toevoegen",
-    "no-admin": "Geen admin of moderator voor deze community chat.",
-    "blocked-users": "Geblokkeerde gebruikers",
-    "action": "actie",
-    "unblock": "Deblokkeer",
-    "ecency-key": "Ecency toets",
-    "no-locked-user": "Geblokkeerde gebruikers niet gevonden",
-    "no-hidden-messages": "Verborgen berichten niet gevonden",
-    "enter-private-key": "Voer chat privé sleutel in",
-    "enter-private-key-detail": "Voer de privésleutel in om alle chats te importeren",
-    "close": "Afsluiten",
-    "confirm": "Bevestigen",
-    "error-updating-community": "Fout opgetreden tijdens het bijwerken van de community",
-    "leave-channel": "Kanaal verlaten",
-    "leaving": "Verlaat",
-    "edit-roles": "Rollen bewerken",
-    "manage-chat-key": "Referenties informatie",
-    "block": "Blokkeren",
-    "communities": "Gemeenschappen",
-    "dms": "Directe berichten",
-    "import-chat": "Chat importeren",
-    "create-new-account": "Nieuw account aanmaken",
+    "page-title": "Begin direct berichten of neem deel aan kanalen om te chatten met de Ecency community.",
+    "loading-chats": "Chats laden…",
+    "start-dm-button": "Start DM",
+    "starting-dm": "Starting…",
+    "search-user": "Mensen zoeken",
+    "searching": "Zoeken...",
+    "no-user": "Geen gebruikers gevonden.",
+    "search-channels": "Zenders of directe berichten zoeken",
     "loading": "Laden...",
-    "blocked-user-message": "Je bent geblokkeerd van deze community",
-    "start-community-channel": "Start community channel",
+    "mark-as-read": "Markeren als gelezen",
+    "marking-as-read": "Marking…",
+    "channel-type-dm": "DM",
+    "channel-type": "Kanaal",
+    "favorite-channel": "Favoriete kanaal",
+    "channel-muted": "Gedempt",
+    "mute-channel": "Kanaal dempen",
+    "unmute-channel": "Kanaal inschakelen",
+    "leave-channel": "Kanaal verlaten",
+    "no-channels": "Nog geen kanalen toegewezen.",
+    "no-channels-search": "Geen kanalen gevonden die overeenkomen met uw zoekopdracht.",
+    "joinable-channels": "Kanalen inschrijven",
+    "searching-channels": "Searching…",
+    "channel-type-public": "Openbaar kanaal",
+    "channel-type-private": "Privé kanaal",
+    "join-channel-action": "Deelnemen",
+    "joining-channel": "Joining…",
+    "no-additional-channels": "Geen extra kanalen gevonden.",
+    "title": "Chats",
+    "no-admin": "Geen admin of moderator voor deze community chat.",
     "view-community-channel": "Community chat",
-    "submit": "Bevestigen",
-    "chat-priv-key": "Sla de chatsleutel op door op de downloadknop te klikken of de QR-code te scannen om uw gesprekken te herstellen.",
     "public-key": "Publieke sleutel",
     "private-key": "Privé sleutel",
-    "copy-priv-key": "Kopieer privésleutel",
-    "extended-view": "Uitgebreide weergave",
-    "you-haven-t-joined": "U bent nog niet toegetreden tot de Chat . Meld u aan om aan de slag te gaan!",
-    "invalid-private-key": "Ongeldige geheime sleutel",
-    "enter-username": "Voer tijdelijke gebruikersnaam in",
     "hide-message": "Bericht verbergen",
-    "block-author": "Blokkeer auteur",
-    "unblock-author": "Deblokkeer auteur",
-    "create-an-account": "Chat-account aanmaken",
-    "create-description": "Welkom aan boord! Uw account is bijna klaar. Duik in gesprekken en geniet van privécommunicatie.",
-    "create-pin-description": "Stel pincode in voor toegang tot uw chats vanaf elk apparaat",
-    "logout": "Afmelden",
-    "specify-invitation-message": "Dit uitnodigingsbericht zal worden verzonden als reactie op het laatste bericht van de gebruiker",
-    "successfully-invited": "Succesvol uitgenodigd!",
-    "invite-couldnt-be-sent": "Uitnodiging kan niet worden verzonden omdat de gebruiker nog geen bericht heeft",
-    "no-posts-for-invite": "Helaas lijkt de gebruiker niet actief te zijn en heeft hij geen posts gemaakt.",
-    "warn-key-saving": "Maak een back-up van uw Chat-sleutel om uw account veilig te houden en heb ook een ononderbroken service!",
-    "view-and-save": "Toon sleutels en sla op",
-    "blocked-users-management": "Geblokkeerde gebruikers beheer",
-    "unlock-the-section": "Voer uw pincode in om uw inloggegevens te zien",
-    "no-contacts-or-channels": "Nog geen gesprekken",
-    "upload-image": "Afbeelding uploaden",
-    "hidden-messages": "Verborgen berichten",
-    "hidden-messages-management": "Verborgen berichten beheer",
-    "saved-messages": "Opgeslagen berichten",
-    "fetch-error": "Terwijl u weg was, werd netwerkwijziging gedetecteerd. Herlaad de pagina nu om nieuwe gegevens op te halen",
-    "pin": "Vastzetten",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "Selecteer contactpersoon of kanaal",
-    "message-forwarding": "Bericht doorsturen",
-    "forward": "Bericht doorsturen",
-    "forwarded-from": "Doorgestuurd bericht",
-    "welcome": {
-      "title": "Welkom bij Chats",
-      "description": "Een account maken of importeren met chats",
-      "already-joined-title": "Het lijkt erop dat je je al bij de chat hebt aangesloten",
-      "already-joined-hint": "Verifieer uw account en krijg toegang door uw pincode in te voeren",
-      "pin-failed": "Ongeldige PIN-code. Verifiëren mislukt.",
-      "oops": "Oeps!",
-      "user-not-joined-yet": "Je kunt geen bericht verzenden. Deze gebruiker of kanaal is nog niet toegetreden tot chatten.",
-      "hello": "Hallo",
-      "start-description": "Zoek iemand of gemeenschap en begin met berichten",
-      "join-description": "Je bent geen deel van het kanaal",
-      "rejoin-description": "Je hebt deze community chat verlaten. Maak nu opnieuw deel aan de chat!"
-    },
-    "import": {
-      "title": "Account importeren",
-      "description": "Voer publieke en private key pair in om uw bestaande account te importeren",
-      "button": "Importeren",
-      "iv": "Initiële waarde vector"
-    },
-    "reply": "Beantwoorden",
-    "reply-to": "Reageren op {{account}}"
+    "enter-private-key-detail": "Voer de privésleutel in om alle chats te importeren",
+    "message-search-results": "Resultaten van berichten",
+    "no-messages-found": "Geen berichten gevonden.",
+    "no-message": "Geen inhoud van berichten"
   },
   "add-image": {
     "title": "Afbeelding toevoegen",
@@ -2140,6 +2169,46 @@
       "contact-blog": "blog oprichters",
       "contact-news": "Nieuws op bijenkorf",
       "contact-email": "E-mail ons"
+    },
+    "mobile": {
+      "page-title": "Ecency Mobile",
+      "hero-title": "Jouw community, overal met <span>Ecency Mobile</span>",
+      "hero-subtitle": "Blijf dicht bij de Hive gemeenschappen, reageer op gesprekken en beheer beloningen waar je ook bent.",
+      "hero-footnote": "Beschikbaar voor iOS, iPadOS en Android-apparaten.",
+      "cta-ios": "Download in de App Store",
+      "cta-android": "Verkrijg het op Google Play",
+      "benefits-title": "Waarom je van Ecency mobiel zult houden",
+      "benefits": {
+        "communities-title": "Gemeenschappen in je zak",
+        "communities-description": "Volg feeds, verken populaire tags en blijf dicht bij de mensen en onderwerpen waar je om geeft.",
+        "create-title": "Publiceer van overal",
+        "create-description": "Concept berichten, deel updates en antwoord op reacties met dezelfde krachtige editor die u op het bureaublad gebruikt.",
+        "wallet-title": "Portemonnee in een oogopslag",
+        "wallet-description": "Controleer saldo's, claim beloningen en beheer Hive Power of HBD met slechts een paar tikken.",
+        "notifications-title": "Mis nooit een vermelding",
+        "notifications-description": "Push-meldingen markeren nieuwe volgers, vermeldingen en beloningen, zodat u op tijd kunt vieren."
+      },
+      "features-title": "Ontworpen voor makers en gemeenschappen",
+      "features": {
+        "interface-title": "Gemaakt voor mobiel",
+        "interface-description": "Geniet van autochtone navigatie, gebaarvriendelijke controles en lay-outs die zich thuis voelen op telefoons en tablets.",
+        "themes-title": "Dag en nacht thema's",
+        "themes-description": "Schakel tussen licht- en donkere thema's om comfortabel te blijven tijdens het lezen en schrijven op elk uur.",
+        "opensource-title": "Open en community gedreven",
+        "opensource-description": "Draag bij aan GitHub, help met vertalingen of deel feedback rechtstreeks vanuit de app."
+      },
+      "screenshots-title": "Zie Ecency mobiel in actie",
+      "screenshots-description": "Schoon weergaven op voor het lezen, publiceren en beheren van je profiel over telefoons en tablets.",
+      "screenshots-tablet-alt": "Ecency mobiele interface weergegeven op een tablet",
+      "screenshots-phone-alt": "Ecency mobiele feed weergave op een telefoon",
+      "screenshots-desktop-alt": "Ecency mobiel scherm naast de desktop interface",
+      "screenshots-dark-alt": "Ecency mobiele app in donker thema",
+      "resources-title": "Nuttige grondstoffen",
+      "resources": {
+        "faq": "Bezoek de FAQ voor snelle antwoorden",
+        "blog": "Lees de nieuwste mobiele releasenotities",
+        "github": "Verken de open-source mobiele codebase"
+      }
     },
     "faq": {
       "about-ecency": "Over Ecency",
@@ -2421,26 +2490,10 @@
     "title": "Bijdragers",
     "description": "Deze geweldige mensen hebben op de een of andere manier bijgedragen aan de Ecentie, we willen hen allen bedanken. Als u deel wilt nemen aan ons team door deel te nemen aan Vertaling, Ideeën, Ontwikkeling, Ontwerp, sociaal bewustzijn, voel je vrij om je aan te sluiten. Voor meer informatie lees onze <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Knippen",
-    "copy": "Kopiëren",
-    "paste": "Plakken",
-    "open-image-browser": "Open afbeelding in browser",
-    "copy-image-url": "Kopieer afbeeldings-url"
-  },
-  "updater": {
-    "new-version-available": "Nieuwe versie is beschikbaar",
-    "download": "downloaden",
-    "update": "Update",
-    "dismiss": "Negeren",
-    "downloading": "Nieuwe versie aan het downloaden...",
-    "download-completed": "Download is voltooid",
-    "restart": "Opnieuw starten"
-  },
   "chain-error": {
     "min-root-comment": "Je mag maar eenmaal per vijf minuten een bericht plaatsen.",
     "identical-vote": "Uw huidige stemming over deze inhoud is identiek aan deze stemming.",
-    "must-claim": "Geen claim saldo of wordt al beweerd.",
+    "must-claim": "Beloningen in behandeling zijn al geëist.",
     "insufficient-resource": "Onvoldoende Grondstof Credits.",
     "delete-comment-with-vote": "Kan geen inhoud met positieve beloningen verwijderen.",
     "comment-cashout": "Inhoud na uitbetaling kan niet verwijderd worden.",
@@ -2639,7 +2692,8 @@
     "faq": "FAQ",
     "chats": "Chats",
     "news": "Nieuws",
-    "chats-page-placeholder": "Gesprekken zijn geopend in uitgebreide weergave"
+    "chats-page-placeholder": "Gesprekken zijn geopend in uitgebreide weergave",
+    "open-chats": "Open chats"
   },
   "not-found": {
     "title": "Niet gevonden",
@@ -2656,12 +2710,6 @@
     "email-placeholder": "Uw e-mail (optioneel)",
     "message-placeholder": "Beschrijf uw rapport",
     "issue-reported": "Probleem met succes gerapporteerd"
-  },
-  "entry-preview": {
-    "searching-title": "Zoek bericht",
-    "searching-description": "We proberen deze post te achterhalen...",
-    "title": "Voorvertoning",
-    "description": "Dit bericht wordt nu aangemaakt. Je kunt ermee communiceren wanneer dit bericht verdwijnt."
   },
   "banners": {
     "no-ls-title": "Kan lokale gegevens niet gebruiken",
@@ -2922,6 +2970,7 @@
     "pick-tokens": "Kies tokens om te tonen",
     "search-token": "Zoek token",
     "setup-tokens": "Beheer tokens",
+    "trade-tokens": "Trade Tokens",
     "asset-name": "Naam element",
     "price": "Prijs",
     "balance": "Saldo",
@@ -2930,10 +2979,14 @@
     "apr": "APR beloningen",
     "apr-hint": "Jaarlijkse Percentage – een schatting van de beloningen die u in Cryptocurrency zult verdienen over de geselecteerde periode",
     "delegations": "Overdrachten",
+    "hp-total-balance": "Totaal HP saldo",
+    "delegations-outgoing": "Uitgaande delegaties",
+    "delegations-incoming": "Inkomende delegaties",
     "external-wallets-offer": {
       "title": "Breng uw crypto naar Ecency",
       "description": "Maken of importeren van portemonnees voor BTC, ETH, BNB, SOL, TRX, APT en TON direct vanuit apps als Trust of Exodus, en gebruik ze naadloos binnen het ecosysteem van de Hive.",
-      "hint": "Gemaakte en geïmporteerde token's informatie wordt opgeslagen in een Ecency en Hive account metadata"
+      "hint": "Gemaakte en geïmporteerde token's informatie wordt opgeslagen in een Ecency en Hive account metadata",
+      "dismiss": "Misschien later"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Maak een account aan en link naar Hive",
@@ -2948,7 +3001,7 @@
     },
     "operations": {
       "transfer": "Overschrijving",
-      "transfer-saving": "Naar spaargeld",
+      "transfer-saving": "Spaartegoedbon",
       "power-up": "Power Up",
       "power-down": "Power down",
       "swap": "Wisselen",
@@ -2963,10 +3016,29 @@
       "unstake": "Onbelangrijk",
       "undelegate": "Ontdelegeren"
     },
+    "hbd-interest": {
+      "title": "HBD spaarrente",
+      "next-label": "Volgende vordering",
+      "next-ready": "Klaar om nu op te eisen",
+      "next-in": "Beschikbaar {{relative}}",
+      "next-unknown": "Interessant schema niet beschikbaar",
+      "next-date": "Op {{date}}",
+      "balance-label": "Saldo spaarrekening",
+      "minimum-balance": "Opbouw van de rente zodra u ten minste {{amount}} HBD in spaartegoeden vasthoudt.",
+      "note": "De rente wordt continu berekend op {{apr}}% APR.",
+      "claim-button": "Opvordering rente"
+    },
     "claim-rewards": "Beloningen opeisen",
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Ophalen...",
     "claim-rewards-success": "Succesvol geclaimd {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% APR boost",
+      "title": "Laat Ecency curate met je Korf Kracht",
+      "description": "Delegeer je Hive Power naar @ecency om de actieve curatie te activeren die beheerd wordt door ons curator team. Actieve curatie kan grofweg +10% APR toevoegen en 100% van de curatie beloningen zijn aan u teruggegeven.",
+      "button": "Delegeren naar @ecency",
+      "dismiss": "Misschien later"
+    },
     "external": {
       "receive-button": "Ontvangen",
       "transfer-soon": "Overdracht (binnenkort)",

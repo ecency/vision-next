@@ -1,5 +1,5 @@
 import { useCrossPost } from "@/api/mutations";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
 import { SuggestionList } from "@/features/shared";
 import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function CrossPost({ entry, onSuccess, onHide }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [community, setCommunity] = useState("");
   const [message, setMessage] = useState("");

@@ -1,7 +1,7 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
-import { success } from "@/features/shared";
+import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, useClientActiveUser } from "@/api/queries";
+import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useClaimRewards } from "@ecency/wallets";
@@ -9,10 +9,14 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
+import { formatNumber, parseAsset, vestsToHp } from "@/utils";
+import { UilPlus } from "@tooni/iconscout-unicons-react";
+import { formatError } from "@/api/operations";
 
 type Props = {
   username: string;
   className?: string;
+  showIcon?: boolean;
 };
 
 type ClaimState = {
@@ -33,17 +37,19 @@ export function useProfileWalletHpClaimState(
     ...getAccountFullQueryOptions(username),
     enabled: enabled && Boolean(username),
   });
-
-  const rewardBalance = useMemo(
-    () => accountData?.reward_vesting_hive ?? "0.000 HP",
-    [accountData?.reward_vesting_hive]
-  );
+  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
   const rewardAmount = useMemo(() => {
-    const [value] = rewardBalance.split(" ");
-    const parsed = Number.parseFloat(value ?? "0");
-    return Number.isFinite(parsed) ? parsed : 0;
-  }, [rewardBalance]);
+    const hivePerMVests = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
+    const rewardVests = parseAsset(accountData?.reward_vesting_balance ?? "0.000000 VESTS").amount;
+    const hp = vestsToHp(rewardVests, hivePerMVests);
+    return Number.isFinite(hp) ? hp : 0;
+  }, [accountData?.reward_vesting_balance, dynamicProps]);
+
+  const rewardBalance = useMemo(
+    () => `${formatNumber(rewardAmount, 3)} HP`,
+    [rewardAmount]
+  );
 
   const hasRewards = rewardAmount > 0;
 
@@ -55,8 +61,12 @@ export function useProfileWalletHpClaimState(
   };
 }
 
-export function ProfileWalletHpClaimRewardsButton({ username, className }: Props) {
-  const { isOwnProfile, rewardBalance, rewardAmount, hasRewards } =
+export function ProfileWalletHpClaimRewardsButton({
+  username,
+  className,
+  showIcon = false,
+}: Props) {
+  const { isOwnProfile, rewardBalance, hasRewards } =
     useProfileWalletHpClaimState(username);
 
   const { mutateAsync: claimRewards, isPending } = useClaimRewards(
@@ -68,6 +78,25 @@ export function ProfileWalletHpClaimRewardsButton({ username, className }: Props
     return null;
   }
 
+  const icon = showIcon ? (
+    <UilPlus className="w-3 h-3 text-current" />
+  ) : undefined;
+  const iconClassName = showIcon
+    ? "!w-6 !h-6 rounded-full bg-white text-blue-dark-sky shrink-0"
+    : undefined;
+
+  const handleClaim = async () => {
+    if (!isOwnProfile) {
+      return;
+    }
+
+    try {
+      await claimRewards();
+    } catch (e) {
+      error(...formatError(e));
+    }
+  };
+
   return (
     <Button
       size="sm"
@@ -75,9 +104,11 @@ export function ProfileWalletHpClaimRewardsButton({ username, className }: Props
       className={clsx("sm:w-auto", className)}
       disabled={!isOwnProfile || isPending}
       isLoading={isPending}
-      onClick={() => isOwnProfile && claimRewards()}
+      onClick={handleClaim}
+      icon={icon}
+      iconClassName={iconClassName}
     >
-      {`${rewardAmount} HP`}
+      {rewardBalance}
     </Button>
   );
 }

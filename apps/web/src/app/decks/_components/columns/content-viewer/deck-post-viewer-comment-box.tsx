@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Entry } from "@/entities";
 import { useLocation } from "react-use";
 import { useCreateReply } from "@/api/mutations";
-import { useGlobalStore } from "@/core/global-store";
 import { createReplyPermlink, makeJsonMetaDataReply } from "@/utils";
 import appPackage from "../../../../../../package.json";
 import i18next from "i18next";
 import { Comment } from "@/features/shared";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   entry: Entry;
@@ -14,18 +14,30 @@ interface Props {
 }
 
 export const DeckPostViewerCommentBox = ({ entry, onReplied }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account } = useActiveAccount();
   const location = useLocation();
 
   const [isReplying, setIsReplying] = useState(false);
+  const [failedReplyText, setFailedReplyText] = useState<string | null>(null);
 
-  const { mutateAsync: createReply } = useCreateReply(entry, entry, () => {
-    onReplied();
-    setIsReplying(false);
-  });
+  const { mutateAsync: createReply } = useCreateReply(
+    entry,
+    entry,
+    () => {
+      // Success
+      onReplied();
+      setIsReplying(false);
+      setFailedReplyText(null);
+    },
+    (text, error) => {
+      // Blockchain failed - restore text and stop loading
+      setFailedReplyText(text);
+      setIsReplying(false);
+    }
+  );
 
   const submitReply = async (text: string) => {
-    if (!activeUser || !activeUser.data.__loaded) {
+    if (!username || !account) {
       return;
     }
 
@@ -44,6 +56,7 @@ export const DeckPostViewerCommentBox = ({ entry, onReplied }: Props) => {
       entry={entry}
       onSubmit={submitReply}
       inProgress={isReplying}
+      initialText={failedReplyText}
     />
   );
 };

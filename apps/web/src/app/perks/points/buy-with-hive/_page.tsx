@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { Button } from "@/features/ui";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
@@ -10,12 +12,11 @@ import { useCallback, useState } from "react";
 import { MarketAsset } from "@/api/market-pair";
 import { KeyOrHot, TransferAsset } from "@/features/shared";
 import { EcencyAnalytics, useSignOperationByHivesigner } from "@ecency/sdk";
-import { useGlobalStore } from "@/core/global-store";
 import { useSignTransferByKey, useSignTransferByKeychain } from "@/api/mutations";
 import { PrivateKey } from "@hiveio/dhive";
 
 export function BuyPointsPage() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState<"form" | "sign" | "success">("form");
   const [amount, setAmount] = useState("0");

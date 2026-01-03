@@ -3,7 +3,7 @@ import { AssetOperation } from "@ecency/wallets";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence } from "framer-motion";
-import { HTMLProps, PropsWithChildren, useMemo, useState } from "react";
+import { HTMLProps, PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { Button, Modal, ModalHeader } from "../ui";
 import {
   WalletOperationError,
@@ -23,6 +23,7 @@ interface Props {
   operation: AssetOperation;
   asset: string;
   to: string | undefined;
+  initialData?: Record<string, unknown>;
 }
 
 export function WalletOperationsDialog({
@@ -30,13 +31,22 @@ export function WalletOperationsDialog({
   operation,
   asset,
   to,
+  initialData: initialDataProp,
   ...divProps
 }: PropsWithChildren<Props> & HTMLProps<HTMLDivElement>) {
   const activeUser = useClientActiveUser();
   const [show, setShow] = useState(false);
   const [step, setStep] = useState<"form" | "sign" | "success" | "error">("form");
-  const [data, setData] = useState<Record<string, unknown>>({});
+  const initialData = useMemo(() => initialDataProp ?? {}, [initialDataProp]);
+  const [data, setData] = useState<Record<string, unknown>>(initialData);
   const [signError, setSignError] = useState<Error>();
+
+  useEffect(() => {
+    if (!show) {
+      setData(initialData);
+      setSignError(undefined);
+    }
+  }, [initialData, show]);
 
   const [titleNamespace, titleKey, subTitleKey] = useMemo(() => {
     if (operation === AssetOperation.WithdrawRoutes) {
@@ -53,7 +63,15 @@ export function WalletOperationsDialog({
 
   return (
     <>
-      <div {...divProps} onClick={() => setShow(true)}>
+      <div
+        {...divProps}
+        onClick={() => {
+          setData(initialData);
+          setStep("form");
+          setSignError(undefined);
+          setShow(true);
+        }}
+      >
         {children}
       </div>
       <Modal
@@ -63,6 +81,8 @@ export function WalletOperationsDialog({
         onHide={() => {
           setShow(false);
           setStep("form");
+          setData(initialData);
+          setSignError(undefined);
         }}
       >
         <ModalHeader closeButton={true}>

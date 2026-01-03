@@ -23,7 +23,8 @@ export const getWavesFollowingQuery = (host: string, username?: string) => {
     ],
     enabled: Boolean(normalizedUsername),
     initialPageParam: undefined,
-    initialData: { pages: [], pageParams: [] },
+    // Don't set initialData here - let it use prefetched data from server
+    // initialData: { pages: [], pageParams: [] },
     queryFn: async () => {
       if (!normalizedUsername) {
         return [];

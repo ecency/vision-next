@@ -1,13 +1,15 @@
 import { useCallback, useMemo } from "react";
-import { useSeedPhrase, deriveHiveKeys } from "@ecency/wallets";
+import { deriveHiveKeys } from "@ecency/wallets";
 import { v4 } from "uuid";
 
-export function useDownloadSeed(username: string) {
-  const { data: seed } = useSeedPhrase(username);
-
+export function useDownloadSeed(seed: string | undefined, username: string) {
   const accountKeys = useMemo(() => (seed ? deriveHiveKeys(seed) : undefined), [seed]);
 
   return useCallback(() => {
+    if (!seed) {
+      return;
+    }
+
     const element = document.createElement("a");
     const keys = Object.entries(accountKeys ?? {})
       .map(([name, key]) => `${name}: ${key}`)

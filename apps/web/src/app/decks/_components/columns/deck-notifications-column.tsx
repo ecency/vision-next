@@ -11,13 +11,13 @@ import usePrevious from "react-use/lib/usePrevious";
 import { DeckContentTypeColumnSettings } from "./deck-column-settings/deck-content-type-column-settings";
 import { InfiniteScrollLoader } from "./helpers";
 import { newDataComingPaginatedCondition } from "../utils";
-import { useGlobalStore } from "@/core/global-store";
 import { ApiNotification, Entry } from "@/entities";
 import { getNotifications } from "@/api/private-api";
 import { NotificationFilter } from "@/enums";
 import i18next from "i18next";
 import { NotificationListItem } from "@/features/shared";
 import { getContent } from "@/api/hive";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   id: string;
@@ -26,7 +26,7 @@ interface Props {
 }
 
 export const DeckNotificationsColumn = ({ id, settings, draggable }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const previousActiveUser = usePrevious(activeUser);
 

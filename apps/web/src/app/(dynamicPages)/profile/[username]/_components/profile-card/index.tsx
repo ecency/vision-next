@@ -3,8 +3,7 @@
 import { rcPower } from "@/api/hive";
 import { getAccountFullQuery } from "@/api/queries";
 import { EcencyConfigManager } from "@/config";
-import { useGlobalStore } from "@/core/global-store";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { Account } from "@/entities";
 import { FollowControls, HivePosh, UserAvatar } from "@/features/shared";
 import { FavouriteBtn } from "@/features/shared/favorite-btn";
@@ -16,7 +15,12 @@ import {
   getRelationshipBetweenAccountsQueryOptions
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { UilCalendarAlt, UilGlobe, UilLocationPoint, UilRss } from "@tooni/iconscout-unicons-react";
+import {
+  UilCalendarAlt,
+  UilGlobe,
+  UilLocationPoint,
+  UilRss
+} from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
@@ -27,18 +31,19 @@ import { ProfileInfo } from "../profile-info";
 import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
 import { ProfileCardExtraProperty } from "./profile-card-extra-property";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   account: Account;
 }
 
 export function ProfileCard({ account }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username: activeUsername, account: activeAccount } = useActiveAccount();
 
   const { data } = getAccountFullQuery(account.name).useClientQuery();
   const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
   const { data: relationshipBetweenAccounts } = useQuery(
-    getRelationshipBetweenAccountsQueryOptions(account?.name, activeUser?.username)
+    getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined)
   );
   const { data: subscriptions } = useQuery(getAccountSubscriptionsQueryOptions(account?.name));
 
@@ -47,12 +52,8 @@ export function ProfileCard({ account }: Props) {
   const [imageSrc, setImageSrc] = useState<string>();
 
   const isMyProfile = useMemo(
-    () =>
-      activeUser &&
-      activeUser.username === account?.name &&
-      activeUser.data.__loaded &&
-      activeUser.data.profile,
-    [account?.name, activeUser]
+    () => activeUsername === account?.name && activeAccount?.profile,
+    [account?.name, activeUsername, activeAccount]
   );
   const moderatedCommunities = useMemo(
     () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin") ?? [],
@@ -135,14 +136,16 @@ export function ProfileCard({ account }: Props) {
       {showFollowers && data && <Followers account={data} onHide={() => setShowFollowers(false)} />}
       {showFollowing && data && <Following account={data} onHide={() => setShowFollowing(false)} />}
 
-      <div className="mb-4 flex gap-2">
-        <FollowControls targetUsername={account?.name} />
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
-        >
-          <FavouriteBtn targetUsername={account?.name} />
-        </EcencyConfigManager.Conditional>
-      </div>
+      {!isMyProfile && (
+        <div className="mb-4 flex gap-2">
+          <FollowControls targetUsername={account?.name} />
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
+          >
+            <FavouriteBtn targetUsername={account?.name} />
+          </EcencyConfigManager.Conditional>
+        </div>
+      )}
 
       {data && (
         <div className="-mx-4 border-y border-[--border-color] px-4 py-4">

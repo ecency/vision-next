@@ -32,7 +32,7 @@ import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { deleteForeverSvg, dotsHorizontal, pencilOutlineSvg, pinSvg } from "@ui/svg";
 import i18next from "i18next";
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState, type ReactNode } from "react";
 import appPackage from "../../../../package.json";
 import { Tsx } from "../../i18n/helper";
 import { Comment } from "../comment";
@@ -67,6 +67,7 @@ export const DiscussionItem = memo(function DiscussionItem({
   const activeUser = useClientActiveUser();
   const [reply, setReply] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [failedReplyText, setFailedReplyText] = useState<string | null>(null);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
 
   const isCommunityPost = !!community?.name;
@@ -119,6 +120,44 @@ export const DiscussionItem = memo(function DiscussionItem({
     () => activeUser && entryIsMuted && !isComment && !isOwnReply,
     [activeUser, entryIsMuted, isComment, isOwnReply]
   );
+  const shouldCollapseContent = useMemo(
+    () => isMuted || isLowReputation || mightContainMutedComments,
+    [isLowReputation, isMuted, mightContainMutedComments]
+  );
+  const [isContentCollapsed, setIsContentCollapsed] = useState(shouldCollapseContent);
+  useEffect(() => {
+    setIsContentCollapsed(shouldCollapseContent);
+  }, [entry.author, entry.permlink, entry.post_id, shouldCollapseContent]);
+  const warningMessages: Array<{ key: string; content: ReactNode }> = [];
+  if (isMuted) {
+    warningMessages.push({
+      key: "muted",
+      content: (
+        <Tsx k="entry.muted-warning" args={{ community: entry.community_title }}>
+          <span />
+        </Tsx>
+      )
+    });
+  }
+  if (isHidden) {
+    warningMessages.push({
+      key: "hidden",
+      content: <span>{i18next.t("entry.hidden-warning")}</span>
+    });
+  }
+  if (isLowReputation) {
+    warningMessages.push({
+      key: "low-reputation",
+      content: <span>{i18next.t("entry.lowrep-warning")}</span>
+    });
+  }
+  if (mightContainMutedComments) {
+    warningMessages.push({
+      key: "muted-comments",
+      content: <span>{i18next.t("entry.comments-hidden")}</span>
+    });
+  }
+  const toggleLabelKey = isMuted || mightContainMutedComments ? "discussion.reveal-muted" : "discussion.reveal";
   const isDeletable = useMemo(
     () =>
       !(entry.is_paidout || entry.net_rshares > 0 || entry.children > 0) &&
@@ -158,8 +197,15 @@ export const DiscussionItem = memo(function DiscussionItem({
     entry,
     root,
     async () => {
-      toggleReply();
+      // Only close and clear on successful blockchain confirmation
+      setReply(false);
+      setFailedReplyText(null);
       return;
+    },
+    (text, error) => {
+      // Blockchain failed - restore text and keep form open
+      setFailedReplyText(text);
+      setReply(true); // Ensure form stays open
     }
   );
   const { mutateAsync: updateReply, isPending: isUpdateReplyLoading } = useUpdateReply(
@@ -171,7 +217,14 @@ export const DiscussionItem = memo(function DiscussionItem({
   );
   const { mutateAsync: pinReply } = usePinReply(entry, root);
 
-  const toggleReply = () => edit || setReply((r) => !r);
+  const toggleReply = () => {
+    if (edit) return;
+    if (!reply) {
+      // Opening reply form - clear failed text
+      setFailedReplyText(null);
+    }
+    setReply((r) => !r);
+  };
   const toggleEdit = () => reply || setEdit((e) => !e);
 
   const submitReply = async (text: string) => {
@@ -182,7 +235,7 @@ export const DiscussionItem = memo(function DiscussionItem({
       permlink,
       point: true
     });
-    setReply(false);
+    // Don't close form here - let the mutation's onSuccess/onError handle it
   };
 
   const _updateReply = (text: string) =>
@@ -219,32 +272,27 @@ export const DiscussionItem = memo(function DiscussionItem({
             </div>
           </div>
 
-          {isMuted && (
-            <div className="hidden-warning mt-2">
-              <span>
-                <Tsx k="entry.muted-warning" args={{ community: entry.community_title }}>
-                  <span />
-                </Tsx>
-              </span>
+          {warningMessages.map((warning, index) => (
+            <div
+              key={warning.key}
+              className="hidden-warning mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="flex-1">{warning.content}</div>
+              {index === 0 && shouldCollapseContent && (
+                <Button
+                  size="sm"
+                  appearance="link"
+                  className="ml-auto"
+                  aria-expanded={!isContentCollapsed}
+                  onClick={() => setIsContentCollapsed((value) => !value)}
+                >
+                  {i18next.t(isContentCollapsed ? toggleLabelKey : "chat.hide-message")}
+                </Button>
+              )}
             </div>
-          )}
-          {isHidden && (
-            <div className="hidden-warning mt-2">
-              <span>{i18next.t("entry.hidden-warning")}</span>
-            </div>
-          )}
-          {isLowReputation && (
-            <div className="hidden-warning mt-2">
-              <span>{i18next.t("entry.lowrep-warning")}</span>
-            </div>
-          )}
-          {mightContainMutedComments && (
-            <div className="hidden-warning mt-2">
-              <span>{i18next.t("entry.comments-hidden")}</span>
-            </div>
-          )}
+          ))}
 
-          <DiscussionItemBody entry={entry} isRawContent={isRawContent} />
+          {!isContentCollapsed && <DiscussionItemBody entry={entry} isRawContent={isRawContent} />}
 
           {!hideControls && (
             <div className="item-controls flex items-center gap-2">
@@ -321,6 +369,7 @@ export const DiscussionItem = memo(function DiscussionItem({
           onCancel={toggleReply}
           inProgress={isCreateLoading || isUpdateReplyLoading}
           autoFocus
+          initialText={failedReplyText}
         />
       )}
 

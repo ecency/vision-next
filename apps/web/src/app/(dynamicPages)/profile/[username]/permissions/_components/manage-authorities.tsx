@@ -10,6 +10,7 @@ import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useCallback, useState } from "react";
+import { shouldUseHiveAuth } from "@/utils/client";
 
 export function ManageAuthorities() {
   const activeUser = useClientActiveUser();
@@ -33,6 +34,7 @@ export function ManageAuthorities() {
     onError: (err) => error((err as Error).message),
     onSuccess: () => setKeyDialog(false)
   });
+  const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
 
   const handleRevoke = useCallback((account: string) => {
     setKeyDialog(true);
@@ -42,7 +44,7 @@ export function ManageAuthorities() {
   return (
     <>
       {(accountData?.postingsAuths?.length ?? 0) > 0 && (
-        <div className="rounded-xl bg-white bg-opacity-75">
+        <div className="rounded-xl bg-white/80 dark:bg-dark-200/90 text-gray-900 dark:text-white">
           <div className="p-4 text-sm md:text-lg font-bold">
             {i18next.t("permissions.sessions.title")}
           </div>
@@ -97,7 +99,12 @@ export function ManageAuthorities() {
             inProgress={isPending}
             onKey={(key) => revoke({ type: "key", accountName: revokingAccount, key })}
             onHot={() => revoke({ type: "hivesigner", accountName: revokingAccount })}
-            onKc={() => revoke({ type: "keychain", accountName: revokingAccount })}
+            onKc={() =>
+              revoke({
+                type: useHiveAuth ? "hiveauth" : "keychain",
+                accountName: revokingAccount
+              })
+            }
           />
         </ModalBody>
       </Modal>

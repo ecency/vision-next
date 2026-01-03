@@ -4,7 +4,10 @@ import * as ls from "@/utils/local-storage";
 import { success } from "@/features/shared";
 import i18next from "i18next";
 import { getCurrencyRate } from "@/api/misc";
-import { currencySymbol, runWithRetries } from "@/utils";
+import { currencySymbol } from "@/utils/currency-symbol";
+import { isKeychainInAppBrowser } from "@/utils/keychain";
+import { runWithRetries } from "@/utils/run-with-retries";
+import type { AppWindow } from "@/types/app-window";
 
 export function createGlobalState() {
   const storedCurrency = ls.get("currency");
@@ -29,7 +32,7 @@ export function createGlobalState() {
     currencySymbol: initialCurrencySymbol,
     lang: ls.get("lang") || ls.get("current-language") || "en-US",
     searchIndexCount: 0,
-    canUseWebp: false,
+    canUseWebp: true, // WebP supported by >95% of modern browsers - defaults to true for LCP optimization
     hasKeyChain: false,
     newVersion: null,
     globalNotifications: true,
@@ -111,13 +114,29 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       // It will help us to validate that all sync and async operations have finished
       // Including browser extensions
       runWithRetries(() => {
-        if (typeof window !== "undefined" && "hive_keychain" in window) {
-          (window as unknown as any).hive_keychain.requestHandshake(() =>
-            set({ hasKeyChain: true })
-          );
+        if (typeof window === "undefined") {
+          return false;
+        }
+
+        if (isKeychainInAppBrowser()) {
+          set({ hasKeyChain: true });
           return true;
         }
-        return false;
+
+        const w = window as AppWindow;
+        const hiveKeychain = w.hive_keychain;
+
+        if (!hiveKeychain) {
+          return false;
+        }
+
+        if (typeof hiveKeychain.requestHandshake === "function") {
+          hiveKeychain.requestHandshake(() => set({ hasKeyChain: true }));
+        } else {
+          set({ hasKeyChain: true });
+        }
+
+        return true;
       });
     }
   };

@@ -3,9 +3,11 @@ import { error, info } from "@/features/shared";
 import { Editor } from "@tiptap/core";
 import i18next from "i18next";
 import { useCallback, useEffect } from "react";
+import { useOptionalUploadTracker } from "./use-upload-tracker";
 
 export function useEditorDragDrop(editor: Editor | null) {
   const { mutateAsync: upload } = useImageUpload();
+  const uploadTracker = useOptionalUploadTracker();
 
   const handleDrop = useCallback(
     async (event: DragEvent) => {
@@ -24,19 +26,31 @@ export function useEditorDragDrop(editor: Editor | null) {
       }
 
       info(i18next.t("publish.upload-started"));
-      const { url } = await upload({ file });
 
-      editor
-        ?.chain()
-        .focus()
-        .insertContent([
-          { type: "image", attrs: { src: url } },
-          { type: "paragraph" },
-          { type: "paragraph" }
-        ])
-        .run();
+      // Track upload if tracker is available
+      const uploadId = `drag-drop-${Date.now()}-${Math.random()}`;
+      const abortController = new AbortController();
+      uploadTracker?.registerUpload(uploadId, abortController);
+
+      try {
+        const { url } = await upload({ file, signal: abortController.signal });
+        uploadTracker?.markComplete(uploadId);
+
+        editor
+          ?.chain()
+          .focus()
+          .insertContent([
+            { type: "image", attrs: { src: url } },
+            { type: "paragraph" },
+            { type: "paragraph" }
+          ])
+          .run();
+      } catch (err) {
+        uploadTracker?.markFailed(uploadId);
+        throw err;
+      }
     },
-    [editor, upload]
+    [editor, upload, uploadTracker]
   );
 
   const handleDragOver = useCallback((event: DragEvent) => {

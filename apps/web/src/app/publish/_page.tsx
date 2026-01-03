@@ -1,7 +1,12 @@
 "use client";
 
-import { PublishActionBar, PublishEditor, PublishValidatePost } from "@/app/publish/_components";
-import { usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import {
+  PublishActionBar,
+  PublishEditor,
+  PublishValidatePost,
+  PublishMultiTabWarning
+} from "@/app/publish/_components";
+import { usePublishAutosave, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { isCommunity } from "@/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -18,6 +23,8 @@ export default function Publish() {
   const searchParams = useSearchParams();
   const { tags, setTags } = usePublishState();
   const appliedCommunityRef = useRef<string | null>(null);
+
+  const { isActiveTab, lastSaved, draftId } = usePublishAutosave();
 
   useEffect(() => {
     const communityParam = searchParams?.get("com");
@@ -48,16 +55,23 @@ export default function Publish() {
 
   return (
     <>
+      <PublishMultiTabWarning isActiveTab={isActiveTab} />
       {step === "edit" && (
         <>
           <div className="container max-w-[1024px] mx-auto text-xs text-gray-600 dark:text-gray-400 p-2 md:p-0">
             <div className="flex flex-wrap justify-between items-center">
               <span>{i18next.t("publish.new-content")}</span>
+              {lastSaved && draftId && (
+                <span className="text-gray-500 dark:text-gray-400">
+                  {i18next.t("publish.auto-save")}: {lastSaved.toLocaleTimeString()}
+                </span>
+              )}
             </div>
           </div>
           <PublishActionBar
             onPublish={() => setStep("validation")}
             onBackToClassic={() => router.push("/submit")}
+            draftId={draftId}
           />
           <PublishEditor editor={editor} />
         </>

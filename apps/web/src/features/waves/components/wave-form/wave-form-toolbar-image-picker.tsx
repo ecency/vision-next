@@ -2,7 +2,6 @@ import React, { useCallback, useRef, useState } from "react";
 import axios from "axios";
 import { Button } from "@ui/button";
 import { UilImage, UilLink, UilUpload } from "@tooni/iconscout-unicons-react";
-import { useGlobalStore } from "@/core/global-store";
 import { getAccessToken } from "@/utils";
 import { uploadImage } from "@/api/misc";
 import { error } from "@/features/shared";
@@ -11,15 +10,17 @@ import { AddImage } from "@/features/shared/editor-toolbar/add-image";
 import { GalleryDialog } from "@/features/shared/gallery";
 import { EcencyConfigManager } from "@/config";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onAddImage: (link: string, name: string) => void;
+  disabled?: boolean;
 }
 
-export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
+export const WaveFormToolbarImagePicker = ({ onAddImage, disabled }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [imagePickInitiated, setImagePickInitiated] = useState(false);
   const [galleryPickInitiated, setGalleryPickInitiated] = useState(false);
@@ -72,7 +73,15 @@ export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
         e.preventDefault();
       }
 
-      files.forEach((file) => upload(file));
+      void (async () => {
+        for (const file of files) {
+          try {
+            await upload(file);
+          } catch {
+            /* handled in upload */
+          }
+        }
+      })();
 
       // reset input
       e.target.value = "";
@@ -82,7 +91,7 @@ export const WaveFormToolbarImagePicker = ({ onAddImage }: Props) => {
 
   return (
     <div className="deck-threads-form-toolbar-image-picker">
-      {activeUser && (
+      {activeUser && !disabled && (
         <Dropdown>
           <DropdownToggle>
             <Button

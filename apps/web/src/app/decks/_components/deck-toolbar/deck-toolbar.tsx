@@ -16,6 +16,7 @@ import { NotificationsDialog } from "@/features/shared/notifications";
 import { useRouter } from "next/navigation";
 import i18next from "i18next";
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   isExpanded: boolean;
@@ -23,7 +24,7 @@ interface Props {
 }
 
 export const DeckToolbar = ({ isExpanded, setIsExpanded }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const setActiveUser = useGlobalStore((s) => s.setActiveUser);
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 

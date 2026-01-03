@@ -1,14 +1,15 @@
-import { useMemo } from "react";
-import i18next from "i18next";
-import { MenuItem } from "@ui/dropdown";
 import { EntryFilter } from "@/enums";
-import { useGlobalStore } from "@/core/global-store";
-import { useParams, useRouter } from "next/navigation";
-import { getTrendingTagsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
+import { getTrendingTagsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { MenuItem } from "@ui/dropdown";
+import i18next from "i18next";
+import { useParams, useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useFeedMenu() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const params = useParams<{ sections: string[] }>();
   let filter = "hot";
@@ -19,7 +20,7 @@ export function useFeedMenu() {
   }
   const router = useRouter();
 
-  const { data: trendingTags } = getTrendingTagsQuery().useClientQuery();
+  const { data: trendingTags } = useInfiniteQuery(getTrendingTagsQueryOptions(250));
   const allTrendingTags = useInfiniteDataFlow(trendingTags);
 
   const isMy = useMemo(
@@ -32,18 +33,18 @@ export function useFeedMenu() {
   const secondaryMenu = useMemo(
     () => [
       {
-        label: i18next.t(`entry-filter.filter-controversial`),
-        href: `/controversial/week`,
-        selected: filter === "controversial",
-        id: "controversial",
-        onClick: () => router.push("/controversial/week")
+        label: i18next.t(`entry-filter.filter-payout`),
+        href: `/payout`,
+        selected: filter === "payout",
+        id: "payout",
+        onClick: () => router.push("/payout")
       },
       {
-        label: i18next.t(`entry-filter.filter-rising`),
-        href: `/rising/week`,
-        selected: filter === "rising",
-        id: "rising",
-        onClick: () => router.push("/rising/week")
+        label: i18next.t(`entry-filter.filter-muted`),
+        href: `/muted`,
+        selected: filter === "muted",
+        id: "muted",
+        onClick: () => router.push("/muted")
       },
       {
         label: i18next.t(`entry-filter.filter-promoted`),
@@ -70,14 +71,20 @@ export function useFeedMenu() {
           ]
         : []),
       ...[EntryFilter.trending, EntryFilter.hot, EntryFilter.created].map((x) => {
-        const tagSegment =
-          tag === "global"
-            ? "global"
-            : isMy || (activeUser && !tag)
-              ? "my"
-              : allTrendingTags.includes(tag)
-                ? tag
-                : "";
+        // Determine tag segment based on current context
+        let tagSegment = "";
+
+        if (filter === "feed") {
+          // When switching FROM feed TO trending/hot/created:
+          // - If it's your own feed (@username === activeUser), go to /my
+          // - Otherwise go to global (no tag)
+          const isOwnFeed = activeUser && tag === `@${activeUser.username}`;
+          tagSegment = isOwnFeed ? "my" : "";
+        } else {
+          // When already on trending/hot/created, preserve the tag context
+          tagSegment = tag === "global" ? "" : tag;
+        }
+
         const href = `/${x}${tagSegment ? `/${tagSegment}` : ""}`;
 
         return {

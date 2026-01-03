@@ -1,4 +1,4 @@
-import { MarketAsset } from "../../market-pair";
+import { HiveMarketAsset } from "../../market-pair";
 import React, { useEffect, useState } from "react";
 import { OrdersDataItem } from "@/entities";
 import { getOrderBook } from "@/api/hive";
@@ -49,13 +49,13 @@ export namespace HiveMarket {
     let toAmount = "";
     let resultToAmount;
 
-    if (asset === MarketAsset.HIVE) {
+    if (asset === HiveMarketAsset.HIVE) {
       availableInOrderBook =
         buyOrderBook.map((item) => item.hive).reduce((acc, item) => acc + item, 0) / 1000;
       price = calculatePrice(intAmount, buyOrderBook, "hive");
       toAmount = intAmount * price + "";
       firstPrice = +buyOrderBook[0].real_price;
-    } else if (asset === MarketAsset.HBD) {
+    } else if (asset === HiveMarketAsset.HBD) {
       availableInOrderBook =
         sellOrderBook.map((item) => item.hbd).reduce((acc, item) => acc + item, 0) / 1000;
       price = calculatePrice(intAmount, sellOrderBook, "hbd");
@@ -77,7 +77,7 @@ export namespace HiveMarket {
     return { toAmount: resultToAmount, tooMuchSlippage, invalidAmount };
   }
 
-  export async function getNewAmount(toAmount: string, fromAmount: string, asset: MarketAsset) {
+  export async function getNewAmount(toAmount: string, fromAmount: string, asset: HiveMarketAsset) {
     const book = await HiveMarket.fetchHiveOrderBook();
     const { toAmount: newToAmount } = HiveMarket.processHiveOrderBook(
       book?.bids ?? [],
@@ -93,7 +93,7 @@ export namespace HiveMarket {
 }
 
 interface Props {
-  asset: MarketAsset;
+  asset: HiveMarketAsset;
   amount: string;
   setToAmount: (amount: string) => void;
   loading: boolean;

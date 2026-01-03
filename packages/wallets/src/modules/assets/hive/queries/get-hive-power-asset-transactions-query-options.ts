@@ -3,19 +3,36 @@ import { parseAsset } from "../../utils";
 import {
   AuthorReward,
   ClaimRewardBalance,
-  HiveOperationGroup,
+  HiveOperationFilter,
   HiveTransaction,
 } from "../types";
-import { getHiveAssetTransactionsQueryOptions } from "./get-hive-asset-transactions-query-options";
+import {
+  getHiveAssetTransactionsQueryOptions,
+  resolveHiveOperationFilters,
+} from "./get-hive-asset-transactions-query-options";
 
 export function getHivePowerAssetTransactionsQueryOptions(
   username: string | undefined,
   limit = 20,
-  group: HiveOperationGroup
+  filters: HiveOperationFilter = []
 ) {
+  const { filterKey } = resolveHiveOperationFilters(filters);
+
+  const userSelectedOperations = new Set<string>(
+    Array.isArray(filters) ? filters : [filters]
+  );
+  const hasAllFilter = userSelectedOperations.has("" as any) || userSelectedOperations.size === 0;
+
   return infiniteQueryOptions<HiveTransaction[]>({
-    ...getHiveAssetTransactionsQueryOptions(username, limit, group),
-    queryKey: ["assets", "hive-power", "transactions", username, limit, group],
+    ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
+    queryKey: [
+      "assets",
+      "hive-power",
+      "transactions",
+      username,
+      limit,
+      filterKey,
+    ],
     select: ({ pages, pageParams }) => ({
       pageParams,
       pages: pages.map((page) =>
@@ -56,7 +73,9 @@ export function getHivePowerAssetTransactionsQueryOptions(
             case "set_withdraw_vesting_route":
               return true;
             default:
-              return false;
+              // If user explicitly selected this operation or selected "All", show it
+              // Otherwise, filter it out (maintains backward compatibility when using default filters)
+              return hasAllFilter || userSelectedOperations.has(item.type);
           }
         })
       ),

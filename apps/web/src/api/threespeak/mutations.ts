@@ -3,7 +3,9 @@ import { useState } from "react";
 import { uploadFile, uploadVideoInfo } from "./api";
 import { useThreeSpeakVideo } from "./queries";
 import { QueryIdentifiers } from "@/core/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { error } from "@/features/shared";
+import axios from "axios";
 
 export function useThreeSpeakVideoUpload(type: "video" | "thumbnail") {
   const [completed, setCompleted] = useState<number>(0);
@@ -15,10 +17,27 @@ export function useThreeSpeakVideoUpload(type: "video" | "thumbnail") {
         return uploadFile(file, type, (percentage) => setCompleted(percentage));
       } catch (e) {
         console.error(e);
+        // Enhanced error handling
+        if (axios.isAxiosError(e)) {
+          const status = e.response?.status;
+          if (status === 413) {
+            error(`${type === "video" ? "Video" : "Thumbnail"} file is too large. Please use a smaller file.`);
+          } else if (status === 429) {
+            error("Too many upload requests. Please wait a moment and try again.");
+          } else if (status === 503) {
+            error("Upload service is temporarily unavailable. Please try again later.");
+          } else if (status === 401 || status === 403) {
+            error("Authentication expired. Please refresh the page and try again.");
+          } else {
+            error(`Failed to upload ${type}. Please try again.`);
+          }
+        } else {
+          error(`Failed to upload ${type}. Please try again.`);
+        }
+        throw e;
       } finally {
         setCompleted(0);
       }
-      return null;
     }
   });
 
@@ -27,7 +46,7 @@ export function useThreeSpeakVideoUpload(type: "video" | "thumbnail") {
 
 export function useUploadVideoInfo() {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data, refetch } = useThreeSpeakVideo("all");
 
   return useMutation({
@@ -51,8 +70,23 @@ export function useUploadVideoInfo() {
         return await uploadVideoInfo(fileName, fileSize, videoUrl, thumbUrl, activeUser, duration);
       } catch (e) {
         console.error(e);
+        // Enhanced error handling
+        if (axios.isAxiosError(e)) {
+          const status = e.response?.status;
+          if (status === 429) {
+            error("Too many requests. Please wait a moment and try again.");
+          } else if (status === 503) {
+            error("Video service is temporarily unavailable. Please try again later.");
+          } else if (status === 401 || status === 403) {
+            error("Authentication expired. Please refresh the page and try again.");
+          } else {
+            error("Failed to save video information. Please try again.");
+          }
+        } else {
+          error("Failed to save video information. Please try again.");
+        }
+        throw e;
       }
-      return null;
     },
     onSuccess: async (response) => {
       if (response) {

@@ -1,17 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { appAxios } from "@/api/axios";
 import { getAccessToken } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 
 export function useImageUpload() {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["upload-image"],
-    mutationFn: async ({ file }: { file: File }) => {
+    mutationFn: async ({ file, signal }: { file: File; signal?: AbortSignal }) => {
       const fData = new FormData();
       fData.append("file", file);
 
@@ -21,7 +21,8 @@ export function useImageUpload() {
       const r = await appAxios.post(postUrl, fData, {
         headers: {
           "Content-Type": "multipart/form-data"
-        }
+        },
+        signal
       });
       return r.data;
     },

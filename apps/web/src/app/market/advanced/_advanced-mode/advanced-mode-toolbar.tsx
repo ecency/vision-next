@@ -4,7 +4,7 @@ import * as ls from "@/utils/local-storage";
 import { MARKET_MODE_LS_TOKEN, MarketMode } from "../../_enums/market-mode";
 import { ModeSelector } from "../../_components/mode-selector";
 import { AdvancedModeSettings } from "./advanced-mode-settings";
-import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
+import { MarketAsset } from "@/api/market-pair";
 import { useGlobalStore } from "@/core/global-store";
 import { formattedNumber } from "@/utils";
 

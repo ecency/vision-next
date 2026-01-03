@@ -6,7 +6,7 @@ import { Entry } from "@/entities";
 import { createReplyPermlink, makeJsonMetaDataReply } from "@/utils";
 import { useCreateReply } from "@/api/mutations";
 import appPackage from "../../../../../../../../package.json";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 
 interface Props {
@@ -15,8 +15,21 @@ interface Props {
 
 export function EntryReplySection({ entry }: Props) {
     const { commentsInputRef, setSelection } = useContext(EntryPageContext);
+    const [failedReplyText, setFailedReplyText] = useState<string | null>(null);
 
-    const { mutateAsync: createReply, isPending } = useCreateReply(entry, entry, () => {});
+    const { mutateAsync: createReply, isPending } = useCreateReply(
+        entry,
+        entry,
+        () => {
+            // Success - clear selection and failed text
+            setSelection("");
+            setFailedReplyText(null);
+        },
+        (text, error) => {
+            // Blockchain failed - restore text
+            setFailedReplyText(text);
+        }
+    );
 
     const replySubmitted = async (text: string) => {
         const permlink = createReplyPermlink(entry.author);
@@ -29,7 +42,7 @@ export function EntryReplySection({ entry }: Props) {
             point: true
         });
 
-        setSelection("");
+        // Don't clear selection here - let onSuccess callback handle it
         return response;
     };
 
@@ -40,6 +53,7 @@ export function EntryReplySection({ entry }: Props) {
             onSubmit={replySubmitted}
             inProgress={isPending}
             inputRef={commentsInputRef}
+            initialText={failedReplyText}
         />
     );
 }

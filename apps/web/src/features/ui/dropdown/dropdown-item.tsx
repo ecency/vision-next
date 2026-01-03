@@ -69,14 +69,14 @@ export function DropdownItem({
 
   if (href) {
     return (
-      <Link href={href} legacyBehavior passHref>
-        <a
-          className={baseClasses}
-          onClick={handleClick}
-          {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
-        >
-          {children}
-        </a>
+      <Link
+        href={href}
+        className={baseClasses}
+        onClick={handleClick}
+        {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
+
+        {children}
+
       </Link>
     );
   }

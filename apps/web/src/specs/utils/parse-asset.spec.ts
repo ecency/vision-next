@@ -10,4 +10,14 @@ describe("Parse asset(token)", () => {
     const input = "0.012 HIVE";
     expect(parseAsset(input)).toMatchSnapshot();
   });
+
+  it("(3) should fallback on malformed string", () => {
+    const input = "0";
+    expect(parseAsset(input)).toMatchSnapshot();
+  });
+
+  it("(4) should handle empty value", () => {
+    const input = undefined as unknown as string;
+    expect(parseAsset(input)).toMatchSnapshot();
+  });
 });

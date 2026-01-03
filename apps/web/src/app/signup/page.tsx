@@ -34,7 +34,15 @@ const options = [
   }
 ];
 
-export default function Page() {
+export default function Page({
+  searchParams
+}: {
+  searchParams?: { referral?: string };
+}) {
+  const referral = typeof searchParams?.referral === "string" ? searchParams.referral : "";
+
+  const getHref = (href: string) => (referral ? `${href}?referral=${encodeURIComponent(referral)}` : href);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
       {options.map((option) => (
@@ -50,7 +58,7 @@ export default function Page() {
             />
             <div className="text-xl font-bold">{option.title}</div>
             <div className="text-gray-600 dark:text-gray-400">{option.description}</div>
-            <Link href={option.href}>
+            <Link href={getHref(option.href)}>
               <Button size="lg" icon={<UilArrowRight />}>
                 {option.buttonText}
               </Button>

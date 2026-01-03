@@ -1,4 +1,5 @@
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { WalletBadge } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export const DeckToolbarBaseActions = ({ setShowPurchaseDialog }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const { data: unread } = useQuery(getNotificationsUnreadCountQueryOptions(activeUser?.username));

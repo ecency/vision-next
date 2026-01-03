@@ -10,7 +10,7 @@ import { Alert } from "@ui/alert";
 import { b64uDec, b64uEnc } from "@/utils";
 import { FullAccount } from "@/entities";
 import useMount from "react-use/lib/useMount";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -89,7 +89,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const type = slugs[0];
   const paramSecret = slugs[1];
 
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser, account } = useActiveAccount();
   const queryParams = useSearchParams();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
 
@@ -117,7 +117,10 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const [transferAmount, setTransferAmount] = useState(0);
   const [customJsonAmount, setCustomJsonAmount] = useState(0);
 
-  const downloadSeed = useDownloadSeed(accountInfo?.username ?? decodedInfo?.username ?? "");
+  const downloadSeed = useDownloadSeed(
+    seedPhrase,
+    accountInfo?.username ?? decodedInfo?.username ?? ""
+  );
 
   useMount(() => {
     setOnboardUrl(`${window.location.origin}/onboard-friend/creating/`);
@@ -139,10 +142,10 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   }, [type, seedPhrase, decodedInfo]);
 
   useEffect(() => {
-    (activeUser?.data as FullAccount) &&
-      (activeUser?.data as FullAccount).pending_claimed_accounts &&
-      setAccountCredit((activeUser?.data as FullAccount).pending_claimed_accounts);
-  }, [activeUser]);
+    if (account?.pending_claimed_accounts) {
+      setAccountCredit(account.pending_claimed_accounts);
+    }
+  }, [account]);
 
   useEffect(() => {
     if (decodedInfo) {

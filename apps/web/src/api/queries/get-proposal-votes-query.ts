@@ -20,16 +20,19 @@ export const getProposalVotesQuery = (
         Cursor
     >({
         queryKey: [QueryIdentifiers.PROPOSAL_VOTES, proposalId, voter, limit],
-        initialData: { pages: [], pageParams: [] },
+        // Don't set initialData - it prevents the query from fetching when combined with staleTime
         initialPageParam: voter as Cursor,
         refetchOnMount: true,
+        staleTime: 0, // Always refetch on mount
 
         // 👇 annotate pageParam to avoid implicit-any
         queryFn: async ({ pageParam }: { pageParam: Cursor }) => {
+            const startParam = pageParam ?? voter;
+
             const response = (await client.call(
                 "condenser_api",
                 "list_proposal_votes",
-                [[proposalId, pageParam ?? voter], limit, "by_proposal_voter"]
+                [[proposalId, startParam], limit, "by_proposal_voter"]
             )) as ProposalVote[];
 
             const list = response

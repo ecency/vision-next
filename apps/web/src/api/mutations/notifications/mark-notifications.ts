@@ -1,13 +1,15 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
 
 export function useMarkNotifications() {
   const queryClient = useQueryClient();
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return useMutation({
     mutationKey: ["notifications", "mark"],

@@ -3,7 +3,7 @@
 var reactQuery = require('@tanstack/react-query');
 var dhive = require('@hiveio/dhive');
 var hs = require('hivesigner');
-var R = require('remeda');
+var R4 = require('remeda');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
@@ -26,7 +26,7 @@ function _interopNamespace(e) {
 }
 
 var hs__default = /*#__PURE__*/_interopDefault(hs);
-var R__namespace = /*#__PURE__*/_interopNamespace(R);
+var R4__namespace = /*#__PURE__*/_interopNamespace(R4);
 
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
@@ -427,11 +427,7 @@ function getAccountFullQueryOptions(username) {
       if (!response[0]) {
         throw new Error("[SDK] No account with given username");
       }
-      let profile = {};
-      try {
-        profile = JSON.parse(response[0].posting_json_metadata).profile;
-      } catch (e) {
-      }
+      const profile = parseProfileMetadata(response[0].posting_json_metadata);
       let follow_stats;
       try {
         follow_stats = await CONFIG.hiveClient.database.call(
@@ -725,21 +721,42 @@ function sanitizeTokens(tokens) {
     return { ...rest, meta: safeMeta };
   });
 }
-function getBuiltProfile({
+function parseProfileMetadata(postingJsonMetadata) {
+  if (!postingJsonMetadata) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(postingJsonMetadata);
+    if (parsed && typeof parsed === "object" && parsed.profile && typeof parsed.profile === "object") {
+      return parsed.profile;
+    }
+  } catch (err) {
+  }
+  return {};
+}
+function extractAccountProfile(data) {
+  return parseProfileMetadata(data?.posting_json_metadata);
+}
+function buildProfileMetadata({
+  existingProfile,
   profile,
-  tokens,
-  data
+  tokens
 }) {
-  const metadata = R__namespace.pipe(
-    JSON.parse(data?.posting_json_metadata || "{}").profile,
-    R__namespace.mergeDeep(profile ?? {})
+  const { tokens: profileTokens, version: _ignoredVersion, ...profileRest } = profile ?? {};
+  const metadata = R4__namespace.mergeDeep(
+    existingProfile ?? {},
+    profileRest
   );
-  if (tokens && tokens.length > 0) {
-    metadata.tokens = tokens;
+  const nextTokens = tokens ?? profileTokens;
+  if (nextTokens && nextTokens.length > 0) {
+    metadata.tokens = nextTokens;
   }
   metadata.tokens = sanitizeTokens(metadata.tokens);
+  metadata.version = 2;
   return metadata;
 }
+
+// src/modules/accounts/mutations/use-account-update.ts
 function useAccountUpdate(username) {
   const queryClient = reactQuery.useQueryClient();
   const { data } = reactQuery.useQuery(getAccountFullQueryOptions(username));
@@ -750,6 +767,11 @@ function useAccountUpdate(username) {
       if (!data) {
         throw new Error("[SDK][Accounts] \u2013 cannot update not existing account");
       }
+      const profile = buildProfileMetadata({
+        existingProfile: extractAccountProfile(data),
+        profile: payload.profile,
+        tokens: payload.tokens
+      });
       return [
         [
           "account_update2",
@@ -758,7 +780,7 @@ function useAccountUpdate(username) {
             json_metadata: "",
             extensions: [],
             posting_json_metadata: JSON.stringify({
-              profile: getBuiltProfile({ ...payload, data })
+              profile
             })
           }
         ]
@@ -770,8 +792,12 @@ function useAccountUpdate(username) {
         if (!data2) {
           return data2;
         }
-        const obj = R__namespace.clone(data2);
-        obj.profile = getBuiltProfile({ ...variables, data: data2 });
+        const obj = R4__namespace.clone(data2);
+        obj.profile = buildProfileMetadata({
+          existingProfile: extractAccountProfile(data2),
+          profile: variables.profile,
+          tokens: variables.tokens
+        });
         return obj;
       }
     )
@@ -966,7 +992,7 @@ function useAccountUpdateKeyAuths(username, options) {
         );
       }
       const prepareAuth = (keyName) => {
-        const auth = R__namespace.clone(accountData[keyName]);
+        const auth = R4__namespace.clone(accountData[keyName]);
         auth.key_auths = dedupeAndSortKeyAuths(
           keepCurrent ? auth.key_auths : [],
           keys.map(
@@ -1037,9 +1063,9 @@ function useAccountRevokePosting(username, options) {
           "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
         );
       }
-      const posting = R__namespace.pipe(
+      const posting = R4__namespace.pipe(
         {},
-        R__namespace.mergeDeep(data.posting)
+        R4__namespace.mergeDeep(data.posting)
       );
       posting.account_auths = posting.account_auths.filter(
         ([account]) => account !== accountName
@@ -1156,7 +1182,7 @@ function useAccountRevokeKey(username, options) {
         );
       }
       const prepareAuth = (keyName) => {
-        const auth = R__namespace.clone(accountData[keyName]);
+        const auth = R4__namespace.clone(accountData[keyName]);
         auth.key_auths = auth.key_auths.filter(
           ([key]) => key !== revokingKey.toString()
         );
@@ -1893,10 +1919,12 @@ exports.ROLES = ROLES;
 exports.Symbol = Symbol2;
 exports.ThreeSpeakIntegration = ThreeSpeakIntegration;
 exports.broadcastJson = broadcastJson;
+exports.buildProfileMetadata = buildProfileMetadata;
 exports.checkUsernameWalletsPendingQueryOptions = checkUsernameWalletsPendingQueryOptions;
 exports.decodeObj = decodeObj;
 exports.dedupeAndSortKeyAuths = dedupeAndSortKeyAuths;
 exports.encodeObj = encodeObj;
+exports.extractAccountProfile = extractAccountProfile;
 exports.getAccessToken = getAccessToken;
 exports.getAccountFullQueryOptions = getAccountFullQueryOptions;
 exports.getAccountPendingRecoveryQueryOptions = getAccountPendingRecoveryQueryOptions;
@@ -1931,6 +1959,7 @@ exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
 exports.getUser = getUser;
 exports.makeQueryClient = makeQueryClient;
 exports.parseAsset = parseAsset;
+exports.parseProfileMetadata = parseProfileMetadata;
 exports.roleMap = roleMap;
 exports.useAccountFavouriteAdd = useAccountFavouriteAdd;
 exports.useAccountFavouriteDelete = useAccountFavouriteDelete;

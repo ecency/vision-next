@@ -10,10 +10,12 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
+import { UilPlus } from "@tooni/iconscout-unicons-react";
 
 type Props = {
   username: string;
   className?: string;
+  showIcon?: boolean;
 };
 
 type ClaimState = {
@@ -62,7 +64,11 @@ export function useProfileWalletPointsClaimState(
   };
 }
 
-export function ProfileWalletClaimPointsButton({ username, className }: Props) {
+export function ProfileWalletClaimPointsButton({
+  username,
+  className,
+  showIcon = false,
+}: Props) {
   const activeUser = useClientActiveUser();
   const { formattedPendingPoints, hasPendingPoints, canClaim } =
     useProfileWalletPointsClaimState(username);
@@ -77,6 +83,13 @@ export function ProfileWalletClaimPointsButton({ username, className }: Props) {
     return null;
   }
 
+  const icon = showIcon ? (
+    <UilPlus className="w-3 h-3 text-current" />
+  ) : undefined;
+  const iconClassName = showIcon
+    ? "!w-6 !h-6 rounded-full bg-white text-blue-dark-sky shrink-0"
+    : undefined;
+
   return (
     <Button
       size="sm"
@@ -85,8 +98,10 @@ export function ProfileWalletClaimPointsButton({ username, className }: Props) {
       disabled={!canClaim || isClaiming}
       isLoading={isClaiming}
       onClick={() => canClaim && claim({})}
+      icon={icon}
+      iconClassName={iconClassName}
     >
-      {`+${formattedPendingPoints} POINTS`}
+      {`${formattedPendingPoints} POINTS`}
     </Button>
   );
 }

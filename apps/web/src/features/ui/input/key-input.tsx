@@ -1,7 +1,7 @@
 "use client";
 
 import { UilLock } from "@tooni/iconscout-unicons-react";
-import { Button } from "..";
+import { Button } from "@ui/button";
 import i18next from "i18next";
 import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
 import {
@@ -66,24 +66,32 @@ export const KeyInput = forwardRef<
 
       let privateKey: PrivateKey;
 
-      if (cryptoUtils.isWif(key)) {
-        privateKey = PrivateKey.fromString(key);
-      } else {
-        const derivation = await detectHiveKeyDerivation(
-          activeUser.username,
-          key,
-          keyType
-        );
-
-        if (derivation === "bip44") {
-          const keys = deriveHiveKeys(key);
-          const derivedKey = keyType === "active" ? keys.active : keys.owner;
-          privateKey = PrivateKey.fromString(derivedKey);
-        } else if (derivation === "master-password") {
-          privateKey = PrivateKey.fromLogin(activeUser.username, key, keyType);
+      try {
+        if (cryptoUtils.isWif(key)) {
+          privateKey = PrivateKey.fromString(key);
         } else {
-          privateKey = PrivateKey.from(key);
+          const derivation = await detectHiveKeyDerivation(
+            activeUser.username,
+            key,
+            keyType
+          );
+
+          if (derivation === "bip44") {
+            const keys = deriveHiveKeys(key);
+            const derivedKey = keyType === "active" ? keys.active : keys.owner;
+            privateKey = PrivateKey.fromString(derivedKey);
+          } else if (derivation === "master-password") {
+            privateKey = PrivateKey.fromLogin(activeUser.username, key, keyType);
+          } else {
+            privateKey = PrivateKey.from(key);
+          }
         }
+      } catch (err) {
+        const errorMessage = err instanceof Error && err.message.includes("base58")
+          ? i18next.t("key-or-hot.invalid-key")
+          : i18next.t("key-or-hot.key-error");
+        error(errorMessage);
+        throw new Error("Invalid private key format");
       }
 
       setSigningKey(key);
@@ -102,20 +110,20 @@ export const KeyInput = forwardRef<
   return (
     <div
       className={clsx(
-        "border-2 border-[--border-color] rounded-xl p-2 cursor-text flex flex-col items-start",
+        "border-2 border-[--border-color] rounded-xl p-2 cursor-text flex flex-col items-start bg-white dark:bg-dark-default",
         className
       )}
       onClick={() => inputRef.current?.focus()}
     >
-      <span className="text-sm font-semibold text-gray-500 -mt-5 px-1 bg-white">
+      <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 -mt-5 px-1 bg-white dark:bg-dark-default">
         {capitalizeFirstLetter(keyType)} {i18next.t("key-or-hot.key-placeholder")}
       </span>
       <div className="w-full grid gap-2 grid-cols-[max-content_1fr_max-content] items-center h-8">
-        <UilLock className="w-5 h-5 text-gray-500" />
+        <UilLock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
 
         <input
           ref={inputRef}
-          className="outline-none"
+          className="outline-none bg-transparent text-gray-900 dark:text-gray-100"
           {...inputProps}
           value={key}
           type="password"

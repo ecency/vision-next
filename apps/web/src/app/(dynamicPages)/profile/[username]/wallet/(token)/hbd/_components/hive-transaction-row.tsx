@@ -1,4 +1,4 @@
-import { cashCoinSvg, ticketSvg } from "@/assets/img/svg";
+import { cashCoinSvg, ticketSvg, reOrderHorizontalSvg, exchangeSvg } from "@/assets/img/svg";
 import { Transaction } from "@/entities";
 import { Tsx } from "@/features/i18n/helper";
 import { EntryLink, ProfileLink, UserAvatar } from "@/features/shared";
@@ -11,6 +11,27 @@ interface Props {
   transaction: Transaction;
   entry?: Transaction;
   onMounted?: () => void;
+}
+
+function ParticipantBadge({ username }: { username: string }) {
+  return (
+    <ProfileLink username={username} className="max-w-full">
+      <Badge className="flex max-w-full items-center gap-1 pl-0.5 pr-1 text-left text-sm leading-tight break-all">
+        <UserAvatar username={username} size="small" />
+        <span className="break-all">{username}</span>
+      </Badge>
+    </ProfileLink>
+  );
+}
+
+function TransferParticipants({ from, to }: { from: string; to: string }) {
+  return (
+    <div className="flex min-w-0 flex-wrap items-center gap-2">
+      <ParticipantBadge username={from} />
+      <UilArrowRight className="shrink-0 text-gray-400 dark:text-gray-600" />
+      <ParticipantBadge username={to} />
+    </div>
+  );
 }
 
 export function HiveTransactionRow({ entry, transaction: tr }: Props) {
@@ -54,23 +75,11 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     icon = <UilArrowRight className="w-4 h-4" />;
 
     details = (
-      <div>
-        <div className="flex gap-2 items-center">
-          <ProfileLink username={tr.from}>
-            <Badge className="flex gap-1 pl-0.5 items-center">
-              <UserAvatar username={tr.from} size="small" />
-              {tr.from}
-            </Badge>
-          </ProfileLink>
-          <UilArrowRight className="text-gray-400 dark:text-gray-600" />
-          <ProfileLink username={tr.to}>
-            <Badge className="flex gap-1 pl-0.5 items-center">
-              <UserAvatar username={tr.to} size="small" />
-              {tr.to}
-            </Badge>
-          </ProfileLink>
-        </div>
-        {tr.memo && <div className="text-sm opacity-75">{tr.memo}</div>}
+      <div className="space-y-2">
+        <TransferParticipants from={tr.from} to={tr.to} />
+        {tr.memo ? (
+          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+        ) : null}
       </div>
     );
 
@@ -78,39 +87,31 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
   } else if (tr.type === "recurrent_transfer" || tr.type === "fill_recurrent_transfer") {
     icon = <UilRefresh className="w-4 h-4" />;
 
+    const recurrentDescription =
+      tr.type === "recurrent_transfer" ? (
+        <Tsx
+          k="transactions.type-recurrent_transfer-detail"
+          args={{ executions: tr.executions, recurrence: tr.recurrence }}
+        >
+          <span className="block" />
+        </Tsx>
+      ) : (
+        <Tsx
+          k="transactions.type-fill_recurrent_transfer-detail"
+          args={{ remaining_executions: tr.remaining_executions }}
+        >
+          <span className="block" />
+        </Tsx>
+      );
+
     details = (
-      <span>
+      <div className="space-y-2">
         {tr.memo ? (
-          <>
-            {tr.memo} <br /> <br />
-          </>
+          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
         ) : null}
-        {tr.type === "recurrent_transfer" ? (
-          <>
-            <Tsx
-              k="transactions.type-recurrent_transfer-detail"
-              args={{ executions: tr.executions, recurrence: tr.recurrence }}
-            >
-              <span />
-            </Tsx>
-            <br />
-            <br />
-            <strong>@{tr.from}</strong> -&gt; <strong>@{tr.to}</strong>
-          </>
-        ) : (
-          <>
-            <Tsx
-              k="transactions.type-fill_recurrent_transfer-detail"
-              args={{ remaining_executions: tr.remaining_executions }}
-            >
-              <span />
-            </Tsx>
-            <br />
-            <br />
-            <strong>@{tr.from}</strong> -&gt; <strong>@{tr.to}</strong>
-          </>
-        )}
-      </span>
+        <div className="text-sm text-gray-600 dark:text-gray-400">{recurrentDescription}</div>
+        <TransferParticipants from={tr.from} to={tr.to} />
+      </div>
     );
     let aam = tr.amount as any;
     if (tr.type === "fill_recurrent_transfer") {
@@ -118,58 +119,85 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       aam = `${t.amount} ${t.symbol}`;
     }
     numbers = <span className="number">{aam}</span>;
-  } else if (tr.type === "comment_reward") {
+  } else if (tr.type === "proposal_pay") {
+    icon = ticketSvg;
+    const payment = parseAsset(tr.payment);
+    numbers = <span className="number">{formattedNumber(payment.amount, { suffix: payment.symbol })}</span>;
+    details = (
+      <div className="space-y-1">
+        <div className="text-sm">
+          <span className="text-gray-600 dark:text-gray-400">Receiver: </span>
+          <ProfileLink username={tr.receiver}>
+            <Badge className="inline-flex items-center gap-1 text-sm">
+              <UserAvatar username={tr.receiver} size="small" />
+              <span>{tr.receiver}</span>
+            </Badge>
+          </ProfileLink>
+        </div>
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          Proposal #{tr.proposal_id}
+        </div>
+      </div>
+    );
+  } else if (tr.type === "transfer_from_savings") {
+    icon = <UilArrowRight className="w-4 h-4" />;
+    details = (
+      <div className="space-y-2">
+        <TransferParticipants from={tr.from} to={tr.to} />
+        {tr.memo ? (
+          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+        ) : null}
+      </div>
+    );
+    numbers = <span className="number">{tr.amount}</span>;
+  } else if (tr.type === "cancel_transfer_from_savings") {
+    icon = ticketSvg;
+    details = (
+      <Tsx k="transactions.type-cancel_transfer_from_savings-detail" args={{ from: tr.from }}>
+        <span />
+      </Tsx>
+    );
+  } else if (tr.type === "fill_order") {
+    icon = reOrderHorizontalSvg;
+    numbers = (
+      <span className="number">
+        {tr.current_pays} = {tr.open_pays}
+      </span>
+    );
+  } else if (tr.type === "limit_order_create" || tr.type === "limit_order_create2") {
+    icon = reOrderHorizontalSvg;
+    numbers = (
+      <span className="number">
+        {tr.amount_to_sell} = {tr.min_to_receive}
+      </span>
+    );
+  } else if (tr.type === "limit_order_cancel") {
+    icon = reOrderHorizontalSvg;
+    details = (
+      <span>
+        <strong>Order ID: {tr.orderid}</strong>
+      </span>
+    );
+  } else if (tr.type === "fill_convert_request") {
+    icon = exchangeSvg;
+    numbers = (
+      <span className="number">
+        {tr.amount_in} = {tr.amount_out}
+      </span>
+    );
+  } else if (tr.type === "fill_collateralized_convert_request") {
+    icon = exchangeSvg;
+    details = (
+      <Tsx
+        k="transactions.type-fill_collateralized_convert-detail"
+        args={{ request: tr.requestid, returned: tr.excess_collateral }}
+      >
+        <span />
+      </Tsx>
+    );
+  } else if (tr.type === "interest") {
     icon = cashCoinSvg;
-
-    const payout = parseAsset(tr.payout);
-
-    numbers = (
-      <>
-        {payout.amount > 0 && (
-          <span className="number">{formattedNumber(payout.amount, { suffix: "HBD" })}</span>
-        )}
-      </>
-    );
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
-  } else if (tr.type === "effective_comment_vote") {
-    const payout = parseAsset(tr.pending_payout);
-
-    numbers = (
-      <>
-        {payout.amount > 0 && (
-          <span className="number">{formattedNumber(payout.amount, { suffix: "HBD" })}</span>
-        )}
-      </>
-    );
-
-    details = (
-      <EntryLink
-        entry={{
-          category: "history",
-          author: tr.author,
-          permlink: tr.permlink
-        }}
-      >
-        <span>
-          {"@"}
-          {tr.author}/{tr.permlink}
-        </span>
-      </EntryLink>
-    );
+    numbers = <span className="number">{tr.interest}</span>;
   } else {
     flag = false;
   }
@@ -181,6 +209,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
         type={tr.type}
         timestamp={tr.timestamp}
         numbers={numbers}
+        rawDetails={tr}
       >
         {details}
       </ProfileWalletTokenHistoryHiveItem>
@@ -193,6 +222,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       type={tr.type}
       timestamp={tr.timestamp}
       numbers={numbers}
+      rawDetails={tr}
     >
       <code>{JSON.stringify(tr)}</code>
     </ProfileWalletTokenHistoryHiveItem>

@@ -1,9 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import dayjs from "@/utils/dayjs";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS, getAccountFullQuery, getDynamicPropsQuery } from "@/api/queries";
 import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@/api/hive";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
@@ -104,17 +104,77 @@ interface Props {
   account: Account;
 }
 
+function isFullAccount(account?: Account | null): account is FullAccount {
+  if (!account) {
+    return false;
+  }
+
+  return (
+    account.post_count !== undefined &&
+    account.last_vote_time !== undefined &&
+    account.vesting_shares !== undefined &&
+    account.savings_balance !== undefined
+  );
+}
+
 export function ProfileInfo({ account }: Props) {
-  const { data, isLoading: isRcLoading } = useQuery(getAccountRcQueryOptions(account.name));
+  const accountQuery = getAccountFullQuery(account?.name).useClientQuery();
+
+  const hydratedAccount = accountQuery.data ?? undefined;
+
+  const refetchAttempted = useRef(false);
+
+  useEffect(() => {
+    refetchAttempted.current = false;
+  }, [account?.name]);
+
+  const resolvedAccount = useMemo(() => {
+    return isFullAccount(account) ? account : isFullAccount(hydratedAccount) ? hydratedAccount : undefined;
+  }, [account, hydratedAccount]);
+
+  const hasFullAccount = Boolean(resolvedAccount);
+  const isAccountLoading = !hasFullAccount && (accountQuery.isLoading || accountQuery.isFetching);
+
+  useEffect(() => {
+    if (
+      !hasFullAccount &&
+      !refetchAttempted.current &&
+      !accountQuery.isLoading &&
+      !accountQuery.isFetching &&
+      account?.name
+    ) {
+      refetchAttempted.current = true;
+      accountQuery.refetch();
+    }
+  }, [account?.name, accountQuery, hasFullAccount]);
+
+  const { data } = useQuery({
+    ...getAccountRcQueryOptions(account.name),
+    enabled: hasFullAccount,
+  });
   const rcAccount = useMemo(() => data?.[0], [data]);
-  const isLoaded = Boolean(account?.__loaded) && !isRcLoading;
 
   return (
     <StyledTooltip
-      content={isLoaded ? <ProfileInfoContent account={account} rcAccount={rcAccount} /> : <></>}
+      content={
+        hasFullAccount && resolvedAccount ? (
+          <ProfileInfoContent account={resolvedAccount} rcAccount={rcAccount} />
+        ) : (
+          <></>
+        )
+      }
     >
       <Button
-        isLoading={!isLoaded}
+        isLoading={isAccountLoading}
+        data-loading-reason={
+          hasFullAccount
+            ? undefined
+            : accountQuery.isLoading
+              ? "fetching-account"
+              : accountQuery.isFetching
+                ? "refetching-account"
+                : "missing-full-account"
+        }
         icon={<UilInfoCircle width={20} height={20} />}
         size="xs"
         appearance="gray"

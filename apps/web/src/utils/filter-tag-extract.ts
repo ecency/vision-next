@@ -1,5 +1,5 @@
 import { pathToRegexp } from "path-to-regexp";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { ProfileFilter } from "@/enums";
 import routes from "@/routes";
 

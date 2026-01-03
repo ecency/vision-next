@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { StakeWidgetHeaderOptions, StakeWidgetViewType } from "./stake-widget-header-options";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { OrdersData, OrdersDataItem } from "@/entities";
-import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
+import { MarketAsset } from "@/api/market-pair";
 import { Widget } from "@/app/market/advanced/_advanced-mode/types/layout.type";
 import { PREFIX } from "@/utils/local-storage";
 import { formattedNumber } from "@/utils";

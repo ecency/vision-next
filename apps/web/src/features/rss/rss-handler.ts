@@ -1,5 +1,5 @@
 import RSS from "rss";
-import defaults from "@/defaults.json";
+import { getServerAppBase } from "@/utils/server-app-base";
 import * as Sentry from "@sentry/nextjs";
 
 export abstract class RssHandler<T> {
@@ -7,19 +7,20 @@ export abstract class RssHandler<T> {
 
   protected abstract fetchData(): Promise<T[]>;
 
-  protected abstract convertItem(item: T): RSS.ItemOptions;
+  protected abstract convertItem(item: T, base: string): RSS.ItemOptions;
 
   async getFeed() {
+    const base = await getServerAppBase();
     const feed = new RSS({
       title: "RSS Feed",
-      feed_url: `${defaults.base}${this.pathname}`,
-      site_url: defaults.base,
-      image_url: `${defaults.base}/logo512.png`
+      feed_url: `${base}${this.pathname}`,
+      site_url: base,
+      image_url: `${base}/logo512.png`
     });
 
     try {
       const data = await this.fetchData();
-      data.forEach((item) => feed.item(this.convertItem(item)));
+      data.forEach((item) => feed.item(this.convertItem(item, base)));
     } catch (e) {
       Sentry.captureException(e,{
         extra: {
