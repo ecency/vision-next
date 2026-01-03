@@ -2377,7 +2377,7 @@ function getNotificationsSettingsQueryOptions(activeUsername) {
     enabled: !!activeUsername,
     refetchOnMount: false,
     initialData: () => {
-      const wasMutedPreviously = localStorage.getItem("notifications") !== "true";
+      const wasMutedPreviously = typeof window !== "undefined" ? localStorage.getItem("notifications") !== "true" : false;
       return {
         status: 0,
         system: "web",

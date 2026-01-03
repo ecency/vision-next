@@ -30,7 +30,9 @@ export function getNotificationsSettingsQueryOptions(
     refetchOnMount: false,
     initialData: () => {
       const wasMutedPreviously =
-        localStorage.getItem("notifications") !== "true";
+        typeof window !== "undefined"
+          ? localStorage.getItem("notifications") !== "true"
+          : false;
       return {
         status: 0,
         system: "web",
