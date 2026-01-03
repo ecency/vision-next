@@ -1,23 +1,11 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { getAccessToken } from "@/utils";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
-import { UserImage } from "@/api/private-api";
+import { EcencyQueriesManager } from "@/core/react-query";
+import { getImagesQueryOptions } from "@ecency/sdk";
 
 export const getImagesQuery = (username?: string) =>
   EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.GET_IMAGES],
-    queryFn: async () => {
-      if (!username) {
-        return [];
-      }
-
-      const data = { code: getAccessToken(username) };
-      const response = await appAxios.post<UserImage[]>(apiBase(`/private-api/images`), data);
-      return response.data;
-    },
+    ...getImagesQueryOptions(username),
     select: (items) =>
       items.sort((a, b) => {
         return new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1;
-      })
+      }),
   });

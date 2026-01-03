@@ -2,7 +2,7 @@ import { CONFIG } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { SpkApiWallet } from "../../types";
 
-export function getSpkWalletQueryOptions(username: string) {
+export function getSpkWalletQueryOptions(username?: string) {
   return queryOptions({
     queryKey: ["assets", "spk", "wallet", username],
     queryFn: async () => {

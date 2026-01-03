@@ -1797,6 +1797,124 @@ function getReblogsQueryOptions(username, activeUsername, limit = 200) {
     enabled: !!username
   });
 }
+function getSchedulesQueryOptions(activeUsername) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "schedules", activeUsername],
+    queryFn: async () => {
+      if (!activeUsername) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/schedules", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code: getAccessToken(activeUsername)
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch schedules: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!activeUsername
+  });
+}
+function getDraftsQueryOptions(activeUsername) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "drafts", activeUsername],
+    queryFn: async () => {
+      if (!activeUsername) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/drafts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code: getAccessToken(activeUsername)
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch drafts: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!activeUsername
+  });
+}
+function getImagesQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "images", username],
+    queryFn: async () => {
+      if (!username) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code: getAccessToken(username)
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch images: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!username
+  });
+}
+function getGalleryImagesQueryOptions(activeUsername) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "gallery-images", activeUsername],
+    queryFn: async () => {
+      if (!activeUsername) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code: getAccessToken(activeUsername)
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch gallery images: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!activeUsername
+  });
+}
+function getCommentHistoryQueryOptions(author, permlink) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "comment-history", author, permlink],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          author,
+          permlink
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch comment history: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!author && !!permlink
+  });
+}
 function useAddFragment(username) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "add-fragment", username],
@@ -2285,6 +2403,7 @@ function getNotificationsUnreadCountQueryOptions(activeUsername) {
       const response = await fetch(
         `${CONFIG.privateApiHost}/private-api/notifications/unread`,
         {
+          method: "POST",
           body: JSON.stringify({ code: getAccessToken(activeUsername) }),
           headers: {
             "Content-Type": "application/json"
@@ -2393,6 +2512,9 @@ function getNotificationsSettingsQueryOptions(activeUsername) {
           }
         }
       );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch notification settings: ${response.status}`);
+      }
       return response.json();
     },
     enabled: !!activeUsername,
@@ -2600,6 +2722,183 @@ function getOrderBookQueryOptions(limit = 500) {
     ])
   });
 }
+function getPointsQueryOptions(username, filter = 0) {
+  return reactQuery.queryOptions({
+    queryKey: ["points", username, filter],
+    queryFn: async () => {
+      if (!username) {
+        throw new Error("Get points query \u2013 username wasn't provided");
+      }
+      const name = username.replace("@", "");
+      const pointsResponse = await fetch(CONFIG.privateApiHost + "/private-api/points", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username: name })
+      });
+      if (!pointsResponse.ok) {
+        throw new Error(`Failed to fetch points: ${pointsResponse.status}`);
+      }
+      const points = await pointsResponse.json();
+      const transactionsResponse = await fetch(
+        CONFIG.privateApiHost + "/private-api/point-list",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username: name, type: filter })
+        }
+      );
+      if (!transactionsResponse.ok) {
+        throw new Error(`Failed to fetch point transactions: ${transactionsResponse.status}`);
+      }
+      const transactions = await transactionsResponse.json();
+      return {
+        points: points.points,
+        uPoints: points.unclaimed_points,
+        transactions
+      };
+    },
+    staleTime: 3e4,
+    refetchOnMount: true,
+    enabled: !!username
+  });
+}
+function searchQueryOptions(q, sort, hideLow, since, scroll_id, votes) {
+  return reactQuery.queryOptions({
+    queryKey: ["search", q, sort, hideLow, since, scroll_id, votes],
+    queryFn: async () => {
+      const data = { q, sort, hide_low: hideLow };
+      if (since) data.since = since;
+      if (scroll_id) data.scroll_id = scroll_id;
+      if (votes) data.votes = votes;
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+}
+function getControversialRisingInfiniteQueryOptions(what, tag, enabled = true) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["search", "controversial-rising", what, tag],
+    initialPageParam: { sid: void 0, hasNextPage: true },
+    queryFn: async ({ pageParam }) => {
+      if (!pageParam.hasNextPage) {
+        return {
+          hits: 0,
+          took: 0,
+          results: []
+        };
+      }
+      let sinceDate;
+      const now = /* @__PURE__ */ new Date();
+      switch (tag) {
+        case "today":
+          sinceDate = new Date(now.getTime() - 24 * 60 * 60 * 1e3);
+          break;
+        case "week":
+          sinceDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1e3);
+          break;
+        case "month":
+          sinceDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1e3);
+          break;
+        case "year":
+          sinceDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1e3);
+          break;
+        default:
+          sinceDate = void 0;
+      }
+      const q = "* type:post";
+      const sort = what === "rising" ? "children" : what;
+      const since = sinceDate ? sinceDate.toISOString().split(".")[0] : void 0;
+      const hideLow = "0";
+      const votes = tag === "today" ? 50 : 200;
+      const data = { q, sort, hide_low: hideLow };
+      if (since) data.since = since;
+      if (pageParam.sid) data.scroll_id = pageParam.sid;
+      data.votes = votes;
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+      return response.json();
+    },
+    getNextPageParam: (resp) => {
+      return {
+        sid: resp?.scroll_id,
+        hasNextPage: resp.results.length > 0
+      };
+    },
+    enabled
+  });
+}
+function buildQuery(entry, retry = 3) {
+  const { json_metadata, permlink } = entry;
+  let q = "*";
+  q += ` -dporn type:post`;
+  let tags;
+  if (json_metadata && json_metadata.tags && Array.isArray(json_metadata.tags)) {
+    tags = json_metadata.tags.filter((tag) => tag && tag !== "").filter((tag) => !tag.startsWith("hive-")).filter((_tag, ind) => ind < +retry).join(",");
+  }
+  if (tags && tags.length > 0) {
+    q += ` tag:${tags}`;
+  } else {
+    const fperm = permlink.split("-");
+    tags = fperm.filter((part) => part !== "").filter((part) => !/^-?\d+$/.test(part)).filter((part) => part.length > 2).join(",");
+    q += ` tag:${tags}`;
+  }
+  return q;
+}
+function getSimilarEntriesQueryOptions(entry) {
+  const query = buildQuery(entry);
+  return reactQuery.queryOptions({
+    queryKey: ["search", "similar-entries", entry.author, entry.permlink, query],
+    queryFn: async () => {
+      const data = {
+        q: query,
+        sort: "newest",
+        hide_low: "0"
+      };
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+      const searchResponse = await response.json();
+      const rawEntries = searchResponse.results.filter(
+        (r) => r.permlink !== entry.permlink && r.tags.indexOf("nsfw") === -1
+      );
+      const entries = [];
+      for (const result of rawEntries) {
+        if (entries.find((y) => y.author === result.author) === void 0) {
+          entries.push(result);
+        }
+      }
+      return entries.slice(0, 3);
+    }
+  });
+}
 
 exports.ACCOUNT_OPERATION_GROUPS = ACCOUNT_OPERATION_GROUPS;
 exports.ALL_ACCOUNT_OPERATIONS = ALL_ACCOUNT_OPERATIONS;
@@ -2637,20 +2936,25 @@ exports.getActiveAccountFavouritesQueryOptions = getActiveAccountFavouritesQuery
 exports.getBoundFetch = getBoundFetch;
 exports.getChainPropertiesQueryOptions = getChainPropertiesQueryOptions;
 exports.getCollateralizedConversionRequestsQueryOptions = getCollateralizedConversionRequestsQueryOptions;
+exports.getCommentHistoryQueryOptions = getCommentHistoryQueryOptions;
 exports.getCommunitiesQueryOptions = getCommunitiesQueryOptions;
 exports.getCommunityContextQueryOptions = getCommunityContextQueryOptions;
 exports.getCommunityPermissions = getCommunityPermissions;
 exports.getCommunitySubscribersQueryOptions = getCommunitySubscribersQueryOptions;
 exports.getCommunityType = getCommunityType;
+exports.getControversialRisingInfiniteQueryOptions = getControversialRisingInfiniteQueryOptions;
 exports.getConversionRequestsQueryOptions = getConversionRequestsQueryOptions;
 exports.getDiscussionsQueryOptions = getDiscussionsQueryOptions;
+exports.getDraftsQueryOptions = getDraftsQueryOptions;
 exports.getDynamicPropsQueryOptions = getDynamicPropsQueryOptions;
 exports.getEntryActiveVotesQueryOptions = getEntryActiveVotesQueryOptions;
 exports.getFollowCountQueryOptions = getFollowCountQueryOptions;
 exports.getFollowingQueryOptions = getFollowingQueryOptions;
 exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
+exports.getGalleryImagesQueryOptions = getGalleryImagesQueryOptions;
 exports.getGameStatusCheckQueryOptions = getGameStatusCheckQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
+exports.getImagesQueryOptions = getImagesQueryOptions;
 exports.getLoginType = getLoginType;
 exports.getMutedUsersQueryOptions = getMutedUsersQueryOptions;
 exports.getNotificationsInfiniteQueryOptions = getNotificationsInfiniteQueryOptions;
@@ -2659,6 +2963,7 @@ exports.getNotificationsUnreadCountQueryOptions = getNotificationsUnreadCountQue
 exports.getOpenOrdersQueryOptions = getOpenOrdersQueryOptions;
 exports.getOrderBookQueryOptions = getOrderBookQueryOptions;
 exports.getOutgoingRcDelegationsInfiniteQueryOptions = getOutgoingRcDelegationsInfiniteQueryOptions;
+exports.getPointsQueryOptions = getPointsQueryOptions;
 exports.getPostHeaderQueryOptions = getPostHeaderQueryOptions;
 exports.getPostQueryOptions = getPostQueryOptions;
 exports.getPostingKey = getPostingKey;
@@ -2673,7 +2978,9 @@ exports.getReblogsQueryOptions = getReblogsQueryOptions;
 exports.getRefreshToken = getRefreshToken;
 exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccountsQueryOptions;
 exports.getSavingsWithdrawFromQueryOptions = getSavingsWithdrawFromQueryOptions;
+exports.getSchedulesQueryOptions = getSchedulesQueryOptions;
 exports.getSearchAccountsByUsernameQueryOptions = getSearchAccountsByUsernameQueryOptions;
+exports.getSimilarEntriesQueryOptions = getSimilarEntriesQueryOptions;
 exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getTransactionsInfiniteQueryOptions = getTransactionsInfiniteQueryOptions;
 exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
@@ -2688,6 +2995,7 @@ exports.parseAccounts = parseAccounts;
 exports.parseAsset = parseAsset;
 exports.parseProfileMetadata = parseProfileMetadata;
 exports.roleMap = roleMap;
+exports.searchQueryOptions = searchQueryOptions;
 exports.sortDiscussions = sortDiscussions;
 exports.useAccountFavouriteAdd = useAccountFavouriteAdd;
 exports.useAccountFavouriteDelete = useAccountFavouriteDelete;

@@ -1,22 +1,26 @@
 import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
 import { makeEntryPath } from "@/utils";
-import { commentHistory } from "@/api/private-api";
+import { getCommentHistoryQueryOptions } from "@ecency/sdk";
 
-export const getDeletedEntryQuery = (author: string, permlink: string) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.DELETED_ENTRY, makeEntryPath("", author, permlink?.trim() ?? "")],
-    queryFn: async () => {
-      const cleanPermlink = permlink?.trim();
-      if (!author || !cleanPermlink || cleanPermlink === "undefined") {
+export const getDeletedEntryQuery = (author: string, permlink: string) => {
+  const cleanPermlink = permlink?.trim();
+  const isEnabled =
+    !!author && !!cleanPermlink && cleanPermlink !== "" && cleanPermlink !== "undefined";
+
+  return EcencyQueriesManager.generateClientServerQuery({
+    ...getCommentHistoryQueryOptions(author, cleanPermlink || ""),
+    queryKey: [QueryIdentifiers.DELETED_ENTRY, makeEntryPath("", author, cleanPermlink ?? "")],
+    select: (history) => {
+      if (!history?.list?.[0]) {
         return null;
       }
-      const history = await commentHistory(author, cleanPermlink);
       const { body, title, tags } = history.list[0];
       return {
         body,
         title,
-        tags
+        tags,
       };
     },
-    enabled: !!author && !!permlink && permlink.trim() !== "" && permlink.trim() !== "undefined"
+    enabled: isEnabled,
   });
+};

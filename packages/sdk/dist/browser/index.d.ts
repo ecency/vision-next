@@ -208,7 +208,6 @@ interface LimitOrderCancel extends BaseTransaction {
     type: "limit_order_cancel";
     owner: string;
     orderid: number;
-    num: number;
 }
 interface ProducerReward extends BaseTransaction {
     type: "producer_reward";
@@ -993,7 +992,7 @@ interface JsonPollMetadata {
     end_time: number;
     max_choices_voted?: number;
 }
-interface Entry {
+interface Entry$1 {
     last_update?: string;
     active_votes: EntryVote[];
     author: string;
@@ -1034,7 +1033,7 @@ interface Entry {
     title: string;
     updated: string;
     url: string;
-    original_entry?: Entry;
+    original_entry?: Entry$1;
     is_optimistic?: boolean;
 }
 interface EntryHeader {
@@ -1071,7 +1070,7 @@ declare function getPromotedPostsQuery<T extends any>(type?: "feed" | "waves"): 
     };
 };
 
-declare function getEntryActiveVotesQueryOptions(entry?: Entry): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Vote[], Error, Vote[], (string | undefined)[]>, "queryFn"> & {
+declare function getEntryActiveVotesQueryOptions(entry?: Entry$1): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Vote[], Error, Vote[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Vote[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1080,21 +1079,21 @@ declare function getEntryActiveVotesQueryOptions(entry?: Entry): _tanstack_react
     };
 };
 
-declare function getPostHeaderQueryOptions(author: string, permlink: string): Omit<_tanstack_react_query.UseQueryOptions<Entry | null, Error, Entry | null, string[]>, "queryFn"> & {
-    initialData: Entry | (() => Entry | null) | null;
-    queryFn?: _tanstack_react_query.QueryFunction<Entry | null, string[]> | undefined;
+declare function getPostHeaderQueryOptions(author: string, permlink: string): Omit<_tanstack_react_query.UseQueryOptions<Entry$1 | null, Error, Entry$1 | null, string[]>, "queryFn"> & {
+    initialData: Entry$1 | (() => Entry$1 | null) | null;
+    queryFn?: _tanstack_react_query.QueryFunction<Entry$1 | null, string[]> | undefined;
 } & {
     queryKey: string[] & {
-        [dataTagSymbol]: Entry | null;
+        [dataTagSymbol]: Entry$1 | null;
         [dataTagErrorSymbol]: Error;
     };
 };
 
-declare function getPostQueryOptions(author: string, permlink?: string, observer?: string, num?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Entry | null, Error, Entry | null, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Entry | null, string[], never> | undefined;
+declare function getPostQueryOptions(author: string, permlink?: string, observer?: string, num?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Entry$1 | null, Error, Entry$1 | null, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Entry$1 | null, string[], never> | undefined;
 } & {
     queryKey: string[] & {
-        [dataTagSymbol]: Entry | null;
+        [dataTagSymbol]: Entry$1 | null;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1105,12 +1104,27 @@ declare enum SortOrder {
     votes = "votes",
     created = "created"
 }
-declare function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOrder): Entry[];
-declare function getDiscussionsQueryOptions(entry: Entry, order?: SortOrder, enabled?: boolean, observer?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Entry[], Error, Entry[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Entry[], string[], never> | undefined;
+declare function sortDiscussions(entry: Entry$1, discussion: Entry$1[], order: SortOrder): Entry$1[];
+declare function getDiscussionsQueryOptions(entry: Entry$1, order?: SortOrder, enabled?: boolean, observer?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Entry$1[], Error, Entry$1[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Entry$1[], string[], never> | undefined;
 } & {
     queryKey: string[] & {
-        [dataTagSymbol]: Entry[];
+        [dataTagSymbol]: Entry$1[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+type PageParam$2 = {
+    author: string | undefined;
+    permlink: string | undefined;
+    hasNextPage: boolean;
+};
+type Page = Entry$1[];
+declare function getAccountPostsInfiniteQueryOptions(username: string | undefined, filter?: string, limit?: number, observer?: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Page, Error, Page, (string | number)[], PageParam$2>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Page, (string | number)[], PageParam$2> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Page, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1120,29 +1134,14 @@ type PageParam$1 = {
     permlink: string | undefined;
     hasNextPage: boolean;
 };
-type Page = Entry[];
-declare function getAccountPostsInfiniteQueryOptions(username: string | undefined, filter?: string, limit?: number, observer?: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Page, Error, Page, (string | number)[], PageParam$1>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Page, (string | number)[], PageParam$1> | undefined;
-} & {
-    queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Page, unknown>;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-type PageParam = {
-    author: string | undefined;
-    permlink: string | undefined;
-    hasNextPage: boolean;
-};
 interface GetPostsRankedOptions {
     resolvePosts?: boolean;
 }
-declare function getPostsRankedInfiniteQueryOptions(sort: string, tag: string, limit?: number, observer?: string, enabled?: boolean, _options?: GetPostsRankedOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Entry[], Error, Entry[], (string | number)[], PageParam>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Entry[], (string | number)[], PageParam> | undefined;
+declare function getPostsRankedInfiniteQueryOptions(sort: string, tag: string, limit?: number, observer?: string, enabled?: boolean, _options?: GetPostsRankedOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Entry$1[], Error, Entry$1[], (string | number)[], PageParam$1>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Entry$1[], (string | number)[], PageParam$1> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Entry[], unknown>;
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Entry$1[], unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1164,6 +1163,109 @@ declare function getReblogsQueryOptions(username?: string, activeUsername?: stri
 } & {
     queryKey: (string | number)[] & {
         [dataTagSymbol]: Reblog[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface Schedule {
+    _id: string;
+    username: string;
+    permlink: string;
+    title: string;
+    body: string;
+    tags: string[];
+    tags_arr: string;
+    schedule: string;
+    original_schedule: string;
+    reblog: boolean;
+    status: 1 | 2 | 3 | 4;
+    message: string | null;
+}
+
+declare function getSchedulesQueryOptions(activeUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Schedule[], Error, Schedule[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Schedule[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: Schedule[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface DraftMetadata {
+    beneficiaries?: Array<{
+        account: string;
+        weight: number;
+    }>;
+    rewardType?: string;
+    videos?: Record<string, any>;
+    poll?: any;
+    [key: string]: any;
+}
+interface Draft {
+    body: string;
+    created: string;
+    modified: string;
+    post_type: string;
+    tags_arr: string[];
+    tags: string;
+    timestamp: number;
+    title: string;
+    _id: string;
+    meta?: DraftMetadata;
+}
+
+declare function getDraftsQueryOptions(activeUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Draft[], Error, Draft[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Draft[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: Draft[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface UserImage {
+    created: string;
+    timestamp: number;
+    url: string;
+    _id: string;
+}
+
+declare function getImagesQueryOptions(username?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<UserImage[], Error, UserImage[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<UserImage[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: UserImage[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+declare function getGalleryImagesQueryOptions(activeUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<UserImage[], Error, UserImage[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<UserImage[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: UserImage[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface CommentHistoryListItem {
+    title: string;
+    body: string;
+    tags: string[];
+    timestamp: string;
+    v: number;
+}
+interface CommentHistory {
+    meta: {
+        count: number;
+    };
+    list: CommentHistoryListItem[];
+}
+
+declare function getCommentHistoryQueryOptions(author: string, permlink: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<CommentHistory, Error, CommentHistory, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<CommentHistory, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: CommentHistory;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -2160,4 +2262,104 @@ declare function getOrderBookQueryOptions(limit?: number): _tanstack_react_query
     };
 };
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthorReward, type BlogEntry, type BuildProfileMetadataArgs, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationReward, type DelegateVestingShares, type DelegatedVestingShare, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type Interest, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, type LimitOrderCancel, type LimitOrderCreate, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OperationGroup, type OrdersData, type OrdersDataItem, type Payer, type ProducerReward, type ProfileTokens, type Proposal, type ProposalPay, type ProposalVote, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type Recoveries, type RecurrentTransfers, type ReturnVestingDelegation, type SavingsWithdrawRequest, type SetWithdrawRoute, SortOrder, type StatsResponse, type StoringUser, type Subscription, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferToSavings, type TransferToVesting, type TrendingTag, type UpdateProposalVotes, type Vote, type VoteProxy, type WalletMetadataCandidate, type WithdrawRoute, type WithdrawVesting, type Witness, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+interface PointTransaction {
+    id: number;
+    type: number;
+    created: string;
+    memo: string | null;
+    amount: string;
+    sender: string | null;
+    receiver: string | null;
+}
+interface Points {
+    points: string;
+    uPoints: string;
+    transactions: PointTransaction[];
+}
+
+declare function getPointsQueryOptions(username?: string, filter?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    readonly points: string;
+    readonly uPoints: string;
+    readonly transactions: PointTransaction[];
+}, Error, {
+    readonly points: string;
+    readonly uPoints: string;
+    readonly transactions: PointTransaction[];
+}, (string | number | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        readonly points: string;
+        readonly uPoints: string;
+        readonly transactions: PointTransaction[];
+    }, (string | number | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: {
+            readonly points: string;
+            readonly uPoints: string;
+            readonly transactions: PointTransaction[];
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface SearchResult {
+    id: number;
+    title: string;
+    body: string;
+    category: string;
+    author: string;
+    permlink: string;
+    author_rep: number;
+    total_payout: number;
+    img_url: string;
+    created_at: string;
+    children: number;
+    tags: string[];
+    app: string;
+    depth: number;
+}
+interface SearchResponse {
+    hits: number;
+    took: number;
+    scroll_id?: string;
+    results: SearchResult[];
+}
+
+declare function searchQueryOptions(q: string, sort: string, hideLow: string, since?: string, scroll_id?: string, votes?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<SearchResponse, Error, SearchResponse, (string | number | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<SearchResponse, (string | number | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: SearchResponse;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+type PageParam = {
+    sid: string | undefined;
+    hasNextPage: boolean;
+};
+declare function getControversialRisingInfiniteQueryOptions(what: string, tag: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<SearchResponse, Error, SearchResponse, (string | number)[], PageParam>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<SearchResponse, (string | number)[], PageParam> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<SearchResponse, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface Entry {
+    author: string;
+    permlink: string;
+    json_metadata?: {
+        tags?: string[];
+    };
+}
+declare function getSimilarEntriesQueryOptions(entry: Entry): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<SearchResult[], Error, SearchResult[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<SearchResult[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: SearchResult[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthorReward, type BlogEntry, type BuildProfileMetadataArgs, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationReward, type DelegateVestingShares, type DelegatedVestingShare, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type Interest, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, type LimitOrderCancel, type LimitOrderCreate, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OperationGroup, type OrdersData, type OrdersDataItem, type Payer, type PointTransaction, type Points, type ProducerReward, type ProfileTokens, type Proposal, type ProposalPay, type ProposalVote, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type Recoveries, type RecurrentTransfers, type ReturnVestingDelegation, type SavingsWithdrawRequest, type SearchResponse, type SearchResult, type SetWithdrawRoute, SortOrder, type StatsResponse, type StoringUser, type Subscription, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferToSavings, type TransferToVesting, type TrendingTag, type UpdateProposalVotes, type Vote, type VoteProxy, type WalletMetadataCandidate, type WithdrawRoute, type WithdrawVesting, type Witness, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountsByUsernameQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };

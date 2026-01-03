@@ -27,7 +27,7 @@ export function useLoginInApp(username: string) {
   const { mutateAsync: recordActivity } = useRecordUserActivity();
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
-  const notificationsSettingsQuery = useQuery(getNotificationsSettingsQueryOptions(activeUser));
+  const notificationsSettingsQuery = useQuery(getNotificationsSettingsQueryOptions(activeUser?.username));
   const refetchNotificationSettings = notificationsSettingsQuery.refetch;
 
   const handleTutorial = useAfterLoginTutorial(username);

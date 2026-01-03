@@ -13,3 +13,5 @@ export * from "./modules/proposals";
 export * from "./modules/wallet";
 export * from "./modules/witnesses";
 export * from "./modules/market";
+export * from "./modules/points";
+export * from "./modules/search";

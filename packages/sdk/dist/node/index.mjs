@@ -1772,6 +1772,124 @@ function getReblogsQueryOptions(username, activeUsername, limit = 200) {
     enabled: !!username
   });
 }
+function getSchedulesQueryOptions(activeUsername) {
+  return queryOptions({
+    queryKey: ["posts", "schedules", activeUsername],
+    queryFn: async () => {
+      if (!activeUsername) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/schedules", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code: getAccessToken(activeUsername)
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch schedules: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!activeUsername
+  });
+}
+function getDraftsQueryOptions(activeUsername) {
+  return queryOptions({
+    queryKey: ["posts", "drafts", activeUsername],
+    queryFn: async () => {
+      if (!activeUsername) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/drafts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code: getAccessToken(activeUsername)
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch drafts: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!activeUsername
+  });
+}
+function getImagesQueryOptions(username) {
+  return queryOptions({
+    queryKey: ["posts", "images", username],
+    queryFn: async () => {
+      if (!username) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code: getAccessToken(username)
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch images: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!username
+  });
+}
+function getGalleryImagesQueryOptions(activeUsername) {
+  return queryOptions({
+    queryKey: ["posts", "gallery-images", activeUsername],
+    queryFn: async () => {
+      if (!activeUsername) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code: getAccessToken(activeUsername)
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch gallery images: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!activeUsername
+  });
+}
+function getCommentHistoryQueryOptions(author, permlink) {
+  return queryOptions({
+    queryKey: ["posts", "comment-history", author, permlink],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          author,
+          permlink
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch comment history: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!author && !!permlink
+  });
+}
 function useAddFragment(username) {
   return useMutation({
     mutationKey: ["posts", "add-fragment", username],
@@ -2260,6 +2378,7 @@ function getNotificationsUnreadCountQueryOptions(activeUsername) {
       const response = await fetch(
         `${CONFIG.privateApiHost}/private-api/notifications/unread`,
         {
+          method: "POST",
           body: JSON.stringify({ code: getAccessToken(activeUsername) }),
           headers: {
             "Content-Type": "application/json"
@@ -2368,6 +2487,9 @@ function getNotificationsSettingsQueryOptions(activeUsername) {
           }
         }
       );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch notification settings: ${response.status}`);
+      }
       return response.json();
     },
     enabled: !!activeUsername,
@@ -2575,7 +2697,184 @@ function getOrderBookQueryOptions(limit = 500) {
     ])
   });
 }
+function getPointsQueryOptions(username, filter = 0) {
+  return queryOptions({
+    queryKey: ["points", username, filter],
+    queryFn: async () => {
+      if (!username) {
+        throw new Error("Get points query \u2013 username wasn't provided");
+      }
+      const name = username.replace("@", "");
+      const pointsResponse = await fetch(CONFIG.privateApiHost + "/private-api/points", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username: name })
+      });
+      if (!pointsResponse.ok) {
+        throw new Error(`Failed to fetch points: ${pointsResponse.status}`);
+      }
+      const points = await pointsResponse.json();
+      const transactionsResponse = await fetch(
+        CONFIG.privateApiHost + "/private-api/point-list",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username: name, type: filter })
+        }
+      );
+      if (!transactionsResponse.ok) {
+        throw new Error(`Failed to fetch point transactions: ${transactionsResponse.status}`);
+      }
+      const transactions = await transactionsResponse.json();
+      return {
+        points: points.points,
+        uPoints: points.unclaimed_points,
+        transactions
+      };
+    },
+    staleTime: 3e4,
+    refetchOnMount: true,
+    enabled: !!username
+  });
+}
+function searchQueryOptions(q, sort, hideLow, since, scroll_id, votes) {
+  return queryOptions({
+    queryKey: ["search", q, sort, hideLow, since, scroll_id, votes],
+    queryFn: async () => {
+      const data = { q, sort, hide_low: hideLow };
+      if (since) data.since = since;
+      if (scroll_id) data.scroll_id = scroll_id;
+      if (votes) data.votes = votes;
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+}
+function getControversialRisingInfiniteQueryOptions(what, tag, enabled = true) {
+  return infiniteQueryOptions({
+    queryKey: ["search", "controversial-rising", what, tag],
+    initialPageParam: { sid: void 0, hasNextPage: true },
+    queryFn: async ({ pageParam }) => {
+      if (!pageParam.hasNextPage) {
+        return {
+          hits: 0,
+          took: 0,
+          results: []
+        };
+      }
+      let sinceDate;
+      const now = /* @__PURE__ */ new Date();
+      switch (tag) {
+        case "today":
+          sinceDate = new Date(now.getTime() - 24 * 60 * 60 * 1e3);
+          break;
+        case "week":
+          sinceDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1e3);
+          break;
+        case "month":
+          sinceDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1e3);
+          break;
+        case "year":
+          sinceDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1e3);
+          break;
+        default:
+          sinceDate = void 0;
+      }
+      const q = "* type:post";
+      const sort = what === "rising" ? "children" : what;
+      const since = sinceDate ? sinceDate.toISOString().split(".")[0] : void 0;
+      const hideLow = "0";
+      const votes = tag === "today" ? 50 : 200;
+      const data = { q, sort, hide_low: hideLow };
+      if (since) data.since = since;
+      if (pageParam.sid) data.scroll_id = pageParam.sid;
+      data.votes = votes;
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+      return response.json();
+    },
+    getNextPageParam: (resp) => {
+      return {
+        sid: resp?.scroll_id,
+        hasNextPage: resp.results.length > 0
+      };
+    },
+    enabled
+  });
+}
+function buildQuery(entry, retry = 3) {
+  const { json_metadata, permlink } = entry;
+  let q = "*";
+  q += ` -dporn type:post`;
+  let tags;
+  if (json_metadata && json_metadata.tags && Array.isArray(json_metadata.tags)) {
+    tags = json_metadata.tags.filter((tag) => tag && tag !== "").filter((tag) => !tag.startsWith("hive-")).filter((_tag, ind) => ind < +retry).join(",");
+  }
+  if (tags && tags.length > 0) {
+    q += ` tag:${tags}`;
+  } else {
+    const fperm = permlink.split("-");
+    tags = fperm.filter((part) => part !== "").filter((part) => !/^-?\d+$/.test(part)).filter((part) => part.length > 2).join(",");
+    q += ` tag:${tags}`;
+  }
+  return q;
+}
+function getSimilarEntriesQueryOptions(entry) {
+  const query = buildQuery(entry);
+  return queryOptions({
+    queryKey: ["search", "similar-entries", entry.author, entry.permlink, query],
+    queryFn: async () => {
+      const data = {
+        q: query,
+        sort: "newest",
+        hide_low: "0"
+      };
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+      const searchResponse = await response.json();
+      const rawEntries = searchResponse.results.filter(
+        (r) => r.permlink !== entry.permlink && r.tags.indexOf("nsfw") === -1
+      );
+      const entries = [];
+      for (const result of rawEntries) {
+        if (entries.find((y) => y.author === result.author) === void 0) {
+          entries.push(result);
+        }
+      }
+      return entries.slice(0, 3);
+    }
+  });
+}
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountsByUsernameQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

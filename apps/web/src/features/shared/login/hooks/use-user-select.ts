@@ -17,7 +17,7 @@ export function useUserSelect(user: User) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
-  const notificationsSettingsQuery = useNotificationsSettingsQuery();
+  const notificationsSettingsQuery = useNotificationsSettingsQuery(user.username);
 
   return useMutation({
     mutationKey: ["user-select", user.username],
