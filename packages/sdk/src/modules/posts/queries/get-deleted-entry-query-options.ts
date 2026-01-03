@@ -2,8 +2,23 @@ import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core";
 import { CommentHistory } from "../types/comment-history";
 
-function makeEntryPath(category: string, author: string, permlink: string) {
-  return `${category}/@${author}/${permlink}`;
+function makeEntryPath(author: string, permlink: string): string {
+  const cleanAuthor = author?.trim();
+  const cleanPermlink = permlink?.trim();
+
+  if (!cleanAuthor || !cleanPermlink) {
+    throw new Error("Invalid entry path: author and permlink are required");
+  }
+
+  // Normalize by removing any leading @ or / characters
+  const normalizedAuthor = cleanAuthor.replace(/^@+/, "");
+  const normalizedPermlink = cleanPermlink.replace(/^\/+/, "");
+
+  if (!normalizedAuthor || !normalizedPermlink) {
+    throw new Error("Invalid entry path: author and permlink cannot be empty after normalization");
+  }
+
+  return `@${normalizedAuthor}/${normalizedPermlink}`;
 }
 
 export interface DeletedEntry {
@@ -14,7 +29,11 @@ export interface DeletedEntry {
 
 export function getDeletedEntryQueryOptions(author: string, permlink: string) {
   const cleanPermlink = permlink?.trim();
-  const entryPath = makeEntryPath("", author, cleanPermlink ?? "");
+  const cleanAuthor = author?.trim();
+  const isValid =
+    !!cleanAuthor && !!cleanPermlink && cleanPermlink !== "undefined";
+
+  const entryPath = isValid ? makeEntryPath(cleanAuthor, cleanPermlink) : "";
 
   return queryOptions({
     queryKey: ["posts", "deleted-entry", entryPath],
@@ -48,7 +67,6 @@ export function getDeletedEntryQueryOptions(author: string, permlink: string) {
         tags,
       };
     },
-    enabled:
-      !!author && !!cleanPermlink && cleanPermlink !== "undefined",
+    enabled: isValid,
   });
 }
