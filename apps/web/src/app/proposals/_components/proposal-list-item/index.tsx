@@ -31,7 +31,7 @@ export function ProposalListItem({ proposal, isReturnProposalId, thresholdPropos
     1000
   ).useClientQuery();
   const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const votes = useMemo(() => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []), []);
+  const votes = useMemo(() => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []), [votesPages?.pages]);
 
   const votedByVoter = useMemo(
     () => (votes?.length ?? 0) > 0 && votes?.[0].voter === params?.get("voter"),
