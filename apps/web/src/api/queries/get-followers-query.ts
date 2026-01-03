@@ -1,6 +1,5 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { client } from "@/api/hive";
-import { Follow } from "@/entities";
+import { EcencyQueriesManager } from "@/core/react-query";
+import { getFollowingQueryOptions } from "@ecency/sdk";
 
 export const getFollowingQuery = (
   follower: string | undefined,
@@ -8,14 +7,6 @@ export const getFollowingQuery = (
   followType = "blog",
   limit = 100
 ) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.GET_FOLLOWING, startFollowing],
-    queryFn: () =>
-      client.database.call("get_following", [
-        follower,
-        startFollowing,
-        followType,
-        limit
-      ]) as Promise<Follow[]>,
-    enabled: !!follower
-  });
+  EcencyQueriesManager.generateClientServerQuery(
+    getFollowingQueryOptions(follower, startFollowing, followType, limit)
+  );

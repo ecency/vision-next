@@ -116,6 +116,12 @@ interface GetRecoveriesEmailResponse extends Recoveries {
     _id: string;
 }
 
+interface Follow {
+    follower: string;
+    following: string;
+    what: string[];
+}
+
 interface Payload$4 {
     profile: Partial<AccountProfile>;
     tokens: AccountProfile["tokens"];
@@ -379,6 +385,62 @@ declare function getAccountFullQueryOptions(username: string | undefined): _tans
     };
 };
 
+/**
+ * Get multiple accounts by usernames
+ */
+declare function getAccountsQueryOptions(usernames: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<FullAccount[], Error, FullAccount[], (string | string[])[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<FullAccount[], (string | string[])[], never> | undefined;
+} & {
+    queryKey: (string | string[])[] & {
+        [dataTagSymbol]: FullAccount[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get follow count (followers and following) for an account
+ */
+declare function getFollowCountQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFollowStats, Error, AccountFollowStats, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AccountFollowStats, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: AccountFollowStats;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get list of accounts that a user is following
+ *
+ * @param follower - The account doing the following
+ * @param startFollowing - Pagination start point (account name)
+ * @param followType - Type of follow relationship (default: "blog")
+ * @param limit - Maximum number of results (default: 100)
+ */
+declare function getFollowingQueryOptions(follower: string | undefined, startFollowing: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: Follow[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get list of users that an account has muted
+ *
+ * @param username - The account username
+ * @param limit - Maximum number of results (default: 100)
+ */
+declare function getMutedUsersQueryOptions(username: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: string[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
 declare function getSearchAccountsByUsernameQueryOptions(query: string, limit?: number, excludeList?: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | string[])[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<string[], (string | string[])[], never> | undefined;
 } & {
@@ -475,6 +537,12 @@ interface BuildProfileMetadataArgs {
 declare function parseProfileMetadata(postingJsonMetadata?: string | null): AccountProfile;
 declare function extractAccountProfile(data?: Pick<FullAccount, "posting_json_metadata"> | null): AccountProfile;
 declare function buildProfileMetadata({ existingProfile, profile, tokens, }: BuildProfileMetadataArgs): AccountProfile;
+
+/**
+ * Parses raw account data from Hive API into FullAccount type
+ * Handles profile metadata extraction from posting_json_metadata or json_metadata
+ */
+declare function parseAccounts(rawAccounts: any[]): FullAccount[];
 
 declare function useSignOperationByKey(username: string | undefined): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, {
     operation: Operation;
@@ -1501,4 +1569,263 @@ declare function getNotificationsSettingsQueryOptions(activeUsername: string | u
     };
 };
 
-export { ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type BlogEntry, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type Payer, type ProfileTokens, ROLES, type RcStats, type Reblog, type Recoveries, SortOrder, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type Vote, type WalletMetadataCandidate, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+interface Proposal {
+    creator: string;
+    daily_pay: {
+        amount: string;
+        nai: string;
+        precision: number;
+    };
+    end_date: string;
+    id: number;
+    permlink: string;
+    proposal_id: number;
+    receiver: string;
+    start_date: string;
+    status: string;
+    subject: string;
+    total_votes: string;
+}
+
+interface ProposalVote {
+    id: number;
+    proposal?: Proposal;
+    voter: string;
+}
+
+/**
+ * Get a single proposal by ID
+ */
+declare function getProposalQueryOptions(id: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Proposal, Error, Proposal, (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Proposal, (string | number)[], never> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: Proposal;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get all proposals, sorted with expired proposals at the end
+ */
+declare function getProposalsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Proposal[], Error, Proposal[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Proposal[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: Proposal[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+type ProposalVoteRow = {
+    id: number;
+    voter: string;
+    voterAccount: FullAccount;
+};
+/**
+ * Get proposal votes with pagination and enriched voter account data
+ *
+ * @param proposalId - The proposal ID
+ * @param voter - Starting voter for pagination
+ * @param limit - Number of votes per page
+ */
+declare function getProposalVotesInfiniteQueryOptions(proposalId: number, voter: string, limit: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<ProposalVoteRow[], Error, ProposalVoteRow[], (string | number)[], string>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<ProposalVoteRow[], (string | number)[], string> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<ProposalVoteRow[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Fetches ALL proposal votes for a specific user in a single query.
+ * Much more efficient than querying each proposal individually.
+ * Uses "by_voter_proposal" order to get all votes by a user.
+ */
+declare function getUserProposalVotesQueryOptions(voter: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ProposalVote[], Error, ProposalVote[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<ProposalVote[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: ProposalVote[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface DelegatedVestingShare {
+    id: number;
+    delegatee: string;
+    delegator: string;
+    min_delegation_time: string;
+    vesting_shares: string;
+}
+
+interface ConversionRequest {
+    amount: string;
+    conversion_date: string;
+    id: number;
+    owner: string;
+    requestid: number;
+}
+interface CollateralizedConversionRequest {
+    collateral_amount: string;
+    conversion_date: string;
+    converted_amount: string;
+    id: number;
+    owner: string;
+    requestid: number;
+}
+
+interface SavingsWithdrawRequest {
+    id: number;
+    from: string;
+    to: string;
+    memo: string;
+    request_id: number;
+    amount: string;
+    complete: string;
+}
+
+interface WithdrawRoute {
+    auto_vest: boolean;
+    from_account: string;
+    id: number;
+    percent: number;
+    to_account: string;
+}
+
+interface OpenOrdersData {
+    id: number;
+    created: string;
+    expiration: string;
+    seller: string;
+    orderid: number;
+    for_sale: number;
+    sell_price: {
+        base: string;
+        quote: string;
+    };
+    real_price: string;
+    rewarded: boolean;
+}
+
+/**
+ * Get vesting delegations for an account
+ *
+ * @param username - The account username
+ * @param from - Pagination start point (delegatee name)
+ * @param limit - Maximum number of results (default: 50)
+ */
+declare function getVestingDelegationsQueryOptions(username?: string, from?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DelegatedVestingShare[], Error, DelegatedVestingShare[], (string | number | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<DelegatedVestingShare[], (string | number | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: DelegatedVestingShare[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get HBD to HIVE conversion requests for an account
+ *
+ * @param account - The account username
+ */
+declare function getConversionRequestsQueryOptions(account: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ConversionRequest[], Error, ConversionRequest[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<ConversionRequest[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: ConversionRequest[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get collateralized HIVE to HBD conversion requests for an account
+ *
+ * @param account - The account username
+ */
+declare function getCollateralizedConversionRequestsQueryOptions(account: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<CollateralizedConversionRequest[], Error, CollateralizedConversionRequest[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<CollateralizedConversionRequest[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: CollateralizedConversionRequest[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get pending savings withdrawal requests for an account
+ *
+ * @param account - The account username
+ */
+declare function getSavingsWithdrawFromQueryOptions(account: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<SavingsWithdrawRequest[], Error, SavingsWithdrawRequest[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<SavingsWithdrawRequest[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: SavingsWithdrawRequest[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get power down (vesting withdrawal) routes for an account
+ *
+ * @param account - The account username
+ */
+declare function getWithdrawRoutesQueryOptions(account: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<WithdrawRoute[], Error, WithdrawRoute[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WithdrawRoute[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: WithdrawRoute[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get open market orders for an account
+ *
+ * @param user - The account username
+ */
+declare function getOpenOrdersQueryOptions(user: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<OpenOrdersData[], Error, OpenOrdersData[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<OpenOrdersData[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: OpenOrdersData[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface Witness {
+    total_missed: number;
+    url: string;
+    props: {
+        account_creation_fee: string;
+        account_subsidy_budget: number;
+        maximum_block_size: number;
+    };
+    hbd_exchange_rate: {
+        base: string;
+    };
+    available_witness_account_subsidies: number;
+    running_version: string;
+    owner: string;
+    signing_key: string;
+    last_hbd_exchange_update: string;
+}
+
+type WitnessPage = Witness[];
+/**
+ * Get witnesses ordered by vote count (infinite scroll)
+ *
+ * @param limit - Number of witnesses per page
+ */
+declare function getWitnessesInfiniteQueryOptions(limit: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WitnessPage, Error, WitnessPage, (string | number)[], string>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WitnessPage, (string | number)[], string> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WitnessPage, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+export { ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type BlogEntry, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type CollateralizedConversionRequest, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type DelegatedVestingShare, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type Follow, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type Payer, type ProfileTokens, type Proposal, type ProposalVote, type ProposalVoteRow, ROLES, type RcStats, type Reblog, type Recoveries, type SavingsWithdrawRequest, SortOrder, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type Vote, type WalletMetadataCandidate, type WithdrawRoute, type Witness, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };

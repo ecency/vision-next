@@ -1,19 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { getAccounts } from "@/api/hive";
+import { EcencyQueriesManager } from "@/core/react-query";
+import { getAccountsQueryOptions } from "@ecency/sdk";
 
 export function useGetAccountsQuery(usernames: string[]) {
-  return useQuery({
-    queryKey: [QueryIdentifiers.GET_ACCOUNTS],
-    queryFn: () => getAccounts(usernames),
-    enabled: usernames.length > 0,
-    initialData: []
-  });
+  return useQuery(getAccountsQueryOptions(usernames));
 }
 
 export const getAccountsQuery = (usernames: string[]) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.GET_ACCOUNTS, usernames],
-    queryFn: () => getAccounts(usernames),
-    enabled: usernames.length > 0
-  });
+  EcencyQueriesManager.generateClientServerQuery(getAccountsQueryOptions(usernames));

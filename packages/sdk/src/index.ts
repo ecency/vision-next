@@ -9,3 +9,6 @@ export * from "./modules/resource-credits";
 export * from "./modules/games";
 export * from "./modules/communities";
 export * from "./modules/notifications";
+export * from "./modules/proposals";
+export * from "./modules/wallet";
+export * from "./modules/witnesses";

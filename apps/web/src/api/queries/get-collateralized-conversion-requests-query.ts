@@ -1,13 +1,7 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { client } from "@/api/hive";
-import { CollateralizedConversionRequest } from "@/entities";
+import { EcencyQueriesManager } from "@/core/react-query";
+import { getCollateralizedConversionRequestsQueryOptions } from "@ecency/sdk";
 
 export const getCollateralizedConversionRequestsQuery = (account: string) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.COLLATERALIZED_REQUESTS, account],
-    queryFn: () =>
-      client.database.call("get_collateralized_conversion_requests", [account]) as Promise<
-        CollateralizedConversionRequest[]
-      >,
-    select: (data) => data.sort((a, b) => a.requestid - b.requestid)
-  });
+  EcencyQueriesManager.generateClientServerQuery(
+    getCollateralizedConversionRequestsQueryOptions(account)
+  );

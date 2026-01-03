@@ -493,6 +493,165 @@ function getAccountFullQueryOptions(username) {
     staleTime: 6e4
   });
 }
+function sanitizeTokens(tokens) {
+  return tokens?.map(({ meta, ...rest }) => {
+    if (!meta || typeof meta !== "object") {
+      return { ...rest, meta };
+    }
+    const { privateKey, username, ...safeMeta } = meta;
+    return { ...rest, meta: safeMeta };
+  });
+}
+function parseProfileMetadata(postingJsonMetadata) {
+  if (!postingJsonMetadata) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(postingJsonMetadata);
+    if (parsed && typeof parsed === "object" && parsed.profile && typeof parsed.profile === "object") {
+      return parsed.profile;
+    }
+  } catch (err) {
+  }
+  return {};
+}
+function extractAccountProfile(data) {
+  return parseProfileMetadata(data?.posting_json_metadata);
+}
+function buildProfileMetadata({
+  existingProfile,
+  profile,
+  tokens
+}) {
+  const { tokens: profileTokens, version: _ignoredVersion, ...profileRest } = profile ?? {};
+  const metadata = R4__namespace.mergeDeep(
+    existingProfile ?? {},
+    profileRest
+  );
+  const nextTokens = tokens ?? profileTokens;
+  if (nextTokens && nextTokens.length > 0) {
+    metadata.tokens = nextTokens;
+  }
+  metadata.tokens = sanitizeTokens(metadata.tokens);
+  metadata.version = 2;
+  return metadata;
+}
+
+// src/modules/accounts/utils/parse-accounts.ts
+function parseAccounts(rawAccounts) {
+  return rawAccounts.map((x) => {
+    const account = {
+      name: x.name,
+      owner: x.owner,
+      active: x.active,
+      posting: x.posting,
+      memo_key: x.memo_key,
+      post_count: x.post_count,
+      created: x.created,
+      reputation: x.reputation,
+      posting_json_metadata: x.posting_json_metadata,
+      last_vote_time: x.last_vote_time,
+      last_post: x.last_post,
+      json_metadata: x.json_metadata,
+      reward_hive_balance: x.reward_hive_balance,
+      reward_hbd_balance: x.reward_hbd_balance,
+      reward_vesting_hive: x.reward_vesting_hive,
+      reward_vesting_balance: x.reward_vesting_balance,
+      balance: x.balance,
+      hbd_balance: x.hbd_balance,
+      savings_balance: x.savings_balance,
+      savings_hbd_balance: x.savings_hbd_balance,
+      savings_hbd_last_interest_payment: x.savings_hbd_last_interest_payment,
+      savings_hbd_seconds_last_update: x.savings_hbd_seconds_last_update,
+      savings_hbd_seconds: x.savings_hbd_seconds,
+      next_vesting_withdrawal: x.next_vesting_withdrawal,
+      pending_claimed_accounts: x.pending_claimed_accounts,
+      vesting_shares: x.vesting_shares,
+      delegated_vesting_shares: x.delegated_vesting_shares,
+      received_vesting_shares: x.received_vesting_shares,
+      vesting_withdraw_rate: x.vesting_withdraw_rate,
+      to_withdraw: x.to_withdraw,
+      withdrawn: x.withdrawn,
+      witness_votes: x.witness_votes,
+      proxy: x.proxy,
+      recovery_account: x.recovery_account,
+      proxied_vsf_votes: x.proxied_vsf_votes,
+      voting_manabar: x.voting_manabar,
+      voting_power: x.voting_power,
+      downvote_manabar: x.downvote_manabar
+    };
+    let profile = parseProfileMetadata(
+      x.posting_json_metadata
+    );
+    if (!profile || Object.keys(profile).length === 0) {
+      try {
+        const jsonMetadata = JSON.parse(x.json_metadata || "{}");
+        if (jsonMetadata.profile) {
+          profile = jsonMetadata.profile;
+        }
+      } catch (e) {
+      }
+    }
+    if (!profile || Object.keys(profile).length === 0) {
+      profile = {
+        about: "",
+        cover_image: "",
+        location: "",
+        name: "",
+        profile_image: "",
+        website: ""
+      };
+    }
+    return { ...account, profile };
+  });
+}
+
+// src/modules/accounts/queries/get-accounts-query-options.ts
+function getAccountsQueryOptions(usernames) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "get-accounts", usernames],
+    queryFn: async () => {
+      const response = await CONFIG.hiveClient.database.getAccounts(usernames);
+      return parseAccounts(response);
+    },
+    enabled: usernames.length > 0
+  });
+}
+function getFollowCountQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "follow-count", username],
+    queryFn: () => CONFIG.hiveClient.database.call("get_follow_count", [
+      username
+    ])
+  });
+}
+function getFollowingQueryOptions(follower, startFollowing, followType = "blog", limit = 100) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "following", follower, startFollowing, followType, limit],
+    queryFn: () => CONFIG.hiveClient.database.call("get_following", [
+      follower,
+      startFollowing,
+      followType,
+      limit
+    ]),
+    enabled: !!follower
+  });
+}
+function getMutedUsersQueryOptions(username, limit = 100) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "muted-users", username],
+    queryFn: async () => {
+      const response = await CONFIG.hiveClient.database.call("get_following", [
+        username,
+        "",
+        "ignore",
+        limit
+      ]);
+      return response.map((user) => user.following);
+    },
+    enabled: !!username
+  });
+}
 function getSearchAccountsByUsernameQueryOptions(query, limit = 5, excludeList = []) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "search", query, excludeList],
@@ -711,49 +870,6 @@ function getAccountPendingRecoveryQueryOptions(username) {
       { accounts: [username] }
     )
   });
-}
-function sanitizeTokens(tokens) {
-  return tokens?.map(({ meta, ...rest }) => {
-    if (!meta || typeof meta !== "object") {
-      return { ...rest, meta };
-    }
-    const { privateKey, username, ...safeMeta } = meta;
-    return { ...rest, meta: safeMeta };
-  });
-}
-function parseProfileMetadata(postingJsonMetadata) {
-  if (!postingJsonMetadata) {
-    return {};
-  }
-  try {
-    const parsed = JSON.parse(postingJsonMetadata);
-    if (parsed && typeof parsed === "object" && parsed.profile && typeof parsed.profile === "object") {
-      return parsed.profile;
-    }
-  } catch (err) {
-  }
-  return {};
-}
-function extractAccountProfile(data) {
-  return parseProfileMetadata(data?.posting_json_metadata);
-}
-function buildProfileMetadata({
-  existingProfile,
-  profile,
-  tokens
-}) {
-  const { tokens: profileTokens, version: _ignoredVersion, ...profileRest } = profile ?? {};
-  const metadata = R4__namespace.mergeDeep(
-    existingProfile ?? {},
-    profileRest
-  );
-  const nextTokens = tokens ?? profileTokens;
-  if (nextTokens && nextTokens.length > 0) {
-    metadata.tokens = nextTokens;
-  }
-  metadata.tokens = sanitizeTokens(metadata.tokens);
-  metadata.version = 2;
-  return metadata;
 }
 
 // src/modules/accounts/mutations/use-account-update.ts
@@ -2161,6 +2277,163 @@ function getNotificationsSettingsQueryOptions(activeUsername) {
     }
   });
 }
+function getProposalQueryOptions(id) {
+  return reactQuery.queryOptions({
+    queryKey: ["proposals", "proposal", id],
+    queryFn: async () => {
+      const r = await CONFIG.hiveClient.call("condenser_api", "find_proposals", [[id]]);
+      const proposal = r[0];
+      if (new Date(proposal.start_date) < /* @__PURE__ */ new Date() && new Date(proposal.end_date) >= /* @__PURE__ */ new Date()) {
+        proposal.status = "active";
+      } else if (new Date(proposal.end_date) < /* @__PURE__ */ new Date()) {
+        proposal.status = "expired";
+      } else {
+        proposal.status = "inactive";
+      }
+      return proposal;
+    }
+  });
+}
+function getProposalsQueryOptions() {
+  return reactQuery.queryOptions({
+    queryKey: ["proposals", "list"],
+    queryFn: async () => {
+      const response = await CONFIG.hiveClient.call("database_api", "list_proposals", {
+        start: [-1],
+        limit: 500,
+        order: "by_total_votes",
+        order_direction: "descending",
+        status: "all"
+      });
+      const proposals = response.proposals;
+      const expired = proposals.filter((x) => x.status === "expired");
+      const others = proposals.filter((x) => x.status !== "expired");
+      return [...others, ...expired];
+    }
+  });
+}
+function getProposalVotesInfiniteQueryOptions(proposalId, voter, limit) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["proposals", "votes", proposalId, voter, limit],
+    initialPageParam: voter,
+    refetchOnMount: true,
+    staleTime: 0,
+    // Always refetch on mount
+    queryFn: async ({ pageParam }) => {
+      const startParam = pageParam ?? voter;
+      const response = await CONFIG.hiveClient.call("condenser_api", "list_proposal_votes", [
+        [proposalId, startParam],
+        limit,
+        "by_proposal_voter"
+      ]);
+      const list = response.filter((x) => x.proposal?.proposal_id === proposalId).map((x) => ({ id: x.id, voter: x.voter }));
+      const rawAccounts = await CONFIG.hiveClient.database.getAccounts(list.map((l) => l.voter));
+      const accounts = parseAccounts(rawAccounts);
+      const page = list.map((i) => ({
+        ...i,
+        voterAccount: accounts.find((a) => i.voter === a.name)
+      }));
+      return page;
+    },
+    getNextPageParam: (lastPage) => {
+      const last = lastPage?.[lastPage.length - 1];
+      return last?.voter ?? void 0;
+    }
+  });
+}
+function getUserProposalVotesQueryOptions(voter) {
+  return reactQuery.queryOptions({
+    queryKey: ["proposals", "votes", "by-user", voter],
+    enabled: !!voter && voter !== "",
+    staleTime: 60 * 1e3,
+    // Cache for 1 minute
+    queryFn: async () => {
+      if (!voter || voter === "") {
+        return [];
+      }
+      const response = await CONFIG.hiveClient.call("database_api", "list_proposal_votes", {
+        start: [voter],
+        limit: 1e3,
+        order: "by_voter_proposal",
+        order_direction: "ascending",
+        status: "votable"
+      });
+      const userVotes = (response.proposal_votes || []).filter((vote) => vote.voter === voter);
+      return userVotes;
+    }
+  });
+}
+function getVestingDelegationsQueryOptions(username, from, limit = 50) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "vesting-delegations", username, from, limit],
+    queryFn: () => CONFIG.hiveClient.database.call("get_vesting_delegations", [
+      username,
+      from,
+      limit
+    ]),
+    enabled: !!username
+  });
+}
+function getConversionRequestsQueryOptions(account) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "conversion-requests", account],
+    queryFn: () => CONFIG.hiveClient.database.call("get_conversion_requests", [
+      account
+    ]),
+    select: (data) => data.sort((a, b) => a.requestid - b.requestid)
+  });
+}
+function getCollateralizedConversionRequestsQueryOptions(account) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "collateralized-conversion-requests", account],
+    queryFn: () => CONFIG.hiveClient.database.call("get_collateralized_conversion_requests", [
+      account
+    ]),
+    select: (data) => data.sort((a, b) => a.requestid - b.requestid)
+  });
+}
+function getSavingsWithdrawFromQueryOptions(account) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "savings-withdraw", account],
+    queryFn: () => CONFIG.hiveClient.database.call("get_savings_withdraw_from", [
+      account
+    ]),
+    select: (data) => data.sort((a, b) => a.request_id - b.request_id)
+  });
+}
+function getWithdrawRoutesQueryOptions(account) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "withdraw-routes", account],
+    queryFn: () => CONFIG.hiveClient.database.call("get_withdraw_routes", [
+      account,
+      "outgoing"
+    ])
+  });
+}
+function getOpenOrdersQueryOptions(user) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "open-orders", user],
+    queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_open_orders", [
+      user
+    ]),
+    select: (data) => data.sort((a, b) => a.orderid - b.orderid),
+    enabled: !!user
+  });
+}
+function getWitnessesInfiniteQueryOptions(limit) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["witnesses", "list", limit],
+    initialPageParam: "",
+    queryFn: async ({ pageParam }) => CONFIG.hiveClient.call("condenser_api", "get_witnesses_by_vote", [
+      pageParam,
+      limit
+    ]),
+    getNextPageParam: (lastPage) => {
+      const last = lastPage?.[lastPage.length - 1];
+      return last ? last.owner : void 0;
+    }
+  });
+}
 
 exports.ALL_NOTIFY_TYPES = ALL_NOTIFY_TYPES;
 exports.CONFIG = CONFIG;
@@ -2189,39 +2462,55 @@ exports.getAccountPostsInfiniteQueryOptions = getAccountPostsInfiniteQueryOption
 exports.getAccountRcQueryOptions = getAccountRcQueryOptions;
 exports.getAccountRecoveriesQueryOptions = getAccountRecoveriesQueryOptions;
 exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOptions;
+exports.getAccountsQueryOptions = getAccountsQueryOptions;
 exports.getActiveAccountBookmarksQueryOptions = getActiveAccountBookmarksQueryOptions;
 exports.getActiveAccountFavouritesQueryOptions = getActiveAccountFavouritesQueryOptions;
 exports.getBoundFetch = getBoundFetch;
 exports.getChainPropertiesQueryOptions = getChainPropertiesQueryOptions;
+exports.getCollateralizedConversionRequestsQueryOptions = getCollateralizedConversionRequestsQueryOptions;
 exports.getCommunitiesQueryOptions = getCommunitiesQueryOptions;
 exports.getCommunityContextQueryOptions = getCommunityContextQueryOptions;
 exports.getCommunityPermissions = getCommunityPermissions;
 exports.getCommunityType = getCommunityType;
+exports.getConversionRequestsQueryOptions = getConversionRequestsQueryOptions;
 exports.getDiscussionsQueryOptions = getDiscussionsQueryOptions;
 exports.getDynamicPropsQueryOptions = getDynamicPropsQueryOptions;
 exports.getEntryActiveVotesQueryOptions = getEntryActiveVotesQueryOptions;
+exports.getFollowCountQueryOptions = getFollowCountQueryOptions;
+exports.getFollowingQueryOptions = getFollowingQueryOptions;
 exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
 exports.getGameStatusCheckQueryOptions = getGameStatusCheckQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
 exports.getLoginType = getLoginType;
+exports.getMutedUsersQueryOptions = getMutedUsersQueryOptions;
 exports.getNotificationsInfiniteQueryOptions = getNotificationsInfiniteQueryOptions;
 exports.getNotificationsSettingsQueryOptions = getNotificationsSettingsQueryOptions;
 exports.getNotificationsUnreadCountQueryOptions = getNotificationsUnreadCountQueryOptions;
+exports.getOpenOrdersQueryOptions = getOpenOrdersQueryOptions;
 exports.getPostHeaderQueryOptions = getPostHeaderQueryOptions;
 exports.getPostQueryOptions = getPostQueryOptions;
 exports.getPostingKey = getPostingKey;
 exports.getPostsRankedInfiniteQueryOptions = getPostsRankedInfiniteQueryOptions;
 exports.getPromotedPostsQuery = getPromotedPostsQuery;
+exports.getProposalQueryOptions = getProposalQueryOptions;
+exports.getProposalVotesInfiniteQueryOptions = getProposalVotesInfiniteQueryOptions;
+exports.getProposalsQueryOptions = getProposalsQueryOptions;
 exports.getQueryClient = getQueryClient;
 exports.getRcStatsQueryOptions = getRcStatsQueryOptions;
 exports.getReblogsQueryOptions = getReblogsQueryOptions;
 exports.getRefreshToken = getRefreshToken;
 exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccountsQueryOptions;
+exports.getSavingsWithdrawFromQueryOptions = getSavingsWithdrawFromQueryOptions;
 exports.getSearchAccountsByUsernameQueryOptions = getSearchAccountsByUsernameQueryOptions;
 exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
 exports.getUser = getUser;
+exports.getUserProposalVotesQueryOptions = getUserProposalVotesQueryOptions;
+exports.getVestingDelegationsQueryOptions = getVestingDelegationsQueryOptions;
+exports.getWithdrawRoutesQueryOptions = getWithdrawRoutesQueryOptions;
+exports.getWitnessesInfiniteQueryOptions = getWitnessesInfiniteQueryOptions;
 exports.makeQueryClient = makeQueryClient;
+exports.parseAccounts = parseAccounts;
 exports.parseAsset = parseAsset;
 exports.parseProfileMetadata = parseProfileMetadata;
 exports.roleMap = roleMap;
