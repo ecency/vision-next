@@ -1,16 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { bridgeApiCall, getPostHeader } from "@/api/bridge";
-import { Entry } from "@/entities";
+import { EcencyQueriesManager } from "@/core/react-query";
+import { getPostHeaderQueryOptions } from "@ecency/sdk";
 
 export function getPostHeaderQuery(author: string, permlink: string) {
-  return EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.POST_HEADER, author, permlink],
-    queryFn: () =>
-      bridgeApiCall<Entry | null>("get_post_header", {
-        author,
-        permlink
-      }),
-    initialData: null
-  });
+  return EcencyQueriesManager.generateClientServerQuery(
+    getPostHeaderQueryOptions(author, permlink)
+  );
 }

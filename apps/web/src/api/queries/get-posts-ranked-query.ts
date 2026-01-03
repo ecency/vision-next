@@ -1,9 +1,5 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { Entry } from "@/entities";
-import { bridgeApiCall, resolvePost } from "@/api/bridge";
-import dmca from "@/dmca-tags.json";
-
-type PageParam = { author: string | undefined; permlink: string | undefined; hasNextPage: boolean };
+import { EcencyQueriesManager } from "@/core/react-query";
+import { getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
 
 interface GetPostsRankedOptions {
   resolvePosts?: boolean;
@@ -17,52 +13,6 @@ export const getPostsRankedQuery = (
   enabled = true,
   options: GetPostsRankedOptions = {}
 ) =>
-  EcencyQueriesManager.generateClientServerInfiniteQuery({
-    queryKey: [QueryIdentifiers.GET_POSTS_RANKED, sort, tag, limit, observer],
-    queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
-      if (!pageParam.hasNextPage) {
-        return [];
-      }
-      if (
-        dmca.some((rx: string) => new RegExp(rx).test(`${tag}`))
-      ) {
-        tag = "";
-      }
-      const response = await bridgeApiCall<Entry[] | null>("get_ranked_posts", {
-        sort,
-        start_author: pageParam.author,
-        start_permlink: pageParam.permlink,
-        limit,
-        tag,
-        observer
-      });
-
-      if (response) {
-        const shouldResolvePosts = options.resolvePosts ?? true;
-        const data = shouldResolvePosts
-          ? await Promise.all(response.map((item) => resolvePost(item, observer)))
-          : response;
-        const sorted =
-          sort === "hot"
-            ? data
-            : data.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
-        const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
-        const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
-        return [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s) as Entry[];
-      }
-
-      return [];
-    },
-    enabled,
-    // Don't set initialData here - let it use prefetched data from server
-    // initialData: { pages: [], pageParams: [] },
-    initialPageParam: { author: undefined, permlink: undefined, hasNextPage: true } as PageParam,
-    getNextPageParam: (lastPage: Entry[]) => {
-      const last = lastPage?.[lastPage!.length - 1];
-      return {
-        author: last?.author,
-        permlink: last?.permlink,
-        hasNextPage: (lastPage?.length ?? 0) > 0
-      };
-    }
-  });
+  EcencyQueriesManager.generateClientServerInfiniteQuery(
+    getPostsRankedInfiniteQueryOptions(sort, tag, limit, observer, enabled, options)
+  );
