@@ -1291,6 +1291,149 @@ function getPromotedPostsQuery(type = "feed") {
     }
   });
 }
+function getEntryActiveVotesQueryOptions(entry) {
+  return queryOptions({
+    queryKey: ["posts", "entry-active-votes", entry?.author, entry?.permlink],
+    queryFn: async () => {
+      return CONFIG.hiveClient.database.call("get_active_votes", [
+        entry?.author,
+        entry?.permlink
+      ]);
+    },
+    enabled: !!entry
+  });
+}
+function getPostHeaderQueryOptions(author, permlink) {
+  return queryOptions({
+    queryKey: ["posts", "post-header", author, permlink],
+    queryFn: async () => {
+      return CONFIG.hiveClient.call("bridge", "get_post_header", {
+        author,
+        permlink
+      });
+    },
+    initialData: null
+  });
+}
+function makeEntryPath(category, author, permlink) {
+  return `${category}/@${author}/${permlink}`;
+}
+function getPostQueryOptions(author, permlink, observer = "", num) {
+  const cleanPermlink = permlink?.trim();
+  const entryPath = makeEntryPath("", author, cleanPermlink ?? "");
+  return queryOptions({
+    queryKey: ["posts", "entry", entryPath],
+    queryFn: async () => {
+      if (!cleanPermlink || cleanPermlink === "undefined") {
+        return null;
+      }
+      const response = await CONFIG.hiveClient.call("bridge", "get_post", {
+        author,
+        permlink: cleanPermlink,
+        observer
+      });
+      if (response && num !== void 0) {
+        return { ...response, num };
+      }
+      return response;
+    },
+    enabled: !!author && !!permlink && permlink.trim() !== "" && permlink.trim() !== "undefined"
+  });
+}
+var SortOrder = /* @__PURE__ */ ((SortOrder2) => {
+  SortOrder2["trending"] = "trending";
+  SortOrder2["author_reputation"] = "author_reputation";
+  SortOrder2["votes"] = "votes";
+  SortOrder2["created"] = "created";
+  return SortOrder2;
+})(SortOrder || {});
+function parseAsset2(value) {
+  const match = value.match(/^(\d+\.?\d*)\s*([A-Z]+)$/);
+  if (!match) return { amount: 0, symbol: "" };
+  return {
+    amount: parseFloat(match[1]),
+    symbol: match[2]
+  };
+}
+function sortDiscussions(entry, discussion, order) {
+  const allPayout = (c) => parseAsset2(c.pending_payout_value).amount + parseAsset2(c.author_payout_value).amount + parseAsset2(c.curator_payout_value).amount;
+  const absNegative = (a) => a.net_rshares < 0;
+  const isPinned = (a) => entry.json_metadata?.pinned_reply === `${a.author}/${a.permlink}`;
+  const sortOrders = {
+    trending: (a, b) => {
+      if (absNegative(a)) {
+        return 1;
+      }
+      if (absNegative(b)) {
+        return -1;
+      }
+      const _a = allPayout(a);
+      const _b = allPayout(b);
+      if (_a !== _b) {
+        return _b - _a;
+      }
+      return 0;
+    },
+    author_reputation: (a, b) => {
+      const keyA = a.author_reputation;
+      const keyB = b.author_reputation;
+      if (keyA > keyB) return -1;
+      if (keyA < keyB) return 1;
+      return 0;
+    },
+    votes: (a, b) => {
+      const keyA = a.children;
+      const keyB = b.children;
+      if (keyA > keyB) return -1;
+      if (keyA < keyB) return 1;
+      return 0;
+    },
+    created: (a, b) => {
+      if (absNegative(a)) {
+        return 1;
+      }
+      if (absNegative(b)) {
+        return -1;
+      }
+      const keyA = Date.parse(a.created);
+      const keyB = Date.parse(b.created);
+      if (keyA > keyB) return -1;
+      if (keyA < keyB) return 1;
+      return 0;
+    }
+  };
+  const sorted = discussion.sort(sortOrders[order]);
+  const pinnedIndex = sorted.findIndex((i) => isPinned(i));
+  const pinned = sorted[pinnedIndex];
+  if (pinnedIndex >= 0) {
+    sorted.splice(pinnedIndex, 1);
+    sorted.unshift(pinned);
+  }
+  return sorted;
+}
+function getDiscussionsQueryOptions(entry, order = "created" /* created */, enabled = true, observer) {
+  return queryOptions({
+    queryKey: [
+      "posts",
+      "discussions",
+      entry?.author,
+      entry?.permlink,
+      order,
+      observer || entry?.author
+    ],
+    queryFn: async () => {
+      const response = await CONFIG.hiveClient.call("bridge", "get_discussion", {
+        author: entry.author,
+        permlink: entry.permlink,
+        observer: observer || entry.author
+      });
+      const results = response ? Array.from(Object.values(response)) : [];
+      return results;
+    },
+    enabled,
+    select: (data) => sortDiscussions(entry, data, order)
+  });
+}
 function useAddFragment(username) {
   return useMutation({
     mutationKey: ["posts", "add-fragment", username],
@@ -1881,6 +2024,6 @@ function getNotificationsSettingsQueryOptions(activeUsername) {
   });
 }
 
-export { ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

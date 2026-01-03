@@ -645,6 +645,114 @@ interface Fragment {
     modified: string;
 }
 
+interface EntryBeneficiaryRoute {
+    account: string;
+    weight: number;
+}
+interface EntryVote {
+    voter: string;
+    rshares: number;
+}
+interface EntryStat {
+    flag_weight: number;
+    gray: boolean;
+    hide: boolean;
+    total_votes: number;
+    is_pinned?: boolean;
+}
+interface JsonMetadata {
+    tags?: string[];
+    description?: string | null;
+    app?: any;
+    canonical_url?: string;
+    format?: string;
+    original_author?: string;
+    original_permlink?: string;
+    image?: string[];
+    pinned_reply?: string;
+    location?: {
+        coordinates: {
+            lat: number;
+            lng: number;
+        };
+        address?: string;
+    };
+}
+interface JsonPollMetadata {
+    content_type: "poll";
+    version: number;
+    question: string;
+    choices: string[];
+    preferred_interpretation: string;
+    token: string;
+    vote_change: boolean;
+    hide_votes: boolean;
+    filters: {
+        account_age: number;
+    };
+    end_time: number;
+    max_choices_voted?: number;
+}
+interface Entry {
+    last_update?: string;
+    active_votes: EntryVote[];
+    author: string;
+    author_payout_value: string;
+    author_reputation: number;
+    author_role?: string;
+    author_title?: string;
+    beneficiaries: EntryBeneficiaryRoute[];
+    blacklists: string[];
+    body: string;
+    category: string;
+    children: number;
+    community?: string;
+    community_title?: string;
+    created: string;
+    total_votes?: number;
+    curator_payout_value: string;
+    depth: number;
+    is_paidout: boolean;
+    json_metadata: JsonMetadata | null;
+    max_accepted_payout: string;
+    net_rshares: number;
+    parent_author?: string;
+    parent_permlink?: string;
+    payout: number;
+    payout_at: string;
+    pending_payout_value: string;
+    percent_hbd: number;
+    permlink: string;
+    post_id: any;
+    id?: number;
+    num?: number;
+    promoted: string;
+    reblogs?: number;
+    reblogged_by?: string[] | any;
+    replies: any[];
+    stats: EntryStat | null;
+    title: string;
+    updated: string;
+    url: string;
+    original_entry?: Entry;
+    is_optimistic?: boolean;
+}
+interface EntryHeader {
+    author: string;
+    category: string;
+    permlink: string;
+    depth: number;
+}
+interface Vote {
+    percent: number;
+    reputation: number;
+    rshares: string;
+    time: string;
+    timestamp?: number;
+    voter: string;
+    weight: number;
+}
+
 declare function getFragmentsQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Fragment[], Error, Fragment[], string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Fragment[], string[], never> | undefined;
 } & {
@@ -659,6 +767,50 @@ declare function getPromotedPostsQuery<T extends any>(type?: "feed" | "waves"): 
 } & {
     queryKey: string[] & {
         [dataTagSymbol]: T[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getEntryActiveVotesQueryOptions(entry?: Entry): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Vote[], Error, Vote[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Vote[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: Vote[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getPostHeaderQueryOptions(author: string, permlink: string): Omit<_tanstack_react_query.UseQueryOptions<Entry | null, Error, Entry | null, string[]>, "queryFn"> & {
+    initialData: Entry | (() => Entry | null) | null;
+    queryFn?: _tanstack_react_query.QueryFunction<Entry | null, string[]> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: Entry | null;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getPostQueryOptions(author: string, permlink?: string, observer?: string, num?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Entry | null, Error, Entry | null, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Entry | null, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: Entry | null;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare enum SortOrder {
+    trending = "trending",
+    author_reputation = "author_reputation",
+    votes = "votes",
+    created = "created"
+}
+declare function sortDiscussions(entry: Entry, discussion: Entry[], order: SortOrder): Entry[];
+declare function getDiscussionsQueryOptions(entry: Entry, order?: SortOrder, enabled?: boolean, observer?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Entry[], Error, Entry[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Entry[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: Entry[];
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1296,4 +1448,4 @@ declare function getNotificationsSettingsQueryOptions(activeUsername: string | u
     };
 };
 
-export { ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, keychain as Keychain, type Keys, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type Payer, type ProfileTokens, ROLES, type RcStats, type Recoveries, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type WalletMetadataCandidate, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type Payer, type ProfileTokens, ROLES, type RcStats, type Recoveries, SortOrder, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type Vote, type WalletMetadataCandidate, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
