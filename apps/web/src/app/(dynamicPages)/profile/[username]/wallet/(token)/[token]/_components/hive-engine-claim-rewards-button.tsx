@@ -162,7 +162,7 @@ export function HiveEngineClaimRewardsButton({
 
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: [QueryIdentifiers.HIVE_ENGINE_UNCLAIMED_REWARDS, cleanUsername]
+          queryKey: ["assets", "hive-engine", "unclaimed", cleanUsername]
         }),
         queryClient.invalidateQueries({
           queryKey: ["assets", "hive-engine", "balances", cleanUsername]
