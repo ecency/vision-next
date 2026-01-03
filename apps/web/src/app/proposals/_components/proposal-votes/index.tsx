@@ -35,6 +35,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
     error,
     isError
   } = getProposalVotesQuery(proposal.proposal_id, "", 1000).useClientQuery();
+
   const votes = useMemo(
     () => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []),
     [votesPages?.pages]

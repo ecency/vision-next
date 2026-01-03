@@ -35,9 +35,17 @@ export function CommunityChannelClient() {
     return <LoginRequired />;
   }
 
+  if (isLoading || !data) {
+    return (
+      <div className="col-span-12 flex justify-center items-center p-10">
+        <div className="text-sm text-[--text-muted]">Preparing the community channel…</div>
+      </div>
+    );
+  }
+
   return (
     <div className="col-span-12 flex justify-center items-center p-10">
-      <div className="text-sm text-[--text-muted]">Preparing the community channel…</div>
+      <div className="text-sm text-[--text-muted]">Redirecting…</div>
     </div>
   );
 }

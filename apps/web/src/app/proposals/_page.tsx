@@ -8,13 +8,14 @@ import { Feedback, LinearProgress, Navbar, ScrollToTop, SearchBox, Theme } from 
 import { Tsx } from "@/features/i18n/helper";
 import i18next from "i18next";
 import { ProposalCreateForm, ProposalListItem } from "@/app/proposals/_components";
-import { getAccountFullQuery, getProposalsQuery } from "@/api/queries";
+import { getAccountFullQuery, getProposalsQuery, getUserProposalVotesQuery } from "@/api/queries";
 import { parseAsset } from "@/utils";
 import { Proposal } from "@/entities";
 import { AnimatePresence, motion } from "framer-motion";
 import { useInViewport } from "react-in-viewport";
 import { useDebounce } from "react-use";
 import { useSearchParams } from "next/navigation";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 setProxyBase(defaults.imageServer);
 
 enum Filter {
@@ -29,9 +30,22 @@ export function ProposalsPage() {
   const infiniteLoadingAnchorRef = useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
+  const { activeUser } = useActiveAccount();
 
   const { data: proposals, isLoading } = getProposalsQuery().useClientQuery();
   const { data: fund } = getAccountFullQuery("hive.fund").useClientQuery();
+
+  // Fetch all user votes once instead of per-proposal (optimization!)
+  // Use ?voter= param if present, otherwise fallback to logged-in user
+  const voterParam = searchParams?.get("voter") ?? activeUser?.username ?? "";
+  const { data: userVotes } = getUserProposalVotesQuery(voterParam).useClientQuery();
+
+  // Create a Set of proposal IDs that the user voted on for fast lookup
+  const userVotedProposalIds = useMemo(
+    () => new Set(userVotes?.map((v) => v.proposal.proposal_id) ?? []),
+    [userVotes]
+  );
+
   const [page, setPage] = useState(1);
 
   const [search, setSearch] = useState("");
@@ -202,7 +216,11 @@ export function ProposalsPage() {
                   exit={{ opacity: 0, y: 48 }}
                   transition={{ delay: i * 0.2 }}
                 >
-                  <ProposalListItem proposal={p} thresholdProposalId={thresholdProposalId} />
+                  <ProposalListItem
+                    proposal={p}
+                    thresholdProposalId={thresholdProposalId}
+                    votedByViewer={userVotedProposalIds.has(p.proposal_id)}
+                  />
                 </motion.div>
               ))}
             </AnimatePresence>

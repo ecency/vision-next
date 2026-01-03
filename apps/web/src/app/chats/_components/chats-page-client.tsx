@@ -86,11 +86,20 @@ export function ChatsPageClient() {
     );
   }
 
+  // Wait for bootstrap to complete before rendering channel view
+  if (isLoading || !bootstrap) {
+    return (
+      <div className="flex h-full items-center justify-center p-4">
+        <div className="text-sm text-[--text-muted]">Loading chat…</div>
+      </div>
+    );
+  }
+
   if (!defaultChannelId) {
     return (
       <div className="flex h-full items-center justify-center p-4">
         <div className="text-sm text-[--text-muted]">
-          {channelsLoading || isLoading ? "Loading chat…" : "No channels available"}
+          {channelsLoading ? "Loading chat…" : "No channels available"}
         </div>
       </div>
     );

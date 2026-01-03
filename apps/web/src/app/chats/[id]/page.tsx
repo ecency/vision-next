@@ -33,6 +33,22 @@ export default function ChannelPage() {
     return <LoginRequired />;
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center p-4">
+        <div className="text-sm text-[--text-muted]">Loading chat…</div>
+      </div>
+    );
+  }
+
+  if (!bootstrap) {
+    return (
+      <div className="flex h-full items-center justify-center p-4">
+        <div className="text-sm text-[--text-muted]">Unable to initialize chat</div>
+      </div>
+    );
+  }
+
   return (
     <ChatErrorBoundary>
       <div className="h-full">
