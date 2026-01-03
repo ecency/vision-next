@@ -12,7 +12,10 @@
     "url": "https://github.com/ecency/vision-next/issues"
   },
   "type": "module",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "main": "./dist/ecency-renderer.cjs",
   "module": "./dist/ecency-renderer.es.js",
   "types": "./dist/index.d.ts",
@@ -22,7 +25,7 @@
       "require": "./dist/style.css"
     },
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/lib/index.d.ts",
       "default": "./dist/ecency-renderer.es.js",
       "import": "./dist/ecency-renderer.es.js",
       "require": "./dist/ecency-renderer.cjs"
@@ -66,7 +69,15 @@
     "access": "public"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

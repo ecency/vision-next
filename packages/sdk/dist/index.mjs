@@ -1,7 +1,15 @@
-import { QueryClient, useQuery, useInfiniteQuery, useMutation, queryOptions, useQueryClient, infiniteQueryOptions } from '@tanstack/react-query';
-import { Client, PrivateKey, cryptoUtils, RCAPI } from '@hiveio/dhive';
-import hs from 'hivesigner';
-import * as R from 'remeda';
+import {
+  QueryClient,
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  queryOptions,
+  useQueryClient,
+  infiniteQueryOptions,
+} from "@tanstack/react-query";
+import { Client, PrivateKey, cryptoUtils, RCAPI } from "@hiveio/dhive";
+import hs from "hivesigner";
+import * as R from "remeda";
 
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
@@ -30,7 +38,8 @@ var MockStorage = class {
 };
 var CONFIG = {
   privateApiHost: "https://ecency.com",
-  storage: typeof window === "undefined" ? new MockStorage() : window.localStorage,
+  storage:
+    typeof window === "undefined" ? new MockStorage() : window.localStorage,
   storagePrefix: "ecency",
   hiveClient: new Client(
     [
@@ -44,18 +53,18 @@ var CONFIG = {
       "https://anyx.io",
       "https://api.c0ff33a.uk",
       "https://hiveapi.actifit.io",
-      "https://hive-api.3speak.tv"
+      "https://hive-api.3speak.tv",
     ],
     {
       timeout: 2e3,
       failoverThreshold: 2,
-      consoleOnFailover: true
+      consoleOnFailover: true,
     }
   ),
-  heliusApiKey: process.env.VITE_HELIUS_API_KEY,
+  heliusApiKey: "process.env.VITE_HELIUS_API_KEY",
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
-  spkNode: "https://spk.good-karma.xyz"
+  spkNode: "https://spk.good-karma.xyz",
 };
 var ConfigManager;
 ((ConfigManager2) => {
@@ -97,13 +106,13 @@ function parseAsset(sval) {
     return {
       amount: parseFloat(sp[0]),
       // @ts-ignore
-      symbol: Symbol2[sp[1]]
+      symbol: Symbol2[sp[1]],
     };
   } else {
     return {
       amount: parseFloat(sval.amount.toString()) / Math.pow(10, sval.precision),
       // @ts-ignore
-      symbol: NaiMap[sval.nai]
+      symbol: NaiMap[sval.nai],
     };
   }
 }
@@ -132,17 +141,21 @@ var getUser = (username) => {
     return void 0;
   }
 };
-var getAccessToken = (username) => getUser(username) && getUser(username).accessToken;
-var getPostingKey = (username) => getUser(username) && getUser(username).postingKey;
-var getLoginType = (username) => getUser(username) && getUser(username).loginType;
-var getRefreshToken = (username) => getUser(username) && getUser(username).refreshToken;
+var getAccessToken = (username) =>
+  getUser(username) && getUser(username).accessToken;
+var getPostingKey = (username) =>
+  getUser(username) && getUser(username).postingKey;
+var getLoginType = (username) =>
+  getUser(username) && getUser(username).loginType;
+var getRefreshToken = (username) =>
+  getUser(username) && getUser(username).refreshToken;
 
 // src/modules/keychain/keychain.ts
 var keychain_exports = {};
 __export(keychain_exports, {
   broadcast: () => broadcast,
   customJson: () => customJson,
-  handshake: () => handshake
+  handshake: () => handshake,
 });
 function handshake() {
   return new Promise((resolve) => {
@@ -151,36 +164,38 @@ function handshake() {
     });
   });
 }
-var broadcast = (account, operations, key, rpc = null) => new Promise((resolve, reject) => {
-  window.hive_keychain?.requestBroadcast(
-    account,
-    operations,
-    key,
-    (resp) => {
-      if (!resp.success) {
-        reject({ message: "Operation cancelled" });
-      }
-      resolve(resp);
-    },
-    rpc
-  );
-});
-var customJson = (account, id, key, json, display_msg, rpc = null) => new Promise((resolve, reject) => {
-  window.hive_keychain?.requestCustomJson(
-    account,
-    id,
-    key,
-    json,
-    display_msg,
-    (resp) => {
-      if (!resp.success) {
-        reject({ message: "Operation cancelled" });
-      }
-      resolve(resp);
-    },
-    rpc
-  );
-});
+var broadcast = (account, operations, key, rpc = null) =>
+  new Promise((resolve, reject) => {
+    window.hive_keychain?.requestBroadcast(
+      account,
+      operations,
+      key,
+      (resp) => {
+        if (!resp.success) {
+          reject({ message: "Operation cancelled" });
+        }
+        resolve(resp);
+      },
+      rpc
+    );
+  });
+var customJson = (account, id, key, json, display_msg, rpc = null) =>
+  new Promise((resolve, reject) => {
+    window.hive_keychain?.requestCustomJson(
+      account,
+      id,
+      key,
+      json,
+      display_msg,
+      (resp) => {
+        if (!resp.success) {
+          reject({ message: "Operation cancelled" });
+        }
+        resolve(resp);
+      },
+      rpc
+    );
+  });
 
 // src/modules/core/mutations/use-broadcast-mutation.ts
 var getBoundFetch2 = () => {
@@ -189,8 +204,12 @@ var getBoundFetch2 = () => {
   }
   return globalThis.fetch;
 };
-function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
-}) {
+function useBroadcastMutation(
+  mutationKey = [],
+  username,
+  operations,
+  onSuccess = () => {}
+) {
   return useMutation({
     onSuccess,
     mutationKey: [...mutationKey, username],
@@ -210,11 +229,9 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
       }
       const loginType = getLoginType(username);
       if (loginType && loginType == "keychain") {
-        return keychain_exports.broadcast(
-          username,
-          operations(payload),
-          "Posting"
-        ).then((r) => r.result);
+        return keychain_exports
+          .broadcast(username, operations(payload), "Posting")
+          .then((r) => r.result);
       }
       let token = getAccessToken(username);
       if (token) {
@@ -224,13 +241,15 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
           headers: {
             Authorization: token,
             "Content-Type": "application/json",
-            Accept: "application/json"
+            Accept: "application/json",
           },
-          body: JSON.stringify({ operations: operations(payload) })
+          body: JSON.stringify({ operations: operations(payload) }),
         });
         if (!res.ok) {
           const txt = await res.text().catch(() => "");
-          throw new Error(`[Hivesigner] ${res.status} ${res.statusText} ${txt}`);
+          throw new Error(
+            `[Hivesigner] ${res.status} ${res.statusText} ${txt}`
+          );
         }
         const json = await res.json();
         if (json?.errors) {
@@ -241,7 +260,7 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
       throw new Error(
         "[SDK][Broadcast] \u2013 cannot broadcast w/o posting key or token"
       );
-    }
+    },
   });
 }
 async function broadcastJson(username, id, payload) {
@@ -254,24 +273,23 @@ async function broadcastJson(username, id, payload) {
     id,
     required_auths: [],
     required_posting_auths: [username],
-    json: JSON.stringify(payload)
+    json: JSON.stringify(payload),
   };
   const postingKey = getPostingKey(username);
   if (postingKey) {
     const privateKey = PrivateKey.fromString(postingKey);
-    return CONFIG.hiveClient.broadcast.json(
-      jjson,
-      privateKey
-    );
+    return CONFIG.hiveClient.broadcast.json(jjson, privateKey);
   }
   const loginType = getLoginType(username);
   if (loginType && loginType == "keychain") {
-    return keychain_exports.broadcast(username, [["custom_json", jjson]], "Posting").then((r) => r.result);
+    return keychain_exports
+      .broadcast(username, [["custom_json", jjson]], "Posting")
+      .then((r) => r.result);
   }
   let token = getAccessToken(username);
   if (token) {
     const response = await new hs.Client({
-      accessToken: token
+      accessToken: token,
     }).customJson([], [username], id, JSON.stringify(payload));
     return response.result;
   }
@@ -287,9 +305,9 @@ function makeQueryClient() {
         // above 0 to avoid refetching immediately on the client
         // staleTime: 60 * 1000,
         refetchOnWindowFocus: false,
-        refetchOnMount: false
-      }
-    }
+        refetchOnMount: false,
+      },
+    },
   });
 }
 var getQueryClient = () => CONFIG.queryClient;
@@ -322,7 +340,7 @@ var EcencyQueriesManager;
       prefetch: () => prefetchQuery(options),
       getData: () => getQueryData(options.queryKey),
       useClientQuery: () => useQuery(options),
-      fetchAndGet: () => getQueryClient().fetchQuery(options)
+      fetchAndGet: () => getQueryClient().fetchQuery(options),
     };
   }
   EcencyQueriesManager2.generateClientServerQuery = generateClientServerQuery;
@@ -331,10 +349,11 @@ var EcencyQueriesManager;
       prefetch: () => prefetchInfiniteQuery(options),
       getData: () => getInfiniteQueryData(options.queryKey),
       useClientQuery: () => useInfiniteQuery(options),
-      fetchAndGet: () => getQueryClient().fetchInfiniteQuery(options)
+      fetchAndGet: () => getQueryClient().fetchInfiniteQuery(options),
     };
   }
-  EcencyQueriesManager2.generateClientServerInfiniteQuery = generateClientServerInfiniteQuery;
+  EcencyQueriesManager2.generateClientServerInfiniteQuery =
+    generateClientServerInfiniteQuery;
 })(EcencyQueriesManager || (EcencyQueriesManager = {}));
 function getDynamicPropsQueryOptions() {
   return queryOptions({
@@ -343,16 +362,20 @@ function getDynamicPropsQueryOptions() {
     staleTime: 6e4,
     refetchOnMount: true,
     queryFn: async () => {
-      const globalDynamic = await CONFIG.hiveClient.database.getDynamicGlobalProperties().then((r) => ({
-        total_vesting_fund_hive: r.total_vesting_fund_hive || r.total_vesting_fund_steem,
-        total_vesting_shares: r.total_vesting_shares,
-        hbd_print_rate: r.hbd_print_rate || r.sbd_print_rate,
-        hbd_interest_rate: r.hbd_interest_rate,
-        head_block_number: r.head_block_number,
-        vesting_reward_percent: r.vesting_reward_percent,
-        virtual_supply: r.virtual_supply
-      }));
-      const feedHistory = await CONFIG.hiveClient.database.call("get_feed_history");
+      const globalDynamic = await CONFIG.hiveClient.database
+        .getDynamicGlobalProperties()
+        .then((r) => ({
+          total_vesting_fund_hive:
+            r.total_vesting_fund_hive || r.total_vesting_fund_steem,
+          total_vesting_shares: r.total_vesting_shares,
+          hbd_print_rate: r.hbd_print_rate || r.sbd_print_rate,
+          hbd_interest_rate: r.hbd_interest_rate,
+          head_block_number: r.head_block_number,
+          vesting_reward_percent: r.vesting_reward_percent,
+          virtual_supply: r.virtual_supply,
+        }));
+      const feedHistory =
+        await CONFIG.hiveClient.database.call("get_feed_history");
       const chainProps = await CONFIG.hiveClient.database.call(
         "get_chain_properties"
       );
@@ -360,7 +383,10 @@ function getDynamicPropsQueryOptions() {
         "get_reward_fund",
         ["post"]
       );
-      const hivePerMVests = parseAsset(globalDynamic.total_vesting_fund_hive).amount / parseAsset(globalDynamic.total_vesting_shares).amount * 1e6;
+      const hivePerMVests =
+        (parseAsset(globalDynamic.total_vesting_fund_hive).amount /
+          parseAsset(globalDynamic.total_vesting_shares).amount) *
+        1e6;
       const base = parseAsset(feedHistory.current_median_history.base).amount;
       const quote = parseAsset(feedHistory.current_median_history.quote).amount;
       const fundRecentClaims = parseFloat(rewardFund.recent_claims);
@@ -390,9 +416,9 @@ function getDynamicPropsQueryOptions() {
         totalVestingShares,
         virtualSupply,
         vestingRewardPercent,
-        accountCreationFee
+        accountCreationFee,
       };
-    }
+    },
   });
 }
 function getAccountFullQueryOptions(username) {
@@ -402,9 +428,7 @@ function getAccountFullQueryOptions(username) {
       if (!username) {
         throw new Error("[SDK] Username is empty");
       }
-      const response = await CONFIG.hiveClient.database.getAccounts([
-        username
-      ]);
+      const response = await CONFIG.hiveClient.database.getAccounts([username]);
       if (!response[0]) {
         throw new Error("[SDK] No account with given username");
       }
@@ -415,8 +439,7 @@ function getAccountFullQueryOptions(username) {
           "get_follow_count",
           [username]
         );
-      } catch (e) {
-      }
+      } catch (e) {}
       const reputation = await CONFIG.hiveClient.call(
         "condenser_api",
         "get_account_reputations",
@@ -442,8 +465,10 @@ function getAccountFullQueryOptions(username) {
         hbd_balance: response[0].hbd_balance,
         savings_balance: response[0].savings_balance,
         savings_hbd_balance: response[0].savings_hbd_balance,
-        savings_hbd_last_interest_payment: response[0].savings_hbd_last_interest_payment,
-        savings_hbd_seconds_last_update: response[0].savings_hbd_seconds_last_update,
+        savings_hbd_last_interest_payment:
+          response[0].savings_hbd_last_interest_payment,
+        savings_hbd_seconds_last_update:
+          response[0].savings_hbd_seconds_last_update,
         savings_hbd_seconds: response[0].savings_hbd_seconds,
         next_vesting_withdrawal: response[0].next_vesting_withdrawal,
         pending_claimed_accounts: response[0].pending_claimed_accounts,
@@ -464,15 +489,19 @@ function getAccountFullQueryOptions(username) {
         reputation: reputation[0].reputation,
         profile: {
           ...profile,
-          reputation: reputation[0].reputation
-        }
+          reputation: reputation[0].reputation,
+        },
       };
     },
     enabled: !!username,
-    staleTime: 6e4
+    staleTime: 6e4,
   });
 }
-function getSearchAccountsByUsernameQueryOptions(query, limit = 5, excludeList = []) {
+function getSearchAccountsByUsernameQueryOptions(
+  query,
+  limit = 5,
+  excludeList = []
+) {
   return queryOptions({
     queryKey: ["accounts", "search", query, excludeList],
     enabled: !!query,
@@ -481,10 +510,10 @@ function getSearchAccountsByUsernameQueryOptions(query, limit = 5, excludeList =
         "lookup_accounts",
         [query, limit]
       );
-      return response.filter(
-        (item) => excludeList.length > 0 ? !excludeList.includes(item) : true
+      return response.filter((item) =>
+        excludeList.length > 0 ? !excludeList.includes(item) : true
       );
-    }
+    },
   });
 }
 function checkUsernameWalletsPendingQueryOptions(username) {
@@ -497,17 +526,17 @@ function checkUsernameWalletsPendingQueryOptions(username) {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            username
-          })
+            username,
+          }),
         }
       );
       return await response.json();
     },
     enabled: !!username,
-    refetchOnMount: true
+    refetchOnMount: true,
   });
 }
 function getRelationshipBetweenAccountsQueryOptions(reference, target) {
@@ -522,7 +551,7 @@ function getRelationshipBetweenAccountsQueryOptions(reference, target) {
         "get_relationship_between_accounts",
         [reference, target]
       );
-    }
+    },
   });
 }
 function getAccountSubscriptionsQueryOptions(username) {
@@ -534,11 +563,11 @@ function getAccountSubscriptionsQueryOptions(username) {
         "bridge",
         "list_all_subscriptions",
         {
-          account: username
+          account: username,
         }
       );
       return response ?? [];
-    }
+    },
   });
 }
 function getActiveAccountBookmarksQueryOptions(activeUsername) {
@@ -555,13 +584,13 @@ function getActiveAccountBookmarksQueryOptions(activeUsername) {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ code: getAccessToken(activeUsername) })
+          body: JSON.stringify({ code: getAccessToken(activeUsername) }),
         }
       );
       return await response.json();
-    }
+    },
   });
 }
 function getActiveAccountFavouritesQueryOptions(activeUsername) {
@@ -578,13 +607,13 @@ function getActiveAccountFavouritesQueryOptions(activeUsername) {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ code: getAccessToken(activeUsername) })
+          body: JSON.stringify({ code: getAccessToken(activeUsername) }),
         }
       );
       return await response.json();
-    }
+    },
   });
 }
 function getAccountRecoveriesQueryOptions(username) {
@@ -598,24 +627,25 @@ function getAccountRecoveriesQueryOptions(username) {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ code: getAccessToken(username) })
+          body: JSON.stringify({ code: getAccessToken(username) }),
         }
       );
       return response.json();
-    }
+    },
   });
 }
 function getAccountPendingRecoveryQueryOptions(username) {
   return queryOptions({
     enabled: !!username,
     queryKey: ["accounts", "recoveries", username, "pending-request"],
-    queryFn: () => CONFIG.hiveClient.call(
-      "database_api",
-      "find_change_recovery_account_requests",
-      { accounts: [username] }
-    )
+    queryFn: () =>
+      CONFIG.hiveClient.call(
+        "database_api",
+        "find_change_recovery_account_requests",
+        { accounts: [username] }
+      ),
   });
 }
 function sanitizeTokens(tokens) {
@@ -627,11 +657,7 @@ function sanitizeTokens(tokens) {
     return { ...rest, meta: safeMeta };
   });
 }
-function getBuiltProfile({
-  profile,
-  tokens,
-  data
-}) {
+function getBuiltProfile({ profile, tokens, data }) {
   const metadata = R.pipe(
     JSON.parse(data?.posting_json_metadata || "{}").profile,
     R.mergeDeep(profile ?? {})
@@ -650,7 +676,9 @@ function useAccountUpdate(username) {
     username,
     (payload) => {
       if (!data) {
-        throw new Error("[SDK][Accounts] \u2013 cannot update not existing account");
+        throw new Error(
+          "[SDK][Accounts] \u2013 cannot update not existing account"
+        );
       }
       return [
         [
@@ -660,23 +688,24 @@ function useAccountUpdate(username) {
             json_metadata: "",
             extensions: [],
             posting_json_metadata: JSON.stringify({
-              profile: getBuiltProfile({ ...payload, data })
-            })
-          }
-        ]
+              profile: getBuiltProfile({ ...payload, data }),
+            }),
+          },
+        ],
       ];
     },
-    (_, variables) => queryClient.setQueryData(
-      getAccountFullQueryOptions(username).queryKey,
-      (data2) => {
-        if (!data2) {
-          return data2;
+    (_, variables) =>
+      queryClient.setQueryData(
+        getAccountFullQueryOptions(username).queryKey,
+        (data2) => {
+          if (!data2) {
+            return data2;
+          }
+          const obj = R.clone(data2);
+          obj.profile = getBuiltProfile({ ...variables, data: data2 });
+          return obj;
         }
-        const obj = R.clone(data2);
-        obj.profile = getBuiltProfile({ ...variables, data: data2 });
-        return obj;
-      }
-    )
+      )
   );
 }
 function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
@@ -697,15 +726,25 @@ function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
           follower: reference,
           following: target,
           what: [
-            ...kind === "toggle-ignore" && !actualRelation?.ignores ? ["ignore"] : [],
-            ...kind === "toggle-follow" && !actualRelation?.follows ? ["blog"] : []
-          ]
-        }
+            ...(kind === "toggle-ignore" && !actualRelation?.ignores
+              ? ["ignore"]
+              : []),
+            ...(kind === "toggle-follow" && !actualRelation?.follows
+              ? ["blog"]
+              : []),
+          ],
+        },
       ]);
       return {
         ...actualRelation,
-        ignores: kind === "toggle-ignore" ? !actualRelation?.ignores : actualRelation?.ignores,
-        follows: kind === "toggle-follow" ? !actualRelation?.follows : actualRelation?.follows
+        ignores:
+          kind === "toggle-ignore"
+            ? !actualRelation?.ignores
+            : actualRelation?.ignores,
+        follows:
+          kind === "toggle-follow"
+            ? !actualRelation?.follows
+            : actualRelation?.follows,
       };
     },
     onError,
@@ -715,7 +754,7 @@ function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
         ["accounts", "relations", reference, target],
         data
       );
-    }
+    },
   });
 }
 function useBookmarkAdd(username, onSuccess, onError) {
@@ -731,13 +770,13 @@ function useBookmarkAdd(username, onSuccess, onError) {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             author,
             permlink,
-            code: getAccessToken(username)
-          })
+            code: getAccessToken(username),
+          }),
         }
       );
       return response.json();
@@ -745,10 +784,10 @@ function useBookmarkAdd(username, onSuccess, onError) {
     onSuccess: () => {
       onSuccess();
       getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "bookmarks", username]
+        queryKey: ["accounts", "bookmarks", username],
       });
     },
-    onError
+    onError,
   });
 }
 function useBookmarkDelete(username, onSuccess, onError) {
@@ -764,12 +803,12 @@ function useBookmarkDelete(username, onSuccess, onError) {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             id: bookmarkId,
-            code: getAccessToken(username)
-          })
+            code: getAccessToken(username),
+          }),
         }
       );
       return response.json();
@@ -777,10 +816,10 @@ function useBookmarkDelete(username, onSuccess, onError) {
     onSuccess: () => {
       onSuccess();
       getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "bookmarks", username]
+        queryKey: ["accounts", "bookmarks", username],
       });
     },
-    onError
+    onError,
   });
 }
 function useAccountFavouriteAdd(username, onSuccess, onError) {
@@ -796,12 +835,12 @@ function useAccountFavouriteAdd(username, onSuccess, onError) {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             account,
-            code: getAccessToken(username)
-          })
+            code: getAccessToken(username),
+          }),
         }
       );
       return response.json();
@@ -809,10 +848,10 @@ function useAccountFavouriteAdd(username, onSuccess, onError) {
     onSuccess: () => {
       onSuccess();
       getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "favourites", username]
+        queryKey: ["accounts", "favourites", username],
       });
     },
-    onError
+    onError,
   });
 }
 function useAccountFavouriteDelete(username, onSuccess, onError) {
@@ -828,12 +867,12 @@ function useAccountFavouriteDelete(username, onSuccess, onError) {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             account,
-            code: getAccessToken(username)
-          })
+            code: getAccessToken(username),
+          }),
         }
       );
       return response.json();
@@ -841,10 +880,10 @@ function useAccountFavouriteDelete(username, onSuccess, onError) {
     onSuccess: () => {
       onSuccess();
       getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "favourites", username]
+        queryKey: ["accounts", "favourites", username],
       });
     },
-    onError
+    onError,
   });
 }
 function dedupeAndSortKeyAuths(existing, additions) {
@@ -855,7 +894,9 @@ function dedupeAndSortKeyAuths(existing, additions) {
   additions.forEach(([key, weight]) => {
     merged.set(key.toString(), weight);
   });
-  return Array.from(merged.entries()).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)).map(([key, weight]) => [key, weight]);
+  return Array.from(merged.entries())
+    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+    .map(([key, weight]) => [key, weight]);
 }
 function useAccountUpdateKeyAuths(username, options) {
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
@@ -871,9 +912,10 @@ function useAccountUpdateKeyAuths(username, options) {
         const auth = R.clone(accountData[keyName]);
         auth.key_auths = dedupeAndSortKeyAuths(
           keepCurrent ? auth.key_auths : [],
-          keys.map(
-            (values, i) => [values[keyName].createPublic().toString(), i + 1]
-          )
+          keys.map((values, i) => [
+            values[keyName].createPublic().toString(),
+            i + 1,
+          ])
         );
         return auth;
       };
@@ -884,12 +926,14 @@ function useAccountUpdateKeyAuths(username, options) {
           owner: prepareAuth("owner"),
           active: prepareAuth("active"),
           posting: prepareAuth("posting"),
-          memo_key: keepCurrent ? accountData.memo_key : keys[0].memo_key.createPublic().toString()
+          memo_key: keepCurrent
+            ? accountData.memo_key
+            : keys[0].memo_key.createPublic().toString(),
         },
         currentKey
       );
     },
-    ...options
+    ...options,
   });
 }
 function useAccountUpdatePassword(username, options) {
@@ -897,11 +941,7 @@ function useAccountUpdatePassword(username, options) {
   const { mutateAsync: updateKeys } = useAccountUpdateKeyAuths(username);
   return useMutation({
     mutationKey: ["accounts", "password-update", username],
-    mutationFn: async ({
-      newPassword,
-      currentPassword,
-      keepCurrent
-    }) => {
+    mutationFn: async ({ newPassword, currentPassword, keepCurrent }) => {
       if (!accountData) {
         throw new Error(
           "[SDK][Update password] \u2013 cannot update password for anon user"
@@ -920,12 +960,12 @@ function useAccountUpdatePassword(username, options) {
             owner: PrivateKey.fromLogin(username, newPassword, "owner"),
             active: PrivateKey.fromLogin(username, newPassword, "active"),
             posting: PrivateKey.fromLogin(username, newPassword, "posting"),
-            memo_key: PrivateKey.fromLogin(username, newPassword, "memo")
-          }
-        ]
+            memo_key: PrivateKey.fromLogin(username, newPassword, "memo"),
+          },
+        ],
       });
     },
-    ...options
+    ...options,
   });
 }
 function useAccountRevokePosting(username, options) {
@@ -939,10 +979,7 @@ function useAccountRevokePosting(username, options) {
           "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
         );
       }
-      const posting = R.pipe(
-        {},
-        R.mergeDeep(data.posting)
-      );
+      const posting = R.pipe({}, R.mergeDeep(data.posting));
       posting.account_auths = posting.account_auths.filter(
         ([account]) => account !== accountName
       );
@@ -950,7 +987,7 @@ function useAccountRevokePosting(username, options) {
         account: data.name,
         posting,
         memo_key: data.memo_key,
-        json_metadata: data.json_metadata
+        json_metadata: data.json_metadata,
       };
       if (type === "key" && key) {
         return CONFIG.hiveClient.broadcast.updateAccount(operationBody, key);
@@ -962,13 +999,12 @@ function useAccountRevokePosting(username, options) {
         );
       } else {
         const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`
+          callback: `https://ecency.com/@${data.name}/permissions`,
         };
         return hs.sendOperation(
           ["account_update", operationBody],
           params,
-          () => {
-          }
+          () => {}
         );
       }
     },
@@ -981,13 +1017,14 @@ function useAccountRevokePosting(username, options) {
           ...data2,
           posting: {
             ...data2?.posting,
-            account_auths: data2?.posting?.account_auths?.filter(
-              ([account]) => account !== payload.accountName
-            ) ?? []
-          }
+            account_auths:
+              data2?.posting?.account_auths?.filter(
+                ([account]) => account !== payload.accountName
+              ) ?? [],
+          },
         })
       );
-    }
+    },
   });
 }
 function useAccountUpdateRecovery(username, options) {
@@ -1003,7 +1040,7 @@ function useAccountUpdateRecovery(username, options) {
       const operationBody = {
         account_to_recover: data.name,
         new_recovery_account: accountName,
-        extensions: []
+        extensions: [],
       };
       if (type === "ecency") {
         const fetchApi = getBoundFetch();
@@ -1016,9 +1053,9 @@ function useAccountUpdateRecovery(username, options) {
               ...data.owner.key_auths,
               ...data.active.key_auths,
               ...data.posting.key_auths,
-              data.memo_key
-            ]
-          })
+              data.memo_key,
+            ],
+          }),
         });
       } else if (type === "key" && key) {
         return CONFIG.hiveClient.broadcast.sendOperations(
@@ -1033,18 +1070,17 @@ function useAccountUpdateRecovery(username, options) {
         );
       } else {
         const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`
+          callback: `https://ecency.com/@${data.name}/permissions`,
         };
         return hs.sendOperation(
           ["change_recovery_account", operationBody],
           params,
-          () => {
-          }
+          () => {}
         );
       }
     },
     onError: options.onError,
-    onSuccess: options.onSuccess
+    onSuccess: options.onSuccess,
   });
 }
 function useAccountRevokeKey(username, options) {
@@ -1071,23 +1107,22 @@ function useAccountRevokeKey(username, options) {
           owner: prepareAuth("owner"),
           active: prepareAuth("active"),
           posting: prepareAuth("posting"),
-          memo_key: accountData.memo_key
+          memo_key: accountData.memo_key,
         },
         currentKey
       );
     },
-    ...options
+    ...options,
   });
 }
 function useSignOperationByKey(username) {
   return useMutation({
     mutationKey: ["operations", "sign", username],
-    mutationFn: ({
-      operation,
-      keyOrSeed
-    }) => {
+    mutationFn: ({ operation, keyOrSeed }) => {
       if (!username) {
-        throw new Error("[Operations][Sign] \u2013 cannot sign op with anon user");
+        throw new Error(
+          "[Operations][Sign] \u2013 cannot sign op with anon user"
+        );
       }
       let privateKey;
       if (keyOrSeed.split(" ").length === 12) {
@@ -1101,7 +1136,7 @@ function useSignOperationByKey(username) {
         [operation],
         privateKey
       );
-    }
+    },
   });
 }
 function useSignOperationByKeychain(username, keyType = "Active") {
@@ -1114,16 +1149,15 @@ function useSignOperationByKeychain(username, keyType = "Active") {
         );
       }
       return keychain_exports.broadcast(username, [operation], keyType);
-    }
+    },
   });
 }
 function useSignOperationByHivesigner(callbackUri = "/") {
   return useMutation({
     mutationKey: ["operations", "sign-hivesigner", callbackUri],
     mutationFn: async ({ operation }) => {
-      return hs.sendOperation(operation, { callback: callbackUri }, () => {
-      });
-    }
+      return hs.sendOperation(operation, { callback: callbackUri }, () => {});
+    },
   });
 }
 function getChainPropertiesQueryOptions() {
@@ -1131,21 +1165,27 @@ function getChainPropertiesQueryOptions() {
     queryKey: ["operations", "chain-properties"],
     queryFn: async () => {
       return await CONFIG.hiveClient.database.getChainProperties();
-    }
+    },
   });
 }
 function getTrendingTagsQueryOptions(limit = 20) {
   return infiniteQueryOptions({
     queryKey: ["posts", "trending-tags"],
-    queryFn: async ({ pageParam: { afterTag } }) => CONFIG.hiveClient.database.call("get_trending_tags", [afterTag, limit]).then(
-      (tags) => tags.filter((x) => x.name !== "").filter((x) => !x.name.startsWith("hive-")).map((x) => x.name)
-    ),
+    queryFn: async ({ pageParam: { afterTag } }) =>
+      CONFIG.hiveClient.database
+        .call("get_trending_tags", [afterTag, limit])
+        .then((tags) =>
+          tags
+            .filter((x) => x.name !== "")
+            .filter((x) => !x.name.startsWith("hive-"))
+            .map((x) => x.name)
+        ),
     initialPageParam: { afterTag: "" },
     getNextPageParam: (lastPage) => ({
-      afterTag: lastPage?.[lastPage?.length - 1]
+      afterTag: lastPage?.[lastPage?.length - 1],
     }),
     staleTime: Infinity,
-    refetchOnMount: true
+    refetchOnMount: true,
   });
 }
 function getFragmentsQueryOptions(username) {
@@ -1158,16 +1198,16 @@ function getFragmentsQueryOptions(username) {
         {
           method: "POST",
           body: JSON.stringify({
-            code: getAccessToken(username)
+            code: getAccessToken(username),
           }),
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       return response.json();
     },
-    enabled: !!username
+    enabled: !!username,
   });
 }
 function getPromotedPostsQuery(type = "feed") {
@@ -1184,12 +1224,12 @@ function getPromotedPostsQuery(type = "feed") {
       const response = await fetchApi(url.toString(), {
         method: "GET",
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
       const data = await response.json();
       return data;
-    }
+    },
   });
 }
 function useAddFragment(username) {
@@ -1204,11 +1244,11 @@ function useAddFragment(username) {
           body: JSON.stringify({
             code: getAccessToken(username),
             title,
-            body
+            body,
           }),
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       return response.json();
@@ -1216,9 +1256,9 @@ function useAddFragment(username) {
     onSuccess(response) {
       getQueryClient().setQueryData(
         getFragmentsQueryOptions(username).queryKey,
-        (data) => [response, ...data ?? []]
+        (data) => [response, ...(data ?? [])]
       );
-    }
+    },
   });
 }
 function useEditFragment(username, fragmentId) {
@@ -1234,11 +1274,11 @@ function useEditFragment(username, fragmentId) {
             code: getAccessToken(username),
             id: fragmentId,
             title,
-            body
+            body,
           }),
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       return response.json();
@@ -1257,7 +1297,7 @@ function useEditFragment(username, fragmentId) {
           return [...data];
         }
       );
-    }
+    },
   });
 }
 function useRemoveFragment(username, fragmentId) {
@@ -1269,26 +1309,26 @@ function useRemoveFragment(username, fragmentId) {
         method: "POST",
         body: JSON.stringify({
           code: getAccessToken(username),
-          id: fragmentId
+          id: fragmentId,
         }),
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
     },
     onSuccess() {
       getQueryClient().setQueryData(
         getFragmentsQueryOptions(username).queryKey,
-        (data) => [...data ?? []].filter(({ id }) => id !== fragmentId)
+        (data) => [...(data ?? [])].filter(({ id }) => id !== fragmentId)
       );
-    }
+    },
   });
 }
 
 // src/modules/analytics/mutations/index.ts
 var mutations_exports = {};
 __export(mutations_exports, {
-  useRecordActivity: () => useRecordActivity
+  useRecordActivity: () => useRecordActivity,
 });
 function useRecordActivity(username, activityType) {
   return useMutation({
@@ -1301,18 +1341,18 @@ function useRecordActivity(username, activityType) {
       await fetchApi(CONFIG.plausibleHost + "/api/event", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: activityType,
           url: window.location.href,
           domain: window.location.host,
           props: {
-            username
-          }
-        })
+            username,
+          },
+        }),
       });
-    }
+    },
   });
 }
 
@@ -1320,13 +1360,13 @@ function useRecordActivity(username, activityType) {
 var queries_exports2 = {};
 __export(queries_exports2, {
   getAccountTokenQueryOptions: () => getAccountTokenQueryOptions,
-  getAccountVideosQueryOptions: () => getAccountVideosQueryOptions
+  getAccountVideosQueryOptions: () => getAccountVideosQueryOptions,
 });
 
 // src/modules/integrations/hivesigner/queries/index.ts
 var queries_exports = {};
 __export(queries_exports, {
-  getDecodeMemoQueryOptions: () => getDecodeMemoQueryOptions
+  getDecodeMemoQueryOptions: () => getDecodeMemoQueryOptions,
 });
 function getDecodeMemoQueryOptions(username, memo) {
   return queryOptions({
@@ -1335,17 +1375,17 @@ function getDecodeMemoQueryOptions(username, memo) {
       const accessToken = getAccessToken(username);
       if (accessToken) {
         const hsClient = new hs.Client({
-          accessToken
+          accessToken,
         });
         return hsClient.decode(memo);
       }
-    }
+    },
   });
 }
 
 // src/modules/integrations/hivesigner/index.ts
 var HiveSignerIntegration = {
-  queries: queries_exports
+  queries: queries_exports,
 };
 
 // src/modules/integrations/3speak/queries/get-account-token-query-options.ts
@@ -1362,20 +1402,21 @@ function getAccountTokenQueryOptions(username) {
         `https://studio.3speak.tv/mobile/login?username=${username}&hivesigner=true`,
         {
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-      const memoQueryOptions = HiveSignerIntegration.queries.getDecodeMemoQueryOptions(
-        username,
-        (await response.json()).memo
-      );
+      const memoQueryOptions =
+        HiveSignerIntegration.queries.getDecodeMemoQueryOptions(
+          username,
+          (await response.json()).memo
+        );
       await getQueryClient().prefetchQuery(memoQueryOptions);
       const { memoDecoded } = getQueryClient().getQueryData(
         memoQueryOptions.queryKey
       );
       return memoDecoded.replace("#", "");
-    }
+    },
   });
 }
 function getAccountVideosQueryOptions(username) {
@@ -1395,18 +1436,18 @@ function getAccountVideosQueryOptions(username) {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       return await response.json();
-    }
+    },
   });
 }
 
 // src/modules/integrations/3speak/index.ts
 var ThreeSpeakIntegration = {
-  queries: queries_exports2
+  queries: queries_exports2,
 };
 function getHivePoshLinksQueryOptions(username) {
   return queryOptions({
@@ -1417,29 +1458,29 @@ function getHivePoshLinksQueryOptions(username) {
         `https://hiveposh.com/api/v0/linked-accounts/${username}`,
         {
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       const data = await response.json();
       return {
         twitter: {
           username: data.twitter_username,
-          profile: data.twitter_profile
+          profile: data.twitter_profile,
         },
         reddit: {
           username: data.reddit_username,
-          profile: data.reddit_profile
-        }
+          profile: data.reddit_profile,
+        },
       };
-    }
+    },
   });
 }
 function getStatsQueryOptions({
   url,
   dimensions = [],
   metrics = ["visitors", "pageviews", "visit_duration"],
-  enabled = true
+  enabled = true,
 }) {
   return queryOptions({
     queryKey: ["integrations", "plausible", url, dimensions, metrics],
@@ -1450,15 +1491,15 @@ function getStatsQueryOptions({
         body: JSON.stringify({
           metrics,
           url: encodeURIComponent(url),
-          dimensions
+          dimensions,
         }),
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
       return await response.json();
     },
-    enabled: !!url && enabled
+    enabled: !!url && enabled,
   });
 }
 function getRcStatsQueryOptions() {
@@ -1471,7 +1512,7 @@ function getRcStatsQueryOptions() {
         {}
       );
       return response.rc_stats;
-    }
+    },
   });
 }
 function getAccountRcQueryOptions(username) {
@@ -1481,7 +1522,7 @@ function getAccountRcQueryOptions(username) {
       const rcClient = new RCAPI(CONFIG.hiveClient);
       return rcClient.findRCAccounts([username]);
     },
-    enabled: !!username
+    enabled: !!username,
   });
 }
 function getGameStatusCheckQueryOptions(username, gameType) {
@@ -1499,15 +1540,15 @@ function getGameStatusCheckQueryOptions(username, gameType) {
           method: "POST",
           body: JSON.stringify({
             game_type: gameType,
-            code: getAccessToken(username)
+            code: getAccessToken(username),
           }),
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       return await response.json();
-    }
+    },
   });
 }
 function useGameClaim(username, gameType, key) {
@@ -1529,21 +1570,27 @@ function useGameClaim(username, gameType, key) {
           body: JSON.stringify({
             game_type: gameType,
             code: getAccessToken(username),
-            key
+            key,
           }),
           headers: {
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       return await response.json();
     },
     onSuccess() {
       recordActivity();
-    }
+    },
   });
 }
-function getCommunitiesQueryOptions(sort, query, limit = 100, observer = void 0, enabled = true) {
+function getCommunitiesQueryOptions(
+  sort,
+  query,
+  limit = 100,
+  observer = void 0,
+  enabled = true
+) {
   return queryOptions({
     queryKey: ["communities", "list", sort, query, limit],
     enabled,
@@ -1556,11 +1603,15 @@ function getCommunitiesQueryOptions(sort, query, limit = 100, observer = void 0,
           limit,
           sort: sort === "hot" ? "rank" : sort,
           query: query ? query : null,
-          observer
+          observer,
         }
       );
-      return response ? sort === "hot" ? response.sort(() => Math.random() - 0.5) : response : [];
-    }
+      return response
+        ? sort === "hot"
+          ? response.sort(() => Math.random() - 0.5)
+          : response
+        : [];
+    },
   });
 }
 function getCommunityContextQueryOptions(username, communityName) {
@@ -1573,14 +1624,14 @@ function getCommunityContextQueryOptions(username, communityName) {
         "get_community_context",
         {
           account: username,
-          name: communityName
+          name: communityName,
         }
       );
       return {
         role: response?.role ?? "guest",
-        subscribed: response?.subscribed ?? false
+        subscribed: response?.subscribed ?? false,
       };
-    }
+    },
   });
 }
 
@@ -1600,10 +1651,19 @@ var roleMap = {
     "mod" /* MOD */,
     "member" /* MEMBER */,
     "guest" /* GUEST */,
-    "muted" /* MUTED */
+    "muted" /* MUTED */,
   ],
-  ["admin" /* ADMIN */]: ["mod" /* MOD */, "member" /* MEMBER */, "guest" /* GUEST */, "muted" /* MUTED */],
-  ["mod" /* MOD */]: ["member" /* MEMBER */, "guest" /* GUEST */, "muted" /* MUTED */]
+  ["admin" /* ADMIN */]: [
+    "mod" /* MOD */,
+    "member" /* MEMBER */,
+    "guest" /* GUEST */,
+    "muted" /* MUTED */,
+  ],
+  ["mod" /* MOD */]: [
+    "member" /* MEMBER */,
+    "guest" /* GUEST */,
+    "muted" /* MUTED */,
+  ],
 };
 
 // src/modules/communities/utils/index.ts
@@ -1612,17 +1672,16 @@ function getCommunityType(name, type_id) {
   if (name.startsWith("hive-2") || type_id === 2) return "Journal";
   return "Topic";
 }
-function getCommunityPermissions({
-  communityType,
-  userRole,
-  subscribed
-}) {
+function getCommunityPermissions({ communityType, userRole, subscribed }) {
   const canPost = (() => {
     if (userRole === "muted" /* MUTED */) return false;
     if (communityType === "Topic") return true;
-    return ["owner" /* OWNER */, "admin" /* ADMIN */, "mod" /* MOD */, "member" /* MEMBER */].includes(
-      userRole
-    );
+    return [
+      "owner" /* OWNER */,
+      "admin" /* ADMIN */,
+      "mod" /* MOD */,
+      "member" /* MEMBER */,
+    ].includes(userRole);
   })();
   const canComment = (() => {
     if (userRole === "muted" /* MUTED */) return false;
@@ -1635,14 +1694,85 @@ function getCommunityPermissions({
         return canPost;
     }
   })();
-  const isModerator = ["owner" /* OWNER */, "admin" /* ADMIN */, "mod" /* MOD */].includes(userRole);
+  const isModerator = [
+    "owner" /* OWNER */,
+    "admin" /* ADMIN */,
+    "mod" /* MOD */,
+  ].includes(userRole);
   return {
     canPost,
     canComment,
-    isModerator
+    isModerator,
   };
 }
 
-export { CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, ROLES, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDynamicPropsQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, roleMap, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export {
+  CONFIG,
+  ConfigManager,
+  mutations_exports as EcencyAnalytics,
+  EcencyQueriesManager,
+  HiveSignerIntegration,
+  keychain_exports as Keychain,
+  NaiMap,
+  ROLES,
+  Symbol2 as Symbol,
+  ThreeSpeakIntegration,
+  broadcastJson,
+  checkUsernameWalletsPendingQueryOptions,
+  decodeObj,
+  dedupeAndSortKeyAuths,
+  encodeObj,
+  getAccessToken,
+  getAccountFullQueryOptions,
+  getAccountPendingRecoveryQueryOptions,
+  getAccountRcQueryOptions,
+  getAccountRecoveriesQueryOptions,
+  getAccountSubscriptionsQueryOptions,
+  getActiveAccountBookmarksQueryOptions,
+  getActiveAccountFavouritesQueryOptions,
+  getBoundFetch,
+  getChainPropertiesQueryOptions,
+  getCommunitiesQueryOptions,
+  getCommunityContextQueryOptions,
+  getCommunityPermissions,
+  getCommunityType,
+  getDynamicPropsQueryOptions,
+  getFragmentsQueryOptions,
+  getGameStatusCheckQueryOptions,
+  getHivePoshLinksQueryOptions,
+  getLoginType,
+  getPostingKey,
+  getPromotedPostsQuery,
+  getQueryClient,
+  getRcStatsQueryOptions,
+  getRefreshToken,
+  getRelationshipBetweenAccountsQueryOptions,
+  getSearchAccountsByUsernameQueryOptions,
+  getStatsQueryOptions,
+  getTrendingTagsQueryOptions,
+  getUser,
+  makeQueryClient,
+  parseAsset,
+  roleMap,
+  useAccountFavouriteAdd,
+  useAccountFavouriteDelete,
+  useAccountRelationsUpdate,
+  useAccountRevokeKey,
+  useAccountRevokePosting,
+  useAccountUpdate,
+  useAccountUpdateKeyAuths,
+  useAccountUpdatePassword,
+  useAccountUpdateRecovery,
+  useAddFragment,
+  useBookmarkAdd,
+  useBookmarkDelete,
+  useBroadcastMutation,
+  useEditFragment,
+  useGameClaim,
+  useRemoveFragment,
+  useSignOperationByHivesigner,
+  useSignOperationByKey,
+  useSignOperationByKeychain,
+};
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

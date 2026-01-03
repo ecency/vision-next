@@ -1,0 +1,66 @@
+@import "tailwindcss";
+@source "../config.json";
+@import "./styles/blog-markdown.css";
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background-color: #ffffff;
+  color: #242424;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 18px;
+  line-height: 1.58;
+  letter-spacing: -0.003em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive font sizes */
+@media (min-width: 640px) {
+  body {
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 21px;
+  }
+}
+
+* {
+  font-family: inherit;
+}
+
+/* Medium-style typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* Medium-style links */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.7;
+}
+
+/* Medium-style buttons */
+button {
+  font-family: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+}
