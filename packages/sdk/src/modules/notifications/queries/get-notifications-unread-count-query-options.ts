@@ -10,6 +10,7 @@ export function getNotificationsUnreadCountQueryOptions(
       const response = await fetch(
         `${CONFIG.privateApiHost}/private-api/notifications/unread`,
         {
+          method: "POST",
           body: JSON.stringify({ code: getAccessToken(activeUsername!) }),
           headers: {
             "Content-Type": "application/json",
