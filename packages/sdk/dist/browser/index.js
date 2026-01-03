@@ -2081,6 +2081,25 @@ function getCommunitySubscribersQueryOptions(communityName) {
     staleTime: 6e4
   });
 }
+function getAccountNotificationsInfiniteQueryOptions(account, limit) {
+  return infiniteQueryOptions({
+    queryKey: ["communities", "account-notifications", account, limit],
+    initialPageParam: null,
+    queryFn: async ({ pageParam }) => {
+      try {
+        const response = await CONFIG.hiveClient.call("bridge", "account_notifications", {
+          account,
+          limit,
+          last_id: pageParam ?? void 0
+        });
+        return response ?? [];
+      } catch {
+        return [];
+      }
+    },
+    getNextPageParam: (lastPage) => lastPage?.length > 0 ? lastPage[lastPage.length - 1].id : null
+  });
+}
 
 // src/modules/communities/types/community.ts
 var ROLES = /* @__PURE__ */ ((ROLES2) => {
@@ -2445,6 +2464,6 @@ function getOrderBookQueryOptions(limit = 500) {
   });
 }
 
-export { ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getConversionRequestsQueryOptions, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

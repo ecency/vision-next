@@ -2102,6 +2102,25 @@ function getCommunitySubscribersQueryOptions(communityName) {
     staleTime: 6e4
   });
 }
+function getAccountNotificationsInfiniteQueryOptions(account, limit) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["communities", "account-notifications", account, limit],
+    initialPageParam: null,
+    queryFn: async ({ pageParam }) => {
+      try {
+        const response = await CONFIG.hiveClient.call("bridge", "account_notifications", {
+          account,
+          limit,
+          last_id: pageParam ?? void 0
+        });
+        return response ?? [];
+      } catch {
+        return [];
+      }
+    },
+    getNextPageParam: (lastPage) => lastPage?.length > 0 ? lastPage[lastPage.length - 1].id : null
+  });
+}
 
 // src/modules/communities/types/community.ts
 var ROLES = /* @__PURE__ */ ((ROLES2) => {
@@ -2488,6 +2507,7 @@ exports.encodeObj = encodeObj;
 exports.extractAccountProfile = extractAccountProfile;
 exports.getAccessToken = getAccessToken;
 exports.getAccountFullQueryOptions = getAccountFullQueryOptions;
+exports.getAccountNotificationsInfiniteQueryOptions = getAccountNotificationsInfiniteQueryOptions;
 exports.getAccountPendingRecoveryQueryOptions = getAccountPendingRecoveryQueryOptions;
 exports.getAccountPostsInfiniteQueryOptions = getAccountPostsInfiniteQueryOptions;
 exports.getAccountRcQueryOptions = getAccountRcQueryOptions;
