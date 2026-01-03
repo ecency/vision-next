@@ -12,3 +12,4 @@ export * from "./modules/notifications";
 export * from "./modules/proposals";
 export * from "./modules/wallet";
 export * from "./modules/witnesses";
+export * from "./modules/market";

@@ -2434,6 +2434,14 @@ function getWitnessesInfiniteQueryOptions(limit) {
     }
   });
 }
+function getOrderBookQueryOptions(limit = 500) {
+  return reactQuery.queryOptions({
+    queryKey: ["market", "order-book", limit],
+    queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_order_book", [
+      limit
+    ])
+  });
+}
 
 exports.ALL_NOTIFY_TYPES = ALL_NOTIFY_TYPES;
 exports.CONFIG = CONFIG;
@@ -2487,6 +2495,7 @@ exports.getNotificationsInfiniteQueryOptions = getNotificationsInfiniteQueryOpti
 exports.getNotificationsSettingsQueryOptions = getNotificationsSettingsQueryOptions;
 exports.getNotificationsUnreadCountQueryOptions = getNotificationsUnreadCountQueryOptions;
 exports.getOpenOrdersQueryOptions = getOpenOrdersQueryOptions;
+exports.getOrderBookQueryOptions = getOrderBookQueryOptions;
 exports.getPostHeaderQueryOptions = getPostHeaderQueryOptions;
 exports.getPostQueryOptions = getPostQueryOptions;
 exports.getPostingKey = getPostingKey;

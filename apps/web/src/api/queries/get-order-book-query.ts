@@ -1,8 +1,5 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
-import { client } from "@/api/hive";
+import { EcencyQueriesManager } from "@/core/react-query";
+import { getOrderBookQueryOptions } from "@ecency/sdk";
 
 export const getOrderBookQuery = (limit = 500) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.GET_ORDER_BOOK],
-    queryFn: () => client.call("condenser_api", "get_order_book", [limit])
-  });
+  EcencyQueriesManager.generateClientServerQuery(getOrderBookQueryOptions(limit));
