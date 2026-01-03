@@ -815,6 +815,59 @@ declare function getDiscussionsQueryOptions(entry: Entry, order?: SortOrder, ena
     };
 };
 
+type PageParam$1 = {
+    author: string | undefined;
+    permlink: string | undefined;
+    hasNextPage: boolean;
+};
+type Page = Entry[];
+declare function getAccountPostsInfiniteQueryOptions(username: string | undefined, filter?: string, limit?: number, observer?: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Page, Error, Page, (string | number)[], PageParam$1>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Page, (string | number)[], PageParam$1> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Page, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+type PageParam = {
+    author: string | undefined;
+    permlink: string | undefined;
+    hasNextPage: boolean;
+};
+interface GetPostsRankedOptions {
+    resolvePosts?: boolean;
+}
+declare function getPostsRankedInfiniteQueryOptions(sort: string, tag: string, limit?: number, observer?: string, enabled?: boolean, _options?: GetPostsRankedOptions): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<Entry[], Error, Entry[], (string | number)[], PageParam>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Entry[], (string | number)[], PageParam> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Entry[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface BlogEntry {
+    author: string;
+    permlink: string;
+    blog: string;
+    reblog_on: string;
+    reblogged_on: string;
+    entry_id: number;
+}
+interface Reblog {
+    author: string;
+    permlink: string;
+}
+declare function getReblogsQueryOptions(username?: string, activeUsername?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Reblog[], Error, Reblog[], (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Reblog[], (string | number)[], never> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: Reblog[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
 declare function useAddFragment(username: string): _tanstack_react_query.UseMutationResult<Fragment, Error, {
     title: string;
     body: string;
@@ -1448,4 +1501,4 @@ declare function getNotificationsSettingsQueryOptions(activeUsername: string | u
     };
 };
 
-export { ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type Payer, type ProfileTokens, ROLES, type RcStats, type Recoveries, SortOrder, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type Vote, type WalletMetadataCandidate, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountProfile, type AccountRelationship, type AccountReputation, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type BlogEntry, type BuildProfileMetadataArgs, CONFIG, type CantAfford, type CheckUsernameWalletsPendingResponse, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type Fragment, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, HiveSignerIntegration, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type Payer, type ProfileTokens, ROLES, type RcStats, type Reblog, type Recoveries, SortOrder, type StatsResponse, type StoringUser, Symbol, ThreeSpeakIntegration, type ThreeSpeakVideo, type TrendingTag, type Vote, type WalletMetadataCandidate, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityType, getDiscussionsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFragmentsQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getLoginType, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSearchAccountsByUsernameQueryOptions, getStatsQueryOptions, getTrendingTagsQueryOptions, getUser, makeQueryClient, parseAsset, parseProfileMetadata, roleMap, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };

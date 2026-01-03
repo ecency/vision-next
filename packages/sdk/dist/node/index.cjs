@@ -1459,6 +1459,119 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
     select: (data) => sortDiscussions(entry, data, order)
   });
 }
+var DMCA_ACCOUNTS = [];
+function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit = 20, observer = "", enabled = true) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["posts", "account-posts", username ?? "", filter, limit],
+    enabled: !!username && enabled,
+    initialPageParam: {
+      author: void 0,
+      permlink: void 0,
+      hasNextPage: true
+    },
+    queryFn: async ({ pageParam }) => {
+      if (!pageParam?.hasNextPage || !username) return [];
+      const rpcParams = {
+        sort: filter,
+        account: username,
+        limit,
+        ...observer !== void 0 ? { observer } : {},
+        ...pageParam.author ? { start_author: pageParam.author } : {},
+        ...pageParam.permlink ? { start_permlink: pageParam.permlink } : {}
+      };
+      try {
+        if (DMCA_ACCOUNTS.includes(username)) return [];
+        const resp = await CONFIG.hiveClient.call(
+          "bridge",
+          "get_account_posts",
+          rpcParams
+        );
+        if (resp && Array.isArray(resp)) {
+          return resp;
+        }
+        return [];
+      } catch (err) {
+        console.error("[SDK] get_account_posts error:", err);
+        return [];
+      }
+    },
+    getNextPageParam: (lastPage) => {
+      const last = lastPage?.[lastPage.length - 1];
+      const hasNextPage = (lastPage?.length ?? 0) > 0;
+      if (!hasNextPage) {
+        return void 0;
+      }
+      return {
+        author: last?.author,
+        permlink: last?.permlink,
+        hasNextPage
+      };
+    }
+  });
+}
+var DMCA_TAGS = [];
+function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = "", enabled = true, _options = {}) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["posts", "posts-ranked", sort, tag, limit, observer],
+    queryFn: async ({ pageParam }) => {
+      if (!pageParam.hasNextPage) {
+        return [];
+      }
+      let sanitizedTag = tag;
+      if (DMCA_TAGS.some((rx) => new RegExp(rx).test(tag))) {
+        sanitizedTag = "";
+      }
+      const response = await CONFIG.hiveClient.call("bridge", "get_ranked_posts", {
+        sort,
+        start_author: pageParam.author,
+        start_permlink: pageParam.permlink,
+        limit,
+        tag: sanitizedTag,
+        observer
+      });
+      if (response && Array.isArray(response)) {
+        const data = response;
+        const sorted = sort === "hot" ? data : data.sort(
+          (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
+        );
+        const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
+        const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
+        return [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s);
+      }
+      return [];
+    },
+    enabled,
+    initialPageParam: {
+      author: void 0,
+      permlink: void 0,
+      hasNextPage: true
+    },
+    getNextPageParam: (lastPage) => {
+      const last = lastPage?.[lastPage.length - 1];
+      return {
+        author: last?.author,
+        permlink: last?.permlink,
+        hasNextPage: (lastPage?.length ?? 0) > 0
+      };
+    }
+  });
+}
+function getReblogsQueryOptions(username, activeUsername, limit = 200) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "reblogs", username ?? "", limit],
+    queryFn: async () => {
+      const response = await CONFIG.hiveClient.call("condenser_api", "get_blog_entries", [
+        username ?? activeUsername,
+        0,
+        limit
+      ]);
+      return response.filter(
+        (i) => i.author !== activeUsername && !i.reblogged_on.startsWith("1970-")
+      ).map((i) => ({ author: i.author, permlink: i.permlink }));
+    },
+    enabled: !!username
+  });
+}
 function useAddFragment(username) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "add-fragment", username],
@@ -2072,6 +2185,7 @@ exports.extractAccountProfile = extractAccountProfile;
 exports.getAccessToken = getAccessToken;
 exports.getAccountFullQueryOptions = getAccountFullQueryOptions;
 exports.getAccountPendingRecoveryQueryOptions = getAccountPendingRecoveryQueryOptions;
+exports.getAccountPostsInfiniteQueryOptions = getAccountPostsInfiniteQueryOptions;
 exports.getAccountRcQueryOptions = getAccountRcQueryOptions;
 exports.getAccountRecoveriesQueryOptions = getAccountRecoveriesQueryOptions;
 exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOptions;
@@ -2096,9 +2210,11 @@ exports.getNotificationsUnreadCountQueryOptions = getNotificationsUnreadCountQue
 exports.getPostHeaderQueryOptions = getPostHeaderQueryOptions;
 exports.getPostQueryOptions = getPostQueryOptions;
 exports.getPostingKey = getPostingKey;
+exports.getPostsRankedInfiniteQueryOptions = getPostsRankedInfiniteQueryOptions;
 exports.getPromotedPostsQuery = getPromotedPostsQuery;
 exports.getQueryClient = getQueryClient;
 exports.getRcStatsQueryOptions = getRcStatsQueryOptions;
+exports.getReblogsQueryOptions = getReblogsQueryOptions;
 exports.getRefreshToken = getRefreshToken;
 exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccountsQueryOptions;
 exports.getSearchAccountsByUsernameQueryOptions = getSearchAccountsByUsernameQueryOptions;
