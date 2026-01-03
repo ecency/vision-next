@@ -8,7 +8,6 @@ export const getAllHiveEngineTokensQuery = (account?: string, symbol?: string) =
   EcencyQueriesManager.generateClientServerQuery({
     queryKey: [QueryIdentifiers.HIVE_ENGINE_ALL_TOKENS, account, symbol],
     queryFn: async () => {
-    queryFn: async () => {
       try {
         const response = await appAxios.post<{ result: HiveEngineTokenInfo[] }>(
           apiBase(engine.API),
