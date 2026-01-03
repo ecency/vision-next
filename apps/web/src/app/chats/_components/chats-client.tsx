@@ -372,6 +372,15 @@ export function ChatsClient() {
     );
   }
 
+  // Wait for bootstrap to complete before showing channel list
+  if (isLoading || !bootstrap) {
+    return (
+      <div className="flex h-full items-center justify-center p-4">
+        <div className="text-sm text-[--text-muted]">{i18next.t("chat.loading-chats")}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex flex-col gap-3 border-b border-[--border-color] p-4">
