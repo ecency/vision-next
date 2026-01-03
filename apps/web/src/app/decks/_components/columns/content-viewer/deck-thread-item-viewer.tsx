@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { WaveEntry } from "@/entities";
 import { useWaveDiscussionsList } from "@/features/waves";
 import { makeEntryPath } from "@/utils";
+import { SortOrder } from "@/enums";
 
 interface Props {
   entry: WaveEntry;
@@ -82,7 +83,7 @@ export const DeckThreadItemViewer = ({
         onSuccess={(reply) => {
           reply.replies = [];
           if (data) {
-            addReplyToDiscussionsList(entry!, reply, queryClient);
+            addReplyToDiscussionsList(entry!, reply, SortOrder.created, queryClient);
             // Update entry in global cache
             addReply(reply);
           }

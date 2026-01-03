@@ -37,6 +37,6 @@ export function addReplyToDiscussionsList(
   order: SortOrder = SortOrder.created,
   queryClient = getQueryClient()
 ) {
-  const queryKey = ["posts", "discussions", entry?.author, entry?.permlink, order, reply.author];
-  queryClient.setQueryData<Entry[]>(queryKey, (data) => [...(data ?? []), reply]);
+  const options = getDiscussionsQueryOptions(entry, mapSortOrder(order), true, entry?.author);
+  queryClient.setQueryData<Entry[]>(options.queryKey, (data) => [...(data ?? []), reply]);
 }

@@ -5,7 +5,7 @@ import { CommentHistory } from "../types/comment-history";
 export function getCommentHistoryQueryOptions(author: string, permlink: string) {
   return queryOptions({
     queryKey: ["posts", "comment-history", author, permlink],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
         method: "POST",
         headers: {
@@ -15,6 +15,7 @@ export function getCommentHistoryQueryOptions(author: string, permlink: string) 
           author,
           permlink,
         }),
+        signal,
       });
 
       if (!response.ok) {

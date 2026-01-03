@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { validatePostCreating } from "@/api/hive";
 import { addReplyToDiscussionsList, getAccountFullQuery } from "@/api/queries";
 import { useActiveAccount } from "@/core/hooks";
+import { SortOrder } from "@/enums";
 
 export function useWavesApi() {
   const queryClient = useQueryClient();
@@ -105,7 +106,7 @@ export function useWavesApi() {
           });
 
       if (!editingEntry) {
-        addReplyToDiscussionsList(entry, tempReply, queryClient);
+        addReplyToDiscussionsList(entry, tempReply, SortOrder.created, queryClient);
         updateRepliesCount(entry.children + 1, entry);
       }
 
