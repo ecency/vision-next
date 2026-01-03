@@ -80,7 +80,11 @@ var CONFIG = {
   heliusApiKey: process.env.VITE_HELIUS_API_KEY,
   queryClient: new reactQuery.QueryClient(),
   plausibleHost: "https://pl.ecency.com",
-  spkNode: "https://spk.good-karma.xyz"
+  spkNode: "https://spk.good-karma.xyz",
+  // DMCA filtering - can be configured by the app
+  dmcaAccounts: [],
+  dmcaTags: [],
+  dmcaPatterns: []
 };
 exports.ConfigManager = void 0;
 ((ConfigManager2) => {
@@ -88,6 +92,12 @@ exports.ConfigManager = void 0;
     CONFIG.queryClient = client;
   }
   ConfigManager2.setQueryClient = setQueryClient;
+  function setDmcaLists(accounts = [], tags = [], patterns = []) {
+    CONFIG.dmcaAccounts = accounts;
+    CONFIG.dmcaTags = tags;
+    CONFIG.dmcaPatterns = patterns;
+  }
+  ConfigManager2.setDmcaLists = setDmcaLists;
 })(exports.ConfigManager || (exports.ConfigManager = {}));
 
 // src/modules/core/utils/decoder-encoder.ts
@@ -1684,7 +1694,6 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
     select: (data) => sortDiscussions(entry, data, order)
   });
 }
-var DMCA_ACCOUNTS = [];
 function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit = 20, observer = "", enabled = true) {
   return reactQuery.infiniteQueryOptions({
     queryKey: ["posts", "account-posts", username ?? "", filter, limit],
@@ -1705,7 +1714,7 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
         ...pageParam.permlink ? { start_permlink: pageParam.permlink } : {}
       };
       try {
-        if (DMCA_ACCOUNTS.includes(username)) return [];
+        if (CONFIG.dmcaAccounts.includes(username)) return [];
         const resp = await CONFIG.hiveClient.call(
           "bridge",
           "get_account_posts",
@@ -1734,7 +1743,6 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
     }
   });
 }
-var DMCA_TAGS = [];
 function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = "", enabled = true, _options = {}) {
   return reactQuery.infiniteQueryOptions({
     queryKey: ["posts", "posts-ranked", sort, tag, limit, observer],
@@ -1743,7 +1751,7 @@ function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = ""
         return [];
       }
       let sanitizedTag = tag;
-      if (DMCA_TAGS.some((rx) => new RegExp(rx).test(tag))) {
+      if (CONFIG.dmcaTags.some((rx) => new RegExp(rx).test(tag))) {
         sanitizedTag = "";
       }
       const response = await CONFIG.hiveClient.call("bridge", "get_ranked_posts", {

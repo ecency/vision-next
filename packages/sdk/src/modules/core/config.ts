@@ -31,10 +31,30 @@ export const CONFIG = {
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz",
+  // DMCA filtering - can be configured by the app
+  dmcaAccounts: [] as string[],
+  dmcaTags: [] as string[],
+  dmcaPatterns: [] as string[],
 };
 
 export namespace ConfigManager {
   export function setQueryClient(client: QueryClient) {
     CONFIG.queryClient = client;
+  }
+
+  /**
+   * Set DMCA filtering lists
+   * @param accounts - List of account usernames to filter
+   * @param tags - List of tag patterns (regex strings) to filter
+   * @param patterns - List of post patterns (regex strings) like "@author/permlink" to filter
+   */
+  export function setDmcaLists(
+    accounts: string[] = [],
+    tags: string[] = [],
+    patterns: string[] = []
+  ) {
+    CONFIG.dmcaAccounts = accounts;
+    CONFIG.dmcaTags = tags;
+    CONFIG.dmcaPatterns = patterns;
   }
 }

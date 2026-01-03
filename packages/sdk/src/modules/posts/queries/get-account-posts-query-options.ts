@@ -9,9 +9,6 @@ type PageParam = {
 };
 type Page = Entry[];
 
-// DMCA accounts list
-const DMCA_ACCOUNTS: string[] = [];
-
 export function getAccountPostsInfiniteQueryOptions(
   username: string | undefined,
   filter = "posts",
@@ -50,7 +47,7 @@ export function getAccountPostsInfiniteQueryOptions(
       };
 
       try {
-        if (DMCA_ACCOUNTS.includes(username)) return [];
+        if (CONFIG.dmcaAccounts.includes(username)) return [];
 
         const resp = await CONFIG.hiveClient.call(
           "bridge",

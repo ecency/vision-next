@@ -12,9 +12,6 @@ interface GetPostsRankedOptions {
   resolvePosts?: boolean;
 }
 
-// DMCA tags list - empty for now, can be populated
-const DMCA_TAGS: string[] = [];
-
 export function getPostsRankedInfiniteQueryOptions(
   sort: string,
   tag: string,
@@ -31,7 +28,7 @@ export function getPostsRankedInfiniteQueryOptions(
       }
 
       let sanitizedTag = tag;
-      if (DMCA_TAGS.some((rx: string) => new RegExp(rx).test(tag))) {
+      if (CONFIG.dmcaTags.some((rx: string) => new RegExp(rx).test(tag))) {
         sanitizedTag = "";
       }
 

@@ -843,9 +843,19 @@ declare const CONFIG: {
     queryClient: QueryClient;
     plausibleHost: string;
     spkNode: string;
+    dmcaAccounts: string[];
+    dmcaTags: string[];
+    dmcaPatterns: string[];
 };
 declare namespace ConfigManager {
     function setQueryClient(client: QueryClient): void;
+    /**
+     * Set DMCA filtering lists
+     * @param accounts - List of account usernames to filter
+     * @param tags - List of tag patterns (regex strings) to filter
+     * @param patterns - List of post patterns (regex strings) like "@author/permlink" to filter
+     */
+    function setDmcaLists(accounts?: string[], tags?: string[], patterns?: string[]): void;
 }
 
 declare function makeQueryClient(): QueryClient;
