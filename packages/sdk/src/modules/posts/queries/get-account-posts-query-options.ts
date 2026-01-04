@@ -68,7 +68,9 @@ export function getAccountPostsInfiniteQueryOptions(
 
     getNextPageParam: (lastPage: Page): PageParam | undefined => {
       const last = lastPage?.[lastPage.length - 1];
-      const hasNextPage = (lastPage?.length ?? 0) > 0;
+      // Only consider there's a next page if we got a full page of results
+      // A partial page means we've reached the end
+      const hasNextPage = (lastPage?.length ?? 0) === limit;
 
       if (!hasNextPage) {
         return undefined;

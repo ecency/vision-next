@@ -114,6 +114,10 @@ export function getDiscussionsQueryOptions(
       observer || entry?.author,
     ],
     queryFn: async () => {
+      if (!entry) {
+        return [];
+      }
+
       const response = await CONFIG.hiveClient.call("bridge", "get_discussion", {
         author: entry.author,
         permlink: entry.permlink,
@@ -125,7 +129,7 @@ export function getDiscussionsQueryOptions(
         : [];
       return filterDmcaEntry(results);
     },
-    enabled,
+    enabled: enabled && !!entry,
     select: (data) => sortDiscussions(entry, data, order),
   });
 }

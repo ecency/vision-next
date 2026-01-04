@@ -145,7 +145,17 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
   // Validate tag patterns
   if (tagFilePath && fs.existsSync(tagFilePath)) {
     console.log(`\n📋 Validating tag patterns from: ${tagFilePath}`);
-    const tags = JSON.parse(fs.readFileSync(tagFilePath, 'utf8'));
+    let tags;
+    try {
+      tags = JSON.parse(fs.readFileSync(tagFilePath, 'utf8'));
+    } catch (error) {
+      console.error(`\n❌ Failed to parse tag patterns JSON file: ${tagFilePath}`);
+      console.error(`   ↳ ${error.message}`);
+      hasErrors = true;
+      results.tags.invalid = 1; // Mark as having errors
+      return;
+    }
+
     results.tags.total = tags.length;
 
     tags.forEach((pattern, index) => {
@@ -170,7 +180,17 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
   // Validate post patterns
   if (patternFilePath && fs.existsSync(patternFilePath)) {
     console.log(`\n📋 Validating post patterns from: ${patternFilePath}`);
-    const patterns = JSON.parse(fs.readFileSync(patternFilePath, 'utf8'));
+    let patterns;
+    try {
+      patterns = JSON.parse(fs.readFileSync(patternFilePath, 'utf8'));
+    } catch (error) {
+      console.error(`\n❌ Failed to parse post patterns JSON file: ${patternFilePath}`);
+      console.error(`   ↳ ${error.message}`);
+      hasErrors = true;
+      results.patterns.invalid = 1; // Mark as having errors
+      return;
+    }
+
     results.patterns.total = patterns.length;
 
     patterns.forEach((pattern, index) => {

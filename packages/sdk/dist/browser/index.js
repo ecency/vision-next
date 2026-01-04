@@ -1658,11 +1658,11 @@ function getPostHeaderQueryOptions(author, permlink) {
 // src/modules/posts/utils/filter-dmca-entries.ts
 function filterDmcaEntry(entryOrEntries) {
   if (Array.isArray(entryOrEntries)) {
-    return entryOrEntries.map((entry) => applyCensorship(entry));
+    return entryOrEntries.map((entry) => applyFilter(entry));
   }
-  return applyCensorship(entryOrEntries);
+  return applyFilter(entryOrEntries);
 }
-function applyCensorship(entry) {
+function applyFilter(entry) {
   if (!entry) return entry;
   const entryPath = `@${entry.author}/${entry.permlink}`;
   const isDmca = CONFIG.dmcaPatternRegexes.some((regex) => regex.test(entryPath));
@@ -1785,6 +1785,9 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
       observer || entry?.author
     ],
     queryFn: async () => {
+      if (!entry) {
+        return [];
+      }
       const response = await CONFIG.hiveClient.call("bridge", "get_discussion", {
         author: entry.author,
         permlink: entry.permlink,
@@ -1793,7 +1796,7 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
       const results = response ? Array.from(Object.values(response)) : [];
       return filterDmcaEntry(results);
     },
-    enabled,
+    enabled: enabled && !!entry,
     select: (data) => sortDiscussions(entry, data, order)
   });
 }
@@ -1834,7 +1837,7 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
     },
     getNextPageParam: (lastPage) => {
       const last = lastPage?.[lastPage.length - 1];
-      const hasNextPage = (lastPage?.length ?? 0) > 0;
+      const hasNextPage = (lastPage?.length ?? 0) === limit;
       if (!hasNextPage) {
         return void 0;
       }

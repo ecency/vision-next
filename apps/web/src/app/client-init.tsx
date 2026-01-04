@@ -14,9 +14,6 @@ import { useMount } from "react-use";
 import { installConsoleRecorder } from "@/utils/console-msg";
 import { registerWalletHiveAuthBroadcast } from "@ecency/wallets";
 import { broadcastWithHiveAuth } from "@/utils/hive-auth";
-import dmcaAccounts from "@/dmca-accounts.json";
-import dmcaTags from "@/dmca-tags.json";
-import dmcaPatterns from "@/dmca.json";
 
 export function ClientInit() {
   const { activeUser } = useActiveAccount();
@@ -33,9 +30,6 @@ export function ClientInit() {
     installConsoleRecorder();
 
     ConfigManager.setQueryClient(queryClient as any);
-
-    // Configure DMCA filtering lists
-    ConfigManager.setDmcaLists(dmcaAccounts, dmcaTags, dmcaPatterns);
 
     initKeychain();
     initI18next();

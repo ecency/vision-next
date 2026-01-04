@@ -1,6 +1,7 @@
 "use client";
 
 import "@/polyfills";
+import "@/core/sdk-init"; // Initialize SDK DMCA filters immediately
 import { ClientInit } from "@/app/client-init";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";

@@ -1101,11 +1101,11 @@ declare function getPostHeaderQueryOptions(author: string, permlink: string): Om
     };
 };
 
-declare function getPostQueryOptions(author: string, permlink?: string, observer?: string, num?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Entry$1 | null, Error, Entry$1 | null, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Entry$1 | null, string[], never> | undefined;
+declare function getPostQueryOptions(author: string, permlink?: string, observer?: string, num?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Entry$1 | null | undefined, Error, Entry$1 | null | undefined, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Entry$1 | null | undefined, string[], never> | undefined;
 } & {
     queryKey: string[] & {
-        [dataTagSymbol]: Entry$1 | null;
+        [dataTagSymbol]: Entry$1 | null | undefined;
         [dataTagErrorSymbol]: Error;
     };
 };
