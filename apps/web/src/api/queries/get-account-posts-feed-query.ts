@@ -1,7 +1,8 @@
 import { getAccountPostsQuery } from "@/api/queries/get-account-posts-query";
 import { getPostsRankedQuery } from "@/api/queries/get-posts-ranked-query";
 import { getPromotedEntriesInfiniteQuery } from "@/api/queries/get-promoted-entries-query";
-import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
+import { prefetchInfiniteQuery, getInfiniteQueryData } from "@/core/react-query";
+import { InfiniteData, UseInfiniteQueryResult, useInfiniteQuery } from "@tanstack/react-query";
 import { Entry, SearchResponse } from "@/entities";
 
 // Unify all branches on a single page type
@@ -19,33 +20,37 @@ export async function prefetchGetPostsFeedQuery(
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
-    return getPromotedEntriesInfiniteQuery().prefetch() as Promise<FeedInfinite | undefined>;
+    return prefetchInfiniteQuery(getPromotedEntriesInfiniteQuery()) as Promise<FeedInfinite | undefined>;
   }
 
   if (isAccountPosts) {
-    return getAccountPostsQuery(
+    return prefetchInfiniteQuery(
+      getAccountPostsQuery(
         tag.replace("@", "").replace("%40", ""),
         what,
         limit,
         observer ?? "",
         true
-    ).prefetch() as Promise<FeedInfinite | undefined>;
+      )
+    ) as Promise<FeedInfinite | undefined>;
   }
 
   if (what === "feed") {
-    return getPostsRankedQuery(
+    return prefetchInfiniteQuery(
+      getPostsRankedQuery(
         what,
         tag,
         limit,
         observer ?? "",
         true,
         { resolvePosts: false }
-    ).prefetch() as Promise<FeedInfinite | undefined>;
+      )
+    ) as Promise<FeedInfinite | undefined>;
   }
 
-  return getPostsRankedQuery(what, tag, limit, observer ?? "").prefetch() as Promise<
-      FeedInfinite | undefined
-  >;
+  return prefetchInfiniteQuery(
+    getPostsRankedQuery(what, tag, limit, observer ?? "")
+  ) as Promise<FeedInfinite | undefined>;
 }
 
 export function getPostsFeedQueryData(
@@ -59,33 +64,37 @@ export function getPostsFeedQueryData(
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
-    return getPromotedEntriesInfiniteQuery().getData() as FeedInfinite | undefined;
+    return getInfiniteQueryData(getPromotedEntriesInfiniteQuery()) as FeedInfinite | undefined;
   }
 
   if (isAccountPosts) {
-    return getAccountPostsQuery(
+    return getInfiniteQueryData(
+      getAccountPostsQuery(
         tag.replace("@", "").replace("%40", ""),
         what,
         limit,
         observer ?? "",
         true
-    ).getData() as FeedInfinite | undefined;
+      )
+    ) as FeedInfinite | undefined;
   }
 
   if (what === "feed") {
-    return getPostsRankedQuery(
+    return getInfiniteQueryData(
+      getPostsRankedQuery(
         what,
         tag,
         limit,
         observer ?? "",
         true,
         { resolvePosts: false }
-    ).getData() as FeedInfinite | undefined;
+      )
+    ) as FeedInfinite | undefined;
   }
 
-  return getPostsRankedQuery(what, tag, limit, observer ?? "").getData() as
-      | FeedInfinite
-      | undefined;
+  return getInfiniteQueryData(
+    getPostsRankedQuery(what, tag, limit, observer ?? "")
+  ) as FeedInfinite | undefined;
 }
 
 export function usePostsFeedQuery(
@@ -98,7 +107,7 @@ export function usePostsFeedQuery(
   const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
-  const query =
+  const queryOptions =
       isPromotedSection
           ? getPromotedEntriesInfiniteQuery()
           : isAccountPosts
@@ -119,5 +128,5 @@ export function usePostsFeedQuery(
                 );
 
   // unify result type for callers
-  return query.useClientQuery() as unknown as UseInfiniteQueryResult<Page, Error>;
+  return useInfiniteQuery(queryOptions) as unknown as UseInfiniteQueryResult<Page, Error>;
 }

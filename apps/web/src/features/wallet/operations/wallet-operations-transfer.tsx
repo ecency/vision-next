@@ -5,7 +5,8 @@ import {
   parseAsset,
   vestsToHp,
 } from "@ecency/wallets";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
@@ -59,7 +60,7 @@ export function WalletOperationsTransfer({
     getAccountWalletAssetInfoQueryOptions(username, asset)
   );
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const hivePerMVests = useMemo(
     () => (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests,
     [dynamicProps]

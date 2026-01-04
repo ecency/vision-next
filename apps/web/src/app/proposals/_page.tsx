@@ -8,8 +8,10 @@ import { Feedback, LinearProgress, Navbar, ScrollToTop, SearchBox, Theme } from 
 import { Tsx } from "@/features/i18n/helper";
 import i18next from "i18next";
 import { ProposalCreateForm, ProposalListItem } from "@/app/proposals/_components";
-import { getAccountFullQuery, getProposalsQuery, getUserProposalVotesQuery } from "@/api/queries";
+import { getProposalsQuery, getUserProposalVotesQuery } from "@/api/queries";
 import { parseAsset } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { Proposal } from "@/entities";
 import { AnimatePresence, motion } from "framer-motion";
 import { useInViewport } from "react-in-viewport";
@@ -33,7 +35,7 @@ export function ProposalsPage() {
   const { activeUser } = useActiveAccount();
 
   const { data: proposals, isLoading } = getProposalsQuery().useClientQuery();
-  const { data: fund } = getAccountFullQuery("hive.fund").useClientQuery();
+  const { data: fund } = useQuery(getAccountFullQueryOptions("hive.fund"));
 
   // Fetch all user votes once instead of per-proposal (optimization!)
   // Use ?voter= param if present, otherwise fallback to logged-in user

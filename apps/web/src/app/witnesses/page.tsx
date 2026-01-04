@@ -1,7 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Navbar, ScrollToTop, Theme } from "@/features/shared";
 import "./page.scss";
-import { getWitnessesQuery } from "@/api/queries";
+import { prefetchInfiniteQuery } from "@/core/react-query";
+import { getWitnessesInfiniteQueryOptions } from "@ecency/sdk";
 import { WitnessesHeader, WitnessesList } from "@/app/witnesses/_components";
 import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
@@ -17,7 +18,7 @@ export async function generateMetadata(
 }
 
 export default async function Witnesses() {
-  await getWitnessesQuery(50).prefetch();
+  await prefetchInfiniteQuery(getWitnessesInfiniteQueryOptions(50));
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

@@ -1,7 +1,6 @@
-import { getAccountFullQuery } from "@/api/queries";
 import { Skeleton } from "@/features/shared";
 import { accountReputation } from "@/utils";
-import { getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
+import { getRelationshipBetweenAccountsQueryOptions, getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import Link from "next/link";
@@ -16,7 +15,7 @@ export function ProfilePreviewUsername({ username }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data: account, isLoading: isProfileLoading } =
-    getAccountFullQuery(username).useClientQuery();
+    useQuery(getAccountFullQueryOptions(username));
 
   const { data: relationsBetweenAccounts, isLoading: followsActiveUserLoading } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(username, activeUser?.username)

@@ -15,12 +15,10 @@ import {
   vestsToHp
 } from "@/utils";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getDynamicPropsQuery,
-  getPointsQuery,
-  getSpkWalletQuery
-} from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getPointsQuery, getSpkWalletQuery } from "@/api/queries";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
 import { EXCHANGE_ACCOUNTS } from "@/consts";
@@ -60,7 +58,7 @@ export function TransferStep1({ titleLngKey }: Props) {
   } = useTransferSharedState();
 
   const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const { data: spkWallet } = getSpkWalletQuery(activeUser?.username).useClientQuery();
   const { data: engineBalances } = useGetHiveEngineBalancesQuery(
     activeUser?.username

@@ -136,4 +136,4 @@ export const getQueryClient = isServer
       return (global as any).clientQueryClient as QueryClient;
     };
 
-export * from "./ecency-queries-manager";
+export * from "./query-helpers";

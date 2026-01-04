@@ -1,4 +1,4 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 import { getMarketData } from "@/api/misc";
 
 export const getMarketDataQuery = (
@@ -6,8 +6,7 @@ export const getMarketDataQuery = (
   vsCurrency: string,
   fromTs: string,
   toTs: string
-) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.MARKET_DATA],
-    queryFn: () => getMarketData(coin, vsCurrency, fromTs, toTs)
-  });
+) => ({
+  queryKey: [QueryIdentifiers.MARKET_DATA],
+  queryFn: () => getMarketData(coin, vsCurrency, fromTs, toTs)
+});

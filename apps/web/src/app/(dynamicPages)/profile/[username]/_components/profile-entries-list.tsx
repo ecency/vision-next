@@ -1,7 +1,9 @@
 import { Entry, FullAccount } from "@/entities";
 import { EntryListContent } from "@/features/shared";
 import React from "react";
-import { getPostQuery, getPostsFeedQueryData } from "@/api/queries";
+import { getPostsFeedQueryData } from "@/api/queries";
+import { getQueryData } from "@/core/react-query";
+import { getPostQueryOptions } from "@ecency/sdk";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { ProfileEntriesInfiniteList } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-infinite-list";
 import type { InfiniteData } from "@tanstack/react-query";
@@ -22,7 +24,7 @@ function shouldShowPinnedEntry(account: FullAccount, section: string) {
 
 export async function ProfileEntriesList({ section, account, initialFeed }: Props) {
   const pinnedEntry = shouldShowPinnedEntry(account, section)
-    ? getPostQuery(account.name, account.profile?.pinned).getData()
+    ? getQueryData(getPostQueryOptions(account.name, account.profile?.pinned))
     : undefined;
 
   const prefetchedFeed =

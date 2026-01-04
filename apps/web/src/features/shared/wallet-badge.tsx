@@ -6,15 +6,17 @@ import { Tooltip } from "@ui/tooltip";
 import Link from "next/link";
 import { creditCardSvg } from "@ui/svg";
 import i18next from "i18next";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { useActiveAccount } from "@/core/hooks";
+import { useQuery } from "@tanstack/react-query";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 
 export const WalletBadge = ({ icon }: { icon: ReactNode }) => {
   const { username, account } = useActiveAccount();
 
   const [hasUnclaimedRewards, setHasUnclaimedRewards] = useState(false);
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   useEffect(() => {
     if (account) {

@@ -1,6 +1,6 @@
 import { appAxios } from "@/api/axios";
 import { apiBase } from "@/api/helper";
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 
 export interface PostTip {
   sender: string;
@@ -20,19 +20,15 @@ export interface PostTipsResponse {
   list: PostTip[];
 }
 
-export const getPostTipsQuery = (author: string, permlink: string, isEnabled = true) =>
-  EcencyQueriesManager.generateClientServerQuery({
-    queryKey: [QueryIdentifiers.POST_TIPS, author, permlink],
-    queryFn: async () => {
-      const response = await appAxios.post<PostTipsResponse>(
-        apiBase(`/private-api/post-tips`),
-        {
-          author,
-          permlink
-        }
-      );
+export const getPostTipsQuery = (author: string, permlink: string, isEnabled = true) => ({
+  queryKey: [QueryIdentifiers.POST_TIPS, author, permlink],
+  queryFn: async () => {
+    const response = await appAxios.post<PostTipsResponse>(apiBase(`/private-api/post-tips`), {
+      author,
+      permlink
+    });
 
-      return response.data;
-    },
-    enabled: !!author && !!permlink && isEnabled
-  });
+    return response.data;
+  },
+  enabled: !!author && !!permlink && isEnabled
+});

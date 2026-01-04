@@ -2,11 +2,10 @@ import { FormControl } from "@/features/ui";
 import { SignupWalletLabeledField } from "./signup-wallet-labeled-field";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { getAccountsQuery } from "@/api/queries";
 import { useDebounce } from "react-use";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
-import { checkUsernameWalletsPendingQueryOptions } from "@ecency/sdk";
+import { checkUsernameWalletsPendingQueryOptions, getAccountsQueryOptions } from "@ecency/sdk";
 
 interface Props {
   initialUsername: string;
@@ -22,7 +21,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
     data: foundAccounts,
     isSuccess,
     isPending
-  } = getAccountsQuery([username.toLowerCase()]).useClientQuery();
+  } = useQuery(getAccountsQueryOptions([username.toLowerCase()]));
   const { data } = useQuery(checkUsernameWalletsPendingQueryOptions(username.toLowerCase()));
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);

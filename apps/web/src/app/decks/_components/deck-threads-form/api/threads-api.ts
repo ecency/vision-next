@@ -8,7 +8,8 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks";
-import { getAccountFullQuery } from "@/api/queries";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 export function useThreadsApi() {
   const { username, account, isLoading } = useActiveAccount();
@@ -25,7 +26,7 @@ export function useThreadsApi() {
     // Wait for account data if still loading
     let authorData: FullAccount;
     if (isLoading) {
-      const accountData = await getAccountFullQuery(username).fetchAndGet();
+      const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
       if (!accountData) {
         throw new Error("[Deck][Thread-API] – Failed to load account data");
       }

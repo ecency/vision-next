@@ -1,4 +1,4 @@
-import { EcencyQueriesManager, getQueryClient } from "@/core/react-query";
+import { getQueryClient } from "@/core/react-query";
 import { Entry } from "@/entities";
 import { SortOrder } from "@/enums";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -19,7 +19,7 @@ export const getDiscussionsQuery = (
 
   // Add cache management to queryFn
   const originalQueryFn = options.queryFn;
-  const enhancedOptions = {
+  return {
     ...options,
     queryFn: async () => {
       const results = await originalQueryFn();
@@ -27,8 +27,6 @@ export const getDiscussionsQuery = (
       return results;
     }
   };
-
-  return EcencyQueriesManager.generateClientServerQuery(enhancedOptions);
 };
 
 export function addReplyToDiscussionsList(

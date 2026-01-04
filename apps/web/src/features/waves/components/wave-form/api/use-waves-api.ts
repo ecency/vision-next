@@ -8,7 +8,9 @@ import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { validatePostCreating } from "@/api/hive";
-import { addReplyToDiscussionsList, getAccountFullQuery } from "@/api/queries";
+import { addReplyToDiscussionsList } from "@/api/queries";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
 
@@ -40,7 +42,7 @@ export function useWavesApi() {
       // Wait for account data if still loading
       let authorData: FullAccount;
       if (isLoading) {
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           throw new Error("[Wave][Thread-base][API] – Failed to load account data");
         }

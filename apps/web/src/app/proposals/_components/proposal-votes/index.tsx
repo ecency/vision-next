@@ -11,8 +11,11 @@ import i18next from "i18next";
 import { Entry, Proposal } from "@/entities";
 import { LinearProgress, ProfileLink, ProfilePopover, UserAvatar } from "@/features/shared";
 import { accountReputation, parseAsset } from "@/utils";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { getProposalVotesQuery } from "@/api/queries";
 import { Spinner } from "@ui/spinner";
+import { useQuery } from "@tanstack/react-query";
 import { Pagination } from "@/features/ui";
 
 type SortOption = "reputation" | "hp";
@@ -27,7 +30,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   const [sort, setSort] = useState<SortOption>("hp");
   const [page, setPage] = useState(1);
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const {
     data: votesPages,
     isFetching,

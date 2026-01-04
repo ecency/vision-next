@@ -4,18 +4,16 @@ import { HiveEngineToken } from "@/utils";
 import { getTokenBalances, getTokens } from "@/api/hive-engine";
 import { useMemo } from "react";
 import { useGlobalStore } from "@/core/global-store";
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getAllHiveEngineTokensQuery,
-  getDynamicPropsQuery
-} from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getAllHiveEngineTokensQuery } from "@/api/queries";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 
 type DynamicProps = typeof DEFAULT_DYNAMIC_PROPS;
 type TokenMetric = { symbol: string; lastPrice?: string | number };
 
 export function useGetHiveEngineBalancesQuery(account?: string) {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const { data: allTokens } = getAllHiveEngineTokensQuery().useClientQuery();
 
   return useQuery({

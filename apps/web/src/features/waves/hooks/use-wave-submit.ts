@@ -10,7 +10,8 @@ import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 import { useActiveAccount } from "@/core/hooks";
-import { getAccountFullQuery } from "@/api/queries";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Body {
   text: string;
@@ -48,7 +49,7 @@ export function useWaveSubmit(
       // If account is still loading, wait for it
       if (isLoading) {
         // Refetch to ensure we have fresh data
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           error(i18next.t("g.server-error"));
           return;

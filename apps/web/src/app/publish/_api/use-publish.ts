@@ -1,9 +1,9 @@
 import { validatePostCreating } from "@/api/hive";
 import { comment, reblog } from "@/api/operations";
-import { getAccountFullQuery, getPostHeaderQuery } from "@/api/queries";
 import { updateSpeakVideoInfo } from "@/api/threespeak";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
@@ -73,7 +73,7 @@ export function usePublishApi() {
       // Wait for account data if still loading
       let authorData: FullAccount;
       if (isLoading) {
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           throw new Error("[Publish] Failed to load account data");
         }
@@ -90,7 +90,7 @@ export function usePublishApi() {
 
       // permlink duplication check
       try {
-        const existingEntry = await getPostHeaderQuery(author, permlink).fetchAndGet();
+        const existingEntry = await getQueryClient().fetchQuery(getPostHeaderQueryOptions(author, permlink));
 
         if (existingEntry?.author) {
           // create permlink with random suffix

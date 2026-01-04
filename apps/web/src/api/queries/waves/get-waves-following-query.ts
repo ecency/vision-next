@@ -1,4 +1,4 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 import { apiBase } from "@/api/helper";
 import { appAxios } from "@/api/axios";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -14,7 +14,7 @@ type WavesFollowingEntry = Entry & {
 export const getWavesFollowingQuery = (host: string, username?: string) => {
   const normalizedUsername = username?.trim().toLowerCase();
 
-  return EcencyQueriesManager.generateClientServerInfiniteQuery<WaveEntry[], void>({
+  return {
     queryKey: [
       QueryIdentifiers.THREADS,
       host,
@@ -75,5 +75,5 @@ export const getWavesFollowingQuery = (host: string, username?: string) => {
       }
     },
     getNextPageParam: () => undefined
-  });
+  };
 };

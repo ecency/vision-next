@@ -1,6 +1,3 @@
-import { EcencyQueriesManager } from "@/core/react-query";
-import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-
 export const DEFAULT_DYNAMIC_PROPS = {
   hivePerMVests: 1,
   base: 0,
@@ -16,6 +13,3 @@ export const DEFAULT_DYNAMIC_PROPS = {
   vestingRewardPercent: 1,
   accountCreationFee: "3.000 HIVE"
 };
-
-export const getDynamicPropsQuery = () =>
-  EcencyQueriesManager.generateClientServerQuery(getDynamicPropsQueryOptions());

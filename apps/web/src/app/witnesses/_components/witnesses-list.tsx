@@ -8,7 +8,9 @@ import { dateToRelative } from "@/utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { WitnessVoteBtn } from "@/app/witnesses/_components/witness-vote-btn";
 import { WitnessCard } from "@/app/witnesses/_components/witness-card";
-import { getWitnessesQuery, useGetAccountsQuery } from "@/api/queries";
+import { useGetAccountsQuery } from "@/api/queries";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getWitnessesInfiniteQueryOptions } from "@ecency/sdk";
 import { convertToOriginalWitnesses, makeUnique, transform } from "@/app/witnesses/_utils";
 import { FormControl } from "@ui/input";
 import { usePrevious } from "react-use";
@@ -32,7 +34,7 @@ export function WitnessesList() {
   const [page, setPage] = useState(1);
   const previousPage = usePrevious(page);
 
-  const { data, isPending, fetchNextPage } = getWitnessesQuery(limit).useClientQuery();
+  const { data, isPending, fetchNextPage } = useInfiniteQuery(getWitnessesInfiniteQueryOptions(limit));
   const { data: proxyVotes } = useProxyVotesQuery();
   const { data: proxyInfo } = useWitnessProxyQuery();
 

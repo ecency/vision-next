@@ -1,5 +1,6 @@
-import { EcencyQueriesManager, QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers } from "@/core/react-query";
 import { appAxios } from "@/api/axios";
+import { useQuery } from "@tanstack/react-query";
 
 export interface StatsResponse {
   results: [
@@ -31,7 +32,7 @@ export function useGetStatsQuery({
   dateRange,
   enabled = true
 }: UseStatsQueryOptions) {
-  return EcencyQueriesManager.generateClientServerQuery({
+  return useQuery({
     queryKey: [QueryIdentifiers.PAGE_STATS, url, dimensions, metrics, dateRange],
     queryFn: async () => {
       const response = await appAxios.post<StatsResponse>(`/api/stats`, {

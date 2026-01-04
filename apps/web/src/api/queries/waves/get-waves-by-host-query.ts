@@ -1,7 +1,4 @@
-import {
-  EcencyQueriesManager,
-  QueryIdentifiers
-} from "@/core/react-query";
+import { QueryIdentifiers, getInfiniteQueryData } from "@/core/react-query";
 import * as bridgeApi from "@/api/bridge";
 import { ProfileFilter } from "@/enums";
 import { WaveEntry } from "@/entities";
@@ -91,18 +88,12 @@ type WavesCursor = WaveEntry | undefined;
 
 export const getWavesByHostQuery = (host: string) => {
   const queryKey = [QueryIdentifiers.THREADS, host] as const;
-  const cached =
-    EcencyQueriesManager.getInfiniteQueryData<WavesPage, WavesCursor>(queryKey);
+  const cached = getInfiniteQueryData<WavesPage, WavesCursor>({ queryKey });
 
-  return EcencyQueriesManager.generateClientServerInfiniteQuery<
-    WavesPage,
-    WavesCursor
-  >({
+  return {
     queryKey,
-    // Don't set initialData here - let it use prefetched data from server
-    // initialData: cached ?? { pages: [], pageParams: [] },
     placeholderData: () => cached,
-    refetchOnMount: cached ? "always" : true,
+    refetchOnMount: cached ? ("always" as const) : true,
     initialPageParam: undefined as WavesCursor,
 
     queryFn: async ({ pageParam }: { pageParam: WavesCursor }) => {
@@ -112,7 +103,6 @@ export const getWavesByHostQuery = (host: string) => {
       return result.entries;
     },
 
-    getNextPageParam: (lastPage: WavesPage): WavesCursor =>
-      lastPage?.[0]?.container
-  });
+    getNextPageParam: (lastPage: WavesPage): WavesCursor => lastPage?.[0]?.container
+  };
 };

@@ -4,11 +4,9 @@ import { ProfileWalletTokenHistoryCard } from "../../_components";
 import { AssetOperation } from "@ecency/wallets";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getDynamicPropsQuery,
-  useClientActiveUser
-} from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { useClientActiveUser } from "@/api/queries";
 import { WalletOperationsDialog } from "@/features/wallet";
 import { Button } from "@/features/ui";
 import { dateToFullRelative, formatNumber } from "@/utils";
@@ -21,7 +19,7 @@ interface Props {
 export function HpAboutCard({ username }: Props) {
   const activeUser = useClientActiveUser();
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const hivePerMVests = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
 

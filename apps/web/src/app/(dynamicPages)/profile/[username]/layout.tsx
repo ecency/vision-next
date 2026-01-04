@@ -1,8 +1,9 @@
 "use client";
 
 import { ProfileCard, ProfileMenu, ProfileSearch } from "./_components";
-import { getAccountFullQuery } from "@/api/queries";
 import { PropsWithChildren, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import "./profile.scss";
 import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import { motion } from "framer-motion";
@@ -15,9 +16,9 @@ export default function ProfileLayout({ children }: PropsWithChildren) {
 
   const [showSidebar, setShowSidebar] = useState(true);
 
-  const { data: account } = getAccountFullQuery(
-    (username as string).replace("%40", "")
-  ).useClientQuery();
+  const { data: account } = useQuery(
+    getAccountFullQueryOptions((username as string).replace("%40", ""))
+  );
 
   return (
     <>

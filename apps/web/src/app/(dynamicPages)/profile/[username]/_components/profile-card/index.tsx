@@ -1,7 +1,6 @@
 "use client";
 
 import { rcPower } from "@/api/hive";
-import { getAccountFullQuery } from "@/api/queries";
 import { EcencyConfigManager } from "@/config";
 import defaults from "@/defaults";
 import { Account } from "@/entities";
@@ -12,7 +11,8 @@ import { accountReputation, dateToFormatted } from "@/utils";
 import {
   getAccountRcQueryOptions,
   getAccountSubscriptionsQueryOptions,
-  getRelationshipBetweenAccountsQueryOptions
+  getRelationshipBetweenAccountsQueryOptions,
+  getAccountFullQueryOptions
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -40,7 +40,7 @@ interface Props {
 export function ProfileCard({ account }: Props) {
   const { username: activeUsername, account: activeAccount } = useActiveAccount();
 
-  const { data } = getAccountFullQuery(account.name).useClientQuery();
+  const { data } = useQuery(getAccountFullQueryOptions(account.name));
   const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
   const { data: relationshipBetweenAccounts } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined)

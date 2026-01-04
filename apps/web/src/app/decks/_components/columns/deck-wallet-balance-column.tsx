@@ -5,8 +5,11 @@ import { UserDeckGridItem } from "../types";
 import "./_deck-wallet-balance-column.scss";
 import { DeckGridContext } from "../deck-manager";
 import { Spinner } from "@ui/spinner";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getPointsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { getPointsQuery } from "@/api/queries";
 import { FullAccount } from "@/entities";
+import { useQuery } from "@tanstack/react-query";
 import { getAccount, getConversionRequests } from "@/api/hive";
 import { getCurrencyTokenRate } from "@/api/private-api";
 import {
@@ -53,7 +56,7 @@ export const DeckWalletBalanceColumn = ({
   draggable,
   settings: { username, updateIntervalMs }
 }: Props) => {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
 
   const [tab, setTab] = useState<Tab>("ecency");
