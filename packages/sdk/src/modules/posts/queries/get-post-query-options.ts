@@ -1,6 +1,7 @@
 import { CONFIG } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
+import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 
 function makeEntryPath(category: string, author: string, permlink: string) {
   return `${category}/@${author}/${permlink}`;
@@ -28,11 +29,12 @@ export function getPostQueryOptions(
         observer,
       });
 
-      if (response && num !== undefined) {
-        return { ...response, num } as Entry;
+      if (!response) {
+        return null;
       }
 
-      return response as Entry | null;
+      const entry = num !== undefined ? { ...response, num } as Entry : response as Entry;
+      return filterDmcaEntry(entry);
     },
     enabled:
       !!author &&

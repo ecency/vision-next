@@ -1,6 +1,7 @@
 import { CONFIG } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
+import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 
 export enum SortOrder {
   trending = "trending",
@@ -122,7 +123,7 @@ export function getDiscussionsQueryOptions(
       const results = response
         ? Array.from(Object.values(response as Record<string, Entry>))
         : [];
-      return results;
+      return filterDmcaEntry(results);
     },
     enabled,
     select: (data) => sortDiscussions(entry, data, order),

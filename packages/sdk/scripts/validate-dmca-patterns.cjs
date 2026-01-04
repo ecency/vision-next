@@ -1,0 +1,228 @@
+#!/usr/bin/env node
+
+/**
+ * CI/Build-time DMCA Pattern Validator
+ *
+ * This script validates DMCA regex patterns for ReDoS vulnerabilities before deployment.
+ * It should be run as part of the CI/CD pipeline to catch unsafe patterns early.
+ *
+ * Usage:
+ *   node packages/sdk/scripts/validate-dmca-patterns.js <dmca-tags.json> <dmca.json>
+ *
+ * Exit codes:
+ *   0 - All patterns are safe
+ *   1 - One or more patterns failed validation
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Static analysis: Check for known ReDoS-vulnerable patterns
+ */
+function analyzeRedosRisk(pattern) {
+  // Check 1: Nested quantifiers (e.g., (a+)+, (a*)+, (a{1,})+)
+  if (/(\([^)]*[*+{][^)]*\))[*+{]/.test(pattern)) {
+    return { safe: false, reason: "nested quantifiers detected" };
+  }
+
+  // Check 2: Alternation with overlapping terms (e.g., (a|a)+, (ab|a)+)
+  if (/\([^|)]*\|[^)]*\)[*+{]/.test(pattern)) {
+    return { safe: false, reason: "alternation with quantifier (potential overlap)" };
+  }
+
+  // Check 3: Catastrophic backtracking patterns (e.g., (a*)*b, (a+)+b)
+  if (/\([^)]*[*+][^)]*\)[*+]/.test(pattern)) {
+    return { safe: false, reason: "repeated quantifiers (catastrophic backtracking risk)" };
+  }
+
+  // Check 4: Greedy quantifiers followed by optional patterns (e.g., .*.*x, .+.+x)
+  if (/\.\*\.\*/.test(pattern) || /\.\+\.\+/.test(pattern)) {
+    return { safe: false, reason: "multiple greedy quantifiers on wildcards" };
+  }
+
+  // Check 5: Unbounded ranges with wildcards (e.g., .{1,999999})
+  const unboundedRange = /\.?\{(\d+),(\d+)\}/g;
+  let match;
+  while ((match = unboundedRange.exec(pattern)) !== null) {
+    const [, min, max] = match;
+    const range = parseInt(max, 10) - parseInt(min, 10);
+    if (range > 1000) {
+      return { safe: false, reason: `excessive range: {${min},${max}}` };
+    }
+  }
+
+  return { safe: true };
+}
+
+/**
+ * Runtime test: Execute regex against adversarial inputs with timeout
+ */
+function testRegexPerformance(regex, pattern) {
+  // Test inputs designed to trigger ReDoS in vulnerable patterns
+  const adversarialInputs = [
+    "a".repeat(50) + "x",
+    "ab".repeat(50) + "x",
+    "x".repeat(100),
+    "aaa".repeat(30) + "bbb".repeat(30) + "x",
+  ];
+
+  const maxExecutionTime = 5; // 5ms hard limit per test
+
+  for (const input of adversarialInputs) {
+    const start = Date.now();
+    try {
+      regex.test(input);
+      const duration = Date.now() - start;
+
+      if (duration > maxExecutionTime) {
+        return {
+          safe: false,
+          reason: `runtime test exceeded ${maxExecutionTime}ms (took ${duration}ms on input length ${input.length})`
+        };
+      }
+    } catch (err) {
+      return { safe: false, reason: `runtime test threw error: ${err}` };
+    }
+  }
+
+  return { safe: true };
+}
+
+/**
+ * Validate a single regex pattern
+ */
+function validatePattern(pattern, maxLength = 200) {
+  const errors = [];
+
+  // Layer 1: Basic validation
+  if (!pattern) {
+    errors.push("empty pattern");
+    return { valid: false, errors };
+  }
+
+  if (pattern.length > maxLength) {
+    errors.push(`length ${pattern.length} exceeds max ${maxLength}`);
+    return { valid: false, errors };
+  }
+
+  // Layer 2: Static ReDoS analysis
+  const staticAnalysis = analyzeRedosRisk(pattern);
+  if (!staticAnalysis.safe) {
+    errors.push(`static analysis failed: ${staticAnalysis.reason}`);
+    return { valid: false, errors };
+  }
+
+  // Layer 3: Compilation attempt
+  let regex;
+  try {
+    regex = new RegExp(pattern);
+  } catch (compileErr) {
+    errors.push(`compilation failed: ${compileErr.message}`);
+    return { valid: false, errors };
+  }
+
+  // Layer 4: Runtime performance testing
+  const runtimeTest = testRegexPerformance(regex, pattern);
+  if (!runtimeTest.safe) {
+    errors.push(`runtime test failed: ${runtimeTest.reason}`);
+    return { valid: false, errors };
+  }
+
+  return { valid: true, errors: [] };
+}
+
+/**
+ * Main validation function
+ */
+function validateDmcaFiles(tagFilePath, patternFilePath) {
+  let hasErrors = false;
+  const results = {
+    tags: { total: 0, valid: 0, invalid: 0 },
+    patterns: { total: 0, valid: 0, invalid: 0 }
+  };
+
+  // Validate tag patterns
+  if (tagFilePath && fs.existsSync(tagFilePath)) {
+    console.log(`\n📋 Validating tag patterns from: ${tagFilePath}`);
+    const tags = JSON.parse(fs.readFileSync(tagFilePath, 'utf8'));
+    results.tags.total = tags.length;
+
+    tags.forEach((pattern, index) => {
+      const result = validatePattern(pattern);
+      if (result.valid) {
+        results.tags.valid++;
+      } else {
+        results.tags.invalid++;
+        hasErrors = true;
+        console.error(`\n❌ Tag pattern #${index + 1} FAILED: "${pattern.substring(0, 50)}${pattern.length > 50 ? '...' : ''}"`);
+        result.errors.forEach(error => console.error(`   ↳ ${error}`));
+      }
+    });
+
+    if (results.tags.invalid === 0) {
+      console.log(`✅ All ${results.tags.total} tag patterns are valid`);
+    } else {
+      console.error(`❌ ${results.tags.invalid}/${results.tags.total} tag patterns failed validation`);
+    }
+  }
+
+  // Validate post patterns
+  if (patternFilePath && fs.existsSync(patternFilePath)) {
+    console.log(`\n📋 Validating post patterns from: ${patternFilePath}`);
+    const patterns = JSON.parse(fs.readFileSync(patternFilePath, 'utf8'));
+    results.patterns.total = patterns.length;
+
+    patterns.forEach((pattern, index) => {
+      const result = validatePattern(pattern);
+      if (result.valid) {
+        results.patterns.valid++;
+      } else {
+        results.patterns.invalid++;
+        hasErrors = true;
+        console.error(`\n❌ Post pattern #${index + 1} FAILED: "${pattern.substring(0, 50)}${pattern.length > 50 ? '...' : ''}"`);
+        result.errors.forEach(error => console.error(`   ↳ ${error}`));
+      }
+    });
+
+    if (results.patterns.invalid === 0) {
+      console.log(`✅ All ${results.patterns.total} post patterns are valid`);
+    } else {
+      console.error(`❌ ${results.patterns.invalid}/${results.patterns.total} post patterns failed validation`);
+    }
+  }
+
+  // Summary
+  console.log('\n' + '='.repeat(60));
+  console.log('📊 VALIDATION SUMMARY');
+  console.log('='.repeat(60));
+  console.log(`Tag patterns:  ${results.tags.valid}/${results.tags.total} valid`);
+  console.log(`Post patterns: ${results.patterns.valid}/${results.patterns.total} valid`);
+  console.log('='.repeat(60));
+
+  if (hasErrors) {
+    console.error('\n❌ Validation FAILED - unsafe patterns detected');
+    console.error('Please review and fix the patterns above before deploying.\n');
+    process.exit(1);
+  } else {
+    console.log('\n✅ Validation PASSED - all patterns are safe\n');
+    process.exit(0);
+  }
+}
+
+// CLI entry point
+if (require.main === module) {
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    console.error('Usage: validate-dmca-patterns.js <dmca-tags.json> <dmca.json>');
+    process.exit(1);
+  }
+
+  const tagFilePath = args[0] ? path.resolve(args[0]) : null;
+  const patternFilePath = args[1] ? path.resolve(args[1]) : null;
+
+  validateDmcaFiles(tagFilePath, patternFilePath);
+}
+
+module.exports = { validatePattern, analyzeRedosRisk, testRegexPerformance };

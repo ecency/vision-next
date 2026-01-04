@@ -1,6 +1,7 @@
 import { CONFIG } from "@/modules/core";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
+import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 
 type PageParam = {
   author: string | undefined;
@@ -56,7 +57,7 @@ export function getAccountPostsInfiniteQueryOptions(
         );
 
         if (resp && Array.isArray(resp)) {
-          return resp as Entry[];
+          return filterDmcaEntry(resp as Entry[]);
         }
         return [];
       } catch (err) {

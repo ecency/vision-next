@@ -12,6 +12,7 @@
     "lint": "pnpm -r lint",
     "test": "pnpm --filter @ecency/web test",
     "typecheck": "tsc --build --verbose",
+    "validate:dmca": "node packages/sdk/scripts/validate-dmca-patterns.cjs apps/web/src/dmca-tags.json apps/web/src/dmca.json",
     "build:packages": "pnpm -F @ecency/sdk,@ecency/wallets,@ecency/renderer build",
     "dev:sdk": "pnpm --filter @ecency/sdk dev",
     "dev:wallets": "pnpm --filter @ecency/wallets dev",

@@ -70,28 +70,89 @@ var ConfigManager;
     CONFIG.queryClient = client;
   }
   ConfigManager2.setQueryClient = setQueryClient;
-  function safeCompileRegex(pattern, maxLength = 500) {
+  function analyzeRedosRisk(pattern) {
+    if (/(\([^)]*[*+{][^)]*\))[*+{]/.test(pattern)) {
+      return { safe: false, reason: "nested quantifiers detected" };
+    }
+    if (/\([^|)]*\|[^)]*\)[*+{]/.test(pattern)) {
+      return { safe: false, reason: "alternation with quantifier (potential overlap)" };
+    }
+    if (/\([^)]*[*+][^)]*\)[*+]/.test(pattern)) {
+      return { safe: false, reason: "repeated quantifiers (catastrophic backtracking risk)" };
+    }
+    if (/\.\*\.\*/.test(pattern) || /\.\+\.\+/.test(pattern)) {
+      return { safe: false, reason: "multiple greedy quantifiers on wildcards" };
+    }
+    const unboundedRange = /\.?\{(\d+),(\d+)\}/g;
+    let match;
+    while ((match = unboundedRange.exec(pattern)) !== null) {
+      const [, min, max] = match;
+      const range = parseInt(max, 10) - parseInt(min, 10);
+      if (range > 1e3) {
+        return { safe: false, reason: `excessive range: {${min},${max}}` };
+      }
+    }
+    return { safe: true };
+  }
+  function testRegexPerformance(regex) {
+    const adversarialInputs = [
+      // Nested quantifier attack
+      "a".repeat(50) + "x",
+      // Alternation attack
+      "ab".repeat(50) + "x",
+      // Wildcard attack
+      "x".repeat(100),
+      // Mixed attack
+      "aaa".repeat(30) + "bbb".repeat(30) + "x"
+    ];
+    const maxExecutionTime = 5;
+    for (const input of adversarialInputs) {
+      const start = Date.now();
+      try {
+        regex.test(input);
+        const duration = Date.now() - start;
+        if (duration > maxExecutionTime) {
+          return {
+            safe: false,
+            reason: `runtime test exceeded ${maxExecutionTime}ms (took ${duration}ms on input length ${input.length})`
+          };
+        }
+      } catch (err) {
+        return { safe: false, reason: `runtime test threw error: ${err}` };
+      }
+    }
+    return { safe: true };
+  }
+  function safeCompileRegex(pattern, maxLength = 200) {
     try {
-      if (!pattern || pattern.length > maxLength) {
-        console.warn(`[SDK] DMCA pattern too long or empty: ${pattern.substring(0, 50)}...`);
+      if (!pattern) {
+        console.warn(`[SDK] DMCA pattern rejected: empty pattern`);
         return null;
       }
-      const nestedQuantifiers = /(\*|\+|\{.*\}){2,}/;
-      if (nestedQuantifiers.test(pattern)) {
-        console.warn(`[SDK] DMCA pattern contains nested quantifiers (ReDoS risk): ${pattern.substring(0, 50)}...`);
+      if (pattern.length > maxLength) {
+        console.warn(`[SDK] DMCA pattern rejected: length ${pattern.length} exceeds max ${maxLength} - pattern: ${pattern.substring(0, 50)}...`);
         return null;
       }
-      const regex = new RegExp(pattern);
-      const testStart = Date.now();
-      regex.test("test");
-      const testDuration = Date.now() - testStart;
-      if (testDuration > 10) {
-        console.warn(`[SDK] DMCA pattern too slow (${testDuration}ms): ${pattern.substring(0, 50)}...`);
+      const staticAnalysis = analyzeRedosRisk(pattern);
+      if (!staticAnalysis.safe) {
+        console.warn(`[SDK] DMCA pattern rejected: static analysis failed (${staticAnalysis.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        return null;
+      }
+      let regex;
+      try {
+        regex = new RegExp(pattern);
+      } catch (compileErr) {
+        console.warn(`[SDK] DMCA pattern rejected: compilation failed - pattern: ${pattern.substring(0, 50)}...`, compileErr);
+        return null;
+      }
+      const runtimeTest = testRegexPerformance(regex);
+      if (!runtimeTest.safe) {
+        console.warn(`[SDK] DMCA pattern rejected: runtime test failed (${runtimeTest.reason}) - pattern: ${pattern.substring(0, 50)}...`);
         return null;
       }
       return regex;
     } catch (err) {
-      console.warn(`[SDK] Invalid DMCA regex pattern: ${pattern}`, err);
+      console.warn(`[SDK] DMCA pattern rejected: unexpected error - pattern: ${pattern.substring(0, 50)}...`, err);
       return null;
     }
   }
@@ -101,8 +162,15 @@ var ConfigManager;
     CONFIG.dmcaPatterns = patterns;
     CONFIG.dmcaTagRegexes = tags.map(safeCompileRegex).filter((r) => r !== null);
     CONFIG.dmcaPatternRegexes = patterns.map(safeCompileRegex).filter((r) => r !== null);
-    console.log(`[SDK] Compiled ${CONFIG.dmcaTagRegexes.length}/${tags.length} tag patterns`);
-    console.log(`[SDK] Compiled ${CONFIG.dmcaPatternRegexes.length}/${patterns.length} post patterns`);
+    const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
+    const rejectedPatternCount = patterns.length - CONFIG.dmcaPatternRegexes.length;
+    console.log(`[SDK] DMCA configuration loaded:`);
+    console.log(`  - Accounts: ${accounts.length}`);
+    console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
+    console.log(`  - Post patterns: ${CONFIG.dmcaPatternRegexes.length}/${patterns.length} compiled (${rejectedPatternCount} rejected)`);
+    if (rejectedTagCount > 0 || rejectedPatternCount > 0) {
+      console.warn(`[SDK] ${rejectedTagCount + rejectedPatternCount} DMCA patterns were rejected due to security validation. Check warnings above for details.`);
+    }
   }
   ConfigManager2.setDmcaLists = setDmcaLists;
 })(ConfigManager || (ConfigManager = {}));
@@ -1582,6 +1650,29 @@ function getPostHeaderQueryOptions(author, permlink) {
     initialData: null
   });
 }
+
+// src/modules/posts/utils/filter-dmca-entries.ts
+function filterDmcaEntry(entryOrEntries) {
+  if (Array.isArray(entryOrEntries)) {
+    return entryOrEntries.map((entry) => applyCensorship(entry));
+  }
+  return applyCensorship(entryOrEntries);
+}
+function applyCensorship(entry) {
+  if (!entry) return entry;
+  const entryPath = `@${entry.author}/${entry.permlink}`;
+  const isDmca = CONFIG.dmcaPatternRegexes.some((regex) => regex.test(entryPath));
+  if (isDmca) {
+    return {
+      ...entry,
+      body: "This post is not available due to a copyright/fraudulent claim.",
+      title: ""
+    };
+  }
+  return entry;
+}
+
+// src/modules/posts/queries/get-post-query-options.ts
 function makeEntryPath(category, author, permlink) {
   return `${category}/@${author}/${permlink}`;
 }
@@ -1599,10 +1690,11 @@ function getPostQueryOptions(author, permlink, observer = "", num) {
         permlink: cleanPermlink,
         observer
       });
-      if (response && num !== void 0) {
-        return { ...response, num };
+      if (!response) {
+        return null;
       }
-      return response;
+      const entry = num !== void 0 ? { ...response, num } : response;
+      return filterDmcaEntry(entry);
     },
     enabled: !!author && !!permlink && permlink.trim() !== "" && permlink.trim() !== "undefined"
   });
@@ -1695,7 +1787,7 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
         observer: observer || entry.author
       });
       const results = response ? Array.from(Object.values(response)) : [];
-      return results;
+      return filterDmcaEntry(results);
     },
     enabled,
     select: (data) => sortDiscussions(entry, data, order)
@@ -1728,7 +1820,7 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
           rpcParams
         );
         if (resp && Array.isArray(resp)) {
-          return resp;
+          return filterDmcaEntry(resp);
         }
         return [];
       } catch (err) {
@@ -1776,7 +1868,8 @@ function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = ""
         );
         const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
         const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
-        return [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s);
+        const combined = [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s);
+        return filterDmcaEntry(combined);
       }
       return [];
     },

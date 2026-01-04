@@ -27,6 +27,8 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Validate DMCA patterns
+        run: pnpm validate:dmca
       - name: Build
         run: pnpm build
         env:

@@ -46,42 +46,130 @@ export namespace ConfigManager {
   }
 
   /**
-   * Safely compile a regex pattern with validation
+   * Static analysis: Check for known ReDoS-vulnerable patterns
    * @param pattern - Raw regex pattern string
-   * @param maxLength - Maximum allowed pattern length (default 500)
-   * @returns Compiled RegExp or null if invalid
+   * @returns Object with risk level and reason
    */
-  function safeCompileRegex(pattern: string, maxLength = 500): RegExp | null {
+  function analyzeRedosRisk(pattern: string): { safe: boolean; reason?: string } {
+    // Check 1: Nested quantifiers (e.g., (a+)+, (a*)+, (a{1,})+)
+    if (/(\([^)]*[*+{][^)]*\))[*+{]/.test(pattern)) {
+      return { safe: false, reason: "nested quantifiers detected" };
+    }
+
+    // Check 2: Alternation with overlapping terms (e.g., (a|a)+, (ab|a)+)
+    if (/\([^|)]*\|[^)]*\)[*+{]/.test(pattern)) {
+      return { safe: false, reason: "alternation with quantifier (potential overlap)" };
+    }
+
+    // Check 3: Catastrophic backtracking patterns (e.g., (a*)*b, (a+)+b)
+    if (/\([^)]*[*+][^)]*\)[*+]/.test(pattern)) {
+      return { safe: false, reason: "repeated quantifiers (catastrophic backtracking risk)" };
+    }
+
+    // Check 4: Greedy quantifiers followed by optional patterns (e.g., .*.*x, .+.+x)
+    if (/\.\*\.\*/.test(pattern) || /\.\+\.\+/.test(pattern)) {
+      return { safe: false, reason: "multiple greedy quantifiers on wildcards" };
+    }
+
+    // Check 5: Unbounded ranges with wildcards (e.g., .{1,999999})
+    const unboundedRange = /\.?\{(\d+),(\d+)\}/g;
+    let match;
+    while ((match = unboundedRange.exec(pattern)) !== null) {
+      const [, min, max] = match;
+      const range = parseInt(max, 10) - parseInt(min, 10);
+      if (range > 1000) {
+        return { safe: false, reason: `excessive range: {${min},${max}}` };
+      }
+    }
+
+    return { safe: true };
+  }
+
+  /**
+   * Runtime test: Execute regex against adversarial inputs with timeout
+   * @param regex - Compiled regex
+   * @returns Object indicating if regex passed runtime test
+   */
+  function testRegexPerformance(regex: RegExp): { safe: boolean; reason?: string } {
+    // Test inputs designed to trigger ReDoS in vulnerable patterns
+    const adversarialInputs = [
+      // Nested quantifier attack
+      "a".repeat(50) + "x",
+      // Alternation attack
+      "ab".repeat(50) + "x",
+      // Wildcard attack
+      "x".repeat(100),
+      // Mixed attack
+      "aaa".repeat(30) + "bbb".repeat(30) + "x",
+    ];
+
+    const maxExecutionTime = 5; // 5ms hard limit per test
+
+    for (const input of adversarialInputs) {
+      const start = Date.now();
+      try {
+        regex.test(input);
+        const duration = Date.now() - start;
+
+        if (duration > maxExecutionTime) {
+          return {
+            safe: false,
+            reason: `runtime test exceeded ${maxExecutionTime}ms (took ${duration}ms on input length ${input.length})`
+          };
+        }
+      } catch (err) {
+        return { safe: false, reason: `runtime test threw error: ${err}` };
+      }
+    }
+
+    return { safe: true };
+  }
+
+  /**
+   * Safely compile a regex pattern with defense-in-depth validation
+   * @param pattern - Raw regex pattern string
+   * @param maxLength - Maximum allowed pattern length (default 200)
+   * @returns Compiled RegExp or null if invalid/unsafe
+   */
+  function safeCompileRegex(pattern: string, maxLength = 200): RegExp | null {
     try {
-      // Validate pattern length to prevent ReDoS
-      if (!pattern || pattern.length > maxLength) {
-        console.warn(`[SDK] DMCA pattern too long or empty: ${pattern.substring(0, 50)}...`);
+      // Layer 1: Basic validation
+      if (!pattern) {
+        console.warn(`[SDK] DMCA pattern rejected: empty pattern`);
         return null;
       }
 
-      // Validate pattern doesn't contain excessive nested quantifiers (basic check)
-      const nestedQuantifiers = /(\*|\+|\{.*\}){2,}/;
-      if (nestedQuantifiers.test(pattern)) {
-        console.warn(`[SDK] DMCA pattern contains nested quantifiers (ReDoS risk): ${pattern.substring(0, 50)}...`);
+      if (pattern.length > maxLength) {
+        console.warn(`[SDK] DMCA pattern rejected: length ${pattern.length} exceeds max ${maxLength} - pattern: ${pattern.substring(0, 50)}...`);
         return null;
       }
 
-      // Compile the regex
-      const regex = new RegExp(pattern);
+      // Layer 2: Static ReDoS analysis
+      const staticAnalysis = analyzeRedosRisk(pattern);
+      if (!staticAnalysis.safe) {
+        console.warn(`[SDK] DMCA pattern rejected: static analysis failed (${staticAnalysis.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        return null;
+      }
 
-      // Test the regex with a simple string to ensure it doesn't hang
-      const testStart = Date.now();
-      regex.test("test");
-      const testDuration = Date.now() - testStart;
+      // Layer 3: Compilation attempt
+      let regex: RegExp;
+      try {
+        regex = new RegExp(pattern);
+      } catch (compileErr) {
+        console.warn(`[SDK] DMCA pattern rejected: compilation failed - pattern: ${pattern.substring(0, 50)}...`, compileErr);
+        return null;
+      }
 
-      if (testDuration > 10) {
-        console.warn(`[SDK] DMCA pattern too slow (${testDuration}ms): ${pattern.substring(0, 50)}...`);
+      // Layer 4: Runtime performance testing
+      const runtimeTest = testRegexPerformance(regex);
+      if (!runtimeTest.safe) {
+        console.warn(`[SDK] DMCA pattern rejected: runtime test failed (${runtimeTest.reason}) - pattern: ${pattern.substring(0, 50)}...`);
         return null;
       }
 
       return regex;
     } catch (err) {
-      console.warn(`[SDK] Invalid DMCA regex pattern: ${pattern}`, err);
+      console.warn(`[SDK] DMCA pattern rejected: unexpected error - pattern: ${pattern.substring(0, 50)}...`, err);
       return null;
     }
   }
@@ -111,7 +199,16 @@ export namespace ConfigManager {
       .map(safeCompileRegex)
       .filter((r): r is RegExp => r !== null);
 
-    console.log(`[SDK] Compiled ${CONFIG.dmcaTagRegexes.length}/${tags.length} tag patterns`);
-    console.log(`[SDK] Compiled ${CONFIG.dmcaPatternRegexes.length}/${patterns.length} post patterns`);
+    const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
+    const rejectedPatternCount = patterns.length - CONFIG.dmcaPatternRegexes.length;
+
+    console.log(`[SDK] DMCA configuration loaded:`);
+    console.log(`  - Accounts: ${accounts.length}`);
+    console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
+    console.log(`  - Post patterns: ${CONFIG.dmcaPatternRegexes.length}/${patterns.length} compiled (${rejectedPatternCount} rejected)`);
+
+    if (rejectedTagCount > 0 || rejectedPatternCount > 0) {
+      console.warn(`[SDK] ${rejectedTagCount + rejectedPatternCount} DMCA patterns were rejected due to security validation. Check warnings above for details.`);
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { CONFIG } from "@/modules/core";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
+import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 
 type PageParam = {
   author: string | undefined;
@@ -57,7 +58,8 @@ export function getPostsRankedInfiniteQueryOptions(
         const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
         const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
 
-        return [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s) as Entry[];
+        const combined = [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s) as Entry[];
+        return filterDmcaEntry(combined);
       }
 
       return [];
