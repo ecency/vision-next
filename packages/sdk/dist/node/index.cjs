@@ -2310,27 +2310,42 @@ var ThreeSpeakIntegration = {
 function getHivePoshLinksQueryOptions(username) {
   return reactQuery.queryOptions({
     queryKey: ["integrations", "hiveposh", "links", username],
+    retry: false,
+    // Don't retry on user not found errors
     queryFn: async () => {
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        `https://hiveposh.com/api/v0/linked-accounts/${username}`,
-        {
-          headers: {
-            "Content-Type": "application/json"
+      try {
+        const fetchApi = getBoundFetch();
+        const response = await fetchApi(
+          `https://hiveposh.com/api/v0/linked-accounts/${username}`,
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        );
+        if (response.status === 400) {
+          const errorData = await response.json().catch(() => ({}));
+          if (errorData?.message === "User Not Connected") {
+            return null;
           }
         }
-      );
-      const data = await response.json();
-      return {
-        twitter: {
-          username: data.twitter_username,
-          profile: data.twitter_profile
-        },
-        reddit: {
-          username: data.reddit_username,
-          profile: data.reddit_profile
+        if (!response.ok) {
+          return null;
         }
-      };
+        const data = await response.json();
+        return {
+          twitter: {
+            username: data.twitter_username,
+            profile: data.twitter_profile
+          },
+          reddit: {
+            username: data.reddit_username,
+            profile: data.reddit_profile
+          }
+        };
+      } catch (err) {
+        return null;
+      }
     }
   });
 }

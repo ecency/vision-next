@@ -1424,7 +1424,7 @@ declare function getHivePoshLinksQueryOptions(username: string | undefined): _ta
         username: any;
         profile: any;
     };
-}, Error, {
+} | null, Error, {
     twitter: {
         username: any;
         profile: any;
@@ -1433,7 +1433,7 @@ declare function getHivePoshLinksQueryOptions(username: string | undefined): _ta
         username: any;
         profile: any;
     };
-}, (string | undefined)[]>, "queryFn"> & {
+} | null, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         twitter: {
             username: any;
@@ -1443,7 +1443,7 @@ declare function getHivePoshLinksQueryOptions(username: string | undefined): _ta
             username: any;
             profile: any;
         };
-    }, (string | undefined)[], never> | undefined;
+    } | null, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
         [dataTagSymbol]: {
@@ -1455,7 +1455,7 @@ declare function getHivePoshLinksQueryOptions(username: string | undefined): _ta
                 username: any;
                 profile: any;
             };
-        };
+        } | null;
         [dataTagErrorSymbol]: Error;
     };
 };
