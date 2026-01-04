@@ -2,9 +2,9 @@ import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core";
 import { CommentHistory } from "../types/comment-history";
 
-export function getCommentHistoryQueryOptions(author: string, permlink: string) {
+export function getCommentHistoryQueryOptions(author: string, permlink: string, onlyMeta = false) {
   return queryOptions({
-    queryKey: ["posts", "comment-history", author, permlink],
+    queryKey: ["posts", "comment-history", author, permlink, onlyMeta],
     queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
         method: "POST",
@@ -14,6 +14,7 @@ export function getCommentHistoryQueryOptions(author: string, permlink: string) 
         body: JSON.stringify({
           author,
           permlink,
+          onlyMeta: onlyMeta ? "1" : "",
         }),
         signal,
       });

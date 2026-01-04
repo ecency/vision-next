@@ -1,12 +1,13 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { LeaderBoardDuration, LeaderBoardItem } from "@/entities";
-import { apiBase } from "@/api/helper";
-import { appAxios } from "@/api/axios";
+import { getDiscoverLeaderboardQueryOptions, LeaderBoardDuration, LeaderBoardItem } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
-export const getDiscoverLeaderboardQuery = (duration: LeaderBoardDuration) => ({
-  queryKey: [QueryIdentifiers.DISCOVER_LEADERBOARD, duration],
-  queryFn: () =>
-    appAxios
-      .get<LeaderBoardItem[]>(apiBase(`/private-api/leaderboard/${duration}`))
-      .then((resp) => resp.data)
-});
+export type { LeaderBoardDuration, LeaderBoardItem };
+
+export const getDiscoverLeaderboardQuery = (duration: LeaderBoardDuration) => {
+  const options = getDiscoverLeaderboardQueryOptions(duration);
+
+  return {
+    ...options,
+    useClientQuery: () => useQuery(options),
+  };
+};

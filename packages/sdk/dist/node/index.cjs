@@ -2093,9 +2093,9 @@ function getGalleryImagesQueryOptions(activeUsername) {
     enabled: !!activeUsername
   });
 }
-function getCommentHistoryQueryOptions(author, permlink) {
+function getCommentHistoryQueryOptions(author, permlink, onlyMeta = false) {
   return reactQuery.queryOptions({
-    queryKey: ["posts", "comment-history", author, permlink],
+    queryKey: ["posts", "comment-history", author, permlink, onlyMeta],
     queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
         method: "POST",
@@ -2104,7 +2104,8 @@ function getCommentHistoryQueryOptions(author, permlink) {
         },
         body: JSON.stringify({
           author,
-          permlink
+          permlink,
+          onlyMeta: onlyMeta ? "1" : ""
         }),
         signal
       });
@@ -2309,6 +2310,50 @@ function useRecordActivity(username, activityType) {
           }
         })
       });
+    }
+  });
+}
+function getDiscoverLeaderboardQueryOptions(duration) {
+  return reactQuery.queryOptions({
+    queryKey: ["analytics", "discover-leaderboard", duration],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(
+        CONFIG.privateApiHost + `/private-api/leaderboard/${duration}`,
+        { signal }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch leaderboard: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+}
+function getDiscoverCurationQueryOptions(duration) {
+  return reactQuery.queryOptions({
+    queryKey: ["analytics", "discover-curation", duration],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(
+        CONFIG.privateApiHost + `/private-api/curation/${duration}`,
+        { signal }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch curation data: ${response.status}`);
+      }
+      const data = await response.json();
+      const accounts = data.map((item) => item.account);
+      const accountsResponse = await CONFIG.hiveClient.database.getAccounts(accounts);
+      for (let index = 0; index < accountsResponse.length; index++) {
+        const element = accountsResponse[index];
+        const curator = data[index];
+        const vestingShares = typeof element.vesting_shares === "string" ? element.vesting_shares : element.vesting_shares.toString();
+        const receivedVestingShares = typeof element.received_vesting_shares === "string" ? element.received_vesting_shares : element.received_vesting_shares.toString();
+        const delegatedVestingShares = typeof element.delegated_vesting_shares === "string" ? element.delegated_vesting_shares : element.delegated_vesting_shares.toString();
+        const vestingWithdrawRate = typeof element.vesting_withdraw_rate === "string" ? element.vesting_withdraw_rate : element.vesting_withdraw_rate.toString();
+        const effectiveVest = parseFloat(vestingShares) + parseFloat(receivedVestingShares) - parseFloat(delegatedVestingShares) - parseFloat(vestingWithdrawRate);
+        curator.efficiency = curator.vests / effectiveVest;
+      }
+      data.sort((a, b) => b.efficiency - a.efficiency);
+      return data;
     }
   });
 }
@@ -3383,6 +3428,8 @@ exports.getCommunityType = getCommunityType;
 exports.getControversialRisingInfiniteQueryOptions = getControversialRisingInfiniteQueryOptions;
 exports.getConversionRequestsQueryOptions = getConversionRequestsQueryOptions;
 exports.getDeletedEntryQueryOptions = getDeletedEntryQueryOptions;
+exports.getDiscoverCurationQueryOptions = getDiscoverCurationQueryOptions;
+exports.getDiscoverLeaderboardQueryOptions = getDiscoverLeaderboardQueryOptions;
 exports.getDiscussionsQueryOptions = getDiscussionsQueryOptions;
 exports.getDraftsQueryOptions = getDraftsQueryOptions;
 exports.getDynamicPropsQueryOptions = getDynamicPropsQueryOptions;
@@ -3460,6 +3507,7 @@ exports.useBookmarkDelete = useBookmarkDelete;
 exports.useBroadcastMutation = useBroadcastMutation;
 exports.useEditFragment = useEditFragment;
 exports.useGameClaim = useGameClaim;
+exports.useRecordActivity = useRecordActivity;
 exports.useRemoveFragment = useRemoveFragment;
 exports.useSignOperationByHivesigner = useSignOperationByHivesigner;
 exports.useSignOperationByKey = useSignOperationByKey;
