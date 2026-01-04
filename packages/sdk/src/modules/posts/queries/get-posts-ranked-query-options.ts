@@ -28,7 +28,7 @@ export function getPostsRankedInfiniteQueryOptions(
       }
 
       let sanitizedTag = tag;
-      if (CONFIG.dmcaTags.some((rx: string) => new RegExp(rx).test(tag))) {
+      if (CONFIG.dmcaTagRegexes.some((regex) => regex.test(tag))) {
         sanitizedTag = "";
       }
 

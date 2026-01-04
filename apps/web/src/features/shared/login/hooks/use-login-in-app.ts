@@ -9,7 +9,7 @@ import { Account, LoginType, User } from "@/entities";
 import { ALL_NOTIFY_TYPES } from "@/enums";
 import * as ls from "@/utils/local-storage";
 import { getNotificationsSettingsQueryOptions } from "@ecency/sdk";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useAfterLoginTutorial } from "./use-after-login-tutorial";
@@ -27,8 +27,6 @@ export function useLoginInApp(username: string) {
   const { mutateAsync: recordActivity } = useRecordUserActivity();
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
-  const notificationsSettingsQuery = useQuery(getNotificationsSettingsQueryOptions(activeUser?.username));
-  const refetchNotificationSettings = notificationsSettingsQuery.refetch;
 
   const handleTutorial = useAfterLoginTutorial(username);
 
@@ -66,7 +64,10 @@ export function useLoginInApp(username: string) {
 
       const notifToken = ls.get("fb-notifications-token") ?? "";
       if (notifToken) {
-        const { data: existingSettings } = await refetchNotificationSettings();
+        // Fetch notification settings for the newly logged-in user
+        const existingSettings = await queryClient.fetchQuery(
+          getNotificationsSettingsQueryOptions(user.username)
+        );
 
         if (!existingSettings || existingSettings.allows_notify === -1) {
           await updateNotificationSettings({
@@ -109,8 +110,7 @@ export function useLoginInApp(username: string) {
       recordActivity,
       router,
       setActiveUser,
-      updateNotificationSettings,
-      refetchNotificationSettings
+      updateNotificationSettings
     ]
   );
 }

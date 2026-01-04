@@ -17,7 +17,7 @@ export function getAccountPostsInfiniteQueryOptions(
   enabled = true
 ) {
   return infiniteQueryOptions<Page, Error, Page, (string | number)[], PageParam>({
-    queryKey: ["posts", "account-posts", username ?? "", filter, limit],
+    queryKey: ["posts", "account-posts", username ?? "", filter, limit, observer],
     enabled: !!username && enabled,
     initialPageParam: {
       author: undefined,
@@ -41,7 +41,7 @@ export function getAccountPostsInfiniteQueryOptions(
         sort: filter,
         account: username,
         limit,
-        ...(observer !== undefined ? { observer } : {}),
+        ...(observer && observer.length > 0 ? { observer } : {}),
         ...(pageParam.author ? { start_author: pageParam.author } : {}),
         ...(pageParam.permlink ? { start_permlink: pageParam.permlink } : {}),
       };

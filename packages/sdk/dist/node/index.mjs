@@ -59,7 +59,10 @@ var CONFIG = {
   // DMCA filtering - can be configured by the app
   dmcaAccounts: [],
   dmcaTags: [],
-  dmcaPatterns: []
+  dmcaPatterns: [],
+  // Pre-compiled regex patterns for performance and security
+  dmcaTagRegexes: [],
+  dmcaPatternRegexes: []
 };
 var ConfigManager;
 ((ConfigManager2) => {
@@ -67,10 +70,39 @@ var ConfigManager;
     CONFIG.queryClient = client;
   }
   ConfigManager2.setQueryClient = setQueryClient;
+  function safeCompileRegex(pattern, maxLength = 500) {
+    try {
+      if (!pattern || pattern.length > maxLength) {
+        console.warn(`[SDK] DMCA pattern too long or empty: ${pattern.substring(0, 50)}...`);
+        return null;
+      }
+      const nestedQuantifiers = /(\*|\+|\{.*\}){2,}/;
+      if (nestedQuantifiers.test(pattern)) {
+        console.warn(`[SDK] DMCA pattern contains nested quantifiers (ReDoS risk): ${pattern.substring(0, 50)}...`);
+        return null;
+      }
+      const regex = new RegExp(pattern);
+      const testStart = Date.now();
+      regex.test("test");
+      const testDuration = Date.now() - testStart;
+      if (testDuration > 10) {
+        console.warn(`[SDK] DMCA pattern too slow (${testDuration}ms): ${pattern.substring(0, 50)}...`);
+        return null;
+      }
+      return regex;
+    } catch (err) {
+      console.warn(`[SDK] Invalid DMCA regex pattern: ${pattern}`, err);
+      return null;
+    }
+  }
   function setDmcaLists(accounts = [], tags = [], patterns = []) {
     CONFIG.dmcaAccounts = accounts;
     CONFIG.dmcaTags = tags;
     CONFIG.dmcaPatterns = patterns;
+    CONFIG.dmcaTagRegexes = tags.map(safeCompileRegex).filter((r) => r !== null);
+    CONFIG.dmcaPatternRegexes = patterns.map(safeCompileRegex).filter((r) => r !== null);
+    console.log(`[SDK] Compiled ${CONFIG.dmcaTagRegexes.length}/${tags.length} tag patterns`);
+    console.log(`[SDK] Compiled ${CONFIG.dmcaPatternRegexes.length}/${patterns.length} post patterns`);
   }
   ConfigManager2.setDmcaLists = setDmcaLists;
 })(ConfigManager || (ConfigManager = {}));
@@ -1671,7 +1703,7 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
 }
 function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit = 20, observer = "", enabled = true) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "account-posts", username ?? "", filter, limit],
+    queryKey: ["posts", "account-posts", username ?? "", filter, limit, observer],
     enabled: !!username && enabled,
     initialPageParam: {
       author: void 0,
@@ -1684,7 +1716,7 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
         sort: filter,
         account: username,
         limit,
-        ...observer !== void 0 ? { observer } : {},
+        ...observer && observer.length > 0 ? { observer } : {},
         ...pageParam.author ? { start_author: pageParam.author } : {},
         ...pageParam.permlink ? { start_permlink: pageParam.permlink } : {}
       };
@@ -1726,7 +1758,7 @@ function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = ""
         return [];
       }
       let sanitizedTag = tag;
-      if (CONFIG.dmcaTags.some((rx) => new RegExp(rx).test(tag))) {
+      if (CONFIG.dmcaTagRegexes.some((regex) => regex.test(tag))) {
         sanitizedTag = "";
       }
       const response = await CONFIG.hiveClient.call("bridge", "get_ranked_posts", {
