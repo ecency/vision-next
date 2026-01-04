@@ -1065,6 +1065,79 @@ function getTransactionsInfiniteQueryOptions(username, limit = 20, group = "") {
     getNextPageParam: (lastPage) => lastPage?.length ? (lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1
   });
 }
+function getBotsQueryOptions() {
+  return queryOptions({
+    queryKey: ["accounts", "bots"],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/public/bots", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bots: ${response.status}`);
+      }
+      return response.json();
+    },
+    refetchOnMount: true,
+    staleTime: Infinity
+  });
+}
+function getReferralsInfiniteQueryOptions(username) {
+  return infiniteQueryOptions({
+    queryKey: ["accounts", "referrals", username],
+    initialPageParam: { maxId: void 0 },
+    queryFn: async ({ pageParam }) => {
+      const { maxId } = pageParam ?? {};
+      const url = new URL(CONFIG.privateApiHost + `/private-api/referrals/${username}`);
+      if (maxId !== void 0) {
+        url.searchParams.set("max_id", maxId.toString());
+      }
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch referrals: ${response.status}`);
+      }
+      return response.json();
+    },
+    getNextPageParam: (lastPage) => {
+      const nextMaxId = lastPage?.[lastPage.length - 1]?.id;
+      return typeof nextMaxId === "number" ? { maxId: nextMaxId } : void 0;
+    }
+  });
+}
+function getReferralsStatsQueryOptions(username) {
+  return queryOptions({
+    queryKey: ["accounts", "referrals-stats", username],
+    queryFn: async () => {
+      const response = await fetch(
+        CONFIG.privateApiHost + `/private-api/referrals/${username}/stats`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch referral stats: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!data) {
+        throw new Error("No Referrals for this user!");
+      }
+      return {
+        total: data.total ?? 0,
+        rewarded: data.rewarded ?? 0
+      };
+    }
+  });
+}
 
 // src/modules/accounts/mutations/use-account-update.ts
 function useAccountUpdate(username) {
@@ -2069,6 +2142,28 @@ function getDeletedEntryQueryOptions(author, permlink) {
     enabled: isValid
   });
 }
+function getPostTipsQueryOptions(author, permlink, isEnabled = true) {
+  return queryOptions({
+    queryKey: ["posts", "tips", author, permlink],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/post-tips", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          author,
+          permlink
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch post tips: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!author && !!permlink && isEnabled
+  });
+}
 function useAddFragment(username) {
   return useMutation({
     mutationKey: ["posts", "add-fragment", username],
@@ -2506,6 +2601,26 @@ function getAccountNotificationsInfiniteQueryOptions(account, limit) {
     getNextPageParam: (lastPage) => lastPage?.length > 0 ? lastPage[lastPage.length - 1].id : null
   });
 }
+function getRewardedCommunitiesQueryOptions() {
+  return queryOptions({
+    queryKey: ["communities", "rewarded"],
+    queryFn: async () => {
+      const response = await fetch(
+        CONFIG.privateApiHost + "/private-api/rewarded-communities",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch rewarded communities: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+}
 
 // src/modules/communities/types/community.ts
 var ROLES = /* @__PURE__ */ ((ROLES2) => {
@@ -2708,6 +2823,25 @@ function getNotificationsSettingsQueryOptions(activeUsername) {
     }
   });
 }
+function getAnnouncementsQueryOptions() {
+  return queryOptions({
+    queryKey: ["notifications", "announcements"],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/announcements", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch announcements: ${response.status}`);
+      }
+      const data = await response.json();
+      return data || [];
+    },
+    staleTime: 36e5
+  });
+}
 function getProposalQueryOptions(id) {
   return queryOptions({
     queryKey: ["proposals", "proposal", id],
@@ -2867,6 +3001,21 @@ function getOutgoingRcDelegationsInfiniteQueryOptions(username, limit = 100) {
       return delegations;
     },
     getNextPageParam: (lastPage) => lastPage.length === limit ? lastPage[lastPage.length - 1].to : null
+  });
+}
+function getReceivedVestingSharesQueryOptions(username) {
+  return queryOptions({
+    queryKey: ["wallet", "received-vesting-shares", username],
+    queryFn: async () => {
+      const response = await fetch(
+        CONFIG.privateApiHost + `/private-api/received-vesting/${username}`
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch received vesting shares: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.list;
+    }
   });
 }
 function getWitnessesInfiniteQueryOptions(limit) {
@@ -3068,7 +3217,100 @@ function getSimilarEntriesQueryOptions(entry) {
     }
   });
 }
+function getSearchAccountQueryOptions(q, limit = 5, random = false) {
+  return queryOptions({
+    queryKey: ["search", "account", q, limit],
+    queryFn: async () => {
+      const data = { q, limit, random: +random };
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search-account", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to search accounts: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!q
+  });
+}
+function getSearchTopicsQueryOptions(q, limit = 20, random = false) {
+  return queryOptions({
+    queryKey: ["search", "topics", q],
+    queryFn: async () => {
+      const data = { q, limit, random: +random };
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search-tag", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to search topics: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!q
+  });
+}
+function getSearchApiInfiniteQueryOptions(q, sort, hideLow, since, votes) {
+  return infiniteQueryOptions({
+    queryKey: ["search", "api", q, sort, hideLow, since, votes],
+    queryFn: async ({ pageParam }) => {
+      const payload = { q, sort, hide_low: hideLow };
+      if (since) {
+        payload.since = since;
+      }
+      if (pageParam) {
+        payload.scroll_id = pageParam;
+      }
+      if (votes !== void 0) {
+        payload.votes = votes;
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: void 0,
+    getNextPageParam: (lastPage) => lastPage?.scroll_id,
+    enabled: !!q
+  });
+}
+function getSearchPathQueryOptions(q) {
+  return queryOptions({
+    queryKey: ["search", "path", q],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search-path", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ q })
+      });
+      if (!response.ok) {
+        throw new Error(`Search path failed: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data?.length > 0) {
+        return data;
+      }
+      return [q];
+    }
+  });
+}
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDeletedEntryQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountsByUsernameQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDeletedEntryQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

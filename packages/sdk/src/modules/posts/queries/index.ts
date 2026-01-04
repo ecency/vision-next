@@ -13,3 +13,4 @@ export * from "./get-drafts-query-options";
 export * from "./get-images-query-options";
 export * from "./get-comment-history-query-options";
 export * from "./get-deleted-entry-query-options";
+export * from "./get-post-tips-query-options";

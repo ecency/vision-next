@@ -1,18 +1,13 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
-import { AccountSearchResult } from "@/entities";
+import { getSearchAccountQueryOptions, AccountSearchResult } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
-export const getSearchAccountQuery = (q: string, limit = 5, random = false) => ({
-  queryKey: [QueryIdentifiers.SEARCH_ACCOUNT, q, limit],
-  queryFn: async () => {
-    const data = { q, limit, random: +random };
+export type { AccountSearchResult };
 
-    const response = await appAxios.post<AccountSearchResult[]>(
-      apiBase(`/search-api/search-account`),
-      data
-    );
-    return response.data;
-  },
-  enabled: !!q
-});
+export const getSearchAccountQuery = (q: string, limit = 5, random = false) => {
+  const options = getSearchAccountQueryOptions(q, limit, random);
+
+  return {
+    ...options,
+    useClientQuery: () => useQuery(options),
+  };
+};

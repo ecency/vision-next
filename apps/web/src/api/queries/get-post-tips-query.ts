@@ -1,34 +1,13 @@
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
-import { QueryIdentifiers } from "@/core/react-query";
+import { getPostTipsQueryOptions, PostTip, PostTipsResponse } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
-export interface PostTip {
-  sender: string;
-  receiver: string;
-  amount: number;
-  currency: string;
-  memo: string;
-  source: string;
-  timestamp: string;
-}
+export type { PostTip, PostTipsResponse };
 
-export interface PostTipsResponse {
-  meta: {
-    count: number;
-    totals: Record<string, number>;
+export const getPostTipsQuery = (author: string, permlink: string, isEnabled = true) => {
+  const options = getPostTipsQueryOptions(author, permlink, isEnabled);
+
+  return {
+    ...options,
+    useClientQuery: () => useQuery(options),
   };
-  list: PostTip[];
-}
-
-export const getPostTipsQuery = (author: string, permlink: string, isEnabled = true) => ({
-  queryKey: [QueryIdentifiers.POST_TIPS, author, permlink],
-  queryFn: async () => {
-    const response = await appAxios.post<PostTipsResponse>(apiBase(`/private-api/post-tips`), {
-      author,
-      permlink
-    });
-
-    return response.data;
-  },
-  enabled: !!author && !!permlink && isEnabled
-});
+};

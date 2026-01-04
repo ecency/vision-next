@@ -1,17 +1,11 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { appAxios } from "@/api/axios";
-import { Announcement } from "@/entities";
-import { apiBase } from "@/api/helper";
+import { getAnnouncementsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
-export const getAnnouncementsQuery = () => ({
-  queryKey: [QueryIdentifiers.ANNOUNCEMENTS],
-  queryFn: async () => {
-    const res = await appAxios.get<Announcement[]>(apiBase(`/private-api/announcements`));
-    if (!res.data) {
-      return [];
-    }
+export const getAnnouncementsQuery = () => {
+  const options = getAnnouncementsQueryOptions();
 
-    return res.data;
-  },
-  staleTime: 3_600_000
-});
+  return {
+    ...options,
+    useClientQuery: () => useQuery(options),
+  };
+};

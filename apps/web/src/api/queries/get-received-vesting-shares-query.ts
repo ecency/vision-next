@@ -1,17 +1,18 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
-import { ReceivedVestingShare } from "@/entities";
+import { getReceivedVestingSharesQueryOptions, ReceivedVestingShare } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { parseAsset } from "@/utils";
 
-export const getReceivedVestingSharesQuery = (username: string) => ({
-  queryKey: [QueryIdentifiers.RECEIVED_VESTING_SHARES, username],
-  queryFn: async () => {
-    const response = await appAxios.get<{ list: ReceivedVestingShare[] }>(
-      apiBase(`/private-api/received-vesting/${username}`)
-    );
-    return response.data.list;
-  },
-  select: (data: ReceivedVestingShare[]) =>
-    data.sort((a, b) => parseAsset(b.vesting_shares).amount - parseAsset(a.vesting_shares).amount)
-});
+export type { ReceivedVestingShare };
+
+export const getReceivedVestingSharesQuery = (username: string) => {
+  const options = {
+    ...getReceivedVestingSharesQueryOptions(username),
+    select: (data: ReceivedVestingShare[]) =>
+      data.sort((a, b) => parseAsset(b.vesting_shares).amount - parseAsset(a.vesting_shares).amount),
+  };
+
+  return {
+    ...options,
+    useClientQuery: () => useQuery(options),
+  };
+};

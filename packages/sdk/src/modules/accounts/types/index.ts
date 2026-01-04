@@ -8,3 +8,4 @@ export * from "./account-profile";
 export * from "./account-recovery";
 export * from "./follow";
 export * from "./transaction";
+export * from "./referral";

@@ -1,10 +1,11 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { apiBase } from "@/api/helper";
-import axios from "axios";
+import { getBotsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
-export const getBotsQuery = () => ({
-  queryKey: [QueryIdentifiers.GET_BOTS],
-  queryFn: () => axios.get<string[]>(apiBase("/private-api/public/bots")).then((resp) => resp.data),
-  refetchOnMount: true,
-  staleTime: Infinity
-});
+export const getBotsQuery = () => {
+  const options = getBotsQueryOptions();
+
+  return {
+    ...options,
+    useClientQuery: () => useQuery(options),
+  };
+};

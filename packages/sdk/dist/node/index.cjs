@@ -1090,6 +1090,79 @@ function getTransactionsInfiniteQueryOptions(username, limit = 20, group = "") {
     getNextPageParam: (lastPage) => lastPage?.length ? (lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1
   });
 }
+function getBotsQueryOptions() {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "bots"],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/public/bots", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bots: ${response.status}`);
+      }
+      return response.json();
+    },
+    refetchOnMount: true,
+    staleTime: Infinity
+  });
+}
+function getReferralsInfiniteQueryOptions(username) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["accounts", "referrals", username],
+    initialPageParam: { maxId: void 0 },
+    queryFn: async ({ pageParam }) => {
+      const { maxId } = pageParam ?? {};
+      const url = new URL(CONFIG.privateApiHost + `/private-api/referrals/${username}`);
+      if (maxId !== void 0) {
+        url.searchParams.set("max_id", maxId.toString());
+      }
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch referrals: ${response.status}`);
+      }
+      return response.json();
+    },
+    getNextPageParam: (lastPage) => {
+      const nextMaxId = lastPage?.[lastPage.length - 1]?.id;
+      return typeof nextMaxId === "number" ? { maxId: nextMaxId } : void 0;
+    }
+  });
+}
+function getReferralsStatsQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "referrals-stats", username],
+    queryFn: async () => {
+      const response = await fetch(
+        CONFIG.privateApiHost + `/private-api/referrals/${username}/stats`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch referral stats: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!data) {
+        throw new Error("No Referrals for this user!");
+      }
+      return {
+        total: data.total ?? 0,
+        rewarded: data.rewarded ?? 0
+      };
+    }
+  });
+}
 
 // src/modules/accounts/mutations/use-account-update.ts
 function useAccountUpdate(username) {
@@ -2094,6 +2167,28 @@ function getDeletedEntryQueryOptions(author, permlink) {
     enabled: isValid
   });
 }
+function getPostTipsQueryOptions(author, permlink, isEnabled = true) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "tips", author, permlink],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/post-tips", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          author,
+          permlink
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch post tips: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!author && !!permlink && isEnabled
+  });
+}
 function useAddFragment(username) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "add-fragment", username],
@@ -2531,6 +2626,26 @@ function getAccountNotificationsInfiniteQueryOptions(account, limit) {
     getNextPageParam: (lastPage) => lastPage?.length > 0 ? lastPage[lastPage.length - 1].id : null
   });
 }
+function getRewardedCommunitiesQueryOptions() {
+  return reactQuery.queryOptions({
+    queryKey: ["communities", "rewarded"],
+    queryFn: async () => {
+      const response = await fetch(
+        CONFIG.privateApiHost + "/private-api/rewarded-communities",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch rewarded communities: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+}
 
 // src/modules/communities/types/community.ts
 var ROLES = /* @__PURE__ */ ((ROLES2) => {
@@ -2733,6 +2848,25 @@ function getNotificationsSettingsQueryOptions(activeUsername) {
     }
   });
 }
+function getAnnouncementsQueryOptions() {
+  return reactQuery.queryOptions({
+    queryKey: ["notifications", "announcements"],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/announcements", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch announcements: ${response.status}`);
+      }
+      const data = await response.json();
+      return data || [];
+    },
+    staleTime: 36e5
+  });
+}
 function getProposalQueryOptions(id) {
   return reactQuery.queryOptions({
     queryKey: ["proposals", "proposal", id],
@@ -2892,6 +3026,21 @@ function getOutgoingRcDelegationsInfiniteQueryOptions(username, limit = 100) {
       return delegations;
     },
     getNextPageParam: (lastPage) => lastPage.length === limit ? lastPage[lastPage.length - 1].to : null
+  });
+}
+function getReceivedVestingSharesQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "received-vesting-shares", username],
+    queryFn: async () => {
+      const response = await fetch(
+        CONFIG.privateApiHost + `/private-api/received-vesting/${username}`
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch received vesting shares: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.list;
+    }
   });
 }
 function getWitnessesInfiniteQueryOptions(limit) {
@@ -3093,6 +3242,99 @@ function getSimilarEntriesQueryOptions(entry) {
     }
   });
 }
+function getSearchAccountQueryOptions(q, limit = 5, random = false) {
+  return reactQuery.queryOptions({
+    queryKey: ["search", "account", q, limit],
+    queryFn: async () => {
+      const data = { q, limit, random: +random };
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search-account", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to search accounts: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!q
+  });
+}
+function getSearchTopicsQueryOptions(q, limit = 20, random = false) {
+  return reactQuery.queryOptions({
+    queryKey: ["search", "topics", q],
+    queryFn: async () => {
+      const data = { q, limit, random: +random };
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search-tag", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to search topics: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!q
+  });
+}
+function getSearchApiInfiniteQueryOptions(q, sort, hideLow, since, votes) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["search", "api", q, sort, hideLow, since, votes],
+    queryFn: async ({ pageParam }) => {
+      const payload = { q, sort, hide_low: hideLow };
+      if (since) {
+        payload.since = since;
+      }
+      if (pageParam) {
+        payload.scroll_id = pageParam;
+      }
+      if (votes !== void 0) {
+        payload.votes = votes;
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: void 0,
+    getNextPageParam: (lastPage) => lastPage?.scroll_id,
+    enabled: !!q
+  });
+}
+function getSearchPathQueryOptions(q) {
+  return reactQuery.queryOptions({
+    queryKey: ["search", "path", q],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/search-api/search-path", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ q })
+      });
+      if (!response.ok) {
+        throw new Error(`Search path failed: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data?.length > 0) {
+        return data;
+      }
+      return [q];
+    }
+  });
+}
 
 exports.ACCOUNT_OPERATION_GROUPS = ACCOUNT_OPERATION_GROUPS;
 exports.ALL_ACCOUNT_OPERATIONS = ALL_ACCOUNT_OPERATIONS;
@@ -3127,6 +3369,8 @@ exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOption
 exports.getAccountsQueryOptions = getAccountsQueryOptions;
 exports.getActiveAccountBookmarksQueryOptions = getActiveAccountBookmarksQueryOptions;
 exports.getActiveAccountFavouritesQueryOptions = getActiveAccountFavouritesQueryOptions;
+exports.getAnnouncementsQueryOptions = getAnnouncementsQueryOptions;
+exports.getBotsQueryOptions = getBotsQueryOptions;
 exports.getBoundFetch = getBoundFetch;
 exports.getChainPropertiesQueryOptions = getChainPropertiesQueryOptions;
 exports.getCollateralizedConversionRequestsQueryOptions = getCollateralizedConversionRequestsQueryOptions;
@@ -3161,6 +3405,7 @@ exports.getOutgoingRcDelegationsInfiniteQueryOptions = getOutgoingRcDelegationsI
 exports.getPointsQueryOptions = getPointsQueryOptions;
 exports.getPostHeaderQueryOptions = getPostHeaderQueryOptions;
 exports.getPostQueryOptions = getPostQueryOptions;
+exports.getPostTipsQueryOptions = getPostTipsQueryOptions;
 exports.getPostingKey = getPostingKey;
 exports.getPostsRankedInfiniteQueryOptions = getPostsRankedInfiniteQueryOptions;
 exports.getPromotedPostsQuery = getPromotedPostsQuery;
@@ -3170,11 +3415,19 @@ exports.getProposalsQueryOptions = getProposalsQueryOptions;
 exports.getQueryClient = getQueryClient;
 exports.getRcStatsQueryOptions = getRcStatsQueryOptions;
 exports.getReblogsQueryOptions = getReblogsQueryOptions;
+exports.getReceivedVestingSharesQueryOptions = getReceivedVestingSharesQueryOptions;
+exports.getReferralsInfiniteQueryOptions = getReferralsInfiniteQueryOptions;
+exports.getReferralsStatsQueryOptions = getReferralsStatsQueryOptions;
 exports.getRefreshToken = getRefreshToken;
 exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccountsQueryOptions;
+exports.getRewardedCommunitiesQueryOptions = getRewardedCommunitiesQueryOptions;
 exports.getSavingsWithdrawFromQueryOptions = getSavingsWithdrawFromQueryOptions;
 exports.getSchedulesQueryOptions = getSchedulesQueryOptions;
+exports.getSearchAccountQueryOptions = getSearchAccountQueryOptions;
 exports.getSearchAccountsByUsernameQueryOptions = getSearchAccountsByUsernameQueryOptions;
+exports.getSearchApiInfiniteQueryOptions = getSearchApiInfiniteQueryOptions;
+exports.getSearchPathQueryOptions = getSearchPathQueryOptions;
+exports.getSearchTopicsQueryOptions = getSearchTopicsQueryOptions;
 exports.getSimilarEntriesQueryOptions = getSimilarEntriesQueryOptions;
 exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getTransactionsInfiniteQueryOptions = getTransactionsInfiniteQueryOptions;

@@ -1,15 +1,13 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
-import { TagSearchResult } from "@/entities";
+import { getSearchTopicsQueryOptions, TagSearchResult } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
-export const getSearchTopicsQuery = (q: string, limit = 20, random = false) => ({
-  queryKey: [QueryIdentifiers.SEARCH_TOPICS, q],
-  queryFn: async () => {
-    const data = { q, limit, random: +random };
+export type { TagSearchResult };
 
-    const response = await appAxios.post<TagSearchResult[]>(apiBase(`/search-api/search-tag`), data);
-    return response.data;
-  },
-  enabled: !!q
-});
+export const getSearchTopicsQuery = (q: string, limit = 20, random = false) => {
+  const options = getSearchTopicsQueryOptions(q, limit, random);
+
+  return {
+    ...options,
+    useClientQuery: () => useQuery(options),
+  };
+};
