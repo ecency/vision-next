@@ -1,5 +1,4 @@
-import { getAccountPostsQuery } from "@/api/queries/get-account-posts-query";
-import { getPostsRankedQuery } from "@/api/queries/get-posts-ranked-query";
+import { getAccountPostsInfiniteQueryOptions, getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
 import { getPromotedEntriesInfiniteQuery } from "@/api/queries/get-promoted-entries-query";
 import { prefetchInfiniteQuery, getInfiniteQueryData } from "@/core/react-query";
 import { InfiniteData, UseInfiniteQueryResult, useInfiniteQuery } from "@tanstack/react-query";
@@ -25,7 +24,7 @@ export async function prefetchGetPostsFeedQuery(
 
   if (isAccountPosts) {
     return prefetchInfiniteQuery(
-      getAccountPostsQuery(
+      getAccountPostsInfiniteQueryOptions(
         tag.replace("@", "").replace("%40", ""),
         what,
         limit,
@@ -37,7 +36,7 @@ export async function prefetchGetPostsFeedQuery(
 
   if (what === "feed") {
     return prefetchInfiniteQuery(
-      getPostsRankedQuery(
+      getPostsRankedInfiniteQueryOptions(
         what,
         tag,
         limit,
@@ -49,7 +48,7 @@ export async function prefetchGetPostsFeedQuery(
   }
 
   return prefetchInfiniteQuery(
-    getPostsRankedQuery(what, tag, limit, observer ?? "")
+    getPostsRankedInfiniteQueryOptions(what, tag, limit, observer ?? "")
   ) as Promise<FeedInfinite | undefined>;
 }
 
@@ -69,7 +68,7 @@ export function getPostsFeedQueryData(
 
   if (isAccountPosts) {
     return getInfiniteQueryData(
-      getAccountPostsQuery(
+      getAccountPostsInfiniteQueryOptions(
         tag.replace("@", "").replace("%40", ""),
         what,
         limit,
@@ -81,7 +80,7 @@ export function getPostsFeedQueryData(
 
   if (what === "feed") {
     return getInfiniteQueryData(
-      getPostsRankedQuery(
+      getPostsRankedInfiniteQueryOptions(
         what,
         tag,
         limit,
@@ -93,7 +92,7 @@ export function getPostsFeedQueryData(
   }
 
   return getInfiniteQueryData(
-    getPostsRankedQuery(what, tag, limit, observer ?? "")
+    getPostsRankedInfiniteQueryOptions(what, tag, limit, observer ?? "")
   ) as FeedInfinite | undefined;
 }
 
@@ -111,14 +110,14 @@ export function usePostsFeedQuery(
       isPromotedSection
           ? getPromotedEntriesInfiniteQuery()
           : isAccountPosts
-              ? getAccountPostsQuery(
+              ? getAccountPostsInfiniteQueryOptions(
                   tag.replace("@", "").replace("%40", ""),
                   what,
                   limit,
                   observer ?? "",
                   true
               )
-              : getPostsRankedQuery(
+              : getPostsRankedInfiniteQueryOptions(
                     what,
                     tag,
                     limit,

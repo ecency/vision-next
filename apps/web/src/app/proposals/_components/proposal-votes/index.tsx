@@ -12,10 +12,9 @@ import { Entry, Proposal } from "@/entities";
 import { LinearProgress, ProfileLink, ProfilePopover, UserAvatar } from "@/features/shared";
 import { accountReputation, parseAsset } from "@/utils";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-import { getProposalVotesQuery } from "@/api/queries";
+import { getDynamicPropsQueryOptions, getProposalVotesInfiniteQueryOptions } from "@ecency/sdk";
 import { Spinner } from "@ui/spinner";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Pagination } from "@/features/ui";
 
 type SortOption = "reputation" | "hp";
@@ -37,7 +36,7 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
     fetchNextPage,
     error,
     isError
-  } = getProposalVotesQuery(proposal.proposal_id, "", 1000).useClientQuery();
+  } = useInfiniteQuery(getProposalVotesInfiniteQueryOptions(proposal.proposal_id, "", 1000));
 
   const votes = useMemo(
     () => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []),

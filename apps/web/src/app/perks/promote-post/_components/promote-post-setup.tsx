@@ -1,4 +1,7 @@
-import { getPointsQuery, useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
+import { withFeatureFlag } from "@/core/react-query";
+import { getPointsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryListItem, SuggestionList } from "@/features/shared";
 import { Button, FormControl } from "@/features/ui";
@@ -23,7 +26,12 @@ export function PromotePostSetup({ onSuccess }: Props) {
 
   const [author, permlink] = useMemo(() => path.split("/"), [path]);
 
-  const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
+  const { data: activeUserPoints } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
   const { data: prices, isLoading: isPricesLoading } = useGetPromotePriceQuery();
   const { data: paths } = useSearchPathQuery(pathQuery);
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQueryByPath(

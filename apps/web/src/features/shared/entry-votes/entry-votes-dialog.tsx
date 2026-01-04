@@ -9,7 +9,8 @@ import { Tooltip } from "@ui/tooltip";
 import { Pagination } from "@/features/ui";
 import React, { ReactNode, useMemo, useState } from "react";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useGetEntryActiveVotesQuery } from "@/api/queries";
+import { getEntryActiveVotesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { prepareVotes } from "@/features/shared/entry-vote-btn/utils";
 import { heartSvg } from "@ui/svg";
 import { Entry } from "@/entities";
@@ -35,7 +36,7 @@ export function EntryVotesDialog({
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
 
   const { activeUser } = useActiveAccount();
-  const { data: apiVotes, isLoading: areVotesLoading } = useGetEntryActiveVotesQuery(entry);
+  const { data: apiVotes, isLoading: areVotesLoading } = useQuery(getEntryActiveVotesQueryOptions(entry));
 
   const [searchText, setSearchText] = useState("");
   const [page, setPage] = useState(1);

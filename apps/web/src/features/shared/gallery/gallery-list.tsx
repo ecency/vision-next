@@ -1,4 +1,6 @@
-import { useGalleryImagesQuery } from "@/api/queries";
+import { getGalleryImagesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import React, { useMemo } from "react";
 import { LinearProgress, success } from "@/features/shared";
@@ -18,8 +20,9 @@ interface Props {
 
 export function GalleryList({ onPick }: Props) {
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
+  const { activeUser } = useActiveAccount();
 
-  const { data, refetch, isPending } = useGalleryImagesQuery();
+  const { data, refetch, isPending } = useQuery(getGalleryImagesQueryOptions(activeUser?.username));
   const items = useMemo(
     () =>
       data?.sort((a, b) =>

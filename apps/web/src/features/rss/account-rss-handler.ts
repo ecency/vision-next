@@ -1,5 +1,6 @@
 import { EntriesRssHandler } from "@/features/rss/entries-rss-handler";
-import { getAccountPostsQuery } from "@/api/queries";
+import { getAccountPostsInfiniteQueryOptions } from "@ecency/sdk";
+import { getQueryClient } from "@/core/react-query";
 
 export class AccountRssHandler extends EntriesRssHandler {
   private author = "";
@@ -20,11 +21,9 @@ export class AccountRssHandler extends EntriesRssHandler {
       console.warn("AccountRssHandler: Missing or invalid author");
       return []; // Don't proceed with RPC call
     }
-    const data = await getAccountPostsQuery(
-      author,
-      this.filter,
-      20
-    ).fetchAndGet();
+    const data = await getQueryClient().fetchInfiniteQuery(
+      getAccountPostsInfiniteQueryOptions(author, this.filter, 20)
+    );
 
     return data.pages?.[0] ?? [];
   }

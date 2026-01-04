@@ -8,7 +8,8 @@ import { Tooltip } from "@ui/tooltip";
 import { dateToFormatted, dateToFullRelative, formattedNumber } from "@/utils";
 import { Pagination } from "@ui/index";
 import { LinearProgress } from "@/features/shared";
-import { getOpenOrdersQuery } from "@/api/queries";
+import { getOpenOrdersQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { AssetSymbol } from "@hiveio/dhive";
 
@@ -19,7 +20,7 @@ interface Props {
 }
 
 export function OpenOrdersList({ account, onHide, tokenType }: Props) {
-  const { data: openOrders, isLoading } = getOpenOrdersQuery(account.name).useClientQuery();
+  const { data: openOrders, isLoading } = useQuery(getOpenOrdersQueryOptions(account.name));
 
   const [pageSize, setPageSize] = useState(8);
   const [page, setPage] = useState(1);

@@ -8,9 +8,8 @@ import { dateToRelative } from "@/utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { WitnessVoteBtn } from "@/app/witnesses/_components/witness-vote-btn";
 import { WitnessCard } from "@/app/witnesses/_components/witness-card";
-import { useGetAccountsQuery } from "@/api/queries";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { getWitnessesInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { getWitnessesInfiniteQueryOptions, getAccountsQueryOptions } from "@ecency/sdk";
 import { convertToOriginalWitnesses, makeUnique, transform } from "@/app/witnesses/_utils";
 import { FormControl } from "@ui/input";
 import { usePrevious } from "react-use";
@@ -48,7 +47,7 @@ export function WitnessesList() {
     [transformedWitnesses]
   );
 
-  const { data: witnessesUserAccounts } = useGetAccountsQuery(witnessesUserNames);
+  const { data: witnessesUserAccounts } = useQuery(getAccountsQueryOptions(witnessesUserNames));
 
   const originalWitnesses = useMemo(
     () => makeUnique(convertToOriginalWitnesses(transformedWitnesses, witnessesUserAccounts)),

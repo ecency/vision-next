@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LinearProgress } from "@/features/shared";
 import { FormControl } from "@ui/input";
 import { DraftListItem } from "@/features/shared/drafts/draft-list-item";
-import { useDraftsQuery } from "@/api/queries";
+import { getDraftsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import { useCloneDraft, useDeleteDraft } from "@/api/mutations";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,9 +20,10 @@ export function DraftsList({ onHide, onPick }: Props) {
   const listRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const { activeUser } = useActiveAccount();
 
   const [filter, setFilter] = useState("");
-  const { data, isPending, refetch } = useDraftsQuery();
+  const { data, isPending, refetch } = useQuery(getDraftsQueryOptions(activeUser?.username));
 
   const items = useMemo(
     () =>

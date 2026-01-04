@@ -14,7 +14,9 @@ import { TransferStep2 } from "@/features/shared/transfer/transfer-step-2";
 import { TransferStep3 } from "@/features/shared/transfer/transfer-step-3";
 import { TransferStep4 } from "@/features/shared/transfer/transfer-step-4";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getPointsQuery } from "@/api/queries";
+import { withFeatureFlag } from "@/core/react-query";
+import { getPointsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 export type TransferMode =
   | "transfer"
@@ -45,7 +47,12 @@ function TransferC({ onHide, handleClickAway, account }: Props) {
   const { activeUser, refetch: refetchAccount } = useActiveAccount();
   const { step, asset, mode } = useTransferSharedState();
 
-  const { refetch } = getPointsQuery(activeUser?.username).useClientQuery();
+  const { refetch } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
 
   const titleLngKey = useMemo(
     () =>

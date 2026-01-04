@@ -9,7 +9,8 @@ import { PREFIX } from "@/utils/local-storage";
 import i18next from "i18next";
 import { OpenOrders } from "@/app/market/_components/open-orders";
 import Link from "next/link";
-import { getOpenOrdersQuery } from "@/api/queries";
+import { getOpenOrdersQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { useGlobalStore } from "@/core/global-store";
 import { useActiveAccount } from "@/core/hooks";
 
@@ -35,9 +36,9 @@ export const OpenOrdersWidget = ({
   const [type, setType] = useState<TabType>(storedType ?? "open");
   const [completedOrders, setCompletedOrders] = useState<LimitOrderCreate[]>([]);
 
-  const { isLoading: openOrdersDataLoading } = getOpenOrdersQuery(
+  const { isLoading: openOrdersDataLoading } = useQuery(getOpenOrdersQueryOptions(
     activeUsername ?? ""
-  ).useClientQuery();
+  ));
 
   useEffect(() => {
     setCompletedOrders(

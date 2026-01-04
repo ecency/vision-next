@@ -14,9 +14,12 @@ import { KeyOrHot } from "@/features/shared/key-or-hot";
 import { checkAllSvg } from "@ui/svg";
 import { promoteHot } from "@/api/operations";
 import { usePreCheckPromote, usePromoteByApi, usePromoteByKeychain } from "@/api/mutations";
-import { getPointsQuery, useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
+import { withFeatureFlag } from "@/core/react-query";
+import { getPointsQueryOptions } from "@ecency/sdk";
+import { useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
 import { useMount } from "react-use";
 import { Entry } from "@/entities";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry?: Entry;
@@ -32,7 +35,12 @@ export function Promote({ onHide, entry }: Props) {
   const [duration, setDuration] = useState(1);
   const [balanceError, setBalanceError] = useState("");
 
-  const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
+  const { data: activeUserPoints } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
   const { data: prices, isLoading: isPricesLoading } = useGetPromotePriceQuery();
   const { data: paths } = useSearchPathQuery(pathQuery);
 
