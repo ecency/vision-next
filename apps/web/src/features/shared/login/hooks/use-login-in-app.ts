@@ -3,8 +3,8 @@ import {
   useRecordUserActivity,
   useUpdateNotificationsSettings
 } from "@/api/mutations";
-import { useClientActiveUser } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks";
 import { Account, LoginType, User } from "@/entities";
 import { ALL_NOTIFY_TYPES } from "@/enums";
 import * as ls from "@/utils/local-storage";
@@ -19,7 +19,7 @@ export function useLoginInApp(username: string) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const setLogin = useGlobalStore((state) => state.setLogin);

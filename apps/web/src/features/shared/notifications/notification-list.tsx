@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks";
 import { NotificationFilter, NotificationViewType } from "@/enums";
 import { LinearProgress } from "@/features/shared";
 import { AnimatedNotificationListItemLayout } from "@/features/shared/notifications/animated-notification-list-item-layout";
@@ -24,7 +24,7 @@ export function NotificationList({
   select,
   selectNotification
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { data, isFetching, fetchNextPage } = useInfiniteQuery(
     getNotificationsInfiniteQueryOptions(activeUser?.username, filter)
   );

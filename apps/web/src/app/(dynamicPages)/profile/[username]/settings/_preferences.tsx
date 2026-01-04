@@ -1,5 +1,5 @@
 import { useUpdateNotificationsSettings } from "@/api/mutations";
-import { useClientActiveUser, useClientTheme } from "@/api/queries";
+import { useClientTheme } from "@/api/queries";
 import currencies from "@/consts/currencies.json";
 import { useGlobalStore } from "@/core/global-store";
 import { ALL_NOTIFY_TYPES, Theme } from "@/enums";
@@ -11,10 +11,11 @@ import { UilCog } from "@tooni/iconscout-unicons-react";
 import { FormControl } from "@ui/input";
 import i18next from "i18next";
 import React, { useCallback, useMemo } from "react";
-import { getNotificationsSettingsQueryOptions } from "../../../../../../../../packages/sdk/dist/browser";
+import { getNotificationsSettingsQueryOptions } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks";
 
 export function Preferences() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const currency = useGlobalStore((s) => s.currency);
   const setCurrency = useGlobalStore((s) => s.setCurrency);

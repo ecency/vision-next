@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks";
 import { Entry } from "@/entities";
 import dayjs from "@/utils/dayjs";
 import { getStatsQueryOptions } from "@ecency/sdk";
@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function EntryStats({ entry }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const [showStats, setShowStats] = useState(false);
 
   const pathname = useMemo(

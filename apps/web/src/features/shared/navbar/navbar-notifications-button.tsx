@@ -10,10 +10,10 @@ import { bellOffSvg, bellSvg } from "@ui/svg";
 import { EcencyConfigManager } from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import { getNotificationsUnreadCountQueryOptions } from "@ecency/sdk";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks";
 
 export function NavbarNotificationsButton({ onClick }: { onClick?: () => void }) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
   const globalNotifications = useGlobalStore((state) => state.globalNotifications);
 
