@@ -1,23 +1,9 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { appAxios } from "@/api/axios";
+import { getPageStatsQueryOptions, PageStatsResponse } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 
-export interface StatsResponse {
-  results: [
-    {
-      metrics: number[];
-      dimensions: string[];
-    }
-  ];
-  query: {
-    site_id: string;
-    metrics: string[];
-    date_range: string[];
-    filters: string[];
-  };
-}
+export type { PageStatsResponse };
 
-interface UseStatsQueryOptions {
+export interface UseStatsQueryOptions {
   url: string;
   dimensions?: string[];
   metrics?: string[];
@@ -32,17 +18,10 @@ export function useGetStatsQuery({
   dateRange,
   enabled = true
 }: UseStatsQueryOptions) {
+  const options = getPageStatsQueryOptions(url, dimensions, metrics, dateRange);
+
   return useQuery({
-    queryKey: [QueryIdentifiers.PAGE_STATS, url, dimensions, metrics, dateRange],
-    queryFn: async () => {
-      const response = await appAxios.post<StatsResponse>(`/api/stats`, {
-        metrics,
-        url: encodeURIComponent(url),
-        dimensions,
-        date_range: dateRange
-      });
-      return response.data;
-    },
-    enabled: !!url && enabled
+    ...options,
+    enabled: enabled && options.enabled,
   });
 }

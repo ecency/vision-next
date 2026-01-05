@@ -14,3 +14,7 @@ export * from "./get-images-query-options";
 export * from "./get-comment-history-query-options";
 export * from "./get-deleted-entry-query-options";
 export * from "./get-post-tips-query-options";
+export * from "./get-waves-by-host-query-options";
+export * from "./get-waves-by-tag-query-options";
+export * from "./get-waves-following-query-options";
+export * from "./get-waves-trending-tags-query-options";

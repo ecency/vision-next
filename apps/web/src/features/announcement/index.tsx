@@ -8,7 +8,8 @@ import { usePathname } from "next/navigation";
 import { closeSvg } from "@ui/svg";
 import Link from "next/link";
 import i18next from "i18next";
-import { getAnnouncementsQuery } from "@/api/queries";
+import { getAnnouncementsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export const Announcements = () => {
@@ -16,7 +17,7 @@ export const Announcements = () => {
 
   const pathname = usePathname();
 
-  const { data: allAnnouncements } = getAnnouncementsQuery().useClientQuery();
+  const { data: allAnnouncements } = useQuery(getAnnouncementsQueryOptions());
 
   const [show, setShow] = useState(true);
   const [list, setList] = useState<Announcement[]>([]);

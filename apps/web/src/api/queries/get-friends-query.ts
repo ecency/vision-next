@@ -1,91 +1,89 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { client } from "@/api/hive";
-import { Follow, FriendSearchResult } from "@/entities";
+import {
+  getFriendsInfiniteQueryOptions,
+  getSearchFriendsQueryOptions,
+  FriendsRow,
+  FriendSearchResult,
+} from "@ecency/sdk";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import dayjs from "@/utils/dayjs";
-import { getProfiles } from "@/api/bridge";
 
-const searchLimit = 30;
+export type { FriendSearchResult };
 
-// ---- Types for the infinite friends query ----
-type FriendsPageParam = { startFollowing: string };
-type FriendsRow = { name: string; reputation: number; lastSeen: string };
-type FriendsPage = FriendsRow[];
+// App-specific type with formatted lastSeen
+export interface FriendsRowFormatted {
+  name: string;
+  reputation: number;
+  lastSeen: string; // Formatted as "X hours ago", "Y days ago", etc.
+}
 
-// Infinite list of friends/followers
+// App-specific type with formatted lastSeen
+export interface FriendSearchResultFormatted {
+  name: string;
+  full_name: string;
+  reputation: number;
+  lastSeen: string; // Formatted
+}
+
+/**
+ * Infinite list of friends/followers with formatted timestamps
+ */
 export const getFriendsQuery = (
   following: string,
   mode: string,
-  {
-    followType = "blog",
-    limit = 100,
-    enabled = true
-  }: { enabled?: boolean; followType?: string; limit?: number }
-) => ({
-  queryKey: [QueryIdentifiers.GET_FRIENDS, following, mode, followType, limit],
-  refetchOnMount: true,
-  enabled,
-  initialData: { pages: [], pageParams: [] },
-  initialPageParam: { startFollowing: "" } as FriendsPageParam,
-  queryFn: async ({ pageParam }: { pageParam: FriendsPageParam }) => {
-    const { startFollowing } = pageParam;
-
-    const response = (await client.database.call(
-      mode === "following" ? "get_following" : "get_followers",
-      [following, startFollowing === "" ? null : startFollowing, followType, limit]
-    )) as Follow[];
-
-    const accountNames = response.map((e) => (mode === "following" ? e.following : e.follower));
-
-    const accounts = await getProfiles(accountNames);
-
-    const rows: FriendsPage = (accounts ?? []).map((a) => {
-      const lastActive = dayjs(a.active);
-      return {
-        name: a.name,
-        reputation: a.reputation!,
-        lastSeen: lastActive.fromNow()
-      };
-    });
-
-    return rows;
-  },
-  getNextPageParam: (lastPage: FriendsPage): FriendsPageParam | undefined =>
-    lastPage && lastPage.length === limit
-      ? { startFollowing: lastPage[lastPage.length - 1].name }
-      : undefined
-});
-
-// One-shot search (non-infinite)
-export const getSearchFriendsQuery = (username: string, mode: string, query: string) => ({
-  queryKey: [QueryIdentifiers.GET_SEARCH_FRIENDS, username, mode, query],
-  refetchOnMount: false,
-  enabled: false,
-  queryFn: async (): Promise<FriendSearchResult[]> => {
-    if (!query) return [];
-
-    const start = query.slice(0, -1);
-    const response = (await client.database.call(
-      mode === "following" ? "get_following" : "get_followers",
-      [username, start, "blog", 1000]
-    )) as Follow[];
-
-    const accountNames = response
-      .map((e) => (mode === "following" ? e.following : e.follower))
-      .filter((name) => name.toLowerCase().includes(query.toLowerCase()))
-      .slice(0, searchLimit);
-
-    const accounts = await getProfiles(accountNames);
-
-    return (
-      accounts?.map((a) => {
-        const lastActive = dayjs(a.active);
-        return {
-          name: a.name,
-          full_name: a.metadata.profile?.name || "",
-          reputation: a.reputation!,
-          lastSeen: lastActive.fromNow()
-        } as FriendSearchResult;
-      }) ?? []
-    );
+  options?: {
+    enabled?: boolean;
+    followType?: string;
+    limit?: number;
   }
-});
+) => {
+  const queryOptions = getFriendsInfiniteQueryOptions(
+    following,
+    mode as "following" | "followers",
+    options
+  );
+
+  // Transform the data to format timestamps
+  const transformedOptions = {
+    ...queryOptions,
+    select: (data: any) => ({
+      ...data,
+      pages: data.pages.map((page: FriendsRow[]) =>
+        page.map((row) => ({
+          ...row,
+          lastSeen: dayjs(row.active).fromNow(),
+        }))
+      ),
+    }),
+  };
+
+  return {
+    ...transformedOptions,
+    useClientQuery: () => useInfiniteQuery(transformedOptions),
+  };
+};
+
+/**
+ * One-shot search (non-infinite) with formatted timestamps
+ */
+export const getSearchFriendsQuery = (username: string, mode: string, query: string) => {
+  const queryOptions = getSearchFriendsQueryOptions(
+    username,
+    mode as "following" | "followers",
+    query
+  );
+
+  // Transform the data to format timestamps
+  const transformedOptions = {
+    ...queryOptions,
+    select: (data: FriendSearchResult[]) =>
+      data.map((result) => ({
+        ...result,
+        lastSeen: dayjs(result.active).fromNow(),
+      })) as FriendSearchResultFormatted[],
+  };
+
+  return {
+    ...transformedOptions,
+    useClientQuery: () => useQuery(transformedOptions),
+  };
+};

@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getDiscussionsQuery, getBotsQuery, useClientActiveUser } from "@/api/queries";
+import { getDiscussionsQuery, useClientActiveUser } from "@/api/queries";
+import { getBotsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { DiscussionList } from "./discussion-list";
@@ -48,7 +50,7 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
       activeUser?.username
   ).useClientQuery();
 
-  const { data: botsList } = getBotsQuery().useClientQuery();
+  const { data: botsList } = useQuery(getBotsQueryOptions());
 
   const topLevelComments = useMemo(
       () =>

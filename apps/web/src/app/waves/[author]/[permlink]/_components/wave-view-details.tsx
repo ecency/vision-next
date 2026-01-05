@@ -12,7 +12,8 @@ import { PostContentRenderer } from "@/features/shared";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 import { usePathname, useRouter } from "next/navigation";
 import { useOptionalWavesTagFilter } from "@/app/waves/_context";
-import { getPostTipsQuery } from "@/api/queries";
+import { getPostTipsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: WaveEntry;
@@ -27,7 +28,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
   const tagFilter = useOptionalWavesTagFilter();
 
   const poll = useEntryPollExtractor(entry);
-  const { data: postTips } = getPostTipsQuery(entry?.author ?? "", entry?.permlink ?? "").useClientQuery();
+  const { data: postTips } = useQuery(getPostTipsQueryOptions(entry?.author ?? "", entry?.permlink ?? ""));
 
   const status = "default";
 

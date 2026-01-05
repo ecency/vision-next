@@ -1,39 +1,19 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { apiBase } from "@/api/helper";
-import { appAxios } from "@/api/axios";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { Entry, WaveEntry } from "@/entities";
-import { normalizeWaveEntryFromApi } from "./waves-helpers";
-
-type WavesTagEntryResponse = Entry & {
-  post_id: number;
-  container?: (Entry & { post_id: number }) | null;
-  parent?: (Entry & { post_id: number }) | null;
-};
+import { WaveEntry } from "@/entities";
+import { getWavesByTagQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 const DEFAULT_TAG_FEED_LIMIT = 40;
 
-export const getWavesByTagQuery = (host: string, tag: string, limit = DEFAULT_TAG_FEED_LIMIT) => ({
-  queryKey: [QueryIdentifiers.THREADS, host, "tag", tag],
-  initialPageParam: undefined,
-  // Don't set initialData here - let it use prefetched data from server
-  // initialData: { pages: [], pageParams: [] },
-  queryFn: async () => {
-    try {
-      const { data } = await appAxios.get<WavesTagEntryResponse[]>(
-        apiBase("/private-api/waves/tags"),
-        {
-          params: {
-            container: host,
-            tag
-          }
-        }
-      );
+export const getWavesByTagQuery = (host: string, tag: string, limit = DEFAULT_TAG_FEED_LIMIT) => {
+  const options = getWavesByTagQueryOptions(host, tag, limit);
 
-      const result = data
-        .slice(0, limit)
-        .map((entry) => normalizeWaveEntryFromApi(entry, host))
-        .filter((entry): entry is WaveEntry => Boolean(entry));
+  // Add cache management to queryFn
+  const originalQueryFn = options.queryFn;
+  const queryOptions = {
+    ...options,
+    queryFn: async (context: any) => {
+      const result = await originalQueryFn(context);
 
       if (result.length > 0) {
         EcencyEntriesCacheManagement.updateEntryQueryData(result);
@@ -45,13 +25,12 @@ export const getWavesByTagQuery = (host: string, tag: string, limit = DEFAULT_TA
         EcencyEntriesCacheManagement.updateEntryQueryData(containers);
       }
 
-      return result.sort(
-        (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
-      );
-    } catch (error) {
-      console.error("Failed to fetch waves by tag", error);
-      return [];
-    }
-  },
-  getNextPageParam: () => undefined
-});
+      return result;
+    },
+  };
+
+  return {
+    ...queryOptions,
+    useClientQuery: () => useInfiniteQuery(queryOptions),
+  };
+};

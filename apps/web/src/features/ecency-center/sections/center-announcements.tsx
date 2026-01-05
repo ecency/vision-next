@@ -1,11 +1,12 @@
 import React from "react";
-import { getAnnouncementsQuery } from "@/api/queries";
+import { getAnnouncementsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/features/ui";
 
 export function CenterAnnouncements() {
-  const { data: allAnnouncements } = getAnnouncementsQuery().useClientQuery();
+  const { data: allAnnouncements } = useQuery(getAnnouncementsQueryOptions());
 
   return (
     <div className="flex flex-col gap-4 p-4 max-h-[50dvh] overflow-y-auto">

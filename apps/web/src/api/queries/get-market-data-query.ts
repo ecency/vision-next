@@ -1,12 +1,18 @@
-import { QueryIdentifiers } from "@/core/react-query";
-import { getMarketData } from "@/api/misc";
+import { getMarketDataQueryOptions, MarketData } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+
+export type { MarketData };
 
 export const getMarketDataQuery = (
   coin: string,
   vsCurrency: string,
   fromTs: string,
   toTs: string
-) => ({
-  queryKey: [QueryIdentifiers.MARKET_DATA],
-  queryFn: () => getMarketData(coin, vsCurrency, fromTs, toTs)
-});
+) => {
+  const options = getMarketDataQueryOptions(coin, vsCurrency, fromTs, toTs);
+
+  return {
+    ...options,
+    useClientQuery: () => useQuery(options),
+  };
+};

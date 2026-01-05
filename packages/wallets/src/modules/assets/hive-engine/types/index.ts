@@ -5,3 +5,6 @@ export * from "./hive-engine-transaction";
 export * from "./hive-engine-metric";
 export * from "./hive-engine-token-balance";
 export * from "./hive-engine-token-status";
+export * from "./hive-engine-token-info";
+export * from "./token";
+export * from "./token-metadata";

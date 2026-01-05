@@ -1142,506 +1142,63 @@ function getReferralsStatsQueryOptions(username) {
     }
   });
 }
-
-// src/modules/accounts/mutations/use-account-update.ts
-function useAccountUpdate(username) {
-  const queryClient = useQueryClient();
-  const { data } = useQuery(getAccountFullQueryOptions(username));
-  return useBroadcastMutation(
-    ["accounts", "update"],
-    username,
-    (payload) => {
-      if (!data) {
-        throw new Error("[SDK][Accounts] \u2013 cannot update not existing account");
-      }
-      const profile = buildProfileMetadata({
-        existingProfile: extractAccountProfile(data),
-        profile: payload.profile,
-        tokens: payload.tokens
+function getFriendsInfiniteQueryOptions(following, mode, options) {
+  const { followType = "blog", limit = 100, enabled = true } = options ?? {};
+  return infiniteQueryOptions({
+    queryKey: ["accounts", "friends", following, mode, followType, limit],
+    initialPageParam: { startFollowing: "" },
+    enabled,
+    refetchOnMount: true,
+    queryFn: async ({ pageParam }) => {
+      const { startFollowing } = pageParam;
+      const response = await CONFIG.hiveClient.database.call(
+        mode === "following" ? "get_following" : "get_followers",
+        [following, startFollowing === "" ? null : startFollowing, followType, limit]
+      );
+      const accountNames = response.map(
+        (e) => mode === "following" ? e.following : e.follower
+      );
+      const accounts = await CONFIG.hiveClient.call("bridge", "get_profiles", {
+        accounts: accountNames,
+        observer: void 0
       });
-      return [
-        [
-          "account_update2",
-          {
-            account: username,
-            json_metadata: "",
-            extensions: [],
-            posting_json_metadata: JSON.stringify({
-              profile
-            })
-          }
-        ]
-      ];
+      const rows = (accounts ?? []).map((a) => ({
+        name: a.name,
+        reputation: a.reputation,
+        active: a.active
+        // Return raw timestamp
+      }));
+      return rows;
     },
-    (_, variables) => queryClient.setQueryData(
-      getAccountFullQueryOptions(username).queryKey,
-      (data2) => {
-        if (!data2) {
-          return data2;
-        }
-        const obj = R4.clone(data2);
-        obj.profile = buildProfileMetadata({
-          existingProfile: extractAccountProfile(data2),
-          profile: variables.profile,
-          tokens: variables.tokens
-        });
-        return obj;
-      }
-    )
-  );
-}
-function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "relation", "update", reference, target],
-    mutationFn: async (kind) => {
-      const relationsQuery = getRelationshipBetweenAccountsQueryOptions(
-        reference,
-        target
-      );
-      await getQueryClient().prefetchQuery(relationsQuery);
-      const actualRelation = getQueryClient().getQueryData(
-        relationsQuery.queryKey
-      );
-      await broadcastJson(reference, "follow", [
-        "follow",
-        {
-          follower: reference,
-          following: target,
-          what: [
-            ...kind === "toggle-ignore" && !actualRelation?.ignores ? ["ignore"] : [],
-            ...kind === "toggle-follow" && !actualRelation?.follows ? ["blog"] : []
-          ]
-        }
-      ]);
-      return {
-        ...actualRelation,
-        ignores: kind === "toggle-ignore" ? !actualRelation?.ignores : actualRelation?.ignores,
-        follows: kind === "toggle-follow" ? !actualRelation?.follows : actualRelation?.follows
-      };
-    },
-    onError,
-    onSuccess(data) {
-      onSuccess(data);
-      getQueryClient().setQueryData(
-        ["accounts", "relations", reference, target],
-        data
-      );
-    }
+    getNextPageParam: (lastPage) => lastPage && lastPage.length === limit ? { startFollowing: lastPage[lastPage.length - 1].name } : void 0
   });
 }
-function useBookmarkAdd(username, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "bookmarks", "add", username],
-    mutationFn: async ({ author, permlink }) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
-      }
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/bookmarks-add",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            author,
-            permlink,
-            code: getAccessToken(username)
-          })
-        }
-      );
-      return response.json();
-    },
-    onSuccess: () => {
-      onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "bookmarks", username]
-      });
-    },
-    onError
-  });
-}
-function useBookmarkDelete(username, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "bookmarks", "delete", username],
-    mutationFn: async (bookmarkId) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
-      }
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/bookmarks-delete",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            id: bookmarkId,
-            code: getAccessToken(username)
-          })
-        }
-      );
-      return response.json();
-    },
-    onSuccess: () => {
-      onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "bookmarks", username]
-      });
-    },
-    onError
-  });
-}
-function useAccountFavouriteAdd(username, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "favourites", "add", username],
-    mutationFn: async (account) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
-      }
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/favorites-add",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            account,
-            code: getAccessToken(username)
-          })
-        }
-      );
-      return response.json();
-    },
-    onSuccess: () => {
-      onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "favourites", username]
-      });
-    },
-    onError
-  });
-}
-function useAccountFavouriteDelete(username, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "favourites", "add", username],
-    mutationFn: async (account) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
-      }
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/favorites-delete",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            account,
-            code: getAccessToken(username)
-          })
-        }
-      );
-      return response.json();
-    },
-    onSuccess: () => {
-      onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "favourites", username]
-      });
-    },
-    onError
-  });
-}
-function dedupeAndSortKeyAuths(existing, additions) {
-  const merged = /* @__PURE__ */ new Map();
-  existing.forEach(([key, weight]) => {
-    merged.set(key.toString(), weight);
-  });
-  additions.forEach(([key, weight]) => {
-    merged.set(key.toString(), weight);
-  });
-  return Array.from(merged.entries()).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)).map(([key, weight]) => [key, weight]);
-}
-function useAccountUpdateKeyAuths(username, options) {
-  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  return useMutation({
-    mutationKey: ["accounts", "keys-update", username],
-    mutationFn: async ({ keys, keepCurrent = false, currentKey }) => {
-      if (!accountData) {
-        throw new Error(
-          "[SDK][Update password] \u2013 cannot update keys for anon user"
-        );
-      }
-      const prepareAuth = (keyName) => {
-        const auth = R4.clone(accountData[keyName]);
-        auth.key_auths = dedupeAndSortKeyAuths(
-          keepCurrent ? auth.key_auths : [],
-          keys.map(
-            (values, i) => [values[keyName].createPublic().toString(), i + 1]
-          )
-        );
-        return auth;
-      };
-      return CONFIG.hiveClient.broadcast.updateAccount(
-        {
-          account: username,
-          json_metadata: accountData.json_metadata,
-          owner: prepareAuth("owner"),
-          active: prepareAuth("active"),
-          posting: prepareAuth("posting"),
-          memo_key: keepCurrent ? accountData.memo_key : keys[0].memo_key.createPublic().toString()
-        },
-        currentKey
-      );
-    },
-    ...options
-  });
-}
-function useAccountUpdatePassword(username, options) {
-  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  const { mutateAsync: updateKeys } = useAccountUpdateKeyAuths(username);
-  return useMutation({
-    mutationKey: ["accounts", "password-update", username],
-    mutationFn: async ({
-      newPassword,
-      currentPassword,
-      keepCurrent
-    }) => {
-      if (!accountData) {
-        throw new Error(
-          "[SDK][Update password] \u2013 cannot update password for anon user"
-        );
-      }
-      const currentKey = PrivateKey.fromLogin(
-        username,
-        currentPassword,
-        "owner"
-      );
-      return updateKeys({
-        currentKey,
-        keepCurrent,
-        keys: [
-          {
-            owner: PrivateKey.fromLogin(username, newPassword, "owner"),
-            active: PrivateKey.fromLogin(username, newPassword, "active"),
-            posting: PrivateKey.fromLogin(username, newPassword, "posting"),
-            memo_key: PrivateKey.fromLogin(username, newPassword, "memo")
-          }
-        ]
-      });
-    },
-    ...options
-  });
-}
-function useAccountRevokePosting(username, options) {
-  const queryClient = useQueryClient();
-  const { data } = useQuery(getAccountFullQueryOptions(username));
-  return useMutation({
-    mutationKey: ["accounts", "revoke-posting", data?.name],
-    mutationFn: async ({ accountName, type, key }) => {
-      if (!data) {
-        throw new Error(
-          "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
-        );
-      }
-      const posting = R4.pipe(
-        {},
-        R4.mergeDeep(data.posting)
-      );
-      posting.account_auths = posting.account_auths.filter(
-        ([account]) => account !== accountName
-      );
-      const operationBody = {
-        account: data.name,
-        posting,
-        memo_key: data.memo_key,
-        json_metadata: data.json_metadata
-      };
-      if (type === "key" && key) {
-        return CONFIG.hiveClient.broadcast.updateAccount(operationBody, key);
-      } else if (type === "keychain") {
-        return keychain_exports.broadcast(
-          data.name,
-          [["account_update", operationBody]],
-          "Active"
-        );
-      } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`
-        };
-        return hs.sendOperation(
-          ["account_update", operationBody],
-          params,
-          () => {
-          }
-        );
-      }
-    },
-    onError: options.onError,
-    onSuccess: (resp, payload, ctx) => {
-      options.onSuccess?.(resp, payload, ctx);
-      queryClient.setQueryData(
-        getAccountFullQueryOptions(username).queryKey,
-        (data2) => ({
-          ...data2,
-          posting: {
-            ...data2?.posting,
-            account_auths: data2?.posting?.account_auths?.filter(
-              ([account]) => account !== payload.accountName
-            ) ?? []
-          }
-        })
-      );
-    }
-  });
-}
-function useAccountUpdateRecovery(username, options) {
-  const { data } = useQuery(getAccountFullQueryOptions(username));
-  return useMutation({
-    mutationKey: ["accounts", "recovery", data?.name],
-    mutationFn: async ({ accountName, type, key, email }) => {
-      if (!data) {
-        throw new Error(
-          "[SDK][Accounts] \u2013\xA0cannot change recovery for anonymous user"
-        );
-      }
-      const operationBody = {
-        account_to_recover: data.name,
-        new_recovery_account: accountName,
-        extensions: []
-      };
-      if (type === "ecency") {
-        const fetchApi = getBoundFetch();
-        return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
-          method: "POST",
-          body: JSON.stringify({
-            code: getAccessToken(data.name),
-            email,
-            publicKeys: [
-              ...data.owner.key_auths,
-              ...data.active.key_auths,
-              ...data.posting.key_auths,
-              data.memo_key
-            ]
-          })
-        });
-      } else if (type === "key" && key) {
-        return CONFIG.hiveClient.broadcast.sendOperations(
-          [["change_recovery_account", operationBody]],
-          key
-        );
-      } else if (type === "keychain") {
-        return keychain_exports.broadcast(
-          data.name,
-          [["change_recovery_account", operationBody]],
-          "Active"
-        );
-      } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`
-        };
-        return hs.sendOperation(
-          ["change_recovery_account", operationBody],
-          params,
-          () => {
-          }
-        );
-      }
-    },
-    onError: options.onError,
-    onSuccess: options.onSuccess
-  });
-}
-function useAccountRevokeKey(username, options) {
-  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  return useMutation({
-    mutationKey: ["accounts", "revoke-key", accountData?.name],
-    mutationFn: async ({ currentKey, revokingKey }) => {
-      if (!accountData) {
-        throw new Error(
-          "[SDK][Update password] \u2013 cannot update keys for anon user"
-        );
-      }
-      const prepareAuth = (keyName) => {
-        const auth = R4.clone(accountData[keyName]);
-        auth.key_auths = auth.key_auths.filter(
-          ([key]) => key !== revokingKey.toString()
-        );
-        return auth;
-      };
-      return CONFIG.hiveClient.broadcast.updateAccount(
-        {
-          account: accountData.name,
-          json_metadata: accountData.json_metadata,
-          owner: prepareAuth("owner"),
-          active: prepareAuth("active"),
-          posting: prepareAuth("posting"),
-          memo_key: accountData.memo_key
-        },
-        currentKey
-      );
-    },
-    ...options
-  });
-}
-function useSignOperationByKey(username) {
-  return useMutation({
-    mutationKey: ["operations", "sign", username],
-    mutationFn: ({
-      operation,
-      keyOrSeed
-    }) => {
-      if (!username) {
-        throw new Error("[Operations][Sign] \u2013 cannot sign op with anon user");
-      }
-      let privateKey;
-      if (keyOrSeed.split(" ").length === 12) {
-        privateKey = PrivateKey.fromLogin(username, keyOrSeed, "active");
-      } else if (cryptoUtils.isWif(keyOrSeed)) {
-        privateKey = PrivateKey.fromString(keyOrSeed);
-      } else {
-        privateKey = PrivateKey.from(keyOrSeed);
-      }
-      return CONFIG.hiveClient.broadcast.sendOperations(
-        [operation],
-        privateKey
-      );
-    }
-  });
-}
-function useSignOperationByKeychain(username, keyType = "Active") {
-  return useMutation({
-    mutationKey: ["operations", "sign-keychain", username],
-    mutationFn: ({ operation }) => {
-      if (!username) {
-        throw new Error(
-          "[SDK][Keychain] \u2013\xA0cannot sign operation with anon user"
-        );
-      }
-      return keychain_exports.broadcast(username, [operation], keyType);
-    }
-  });
-}
-function useSignOperationByHivesigner(callbackUri = "/") {
-  return useMutation({
-    mutationKey: ["operations", "sign-hivesigner", callbackUri],
-    mutationFn: async ({ operation }) => {
-      return hs.sendOperation(operation, { callback: callbackUri }, () => {
-      });
-    }
-  });
-}
-function getChainPropertiesQueryOptions() {
+var SEARCH_LIMIT = 30;
+function getSearchFriendsQueryOptions(username, mode, query) {
   return queryOptions({
-    queryKey: ["operations", "chain-properties"],
+    queryKey: ["accounts", "friends", "search", username, mode, query],
+    refetchOnMount: false,
+    enabled: false,
+    // Manual query via refetch
     queryFn: async () => {
-      return await CONFIG.hiveClient.database.getChainProperties();
+      if (!query) return [];
+      const start = query.slice(0, -1);
+      const response = await CONFIG.hiveClient.database.call(
+        mode === "following" ? "get_following" : "get_followers",
+        [username, start, "blog", 1e3]
+      );
+      const accountNames = response.map((e) => mode === "following" ? e.following : e.follower).filter((name) => name.toLowerCase().includes(query.toLowerCase())).slice(0, SEARCH_LIMIT);
+      const accounts = await CONFIG.hiveClient.call("bridge", "get_profiles", {
+        accounts: accountNames,
+        observer: void 0
+      });
+      return accounts?.map((a) => ({
+        name: a.name,
+        full_name: a.metadata.profile?.name || "",
+        reputation: a.reputation,
+        active: a.active
+        // Return raw timestamp
+      })) ?? [];
     }
   });
 }
@@ -2169,6 +1726,803 @@ function getPostTipsQueryOptions(author, permlink, isEnabled = true) {
     enabled: !!author && !!permlink && isEnabled
   });
 }
+
+// src/modules/posts/utils/waves-helpers.ts
+function normalizeContainer(entry, host) {
+  return {
+    ...entry,
+    id: entry.id ?? entry.post_id,
+    host
+  };
+}
+function normalizeParent(entry) {
+  return {
+    ...entry,
+    id: entry.id ?? entry.post_id
+  };
+}
+function normalizeWaveEntryFromApi(entry, host) {
+  if (!entry) {
+    return null;
+  }
+  const containerSource = entry.container ?? entry;
+  const container = normalizeContainer(containerSource, host);
+  const parent = entry.parent ? normalizeParent(entry.parent) : void 0;
+  return {
+    ...entry,
+    id: entry.id ?? entry.post_id,
+    host,
+    container,
+    parent
+  };
+}
+function toEntryArray(x) {
+  return Array.isArray(x) ? x : [];
+}
+async function getVisibleFirstLevelThreadItems(container) {
+  const queryOptions73 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions73);
+  const discussionItems = toEntryArray(discussionItemsRaw);
+  if (discussionItems.length <= 1) {
+    return [];
+  }
+  const firstLevelItems = discussionItems.filter(
+    ({ parent_author, parent_permlink }) => parent_author === container.author && parent_permlink === container.permlink
+  );
+  if (firstLevelItems.length === 0) {
+    return [];
+  }
+  const visibleItems = firstLevelItems.filter((item) => !item.stats?.gray);
+  return visibleItems;
+}
+function mapThreadItemsToWaveEntries(items, container, host) {
+  if (items.length === 0) {
+    return [];
+  }
+  return items.map((item) => {
+    const parent = items.find(
+      (i) => i.author === item.parent_author && i.permlink === item.parent_permlink && i.author !== host
+    );
+    return {
+      ...item,
+      id: item.post_id,
+      host,
+      container,
+      parent
+    };
+  }).filter((entry) => entry.container.post_id !== entry.post_id).sort(
+    (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
+  );
+}
+
+// src/modules/posts/queries/get-waves-by-host-query-options.ts
+var THREAD_CONTAINER_BATCH_SIZE = 5;
+var MAX_CONTAINERS_TO_SCAN = 50;
+async function getThreads(host, pageParam) {
+  let startAuthor = pageParam?.author;
+  let startPermlink = pageParam?.permlink;
+  let scannedContainers = 0;
+  let skipContainerId = pageParam?.post_id;
+  while (scannedContainers < MAX_CONTAINERS_TO_SCAN) {
+    const rpcParams = {
+      sort: "posts",
+      // ProfileFilter.posts
+      account: host,
+      limit: THREAD_CONTAINER_BATCH_SIZE,
+      ...startAuthor ? { start_author: startAuthor } : {},
+      ...startPermlink ? { start_permlink: startPermlink } : {}
+    };
+    const containers = await CONFIG.hiveClient.call(
+      "bridge",
+      "get_account_posts",
+      rpcParams
+    );
+    if (!containers || containers.length === 0) {
+      return null;
+    }
+    const normalizedContainers = containers.map((container) => {
+      container.id = container.post_id;
+      container.host = host;
+      return container;
+    });
+    for (const container of normalizedContainers) {
+      if (skipContainerId && container.post_id === skipContainerId) {
+        skipContainerId = void 0;
+        continue;
+      }
+      scannedContainers += 1;
+      if (container.stats?.gray) {
+        startAuthor = container.author;
+        startPermlink = container.permlink;
+        continue;
+      }
+      const visibleItems = await getVisibleFirstLevelThreadItems(container);
+      if (visibleItems.length === 0) {
+        startAuthor = container.author;
+        startPermlink = container.permlink;
+        continue;
+      }
+      return {
+        entries: mapThreadItemsToWaveEntries(visibleItems, container, host)
+      };
+    }
+    const lastContainer = normalizedContainers[normalizedContainers.length - 1];
+    if (!lastContainer) {
+      return null;
+    }
+    startAuthor = lastContainer.author;
+    startPermlink = lastContainer.permlink;
+  }
+  return null;
+}
+function getWavesByHostQueryOptions(host) {
+  return infiniteQueryOptions({
+    queryKey: ["posts", "waves", "by-host", host],
+    initialPageParam: void 0,
+    queryFn: async ({ pageParam }) => {
+      const result = await getThreads(host, pageParam);
+      if (!result) return [];
+      return result.entries;
+    },
+    getNextPageParam: (lastPage) => lastPage?.[0]?.container
+  });
+}
+var DEFAULT_TAG_FEED_LIMIT = 40;
+function getWavesByTagQueryOptions(host, tag, limit = DEFAULT_TAG_FEED_LIMIT) {
+  return infiniteQueryOptions({
+    queryKey: ["posts", "waves", "by-tag", host, tag],
+    initialPageParam: void 0,
+    queryFn: async ({ signal }) => {
+      try {
+        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/tags");
+        url.searchParams.set("container", host);
+        url.searchParams.set("tag", tag);
+        const response = await fetch(url.toString(), {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          signal
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch waves by tag: ${response.status}`);
+        }
+        const data = await response.json();
+        const result = data.slice(0, limit).map((entry) => normalizeWaveEntryFromApi(entry, host)).filter((entry) => Boolean(entry));
+        return result.sort(
+          (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
+        );
+      } catch (error) {
+        console.error("[SDK] Failed to fetch waves by tag", error);
+        return [];
+      }
+    },
+    getNextPageParam: () => void 0
+  });
+}
+function getWavesFollowingQueryOptions(host, username) {
+  const normalizedUsername = username?.trim().toLowerCase();
+  return infiniteQueryOptions({
+    queryKey: ["posts", "waves", "following", host, normalizedUsername ?? ""],
+    enabled: Boolean(normalizedUsername),
+    initialPageParam: void 0,
+    queryFn: async ({ signal }) => {
+      if (!normalizedUsername) {
+        return [];
+      }
+      try {
+        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/following");
+        url.searchParams.set("container", host);
+        url.searchParams.set("username", normalizedUsername);
+        const response = await fetch(url.toString(), {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          signal
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch waves following feed: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          return [];
+        }
+        const flattened = data.map((entry) => normalizeWaveEntryFromApi(entry, host)).filter((entry) => Boolean(entry));
+        if (flattened.length === 0) {
+          return [];
+        }
+        return flattened.sort(
+          (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
+        );
+      } catch (error) {
+        console.error("[SDK] Failed to fetch waves following feed", error);
+        return [];
+      }
+    },
+    getNextPageParam: () => void 0
+  });
+}
+function getWavesTrendingTagsQueryOptions(host, hours = 24) {
+  return queryOptions({
+    queryKey: ["posts", "waves", "trending-tags", host, hours],
+    queryFn: async ({ signal }) => {
+      try {
+        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/trending/tags");
+        url.searchParams.set("container", host);
+        url.searchParams.set("hours", hours.toString());
+        const response = await fetch(url.toString(), {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          signal
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch waves trending tags: ${response.status}`);
+        }
+        const data = await response.json();
+        return data.map(({ tag, posts }) => ({ tag, posts }));
+      } catch (error) {
+        console.error("[SDK] Failed to fetch waves trending tags", error);
+        return [];
+      }
+    }
+  });
+}
+
+// src/modules/accounts/queries/get-account-vote-history-infinite-query-options.ts
+function isEntry(x) {
+  return !!x && typeof x === "object" && "author" in x && "permlink" in x && "active_votes" in x;
+}
+function getDays(createdDate) {
+  const past = new Date(createdDate);
+  const now = /* @__PURE__ */ new Date();
+  const diffMs = now.getTime() - past.getTime();
+  return diffMs / (1e3 * 60 * 60 * 24);
+}
+function getAccountVoteHistoryInfiniteQueryOptions(username, options) {
+  const { limit = 20, filters = [], dayLimit = 7 } = options ?? {};
+  return infiniteQueryOptions({
+    queryKey: ["accounts", "vote-history", username, limit],
+    initialPageParam: { start: -1 },
+    queryFn: async ({ pageParam }) => {
+      const { start } = pageParam;
+      const response = await CONFIG.hiveClient.call(
+        "condenser_api",
+        "get_account_history",
+        [username, start, limit, ...filters]
+      );
+      const mappedResults = response.map(([num, historyObj]) => ({
+        ...historyObj.op[1],
+        num,
+        timestamp: historyObj.timestamp
+      }));
+      const result = mappedResults.filter(
+        (filtered) => filtered.voter === username && filtered.weight !== 0 && getDays(filtered.timestamp) <= dayLimit
+      );
+      const entries = [];
+      for (const obj of result) {
+        const post = await CONFIG.queryClient.fetchQuery(
+          getPostQueryOptions(obj.author, obj.permlink)
+        );
+        if (isEntry(post)) entries.push(post);
+      }
+      const [firstHistory] = response;
+      return {
+        lastDate: firstHistory ? getDays(firstHistory[1].timestamp) : 0,
+        lastItemFetched: firstHistory ? firstHistory[0] : start,
+        entries
+      };
+    },
+    getNextPageParam: (lastPage) => ({
+      start: lastPage.lastItemFetched
+    })
+  });
+}
+
+// src/modules/accounts/mutations/use-account-update.ts
+function useAccountUpdate(username) {
+  const queryClient = useQueryClient();
+  const { data } = useQuery(getAccountFullQueryOptions(username));
+  return useBroadcastMutation(
+    ["accounts", "update"],
+    username,
+    (payload) => {
+      if (!data) {
+        throw new Error("[SDK][Accounts] \u2013 cannot update not existing account");
+      }
+      const profile = buildProfileMetadata({
+        existingProfile: extractAccountProfile(data),
+        profile: payload.profile,
+        tokens: payload.tokens
+      });
+      return [
+        [
+          "account_update2",
+          {
+            account: username,
+            json_metadata: "",
+            extensions: [],
+            posting_json_metadata: JSON.stringify({
+              profile
+            })
+          }
+        ]
+      ];
+    },
+    (_, variables) => queryClient.setQueryData(
+      getAccountFullQueryOptions(username).queryKey,
+      (data2) => {
+        if (!data2) {
+          return data2;
+        }
+        const obj = R4.clone(data2);
+        obj.profile = buildProfileMetadata({
+          existingProfile: extractAccountProfile(data2),
+          profile: variables.profile,
+          tokens: variables.tokens
+        });
+        return obj;
+      }
+    )
+  );
+}
+function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "relation", "update", reference, target],
+    mutationFn: async (kind) => {
+      const relationsQuery = getRelationshipBetweenAccountsQueryOptions(
+        reference,
+        target
+      );
+      await getQueryClient().prefetchQuery(relationsQuery);
+      const actualRelation = getQueryClient().getQueryData(
+        relationsQuery.queryKey
+      );
+      await broadcastJson(reference, "follow", [
+        "follow",
+        {
+          follower: reference,
+          following: target,
+          what: [
+            ...kind === "toggle-ignore" && !actualRelation?.ignores ? ["ignore"] : [],
+            ...kind === "toggle-follow" && !actualRelation?.follows ? ["blog"] : []
+          ]
+        }
+      ]);
+      return {
+        ...actualRelation,
+        ignores: kind === "toggle-ignore" ? !actualRelation?.ignores : actualRelation?.ignores,
+        follows: kind === "toggle-follow" ? !actualRelation?.follows : actualRelation?.follows
+      };
+    },
+    onError,
+    onSuccess(data) {
+      onSuccess(data);
+      getQueryClient().setQueryData(
+        ["accounts", "relations", reference, target],
+        data
+      );
+    }
+  });
+}
+function useBookmarkAdd(username, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "bookmarks", "add", username],
+    mutationFn: async ({ author, permlink }) => {
+      if (!username) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/bookmarks-add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            author,
+            permlink,
+            code: getAccessToken(username)
+          })
+        }
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+      getQueryClient().invalidateQueries({
+        queryKey: ["accounts", "bookmarks", username]
+      });
+    },
+    onError
+  });
+}
+function useBookmarkDelete(username, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "bookmarks", "delete", username],
+    mutationFn: async (bookmarkId) => {
+      if (!username) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/bookmarks-delete",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            id: bookmarkId,
+            code: getAccessToken(username)
+          })
+        }
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+      getQueryClient().invalidateQueries({
+        queryKey: ["accounts", "bookmarks", username]
+      });
+    },
+    onError
+  });
+}
+function useAccountFavouriteAdd(username, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "favourites", "add", username],
+    mutationFn: async (account) => {
+      if (!username) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/favorites-add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            account,
+            code: getAccessToken(username)
+          })
+        }
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+      getQueryClient().invalidateQueries({
+        queryKey: ["accounts", "favourites", username]
+      });
+    },
+    onError
+  });
+}
+function useAccountFavouriteDelete(username, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "favourites", "add", username],
+    mutationFn: async (account) => {
+      if (!username) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/favorites-delete",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            account,
+            code: getAccessToken(username)
+          })
+        }
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+      getQueryClient().invalidateQueries({
+        queryKey: ["accounts", "favourites", username]
+      });
+    },
+    onError
+  });
+}
+function dedupeAndSortKeyAuths(existing, additions) {
+  const merged = /* @__PURE__ */ new Map();
+  existing.forEach(([key, weight]) => {
+    merged.set(key.toString(), weight);
+  });
+  additions.forEach(([key, weight]) => {
+    merged.set(key.toString(), weight);
+  });
+  return Array.from(merged.entries()).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)).map(([key, weight]) => [key, weight]);
+}
+function useAccountUpdateKeyAuths(username, options) {
+  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
+  return useMutation({
+    mutationKey: ["accounts", "keys-update", username],
+    mutationFn: async ({ keys, keepCurrent = false, currentKey }) => {
+      if (!accountData) {
+        throw new Error(
+          "[SDK][Update password] \u2013 cannot update keys for anon user"
+        );
+      }
+      const prepareAuth = (keyName) => {
+        const auth = R4.clone(accountData[keyName]);
+        auth.key_auths = dedupeAndSortKeyAuths(
+          keepCurrent ? auth.key_auths : [],
+          keys.map(
+            (values, i) => [values[keyName].createPublic().toString(), i + 1]
+          )
+        );
+        return auth;
+      };
+      return CONFIG.hiveClient.broadcast.updateAccount(
+        {
+          account: username,
+          json_metadata: accountData.json_metadata,
+          owner: prepareAuth("owner"),
+          active: prepareAuth("active"),
+          posting: prepareAuth("posting"),
+          memo_key: keepCurrent ? accountData.memo_key : keys[0].memo_key.createPublic().toString()
+        },
+        currentKey
+      );
+    },
+    ...options
+  });
+}
+function useAccountUpdatePassword(username, options) {
+  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
+  const { mutateAsync: updateKeys } = useAccountUpdateKeyAuths(username);
+  return useMutation({
+    mutationKey: ["accounts", "password-update", username],
+    mutationFn: async ({
+      newPassword,
+      currentPassword,
+      keepCurrent
+    }) => {
+      if (!accountData) {
+        throw new Error(
+          "[SDK][Update password] \u2013 cannot update password for anon user"
+        );
+      }
+      const currentKey = PrivateKey.fromLogin(
+        username,
+        currentPassword,
+        "owner"
+      );
+      return updateKeys({
+        currentKey,
+        keepCurrent,
+        keys: [
+          {
+            owner: PrivateKey.fromLogin(username, newPassword, "owner"),
+            active: PrivateKey.fromLogin(username, newPassword, "active"),
+            posting: PrivateKey.fromLogin(username, newPassword, "posting"),
+            memo_key: PrivateKey.fromLogin(username, newPassword, "memo")
+          }
+        ]
+      });
+    },
+    ...options
+  });
+}
+function useAccountRevokePosting(username, options) {
+  const queryClient = useQueryClient();
+  const { data } = useQuery(getAccountFullQueryOptions(username));
+  return useMutation({
+    mutationKey: ["accounts", "revoke-posting", data?.name],
+    mutationFn: async ({ accountName, type, key }) => {
+      if (!data) {
+        throw new Error(
+          "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
+        );
+      }
+      const posting = R4.pipe(
+        {},
+        R4.mergeDeep(data.posting)
+      );
+      posting.account_auths = posting.account_auths.filter(
+        ([account]) => account !== accountName
+      );
+      const operationBody = {
+        account: data.name,
+        posting,
+        memo_key: data.memo_key,
+        json_metadata: data.json_metadata
+      };
+      if (type === "key" && key) {
+        return CONFIG.hiveClient.broadcast.updateAccount(operationBody, key);
+      } else if (type === "keychain") {
+        return keychain_exports.broadcast(
+          data.name,
+          [["account_update", operationBody]],
+          "Active"
+        );
+      } else {
+        const params = {
+          callback: `https://ecency.com/@${data.name}/permissions`
+        };
+        return hs.sendOperation(
+          ["account_update", operationBody],
+          params,
+          () => {
+          }
+        );
+      }
+    },
+    onError: options.onError,
+    onSuccess: (resp, payload, ctx) => {
+      options.onSuccess?.(resp, payload, ctx);
+      queryClient.setQueryData(
+        getAccountFullQueryOptions(username).queryKey,
+        (data2) => ({
+          ...data2,
+          posting: {
+            ...data2?.posting,
+            account_auths: data2?.posting?.account_auths?.filter(
+              ([account]) => account !== payload.accountName
+            ) ?? []
+          }
+        })
+      );
+    }
+  });
+}
+function useAccountUpdateRecovery(username, options) {
+  const { data } = useQuery(getAccountFullQueryOptions(username));
+  return useMutation({
+    mutationKey: ["accounts", "recovery", data?.name],
+    mutationFn: async ({ accountName, type, key, email }) => {
+      if (!data) {
+        throw new Error(
+          "[SDK][Accounts] \u2013\xA0cannot change recovery for anonymous user"
+        );
+      }
+      const operationBody = {
+        account_to_recover: data.name,
+        new_recovery_account: accountName,
+        extensions: []
+      };
+      if (type === "ecency") {
+        const fetchApi = getBoundFetch();
+        return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
+          method: "POST",
+          body: JSON.stringify({
+            code: getAccessToken(data.name),
+            email,
+            publicKeys: [
+              ...data.owner.key_auths,
+              ...data.active.key_auths,
+              ...data.posting.key_auths,
+              data.memo_key
+            ]
+          })
+        });
+      } else if (type === "key" && key) {
+        return CONFIG.hiveClient.broadcast.sendOperations(
+          [["change_recovery_account", operationBody]],
+          key
+        );
+      } else if (type === "keychain") {
+        return keychain_exports.broadcast(
+          data.name,
+          [["change_recovery_account", operationBody]],
+          "Active"
+        );
+      } else {
+        const params = {
+          callback: `https://ecency.com/@${data.name}/permissions`
+        };
+        return hs.sendOperation(
+          ["change_recovery_account", operationBody],
+          params,
+          () => {
+          }
+        );
+      }
+    },
+    onError: options.onError,
+    onSuccess: options.onSuccess
+  });
+}
+function useAccountRevokeKey(username, options) {
+  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
+  return useMutation({
+    mutationKey: ["accounts", "revoke-key", accountData?.name],
+    mutationFn: async ({ currentKey, revokingKey }) => {
+      if (!accountData) {
+        throw new Error(
+          "[SDK][Update password] \u2013 cannot update keys for anon user"
+        );
+      }
+      const prepareAuth = (keyName) => {
+        const auth = R4.clone(accountData[keyName]);
+        auth.key_auths = auth.key_auths.filter(
+          ([key]) => key !== revokingKey.toString()
+        );
+        return auth;
+      };
+      return CONFIG.hiveClient.broadcast.updateAccount(
+        {
+          account: accountData.name,
+          json_metadata: accountData.json_metadata,
+          owner: prepareAuth("owner"),
+          active: prepareAuth("active"),
+          posting: prepareAuth("posting"),
+          memo_key: accountData.memo_key
+        },
+        currentKey
+      );
+    },
+    ...options
+  });
+}
+function useSignOperationByKey(username) {
+  return useMutation({
+    mutationKey: ["operations", "sign", username],
+    mutationFn: ({
+      operation,
+      keyOrSeed
+    }) => {
+      if (!username) {
+        throw new Error("[Operations][Sign] \u2013 cannot sign op with anon user");
+      }
+      let privateKey;
+      if (keyOrSeed.split(" ").length === 12) {
+        privateKey = PrivateKey.fromLogin(username, keyOrSeed, "active");
+      } else if (cryptoUtils.isWif(keyOrSeed)) {
+        privateKey = PrivateKey.fromString(keyOrSeed);
+      } else {
+        privateKey = PrivateKey.from(keyOrSeed);
+      }
+      return CONFIG.hiveClient.broadcast.sendOperations(
+        [operation],
+        privateKey
+      );
+    }
+  });
+}
+function useSignOperationByKeychain(username, keyType = "Active") {
+  return useMutation({
+    mutationKey: ["operations", "sign-keychain", username],
+    mutationFn: ({ operation }) => {
+      if (!username) {
+        throw new Error(
+          "[SDK][Keychain] \u2013\xA0cannot sign operation with anon user"
+        );
+      }
+      return keychain_exports.broadcast(username, [operation], keyType);
+    }
+  });
+}
+function useSignOperationByHivesigner(callbackUri = "/") {
+  return useMutation({
+    mutationKey: ["operations", "sign-hivesigner", callbackUri],
+    mutationFn: async ({ operation }) => {
+      return hs.sendOperation(operation, { callback: callbackUri }, () => {
+      });
+    }
+  });
+}
+function getChainPropertiesQueryOptions() {
+  return queryOptions({
+    queryKey: ["operations", "chain-properties"],
+    queryFn: async () => {
+      return await CONFIG.hiveClient.database.getChainProperties();
+    }
+  });
+}
 function useAddFragment(username) {
   return useMutation({
     mutationKey: ["posts", "add-fragment", username],
@@ -2334,6 +2688,31 @@ function getDiscoverCurationQueryOptions(duration) {
       data.sort((a, b) => b.efficiency - a.efficiency);
       return data;
     }
+  });
+}
+function getPageStatsQueryOptions(url, dimensions = [], metrics = ["visitors", "pageviews", "visit_duration"], dateRange) {
+  return queryOptions({
+    queryKey: ["analytics", "page-stats", url, dimensions, metrics, dateRange],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(CONFIG.privateApiHost + "/api/stats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          metrics,
+          url: encodeURIComponent(url),
+          dimensions,
+          date_range: dateRange
+        }),
+        signal
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch page stats: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: !!url
   });
 }
 
@@ -3089,6 +3468,70 @@ function getOrderBookQueryOptions(limit = 500) {
     ])
   });
 }
+function getMarketStatisticsQueryOptions() {
+  return queryOptions({
+    queryKey: ["market", "statistics"],
+    queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_ticker", [])
+  });
+}
+function getMarketHistoryQueryOptions(seconds, startDate, endDate) {
+  const formatDate = (date) => {
+    return date.toISOString().replace(/\.\d{3}Z$/, "");
+  };
+  return queryOptions({
+    queryKey: ["market", "history", seconds, startDate.getTime(), endDate.getTime()],
+    queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_market_history", [
+      seconds,
+      formatDate(startDate),
+      formatDate(endDate)
+    ])
+  });
+}
+function getHiveHbdStatsQueryOptions() {
+  return queryOptions({
+    queryKey: ["market", "hive-hbd-stats"],
+    queryFn: async () => {
+      const stats = await CONFIG.hiveClient.call(
+        "condenser_api",
+        "get_ticker",
+        []
+      );
+      const now = /* @__PURE__ */ new Date();
+      const oneDayAgo = new Date(now.getTime() - 864e5);
+      const formatDate = (date) => {
+        return date.toISOString().replace(/\.\d{3}Z$/, "");
+      };
+      const dayChange = await CONFIG.hiveClient.call(
+        "condenser_api",
+        "get_market_history",
+        [86400, formatDate(oneDayAgo), formatDate(now)]
+      );
+      const result = {
+        price: +stats.latest,
+        close: dayChange[0] ? dayChange[0].non_hive.open / dayChange[0].hive.open : 0,
+        high: dayChange[0] ? dayChange[0].non_hive.high / dayChange[0].hive.high : 0,
+        low: dayChange[0] ? dayChange[0].non_hive.low / dayChange[0].hive.low : 0,
+        percent: dayChange[0] ? 100 - dayChange[0].non_hive.open / dayChange[0].hive.open * 100 / +stats.latest : 0,
+        totalFromAsset: stats.hive_volume.split(" ")[0],
+        totalToAsset: stats.hbd_volume.split(" ")[0]
+      };
+      return result;
+    }
+  });
+}
+function getMarketDataQueryOptions(coin, vsCurrency, fromTs, toTs) {
+  return queryOptions({
+    queryKey: ["market", "data", coin, vsCurrency, fromTs, toTs],
+    queryFn: async ({ signal }) => {
+      const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart/range?vs_currency=${vsCurrency}&from=${fromTs}&to=${toTs}`;
+      const response = await fetch(url, { signal });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch market data: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+}
 function getPointsQueryOptions(username, filter = 0) {
   return queryOptions({
     queryKey: ["points", username, filter],
@@ -3360,6 +3803,6 @@ function getSearchPathQueryOptions(q) {
   });
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, normalizeWaveEntryFromApi, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, toEntryArray, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

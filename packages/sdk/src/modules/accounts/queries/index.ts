@@ -16,3 +16,6 @@ export * from "./get-transactions-infinite-query-options";
 export * from "./get-bots-query-options";
 export * from "./get-referrals-infinite-query-options";
 export * from "./get-referrals-stats-query-options";
+export * from "./get-friends-infinite-query-options";
+export * from "./get-search-friends-query-options";
+export * from "./get-account-vote-history-infinite-query-options";

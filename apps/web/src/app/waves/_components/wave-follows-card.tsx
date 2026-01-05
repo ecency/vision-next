@@ -1,6 +1,8 @@
 "use client";
 
-import { getDiscoverLeaderboardQuery, useClientActiveUser } from "@/api/queries";
+import { useClientActiveUser } from "@/api/queries";
+import { getDiscoverLeaderboardQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { motion } from "framer-motion";
 import { FollowControls, ProfileLink, UserAvatar } from "@/features/shared";
@@ -11,7 +13,7 @@ import { UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { LeaderBoardItem } from "@/entities";
 
 export function WaveFollowsCard() {
-  const { data } = getDiscoverLeaderboardQuery("day").useClientQuery();
+  const { data } = useQuery(getDiscoverLeaderboardQueryOptions("day"));
   const activeUser = useClientActiveUser();
 
   const items = useMemo(() => {

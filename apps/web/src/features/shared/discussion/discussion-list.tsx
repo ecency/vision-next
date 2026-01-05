@@ -4,9 +4,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useMount, useUnmount } from "react-use";
 import { DiscussionItem } from "./discussion-item";
 import { Community, Entry, ROLES } from "@/entities";
-import { getMutedUsersQueryOptions } from "@ecency/sdk";
+import { getMutedUsersQueryOptions, getBotsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import {getBotsQuery, useClientActiveUser} from "@/api/queries";
+import { useClientActiveUser } from "@/api/queries";
 import i18next from "i18next";
 import { htmlPositionManager } from "@/utils/html-position-manager";
 
@@ -33,7 +33,7 @@ export function DiscussionList({
 
     const location = useLocation();
     const { data: mutedUsers = [] } = useQuery(getMutedUsersQueryOptions(activeUser?.username));
-    const { data: botsList = [] } = getBotsQuery().useClientQuery();
+    const { data: botsList = [] } = useQuery(getBotsQueryOptions());
 
     const canMute = useMemo(() => {
         return !!activeUser && !!community &&
