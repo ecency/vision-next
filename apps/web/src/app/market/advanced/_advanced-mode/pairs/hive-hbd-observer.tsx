@@ -4,8 +4,7 @@ import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
 import useInterval from "react-use/lib/useInterval";
 import { getCGMarket } from "@/api/coingecko-api";
 import { MarketAsset } from "@/api/market-pair";
-import { getHiveHbdStatsQuery } from "@/api/queries";
-import { getOpenOrdersQueryOptions, getOrderBookQueryOptions, getTransactionsInfiniteQueryOptions } from "@ecency/sdk";
+import { getHiveHbdStatsQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getTransactionsInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import useMount from "react-use/lib/useMount";
 import { useActiveAccount } from "@/core/hooks";
@@ -37,7 +36,7 @@ export const HiveHbdObserver = ({
     50,
     "market-orders"
   ));
-  const { data: allStats, refetch: reFetchAllStats } = getHiveHbdStatsQuery().useClientQuery();
+  const { data: allStats, refetch: reFetchAllStats } = useQuery(getHiveHbdStatsQueryOptions());
   const { data: orderBook, refetch: reFetchOrderBook } = useQuery(getOrderBookQueryOptions(100));
   const { data: openOrders, refetch: reFetchOpenOrders } = useQuery(getOpenOrdersQueryOptions(
     activeUsername ?? ""

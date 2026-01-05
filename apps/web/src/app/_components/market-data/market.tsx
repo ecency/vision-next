@@ -5,7 +5,8 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { Theme } from "@/enums";
 import { useGlobalStore } from "@/core/global-store";
-import { getMarketDataQuery } from "@/api/queries";
+import { getMarketDataQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 
 interface Price {
@@ -26,7 +27,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
   const theme = useGlobalStore((s) => s.theme);
   const nodeRef = useRef<HTMLDivElement>(null);
 
-  const { data } = getMarketDataQuery(coin, vsCurrency, fromTs, toTs).useClientQuery();
+  const { data } = useQuery(getMarketDataQueryOptions(coin, vsCurrency, fromTs, toTs));
   const prices = useMemo(
     () => (data?.prices?.map((x: any) => ({ time: x[0], price: x[1] })) as Price[]) ?? [],
     [data]
