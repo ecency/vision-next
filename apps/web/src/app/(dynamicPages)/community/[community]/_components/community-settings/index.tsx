@@ -1,5 +1,5 @@
 import { useUpdateCommunity } from "@/api/mutations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Community } from "@/entities";
 import { normalizeBeneficiaryWeight } from "@/utils";
 import { getAccountFullQueryOptions, useAccountUpdate } from "@ecency/sdk";
@@ -37,7 +37,7 @@ const form = yup.object({
 });
 
 export function CommunitySettingsDialog({ onHide, community }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const router = useRouter();
   const methods = useForm({

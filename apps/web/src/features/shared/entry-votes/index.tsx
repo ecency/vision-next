@@ -9,7 +9,7 @@ import { heartSvg } from "@ui/svg";
 import usePrevious from "react-use/lib/usePrevious";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryVotesDialog } from "@/features/shared/entry-votes/entry-votes-dialog";
-import {useClientActiveUser} from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
@@ -23,7 +23,7 @@ export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Pro
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
   const previousEntry = usePrevious(entry);
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const [visible, setVisible] = useState(false);
 

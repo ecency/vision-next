@@ -4,7 +4,7 @@ import { MessageNoData } from "@/features/shared";
 import i18next from "i18next";
 import { isCommunity } from "@/utils";
 import React from "react";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   section: string;
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function EntryListContentNoData({ username, section, loading }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isMyProfile =
     !!activeUser && username.includes("@") && activeUser.username === username.replace("@", "");
 

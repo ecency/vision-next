@@ -7,7 +7,7 @@ import i18next from "i18next";
 import { Button, FormControl } from "@/features/ui";
 import { motion } from "framer-motion";
 import { withdrawVestingRouteHive } from "@ecency/wallets";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 // Define schema outside the component to prevent recreation on each render
 const schema = yup.object({
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const methods = useForm<WithdrawRoutesFormData>({
     resolver: yupResolver(schema),
     defaultValues: {

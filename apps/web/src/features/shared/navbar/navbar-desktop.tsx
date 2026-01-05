@@ -14,8 +14,9 @@ import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { useState } from "react";
 import { NavbarTextMenu } from "./navbar-text-menu";
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   step?: number;
@@ -35,7 +36,7 @@ export function NavbarDesktop({
   setMainBarExpanded,
   experimental = false
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);

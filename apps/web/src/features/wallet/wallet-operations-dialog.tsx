@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { AssetOperation } from "@ecency/wallets";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
@@ -34,7 +34,7 @@ export function WalletOperationsDialog({
   initialData: initialDataProp,
   ...divProps
 }: PropsWithChildren<Props> & HTMLProps<HTMLDivElement>) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const [show, setShow] = useState(false);
   const [step, setStep] = useState<"form" | "sign" | "success" | "error">("form");
   const initialData = useMemo(() => initialDataProp ?? {}, [initialDataProp]);

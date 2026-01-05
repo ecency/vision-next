@@ -1781,8 +1781,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions73 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions73);
+  const queryOptions76 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions76);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -3823,6 +3823,75 @@ function getSearchPathQueryOptions(q) {
     }
   });
 }
+function getBoostPlusPricesQueryOptions(accessToken) {
+  return reactQuery.queryOptions({
+    queryKey: ["promotions", "boost-plus-prices"],
+    queryFn: async () => {
+      if (!accessToken) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/boost-plus-price", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: accessToken })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch boost plus prices: ${response.status}`);
+      }
+      return await response.json();
+    },
+    staleTime: Infinity,
+    refetchOnMount: true,
+    enabled: !!accessToken
+  });
+}
+function getPromotePriceQueryOptions(accessToken) {
+  return reactQuery.queryOptions({
+    queryKey: ["promotions", "promote-price"],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/promote-price", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: accessToken })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch promote prices: ${response.status}`);
+      }
+      return await response.json();
+    },
+    enabled: !!accessToken
+  });
+}
+function getBoostPlusAccountPricesQueryOptions(account, accessToken) {
+  return reactQuery.queryOptions({
+    queryKey: ["promotions", "boost-plus-accounts", account],
+    queryFn: async () => {
+      if (!accessToken || !account) {
+        return null;
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/boosted-plus-account", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: accessToken, account })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch boost plus account prices: ${response.status}`);
+      }
+      const responseData = await response.json();
+      return responseData ? {
+        account: responseData.account,
+        expires: new Date(responseData.expires)
+      } : null;
+    },
+    enabled: !!account && !!accessToken
+  });
+}
 
 exports.ACCOUNT_OPERATION_GROUPS = ACCOUNT_OPERATION_GROUPS;
 exports.ALL_ACCOUNT_OPERATIONS = ALL_ACCOUNT_OPERATIONS;
@@ -3859,6 +3928,8 @@ exports.getAccountsQueryOptions = getAccountsQueryOptions;
 exports.getActiveAccountBookmarksQueryOptions = getActiveAccountBookmarksQueryOptions;
 exports.getActiveAccountFavouritesQueryOptions = getActiveAccountFavouritesQueryOptions;
 exports.getAnnouncementsQueryOptions = getAnnouncementsQueryOptions;
+exports.getBoostPlusAccountPricesQueryOptions = getBoostPlusAccountPricesQueryOptions;
+exports.getBoostPlusPricesQueryOptions = getBoostPlusPricesQueryOptions;
 exports.getBotsQueryOptions = getBotsQueryOptions;
 exports.getBoundFetch = getBoundFetch;
 exports.getChainPropertiesQueryOptions = getChainPropertiesQueryOptions;
@@ -3905,6 +3976,7 @@ exports.getPostQueryOptions = getPostQueryOptions;
 exports.getPostTipsQueryOptions = getPostTipsQueryOptions;
 exports.getPostingKey = getPostingKey;
 exports.getPostsRankedInfiniteQueryOptions = getPostsRankedInfiniteQueryOptions;
+exports.getPromotePriceQueryOptions = getPromotePriceQueryOptions;
 exports.getPromotedPostsQuery = getPromotedPostsQuery;
 exports.getProposalQueryOptions = getProposalQueryOptions;
 exports.getProposalVotesInfiniteQueryOptions = getProposalVotesInfiniteQueryOptions;

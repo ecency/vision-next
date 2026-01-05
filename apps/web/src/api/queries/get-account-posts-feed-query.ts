@@ -1,12 +1,37 @@
 import { getAccountPostsInfiniteQueryOptions, getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
-import { getPromotedEntriesInfiniteQuery } from "@/api/queries/get-promoted-entries-query";
-import { prefetchInfiniteQuery, getInfiniteQueryData } from "@/core/react-query";
-import { InfiniteData, UseInfiniteQueryResult, useInfiniteQuery } from "@tanstack/react-query";
+import { prefetchInfiniteQuery, getInfiniteQueryData, QueryIdentifiers } from "@/core/react-query";
+import { InfiniteData, UseInfiniteQueryResult, useInfiniteQuery, infiniteQueryOptions } from "@tanstack/react-query";
 import { Entry, SearchResponse } from "@/entities";
+import { appAxios } from "@/api/axios";
+import { apiBase } from "@/api/helper";
 
 // Unify all branches on a single page type
 type Page = Entry[] | SearchResponse;
 type FeedInfinite = InfiniteData<Page, unknown>;
+
+// Helper function to create promoted entries infinite query
+// This wraps the SDK query in an infinite query shape for feed compatibility
+type PromotedPage = Entry[];
+type PromotedCursor = "empty" | "fetched";
+
+function getPromotedEntriesInfiniteQuery() {
+  return infiniteQueryOptions({
+    queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "infinite"],
+    initialPageParam: "empty" as PromotedCursor,
+    queryFn: async ({ pageParam }: { pageParam: PromotedCursor }) => {
+      if (pageParam === "fetched") return [];
+      const response = await appAxios.get<Entry[]>(
+        apiBase(`/private-api/promoted-entries`)
+      );
+      return response.data;
+    },
+    getNextPageParam: (
+      _lastPage: PromotedPage,
+      _allPages: PromotedPage[],
+      _lastPageParam: PromotedCursor
+    ): PromotedCursor => "fetched"
+  });
+}
 
 export async function prefetchGetPostsFeedQuery(
     what: string,

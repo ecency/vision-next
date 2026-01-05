@@ -1,10 +1,10 @@
 import { cloneElement, PropsWithChildren, ReactElement } from "react";
 import { useGlobalStore } from "@/core/global-store";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@ui/button";
 
 export function LoginRequired({ children }: PropsWithChildren) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
 
   if (activeUser) {

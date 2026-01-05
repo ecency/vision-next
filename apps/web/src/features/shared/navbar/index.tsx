@@ -11,7 +11,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Theme } from "@/enums";
 import { LoginDialog, NotificationsDialog } from "@/features/shared";
 import { classNameObject } from "@ui/util";
-import { useClientActiveUser, useClientTheme } from "@/api/queries";
+import { useClientTheme } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   step?: number;
@@ -21,7 +22,7 @@ interface Props {
 }
 
 export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const [theme, toggleTheme] = useClientTheme();
 
   const router = useRouter();

@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import { getSearchAccountsByUsernameQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export const SearchByUsername = ({ setUsername, excludeActiveUser, username }: Props) => {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const rootRef = useRef<HTMLDivElement>(null);
 

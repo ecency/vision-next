@@ -15,3 +15,4 @@ export * from "./modules/witnesses";
 export * from "./modules/market";
 export * from "./modules/points";
 export * from "./modules/search";
+export * from "./modules/promotions";

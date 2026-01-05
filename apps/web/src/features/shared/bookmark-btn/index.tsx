@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
 import {
   getActiveAccountBookmarksQueryOptions,
@@ -22,7 +22,7 @@ export interface Props {
 }
 
 export function BookmarkBtn({ entry }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: bookmarks = [] } = useQuery(
     getActiveAccountBookmarksQueryOptions(activeUser?.username)

@@ -6,8 +6,8 @@ import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-import { useClientActiveUser } from "@/api/queries";
 import { WalletOperationsDialog } from "@/features/wallet";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@/features/ui";
 import { dateToFullRelative, formatNumber } from "@/utils";
 import { getPowerDownSchedule } from "@/features/wallet/operations/get-power-down-schedule";
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function HpAboutCard({ username }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 

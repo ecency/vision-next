@@ -4,10 +4,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useMattermostBootstrap } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
 
 export function CommunityChannelClient() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const params = useParams<{ id: string }>();
   const router = useRouter();

@@ -1,8 +1,8 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
 import { getDiscoverLeaderboardQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import { motion } from "framer-motion";
 import { FollowControls, ProfileLink, UserAvatar } from "@/features/shared";
@@ -14,7 +14,7 @@ import { LeaderBoardItem } from "@/entities";
 
 export function WaveFollowsCard() {
   const { data } = useQuery(getDiscoverLeaderboardQueryOptions("day"));
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const items = useMemo(() => {
     if (!data) {

@@ -1,3 +1,2 @@
-export * from "./get-waves-by-host-query";
-export * from "./get-waves-by-tag-query";
-export * from "./get-waves-following-query";
+// This directory contains no query wrappers.
+// Waves queries are now used directly from @ecency/sdk

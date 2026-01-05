@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -14,7 +14,7 @@ import { Button } from "@ui/button";
 import Link from "next/link";
 
 export function WavesProfileCard() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
 
   const { data, isLoading } = useQuery(getAccountFullQueryOptions(activeUser?.username));

@@ -2,7 +2,7 @@
 
 import { claimRewards } from "@/api/hive-engine";
 import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
@@ -41,7 +41,7 @@ export function useHiveEngineClaimRewardsState(
   tokenSymbol?: string,
   enabled = true
 ): HiveEngineClaimRewardsState {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const sanitizedTokenSymbol = tokenSymbol?.toUpperCase();
   const sanitizedUsername =

@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
 import { FavouriteItem } from "@/features/shared/bookmarks/favourite-item";
 import { getActiveAccountFavouritesQueryOptions } from "@ecency/sdk";
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function FavouritesList({ onHide }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data, isLoading } = useQuery({
     ...getActiveAccountFavouritesQueryOptions(activeUser?.username),

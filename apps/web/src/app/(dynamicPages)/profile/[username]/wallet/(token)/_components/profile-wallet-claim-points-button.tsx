@@ -1,7 +1,7 @@
 "use client";
 
 import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getPointsQueryOptions, useClaimPoints } from "@ecency/wallets";
@@ -30,7 +30,7 @@ export function useProfileWalletPointsClaimState(
   username: string,
   enabled = true
 ): ClaimState {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isOwnProfile = activeUser?.username === username;
 
   const { data: pointsData } = useQuery({
@@ -69,7 +69,7 @@ export function ProfileWalletClaimPointsButton({
   className,
   showIcon = false,
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { formattedPendingPoints, hasPendingPoints, canClaim } =
     useProfileWalletPointsClaimState(username);
 

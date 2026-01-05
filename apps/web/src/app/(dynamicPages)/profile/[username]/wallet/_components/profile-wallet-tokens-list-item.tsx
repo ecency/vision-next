@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { getTokenLogo, WalletOperationsDialog } from "@/features/wallet";
@@ -54,7 +54,7 @@ interface Props {
 }
 
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const sanitizedUsername = useMemo(
     () => sanitizeWalletUsername(username),
     [username]

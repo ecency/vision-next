@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Followers, Following } from "@/app/(dynamicPages)/profile/[username]/_components/friends";
 import { FollowControls, UserAvatar } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +18,7 @@ interface Props {
 
 export function WaveAuthorCard({ username }: Props) {
   const sanitizedUsername = useMemo(() => username?.replace(/^@/, "") ?? "", [username]);
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data, isLoading } = useQuery(getAccountFullQueryOptions(sanitizedUsername));
 

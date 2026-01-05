@@ -2,7 +2,7 @@
 
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
@@ -32,7 +32,7 @@ export function useProfileWalletHpClaimState(
   username: string,
   enabled = true
 ): ClaimState {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isOwnProfile = activeUser?.username === username;
 
   const { data: accountData } = useQuery({

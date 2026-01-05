@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommentEngagement } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/comment-engagement";
 import { EcencyConfigManager } from "@/config";
 import { EcencyEntriesCacheManagement, getCommunityCache } from "@/core/caches";
@@ -26,7 +26,7 @@ function isCommunityEntity(x: unknown): x is Community {
 
 export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
   const params = useSearchParams();
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: entryRaw } =
       EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();

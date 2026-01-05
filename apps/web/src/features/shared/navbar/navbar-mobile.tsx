@@ -1,7 +1,8 @@
 "use client";
 
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { UserAvatar, preloadLoginDialog } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
@@ -31,7 +32,7 @@ export function NavbarMobile({
   mainBarExpanded,
   setMainBarExpanded
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));

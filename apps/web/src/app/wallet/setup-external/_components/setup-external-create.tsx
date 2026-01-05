@@ -1,7 +1,7 @@
 "use client";
 
 import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, KeyOrHot, Stepper } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { WalletSeedPhrase, WalletTokenAddressItem } from "@/features/wallet";
@@ -72,7 +72,7 @@ const TOKENS = [
 ];
 
 export function SetupExternalCreate({ onBack }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState<"seed" | "tokens" | "create" | "success" | "sign">("seed");
 

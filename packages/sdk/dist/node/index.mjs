@@ -1756,8 +1756,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions73 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions73);
+  const queryOptions76 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions76);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -3798,7 +3798,76 @@ function getSearchPathQueryOptions(q) {
     }
   });
 }
+function getBoostPlusPricesQueryOptions(accessToken) {
+  return queryOptions({
+    queryKey: ["promotions", "boost-plus-prices"],
+    queryFn: async () => {
+      if (!accessToken) {
+        return [];
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/boost-plus-price", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: accessToken })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch boost plus prices: ${response.status}`);
+      }
+      return await response.json();
+    },
+    staleTime: Infinity,
+    refetchOnMount: true,
+    enabled: !!accessToken
+  });
+}
+function getPromotePriceQueryOptions(accessToken) {
+  return queryOptions({
+    queryKey: ["promotions", "promote-price"],
+    queryFn: async () => {
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/promote-price", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: accessToken })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch promote prices: ${response.status}`);
+      }
+      return await response.json();
+    },
+    enabled: !!accessToken
+  });
+}
+function getBoostPlusAccountPricesQueryOptions(account, accessToken) {
+  return queryOptions({
+    queryKey: ["promotions", "boost-plus-accounts", account],
+    queryFn: async () => {
+      if (!accessToken || !account) {
+        return null;
+      }
+      const response = await fetch(CONFIG.privateApiHost + "/private-api/boosted-plus-account", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: accessToken, account })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch boost plus account prices: ${response.status}`);
+      }
+      const responseData = await response.json();
+      return responseData ? {
+        account: responseData.account,
+        expires: new Date(responseData.expires)
+      } : null;
+    },
+    enabled: !!account && !!accessToken
+  });
+}
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, normalizeWaveEntryFromApi, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, toEntryArray, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotePriceQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, normalizeWaveEntryFromApi, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, toEntryArray, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

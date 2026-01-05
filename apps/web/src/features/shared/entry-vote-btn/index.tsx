@@ -14,7 +14,7 @@ import { prepareVotes } from "@/features/shared/entry-vote-btn/utils";
 import { classNameObject } from "@ui/util";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { AnimatePresence, motion } from "framer-motion";
-import {useClientActiveUser} from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   entry: Entry;
@@ -25,7 +25,7 @@ interface Props {
 export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Props) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: entry } =
     EcencyEntriesCacheManagement.getEntryQuery(originalEntry).useClientQuery();

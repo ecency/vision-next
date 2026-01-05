@@ -23,7 +23,7 @@ import Image from "next/image";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
 import { EcencyConfigManager } from "@/config";
 import defaults from "@/defaults";
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
 
 interface Props {
@@ -34,7 +34,7 @@ interface Props {
 
 export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
   const router = useRouter();
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
 
