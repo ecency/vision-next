@@ -18,7 +18,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { withFeatureFlag } from "@/core/react-query";
 import { getDynamicPropsQueryOptions, getPointsQueryOptions } from "@ecency/sdk";
-import { getSpkWalletQueryOptions } from "@ecency/wallets";
+import { getSpkWalletQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getAllHiveEngineTokensQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
@@ -29,7 +29,6 @@ import { amountFormatCheck } from "@/utils/amount-format-check";
 import { cryptoUtils } from "@hiveio/dhive";
 import { EcencyConfigManager } from "@/config";
 import { TransferStep1To } from "@/features/shared/transfer/transfer-step-1-to";
-import { useGetHiveEngineBalancesQuery } from "@/api/queries/engine";
 
 interface Props {
   titleLngKey: string;
@@ -66,8 +65,9 @@ export function TransferStep1({ titleLngKey }: Props) {
   );
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const { data: spkWallet } = useQuery(getSpkWalletQueryOptions(activeUser?.username));
-  const { data: engineBalances } = useGetHiveEngineBalancesQuery(
-    activeUser?.username
+  const { data: allTokens } = useQuery(getAllHiveEngineTokensQueryOptions());
+  const { data: engineBalances } = useQuery(
+    getHiveEngineBalancesWithUsdQueryOptions(activeUser?.username ?? "", dynamicProps, allTokens)
   );
   const { toWarning, toData, delegatedAmount, toError, delegateAccount, externalWallets } =
     useDebounceTransferAccountData();
