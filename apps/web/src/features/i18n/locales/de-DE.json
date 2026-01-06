@@ -1815,7 +1815,7 @@
     "checkins-title": "Großartige Strähne auf @{{username}}",
     "payouts-title": "Sie haben eine Auszahlung auf @{{username}} erhalten",
     "monthly-posts-title": "Beende den Monat stark, @{{username}}",
-    "spin-str": "Zeit mehr Punkte zu sammeln, Spin spielen!",
+    "spin-str": "Zeit, um mehr Punkte zu verdienen, spiele Spin in der Ecency Mobile-App",
     "inactive-str": "Sei aktiv! Schreibe einen Beitrag und verdiene weiter",
     "referral-str": "mit Empfehlung beigetreten, willkommen",
     "refresh": "Aktualisieren",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "Du kannst nur einmal alle fünf Minuten posten.",
     "identical-vote": "Ihre aktuelle Abstimmung über diesen Inhalt ist identisch mit dieser Abstimmung.",
-    "must-claim": "Ausstehende Belohnungen bereits abgeholt.",
+    "must-claim": "Kein beanspruchender Saldo oder bereits beansprucht.",
     "insufficient-resource": "Unzureichende Ressourcen-Credits.",
     "delete-comment-with-vote": "Ein Inhalt mit positiven ausstehenden Belohnungen kann nicht gelöscht werden.",
     "comment-cashout": "Inhalt nach der Auszahlung kann nicht gelöscht werden.",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "Überweisung",
-      "transfer-saving": "Spareinlage",
+      "transfer-saving": "An Einsparungen",
       "power-up": "Hochfahren",
       "power-down": "Strom runter",
       "swap": "Tausch",
