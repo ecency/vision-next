@@ -1,4 +1,5 @@
-import { getDiscussionsQuery } from "@/api/queries";
+import { getDiscussionsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Entry } from "@/entities";
 
@@ -8,7 +9,7 @@ import { Entry } from "@/entities";
  * @param entry
  */
 export function useEntryDiscussionsList(entry: Entry) {
-  const { data } = getDiscussionsQuery(entry).useClientQuery();
+  const { data } = useQuery(getDiscussionsQueryOptions(entry));
 
   return useMemo(
     () =>

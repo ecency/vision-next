@@ -21,6 +21,7 @@ import { Tooltip } from "@ui/tooltip";
 import { pinSvg } from "@ui/svg";
 import useMount from "react-use/lib/useMount";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 
 export interface SearchItemProps {
   avatar: string;
@@ -60,7 +61,7 @@ export const SearchListItem = ({
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
   const ref = useRef<HTMLDivElement | null>(null);
   const { inViewport } = useInViewport(ref);
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
 
   const router = useRouter();
 

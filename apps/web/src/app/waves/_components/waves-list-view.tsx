@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  getWavesByHostQuery,
-  getWavesByTagQuery,
-  getWavesFollowingQuery
-} from "@/api/queries";
+  getWavesByHostQueryOptions,
+  getWavesByTagQueryOptions,
+  getWavesFollowingQueryOptions
+} from "@ecency/sdk";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { DetectBottom } from "@/features/shared";
 import { WavesListLoader } from "@/app/waves/_components/waves-list-loader";
@@ -14,7 +14,7 @@ import { useWavesAutoRefresh } from "@/app/waves/_hooks";
 import { WavesRefreshPopup } from "@/app/waves/_components";
 import { WavesFastReplyDialog } from "@/app/waves/_components/waves-fast-reply-dialog";
 import { WaveEntry } from "@/entities";
-import { InfiniteData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { InfiniteData, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
 import {
   WAVES_FEED_SCROLL_STORAGE_KEY,
@@ -37,19 +37,19 @@ interface Props {
 export function WavesListView({ host, feedType, username }: Props) {
   const { selectedTag } = useWavesTagFilter();
   const tag = feedType === "for-you" ? selectedTag : null;
-  const query = useMemo(() => {
+  const queryOptions = useMemo(() => {
     if (tag) {
-      return getWavesByTagQuery(host, tag);
+      return getWavesByTagQueryOptions(host, tag);
     }
 
     if (feedType === "following") {
-      return getWavesFollowingQuery(host, username);
+      return getWavesFollowingQueryOptions(host, username);
     }
 
-    return getWavesByHostQuery(host);
+    return getWavesByHostQueryOptions(host);
   }, [feedType, host, tag, username]);
 
-  const { data, fetchNextPage, isError, error, hasNextPage, refetch } = query.useClientQuery();
+  const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery(queryOptions);
   const previousErrorMessage = useRef<string>();
 
   useEffect(() => {

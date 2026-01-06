@@ -1,7 +1,7 @@
 "use client";
 
 import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, KeyOrHot, success } from "@/features/shared";
 import {
   getAccountFullQueryOptions,
@@ -38,7 +38,7 @@ const schema = yup.object({
 });
 
 export function AccountRecovery() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data } = useQuery(getAccountFullQueryOptions(activeUser?.username));
   const { data: recoveries } = useQuery(getAccountRecoveriesQueryOptions(activeUser?.username));

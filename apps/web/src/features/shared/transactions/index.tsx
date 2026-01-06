@@ -8,9 +8,10 @@ import { TransactionRow } from "@/features/shared/transactions/transaction-row";
 import i18next from "i18next";
 import { LinearProgress } from "@/features/shared";
 import { OperationGroup } from "@/consts";
-import { getTransactionsQuery } from "@/api/queries";
+import { getTransactionsInfiniteQueryOptions } from "@ecency/sdk";
 import { Account } from "@/entities";
 import useMount from "react-use/lib/useMount";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 export * from "./transaction-row";
 
@@ -27,7 +28,7 @@ export const TransactionsList = ({ account }: Props) => {
     isLoading,
     fetchNextPage,
     refetch
-  } = getTransactionsQuery(account.name, 20, group).useClientQuery();
+  } = useInfiniteQuery(getTransactionsInfiniteQueryOptions(account.name, 20, group));
   const transactionsFlow = useMemo(
     () => transactionsList?.pages?.reduce((acc, page) => [...acc, ...page], []) ?? [],
     [transactionsList?.pages]

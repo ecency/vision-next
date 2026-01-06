@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button, StyledTooltip } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function ManageKey({ keyName }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: accountData } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username!),

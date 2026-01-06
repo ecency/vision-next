@@ -1,9 +1,10 @@
 import { ProfileEntriesList, ProfileSearchContent } from "./_components";
-import { getAccountFullQuery, getSearchApiQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
+import { prefetchGetPostsFeedQuery } from "@/api/queries";
+import { prefetchQuery, getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { Entry, SearchResult } from "@/entities";
@@ -27,22 +28,24 @@ export default async function Page({ params, searchParams }: Props) {
   const username = usernameParam.replace("%40", "");
   const { query: searchParam } = await searchParams;
 
-  const account = await getAccountFullQuery(username).prefetch();
+  const account = await prefetchQuery(getAccountFullQueryOptions(username));
 
-  await EcencyEntriesCacheManagement.getEntryQueryByPath(
+  await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
     username,
     account?.profile.pinned
-  ).prefetch();
+  ));
 
   let searchData: SearchResult[] | undefined = undefined;
   let initialFeed: InfiniteData<Entry[], unknown> | undefined;
 
   if (searchParam && searchParam !== "") {
-    const searchPages = await getSearchApiQuery(
-      `${searchParam} author:${username} type:post`,
-      "newest",
-      false
-    ).prefetch();
+    const searchPages = await getQueryClient().fetchInfiniteQuery(
+      getSearchApiInfiniteQueryOptions(
+        `${searchParam} author:${username} type:post`,
+        "newest",
+        false
+      )
+    );
     if (searchPages?.pages?.[0]?.results) {
       searchData = searchPages.pages[0].results.sort(
         (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)

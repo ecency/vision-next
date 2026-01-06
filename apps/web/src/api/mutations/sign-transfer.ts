@@ -37,8 +37,10 @@ import {
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
 import { error, TransferAsset, TransferMode } from "@/features/shared";
 import { PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { TxResponse } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 import {
   sendLarynxByHs,
   sendSpkByHs,
@@ -50,7 +52,7 @@ import {
 
 // Helper to safely read hivePerMVests with a typed fallback
 const useHivePerMVests = () => {
-  const { data } = (getDynamicPropsQuery().useClientQuery() as UseQueryResult<
+  const { data } = (useQuery(getDynamicPropsQueryOptions()) as UseQueryResult<
       typeof DEFAULT_DYNAMIC_PROPS,
       Error
   >);

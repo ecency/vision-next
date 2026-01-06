@@ -4,13 +4,11 @@ import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getAccountFullQuery,
-  getDynamicPropsQuery,
-  getVestingDelegationsQuery
-} from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions, getVestingDelegationsQueryOptions } from "@ecency/sdk";
 import { useDebounce } from "react-use";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 
@@ -23,17 +21,22 @@ export function useDebounceTransferAccountData() {
   const [vestingDelegationUsername, setVestingDelegationUsername] = useState<string>();
   const [toWarning, setToWarning] = useState<string>();
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const {
     data: toData,
     error: toError,
     isLoading: toLoading
-  } = getAccountFullQuery(toDebounce).useClientQuery();
+  } = useQuery(getAccountFullQueryOptions(toDebounce));
   const {
-    data: vestingDelegations,
+    data: vestingDelegationsData,
     error: vestingDelegationsError,
     isLoading: vestingLoading
-  } = getVestingDelegationsQuery(vestingDelegationUsername, to, 1000).useClientQuery();
+  } = useInfiniteQuery(getVestingDelegationsQueryOptions(vestingDelegationUsername, to, 1000));
+
+  const vestingDelegations = useMemo(
+    () => vestingDelegationsData?.pages?.reduce((acc, page) => [...acc, ...page], []) ?? [],
+    [vestingDelegationsData?.pages]
+  );
 
   const [delegatedAmount, amount, delegateAccount] = useMemo(() => {
     const delegateAccount =

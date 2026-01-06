@@ -6,6 +6,7 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { WaveEntry } from "@/entities";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: WaveEntry;
@@ -20,7 +21,7 @@ export const DeckThreadItemViewerReply = ({
   parentEntry,
   incrementParentEntryCount
 }: Props) => {
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);
   const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount(entry);
 

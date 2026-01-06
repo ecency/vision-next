@@ -11,8 +11,10 @@ import { linkSvg } from "@ui/svg";
 import Link from "next/link";
 import { parseAsset } from "@/utils";
 import { ProposalVoteBtn, ProposalVotes } from "@/app/proposals/_components";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { Badge } from "@ui/badge";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   proposal: Proposal;
@@ -28,7 +30,7 @@ export function ProposalListItem({
   votedByViewer = false
 }: Props) {
   const [show, setShow] = useState(false);
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const startDate = dayjs(proposal.start_date);
   const endDate = dayjs(proposal.end_date);

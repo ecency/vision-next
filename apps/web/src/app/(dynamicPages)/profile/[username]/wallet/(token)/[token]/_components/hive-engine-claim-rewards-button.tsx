@@ -1,18 +1,18 @@
 "use client";
 
-import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
-import { useHiveEngineUnclaimedRewardsQuery } from "@/api/queries/engine";
 import { claimRewards } from "@/api/hive-engine";
+import { formatError } from "@/api/operations";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { formattedNumber } from "@/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
+import { getHiveEngineUnclaimedRewardsQueryOptions } from "@ecency/wallets";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 
 type PendingAmountInfo = {
@@ -41,7 +41,7 @@ export function useHiveEngineClaimRewardsState(
   tokenSymbol?: string,
   enabled = true
 ): HiveEngineClaimRewardsState {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const sanitizedTokenSymbol = tokenSymbol?.toUpperCase();
   const sanitizedUsername =
@@ -52,8 +52,10 @@ export function useHiveEngineClaimRewardsState(
     Boolean(sanitizedUsername) &&
     activeUser?.username === sanitizedUsername;
 
-  const { data: unclaimedRewards } = useHiveEngineUnclaimedRewardsQuery(
-    shouldQuery && sanitizedUsername ? sanitizedUsername : undefined
+  const { data: unclaimedRewards } = useQuery(
+    getHiveEngineUnclaimedRewardsQueryOptions(
+      shouldQuery && sanitizedUsername ? sanitizedUsername : undefined
+    )
   );
 
   const pendingReward = useMemo(
@@ -160,30 +162,16 @@ export function HiveEngineClaimRewardsButton({
 
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: [
-            QueryIdentifiers.HIVE_ENGINE_UNCLAIMED_REWARDS,
-            cleanUsername
-          ]
+          queryKey: ["assets", "hive-engine", "unclaimed", cleanUsername]
         }),
         queryClient.invalidateQueries({
           queryKey: ["assets", "hive-engine", "balances", cleanUsername]
         }),
         queryClient.invalidateQueries({
-          queryKey: [
-            "assets",
-            "hive-engine",
-            tokenSymbol,
-            "transactions",
-            cleanUsername
-          ]
+          queryKey: ["assets", "hive-engine", tokenSymbol, "transactions", cleanUsername]
         }),
         queryClient.invalidateQueries({
-          queryKey: [
-            "ecency-wallets",
-            "asset-info",
-            cleanUsername,
-            tokenSymbol
-          ]
+          queryKey: ["ecency-wallets", "asset-info", cleanUsername, tokenSymbol]
         })
       ]);
     },
@@ -219,4 +207,3 @@ export function HiveEngineClaimRewardsButton({
     </Button>
   );
 }
-

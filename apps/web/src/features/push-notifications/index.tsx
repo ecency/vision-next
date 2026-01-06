@@ -1,18 +1,21 @@
 "use client";
 
-import {PropsWithChildren, useCallback, useEffect, useRef} from "react";
+import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
+import { useUpdateNotificationsSettings } from "@/api/mutations";
+import { NotificationsWebSocket } from "@/api/notifications-ws-api";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
-import { isSupported, MessagePayload } from "@firebase/messaging";
-import { getFcmToken, initFirebase, listenFCM } from "@/api/firebase";
-import * as ls from "@/utils/local-storage";
-import { useNotificationsSettingsQuery, useNotificationUnreadCountQuery } from "@/api/queries";
+import { ALL_NOTIFY_TYPES } from "@/enums";
 import { playNotificationSound } from "@/utils";
-import { useUpdateNotificationsSettings } from "@/api/mutations";
+import * as ls from "@/utils/local-storage";
+import {
+  getNotificationsSettingsQueryOptions,
+  getNotificationsUnreadCountQueryOptions
+} from "@ecency/sdk";
+import { isSupported, MessagePayload } from "@firebase/messaging";
+import { useQuery } from "@tanstack/react-query";
+import { PropsWithChildren, useCallback, useEffect, useRef } from "react";
 import usePrevious from "react-use/lib/usePrevious";
-import {NotificationsWebSocket} from "@/api/notifications-ws-api";
-import {ALL_NOTIFY_TYPES} from "@/enums";
-
 
 export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const { activeUser } = useActiveAccount();
@@ -20,8 +23,12 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const wsRef = useRef(new NotificationsWebSocket());
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
 
-  const notificationsSettingsQuery = useNotificationsSettingsQuery();
-  const notificationUnreadCountQuery = useNotificationUnreadCountQuery();
+  const notificationsSettingsQuery = useQuery(
+    getNotificationsSettingsQueryOptions(activeUser?.username)
+  );
+  const notificationUnreadCountQuery = useQuery(
+    getNotificationsUnreadCountQueryOptions(activeUser?.username)
+  );
   const updateNotificationsSettings = useUpdateNotificationsSettings();
 
   const init = useCallback(
@@ -69,18 +76,14 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
         settingsData = await updateNotificationsSettings.mutateAsync({
           notifyTypes: isMissingSettings
             ? [...ALL_NOTIFY_TYPES]
-            : settingsData?.notify_types ?? [],
-          isEnabled: isMissingSettings
-            ? true
-            : Boolean(settingsData?.allows_notify)
+            : (settingsData?.notify_types ?? []),
+          isEnabled: isMissingSettings ? true : Boolean(settingsData?.allows_notify)
         });
       }
 
       if (isFbMessagingSupported && permission === "granted") {
         listenFCM((payload: MessagePayload) => {
-          const notifyType = wsRef.current.getNotificationType(
-            payload.data?.type ?? ""
-          );
+          const notifyType = wsRef.current.getNotificationType(payload.data?.type ?? "");
           const allowed =
             typeof notifyType === "number" && notificationsSettingsQuery.data?.notify_types
               ? notificationsSettingsQuery.data.notify_types.includes(notifyType)
@@ -93,12 +96,12 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
       } else {
         const hasUi = permission !== "granted";
         await wsRef.current
-            .withActiveUser(activeUser)
-            .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
-            .setHasNotifications(true)
-            .setHasUiNotifications(hasUi)
-            .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
-            .connect();
+          .withActiveUser(activeUser)
+          .setEnabledNotificationsTypes(settingsData?.notify_types ?? [])
+          .setHasNotifications(true)
+          .setHasUiNotifications(hasUi)
+          .withCallbackOnMessage(() => notificationUnreadCountQuery.refetch())
+          .connect();
       }
       setFbSupport(isFbMessagingSupported ? "granted" : "denied");
     },
@@ -111,23 +114,23 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
     ]
   );
 
-    useEffect(() => {
-        const ws = wsRef.current;
-        if (!activeUser?.username && previousActiveUsr?.username) {
-            ws.disconnect();
-        }
-        if (activeUser && activeUser.username !== previousActiveUsr?.username) {
-            ws.disconnect();
+  useEffect(() => {
+    const ws = wsRef.current;
+    if (!activeUser?.username && previousActiveUsr?.username) {
+      ws.disconnect();
+    }
+    if (activeUser && activeUser.username !== previousActiveUsr?.username) {
+      ws.disconnect();
 
-            (async () => {
-                await init(activeUser.username);
-            })();
-        }
+      (async () => {
+        await init(activeUser.username);
+      })();
+    }
 
-        return () => {
-            ws.disconnect();
-        };
-    }, [activeUser?.username, previousActiveUsr?.username, init]);
+    return () => {
+      ws.disconnect();
+    };
+  }, [activeUser?.username, previousActiveUsr?.username, init]);
 
-    return children;
+  return children;
 }

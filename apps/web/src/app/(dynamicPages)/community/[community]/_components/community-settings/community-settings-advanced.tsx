@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { FormControl, InputGroup } from "@/features/ui";
 import i18next from "i18next";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { useFormContext } from "react-hook-form";
 
 export function CommunitySettingsAdvanced() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { community } = useParams();
   const { register } = useFormContext();
 

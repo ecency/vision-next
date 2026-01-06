@@ -74,7 +74,7 @@ import { emojiIconSvg } from "@ui/icons";
 import { Modal, ModalBody } from "@ui/modal";
 import { ImageUploadButton, ProfileLink, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQueryClient } from "@tanstack/react-query";
 import defaults from "@/defaults";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -199,7 +199,7 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const isMobile = useGlobalStore((state) => state.isMobile);
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isEcencyAdmin = activeUser?.username?.toLowerCase() === "ecency";
   const [adminUsername, setAdminUsername] = useState("");
   const [banHours, setBanHours] = useState("24");

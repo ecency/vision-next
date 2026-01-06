@@ -6,15 +6,16 @@ import { Pagination } from "@ui/index";
 import { Account } from "@/entities";
 import { ProfileReferralHeader } from "@/app/(dynamicPages)/profile/[username]/_components/profile-referrals/profile-referral-header";
 import { LinearProgress } from "@/features/shared";
-import { getReferralsQuery, getReferralsStatsQuery } from "@/api/queries";
+import { getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 interface Props {
   account: Account;
 }
 
 export function ProfileReferrals({ account }: Props) {
-  const { data, fetchNextPage, isLoading } = getReferralsQuery(account.name).useClientQuery();
-  const { data: stats } = getReferralsStatsQuery(account.name).useClientQuery();
+  const { data, fetchNextPage, isLoading } = useInfiniteQuery(getReferralsInfiniteQueryOptions(account.name));
+  const { data: stats } = useQuery(getReferralsStatsQueryOptions(account.name));
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);

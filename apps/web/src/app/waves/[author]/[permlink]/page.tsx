@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { WaveViewDetails, WaveViewDiscussion } from "@/app/waves/[author]/[permlink]/_components";
 import { WaveEntry } from "@/entities";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { EcencyConfigManager } from "@/config";
 import { Metadata } from "next";
 import { ScrollToTop } from "@/features/shared";
@@ -31,10 +31,10 @@ export default async function WaveViewPage({ params }: Props) {
 
   const { author, permlink } = await params;
 
-  const data = (await EcencyEntriesCacheManagement.getEntryQueryByPath(
+  const data = (await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
     author.replace("%40", ""),
     permlink
-  ).prefetch()) as WaveEntry;
+  ))) as WaveEntry;
 
   if (!data) {
     return notFound();

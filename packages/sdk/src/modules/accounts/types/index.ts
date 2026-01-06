@@ -6,3 +6,8 @@ export * from "./account-bookmark";
 export * from "./account-favourite";
 export * from "./account-profile";
 export * from "./account-recovery";
+export * from "./follow";
+export * from "./transaction";
+export * from "./referral";
+export * from "./profile";
+export * from "./friends";

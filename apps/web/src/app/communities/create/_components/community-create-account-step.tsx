@@ -1,4 +1,5 @@
-import { getAccountsQuery } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountsQueryOptions } from "@ecency/sdk";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
@@ -39,7 +40,7 @@ export function CommunityCreateAccountStep({
   const formRef = useRef<HTMLFormElement>(null);
   const { activeUser } = useActiveAccount();
 
-  const { data: accounts } = getAccountsQuery([username]).useClientQuery();
+  const { data: accounts } = useQuery(getAccountsQueryOptions([username]));
   const usernameStatus = useMemo(() => {
     if (!new RegExp(COMMUNITY_NAME_PATTERN).test(username)) {
       return "not-valid";

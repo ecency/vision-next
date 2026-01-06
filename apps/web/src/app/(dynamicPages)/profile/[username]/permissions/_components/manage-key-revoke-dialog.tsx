@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   Button,
   KeyInput,
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export function ManageKeyRevokeDialog({ revokingKey, show, setShow }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const keyInputRef = useRef<KeyInputImperativeHandle>(null);
 

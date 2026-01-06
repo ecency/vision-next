@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error } from "@/features/shared";
 import {
   Button,
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function ManageKeyPasswordDialog({ show, setShow }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const keyInputRef = useRef<KeyInputImperativeHandle>(null);
 

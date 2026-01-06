@@ -5,7 +5,8 @@ import i18next from "i18next";
 import Link from "next/link";
 import defaults from "@/defaults";
 import { EcencyConfigManager } from "@/config";
-import { useGetStatsQuery } from "@/api/queries/stats/get-page-stats-query";
+import { getPageStatsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { Spinner, Table, Td, Th, Tr } from "@/features/ui";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@/features/ui/dropdown";
 
@@ -28,12 +29,14 @@ interface InsightsRow {
 }
 
 function InsightsRange({ username, dateRange, label }: InsightsRangeProps) {
-  const statsQuery = useGetStatsQuery({
-    url: `/@${username}/`,
-    dimensions: ["event:page"],
-    metrics: ["pageviews", "visitors", "visit_duration"],
-    dateRange
-  }).useClientQuery();
+  const statsQuery = useQuery(
+    getPageStatsQueryOptions(
+      `/@${username}/`,
+      ["event:page"],
+      ["pageviews", "visitors", "visit_duration"],
+      dateRange ? [dateRange] : undefined
+    )
+  );
 
   const formatter = useMemo(() => new Intl.NumberFormat(), []);
 

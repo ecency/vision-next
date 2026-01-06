@@ -1,4 +1,5 @@
 import "@/styles/style.scss";
+import "@/core/sdk-init"; // Initialize SDK DMCA filters immediately (SSR)
 import Providers from "@/app/providers";
 import { HiringConsoleLog } from "@/app/_components";
 import { cookies } from "next/headers";

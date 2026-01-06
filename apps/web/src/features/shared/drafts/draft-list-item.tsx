@@ -13,6 +13,7 @@ import Image from "next/image";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { UilCopy, UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   draft: Draft;
@@ -29,7 +30,7 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
   const img = catchPostImage(draft.body, 600, 500, canUseWebp ? "webp" : "match") || noImage.src;
   const summary = postBodySummary(draft.body, 200);
 
-  const { data: community } = getCommunityCache(tag).useClientQuery();
+  const { data: community } = useQuery(getCommunityCache(tag));
 
   const dateRelative = useMemo(() => dateToFullRelative(draft.created), [draft]);
   const dateFormatted = useMemo(() => dateToFormatted(draft.created), [draft]);

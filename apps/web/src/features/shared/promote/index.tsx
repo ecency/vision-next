@@ -14,9 +14,11 @@ import { KeyOrHot } from "@/features/shared/key-or-hot";
 import { checkAllSvg } from "@ui/svg";
 import { promoteHot } from "@/api/operations";
 import { usePreCheckPromote, usePromoteByApi, usePromoteByKeychain } from "@/api/mutations";
-import { getPointsQuery, useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
-import { useMount } from "react-use";
+import { withFeatureFlag } from "@/core/react-query";
+import { getPointsQueryOptions, getPromotePriceQueryOptions, getSearchPathQueryOptions, getAccessToken } from "@ecency/sdk";
+import { useMount, useDebounce } from "react-use";
 import { Entry } from "@/entities";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry?: Entry;
@@ -29,12 +31,31 @@ export function Promote({ onHide, entry }: Props) {
   const [step, setStep] = useState(1);
   const [path, setPath] = useState("");
   const [pathQuery, setPathQuery] = useState("");
+  const [debouncedPathQuery, setDebouncedPathQuery] = useState("");
   const [duration, setDuration] = useState(1);
   const [balanceError, setBalanceError] = useState("");
 
-  const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
-  const { data: prices, isLoading: isPricesLoading } = useGetPromotePriceQuery();
-  const { data: paths } = useSearchPathQuery(pathQuery);
+  useDebounce(
+    () => {
+      setDebouncedPathQuery(pathQuery);
+    },
+    500,
+    [pathQuery]
+  );
+
+  const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
+
+  const { data: activeUserPoints } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
+  const { data: prices, isLoading: isPricesLoading } = useQuery({
+    ...getPromotePriceQueryOptions(accessToken),
+    select: (data) => data.sort((a, b) => a.duration - b.duration)
+  });
+  const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
 
   const { mutateAsync: promoteByKeychain, isPending: isKeychainPending } = usePromoteByKeychain();
   const { mutateAsync: promoteByApi, isPending: isApiPending } = usePromoteByApi();

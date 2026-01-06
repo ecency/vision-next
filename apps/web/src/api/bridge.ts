@@ -1,8 +1,8 @@
 import {Client} from "@hiveio/dhive";
 import SERVERS from "../../public/public-nodes.json";
 import {Community, Entry, Subscription} from "@/entities";
-import dmca from "@/dmca.json";
-import dmca_accounts from "@/dmca-accounts.json";
+import dmcaPosts from "../../public/dmca/dmca-posts.json";
+import dmcaAccounts from "../../public/dmca/dmca-accounts.json";
 
 export const bridgeServer = new Client(SERVERS, {
   timeout: 2000,
@@ -97,7 +97,7 @@ export const getAccountPosts = (
     limit,
     observer
   }).then((resp) => {
-    if (dmca_accounts.includes(account)) {
+    if (dmcaAccounts.includes(account)) {
       return [];
     }
     if (resp) {
@@ -223,7 +223,7 @@ export const getPost = async (
     const validatedEntry = validateEntry(resp);
     const post = await resolvePost(validatedEntry, observer, num);
 
-    if (dmca.some((rx) => new RegExp(rx).test(`@${post.author}/${post.permlink}`))) {
+    if (dmcaPosts.some((pattern) => pattern === `@${post.author}/${post.permlink}`)) {
       post.body = "This post is not available due to a copyright/fraudulent claim.";
       post.title = "";
     }

@@ -1,5 +1,7 @@
 import { MarketAsset } from "@/api/market-pair";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { useQuery } from "@tanstack/react-query";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { SwapAmountControl } from "@/features/market/market-swap-form/swap-amount-control";
 import { Button } from "@/features/ui";
 import { HiveWallet } from "@/utils";
@@ -14,7 +16,7 @@ interface Props {
 
 export function BuyWithHiveForm({ onSubmit }: Props) {
   const { account } = useActiveAccount();
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const [amount, setAmount] = useState("0");
   const [asset, setAsset] = useState(MarketAsset.HIVE);

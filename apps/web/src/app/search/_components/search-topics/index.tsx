@@ -7,7 +7,8 @@ import { LinearProgress } from "@/features/shared";
 import i18next from "i18next";
 import { useSearchParams } from "next/navigation";
 import { SearchQuery } from "@/utils/search-query";
-import { getSearchTopicsQuery } from "@/api/queries";
+import { getSearchTopicsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 export function SearchTopics() {
   const params = useSearchParams();
@@ -17,7 +18,7 @@ export function SearchTopics() {
     [params]
   );
 
-  const { data, isLoading } = getSearchTopicsQuery(q, 10).useClientQuery();
+  const { data, isLoading } = useQuery(getSearchTopicsQueryOptions(q, 10));
 
   return (
     <div className="border border-[--border-color] bg-white rounded  search-topics">

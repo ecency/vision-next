@@ -3,7 +3,8 @@ import "./_index.scss";
 import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import i18next from "i18next";
 import { useSearchParams } from "next/navigation";
-import { getSearchAccountQuery } from "@/api/queries";
+import { getSearchAccountQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { SearchQuery } from "@/utils/search-query";
 import { truncate } from "@/utils";
 
@@ -14,7 +15,7 @@ export function SearchPeople() {
     () => new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
     [params]
   );
-  const { data: results, isLoading } = getSearchAccountQuery(q).useClientQuery();
+  const { data: results, isLoading } = useQuery(getSearchAccountQueryOptions(q));
 
   return (
     <div className="border border-[--border-color] bg-white rounded  search-people">

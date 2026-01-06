@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { Button, FormControl, InputGroup } from "@/features/ui";
 import { AssetOperation, useWalletOperation } from "@ecency/wallets";
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, operation }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
   const signingKey = useGlobalStore((state) => state.signingKey);

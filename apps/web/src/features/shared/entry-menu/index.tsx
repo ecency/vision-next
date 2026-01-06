@@ -21,6 +21,7 @@ import { MuteBtn } from "@/features/shared/mute-btn";
 import { Promote } from "@/features/shared/promote";
 import { UilShareAlt } from "@tooni/iconscout-unicons-react";
 import { EntryTranslate } from "@/features/shared/entry-translate";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
@@ -46,7 +47,7 @@ export const EntryMenu = ({
     // Only apply z-index and overflow styles if we're within a waves context
     // This prevents errors on category pages and other contexts where .waves-list-item doesn't exist
     if (!menuRef.current) return;
-    
+
     const parent = menuRef.current.closest(".waves-list-item") as HTMLElement | null;
     if (parent && parent.style) {
       try {
@@ -59,7 +60,7 @@ export const EntryMenu = ({
     }
   }, [dropdownOpen]);
 
-  const { data: community } = getCommunityCache(entry.category).useClientQuery();
+  const { data: community } = useQuery(getCommunityCache(entry.category));
   const { mutateAsync: pinToBlog } = usePinToBlog(entry, () => pinEntry?.(pin ? entry : null));
   const { mutateAsync: pinToCommunity } = useCommunityPin(entry, community);
   const { mutateAsync: deleteAction } = useDeleteComment(entry, () => router.push("/"));

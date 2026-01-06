@@ -9,7 +9,7 @@ import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
 
 import { getTokenBalances, getTokens } from "@/api/hive-engine";
-import { fetchAllHiveEngineTokens } from "@/api/queries/engine";
+import { getAllHiveEngineTokensQueryOptions } from "@ecency/wallets";
 import { useGlobalStore } from "@/core/global-store";
 import { useActiveAccount } from "@/core/hooks";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -88,9 +88,8 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
 
   const queryClient = useQueryClient();
 
-  const { data: engineTokens = [] } = useQuery<HiveEngineTokenInfo[]>({
-    queryKey: [QueryIdentifiers.HIVE_ENGINE_ALL_TOKENS, undefined],
-    queryFn: () => fetchAllHiveEngineTokens(),
+  const { data: engineTokens = [] } = useQuery({
+    ...getAllHiveEngineTokensQueryOptions(),
     staleTime: 60000
   });
 

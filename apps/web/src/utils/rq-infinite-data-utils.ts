@@ -6,5 +6,5 @@ import { useMemo } from "react";
  * @param data
  */
 export function useInfiniteDataFlow<T>(data: InfiniteData<T[]> | undefined) {
-  return useMemo(() => data?.pages.reduce((acc, p) => [...acc, ...p], []) ?? [], [data?.pages]);
+  return useMemo(() => data?.pages?.reduce((acc, p) => [...acc, ...p], []) ?? [], [data?.pages]);
 }

@@ -1,4 +1,5 @@
-import { getAccountFullQuery, getDeletedEntryQuery, getPostQuery } from "@/api/queries";
+import { prefetchQuery } from "@/core/react-query";
+import { getPostQueryOptions, getAccountFullQueryOptions, getDeletedEntryQueryOptions } from "@ecency/sdk";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
 import { getQueryClient } from "@/core/react-query";
@@ -40,7 +41,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const isRawContent = sParams.raw !== undefined;
 
   const author = username.replace("%40", "");
-  const entry = await getPostQuery(author, permlink).prefetch();
+  const entry = await prefetchQuery(getPostQueryOptions(author, permlink));
 
   if (
     permlink.startsWith("wave-") ||
@@ -50,11 +51,11 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   if (entry?.author) {
-    await getAccountFullQuery(entry.author).prefetch();
+    await prefetchQuery(getAccountFullQueryOptions(entry.author));
   }
 
   if (!entry) {
-    const deletedEntry = await getDeletedEntryQuery(author, permlink).prefetch();
+    const deletedEntry = await prefetchQuery(getDeletedEntryQueryOptions(author, permlink));
     if (deletedEntry) {
       return (
         <EntryPageContextProvider>

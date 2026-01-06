@@ -1,12 +1,12 @@
 import { User } from "@/entities";
 import { getRefreshToken } from "@/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { error } from "../../feedback";
 import { useGlobalStore } from "@/core/global-store";
 import { useRouter } from "next/navigation";
 import { useUpdateNotificationsSettings } from "@/api/mutations";
-import { useNotificationsSettingsQuery } from "@/api/queries";
+import { getNotificationsSettingsQueryOptions } from "@ecency/sdk";
 import * as ls from "@/utils/local-storage";
 import { ALL_NOTIFY_TYPES } from "@/enums";
 
@@ -17,7 +17,7 @@ export function useUserSelect(user: User) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
-  const notificationsSettingsQuery = useNotificationsSettingsQuery();
+  const notificationsSettingsQuery = useQuery(getNotificationsSettingsQueryOptions(user.username));
 
   return useMutation({
     mutationKey: ["user-select", user.username],

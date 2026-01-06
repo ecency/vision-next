@@ -9,10 +9,12 @@ import { getVoteValue, setVoteValue } from "@/features/shared/entry-vote-btn/uti
 import { InputVote } from "@ui/input";
 import { parseAsset } from "@/utils";
 import { votingPower } from "@/api/hive";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { Account, Entry } from "@/entities";
 import { Spinner } from "@ui/spinner";
 import { useActiveAccount } from "@/core/hooks";
+import { useQuery } from "@tanstack/react-query";
 
 type Mode = "up" | "down";
 
@@ -44,7 +46,7 @@ export function EntryVoteDialog({
   isVotingLoading
 }: VoteDialogProps) {
   const { username, account: activeAccount, isLoading: isAccountLoading } = useActiveAccount();
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const getUpVotedValue = useCallback(
     () =>

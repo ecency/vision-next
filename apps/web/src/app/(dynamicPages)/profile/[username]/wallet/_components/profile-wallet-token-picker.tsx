@@ -16,7 +16,7 @@ import {
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils/user-token";
 import { getTokenLogo } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
@@ -102,7 +102,7 @@ function normalizeChainTokenCandidate(
 
 export function ProfileWalletTokenPicker() {
   const { username } = useParams();
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");

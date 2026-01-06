@@ -3,7 +3,8 @@ import "./index.scss";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { getAccount, getIncomingRc } from "@/api/hive";
-import { getOutgoingRcDelegationsQuery } from "@/api/queries";
+import { getOutgoingRcDelegationsInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -42,7 +43,7 @@ export const RcDelegationsList = ({
     hasNextPage,
     isLoading: outgoingLoading,
     isFetchingNextPage
-  } = getOutgoingRcDelegationsQuery(otherUser).useClientQuery();
+  } = useInfiniteQuery(getOutgoingRcDelegationsInfiniteQueryOptions(otherUser));
   const outGoingList = outgoingPages?.pages.flat() ?? [];
   const [incoming, setIncoming]: any = useState([]);
   const [incomingLoading, setIncomingLoading] = useState(false);

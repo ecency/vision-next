@@ -6,7 +6,8 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks";
-import { getAccountFullQuery } from "@/api/queries";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 export function useCommunityApi() {
   const { username, account, isLoading } = useActiveAccount();
@@ -22,7 +23,7 @@ export function useCommunityApi() {
     // Wait for account data if still loading
     let authorData: FullAccount;
     if (isLoading) {
-      const accountData = await getAccountFullQuery(username).fetchAndGet();
+      const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
       if (!accountData) {
         throw new Error("[Deck][Community-API] – Failed to load account data");
       }

@@ -8,6 +8,7 @@ import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { Badge } from "@ui/badge";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
 export const makePathTag = (filter: string, tag: string): string => {
   // created is default filter for community pages
@@ -43,7 +44,7 @@ export function TagLink({ tag, type, children }: Props) {
     [tag]
   );
 
-  const { data: community } = getCommunityCache(tag as string).useClientQuery();
+  const { data: community } = useQuery(getCommunityCache(tag as string));
 
   if (type === "link") {
     const props = Object.assign(

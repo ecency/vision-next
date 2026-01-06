@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, KeyOrHot, UserAvatar } from "@/features/shared";
 import { ProfilePreview } from "@/features/shared/profile-popover/profile-preview";
 import { Popover } from "@/features/ui";
@@ -13,7 +13,7 @@ import { useCallback, useState } from "react";
 import { shouldUseHiveAuth } from "@/utils/client";
 
 export function ManageAuthorities() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: accountData } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username!),

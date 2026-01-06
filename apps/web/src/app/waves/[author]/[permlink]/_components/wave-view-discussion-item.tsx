@@ -8,6 +8,7 @@ import { useEntryDiscussionsList } from "@/features/entry-management";
 import { UilCommentAdd } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   item: WaveEntry;
@@ -18,7 +19,7 @@ export function WaveViewDiscussionItem({ item, i }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   const data = useEntryDiscussionsList(item);
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(item).useClientQuery();
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(item));
 
   return (
     <div

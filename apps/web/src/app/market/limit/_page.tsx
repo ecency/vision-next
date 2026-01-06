@@ -20,7 +20,8 @@ import { MarketMode } from "@/app/market/_enums/market-mode";
 import { Tsx } from "@/features/i18n/helper";
 import { ModeSelector } from "@/app/market/_components/mode-selector";
 import { useRouter } from "next/navigation";
-import { getAllHiveEngineTokensQuery } from "@/api/queries/engine";
+import { getAllHiveEngineTokensQueryOptions } from "@ecency/wallets";
+import { useQuery } from "@tanstack/react-query";
 import { MarketTokenSelector, MarketSelection } from "@/app/market/limit/_components/token-selector";
 import { EngineMarketSection } from "@/app/market/limit/_engine";
 import "../index.scss";
@@ -30,7 +31,7 @@ export function MarketLimitPage() {
   const router = useRouter();
   const [selection, setSelection] = useState<MarketSelection>({ type: "core" });
 
-  const tokensQuery = getAllHiveEngineTokensQuery().useClientQuery();
+  const tokensQuery = useQuery(getAllHiveEngineTokensQueryOptions());
   const tokens = tokensQuery.data ?? [];
 
   useEffect(() => {

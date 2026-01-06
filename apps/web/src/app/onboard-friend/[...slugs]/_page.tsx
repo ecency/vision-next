@@ -37,10 +37,12 @@ import {
   createAccountWithCreditKey,
   delegateRC
 } from "@/api/operations";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { onboardEmail } from "@/api/private-api";
 import { getKeysFromSeed } from "@/utils/onBoard-helper";
 import { useSeedPhrase } from "@ecency/wallets";
+import { useQuery } from "@tanstack/react-query";
 import { useDownloadSeed } from "@/features/wallet";
 
 export interface AccountInfo {
@@ -91,7 +93,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
 
   const { activeUser, account } = useActiveAccount();
   const queryParams = useSearchParams();
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const [secret, setSecret] = useState("");
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();

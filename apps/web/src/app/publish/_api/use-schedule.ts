@@ -1,6 +1,7 @@
 import { addSchedule } from "@/api/private-api";
 import { formatError } from "@/api/operations";
-import { getAccountFullQuery, getPostHeaderQuery } from "@/api/queries";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { CommentOptions, Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { error } from "@/features/shared";
@@ -54,7 +55,7 @@ export function useScheduleApi() {
       // Wait for account data if still loading
       let authorData: FullAccount;
       if (isLoading) {
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           throw new Error("[Schedule] Failed to load account data");
         }
@@ -72,7 +73,7 @@ export function useScheduleApi() {
       // permlink duplication check
       let existingEntry: Entry | null = null;
       try {
-        existingEntry = await getPostHeaderQuery(author, permlink).fetchAndGet();
+        existingEntry = await getQueryClient().fetchQuery(getPostHeaderQueryOptions(author, permlink));
       } catch (e) {}
 
       if (existingEntry?.author) {

@@ -7,7 +7,8 @@ import i18next from "i18next";
 import { dateToFormatted, dateToFullRelative, formattedNumber } from "@/utils";
 import { Tooltip } from "@ui/tooltip";
 import { Pagination } from "@ui/index";
-import { getCollateralizedConversionRequestsQuery } from "@/api/queries";
+import { getCollateralizedConversionRequestsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { LinearProgress } from "@/features/shared";
 
 interface Props {
@@ -23,9 +24,9 @@ type CollateralizedRequest = {
 };
 
 export function CollateralizedConversionRequests({ account, onHide }: Props) {
-    const { data: requestsRaw, isLoading } = getCollateralizedConversionRequestsQuery(
+    const { data: requestsRaw, isLoading } = useQuery(getCollateralizedConversionRequestsQueryOptions(
         account.name
-    ).useClientQuery();
+    ));
 
     // ✅ normalize to an array we can slice/map safely
     const requests = useMemo<CollateralizedRequest[]>(

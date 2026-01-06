@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatError, updateCommunity } from "@/api/operations";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "@/features/shared";
@@ -13,7 +13,7 @@ export function useUpdateCommunity(communityName: string) {
   const queryClient = useQueryClient();
   const { activeUser } = useActiveAccount();
   // we don't need `community` here anymore
-  getCommunityCache(communityName).useClientQuery();
+  useQuery(getCommunityCache(communityName));
 
   return useMutation({
     mutationKey: ["updateCommunity"],

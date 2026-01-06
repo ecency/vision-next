@@ -20,7 +20,8 @@ import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]
 import { Button } from "@ui/button";
 import { UilAlignAlt } from "@tooni/iconscout-unicons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { getPostTipsQuery } from "@/api/queries";
+import { getPostTipsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
@@ -55,7 +56,7 @@ export function EntryFooterControls({ entry }: Props) {
     [activeUser?.username, entry.author]
   );
 
-  const { data: postTips } = getPostTipsQuery(entry.author, entry.permlink).useClientQuery();
+  const { data: postTips } = useQuery(getPostTipsQueryOptions(entry.author, entry.permlink));
 
   useDistanceDetector(ref, showProfileBox, setShowProfileBox);
 

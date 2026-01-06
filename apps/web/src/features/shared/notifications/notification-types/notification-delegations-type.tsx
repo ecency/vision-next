@@ -2,7 +2,9 @@ import React, { ReactElement } from "react";
 import { ApiDelegationsNotification } from "@/entities";
 import i18next from "i18next";
 import { formattedNumber, rcFormatter, vestsToHp } from "@/utils";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   sourceLink: ReactElement;
@@ -10,7 +12,7 @@ interface Props {
 }
 
 export function NotificationDelegationsType({ sourceLink, notification }: Props) {
-  const { data } = getDynamicPropsQuery().useClientQuery();
+  const { data } = useQuery(getDynamicPropsQueryOptions());
 
   return (
     <div className="item-content">

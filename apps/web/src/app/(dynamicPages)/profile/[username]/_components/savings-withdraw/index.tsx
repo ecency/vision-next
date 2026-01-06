@@ -7,7 +7,8 @@ import { Account } from "@/entities";
 import i18next from "i18next";
 import { Pagination, Tooltip } from "@ui/index";
 import { dateToFormatted, dateToFullRelative, formattedNumber } from "@/utils";
-import { getSavingsWithdrawFromQuery } from "@/api/queries";
+import { getSavingsWithdrawFromQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { LinearProgress } from "@/features/shared";
 
 interface Props {
@@ -17,9 +18,9 @@ interface Props {
 }
 
 export function SavingsWithdraw({ onHide, tokenType, account }: Props) {
-  const { data: savingWithdraw, isLoading } = getSavingsWithdrawFromQuery(
+  const { data: savingWithdraw, isLoading } = useQuery(getSavingsWithdrawFromQueryOptions(
     account.name
-  ).useClientQuery();
+  ));
 
   const [pageSize, setPageSize] = useState(8);
   const [page, setPage] = useState(1);

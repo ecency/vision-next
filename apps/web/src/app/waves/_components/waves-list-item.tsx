@@ -83,7 +83,7 @@ export function WavesListItem({
   const [showEditModal, setShowEditModal] = useState(false);
 
   const { data: entry } =
-    EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(item).useClientQuery();
+    useQuery(EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(item));
   const { data: mutedUsers = [] } = useMutedUsers();
   const { data: promoted } = useQuery(getPromotedPostsQuery<Entry>("waves"));
   const hasPromoted = useMemo(

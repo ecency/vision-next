@@ -1,13 +1,14 @@
 import { Metadata } from "next";
-import { getAccountFullQuery } from "@/api/queries";
 import defaults from "@/defaults";
 import { getServerAppBase } from "@/utils/server-app-base";
+import { prefetchQuery } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 export async function generateProfileMetadata(
   username: string,
   section = "posts"
 ): Promise<Metadata> {
-  const account = await getAccountFullQuery(username).prefetch();
+  const account = await prefetchQuery(getAccountFullQueryOptions(username));
   if (account) {
     const base = await getServerAppBase();
     const metaTitle = `${account.profile?.name || account.name}'s ${

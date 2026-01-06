@@ -4,7 +4,8 @@ import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render
 import { Metadata } from "next";
 import { getContent } from "@/api/hive";
 import { getProfiles, Profile } from "@/api/bridge";
-import { getPostQuery } from "@/api/queries";
+import { prefetchQuery } from "@/core/react-query";
+import { getPostQueryOptions } from "@ecency/sdk";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { FullAccount } from "@/entities";
 
@@ -39,7 +40,7 @@ export async function generateEntryMetadata(
   }
   try {
     const cleanAuthor = username.replace("%40", "");
-    let entry = await getPostQuery(cleanAuthor, cleanPermlink).prefetch();
+    let entry = await prefetchQuery(getPostQueryOptions(cleanAuthor, cleanPermlink));
 
     if (!entry || !entry.body || !entry.created) {
       console.warn("generateEntryMetadata: incomplete, trying fallback getContent", {

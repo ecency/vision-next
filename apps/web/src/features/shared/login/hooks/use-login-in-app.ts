@@ -1,13 +1,17 @@
-import {useHsLoginRefresh, useRecordUserActivity, useUpdateNotificationsSettings} from "@/api/mutations";
-import { useNotificationsSettingsQuery } from "@/api/queries";
+import {
+  useHsLoginRefresh,
+  useRecordUserActivity,
+  useUpdateNotificationsSettings
+} from "@/api/mutations";
 import { useGlobalStore } from "@/core/global-store";
 import { Account, LoginType, User } from "@/entities";
+import { ALL_NOTIFY_TYPES } from "@/enums";
+import * as ls from "@/utils/local-storage";
+import { getNotificationsSettingsQueryOptions } from "@ecency/sdk";
+import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useAfterLoginTutorial } from "./use-after-login-tutorial";
-import * as ls from "@/utils/local-storage";
-import { ALL_NOTIFY_TYPES } from "@/enums";
-import { useQueryClient } from "@tanstack/react-query";
 
 export function useLoginInApp(username: string) {
   const pathname = usePathname();
@@ -21,8 +25,6 @@ export function useLoginInApp(username: string) {
   const { mutateAsync: recordActivity } = useRecordUserActivity();
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
-  const notificationsSettingsQuery = useNotificationsSettingsQuery();
-  const refetchNotificationSettings = notificationsSettingsQuery.refetch;
 
   const handleTutorial = useAfterLoginTutorial(username);
 
@@ -31,7 +33,12 @@ export function useLoginInApp(username: string) {
   }, [setLogin]);
 
   return useCallback(
-    async (code: string, postingKey: null | undefined | string, account: Account, loginType?: LoginType) => {
+    async (
+      code: string,
+      postingKey: null | undefined | string,
+      account: Account,
+      loginType?: LoginType
+    ) => {
       const token = await hsTokenRenew({ code });
       // get access token from code
       const user: User = {
@@ -55,7 +62,10 @@ export function useLoginInApp(username: string) {
 
       const notifToken = ls.get("fb-notifications-token") ?? "";
       if (notifToken) {
-        const { data: existingSettings } = await refetchNotificationSettings();
+        // Fetch notification settings for the newly logged-in user
+        const existingSettings = await queryClient.fetchQuery(
+          getNotificationsSettingsQueryOptions(user.username)
+        );
 
         if (!existingSettings || existingSettings.allows_notify === -1) {
           await updateNotificationSettings({
@@ -70,8 +80,8 @@ export function useLoginInApp(username: string) {
         }
       }
 
-        // login activity
-      await recordActivity({ty: 20});
+      // login activity
+      await recordActivity({ ty: 20 });
 
       // Close dialog before navigation/refresh
       hide();
@@ -98,8 +108,7 @@ export function useLoginInApp(username: string) {
       recordActivity,
       router,
       setActiveUser,
-      updateNotificationSettings,
-      refetchNotificationSettings
+      updateNotificationSettings
     ]
   );
 }

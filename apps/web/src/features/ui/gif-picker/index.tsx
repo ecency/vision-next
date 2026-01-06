@@ -15,6 +15,7 @@ import i18next from "i18next";
 import { getGifsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
 import { GifPickerBottom } from "./gif-picker-bottom";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   fallback?: (e: string) => void;
@@ -43,7 +44,7 @@ export function GifPicker(props: Props) {
 
   const [filter, setFilter] = useState("");
 
-  const { data, refetch, fetchNextPage, hasNextPage } = getGifsQuery(filter).useClientQuery();
+  const { data, refetch, fetchNextPage, hasNextPage } = useQuery(getGifsQuery(filter));
   const dataFlow = useInfiniteDataFlow(data);
 
   useEffect(() => {

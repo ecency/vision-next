@@ -21,7 +21,8 @@ import { postBodySummary } from "@ecency/render-helper";
 import { validatePostCreating } from "@/api/hive";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
-import { getAccountFullQuery } from "@/api/queries";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
@@ -72,7 +73,7 @@ export function usePublishApi(onClear: () => void) {
       // Wait for account data if still loading
       let authorData: FullAccount;
       if (isLoading) {
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           return [];
         }

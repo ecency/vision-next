@@ -1,16 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
 import { useMattermostBootstrap, useMattermostChannels } from "@/features/chat/mattermost-api";
 import { MattermostChannelView } from "@/features/chat/mattermost-channel-view";
 import { ChatErrorBoundary } from "@/features/chat/chat-error-boundary";
 import { LoginRequired } from "@/features/shared";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 const TOWN_HALL_CHANNEL_NAME = "town-hall";
 
 export function ChatsPageClient() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const { data: bootstrap, isLoading, error, refetch } = useMattermostBootstrap();
   const { data: channels, isLoading: channelsLoading } = useMattermostChannels(Boolean(bootstrap?.ok));

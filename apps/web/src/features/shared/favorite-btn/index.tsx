@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, LoginRequired, success } from "@/features/shared";
 import {
   getActiveAccountFavouritesQueryOptions,
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function FavouriteBtn({ targetUsername }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data, isPending } = useQuery(
     getActiveAccountFavouritesQueryOptions(activeUser?.username)

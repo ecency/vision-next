@@ -5,10 +5,11 @@ import { MattermostChannelView } from "@/features/chat/mattermost-channel-view";
 import { useMattermostBootstrap } from "@/features/chat/mattermost-api";
 import { ChatErrorBoundary } from "@/features/chat/chat-error-boundary";
 import { LoginRequired } from "@/features/shared";
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export default function ChannelPage() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const params = useParams<{ id: string }>();
   const { data: bootstrap, isLoading, error } = useMattermostBootstrap();

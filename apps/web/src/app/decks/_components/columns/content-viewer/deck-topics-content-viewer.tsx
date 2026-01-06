@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import { ListItemSkeleton, SearchListItem } from "../deck-items";
 import { Button } from "@ui/button";
-import { getPostsRankedQuery } from "@/api/queries";
+import { getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { arrowLeftSvg } from "@ui/svg";
 import { useMounted } from "@/utils/use-mounted";
 import { makeEntryPath } from "@/utils";
@@ -13,7 +14,7 @@ interface Props {
 }
 
 export const DeckTopicsContentViewer = ({ onClose, backTitle, topic }: Props) => {
-  const { data } = getPostsRankedQuery("trending", "", 20, topic).useClientQuery();
+  const { data } = useInfiniteQuery(getPostsRankedInfiniteQueryOptions("trending", "", 20, topic));
 
   const dataFlow = useMemo(
     () => data?.pages?.reduce((acc, item) => [...acc, ...item], []) ?? [],

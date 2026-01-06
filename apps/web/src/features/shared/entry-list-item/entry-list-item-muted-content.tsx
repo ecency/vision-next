@@ -12,7 +12,8 @@ import { postBodySummary } from "@ecency/render-helper";
 import { useGlobalStore } from "@/core/global-store";
 import { EcencyClientServerBridge } from "@/core/client-server-bridge";
 import { EntryListItemContext } from "@/features/shared/entry-list-item/entry-list-item-context";
-import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
+import { getMutedUsersQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import { useEntryLocation } from "@/utils";
@@ -28,7 +29,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
 
   const [showMuted, setShowMuted] = useState(false);
   const [showModMuted, setShowModMuted] = useState(false);
-  const { data: mutedUsers } = getMutedUsersQuery(activeUser).useClientQuery();
+  const { data: mutedUsers } = useQuery(getMutedUsersQueryOptions(activeUser?.username));
 
   const location = useEntryLocation(entryProp);
 

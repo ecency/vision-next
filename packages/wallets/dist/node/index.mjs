@@ -16,11 +16,718 @@ import dayjs from 'dayjs';
 import hs from 'hivesigner';
 import * as R from 'remeda';
 
+var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  __defProp(target, "default", { value: mod, enumerable: true }) ,
+  mod
+));
+
+// ../../node_modules/numeral/numeral.js
+var require_numeral = __commonJS({
+  "../../node_modules/numeral/numeral.js"(exports, module) {
+    (function(global, factory) {
+      if (typeof define === "function" && define.amd) {
+        define(factory);
+      } else if (typeof module === "object" && module.exports) {
+        module.exports = factory();
+      } else {
+        global.numeral = factory();
+      }
+    })(exports, function() {
+      var numeral2, _, VERSION = "2.0.6", formats = {}, locales = {}, defaults = {
+        currentLocale: "en",
+        zeroFormat: null,
+        nullFormat: null,
+        defaultFormat: "0,0",
+        scalePercentBy100: true
+      }, options2 = {
+        currentLocale: defaults.currentLocale,
+        zeroFormat: defaults.zeroFormat,
+        nullFormat: defaults.nullFormat,
+        defaultFormat: defaults.defaultFormat,
+        scalePercentBy100: defaults.scalePercentBy100
+      };
+      function Numeral(input, number) {
+        this._input = input;
+        this._value = number;
+      }
+      numeral2 = function(input) {
+        var value, kind, unformatFunction, regexp;
+        if (numeral2.isNumeral(input)) {
+          value = input.value();
+        } else if (input === 0 || typeof input === "undefined") {
+          value = 0;
+        } else if (input === null || _.isNaN(input)) {
+          value = null;
+        } else if (typeof input === "string") {
+          if (options2.zeroFormat && input === options2.zeroFormat) {
+            value = 0;
+          } else if (options2.nullFormat && input === options2.nullFormat || !input.replace(/[^0-9]+/g, "").length) {
+            value = null;
+          } else {
+            for (kind in formats) {
+              regexp = typeof formats[kind].regexps.unformat === "function" ? formats[kind].regexps.unformat() : formats[kind].regexps.unformat;
+              if (regexp && input.match(regexp)) {
+                unformatFunction = formats[kind].unformat;
+                break;
+              }
+            }
+            unformatFunction = unformatFunction || numeral2._.stringToNumber;
+            value = unformatFunction(input);
+          }
+        } else {
+          value = Number(input) || null;
+        }
+        return new Numeral(input, value);
+      };
+      numeral2.version = VERSION;
+      numeral2.isNumeral = function(obj) {
+        return obj instanceof Numeral;
+      };
+      numeral2._ = _ = {
+        // formats numbers separators, decimals places, signs, abbreviations
+        numberToFormat: function(value, format4, roundingFunction) {
+          var locale = locales[numeral2.options.currentLocale], negP = false, optDec = false, leadingCount = 0, abbr = "", trillion = 1e12, billion = 1e9, million = 1e6, thousand = 1e3, decimal = "", neg = false, abbrForce, abs, int, precision, signed, thousands, output;
+          value = value || 0;
+          abs = Math.abs(value);
+          if (numeral2._.includes(format4, "(")) {
+            negP = true;
+            format4 = format4.replace(/[\(|\)]/g, "");
+          } else if (numeral2._.includes(format4, "+") || numeral2._.includes(format4, "-")) {
+            signed = numeral2._.includes(format4, "+") ? format4.indexOf("+") : value < 0 ? format4.indexOf("-") : -1;
+            format4 = format4.replace(/[\+|\-]/g, "");
+          }
+          if (numeral2._.includes(format4, "a")) {
+            abbrForce = format4.match(/a(k|m|b|t)?/);
+            abbrForce = abbrForce ? abbrForce[1] : false;
+            if (numeral2._.includes(format4, " a")) {
+              abbr = " ";
+            }
+            format4 = format4.replace(new RegExp(abbr + "a[kmbt]?"), "");
+            if (abs >= trillion && !abbrForce || abbrForce === "t") {
+              abbr += locale.abbreviations.trillion;
+              value = value / trillion;
+            } else if (abs < trillion && abs >= billion && !abbrForce || abbrForce === "b") {
+              abbr += locale.abbreviations.billion;
+              value = value / billion;
+            } else if (abs < billion && abs >= million && !abbrForce || abbrForce === "m") {
+              abbr += locale.abbreviations.million;
+              value = value / million;
+            } else if (abs < million && abs >= thousand && !abbrForce || abbrForce === "k") {
+              abbr += locale.abbreviations.thousand;
+              value = value / thousand;
+            }
+          }
+          if (numeral2._.includes(format4, "[.]")) {
+            optDec = true;
+            format4 = format4.replace("[.]", ".");
+          }
+          int = value.toString().split(".")[0];
+          precision = format4.split(".")[1];
+          thousands = format4.indexOf(",");
+          leadingCount = (format4.split(".")[0].split(",")[0].match(/0/g) || []).length;
+          if (precision) {
+            if (numeral2._.includes(precision, "[")) {
+              precision = precision.replace("]", "");
+              precision = precision.split("[");
+              decimal = numeral2._.toFixed(value, precision[0].length + precision[1].length, roundingFunction, precision[1].length);
+            } else {
+              decimal = numeral2._.toFixed(value, precision.length, roundingFunction);
+            }
+            int = decimal.split(".")[0];
+            if (numeral2._.includes(decimal, ".")) {
+              decimal = locale.delimiters.decimal + decimal.split(".")[1];
+            } else {
+              decimal = "";
+            }
+            if (optDec && Number(decimal.slice(1)) === 0) {
+              decimal = "";
+            }
+          } else {
+            int = numeral2._.toFixed(value, 0, roundingFunction);
+          }
+          if (abbr && !abbrForce && Number(int) >= 1e3 && abbr !== locale.abbreviations.trillion) {
+            int = String(Number(int) / 1e3);
+            switch (abbr) {
+              case locale.abbreviations.thousand:
+                abbr = locale.abbreviations.million;
+                break;
+              case locale.abbreviations.million:
+                abbr = locale.abbreviations.billion;
+                break;
+              case locale.abbreviations.billion:
+                abbr = locale.abbreviations.trillion;
+                break;
+            }
+          }
+          if (numeral2._.includes(int, "-")) {
+            int = int.slice(1);
+            neg = true;
+          }
+          if (int.length < leadingCount) {
+            for (var i = leadingCount - int.length; i > 0; i--) {
+              int = "0" + int;
+            }
+          }
+          if (thousands > -1) {
+            int = int.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1" + locale.delimiters.thousands);
+          }
+          if (format4.indexOf(".") === 0) {
+            int = "";
+          }
+          output = int + decimal + (abbr ? abbr : "");
+          if (negP) {
+            output = (negP && neg ? "(" : "") + output + (negP && neg ? ")" : "");
+          } else {
+            if (signed >= 0) {
+              output = signed === 0 ? (neg ? "-" : "+") + output : output + (neg ? "-" : "+");
+            } else if (neg) {
+              output = "-" + output;
+            }
+          }
+          return output;
+        },
+        // unformats numbers separators, decimals places, signs, abbreviations
+        stringToNumber: function(string) {
+          var locale = locales[options2.currentLocale], stringOriginal = string, abbreviations = {
+            thousand: 3,
+            million: 6,
+            billion: 9,
+            trillion: 12
+          }, abbreviation, value, regexp;
+          if (options2.zeroFormat && string === options2.zeroFormat) {
+            value = 0;
+          } else if (options2.nullFormat && string === options2.nullFormat || !string.replace(/[^0-9]+/g, "").length) {
+            value = null;
+          } else {
+            value = 1;
+            if (locale.delimiters.decimal !== ".") {
+              string = string.replace(/\./g, "").replace(locale.delimiters.decimal, ".");
+            }
+            for (abbreviation in abbreviations) {
+              regexp = new RegExp("[^a-zA-Z]" + locale.abbreviations[abbreviation] + "(?:\\)|(\\" + locale.currency.symbol + ")?(?:\\))?)?$");
+              if (stringOriginal.match(regexp)) {
+                value *= Math.pow(10, abbreviations[abbreviation]);
+                break;
+              }
+            }
+            value *= (string.split("-").length + Math.min(string.split("(").length - 1, string.split(")").length - 1)) % 2 ? 1 : -1;
+            string = string.replace(/[^0-9\.]+/g, "");
+            value *= Number(string);
+          }
+          return value;
+        },
+        isNaN: function(value) {
+          return typeof value === "number" && isNaN(value);
+        },
+        includes: function(string, search) {
+          return string.indexOf(search) !== -1;
+        },
+        insert: function(string, subString, start) {
+          return string.slice(0, start) + subString + string.slice(start);
+        },
+        reduce: function(array, callback) {
+          if (this === null) {
+            throw new TypeError("Array.prototype.reduce called on null or undefined");
+          }
+          if (typeof callback !== "function") {
+            throw new TypeError(callback + " is not a function");
+          }
+          var t = Object(array), len = t.length >>> 0, k = 0, value;
+          if (arguments.length === 3) {
+            value = arguments[2];
+          } else {
+            while (k < len && !(k in t)) {
+              k++;
+            }
+            if (k >= len) {
+              throw new TypeError("Reduce of empty array with no initial value");
+            }
+            value = t[k++];
+          }
+          for (; k < len; k++) {
+            if (k in t) {
+              value = callback(value, t[k], k, t);
+            }
+          }
+          return value;
+        },
+        /**
+         * Computes the multiplier necessary to make x >= 1,
+         * effectively eliminating miscalculations caused by
+         * finite precision.
+         */
+        multiplier: function(x) {
+          var parts = x.toString().split(".");
+          return parts.length < 2 ? 1 : Math.pow(10, parts[1].length);
+        },
+        /**
+         * Given a variable number of arguments, returns the maximum
+         * multiplier that must be used to normalize an operation involving
+         * all of them.
+         */
+        correctionFactor: function() {
+          var args = Array.prototype.slice.call(arguments);
+          return args.reduce(function(accum, next) {
+            var mn = _.multiplier(next);
+            return accum > mn ? accum : mn;
+          }, 1);
+        },
+        /**
+         * Implementation of toFixed() that treats floats more like decimals
+         *
+         * Fixes binary rounding issues (eg. (0.615).toFixed(2) === '0.61') that present
+         * problems for accounting- and finance-related software.
+         */
+        toFixed: function(value, maxDecimals, roundingFunction, optionals) {
+          var splitValue = value.toString().split("."), minDecimals = maxDecimals - (optionals || 0), boundedPrecision, optionalsRegExp, power, output;
+          if (splitValue.length === 2) {
+            boundedPrecision = Math.min(Math.max(splitValue[1].length, minDecimals), maxDecimals);
+          } else {
+            boundedPrecision = minDecimals;
+          }
+          power = Math.pow(10, boundedPrecision);
+          output = (roundingFunction(value + "e+" + boundedPrecision) / power).toFixed(boundedPrecision);
+          if (optionals > maxDecimals - boundedPrecision) {
+            optionalsRegExp = new RegExp("\\.?0{1," + (optionals - (maxDecimals - boundedPrecision)) + "}$");
+            output = output.replace(optionalsRegExp, "");
+          }
+          return output;
+        }
+      };
+      numeral2.options = options2;
+      numeral2.formats = formats;
+      numeral2.locales = locales;
+      numeral2.locale = function(key) {
+        if (key) {
+          options2.currentLocale = key.toLowerCase();
+        }
+        return options2.currentLocale;
+      };
+      numeral2.localeData = function(key) {
+        if (!key) {
+          return locales[options2.currentLocale];
+        }
+        key = key.toLowerCase();
+        if (!locales[key]) {
+          throw new Error("Unknown locale : " + key);
+        }
+        return locales[key];
+      };
+      numeral2.reset = function() {
+        for (var property in defaults) {
+          options2[property] = defaults[property];
+        }
+      };
+      numeral2.zeroFormat = function(format4) {
+        options2.zeroFormat = typeof format4 === "string" ? format4 : null;
+      };
+      numeral2.nullFormat = function(format4) {
+        options2.nullFormat = typeof format4 === "string" ? format4 : null;
+      };
+      numeral2.defaultFormat = function(format4) {
+        options2.defaultFormat = typeof format4 === "string" ? format4 : "0.0";
+      };
+      numeral2.register = function(type, name, format4) {
+        name = name.toLowerCase();
+        if (this[type + "s"][name]) {
+          throw new TypeError(name + " " + type + " already registered.");
+        }
+        this[type + "s"][name] = format4;
+        return format4;
+      };
+      numeral2.validate = function(val, culture) {
+        var _decimalSep, _thousandSep, _currSymbol, _valArray, _abbrObj, _thousandRegEx, localeData, temp;
+        if (typeof val !== "string") {
+          val += "";
+          if (console.warn) {
+            console.warn("Numeral.js: Value is not string. It has been co-erced to: ", val);
+          }
+        }
+        val = val.trim();
+        if (!!val.match(/^\d+$/)) {
+          return true;
+        }
+        if (val === "") {
+          return false;
+        }
+        try {
+          localeData = numeral2.localeData(culture);
+        } catch (e) {
+          localeData = numeral2.localeData(numeral2.locale());
+        }
+        _currSymbol = localeData.currency.symbol;
+        _abbrObj = localeData.abbreviations;
+        _decimalSep = localeData.delimiters.decimal;
+        if (localeData.delimiters.thousands === ".") {
+          _thousandSep = "\\.";
+        } else {
+          _thousandSep = localeData.delimiters.thousands;
+        }
+        temp = val.match(/^[^\d]+/);
+        if (temp !== null) {
+          val = val.substr(1);
+          if (temp[0] !== _currSymbol) {
+            return false;
+          }
+        }
+        temp = val.match(/[^\d]+$/);
+        if (temp !== null) {
+          val = val.slice(0, -1);
+          if (temp[0] !== _abbrObj.thousand && temp[0] !== _abbrObj.million && temp[0] !== _abbrObj.billion && temp[0] !== _abbrObj.trillion) {
+            return false;
+          }
+        }
+        _thousandRegEx = new RegExp(_thousandSep + "{2}");
+        if (!val.match(/[^\d.,]/g)) {
+          _valArray = val.split(_decimalSep);
+          if (_valArray.length > 2) {
+            return false;
+          } else {
+            if (_valArray.length < 2) {
+              return !!_valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx);
+            } else {
+              if (_valArray[0].length === 1) {
+                return !!_valArray[0].match(/^\d+$/) && !_valArray[0].match(_thousandRegEx) && !!_valArray[1].match(/^\d+$/);
+              } else {
+                return !!_valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx) && !!_valArray[1].match(/^\d+$/);
+              }
+            }
+          }
+        }
+        return false;
+      };
+      numeral2.fn = Numeral.prototype = {
+        clone: function() {
+          return numeral2(this);
+        },
+        format: function(inputString, roundingFunction) {
+          var value = this._value, format4 = inputString || options2.defaultFormat, kind, output, formatFunction;
+          roundingFunction = roundingFunction || Math.round;
+          if (value === 0 && options2.zeroFormat !== null) {
+            output = options2.zeroFormat;
+          } else if (value === null && options2.nullFormat !== null) {
+            output = options2.nullFormat;
+          } else {
+            for (kind in formats) {
+              if (format4.match(formats[kind].regexps.format)) {
+                formatFunction = formats[kind].format;
+                break;
+              }
+            }
+            formatFunction = formatFunction || numeral2._.numberToFormat;
+            output = formatFunction(value, format4, roundingFunction);
+          }
+          return output;
+        },
+        value: function() {
+          return this._value;
+        },
+        input: function() {
+          return this._input;
+        },
+        set: function(value) {
+          this._value = Number(value);
+          return this;
+        },
+        add: function(value) {
+          var corrFactor = _.correctionFactor.call(null, this._value, value);
+          function cback(accum, curr, currI, O) {
+            return accum + Math.round(corrFactor * curr);
+          }
+          this._value = _.reduce([this._value, value], cback, 0) / corrFactor;
+          return this;
+        },
+        subtract: function(value) {
+          var corrFactor = _.correctionFactor.call(null, this._value, value);
+          function cback(accum, curr, currI, O) {
+            return accum - Math.round(corrFactor * curr);
+          }
+          this._value = _.reduce([value], cback, Math.round(this._value * corrFactor)) / corrFactor;
+          return this;
+        },
+        multiply: function(value) {
+          function cback(accum, curr, currI, O) {
+            var corrFactor = _.correctionFactor(accum, curr);
+            return Math.round(accum * corrFactor) * Math.round(curr * corrFactor) / Math.round(corrFactor * corrFactor);
+          }
+          this._value = _.reduce([this._value, value], cback, 1);
+          return this;
+        },
+        divide: function(value) {
+          function cback(accum, curr, currI, O) {
+            var corrFactor = _.correctionFactor(accum, curr);
+            return Math.round(accum * corrFactor) / Math.round(curr * corrFactor);
+          }
+          this._value = _.reduce([this._value, value], cback);
+          return this;
+        },
+        difference: function(value) {
+          return Math.abs(numeral2(this._value).subtract(value).value());
+        }
+      };
+      numeral2.register("locale", "en", {
+        delimiters: {
+          thousands: ",",
+          decimal: "."
+        },
+        abbreviations: {
+          thousand: "k",
+          million: "m",
+          billion: "b",
+          trillion: "t"
+        },
+        ordinal: function(number) {
+          var b = number % 10;
+          return ~~(number % 100 / 10) === 1 ? "th" : b === 1 ? "st" : b === 2 ? "nd" : b === 3 ? "rd" : "th";
+        },
+        currency: {
+          symbol: "$"
+        }
+      });
+      (function() {
+        numeral2.register("format", "bps", {
+          regexps: {
+            format: /(BPS)/,
+            unformat: /(BPS)/
+          },
+          format: function(value, format4, roundingFunction) {
+            var space = numeral2._.includes(format4, " BPS") ? " " : "", output;
+            value = value * 1e4;
+            format4 = format4.replace(/\s?BPS/, "");
+            output = numeral2._.numberToFormat(value, format4, roundingFunction);
+            if (numeral2._.includes(output, ")")) {
+              output = output.split("");
+              output.splice(-1, 0, space + "BPS");
+              output = output.join("");
+            } else {
+              output = output + space + "BPS";
+            }
+            return output;
+          },
+          unformat: function(string) {
+            return +(numeral2._.stringToNumber(string) * 1e-4).toFixed(15);
+          }
+        });
+      })();
+      (function() {
+        var decimal = {
+          base: 1e3,
+          suffixes: ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+        }, binary = {
+          base: 1024,
+          suffixes: ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+        };
+        var allSuffixes = decimal.suffixes.concat(binary.suffixes.filter(function(item) {
+          return decimal.suffixes.indexOf(item) < 0;
+        }));
+        var unformatRegex = allSuffixes.join("|");
+        unformatRegex = "(" + unformatRegex.replace("B", "B(?!PS)") + ")";
+        numeral2.register("format", "bytes", {
+          regexps: {
+            format: /([0\s]i?b)/,
+            unformat: new RegExp(unformatRegex)
+          },
+          format: function(value, format4, roundingFunction) {
+            var output, bytes = numeral2._.includes(format4, "ib") ? binary : decimal, suffix = numeral2._.includes(format4, " b") || numeral2._.includes(format4, " ib") ? " " : "", power, min, max;
+            format4 = format4.replace(/\s?i?b/, "");
+            for (power = 0; power <= bytes.suffixes.length; power++) {
+              min = Math.pow(bytes.base, power);
+              max = Math.pow(bytes.base, power + 1);
+              if (value === null || value === 0 || value >= min && value < max) {
+                suffix += bytes.suffixes[power];
+                if (min > 0) {
+                  value = value / min;
+                }
+                break;
+              }
+            }
+            output = numeral2._.numberToFormat(value, format4, roundingFunction);
+            return output + suffix;
+          },
+          unformat: function(string) {
+            var value = numeral2._.stringToNumber(string), power, bytesMultiplier;
+            if (value) {
+              for (power = decimal.suffixes.length - 1; power >= 0; power--) {
+                if (numeral2._.includes(string, decimal.suffixes[power])) {
+                  bytesMultiplier = Math.pow(decimal.base, power);
+                  break;
+                }
+                if (numeral2._.includes(string, binary.suffixes[power])) {
+                  bytesMultiplier = Math.pow(binary.base, power);
+                  break;
+                }
+              }
+              value *= bytesMultiplier || 1;
+            }
+            return value;
+          }
+        });
+      })();
+      (function() {
+        numeral2.register("format", "currency", {
+          regexps: {
+            format: /(\$)/
+          },
+          format: function(value, format4, roundingFunction) {
+            var locale = numeral2.locales[numeral2.options.currentLocale], symbols = {
+              before: format4.match(/^([\+|\-|\(|\s|\$]*)/)[0],
+              after: format4.match(/([\+|\-|\)|\s|\$]*)$/)[0]
+            }, output, symbol, i;
+            format4 = format4.replace(/\s?\$\s?/, "");
+            output = numeral2._.numberToFormat(value, format4, roundingFunction);
+            if (value >= 0) {
+              symbols.before = symbols.before.replace(/[\-\(]/, "");
+              symbols.after = symbols.after.replace(/[\-\)]/, "");
+            } else if (value < 0 && (!numeral2._.includes(symbols.before, "-") && !numeral2._.includes(symbols.before, "("))) {
+              symbols.before = "-" + symbols.before;
+            }
+            for (i = 0; i < symbols.before.length; i++) {
+              symbol = symbols.before[i];
+              switch (symbol) {
+                case "$":
+                  output = numeral2._.insert(output, locale.currency.symbol, i);
+                  break;
+                case " ":
+                  output = numeral2._.insert(output, " ", i + locale.currency.symbol.length - 1);
+                  break;
+              }
+            }
+            for (i = symbols.after.length - 1; i >= 0; i--) {
+              symbol = symbols.after[i];
+              switch (symbol) {
+                case "$":
+                  output = i === symbols.after.length - 1 ? output + locale.currency.symbol : numeral2._.insert(output, locale.currency.symbol, -(symbols.after.length - (1 + i)));
+                  break;
+                case " ":
+                  output = i === symbols.after.length - 1 ? output + " " : numeral2._.insert(output, " ", -(symbols.after.length - (1 + i) + locale.currency.symbol.length - 1));
+                  break;
+              }
+            }
+            return output;
+          }
+        });
+      })();
+      (function() {
+        numeral2.register("format", "exponential", {
+          regexps: {
+            format: /(e\+|e-)/,
+            unformat: /(e\+|e-)/
+          },
+          format: function(value, format4, roundingFunction) {
+            var output, exponential = typeof value === "number" && !numeral2._.isNaN(value) ? value.toExponential() : "0e+0", parts = exponential.split("e");
+            format4 = format4.replace(/e[\+|\-]{1}0/, "");
+            output = numeral2._.numberToFormat(Number(parts[0]), format4, roundingFunction);
+            return output + "e" + parts[1];
+          },
+          unformat: function(string) {
+            var parts = numeral2._.includes(string, "e+") ? string.split("e+") : string.split("e-"), value = Number(parts[0]), power = Number(parts[1]);
+            power = numeral2._.includes(string, "e-") ? power *= -1 : power;
+            function cback(accum, curr, currI, O) {
+              var corrFactor = numeral2._.correctionFactor(accum, curr), num = accum * corrFactor * (curr * corrFactor) / (corrFactor * corrFactor);
+              return num;
+            }
+            return numeral2._.reduce([value, Math.pow(10, power)], cback, 1);
+          }
+        });
+      })();
+      (function() {
+        numeral2.register("format", "ordinal", {
+          regexps: {
+            format: /(o)/
+          },
+          format: function(value, format4, roundingFunction) {
+            var locale = numeral2.locales[numeral2.options.currentLocale], output, ordinal = numeral2._.includes(format4, " o") ? " " : "";
+            format4 = format4.replace(/\s?o/, "");
+            ordinal += locale.ordinal(value);
+            output = numeral2._.numberToFormat(value, format4, roundingFunction);
+            return output + ordinal;
+          }
+        });
+      })();
+      (function() {
+        numeral2.register("format", "percentage", {
+          regexps: {
+            format: /(%)/,
+            unformat: /(%)/
+          },
+          format: function(value, format4, roundingFunction) {
+            var space = numeral2._.includes(format4, " %") ? " " : "", output;
+            if (numeral2.options.scalePercentBy100) {
+              value = value * 100;
+            }
+            format4 = format4.replace(/\s?\%/, "");
+            output = numeral2._.numberToFormat(value, format4, roundingFunction);
+            if (numeral2._.includes(output, ")")) {
+              output = output.split("");
+              output.splice(-1, 0, space + "%");
+              output = output.join("");
+            } else {
+              output = output + space + "%";
+            }
+            return output;
+          },
+          unformat: function(string) {
+            var number = numeral2._.stringToNumber(string);
+            if (numeral2.options.scalePercentBy100) {
+              return number * 0.01;
+            }
+            return number;
+          }
+        });
+      })();
+      (function() {
+        numeral2.register("format", "time", {
+          regexps: {
+            format: /(:)/,
+            unformat: /(:)/
+          },
+          format: function(value, format4, roundingFunction) {
+            var hours = Math.floor(value / 60 / 60), minutes = Math.floor((value - hours * 60 * 60) / 60), seconds = Math.round(value - hours * 60 * 60 - minutes * 60);
+            return hours + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+          },
+          unformat: function(string) {
+            var timeArray = string.split(":"), seconds = 0;
+            if (timeArray.length === 3) {
+              seconds = seconds + Number(timeArray[0]) * 60 * 60;
+              seconds = seconds + Number(timeArray[1]) * 60;
+              seconds = seconds + Number(timeArray[2]);
+            } else if (timeArray.length === 2) {
+              seconds = seconds + Number(timeArray[0]) * 60;
+              seconds = seconds + Number(timeArray[1]);
+            }
+            return Number(seconds);
+          }
+        });
+      })();
+      return numeral2;
+    });
+  }
+});
 
 // src/internal/scrypt-guard.ts
 var globalLike = globalThis;
@@ -1901,6 +2608,224 @@ function getLarynxPowerAssetGeneralInfoQueryOptions(username) {
     }
   });
 }
+function getAllHiveEngineTokensQueryOptions(account, symbol) {
+  return queryOptions({
+    queryKey: ["assets", "hive-engine", "all-tokens", account, symbol],
+    queryFn: async () => {
+      try {
+        const response = await fetch(
+          `${CONFIG.privateApiHost}/private-api/engine-api`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              method: "find",
+              params: {
+                contract: "market",
+                table: "metrics",
+                query: {
+                  ...symbol && { symbol },
+                  ...account && { account }
+                }
+              },
+              id: 1
+            }),
+            headers: { "Content-type": "application/json" }
+          }
+        );
+        const data = await response.json();
+        return data.result;
+      } catch (e) {
+        return [];
+      }
+    }
+  });
+}
+
+// src/modules/assets/hive-engine/utils/formatted-number.ts
+var import_numeral = __toESM(require_numeral());
+function formattedNumber(value, options2 = void 0) {
+  let opts = {
+    fractionDigits: 3,
+    prefix: "",
+    suffix: ""
+  };
+  if (options2) {
+    opts = { ...opts, ...options2 };
+  }
+  const { fractionDigits, prefix, suffix } = opts;
+  let format4 = "0,0";
+  if (fractionDigits) {
+    format4 += "." + "0".repeat(fractionDigits);
+  }
+  let out = "";
+  if (prefix) out += prefix + " ";
+  const av = Math.abs(parseFloat(value.toString())) < 1e-4 ? 0 : value;
+  out += (0, import_numeral.default)(av).format(format4);
+  if (suffix) out += " " + suffix;
+  return out;
+}
+
+// src/modules/assets/hive-engine/utils/hive-engine-token.ts
+var HiveEngineToken = class {
+  symbol;
+  name;
+  icon;
+  precision;
+  stakingEnabled;
+  delegationEnabled;
+  balance;
+  stake;
+  stakedBalance;
+  delegationsIn;
+  delegationsOut;
+  usdValue;
+  constructor(props) {
+    this.symbol = props.symbol;
+    this.name = props.name || "";
+    this.icon = props.icon || "";
+    this.precision = props.precision || 0;
+    this.stakingEnabled = props.stakingEnabled || false;
+    this.delegationEnabled = props.delegationEnabled || false;
+    this.balance = parseFloat(props.balance) || 0;
+    this.stake = parseFloat(props.stake) || 0;
+    this.delegationsIn = parseFloat(props.delegationsIn) || 0;
+    this.delegationsOut = parseFloat(props.delegationsOut) || 0;
+    this.stakedBalance = this.stake + this.delegationsIn - this.delegationsOut;
+    this.usdValue = props.usdValue;
+  }
+  hasDelegations = () => {
+    if (!this.delegationEnabled) {
+      return false;
+    }
+    return this.delegationsIn > 0 && this.delegationsOut > 0;
+  };
+  delegations = () => {
+    if (!this.hasDelegations()) {
+      return "";
+    }
+    return `(${formattedNumber(this.stake, {
+      fractionDigits: this.precision
+    })} + ${formattedNumber(this.delegationsIn, {
+      fractionDigits: this.precision
+    })} - ${formattedNumber(this.delegationsOut, {
+      fractionDigits: this.precision
+    })})`;
+  };
+  staked = () => {
+    if (!this.stakingEnabled) {
+      return "-";
+    }
+    if (this.stakedBalance < 1e-4) {
+      return this.stakedBalance.toString();
+    }
+    return formattedNumber(this.stakedBalance, {
+      fractionDigits: this.precision
+    });
+  };
+  balanced = () => {
+    if (this.balance < 1e-4) {
+      return this.balance.toString();
+    }
+    return formattedNumber(this.balance, { fractionDigits: this.precision });
+  };
+};
+
+// src/modules/assets/hive-engine/queries/get-hive-engine-balances-with-usd-query-options.ts
+function getHiveEngineBalancesWithUsdQueryOptions(account, dynamicProps, allTokens) {
+  return queryOptions({
+    queryKey: [
+      "assets",
+      "hive-engine",
+      "balances-with-usd",
+      account,
+      dynamicProps,
+      allTokens
+    ],
+    queryFn: async () => {
+      if (!account) {
+        throw new Error("[HiveEngine] No account in a balances query");
+      }
+      const balancesResponse = await fetch(
+        `${CONFIG.privateApiHost}/private-api/engine-api`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            method: "find",
+            params: {
+              contract: "tokens",
+              table: "balances",
+              query: {
+                account
+              }
+            },
+            id: 1
+          }),
+          headers: { "Content-type": "application/json" }
+        }
+      );
+      const balancesData = await balancesResponse.json();
+      const balances = balancesData.result || [];
+      const tokensResponse = await fetch(
+        `${CONFIG.privateApiHost}/private-api/engine-api`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            method: "find",
+            params: {
+              contract: "tokens",
+              table: "tokens",
+              query: {
+                symbol: { $in: balances.map((t) => t.symbol) }
+              }
+            },
+            id: 2
+          }),
+          headers: { "Content-type": "application/json" }
+        }
+      );
+      const tokensData = await tokensResponse.json();
+      const tokens = tokensData.result || [];
+      const pricePerHive = dynamicProps ? dynamicProps.base / dynamicProps.quote : 0;
+      const metrics = Array.isArray(
+        allTokens
+      ) ? allTokens : [];
+      return balances.map((balance) => {
+        const token = tokens.find((t) => t.symbol === balance.symbol);
+        let tokenMetadata;
+        if (token?.metadata) {
+          try {
+            tokenMetadata = JSON.parse(token.metadata);
+          } catch {
+            tokenMetadata = void 0;
+          }
+        }
+        const metric = metrics.find((m) => m.symbol === balance.symbol);
+        const lastPrice = Number(metric?.lastPrice ?? "0");
+        const balanceAmount = Number(balance.balance);
+        const usdValue = balance.symbol === "SWAP.HIVE" ? pricePerHive * balanceAmount : lastPrice === 0 ? 0 : Number(
+          (lastPrice * pricePerHive * balanceAmount).toFixed(10)
+        );
+        return new HiveEngineToken({
+          symbol: balance.symbol,
+          name: token?.name ?? balance.symbol,
+          icon: tokenMetadata?.icon ?? "",
+          precision: token?.precision ?? 0,
+          stakingEnabled: token?.stakingEnabled ?? false,
+          delegationEnabled: token?.delegationEnabled ?? false,
+          balance: balance.balance,
+          stake: balance.stake,
+          delegationsIn: balance.delegationsIn,
+          delegationsOut: balance.delegationsOut,
+          usdValue
+        });
+      });
+    },
+    enabled: !!account
+  });
+}
 function getHiveEngineTokensMetadataQueryOptions(tokens) {
   return queryOptions({
     queryKey: ["assets", "hive-engine", "metadata-list", tokens],
@@ -2085,6 +3010,30 @@ function getHiveEngineTokensMetricsQueryOptions(symbol, interval = "daily") {
         headers: { "Content-type": "application/json" }
       });
       return await response.json();
+    }
+  });
+}
+function getHiveEngineUnclaimedRewardsQueryOptions(username) {
+  return queryOptions({
+    queryKey: ["assets", "hive-engine", "unclaimed", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    enabled: !!username,
+    queryFn: async () => {
+      try {
+        const response = await fetch(
+          CONFIG.privateApiHost + `/private-api/engine-reward-api/${username}?hive=1`
+        );
+        if (!response.ok) {
+          return [];
+        }
+        const data = await response.json();
+        return Object.values(data).filter(
+          ({ pending_token }) => pending_token > 0
+        );
+      } catch (e) {
+        return [];
+      }
     }
   });
 }
@@ -3541,13 +4490,13 @@ function getTronAssetGeneralInfoQueryOptions(username) {
 // src/modules/wallets/queries/get-account-wallet-asset-info-query-options.ts
 function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { refetch: false }) {
   const queryClient = getQueryClient();
-  const fetchQuery = async (queryOptions40) => {
+  const fetchQuery = async (queryOptions43) => {
     if (options2.refetch) {
-      await queryClient.fetchQuery(queryOptions40);
+      await queryClient.fetchQuery(queryOptions43);
     } else {
-      await queryClient.prefetchQuery(queryOptions40);
+      await queryClient.prefetchQuery(queryOptions43);
     }
-    return queryClient.getQueryData(queryOptions40.queryKey);
+    return queryClient.getQueryData(queryOptions43.queryKey);
   };
   const portfolioQuery = getVisionPortfolioQueryOptions(username);
   const getPortfolioAssetInfo = async () => {
@@ -4083,7 +5032,18 @@ function useWalletOperation(username, asset, operation) {
 
 // src/index.ts
 rememberScryptBsvVersion();
+/*! Bundled license information:
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getVisionPortfolioQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+numeral/numeral.js:
+  (*! @preserve
+   * numeral.js
+   * version : 2.0.6
+   * author : Adam Draper
+   * license : MIT
+   * http://adamwdraper.github.com/Numeral-js/
+   *)
+*/
+
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllHiveEngineTokensQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getVisionPortfolioQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

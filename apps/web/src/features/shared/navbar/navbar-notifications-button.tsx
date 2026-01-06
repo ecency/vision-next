@@ -5,15 +5,19 @@ import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
-import { useNotificationUnreadCountQuery } from "@/api/queries";
+
 import { bellOffSvg, bellSvg } from "@ui/svg";
 import { EcencyConfigManager } from "@/config";
+import { useQuery } from "@tanstack/react-query";
+import { getNotificationsUnreadCountQueryOptions } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks";
 
 export function NavbarNotificationsButton({ onClick }: { onClick?: () => void }) {
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
   const globalNotifications = useGlobalStore((state) => state.globalNotifications);
 
-  const { data: unread } = useNotificationUnreadCountQuery();
+  const { data: unread } = useQuery(getNotificationsUnreadCountQueryOptions(activeUser?.username));
 
   return (
     <EcencyConfigManager.Conditional

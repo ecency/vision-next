@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
 import { getActiveAccountBookmarksQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function BookmarksList({ onHide }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data, isLoading } = useQuery({
     ...getActiveAccountBookmarksQueryOptions(activeUser?.username),

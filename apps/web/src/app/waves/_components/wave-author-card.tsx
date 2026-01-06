@@ -1,8 +1,10 @@
 "use client";
 
-import { getAccountFullQuery, useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Followers, Following } from "@/app/(dynamicPages)/profile/[username]/_components/friends";
 import { FollowControls, UserAvatar } from "@/features/shared";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { WavesProfileCardLoading } from "@/app/waves/_components/waves-profile-card-loading";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,9 +18,9 @@ interface Props {
 
 export function WaveAuthorCard({ username }: Props) {
   const sanitizedUsername = useMemo(() => username?.replace(/^@/, "") ?? "", [username]);
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
-  const { data, isLoading } = getAccountFullQuery(sanitizedUsername).useClientQuery();
+  const { data, isLoading } = useQuery(getAccountFullQueryOptions(sanitizedUsername));
 
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);

@@ -9,7 +9,7 @@ import { ReceivedVesting } from "./received-vesting-dialog";
 import { useEffect, useMemo, useState } from "react";
 import { DelegatedVesting } from "./delegated-vesting-dialog";
 import { Transfer } from "@/features/shared";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 
 const HP_PROMO_STORAGE_KEY_PREFIX = "hpDelegationPromoDismissed";
@@ -28,7 +28,7 @@ export function HpDelegationsCard({ username }: Props) {
   const [showReceived, setShowReceived] = useState(false);
   const [showDelegateDialog, setShowDelegateDialog] = useState(false);
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isOwnProfile = activeUser?.username === username;
 
   const storageKey = `${HP_PROMO_STORAGE_KEY_PREFIX}:${username || "unknown"}`;

@@ -1,14 +1,16 @@
-import React, { Fragment, useMemo } from "react";
-import { useNotificationsQuery } from "@/api/queries";
-import { LinearProgress } from "@/features/shared";
+import { useActiveAccount } from "@/core/hooks";
 import { NotificationFilter, NotificationViewType } from "@/enums";
-import { NotificationListItem } from "@/features/shared/notifications/notification-list-item";
-import i18next from "i18next";
-import { date2key } from "@/features/shared/notifications/utils";
+import { LinearProgress } from "@/features/shared";
 import { AnimatedNotificationListItemLayout } from "@/features/shared/notifications/animated-notification-list-item-layout";
+import { NotificationListItem } from "@/features/shared/notifications/notification-list-item";
+import { date2key } from "@/features/shared/notifications/utils";
+import { getNotificationsInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import i18next from "i18next";
+import { Fragment, useMemo } from "react";
 
 interface Props {
-  filter: NotificationFilter | null;
+  filter?: NotificationFilter;
   currentStatus: NotificationViewType;
   openLinksInNewTab?: boolean;
   select?: boolean;
@@ -22,9 +24,15 @@ export function NotificationList({
   select,
   selectNotification
 }: Props) {
-  const { data, isFetching, fetchNextPage } = useNotificationsQuery(filter);
+  const { activeUser } = useActiveAccount();
+  const { data, isFetching, fetchNextPage } = useInfiniteQuery(
+    getNotificationsInfiniteQueryOptions(activeUser?.username, filter)
+  );
 
-  const dataFlow = useMemo(() => data?.pages.reduce((acc, page) => [...acc, ...page], []), [data]);
+  const dataFlow = useMemo(
+    () => data?.pages.reduce((acc, page) => [...acc, ...page], []) ?? [],
+    [data]
+  );
 
   return (
     <>

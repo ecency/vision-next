@@ -8,12 +8,24 @@ import { Button } from "@ui/button";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import i18next from "i18next";
 import { arrowLeftSvg } from "@ui/svg";
-import { addReplyToDiscussionsList } from "@/api/queries/get-discussions-query";
 import { useMounted } from "@/utils/use-mounted";
 import { useQueryClient } from "@tanstack/react-query";
-import { WaveEntry } from "@/entities";
+import { WaveEntry, Entry } from "@/entities";
 import { useWaveDiscussionsList } from "@/features/waves";
 import { makeEntryPath } from "@/utils";
+import { SortOrder } from "@/enums";
+import { getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
+
+// Helper function to add a reply to discussions list
+function addReplyToDiscussionsList(
+  entry: Entry,
+  reply: Entry,
+  order: SortOrder,
+  queryClient: ReturnType<typeof useQueryClient>
+) {
+  const options = getDiscussionsQueryOptions(entry, order as unknown as SDKSortOrder, true, entry?.author);
+  queryClient.setQueryData<Entry[]>(options.queryKey, (data) => [...(data ?? []), reply]);
+}
 
 interface Props {
   entry: WaveEntry;
@@ -32,7 +44,7 @@ export const DeckThreadItemViewer = ({
   const queryClient = useQueryClient();
 
   const { data: entry } =
-    EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(initialEntry).useClientQuery();
+    useQuery(EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(initialEntry));
   const isMounted = useMounted();
 
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);
@@ -82,7 +94,7 @@ export const DeckThreadItemViewer = ({
         onSuccess={(reply) => {
           reply.replies = [];
           if (data) {
-            addReplyToDiscussionsList(entry!, reply, queryClient);
+            addReplyToDiscussionsList(entry!, reply, SortOrder.created, queryClient);
             // Update entry in global cache
             addReply(reply);
           }

@@ -11,7 +11,7 @@ import Link from "next/link";
 import { Fragment, useMemo } from "react";
 
 export const TopCommunitiesWidget = () => {
-  const { data: ecencyCommunity } = getCommunityCache("hive-125125").useClientQuery();
+  const { data: ecencyCommunity } = useQuery(getCommunityCache("hive-125125"));
   const { data, isLoading: loading } = useQuery(getCommunitiesQueryOptions("rank"));
 
   const list = useMemo(() => {

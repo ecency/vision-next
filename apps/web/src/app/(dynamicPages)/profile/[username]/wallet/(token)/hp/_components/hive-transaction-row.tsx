@@ -1,5 +1,7 @@
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { cashCoinSvg, pickAxeSvg, powerDownSvg, powerUpSvg, ticketSvg } from "@/assets/img/svg";
+import { useQuery } from "@tanstack/react-query";
 import { Transaction } from "@/entities";
 import { Tsx } from "@/features/i18n/helper";
 import { EntryLink, ProfileLink, UserAvatar } from "@/features/shared";
@@ -38,7 +40,7 @@ function TransferParticipants({ from, to }: { from: string; to: string }) {
 }
 
 export function HiveTransactionRow({ entry, transaction: tr }: Props) {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const { hivePerMVests } = useMemo(() => dynamicProps ?? DEFAULT_DYNAMIC_PROPS, [dynamicProps]);
 

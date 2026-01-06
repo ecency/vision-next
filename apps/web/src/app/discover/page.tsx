@@ -1,7 +1,7 @@
 import { Metadata, ResolvingMetadata } from "next";
-import { getContributorsQuery } from "@/api/queries";
+import { getContributorsQueryOptions } from "@/api/queries";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { PagesMetadataGenerator } from "@/features/metadata";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ export async function generateMetadata(
 }
 
 export default async function Discover() {
-  await getContributorsQuery().prefetch();
+  await prefetchQuery(getContributorsQueryOptions());
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

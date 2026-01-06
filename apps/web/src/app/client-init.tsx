@@ -1,9 +1,9 @@
 "use client";
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-
-import { getAccountFullQuery } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { initI18next } from "@/features/i18n";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
@@ -24,7 +24,7 @@ export function ClientInit() {
   const queryClient = useQueryClient();
 
   // Prefetch account data for active user
-  getAccountFullQuery(activeUser?.username).useClientQuery();
+  useQuery(getAccountFullQueryOptions(activeUser?.username));
 
   useMount(() => {
     installConsoleRecorder();

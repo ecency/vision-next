@@ -25,7 +25,7 @@ import { ThreeSpeakVideo } from "@/api/threespeak";
 import { PollsCreation, PollSnapshot } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";
 import { useUploadPostImage } from "@/api/mutations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { insertOrReplace, replace } from "@/utils";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -76,7 +76,7 @@ export function EditorToolbar({
   onDeletePoll,
   readonlyPoll
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const activeUserRef = useRef(activeUser);
 
   const isMobile = useGlobalStore((s) => s.isMobile);

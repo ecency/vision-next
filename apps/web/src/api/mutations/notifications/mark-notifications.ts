@@ -29,10 +29,10 @@ export function useMarkNotifications() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [QueryIdentifiers.NOTIFICATIONS_UNREAD_COUNT, activeUser?.username]
+        queryKey: ["notifications", "unread", activeUser?.username]
       });
       queryClient.invalidateQueries({
-        queryKey: [QueryIdentifiers.NOTIFICATIONS, activeUser?.username]
+        queryKey: ["notifications", activeUser?.username]
       });
     }
   });

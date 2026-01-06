@@ -2,8 +2,8 @@ import { Navbar, ProfileLink, ScrollToTop, Theme, UserAvatar } from "@/features/
 import i18next from "i18next";
 import "./page.scss";
 import { Tsx } from "@/features/i18n/helper";
-import { getContributorsQuery } from "@/api/queries";
-import { getQueryClient } from "@/core/react-query";
+import { getContributorsQueryOptions } from "@/api/queries";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
@@ -17,7 +17,7 @@ export async function generateMetadata(
   return PagesMetadataGenerator.getForPage("contributors");
 }
 export default async function Contributors() {
-  const data = await getContributorsQuery().prefetch();
+  const data = await prefetchQuery(getContributorsQueryOptions());
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

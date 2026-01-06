@@ -2,8 +2,9 @@ import React from "react";
 import "./_index.scss";
 import { Account, Community, Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
-import { getPromotedEntriesQuery } from "@/api/queries";
+import { getPromotedPostsQuery } from "@ecency/sdk";
 import { EntryListContentNoData } from "./entry-list-content-no-data";
+import { getQueryData } from "@/core/react-query";
 
 interface Props {
   loading: boolean;
@@ -31,7 +32,7 @@ export function EntryListContent({
   let dataToRender = [...entries];
   let promotedEntries: Entry[] = [];
   if (isPromoted) {
-    const promotedEntriesResponse = getPromotedEntriesQuery().getData();
+    const promotedEntriesResponse = getQueryData(getPromotedPostsQuery());
     promotedEntries = promotedEntriesResponse ?? [];
   }
 

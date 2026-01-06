@@ -9,7 +9,8 @@ import { useMutation } from "@tanstack/react-query";
 import { WaveHosts } from "@/features/waves/enums";
 import { DBUZZ_COMMUNITY } from "@/features/waves";
 import { useActiveAccount } from "@/core/hooks";
-import { getAccountFullQuery } from "@/api/queries";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Body {
   host: string;
@@ -33,7 +34,7 @@ export function useCommunityApi() {
       // Wait for account data if still loading
       let authorData: FullAccount;
       if (isLoading) {
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           throw new Error("[Wave][Community-API] – Failed to load account data");
         }

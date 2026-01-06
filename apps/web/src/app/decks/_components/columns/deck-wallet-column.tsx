@@ -7,8 +7,9 @@ import { DeckGridContext } from "../deck-manager";
 import { DeckContentTypeColumnSettings } from "./deck-column-settings/deck-content-type-column-settings";
 import { WALLET_CONTENT_TYPES } from "../consts";
 import { Transaction } from "@/entities";
-import { getDynamicPropsQuery, getTransactionsQuery } from "@/api/queries";
+import { getDynamicPropsQueryOptions, getTransactionsInfiniteQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { TransactionRow } from "@/features/shared";
 
 interface Props {
@@ -20,12 +21,12 @@ interface Props {
 type IdentifiableTransaction = Transaction & { id: string };
 
 export const DeckWalletColumn = ({ id, settings, draggable }: Props) => {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { data, isRefetching, refetch } = getTransactionsQuery(
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const { data, isRefetching, refetch } = useInfiniteQuery(getTransactionsInfiniteQueryOptions(
     settings.username,
     20,
     settings.contentType as any
-  ).useClientQuery();
+  ));
 
   const [isFirstLoaded, setIsFirstLoaded] = useState(false);
 

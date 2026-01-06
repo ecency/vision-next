@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { WalletOperationsDialog } from "@/features/wallet";
 import {
   AssetOperation,
@@ -31,7 +31,7 @@ import {
 } from "./profile-wallet-token-operation-helpers";
 
 export function ProfileWalletTokenActions() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { token, username } = useParams();
   const pathname = usePathname();
 

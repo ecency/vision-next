@@ -9,18 +9,20 @@ import { LoginRequired } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
 import { repeatSvg } from "@ui/svg";
 import { useEntryReblog } from "@/api/mutations";
-import { useGetReblogsQuery, useClientActiveUser } from "@/api/queries";
+import { getReblogsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   entry: Entry;
 }
 
 export function EntryReblogBtn({ entry }: Props) {
-  const { data } = EcencyEntriesCacheManagement.getEntryQuery(entry).useClientQuery();
-  const activeUser = useClientActiveUser();
+  const { data } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(entry));
+  const { activeUser } = useActiveAccount();
 
-    const { data: reblogs } = useGetReblogsQuery(activeUser?.username);
+    const { data: reblogs } = useQuery(getReblogsQueryOptions(activeUser?.username, activeUser?.username));
     const { mutateAsync: reblog, isPending } = useEntryReblog(entry);
 
     const reblogged = useMemo(
