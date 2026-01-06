@@ -20,7 +20,7 @@ function buildQuery(entry: Entry, retry = 3) {
   // 3 tags and decrease until there is enough relevant posts
   if (json_metadata && json_metadata.tags && Array.isArray(json_metadata.tags)) {
     tags = json_metadata.tags
-      .filter((tag) => tag && tag !== "")
+      .filter((tag) => tag && tag !== "" && typeof tag === "string")
       .filter((tag) => !tag.startsWith("hive-")) // filter out communities
       .filter((_tag, ind) => ind < +retry)
       .join(",");
