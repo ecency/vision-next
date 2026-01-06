@@ -1815,7 +1815,7 @@
     "checkins-title": "連続@{{username}}",
     "payouts-title": "@{{username}}で支払いを受け取りました",
     "monthly-posts-title": "強力な月を終了しました。@{{username}}",
-    "spin-str": "時間を稼ぐより多くのポイントを獲得します。回りましょう！",
+    "spin-str": "より多くのポイントを獲得しましょう。Ecency Mobile アプリでスピンをプレイしましょう",
     "inactive-str": "アクティブにしましょう！投稿を書き、獲得を続けましょう",
     "referral-str": "紹介を受けて歓迎します",
     "refresh": "更新",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "5分に1回しか投稿できません。",
     "identical-vote": "このコンテンツへの現在の投票は、この投票と同じです。",
-    "must-claim": "保留中の報酬は既に請求されています。",
+    "must-claim": "請求の残高や請求済みの残高はありません。",
     "insufficient-resource": "資源クレジットが不足しています。",
     "delete-comment-with-vote": "肯定的な保留中の報酬を削除することはできません。",
     "comment-cashout": "支払い後のコンテンツは削除できません。",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "送金",
-      "transfer-saving": "貯蓄額",
+      "transfer-saving": "貯蓄へ",
       "power-up": "パワーアップ",
       "power-down": "パワーダウン",
       "swap": "入れ替え",
