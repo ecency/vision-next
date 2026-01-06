@@ -4,7 +4,6 @@ import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
-import dmcaPosts from "../../../public/dmca/dmca-posts.json";
 
 export namespace EcencyEntriesCacheManagement {
   export function getEntryQueryByPath(author?: string, permlink?: string) {
@@ -143,16 +142,7 @@ export namespace EcencyEntriesCacheManagement {
     entries.forEach((entry) => {
       qc.setQueryData<Entry>(
         [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
-        () => {
-          const data = { ...entry };
-          const entryPath = `@${entry.author}/${entry.permlink}`;
-          if (dmcaPosts.includes(entryPath)) {
-            data.body = "This post is not available due to a copyright/fraudulent claim.";
-            data.title = "";
-          }
-
-          return data;
-        }
+        () => entry
       );
     });
   }
