@@ -6,6 +6,7 @@ import { useMattermostBootstrap } from "@/features/chat/mattermost-api";
 import { ChatErrorBoundary } from "@/features/chat/chat-error-boundary";
 import { LoginRequired } from "@/features/shared";
 import { useHydrated } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export default function ChannelPage() {
   const { activeUser } = useActiveAccount();

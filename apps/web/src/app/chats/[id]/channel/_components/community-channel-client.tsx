@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useMattermostBootstrap } from "@/features/chat/mattermost-api";
 import { LoginRequired } from "@/features/shared";
 import { useHydrated } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function CommunityChannelClient() {
   const { activeUser } = useActiveAccount();

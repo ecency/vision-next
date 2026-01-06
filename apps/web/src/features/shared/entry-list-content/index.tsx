@@ -1,12 +1,10 @@
-"use client";
-
 import React from "react";
 import "./_index.scss";
 import { Account, Community, Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
 import { getPromotedPostsQuery } from "@ecency/sdk";
 import { EntryListContentNoData } from "./entry-list-content-no-data";
-import { useQueryClient } from "@tanstack/react-query";
+import { getQueryData } from "@/core/react-query";
 
 interface Props {
   loading: boolean;
@@ -31,11 +29,10 @@ export function EntryListContent({
   community,
   now
 }: Props) {
-  const queryClient = useQueryClient();
   let dataToRender = [...entries];
   let promotedEntries: Entry[] = [];
   if (isPromoted) {
-    const promotedEntriesResponse = queryClient.getQueryData(getPromotedPostsQuery().queryKey);
+    const promotedEntriesResponse = getQueryData(getPromotedPostsQuery());
     promotedEntries = promotedEntriesResponse ?? [];
   }
 

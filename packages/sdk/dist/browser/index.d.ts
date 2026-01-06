@@ -1167,6 +1167,7 @@ declare const CONFIG: {
     dmcaPatterns: string[];
     dmcaTagRegexes: RegExp[];
     dmcaPatternRegexes: RegExp[];
+    _dmcaInitialized: boolean;
 };
 declare namespace ConfigManager {
     function setQueryClient(client: QueryClient): void;

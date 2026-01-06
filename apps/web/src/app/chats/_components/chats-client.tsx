@@ -28,6 +28,7 @@ import { checkSvg, dotsHorizontal, settingsSvg, volumeOffSvg } from "@ui/svg";
 import { MouseEvent, useCallback, useMemo, useState } from "react";
 import clsx from "clsx";
 import { useChatAdminStore } from "@/features/chat/chat-admin-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 const TOWN_HALL_CHANNEL_NAME = "town-hall";
 

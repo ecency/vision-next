@@ -6,6 +6,7 @@ import { useMattermostBootstrap, useMattermostChannels } from "@/features/chat/m
 import { MattermostChannelView } from "@/features/chat/mattermost-channel-view";
 import { ChatErrorBoundary } from "@/features/chat/chat-error-boundary";
 import { LoginRequired } from "@/features/shared";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 const TOWN_HALL_CHANNEL_NAME = "town-hall";
 

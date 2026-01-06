@@ -62,7 +62,9 @@ var CONFIG = {
   dmcaPatterns: [],
   // Pre-compiled regex patterns for performance and security
   dmcaTagRegexes: [],
-  dmcaPatternRegexes: []
+  dmcaPatternRegexes: [],
+  // Track if DMCA has been initialized to avoid duplicate logs
+  _dmcaInitialized: false
 };
 var ConfigManager;
 ((ConfigManager2) => {
@@ -163,12 +165,15 @@ var ConfigManager;
     CONFIG.dmcaTagRegexes = tags.map((pattern) => safeCompileRegex(pattern)).filter((r) => r !== null);
     CONFIG.dmcaPatternRegexes = [];
     const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
-    console.log(`[SDK] DMCA configuration loaded:`);
-    console.log(`  - Accounts: ${accounts.length}`);
-    console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
-    console.log(`  - Post patterns: ${patterns.length} (using exact string matching)`);
-    if (rejectedTagCount > 0) {
-      console.warn(`[SDK] ${rejectedTagCount} DMCA tag patterns were rejected due to security validation. Check warnings above for details.`);
+    if (!CONFIG._dmcaInitialized) {
+      console.log(`[SDK] DMCA configuration loaded:`);
+      console.log(`  - Accounts: ${accounts.length}`);
+      console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
+      console.log(`  - Post patterns: ${patterns.length} (using exact string matching)`);
+      if (rejectedTagCount > 0) {
+        console.warn(`[SDK] ${rejectedTagCount} DMCA tag patterns were rejected due to security validation. Check warnings above for details.`);
+      }
+      CONFIG._dmcaInitialized = true;
     }
   }
   ConfigManager2.setDmcaLists = setDmcaLists;
