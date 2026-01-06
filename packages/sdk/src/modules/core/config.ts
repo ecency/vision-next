@@ -176,9 +176,9 @@ export namespace ConfigManager {
 
   /**
    * Set DMCA filtering lists
-   * @param accounts - List of account usernames to filter
+   * @param accounts - List of account usernames to filter (plain strings)
    * @param tags - List of tag patterns (regex strings) to filter
-   * @param patterns - List of post patterns (regex strings) like "@author/permlink" to filter
+   * @param patterns - List of post patterns (plain strings) like "@author/permlink" for exact matching
    */
   export function setDmcaLists(
     accounts: string[] = [],
@@ -189,26 +189,24 @@ export namespace ConfigManager {
     CONFIG.dmcaTags = tags;
     CONFIG.dmcaPatterns = patterns;
 
-    // Pre-compile tag regex patterns
+    // Pre-compile tag regex patterns (tags can be regex)
     CONFIG.dmcaTagRegexes = tags
-      .map(safeCompileRegex)
+      .map((pattern) => safeCompileRegex(pattern))
       .filter((r): r is RegExp => r !== null);
 
-    // Pre-compile pattern regex patterns
-    CONFIG.dmcaPatternRegexes = patterns
-      .map(safeCompileRegex)
-      .filter((r): r is RegExp => r !== null);
+    // Post patterns are plain strings for exact matching, not regex
+    // No compilation needed - they will be used with simple string comparison
+    CONFIG.dmcaPatternRegexes = [];
 
     const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
-    const rejectedPatternCount = patterns.length - CONFIG.dmcaPatternRegexes.length;
 
     console.log(`[SDK] DMCA configuration loaded:`);
     console.log(`  - Accounts: ${accounts.length}`);
     console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
-    console.log(`  - Post patterns: ${CONFIG.dmcaPatternRegexes.length}/${patterns.length} compiled (${rejectedPatternCount} rejected)`);
+    console.log(`  - Post patterns: ${patterns.length} (using exact string matching)`);
 
-    if (rejectedTagCount > 0 || rejectedPatternCount > 0) {
-      console.warn(`[SDK] ${rejectedTagCount + rejectedPatternCount} DMCA patterns were rejected due to security validation. Check warnings above for details.`);
+    if (rejectedTagCount > 0) {
+      console.warn(`[SDK] ${rejectedTagCount} DMCA tag patterns were rejected due to security validation. Check warnings above for details.`);
     }
   }
 }

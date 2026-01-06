@@ -1,6 +1,6 @@
 "use client";
 
-import { getWavesByHostInfiniteQueryOptions } from "@ecency/sdk";
+import { getWavesByHostQueryOptions } from "@ecency/sdk";
 import { useInfiniteDataFlow } from "@/utils";
 import { useMemo, useState } from "react";
 import { WaveEntry } from "@/entities";
@@ -18,7 +18,7 @@ interface Props {
 
 export function WavesMasonryView({ host }: Props) {
   const { data, fetchNextPage, isError, hasNextPage, refetch } = useInfiniteQuery(
-    getWavesByHostInfiniteQueryOptions(host)
+    getWavesByHostQueryOptions(host)
   );
   const dataFlow = useInfiniteDataFlow(data);
   const { newWaves, clear, now } = useWavesAutoRefresh(dataFlow[0]);

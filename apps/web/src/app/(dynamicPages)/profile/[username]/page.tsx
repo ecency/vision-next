@@ -30,10 +30,10 @@ export default async function Page({ params, searchParams }: Props) {
 
   const account = await prefetchQuery(getAccountFullQueryOptions(username));
 
-  await EcencyEntriesCacheManagement.getEntryQueryByPath(
+  await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
     username,
     account?.profile.pinned
-  ).prefetch();
+  ));
 
   let searchData: SearchResult[] | undefined = undefined;
   let initialFeed: InfiniteData<Entry[], unknown> | undefined;

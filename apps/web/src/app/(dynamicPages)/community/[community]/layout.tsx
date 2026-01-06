@@ -13,7 +13,7 @@ interface Props {
 
 export default async function CommunityPageLayout({ children, params }: PropsWithChildren<Props>) {
   const { community, tag } = await params;
-  const communityData = await getCommunityCache(community).prefetch();
+  const communityData = await prefetchQuery(getCommunityCache(community));
   const account = await prefetchQuery(getAccountFullQueryOptions(community));
   const metaUrl = `/${tag}/${community}`;
   const base = await getServerAppBase();

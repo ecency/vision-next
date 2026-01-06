@@ -1,6 +1,5 @@
 import { getQueryClient, QueryIdentifiers } from "../react-query";
 import * as bridgeApi from "../../api/bridge";
-import dmca from "@/dmca.json";
 import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";

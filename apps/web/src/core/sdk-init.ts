@@ -7,10 +7,11 @@
  */
 
 import { ConfigManager } from "@ecency/sdk";
-import dmcaAccounts from "@/dmca-accounts.json";
-import dmcaTags from "@/dmca-tags.json";
-import dmcaPatterns from "@/dmca.json";
+import dmcaAccounts from "../../public/dmca/dmca-accounts.json";
+import dmcaTags from "../../public/dmca/dmca-tags.json";
+import dmcaPosts from "../../public/dmca/dmca-posts.json";
 
 // Initialize DMCA filtering immediately at module load time
 // This ensures the lists are available before any React Query fetches execute
-ConfigManager.setDmcaLists(dmcaAccounts, dmcaTags, dmcaPatterns);
+// Files are in public/dmca/ for both bundling and mobile app access
+ConfigManager.setDmcaLists(dmcaAccounts, dmcaTags, dmcaPosts);

@@ -2,7 +2,7 @@ import { CommunityCard } from "@/app/discover/@communities/_components/community
 import CommunityCardAnimated from "@/app/discover/@communities/_components/community-card-animated-client";
 import { PrimaryCommunityCard } from "@/app/discover/@communities/_components/primary-community-card";
 import { getCommunityCache } from "@/core/caches";
-import { getQueryClient } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { Communities, getCommunitiesQueryOptions } from "@ecency/sdk";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
@@ -10,7 +10,7 @@ import i18next from "i18next";
 import Link from "next/link";
 
 export default async function CommunitiesList() {
-  const ecencyCommunity = await getCommunityCache("hive-125125").prefetch();
+  const ecencyCommunity = await prefetchQuery(getCommunityCache("hive-125125"));
 
   await getQueryClient().prefetchQuery(getCommunitiesQueryOptions("hot", "", 5));
   const communities = getQueryClient().getQueryData<Communities>(

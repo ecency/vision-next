@@ -7,7 +7,7 @@ import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 export async function generateCommunityMetadata(communityName: string, tag: string) {
-  const community = await getCommunityCache(communityName).prefetch();
+  const community = await prefetchQuery(getCommunityCache(communityName));
   const account = await prefetchQuery(getAccountFullQueryOptions(communityName));
   if (community && account) {
     const base = await getServerAppBase();

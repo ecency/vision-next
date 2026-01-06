@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EntryListContent, LinearProgress } from "@/features/shared";
 import { dehydrate, HydrationBoundary, InfiniteData } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateCommunityMetadata } from "@/app/(dynamicPages)/community/[community]/_helpers";
 import { CommunityContentSearch } from "../_components/community-content-search";
@@ -31,7 +31,7 @@ function pageToEntries(p: Page): Entry[] {
 export default async function CommunityPostsPage({ params }: Props) {
   const { community, tag } = await params;
 
-  const communityData = await getCommunityCache(community).prefetch();
+  const communityData = await prefetchQuery(getCommunityCache(community));
   if (!communityData) return notFound();
 
   // no cast needed if prefetchGetPostsFeedQuery is typed
