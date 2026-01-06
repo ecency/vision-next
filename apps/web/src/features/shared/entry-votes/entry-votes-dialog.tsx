@@ -33,7 +33,7 @@ export function EntryVotesDialog({
   totalVotes,
   hasDifferentVotes
 }: Props) {
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
 
   const { activeUser } = useActiveAccount();
   const { data: apiVotes, isLoading: areVotesLoading } = useQuery(getEntryActiveVotesQueryOptions(entry));

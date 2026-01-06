@@ -39,10 +39,10 @@ export function PromotePostSetup({ onSuccess }: Props) {
     select: (data) => data.sort((a, b) => a.duration - b.duration)
   });
   const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQueryByPath(
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
     author,
     permlink
-  ).useClientQuery();
+  ));
 
   const isAmountMoreThanBalance = useMemo(() => {
     const price = prices?.find((p) => p.duration === selectedDuration);

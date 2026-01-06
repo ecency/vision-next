@@ -15,6 +15,7 @@ import { classNameObject } from "@ui/util";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { AnimatePresence, motion } from "framer-motion";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
@@ -28,7 +29,7 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
   const { activeUser } = useActiveAccount();
 
   const { data: entry } =
-    EcencyEntriesCacheManagement.getEntryQuery(originalEntry).useClientQuery();
+    useQuery(EcencyEntriesCacheManagement.getEntryQuery(originalEntry));
 
   const [dialog, setDialog] = useState(false);
   const [tipDialog, setTipDialog] = useState(false);

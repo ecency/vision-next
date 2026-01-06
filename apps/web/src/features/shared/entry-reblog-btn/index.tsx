@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function EntryReblogBtn({ entry }: Props) {
-  const { data } = EcencyEntriesCacheManagement.getEntryQuery(entry).useClientQuery();
+  const { data } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(entry));
   const { activeUser } = useActiveAccount();
 
     const { data: reblogs } = useQuery(getReblogsQueryOptions(activeUser?.username, activeUser?.username));

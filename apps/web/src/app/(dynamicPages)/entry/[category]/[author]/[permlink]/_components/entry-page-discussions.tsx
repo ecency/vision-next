@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { EntryReplySection } from "./entry-reply-section";
 import { isCommunity } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
@@ -29,7 +30,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data: entryRaw } =
-      EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+      useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
 
   const communityCategory = useMemo(() => {
     if (isCommunity(category)) {
@@ -41,7 +42,7 @@ export function EntryPageDiscussions({ entry: initialEntry, category }: Props) {
     return undefined;
   }, [category, initialEntry.category]);
 
-  const { data: communityRaw } = getCommunityCache(communityCategory).useClientQuery();
+  const { data: communityRaw } = useQuery(getCommunityCache(communityCategory));
 
   // ✅ pick a guaranteed Entry (cache hit or the initial one)
   const entry: Entry = isEntry(entryRaw) ? entryRaw : initialEntry;

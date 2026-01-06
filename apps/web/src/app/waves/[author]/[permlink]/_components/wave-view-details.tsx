@@ -20,7 +20,7 @@ interface Props {
 }
 
 export function WaveViewDetails({ entry: initialEntry }: Props) {
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
 
   const [showEditModal, setShowEditModal] = useState(false);
   const router = useRouter();

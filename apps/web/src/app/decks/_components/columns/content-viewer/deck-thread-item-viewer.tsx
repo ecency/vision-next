@@ -44,7 +44,7 @@ export const DeckThreadItemViewer = ({
   const queryClient = useQueryClient();
 
   const { data: entry } =
-    EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(initialEntry).useClientQuery();
+    useQuery(EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(initialEntry));
   const isMounted = useMounted();
 
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);

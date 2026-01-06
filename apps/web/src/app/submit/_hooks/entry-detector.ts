@@ -2,6 +2,7 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { Entry } from "@/entities";
 import { useEffect, useRef } from "react";
 import useMount from "react-use/lib/useMount";
+import { useQuery } from "@tanstack/react-query";
 
 export function useEntryDetector(
   username: string | undefined,
@@ -10,12 +11,12 @@ export function useEntryDetector(
 ) {
   const attemptToLoad = useRef(false);
 
-  const { data, refetch } = EcencyEntriesCacheManagement.getEntryQueryByPath(
+  const { data, refetch } = useQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
     username?.replace("@", ""),
     permlink
-  ).useClientQuery();
+  ));
   const { data: normalizedEntry } =
-    EcencyEntriesCacheManagement.getNormalizedPostQuery(data).useClientQuery();
+    useQuery(EcencyEntriesCacheManagement.getNormalizedPostQuery(data));
 
   useMount(() => refetch());
 
