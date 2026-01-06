@@ -1815,7 +1815,7 @@
     "checkins-title": "Grande serie su @{{username}}",
     "payouts-title": "Hai ricevuto una vincita su @{{username}}",
     "monthly-posts-title": "Finendo il mese forte, @{{username}}",
-    "spin-str": "È ora di guadagnare più punti, Gioca giro!",
+    "spin-str": "Tempo di guadagnare più punti, divertiti sull'app mobile Ecency",
     "inactive-str": "Rimani attivo! Scrivi un post, continua a guadagnare",
     "referral-str": "si è unito con la consultazione, benvenuti",
     "refresh": "Ricarica",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "Puoi pubblicare soltanto una volta ogni cinque minuti.",
     "identical-vote": "Il tuo voto attuale sul contenuto corrente è identico a questo voto.",
-    "must-claim": "Ricompense in attesa già reclamate.",
+    "must-claim": "Nessun saldo di rivendicazione o già rivendicato.",
     "insufficient-resource": "Crediti Di Risorse Insufficienti.",
     "delete-comment-with-vote": "Impossibile eliminare un contenuto con ricompense positive in sospeso.",
     "comment-cashout": "I contenuti non possono essere eliminati dopo il loro pagamento.",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "Trasferisci",
-      "transfer-saving": "Deposito Di Risparmio",
+      "transfer-saving": "Al Risparmio",
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Scambia",
