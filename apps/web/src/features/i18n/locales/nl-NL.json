@@ -1815,7 +1815,7 @@
     "checkins-title": "Geweldige reeks op @{{username}}",
     "payouts-title": "U heeft een uitbetaling ontvangen op @{{username}}",
     "monthly-posts-title": "Voltooi de maand sterk, @{{username}}",
-    "spin-str": "Tijd om meer punten te verdienen, speel Spin!",
+    "spin-str": "Tijd om meer punten te verdienen, speel Spin op Ecency Mobile app",
     "inactive-str": "Wees actief! Schrijf een bericht, blijf verdienen",
     "referral-str": "Verwijzend ingeschreven, welkom hen",
     "refresh": "Vernieuwen",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "Je mag maar eenmaal per vijf minuten een bericht plaatsen.",
     "identical-vote": "Uw huidige stemming over deze inhoud is identiek aan deze stemming.",
-    "must-claim": "Beloningen in behandeling zijn al geëist.",
+    "must-claim": "Geen claim saldo of wordt al beweerd.",
     "insufficient-resource": "Onvoldoende Grondstof Credits.",
     "delete-comment-with-vote": "Kan geen inhoud met positieve beloningen verwijderen.",
     "comment-cashout": "Inhoud na uitbetaling kan niet verwijderd worden.",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "Overschrijving",
-      "transfer-saving": "Spaartegoedbon",
+      "transfer-saving": "Naar spaargeld",
       "power-up": "Power Up",
       "power-down": "Power down",
       "swap": "Wisselen",
