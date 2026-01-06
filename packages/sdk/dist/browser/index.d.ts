@@ -1172,6 +1172,11 @@ declare const CONFIG: {
 declare namespace ConfigManager {
     function setQueryClient(client: QueryClient): void;
     /**
+     * Set the private API host
+     * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
+     */
+    function setPrivateApiHost(host: string): void;
+    /**
      * Set DMCA filtering lists
      * @param accounts - List of account usernames to filter (plain strings)
      * @param tags - List of tag patterns (regex strings) to filter

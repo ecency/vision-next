@@ -97,6 +97,10 @@ exports.ConfigManager = void 0;
     CONFIG.queryClient = client;
   }
   ConfigManager2.setQueryClient = setQueryClient;
+  function setPrivateApiHost(host) {
+    CONFIG.privateApiHost = host;
+  }
+  ConfigManager2.setPrivateApiHost = setPrivateApiHost;
   function analyzeRedosRisk(pattern) {
     if (/(\([^)]*[*+{][^)]*\))[*+{]/.test(pattern)) {
       return { safe: false, reason: "nested quantifiers detected" };

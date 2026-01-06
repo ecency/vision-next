@@ -48,6 +48,14 @@ export namespace ConfigManager {
   }
 
   /**
+   * Set the private API host
+   * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
+   */
+  export function setPrivateApiHost(host: string) {
+    CONFIG.privateApiHost = host;
+  }
+
+  /**
    * Static analysis: Check for known ReDoS-vulnerable patterns
    * @param pattern - Raw regex pattern string
    * @returns Object with risk level and reason

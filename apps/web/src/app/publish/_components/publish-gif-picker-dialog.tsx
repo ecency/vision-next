@@ -7,7 +7,7 @@ import { SearchBox } from "@/features/shared";
 import Image from "next/image";
 import { GifPickerBottom } from "@ui/gif-picker/gif-picker-bottom";
 import { GiphyResponse } from "@/entities";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface Props {
   show: boolean;
@@ -18,7 +18,7 @@ interface Props {
 export function PublishGifPickerDialog({ show, setShow, onPick }: Props) {
   const [filter, setFilter] = useState("");
 
-  const { data, refetch, fetchNextPage, hasNextPage } = useQuery(getGifsQuery(filter));
+  const { data, refetch, fetchNextPage, hasNextPage } = useInfiniteQuery(getGifsQuery(filter));
   const dataFlow = useInfiniteDataFlow(data);
 
   useEffect(() => {
