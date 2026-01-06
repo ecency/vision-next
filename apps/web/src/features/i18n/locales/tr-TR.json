@@ -1815,7 +1815,7 @@
     "checkins-title": "Great streak on @{{username}}",
     "payouts-title": "You received a payout on @{{username}}",
     "monthly-posts-title": "Finishing the month strong, @{{username}}",
-    "spin-str": "Time to earn more Points, Play Spin!",
+    "spin-str": "Daha fazla Puan kazanma zamanı, Ecency Mobile uygulamasında Çarkı Çevir",
     "inactive-str": "Aktif ol! Yazı yaz, kazanmaya devam et",
     "referral-str": "joined with referral, welcome them",
     "refresh": "Yenile",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "Her beş dakikada bir yalnızca bir gönderi paylaşabilirsiniz.",
     "identical-vote": "Bu içerikteki mevcut oyunuz bu oy ile aynıdır.",
-    "must-claim": "Pending rewards already claimed.",
+    "must-claim": "No claiming balance or already claimed.",
     "insufficient-resource": "Insufficient Resource Credits.",
     "delete-comment-with-vote": "Bekleyen pozitif ödülleri olan bir içerik silinemez.",
     "comment-cashout": "Ödemesini almış olan içerikler silinemez.",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "Transfer",
-      "transfer-saving": "Savings Deposit",
+      "transfer-saving": "To Savings",
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Swap",
