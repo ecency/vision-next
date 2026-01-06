@@ -3668,7 +3668,7 @@ function buildQuery(entry, retry = 3) {
   q += ` -dporn type:post`;
   let tags;
   if (json_metadata && json_metadata.tags && Array.isArray(json_metadata.tags)) {
-    tags = json_metadata.tags.filter((tag) => tag && tag !== "").filter((tag) => !tag.startsWith("hive-")).filter((_tag, ind) => ind < +retry).join(",");
+    tags = json_metadata.tags.filter((tag) => tag && tag !== "" && typeof tag === "string").filter((tag) => !tag.startsWith("hive-")).filter((_tag, ind) => ind < +retry).join(",");
   }
   if (tags && tags.length > 0) {
     q += ` tag:${tags}`;

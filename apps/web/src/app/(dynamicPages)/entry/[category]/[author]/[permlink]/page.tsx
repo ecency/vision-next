@@ -1,5 +1,6 @@
 import { prefetchQuery } from "@/core/react-query";
-import { getPostQueryOptions, getAccountFullQueryOptions, getDeletedEntryQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, getDeletedEntryQueryOptions } from "@ecency/sdk";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
 import { getQueryClient } from "@/core/react-query";
@@ -41,7 +42,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const isRawContent = sParams.raw !== undefined;
 
   const author = username.replace("%40", "");
-  const entry = await prefetchQuery(getPostQueryOptions(author, permlink));
+  const entry = await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(author, permlink));
 
   if (
     permlink.startsWith("wave-") ||
