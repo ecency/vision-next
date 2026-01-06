@@ -1815,7 +1815,7 @@
     "checkins-title": "Great streak on @{{username}}",
     "payouts-title": "You received a payout on @{{username}}",
     "monthly-posts-title": "Finishing the month strong, @{{username}}",
-    "spin-str": "Time to earn more Points, Play Spin!",
+    "spin-str": "अधिक अंक अर्जित करने का समय, इसेंसी मोबाइल ऐप पर प्ले स्पिन",
     "inactive-str": "सक्रिय हों! एक पोस्ट लिखो, कमाई जारी रखो",
     "referral-str": "joined with referral, welcome them",
     "refresh": "रीफ्रेश करें",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "आप हर पांच मिनट में केवल एक बार पोस्ट कर सकते हैं।",
     "identical-vote": "इस सामग्री पर आपका वर्तमान वोट इस वोट के समान है।",
-    "must-claim": "Pending rewards already claimed.",
+    "must-claim": "No claiming balance or already claimed.",
     "insufficient-resource": "अपर्याप्त रिसोर्स क्रेडिट्स।",
     "delete-comment-with-vote": "सकारात्मक लंबित पुरस्कारों वाली सामग्री को हटाया नहीं जा सकता।",
     "comment-cashout": "उनके पेआउट के बाद की सामग्री को हटाया नहीं जा सकता।",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "Transfer",
-      "transfer-saving": "Savings Deposit",
+      "transfer-saving": "To Savings",
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Swap",
