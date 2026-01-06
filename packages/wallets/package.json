@@ -66,10 +66,12 @@
     "bip39": "^3.1.0",
     "dayjs": "^1.11.10",
     "lru-cache": "^11.0.2",
+    "numeral": "^2.0.6",
     "remeda": "^2.30.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.8",
+    "@types/numeral": "^2.0.5",
     "eslint": "^9.21.0",
     "prettier": "^3.5.2",
     "tsup": "^8",
