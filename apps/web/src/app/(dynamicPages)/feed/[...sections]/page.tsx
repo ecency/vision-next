@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
-import { getPromotedEntriesQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
+import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { FeedLayout, FeedList } from "../_components";
 import React from "react";
 import { Metadata, ResolvingMetadata } from "next";
@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { generateFeedMetadata } from "@/app/(dynamicPages)/feed/[...sections]/_helpers";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
+import { getPromotedPostsQuery } from "@ecency/sdk";
 
 interface Props {
   params: Promise<{ sections: string[] }>;
@@ -31,7 +32,7 @@ export default async function FeedPage({ params, searchParams }: Props) {
 
   // Prefetch data on server for hydration
   await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
-  await getPromotedEntriesQuery().prefetch();
+  await getQueryClient().prefetchQuery(getPromotedPostsQuery());
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

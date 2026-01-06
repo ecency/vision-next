@@ -2,8 +2,9 @@ import React from "react";
 import "./_index.scss";
 import { Account, Community, Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
-import { getPromotedEntriesQuery } from "@/api/queries";
+import { getPromotedPostsQuery } from "@ecency/sdk";
 import { EntryListContentNoData } from "./entry-list-content-no-data";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   loading: boolean;
@@ -28,10 +29,11 @@ export function EntryListContent({
   community,
   now
 }: Props) {
+  const queryClient = useQueryClient();
   let dataToRender = [...entries];
   let promotedEntries: Entry[] = [];
   if (isPromoted) {
-    const promotedEntriesResponse = getPromotedEntriesQuery().getData();
+    const promotedEntriesResponse = queryClient.getQueryData(getPromotedPostsQuery().queryKey);
     promotedEntries = promotedEntriesResponse ?? [];
   }
 

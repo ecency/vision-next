@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { DetectBottom, SearchListItem } from "@/features/shared";
 import i18next from "i18next";
-import { getSearchApiQuery } from "@/api/queries";
+import { getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Community, SearchResult } from "@/entities";
 import useMount from "react-use/lib/useMount";
 import type { InfiniteData } from "@tanstack/react-query";
@@ -21,8 +22,10 @@ function isInfinite<TPage>(d: unknown): d is InfiniteData<TPage, unknown> {
 export function CommunityContentSearchData({ query, community }: Props) {
     const q = query ? `${query} category:${community.name}` : "";
 
-    const result = getSearchApiQuery(q, "newest", false).useClientQuery();
-    const { data, fetchNextPage, refetch, hasNextPage, isFetchingNextPage } = result;
+    const { data, fetchNextPage, refetch, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+        ...getSearchApiInfiniteQueryOptions(q, "newest", false),
+        initialData: { pages: [], pageParams: [] }
+    });
 
     // Normalize to an array of pages regardless of shape
     const pages = useMemo(() => {

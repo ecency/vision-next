@@ -1,6 +1,6 @@
 "use client";
 
-import { getWavesByHostQuery } from "@/api/queries";
+import { getWavesByHostInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteDataFlow } from "@/utils";
 import { useMemo, useState } from "react";
 import { WaveEntry } from "@/entities";
@@ -10,13 +10,16 @@ import { DetectBottom } from "@/features/shared";
 import { WavesFastReplyDialog } from "@/app/waves/_components/waves-fast-reply-dialog";
 import { useWavesAutoRefresh } from "@/app/waves/_hooks";
 import { WavesRefreshPopup } from "@/app/waves/_components";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface Props {
   host: string;
 }
 
 export function WavesMasonryView({ host }: Props) {
-  const { data, fetchNextPage, isError, hasNextPage, refetch } = getWavesByHostQuery(host).useClientQuery();
+  const { data, fetchNextPage, isError, hasNextPage, refetch } = useInfiniteQuery(
+    getWavesByHostInfiniteQueryOptions(host)
+  );
   const dataFlow = useInfiniteDataFlow(data);
   const { newWaves, clear, now } = useWavesAutoRefresh(dataFlow[0]);
 

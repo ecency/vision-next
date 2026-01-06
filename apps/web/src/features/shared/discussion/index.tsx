@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getDiscussionsQuery } from "@/api/queries";
-import { getBotsQueryOptions } from "@ecency/sdk";
+import { getBotsQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { FormControl } from "@ui/input";
@@ -44,12 +43,14 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
     parentIdRef.current = currentParentId;
   }
 
-  const { data: allComments = [], isLoading } = getDiscussionsQuery(
+  const { data: allComments = [], isLoading } = useQuery(
+    getDiscussionsQueryOptions(
       parent,
-      order,
+      order as unknown as SDKSortOrder,
       true,
       activeUser?.username
-  ).useClientQuery();
+    )
+  );
 
   const { data: botsList } = useQuery(getBotsQueryOptions());
 

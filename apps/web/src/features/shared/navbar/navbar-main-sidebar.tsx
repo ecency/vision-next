@@ -25,6 +25,7 @@ import { EcencyConfigManager } from "@/config";
 import defaults from "@/defaults";
 import { useHydrated } from "@/api/queries";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   show: boolean;

@@ -1,10 +1,10 @@
 import { ProfileEntriesList, ProfileSearchContent } from "../_components";
-import { getSearchApiQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
+import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery } from "@/core/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { Entry, SearchResult } from "@/entities";
@@ -36,11 +36,13 @@ export default async function Page({ params, searchParams }: Props) {
   let initialFeed: InfiniteData<Entry[], unknown> | undefined;
 
   if (searchParam && searchParam !== "") {
-    const searchPages = (await getSearchApiQuery(
+    const searchPages = await getQueryClient().fetchInfiniteQuery(
+      getSearchApiInfiniteQueryOptions(
         `${searchParam} author:${username} type:post`,
         "newest",
         false
-    ).prefetch()) as InfiniteData<SearchResponse, unknown> | undefined;
+      )
+    );
 
     const firstPage: SearchResponse | undefined = searchPages?.pages?.[0];
     const results: SearchResult[] =

@@ -8,9 +8,8 @@ import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { validatePostCreating } from "@/api/hive";
-import { addReplyToDiscussionsList } from "@/api/queries";
 import { getQueryClient } from "@/core/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
 
@@ -108,7 +107,9 @@ export function useWavesApi() {
           });
 
       if (!editingEntry) {
-        addReplyToDiscussionsList(entry, tempReply, SortOrder.created, queryClient);
+        // Inline cache update for discussions list
+        const options = getDiscussionsQueryOptions(entry, SDKSortOrder.created, true, entry?.author);
+        queryClient.setQueryData<Entry[]>(options.queryKey, (data) => [...(data ?? []), tempReply]);
         updateRepliesCount(entry.children + 1, entry);
       }
 

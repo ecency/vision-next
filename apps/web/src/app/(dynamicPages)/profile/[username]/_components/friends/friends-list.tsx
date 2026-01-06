@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
-import { getFriendsQuery, getSearchFriendsQuery } from "@/api/queries";
+import { getFriendsInfiniteQueryOptions, getSearchFriendsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Account } from "@/entities";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { FormControl, InputGroup } from "@ui/input";
 import { Spinner } from "@ui/spinner";
 import { LinearProgress } from "@/features/shared";
-import { formatTimeDIfference } from "@/utils";
+import dayjs from "@/utils/dayjs";
 import { FilterFriendsType } from "@/enums";
 import { FilterFriends } from "./filter-friends";
 import { useDebounce } from "react-use";
@@ -28,14 +29,18 @@ export const FriendsList = ({ account, mode }: Props) => {
     data,
     isFetching: isFriendsFetching,
     fetchNextPage
-  } = getFriendsQuery(account.name, mode, {
-    limit: loadLimit
-  }).useClientQuery();
+  } = useInfiniteQuery(
+    getFriendsInfiniteQueryOptions(account.name, mode, {
+      limit: loadLimit
+    })
+  );
   const {
     data: searchData,
     isFetching: isSearchFetching,
     refetch: fetchSearchResults
-  } = getSearchFriendsQuery(account.name, mode, query).useClientQuery();
+  } = useQuery(
+    getSearchFriendsQueryOptions(account.name, mode, query)
+  );
 
   const isFetching = useMemo(
     () => isFriendsFetching || isSearchFetching,
@@ -52,7 +57,7 @@ export const FriendsList = ({ account, mode }: Props) => {
                 return true;
               }
 
-              const lastSeenTime = new Date(formatTimeDIfference(item.lastSeen));
+              const lastSeenTime = dayjs(item.active).toDate();
               const timeDifference = new Date().getTime() - lastSeenTime.getTime();
               const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
               const yearsDifference = Math.ceil(daysDifference / 365);

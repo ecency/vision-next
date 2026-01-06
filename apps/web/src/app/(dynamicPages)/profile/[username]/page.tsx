@@ -1,7 +1,7 @@
 import { ProfileEntriesList, ProfileSearchContent } from "./_components";
-import { getSearchApiQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
+import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
@@ -39,11 +39,13 @@ export default async function Page({ params, searchParams }: Props) {
   let initialFeed: InfiniteData<Entry[], unknown> | undefined;
 
   if (searchParam && searchParam !== "") {
-    const searchPages = await getSearchApiQuery(
-      `${searchParam} author:${username} type:post`,
-      "newest",
-      false
-    ).prefetch();
+    const searchPages = await getQueryClient().fetchInfiniteQuery(
+      getSearchApiInfiniteQueryOptions(
+        `${searchParam} author:${username} type:post`,
+        "newest",
+        false
+      )
+    );
     if (searchPages?.pages?.[0]?.results) {
       searchData = searchPages.pages[0].results.sort(
         (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)

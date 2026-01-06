@@ -1,7 +1,6 @@
 import { withFeatureFlag } from "@/core/react-query";
-import { getPointsQueryOptions } from "@ecency/sdk";
+import { getPointsQueryOptions, getPromotePriceQueryOptions, getSearchPathQueryOptions, getAccessToken } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryListItem, SuggestionList } from "@/features/shared";
 import { Button, FormControl } from "@/features/ui";
@@ -22,9 +21,12 @@ export function PromotePostSetup({ onSuccess }: Props) {
 
   const [path, setPath] = useState(activeUser ? `${activeUser.username}/` : "");
   const [pathQuery, setPathQuery] = useState("");
+  const [debouncedPathQuery, setDebouncedPathQuery] = useState("");
   const [selectedDuration, setSelectedDuration] = useState(7);
 
   const [author, permlink] = useMemo(() => path.split("/"), [path]);
+
+  const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
 
   const { data: activeUserPoints } = useQuery(
     withFeatureFlag(
@@ -32,8 +34,11 @@ export function PromotePostSetup({ onSuccess }: Props) {
       getPointsQueryOptions(activeUser?.username)
     )
   );
-  const { data: prices, isLoading: isPricesLoading } = useGetPromotePriceQuery();
-  const { data: paths } = useSearchPathQuery(pathQuery);
+  const { data: prices, isLoading: isPricesLoading } = useQuery({
+    ...getPromotePriceQueryOptions(accessToken),
+    select: (data) => data.sort((a, b) => a.duration - b.duration)
+  });
+  const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
   const { data: entry } = EcencyEntriesCacheManagement.getEntryQueryByPath(
     author,
     permlink
@@ -48,6 +53,7 @@ export function PromotePostSetup({ onSuccess }: Props) {
   }, [activeUserPoints, prices, selectedDuration]);
 
   useDebounce(() => setPathQuery(path), 500, [path]);
+  useDebounce(() => setDebouncedPathQuery(pathQuery), 500, [pathQuery]);
 
   return (
     <div>
