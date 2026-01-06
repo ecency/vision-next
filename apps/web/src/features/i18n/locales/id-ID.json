@@ -1815,7 +1815,7 @@
     "checkins-title": "Great streak on @{{username}}",
     "payouts-title": "You received a payout on @{{username}}",
     "monthly-posts-title": "Finishing the month strong, @{{username}}",
-    "spin-str": "Time to earn more Points, Play Spin!",
+    "spin-str": "Saatnya memperoleh lebih banyak Poin, Mainkan Putaran di Ecency Mobile",
     "inactive-str": "Ayo aktif! Tulislah postingan, teruskan mengumpulkan pendapatan",
     "referral-str": "joined with referral, welcome them",
     "refresh": "Segarkan",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "Anda hanya dapat mempublikasikan satu konten saja setiap lima menit.",
     "identical-vote": "Voting terbaru Anda pada konten ini sudah dilakukan.",
-    "must-claim": "Pending rewards already claimed.",
+    "must-claim": "No claiming balance or already claimed.",
     "insufficient-resource": "Insufficient Resource Credits.",
     "delete-comment-with-vote": "Tidak bisa menghapus sebuah konten dengan reward yang belum dibayar.",
     "comment-cashout": "Konten setelah pembayaran tidak bisa dihapus.",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "Transfer",
-      "transfer-saving": "Savings Deposit",
+      "transfer-saving": "To Savings",
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Swap",
