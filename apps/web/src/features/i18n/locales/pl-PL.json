@@ -1815,7 +1815,7 @@
     "checkins-title": "Świetny ciąg na @{{username}}",
     "payouts-title": "Otrzymałeś wypłatę na @{{username}}",
     "monthly-posts-title": "Ukończenie miesiąca silnego, @{{username}}",
-    "spin-str": "Czas na zdobycie więcej punktów, zagraj w Spina!",
+    "spin-str": "Czas na zdobycie więcej punktów, Zagraj w Spin na aplikacji Ecency Mobile",
     "inactive-str": "Bądź aktywny! Napisz post, kontynuuj zarabianie",
     "referral-str": "dołączył(a) do rekomendacji, powitaj ich",
     "refresh": "Odśwież",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "Możesz publikować tylko raz na pięć minut.",
     "identical-vote": "Twój obecny głos w tej sprawie jest identyczny z tym głosowaniem.",
-    "must-claim": "Oczekujące nagrody zostały już odebrane.",
+    "must-claim": "Nieodzyskanie salda lub już odzyskane.",
     "insufficient-resource": "Niewystarczająca ilość zasobów.",
     "delete-comment-with-vote": "Nie można usunąć zawartości z pozytywnymi oczekującymi nagrodami.",
     "comment-cashout": "Treść po wypłacie nie może zostać usunięta.",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "Przelew",
-      "transfer-saving": "Depozyt oszczędnościowy",
+      "transfer-saving": "Oszczędności",
       "power-up": "Zasil",
       "power-down": "Siła w dół",
       "swap": "Zamień",
