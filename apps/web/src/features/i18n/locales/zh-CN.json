@@ -1815,7 +1815,7 @@
     "checkins-title": "Great streak on @{{username}}",
     "payouts-title": "You received a payout on @{{username}}",
     "monthly-posts-title": "Finishing the month strong, @{{username}}",
-    "spin-str": "赚取更多点数的时间, 玩螺旋!",
+    "spin-str": "赚取更多点数的时刻，在Ecency移动版上玩转盘游戏。",
     "inactive-str": "活跃！写一个帖子，继续赚钱",
     "referral-str": "加入推荐，欢迎他们加入",
     "refresh": "刷新",
@@ -2505,7 +2505,7 @@
   "chain-error": {
     "min-root-comment": "您只能每五分钟发布一次。",
     "identical-vote": "您当前对此内容的投票与本次投票完全相同。",
-    "must-claim": "待处理奖励已经领取。",
+    "must-claim": "没有索要余额或已经索要。",
     "insufficient-resource": "资源积分不足。",
     "delete-comment-with-vote": "不能删除正等待奖励的内容。",
     "comment-cashout": "不能删除他们付款后的内容。",
@@ -3013,7 +3013,7 @@
     },
     "operations": {
       "transfer": "转移",
-      "transfer-saving": "储蓄存款",
+      "transfer-saving": "储蓄账户",
       "power-up": "电源上移",
       "power-down": "电源断开",
       "swap": "切换",
