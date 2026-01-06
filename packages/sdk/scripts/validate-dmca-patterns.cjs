@@ -133,6 +133,31 @@ function validatePattern(pattern, maxLength = 200) {
 }
 
 /**
+ * Validate a plain string pattern (not regex)
+ */
+function validatePlainString(pattern) {
+  const errors = [];
+
+  if (!pattern || typeof pattern !== 'string') {
+    errors.push("invalid or empty string");
+    return { valid: false, errors };
+  }
+
+  if (pattern.length > 200) {
+    errors.push(`length ${pattern.length} exceeds max 200`);
+    return { valid: false, errors };
+  }
+
+  // Check for basic validity (should look like @author/permlink)
+  if (pattern.startsWith('@') && !pattern.includes('/../') && !pattern.includes('\\')) {
+    return { valid: true, errors: [] };
+  }
+
+  errors.push("pattern should start with @ and follow format @author/permlink");
+  return { valid: false, errors };
+}
+
+/**
  * Main validation function
  */
 function validateDmcaFiles(tagFilePath, patternFilePath) {
@@ -142,9 +167,9 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
     patterns: { total: 0, valid: 0, invalid: 0 }
   };
 
-  // Validate tag patterns
+  // Validate tag patterns (regex patterns)
   if (tagFilePath && fs.existsSync(tagFilePath)) {
-    console.log(`\n📋 Validating tag patterns from: ${tagFilePath}`);
+    console.log(`\n📋 Validating tag patterns (regex) from: ${tagFilePath}`);
     let tags;
     try {
       tags = JSON.parse(fs.readFileSync(tagFilePath, 'utf8'));
@@ -175,11 +200,14 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
     } else {
       console.error(`❌ ${results.tags.invalid}/${results.tags.total} tag patterns failed validation`);
     }
+  } else if (tagFilePath) {
+    console.error(`\n❌ Tag patterns file not found: ${tagFilePath}`);
+    hasErrors = true;
   }
 
-  // Validate post patterns
+  // Validate post patterns (plain strings, not regex)
   if (patternFilePath && fs.existsSync(patternFilePath)) {
-    console.log(`\n📋 Validating post patterns from: ${patternFilePath}`);
+    console.log(`\n📋 Validating post patterns (plain strings) from: ${patternFilePath}`);
     let patterns;
     try {
       patterns = JSON.parse(fs.readFileSync(patternFilePath, 'utf8'));
@@ -194,7 +222,8 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
     results.patterns.total = patterns.length;
 
     patterns.forEach((pattern, index) => {
-      const result = validatePattern(pattern);
+      // Post patterns are plain strings, not regex - use different validation
+      const result = validatePlainString(pattern);
       if (result.valid) {
         results.patterns.valid++;
       } else {
@@ -210,6 +239,9 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
     } else {
       console.error(`❌ ${results.patterns.invalid}/${results.patterns.total} post patterns failed validation`);
     }
+  } else if (patternFilePath) {
+    console.error(`\n❌ Post patterns file not found: ${patternFilePath}`);
+    hasErrors = true;
   }
 
   // Summary
