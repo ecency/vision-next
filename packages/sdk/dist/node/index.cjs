@@ -735,12 +735,14 @@ function parseAccounts(rawAccounts) {
 // src/modules/accounts/queries/get-accounts-query-options.ts
 function getAccountsQueryOptions(usernames) {
   return reactQuery.queryOptions({
-    queryKey: ["accounts", "get-accounts", usernames],
+    queryKey: ["accounts", "list", ...usernames],
+    enabled: usernames.length > 0,
     queryFn: async () => {
-      const response = await CONFIG.hiveClient.database.getAccounts(usernames);
+      const response = await CONFIG.hiveClient.database.getAccounts(
+        usernames
+      );
       return parseAccounts(response);
-    },
-    enabled: usernames.length > 0
+    }
   });
 }
 function getFollowCountQueryOptions(username) {
@@ -1009,6 +1011,22 @@ function getAccountPendingRecoveryQueryOptions(username) {
       "find_change_recovery_account_requests",
       { accounts: [username] }
     )
+  });
+}
+function getAccountReputationsQueryOptions(query, limit = 50) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "reputations", query, limit],
+    enabled: !!query,
+    queryFn: async () => {
+      if (!query) {
+        return [];
+      }
+      return CONFIG.hiveClient.call(
+        "condenser_api",
+        "get_account_reputations",
+        [query, limit]
+      );
+    }
   });
 }
 var ops = dhive.utils.operationOrders;
@@ -1327,6 +1345,26 @@ function getEntryActiveVotesQueryOptions(entry) {
     enabled: !!entry
   });
 }
+function getContentQueryOptions(author, permlink) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "content", author, permlink],
+    enabled: !!author && !!permlink,
+    queryFn: async () => CONFIG.hiveClient.call("condenser_api", "get_content", [
+      author,
+      permlink
+    ])
+  });
+}
+function getContentRepliesQueryOptions(author, permlink) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "content-replies", author, permlink],
+    enabled: !!author && !!permlink,
+    queryFn: async () => CONFIG.hiveClient.call("condenser_api", "get_content_replies", {
+      author,
+      permlink
+    })
+  });
+}
 function getPostHeaderQueryOptions(author, permlink) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "post-header", author, permlink],
@@ -1454,6 +1492,14 @@ async function getAccountPosts(sort, account, start_author = "", start_permlink 
   return resp;
 }
 function validateEntry(entry) {
+  const newEntry = {
+    ...entry,
+    active_votes: Array.isArray(entry.active_votes) ? [...entry.active_votes] : [],
+    beneficiaries: Array.isArray(entry.beneficiaries) ? [...entry.beneficiaries] : [],
+    blacklists: Array.isArray(entry.blacklists) ? [...entry.blacklists] : [],
+    replies: Array.isArray(entry.replies) ? [...entry.replies] : [],
+    stats: entry.stats ? { ...entry.stats } : null
+  };
   const requiredStringProps = [
     "author",
     "title",
@@ -1465,70 +1511,58 @@ function validateEntry(entry) {
     "updated"
   ];
   for (const prop of requiredStringProps) {
-    if (entry[prop] == null) {
-      entry[prop] = "";
+    if (newEntry[prop] == null) {
+      newEntry[prop] = "";
     }
   }
-  if (entry.author_reputation == null) {
-    entry.author_reputation = 0;
+  if (newEntry.author_reputation == null) {
+    newEntry.author_reputation = 0;
   }
-  if (entry.children == null) {
-    entry.children = 0;
+  if (newEntry.children == null) {
+    newEntry.children = 0;
   }
-  if (entry.depth == null) {
-    entry.depth = 0;
+  if (newEntry.depth == null) {
+    newEntry.depth = 0;
   }
-  if (entry.net_rshares == null) {
-    entry.net_rshares = 0;
+  if (newEntry.net_rshares == null) {
+    newEntry.net_rshares = 0;
   }
-  if (entry.payout == null) {
-    entry.payout = 0;
+  if (newEntry.payout == null) {
+    newEntry.payout = 0;
   }
-  if (entry.percent_hbd == null) {
-    entry.percent_hbd = 0;
+  if (newEntry.percent_hbd == null) {
+    newEntry.percent_hbd = 0;
   }
-  if (!Array.isArray(entry.active_votes)) {
-    entry.active_votes = [];
-  }
-  if (!Array.isArray(entry.beneficiaries)) {
-    entry.beneficiaries = [];
-  }
-  if (!Array.isArray(entry.blacklists)) {
-    entry.blacklists = [];
-  }
-  if (!Array.isArray(entry.replies)) {
-    entry.replies = [];
-  }
-  if (!entry.stats) {
-    entry.stats = {
+  if (!newEntry.stats) {
+    newEntry.stats = {
       flag_weight: 0,
       gray: false,
       hide: false,
       total_votes: 0
     };
   }
-  if (entry.author_payout_value == null) {
-    entry.author_payout_value = "0.000 HBD";
+  if (newEntry.author_payout_value == null) {
+    newEntry.author_payout_value = "0.000 HBD";
   }
-  if (entry.curator_payout_value == null) {
-    entry.curator_payout_value = "0.000 HBD";
+  if (newEntry.curator_payout_value == null) {
+    newEntry.curator_payout_value = "0.000 HBD";
   }
-  if (entry.max_accepted_payout == null) {
-    entry.max_accepted_payout = "1000000.000 HBD";
+  if (newEntry.max_accepted_payout == null) {
+    newEntry.max_accepted_payout = "1000000.000 HBD";
   }
-  if (entry.payout_at == null) {
-    entry.payout_at = "";
+  if (newEntry.payout_at == null) {
+    newEntry.payout_at = "";
   }
-  if (entry.pending_payout_value == null) {
-    entry.pending_payout_value = "0.000 HBD";
+  if (newEntry.pending_payout_value == null) {
+    newEntry.pending_payout_value = "0.000 HBD";
   }
-  if (entry.promoted == null) {
-    entry.promoted = "0.000 HBD";
+  if (newEntry.promoted == null) {
+    newEntry.promoted = "0.000 HBD";
   }
-  if (entry.is_paidout == null) {
-    entry.is_paidout = false;
+  if (newEntry.is_paidout == null) {
+    newEntry.is_paidout = false;
   }
-  return entry;
+  return newEntry;
 }
 async function getPost(author = "", permlink = "", observer = "", num) {
   const resp = await bridgeApiCall("get_post", {
@@ -2094,8 +2128,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions81 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions81);
+  const queryOptions86 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions86);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -2826,6 +2860,81 @@ function useAccountRevokeKey(username, options) {
     ...options
   });
 }
+
+// src/modules/accounts/utils/account-power.ts
+var HIVE_VOTING_MANA_REGENERATION_SECONDS = 5 * 60 * 60 * 24;
+function vestsToRshares(vests, votingPowerValue, votePerc) {
+  const vestingShares = vests * 1e6;
+  const power = votingPowerValue * votePerc / 1e4 / 50 + 1;
+  return power * vestingShares / 1e4;
+}
+function votingPower(account) {
+  const calc = CONFIG.hiveClient.rc.calculateVPMana(account);
+  return calc.percentage / 100;
+}
+function powerRechargeTime(power) {
+  if (!Number.isFinite(power)) {
+    throw new TypeError("Voting power must be a finite number");
+  }
+  if (power < 0 || power > 100) {
+    throw new RangeError("Voting power must be between 0 and 100");
+  }
+  const missingPower = 100 - power;
+  return missingPower * 100 * HIVE_VOTING_MANA_REGENERATION_SECONDS / 1e4;
+}
+function downVotingPower(account) {
+  const totalShares = parseFloat(account.vesting_shares) + parseFloat(account.received_vesting_shares) - parseFloat(account.delegated_vesting_shares) - parseFloat(account.vesting_withdraw_rate);
+  const elapsed = Math.floor(Date.now() / 1e3) - account.downvote_manabar.last_update_time;
+  const maxMana = totalShares * 1e6 / 4;
+  let currentMana = parseFloat(account.downvote_manabar.current_mana.toString()) + elapsed * maxMana / HIVE_VOTING_MANA_REGENERATION_SECONDS;
+  if (currentMana > maxMana) {
+    currentMana = maxMana;
+  }
+  const currentManaPerc = currentMana * 100 / maxMana;
+  if (isNaN(currentManaPerc)) {
+    return 0;
+  }
+  if (currentManaPerc > 100) {
+    return 100;
+  }
+  return currentManaPerc;
+}
+function rcPower(account) {
+  const calc = CONFIG.hiveClient.rc.calculateRCMana(account);
+  return calc.percentage / 100;
+}
+function votingValue(account, dynamicProps, votingPowerValue, weight = 1e4) {
+  if (!Number.isFinite(votingPowerValue) || !Number.isFinite(weight)) {
+    return 0;
+  }
+  const { fundRecentClaims, fundRewardBalance, base, quote } = dynamicProps;
+  if (!Number.isFinite(fundRecentClaims) || !Number.isFinite(fundRewardBalance) || !Number.isFinite(base) || !Number.isFinite(quote)) {
+    return 0;
+  }
+  if (fundRecentClaims === 0 || quote === 0) {
+    return 0;
+  }
+  let totalVests = 0;
+  try {
+    const vesting = parseAsset(account.vesting_shares).amount;
+    const received = parseAsset(account.received_vesting_shares).amount;
+    const delegated = parseAsset(account.delegated_vesting_shares).amount;
+    if (![vesting, received, delegated].every(Number.isFinite)) {
+      return 0;
+    }
+    totalVests = vesting + received - delegated;
+  } catch {
+    return 0;
+  }
+  if (!Number.isFinite(totalVests)) {
+    return 0;
+  }
+  const rShares = vestsToRshares(totalVests, votingPowerValue, weight);
+  if (!Number.isFinite(rShares)) {
+    return 0;
+  }
+  return rShares / fundRecentClaims * fundRewardBalance * (base / quote);
+}
 function useSignOperationByKey(username) {
   return reactQuery.useMutation({
     mutationKey: ["operations", "sign", username],
@@ -2981,6 +3090,33 @@ function useRemoveFragment(username, fragmentId, code) {
       );
     }
   });
+}
+
+// src/modules/posts/utils/validate-post-creating.ts
+var DEFAULT_VALIDATE_POST_DELAYS = [3e3, 3e3, 3e3];
+var delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+async function getContent(author, permlink) {
+  return CONFIG.hiveClient.call("condenser_api", "get_content", [
+    author,
+    permlink
+  ]);
+}
+async function validatePostCreating(author, permlink, attempts = 0, options) {
+  const delays = options?.delays ?? DEFAULT_VALIDATE_POST_DELAYS;
+  let response;
+  try {
+    response = await getContent(author, permlink);
+  } catch (e) {
+    response = void 0;
+  }
+  if (response || attempts >= delays.length) {
+    return;
+  }
+  const waitMs = delays[attempts];
+  if (waitMs > 0) {
+    await delay(waitMs);
+  }
+  return validatePostCreating(author, permlink, attempts + 1, options);
 }
 
 // src/modules/analytics/mutations/index.ts
@@ -3820,6 +3956,25 @@ function getOutgoingRcDelegationsInfiniteQueryOptions(username, limit = 100) {
     getNextPageParam: (lastPage) => lastPage.length === limit ? lastPage[lastPage.length - 1].to : null
   });
 }
+function getIncomingRcQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "incoming-rc", username],
+    enabled: !!username,
+    queryFn: async () => {
+      if (!username) {
+        throw new Error("[SDK][Wallet] - Missing username for incoming RC");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/received-rc/${username}`
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch incoming RC: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+}
 function getReceivedVestingSharesQueryOptions(username) {
   return reactQuery.queryOptions({
     queryKey: ["wallet", "received-vesting-shares", username],
@@ -3864,15 +4019,15 @@ function getMarketStatisticsQueryOptions() {
   });
 }
 function getMarketHistoryQueryOptions(seconds, startDate, endDate) {
-  const formatDate = (date) => {
+  const formatDate2 = (date) => {
     return date.toISOString().replace(/\.\d{3}Z$/, "");
   };
   return reactQuery.queryOptions({
     queryKey: ["market", "history", seconds, startDate.getTime(), endDate.getTime()],
     queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_market_history", [
       seconds,
-      formatDate(startDate),
-      formatDate(endDate)
+      formatDate2(startDate),
+      formatDate2(endDate)
     ])
   });
 }
@@ -3887,13 +4042,13 @@ function getHiveHbdStatsQueryOptions() {
       );
       const now = /* @__PURE__ */ new Date();
       const oneDayAgo = new Date(now.getTime() - 864e5);
-      const formatDate = (date) => {
+      const formatDate2 = (date) => {
         return date.toISOString().replace(/\.\d{3}Z$/, "");
       };
       const dayChange = await CONFIG.hiveClient.call(
         "condenser_api",
         "get_market_history",
-        [86400, formatDate(oneDayAgo), formatDate(now)]
+        [86400, formatDate2(oneDayAgo), formatDate2(now)]
       );
       const result = {
         price: +stats.latest,
@@ -3920,6 +4075,21 @@ function getMarketDataQueryOptions(coin, vsCurrency, fromTs, toTs) {
       }
       return response.json();
     }
+  });
+}
+function formatDate(date) {
+  return date.toISOString().replace(/\.\d{3}Z$/, "");
+}
+function getTradeHistoryQueryOptions(limit = 1e3, startDate, endDate) {
+  const end = endDate ?? /* @__PURE__ */ new Date();
+  const start = startDate ?? new Date(end.getTime() - 10 * 60 * 60 * 1e3);
+  return reactQuery.queryOptions({
+    queryKey: ["market", "trade-history", limit, start.getTime(), end.getTime()],
+    queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_trade_history", [
+      formatDate(start),
+      formatDate(end),
+      limit
+    ])
   });
 }
 
@@ -4235,12 +4405,26 @@ function getSearchPathQueryOptions(q) {
 
 // src/modules/search/requests.ts
 async function parseJsonResponse2(response) {
-  const data = await response.json();
+  const parseBody = async () => {
+    try {
+      return await response.json();
+    } catch {
+      try {
+        return await response.text();
+      } catch {
+        return void 0;
+      }
+    }
+  };
+  const data = await parseBody();
   if (!response.ok) {
     const error = new Error(`Request failed with status ${response.status}`);
     error.status = response.status;
     error.data = data;
     throw error;
+  }
+  if (data === void 0) {
+    throw new Error("Response body was empty or invalid JSON");
   }
   return data;
 }
@@ -4703,6 +4887,7 @@ exports.dedupeAndSortKeyAuths = dedupeAndSortKeyAuths;
 exports.deleteDraft = deleteDraft;
 exports.deleteImage = deleteImage;
 exports.deleteSchedule = deleteSchedule;
+exports.downVotingPower = downVotingPower;
 exports.encodeObj = encodeObj;
 exports.extractAccountProfile = extractAccountProfile;
 exports.getAccessToken = getAccessToken;
@@ -4714,6 +4899,7 @@ exports.getAccountPostsInfiniteQueryOptions = getAccountPostsInfiniteQueryOption
 exports.getAccountPostsQueryOptions = getAccountPostsQueryOptions;
 exports.getAccountRcQueryOptions = getAccountRcQueryOptions;
 exports.getAccountRecoveriesQueryOptions = getAccountRecoveriesQueryOptions;
+exports.getAccountReputationsQueryOptions = getAccountReputationsQueryOptions;
 exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOptions;
 exports.getAccountVoteHistoryInfiniteQueryOptions = getAccountVoteHistoryInfiniteQueryOptions;
 exports.getAccountsQueryOptions = getAccountsQueryOptions;
@@ -4735,6 +4921,8 @@ exports.getCommunityPermissions = getCommunityPermissions;
 exports.getCommunityQueryOptions = getCommunityQueryOptions;
 exports.getCommunitySubscribersQueryOptions = getCommunitySubscribersQueryOptions;
 exports.getCommunityType = getCommunityType;
+exports.getContentQueryOptions = getContentQueryOptions;
+exports.getContentRepliesQueryOptions = getContentRepliesQueryOptions;
 exports.getControversialRisingInfiniteQueryOptions = getControversialRisingInfiniteQueryOptions;
 exports.getConversionRequestsQueryOptions = getConversionRequestsQueryOptions;
 exports.getCurrencyRate = getCurrencyRate;
@@ -4758,6 +4946,7 @@ exports.getGameStatusCheckQueryOptions = getGameStatusCheckQueryOptions;
 exports.getHiveHbdStatsQueryOptions = getHiveHbdStatsQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
 exports.getImagesQueryOptions = getImagesQueryOptions;
+exports.getIncomingRcQueryOptions = getIncomingRcQueryOptions;
 exports.getLoginType = getLoginType;
 exports.getMarketData = getMarketData;
 exports.getMarketDataQueryOptions = getMarketDataQueryOptions;
@@ -4814,6 +5003,7 @@ exports.getSimilarEntriesQueryOptions = getSimilarEntriesQueryOptions;
 exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getSubscribers = getSubscribers;
 exports.getSubscriptions = getSubscriptions;
+exports.getTradeHistoryQueryOptions = getTradeHistoryQueryOptions;
 exports.getTransactionsInfiniteQueryOptions = getTransactionsInfiniteQueryOptions;
 exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
 exports.getTrendingTagsWithStatsQueryOptions = getTrendingTagsWithStatsQueryOptions;
@@ -4840,6 +5030,8 @@ exports.onboardEmail = onboardEmail;
 exports.parseAccounts = parseAccounts;
 exports.parseAsset = parseAsset;
 exports.parseProfileMetadata = parseProfileMetadata;
+exports.powerRechargeTime = powerRechargeTime;
+exports.rcPower = rcPower;
 exports.resolvePost = resolvePost;
 exports.roleMap = roleMap;
 exports.saveNotificationSetting = saveNotificationSetting;
@@ -4875,5 +5067,8 @@ exports.useSignOperationByHivesigner = useSignOperationByHivesigner;
 exports.useSignOperationByKey = useSignOperationByKey;
 exports.useSignOperationByKeychain = useSignOperationByKeychain;
 exports.usrActivity = usrActivity;
+exports.validatePostCreating = validatePostCreating;
+exports.votingPower = votingPower;
+exports.votingValue = votingValue;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

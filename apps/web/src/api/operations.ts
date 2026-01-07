@@ -8,8 +8,7 @@ import {
   TransactionConfirmation
 } from "@hiveio/dhive";
 import { encodeOp, Parameters } from "hive-uri";
-import { client as hiveClient } from "./hive";
-import { usrActivity } from "@ecency/sdk";
+import { CONFIG, usrActivity } from "@ecency/sdk";
 import { BuySellHiveTransactionType, ErrorTypes, OrderIdPrefix } from "@/enums";
 import i18next from "i18next";
 import {
@@ -23,6 +22,8 @@ import {
 import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
 import { buildProfileMetadata, parseProfileMetadata } from "@ecency/sdk";
+
+const hiveClient = CONFIG.hiveClient;
 
 const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
   if (/You may only post once every/.test(strErr)) {

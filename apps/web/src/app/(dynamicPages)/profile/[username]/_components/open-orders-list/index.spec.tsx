@@ -16,12 +16,12 @@ jest.mock("@/defaults", () => ({
   imageServer: "https://images.ecency.com"
 }));
 
-let MOCK_MODE = 1;
+export const MOCK_MODE = jest.fn().mockReturnValue(1);
 
 jest.mock("@tanstack/react-query", () => ({
   ...jest.requireActual("@tanstack/react-query"),
   useQuery: () => ({
-    data: MOCK_MODE === 1 ? openOrdersInstance : [],
+    data: MOCK_MODE() === 1 ? openOrdersInstance : [],
     isLoading: false
   })
 }));
@@ -37,13 +37,14 @@ const defaultProps = {
 };
 
 it("(1) Default render", async () => {
+  MOCK_MODE.mockReturnValueOnce(1);
   const component = renderer.create(<List {...defaultProps} />);
   await allOver();
   expect(component.toJSON()).toMatchSnapshot();
 });
 
 it("(2) Empty list", async () => {
-  MOCK_MODE = 2;
+  MOCK_MODE.mockReturnValueOnce(2);
   const component = renderer && renderer.create(<List {...defaultProps} />);
   await allOver();
   expect(component.toJSON()).toMatchSnapshot();

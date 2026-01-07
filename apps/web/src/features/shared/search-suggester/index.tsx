@@ -1,6 +1,6 @@
 "use client";
 
-import { dataLimit } from "@/utils/data-limit";
+import { useDataLimit } from "@/utils/data-limit";
 import { getAccountReputationsQueryOptions } from "@ecency/sdk";
 import defaults from "@/defaults";
 import { Community, Reputations } from "@/entities";
@@ -43,6 +43,7 @@ export function SearchSuggester({
   const pathname = usePathname();
   const previousPathname = usePrevious(pathname);
   const previousValue = usePrevious(value);
+  const dataLimit = useDataLimit();
 
   const [suggestions, setSuggestions] = useState<string[] | Community[]>([]);
   const [loading, setLoading] = useState(false);
@@ -276,6 +277,7 @@ export function SearchSuggester({
     queryClient,
     tagSelected,
     trendingTags,
+    dataLimit,
     value
   ]);
 

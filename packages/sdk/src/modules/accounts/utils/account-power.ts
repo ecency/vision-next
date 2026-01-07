@@ -18,8 +18,16 @@ export function votingPower(account: FullAccount): number {
 }
 
 export function powerRechargeTime(power: number) {
+  if (!Number.isFinite(power)) {
+    throw new TypeError("Voting power must be a finite number");
+  }
+  if (power < 0 || power > 100) {
+    throw new RangeError("Voting power must be between 0 and 100");
+  }
   const missingPower = 100 - power;
-  return (missingPower * 100 * 432000) / 10000;
+  return (
+    (missingPower * 100 * HIVE_VOTING_MANA_REGENERATION_SECONDS) / 10000
+  );
 }
 
 export function downVotingPower(account: FullAccount): number {
@@ -61,14 +69,45 @@ export function votingValue(
   votingPowerValue: number,
   weight: number = 10000
 ): number {
+  if (!Number.isFinite(votingPowerValue) || !Number.isFinite(weight)) {
+    return 0;
+  }
   const { fundRecentClaims, fundRewardBalance, base, quote } = dynamicProps;
 
-  const total_vests =
-    parseAsset(account.vesting_shares).amount +
-    parseAsset(account.received_vesting_shares).amount -
-    parseAsset(account.delegated_vesting_shares).amount;
+  if (
+    !Number.isFinite(fundRecentClaims) ||
+    !Number.isFinite(fundRewardBalance) ||
+    !Number.isFinite(base) ||
+    !Number.isFinite(quote)
+  ) {
+    return 0;
+  }
 
-  const rShares = vestsToRshares(total_vests, votingPowerValue, weight);
+  if (fundRecentClaims === 0 || quote === 0) {
+    return 0;
+  }
+
+  let totalVests = 0;
+  try {
+    const vesting = parseAsset(account.vesting_shares).amount;
+    const received = parseAsset(account.received_vesting_shares).amount;
+    const delegated = parseAsset(account.delegated_vesting_shares).amount;
+    if (![vesting, received, delegated].every(Number.isFinite)) {
+      return 0;
+    }
+    totalVests = vesting + received - delegated;
+  } catch {
+    return 0;
+  }
+
+  if (!Number.isFinite(totalVests)) {
+    return 0;
+  }
+
+  const rShares = vestsToRshares(totalVests, votingPowerValue, weight);
+  if (!Number.isFinite(rShares)) {
+    return 0;
+  }
 
   return (rShares / fundRecentClaims) * fundRewardBalance * (base / quote);
 }

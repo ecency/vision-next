@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ListItemSkeleton, SearchListItem } from "./deck-items";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";
 import { UserDeckGridItem } from "../types";
@@ -13,7 +13,7 @@ import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
 import { Entry } from "@/entities";
 import { getAccountPostsQueryOptions } from "@ecency/sdk";
-import { dataLimit } from "@/utils/data-limit";
+import { useDataLimit } from "@/utils/data-limit";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,7 +28,9 @@ type IdentifiableEntry = Entry & Required<Pick<Entry, "id">>;
 
 export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
   const queryClient = useQueryClient();
+  const dataLimit = useDataLimit();
   const [data, setData] = useState<IdentifiableEntry[]>([]);
+  const dataRef = useRef<IdentifiableEntry[]>([]);
   const prevData = usePrevious(data);
   const [isReloading, setIsReloading] = useState(false);
   const [currentViewingEntry, setCurrentViewingEntry] = useState<Entry | null>(null);
@@ -38,13 +40,17 @@ export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
   const prevSettings = usePrevious(settings);
 
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
   useMount(() => {
     fetchData();
   });
 
   const fetchData = useCallback(
     async (since?: Entry) => {
-      if (data.length) {
+      if (dataRef.current.length) {
         setIsReloading(true);
       }
 
@@ -66,7 +72,7 @@ export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
         }
 
         if (since) {
-          setData([...data, ...items]);
+          setData((prev) => [...prev, ...items]);
         } else {
           setData(items ?? []);
         }
@@ -76,8 +82,14 @@ export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
         setIsFirstLoaded(true);
       }
     },
-    [data, queryClient, settings.contentType, settings.username]
+    [dataLimit, queryClient, settings.contentType, settings.username]
   );
+
+  useEffect(() => {
+    setData([]);
+    setHasNextPage(true);
+    fetchData();
+  }, [dataLimit]);
 
   useEffect(() => {
     if (prevSettings && prevSettings?.contentType !== settings.contentType) {

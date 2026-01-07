@@ -153,13 +153,15 @@ export const DeckNotificationsColumn = ({ id, settings, draggable }: Props) => {
               case "vote":
               case "favorites":
               case "reblog":
-                const entry = await queryClient.fetchQuery(
-                  getContentQueryOptions(item.author, item.permlink)
-                );
-                if (entry) {
-                  setCurrentViewingEntry(entry);
+                {
+                  const entry = await queryClient.fetchQuery(
+                    getContentQueryOptions(item.author, item.permlink)
+                  );
+                  if (entry) {
+                    setCurrentViewingEntry(entry);
+                  }
+                  break;
                 }
-                break;
               case "delegations":
               case "follow":
               case "ignore":

@@ -17,12 +17,18 @@ export const MarketSwapActiveOrders = () => {
   const [cancelingOrder, setCancelingOrder] = useState(0);
 
   const fetch = useCallback(async () => {
+    if (!activeUser) {
+      setOrders([]);
+      return;
+    }
     try {
       const orders = await queryClient.fetchQuery(
-        getOpenOrdersQueryOptions(activeUser!.username)
+        getOpenOrdersQueryOptions(activeUser.username)
       );
       setOrders(orders.filter((order) => order.orderid.toString().startsWith("9")));
-    } catch (e) {}
+    } catch (e) {
+      console.error("market-swap-active-orders error", e);
+    }
   }, [activeUser, queryClient]);
 
   useEffect(() => {

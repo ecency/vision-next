@@ -1,6 +1,6 @@
 import React, { createContext, useState } from "react";
 import { getAccountPostsQueryOptions } from "@ecency/sdk";
-import { dataLimit } from "@/utils/data-limit";
+import { useDataLimit } from "@/utils/data-limit";
 import { useCommunityApi, useThreadsApi } from "./api";
 import { ThreadItemEntry } from "../columns/deck-threads-manager";
 import { Entry } from "@/entities";
@@ -32,6 +32,7 @@ export const DeckThreadsFormManager = ({ children }: Props) => {
   const { request: generalApiRequest } = useThreadsApi();
   const { request: communityBasedApiRequest } = useCommunityApi();
   const queryClient = useQueryClient();
+  const dataLimit = useDataLimit();
 
   const [show, setShow] = useState(false);
 
