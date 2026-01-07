@@ -52,6 +52,7 @@ export function FavouriteBtn({ targetUsername }: Props) {
     () => isAddPending || isDeletePending || isPending,
     [isAddPending, isDeletePending, isPending]
   );
+  const canMutate = !!accessToken;
 
   return (
     <>
@@ -72,7 +73,12 @@ export function FavouriteBtn({ targetUsername }: Props) {
             noPadding={true}
             className="w-8"
             isLoading={inProgress}
-            onClick={() => (favourited ? deleteFrom(targetUsername) : add(targetUsername))}
+            disabled={!canMutate}
+            onClick={
+              canMutate
+                ? () => (favourited ? deleteFrom(targetUsername) : add(targetUsername))
+                : undefined
+            }
             icon={<UilHeart />}
           />
         </Tooltip>

@@ -64,12 +64,21 @@ type SaveWalletInformationOptions = Pick<
 
 export function useSaveWalletInformationToMetadata(
   username: string,
+  accessToken?: string,
+  auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+  },
   options?: SaveWalletInformationOptions
 ) {
   const queryClient = useQueryClient();
 
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  const { mutateAsync: updateProfile } = useAccountUpdate(username);
+  const { mutateAsync: updateProfile } = useAccountUpdate(
+    username,
+    accessToken,
+    auth
+  );
 
   return useMutation({
     mutationKey: [

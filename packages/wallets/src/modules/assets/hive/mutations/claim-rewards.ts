@@ -5,6 +5,7 @@ import { delay } from "@/modules/wallets/utils";
 
 export function useClaimRewards(
   username: string,
+  accessToken: string | undefined,
   onSuccess: () => void
 ): ReturnType<typeof useBroadcastMutation<void>> {
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -14,6 +15,7 @@ export function useClaimRewards(
   return useBroadcastMutation<void>(
     ["assets", "hive", "claim-rewards", data?.name],
     username,
+    accessToken,
     () => {
       if (!data) {
         throw new Error("Failed to fetch account while claiming balance");
