@@ -14,7 +14,7 @@ export function getTrendingTagsWithStatsQueryOptions(limit = 250) {
     initialPageParam: { afterTag: "" },
     getNextPageParam: (lastPage) =>
       lastPage?.length ? { afterTag: lastPage[lastPage.length - 1].name } : undefined,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnMount: true
   });
 }
