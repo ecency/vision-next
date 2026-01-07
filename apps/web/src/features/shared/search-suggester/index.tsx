@@ -1,13 +1,13 @@
 "use client";
 
-import { dataLimit, getCommunities } from "@/api/bridge";
+import { dataLimit } from "@/utils/data-limit";
 import { getAccountReputations } from "@/api/hive";
 import defaults from "@/defaults";
 import { Community, Reputations } from "@/entities";
 import { SuggestionList, UserAvatar } from "@/features/shared";
 import { accountReputation } from "@/utils";
-import { getTrendingTagsQueryOptions } from "@ecency/sdk";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { getCommunitiesQueryOptions, getTrendingTagsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@ui/badge";
 import i18next from "i18next";
 import { usePathname, useRouter } from "next/navigation";
@@ -38,6 +38,7 @@ export function SearchSuggester({
   containerClassName,
   extraSuggestions
 }: Props) {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
   const previousPathname = usePrevious(pathname);
@@ -177,7 +178,9 @@ export function SearchSuggester({
     if (value.startsWith("$")) {
       const q = value.replace("$", "");
       try {
-        const r = await getCommunities("", dataLimit, q);
+        const r = await queryClient.fetchQuery(
+          getCommunitiesQueryOptions("rank", q, dataLimit)
+        );
         if (r) {
           const suggestionWithMode = [
             {
@@ -212,7 +215,9 @@ export function SearchSuggester({
           .sort((a, b) => (a.reputation > b.reputation ? -1 : 1))
           .slice(0, 3);
         // Community
-        const get_communities = await getCommunities("", 2, value);
+        const get_communities = await queryClient.fetchQuery(
+          getCommunitiesQueryOptions("rank", value, 2)
+        );
         const communities_suggestions = get_communities || [];
         const suggestionWithMode = [
           {
@@ -259,7 +264,16 @@ export function SearchSuggester({
         setSuggestions([]);
       }
     }
-  }, [accountSelected, communitySelected, loading, tagSelected, trendingTags, value]);
+  }, [
+    accountSelected,
+    communitySelected,
+    extraSuggestions,
+    loading,
+    queryClient,
+    tagSelected,
+    trendingTags,
+    value
+  ]);
 
   useEffect(() => {
     if (value !== previousValue && changed) {

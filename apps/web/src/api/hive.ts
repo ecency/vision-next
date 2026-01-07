@@ -1,7 +1,7 @@
 import { Client, RCAPI } from "@hiveio/dhive";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import SERVERS from "../../public/public-nodes.json";
-import { dataLimit } from "./bridge";
+import { dataLimit } from "@/utils/data-limit";
 import dayjs from "@/utils/dayjs";
 import {
   AccountFollowStats,

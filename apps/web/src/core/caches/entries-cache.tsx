@@ -1,5 +1,8 @@
 import { getQueryClient, QueryIdentifiers } from "../react-query";
-import * as bridgeApi from "../../api/bridge";
+import {
+  getNormalizePostQueryOptions,
+  getPostQueryOptions
+} from "@ecency/sdk";
 import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
@@ -8,22 +11,22 @@ import { useCallback } from "react";
 export namespace EcencyEntriesCacheManagement {
   export function getEntryQueryByPath(author?: string, permlink?: string) {
     return {
+      ...getPostQueryOptions(author ?? "", permlink),
       queryKey: [
         QueryIdentifiers.ENTRY,
-        author && permlink ? makeEntryPath("", author!!, permlink!!) : "EMPTY"
+        author && permlink ? makeEntryPath("", author, permlink) : "EMPTY"
       ],
-      queryFn: () => bridgeApi.getPost(author, permlink),
       enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink
     };
   }
 
   export function getEntryQuery<T extends Entry>(initialEntry?: T) {
     return {
+      ...getPostQueryOptions(initialEntry?.author ?? "", initialEntry?.permlink),
       queryKey: [
         QueryIdentifiers.ENTRY,
         initialEntry ? makeEntryPath("", initialEntry.author, initialEntry.permlink) : "EMPTY"
       ],
-      queryFn: () => bridgeApi.getPost(initialEntry?.author, initialEntry?.permlink) as Promise<T>,
       initialData: initialEntry,
       enabled: !!initialEntry
     };
@@ -31,11 +34,11 @@ export namespace EcencyEntriesCacheManagement {
 
   export function getNormalizedPostQuery<T extends Entry>(entry?: T) {
     return {
+      ...getNormalizePostQueryOptions(entry),
       queryKey: [
         QueryIdentifiers.NORMALIZED_ENTRY,
         entry ? makeEntryPath("", entry.author, entry.permlink) : "EMPTY"
       ],
-      queryFn: () => bridgeApi.normalizePost(entry),
       enabled: !!entry
     };
   }

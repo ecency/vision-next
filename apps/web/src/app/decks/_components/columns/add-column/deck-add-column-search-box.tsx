@@ -4,11 +4,12 @@ import { UsernameDataItem } from "./common";
 import { FormControl, InputGroup } from "@ui/input";
 import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
-import { getCommunities } from "@/api/bridge";
+import { getCommunitiesQueryOptions } from "@ecency/sdk";
 import { lookupAccounts } from "@/api/hive";
 import { error, UserAvatar } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { closeSvg } from "@ui/svg";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   isCommunity?: boolean;
@@ -27,6 +28,7 @@ export const DeckAddColumnSearchBox = ({
   setItem,
   setRecentList
 }: Props) => {
+  const queryClient = useQueryClient();
   const [prefilledUsername, setPrefilledUsername] = useState(username || "");
   const [usernameInput, setUsernameInput] = useState(username || "");
   const [usernameData, setUsernameData] = useState<UsernameDataItem[]>([]);
@@ -51,7 +53,9 @@ export const DeckAddColumnSearchBox = ({
         let data: UsernameDataItem[];
 
         if (isCommunity) {
-          const communitiesResponse = await getCommunities("", 4, usernameInput, "rank");
+          const communitiesResponse = await queryClient.fetchQuery(
+            getCommunitiesQueryOptions("rank", usernameInput, 4)
+          );
           data =
             communitiesResponse?.map(({ title, about, name }) => ({
               name: title,

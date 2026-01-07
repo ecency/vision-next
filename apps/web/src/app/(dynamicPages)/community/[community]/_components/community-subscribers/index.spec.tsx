@@ -14,34 +14,41 @@ import {
 } from "../../helper/test-helper";
 import { withStore } from "../../tests/with-store";
 
-jest.mock("../../api/bridge", () => ({
-  getSubscribers: () =>
-    new Promise((resolve) => {
-      resolve([
-        ["foo", "guest", null, "2020-09-09 04:37:54"],
-        ["bar", "guest", null, "2020-09-09 04:37:54"],
-        ["baz", "guest", null, "2020-09-09 04:37:54"],
-        ["lorem", "guest", null, "2020-09-09 04:37:54"],
-        ["ipsum", "guest", null, "2020-09-09 04:37:54"],
-        ["dolor", "guest", null, "2020-09-09 04:37:54"]
-      ]);
-    })
-}));
+jest.mock("@tanstack/react-query", () => {
+  const actual = jest.requireActual("@tanstack/react-query");
+  return {
+    ...actual,
+    useQuery: (options: { queryKey?: unknown[] }) => {
+      const key = options?.queryKey ?? [];
+      if (key[1] === "subscribers") {
+        return {
+          data: [
+            ["foo", "guest", null, "2020-09-09 04:37:54"],
+            ["bar", "guest", null, "2020-09-09 04:37:54"],
+            ["baz", "guest", null, "2020-09-09 04:37:54"],
+            ["lorem", "guest", null, "2020-09-09 04:37:54"],
+            ["ipsum", "guest", null, "2020-09-09 04:37:54"],
+            ["dolor", "guest", null, "2020-09-09 04:37:54"]
+          ],
+          isLoading: false
+        };
+      }
 
-jest.mock("../../api/hive", () => ({
-  getAccounts: () =>
-    new Promise((resolve) => {
-      resolve([
-        { name: "bluemist", reputation: 74.1 },
-        { name: "foo", reputation: 70.8 },
-        { name: "bar", reputation: 65.2 },
-        { name: "baz", reputation: 68.9 },
-        { name: "lorem", reputation: 51.6 },
-        { name: "ipsum", reputation: 75.5 },
-        { name: "dolor", reputation: 42.4 }
-      ]);
-    })
-}));
+      return {
+        data: [
+          { name: "bluemist", reputation: 74.1 },
+          { name: "foo", reputation: 70.8 },
+          { name: "bar", reputation: 65.2 },
+          { name: "baz", reputation: 68.9 },
+          { name: "lorem", reputation: 51.6 },
+          { name: "ipsum", reputation: 75.5 },
+          { name: "dolor", reputation: 42.4 }
+        ],
+        isLoading: false
+      };
+    }
+  };
+});
 
 const defProps = {
   history: createBrowserHistory(),

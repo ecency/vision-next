@@ -5,30 +5,49 @@ import { Browser, CommunitySelector } from "./index";
 import { activeUserMaker, allOver, globalInstance } from "../../helper/test-helper";
 import { withStore } from "../../tests/with-store";
 
-let MOCK_MODE_1 = 1;
-
-jest.mock("../../_api/bridge", () => ({
-  getCommunity: (name: string) =>
-    new Promise((resolve) => {
-      if (name === "hive-125125") {
-        resolve({
-          name: "hive-125125",
-          title: "Ecency"
-        });
-        return;
+jest.mock("@tanstack/react-query", () => {
+  const actual = jest.requireActual("@tanstack/react-query");
+  return {
+    ...actual,
+    useQuery: (options: { queryKey?: unknown[] }) => {
+      const key = options?.queryKey ?? [];
+      if (key[0] === "community") {
+        const name = key[1];
+        return {
+          data:
+            name === "hive-125125"
+              ? { name: "hive-125125", title: "Ecency" }
+              : null,
+          isLoading: false
+        };
       }
 
-      resolve(null);
-    }),
-  getSubscriptions: () =>
-    new Promise((resolve) => {
-      resolve([
-        ["hive-125125", "Ecency"],
-        ["hive-131131", "Foo"],
-        ["hive-145145", "Bar"]
-      ]);
-    })
-}));
+      if (key[0] === "accounts" && key[1] === "subscriptions") {
+        return {
+          data: [
+            ["hive-125125", "Ecency"],
+            ["hive-131131", "Foo"],
+            ["hive-145145", "Bar"]
+          ],
+          isLoading: false
+        };
+      }
+
+      if (key[0] === "communities") {
+        return {
+          data: [
+            { name: "hive-125125", title: "Ecency", about: "" },
+            { name: "hive-131131", title: "Foo", about: "" },
+            { name: "hive-145145", title: "Bar", about: "" }
+          ],
+          isLoading: false
+        };
+      }
+
+      return { data: null, isLoading: false };
+    }
+  };
+});
 
 const defProps = {
   global: globalInstance,

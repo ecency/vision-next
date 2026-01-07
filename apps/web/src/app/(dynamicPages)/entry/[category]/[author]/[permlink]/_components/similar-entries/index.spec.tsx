@@ -14,37 +14,39 @@ import {
 
 let TEST_MODE = 0;
 
-jest.mock("../../api/search-api", () => ({
-  search: () =>
-    new Promise((resolve) => {
-      if (TEST_MODE === 0) {
-        resolve({ ...searchResponseInstance, results: [] });
-      }
-
+jest.mock("@tanstack/react-query", () => {
+  const actual = jest.requireActual("@tanstack/react-query");
+  return {
+    ...actual,
+    useQuery: () => {
       if (TEST_MODE === 1) {
-        const resp = {
-          ...searchResponseInstance,
-          results: [searchResponseInstance.results[0], searchResponseInstance.results[1]]
+        return {
+          data: [searchResponseInstance.results[0], searchResponseInstance.results[1]],
+          isLoading: false
         };
-        resolve(resp);
       }
 
       if (TEST_MODE === 2) {
-        const resp = {
-          ...searchResponseInstance,
-          results: [
+        return {
+          data: [
             searchResponseInstance.results[0],
             searchResponseInstance.results[1],
             {
               ...searchResponseInstance.results[2],
               author: "good-karmax"
             }
-          ]
+          ],
+          isLoading: false
         };
-        resolve(resp);
       }
-    })
-}));
+
+      return {
+        data: [],
+        isLoading: false
+      };
+    }
+  };
+});
 
 jest.mock("@/utils/dayjs", () => ({
   __esModule: true,

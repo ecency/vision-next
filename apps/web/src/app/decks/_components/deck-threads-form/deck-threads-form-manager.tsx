@@ -1,5 +1,6 @@
 import React, { createContext, useState } from "react";
-import * as bridgeApi from "@/api/bridge";
+import { getAccountPostsQueryOptions } from "@ecency/sdk";
+import { dataLimit } from "@/utils/data-limit";
 import { useCommunityApi, useThreadsApi } from "./api";
 import { ThreadItemEntry } from "../columns/deck-threads-manager";
 import { Entry } from "@/entities";
@@ -7,6 +8,7 @@ import { ProfileFilter } from "@/enums";
 import i18next from "i18next";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Context {
   show: boolean;
@@ -29,6 +31,7 @@ interface Props {
 export const DeckThreadsFormManager = ({ children }: Props) => {
   const { request: generalApiRequest } = useThreadsApi();
   const { request: communityBasedApiRequest } = useCommunityApi();
+  const queryClient = useQueryClient();
 
   const [show, setShow] = useState(false);
 
@@ -38,7 +41,9 @@ export const DeckThreadsFormManager = ({ children }: Props) => {
         return await communityBasedApiRequest(host, raw, editingEntry);
       }
 
-      const hostEntries = await bridgeApi.getAccountPosts(ProfileFilter.posts, host);
+      const hostEntries = await queryClient.fetchQuery(
+        getAccountPostsQueryOptions(host, ProfileFilter.posts, "", "", dataLimit)
+      );
 
       if (!hostEntries) {
         throw new Error(i18next.t("decks.threads-form.no-threads-host"));

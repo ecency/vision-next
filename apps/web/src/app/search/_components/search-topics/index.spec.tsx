@@ -9,11 +9,20 @@ import { SearchTopics } from "./index";
 
 let TEST_MODE = 0;
 
-jest.mock("../../api/search-api", () => ({
-  searchTag: () =>
-    new Promise((resolve) => {
-      if (TEST_MODE === 0) {
-        resolve([
+jest.mock("@tanstack/react-query", () => {
+  const actual = jest.requireActual("@tanstack/react-query");
+  return {
+    ...actual,
+    useQuery: () => {
+      if (TEST_MODE === 1) {
+        return {
+          data: [],
+          isLoading: false
+        };
+      }
+
+      return {
+        data: [
           {
             tag: "foo",
             repeat: 10
@@ -22,14 +31,12 @@ jest.mock("../../api/search-api", () => ({
             tag: "bar",
             repeat: 5
           }
-        ]);
-      }
-
-      if (TEST_MODE === 1) {
-        resolve([]);
-      }
-    })
-}));
+        ],
+        isLoading: false
+      };
+    }
+  };
+});
 
 const defProps = {
   history: createBrowserHistory(),

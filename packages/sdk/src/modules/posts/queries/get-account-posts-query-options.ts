@@ -1,7 +1,8 @@
 import { CONFIG } from "@/modules/core";
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
+import { getAccountPosts } from "@/modules/bridge";
 
 type PageParam = {
   author: string | undefined;
@@ -81,6 +82,46 @@ export function getAccountPostsInfiniteQueryOptions(
         permlink: last?.permlink,
         hasNextPage,
       };
+    },
+  });
+}
+
+export function getAccountPostsQueryOptions(
+  username: string | undefined,
+  filter = "posts",
+  start_author: string = "",
+  start_permlink: string = "",
+  limit = 20,
+  observer = "",
+  enabled = true
+) {
+  return queryOptions({
+    queryKey: [
+      "posts",
+      "account-posts-page",
+      username ?? "",
+      filter,
+      start_author,
+      start_permlink,
+      limit,
+      observer,
+    ],
+    enabled: !!username && enabled,
+    queryFn: async () => {
+      if (!username) {
+        return [];
+      }
+
+      const response = await getAccountPosts(
+        filter,
+        username,
+        start_author,
+        start_permlink,
+        limit,
+        observer
+      );
+
+      return filterDmcaEntry(response ?? []) as Entry[];
     },
   });
 }

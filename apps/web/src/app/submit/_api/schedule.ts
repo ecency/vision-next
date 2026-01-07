@@ -1,6 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
-import * as bridgeApi from "../../../api/bridge";
-import { addSchedule } from "@ecency/sdk";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addSchedule, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
@@ -16,6 +15,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useScheduleApi(onClear: () => void) {
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
   const { buildBody } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
@@ -49,7 +49,9 @@ export function useScheduleApi(onClear: () => void) {
       // permlink duplication check
       let c;
       try {
-        c = await bridgeApi.getPostHeader(author, permlink);
+        c = await queryClient.fetchQuery(
+          getPostHeaderQueryOptions(author, permlink)
+        );
       } catch (e) {}
 
       if (c && c.author) {

@@ -1,19 +1,22 @@
 import { IdentifiableEntry, ThreadItemEntry } from "./identifiable-entry";
-import * as bridgeApi from "@/api/bridge";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
 import { FetchQueryOptions } from "@tanstack/query-core";
 import { QueryIdentifiers } from "@/core/react-query";
+import { getQueryClient } from "@/core/react-query";
 
 export async function fetchThreadsFromCommunity(
   host: string,
   community: string,
   lastContainer?: ThreadItemEntry
 ): Promise<ThreadItemEntry[]> {
-  let threadItems = (await bridgeApi.getPostsRanked(
-    "created",
-    lastContainer?.author,
-    lastContainer?.permlink,
-    50,
-    community
+  let threadItems = (await getQueryClient().fetchQuery(
+    getPostsRankedQueryOptions(
+      "created",
+      lastContainer?.author,
+      lastContainer?.permlink,
+      50,
+      community
+    )
   )) as IdentifiableEntry[];
 
   threadItems = threadItems.map((item) => {

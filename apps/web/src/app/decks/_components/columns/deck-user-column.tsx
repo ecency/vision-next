@@ -12,9 +12,11 @@ import dayjs from "@/utils/dayjs";
 import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
 import { Entry } from "@/entities";
-import { getAccountPosts } from "@/api/bridge";
+import { getAccountPostsQueryOptions } from "@ecency/sdk";
+import { dataLimit } from "@/utils/data-limit";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   id: string;
@@ -25,6 +27,7 @@ interface Props {
 type IdentifiableEntry = Entry & Required<Pick<Entry, "id">>;
 
 export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
+  const queryClient = useQueryClient();
   const [data, setData] = useState<IdentifiableEntry[]>([]);
   const prevData = usePrevious(data);
   const [isReloading, setIsReloading] = useState(false);
@@ -46,11 +49,14 @@ export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
       }
 
       try {
-        const response = await getAccountPosts(
-          settings.contentType,
-          settings.username,
-          since?.author,
-          since?.permlink
+        const response = await queryClient.fetchQuery(
+          getAccountPostsQueryOptions(
+            settings.username,
+            settings.contentType,
+            since?.author,
+            since?.permlink,
+            dataLimit
+          )
         );
         let items = response?.map((i) => ({ ...i, id: i.post_id })) ?? [];
         items = items.sort((a, b) => (dayjs(a.created).isAfter(dayjs(b.created)) ? -1 : 1));
@@ -70,7 +76,7 @@ export const DeckUserColumn = ({ id, settings, draggable }: Props) => {
         setIsFirstLoaded(true);
       }
     },
-    [data, settings.contentType, settings.username]
+    [data, queryClient, settings.contentType, settings.username]
   );
 
   useEffect(() => {

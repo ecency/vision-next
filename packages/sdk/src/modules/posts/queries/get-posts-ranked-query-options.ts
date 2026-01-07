@@ -1,7 +1,8 @@
 import { CONFIG } from "@/modules/core";
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
+import { getPostsRanked } from "@/modules/bridge";
 
 type PageParam = {
   author: string | undefined;
@@ -77,6 +78,47 @@ export function getPostsRankedInfiniteQueryOptions(
         permlink: last?.permlink,
         hasNextPage: (lastPage?.length ?? 0) > 0,
       };
+    },
+  });
+}
+
+export function getPostsRankedQueryOptions(
+  sort: string,
+  start_author: string = "",
+  start_permlink: string = "",
+  limit: number = 20,
+  tag: string = "",
+  observer: string = "",
+  enabled = true
+) {
+  return queryOptions({
+    queryKey: [
+      "posts",
+      "posts-ranked-page",
+      sort,
+      start_author,
+      start_permlink,
+      limit,
+      tag,
+      observer,
+    ],
+    enabled,
+    queryFn: async () => {
+      let sanitizedTag = tag;
+      if (CONFIG.dmcaTagRegexes.some((regex) => regex.test(tag))) {
+        sanitizedTag = "";
+      }
+
+      const response = await getPostsRanked(
+        sort,
+        start_author,
+        start_permlink,
+        limit,
+        sanitizedTag,
+        observer
+      );
+
+      return filterDmcaEntry(response ?? []) as Entry[];
     },
   });
 }

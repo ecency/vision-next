@@ -12,9 +12,11 @@ import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
 import dayjs from "@/utils/dayjs";
 import { Entry } from "@/entities";
-import { getPostsRanked } from "@/api/bridge";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
+import { useQueryClient } from "@tanstack/react-query";
+import { dataLimit } from "@/utils/data-limit";
 
 interface Props {
   id: string;
@@ -25,6 +27,7 @@ interface Props {
 type IdentifiableEntry = Entry & Required<Pick<Entry, "id">>;
 
 export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
+  const queryClient = useQueryClient();
   const [data, setData] = useState<IdentifiableEntry[]>([]);
   const prevData = usePrevious(data);
   const [isReloading, setIsReloading] = useState(false);
@@ -46,12 +49,14 @@ export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
       }
 
       try {
-        const response = await getPostsRanked(
-          settings.contentType,
-          since?.author,
-          since?.permlink,
-          20,
-          settings.tag
+        const response = await queryClient.fetchQuery(
+          getPostsRankedQueryOptions(
+            settings.contentType,
+            since?.author,
+            since?.permlink,
+            dataLimit,
+            settings.tag
+          )
         );
         let items = ((response as IdentifiableEntry[] | null) ?? [])
           .filter((e) => !e.stats?.is_pinned)
@@ -74,7 +79,7 @@ export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
         setIsFirstLoaded(true);
       }
     },
-    [data, isReloading, settings.contentType, settings.tag]
+    [data, isReloading, queryClient, settings.contentType, settings.tag]
   );
 
   useMount(() => {

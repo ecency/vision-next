@@ -17,13 +17,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 
 let TEST_MODE = 0;
 
-jest.mock("../../api/bridge", () => ({
-  getCommunity: () =>
-    new Promise((resolve) => {
-      resolve(communityInstance1);
-    })
-}));
-
 jest.mock("@ecency/sdk", () => ({
   getDraftsQueryOptions: () => ({
     queryKey: ["drafts"],
@@ -65,6 +58,10 @@ jest.mock("@ecency/sdk", () => ({
           ]);
         }
       })
+  }),
+  getCommunityQueryOptions: () => ({
+    queryKey: ["community", "single"],
+    queryFn: () => Promise.resolve(communityInstance1)
   })
 }));
 

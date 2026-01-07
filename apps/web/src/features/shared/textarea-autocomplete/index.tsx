@@ -7,7 +7,7 @@ import React, {
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "./_index.scss";
-import { searchPath } from "@/api/search-api";
+import { searchPath } from "@ecency/sdk";
 import { lookupAccounts } from "@/api/hive";
 import { UserAvatar } from "@/features/shared";
 import i18next from "i18next";
@@ -106,7 +106,7 @@ export const TextareaAutocomplete = forwardRef<HTMLTextAreaElement, any>((props,
                   ];
                   let searchIsInvalid = ignoreList.some((item) => token.includes(`/${item}`));
                   if (!searchIsInvalid) {
-                    searchPath(activeUser!.username, token).then((resp) => {
+                    searchPath(token).then((resp) => {
                       resolve(resp);
                     });
                   } else {

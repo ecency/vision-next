@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryIdentifiers } from "../react-query";
-import { dataLimit, getPostsRanked } from "@/api/bridge";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
+import { dataLimit } from "@/utils/data-limit";
 import { formatError, pinPost } from "@/api/operations";
 import { Community, Entry } from "@/entities";
 import { isCommunity } from "@/utils";
@@ -11,12 +12,9 @@ import i18next from "i18next";
 
 export function useCommunityPinCache(entry: Entry) {
   const { data: rankedPosts } = useQuery({
+    ...getPostsRankedQueryOptions("created", "", "", dataLimit, entry.category),
     queryKey: [QueryIdentifiers.COMMUNITY_RANKED_POSTS, entry.category],
-    queryFn: () =>
-      isCommunity(entry.category)
-        ? getPostsRanked("created", "", "", dataLimit, entry.category)
-        : null,
-    initialData: null
+    enabled: isCommunity(entry.category)
   });
 
   return useQuery({

@@ -6,9 +6,11 @@ import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
 import { DeckGridContext } from "../deck-manager";
 import { DeckPostViewer } from "./content-viewer";
 import { Entry } from "@/entities";
-import { getPostsRanked } from "@/api/bridge";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
+import { dataLimit } from "@/utils/data-limit";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   id: string;
@@ -19,6 +21,7 @@ interface Props {
 type IdentifiableEntry = Entry & Required<Pick<Entry, "id">>;
 
 export const DeckTrendingColumn = ({ id, settings, draggable }: Props) => {
+  const queryClient = useQueryClient();
   const [data, setData] = useState<IdentifiableEntry[]>([]);
   const [isReloading, setIsReloading] = useState(false);
   const [currentViewingEntry, setCurrentViewingEntry] = useState<Entry | null>(null);
@@ -36,7 +39,9 @@ export const DeckTrendingColumn = ({ id, settings, draggable }: Props) => {
     }
 
     try {
-      const response = await getPostsRanked("trending");
+      const response = await queryClient.fetchQuery(
+        getPostsRankedQueryOptions("trending", "", "", dataLimit)
+      );
       setData((response as IdentifiableEntry[]) ?? []);
     } catch (e) {
     } finally {

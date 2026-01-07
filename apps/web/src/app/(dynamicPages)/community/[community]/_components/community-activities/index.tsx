@@ -8,7 +8,7 @@ import { getAccountNotificationsInfiniteQueryOptions } from "@ecency/sdk";
 import { EntryLink, LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import i18next from "i18next";
 import { Community } from "@/entities";
-import { AccountNotification } from "@/api/bridge";
+import { AccountNotification } from "@ecency/sdk";
 import { dateToFullRelative } from "@/utils";
 import type { InfiniteData } from "@tanstack/react-query";
 

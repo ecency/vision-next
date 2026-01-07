@@ -19,3 +19,4 @@ export * from "./get-waves-by-host-query-options";
 export * from "./get-waves-by-tag-query-options";
 export * from "./get-waves-following-query-options";
 export * from "./get-waves-trending-tags-query-options";
+export * from "./get-normalize-post-query-options";
