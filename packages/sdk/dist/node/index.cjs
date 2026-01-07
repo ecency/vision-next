@@ -265,7 +265,7 @@ function getBoundFetch() {
 
 // src/modules/core/utils/is-community.ts
 function isCommunity(value) {
-  return typeof value === "string" ? value.match(/^hive-\d+/) !== null : false;
+  return typeof value === "string" ? /^hive-\d+$/.test(value) : false;
 }
 
 // src/modules/core/storage.ts
