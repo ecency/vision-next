@@ -7,6 +7,7 @@ import { getTokenLogo, WalletOperationsDialog } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-username";
 import { formatApr } from "@/utils";
+import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import {
   AssetOperation,
@@ -106,7 +107,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     return getTokenLogo(tokenName);
   }, [assetSymbol, data?.name, layer2Token]);
 
-  const formattedAccountBalance = Number(data?.accountBalance ?? 0).toFixed(3);
+  const formattedAccountBalance = formatAssetBalance(Number(data?.accountBalance ?? 0));
 
   const filteredOperations = useMemo(
     () =>

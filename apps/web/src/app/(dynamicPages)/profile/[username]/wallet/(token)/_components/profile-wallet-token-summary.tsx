@@ -5,6 +5,7 @@ import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
 import { formatApr } from "@/utils";
+import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, usePathname } from "next/navigation";
@@ -28,8 +29,7 @@ import {
 import { ProfileWalletHbdInterest } from "./profile-wallet-hbd-interest";
 
 function format(value: number) {
-  const formatter = new Intl.NumberFormat();
-  return formatter.format(value);
+  return formatAssetBalance(value);
 }
 
 export function ProfileWalletTokenSummary() {
