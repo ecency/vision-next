@@ -408,6 +408,22 @@
     "ascending": "昇順",
     "descending": "降順"
   },
+  "tags-page": {
+    "title": "トレンドタグ",
+    "description": "コメントの量、トップ投稿、支払いで、最も活発なトピックを見つけましょう。",
+    "error": "現在トレンドタグを読み込めません。",
+    "columns": {
+      "tag": "タグ",
+      "comments": "コメント",
+      "top-posts": "トップ投稿",
+      "total-payouts": "合計支払い"
+    },
+    "load-more": {
+      "cta": "さらに読み込む",
+      "loading": "読み込み中...",
+      "done": "これ以上のタグはありません"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "クロス投稿",
     "cross-posted-to": "to",
