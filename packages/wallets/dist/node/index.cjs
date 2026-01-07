@@ -1459,12 +1459,13 @@ async function withdrawVestingRouteHive(payload) {
   return hs__default.default.sendOperation(operation, { callback: `https://ecency.com/@${params.from_account}/wallet` }, () => {
   });
 }
-function useClaimRewards(username, onSuccess) {
+function useClaimRewards(username, accessToken, onSuccess) {
   const { data } = reactQuery.useQuery(sdk.getAccountFullQueryOptions(username));
   const queryClient = reactQuery.useQueryClient();
   return sdk.useBroadcastMutation(
     ["assets", "hive", "claim-rewards", data?.name],
     username,
+    accessToken,
     () => {
       if (!data) {
         throw new Error("Failed to fetch account while claiming balance");
@@ -4217,10 +4218,14 @@ function getGroupedChainTokens(tokens, defaultShow) {
     )
   );
 }
-function useSaveWalletInformationToMetadata(username, options2) {
+function useSaveWalletInformationToMetadata(username, accessToken, auth, options2) {
   const queryClient = reactQuery.useQueryClient();
   const { data: accountData } = reactQuery.useQuery(sdk.getAccountFullQueryOptions(username));
-  const { mutateAsync: updateProfile } = sdk.useAccountUpdate(username);
+  const { mutateAsync: updateProfile } = sdk.useAccountUpdate(
+    username,
+    accessToken,
+    auth
+  );
   return reactQuery.useMutation({
     mutationKey: [
       "ecency-wallets",

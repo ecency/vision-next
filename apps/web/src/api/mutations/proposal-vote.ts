@@ -3,7 +3,7 @@
 import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatError } from "@/api/operations";
 import { Operation, PrivateKey } from "@hiveio/dhive";
-import { client as hiveClient } from "@/api/hive";
+import { CONFIG } from "@ecency/sdk";
 import * as keychain from "@/utils/keychain";
 import { error } from "@/features/shared";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -27,7 +27,10 @@ export function useProposalVoteByKey(proposalId: number) {
         }
       ];
 
-      return [approve ?? false, await hiveClient.broadcast.sendOperations([op], key)] as const;
+      return [
+        approve ?? false,
+        await CONFIG.hiveClient.broadcast.sendOperations([op], key)
+      ] as const;
     },
     onSuccess: ([approve]) => {
       queryClient.setQueryData<InfiniteData<ProposalVote[]>>(

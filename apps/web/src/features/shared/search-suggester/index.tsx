@@ -1,7 +1,7 @@
 "use client";
 
 import { dataLimit } from "@/utils/data-limit";
-import { getAccountReputations } from "@/api/hive";
+import { getAccountReputationsQueryOptions } from "@ecency/sdk";
 import defaults from "@/defaults";
 import { Community, Reputations } from "@/entities";
 import { SuggestionList, UserAvatar } from "@/features/shared";
@@ -145,7 +145,9 @@ export function SearchSuggester({
       const name = value.replace("@", "");
       setLoading(true);
       try {
-        const r = await getAccountReputations(name, 20);
+        const r = await queryClient.fetchQuery(
+          getAccountReputationsQueryOptions(name, 20)
+        );
         const validReputations = r || [];
         validReputations.sort((a, b) => (a.reputation > b.reputation ? -1 : 1));
         const suggestions = validReputations.map((x) => `${x.account}`);
@@ -210,7 +212,9 @@ export function SearchSuggester({
           .map((x) => `#${x}`)
           .slice(0, 2);
         // account
-        const lookup_accounts = await getAccountReputations(value, 20);
+        const lookup_accounts = await queryClient.fetchQuery(
+          getAccountReputationsQueryOptions(value, 20)
+        );
         const accountsug = (lookup_accounts || [])
           .sort((a, b) => (a.reputation > b.reputation ? -1 : 1))
           .slice(0, 3);

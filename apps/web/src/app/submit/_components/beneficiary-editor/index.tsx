@@ -11,7 +11,8 @@ import { accountMultipleSvg, deleteForeverSvg, plusSvg } from "@ui/svg";
 import i18next from "i18next";
 import { handleInvalid, handleOnInput } from "@/utils";
 import { error } from "@/features/shared";
-import { getAccount } from "@/api/hive";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   author?: string;
@@ -23,6 +24,7 @@ interface Props {
 export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const { videos } = useThreeSpeakManager();
+  const queryClient = useQueryClient();
 
   const [visible, setVisible] = useState(false);
   const [username, setUsername] = useState("");
@@ -66,7 +68,8 @@ export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props
                 }
 
                 setInProgress(true);
-                getAccount(username)
+                queryClient
+                  .fetchQuery(getAccountFullQueryOptions(username))
                   .then((r) => {
                     if (!r) {
                       error(i18next.t("beneficiary-editor.user-error", { n: username }));

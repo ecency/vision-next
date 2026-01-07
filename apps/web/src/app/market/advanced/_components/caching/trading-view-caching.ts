@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { IndexedDBConfig } from "use-indexeddb/dist/interfaces";
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import { MarketCandlestickDataItem } from "@/entities";
-import { getMarketHistory } from "@/api/hive";
+import { getMarketHistoryQueryOptions } from "@ecency/sdk";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MarketCandlestickDataRecord extends MarketCandlestickDataItem {
   openDate: Dayjs;
@@ -38,6 +39,7 @@ const MARKET_DB_CONFIG: IndexedDBConfig = {
  * @param version DB version
  */
 export function useTradingViewCache(ttl: number | "none" = "none", version: number = 1) {
+  const queryClient = useQueryClient();
   const { add, update, getOneByKey, getManyByKey } =
     useIndexedDBStore<MarketDataRecord>("tv_hbd_hive");
 
@@ -121,7 +123,9 @@ export function useTradingViewCache(ttl: number | "none" = "none", version: numb
       // }
     }
 
-    const response = await getMarketHistory(seconds, startDate.toDate(), endDate.toDate());
+    const response = await queryClient.fetchQuery(
+      getMarketHistoryQueryOptions(seconds, startDate.toDate(), endDate.toDate())
+    );
     await cache(response, seconds);
     return response;
   };

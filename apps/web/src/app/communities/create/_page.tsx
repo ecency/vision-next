@@ -92,15 +92,12 @@ export function CreateCommunityPage() {
 
   useEffect(() => {
     updateAccountRef.current = updateAccount;
-  }, [updateAccount]);
-
-  useEffect(() => {
     communityAccessTokenRef.current = communityAccessToken;
     if (communityAccessTokenRef.current && tokenWaiterRef.current) {
       tokenWaiterRef.current(communityAccessTokenRef.current);
       tokenWaiterRef.current = null;
     }
-  }, [communityAccessToken]);
+  }, [communityAccessToken, updateAccount]);
 
   const waitForCommunityToken = useCallback(() => {
     if (communityAccessTokenRef.current) {

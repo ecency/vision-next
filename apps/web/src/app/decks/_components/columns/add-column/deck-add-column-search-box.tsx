@@ -4,8 +4,7 @@ import { UsernameDataItem } from "./common";
 import { FormControl, InputGroup } from "@ui/input";
 import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
-import { getCommunitiesQueryOptions } from "@ecency/sdk";
-import { lookupAccounts } from "@/api/hive";
+import { getCommunitiesQueryOptions, lookupAccountsQueryOptions } from "@ecency/sdk";
 import { error, UserAvatar } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { closeSvg } from "@ui/svg";
@@ -63,7 +62,9 @@ export const DeckAddColumnSearchBox = ({
               tag: name
             })) ?? [];
         } else {
-          const usersResponse = await lookupAccounts(usernameInput, 5);
+          const usersResponse = await queryClient.fetchQuery(
+            lookupAccountsQueryOptions(usernameInput, 5)
+          );
           data = usersResponse.map((u) => ({ name: u }));
         }
 

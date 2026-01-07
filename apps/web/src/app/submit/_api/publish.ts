@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
-import { validatePostCreating } from "@/api/hive";
+import { validatePostCreating } from "@ecency/sdk";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { getQueryClient } from "@/core/react-query";

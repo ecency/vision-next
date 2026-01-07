@@ -4,7 +4,7 @@ import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@/api/hive";
+import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@ecency/sdk";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
 import { hiveSvg } from "@ui/svg";

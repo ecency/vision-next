@@ -7,7 +7,7 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { validatePostCreating } from "@/api/hive";
+import { validatePostCreating } from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";

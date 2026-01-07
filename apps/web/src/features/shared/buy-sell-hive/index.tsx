@@ -18,7 +18,6 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import { KeyOrHot } from "@/features/shared/key-or-hot";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getAccountFull } from "@/api/hive";
 import { BuySellHiveTransactionType } from "@/enums";
 
 interface Props {

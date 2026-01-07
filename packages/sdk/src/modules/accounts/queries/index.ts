@@ -12,6 +12,7 @@ export * from "./get-active-account-bookmarks-query-options";
 export * from "./get-active-account-favourites-query-options";
 export * from "./get-account-recoveries-query-options";
 export * from "./get-account-pending-recovery-query-options";
+export * from "./get-account-reputations-query-options";
 export * from "./get-transactions-infinite-query-options";
 export * from "./get-bots-query-options";
 export * from "./get-referrals-infinite-query-options";

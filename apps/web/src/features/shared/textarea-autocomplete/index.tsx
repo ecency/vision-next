@@ -7,11 +7,11 @@ import React, {
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "./_index.scss";
-import { searchPath } from "@ecency/sdk";
-import { lookupAccounts } from "@/api/hive";
+import { lookupAccountsQueryOptions, searchPath } from "@ecency/sdk";
 import { UserAvatar } from "@/features/shared";
 import i18next from "i18next";
 import { useIsMobile } from "@/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Loading = () => <div>{i18next.t("g.loading")}</div>;
 
@@ -21,6 +21,7 @@ let timer: any = null;
 export const TextareaAutocomplete = forwardRef<HTMLTextAreaElement, any>((props, ref) => {
   const { activeUser } = useActiveAccount();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
   const [value, setValue] = useState(props.value);
   const [rows, setRows] = useState(props.minrows || 10);
@@ -113,7 +114,9 @@ export const TextareaAutocomplete = forwardRef<HTMLTextAreaElement, any>((props,
                     resolve([]);
                   }
                 } else {
-                  let suggestions = await lookupAccounts(token.toLowerCase(), 5);
+                  let suggestions = await queryClient.fetchQuery(
+                    lookupAccountsQueryOptions(token.toLowerCase(), 5)
+                  );
                   resolve(suggestions);
                 }
               }, 300);

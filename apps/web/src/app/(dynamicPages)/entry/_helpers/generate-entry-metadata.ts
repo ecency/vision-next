@@ -2,8 +2,7 @@ import { accountReputation, parseDate, safeDecodeURIComponent, truncate } from "
 import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import { getContent } from "@/api/hive";
-import { getProfilesQueryOptions, Profile } from "@ecency/sdk";
+import { getContentQueryOptions, getProfilesQueryOptions, Profile } from "@ecency/sdk";
 import { prefetchQuery } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { getServerAppBase } from "@/utils/server-app-base";
@@ -49,7 +48,9 @@ export async function generateEntryMetadata(
       });
       try {
         // fallback to direct content API
-        entry = await getContent(cleanAuthor, cleanPermlink);
+        entry = await prefetchQuery(
+          getContentQueryOptions(cleanAuthor, cleanPermlink)
+        );
       } catch (e) {
         console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, cleanPermlink);
         return {};

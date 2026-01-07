@@ -2,7 +2,7 @@ import dayjs from "@/utils/dayjs";
 import { MarketCandlestickDataItem } from "@/entities";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
-import { getMarketHistory } from "@/api/hive";
+import { getMarketHistoryQueryOptions, getQueryClient } from "@ecency/sdk";
 import { Time } from "lightweight-charts";
 
 export interface TradingViewQueryDataItem {
@@ -18,10 +18,8 @@ export function useTradingViewQuery(bucketSeconds: number) {
   return useInfiniteQuery({
     queryKey: [QueryIdentifiers.MARKET_TRADING_VIEW, bucketSeconds],
     queryFn: async ({ pageParam: [startDate, endDate] }) => {
-      const apiData: MarketCandlestickDataItem[] = await getMarketHistory(
-        bucketSeconds,
-        startDate.toDate(),
-        endDate.toDate()
+      const apiData: MarketCandlestickDataItem[] = await getQueryClient().fetchQuery(
+        getMarketHistoryQueryOptions(bucketSeconds, startDate.toDate(), endDate.toDate())
       );
 
       return apiData.map(({ hive, non_hive, open }) => ({

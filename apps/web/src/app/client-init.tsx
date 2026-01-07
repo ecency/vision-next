@@ -3,11 +3,10 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { useQuery } from "@tanstack/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { CONFIG, getAccountFullQueryOptions } from "@ecency/sdk";
 import { initI18next } from "@/features/i18n";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
-import { client } from "@/api/hive";
 import { ConfigManager } from "@ecency/sdk";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMount } from "react-use";
@@ -39,7 +38,7 @@ export function ClientInit() {
       broadcastWithHiveAuth(username, operations, keyType)
     );
 
-    (window as any).dHiveClient = client;
+    (window as any).dHiveClient = CONFIG.hiveClient;
 
     const activeUsername = ls.get("active_user") ?? Cookies.get("active_user");
     if (activeUsername) {

@@ -18,17 +18,12 @@ jest.mock("@/defaults", () => ({
 
 let MOCK_MODE = 1;
 
-jest.mock("../../api/hive", () => ({
-  getSavingsWithdrawFrom: () =>
-    new Promise((resolve) => {
-      if (MOCK_MODE === 1) {
-        resolve(withdrawSavingsInstance);
-      }
-
-      if (MOCK_MODE === 2) {
-        resolve([]);
-      }
-    })
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useQuery: () => ({
+    data: MOCK_MODE === 1 ? withdrawSavingsInstance : [],
+    isLoading: false
+  })
 }));
 
 const defaultProps = {

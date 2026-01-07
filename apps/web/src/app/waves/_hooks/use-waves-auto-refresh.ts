@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getAccountPostsQueryOptions } from "@ecency/sdk";
 import { ProfileFilter } from "@/enums";
 import { Entry, WaveEntry } from "@/entities";
-import { client } from "@/api/hive";
+import { getContentRepliesQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
@@ -17,10 +17,8 @@ async function fetchLatestWaves(host: string, queryClient: QueryClient) {
     return [] as WaveEntry[];
   }
 
-  const items = (await client.call(
-    "condenser_api",
-    "get_content_replies",
-    [host, containers[0].permlink]
+  const items = (await queryClient.fetchQuery(
+    getContentRepliesQueryOptions(host, containers[0].permlink)
   )) as Entry[];
 
   if (items.length === 0) {
