@@ -408,6 +408,22 @@
     "ascending": "升序",
     "descending": "降序"
   },
+  "tags-page": {
+    "title": "热门标签",
+    "description": "发现最活跃的主题，包括评论体积、顶级帖子和薪酬。",
+    "error": "现在无法加载趋势标签。",
+    "columns": {
+      "tag": "标签",
+      "comments": "评论",
+      "top-posts": "顶部帖子",
+      "total-payouts": "付款总额"
+    },
+    "load-more": {
+      "cta": "加载更多",
+      "loading": "加载中...",
+      "done": "没有更多标签"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "转发帖子",
     "cross-posted-to": "至",
