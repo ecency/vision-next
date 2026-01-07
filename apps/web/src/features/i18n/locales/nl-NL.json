@@ -408,6 +408,22 @@
     "ascending": "Oplopend",
     "descending": "Aflopend"
   },
+  "tags-page": {
+    "title": "Populaire tags",
+    "description": "Ontdek de meest actieve topics met hun reactievolume, top berichten en uitbetalingen.",
+    "error": "Kan trending tags nu niet laden.",
+    "columns": {
+      "tag": "Tagnaam",
+      "comments": "Opmerkingen",
+      "top-posts": "Top berichten",
+      "total-payouts": "Totaal uitbetalingen"
+    },
+    "load-more": {
+      "cta": "Meer laden",
+      "loading": "Laden...",
+      "done": "Geen labels meer"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "gedeelde post",
     "cross-posted-to": "naar",
