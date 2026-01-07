@@ -408,6 +408,22 @@
     "ascending": "Ascendant",
     "descending": "Descendant"
   },
+  "tags-page": {
+    "title": "Tags tendances",
+    "description": "Découvrez les sujets les plus actifs avec leur volume de commentaires, les meilleurs messages et les paiements.",
+    "error": "Impossible de charger les balises tendances pour le moment.",
+    "columns": {
+      "tag": "Étiquette",
+      "comments": "Commentaires",
+      "top-posts": "Top messages",
+      "total-payouts": "Total des paiements"
+    },
+    "load-more": {
+      "cta": "Charger plus",
+      "loading": "Chargement en cours...",
+      "done": "Plus aucun tag"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "message croisé",
     "cross-posted-to": "à",
