@@ -408,6 +408,22 @@
     "ascending": "Ascendente",
     "descending": "Descendente"
   },
+  "tags-page": {
+    "title": "Etiquetas em alta",
+    "description": "Descubra os tópicos mais ativos com seu volume de comentários, mais posts e pagamentos.",
+    "error": "Não é possível carregar tags em alta agora.",
+    "columns": {
+      "tag": "Etiqueta",
+      "comments": "comentários",
+      "top-posts": "Postagens mais populares",
+      "total-payouts": "Total de pagamentos"
+    },
+    "load-more": {
+      "cta": "Carregue mais",
+      "loading": "Carregandochar@@0",
+      "done": "Sem mais tags"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "republicado",
     "cross-posted-to": "para",
