@@ -3,11 +3,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { EntryHeader } from "@/entities";
 import { getPostHeader } from "@/api/bridge";
-import { getPromotedPost } from "@/api/private-api";
+import { getPromotedPost } from "@ecency/sdk";
 import i18next from "i18next";
 import { error } from "@/features/shared";
 import { formatError } from "../operations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 export function usePreCheckPromote(path: string, onSuccess: () => void) {
   const { activeUser } = useActiveAccount();
@@ -30,7 +31,11 @@ export function usePreCheckPromote(path: string, onSuccess: () => void) {
       }
 
       // Check if the post already promoted
-      const promoted = await getPromotedPost(activeUser!.username, author, permlink);
+      const promoted = await getPromotedPost(
+        getAccessToken(activeUser!.username),
+        author,
+        permlink
+      );
       if (promoted) {
         throw new Error(i18next.t("redeem-common.post-promoted-exists"));
       }

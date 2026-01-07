@@ -4,9 +4,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Draft, DraftMetadata } from "@/entities";
 import i18next from "i18next";
-import { addDraft, deleteDraft } from "@/api/private-api";
+import { addDraft, deleteDraft } from "@ecency/sdk";
 import { success } from "@/features/shared";
 import { QueryIdentifiers } from "@/core/react-query";
+import { getAccessToken } from "@/utils";
 
 export function useCloneDraft(onSuccess: () => void) {
   const queryClient = useQueryClient();
@@ -18,7 +19,13 @@ export function useCloneDraft(onSuccess: () => void) {
       const { title, body, tags, meta } = item;
       const cloneTitle = i18next.t("g.copy") + " " + title;
       const draftMeta: DraftMetadata = meta!;
-      return addDraft(activeUser?.username!, cloneTitle, body, tags, draftMeta);
+      return addDraft(
+        getAccessToken(activeUser?.username!),
+        cloneTitle,
+        body,
+        tags,
+        draftMeta
+      );
     },
     onSuccess: ({ drafts }) => {
       success(i18next.t("g.clone-success"));
@@ -38,7 +45,7 @@ export function useDeleteDraft(onSuccess: (id: string) => void) {
   return useMutation({
     mutationKey: ["drafts", "delete"],
     mutationFn: async ({ id }: { id: string }) => {
-      await deleteDraft(activeUser?.username!, id);
+      await deleteDraft(getAccessToken(activeUser?.username!), id);
       return id;
     },
     onSuccess: (id) => {

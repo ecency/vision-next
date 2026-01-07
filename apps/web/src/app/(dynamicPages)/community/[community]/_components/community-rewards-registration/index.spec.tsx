@@ -13,21 +13,24 @@ import {
 
 let MOCK_MODE = 1;
 
-jest.mock("../../api/private-api", () => ({
-  getRewardedCommunities: () =>
-    new Promise((resolve) => {
-      if (MOCK_MODE === 1) {
-        resolve([]);
-      }
+jest.mock("@ecency/sdk", () => ({
+  getRewardedCommunitiesQueryOptions: () => ({
+    queryKey: ["rewarded-communities"],
+    queryFn: () =>
+      new Promise((resolve) => {
+        if (MOCK_MODE === 1) {
+          resolve([]);
+        }
 
-      if (MOCK_MODE === 2) {
-        resolve([
-          {
-            name: communityInstance1.name
-          }
-        ]);
-      }
-    })
+        if (MOCK_MODE === 2) {
+          resolve([
+            {
+              name: communityInstance1.name
+            }
+          ]);
+        }
+      })
+  })
 }));
 
 const defProps = {

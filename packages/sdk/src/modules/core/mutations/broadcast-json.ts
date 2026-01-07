@@ -1,13 +1,14 @@
 import { CONFIG } from "@/modules/core/config";
 import { PrivateKey } from "@hiveio/dhive";
 import hs from "hivesigner";
-import {getAccessToken, getLoginType, getPostingKey} from "../storage";
+import { getLoginType, getPostingKey } from "../storage";
 import {Keychain} from "@/modules/keychain";
 
 export async function broadcastJson<T>(
   username: string | undefined,
   id: string,
-  payload: T
+  payload: T,
+  accessToken?: string
 ) {
   if (!username) {
     throw new Error(
@@ -37,10 +38,9 @@ export async function broadcastJson<T>(
   }
 
   // With hivesigner access token
-  let token = getAccessToken(username);
-  if (token) {
+  if (accessToken) {
     const response = await new hs.Client({
-      accessToken: token,
+      accessToken,
     }).customJson([], [username], id, JSON.stringify(payload));
     return response.result;
   }

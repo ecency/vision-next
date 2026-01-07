@@ -11,6 +11,7 @@ import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { useMemo } from "react";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   targetUsername: string;
@@ -20,16 +21,21 @@ export function FavouriteBtn({ targetUsername }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data, isPending } = useQuery(
-    getActiveAccountFavouritesQueryOptions(activeUser?.username)
+    getActiveAccountFavouritesQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
   );
 
   const { mutateAsync: add, isPending: isAddPending } = useAccountFavouriteAdd(
     activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
     () => success(i18next.t("favorite-btn.added")),
     () => error(i18next.t("g.server-error"))
   );
   const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavouriteDelete(
     activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
     () => success(i18next.t("favorite-btn.deleted")),
     () => error(i18next.t("g.server-error"))
   );

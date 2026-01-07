@@ -791,7 +791,7 @@ interface ThreeSpeakVideo {
     _id: string;
 }
 
-declare function getAccountTokenQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, (string | undefined)[]>, "queryFn"> & {
+declare function getAccountTokenQueryOptions(username: string | undefined, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<any, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -800,7 +800,7 @@ declare function getAccountTokenQueryOptions(username: string | undefined): _tan
     };
 };
 
-declare function getAccountVideosQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ThreeSpeakVideo[], Error, ThreeSpeakVideo[], (string | undefined)[]>, "queryFn"> & {
+declare function getAccountVideosQueryOptions(username: string | undefined, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ThreeSpeakVideo[], Error, ThreeSpeakVideo[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<ThreeSpeakVideo[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -819,7 +819,7 @@ declare const ThreeSpeakIntegration: {
     queries: typeof queries$1;
 };
 
-declare function getDecodeMemoQueryOptions(username: string, memo: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
+declare function getDecodeMemoQueryOptions(username: string, memo: string, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<any, string[], never> | undefined;
 } & {
     queryKey: string[] & {

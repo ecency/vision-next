@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import * as bridgeApi from "../../../api/bridge";
-import { addSchedule } from "@/api/private-api";
+import { addSchedule } from "@ecency/sdk";
 import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { usePollsCreationManagement } from "@/features/polls";
-import { createPermlink, isCommunity, makeCommentOptions } from "@/utils";
+import { createPermlink, getAccessToken, isCommunity, makeCommentOptions } from "@/utils";
 import { error } from "@/features/shared";
 import { AxiosError } from "axios";
 import i18next from "i18next";
@@ -84,7 +84,7 @@ export function useScheduleApi(onClear: () => void) {
 
       try {
         await addSchedule(
-          author,
+          getAccessToken(author),
           permlink,
           title,
           buildBody(body),

@@ -8,6 +8,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useDeleteSchedule, useMoveSchedule } from "@/api/mutations";
 import i18next from "i18next";
 import { useMount } from "react-use";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   onHide: () => void;
@@ -19,7 +20,9 @@ export function SchedulesList({}: Props) {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isPending, refetch } = useQuery(getSchedulesQueryOptions(activeUser?.username));
+  const { data, isPending, refetch } = useQuery(
+    getSchedulesQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? ""))
+  );
 
   const items = useMemo(
     () =>

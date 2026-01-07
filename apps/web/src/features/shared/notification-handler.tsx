@@ -12,6 +12,7 @@ import {
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { usePrevious } from "react-use";
+import { getAccessToken } from "@/utils";
 
 export function NotificationHandler() {
   const nws = useRef(new NotificationsWebSocket());
@@ -23,15 +24,16 @@ export function NotificationHandler() {
   const fbSupport = useGlobalStore((state) => state.fbSupport);
 
   const previousActiveUser = usePrevious(activeUser);
+  const accessToken = getAccessToken(activeUser?.username ?? "");
 
   const notificationUnreadCountQuery = useQuery(
-    getNotificationsUnreadCountQueryOptions(activeUser?.username)
+    getNotificationsUnreadCountQueryOptions(activeUser?.username, accessToken)
   );
   const notificationsQuery = useInfiniteQuery(
-    getNotificationsInfiniteQueryOptions(activeUser?.username)
+    getNotificationsInfiniteQueryOptions(activeUser?.username, accessToken)
   );
   const notificationsSettingsQuery = useQuery(
-    getNotificationsSettingsQueryOptions(activeUser?.username)
+    getNotificationsSettingsQueryOptions(activeUser?.username, accessToken)
   );
 
   useEffect(() => {

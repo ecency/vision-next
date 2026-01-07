@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { MarketData } from "../types";
+import { getBoundFetch } from "@/modules/core";
 
 /**
  * Get market chart data from CoinGecko API
@@ -18,9 +19,10 @@ export function getMarketDataQueryOptions(
   return queryOptions({
     queryKey: ["market", "data", coin, vsCurrency, fromTs, toTs],
     queryFn: async ({ signal }) => {
+      const fetchApi = getBoundFetch();
       const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart/range?vs_currency=${vsCurrency}&from=${fromTs}&to=${toTs}`;
 
-      const response = await fetch(url, { signal });
+      const response = await fetchApi(url, { signal });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch market data: ${response.status}`);

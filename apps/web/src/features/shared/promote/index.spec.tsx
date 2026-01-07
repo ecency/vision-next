@@ -6,17 +6,29 @@ import TestRenderer from "react-test-renderer";
 
 import { globalInstance, entryInstance1, allOver } from "../../helper/test-helper";
 
-jest.mock("../../api/private-api", () => ({
-  getPromotePrice: () =>
-    new Promise((resolve) => {
-      resolve([
-        { price: 150, duration: 1 },
-        { price: 250, duration: 2 },
-        { price: 350, duration: 3 },
-        { price: 500, duration: 7 },
-        { price: 1000, duration: 14 }
-      ]);
-    })
+jest.mock("@ecency/sdk", () => ({
+  getPromotePriceQueryOptions: () => ({
+    queryKey: ["promote-price"],
+    queryFn: () =>
+      new Promise((resolve) => {
+        resolve([
+          { price: 150, duration: 1 },
+          { price: 250, duration: 2 },
+          { price: 350, duration: 3 },
+          { price: 500, duration: 7 },
+          { price: 1000, duration: 14 }
+        ]);
+      })
+  }),
+  getPointsQueryOptions: () => ({
+    queryKey: ["points"],
+    queryFn: () => Promise.resolve({ points: "500.000", uPoints: "0.000" })
+  }),
+  getSearchPathQueryOptions: () => ({
+    queryKey: ["search-path"],
+    queryFn: () => Promise.resolve([])
+  }),
+  getAccessToken: () => ""
 }));
 
 it("(1) Default render", async () => {

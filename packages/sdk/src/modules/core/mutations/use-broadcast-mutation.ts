@@ -3,7 +3,7 @@ import {
   type MutationKey,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import { getAccessToken, getLoginType, getPostingKey } from "../storage";
+import { getLoginType, getPostingKey } from "../storage";
 import { Operation, PrivateKey } from "@hiveio/dhive";
 import { CONFIG, getBoundFetch } from "@/modules/core";
 //import hs from "hivesigner";
@@ -12,6 +12,7 @@ import { Keychain } from "@/modules/keychain";
 export function useBroadcastMutation<T>(
   mutationKey: MutationKey = [],
   username: string | undefined,
+  accessToken: string | undefined,
   operations: (payload: T) => Operation[],
   onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {}
 ) {
@@ -45,13 +46,12 @@ export function useBroadcastMutation<T>(
       }
 
       // With hivesigner access token
-      let token = getAccessToken(username);
-      if (token) {
+      if (accessToken) {
         const f = getBoundFetch();
         const res = await f("https://hivesigner.com/api/broadcast", {
           method: "POST",
           headers: {
-            Authorization: token,
+            Authorization: accessToken,
             "Content-Type": "application/json",
             Accept: "application/json",
           },

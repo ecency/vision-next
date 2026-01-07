@@ -1,17 +1,21 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { NotificationFilter } from "../enums";
-import { CONFIG, getAccessToken } from "@/modules/core";
+import { CONFIG } from "@/modules/core";
 import { ApiNotification } from "../types";
 
 export function getNotificationsInfiniteQueryOptions(
   activeUsername: string | undefined,
+  code: string | undefined,
   filter: NotificationFilter | undefined = undefined
 ) {
   return infiniteQueryOptions({
     queryKey: ["notifications", activeUsername, filter],
     queryFn: async ({ pageParam }) => {
+      if (!code) {
+        return [];
+      }
       const data = {
-        code: getAccessToken(activeUsername!),
+        code,
         filter,
         since: pageParam,
         user: undefined,
@@ -30,7 +34,7 @@ export function getNotificationsInfiniteQueryOptions(
 
       return response.json() as Promise<ApiNotification[]>;
     },
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
     initialData: { pages: [], pageParams: [] },
     initialPageParam: "",
     getNextPageParam: (lastPage) => lastPage?.[lastPage.length - 1]?.id ?? "",

@@ -1,9 +1,10 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteImage, UserImage } from "@/api/private-api";
+import { deleteImage, UserImage } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { QueryIdentifiers } from "@/core/react-query";
+import { getAccessToken } from "@/utils";
 
 export function useDeleteGalleryImage() {
   const queryClient = useQueryClient();
@@ -12,7 +13,7 @@ export function useDeleteGalleryImage() {
   return useMutation({
     mutationKey: ["gallery", "image", "delete"],
     mutationFn: async ({ id }: { id: string }) => {
-      await deleteImage(activeUser!.username, id);
+      await deleteImage(getAccessToken(activeUser!.username), id);
       return id;
     },
     onSuccess: (id) => {

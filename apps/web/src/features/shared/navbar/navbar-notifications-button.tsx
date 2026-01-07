@@ -11,13 +11,19 @@ import { EcencyConfigManager } from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import { getNotificationsUnreadCountQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
+import { getAccessToken } from "@/utils";
 
 export function NavbarNotificationsButton({ onClick }: { onClick?: () => void }) {
   const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
   const globalNotifications = useGlobalStore((state) => state.globalNotifications);
 
-  const { data: unread } = useQuery(getNotificationsUnreadCountQueryOptions(activeUser?.username));
+  const { data: unread } = useQuery(
+    getNotificationsUnreadCountQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
+  );
 
   return (
     <EcencyConfigManager.Conditional

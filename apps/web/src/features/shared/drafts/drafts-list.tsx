@@ -9,6 +9,7 @@ import i18next from "i18next";
 import { useCloneDraft, useDeleteDraft } from "@/api/mutations";
 import { usePathname, useRouter } from "next/navigation";
 import useMount from "react-use/lib/useMount";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   onHide: () => void;
@@ -23,7 +24,9 @@ export function DraftsList({ onHide, onPick }: Props) {
   const { activeUser } = useActiveAccount();
 
   const [filter, setFilter] = useState("");
-  const { data, isPending, refetch } = useQuery(getDraftsQueryOptions(activeUser?.username));
+  const { data, isPending, refetch } = useQuery(
+    getDraftsQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? ""))
+  );
 
   const items = useMemo(
     () =>

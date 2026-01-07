@@ -1353,11 +1353,10 @@ var queries_exports = {};
 __export(queries_exports, {
   getDecodeMemoQueryOptions: () => getDecodeMemoQueryOptions
 });
-function getDecodeMemoQueryOptions(username, memo) {
+function getDecodeMemoQueryOptions(username, memo, accessToken) {
   return reactQuery.queryOptions({
     queryKey: ["integrations", "hivesigner", "decode-memo", username],
     queryFn: async () => {
-      const accessToken = getAccessToken(username);
       if (accessToken) {
         const hsClient = new hs__default.default.Client({
           accessToken
@@ -1374,12 +1373,12 @@ var HiveSignerIntegration = {
 };
 
 // src/modules/integrations/3speak/queries/get-account-token-query-options.ts
-function getAccountTokenQueryOptions(username) {
+function getAccountTokenQueryOptions(username, accessToken) {
   return reactQuery.queryOptions({
     queryKey: ["integrations", "3speak", "authenticate", username],
-    enabled: !!username,
+    enabled: !!username && !!accessToken,
     queryFn: async () => {
-      if (!username) {
+      if (!username || !accessToken) {
         throw new Error("[SDK][Integrations][3Speak] \u2013\xA0anon user");
       }
       const fetchApi = getBoundFetch();
@@ -1393,7 +1392,8 @@ function getAccountTokenQueryOptions(username) {
       );
       const memoQueryOptions = HiveSignerIntegration.queries.getDecodeMemoQueryOptions(
         username,
-        (await response.json()).memo
+        (await response.json()).memo,
+        accessToken
       );
       await getQueryClient().prefetchQuery(memoQueryOptions);
       const { memoDecoded } = getQueryClient().getQueryData(
@@ -1403,16 +1403,21 @@ function getAccountTokenQueryOptions(username) {
     }
   });
 }
-function getAccountVideosQueryOptions(username) {
+function getAccountVideosQueryOptions(username, accessToken) {
   return reactQuery.queryOptions({
     queryKey: ["integrations", "3speak", "videos", username],
-    enabled: !!username,
+    enabled: !!username && !!accessToken,
     queryFn: async () => {
-      await getQueryClient().prefetchQuery(
-        getAccountTokenQueryOptions(username)
+      if (!username || !accessToken) {
+        throw new Error("[SDK][Integrations][3Speak] \u2013\xA0anon user");
+      }
+      const tokenQueryOptions = getAccountTokenQueryOptions(
+        username,
+        accessToken
       );
+      await getQueryClient().prefetchQuery(tokenQueryOptions);
       const token = getQueryClient().getQueryData(
-        getAccountTokenQueryOptions(username).queryKey
+        tokenQueryOptions.queryKey
       );
       const fetchApi = getBoundFetch();
       const response = await fetchApi(

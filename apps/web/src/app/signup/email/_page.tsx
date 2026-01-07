@@ -4,7 +4,6 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import qrcode from "qrcode";
-import axios from "axios";
 import "./_sign-up.scss";
 import { Spinner } from "@ui/spinner";
 import { FormControl } from "@ui/input";
@@ -18,7 +17,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import i18next from "i18next";
 import { getAccounts } from "@/api/hive";
-import { signUp } from "@/api/private-api";
+import { signUp } from "@ecency/sdk";
 import { error, Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import {b64uEnc, getUsernameError, handleInvalid, handleOnInput} from "@/utils";
 import { appleSvg, checkSvg, googleSvg, hiveSvg } from "@ui/svg";
@@ -155,15 +154,18 @@ export function SignUp() {
         return;
       }
       if (response?.data?.code) {
-        setRegistrationError(response.data.code);
+        setRegistrationError(String(response.data.code));
       } else {
         setDone(true);
         setLsReferral(undefined);
         setStage(Stage.FORM);
       }
     } catch (e) {
-      if (axios.isAxiosError(e) && e.response?.data?.message) {
-        setRegistrationError(e.response.data.message);
+      if (e instanceof Error && "data" in e) {
+        const errorData = (e as { data?: { message?: string } }).data;
+        if (errorData?.message) {
+          setRegistrationError(errorData.message);
+        }
       }
     } finally {
       setInProgress(false);

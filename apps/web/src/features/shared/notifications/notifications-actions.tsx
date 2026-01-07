@@ -22,6 +22,7 @@ import { classNameObject } from "@ui/util";
 import { default as i18n, default as i18next } from "i18next";
 import { useEffect } from "react";
 import { useDebounce, useMap, useMount } from "react-use";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   filter?: NotificationFilter;
@@ -44,15 +45,27 @@ export function NotificationsActions({ filter }: Props) {
   });
 
   const { data: notificationSettings } = useQuery(
-    getNotificationsSettingsQueryOptions(activeUser?.username)
+    getNotificationsSettingsQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
   );
   const {
     data: unread,
     refetch: refetchUnread,
     isLoading: isUnreadLoading
-  } = useQuery(getNotificationsUnreadCountQueryOptions(activeUser?.username));
+  } = useQuery(
+    getNotificationsUnreadCountQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
+  );
   const { refetch: refetchData, isLoading: isDataLoading } = useInfiniteQuery(
-    getNotificationsInfiniteQueryOptions(activeUser?.username, filter)
+    getNotificationsInfiniteQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? ""),
+      filter
+    )
   );
 
   const markNotifications = useMarkNotifications();

@@ -13,7 +13,10 @@ interface Payload {
   tokens: AccountProfile["tokens"];
 }
 
-export function useAccountUpdate(username: string) {
+export function useAccountUpdate(
+  username: string,
+  accessToken: string | undefined
+) {
   const queryClient = useQueryClient();
 
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -21,6 +24,7 @@ export function useAccountUpdate(username: string) {
   return useBroadcastMutation(
     ["accounts", "update"],
     username,
+    accessToken,
     (payload: Partial<Payload>) => {
       if (!data) {
         throw new Error("[SDK][Accounts] – cannot update not existing account");
@@ -46,7 +50,7 @@ export function useAccountUpdate(username: string) {
         ],
       ];
     },
-    (_, variables) =>
+    (_data: unknown, variables: Partial<Payload>) =>
       queryClient.setQueryData<FullAccount>(
         getAccountFullQueryOptions(username).queryKey,
         (data) => {

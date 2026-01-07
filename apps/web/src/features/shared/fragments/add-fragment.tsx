@@ -3,6 +3,7 @@ import { FragmentForm } from "./fragment-form";
 import { useAddFragment } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useCallback } from "react";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   onAdd: () => void;
@@ -11,7 +12,10 @@ interface Props {
 
 export function AddFragment({ onAdd, onCancel }: Props) {
   const { activeUser } = useActiveAccount();
-  const { mutateAsync: addFragment, isPending } = useAddFragment(activeUser!.username);
+  const { mutateAsync: addFragment, isPending } = useAddFragment(
+    activeUser!.username,
+    getAccessToken(activeUser!.username)
+  );
 
   const submit = useCallback(
     async (title: string, body: string) => {

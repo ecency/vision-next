@@ -16,7 +16,7 @@ import {
 } from "@/app/communities/create/_components";
 import { useGlobalStore } from "@/core/global-store";
 import { CommunityTypes } from "@/enums";
-import { delay, parseAsset, random } from "@/utils";
+import { delay, getAccessToken, parseAsset, random } from "@/utils";
 import { EcencyAnalytics, getChainPropertiesQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { cryptoUtils } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
@@ -64,7 +64,10 @@ export function CreateCommunityPage() {
       return `${numeral(asset.amount).format("0.000")} ${asset.symbol}`;
     }
   });
-  const { mutateAsync: updateAccount } = useAccountUpdate(username);
+  const { mutateAsync: updateAccount } = useAccountUpdate(
+    username,
+    getAccessToken(username)
+  );
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateCommunity } = useUpdateCommunity(username);
   const { mutateAsync: setUserRole } = useCommunitySetUserRole(username);

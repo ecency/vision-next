@@ -55,6 +55,7 @@ var MockStorage = class {
 };
 var CONFIG = {
   privateApiHost: "https://ecency.com",
+  imageHost: "https://images.ecency.com",
   storage: typeof window === "undefined" ? new MockStorage() : window.localStorage,
   storagePrefix: "ecency",
   hiveClient: new dhive.Client(
@@ -101,6 +102,10 @@ exports.ConfigManager = void 0;
     CONFIG.privateApiHost = host;
   }
   ConfigManager2.setPrivateApiHost = setPrivateApiHost;
+  function setImageHost(host) {
+    CONFIG.imageHost = host;
+  }
+  ConfigManager2.setImageHost = setImageHost;
   function analyzeRedosRisk(pattern) {
     if (/(\([^)]*[*+{][^)]*\))[*+{]/.test(pattern)) {
       return { safe: false, reason: "nested quantifiers detected" };
@@ -331,7 +336,7 @@ var customJson = (account, id, key, json, display_msg, rpc = null) => new Promis
 });
 
 // src/modules/core/mutations/use-broadcast-mutation.ts
-function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
+function useBroadcastMutation(mutationKey = [], username, accessToken, operations, onSuccess = () => {
 }) {
   return reactQuery.useMutation({
     onSuccess,
@@ -358,13 +363,12 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
           "Posting"
         ).then((r) => r.result);
       }
-      let token = getAccessToken(username);
-      if (token) {
+      if (accessToken) {
         const f = getBoundFetch();
         const res = await f("https://hivesigner.com/api/broadcast", {
           method: "POST",
           headers: {
-            Authorization: token,
+            Authorization: accessToken,
             "Content-Type": "application/json",
             Accept: "application/json"
           },
@@ -386,7 +390,7 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
     }
   });
 }
-async function broadcastJson(username, id, payload) {
+async function broadcastJson(username, id, payload, accessToken) {
   if (!username) {
     throw new Error(
       "[Core][Broadcast] Attempted to call broadcast API with anon user"
@@ -410,10 +414,9 @@ async function broadcastJson(username, id, payload) {
   if (loginType && loginType == "keychain") {
     return keychain_exports.broadcast(username, [["custom_json", jjson]], "Posting").then((r) => r.result);
   }
-  let token = getAccessToken(username);
-  if (token) {
+  if (accessToken) {
     const response = await new hs__default.default.Client({
-      accessToken: token
+      accessToken
     }).customJson([], [username], id, JSON.stringify(payload));
     return response.result;
   }
@@ -928,13 +931,13 @@ function getAccountSubscriptionsQueryOptions(username) {
     }
   });
 }
-function getActiveAccountBookmarksQueryOptions(activeUsername) {
+function getActiveAccountBookmarksQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "bookmarks", activeUsername],
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
     queryFn: async () => {
-      if (!activeUsername) {
-        throw new Error("[SDK][Accounts][Bookmarks] \u2013 no active user");
+      if (!activeUsername || !code) {
+        throw new Error("[SDK][Accounts][Bookmarks] \u2013 missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -944,20 +947,20 @@ function getActiveAccountBookmarksQueryOptions(activeUsername) {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ code: getAccessToken(activeUsername) })
+          body: JSON.stringify({ code })
         }
       );
       return await response.json();
     }
   });
 }
-function getActiveAccountFavouritesQueryOptions(activeUsername) {
+function getActiveAccountFavouritesQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "favourites", activeUsername],
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
     queryFn: async () => {
-      if (!activeUsername) {
-        throw new Error("[SDK][Accounts][Favourites] \u2013 no active user");
+      if (!activeUsername || !code) {
+        throw new Error("[SDK][Accounts][Favourites] \u2013 missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -967,18 +970,21 @@ function getActiveAccountFavouritesQueryOptions(activeUsername) {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ code: getAccessToken(activeUsername) })
+          body: JSON.stringify({ code })
         }
       );
       return await response.json();
     }
   });
 }
-function getAccountRecoveriesQueryOptions(username) {
+function getAccountRecoveriesQueryOptions(username, code) {
   return reactQuery.queryOptions({
-    enabled: !!username,
+    enabled: !!username && !!code,
     queryKey: ["accounts", "recoveries", username],
     queryFn: async () => {
+      if (!code) {
+        return [];
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/recoveries",
@@ -987,7 +993,7 @@ function getAccountRecoveriesQueryOptions(username) {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ code: getAccessToken(username) })
+          body: JSON.stringify({ code })
         }
       );
       return response.json();
@@ -1262,17 +1268,20 @@ function getTrendingTagsWithStatsQueryOptions(limit = 250) {
     refetchOnMount: true
   });
 }
-function getFragmentsQueryOptions(username) {
+function getFragmentsQueryOptions(username, code) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "fragments", username],
     queryFn: async () => {
+      if (!code) {
+        return [];
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/fragments",
         {
           method: "POST",
           body: JSON.stringify({
-            code: getAccessToken(username)
+            code
           }),
           headers: {
             "Content-Type": "application/json"
@@ -1281,7 +1290,7 @@ function getFragmentsQueryOptions(username) {
       );
       return response.json();
     },
-    enabled: !!username
+    enabled: !!username && !!code
   });
 }
 function getPromotedPostsQuery(type = "feed") {
@@ -1588,20 +1597,21 @@ function getReblogsQueryOptions(username, activeUsername, limit = 200) {
     enabled: !!username
   });
 }
-function getSchedulesQueryOptions(activeUsername) {
+function getSchedulesQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "schedules", activeUsername],
     queryFn: async () => {
-      if (!activeUsername) {
+      if (!activeUsername || !code) {
         return [];
       }
-      const response = await fetch(CONFIG.privateApiHost + "/private-api/schedules", {
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          code: getAccessToken(activeUsername)
+          code
         })
       });
       if (!response.ok) {
@@ -1609,23 +1619,24 @@ function getSchedulesQueryOptions(activeUsername) {
       }
       return response.json();
     },
-    enabled: !!activeUsername
+    enabled: !!activeUsername && !!code
   });
 }
-function getDraftsQueryOptions(activeUsername) {
+function getDraftsQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "drafts", activeUsername],
     queryFn: async () => {
-      if (!activeUsername) {
+      if (!activeUsername || !code) {
         return [];
       }
-      const response = await fetch(CONFIG.privateApiHost + "/private-api/drafts", {
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          code: getAccessToken(activeUsername)
+          code
         })
       });
       if (!response.ok) {
@@ -1633,17 +1644,18 @@ function getDraftsQueryOptions(activeUsername) {
       }
       return response.json();
     },
-    enabled: !!activeUsername
+    enabled: !!activeUsername && !!code
   });
 }
-async function fetchUserImages(username) {
-  const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
+async function fetchUserImages(code) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/images", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      code: getAccessToken(username)
+      code
     })
   });
   if (!response.ok) {
@@ -1651,28 +1663,28 @@ async function fetchUserImages(username) {
   }
   return response.json();
 }
-function getImagesQueryOptions(username) {
+function getImagesQueryOptions(username, code) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "images", username],
     queryFn: async () => {
-      if (!username) {
+      if (!username || !code) {
         return [];
       }
-      return fetchUserImages(username);
+      return fetchUserImages(code);
     },
-    enabled: !!username
+    enabled: !!username && !!code
   });
 }
-function getGalleryImagesQueryOptions(activeUsername) {
+function getGalleryImagesQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "gallery-images", activeUsername],
     queryFn: async () => {
-      if (!activeUsername) {
+      if (!activeUsername || !code) {
         return [];
       }
-      return fetchUserImages(activeUsername);
+      return fetchUserImages(code);
     },
-    enabled: !!activeUsername
+    enabled: !!activeUsername && !!code
   });
 }
 function getCommentHistoryQueryOptions(author, permlink, onlyMeta = false) {
@@ -2068,12 +2080,13 @@ function getAccountVoteHistoryInfiniteQueryOptions(username, options) {
 }
 
 // src/modules/accounts/mutations/use-account-update.ts
-function useAccountUpdate(username) {
+function useAccountUpdate(username, accessToken) {
   const queryClient = reactQuery.useQueryClient();
   const { data } = reactQuery.useQuery(getAccountFullQueryOptions(username));
   return useBroadcastMutation(
     ["accounts", "update"],
     username,
+    accessToken,
     (payload) => {
       if (!data) {
         throw new Error("[SDK][Accounts] \u2013 cannot update not existing account");
@@ -2097,7 +2110,7 @@ function useAccountUpdate(username) {
         ]
       ];
     },
-    (_, variables) => queryClient.setQueryData(
+    (_data, variables) => queryClient.setQueryData(
       getAccountFullQueryOptions(username).queryKey,
       (data2) => {
         if (!data2) {
@@ -2153,12 +2166,12 @@ function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
     }
   });
 }
-function useBookmarkAdd(username, onSuccess, onError) {
+function useBookmarkAdd(username, code, onSuccess, onError) {
   return reactQuery.useMutation({
     mutationKey: ["accounts", "bookmarks", "add", username],
     mutationFn: async ({ author, permlink }) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -2171,7 +2184,7 @@ function useBookmarkAdd(username, onSuccess, onError) {
           body: JSON.stringify({
             author,
             permlink,
-            code: getAccessToken(username)
+            code
           })
         }
       );
@@ -2186,12 +2199,12 @@ function useBookmarkAdd(username, onSuccess, onError) {
     onError
   });
 }
-function useBookmarkDelete(username, onSuccess, onError) {
+function useBookmarkDelete(username, code, onSuccess, onError) {
   return reactQuery.useMutation({
     mutationKey: ["accounts", "bookmarks", "delete", username],
     mutationFn: async (bookmarkId) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -2203,7 +2216,7 @@ function useBookmarkDelete(username, onSuccess, onError) {
           },
           body: JSON.stringify({
             id: bookmarkId,
-            code: getAccessToken(username)
+            code
           })
         }
       );
@@ -2218,12 +2231,12 @@ function useBookmarkDelete(username, onSuccess, onError) {
     onError
   });
 }
-function useAccountFavouriteAdd(username, onSuccess, onError) {
+function useAccountFavouriteAdd(username, code, onSuccess, onError) {
   return reactQuery.useMutation({
     mutationKey: ["accounts", "favourites", "add", username],
     mutationFn: async (account) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -2235,7 +2248,7 @@ function useAccountFavouriteAdd(username, onSuccess, onError) {
           },
           body: JSON.stringify({
             account,
-            code: getAccessToken(username)
+            code
           })
         }
       );
@@ -2250,12 +2263,12 @@ function useAccountFavouriteAdd(username, onSuccess, onError) {
     onError
   });
 }
-function useAccountFavouriteDelete(username, onSuccess, onError) {
+function useAccountFavouriteDelete(username, code, onSuccess, onError) {
   return reactQuery.useMutation({
     mutationKey: ["accounts", "favourites", "add", username],
     mutationFn: async (account) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 no active user");
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -2267,7 +2280,7 @@ function useAccountFavouriteDelete(username, onSuccess, onError) {
           },
           body: JSON.stringify({
             account,
-            code: getAccessToken(username)
+            code
           })
         }
       );
@@ -2425,7 +2438,7 @@ function useAccountRevokePosting(username, options) {
     }
   });
 }
-function useAccountUpdateRecovery(username, options) {
+function useAccountUpdateRecovery(username, code, options) {
   const { data } = reactQuery.useQuery(getAccountFullQueryOptions(username));
   return reactQuery.useMutation({
     mutationKey: ["accounts", "recovery", data?.name],
@@ -2441,11 +2454,14 @@ function useAccountUpdateRecovery(username, options) {
         extensions: []
       };
       if (type === "ecency") {
+        if (!code) {
+          throw new Error("[SDK][Accounts] \u2013 missing access token");
+        }
         const fetchApi = getBoundFetch();
         return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
           method: "POST",
           body: JSON.stringify({
-            code: getAccessToken(data.name),
+            code,
             email,
             publicKeys: [
               ...data.owner.key_auths,
@@ -2569,17 +2585,20 @@ function getChainPropertiesQueryOptions() {
     }
   });
 }
-function useAddFragment(username) {
+function useAddFragment(username, code) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "add-fragment", username],
     mutationFn: async ({ title, body }) => {
+      if (!code) {
+        throw new Error("[SDK][Posts] Missing access token");
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/fragments-add",
         {
           method: "POST",
           body: JSON.stringify({
-            code: getAccessToken(username),
+            code,
             title,
             body
           }),
@@ -2592,23 +2611,26 @@ function useAddFragment(username) {
     },
     onSuccess(response) {
       getQueryClient().setQueryData(
-        getFragmentsQueryOptions(username).queryKey,
+        getFragmentsQueryOptions(username, code).queryKey,
         (data) => [response, ...data ?? []]
       );
     }
   });
 }
-function useEditFragment(username, fragmentId) {
+function useEditFragment(username, fragmentId, code) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "edit-fragment", username, fragmentId],
     mutationFn: async ({ title, body }) => {
+      if (!code) {
+        throw new Error("[SDK][Posts] Missing access token");
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/fragments-update",
         {
           method: "POST",
           body: JSON.stringify({
-            code: getAccessToken(username),
+            code,
             id: fragmentId,
             title,
             body
@@ -2622,7 +2644,7 @@ function useEditFragment(username, fragmentId) {
     },
     onSuccess(response) {
       getQueryClient().setQueryData(
-        getFragmentsQueryOptions(username).queryKey,
+        getFragmentsQueryOptions(username, code).queryKey,
         (data) => {
           if (!data) {
             return [];
@@ -2637,15 +2659,18 @@ function useEditFragment(username, fragmentId) {
     }
   });
 }
-function useRemoveFragment(username, fragmentId) {
+function useRemoveFragment(username, fragmentId, code) {
   return reactQuery.useMutation({
     mutationKey: ["posts", "remove-fragment", username],
     mutationFn: async () => {
+      if (!code) {
+        throw new Error("[SDK][Posts] Missing access token");
+      }
       const fetchApi = getBoundFetch();
       return fetchApi(CONFIG.privateApiHost + "/private-api/fragments-delete", {
         method: "POST",
         body: JSON.stringify({
-          code: getAccessToken(username),
+          code,
           id: fragmentId
         }),
         headers: {
@@ -2655,7 +2680,7 @@ function useRemoveFragment(username, fragmentId) {
     },
     onSuccess() {
       getQueryClient().setQueryData(
-        getFragmentsQueryOptions(username).queryKey,
+        getFragmentsQueryOptions(username, code).queryKey,
         (data) => [...data ?? []].filter(({ id }) => id !== fragmentId)
       );
     }
@@ -2774,11 +2799,10 @@ var queries_exports = {};
 __export(queries_exports, {
   getDecodeMemoQueryOptions: () => getDecodeMemoQueryOptions
 });
-function getDecodeMemoQueryOptions(username, memo) {
+function getDecodeMemoQueryOptions(username, memo, accessToken) {
   return reactQuery.queryOptions({
     queryKey: ["integrations", "hivesigner", "decode-memo", username],
     queryFn: async () => {
-      const accessToken = getAccessToken(username);
       if (accessToken) {
         const hsClient = new hs__default.default.Client({
           accessToken
@@ -2795,12 +2819,12 @@ var HiveSignerIntegration = {
 };
 
 // src/modules/integrations/3speak/queries/get-account-token-query-options.ts
-function getAccountTokenQueryOptions(username) {
+function getAccountTokenQueryOptions(username, accessToken) {
   return reactQuery.queryOptions({
     queryKey: ["integrations", "3speak", "authenticate", username],
-    enabled: !!username,
+    enabled: !!username && !!accessToken,
     queryFn: async () => {
-      if (!username) {
+      if (!username || !accessToken) {
         throw new Error("[SDK][Integrations][3Speak] \u2013\xA0anon user");
       }
       const fetchApi = getBoundFetch();
@@ -2814,7 +2838,8 @@ function getAccountTokenQueryOptions(username) {
       );
       const memoQueryOptions = HiveSignerIntegration.queries.getDecodeMemoQueryOptions(
         username,
-        (await response.json()).memo
+        (await response.json()).memo,
+        accessToken
       );
       await getQueryClient().prefetchQuery(memoQueryOptions);
       const { memoDecoded } = getQueryClient().getQueryData(
@@ -2824,17 +2849,20 @@ function getAccountTokenQueryOptions(username) {
     }
   });
 }
-function getAccountVideosQueryOptions(username) {
+function getAccountVideosQueryOptions(username, accessToken) {
   return reactQuery.queryOptions({
     queryKey: ["integrations", "3speak", "videos", username],
-    enabled: !!username,
+    enabled: !!username && !!accessToken,
     queryFn: async () => {
-      await getQueryClient().prefetchQuery(
-        getAccountTokenQueryOptions(username)
+      if (!username || !accessToken) {
+        throw new Error("[SDK][Integrations][3Speak] \u2013\xA0anon user");
+      }
+      const tokenQueryOptions = getAccountTokenQueryOptions(
+        username,
+        accessToken
       );
-      const token = getQueryClient().getQueryData(
-        getAccountTokenQueryOptions(username).queryKey
-      );
+      await getQueryClient().prefetchQuery(tokenQueryOptions);
+      const token = getQueryClient().getQueryData(tokenQueryOptions.queryKey);
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         `https://studio.3speak.tv/mobile/api/my-videos`,
@@ -2945,13 +2973,13 @@ function getAccountRcQueryOptions(username) {
     enabled: !!username
   });
 }
-function getGameStatusCheckQueryOptions(username, gameType) {
+function getGameStatusCheckQueryOptions(username, code, gameType) {
   return reactQuery.queryOptions({
     queryKey: ["games", "status-check", gameType, username],
-    enabled: !!username,
+    enabled: !!username && !!code,
     queryFn: async () => {
-      if (!username) {
-        throw new Error("[SDK][Games] \u2013 anon user in status check");
+      if (!username || !code) {
+        throw new Error("[SDK][Games] \u2013 missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -2960,7 +2988,7 @@ function getGameStatusCheckQueryOptions(username, gameType) {
           method: "POST",
           body: JSON.stringify({
             game_type: gameType,
-            code: getAccessToken(username)
+            code
           }),
           headers: {
             "Content-Type": "application/json"
@@ -2971,7 +2999,7 @@ function getGameStatusCheckQueryOptions(username, gameType) {
     }
   });
 }
-function useGameClaim(username, gameType, key) {
+function useGameClaim(username, code, gameType, key) {
   const { mutateAsync: recordActivity } = useRecordActivity(
     username,
     "spin-rolled"
@@ -2979,8 +3007,8 @@ function useGameClaim(username, gameType, key) {
   return reactQuery.useMutation({
     mutationKey: ["games", "post", gameType, username],
     mutationFn: async () => {
-      if (!username) {
-        throw new Error("[SDK][Games] \u2013 anon user in game post");
+      if (!username || !code) {
+        throw new Error("[SDK][Games] \u2013 missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -2989,7 +3017,7 @@ function useGameClaim(username, gameType, key) {
           method: "POST",
           body: JSON.stringify({
             game_type: gameType,
-            code: getAccessToken(username),
+            code,
             key
           }),
           headers: {
@@ -3154,15 +3182,18 @@ function getCommunityPermissions({
     isModerator
   };
 }
-function getNotificationsUnreadCountQueryOptions(activeUsername) {
+function getNotificationsUnreadCountQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["notifications", "unread", activeUsername],
     queryFn: async () => {
+      if (!code) {
+        return 0;
+      }
       const response = await fetch(
         `${CONFIG.privateApiHost}/private-api/notifications/unread`,
         {
           method: "POST",
-          body: JSON.stringify({ code: getAccessToken(activeUsername) }),
+          body: JSON.stringify({ code }),
           headers: {
             "Content-Type": "application/json"
           }
@@ -3171,17 +3202,20 @@ function getNotificationsUnreadCountQueryOptions(activeUsername) {
       const data = await response.json();
       return data.count;
     },
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
     initialData: 0,
     refetchInterval: 6e4
   });
 }
-function getNotificationsInfiniteQueryOptions(activeUsername, filter = void 0) {
+function getNotificationsInfiniteQueryOptions(activeUsername, code, filter = void 0) {
   return reactQuery.infiniteQueryOptions({
     queryKey: ["notifications", activeUsername, filter],
     queryFn: async ({ pageParam }) => {
+      if (!code) {
+        return [];
+      }
       const data = {
-        code: getAccessToken(activeUsername),
+        code,
         filter,
         since: pageParam,
         user: void 0
@@ -3198,7 +3232,7 @@ function getNotificationsInfiniteQueryOptions(activeUsername, filter = void 0) {
       );
       return response.json();
     },
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
     initialData: { pages: [], pageParams: [] },
     initialPageParam: "",
     getNextPageParam: (lastPage) => lastPage?.[lastPage.length - 1]?.id ?? "",
@@ -3251,16 +3285,19 @@ var NotificationViewType = /* @__PURE__ */ ((NotificationViewType2) => {
 })(NotificationViewType || {});
 
 // src/modules/notifications/queries/get-notifications-settings-query-options.ts
-function getNotificationsSettingsQueryOptions(activeUsername) {
+function getNotificationsSettingsQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["notifications", "settings", activeUsername],
     queryFn: async () => {
       let token = activeUsername + "-web";
+      if (!code) {
+        throw new Error("Missing access token");
+      }
       const response = await fetch(
         CONFIG.privateApiHost + "/private-api/detail-device",
         {
           body: JSON.stringify({
-            code: getAccessToken(activeUsername),
+            code,
             username: activeUsername,
             token
           }),
@@ -3275,7 +3312,7 @@ function getNotificationsSettingsQueryOptions(activeUsername) {
       }
       return response.json();
     },
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
     refetchOnMount: false,
     initialData: () => {
       const wasMutedPreviously = typeof window !== "undefined" ? localStorage.getItem("notifications") !== "true" : false;
@@ -3569,14 +3606,55 @@ function getMarketDataQueryOptions(coin, vsCurrency, fromTs, toTs) {
   return reactQuery.queryOptions({
     queryKey: ["market", "data", coin, vsCurrency, fromTs, toTs],
     queryFn: async ({ signal }) => {
+      const fetchApi = getBoundFetch();
       const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart/range?vs_currency=${vsCurrency}&from=${fromTs}&to=${toTs}`;
-      const response = await fetch(url, { signal });
+      const response = await fetchApi(url, { signal });
       if (!response.ok) {
         throw new Error(`Failed to fetch market data: ${response.status}`);
       }
       return response.json();
     }
   });
+}
+
+// src/modules/market/requests.ts
+async function parseJsonResponse(response) {
+  const data = await response.json();
+  if (!response.ok) {
+    const error = new Error(`Request failed with status ${response.status}`);
+    error.status = response.status;
+    error.data = data;
+    throw error;
+  }
+  return data;
+}
+async function getMarketData(coin, vsCurrency, fromTs, toTs) {
+  const fetchApi = getBoundFetch();
+  const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart/range?vs_currency=${vsCurrency}&from=${fromTs}&to=${toTs}`;
+  const response = await fetchApi(url);
+  return parseJsonResponse(response);
+}
+async function getCurrencyRate(cur) {
+  if (cur === "hbd") {
+    return 1;
+  }
+  const fetchApi = getBoundFetch();
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=hive_dollar&vs_currencies=${cur}`;
+  const response = await fetchApi(url);
+  const data = await parseJsonResponse(response);
+  return data.hive_dollar[cur];
+}
+async function getCurrencyTokenRate(currency, token) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(
+    CONFIG.privateApiHost + `/private-api/market-data/${currency === "hbd" ? "usd" : currency}/${token}`
+  );
+  return parseJsonResponse(response);
+}
+async function getCurrencyRates() {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/market-data/latest");
+  return parseJsonResponse(response);
 }
 function getPointsQueryOptions(username, filter = 0) {
   return reactQuery.queryOptions({
@@ -3918,6 +3996,300 @@ function getBoostPlusAccountPricesQueryOptions(account, accessToken) {
   });
 }
 
+// src/modules/private-api/requests.ts
+async function parseJsonResponse2(response) {
+  const data = await response.json();
+  if (!response.ok) {
+    const error = new Error(`Request failed with status ${response.status}`);
+    error.status = response.status;
+    error.data = data;
+    throw error;
+  }
+  return data;
+}
+async function signUp(username, email, referral) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/account-create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username, email, referral })
+  });
+  const data = await parseJsonResponse2(response);
+  return { status: response.status, data };
+}
+async function subscribeEmail(email) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/subscribe", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  });
+  const data = await parseJsonResponse2(response);
+  return { status: response.status, data };
+}
+async function usrActivity(code, ty, bl = "", tx = "") {
+  const params = { code, ty };
+  if (bl) {
+    params.bl = bl;
+  }
+  if (tx) {
+    params.tx = tx;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/usr-activity", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(params)
+  });
+  await parseJsonResponse2(response);
+}
+async function getNotifications(code, filter, since = null, user = null) {
+  const data = {
+    code
+  };
+  if (filter) {
+    data.filter = filter;
+  }
+  if (since) {
+    data.since = since;
+  }
+  if (user) {
+    data.user = user;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/notifications", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function saveNotificationSetting(code, username, system, allows_notify, notify_types, token) {
+  const data = {
+    code,
+    username,
+    token,
+    system,
+    allows_notify,
+    notify_types
+  };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/register-device", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function getNotificationSetting(code, username, token) {
+  const data = { code, username, token };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/detail-device", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function markNotifications(code, id) {
+  const data = {
+    code
+  };
+  if (id) {
+    data.id = id;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/notifications/mark", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function addImage(code, url) {
+  const data = { code, url };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/images-add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function uploadImage(file, token, signal) {
+  const fetchApi = getBoundFetch();
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetchApi(`${CONFIG.imageHost}/hs/${token}`, {
+    method: "POST",
+    body: formData,
+    signal
+  });
+  return parseJsonResponse2(response);
+}
+async function deleteImage(code, imageId) {
+  const data = { code, id: imageId };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/images-delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function addDraft(code, title, body, tags, meta) {
+  const data = { code, title, body, tags, meta };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function updateDraft(code, draftId, title, body, tags, meta) {
+  const data = { code, id: draftId, title, body, tags, meta };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-update", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function deleteDraft(code, draftId) {
+  const data = { code, id: draftId };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function addSchedule(code, permlink, title, body, meta, options, schedule, reblog) {
+  const data = {
+    code,
+    permlink,
+    title,
+    body,
+    meta,
+    schedule,
+    reblog
+  };
+  if (options) {
+    data.options = options;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function deleteSchedule(code, id) {
+  const data = { code, id };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function moveSchedule(code, id) {
+  const data = { code, id };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-move", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function getPromotedPost(code, author, permlink) {
+  const data = { code, author, permlink };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/promoted-post", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function onboardEmail(username, email, friend) {
+  const dataBody = {
+    username,
+    email,
+    friend
+  };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(
+    CONFIG.privateApiHost + "/private-api/account-create-friend",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(dataBody)
+    }
+  );
+  return parseJsonResponse2(response);
+}
+
+// src/modules/auth/requests.ts
+async function hsTokenRenew(code) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/auth-api/hs-token-refresh", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ code })
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    const error = new Error(`Failed to refresh token: ${response.status}`);
+    error.status = response.status;
+    error.data = data;
+    throw error;
+  }
+  return data;
+}
+
 exports.ACCOUNT_OPERATION_GROUPS = ACCOUNT_OPERATION_GROUPS;
 exports.ALL_ACCOUNT_OPERATIONS = ALL_ACCOUNT_OPERATIONS;
 exports.ALL_NOTIFY_TYPES = ALL_NOTIFY_TYPES;
@@ -3933,11 +4305,17 @@ exports.ROLES = ROLES;
 exports.SortOrder = SortOrder;
 exports.Symbol = Symbol2;
 exports.ThreeSpeakIntegration = ThreeSpeakIntegration;
+exports.addDraft = addDraft;
+exports.addImage = addImage;
+exports.addSchedule = addSchedule;
 exports.broadcastJson = broadcastJson;
 exports.buildProfileMetadata = buildProfileMetadata;
 exports.checkUsernameWalletsPendingQueryOptions = checkUsernameWalletsPendingQueryOptions;
 exports.decodeObj = decodeObj;
 exports.dedupeAndSortKeyAuths = dedupeAndSortKeyAuths;
+exports.deleteDraft = deleteDraft;
+exports.deleteImage = deleteImage;
+exports.deleteSchedule = deleteSchedule;
 exports.encodeObj = encodeObj;
 exports.extractAccountProfile = extractAccountProfile;
 exports.getAccessToken = getAccessToken;
@@ -3967,6 +4345,9 @@ exports.getCommunitySubscribersQueryOptions = getCommunitySubscribersQueryOption
 exports.getCommunityType = getCommunityType;
 exports.getControversialRisingInfiniteQueryOptions = getControversialRisingInfiniteQueryOptions;
 exports.getConversionRequestsQueryOptions = getConversionRequestsQueryOptions;
+exports.getCurrencyRate = getCurrencyRate;
+exports.getCurrencyRates = getCurrencyRates;
+exports.getCurrencyTokenRate = getCurrencyTokenRate;
 exports.getDeletedEntryQueryOptions = getDeletedEntryQueryOptions;
 exports.getDiscoverCurationQueryOptions = getDiscoverCurationQueryOptions;
 exports.getDiscoverLeaderboardQueryOptions = getDiscoverLeaderboardQueryOptions;
@@ -3984,10 +4365,13 @@ exports.getHiveHbdStatsQueryOptions = getHiveHbdStatsQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
 exports.getImagesQueryOptions = getImagesQueryOptions;
 exports.getLoginType = getLoginType;
+exports.getMarketData = getMarketData;
 exports.getMarketDataQueryOptions = getMarketDataQueryOptions;
 exports.getMarketHistoryQueryOptions = getMarketHistoryQueryOptions;
 exports.getMarketStatisticsQueryOptions = getMarketStatisticsQueryOptions;
 exports.getMutedUsersQueryOptions = getMutedUsersQueryOptions;
+exports.getNotificationSetting = getNotificationSetting;
+exports.getNotifications = getNotifications;
 exports.getNotificationsInfiniteQueryOptions = getNotificationsInfiniteQueryOptions;
 exports.getNotificationsSettingsQueryOptions = getNotificationsSettingsQueryOptions;
 exports.getNotificationsUnreadCountQueryOptions = getNotificationsUnreadCountQueryOptions;
@@ -4002,6 +4386,7 @@ exports.getPostTipsQueryOptions = getPostTipsQueryOptions;
 exports.getPostingKey = getPostingKey;
 exports.getPostsRankedInfiniteQueryOptions = getPostsRankedInfiniteQueryOptions;
 exports.getPromotePriceQueryOptions = getPromotePriceQueryOptions;
+exports.getPromotedPost = getPromotedPost;
 exports.getPromotedPostsQuery = getPromotedPostsQuery;
 exports.getProposalQueryOptions = getProposalQueryOptions;
 exports.getProposalVotesInfiniteQueryOptions = getProposalVotesInfiniteQueryOptions;
@@ -4038,18 +4423,27 @@ exports.getWavesFollowingQueryOptions = getWavesFollowingQueryOptions;
 exports.getWavesTrendingTagsQueryOptions = getWavesTrendingTagsQueryOptions;
 exports.getWithdrawRoutesQueryOptions = getWithdrawRoutesQueryOptions;
 exports.getWitnessesInfiniteQueryOptions = getWitnessesInfiniteQueryOptions;
+exports.hsTokenRenew = hsTokenRenew;
 exports.isCommunity = isCommunity;
 exports.lookupAccountsQueryOptions = lookupAccountsQueryOptions;
 exports.makeQueryClient = makeQueryClient;
 exports.mapThreadItemsToWaveEntries = mapThreadItemsToWaveEntries;
+exports.markNotifications = markNotifications;
+exports.moveSchedule = moveSchedule;
 exports.normalizeWaveEntryFromApi = normalizeWaveEntryFromApi;
+exports.onboardEmail = onboardEmail;
 exports.parseAccounts = parseAccounts;
 exports.parseAsset = parseAsset;
 exports.parseProfileMetadata = parseProfileMetadata;
 exports.roleMap = roleMap;
+exports.saveNotificationSetting = saveNotificationSetting;
 exports.searchQueryOptions = searchQueryOptions;
+exports.signUp = signUp;
 exports.sortDiscussions = sortDiscussions;
+exports.subscribeEmail = subscribeEmail;
 exports.toEntryArray = toEntryArray;
+exports.updateDraft = updateDraft;
+exports.uploadImage = uploadImage;
 exports.useAccountFavouriteAdd = useAccountFavouriteAdd;
 exports.useAccountFavouriteDelete = useAccountFavouriteDelete;
 exports.useAccountRelationsUpdate = useAccountRelationsUpdate;
@@ -4070,5 +4464,6 @@ exports.useRemoveFragment = useRemoveFragment;
 exports.useSignOperationByHivesigner = useSignOperationByHivesigner;
 exports.useSignOperationByKey = useSignOperationByKey;
 exports.useSignOperationByKeychain = useSignOperationByKeychain;
+exports.usrActivity = usrActivity;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

@@ -11,7 +11,7 @@ import { getDynamicPropsQueryOptions, getPointsQueryOptions } from "@ecency/sdk"
 import { FullAccount } from "@/entities";
 import { useQuery } from "@tanstack/react-query";
 import { getAccount, getConversionRequests } from "@/api/hive";
-import { getCurrencyTokenRate } from "@/api/private-api";
+import { getCurrencyTokenRate } from "@ecency/sdk";
 import {
   formattedNumber,
   getSplEstimatedBalance,

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tansta
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken, getRefreshToken } from "@/utils";
 import { useGlobalStore } from "@/core/global-store";
-import { hsTokenRenew } from "@/api/auth-api";
+import { hsTokenRenew } from "@ecency/sdk";
 
 interface MattermostChannel {
   id: string;

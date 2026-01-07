@@ -39,7 +39,7 @@ import {
 } from "@/api/operations";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-import { onboardEmail } from "@/api/private-api";
+import { onboardEmail } from "@ecency/sdk";
 import { getKeysFromSeed } from "@/utils/onBoard-helper";
 import { useSeedPhrase } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";

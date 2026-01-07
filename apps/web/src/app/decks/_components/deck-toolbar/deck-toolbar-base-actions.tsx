@@ -9,6 +9,7 @@ import { Button } from "@ui/button";
 import { bellSvg, rocketSvg } from "@ui/svg";
 import { useState } from "react";
 import { dotsMenuIconSvg, walletIconSvg } from "../icons";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   setShowPurchaseDialog: (v: boolean) => void;
@@ -18,7 +19,12 @@ export const DeckToolbarBaseActions = ({ setShowPurchaseDialog }: Props) => {
   const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
-  const { data: unread } = useQuery(getNotificationsUnreadCountQueryOptions(activeUser?.username));
+  const { data: unread } = useQuery(
+    getNotificationsUnreadCountQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
+  );
 
   const [showMainSide, setShowMainSide] = useState(false);
 

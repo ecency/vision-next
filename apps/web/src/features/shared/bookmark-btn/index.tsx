@@ -16,6 +16,7 @@ import { useMemo } from "react";
 import { LoginRequired } from "../login-required";
 import "./_index.scss";
 import { error, success } from "../feedback";
+import { getAccessToken } from "@/utils";
 
 export interface Props {
   entry: Entry;
@@ -25,7 +26,10 @@ export function BookmarkBtn({ entry }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data: bookmarks = [] } = useQuery(
-    getActiveAccountBookmarksQueryOptions(activeUser?.username)
+    getActiveAccountBookmarksQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
   );
 
   const bookmarkId = useMemo(() => {
@@ -37,11 +41,13 @@ export function BookmarkBtn({ entry }: Props) {
 
   const { mutateAsync: addBookmark, isPending: isAdding } = useBookmarkAdd(
     activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
     () => success(i18next.t("bookmark-btn.added")),
     () => error(i18next.t("g.server-error"))
   );
   const { mutateAsync: deleteBookmark, isPending: isDeleting } = useBookmarkDelete(
     activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
     () => success(i18next.t("bookmark-btn.deleted")),
     () => error(i18next.t("g.server-error"))
   );

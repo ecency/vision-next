@@ -1,18 +1,21 @@
-import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Fragment } from "../types";
 
-export function getFragmentsQueryOptions(username: string) {
+export function getFragmentsQueryOptions(username: string, code?: string) {
   return queryOptions({
     queryKey: ["posts", "fragments", username],
     queryFn: async () => {
+      if (!code) {
+        return [];
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/fragments",
         {
           method: "POST",
           body: JSON.stringify({
-            code: getAccessToken(username),
+            code,
           }),
           headers: {
             "Content-Type": "application/json",
@@ -22,6 +25,6 @@ export function getFragmentsQueryOptions(username: string) {
 
       return response.json() as Promise<Fragment[]>;
     },
-    enabled: !!username,
+    enabled: !!username && !!code,
   });
 }

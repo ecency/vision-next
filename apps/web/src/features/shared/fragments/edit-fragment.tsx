@@ -4,6 +4,7 @@ import { FragmentForm } from "./fragment-form";
 import { useEditFragment, useRemoveFragment } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useCallback } from "react";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   item: Fragment;
@@ -15,7 +16,8 @@ export function EditFragment({ item, onUpdate, onCancel }: Props) {
   const { activeUser } = useActiveAccount();
   const { mutateAsync: updateFragment, isPending: isUpdateLoading } = useEditFragment(
     activeUser!.username,
-    item.id
+    item.id,
+    getAccessToken(activeUser!.username)
   );
 
   const submit = useCallback(

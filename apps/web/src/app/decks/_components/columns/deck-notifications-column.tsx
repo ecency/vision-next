@@ -12,12 +12,13 @@ import { DeckContentTypeColumnSettings } from "./deck-column-settings/deck-conte
 import { InfiniteScrollLoader } from "./helpers";
 import { newDataComingPaginatedCondition } from "../utils";
 import { ApiNotification, Entry } from "@/entities";
-import { getNotifications } from "@/api/private-api";
+import { getNotifications } from "@ecency/sdk";
 import { NotificationFilter } from "@/enums";
 import i18next from "i18next";
 import { NotificationListItem } from "@/features/shared";
 import { getContent } from "@/api/hive";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   id: string;
@@ -49,7 +50,7 @@ export const DeckNotificationsColumn = ({ id, settings, draggable }: Props) => {
 
       try {
         const response = await getNotifications(
-          activeUser!.username,
+          getAccessToken(activeUser!.username),
           isAll ? null : (settings.contentType as NotificationFilter),
           since?.id,
           settings.username

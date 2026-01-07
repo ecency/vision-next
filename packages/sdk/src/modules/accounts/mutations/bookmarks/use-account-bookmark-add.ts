@@ -1,9 +1,4 @@
-import {
-  CONFIG,
-  getAccessToken,
-  getBoundFetch,
-  getQueryClient,
-} from "@/modules/core";
+import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 
 interface Payload {
@@ -13,14 +8,15 @@ interface Payload {
 
 export function useBookmarkAdd(
   username: string | undefined,
+  code: string | undefined,
   onSuccess: () => void,
   onError: (e: Error) => void
 ) {
   return useMutation({
     mutationKey: ["accounts", "bookmarks", "add", username],
     mutationFn: async ({ author, permlink }: Payload) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] – no active user");
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] – missing auth");
       }
 
       const fetchApi = getBoundFetch();
@@ -34,7 +30,7 @@ export function useBookmarkAdd(
           body: JSON.stringify({
             author,
             permlink,
-            code: getAccessToken(username),
+            code,
           }),
         }
       );
