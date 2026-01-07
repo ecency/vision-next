@@ -263,6 +263,11 @@ function getBoundFetch() {
   return cachedFetch;
 }
 
+// src/modules/core/utils/is-community.ts
+function isCommunity(value) {
+  return typeof value === "string" ? /^hive-\d+$/.test(value) : false;
+}
+
 // src/modules/core/storage.ts
 var getUser = (username) => {
   try {
@@ -1241,6 +1246,18 @@ function getTrendingTagsQueryOptions(limit = 20) {
     getNextPageParam: (lastPage) => ({
       afterTag: lastPage?.[lastPage?.length - 1]
     }),
+    staleTime: Infinity,
+    refetchOnMount: true
+  });
+}
+function getTrendingTagsWithStatsQueryOptions(limit = 250) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["posts", "trending-tags", "stats", limit],
+    queryFn: async ({ pageParam: { afterTag } }) => CONFIG.hiveClient.database.call("get_trending_tags", [afterTag, limit]).then(
+      (tags) => tags.filter((tag) => tag.name !== "").filter((tag) => !isCommunity(tag.name))
+    ),
+    initialPageParam: { afterTag: "" },
+    getNextPageParam: (lastPage) => lastPage?.length ? { afterTag: lastPage[lastPage.length - 1].name } : void 0,
     staleTime: Infinity,
     refetchOnMount: true
   });
@@ -4010,6 +4027,7 @@ exports.getSimilarEntriesQueryOptions = getSimilarEntriesQueryOptions;
 exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getTransactionsInfiniteQueryOptions = getTransactionsInfiniteQueryOptions;
 exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
+exports.getTrendingTagsWithStatsQueryOptions = getTrendingTagsWithStatsQueryOptions;
 exports.getUser = getUser;
 exports.getUserProposalVotesQueryOptions = getUserProposalVotesQueryOptions;
 exports.getVestingDelegationsQueryOptions = getVestingDelegationsQueryOptions;
@@ -4020,6 +4038,7 @@ exports.getWavesFollowingQueryOptions = getWavesFollowingQueryOptions;
 exports.getWavesTrendingTagsQueryOptions = getWavesTrendingTagsQueryOptions;
 exports.getWithdrawRoutesQueryOptions = getWithdrawRoutesQueryOptions;
 exports.getWitnessesInfiniteQueryOptions = getWitnessesInfiniteQueryOptions;
+exports.isCommunity = isCommunity;
 exports.lookupAccountsQueryOptions = lookupAccountsQueryOptions;
 exports.makeQueryClient = makeQueryClient;
 exports.mapThreadItemsToWaveEntries = mapThreadItemsToWaveEntries;

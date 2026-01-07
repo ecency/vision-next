@@ -6,6 +6,7 @@ import {
   UilEditAlt,
   UilHome,
   UilListUl,
+  UilTag,
   UilUsersAlt,
   UilUserSquare,
   UilWater
@@ -114,6 +115,12 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           to="/communities"
           onClick={() => setShow(false)}
           icon={<UilUserSquare size={16} />}
+        />
+        <NavbarSideMainMenuItem
+          label={i18next.t("trending-tags.title")}
+          to="/tags"
+          onClick={() => setShow(false)}
+          icon={<UilTag size={16} />}
         />
         <EcencyConfigManager.Conditional
           condition={({ visionFeatures }) => visionFeatures.chats.enabled}
