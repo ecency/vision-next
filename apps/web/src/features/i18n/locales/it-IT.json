@@ -408,6 +408,22 @@
     "ascending": "Ascendente",
     "descending": "Discendente"
   },
+  "tags-page": {
+    "title": "Tag di tendenza",
+    "description": "Scopri gli argomenti più attivi con il loro volume di commenti, post top e pagamenti.",
+    "error": "Impossibile caricare i tag di tendenza in questo momento.",
+    "columns": {
+      "tag": "Tag",
+      "comments": "Commenti",
+      "top-posts": "Post in alto",
+      "total-payouts": "Totale pagamenti"
+    },
+    "load-more": {
+      "cta": "Carica altro",
+      "loading": "Caricamento...",
+      "done": "Nessun altro tag"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "cross-posted",
     "cross-posted-to": "a",
