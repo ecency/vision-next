@@ -408,6 +408,22 @@
     "ascending": "Rosnąco",
     "descending": "Malejąco"
   },
+  "tags-page": {
+    "title": "Popularne tagi",
+    "description": "Odkryj najaktywniejsze tematy z ich woluminem komentarzy, najlepszymi postami i wypłatami.",
+    "error": "W tej chwili nie można załadować popularnych tagów.",
+    "columns": {
+      "tag": "Znacznik",
+      "comments": "Komentarze",
+      "top-posts": "Najlepsze posty",
+      "total-payouts": "Suma wypłat"
+    },
+    "load-more": {
+      "cta": "Załaduj więcej",
+      "loading": "Ładowanie...",
+      "done": "Nie ma więcej tagów"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "udostępnił(a)",
     "cross-posted-to": "do",
