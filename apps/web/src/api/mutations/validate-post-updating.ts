@@ -8,9 +8,10 @@ export function useValidatePostUpdating() {
   return useMutation({
     mutationKey: ["validate-post-updating"],
     mutationFn: async ({ entry, text, title }: { entry: Entry; text: string; title?: string }) => {
-      const response = await queryClient.fetchQuery(
-        getPostQueryOptions(entry.author, entry.permlink)
-      );
+      const response = await queryClient.fetchQuery({
+        ...getPostQueryOptions(entry.author, entry.permlink),
+        staleTime: 0
+      });
 
       if (title && response?.title !== title) {
         throw new Error("[PostUpdateValidation] Post title isn`t matching yet");

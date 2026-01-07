@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { EntryHeader } from "@/entities";
+import { Entry } from "@/entities";
 import { getPostHeaderQueryOptions, getPromotedPost } from "@ecency/sdk";
 import i18next from "i18next";
 import { error } from "@/features/shared";
@@ -19,7 +19,7 @@ export function usePreCheckPromote(path: string, onSuccess: () => void) {
       const [author, permlink] = path.replace("@", "").split("/");
 
       // Check if post is valid
-      let post: EntryHeader | null;
+      let post: Entry | null;
       try {
         post = await queryClient.fetchQuery(
           getPostHeaderQueryOptions(author, permlink)

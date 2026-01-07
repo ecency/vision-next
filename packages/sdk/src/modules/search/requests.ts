@@ -6,7 +6,19 @@ import { TagSearchResult } from "./types/tag-search-result";
 type RequestError = Error & { status?: number; data?: unknown };
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const data = (await response.json()) as T;
+  const parseBody = async (): Promise<unknown> => {
+    try {
+      return await response.json();
+    } catch {
+      try {
+        return await response.text();
+      } catch {
+        return undefined;
+      }
+    }
+  };
+
+  const data = await parseBody();
   if (!response.ok) {
     const error = new Error(`Request failed with status ${response.status}`) as RequestError;
     error.status = response.status;
@@ -14,7 +26,11 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
     throw error;
   }
 
-  return data;
+  if (data === undefined) {
+    throw new Error("Response body was empty or invalid JSON");
+  }
+
+  return data as T;
 }
 
 export async function search(

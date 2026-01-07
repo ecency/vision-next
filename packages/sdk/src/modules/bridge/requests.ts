@@ -104,6 +104,15 @@ export async function getAccountPosts(
  * Validates that an Entry object has required properties with non-null values.
  */
 function validateEntry(entry: Entry): Entry {
+  const newEntry: Entry = {
+    ...entry,
+    active_votes: Array.isArray(entry.active_votes) ? [...entry.active_votes] : [],
+    beneficiaries: Array.isArray(entry.beneficiaries) ? [...entry.beneficiaries] : [],
+    blacklists: Array.isArray(entry.blacklists) ? [...entry.blacklists] : [],
+    replies: Array.isArray(entry.replies) ? [...entry.replies] : [],
+    stats: entry.stats ? { ...entry.stats } : null,
+  };
+
   const requiredStringProps: (keyof Entry)[] = [
     "author",
     "title",
@@ -116,45 +125,32 @@ function validateEntry(entry: Entry): Entry {
   ];
 
   for (const prop of requiredStringProps) {
-    if (entry[prop] == null) {
-      (entry as any)[prop] = "";
+    if (newEntry[prop] == null) {
+      (newEntry as any)[prop] = "";
     }
   }
 
-  if (entry.author_reputation == null) {
-    entry.author_reputation = 0;
+  if (newEntry.author_reputation == null) {
+    newEntry.author_reputation = 0;
   }
-  if (entry.children == null) {
-    entry.children = 0;
+  if (newEntry.children == null) {
+    newEntry.children = 0;
   }
-  if (entry.depth == null) {
-    entry.depth = 0;
+  if (newEntry.depth == null) {
+    newEntry.depth = 0;
   }
-  if (entry.net_rshares == null) {
-    entry.net_rshares = 0;
+  if (newEntry.net_rshares == null) {
+    newEntry.net_rshares = 0;
   }
-  if (entry.payout == null) {
-    entry.payout = 0;
+  if (newEntry.payout == null) {
+    newEntry.payout = 0;
   }
-  if (entry.percent_hbd == null) {
-    entry.percent_hbd = 0;
-  }
-
-  if (!Array.isArray(entry.active_votes)) {
-    entry.active_votes = [];
-  }
-  if (!Array.isArray(entry.beneficiaries)) {
-    entry.beneficiaries = [];
-  }
-  if (!Array.isArray(entry.blacklists)) {
-    entry.blacklists = [];
-  }
-  if (!Array.isArray(entry.replies)) {
-    entry.replies = [];
+  if (newEntry.percent_hbd == null) {
+    newEntry.percent_hbd = 0;
   }
 
-  if (!entry.stats) {
-    entry.stats = {
+  if (!newEntry.stats) {
+    newEntry.stats = {
       flag_weight: 0,
       gray: false,
       hide: false,
@@ -162,30 +158,30 @@ function validateEntry(entry: Entry): Entry {
     };
   }
 
-  if (entry.author_payout_value == null) {
-    entry.author_payout_value = "0.000 HBD";
+  if (newEntry.author_payout_value == null) {
+    newEntry.author_payout_value = "0.000 HBD";
   }
-  if (entry.curator_payout_value == null) {
-    entry.curator_payout_value = "0.000 HBD";
+  if (newEntry.curator_payout_value == null) {
+    newEntry.curator_payout_value = "0.000 HBD";
   }
-  if (entry.max_accepted_payout == null) {
-    entry.max_accepted_payout = "1000000.000 HBD";
+  if (newEntry.max_accepted_payout == null) {
+    newEntry.max_accepted_payout = "1000000.000 HBD";
   }
-  if (entry.payout_at == null) {
-    entry.payout_at = "";
+  if (newEntry.payout_at == null) {
+    newEntry.payout_at = "";
   }
-  if (entry.pending_payout_value == null) {
-    entry.pending_payout_value = "0.000 HBD";
+  if (newEntry.pending_payout_value == null) {
+    newEntry.pending_payout_value = "0.000 HBD";
   }
-  if (entry.promoted == null) {
-    entry.promoted = "0.000 HBD";
-  }
-
-  if (entry.is_paidout == null) {
-    entry.is_paidout = false;
+  if (newEntry.promoted == null) {
+    newEntry.promoted = "0.000 HBD";
   }
 
-  return entry;
+  if (newEntry.is_paidout == null) {
+    newEntry.is_paidout = false;
+  }
+
+  return newEntry;
 }
 
 export async function getPost(
