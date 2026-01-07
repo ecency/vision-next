@@ -7,6 +7,7 @@
  */
 
 import { ConfigManager } from "@ecency/sdk";
+import defaults from "@/defaults";
 import dmcaAccounts from "../../public/dmca/dmca-accounts.json";
 import dmcaTags from "../../public/dmca/dmca-tags.json";
 import dmcaPosts from "../../public/dmca/dmca-posts.json";
@@ -15,6 +16,7 @@ import dmcaPosts from "../../public/dmca/dmca-posts.json";
 // This allows the web app to use its own Next.js API routes as proxies
 // Empty string = relative URLs like "/api/stats" instead of "https://ecency.com/api/stats"
 ConfigManager.setPrivateApiHost("");
+ConfigManager.setImageHost(defaults.imageServer);
 
 // Initialize DMCA filtering immediately at module load time
 // This ensures the lists are available before any React Query fetches execute

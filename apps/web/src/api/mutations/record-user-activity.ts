@@ -1,10 +1,9 @@
 "use client";
 
-import { getAccessToken } from "@/utils";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
+import { usrActivity } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 export function useRecordUserActivity() {
   const { activeUser } = useActiveAccount();
@@ -26,15 +25,7 @@ export function useRecordUserActivity() {
           return;
         }
 
-        const params: Record<string, string | number | undefined> = {
-          code: getAccessToken(activeUser.username),
-          ty
-        };
-
-        if (bl) params.bl = bl;
-        if (tx) params.tx = tx;
-
-        return appAxios.post(apiBase(`/private-api/usr-activity`), params);
+        await usrActivity(getAccessToken(activeUser.username), ty, bl, tx);
       }
     }
   );

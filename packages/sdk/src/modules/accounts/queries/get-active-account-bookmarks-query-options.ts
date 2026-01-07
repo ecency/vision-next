@@ -1,16 +1,17 @@
-import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { AccountBookmark } from "../types";
 
 export function getActiveAccountBookmarksQueryOptions(
-  activeUsername: string | undefined
+  activeUsername: string | undefined,
+  code: string | undefined
 ) {
   return queryOptions({
     queryKey: ["accounts", "bookmarks", activeUsername],
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
     queryFn: async () => {
-      if (!activeUsername) {
-        throw new Error("[SDK][Accounts][Bookmarks] – no active user");
+      if (!activeUsername || !code) {
+        throw new Error("[SDK][Accounts][Bookmarks] – missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -20,7 +21,7 @@ export function getActiveAccountBookmarksQueryOptions(
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ code: getAccessToken(activeUsername) }),
+          body: JSON.stringify({ code }),
         }
       );
       return (await response.json()) as AccountBookmark[];

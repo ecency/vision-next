@@ -1,5 +1,5 @@
 import { User } from "@/entities";
-import { getRefreshToken } from "@/utils";
+import { getAccessToken, getRefreshToken } from "@/utils";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { error } from "../../feedback";
@@ -17,7 +17,9 @@ export function useUserSelect(user: User) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
-  const notificationsSettingsQuery = useQuery(getNotificationsSettingsQueryOptions(user.username));
+  const notificationsSettingsQuery = useQuery(
+    getNotificationsSettingsQueryOptions(user.username, getAccessToken(user.username))
+  );
 
   return useMutation({
     mutationKey: ["user-select", user.username],

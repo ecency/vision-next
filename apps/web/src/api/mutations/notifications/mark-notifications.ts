@@ -3,9 +3,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { markNotifications } from "@ecency/sdk";
 import { getAccessToken } from "@/utils";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
 
 export function useMarkNotifications() {
   const queryClient = useQueryClient();
@@ -18,14 +17,7 @@ export function useMarkNotifications() {
         throw new Error("[Notificaitons] Attempted to mark as read w/o active user");
       }
 
-      const data: { code: string | undefined; id?: string } = {
-        code: getAccessToken(activeUser.username)
-      };
-      if (id) {
-        data.id = id;
-      }
-
-      return appAxios.post(apiBase(`/private-api/notifications/mark`), data);
+      return markNotifications(getAccessToken(activeUser.username), id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

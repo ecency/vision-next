@@ -8,6 +8,7 @@ import { getNotificationsInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { Fragment, useMemo } from "react";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   filter?: NotificationFilter;
@@ -26,7 +27,11 @@ export function NotificationList({
 }: Props) {
   const { activeUser } = useActiveAccount();
   const { data, isFetching, fetchNextPage } = useInfiniteQuery(
-    getNotificationsInfiniteQueryOptions(activeUser?.username, filter)
+    getNotificationsInfiniteQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? ""),
+      filter
+    )
   );
 
   const dataFlow = useMemo(

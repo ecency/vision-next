@@ -15,7 +15,7 @@ import { WaveFormToolbar } from "@/features/waves/components/wave-form/wave-form
 import { useWaveSubmit } from "@/features/waves";
 import { useOptionalWavesHost } from "@/app/waves/_context";
 import axios from "axios";
-import { uploadImage } from "@/api/misc";
+import { uploadImage } from "@ecency/sdk";
 import { getAccessToken } from "@/utils";
 import { error } from "@/features/shared";
 import { useRouter, useSearchParams } from "next/navigation";

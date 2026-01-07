@@ -6,6 +6,7 @@ import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PublishEditorVideoGalleryItem } from "./publish-editor-video-gallery-item";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   show: boolean;
@@ -26,6 +27,7 @@ export function PublishEditorVideoGallery({
 }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
+  const accessToken = username ? getAccessToken(username) : undefined;
 
   const [tab, setTab] = useState("all");
   const [language, setLanguage] = useState(i18next.language);
@@ -70,8 +72,11 @@ export function PublishEditorVideoGallery({
   );
 
   const { data, refetch, isFetching } = useQuery({
-    ...ThreeSpeakIntegration.queries.getAccountVideosQueryOptions(username),
-    enabled: !!username && show,
+    ...ThreeSpeakIntegration.queries.getAccountVideosQueryOptions(
+      username,
+      accessToken
+    ),
+    enabled: !!username && !!accessToken && show,
     refetchInterval: show ? 60000 : false,
     select: useCallback(
       (data: ThreeSpeakVideo[]) =>

@@ -11,6 +11,7 @@ import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { useMemo } from "react";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   targetUsername: string;
@@ -18,18 +19,26 @@ interface Props {
 
 export function FavouriteBtn({ targetUsername }: Props) {
   const { activeUser } = useActiveAccount();
-
-  const { data, isPending } = useQuery(
-    getActiveAccountFavouritesQueryOptions(activeUser?.username)
+  const username = activeUser?.username;
+  const accessToken = useMemo(
+    () => (username ? getAccessToken(username) : undefined),
+    [username]
   );
 
+  const { data, isPending } = useQuery({
+    ...getActiveAccountFavouritesQueryOptions(username, accessToken),
+    enabled: !!username && !!accessToken,
+  });
+
   const { mutateAsync: add, isPending: isAddPending } = useAccountFavouriteAdd(
-    activeUser?.username,
+    username,
+    accessToken,
     () => success(i18next.t("favorite-btn.added")),
     () => error(i18next.t("g.server-error"))
   );
   const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavouriteDelete(
-    activeUser?.username,
+    username,
+    accessToken,
     () => success(i18next.t("favorite-btn.deleted")),
     () => error(i18next.t("g.server-error"))
   );
@@ -43,6 +52,7 @@ export function FavouriteBtn({ targetUsername }: Props) {
     () => isAddPending || isDeletePending || isPending,
     [isAddPending, isDeletePending, isPending]
   );
+  const canMutate = !!accessToken;
 
   return (
     <>
@@ -63,7 +73,12 @@ export function FavouriteBtn({ targetUsername }: Props) {
             noPadding={true}
             className="w-8"
             isLoading={inProgress}
-            onClick={() => (favourited ? deleteFrom(targetUsername) : add(targetUsername))}
+            disabled={!canMutate}
+            onClick={
+              canMutate
+                ? () => (favourited ? deleteFrom(targetUsername) : add(targetUsername))
+                : undefined
+            }
             icon={<UilHeart />}
           />
         </Tooltip>

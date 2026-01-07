@@ -7,11 +7,8 @@ import { QueryIdentifiers } from "@/core/react-query";
 import * as ls from "@/utils/local-storage";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
+import { getNotificationSetting, saveNotificationSetting } from "@ecency/sdk";
 import { getAccessToken } from "@/utils";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
-import { getNotificationSetting } from "@/api/private-api";
-import { ApiNotificationSetting } from "@/entities";
 
 export function useUpdateNotificationsSettings() {
   const { activeUser } = useActiveAccount();
@@ -39,6 +36,7 @@ export function useUpdateNotificationsSettings() {
       if (token === `${activeUser.username}-web`) {
         try {
           const existing = await getNotificationSetting(
+            getAccessToken(activeUser.username),
             activeUser.username,
             token
           );
@@ -55,18 +53,14 @@ export function useUpdateNotificationsSettings() {
         }
       }
 
-      const response = await appAxios.post<ApiNotificationSetting>(
-        apiBase(`/private-api/register-device`),
-        {
-          code: getAccessToken(activeUser.username),
-          username: activeUser.username,
-          token,
-          system: "web",
-          allows_notify: allowsNotify,
-          notify_types: notifyTypesToSend
-        }
+      return saveNotificationSetting(
+        getAccessToken(activeUser.username),
+        activeUser.username,
+        "web",
+        allowsNotify,
+        notifyTypesToSend as number[],
+        token
       );
-      return response.data;
     },
     onError: (e) => error(...formatError(e)),
     onSuccess: (settings) => {

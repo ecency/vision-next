@@ -3,3 +3,6 @@ export * from "./fragment";
 export * from "./entry";
 export * from "./post-tip";
 export * from "./wave-entry";
+export * from "./draft";
+export * from "./schedule";
+export * from "./user-image";

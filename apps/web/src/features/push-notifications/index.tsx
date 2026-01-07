@@ -6,7 +6,7 @@ import { NotificationsWebSocket } from "@/api/notifications-ws-api";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { ALL_NOTIFY_TYPES } from "@/enums";
-import { playNotificationSound } from "@/utils";
+import { getAccessToken, playNotificationSound } from "@/utils";
 import * as ls from "@/utils/local-storage";
 import {
   getNotificationsSettingsQueryOptions,
@@ -24,10 +24,16 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
 
   const notificationsSettingsQuery = useQuery(
-    getNotificationsSettingsQueryOptions(activeUser?.username)
+    getNotificationsSettingsQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
   );
   const notificationUnreadCountQuery = useQuery(
-    getNotificationsUnreadCountQueryOptions(activeUser?.username)
+    getNotificationsUnreadCountQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
   );
   const updateNotificationsSettings = useUpdateNotificationsSettings();
 

@@ -1,21 +1,17 @@
-import {
-  CONFIG,
-  getAccessToken,
-  getBoundFetch,
-  getQueryClient,
-} from "@/modules/core";
+import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 
 export function useBookmarkDelete(
   username: string | undefined,
+  code: string | undefined,
   onSuccess: () => void,
   onError: (e: Error) => void
 ) {
   return useMutation({
     mutationKey: ["accounts", "bookmarks", "delete", username],
     mutationFn: async (bookmarkId: string) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] – no active user");
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] – missing auth");
       }
 
       const fetchApi = getBoundFetch();
@@ -28,7 +24,7 @@ export function useBookmarkDelete(
           },
           body: JSON.stringify({
             id: bookmarkId,
-            code: getAccessToken(username),
+            code,
           }),
         }
       );

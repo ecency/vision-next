@@ -20,6 +20,7 @@ import i18next from "i18next";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { getAccessToken } from "@/utils";
 
 const ECENCY = "ecency";
 
@@ -41,7 +42,12 @@ export function AccountRecovery() {
   const { activeUser } = useActiveAccount();
 
   const { data } = useQuery(getAccountFullQueryOptions(activeUser?.username));
-  const { data: recoveries } = useQuery(getAccountRecoveriesQueryOptions(activeUser?.username));
+  const { data: recoveries } = useQuery(
+    getAccountRecoveriesQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
+  );
   const { data: pendingRecovery } = useQuery(
     getAccountPendingRecoveryQueryOptions(activeUser?.username)
   );
@@ -61,6 +67,7 @@ export function AccountRecovery() {
 
   const { mutateAsync: updateRecovery, isPending } = useAccountUpdateRecovery(
     activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
     {
       onError: (e) => error(...formatError(e)),
       onSuccess: () => success(i18next.t("account-recovery.success-message"))

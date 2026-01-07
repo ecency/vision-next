@@ -4,6 +4,7 @@ import { getActiveAccountBookmarksQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { BookmarkItem } from "./bookmark-item";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   onHide: () => void;
@@ -13,7 +14,10 @@ export function BookmarksList({ onHide }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data, isLoading } = useQuery({
-    ...getActiveAccountBookmarksQueryOptions(activeUser?.username),
+    ...getActiveAccountBookmarksQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    ),
     refetchOnMount: true,
     select: (data) => data?.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)) ?? []
   });

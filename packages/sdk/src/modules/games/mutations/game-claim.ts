@@ -1,10 +1,11 @@
-import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 import { GameClaim } from "../types";
 import { useRecordActivity } from "@/modules/analytics/mutations";
 
 export function useGameClaim(
   username: string | undefined,
+  code: string | undefined,
   gameType: "spin",
   key: string
 ) {
@@ -16,8 +17,8 @@ export function useGameClaim(
   return useMutation({
     mutationKey: ["games", "post", gameType, username],
     mutationFn: async () => {
-      if (!username) {
-        throw new Error("[SDK][Games] – anon user in game post");
+      if (!username || !code) {
+        throw new Error("[SDK][Games] – missing auth");
       }
 
       const fetchApi = getBoundFetch();
@@ -27,7 +28,7 @@ export function useGameClaim(
           method: "POST",
           body: JSON.stringify({
             game_type: gameType,
-            code: getAccessToken(username),
+            code,
             key,
           }),
           headers: {

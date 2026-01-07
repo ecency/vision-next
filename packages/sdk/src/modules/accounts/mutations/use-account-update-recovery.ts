@@ -1,4 +1,4 @@
-import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 import { Keychain } from "@/modules/keychain";
 import { PrivateKey } from "@hiveio/dhive";
 import {
@@ -25,6 +25,7 @@ type UpdateRecoveryOptions = Pick<
 
 export function useAccountUpdateRecovery(
   username: string | undefined,
+  code: string | undefined,
   options: UpdateRecoveryOptions
 ) {
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -45,12 +46,15 @@ export function useAccountUpdateRecovery(
       };
 
       if (type === "ecency") {
+        if (!code) {
+          throw new Error("[SDK][Accounts] – missing access token");
+        }
         const fetchApi = getBoundFetch();
 
         return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
           method: "POST",
           body: JSON.stringify({
-            code: getAccessToken(data.name),
+            code,
             email,
             publicKeys: [
               ...data.owner.key_auths,

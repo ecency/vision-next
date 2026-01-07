@@ -4,6 +4,7 @@ import { Button } from "@/features/ui";
 import { Fragment, useRemoveFragment } from "@ecency/sdk";
 import { UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   item: Fragment;
@@ -14,10 +15,14 @@ interface Props {
 
 export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
   const { activeUser } = useActiveAccount();
+  if (!activeUser) {
+    return null;
+  }
 
   const { mutateAsync: deleteFragment, isPending: isDeleteLoading } = useRemoveFragment(
-    activeUser!.username,
-    item.id
+    activeUser.username,
+    item.id,
+    getAccessToken(activeUser.username)
   );
 
   return (

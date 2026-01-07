@@ -5,7 +5,7 @@ import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { BeneficiaryRoute, Draft, DraftMetadata, RewardType } from "@/entities";
 import { ThreeSpeakVideo } from "@/api/threespeak";
 import { EntryMetadataManagement } from "@/features/entry-management";
-import { addDraft, updateDraft } from "@/api/private-api";
+import { addDraft, updateDraft } from "@ecency/sdk";
 import i18next from "i18next";
 import { success, error } from "@/features/shared";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 export function useSaveDraftApi() {
   const { username } = useActiveAccount();
@@ -76,10 +77,17 @@ export function useSaveDraftApi() {
         }
 
         if (editingDraft) {
-          await updateDraft(username, editingDraft._id, title, body, tagJ, draftMeta);
+          await updateDraft(
+            getAccessToken(username),
+            editingDraft._id,
+            title,
+            body,
+            tagJ,
+            draftMeta
+          );
           success(i18next.t("submit.draft-updated"));
         } else {
-          const resp = await addDraft(username, title, body, tagJ, draftMeta);
+          const resp = await addDraft(getAccessToken(username), title, body, tagJ, draftMeta);
           success(i18next.t("submit.draft-saved"));
 
           recordActivity();

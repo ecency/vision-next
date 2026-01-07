@@ -8,39 +8,42 @@ import { EditFragment } from "@/features/shared/fragments/edit-fragment";
 
 let TEST_MODE = 0;
 
-jest.mock("../../api/private-api", () => ({
-  getFragments: () =>
-    new Promise((resolve) => {
-      if (TEST_MODE === 0) {
-        resolve([]);
-      }
+jest.mock("@ecency/sdk", () => ({
+  getFragmentsQueryOptions: () => ({
+    queryKey: ["fragments"],
+    queryFn: () =>
+      new Promise((resolve) => {
+        if (TEST_MODE === 0) {
+          resolve([]);
+        }
 
-      if (TEST_MODE === 1) {
-        resolve([
-          {
-            id: "id1",
-            title: "foo",
-            body: "lorem ipsum dolor sit amet",
-            created: "2020-10-10T10:00:00",
-            modified: "2020-10-10T10:00:00"
-          },
-          {
-            id: "id2",
-            title: "bar",
-            body: "lorem ipsum dolor sit amet",
-            created: "2020-10-10T10:00:00",
-            modified: "2020-10-10T10:00:00"
-          },
-          {
-            id: "id3",
-            title: "baz",
-            body: "lorem ipsum dolor sit amet",
-            created: "2020-10-10T10:00:00",
-            modified: "2020-10-10T10:00:00"
-          }
-        ]);
-      }
-    })
+        if (TEST_MODE === 1) {
+          resolve([
+            {
+              id: "id1",
+              title: "foo",
+              body: "lorem ipsum dolor sit amet",
+              created: "2020-10-10T10:00:00",
+              modified: "2020-10-10T10:00:00"
+            },
+            {
+              id: "id2",
+              title: "bar",
+              body: "lorem ipsum dolor sit amet",
+              created: "2020-10-10T10:00:00",
+              modified: "2020-10-10T10:00:00"
+            },
+            {
+              id: "id3",
+              title: "baz",
+              body: "lorem ipsum dolor sit amet",
+              created: "2020-10-10T10:00:00",
+              modified: "2020-10-10T10:00:00"
+            }
+          ]);
+        }
+      })
+  })
 }));
 
 const activeUser = { ...activeUserInstance, data: fullAccountInstance };

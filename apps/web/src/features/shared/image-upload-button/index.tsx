@@ -5,7 +5,7 @@ import { uploadSvg } from "@ui/svg";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 import { getAccessToken } from "@/utils";
-import { uploadImage } from "@/api/misc";
+import { uploadImage } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface UploadButtonProps {

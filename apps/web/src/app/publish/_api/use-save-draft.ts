@@ -1,4 +1,4 @@
-import { addDraft, updateDraft } from "@/api/private-api";
+import { addDraft, updateDraft } from "@ecency/sdk";
 import { QueryIdentifiers } from "@/core/react-query";
 import { DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
@@ -13,6 +13,7 @@ import { EcencyAnalytics } from "@ecency/sdk";
 import { formatError } from "@/api/operations";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 type SaveDraftOptions = {
   showToast?: boolean;
@@ -80,14 +81,27 @@ export function useSaveDraftApi(draftId?: string) {
       };
 
       if (draftId) {
-        const resp = await updateDraft(username, draftId, title!, content!, tagJ!, draftMeta);
+        const resp = await updateDraft(
+          getAccessToken(username),
+          draftId,
+          title!,
+          content!,
+          tagJ!,
+          draftMeta
+        );
         if (showToast) {
           success(i18next.t("submit.draft-updated"));
         }
 
         queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], resp.drafts);
       } else {
-        const resp = await addDraft(username, title!, content!, tagJ!, draftMeta);
+        const resp = await addDraft(
+          getAccessToken(username),
+          title!,
+          content!,
+          tagJ!,
+          draftMeta
+        );
         if (showToast) {
           success(i18next.t("submit.draft-saved"));
         }

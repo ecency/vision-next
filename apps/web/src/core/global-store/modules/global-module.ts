@@ -3,7 +3,7 @@ import { AllFilter, ListStyle, Theme } from "@/enums";
 import * as ls from "@/utils/local-storage";
 import { success } from "@/features/shared";
 import i18next from "i18next";
-import { getCurrencyRate } from "@/api/misc";
+import { getCurrencyRate } from "@ecency/sdk";
 import { currencySymbol } from "@/utils/currency-symbol";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { runWithRetries } from "@/utils/run-with-retries";

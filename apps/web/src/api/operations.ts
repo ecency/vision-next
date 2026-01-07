@@ -9,7 +9,7 @@ import {
 } from "@hiveio/dhive";
 import { encodeOp, Parameters } from "hive-uri";
 import { client as hiveClient } from "./hive";
-import { usrActivity } from "./private-api";
+import { usrActivity } from "@ecency/sdk";
 import { BuySellHiveTransactionType, ErrorTypes, OrderIdPrefix } from "@/enums";
 import i18next from "i18next";
 import {
@@ -293,7 +293,7 @@ export const reblog = (
   const json = ["reblog", message];
 
   return broadcastPostingJSON(username, "follow", json).then((r: TransactionConfirmation) => {
-    usrActivity(username, 130, r.block_num, r.id).then();
+    usrActivity(getAccessToken(username), 130, r.block_num, r.id).then();
     return r;
   });
 };
@@ -329,7 +329,7 @@ export const comment = async (
   const r = await broadcastPostingOperations(username, opArray);
   if (point) {
     const t = title ? 100 : 110;
-    usrActivity(username, t, r.block_num, r.id).then();
+    usrActivity(getAccessToken(username), t, r.block_num, r.id).then();
   }
   return r;
 };
@@ -365,7 +365,7 @@ export const vote = (
   const opArray: Operation[] = [["vote", params]];
 
   return broadcastPostingOperations(username, opArray).then((r: TransactionConfirmation) => {
-    usrActivity(username, 120, r.block_num, r.id).then();
+    usrActivity(getAccessToken(username), 120, r.block_num, r.id).then();
     return r;
   });
 };

@@ -1,20 +1,24 @@
 import { queryOptions } from "@tanstack/react-query";
 import { ApiNotificationSetting } from "../types";
 import { NotifyTypes } from "../enums";
-import { CONFIG, getAccessToken } from "@/modules/core";
+import { CONFIG } from "@/modules/core";
 
 export function getNotificationsSettingsQueryOptions(
-  activeUsername: string | undefined
+  activeUsername: string | undefined,
+  code: string | undefined
 ) {
   return queryOptions({
     queryKey: ["notifications", "settings", activeUsername],
     queryFn: async () => {
       let token = activeUsername + "-web";
+      if (!code) {
+        throw new Error("Missing access token");
+      }
       const response = await fetch(
         CONFIG.privateApiHost + "/private-api/detail-device",
         {
           body: JSON.stringify({
-            code: getAccessToken(activeUsername!),
+            code,
             username: activeUsername,
             token,
           }),
@@ -29,7 +33,7 @@ export function getNotificationsSettingsQueryOptions(
       }
       return response.json() as Promise<ApiNotificationSetting>;
     },
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
     refetchOnMount: false,
     initialData: () => {
       const wasMutedPreviously =

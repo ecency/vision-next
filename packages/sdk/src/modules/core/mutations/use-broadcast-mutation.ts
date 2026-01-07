@@ -3,7 +3,6 @@ import {
   type MutationKey,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import { getAccessToken, getLoginType, getPostingKey } from "../storage";
 import { Operation, PrivateKey } from "@hiveio/dhive";
 import { CONFIG, getBoundFetch } from "@/modules/core";
 //import hs from "hivesigner";
@@ -12,8 +11,13 @@ import { Keychain } from "@/modules/keychain";
 export function useBroadcastMutation<T>(
   mutationKey: MutationKey = [],
   username: string | undefined,
+  accessToken: string | undefined,
   operations: (payload: T) => Operation[],
-  onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {}
+  onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {},
+  auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+  }
 ) {
   return useMutation({
     onSuccess,
@@ -25,7 +29,7 @@ export function useBroadcastMutation<T>(
         );
       }
 
-      const postingKey = getPostingKey(username);
+      const postingKey = auth?.postingKey;
       if (postingKey) {
         const privateKey = PrivateKey.fromString(postingKey);
 
@@ -35,7 +39,7 @@ export function useBroadcastMutation<T>(
         );
       }
 
-      const loginType = getLoginType(username);
+      const loginType = auth?.loginType;
       if (loginType && loginType == "keychain") {
         return Keychain.broadcast(
           username,
@@ -45,13 +49,12 @@ export function useBroadcastMutation<T>(
       }
 
       // With hivesigner access token
-      let token = getAccessToken(username);
-      if (token) {
+      if (accessToken) {
         const f = getBoundFetch();
         const res = await f("https://hivesigner.com/api/broadcast", {
           method: "POST",
           headers: {
-            Authorization: token,
+            Authorization: accessToken,
             "Content-Type": "application/json",
             Accept: "application/json",
           },

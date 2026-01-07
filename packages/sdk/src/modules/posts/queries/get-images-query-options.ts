@@ -1,15 +1,16 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG, getAccessToken } from "@/modules/core";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 import { UserImage } from "../types/user-image";
 
-async function fetchUserImages(username: string): Promise<UserImage[]> {
-  const response = await fetch(CONFIG.privateApiHost + "/private-api/images", {
+async function fetchUserImages(code: string | undefined): Promise<UserImage[]> {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/images", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      code: getAccessToken(username),
+      code,
     }),
   });
 
@@ -20,28 +21,28 @@ async function fetchUserImages(username: string): Promise<UserImage[]> {
   return response.json() as Promise<UserImage[]>;
 }
 
-export function getImagesQueryOptions(username?: string) {
+export function getImagesQueryOptions(username?: string, code?: string) {
   return queryOptions({
     queryKey: ["posts", "images", username],
     queryFn: async () => {
-      if (!username) {
+      if (!username || !code) {
         return [];
       }
-      return fetchUserImages(username);
+      return fetchUserImages(code);
     },
-    enabled: !!username,
+    enabled: !!username && !!code,
   });
 }
 
-export function getGalleryImagesQueryOptions(activeUsername: string | undefined) {
+export function getGalleryImagesQueryOptions(activeUsername: string | undefined, code?: string) {
   return queryOptions({
     queryKey: ["posts", "gallery-images", activeUsername],
     queryFn: async () => {
-      if (!activeUsername) {
+      if (!activeUsername || !code) {
         return [];
       }
-      return fetchUserImages(activeUsername);
+      return fetchUserImages(code);
     },
-    enabled: !!activeUsername,
+    enabled: !!activeUsername && !!code,
   });
 }

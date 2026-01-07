@@ -13,6 +13,7 @@ import i18next from "i18next";
 import React, { useCallback, useMemo } from "react";
 import { getNotificationsSettingsQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
+import { getAccessToken } from "@/utils";
 
 export function Preferences() {
   const { activeUser } = useActiveAccount();
@@ -31,7 +32,10 @@ export function Preferences() {
   const defaultTheme = useMemo(() => theme, [theme]);
 
   const { data: notificationSettings } = useQuery(
-    getNotificationsSettingsQueryOptions(activeUser?.username)
+    getNotificationsSettingsQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
   );
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
   const notificationsChanged = useCallback(

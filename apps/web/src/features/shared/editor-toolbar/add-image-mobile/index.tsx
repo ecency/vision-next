@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import defaults from "@/defaults";
 import { EcencyConfigManager } from "@/config";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 setProxyBase(defaults.imageServer);
 
@@ -25,7 +26,7 @@ export function AddImageMobile({ onHide, onPick, onUpload, onGallery }: Props) {
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
   const { data: items } = useQuery({
-    ...getImagesQueryOptions(activeUser?.username),
+    ...getImagesQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? "")),
     select: (items: any[]) =>
       items.sort((a, b) => {
         return new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1;

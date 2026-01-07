@@ -4,6 +4,7 @@ import { QueryClient } from "@tanstack/react-query";
 
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
+  imageHost: "https://images.ecency.com",
   storage:
     typeof window === "undefined" ? new MockStorage() : window.localStorage,
   storagePrefix: "ecency",
@@ -53,6 +54,14 @@ export namespace ConfigManager {
    */
   export function setPrivateApiHost(host: string) {
     CONFIG.privateApiHost = host;
+  }
+
+  /**
+   * Set the image host
+   * @param host - The image host URL (e.g., "https://images.ecency.com")
+   */
+  export function setImageHost(host: string) {
+    CONFIG.imageHost = host;
   }
 
   /**

@@ -6,6 +6,7 @@ import { Draft } from "@/entities";
 import { getDraftsQueryOptions } from "@ecency/sdk";
 import { useLocation } from "react-use";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 export function useApiDraftDetector(
   draftId: string | undefined,
@@ -21,7 +22,8 @@ export function useApiDraftDetector(
   const previousLocation = usePrevious(location);
 
   const draftsQueryOptions = useMemo(
-    () => getDraftsQueryOptions(activeUser?.username),
+    () =>
+      getDraftsQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? "")),
     [activeUser?.username]
   );
   const draftsQuery = useQuery({

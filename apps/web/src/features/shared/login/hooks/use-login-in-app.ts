@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useAfterLoginTutorial } from "./use-after-login-tutorial";
+import { getAccessToken } from "@/utils";
 
 export function useLoginInApp(username: string) {
   const pathname = usePathname();
@@ -64,7 +65,7 @@ export function useLoginInApp(username: string) {
       if (notifToken) {
         // Fetch notification settings for the newly logged-in user
         const existingSettings = await queryClient.fetchQuery(
-          getNotificationsSettingsQueryOptions(user.username)
+          getNotificationsSettingsQueryOptions(user.username, getAccessToken(user.username))
         );
 
         if (!existingSettings || existingSettings.allows_notify === -1) {

@@ -390,7 +390,10 @@ interface Payload$4 {
     profile: Partial<AccountProfile>;
     tokens: AccountProfile["tokens"];
 }
-declare function useAccountUpdate(username: string): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
+declare function useAccountUpdate(username: string, accessToken: string | undefined, auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
 
 type Kind = "toggle-ignore" | "toggle-follow";
 declare function useAccountRelationsUpdate(reference: string | undefined, target: string | undefined, onSuccess: (data: Partial<AccountRelationship> | undefined) => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<{
@@ -404,13 +407,13 @@ interface Payload$3 {
     author: string;
     permlink: string;
 }
-declare function useBookmarkAdd(username: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, Payload$3, unknown>;
+declare function useBookmarkAdd(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, Payload$3, unknown>;
 
-declare function useBookmarkDelete(username: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
+declare function useBookmarkDelete(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
 
-declare function useAccountFavouriteAdd(username: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
+declare function useAccountFavouriteAdd(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
 
-declare function useAccountFavouriteDelete(username: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
+declare function useAccountFavouriteDelete(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
 
 interface Keys {
     owner: PrivateKey;
@@ -456,7 +459,7 @@ interface CommonPayload {
     email?: string;
 }
 type UpdateRecoveryOptions = Pick<UseMutationOptions<unknown, Error, CommonPayload>, "onSuccess" | "onError">;
-declare function useAccountUpdateRecovery(username: string | undefined, options: UpdateRecoveryOptions): _tanstack_react_query.UseMutationResult<unknown, Error, CommonPayload, unknown>;
+declare function useAccountUpdateRecovery(username: string | undefined, code: string | undefined, options: UpdateRecoveryOptions): _tanstack_react_query.UseMutationResult<unknown, Error, CommonPayload, unknown>;
 
 interface Payload {
     currentKey: PrivateKey;
@@ -771,7 +774,7 @@ declare function getAccountSubscriptionsQueryOptions(username: string | undefine
     };
 };
 
-declare function getActiveAccountBookmarksQueryOptions(activeUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountBookmark[], Error, AccountBookmark[], (string | undefined)[]>, "queryFn"> & {
+declare function getActiveAccountBookmarksQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountBookmark[], Error, AccountBookmark[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<AccountBookmark[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -780,7 +783,7 @@ declare function getActiveAccountBookmarksQueryOptions(activeUsername: string | 
     };
 };
 
-declare function getActiveAccountFavouritesQueryOptions(activeUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFavorite[], Error, AccountFavorite[], (string | undefined)[]>, "queryFn"> & {
+declare function getActiveAccountFavouritesQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFavorite[], Error, AccountFavorite[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<AccountFavorite[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -789,7 +792,7 @@ declare function getActiveAccountFavouritesQueryOptions(activeUsername: string |
     };
 };
 
-declare function getAccountRecoveriesQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetRecoveriesEmailResponse[], Error, GetRecoveriesEmailResponse[], (string | undefined)[]>, "queryFn"> & {
+declare function getAccountRecoveriesQueryOptions(username: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetRecoveriesEmailResponse[], Error, GetRecoveriesEmailResponse[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<GetRecoveriesEmailResponse[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1049,6 +1052,51 @@ interface WaveTrendingTag {
     posts: number;
 }
 
+interface DraftMetadata {
+    beneficiaries?: Array<{
+        account: string;
+        weight: number;
+    }>;
+    rewardType?: string;
+    videos?: Record<string, any>;
+    poll?: any;
+    [key: string]: any;
+}
+interface Draft {
+    body: string;
+    created: string;
+    modified: string;
+    post_type: string;
+    tags_arr: string[];
+    tags: string;
+    timestamp: number;
+    title: string;
+    _id: string;
+    meta?: DraftMetadata;
+}
+
+interface Schedule {
+    _id: string;
+    username: string;
+    permlink: string;
+    title: string;
+    body: string;
+    tags: string[];
+    tags_arr: string;
+    schedule: string;
+    original_schedule: string;
+    reblog: boolean;
+    status: 1 | 2 | 3 | 4;
+    message: string | null;
+}
+
+interface UserImage {
+    created: string;
+    timestamp: number;
+    url: string;
+    _id: string;
+}
+
 interface VoteHistoryPageParam {
     start: number;
 }
@@ -1133,9 +1181,15 @@ declare function getChainPropertiesQueryOptions(): _tanstack_react_query.OmitKey
     };
 };
 
-declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"]): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
+declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, accessToken: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
 
-declare function broadcastJson<T>(username: string | undefined, id: string, payload: T): Promise<any>;
+declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, accessToken?: string, auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): Promise<any>;
 
 interface StoringUser {
     username: string;
@@ -1155,6 +1209,7 @@ declare const getRefreshToken: (username: string) => string | undefined;
 
 declare const CONFIG: {
     privateApiHost: string;
+    imageHost: string;
     storage: Storage;
     storagePrefix: string;
     hiveClient: Client;
@@ -1176,6 +1231,11 @@ declare namespace ConfigManager {
      * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
      */
     function setPrivateApiHost(host: string): void;
+    /**
+     * Set the image host
+     * @param host - The image host URL (e.g., "https://images.ecency.com")
+     */
+    function setImageHost(host: string): void;
     /**
      * Set DMCA filtering lists
      * @param accounts - List of account usernames to filter (plain strings)
@@ -1281,7 +1341,7 @@ declare function getTrendingTagsWithStatsQueryOptions(limit?: number): _tanstack
     };
 };
 
-declare function getFragmentsQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Fragment[], Error, Fragment[], string[]>, "queryFn"> & {
+declare function getFragmentsQueryOptions(username: string, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Fragment[], Error, Fragment[], string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Fragment[], string[], never> | undefined;
 } & {
     queryKey: string[] & {
@@ -1396,22 +1456,7 @@ declare function getReblogsQueryOptions(username?: string, activeUsername?: stri
     };
 };
 
-interface Schedule {
-    _id: string;
-    username: string;
-    permlink: string;
-    title: string;
-    body: string;
-    tags: string[];
-    tags_arr: string;
-    schedule: string;
-    original_schedule: string;
-    reblog: boolean;
-    status: 1 | 2 | 3 | 4;
-    message: string | null;
-}
-
-declare function getSchedulesQueryOptions(activeUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Schedule[], Error, Schedule[], (string | undefined)[]>, "queryFn"> & {
+declare function getSchedulesQueryOptions(activeUsername: string | undefined, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Schedule[], Error, Schedule[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Schedule[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1420,30 +1465,7 @@ declare function getSchedulesQueryOptions(activeUsername: string | undefined): _
     };
 };
 
-interface DraftMetadata {
-    beneficiaries?: Array<{
-        account: string;
-        weight: number;
-    }>;
-    rewardType?: string;
-    videos?: Record<string, any>;
-    poll?: any;
-    [key: string]: any;
-}
-interface Draft {
-    body: string;
-    created: string;
-    modified: string;
-    post_type: string;
-    tags_arr: string[];
-    tags: string;
-    timestamp: number;
-    title: string;
-    _id: string;
-    meta?: DraftMetadata;
-}
-
-declare function getDraftsQueryOptions(activeUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Draft[], Error, Draft[], (string | undefined)[]>, "queryFn"> & {
+declare function getDraftsQueryOptions(activeUsername: string | undefined, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Draft[], Error, Draft[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Draft[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1452,14 +1474,7 @@ declare function getDraftsQueryOptions(activeUsername: string | undefined): _tan
     };
 };
 
-interface UserImage {
-    created: string;
-    timestamp: number;
-    url: string;
-    _id: string;
-}
-
-declare function getImagesQueryOptions(username?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<UserImage[], Error, UserImage[], (string | undefined)[]>, "queryFn"> & {
+declare function getImagesQueryOptions(username?: string, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<UserImage[], Error, UserImage[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<UserImage[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1467,7 +1482,7 @@ declare function getImagesQueryOptions(username?: string): _tanstack_react_query
         [dataTagErrorSymbol]: Error;
     };
 };
-declare function getGalleryImagesQueryOptions(activeUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<UserImage[], Error, UserImage[], (string | undefined)[]>, "queryFn"> & {
+declare function getGalleryImagesQueryOptions(activeUsername: string | undefined, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<UserImage[], Error, UserImage[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<UserImage[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1560,17 +1575,17 @@ declare function getWavesTrendingTagsQueryOptions(host: string, hours?: number):
     };
 };
 
-declare function useAddFragment(username: string): _tanstack_react_query.UseMutationResult<Fragment, Error, {
+declare function useAddFragment(username: string, code: string | undefined): _tanstack_react_query.UseMutationResult<Fragment, Error, {
     title: string;
     body: string;
 }, unknown>;
 
-declare function useEditFragment(username: string, fragmentId: string): _tanstack_react_query.UseMutationResult<Fragment, Error, {
+declare function useEditFragment(username: string, fragmentId: string, code: string | undefined): _tanstack_react_query.UseMutationResult<Fragment, Error, {
     title: string;
     body: string;
 }, unknown>;
 
-declare function useRemoveFragment(username: string, fragmentId: string): _tanstack_react_query.UseMutationResult<Response, Error, void, unknown>;
+declare function useRemoveFragment(username: string, fragmentId: string, code: string | undefined): _tanstack_react_query.UseMutationResult<Response, Error, void, unknown>;
 
 type EntryWithPostId = Entry$1 & {
     post_id: number;
@@ -1711,7 +1726,7 @@ interface ThreeSpeakVideo {
     _id: string;
 }
 
-declare function getAccountTokenQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, (string | undefined)[]>, "queryFn"> & {
+declare function getAccountTokenQueryOptions(username: string | undefined, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<any, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1720,7 +1735,7 @@ declare function getAccountTokenQueryOptions(username: string | undefined): _tan
     };
 };
 
-declare function getAccountVideosQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ThreeSpeakVideo[], Error, ThreeSpeakVideo[], (string | undefined)[]>, "queryFn"> & {
+declare function getAccountVideosQueryOptions(username: string | undefined, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ThreeSpeakVideo[], Error, ThreeSpeakVideo[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<ThreeSpeakVideo[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1739,7 +1754,7 @@ declare const ThreeSpeakIntegration: {
     queries: typeof queries$1;
 };
 
-declare function getDecodeMemoQueryOptions(username: string, memo: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
+declare function getDecodeMemoQueryOptions(username: string, memo: string, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<any, string[], never> | undefined;
 } & {
     queryKey: string[] & {
@@ -1928,7 +1943,7 @@ interface GameClaim {
     score: number;
 }
 
-declare function getGameStatusCheckQueryOptions(username: string | undefined, gameType: "spin"): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetGameStatus, Error, GetGameStatus, (string | undefined)[]>, "queryFn"> & {
+declare function getGameStatusCheckQueryOptions(username: string | undefined, code: string | undefined, gameType: "spin"): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetGameStatus, Error, GetGameStatus, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<GetGameStatus, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -1937,7 +1952,7 @@ declare function getGameStatusCheckQueryOptions(username: string | undefined, ga
     };
 };
 
-declare function useGameClaim(username: string | undefined, gameType: "spin", key: string): _tanstack_react_query.UseMutationResult<GameClaim, Error, void, unknown>;
+declare function useGameClaim(username: string | undefined, code: string | undefined, gameType: "spin", key: string): _tanstack_react_query.UseMutationResult<GameClaim, Error, void, unknown>;
 
 declare enum ROLES {
     OWNER = "owner",
@@ -2071,7 +2086,7 @@ declare function getCommunityPermissions({ communityType, userRole, subscribed, 
     isModerator: boolean;
 };
 
-declare function getNotificationsUnreadCountQueryOptions(activeUsername: string | undefined): Omit<_tanstack_react_query.UseQueryOptions<number, Error, number, (string | undefined)[]>, "queryFn"> & {
+declare function getNotificationsUnreadCountQueryOptions(activeUsername: string | undefined, code: string | undefined): Omit<_tanstack_react_query.UseQueryOptions<number, Error, number, (string | undefined)[]>, "queryFn"> & {
     initialData: number | (() => number);
     queryFn?: _tanstack_react_query.QueryFunction<number, (string | undefined)[]> | undefined;
 } & {
@@ -2319,7 +2334,7 @@ interface Announcement {
     auth: boolean;
 }
 
-declare function getNotificationsInfiniteQueryOptions(activeUsername: string | undefined, filter?: NotificationFilter | undefined): _tanstack_react_query.UseInfiniteQueryOptions<ApiNotification[], Error, _tanstack_react_query.InfiniteData<ApiNotification[], unknown>, (string | undefined)[], string> & {
+declare function getNotificationsInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, filter?: NotificationFilter | undefined): _tanstack_react_query.UseInfiniteQueryOptions<ApiNotification[], Error, _tanstack_react_query.InfiniteData<ApiNotification[], unknown>, (string | undefined)[], string> & {
     initialData: _tanstack_react_query.InfiniteData<ApiNotification[], string> | (() => _tanstack_react_query.InfiniteData<ApiNotification[], string>) | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -2328,7 +2343,7 @@ declare function getNotificationsInfiniteQueryOptions(activeUsername: string | u
     };
 };
 
-declare function getNotificationsSettingsQueryOptions(activeUsername: string | undefined): Omit<_tanstack_react_query.UseQueryOptions<ApiNotificationSetting, Error, ApiNotificationSetting, (string | undefined)[]>, "queryFn"> & {
+declare function getNotificationsSettingsQueryOptions(activeUsername: string | undefined, code: string | undefined): Omit<_tanstack_react_query.UseQueryOptions<ApiNotificationSetting, Error, ApiNotificationSetting, (string | undefined)[]>, "queryFn"> & {
     initialData: ApiNotificationSetting | (() => ApiNotificationSetting);
     queryFn?: _tanstack_react_query.QueryFunction<ApiNotificationSetting, (string | undefined)[]> | undefined;
 } & {
@@ -2780,6 +2795,27 @@ declare function getMarketDataQueryOptions(coin: string, vsCurrency: string, fro
     };
 };
 
+interface ApiResponse<T> {
+    status: number;
+    data: T;
+}
+interface CurrencyRates {
+    [currency: string]: {
+        quotes: {
+            [currency: string]: {
+                last_updated: string;
+                percent_change: number;
+                price: number;
+            };
+        };
+    };
+}
+
+declare function getMarketData(coin: string, vsCurrency: string, fromTs: string, toTs: string): Promise<MarketData>;
+declare function getCurrencyRate(cur: string): Promise<number>;
+declare function getCurrencyTokenRate(currency: string, token: string): Promise<number>;
+declare function getCurrencyRates(): Promise<CurrencyRates>;
+
 interface PointTransaction {
     id: number;
     type: number;
@@ -2964,4 +3000,41 @@ declare function getBoostPlusAccountPricesQueryOptions(account: string, accessTo
     };
 };
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthorReward, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationDuration, type CurationItem, type CurationReward, type DelegateVestingShares, type DelegatedVestingShare, type DeletedEntry, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, type HiveHbdStats, HiveSignerIntegration, type Interest, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OperationGroup, type OrdersData, type OrdersDataItem, type PageStatsResponse, type Payer, type PointTransaction, type Points, type PostTip, type PostTipsResponse, type ProducerReward, type Profile, type ProfileTokens, type PromotePrice, type Proposal, type ProposalPay, type ProposalVote, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReceivedVestingShare, type Recoveries, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardedCommunity, type SavingsWithdrawRequest, type SearchResponse, type SearchResult, type SetWithdrawRoute, SortOrder, type StatsResponse, type StoringUser, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferToSavings, type TransferToVesting, type TrendingTag, type UpdateProposalVotes, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VoteProxy, type WalletMetadataCandidate, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type Witness, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotePriceQueryOptions, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, isCommunity, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, normalizeWaveEntryFromApi, parseAccounts, parseAsset, parseProfileMetadata, roleMap, searchQueryOptions, sortDiscussions, toEntryArray, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain };
+declare function signUp(username: string, email: string, referral: string): Promise<ApiResponse<Record<string, unknown>>>;
+declare function subscribeEmail(email: string): Promise<ApiResponse<Record<string, unknown>>>;
+declare function usrActivity(code: string | undefined, ty: number, bl?: string | number, tx?: string | number): Promise<void>;
+declare function getNotifications(code: string | undefined, filter: string | null, since?: string | null, user?: string | null): Promise<ApiNotification[]>;
+declare function saveNotificationSetting(code: string | undefined, username: string, system: string, allows_notify: number, notify_types: number[], token: string): Promise<ApiNotificationSetting>;
+declare function getNotificationSetting(code: string | undefined, username: string, token: string): Promise<ApiNotificationSetting>;
+declare function markNotifications(code: string | undefined, id?: string): Promise<Record<string, unknown>>;
+declare function addImage(code: string | undefined, url: string): Promise<Record<string, unknown>>;
+declare function uploadImage(file: File, token: string, signal?: AbortSignal): Promise<{
+    url: string;
+}>;
+declare function deleteImage(code: string | undefined, imageId: string): Promise<Record<string, unknown>>;
+declare function addDraft(code: string | undefined, title: string, body: string, tags: string, meta: DraftMetadata): Promise<{
+    drafts: Draft[];
+}>;
+declare function updateDraft(code: string | undefined, draftId: string, title: string, body: string, tags: string, meta: DraftMetadata): Promise<{
+    drafts: Draft[];
+}>;
+declare function deleteDraft(code: string | undefined, draftId: string): Promise<Record<string, unknown>>;
+declare function addSchedule(code: string | undefined, permlink: string, title: string, body: string, meta: Record<string, unknown>, options: Record<string, unknown> | null, schedule: string, reblog: boolean): Promise<Record<string, unknown>>;
+declare function deleteSchedule(code: string | undefined, id: string): Promise<Record<string, unknown>>;
+declare function moveSchedule(code: string | undefined, id: string): Promise<Schedule[]>;
+declare function getPromotedPost(code: string | undefined, author: string, permlink: string): Promise<{
+    author: string;
+    permlink: string;
+} | "">;
+declare function onboardEmail(username: string, email: string, friend: string): Promise<Record<string, unknown>>;
+
+interface HsTokenRenewResponse {
+    username: string;
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+}
+
+declare function hsTokenRenew(code: string): Promise<HsTokenRenewResponse>;
+
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthorReward, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateVestingShares, type DelegatedVestingShare, type DeletedEntry, type Draft, type DraftMetadata, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, type HiveHbdStats, HiveSignerIntegration, type HsTokenRenewResponse, type Interest, type JsonMetadata, type JsonPollMetadata, keychain as Keychain, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OperationGroup, type OrdersData, type OrdersDataItem, type PageStatsResponse, type Payer, type PointTransaction, type Points, type PostTip, type PostTipsResponse, type ProducerReward, type Profile, type ProfileTokens, type PromotePrice, type Proposal, type ProposalPay, type ProposalVote, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReceivedVestingShare, type Recoveries, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetWithdrawRoute, SortOrder, type StatsResponse, type StoringUser, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferToSavings, type TransferToVesting, type TrendingTag, type UpdateProposalVotes, type UserImage, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VoteProxy, type WalletMetadataCandidate, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type Witness, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addSchedule, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, roleMap, saveNotificationSetting, searchQueryOptions, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, usrActivity };
