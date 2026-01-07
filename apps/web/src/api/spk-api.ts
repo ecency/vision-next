@@ -1,10 +1,12 @@
 import { PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
-import { client as hiveClient } from "./hive";
+import { CONFIG } from "@ecency/sdk";
 import * as keychain from "@/utils/keychain";
 import { broadcastPostingJSON } from "./operations";
 import { hotSign } from "@/utils";
 import { HivePrice, Markets, SpkApiWallet, SpkMarkets } from "@/entities";
 import { appAxios } from "@/api/axios";
+
+const hiveClient = CONFIG.hiveClient;
 
 const spkNodes = [
   "https://spk.good-karma.xyz",

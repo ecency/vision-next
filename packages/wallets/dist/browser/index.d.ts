@@ -122,7 +122,10 @@ declare function useImportWallet(username: string, currency: EcencyWalletCurrenc
  * Basically, this mutation is a convenient wrapper for update profile operation
  */
 type SaveWalletInformationOptions = Pick<UseMutationOptions<unknown, Error, EcencyTokenMetadata[]>, "onSuccess" | "onError">;
-declare function useSaveWalletInformationToMetadata(username: string, options?: SaveWalletInformationOptions): _tanstack_react_query.UseMutationResult<unknown, Error, EcencyTokenMetadata[], unknown>;
+declare function useSaveWalletInformationToMetadata(username: string, accessToken?: string, auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}, options?: SaveWalletInformationOptions): _tanstack_react_query.UseMutationResult<unknown, Error, EcencyTokenMetadata[], unknown>;
 
 declare function getHiveAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     name: string;
@@ -876,7 +879,7 @@ declare function withdrawVestingRouteHive<T extends HiveBasedAssetSignType>(payl
     key: PrivateKey;
 } : Payload<T>): Promise<unknown>;
 
-declare function useClaimRewards(username: string, onSuccess: () => void): ReturnType<typeof useBroadcastMutation<void>>;
+declare function useClaimRewards(username: string, accessToken: string | undefined, onSuccess: () => void): ReturnType<typeof useBroadcastMutation<void>>;
 
 interface PayloadBase {
     from: string;

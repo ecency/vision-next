@@ -65,7 +65,19 @@ export function FavouriteBtn({ targetUsername }: Props) {
           </span>
         </LoginRequired>
       )}
-      {activeUser && (
+      {activeUser && !accessToken && (
+        <Tooltip content={i18next.t("favorite-btn.add")}>
+          <Button
+            appearance="primary"
+            size="sm"
+            noPadding={true}
+            className="w-8"
+            disabled={true}
+            icon={<UilHeart />}
+          />
+        </Tooltip>
+      )}
+      {activeUser && accessToken && (
         <Tooltip content={i18next.t(favourited ? "favorite-btn.delete" : "favorite-btn.add")}>
           <Button
             appearance={favourited ? "pressed" : "primary"}
@@ -73,12 +85,7 @@ export function FavouriteBtn({ targetUsername }: Props) {
             noPadding={true}
             className="w-8"
             isLoading={inProgress}
-            disabled={!canMutate}
-            onClick={
-              canMutate
-                ? () => (favourited ? deleteFrom(targetUsername) : add(targetUsername))
-                : undefined
-            }
+            onClick={() => (favourited ? deleteFrom(targetUsername) : add(targetUsername))}
             icon={<UilHeart />}
           />
         </Tooltip>

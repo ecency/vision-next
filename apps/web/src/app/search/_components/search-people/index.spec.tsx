@@ -10,18 +10,25 @@ import { withStore } from "../../tests/with-store";
 
 let TEST_MODE = 0;
 
-jest.mock("../../api/search-api", () => ({
-  searchAccount: () =>
-    new Promise((resolve) => {
-      if (TEST_MODE === 0) {
-        resolve(accountSearchResultInstance);
+jest.mock("@tanstack/react-query", () => {
+  const actual = jest.requireActual("@tanstack/react-query");
+  return {
+    ...actual,
+    useQuery: () => {
+      if (TEST_MODE === 1) {
+        return {
+          data: [],
+          isLoading: false
+        };
       }
 
-      if (TEST_MODE === 1) {
-        resolve([]);
-      }
-    })
-}));
+      return {
+        data: accountSearchResultInstance,
+        isLoading: false
+      };
+    }
+  };
+});
 
 const defProps = {
   history: createBrowserHistory(),

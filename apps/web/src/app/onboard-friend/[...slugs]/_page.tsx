@@ -27,7 +27,7 @@ import {
 import { clipboard } from "@/utils/clipboard";
 import { Tooltip } from "@ui/tooltip";
 import Head from "next/head";
-import { getRcOperationStats } from "@/api/hive";
+import { getRcStatsQueryOptions } from "@ecency/sdk";
 import {
   createAccountHs,
   createAccountKc,
@@ -42,7 +42,7 @@ import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { onboardEmail } from "@ecency/sdk";
 import { getKeysFromSeed } from "@/utils/onBoard-helper";
 import { useSeedPhrase } from "@ecency/wallets";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDownloadSeed } from "@/features/wallet";
 
 export interface AccountInfo {
@@ -94,6 +94,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const { activeUser, account } = useActiveAccount();
   const queryParams = useSearchParams();
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const queryClient = useQueryClient();
 
   const [secret, setSecret] = useState("");
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();
@@ -460,8 +461,8 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   };
 
   const rcOperationsCost = async () => {
-    const rcStats: any = await getRcOperationStats();
-    const operationCosts = rcStats.rc_stats.ops;
+    const rcStats: any = await queryClient.fetchQuery(getRcStatsQueryOptions());
+    const operationCosts = rcStats.ops;
     const commentCost = operationCosts.comment_operation.avg_cost;
     const transferCost = operationCosts.transfer_operation.avg_cost;
     const voteCost = operationCosts.vote_operation.avg_cost;

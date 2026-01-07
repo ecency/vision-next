@@ -2,13 +2,19 @@ import * as ls from "./local-storage";
 import { User } from "@/entities";
 import { decodeObj } from "@/utils/encoder";
 
+const logMissingUser = () => {
+  if (process.env.NODE_ENV !== "production") {
+    console.debug("User does not exist!");
+  }
+};
+
 export const getUser = (
   username: string,
   setActiveUser?: (value: null) => void
 ): User | undefined => {
   const raw = ls.get(`user_${username}`);
   if (!raw) {
-    console.log("User does not exist!");
+    logMissingUser();
     setActiveUser?.(null);
     return undefined;
   }
@@ -16,7 +22,7 @@ export const getUser = (
   try {
     return decodeObj(raw) as User;
   } catch (e) {
-    console.log("User does not exist!");
+    logMissingUser();
     setActiveUser?.(null);
     return decodeObj(username) as User;
   }

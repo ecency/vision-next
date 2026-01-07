@@ -1,6 +1,6 @@
 import { HiveMarket } from "./hive-market-rate-listener";
 import { HiveMarketAsset } from "../../market-pair";
-import { OrdersDataItem } from "../../../../api/hive";
+import { OrdersDataItem } from "@ecency/sdk";
 
 describe("HiveMarketRateListener", function () {
   it("should return empty order data", function () {

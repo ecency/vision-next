@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { bridgeApiCall } from "@/api/bridge";
+import { bridgeApiCall } from "@ecency/sdk";
 import { CommunityRole, ROLES } from "@ecency/sdk";
 
 const MATTERMOST_BASE_URL = process.env.MATTERMOST_BASE_URL;

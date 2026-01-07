@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { usePublishState } from "@/app/publish/_hooks";
 import { Button } from "@ui/button";
 import { error } from "@/features/shared";
-import { getAccount } from "@/api/hive";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { Table, Td, Th, Tr } from "@ui/table";
 import { FormControl, InputGroup } from "@ui/input";
 import { handleInvalid, handleOnInput } from "@/utils";
@@ -13,6 +13,7 @@ import { Form } from "@ui/form";
 import { useThreeSpeakManager } from "@/features/3speak";
 import { Alert } from "@ui/alert";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   show: boolean;
@@ -23,6 +24,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
   const { videos } = useThreeSpeakManager();
 
   const { beneficiaries, setBeneficiaries } = usePublishState();
@@ -51,7 +53,9 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
 
       setInProgress(true);
       try {
-        const r = await getAccount(username);
+        const r = await queryClient.fetchQuery(
+          getAccountFullQueryOptions(username)
+        );
         if (!r) {
           error(i18next.t("beneficiary-editor.user-error", { n: username }));
           return;

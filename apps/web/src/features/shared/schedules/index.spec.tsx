@@ -86,14 +86,11 @@ jest.mock("@ecency/sdk", () => ({
           ]);
         }
       })
+  }),
+  getCommunityQueryOptions: () => ({
+    queryKey: ["community", "single"],
+    queryFn: () => Promise.resolve(communityInstance1)
   })
-}));
-
-jest.mock("../../api/bridge", () => ({
-  getCommunity: () =>
-    new Promise((resolve) => {
-      resolve(communityInstance1);
-    })
 }));
 
 jest.mock("@/utils/dayjs", () => ({

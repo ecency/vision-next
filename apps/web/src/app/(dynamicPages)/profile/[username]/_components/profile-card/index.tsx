@@ -1,6 +1,6 @@
 "use client";
 
-import { rcPower } from "@/api/hive";
+import { rcPower } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 import defaults from "@/defaults";
 import { Account } from "@/entities";

@@ -2,8 +2,9 @@ import dayjs from "@/utils/dayjs";
 import { MarketCandlestickDataItem } from "@/entities";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
-import { getMarketHistory } from "@/api/hive";
+import { getMarketHistoryQueryOptions, getQueryClient } from "@ecency/sdk";
 import { Time } from "lightweight-charts";
+import { useMemo } from "react";
 
 export interface TradingViewQueryDataItem {
   close: number;
@@ -15,13 +16,22 @@ export interface TradingViewQueryDataItem {
 }
 
 export function useTradingViewQuery(bucketSeconds: number) {
+  const { initialStartDate, initialEndDate } = useMemo(() => {
+    const end = dayjs();
+    const start = end.clone().subtract(Math.max(100 * bucketSeconds, 28_800), "second");
+    return { initialStartDate: start, initialEndDate: end };
+  }, [bucketSeconds]);
+
   return useInfiniteQuery({
-    queryKey: [QueryIdentifiers.MARKET_TRADING_VIEW, bucketSeconds],
+    queryKey: [
+      QueryIdentifiers.MARKET_TRADING_VIEW,
+      bucketSeconds,
+      initialStartDate.toISOString(),
+      initialEndDate.toISOString()
+    ],
     queryFn: async ({ pageParam: [startDate, endDate] }) => {
-      const apiData: MarketCandlestickDataItem[] = await getMarketHistory(
-        bucketSeconds,
-        startDate.toDate(),
-        endDate.toDate()
+      const apiData: MarketCandlestickDataItem[] = await getQueryClient().fetchQuery(
+        getMarketHistoryQueryOptions(bucketSeconds, startDate.toDate(), endDate.toDate())
       );
 
       return apiData.map(({ hive, non_hive, open }) => ({
@@ -35,8 +45,8 @@ export function useTradingViewQuery(bucketSeconds: number) {
     },
     initialPageParam: [
       // Fetch at least 8 hours or given interval
-      dayjs().subtract(Math.max(100 * bucketSeconds, 28_800), "second"),
-      dayjs()
+      initialStartDate,
+      initialEndDate
     ],
     getNextPageParam: (_, __, [prevStartDate]) => [
       prevStartDate.clone().subtract(Math.max(100 * bucketSeconds, 28_800), "seconds"),

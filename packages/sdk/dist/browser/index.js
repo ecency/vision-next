@@ -714,12 +714,14 @@ function parseAccounts(rawAccounts) {
 // src/modules/accounts/queries/get-accounts-query-options.ts
 function getAccountsQueryOptions(usernames) {
   return queryOptions({
-    queryKey: ["accounts", "get-accounts", usernames],
+    queryKey: ["accounts", "list", ...usernames],
+    enabled: usernames.length > 0,
     queryFn: async () => {
-      const response = await CONFIG.hiveClient.database.getAccounts(usernames);
+      const response = await CONFIG.hiveClient.database.getAccounts(
+        usernames
+      );
       return parseAccounts(response);
-    },
-    enabled: usernames.length > 0
+    }
   });
 }
 function getFollowCountQueryOptions(username) {
@@ -988,6 +990,22 @@ function getAccountPendingRecoveryQueryOptions(username) {
       "find_change_recovery_account_requests",
       { accounts: [username] }
     )
+  });
+}
+function getAccountReputationsQueryOptions(query, limit = 50) {
+  return queryOptions({
+    queryKey: ["accounts", "reputations", query, limit],
+    enabled: !!query,
+    queryFn: async () => {
+      if (!query) {
+        return [];
+      }
+      return CONFIG.hiveClient.call(
+        "condenser_api",
+        "get_account_reputations",
+        [query, limit]
+      );
+    }
   });
 }
 var ops = utils.operationOrders;
@@ -1306,6 +1324,26 @@ function getEntryActiveVotesQueryOptions(entry) {
     enabled: !!entry
   });
 }
+function getContentQueryOptions(author, permlink) {
+  return queryOptions({
+    queryKey: ["posts", "content", author, permlink],
+    enabled: !!author && !!permlink,
+    queryFn: async () => CONFIG.hiveClient.call("condenser_api", "get_content", [
+      author,
+      permlink
+    ])
+  });
+}
+function getContentRepliesQueryOptions(author, permlink) {
+  return queryOptions({
+    queryKey: ["posts", "content-replies", author, permlink],
+    enabled: !!author && !!permlink,
+    queryFn: async () => CONFIG.hiveClient.call("condenser_api", "get_content_replies", {
+      author,
+      permlink
+    })
+  });
+}
 function getPostHeaderQueryOptions(author, permlink) {
   return queryOptions({
     queryKey: ["posts", "post-header", author, permlink],
@@ -1367,6 +1405,212 @@ function getPostQueryOptions(author, permlink, observer = "", num) {
     enabled: !!author && !!permlink && permlink.trim() !== "" && permlink.trim() !== "undefined"
   });
 }
+
+// src/modules/bridge/requests.ts
+function bridgeApiCall(endpoint, params) {
+  return CONFIG.hiveClient.call("bridge", endpoint, params);
+}
+async function resolvePost(post, observer, num) {
+  const { json_metadata: json } = post;
+  if (json?.original_author && json?.original_permlink && json.tags?.[0] === "cross-post") {
+    try {
+      const resp = await getPost(
+        json.original_author,
+        json.original_permlink,
+        observer,
+        num
+      );
+      if (resp) {
+        return {
+          ...post,
+          original_entry: resp,
+          num
+        };
+      }
+      return post;
+    } catch {
+      return post;
+    }
+  }
+  return { ...post, num };
+}
+async function resolvePosts(posts, observer) {
+  const validatedPosts = posts.map(validateEntry);
+  const resolved = await Promise.all(validatedPosts.map((p) => resolvePost(p, observer)));
+  return filterDmcaEntry(resolved);
+}
+async function getPostsRanked(sort, start_author = "", start_permlink = "", limit = 20, tag = "", observer = "") {
+  const resp = await bridgeApiCall("get_ranked_posts", {
+    sort,
+    start_author,
+    start_permlink,
+    limit,
+    tag,
+    observer
+  });
+  if (resp) {
+    return resolvePosts(resp, observer);
+  }
+  return resp;
+}
+async function getAccountPosts(sort, account, start_author = "", start_permlink = "", limit = 20, observer = "") {
+  if (CONFIG.dmcaAccounts.includes(account)) {
+    return [];
+  }
+  const resp = await bridgeApiCall("get_account_posts", {
+    sort,
+    account,
+    start_author,
+    start_permlink,
+    limit,
+    observer
+  });
+  if (resp) {
+    return resolvePosts(resp, observer);
+  }
+  return resp;
+}
+function validateEntry(entry) {
+  const newEntry = {
+    ...entry,
+    active_votes: Array.isArray(entry.active_votes) ? [...entry.active_votes] : [],
+    beneficiaries: Array.isArray(entry.beneficiaries) ? [...entry.beneficiaries] : [],
+    blacklists: Array.isArray(entry.blacklists) ? [...entry.blacklists] : [],
+    replies: Array.isArray(entry.replies) ? [...entry.replies] : [],
+    stats: entry.stats ? { ...entry.stats } : null
+  };
+  const requiredStringProps = [
+    "author",
+    "title",
+    "body",
+    "created",
+    "category",
+    "permlink",
+    "url",
+    "updated"
+  ];
+  for (const prop of requiredStringProps) {
+    if (newEntry[prop] == null) {
+      newEntry[prop] = "";
+    }
+  }
+  if (newEntry.author_reputation == null) {
+    newEntry.author_reputation = 0;
+  }
+  if (newEntry.children == null) {
+    newEntry.children = 0;
+  }
+  if (newEntry.depth == null) {
+    newEntry.depth = 0;
+  }
+  if (newEntry.net_rshares == null) {
+    newEntry.net_rshares = 0;
+  }
+  if (newEntry.payout == null) {
+    newEntry.payout = 0;
+  }
+  if (newEntry.percent_hbd == null) {
+    newEntry.percent_hbd = 0;
+  }
+  if (!newEntry.stats) {
+    newEntry.stats = {
+      flag_weight: 0,
+      gray: false,
+      hide: false,
+      total_votes: 0
+    };
+  }
+  if (newEntry.author_payout_value == null) {
+    newEntry.author_payout_value = "0.000 HBD";
+  }
+  if (newEntry.curator_payout_value == null) {
+    newEntry.curator_payout_value = "0.000 HBD";
+  }
+  if (newEntry.max_accepted_payout == null) {
+    newEntry.max_accepted_payout = "1000000.000 HBD";
+  }
+  if (newEntry.payout_at == null) {
+    newEntry.payout_at = "";
+  }
+  if (newEntry.pending_payout_value == null) {
+    newEntry.pending_payout_value = "0.000 HBD";
+  }
+  if (newEntry.promoted == null) {
+    newEntry.promoted = "0.000 HBD";
+  }
+  if (newEntry.is_paidout == null) {
+    newEntry.is_paidout = false;
+  }
+  return newEntry;
+}
+async function getPost(author = "", permlink = "", observer = "", num) {
+  const resp = await bridgeApiCall("get_post", {
+    author,
+    permlink,
+    observer
+  });
+  if (resp) {
+    const validatedEntry = validateEntry(resp);
+    const post = await resolvePost(validatedEntry, observer, num);
+    return filterDmcaEntry(post);
+  }
+  return void 0;
+}
+async function getPostHeader(author = "", permlink = "") {
+  const resp = await bridgeApiCall("get_post_header", {
+    author,
+    permlink
+  });
+  return resp ? validateEntry(resp) : resp;
+}
+async function getDiscussion(author, permlink, observer) {
+  const resp = await bridgeApiCall("get_discussion", {
+    author,
+    permlink,
+    observer: observer || author
+  });
+  if (resp) {
+    const validatedResp = {};
+    for (const [key, entry] of Object.entries(resp)) {
+      validatedResp[key] = validateEntry(entry);
+    }
+    return validatedResp;
+  }
+  return resp;
+}
+async function getCommunity(name, observer = "") {
+  return bridgeApiCall("get_community", { name, observer });
+}
+async function getCommunities(last = "", limit = 100, query, sort = "rank", observer = "") {
+  return bridgeApiCall("list_communities", {
+    last,
+    limit,
+    query,
+    sort,
+    observer
+  });
+}
+async function normalizePost(post) {
+  const resp = await bridgeApiCall("normalize_post", { post });
+  return resp ? validateEntry(resp) : resp;
+}
+async function getSubscriptions(account) {
+  return bridgeApiCall("list_all_subscriptions", { account });
+}
+async function getSubscribers(community) {
+  return bridgeApiCall("list_subscribers", { community });
+}
+async function getRelationshipBetweenAccounts(follower, following) {
+  return bridgeApiCall("get_relationship_between_accounts", [
+    follower,
+    following
+  ]);
+}
+async function getProfiles(accounts, observer) {
+  return bridgeApiCall("get_profiles", { accounts, observer });
+}
+
+// src/modules/posts/queries/get-discussions-query-options.ts
 var SortOrder = /* @__PURE__ */ ((SortOrder2) => {
   SortOrder2["trending"] = "trending";
   SortOrder2["author_reputation"] = "author_reputation";
@@ -1464,6 +1708,13 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
     select: (data) => sortDiscussions(entry, data, order)
   });
 }
+function getDiscussionQueryOptions(author, permlink, observer, enabled = true) {
+  return queryOptions({
+    queryKey: ["posts", "discussion", author, permlink, observer || author],
+    enabled: enabled && !!author && !!permlink,
+    queryFn: async () => getDiscussion(author, permlink, observer)
+  });
+}
 function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit = 20, observer = "", enabled = true) {
   return infiniteQueryOptions({
     queryKey: ["posts", "account-posts", username ?? "", filter, limit, observer],
@@ -1513,6 +1764,35 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
     }
   });
 }
+function getAccountPostsQueryOptions(username, filter = "posts", start_author = "", start_permlink = "", limit = 20, observer = "", enabled = true) {
+  return queryOptions({
+    queryKey: [
+      "posts",
+      "account-posts-page",
+      username ?? "",
+      filter,
+      start_author,
+      start_permlink,
+      limit,
+      observer
+    ],
+    enabled: !!username && enabled,
+    queryFn: async () => {
+      if (!username) {
+        return [];
+      }
+      const response = await getAccountPosts(
+        filter,
+        username,
+        start_author,
+        start_permlink,
+        limit,
+        observer
+      );
+      return filterDmcaEntry(response ?? []);
+    }
+  });
+}
 function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = "", enabled = true, _options = {}) {
   return infiniteQueryOptions({
     queryKey: ["posts", "posts-ranked", sort, tag, limit, observer],
@@ -1557,6 +1837,36 @@ function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = ""
         permlink: last?.permlink,
         hasNextPage: (lastPage?.length ?? 0) > 0
       };
+    }
+  });
+}
+function getPostsRankedQueryOptions(sort, start_author = "", start_permlink = "", limit = 20, tag = "", observer = "", enabled = true) {
+  return queryOptions({
+    queryKey: [
+      "posts",
+      "posts-ranked-page",
+      sort,
+      start_author,
+      start_permlink,
+      limit,
+      tag,
+      observer
+    ],
+    enabled,
+    queryFn: async () => {
+      let sanitizedTag = tag;
+      if (CONFIG.dmcaTagRegexes.some((regex) => regex.test(tag))) {
+        sanitizedTag = "";
+      }
+      const response = await getPostsRanked(
+        sort,
+        start_author,
+        start_permlink,
+        limit,
+        sanitizedTag,
+        observer
+      );
+      return filterDmcaEntry(response ?? []);
     }
   });
 }
@@ -1797,8 +2107,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions76 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions76);
+  const queryOptions86 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions86);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -2007,6 +2317,18 @@ function getWavesTrendingTagsQueryOptions(host, hours = 24) {
     }
   });
 }
+function getNormalizePostQueryOptions(post, enabled = true) {
+  return queryOptions({
+    queryKey: [
+      "posts",
+      "normalize",
+      post?.author ?? "",
+      post?.permlink ?? ""
+    ],
+    enabled: enabled && !!post,
+    queryFn: async () => normalizePost(post)
+  });
+}
 
 // src/modules/accounts/queries/get-account-vote-history-infinite-query-options.ts
 function isEntry(x) {
@@ -2055,6 +2377,13 @@ function getAccountVoteHistoryInfiniteQueryOptions(username, options) {
     getNextPageParam: (lastPage) => ({
       start: lastPage.lastItemFetched
     })
+  });
+}
+function getProfilesQueryOptions(accounts, observer, enabled = true) {
+  return queryOptions({
+    queryKey: ["accounts", "profiles", accounts, observer ?? ""],
+    enabled: enabled && accounts.length > 0,
+    queryFn: async () => getProfiles(accounts, observer)
   });
 }
 
@@ -2510,6 +2839,152 @@ function useAccountRevokeKey(username, options) {
     ...options
   });
 }
+
+// src/modules/accounts/utils/account-power.ts
+var HIVE_VOTING_MANA_REGENERATION_SECONDS = 5 * 60 * 60 * 24;
+function vestsToRshares(vests, votingPowerValue, votePerc) {
+  const vestingShares = vests * 1e6;
+  const power = votingPowerValue * votePerc / 1e4 / 50 + 1;
+  return power * vestingShares / 1e4;
+}
+function toDhiveAccountForVotingMana(account) {
+  return {
+    id: 0,
+    name: account.name,
+    owner: account.owner,
+    active: account.active,
+    posting: account.posting,
+    memo_key: account.memo_key,
+    json_metadata: account.json_metadata,
+    posting_json_metadata: account.posting_json_metadata,
+    proxy: account.proxy ?? "",
+    last_owner_update: "",
+    last_account_update: "",
+    created: account.created,
+    mined: false,
+    owner_challenged: false,
+    active_challenged: false,
+    last_owner_proved: "",
+    last_active_proved: "",
+    recovery_account: account.recovery_account ?? "",
+    reset_account: "",
+    last_account_recovery: "",
+    comment_count: 0,
+    lifetime_vote_count: 0,
+    post_count: account.post_count,
+    can_vote: true,
+    voting_power: account.voting_power,
+    last_vote_time: account.last_vote_time,
+    voting_manabar: account.voting_manabar,
+    balance: account.balance,
+    savings_balance: account.savings_balance,
+    hbd_balance: account.hbd_balance,
+    hbd_seconds: "0",
+    hbd_seconds_last_update: "",
+    hbd_last_interest_payment: "",
+    savings_hbd_balance: account.savings_hbd_balance,
+    savings_hbd_seconds: account.savings_hbd_seconds,
+    savings_hbd_seconds_last_update: account.savings_hbd_seconds_last_update,
+    savings_hbd_last_interest_payment: account.savings_hbd_last_interest_payment,
+    savings_withdraw_requests: 0,
+    reward_hbd_balance: account.reward_hbd_balance,
+    reward_hive_balance: account.reward_hive_balance,
+    reward_vesting_balance: account.reward_vesting_balance,
+    reward_vesting_hive: account.reward_vesting_hive,
+    curation_rewards: 0,
+    posting_rewards: 0,
+    vesting_shares: account.vesting_shares,
+    delegated_vesting_shares: account.delegated_vesting_shares,
+    received_vesting_shares: account.received_vesting_shares,
+    vesting_withdraw_rate: account.vesting_withdraw_rate,
+    next_vesting_withdrawal: account.next_vesting_withdrawal,
+    withdrawn: account.withdrawn,
+    to_withdraw: account.to_withdraw,
+    withdraw_routes: 0,
+    proxied_vsf_votes: account.proxied_vsf_votes ?? [],
+    witnesses_voted_for: 0,
+    average_bandwidth: 0,
+    lifetime_bandwidth: 0,
+    last_bandwidth_update: "",
+    average_market_bandwidth: 0,
+    lifetime_market_bandwidth: 0,
+    last_market_bandwidth_update: "",
+    last_post: account.last_post,
+    last_root_post: ""
+  };
+}
+function votingPower(account) {
+  const calc = CONFIG.hiveClient.rc.calculateVPMana(
+    toDhiveAccountForVotingMana(account)
+  );
+  return calc.percentage / 100;
+}
+function powerRechargeTime(power) {
+  if (!Number.isFinite(power)) {
+    throw new TypeError("Voting power must be a finite number");
+  }
+  if (power < 0 || power > 100) {
+    throw new RangeError("Voting power must be between 0 and 100");
+  }
+  const missingPower = 100 - power;
+  return missingPower * 100 * HIVE_VOTING_MANA_REGENERATION_SECONDS / 1e4;
+}
+function downVotingPower(account) {
+  const totalShares = parseFloat(account.vesting_shares) + parseFloat(account.received_vesting_shares) - parseFloat(account.delegated_vesting_shares);
+  const elapsed = Math.floor(Date.now() / 1e3) - account.downvote_manabar.last_update_time;
+  const maxMana = totalShares * 1e6 / 4;
+  if (maxMana <= 0) {
+    return 0;
+  }
+  let currentMana = parseFloat(account.downvote_manabar.current_mana.toString()) + elapsed * maxMana / HIVE_VOTING_MANA_REGENERATION_SECONDS;
+  if (currentMana > maxMana) {
+    currentMana = maxMana;
+  }
+  const currentManaPerc = currentMana * 100 / maxMana;
+  if (isNaN(currentManaPerc)) {
+    return 0;
+  }
+  if (currentManaPerc > 100) {
+    return 100;
+  }
+  return currentManaPerc;
+}
+function rcPower(account) {
+  const calc = CONFIG.hiveClient.rc.calculateRCMana(account);
+  return calc.percentage / 100;
+}
+function votingValue(account, dynamicProps, votingPowerValue, weight = 1e4) {
+  if (!Number.isFinite(votingPowerValue) || !Number.isFinite(weight)) {
+    return 0;
+  }
+  const { fundRecentClaims, fundRewardBalance, base, quote } = dynamicProps;
+  if (!Number.isFinite(fundRecentClaims) || !Number.isFinite(fundRewardBalance) || !Number.isFinite(base) || !Number.isFinite(quote)) {
+    return 0;
+  }
+  if (fundRecentClaims === 0 || quote === 0) {
+    return 0;
+  }
+  let totalVests = 0;
+  try {
+    const vesting = parseAsset(account.vesting_shares).amount;
+    const received = parseAsset(account.received_vesting_shares).amount;
+    const delegated = parseAsset(account.delegated_vesting_shares).amount;
+    if (![vesting, received, delegated].every(Number.isFinite)) {
+      return 0;
+    }
+    totalVests = vesting + received - delegated;
+  } catch {
+    return 0;
+  }
+  if (!Number.isFinite(totalVests)) {
+    return 0;
+  }
+  const rShares = vestsToRshares(totalVests, votingPowerValue, weight);
+  if (!Number.isFinite(rShares)) {
+    return 0;
+  }
+  return rShares / fundRecentClaims * fundRewardBalance * (base / quote);
+}
 function useSignOperationByKey(username) {
   return useMutation({
     mutationKey: ["operations", "sign", username],
@@ -2665,6 +3140,33 @@ function useRemoveFragment(username, fragmentId, code) {
       );
     }
   });
+}
+
+// src/modules/posts/utils/validate-post-creating.ts
+var DEFAULT_VALIDATE_POST_DELAYS = [3e3, 3e3, 3e3];
+var delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+async function getContent(author, permlink) {
+  return CONFIG.hiveClient.call("condenser_api", "get_content", [
+    author,
+    permlink
+  ]);
+}
+async function validatePostCreating(author, permlink, attempts = 0, options) {
+  const delays = options?.delays ?? DEFAULT_VALIDATE_POST_DELAYS;
+  let response;
+  try {
+    response = await getContent(author, permlink);
+  } catch (e) {
+    response = void 0;
+  }
+  if (response || attempts >= delays.length) {
+    return;
+  }
+  const waitMs = delays[attempts];
+  if (waitMs > 0) {
+    await delay(waitMs);
+  }
+  return validatePostCreating(author, permlink, attempts + 1, options);
 }
 
 // src/modules/analytics/mutations/index.ts
@@ -3053,6 +3555,13 @@ function getCommunityContextQueryOptions(username, communityName) {
         subscribed: response?.subscribed ?? false
       };
     }
+  });
+}
+function getCommunityQueryOptions(name, observer = "", enabled = true) {
+  return queryOptions({
+    queryKey: ["community", "single", name, observer],
+    enabled: enabled && !!name,
+    queryFn: async () => getCommunity(name ?? "", observer)
   });
 }
 function getCommunitySubscribersQueryOptions(communityName) {
@@ -3497,6 +4006,25 @@ function getOutgoingRcDelegationsInfiniteQueryOptions(username, limit = 100) {
     getNextPageParam: (lastPage) => lastPage.length === limit ? lastPage[lastPage.length - 1].to : null
   });
 }
+function getIncomingRcQueryOptions(username) {
+  return queryOptions({
+    queryKey: ["wallet", "incoming-rc", username],
+    enabled: !!username,
+    queryFn: async () => {
+      if (!username) {
+        throw new Error("[SDK][Wallet] - Missing username for incoming RC");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/received-rc/${username}`
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch incoming RC: ${response.status}`);
+      }
+      return response.json();
+    }
+  });
+}
 function getReceivedVestingSharesQueryOptions(username) {
   return queryOptions({
     queryKey: ["wallet", "received-vesting-shares", username],
@@ -3541,15 +4069,15 @@ function getMarketStatisticsQueryOptions() {
   });
 }
 function getMarketHistoryQueryOptions(seconds, startDate, endDate) {
-  const formatDate = (date) => {
+  const formatDate2 = (date) => {
     return date.toISOString().replace(/\.\d{3}Z$/, "");
   };
   return queryOptions({
     queryKey: ["market", "history", seconds, startDate.getTime(), endDate.getTime()],
     queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_market_history", [
       seconds,
-      formatDate(startDate),
-      formatDate(endDate)
+      formatDate2(startDate),
+      formatDate2(endDate)
     ])
   });
 }
@@ -3564,13 +4092,13 @@ function getHiveHbdStatsQueryOptions() {
       );
       const now = /* @__PURE__ */ new Date();
       const oneDayAgo = new Date(now.getTime() - 864e5);
-      const formatDate = (date) => {
+      const formatDate2 = (date) => {
         return date.toISOString().replace(/\.\d{3}Z$/, "");
       };
       const dayChange = await CONFIG.hiveClient.call(
         "condenser_api",
         "get_market_history",
-        [86400, formatDate(oneDayAgo), formatDate(now)]
+        [86400, formatDate2(oneDayAgo), formatDate2(now)]
       );
       const result = {
         price: +stats.latest,
@@ -3597,6 +4125,21 @@ function getMarketDataQueryOptions(coin, vsCurrency, fromTs, toTs) {
       }
       return response.json();
     }
+  });
+}
+function formatDate(date) {
+  return date.toISOString().replace(/\.\d{3}Z$/, "");
+}
+function getTradeHistoryQueryOptions(limit = 1e3, startDate, endDate) {
+  const end = endDate ?? /* @__PURE__ */ new Date();
+  const start = startDate ?? new Date(end.getTime() - 10 * 60 * 60 * 1e3);
+  return queryOptions({
+    queryKey: ["market", "trade-history", limit, start.getTime(), end.getTime()],
+    queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_trade_history", [
+      formatDate(start),
+      formatDate(end),
+      limit
+    ])
   });
 }
 
@@ -3909,6 +4452,89 @@ function getSearchPathQueryOptions(q) {
     }
   });
 }
+
+// src/modules/search/requests.ts
+async function parseJsonResponse2(response) {
+  const parseBody = async () => {
+    try {
+      return await response.json();
+    } catch {
+      try {
+        return await response.text();
+      } catch {
+        return void 0;
+      }
+    }
+  };
+  const data = await parseBody();
+  if (!response.ok) {
+    const error = new Error(`Request failed with status ${response.status}`);
+    error.status = response.status;
+    error.data = data;
+    throw error;
+  }
+  if (data === void 0) {
+    throw new Error("Response body was empty or invalid JSON");
+  }
+  return data;
+}
+async function search(q, sort, hideLow, since, scroll_id, votes) {
+  const data = { q, sort, hide_low: hideLow };
+  if (since) {
+    data.since = since;
+  }
+  if (scroll_id) {
+    data.scroll_id = scroll_id;
+  }
+  if (votes) {
+    data.votes = votes;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/search-api/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function searchAccount(q = "", limit = 20, random = 1) {
+  const data = { q, limit, random };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/search-api/search-account", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function searchTag(q = "", limit = 20, random = 0) {
+  const data = { q, limit, random };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/search-api/search-tag", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse2(response);
+}
+async function searchPath(q) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/search-api/search-path", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ q })
+  });
+  const data = await parseJsonResponse2(response);
+  return data?.length > 0 ? data : [q];
+}
 function getBoostPlusPricesQueryOptions(accessToken) {
   return queryOptions({
     queryKey: ["promotions", "boost-plus-prices"],
@@ -3980,7 +4606,7 @@ function getBoostPlusAccountPricesQueryOptions(account, accessToken) {
 }
 
 // src/modules/private-api/requests.ts
-async function parseJsonResponse2(response) {
+async function parseJsonResponse3(response) {
   if (!response.ok) {
     let errorData = void 0;
     try {
@@ -4004,7 +4630,7 @@ async function signUp(username, email, referral) {
     },
     body: JSON.stringify({ username, email, referral })
   });
-  const data = await parseJsonResponse2(response);
+  const data = await parseJsonResponse3(response);
   return { status: response.status, data };
 }
 async function subscribeEmail(email) {
@@ -4016,7 +4642,7 @@ async function subscribeEmail(email) {
     },
     body: JSON.stringify({ email })
   });
-  const data = await parseJsonResponse2(response);
+  const data = await parseJsonResponse3(response);
   return { status: response.status, data };
 }
 async function usrActivity(code, ty, bl = "", tx = "") {
@@ -4035,7 +4661,7 @@ async function usrActivity(code, ty, bl = "", tx = "") {
     },
     body: JSON.stringify(params)
   });
-  await parseJsonResponse2(response);
+  await parseJsonResponse3(response);
 }
 async function getNotifications(code, filter, since = null, user = null) {
   const data = {
@@ -4058,7 +4684,7 @@ async function getNotifications(code, filter, since = null, user = null) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function saveNotificationSetting(code, username, system, allows_notify, notify_types, token) {
   const data = {
@@ -4077,7 +4703,7 @@ async function saveNotificationSetting(code, username, system, allows_notify, no
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function getNotificationSetting(code, username, token) {
   const data = { code, username, token };
@@ -4089,7 +4715,7 @@ async function getNotificationSetting(code, username, token) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function markNotifications(code, id) {
   const data = {
@@ -4106,7 +4732,7 @@ async function markNotifications(code, id) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function addImage(code, url) {
   const data = { code, url };
@@ -4118,7 +4744,7 @@ async function addImage(code, url) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function uploadImage(file, token, signal) {
   const fetchApi = getBoundFetch();
@@ -4129,7 +4755,7 @@ async function uploadImage(file, token, signal) {
     body: formData,
     signal
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function deleteImage(code, imageId) {
   const data = { code, id: imageId };
@@ -4141,7 +4767,7 @@ async function deleteImage(code, imageId) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function addDraft(code, title, body, tags, meta) {
   const data = { code, title, body, tags, meta };
@@ -4153,7 +4779,7 @@ async function addDraft(code, title, body, tags, meta) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function updateDraft(code, draftId, title, body, tags, meta) {
   const data = { code, id: draftId, title, body, tags, meta };
@@ -4165,7 +4791,7 @@ async function updateDraft(code, draftId, title, body, tags, meta) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function deleteDraft(code, draftId) {
   const data = { code, id: draftId };
@@ -4177,7 +4803,7 @@ async function deleteDraft(code, draftId) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function addSchedule(code, permlink, title, body, meta, options, schedule, reblog) {
   const data = {
@@ -4200,7 +4826,7 @@ async function addSchedule(code, permlink, title, body, meta, options, schedule,
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function deleteSchedule(code, id) {
   const data = { code, id };
@@ -4212,7 +4838,7 @@ async function deleteSchedule(code, id) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function moveSchedule(code, id) {
   const data = { code, id };
@@ -4224,7 +4850,7 @@ async function moveSchedule(code, id) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function getPromotedPost(code, author, permlink) {
   const data = { code, author, permlink };
@@ -4236,7 +4862,7 @@ async function getPromotedPost(code, author, permlink) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function onboardEmail(username, email, friend) {
   const dataBody = {
@@ -4255,7 +4881,7 @@ async function onboardEmail(username, email, friend) {
       body: JSON.stringify(dataBody)
     }
   );
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 
 // src/modules/auth/requests.ts
@@ -4284,6 +4910,6 @@ async function hsTokenRenew(code) {
   return data;
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPostsInfiniteQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunitiesQueryOptions, getCommunityContextQueryOptions, getCommunityPermissions, getCommunitySubscribersQueryOptions, getCommunityType, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getLoginType, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRankedInfiniteQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, roleMap, saveNotificationSetting, searchQueryOptions, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, usrActivity };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, keychain_exports as Keychain, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, getAccessToken, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLoginType, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostingKey, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRefreshToken, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUser, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, usrActivity, validatePostCreating, votingPower, votingValue };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

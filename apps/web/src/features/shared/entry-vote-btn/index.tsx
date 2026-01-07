@@ -9,13 +9,13 @@ import { chevronUpSvgForVote } from "@ui/svg";
 import { EntryVoteDialog } from "@/features/shared/entry-vote-btn/entry-vote-dialog";
 import { useEntryVote } from "@/api/mutations";
 import { Account, Entry, EntryVote } from "@/entities";
-import { getActiveVotes } from "@/api/hive";
+import { getEntryActiveVotesQueryOptions } from "@ecency/sdk";
 import { prepareVotes } from "@/features/shared/entry-vote-btn/utils";
 import { classNameObject } from "@ui/util";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { AnimatePresence, motion } from "framer-motion";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
@@ -27,6 +27,7 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
 
   const { data: entry } =
     useQuery(EcencyEntriesCacheManagement.getEntryQuery(originalEntry));
@@ -93,19 +94,31 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
         return sessValue;
       }
 
-      const retData = await getActiveVotes(entry?.author, entry?.permlink);
-      let votes = prepareVotes(entry, retData);
-      previousVote = votes.find((x) => x.voter === activeUser.username);
-      return previousVote === undefined ? null : previousVote.percent;
+      try {
+        const retData = await queryClient.fetchQuery(
+          getEntryActiveVotesQueryOptions(entry)
+        );
+        let votes = prepareVotes(entry, retData);
+        previousVote = votes.find((x) => x.voter === activeUser.username);
+        return previousVote === undefined ? null : previousVote.percent;
+      } catch (e) {
+        console.error("entry-vote-btn failed to load previous vote", e);
+        return null;
+      }
     } else {
       return null;
     }
-  }, [activeUser, entry, isVoted]);
+  }, [activeUser, entry, isVoted, queryClient]);
   const toggleDialog = useCallback(async () => {
     //if dialog is closing do nothing and close
     if (!dialog) {
-      const preVote = await getPreviousVote();
-      setPreviousVotedValue(preVote);
+      try {
+        const preVote = await getPreviousVote();
+        setPreviousVotedValue(preVote);
+      } catch (e) {
+        console.error("entry-vote-btn failed to toggle dialog", e);
+        setPreviousVotedValue(undefined);
+      }
     }
 
     setDialog(!dialog);

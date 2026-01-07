@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { Operation, PrivateKey } from "@hiveio/dhive";
-import { client as hiveClient } from "@/api/hive";
+import { CONFIG } from "@ecency/sdk";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import * as keychain from "@/utils/keychain";
@@ -24,7 +24,7 @@ export function useWithDrawRouteByKey(account: string, percent: number, auto: st
         }
       ];
 
-      return hiveClient.broadcast.sendOperations([op], key);
+      return CONFIG.hiveClient.broadcast.sendOperations([op], key);
     },
     onError: (err) => error(...formatError(err))
   });

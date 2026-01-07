@@ -20,7 +20,9 @@ import {
 import { appAxios } from "@/api/axios";
 import * as keychain from "@/utils/keychain";
 import { broadcastWithHiveAuth } from "@/utils/hive-auth";
-import { client as hiveClient } from "./hive";
+import { CONFIG } from "@ecency/sdk";
+
+const hiveClient = CONFIG.hiveClient;
 
 const ENGINE_CONTRACT_ID = "ssc-mainnet-hive";
 const ENGINE_RPC_HEADERS = { headers: { "Content-type": "application/json" } };

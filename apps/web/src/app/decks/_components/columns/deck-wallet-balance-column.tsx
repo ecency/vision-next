@@ -7,10 +7,14 @@ import { DeckGridContext } from "../deck-manager";
 import { Spinner } from "@ui/spinner";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { withFeatureFlag } from "@/core/react-query";
-import { getDynamicPropsQueryOptions, getPointsQueryOptions } from "@ecency/sdk";
+import {
+  getAccountFullQueryOptions,
+  getConversionRequestsQueryOptions,
+  getDynamicPropsQueryOptions,
+  getPointsQueryOptions
+} from "@ecency/sdk";
 import { FullAccount } from "@/entities";
-import { useQuery } from "@tanstack/react-query";
-import { getAccount, getConversionRequests } from "@/api/hive";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrencyTokenRate } from "@ecency/sdk";
 import {
   formattedNumber,
@@ -57,6 +61,7 @@ export const DeckWalletBalanceColumn = ({
   settings: { username, updateIntervalMs }
 }: Props) => {
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const queryClient = useQueryClient();
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
 
   const [tab, setTab] = useState<Tab>("ecency");
@@ -98,7 +103,9 @@ export const DeckWalletBalanceColumn = ({
 
   const fetchAccount = async () => {
     try {
-      const response = await getAccount(username);
+      const response = await queryClient.fetchQuery(
+        getAccountFullQueryOptions(username)
+      );
       if (response) {
         setAccount(response);
       }
@@ -124,7 +131,9 @@ export const DeckWalletBalanceColumn = ({
     setHiveLoading(true);
 
     try {
-      const crd = await getConversionRequests(username);
+      const crd = await queryClient.fetchQuery(
+        getConversionRequestsQueryOptions(username)
+      );
 
       let converting = 0;
       crd.forEach((x) => {
@@ -150,7 +159,7 @@ export const DeckWalletBalanceColumn = ({
     } finally {
       setHiveLoading(false);
     }
-  }, [account, dynamicProps, username]);
+  }, [account, dynamicProps, queryClient, username]);
 
   const fetchEngine = useCallback(async () => {
     setEngineLoading(true);

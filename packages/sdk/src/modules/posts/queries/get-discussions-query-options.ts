@@ -2,6 +2,7 @@ import { CONFIG } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
+import { getDiscussion } from "@/modules/bridge";
 
 export enum SortOrder {
   trending = "trending",
@@ -131,5 +132,19 @@ export function getDiscussionsQueryOptions(
     },
     enabled: enabled && !!entry,
     select: (data) => sortDiscussions(entry, data, order),
+  });
+}
+
+export function getDiscussionQueryOptions(
+  author: string,
+  permlink: string,
+  observer?: string,
+  enabled = true
+) {
+  return queryOptions({
+    queryKey: ["posts", "discussion", author, permlink, observer || author],
+    enabled: enabled && !!author && !!permlink,
+    queryFn: async () =>
+      getDiscussion(author, permlink, observer) as Promise<Record<string, Entry> | null>,
   });
 }

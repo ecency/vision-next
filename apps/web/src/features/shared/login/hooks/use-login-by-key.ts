@@ -3,8 +3,8 @@ import { error } from "../../feedback";
 import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
 import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { FullAccount } from "@/entities";
-import { useMutation } from "@tanstack/react-query";
-import { client as hiveClient, getAccount } from "@/api/hive";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 import { formatError, grantPostingPermission } from "@/api/operations";
 import { makeHsCode } from "@/utils";
@@ -23,6 +23,7 @@ export function useLoginByKey(
 ) {
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
   const loginInApp = useLoginInApp(username);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["login-by-key", username, keyOrSeed, isVerified],
@@ -45,7 +46,7 @@ export function useLoginByKey(
 
       if (!account) {
         try {
-          account = await getAccount(username);
+          account = await queryClient.fetchQuery(getAccountFullQueryOptions(username));
         } catch (err) {
           const wrapped = new Error(i18next.t("login.error-user-fetch"));
           (wrapped as any).cause = err;

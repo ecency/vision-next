@@ -6,7 +6,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
 import { LinearProgress, UserAvatar, EntryListContent } from "@/features/shared";
-import { getPostsRanked } from "@/api/bridge";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
 import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
 
@@ -64,13 +64,15 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
     ];
 
     const interval = setInterval(async () => {
-      const resp = await getPostsRanked(
+      const resp = await queryClient.fetchQuery(
+        getPostsRankedQueryOptions(
           props.filter,
           "",
           "",
           MAX_PENDING,
           props.tag,
           props.observer
+        )
       );
       setNow(Date.now());
       if (!resp || resp.length === 0) return;

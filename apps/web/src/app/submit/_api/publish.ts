@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as bridgeApi from "../../../api/bridge";
 import { markAsPublished, updateSpeakVideoInfo } from "@/api/threespeak";
 import { comment, formatError, reblog } from "@/api/operations";
 import { useThreeSpeakManager } from "../_hooks";
@@ -18,11 +17,11 @@ import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
-import { validatePostCreating } from "@/api/hive";
+import { validatePostCreating } from "@ecency/sdk";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { getQueryClient } from "@/core/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
@@ -91,7 +90,9 @@ export function usePublishApi(onClear: () => void) {
       // permlink duplication check
       let c;
       try {
-        c = await bridgeApi.getPostHeader(author, permlink);
+        c = await queryClient.fetchQuery(
+          getPostHeaderQueryOptions(author, permlink)
+        );
       } catch (e) {}
 
       if (c && c.author) {

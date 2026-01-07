@@ -14,9 +14,10 @@ interface Props {
 
 export function EditFragment({ item, onUpdate, onCancel }: Props) {
   const { activeUser } = useActiveAccount();
+  const username = activeUser?.username ?? "";
   const accessToken = activeUser ? getAccessToken(activeUser.username) : undefined;
   const { mutateAsync: updateFragment, isPending: isUpdateLoading } = useEditFragment(
-    activeUser?.username,
+    username,
     item.id,
     accessToken
   );

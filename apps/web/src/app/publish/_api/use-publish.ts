@@ -1,4 +1,4 @@
-import { validatePostCreating } from "@/api/hive";
+import { validatePostCreating } from "@ecency/sdk";
 import { comment, reblog } from "@/api/operations";
 import { updateSpeakVideoInfo } from "@/api/threespeak";
 import { EcencyEntriesCacheManagement } from "@/core/caches";

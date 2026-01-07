@@ -1,9 +1,8 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { EntryHeader } from "@/entities";
-import { getPostHeader } from "@/api/bridge";
-import { getPromotedPost } from "@ecency/sdk";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Entry } from "@/entities";
+import { getPostHeaderQueryOptions, getPromotedPost } from "@ecency/sdk";
 import i18next from "i18next";
 import { error } from "@/features/shared";
 import { formatError } from "../operations";
@@ -12,6 +11,7 @@ import { getAccessToken } from "@/utils";
 
 export function usePreCheckPromote(path: string, onSuccess: () => void) {
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["preCheckPromote"],
@@ -19,9 +19,11 @@ export function usePreCheckPromote(path: string, onSuccess: () => void) {
       const [author, permlink] = path.replace("@", "").split("/");
 
       // Check if post is valid
-      let post: EntryHeader | null;
+      let post: Entry | null;
       try {
-        post = await getPostHeader(author, permlink);
+        post = await queryClient.fetchQuery(
+          getPostHeaderQueryOptions(author, permlink)
+        );
       } catch (e) {
         post = null;
       }
