@@ -1,4 +1,5 @@
 export * from "./get-trending-tags-query-options";
+export * from "./get-trending-tags-with-stats-query-options";
 export * from "./get-fragments-query-options";
 export * from "./get-promoted-posts-query-options";
 export * from "./get-entry-active-votes-query-options";
