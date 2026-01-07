@@ -13,6 +13,7 @@ function vestsToRshares(vests: number, votingPowerValue: number, votePerc: numbe
 }
 
 export function votingPower(account: FullAccount): number {
+  // dhive expects a chain account shape; FullAccount is a compatible superset.
   const calc = CONFIG.hiveClient.rc.calculateVPMana(account as any);
   return calc.percentage / 100;
 }
@@ -38,6 +39,10 @@ export function downVotingPower(account: FullAccount): number {
     parseFloat(account.vesting_withdraw_rate);
   const elapsed = Math.floor(Date.now() / 1000) - account.downvote_manabar.last_update_time;
   const maxMana = (totalShares * 1000000) / 4;
+
+  if (maxMana <= 0) {
+    return 0;
+  }
 
   let currentMana =
     parseFloat(account.downvote_manabar.current_mana.toString()) +

@@ -13,9 +13,15 @@ import i18next from "i18next";
 export function useCommunityPinCache(entry: Entry) {
   const dataLimit = useDataLimit();
   const { data: rankedPosts } = useQuery({
-    ...getPostsRankedQueryOptions("created", "", "", dataLimit, entry.category),
-    queryKey: [QueryIdentifiers.COMMUNITY_RANKED_POSTS, entry.category, dataLimit],
-    enabled: isCommunity(entry.category)
+    ...getPostsRankedQueryOptions(
+      "created",
+      "",
+      "",
+      dataLimit,
+      entry.category,
+      "",
+      isCommunity(entry.category)
+    )
   });
 
   return useQuery({
