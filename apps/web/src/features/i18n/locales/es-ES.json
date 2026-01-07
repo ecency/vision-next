@@ -409,13 +409,13 @@
     "descending": "Descendente"
   },
   "tags-page": {
-    "title": "Etiquetas populares",
+    "title": "Etiquetas en Tendencia",
     "description": "Descubre los temas más activos con su volumen de comentarios, mensajes y pagos.",
     "error": "No se pueden cargar etiquetas de tendencia en este momento.",
     "columns": {
       "tag": "Etiqueta",
       "comments": "Comentarios",
-      "top-posts": "Top posts",
+      "top-posts": "Publicaciones en Top",
       "total-payouts": "Pagos totales"
     },
     "load-more": {
