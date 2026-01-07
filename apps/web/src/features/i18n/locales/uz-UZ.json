@@ -408,6 +408,22 @@
     "ascending": "O'sish bo'yicha",
     "descending": "Kamayish bo`yicha"
   },
+  "tags-page": {
+    "title": "Trending tags",
+    "description": "Discover the most active topics with their comment volume, top posts, and payouts.",
+    "error": "Unable to load trending tags right now.",
+    "columns": {
+      "tag": "Tag",
+      "comments": "Comments",
+      "top-posts": "Top posts",
+      "total-payouts": "Total payouts"
+    },
+    "load-more": {
+      "cta": "Load more",
+      "loading": "Loading...",
+      "done": "No more tags"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "tarqatish",
     "cross-posted-to": "ga",
