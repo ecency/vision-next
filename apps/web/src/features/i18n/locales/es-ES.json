@@ -408,6 +408,22 @@
     "ascending": "Ascendente",
     "descending": "Descendente"
   },
+  "tags-page": {
+    "title": "Etiquetas populares",
+    "description": "Descubre los temas más activos con su volumen de comentarios, mensajes y pagos.",
+    "error": "No se pueden cargar etiquetas de tendencia en este momento.",
+    "columns": {
+      "tag": "Etiqueta",
+      "comments": "Comentarios",
+      "top-posts": "Top posts",
+      "total-payouts": "Pagos totales"
+    },
+    "load-more": {
+      "cta": "Cargar más",
+      "loading": "Cargando...",
+      "done": "No hay más etiquetas"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "publicación-cruzada",
     "cross-posted-to": "para",
