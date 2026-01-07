@@ -3,8 +3,8 @@ import { useContext, useEffect } from "react";
 import usePrevious from "react-use/lib/usePrevious";
 import { PollsContext } from "./polls-manager";
 import { Draft } from "@/entities";
+import { getDraftsQueryOptions } from "@ecency/sdk";
 import { QueryIdentifiers } from "@/core/react-query";
-import { getDrafts } from "@/api/private-api";
 import { useLocation } from "react-use";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
@@ -22,20 +22,9 @@ export function useApiDraftDetector(
   const previousLocation = usePrevious(location);
 
   const draftsQuery = useQuery({
-    queryKey: [QueryIdentifiers.DRAFTS, activeUser?.username],
-    queryFn: async () => {
-      if (!activeUser) {
-        return [];
-      }
-
-      try {
-        return await getDrafts(activeUser.username);
-      } catch (e) {
-        console.error(e);
-        return [];
-      }
-    },
-    initialData: []
+    ...getDraftsQueryOptions(activeUser?.username),
+    placeholderData: [],
+    refetchOnMount: true
   });
   const draftQuery = useQuery({
     queryKey: [QueryIdentifiers.BY_DRAFT_ID, draftId],
