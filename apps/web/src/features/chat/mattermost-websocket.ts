@@ -79,6 +79,12 @@ export class MattermostWebSocket {
   private pollInterval: NodeJS.Timeout | null = null;
   private currentStatus: ConnectionStatus = "disconnected";
 
+  // Event listeners for cleanup
+  private visibilityChangeHandler: (() => void) | null = null;
+  private onlineHandler: (() => void) | null = null;
+  private offlineHandler: (() => void) | null = null;
+  private networkChangeHandler: (() => void) | null = null;
+
   // Idle thresholds
   private readonly IDLE_WARNING_MS = 5 * 60 * 1000;      // 5 min - reduce ping frequency
   private readonly IDLE_DISCONNECT_MS = 15 * 60 * 1000;  // 15 min - disconnect and poll
@@ -251,6 +257,9 @@ export class MattermostWebSocket {
     // Stop polling
     this.stopPolling();
 
+    // Remove event listeners to prevent memory leaks
+    this.removeEventListeners();
+
     // Clear typing throttle map to prevent memory leak
     this.typingThrottle.clear();
 
@@ -271,6 +280,34 @@ export class MattermostWebSocket {
 
     // Restore unlimited reconnects for future connections
     this.maxReconnectAttempts = Infinity;
+  }
+
+  // Clean up all event listeners
+  private removeEventListeners(): void {
+    if (typeof document !== "undefined" && this.visibilityChangeHandler) {
+      document.removeEventListener("visibilitychange", this.visibilityChangeHandler);
+      this.visibilityChangeHandler = null;
+    }
+
+    if (typeof window !== "undefined") {
+      if (this.onlineHandler) {
+        window.removeEventListener("online", this.onlineHandler);
+        this.onlineHandler = null;
+      }
+
+      if (this.offlineHandler) {
+        window.removeEventListener("offline", this.offlineHandler);
+        this.offlineHandler = null;
+      }
+    }
+
+    if (typeof navigator !== "undefined" && "connection" in navigator && this.networkChangeHandler) {
+      const connection = (navigator as any).connection;
+      if (connection && "removeEventListener" in connection) {
+        connection.removeEventListener("change", this.networkChangeHandler);
+        this.networkChangeHandler = null;
+      }
+    }
   }
 
   // Event handlers
@@ -618,8 +655,9 @@ export class MattermostWebSocket {
   // Page visibility handling
   private setupPageVisibilityListener(): void {
     if (typeof document === "undefined") return;
+    if (this.visibilityChangeHandler) return; // Already set up
 
-    const handleVisibilityChange = () => {
+    this.visibilityChangeHandler = () => {
       if (document.hidden) {
         // Tab hidden - reduce ping frequency to save resources
         if (this.isConnected) {
@@ -642,7 +680,7 @@ export class MattermostWebSocket {
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("visibilitychange", this.visibilityChangeHandler);
   }
 
   private updateStatus(status: ConnectionStatus): void {
@@ -655,8 +693,9 @@ export class MattermostWebSocket {
   // Network connectivity monitoring
   private setupNetworkListeners(): void {
     if (typeof window === "undefined" || !("onLine" in navigator)) return;
+    if (this.onlineHandler || this.offlineHandler) return; // Already set up
 
-    const handleOnline = () => {
+    this.onlineHandler = () => {
       console.log("Network connection restored, attempting to reconnect WebSocket...");
       // Reset reconnect attempts when network comes back
       this.reconnectAttempts = Math.max(0, this.reconnectAttempts - 2);
@@ -666,21 +705,21 @@ export class MattermostWebSocket {
       }
     };
 
-    const handleOffline = () => {
+    this.offlineHandler = () => {
       console.log("Network connection lost");
       if (this.ws) {
         this.ws.close(1000, "Network offline");
       }
     };
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", this.onlineHandler);
+    window.addEventListener("offline", this.offlineHandler);
 
     // Also monitor network changes via connection API
     if ("connection" in navigator) {
       const connection = (navigator as any).connection;
-      if (connection && "addEventListener" in connection) {
-        connection.addEventListener("change", () => {
+      if (connection && "addEventListener" in connection && !this.networkChangeHandler) {
+        this.networkChangeHandler = () => {
           console.log("Network type changed:", connection.effectiveType);
           // On network type change, verify connection is still alive
           if (this.isConnected && this.ws) {
@@ -695,7 +734,8 @@ export class MattermostWebSocket {
               this.ws.close(1000, "Network change verification failed");
             }
           }
-        });
+        };
+        connection.addEventListener("change", this.networkChangeHandler);
       }
     }
   }
