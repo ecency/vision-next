@@ -390,7 +390,10 @@ interface Payload$4 {
     profile: Partial<AccountProfile>;
     tokens: AccountProfile["tokens"];
 }
-declare function useAccountUpdate(username: string, accessToken: string | undefined): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
+declare function useAccountUpdate(username: string, accessToken: string | undefined, auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
 
 type Kind = "toggle-ignore" | "toggle-follow";
 declare function useAccountRelationsUpdate(reference: string | undefined, target: string | undefined, onSuccess: (data: Partial<AccountRelationship> | undefined) => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<{
@@ -1178,9 +1181,15 @@ declare function getChainPropertiesQueryOptions(): _tanstack_react_query.OmitKey
     };
 };
 
-declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, accessToken: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"]): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
+declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, accessToken: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
 
-declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, accessToken?: string): Promise<any>;
+declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, accessToken?: string, auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): Promise<any>;
 
 interface StoringUser {
     username: string;

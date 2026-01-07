@@ -22,6 +22,9 @@ export function getAccountVideosQueryOptions(
 
       await getQueryClient().prefetchQuery(tokenQueryOptions);
       const token = getQueryClient().getQueryData(tokenQueryOptions.queryKey);
+      if (!token) {
+        throw new Error("[SDK][Integrations][3Speak] – missing account token");
+      }
 
       const fetchApi = getBoundFetch();
       const response = await fetchApi(

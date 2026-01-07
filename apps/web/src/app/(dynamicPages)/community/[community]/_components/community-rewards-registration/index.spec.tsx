@@ -13,6 +13,10 @@ import {
 
 let MOCK_MODE = 1;
 
+beforeEach(() => {
+  MOCK_MODE = 1;
+});
+
 jest.mock("@ecency/sdk", () => ({
   getRewardedCommunitiesQueryOptions: () => ({
     queryKey: ["rewarded-communities"],

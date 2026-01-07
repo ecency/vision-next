@@ -1,14 +1,17 @@
 import { CONFIG } from "@/modules/core/config";
 import { PrivateKey } from "@hiveio/dhive";
 import hs from "hivesigner";
-import { getLoginType, getPostingKey } from "../storage";
 import {Keychain} from "@/modules/keychain";
 
 export async function broadcastJson<T>(
   username: string | undefined,
   id: string,
   payload: T,
-  accessToken?: string
+  accessToken?: string,
+  auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+  }
 ) {
   if (!username) {
     throw new Error(
@@ -22,7 +25,7 @@ export async function broadcastJson<T>(
     json: JSON.stringify(payload),
   };
 
-  const postingKey = getPostingKey(username);
+  const postingKey = auth?.postingKey;
   if (postingKey) {
     const privateKey = PrivateKey.fromString(postingKey);
 
@@ -32,7 +35,7 @@ export async function broadcastJson<T>(
     );
   }
 
-  const loginType = getLoginType(username);
+  const loginType = auth?.loginType;
   if (loginType && loginType == 'keychain') {
     return Keychain.broadcast(username, [["custom_json", jjson]], "Posting").then((r: any) => r.result)
   }

@@ -21,14 +21,13 @@ export function Fragments({ onPick, onAdd, onEdit }: Props) {
   const innerRef = useRef<HTMLInputElement | null>(null);
 
   const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+  const accessToken = username ? getAccessToken(username) : undefined;
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: items, isPending } = useQuery({
-    ...getFragmentsQueryOptions(
-      activeUser!.username,
-      getAccessToken(activeUser!.username)
-    ),
+    ...getFragmentsQueryOptions(username ?? "", accessToken),
     refetchOnMount: true,
     select: (data) =>
       data

@@ -12,9 +12,14 @@ interface Props {
 
 export function AddFragment({ onAdd, onCancel }: Props) {
   const { activeUser } = useActiveAccount();
+  if (!activeUser) {
+    return null;
+  }
+
+  const accessToken = getAccessToken(activeUser.username);
   const { mutateAsync: addFragment, isPending } = useAddFragment(
-    activeUser!.username,
-    getAccessToken(activeUser!.username)
+    activeUser.username,
+    accessToken
   );
 
   const submit = useCallback(

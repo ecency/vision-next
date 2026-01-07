@@ -7,15 +7,20 @@ import { ApiResponse } from "./types";
 type RequestError = Error & { status?: number; data?: unknown };
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {
-  const data = (await response.json()) as T;
   if (!response.ok) {
+    let errorData: unknown = undefined;
+    try {
+      errorData = await response.json();
+    } catch {
+      errorData = undefined;
+    }
     const error = new Error(`Request failed with status ${response.status}`) as RequestError;
     error.status = response.status;
-    error.data = data;
+    error.data = errorData;
     throw error;
   }
 
-  return data;
+  return (await response.json()) as T;
 }
 
 export async function signUp(

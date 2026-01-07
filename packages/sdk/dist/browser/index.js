@@ -11,6 +11,107 @@ var __export = (target, all) => {
 };
 var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
 
+// src/modules/keychain/keychain.ts
+var keychain_exports = {};
+__export(keychain_exports, {
+  broadcast: () => broadcast,
+  customJson: () => customJson,
+  handshake: () => handshake
+});
+function handshake() {
+  return new Promise((resolve) => {
+    window.hive_keychain?.requestHandshake(() => {
+      resolve();
+    });
+  });
+}
+var broadcast = (account, operations, key, rpc = null) => new Promise((resolve, reject) => {
+  window.hive_keychain?.requestBroadcast(
+    account,
+    operations,
+    key,
+    (resp) => {
+      if (!resp.success) {
+        reject({ message: "Operation cancelled" });
+      }
+      resolve(resp);
+    },
+    rpc
+  );
+});
+var customJson = (account, id, key, json, display_msg, rpc = null) => new Promise((resolve, reject) => {
+  window.hive_keychain?.requestCustomJson(
+    account,
+    id,
+    key,
+    json,
+    display_msg,
+    (resp) => {
+      if (!resp.success) {
+        reject({ message: "Operation cancelled" });
+      }
+      resolve(resp);
+    },
+    rpc
+  );
+});
+
+// src/modules/core/mutations/use-broadcast-mutation.ts
+function useBroadcastMutation(mutationKey = [], username, accessToken, operations, onSuccess = () => {
+}, auth) {
+  return useMutation({
+    onSuccess,
+    mutationKey: [...mutationKey, username],
+    mutationFn: async (payload) => {
+      if (!username) {
+        throw new Error(
+          "[Core][Broadcast] Attempted to call broadcast API with anon user"
+        );
+      }
+      const postingKey = auth?.postingKey;
+      if (postingKey) {
+        const privateKey = PrivateKey.fromString(postingKey);
+        return CONFIG.hiveClient.broadcast.sendOperations(
+          operations(payload),
+          privateKey
+        );
+      }
+      const loginType = auth?.loginType;
+      if (loginType && loginType == "keychain") {
+        return keychain_exports.broadcast(
+          username,
+          operations(payload),
+          "Posting"
+        ).then((r) => r.result);
+      }
+      if (accessToken) {
+        const f = getBoundFetch();
+        const res = await f("https://hivesigner.com/api/broadcast", {
+          method: "POST",
+          headers: {
+            Authorization: accessToken,
+            "Content-Type": "application/json",
+            Accept: "application/json"
+          },
+          body: JSON.stringify({ operations: operations(payload) })
+        });
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`[Hivesigner] ${res.status} ${res.statusText} ${txt}`);
+        }
+        const json = await res.json();
+        if (json?.errors) {
+          throw new Error(`[Hivesigner] ${JSON.stringify(json.errors)}`);
+        }
+        return json.result;
+      }
+      throw new Error(
+        "[SDK][Broadcast] \u2013 cannot broadcast w/o posting key or token"
+      );
+    }
+  });
+}
+
 // src/modules/core/mock-storage.ts
 var MockStorage = class {
   constructor() {
@@ -191,6 +292,40 @@ var ConfigManager;
   }
   ConfigManager2.setDmcaLists = setDmcaLists;
 })(ConfigManager || (ConfigManager = {}));
+async function broadcastJson(username, id, payload, accessToken, auth) {
+  if (!username) {
+    throw new Error(
+      "[Core][Broadcast] Attempted to call broadcast API with anon user"
+    );
+  }
+  const jjson = {
+    id,
+    required_auths: [],
+    required_posting_auths: [username],
+    json: JSON.stringify(payload)
+  };
+  const postingKey = auth?.postingKey;
+  if (postingKey) {
+    const privateKey = PrivateKey.fromString(postingKey);
+    return CONFIG.hiveClient.broadcast.json(
+      jjson,
+      privateKey
+    );
+  }
+  const loginType = auth?.loginType;
+  if (loginType && loginType == "keychain") {
+    return keychain_exports.broadcast(username, [["custom_json", jjson]], "Posting").then((r) => r.result);
+  }
+  if (accessToken) {
+    const response = await new hs.Client({
+      accessToken
+    }).customJson([], [username], id, JSON.stringify(payload));
+    return response.result;
+  }
+  throw new Error(
+    "[SDK][Broadcast] \u2013 cannot broadcast w/o posting key or token"
+  );
+}
 
 // src/modules/core/utils/decoder-encoder.ts
 function encodeObj(o) {
@@ -268,141 +403,6 @@ var getAccessToken = (username) => getUser(username) && getUser(username).access
 var getPostingKey = (username) => getUser(username) && getUser(username).postingKey;
 var getLoginType = (username) => getUser(username) && getUser(username).loginType;
 var getRefreshToken = (username) => getUser(username) && getUser(username).refreshToken;
-
-// src/modules/keychain/keychain.ts
-var keychain_exports = {};
-__export(keychain_exports, {
-  broadcast: () => broadcast,
-  customJson: () => customJson,
-  handshake: () => handshake
-});
-function handshake() {
-  return new Promise((resolve) => {
-    window.hive_keychain?.requestHandshake(() => {
-      resolve();
-    });
-  });
-}
-var broadcast = (account, operations, key, rpc = null) => new Promise((resolve, reject) => {
-  window.hive_keychain?.requestBroadcast(
-    account,
-    operations,
-    key,
-    (resp) => {
-      if (!resp.success) {
-        reject({ message: "Operation cancelled" });
-      }
-      resolve(resp);
-    },
-    rpc
-  );
-});
-var customJson = (account, id, key, json, display_msg, rpc = null) => new Promise((resolve, reject) => {
-  window.hive_keychain?.requestCustomJson(
-    account,
-    id,
-    key,
-    json,
-    display_msg,
-    (resp) => {
-      if (!resp.success) {
-        reject({ message: "Operation cancelled" });
-      }
-      resolve(resp);
-    },
-    rpc
-  );
-});
-
-// src/modules/core/mutations/use-broadcast-mutation.ts
-function useBroadcastMutation(mutationKey = [], username, accessToken, operations, onSuccess = () => {
-}) {
-  return useMutation({
-    onSuccess,
-    mutationKey: [...mutationKey, username],
-    mutationFn: async (payload) => {
-      if (!username) {
-        throw new Error(
-          "[Core][Broadcast] Attempted to call broadcast API with anon user"
-        );
-      }
-      const postingKey = getPostingKey(username);
-      if (postingKey) {
-        const privateKey = PrivateKey.fromString(postingKey);
-        return CONFIG.hiveClient.broadcast.sendOperations(
-          operations(payload),
-          privateKey
-        );
-      }
-      const loginType = getLoginType(username);
-      if (loginType && loginType == "keychain") {
-        return keychain_exports.broadcast(
-          username,
-          operations(payload),
-          "Posting"
-        ).then((r) => r.result);
-      }
-      if (accessToken) {
-        const f = getBoundFetch();
-        const res = await f("https://hivesigner.com/api/broadcast", {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          },
-          body: JSON.stringify({ operations: operations(payload) })
-        });
-        if (!res.ok) {
-          const txt = await res.text().catch(() => "");
-          throw new Error(`[Hivesigner] ${res.status} ${res.statusText} ${txt}`);
-        }
-        const json = await res.json();
-        if (json?.errors) {
-          throw new Error(`[Hivesigner] ${JSON.stringify(json.errors)}`);
-        }
-        return json.result;
-      }
-      throw new Error(
-        "[SDK][Broadcast] \u2013 cannot broadcast w/o posting key or token"
-      );
-    }
-  });
-}
-async function broadcastJson(username, id, payload, accessToken) {
-  if (!username) {
-    throw new Error(
-      "[Core][Broadcast] Attempted to call broadcast API with anon user"
-    );
-  }
-  const jjson = {
-    id,
-    required_auths: [],
-    required_posting_auths: [username],
-    json: JSON.stringify(payload)
-  };
-  const postingKey = getPostingKey(username);
-  if (postingKey) {
-    const privateKey = PrivateKey.fromString(postingKey);
-    return CONFIG.hiveClient.broadcast.json(
-      jjson,
-      privateKey
-    );
-  }
-  const loginType = getLoginType(username);
-  if (loginType && loginType == "keychain") {
-    return keychain_exports.broadcast(username, [["custom_json", jjson]], "Posting").then((r) => r.result);
-  }
-  if (accessToken) {
-    const response = await new hs.Client({
-      accessToken
-    }).customJson([], [username], id, JSON.stringify(payload));
-    return response.result;
-  }
-  throw new Error(
-    "[SDK][Broadcast] \u2013 cannot broadcast w/o posting key or token"
-  );
-}
 function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -961,8 +961,8 @@ function getAccountRecoveriesQueryOptions(username, code) {
     enabled: !!username && !!code,
     queryKey: ["accounts", "recoveries", username],
     queryFn: async () => {
-      if (!code) {
-        return [];
+      if (!username || !code) {
+        throw new Error("[SDK][Accounts] Missing username or access token");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -2059,7 +2059,7 @@ function getAccountVoteHistoryInfiniteQueryOptions(username, options) {
 }
 
 // src/modules/accounts/mutations/use-account-update.ts
-function useAccountUpdate(username, accessToken) {
+function useAccountUpdate(username, accessToken, auth) {
   const queryClient = useQueryClient();
   const { data } = useQuery(getAccountFullQueryOptions(username));
   return useBroadcastMutation(
@@ -2103,7 +2103,8 @@ function useAccountUpdate(username, accessToken) {
         });
         return obj;
       }
-    )
+    ),
+    auth
   );
 }
 function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
@@ -2842,6 +2843,9 @@ function getAccountVideosQueryOptions(username, accessToken) {
       );
       await getQueryClient().prefetchQuery(tokenQueryOptions);
       const token = getQueryClient().getQueryData(tokenQueryOptions.queryKey);
+      if (!token) {
+        throw new Error("[SDK][Integrations][3Speak] \u2013 missing account token");
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         `https://studio.3speak.tv/mobile/api/my-videos`,
@@ -3977,14 +3981,19 @@ function getBoostPlusAccountPricesQueryOptions(account, accessToken) {
 
 // src/modules/private-api/requests.ts
 async function parseJsonResponse2(response) {
-  const data = await response.json();
   if (!response.ok) {
+    let errorData = void 0;
+    try {
+      errorData = await response.json();
+    } catch {
+      errorData = void 0;
+    }
     const error = new Error(`Request failed with status ${response.status}`);
     error.status = response.status;
-    error.data = data;
+    error.data = errorData;
     throw error;
   }
-  return data;
+  return await response.json();
 }
 async function signUp(username, email, referral) {
   const fetchApi = getBoundFetch();
@@ -4259,13 +4268,19 @@ async function hsTokenRenew(code) {
     },
     body: JSON.stringify({ code })
   });
-  const data = await response.json();
   if (!response.ok) {
+    let data2 = void 0;
+    try {
+      data2 = await response.json();
+    } catch {
+      data2 = void 0;
+    }
     const error = new Error(`Failed to refresh token: ${response.status}`);
     error.status = response.status;
-    error.data = data;
+    error.data = data2;
     throw error;
   }
+  const data = await response.json();
   return data;
 }
 

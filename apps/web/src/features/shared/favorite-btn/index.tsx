@@ -19,23 +19,26 @@ interface Props {
 
 export function FavouriteBtn({ targetUsername }: Props) {
   const { activeUser } = useActiveAccount();
-
-  const { data, isPending } = useQuery(
-    getActiveAccountFavouritesQueryOptions(
-      activeUser?.username,
-      getAccessToken(activeUser?.username ?? "")
-    )
+  const username = activeUser?.username;
+  const accessToken = useMemo(
+    () => (username ? getAccessToken(username) : undefined),
+    [username]
   );
 
+  const { data, isPending } = useQuery({
+    ...getActiveAccountFavouritesQueryOptions(username, accessToken),
+    enabled: !!username && !!accessToken,
+  });
+
   const { mutateAsync: add, isPending: isAddPending } = useAccountFavouriteAdd(
-    activeUser?.username,
-    getAccessToken(activeUser?.username ?? ""),
+    username,
+    accessToken,
     () => success(i18next.t("favorite-btn.added")),
     () => error(i18next.t("g.server-error"))
   );
   const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavouriteDelete(
-    activeUser?.username,
-    getAccessToken(activeUser?.username ?? ""),
+    username,
+    accessToken,
     () => success(i18next.t("favorite-btn.deleted")),
     () => error(i18next.t("g.server-error"))
   );

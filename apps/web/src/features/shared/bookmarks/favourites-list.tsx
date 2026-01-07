@@ -13,12 +13,12 @@ interface Props {
 
 export function FavouritesList({ onHide }: Props) {
   const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+  const accessToken = username ? getAccessToken(username) : undefined;
 
   const { data, isLoading } = useQuery({
-    ...getActiveAccountFavouritesQueryOptions(
-      activeUser?.username,
-      getAccessToken(activeUser?.username ?? "")
-    ),
+    ...getActiveAccountFavouritesQueryOptions(username, accessToken),
+    enabled: !!username && !!accessToken,
     refetchOnMount: true,
     select: (data) => data?.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)) ?? []
   });

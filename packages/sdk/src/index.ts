@@ -18,3 +18,5 @@ export * from "./modules/search";
 export * from "./modules/promotions";
 export * from "./modules/private-api";
 export * from "./modules/auth";
+export * from "./modules/private-api";
+export * from "./modules/auth";

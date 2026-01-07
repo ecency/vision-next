@@ -15,11 +15,14 @@ interface Props {
 
 export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
   const { activeUser } = useActiveAccount();
+  if (!activeUser) {
+    return null;
+  }
 
   const { mutateAsync: deleteFragment, isPending: isDeleteLoading } = useRemoveFragment(
-    activeUser!.username,
+    activeUser.username,
     item.id,
-    getAccessToken(activeUser!.username)
+    getAccessToken(activeUser.username)
   );
 
   return (

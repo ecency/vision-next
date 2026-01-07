@@ -15,7 +15,11 @@ interface Payload {
 
 export function useAccountUpdate(
   username: string,
-  accessToken: string | undefined
+  accessToken: string | undefined,
+  auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+  }
 ) {
   const queryClient = useQueryClient();
 
@@ -67,6 +71,7 @@ export function useAccountUpdate(
 
           return obj;
         }
-      )
+      ),
+    auth
   );
 }

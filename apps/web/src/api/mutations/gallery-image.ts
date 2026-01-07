@@ -13,7 +13,14 @@ export function useDeleteGalleryImage() {
   return useMutation({
     mutationKey: ["gallery", "image", "delete"],
     mutationFn: async ({ id }: { id: string }) => {
-      await deleteImage(getAccessToken(activeUser!.username), id);
+      if (!activeUser?.username) {
+        throw new Error("Cannot delete image without an active user");
+      }
+      const token = getAccessToken(activeUser.username);
+      if (!token) {
+        throw new Error("Missing access token for image deletion");
+      }
+      await deleteImage(token, id);
       return id;
     },
     onSuccess: (id) => {

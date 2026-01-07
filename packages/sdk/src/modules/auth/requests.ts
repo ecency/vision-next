@@ -13,13 +13,19 @@ export async function hsTokenRenew(code: string): Promise<HsTokenRenewResponse> 
     body: JSON.stringify({ code }),
   });
 
-  const data = (await response.json()) as HsTokenRenewResponse;
   if (!response.ok) {
+    let data: unknown = undefined;
+    try {
+      data = await response.json();
+    } catch {
+      data = undefined;
+    }
     const error = new Error(`Failed to refresh token: ${response.status}`) as RequestError;
     error.status = response.status;
     error.data = data;
     throw error;
   }
 
+  const data = (await response.json()) as HsTokenRenewResponse;
   return data;
 }

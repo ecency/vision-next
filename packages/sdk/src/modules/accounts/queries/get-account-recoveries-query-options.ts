@@ -10,8 +10,8 @@ export function getAccountRecoveriesQueryOptions(
     enabled: !!username && !!code,
     queryKey: ["accounts", "recoveries", username],
     queryFn: async () => {
-      if (!code) {
-        return [];
+      if (!username || !code) {
+        throw new Error("[SDK][Accounts] Missing username or access token");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
