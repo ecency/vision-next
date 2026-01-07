@@ -408,6 +408,22 @@
     "ascending": "Aufsteigend",
     "descending": "Absteigend"
   },
+  "tags-page": {
+    "title": "Trend-Tags",
+    "description": "Entdecken Sie die aktivsten Themen mit ihrem Kommentarvolumen, Top-Posts und Auszahlungen.",
+    "error": "Trend-Tags können momentan nicht geladen werden.",
+    "columns": {
+      "tag": "Markierung",
+      "comments": "Kommentare",
+      "top-posts": "Top Beiträge",
+      "total-payouts": "Gesamte Auszahlungen"
+    },
+    "load-more": {
+      "cta": "Mehr laden",
+      "loading": "Wird geladen...",
+      "done": "Keine weiteren Tags"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "cross Post",
     "cross-posted-to": "zu",
