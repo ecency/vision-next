@@ -80,6 +80,7 @@ export function CreateCommunityPage() {
   );
   const updateAccountRef = useRef(updateAccount);
   const tokenWaiterRef = useRef<((token: string) => void) | null>(null);
+  const communityAccessTokenRef = useRef(communityAccessToken);
 
   useEffect(() => {
     setUsername(generateUsername(communityType));
@@ -94,20 +95,21 @@ export function CreateCommunityPage() {
   }, [updateAccount]);
 
   useEffect(() => {
-    if (communityAccessToken && tokenWaiterRef.current) {
-      tokenWaiterRef.current(communityAccessToken);
+    communityAccessTokenRef.current = communityAccessToken;
+    if (communityAccessTokenRef.current && tokenWaiterRef.current) {
+      tokenWaiterRef.current(communityAccessTokenRef.current);
       tokenWaiterRef.current = null;
     }
   }, [communityAccessToken]);
 
   const waitForCommunityToken = useCallback(() => {
-    if (communityAccessToken) {
-      return Promise.resolve(communityAccessToken);
+    if (communityAccessTokenRef.current) {
+      return Promise.resolve(communityAccessTokenRef.current);
     }
     return new Promise<string>((resolve) => {
       tokenWaiterRef.current = resolve;
     });
-  }, [communityAccessToken]);
+  }, []);
 
   const prepareCreatedCommunity = useCallback(
     async (code: string) => {
