@@ -263,6 +263,11 @@ function getBoundFetch() {
   return cachedFetch;
 }
 
+// src/modules/core/utils/is-community.ts
+function isCommunity(value) {
+  return typeof value === "string" ? value.match(/^hive-\d+/) !== null : false;
+}
+
 // src/modules/core/storage.ts
 var getUser = (username) => {
   try {
@@ -1249,7 +1254,7 @@ function getTrendingTagsWithStatsQueryOptions(limit = 250) {
   return reactQuery.infiniteQueryOptions({
     queryKey: ["posts", "trending-tags", "stats", limit],
     queryFn: async ({ pageParam: { afterTag } }) => CONFIG.hiveClient.database.call("get_trending_tags", [afterTag, limit]).then(
-      (tags) => tags.filter((tag) => tag.name !== "").filter((tag) => !tag.name.startsWith("hive-"))
+      (tags) => tags.filter((tag) => tag.name !== "").filter((tag) => !isCommunity(tag.name))
     ),
     initialPageParam: { afterTag: "" },
     getNextPageParam: (lastPage) => lastPage?.length ? { afterTag: lastPage[lastPage.length - 1].name } : void 0,
@@ -4033,6 +4038,7 @@ exports.getWavesFollowingQueryOptions = getWavesFollowingQueryOptions;
 exports.getWavesTrendingTagsQueryOptions = getWavesTrendingTagsQueryOptions;
 exports.getWithdrawRoutesQueryOptions = getWithdrawRoutesQueryOptions;
 exports.getWitnessesInfiniteQueryOptions = getWitnessesInfiniteQueryOptions;
+exports.isCommunity = isCommunity;
 exports.lookupAccountsQueryOptions = lookupAccountsQueryOptions;
 exports.makeQueryClient = makeQueryClient;
 exports.mapThreadItemsToWaveEntries = mapThreadItemsToWaveEntries;
