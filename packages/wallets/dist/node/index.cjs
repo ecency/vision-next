@@ -1502,7 +1502,18 @@ function useClaimRewards(username, auth, onSuccess) {
         queryKey: sdk.getAccountFullQueryOptions(username).queryKey
       });
       queryClient.invalidateQueries({
+        queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
+      });
+      queryClient.invalidateQueries({
+        queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey
+      });
+      queryClient.invalidateQueries({
         queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey
+      });
+      ["HIVE", "HBD", "HP"].forEach((asset) => {
+        queryClient.invalidateQueries({
+          queryKey: ["ecency-wallets", "asset-info", username, asset]
+        });
       });
     },
     auth
