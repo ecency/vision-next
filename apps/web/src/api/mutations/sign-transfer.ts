@@ -155,7 +155,11 @@ export function useSignTransferByKeychain(mode: TransferMode, asset: TransferAss
       amount: string;
     }) => {
       let promise: Promise<unknown>;
-      const auth = getSdkAuthContext(getUser(username));
+      const user = getUser(username);
+      if (!user) {
+        throw new Error("[Transfers] Missing user data for signing.");
+      }
+      const auth = getSdkAuthContext(user);
       const signType = shouldUseHiveAuth(username) ? "hiveauth" : "keychain";
 
       switch (mode) {

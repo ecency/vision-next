@@ -15,6 +15,10 @@ export async function broadcastHiveEngineOperation(
     if (payload.type === "hiveauth") {
       return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
     }
+
+    if (payload.type === "keychain") {
+      throw new Error("[SDK][Wallets] – keychain requires auth.broadcast");
+    }
   }
 
   throw new Error("[SDK][Wallets] – missing broadcaster");

@@ -39,8 +39,10 @@ export function getSdkAuthContext(
 
   if (activeUser.loginType === "hiveauth" || shouldUseHiveAuth(activeUser.username)) {
     auth.broadcast = (operations, authority = "posting") => {
-      const keyType = authority === "active" ? "active" : "posting";
-      return broadcastWithHiveAuth(activeUser.username, operations, keyType);
+      if (authority === "active" || authority === "posting") {
+        return broadcastWithHiveAuth(activeUser.username, operations, authority);
+      }
+      throw new Error(`[SDK][Auth] – unsupported authority "${authority}" for HiveAuth`);
     };
   }
 

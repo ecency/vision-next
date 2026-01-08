@@ -2710,7 +2710,7 @@ function useAccountUpdateRecovery(username, code, options, auth) {
         if (!auth?.broadcast) {
           throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
         }
-        return auth.broadcast([["change_recovery_account", operationBody]], "active");
+        return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`

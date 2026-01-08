@@ -1745,6 +1745,9 @@ function getSpkWalletQueryOptions(username) {
   return queryOptions({
     queryKey: ["assets", "spk", "wallet", username],
     queryFn: async () => {
+      if (!username) {
+        throw new Error("[SDK][Wallets][SPK] \u2013 username wasn't provided");
+      }
       return getSpkWallet(username);
     },
     enabled: !!username,
@@ -2209,6 +2212,9 @@ async function broadcastHiveEngineOperation(payload, operation, auth) {
     }
     if (payload.type === "hiveauth") {
       return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    if (payload.type === "keychain") {
+      throw new Error("[SDK][Wallets] \u2013 keychain requires auth.broadcast");
     }
   }
   throw new Error("[SDK][Wallets] \u2013 missing broadcaster");

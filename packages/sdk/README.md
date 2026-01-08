@@ -5,7 +5,7 @@ Framework-agnostic data layer for Hive apps with first-class React Query support
 ## What’s Inside
 
 - Query and mutation option builders powered by [@tanstack/react-query](https://tanstack.com/query)
-- Modular APIs: accounts, posts, communities, market, wallet, notifications, analytics, integrations
+- Modular APIs: accounts, posts, communities, market, wallet, notifications, analytics, integrations, auth, bridge, games, hive-engine, operations, points, private-api, promotions, proposals, resource-credits, search, spk, witnesses
 - Central configuration via `CONFIG` / `ConfigManager` (RPC client, QueryClient)
 
 ## Installation
@@ -126,13 +126,28 @@ const auth = {
 
 ```text
 src/modules/
-  accounts/       queries, mutations, utils, types
-  posts/          queries, mutations, utils, types
-  communities/    queries, types, utils
-  market/         queries, requests, types
-  wallet/         queries, types
-  notifications/  queries, enums
-  core/           config, client, query manager, helpers
+  accounts/           account data, relationships, mutations
+  analytics/          activity tracking and stats
+  auth/               login, tokens, and auth helpers
+  bridge/             bridge API helpers
+  communities/        community queries and utils
+  core/               config, client, query manager, helpers
+  games/              game-related endpoints
+  hive-engine/        hive-engine data helpers
+  integrations/       external integrations (hivesigner, 3speak, etc.)
+  market/             market data and pricing
+  notifications/      notification queries and enums
+  operations/         operation signing helpers
+  points/             points queries and mutations
+  posts/              post queries, mutations, utils
+  private-api/         private API helpers
+  promotions/         promotion queries
+  proposals/          proposal queries and mutations
+  resource-credits/   RC stats helpers
+  search/             search queries
+  spk/                SPK data helpers
+  wallet/             wallet-related queries and types
+  witnesses/          witness queries and votes
 ```
 
 ## SSR / RSC Notes

@@ -6,7 +6,10 @@ export function getSpkWalletQueryOptions(username?: string) {
   return queryOptions({
     queryKey: ["assets", "spk", "wallet", username],
     queryFn: async () => {
-      return getSpkWallet<SpkApiWallet>(username as string);
+      if (!username) {
+        throw new Error("[SDK][Wallets][SPK] – username wasn't provided");
+      }
+      return getSpkWallet<SpkApiWallet>(username);
     },
     enabled: !!username,
     staleTime: 60000,
