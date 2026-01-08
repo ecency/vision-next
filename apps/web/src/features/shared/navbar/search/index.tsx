@@ -13,7 +13,7 @@ import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { getPointsQueryOptions, useClaimPoints, useClaimRewards } from "@ecency/wallets";
 import { success, error } from "@/features/shared";
 import { formatError } from "@/api/operations";
-import { formatNumber, getSdkAuthContext, getUser } from "@/utils";
+import { formatNumber, getAccessToken, getSdkAuthContext, getUser } from "@/utils";
 import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { DraftsDialog } from "@/features/shared/drafts";
 import { GalleryDialog } from "@/features/shared/gallery";
@@ -77,7 +77,7 @@ export function Search({ containerClassName }: Props) {
 
   const { mutateAsync: claimPoints, isPending: isClaimingPoints } = useClaimPoints(
     username,
-    activeUser?.accessToken,
+    getAccessToken(username ?? ""),
     () => success(i18next.t("points.claim-ok")),
     (err) => error(...formatError(err))
   );

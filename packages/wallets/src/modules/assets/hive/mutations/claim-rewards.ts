@@ -1,7 +1,11 @@
 import { getAccountFullQueryOptions, useBroadcastMutation } from "@ecency/sdk";
 import type { AuthContext } from "@ecency/sdk";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getHivePowerAssetGeneralInfoQueryOptions } from "../queries";
+import {
+  getHbdAssetGeneralInfoQueryOptions,
+  getHiveAssetGeneralInfoQueryOptions,
+  getHivePowerAssetGeneralInfoQueryOptions,
+} from "../queries";
 import { delay } from "@/modules/wallets/utils";
 
 export function useClaimRewards(
@@ -49,7 +53,18 @@ export function useClaimRewards(
         queryKey: getAccountFullQueryOptions(username).queryKey,
       });
       queryClient.invalidateQueries({
+        queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey,
+      });
+      queryClient.invalidateQueries({
         queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey,
+      });
+      ["HIVE", "HBD", "HP"].forEach((asset) => {
+        queryClient.invalidateQueries({
+          queryKey: ["ecency-wallets", "asset-info", username, asset],
+        });
       });
     },
     auth

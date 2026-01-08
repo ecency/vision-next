@@ -28,7 +28,7 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import { getSdkAuthContext } from "@/utils";
+import { getAccessToken, getSdkAuthContext } from "@/utils";
 import { getUser } from "@/utils/user-token";
 import { useCallback, useMemo, useState } from "react";
 
@@ -103,7 +103,7 @@ export function SetupExternalCreate({ onBack }: Props) {
   );
   const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
     activeUser?.username!,
-    activeUser?.accessToken
+    getAccessToken(activeUser?.username ?? "")
   );
 
   const handleLinkByKey = useCallback(
