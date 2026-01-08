@@ -2,26 +2,36 @@ import type { AuthContext } from "@ecency/sdk";
 import type { User } from "@/entities";
 import * as keychain from "@/utils/keychain";
 import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
+import { getUser } from "@/utils/user-token";
 
 export function getSdkAuthContext(
-  activeUser?: User,
+  activeUser?: User | { username: string },
   username?: string
 ): AuthContext | undefined {
   if (!activeUser) {
     return undefined;
   }
 
-  if (username && activeUser.username !== username) {
+  const resolvedUser =
+    "accessToken" in activeUser
+      ? (activeUser as User)
+      : getUser(activeUser.username);
+
+  if (!resolvedUser) {
+    return undefined;
+  }
+
+  if (username && resolvedUser.username !== username) {
     return undefined;
   }
 
   const auth: AuthContext = {
-    accessToken: activeUser.accessToken,
-    postingKey: activeUser.postingKey,
-    loginType: activeUser.loginType,
+    accessToken: resolvedUser.accessToken,
+    postingKey: resolvedUser.postingKey,
+    loginType: resolvedUser.loginType,
   };
 
-  if (activeUser.loginType === "keychain") {
+  if (resolvedUser.loginType === "keychain") {
     auth.broadcast = (operations, authority = "posting") => {
       const keychainAuthority =
         authority === "active"
@@ -32,15 +42,15 @@ export function getSdkAuthContext(
               ? "Owner"
               : "Memo";
       return keychain
-        .broadcast(activeUser.username, operations, keychainAuthority)
+        .broadcast(resolvedUser.username, operations, keychainAuthority)
         .then((result: any) => result.result);
     };
   }
 
-  if (activeUser.loginType === "hiveauth" || shouldUseHiveAuth(activeUser.username)) {
+  if (resolvedUser.loginType === "hiveauth" || shouldUseHiveAuth(resolvedUser.username)) {
     auth.broadcast = (operations, authority = "posting") => {
       if (authority === "active" || authority === "posting") {
-        return broadcastWithHiveAuth(activeUser.username, operations, authority);
+        return broadcastWithHiveAuth(resolvedUser.username, operations, authority);
       }
       throw new Error(`[SDK][Auth] – unsupported authority "${authority}" for HiveAuth`);
     };
