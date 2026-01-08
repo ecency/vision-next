@@ -29,26 +29,16 @@ import {
   withdrawVestingHot,
   withdrawVestingKc
 } from "@/api/operations";
-import {
-  transferEngineTokenByHs,
-  transferEngineTokenByKey,
-  transferEngineTokenByKeychain
-} from "@/api/hive-engine";
+import { transferEngineToken, transferLarynx, transferSpk } from "@ecency/wallets";
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
 import { error, TransferAsset, TransferMode } from "@/features/shared";
 import { PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-import { TxResponse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import {
-  sendLarynxByHs,
-  sendSpkByHs,
-  transferLarynxByKey,
-  transferLarynxByKc,
-  transferSpkByKey,
-  transferSpkByKc
-} from "@/api/spk-api";
+import { getSdkAuthContext } from "@/utils/sdk-auth";
+import { getUser } from "@/utils/user-token";
+import { shouldUseHiveAuth } from "@/utils/client";
 
 // Helper to safely read hivePerMVests with a typed fallback
 const useHivePerMVests = () => {
@@ -86,11 +76,19 @@ export function useSignTransferByKey(mode: TransferMode, asset: TransferAsset) {
           if (asset === "POINT") {
             promise = transferPoint(username, key, to, fullAmount, memo);
           } else if (asset === "SPK") {
-            promise = transferSpkByKey(username, key, to, amount, memo);
+            promise = transferSpk({ from: username, to, amount, memo, type: "key", key });
           } else if (asset === "LARYNX") {
-            promise = transferLarynxByKey(username, key, to, amount, memo);
+            promise = transferLarynx({ from: username, to, amount, memo, type: "key", key });
           } else if (asset !== "HIVE" && asset !== "HBD") {
-            promise = transferEngineTokenByKey(username, key, to, asset, amount, memo);
+            promise = transferEngineToken({
+              from: username,
+              to,
+              amount,
+              memo,
+              asset,
+              type: "key",
+              key
+            });
           } else {
             promise = transfer(username, key, to, fullAmount, memo);
           }
@@ -149,25 +147,43 @@ export function useSignTransferByKeychain(mode: TransferMode, asset: TransferAss
                          fullAmount,
                          memo,
                          amount
-                       }: {
+      }: {
       username: string;
       to: string;
       fullAmount: string;
       memo: string;
       amount: string;
     }) => {
-      let promise: Promise<TxResponse>;
+      let promise: Promise<unknown>;
+      const user = getUser(username);
+      if (!user) {
+        throw new Error("[Transfers] Missing user data for signing.");
+      }
+      const auth = getSdkAuthContext(user);
+      const signType = shouldUseHiveAuth(username) ? "hiveauth" : "keychain";
+      if (!auth) {
+        throw new Error("[Transfers] Missing auth context for signing.");
+      }
 
       switch (mode) {
         case "transfer":
           if (asset === "POINT") {
             promise = transferPointKc(username, to, fullAmount, memo);
           } else if (asset === "SPK") {
-            promise = transferSpkByKc(username, to, amount, memo);
+            promise = transferSpk(
+              { from: username, to, amount, memo, type: signType },
+              auth
+            );
           } else if (asset === "LARYNX") {
-            promise = transferLarynxByKc(username, to, amount, memo);
+            promise = transferLarynx(
+              { from: username, to, amount, memo, type: signType },
+              auth
+            );
           } else if (asset !== "HIVE" && asset !== "HBD") {
-            promise = transferEngineTokenByKeychain(username, to, asset, amount, memo);
+            promise = transferEngineToken(
+              { from: username, to, amount, memo, asset, type: signType },
+              auth
+            );
           } else {
             promise = transferKc(username, to, fullAmount, memo);
           }
@@ -238,11 +254,18 @@ export function useSignTransferByHiveSigner(mode: TransferMode, asset: TransferA
           if (asset === "POINT") {
             transferPointHot(username, to, fullAmount, memo);
           } else if (asset === "SPK") {
-            sendSpkByHs(username, to, amount, memo);
+            transferSpk({ from: username, to, amount, memo, type: "hivesigner" });
           } else if (asset === "LARYNX") {
-            sendLarynxByHs(username, to, amount, memo);
+            transferLarynx({ from: username, to, amount, memo, type: "hivesigner" });
           } else if (asset !== "HIVE" && asset !== "HBD") {
-            transferEngineTokenByHs(username, to, asset, amount, memo);
+            transferEngineToken({
+              from: username,
+              to,
+              amount,
+              memo,
+              asset,
+              type: "hivesigner"
+            });
           } else {
             transferHot(username, to, fullAmount, memo);
           }

@@ -1,7 +1,6 @@
 export * from "./modules/accounts";
 export * from "./modules/operations";
 export * from "./modules/core";
-export * from "./modules/keychain";
 export * from "./modules/posts";
 export * from "./modules/analytics";
 export * from "./modules/integrations";
@@ -19,3 +18,5 @@ export * from "./modules/promotions";
 export * from "./modules/bridge";
 export * from "./modules/private-api";
 export * from "./modules/auth";
+export * from "./modules/hive-engine";
+export * from "./modules/spk";

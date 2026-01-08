@@ -1,5 +1,4 @@
 import { CONFIG, getBoundFetch } from "@/modules/core";
-import { Keychain } from "@/modules/keychain";
 import { PrivateKey } from "@hiveio/dhive";
 import {
   useMutation,
@@ -8,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import hs from "hivesigner";
 import { getAccountFullQueryOptions } from "../queries";
+import type { AuthContext } from "@/modules/core/types";
 
 type SignType = "key" | "keychain" | "hivesigner" | "ecency";
 
@@ -26,7 +26,8 @@ type UpdateRecoveryOptions = Pick<
 export function useAccountUpdateRecovery(
   username: string | undefined,
   code: string | undefined,
-  options: UpdateRecoveryOptions
+  options: UpdateRecoveryOptions,
+  auth?: AuthContext
 ) {
   const { data } = useQuery(getAccountFullQueryOptions(username));
 
@@ -70,11 +71,10 @@ export function useAccountUpdateRecovery(
           key
         );
       } else if (type === "keychain") {
-        return Keychain.broadcast(
-          data.name,
-          [["change_recovery_account", operationBody]],
-          "Active"
-        ) as Promise<any>;
+        if (!auth?.broadcast) {
+          throw new Error("[SDK][Accounts] – missing keychain broadcaster");
+        }
+        return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`,

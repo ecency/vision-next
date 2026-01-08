@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 
-import { getEngineOrderBook } from "@/api/hive-engine";
+import { getHiveEngineOrderBook } from "@ecency/sdk";
 
 import { isEngineToken, isSwapHiveAsset, MarketAsset } from "../../market-pair";
 
@@ -13,7 +13,7 @@ export const getEngineMarketRate = async (fromAsset: MarketAsset, toAsset: Marke
     return 0;
   }
 
-  const orderBook = await getEngineOrderBook(symbol);
+  const orderBook = await getHiveEngineOrderBook(symbol);
 
   if (isEngineToken(fromAsset) && isSwapHiveAsset(toAsset)) {
     const bestBid = orderBook.buy?.[0]?.price;

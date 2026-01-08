@@ -1,6 +1,7 @@
 import { PrivateKey, type Operation } from "@hiveio/dhive";
 import { HiveBasedAssetSignType } from "../../types";
-import { CONFIG, Keychain } from "@ecency/sdk";
+import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import hs from "hivesigner";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
@@ -12,7 +13,8 @@ interface Payload<T extends HiveBasedAssetSignType> {
   type: T;
 }
 export async function delegateHive<T extends HiveBasedAssetSignType>(
-  payload: T extends "key" ? Payload<T> & { key: PrivateKey } : Payload<T>
+  payload: T extends "key" ? Payload<T> & { key: PrivateKey } : Payload<T>,
+  auth?: AuthContext
 ) {
   const operationPayload = {
     delegator: payload.from,
@@ -27,10 +29,14 @@ export async function delegateHive<T extends HiveBasedAssetSignType>(
       [operation],
       key
     );
-  } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active") as Promise<unknown>;
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] – missing broadcaster");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});
   }

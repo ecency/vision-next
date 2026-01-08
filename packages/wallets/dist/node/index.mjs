@@ -1,4 +1,5 @@
-import { CONFIG, getAccountFullQueryOptions, getQueryClient, getDynamicPropsQueryOptions, Keychain, useBroadcastMutation, EcencyAnalytics, getAccessToken, useAccountUpdate } from '@ecency/sdk';
+import { CONFIG, getAccountFullQueryOptions, getQueryClient, getDynamicPropsQueryOptions, useBroadcastMutation, getSpkMarkets, getSpkWallet, getHiveEngineTokensMarket, getHiveEngineTokensBalances, getHiveEngineTokensMetadata, getHiveEngineTokenTransactions, getHiveEngineTokenMetrics, getHiveEngineUnclaimedRewards, EcencyAnalytics, useAccountUpdate } from '@ecency/sdk';
+export { getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTradeHistory } from '@ecency/sdk';
 import { useQuery, queryOptions, infiniteQueryOptions, useQueryClient, useMutation } from '@tanstack/react-query';
 import bip39, { mnemonicToSeedSync } from 'bip39';
 import { LRUCache } from 'lru-cache';
@@ -1235,7 +1236,7 @@ function getHivePowerDelegatingsQueryOptions(username) {
     )
   });
 }
-async function transferHive(payload) {
+async function transferHive(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const token = parsedAsset.symbol;
   const precision = token === "VESTS" /* VESTS */ ? 6 : 3;
@@ -1261,26 +1262,14 @@ async function transferHive(payload) {
       },
       key
     );
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestTransfer(
-        payload.from,
-        payload.to,
-        formattedAmount,
-        payload.memo,
-        token,
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        },
-        true,
-        null
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     return hs.sendOperation(
       operation,
@@ -1290,7 +1279,7 @@ async function transferHive(payload) {
     );
   }
 }
-async function transferToSavingsHive(payload) {
+async function transferToSavingsHive(payload, auth) {
   const operationPayload = {
     from: payload.from,
     to: payload.to,
@@ -1304,16 +1293,20 @@ async function transferToSavingsHive(payload) {
       [["transfer_to_savings", params]],
       key
     );
-  } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
   }
 }
-async function transferFromSavingsHive(payload) {
+async function transferFromSavingsHive(payload, auth) {
   const requestId = payload.request_id ?? Date.now() >>> 0;
   const operationPayload = {
     from: payload.from,
@@ -1330,16 +1323,19 @@ async function transferFromSavingsHive(payload) {
       key
     );
   }
-  if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
-  }
-  if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   }
   return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
   });
 }
-async function powerUpHive(payload) {
+async function powerUpHive(payload, auth) {
   const operationPayload = {
     from: payload.from,
     to: payload.to,
@@ -1353,16 +1349,20 @@ async function powerUpHive(payload) {
       [["transfer_to_vesting", params]],
       key
     );
-  } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
   }
 }
-async function delegateHive(payload) {
+async function delegateHive(payload, auth) {
   const operationPayload = {
     delegator: payload.from,
     delegatee: payload.to,
@@ -1375,16 +1375,20 @@ async function delegateHive(payload) {
       [operation],
       key
     );
-  } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
   }
 }
-async function powerDownHive(payload) {
+async function powerDownHive(payload, auth) {
   const operationPayload = {
     account: payload.from,
     vesting_shares: payload.amount
@@ -1396,16 +1400,20 @@ async function powerDownHive(payload) {
       [operation],
       key
     );
-  } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
   }
 }
-async function withdrawVestingRouteHive(payload) {
+async function withdrawVestingRouteHive(payload, auth) {
   const baseParams = {
     from_account: payload.from_account,
     to_account: payload.to_account,
@@ -1420,24 +1428,25 @@ async function withdrawVestingRouteHive(payload) {
       key
     );
   }
-  if (payload.type === "keychain") {
-    const { type: type2, ...params2 } = payload;
-    return Keychain.broadcast(params2.from_account, [operation], "Active");
-  }
-  if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   }
   const { type, ...params } = payload;
   return hs.sendOperation(operation, { callback: `https://ecency.com/@${params.from_account}/wallet` }, () => {
   });
 }
-function useClaimRewards(username, accessToken, onSuccess) {
+function useClaimRewards(username, auth, onSuccess) {
   const { data } = useQuery(getAccountFullQueryOptions(username));
   const queryClient = useQueryClient();
   return useBroadcastMutation(
     ["assets", "hive", "claim-rewards", data?.name],
     username,
-    accessToken,
     () => {
       if (!data) {
         throw new Error("Failed to fetch account while claiming balance");
@@ -1468,10 +1477,11 @@ function useClaimRewards(username, accessToken, onSuccess) {
       queryClient.invalidateQueries({
         queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey
       });
-    }
+    },
+    auth
   );
 }
-async function claimInterestHive(payload) {
+async function claimInterestHive(payload, auth) {
   const requestId = payload.request_id ?? Date.now() >>> 0;
   const baseOperation = {
     from: payload.from,
@@ -1492,11 +1502,14 @@ async function claimInterestHive(payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
   }
-  if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, operations, "Active");
-  }
-  if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, operations, "active");
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast(operations, "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, operations, "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   }
   return hs.sendOperations(operations, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
   });
@@ -1523,7 +1536,7 @@ var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
   AssetOperation2["Undelegate"] = "undelegate";
   return AssetOperation2;
 })(AssetOperation || {});
-async function transferSpk(payload) {
+async function transferSpk(payload, auth) {
   const json = JSON.stringify({
     to: payload.to,
     amount: parseAsset(payload.amount).amount * 1e3,
@@ -1547,16 +1560,14 @@ async function transferSpk(payload) {
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      "spkcc_spk_send",
-      "Active",
-      json,
-      payload.to
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1576,7 +1587,7 @@ async function transferSpk(payload) {
     );
   }
 }
-var lockLarynx = async (payload) => {
+var lockLarynx = async (payload, auth) => {
   const json = JSON.stringify({ amount: +payload.amount * 1e3 });
   const op = {
     id: payload.mode === "lock" ? "spkcc_gov_up" : "spkcc_gov_down",
@@ -1596,16 +1607,14 @@ var lockLarynx = async (payload) => {
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      op.id,
-      "Active",
-      json,
-      payload.from
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1621,7 +1630,7 @@ var lockLarynx = async (payload) => {
     );
   }
 };
-async function powerUpLarynx(payload) {
+async function powerUpLarynx(payload, auth) {
   const json = JSON.stringify({ amount: +payload.amount * 1e3 });
   const op = {
     id: `spkcc_power_${payload.mode}`,
@@ -1641,16 +1650,14 @@ async function powerUpLarynx(payload) {
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      `spkcc_power_${payload.mode}`,
-      "Active",
-      json,
-      ""
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1666,7 +1673,7 @@ async function powerUpLarynx(payload) {
     );
   }
 }
-async function transferLarynx(payload) {
+async function transferLarynx(payload, auth) {
   const json = JSON.stringify({
     to: payload.to,
     amount: parseAsset(payload.amount).amount * 1e3,
@@ -1690,16 +1697,14 @@ async function transferLarynx(payload) {
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      "spkcc_send",
-      "Active",
-      json,
-      payload.to
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1725,8 +1730,7 @@ function getSpkMarketsQueryOptions() {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(`${CONFIG.spkNode}/markets`);
-      const data = await response.json();
+      const data = await getSpkMarkets();
       return {
         list: Object.entries(data.markets.node).map(([name, node]) => ({
           name,
@@ -1741,8 +1745,10 @@ function getSpkWalletQueryOptions(username) {
   return queryOptions({
     queryKey: ["assets", "spk", "wallet", username],
     queryFn: async () => {
-      const response = await fetch(CONFIG.spkNode + `/@${username}`);
-      return response.json();
+      if (!username) {
+        throw new Error("[SDK][Wallets][SPK] \u2013 username wasn't provided");
+      }
+      return getSpkWallet(username);
     },
     enabled: !!username,
     staleTime: 6e4,
@@ -1914,32 +1920,7 @@ function getAllHiveEngineTokensQueryOptions(account, symbol) {
   return queryOptions({
     queryKey: ["assets", "hive-engine", "all-tokens", account, symbol],
     queryFn: async () => {
-      try {
-        const response = await fetch(
-          `${CONFIG.privateApiHost}/private-api/engine-api`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              jsonrpc: "2.0",
-              method: "find",
-              params: {
-                contract: "market",
-                table: "metrics",
-                query: {
-                  ...symbol && { symbol },
-                  ...account && { account }
-                }
-              },
-              id: 1
-            }),
-            headers: { "Content-type": "application/json" }
-          }
-        );
-        const data = await response.json();
-        return data.result;
-      } catch (e) {
-        return [];
-      }
+      return getHiveEngineTokensMarket(account, symbol);
     }
   });
 }
@@ -2045,48 +2026,10 @@ function getHiveEngineBalancesWithUsdQueryOptions(account, dynamicProps, allToke
       if (!account) {
         throw new Error("[HiveEngine] No account in a balances query");
       }
-      const balancesResponse = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "balances",
-              query: {
-                account
-              }
-            },
-            id: 1
-          }),
-          headers: { "Content-type": "application/json" }
-        }
+      const balances = await getHiveEngineTokensBalances(account);
+      const tokens = await getHiveEngineTokensMetadata(
+        balances.map((t) => t.symbol)
       );
-      const balancesData = await balancesResponse.json();
-      const balances = balancesData.result || [];
-      const tokensResponse = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "tokens",
-              query: {
-                symbol: { $in: balances.map((t) => t.symbol) }
-              }
-            },
-            id: 2
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const tokensData = await tokensResponse.json();
-      const tokens = tokensData.result || [];
       const pricePerHive = dynamicProps ? dynamicProps.base / dynamicProps.quote : 0;
       const metrics = Array.isArray(
         allTokens
@@ -2131,27 +2074,7 @@ function getHiveEngineTokensMetadataQueryOptions(tokens) {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "tokens",
-              query: {
-                symbol: { $in: tokens }
-              }
-            },
-            id: 2
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return getHiveEngineTokensMetadata(tokens);
     }
   });
 }
@@ -2161,27 +2084,7 @@ function getHiveEngineTokensBalancesQueryOptions(username) {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "balances",
-              query: {
-                account: username
-              }
-            },
-            id: 1
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return getHiveEngineTokensBalances(username);
     }
   });
 }
@@ -2191,25 +2094,7 @@ function getHiveEngineTokensMarketQueryOptions() {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "market",
-              table: "metrics",
-              query: {}
-            },
-            id: 1
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return getHiveEngineTokensMarket();
     }
   });
 }
@@ -2279,18 +2164,12 @@ function getHiveEngineTokenTransactionsQueryOptions(username, symbol, limit = 20
           "[SDK][Wallets] \u2013 hive engine token or username missed"
         );
       }
-      const url = new URL(
-        `${CONFIG.privateApiHost}/private-api/engine-account-history`
+      return getHiveEngineTokenTransactions(
+        username,
+        symbol,
+        limit,
+        pageParam
       );
-      url.searchParams.set("account", username);
-      url.searchParams.set("symbol", symbol);
-      url.searchParams.set("limit", limit.toString());
-      url.searchParams.set("offset", pageParam.toString());
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-type": "application/json" }
-      });
-      return await response.json();
     }
   });
 }
@@ -2300,15 +2179,7 @@ function getHiveEngineTokensMetricsQueryOptions(symbol, interval = "daily") {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const url = new URL(
-        `${CONFIG.privateApiHost}/private-api/engine-chart-api`
-      );
-      url.searchParams.set("symbol", symbol);
-      url.searchParams.set("interval", interval);
-      const response = await fetch(url, {
-        headers: { "Content-type": "application/json" }
-      });
-      return await response.json();
+      return getHiveEngineTokenMetrics(symbol, interval);
     }
   });
 }
@@ -2320,13 +2191,9 @@ function getHiveEngineUnclaimedRewardsQueryOptions(username) {
     enabled: !!username,
     queryFn: async () => {
       try {
-        const response = await fetch(
-          CONFIG.privateApiHost + `/private-api/engine-reward-api/${username}?hive=1`
+        const data = await getHiveEngineUnclaimedRewards(
+          username
         );
-        if (!response.ok) {
-          return [];
-        }
-        const data = await response.json();
         return Object.values(data).filter(
           ({ pending_token }) => pending_token > 0
         );
@@ -2336,7 +2203,25 @@ function getHiveEngineUnclaimedRewardsQueryOptions(username) {
     }
   });
 }
-async function delegateEngineToken(payload) {
+
+// src/modules/assets/hive-engine/mutations/broadcast-hive-engine-operation.ts
+async function broadcastHiveEngineOperation(payload, operation, auth) {
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    if (payload.type === "keychain") {
+      throw new Error("[SDK][Wallets] \u2013 keychain requires auth.broadcast");
+    }
+  }
+  throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+}
+
+// src/modules/assets/hive-engine/mutations/delegate.ts
+async function delegateEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2373,24 +2258,8 @@ async function delegateEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Delegation",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2400,7 +2269,7 @@ async function delegateEngineToken(payload) {
     );
   }
 }
-async function undelegateEngineToken(payload) {
+async function undelegateEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2437,24 +2306,8 @@ async function undelegateEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Undelegation",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2464,7 +2317,7 @@ async function undelegateEngineToken(payload) {
     );
   }
 }
-async function stakeEngineToken(payload) {
+async function stakeEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2501,24 +2354,8 @@ async function stakeEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Staking",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2528,7 +2365,7 @@ async function stakeEngineToken(payload) {
     );
   }
 }
-async function unstakeEngineToken(payload) {
+async function unstakeEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2565,24 +2402,8 @@ async function unstakeEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Unstaking",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2592,7 +2413,7 @@ async function unstakeEngineToken(payload) {
     );
   }
 }
-async function transferEngineToken(payload) {
+async function transferEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2631,24 +2452,8 @@ async function transferEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Transfer",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2657,6 +2462,105 @@ async function transferEngineToken(payload) {
       }
     );
   }
+}
+var ENGINE_CONTRACT_ID = "ssc-mainnet-hive";
+function buildEngineOrderPayload(action, symbol, quantity, price) {
+  return {
+    contractName: "market",
+    contractAction: action,
+    contractPayload: { symbol, quantity, price }
+  };
+}
+function buildEngineCancelPayload(type, orderId) {
+  return {
+    contractName: "market",
+    contractAction: "cancel",
+    contractPayload: { type, id: orderId }
+  };
+}
+function buildEngineOperation(account, payload) {
+  return {
+    id: ENGINE_CONTRACT_ID,
+    required_auths: [account],
+    required_posting_auths: [],
+    json: JSON.stringify(payload)
+  };
+}
+async function broadcastEngineOperation(account, payload, options2) {
+  const operation = buildEngineOperation(account, payload);
+  const opTuple = ["custom_json", operation];
+  switch (options2?.method) {
+    case "key": {
+      if (!options2.key) {
+        throw new Error("[SDK][Wallets] \u2013 active key is required");
+      }
+      return CONFIG.hiveClient.broadcast.json(operation, options2.key);
+    }
+    case "keychain":
+    case "hiveauth": {
+      if (options2.auth?.broadcast) {
+        return options2.auth.broadcast([opTuple], "active");
+      }
+      if (options2.method === "hiveauth") {
+        return broadcastWithWalletHiveAuth(account, [opTuple], "active");
+      }
+      throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+    }
+    case "hivesigner":
+      return hs.sendOperation(
+        opTuple,
+        { callback: `https://ecency.com/@${account}/wallet/engine` },
+        () => {
+        }
+      );
+    default:
+      throw new Error("[SDK][Wallets] \u2013 broadcast method is required");
+  }
+}
+var placeHiveEngineBuyOrder = async (account, symbol, quantity, price, options2) => broadcastEngineOperation(
+  account,
+  buildEngineOrderPayload("buy", symbol, quantity, price),
+  options2
+);
+var placeHiveEngineSellOrder = async (account, symbol, quantity, price, options2) => broadcastEngineOperation(
+  account,
+  buildEngineOrderPayload("sell", symbol, quantity, price),
+  options2
+);
+var cancelHiveEngineOrder = async (account, type, orderId, options2) => broadcastEngineOperation(
+  account,
+  buildEngineCancelPayload(type, orderId),
+  options2
+);
+async function claimHiveEngineRewards(payload, auth) {
+  const json = JSON.stringify(payload.tokens.map((symbol) => ({ symbol })));
+  const operation = [
+    "custom_json",
+    {
+      id: "scot_claim_token",
+      required_auths: [],
+      required_posting_auths: [payload.account],
+      json
+    }
+  ];
+  if (payload.type === "key" && "key" in payload) {
+    return CONFIG.hiveClient.broadcast.sendOperations([operation], payload.key);
+  }
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "posting");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  }
+  return hs.sendOperation(
+    operation,
+    { callback: `https://ecency.com/@${payload.account}/wallet/engine` },
+    () => {
+    }
+  );
 }
 function getPointsQueryOptions(username) {
   return queryOptions({
@@ -2745,7 +2649,7 @@ function getPointsAssetTransactionsQueryOptions(username, type) {
 }
 
 // src/modules/assets/points/mutations/claim-points.ts
-function useClaimPoints(username, onSuccess, onError) {
+function useClaimPoints(username, accessToken, onSuccess, onError) {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
     "points-claimed"
@@ -2755,16 +2659,31 @@ function useClaimPoints(username, onSuccess, onError) {
     mutationFn: async () => {
       if (!username) {
         throw new Error(
-          "[SDK][Wallets][Assets][Points][Claim] \u2013 username wasn`t provided"
+          "[SDK][Wallets][Assets][Points][Claim] \u2013 username wasn't provided"
         );
       }
-      return fetchApi(CONFIG.privateApiHost + "/private-api/points-claim", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ code: getAccessToken(username) })
-      });
+      if (!accessToken) {
+        throw new Error(
+          "[SDK][Wallets][Assets][Points][Claim] \u2013 access token wasn't found"
+        );
+      }
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/points-claim",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code: accessToken })
+        }
+      );
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(
+          `[SDK][Wallets][Assets][Points][Claim] \u2013 failed with status ${response.status}${body ? `: ${body}` : ""}`
+        );
+      }
+      return response.json();
     },
     onError,
     onSuccess: () => {
@@ -2792,7 +2711,7 @@ async function transferPoint({
   memo,
   type,
   ...payload
-}) {
+}, auth) {
   const op = [
     "custom_json",
     {
@@ -2811,11 +2730,14 @@ async function transferPoint({
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations([op], key);
   }
-  if (type === "keychain") {
-    return Keychain.broadcast(from, [op], "Active");
-  }
-  if (type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(from, [op], "active");
+  if (type === "keychain" || type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([op], "active");
+    }
+    if (type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(from, [op], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   }
   return hs.sendOperation(op, { callback: `https://ecency.com/@${from}/wallet` }, () => {
   });
@@ -4039,7 +3961,7 @@ function useCheckWalletExistence() {
     }
   });
 }
-function useUpdateAccountWithWallets(username) {
+function useUpdateAccountWithWallets(username, accessToken) {
   const fetchApi = getBoundFetch();
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
@@ -4049,6 +3971,11 @@ function useUpdateAccountWithWallets(username) {
         return new Response(null, { status: 204 });
       }
       const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
+      if (!accessToken) {
+        throw new Error(
+          "[SDK][Wallets][PrivateApi][WalletsAdd] \u2013 access token wasn`t found"
+        );
+      }
       return fetchApi(CONFIG.privateApiHost + "/private-api/wallets-add", {
         method: "POST",
         headers: {
@@ -4056,7 +3983,7 @@ function useUpdateAccountWithWallets(username) {
         },
         body: JSON.stringify({
           username,
-          code: getAccessToken(username),
+          code: accessToken,
           token: primaryToken,
           address: primaryAddress,
           status: 3,
@@ -4190,14 +4117,10 @@ function getGroupedChainTokens(tokens, defaultShow) {
     )
   );
 }
-function useSaveWalletInformationToMetadata(username, accessToken, auth, options2) {
+function useSaveWalletInformationToMetadata(username, auth, options2) {
   const queryClient = useQueryClient();
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  const { mutateAsync: updateProfile } = useAccountUpdate(
-    username,
-    accessToken,
-    auth
-  );
+  const { mutateAsync: updateProfile } = useAccountUpdate(username, auth);
   return useMutation({
     mutationKey: [
       "ecency-wallets",
@@ -4279,7 +4202,7 @@ var engineOperationToFunctionMap = {
   ["delegate" /* Delegate */]: delegateEngineToken,
   ["undelegate" /* Undelegate */]: undelegateEngineToken
 };
-function useWalletOperation(username, asset, operation) {
+function useWalletOperation(username, asset, operation, auth) {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
     operation
@@ -4289,17 +4212,18 @@ function useWalletOperation(username, asset, operation) {
     mutationFn: async (payload) => {
       const operationFn = operationToFunctionMap[asset]?.[operation];
       if (operationFn) {
-        return operationFn(payload);
+        return operationFn(payload, auth);
       }
       const balancesListQuery = getHiveEngineTokensBalancesQueryOptions(username);
       await getQueryClient().prefetchQuery(balancesListQuery);
       const balances = getQueryClient().getQueryData(
         balancesListQuery.queryKey
       );
-      if (balances?.some((b) => b.symbol === asset)) {
+      const engineBalances = balances ?? [];
+      if (engineBalances.some((balance) => balance.symbol === asset)) {
         const operationFn2 = engineOperationToFunctionMap[operation];
         if (operationFn2) {
-          return operationFn2({ ...payload, asset });
+          return operationFn2({ ...payload, asset }, auth);
         }
       }
       throw new Error("[SDK][Wallets] \u2013 no operation for given asset");
@@ -4336,6 +4260,6 @@ function useWalletOperation(username, asset, operation) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllHiveEngineTokensQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getVisionPortfolioQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, cancelHiveEngineOrder, claimHiveEngineRewards, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllHiveEngineTokensQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getVisionPortfolioQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, placeHiveEngineBuyOrder, placeHiveEngineSellOrder, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

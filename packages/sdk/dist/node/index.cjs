@@ -33,54 +33,7 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-
-// src/modules/keychain/keychain.ts
-var keychain_exports = {};
-__export(keychain_exports, {
-  broadcast: () => broadcast,
-  customJson: () => customJson,
-  handshake: () => handshake
-});
-function handshake() {
-  return new Promise((resolve) => {
-    window.hive_keychain?.requestHandshake(() => {
-      resolve();
-    });
-  });
-}
-var broadcast = (account, operations, key, rpc = null) => new Promise((resolve, reject) => {
-  window.hive_keychain?.requestBroadcast(
-    account,
-    operations,
-    key,
-    (resp) => {
-      if (!resp.success) {
-        reject({ message: "Operation cancelled" });
-      }
-      resolve(resp);
-    },
-    rpc
-  );
-});
-var customJson = (account, id, key, json, display_msg, rpc = null) => new Promise((resolve, reject) => {
-  window.hive_keychain?.requestCustomJson(
-    account,
-    id,
-    key,
-    json,
-    display_msg,
-    (resp) => {
-      if (!resp.success) {
-        reject({ message: "Operation cancelled" });
-      }
-      resolve(resp);
-    },
-    rpc
-  );
-});
-
-// src/modules/core/mutations/use-broadcast-mutation.ts
-function useBroadcastMutation(mutationKey = [], username, accessToken, operations, onSuccess = () => {
+function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
 }, auth) {
   return reactQuery.useMutation({
     onSuccess,
@@ -91,6 +44,9 @@ function useBroadcastMutation(mutationKey = [], username, accessToken, operation
           "[Core][Broadcast] Attempted to call broadcast API with anon user"
         );
       }
+      if (auth?.broadcast) {
+        return auth.broadcast(operations(payload), "posting");
+      }
       const postingKey = auth?.postingKey;
       if (postingKey) {
         const privateKey = dhive.PrivateKey.fromString(postingKey);
@@ -99,34 +55,12 @@ function useBroadcastMutation(mutationKey = [], username, accessToken, operation
           privateKey
         );
       }
-      const loginType = auth?.loginType;
-      if (loginType && loginType == "keychain") {
-        return keychain_exports.broadcast(
-          username,
-          operations(payload),
-          "Posting"
-        ).then((r) => r.result);
-      }
+      const accessToken = auth?.accessToken;
       if (accessToken) {
-        const f = getBoundFetch();
-        const res = await f("https://hivesigner.com/api/broadcast", {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
-            "Content-Type": "application/json",
-            Accept: "application/json"
-          },
-          body: JSON.stringify({ operations: operations(payload) })
-        });
-        if (!res.ok) {
-          const txt = await res.text().catch(() => "");
-          throw new Error(`[Hivesigner] ${res.status} ${res.statusText} ${txt}`);
-        }
-        const json = await res.json();
-        if (json?.errors) {
-          throw new Error(`[Hivesigner] ${JSON.stringify(json.errors)}`);
-        }
-        return json.result;
+        const ops2 = operations(payload);
+        const client = new hs__default.default.Client({ accessToken });
+        const response = await client.broadcast(ops2);
+        return response.result;
       }
       throw new Error(
         "[SDK][Broadcast] \u2013 cannot broadcast w/o posting key or token"
@@ -134,31 +68,9 @@ function useBroadcastMutation(mutationKey = [], username, accessToken, operation
     }
   });
 }
-
-// src/modules/core/mock-storage.ts
-var MockStorage = class {
-  length = 0;
-  clear() {
-    throw new Error("Method not implemented.");
-  }
-  getItem(key) {
-    return this[key];
-  }
-  key(index) {
-    return Object.keys(this)[index];
-  }
-  removeItem(key) {
-    delete this[key];
-  }
-  setItem(key, value) {
-    this[key] = value;
-  }
-};
 var CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",
-  storage: typeof window === "undefined" ? new MockStorage() : window.localStorage,
-  storagePrefix: "ecency",
   hiveClient: new dhive.Client(
     [
       "https://api.hive.blog",
@@ -313,7 +225,7 @@ exports.ConfigManager = void 0;
   }
   ConfigManager2.setDmcaLists = setDmcaLists;
 })(exports.ConfigManager || (exports.ConfigManager = {}));
-async function broadcastJson(username, id, payload, accessToken, auth) {
+async function broadcastJson(username, id, payload, auth) {
   if (!username) {
     throw new Error(
       "[Core][Broadcast] Attempted to call broadcast API with anon user"
@@ -325,6 +237,9 @@ async function broadcastJson(username, id, payload, accessToken, auth) {
     required_posting_auths: [username],
     json: JSON.stringify(payload)
   };
+  if (auth?.broadcast) {
+    return auth.broadcast([["custom_json", jjson]], "posting");
+  }
   const postingKey = auth?.postingKey;
   if (postingKey) {
     const privateKey = dhive.PrivateKey.fromString(postingKey);
@@ -333,10 +248,7 @@ async function broadcastJson(username, id, payload, accessToken, auth) {
       privateKey
     );
   }
-  const loginType = auth?.loginType;
-  if (loginType && loginType == "keychain") {
-    return keychain_exports.broadcast(username, [["custom_json", jjson]], "Posting").then((r) => r.result);
-  }
+  const accessToken = auth?.accessToken;
   if (accessToken) {
     const response = await new hs__default.default.Client({
       accessToken
@@ -347,6 +259,63 @@ async function broadcastJson(username, id, payload, accessToken, auth) {
     "[SDK][Broadcast] \u2013 cannot broadcast w/o posting key or token"
   );
 }
+function makeQueryClient() {
+  return new reactQuery.QueryClient({
+    defaultOptions: {
+      queries: {
+        // With SSR, we usually want to set some default staleTime
+        // above 0 to avoid refetching immediately on the client
+        // staleTime: 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false
+      }
+    }
+  });
+}
+var getQueryClient = () => CONFIG.queryClient;
+exports.EcencyQueriesManager = void 0;
+((EcencyQueriesManager2) => {
+  function getQueryData(queryKey) {
+    const queryClient = getQueryClient();
+    return queryClient.getQueryData(queryKey);
+  }
+  EcencyQueriesManager2.getQueryData = getQueryData;
+  function getInfiniteQueryData(queryKey) {
+    const queryClient = getQueryClient();
+    return queryClient.getQueryData(queryKey);
+  }
+  EcencyQueriesManager2.getInfiniteQueryData = getInfiniteQueryData;
+  async function prefetchQuery(options) {
+    const queryClient = getQueryClient();
+    await queryClient.prefetchQuery(options);
+    return getQueryData(options.queryKey);
+  }
+  EcencyQueriesManager2.prefetchQuery = prefetchQuery;
+  async function prefetchInfiniteQuery(options) {
+    const queryClient = getQueryClient();
+    await queryClient.prefetchInfiniteQuery(options);
+    return getInfiniteQueryData(options.queryKey);
+  }
+  EcencyQueriesManager2.prefetchInfiniteQuery = prefetchInfiniteQuery;
+  function generateClientServerQuery(options) {
+    return {
+      prefetch: () => prefetchQuery(options),
+      getData: () => getQueryData(options.queryKey),
+      useClientQuery: () => reactQuery.useQuery(options),
+      fetchAndGet: () => getQueryClient().fetchQuery(options)
+    };
+  }
+  EcencyQueriesManager2.generateClientServerQuery = generateClientServerQuery;
+  function generateClientServerInfiniteQuery(options) {
+    return {
+      prefetch: () => prefetchInfiniteQuery(options),
+      getData: () => getInfiniteQueryData(options.queryKey),
+      useClientQuery: () => reactQuery.useInfiniteQuery(options),
+      fetchAndGet: () => getQueryClient().fetchInfiniteQuery(options)
+    };
+  }
+  EcencyQueriesManager2.generateClientServerInfiniteQuery = generateClientServerInfiniteQuery;
+})(exports.EcencyQueriesManager || (exports.EcencyQueriesManager = {}));
 
 // src/modules/core/utils/decoder-encoder.ts
 function encodeObj(o) {
@@ -408,79 +377,7 @@ function isCommunity(value) {
   return typeof value === "string" ? /^hive-\d+$/.test(value) : false;
 }
 
-// src/modules/core/storage.ts
-var getUser = (username) => {
-  try {
-    const raw = CONFIG.storage.getItem(
-      CONFIG.storagePrefix + "_user_" + username
-    );
-    return decodeObj(JSON.parse(raw));
-  } catch (e) {
-    console.error(e);
-    return void 0;
-  }
-};
-var getAccessToken = (username) => getUser(username) && getUser(username).accessToken;
-var getPostingKey = (username) => getUser(username) && getUser(username).postingKey;
-var getLoginType = (username) => getUser(username) && getUser(username).loginType;
-var getRefreshToken = (username) => getUser(username) && getUser(username).refreshToken;
-function makeQueryClient() {
-  return new reactQuery.QueryClient({
-    defaultOptions: {
-      queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-        // staleTime: 60 * 1000,
-        refetchOnWindowFocus: false,
-        refetchOnMount: false
-      }
-    }
-  });
-}
-var getQueryClient = () => CONFIG.queryClient;
-exports.EcencyQueriesManager = void 0;
-((EcencyQueriesManager2) => {
-  function getQueryData(queryKey) {
-    const queryClient = getQueryClient();
-    return queryClient.getQueryData(queryKey);
-  }
-  EcencyQueriesManager2.getQueryData = getQueryData;
-  function getInfiniteQueryData(queryKey) {
-    const queryClient = getQueryClient();
-    return queryClient.getQueryData(queryKey);
-  }
-  EcencyQueriesManager2.getInfiniteQueryData = getInfiniteQueryData;
-  async function prefetchQuery(options) {
-    const queryClient = getQueryClient();
-    await queryClient.prefetchQuery(options);
-    return getQueryData(options.queryKey);
-  }
-  EcencyQueriesManager2.prefetchQuery = prefetchQuery;
-  async function prefetchInfiniteQuery(options) {
-    const queryClient = getQueryClient();
-    await queryClient.prefetchInfiniteQuery(options);
-    return getInfiniteQueryData(options.queryKey);
-  }
-  EcencyQueriesManager2.prefetchInfiniteQuery = prefetchInfiniteQuery;
-  function generateClientServerQuery(options) {
-    return {
-      prefetch: () => prefetchQuery(options),
-      getData: () => getQueryData(options.queryKey),
-      useClientQuery: () => reactQuery.useQuery(options),
-      fetchAndGet: () => getQueryClient().fetchQuery(options)
-    };
-  }
-  EcencyQueriesManager2.generateClientServerQuery = generateClientServerQuery;
-  function generateClientServerInfiniteQuery(options) {
-    return {
-      prefetch: () => prefetchInfiniteQuery(options),
-      getData: () => getInfiniteQueryData(options.queryKey),
-      useClientQuery: () => reactQuery.useInfiniteQuery(options),
-      fetchAndGet: () => getQueryClient().fetchInfiniteQuery(options)
-    };
-  }
-  EcencyQueriesManager2.generateClientServerInfiniteQuery = generateClientServerInfiniteQuery;
-})(exports.EcencyQueriesManager || (exports.EcencyQueriesManager = {}));
+// src/modules/core/queries/get-dynamic-props-query-options.ts
 function getDynamicPropsQueryOptions() {
   return reactQuery.queryOptions({
     queryKey: ["core", "dynamic-props"],
@@ -2409,13 +2306,12 @@ function getProfilesQueryOptions(accounts, observer, enabled = true) {
 }
 
 // src/modules/accounts/mutations/use-account-update.ts
-function useAccountUpdate(username, accessToken, auth) {
+function useAccountUpdate(username, auth) {
   const queryClient = reactQuery.useQueryClient();
   const { data } = reactQuery.useQuery(getAccountFullQueryOptions(username));
   return useBroadcastMutation(
     ["accounts", "update"],
     username,
-    accessToken,
     (payload) => {
       if (!data) {
         throw new Error("[SDK][Accounts] \u2013 cannot update not existing account");
@@ -2457,7 +2353,7 @@ function useAccountUpdate(username, accessToken, auth) {
     auth
   );
 }
-function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
+function useAccountRelationsUpdate(reference, target, auth, onSuccess, onError) {
   return reactQuery.useMutation({
     mutationKey: ["accounts", "relation", "update", reference, target],
     mutationFn: async (kind) => {
@@ -2469,17 +2365,22 @@ function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
       const actualRelation = getQueryClient().getQueryData(
         relationsQuery.queryKey
       );
-      await broadcastJson(reference, "follow", [
+      await broadcastJson(
+        reference,
         "follow",
-        {
-          follower: reference,
-          following: target,
-          what: [
-            ...kind === "toggle-ignore" && !actualRelation?.ignores ? ["ignore"] : [],
-            ...kind === "toggle-follow" && !actualRelation?.follows ? ["blog"] : []
-          ]
-        }
-      ]);
+        [
+          "follow",
+          {
+            follower: reference,
+            following: target,
+            what: [
+              ...kind === "toggle-ignore" && !actualRelation?.ignores ? ["ignore"] : [],
+              ...kind === "toggle-follow" && !actualRelation?.follows ? ["blog"] : []
+            ]
+          }
+        ],
+        auth
+      );
       return {
         ...actualRelation,
         ignores: kind === "toggle-ignore" ? !actualRelation?.ignores : actualRelation?.ignores,
@@ -2706,7 +2607,7 @@ function useAccountUpdatePassword(username, options) {
     ...options
   });
 }
-function useAccountRevokePosting(username, options) {
+function useAccountRevokePosting(username, options, auth) {
   const queryClient = reactQuery.useQueryClient();
   const { data } = reactQuery.useQuery(getAccountFullQueryOptions(username));
   return reactQuery.useMutation({
@@ -2733,11 +2634,10 @@ function useAccountRevokePosting(username, options) {
       if (type === "key" && key) {
         return CONFIG.hiveClient.broadcast.updateAccount(operationBody, key);
       } else if (type === "keychain") {
-        return keychain_exports.broadcast(
-          data.name,
-          [["account_update", operationBody]],
-          "Active"
-        );
+        if (!auth?.broadcast) {
+          throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
+        }
+        return auth.broadcast([["account_update", operationBody]], "active");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`
@@ -2768,7 +2668,7 @@ function useAccountRevokePosting(username, options) {
     }
   });
 }
-function useAccountUpdateRecovery(username, code, options) {
+function useAccountUpdateRecovery(username, code, options, auth) {
   const { data } = reactQuery.useQuery(getAccountFullQueryOptions(username));
   return reactQuery.useMutation({
     mutationKey: ["accounts", "recovery", data?.name],
@@ -2807,11 +2707,10 @@ function useAccountUpdateRecovery(username, code, options) {
           key
         );
       } else if (type === "keychain") {
-        return keychain_exports.broadcast(
-          data.name,
-          [["change_recovery_account", operationBody]],
-          "Active"
-        );
+        if (!auth?.broadcast) {
+          throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
+        }
+        return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`
@@ -3031,7 +2930,7 @@ function useSignOperationByKey(username) {
     }
   });
 }
-function useSignOperationByKeychain(username, keyType = "Active") {
+function useSignOperationByKeychain(username, auth, keyType = "active") {
   return reactQuery.useMutation({
     mutationKey: ["operations", "sign-keychain", username],
     mutationFn: ({ operation }) => {
@@ -3040,7 +2939,10 @@ function useSignOperationByKeychain(username, keyType = "Active") {
           "[SDK][Keychain] \u2013\xA0cannot sign operation with anon user"
         );
       }
-      return keychain_exports.broadcast(username, [operation], keyType);
+      if (!auth?.broadcast) {
+        throw new Error("[SDK][Keychain] \u2013 missing keychain broadcaster");
+      }
+      return auth.broadcast([operation], keyType);
     }
   });
 }
@@ -4203,6 +4105,13 @@ async function getCurrencyRates() {
   const response = await fetchApi(CONFIG.privateApiHost + "/private-api/market-data/latest");
   return parseJsonResponse(response);
 }
+async function getHivePrice() {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(
+    "https://api.coingecko.com/api/v3/simple/price?ids=hive&vs_currencies=usd"
+  );
+  return parseJsonResponse(response);
+}
 function getPointsQueryOptions(username, filter = 0) {
   return reactQuery.queryOptions({
     queryKey: ["points", username, filter],
@@ -4931,13 +4840,285 @@ async function hsTokenRenew(code) {
   return data;
 }
 
+// src/modules/hive-engine/requests.ts
+var ENGINE_RPC_HEADERS = { "Content-type": "application/json" };
+async function engineRpc(payload) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(`${CONFIG.privateApiHost}/private-api/engine-api`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: ENGINE_RPC_HEADERS
+  });
+  if (!response.ok) {
+    throw new Error(
+      `[SDK][HiveEngine] \u2013 request failed with ${response.status}`
+    );
+  }
+  const data = await response.json();
+  return data.result;
+}
+async function engineRpcSafe(payload, fallback) {
+  try {
+    return await engineRpc(payload);
+  } catch (e) {
+    return fallback;
+  }
+}
+async function getHiveEngineOrderBook(symbol, limit = 50) {
+  const baseParams = {
+    jsonrpc: "2.0",
+    method: "find",
+    params: {
+      contract: "market",
+      query: { symbol },
+      limit,
+      offset: 0
+    },
+    id: 1
+  };
+  const [buy, sell] = await Promise.all([
+    engineRpcSafe(
+      {
+        ...baseParams,
+        params: {
+          ...baseParams.params,
+          table: "buyBook",
+          indexes: [{ index: "price", descending: true }]
+        }
+      },
+      []
+    ),
+    engineRpcSafe(
+      {
+        ...baseParams,
+        params: {
+          ...baseParams.params,
+          table: "sellBook",
+          indexes: [{ index: "price", descending: false }]
+        }
+      },
+      []
+    )
+  ]);
+  const sortByPriceDesc = (items) => items.sort((a, b) => {
+    const left = Number(a.price ?? 0);
+    const right = Number(b.price ?? 0);
+    return right - left;
+  });
+  const sortByPriceAsc = (items) => items.sort((a, b) => {
+    const left = Number(a.price ?? 0);
+    const right = Number(b.price ?? 0);
+    return left - right;
+  });
+  return {
+    buy: sortByPriceDesc(buy),
+    sell: sortByPriceAsc(sell)
+  };
+}
+async function getHiveEngineTradeHistory(symbol, limit = 50) {
+  return engineRpcSafe(
+    {
+      jsonrpc: "2.0",
+      method: "find",
+      params: {
+        contract: "market",
+        table: "tradesHistory",
+        query: { symbol },
+        limit,
+        offset: 0,
+        indexes: [{ index: "timestamp", descending: true }]
+      },
+      id: 1
+    },
+    []
+  );
+}
+async function getHiveEngineOpenOrders(account, symbol, limit = 100) {
+  const baseParams = {
+    jsonrpc: "2.0",
+    method: "find",
+    params: {
+      contract: "market",
+      query: { symbol, account },
+      limit,
+      offset: 0
+    },
+    id: 1
+  };
+  const [buyRaw, sellRaw] = await Promise.all([
+    engineRpcSafe(
+      {
+        ...baseParams,
+        params: {
+          ...baseParams.params,
+          table: "buyBook",
+          indexes: [{ index: "timestamp", descending: true }]
+        }
+      },
+      []
+    ),
+    engineRpcSafe(
+      {
+        ...baseParams,
+        params: {
+          ...baseParams.params,
+          table: "sellBook",
+          indexes: [{ index: "timestamp", descending: true }]
+        }
+      },
+      []
+    )
+  ]);
+  const formatTotal = (quantity, price) => (Number(quantity || 0) * Number(price || 0)).toFixed(8);
+  const buy = buyRaw.map((order) => ({
+    id: order.txId,
+    type: "buy",
+    account: order.account,
+    symbol: order.symbol,
+    quantity: order.quantity,
+    price: order.price,
+    total: order.tokensLocked ?? formatTotal(order.quantity, order.price),
+    timestamp: Number(order.timestamp ?? 0)
+  }));
+  const sell = sellRaw.map((order) => ({
+    id: order.txId,
+    type: "sell",
+    account: order.account,
+    symbol: order.symbol,
+    quantity: order.quantity,
+    price: order.price,
+    total: formatTotal(order.quantity, order.price),
+    timestamp: Number(order.timestamp ?? 0)
+  }));
+  return [...buy, ...sell].sort((a, b) => b.timestamp - a.timestamp);
+}
+async function getHiveEngineMetrics(symbol, account) {
+  return engineRpcSafe(
+    {
+      jsonrpc: "2.0",
+      method: "find",
+      params: {
+        contract: "market",
+        table: "metrics",
+        query: {
+          ...symbol ? { symbol } : {},
+          ...account ? { account } : {}
+        }
+      },
+      id: 1
+    },
+    []
+  );
+}
+async function getHiveEngineTokensMarket(account, symbol) {
+  return getHiveEngineMetrics(symbol, account);
+}
+async function getHiveEngineTokensBalances(username) {
+  return engineRpcSafe(
+    {
+      jsonrpc: "2.0",
+      method: "find",
+      params: {
+        contract: "tokens",
+        table: "balances",
+        query: {
+          account: username
+        }
+      },
+      id: 1
+    },
+    []
+  );
+}
+async function getHiveEngineTokensMetadata(tokens) {
+  return engineRpcSafe(
+    {
+      jsonrpc: "2.0",
+      method: "find",
+      params: {
+        contract: "tokens",
+        table: "tokens",
+        query: {
+          symbol: { $in: tokens }
+        }
+      },
+      id: 2
+    },
+    []
+  );
+}
+async function getHiveEngineTokenTransactions(username, symbol, limit, offset) {
+  const fetchApi = getBoundFetch();
+  const url = new URL(
+    `${CONFIG.privateApiHost}/private-api/engine-account-history`
+  );
+  url.searchParams.set("account", username);
+  url.searchParams.set("symbol", symbol);
+  url.searchParams.set("limit", limit.toString());
+  url.searchParams.set("offset", offset.toString());
+  const response = await fetchApi(url.toString(), {
+    method: "GET",
+    headers: { "Content-type": "application/json" }
+  });
+  if (!response.ok) {
+    throw new Error(
+      `[SDK][HiveEngine] \u2013 account history failed with ${response.status}`
+    );
+  }
+  return await response.json();
+}
+async function getHiveEngineTokenMetrics(symbol, interval = "daily") {
+  const fetchApi = getBoundFetch();
+  const url = new URL(`${CONFIG.privateApiHost}/private-api/engine-chart-api`);
+  url.searchParams.set("symbol", symbol);
+  url.searchParams.set("interval", interval);
+  const response = await fetchApi(url.toString(), {
+    headers: { "Content-type": "application/json" }
+  });
+  if (!response.ok) {
+    throw new Error(
+      `[SDK][HiveEngine] \u2013 chart failed with ${response.status}`
+    );
+  }
+  return await response.json();
+}
+async function getHiveEngineUnclaimedRewards(username) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(
+    `${CONFIG.privateApiHost}/private-api/engine-reward-api/${username}?hive=1`
+  );
+  if (!response.ok) {
+    throw new Error(
+      `[SDK][HiveEngine] \u2013 rewards failed with ${response.status}`
+    );
+  }
+  return await response.json();
+}
+
+// src/modules/spk/requests.ts
+async function getSpkWallet(username) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(`${CONFIG.spkNode}/@${username}`);
+  if (!response.ok) {
+    throw new Error(`[SDK][SPK] \u2013 wallet failed with ${response.status}`);
+  }
+  return await response.json();
+}
+async function getSpkMarkets() {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(`${CONFIG.spkNode}/markets`);
+  if (!response.ok) {
+    throw new Error(`[SDK][SPK] \u2013 markets failed with ${response.status}`);
+  }
+  return await response.json();
+}
+
 exports.ACCOUNT_OPERATION_GROUPS = ACCOUNT_OPERATION_GROUPS;
 exports.ALL_ACCOUNT_OPERATIONS = ALL_ACCOUNT_OPERATIONS;
 exports.ALL_NOTIFY_TYPES = ALL_NOTIFY_TYPES;
 exports.CONFIG = CONFIG;
 exports.EcencyAnalytics = mutations_exports;
 exports.HiveSignerIntegration = HiveSignerIntegration;
-exports.Keychain = keychain_exports;
 exports.NaiMap = NaiMap;
 exports.NotificationFilter = NotificationFilter;
 exports.NotificationViewType = NotificationViewType;
@@ -4961,7 +5142,6 @@ exports.deleteSchedule = deleteSchedule;
 exports.downVotingPower = downVotingPower;
 exports.encodeObj = encodeObj;
 exports.extractAccountProfile = extractAccountProfile;
-exports.getAccessToken = getAccessToken;
 exports.getAccountFullQueryOptions = getAccountFullQueryOptions;
 exports.getAccountNotificationsInfiniteQueryOptions = getAccountNotificationsInfiniteQueryOptions;
 exports.getAccountPendingRecoveryQueryOptions = getAccountPendingRecoveryQueryOptions;
@@ -5014,11 +5194,21 @@ exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
 exports.getFriendsInfiniteQueryOptions = getFriendsInfiniteQueryOptions;
 exports.getGalleryImagesQueryOptions = getGalleryImagesQueryOptions;
 exports.getGameStatusCheckQueryOptions = getGameStatusCheckQueryOptions;
+exports.getHiveEngineMetrics = getHiveEngineMetrics;
+exports.getHiveEngineOpenOrders = getHiveEngineOpenOrders;
+exports.getHiveEngineOrderBook = getHiveEngineOrderBook;
+exports.getHiveEngineTokenMetrics = getHiveEngineTokenMetrics;
+exports.getHiveEngineTokenTransactions = getHiveEngineTokenTransactions;
+exports.getHiveEngineTokensBalances = getHiveEngineTokensBalances;
+exports.getHiveEngineTokensMarket = getHiveEngineTokensMarket;
+exports.getHiveEngineTokensMetadata = getHiveEngineTokensMetadata;
+exports.getHiveEngineTradeHistory = getHiveEngineTradeHistory;
+exports.getHiveEngineUnclaimedRewards = getHiveEngineUnclaimedRewards;
 exports.getHiveHbdStatsQueryOptions = getHiveHbdStatsQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
+exports.getHivePrice = getHivePrice;
 exports.getImagesQueryOptions = getImagesQueryOptions;
 exports.getIncomingRcQueryOptions = getIncomingRcQueryOptions;
-exports.getLoginType = getLoginType;
 exports.getMarketData = getMarketData;
 exports.getMarketDataQueryOptions = getMarketDataQueryOptions;
 exports.getMarketHistoryQueryOptions = getMarketHistoryQueryOptions;
@@ -5040,7 +5230,6 @@ exports.getPostHeader = getPostHeader;
 exports.getPostHeaderQueryOptions = getPostHeaderQueryOptions;
 exports.getPostQueryOptions = getPostQueryOptions;
 exports.getPostTipsQueryOptions = getPostTipsQueryOptions;
-exports.getPostingKey = getPostingKey;
 exports.getPostsRanked = getPostsRanked;
 exports.getPostsRankedInfiniteQueryOptions = getPostsRankedInfiniteQueryOptions;
 exports.getPostsRankedQueryOptions = getPostsRankedQueryOptions;
@@ -5058,7 +5247,6 @@ exports.getReblogsQueryOptions = getReblogsQueryOptions;
 exports.getReceivedVestingSharesQueryOptions = getReceivedVestingSharesQueryOptions;
 exports.getReferralsInfiniteQueryOptions = getReferralsInfiniteQueryOptions;
 exports.getReferralsStatsQueryOptions = getReferralsStatsQueryOptions;
-exports.getRefreshToken = getRefreshToken;
 exports.getRelationshipBetweenAccounts = getRelationshipBetweenAccounts;
 exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccountsQueryOptions;
 exports.getRewardedCommunitiesQueryOptions = getRewardedCommunitiesQueryOptions;
@@ -5071,6 +5259,8 @@ exports.getSearchFriendsQueryOptions = getSearchFriendsQueryOptions;
 exports.getSearchPathQueryOptions = getSearchPathQueryOptions;
 exports.getSearchTopicsQueryOptions = getSearchTopicsQueryOptions;
 exports.getSimilarEntriesQueryOptions = getSimilarEntriesQueryOptions;
+exports.getSpkMarkets = getSpkMarkets;
+exports.getSpkWallet = getSpkWallet;
 exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getSubscribers = getSubscribers;
 exports.getSubscriptions = getSubscriptions;
@@ -5078,7 +5268,6 @@ exports.getTradeHistoryQueryOptions = getTradeHistoryQueryOptions;
 exports.getTransactionsInfiniteQueryOptions = getTransactionsInfiniteQueryOptions;
 exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
 exports.getTrendingTagsWithStatsQueryOptions = getTrendingTagsWithStatsQueryOptions;
-exports.getUser = getUser;
 exports.getUserProposalVotesQueryOptions = getUserProposalVotesQueryOptions;
 exports.getVestingDelegationsQueryOptions = getVestingDelegationsQueryOptions;
 exports.getVisibleFirstLevelThreadItems = getVisibleFirstLevelThreadItems;

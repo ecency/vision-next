@@ -9,8 +9,8 @@ import {
 import { getAccountFullQueryOptions } from "../queries";
 import * as R from "remeda";
 import { FullAccount } from "../types";
-import { Keychain } from "@/modules/keychain";
 import hs from "hivesigner";
+import type { AuthContext } from "@/modules/core/types";
 
 type SignType = "key" | "keychain" | "hivesigner";
 
@@ -27,7 +27,8 @@ type RevokePostingOptions = Pick<
 
 export function useAccountRevokePosting(
   username: string | undefined,
-  options: RevokePostingOptions
+  options: RevokePostingOptions,
+  auth?: AuthContext
 ) {
   const queryClient = useQueryClient();
 
@@ -61,11 +62,10 @@ export function useAccountRevokePosting(
       if (type === "key" && key) {
         return CONFIG.hiveClient.broadcast.updateAccount(operationBody, key);
       } else if (type === "keychain") {
-        return Keychain.broadcast(
-          data.name,
-          [["account_update", operationBody]],
-          "Active"
-        ) as Promise<any>;
+        if (!auth?.broadcast) {
+          throw new Error("[SDK][Accounts] – missing keychain broadcaster");
+        }
+        return auth.broadcast([["account_update", operationBody]], "active");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`,

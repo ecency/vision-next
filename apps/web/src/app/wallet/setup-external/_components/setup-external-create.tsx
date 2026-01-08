@@ -28,7 +28,8 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import { useCallback, useState } from "react";
+import { getSdkAuthContext } from "@/utils";
+import { useCallback, useMemo, useState } from "react";
 
 interface Props {
   onBack: () => void;
@@ -78,6 +79,10 @@ export function SetupExternalCreate({ onBack }: Props) {
 
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
   const { data: tokens } = useWalletsCacheQuery(activeUser?.username);
+  const authContext = useMemo(
+    () => getSdkAuthContext(activeUser, activeUser?.username),
+    [activeUser]
+  );
 
   const { mutateAsync: saveKeys, isPending } = useAccountUpdateKeyAuths(activeUser?.username!, {
     onError: (err) => {
@@ -85,19 +90,29 @@ export function SetupExternalCreate({ onBack }: Props) {
       setStep("sign");
     }
   });
-  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(activeUser?.username!, {
-    onError: (err) => {
-      error(...formatError(err));
-      setStep("sign");
+  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(
+    activeUser?.username!,
+    authContext,
+    {
+      onError: (err) => {
+        error(...formatError(err));
+        setStep("sign");
+      }
     }
-  });
+  );
   const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
-    activeUser?.username!
+    activeUser?.username!,
+    activeUser?.accessToken
   );
 
   const handleLinkByKey = useCallback(
     async (currentKey: PrivateKey) => {
       if (!keys) {
+        return;
+      }
+      if (!authContext) {
+        error("[Wallets] Missing auth context for signing.");
+        setStep("sign");
         return;
       }
       setStep("create");
@@ -133,7 +148,7 @@ export function SetupExternalCreate({ onBack }: Props) {
       });
       setStep("success");
     },
-    [activeUser?.username, keys, saveKeys, saveToPrivateApi, saveTokens, tokens]
+    [activeUser?.username, authContext, keys, saveKeys, saveToPrivateApi, saveTokens, tokens]
   );
 
   return (

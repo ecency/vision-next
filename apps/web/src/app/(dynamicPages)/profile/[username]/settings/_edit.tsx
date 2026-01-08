@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getAccessToken } from "@/utils";
+import { getSdkAuthContext } from "@/utils";
 
 const schema = yup.object({
   name: yup
@@ -65,7 +65,7 @@ export function ProfileEdit() {
 
   const { mutateAsync: updateAccount, isPending } = useAccountUpdate(
     activeUser?.username ?? "",
-    getAccessToken(activeUser?.username ?? "")
+    getSdkAuthContext(activeUser, activeUser?.username)
   );
 
   useEffect(() => {

@@ -4,20 +4,16 @@ import {
   type UseMutationOptions,
 } from "@tanstack/react-query";
 import { Operation, PrivateKey } from "@hiveio/dhive";
-import { CONFIG, getBoundFetch } from "@/modules/core";
-//import hs from "hivesigner";
-import { Keychain } from "@/modules/keychain";
+import { CONFIG } from "@/modules/core";
+import type { AuthContext } from "@/modules/core/types";
+import hs from "hivesigner";
 
 export function useBroadcastMutation<T>(
   mutationKey: MutationKey = [],
   username: string | undefined,
-  accessToken: string | undefined,
   operations: (payload: T) => Operation[],
   onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {},
-  auth?: {
-    postingKey?: string | null;
-    loginType?: string | null;
-  }
+  auth?: AuthContext
 ) {
   return useMutation({
     onSuccess,
@@ -27,6 +23,10 @@ export function useBroadcastMutation<T>(
         throw new Error(
           "[Core][Broadcast] Attempted to call broadcast API with anon user"
         );
+      }
+
+      if (auth?.broadcast) {
+        return auth.broadcast(operations(payload), "posting");
       }
 
       const postingKey = auth?.postingKey;
@@ -39,38 +39,12 @@ export function useBroadcastMutation<T>(
         );
       }
 
-      const loginType = auth?.loginType;
-      if (loginType && loginType == "keychain") {
-        return Keychain.broadcast(
-          username,
-          operations(payload),
-          "Posting"
-        ).then((r: any) => r.result);
-      }
-
-      // With hivesigner access token
+      const accessToken = auth?.accessToken;
       if (accessToken) {
-        const f = getBoundFetch();
-        const res = await f("https://hivesigner.com/api/broadcast", {
-          method: "POST",
-          headers: {
-            Authorization: accessToken,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ operations: operations(payload) }),
-        });
-
-        if (!res.ok) {
-          const txt = await res.text().catch(() => "");
-          throw new Error(`[Hivesigner] ${res.status} ${res.statusText} ${txt}`);
-        }
-
-        const json = await res.json();
-        if (json?.errors) {
-          throw new Error(`[Hivesigner] ${JSON.stringify(json.errors)}`);
-        }
-        return json.result;
+        const ops = operations(payload);
+        const client = new hs.Client({ accessToken });
+        const response = await client.broadcast(ops);
+        return response.result;
       }
 
       throw new Error(

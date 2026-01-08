@@ -70,6 +70,10 @@ export function CreateCommunityPage() {
   const { mutateAsync: updateAccount } = useAccountUpdate(
     username,
     communityAccessToken
+      ? {
+          accessToken: communityAccessToken
+        }
+      : undefined
   );
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateCommunity } = useUpdateCommunity(username);

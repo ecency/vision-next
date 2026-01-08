@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { getHiveEngineTokensBalances, getHiveEngineTokensMetadata } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import {
   HiveEngineTokenBalance,
@@ -38,55 +38,11 @@ export function getHiveEngineBalancesWithUsdQueryOptions(
         throw new Error("[HiveEngine] No account in a balances query");
       }
 
-      // Get token balances
-      const balancesResponse = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "balances",
-              query: {
-                account,
-              },
-            },
-            id: 1,
-          }),
-          headers: { "Content-type": "application/json" },
-        }
-      );
-      const balancesData = (await balancesResponse.json()) as {
-        result: HiveEngineTokenBalance[];
-      };
-      const balances = balancesData.result || [];
+      const balances = await getHiveEngineTokensBalances<HiveEngineTokenBalance>(account);
 
-      // Get token info
-      const tokensResponse = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "tokens",
-              query: {
-                symbol: { $in: balances.map((t) => t.symbol) },
-              },
-            },
-            id: 2,
-          }),
-          headers: { "Content-type": "application/json" },
-        }
+      const tokens = await getHiveEngineTokensMetadata<Token>(
+        balances.map((t) => t.symbol)
       );
-      const tokensData = (await tokensResponse.json()) as {
-        result: Token[];
-      };
-      const tokens = tokensData.result || [];
 
       // Calculate USD values
       const pricePerHive = dynamicProps

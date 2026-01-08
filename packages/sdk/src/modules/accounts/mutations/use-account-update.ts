@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core";
+import type { AuthContext } from "@/modules/core/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as R from "remeda";
 import { getAccountFullQueryOptions } from "../queries";
@@ -15,11 +16,7 @@ interface Payload {
 
 export function useAccountUpdate(
   username: string,
-  accessToken: string | undefined,
-  auth?: {
-    postingKey?: string | null;
-    loginType?: string | null;
-  }
+  auth?: AuthContext
 ) {
   const queryClient = useQueryClient();
 
@@ -28,7 +25,6 @@ export function useAccountUpdate(
   return useBroadcastMutation(
     ["accounts", "update"],
     username,
-    accessToken,
     (payload: Partial<Payload>) => {
       if (!data) {
         throw new Error("[SDK][Accounts] – cannot update not existing account");

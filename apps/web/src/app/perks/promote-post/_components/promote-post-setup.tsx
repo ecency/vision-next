@@ -1,5 +1,6 @@
 import { withFeatureFlag } from "@/core/react-query";
-import { getPointsQueryOptions, getPromotePriceQueryOptions, getSearchPathQueryOptions, getAccessToken } from "@ecency/sdk";
+import { getPointsQueryOptions, getPromotePriceQueryOptions, getSearchPathQueryOptions } from "@ecency/sdk";
+import { getAccessToken } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryListItem, SuggestionList } from "@/features/shared";

@@ -1,7 +1,7 @@
 import { useUpdateCommunity } from "@/api/mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Community } from "@/entities";
-import { getAccessToken, normalizeBeneficiaryWeight } from "@/utils";
+import { getSdkAuthContext, normalizeBeneficiaryWeight } from "@/utils";
 import { getAccountFullQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
@@ -57,7 +57,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
 
   const { mutateAsync: updateAccount } = useAccountUpdate(
     activeUser?.username ?? "",
-    getAccessToken(activeUser?.username ?? "")
+    getSdkAuthContext(activeUser, activeUser?.username)
   );
   const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
 

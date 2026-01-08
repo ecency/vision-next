@@ -75,6 +75,7 @@ export function ProfileWalletClaimPointsButton({
 
   const { mutateAsync: claim, isPending: isClaiming } = useClaimPoints(
     activeUser?.username,
+    activeUser?.accessToken,
     () => success(i18next.t("points.claim-ok")),
     (err) => error(...formatError(err))
   );

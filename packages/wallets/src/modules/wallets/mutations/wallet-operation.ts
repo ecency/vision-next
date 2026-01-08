@@ -22,6 +22,7 @@ import {
   claimInterestHive,
 } from "@/modules/assets";
 import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getAccountWalletAssetInfoQueryOptions } from "../queries";
 
@@ -71,7 +72,8 @@ const engineOperationToFunctionMap: Partial<Record<AssetOperation, any>> = {
 export function useWalletOperation(
   username: string,
   asset: string,
-  operation: AssetOperation
+  operation: AssetOperation,
+  auth?: AuthContext
 ) {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
@@ -83,7 +85,7 @@ export function useWalletOperation(
     mutationFn: async (payload: Record<string, unknown>) => {
       const operationFn = operationToFunctionMap[asset]?.[operation];
       if (operationFn) {
-        return operationFn(payload);
+        return operationFn(payload, auth);
       }
 
       // Handle Hive engine ops
@@ -94,10 +96,11 @@ export function useWalletOperation(
         balancesListQuery.queryKey
       );
 
-      if (balances?.some((b) => b.symbol === asset)) {
+      const engineBalances = (balances ?? []) as HiveEngineTokenBalance[];
+      if (engineBalances.some((balance) => balance.symbol === asset)) {
         const operationFn = engineOperationToFunctionMap[operation];
         if (operationFn) {
-          return operationFn({ ...payload, asset });
+          return operationFn({ ...payload, asset }, auth);
         }
       }
 
