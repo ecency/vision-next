@@ -161,6 +161,9 @@ export function useSignTransferByKeychain(mode: TransferMode, asset: TransferAss
       }
       const auth = getSdkAuthContext(user);
       const signType = shouldUseHiveAuth(username) ? "hiveauth" : "keychain";
+      if (!auth) {
+        throw new Error("[Transfers] Missing auth context for signing.");
+      }
 
       switch (mode) {
         case "transfer":

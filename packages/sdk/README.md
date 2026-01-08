@@ -5,7 +5,7 @@ Framework-agnostic data layer for Hive apps with first-class React Query support
 ## What’s Inside
 
 - Query and mutation option builders powered by [@tanstack/react-query](https://tanstack.com/query)
-- Modular APIs: accounts, posts, communities, market, wallet, notifications, analytics, integrations, auth, bridge, games, hive-engine, operations, points, private-api, promotions, proposals, resource-credits, search, spk, witnesses
+- Modular APIs: accounts, posts, communities, market, wallet, notifications, analytics, integrations, core, auth, bridge, games, hive-engine, operations, points, private-api, promotions, proposals, resource-credits, search, spk, witnesses
 - Central configuration via `CONFIG` / `ConfigManager` (RPC client, QueryClient)
 
 ## Installation
@@ -69,6 +69,11 @@ const auth = {
 const { mutateAsync } = useAccountUpdate(username, auth);
 await mutateAsync({ metadata });
 ```
+
+`AuthContext` properties are optional. The example above works without an
+explicit `broadcast` function; the SDK will use `postingKey` or `accessToken`
+if provided. If your app needs custom broadcasting (Keychain, HiveAuth, mobile),
+add the optional `broadcast` function as shown below.
 
 ## Broadcasting and Auth Context
 
