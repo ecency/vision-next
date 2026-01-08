@@ -1502,6 +1502,9 @@ function useClaimRewards(username, auth, onSuccess) {
         queryKey: sdk.getAccountFullQueryOptions(username).queryKey
       });
       queryClient.invalidateQueries({
+        queryKey: getVisionPortfolioQueryOptions(username).queryKey
+      });
+      queryClient.invalidateQueries({
         queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
       });
       queryClient.invalidateQueries({
@@ -1515,6 +1518,28 @@ function useClaimRewards(username, auth, onSuccess) {
           queryKey: ["ecency-wallets", "asset-info", username, asset]
         });
       });
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: sdk.getAccountFullQueryOptions(username).queryKey
+        });
+        queryClient.invalidateQueries({
+          queryKey: getVisionPortfolioQueryOptions(username).queryKey
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey
+        });
+        ["HIVE", "HBD", "HP"].forEach((asset) => {
+          queryClient.invalidateQueries({
+            queryKey: ["ecency-wallets", "asset-info", username, asset]
+          });
+        });
+      }, 5e3);
     },
     auth
   );
@@ -2717,6 +2742,13 @@ function useClaimPoints(username, accessToken, onSuccess, onError) {
       );
       if (!response.ok) {
         const body = await response.text();
+        if (response.status === 406) {
+          try {
+            return JSON.parse(body);
+          } catch {
+            return { message: body, code: response.status };
+          }
+        }
         throw new Error(
           `[SDK][Wallets][Assets][Points][Claim] \u2013 failed with status ${response.status}${body ? `: ${body}` : ""}`
         );
@@ -4291,6 +4323,12 @@ function useWalletOperation(username, asset, operation, auth) {
           5e3
         );
       });
+      setTimeout(
+        () => sdk.getQueryClient().invalidateQueries({
+          queryKey: getVisionPortfolioQueryOptions(username).queryKey
+        }),
+        4e3
+      );
     }
   });
 }

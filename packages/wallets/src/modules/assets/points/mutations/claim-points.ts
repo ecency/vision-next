@@ -42,6 +42,13 @@ export function useClaimPoints(
 
       if (!response.ok) {
         const body = await response.text();
+        if (response.status === 406) {
+          try {
+            return JSON.parse(body);
+          } catch {
+            return { message: body, code: response.status };
+          }
+        }
         throw new Error(
           `[SDK][Wallets][Assets][Points][Claim] – failed with status ${response.status}${body ? `: ${body}` : ""}`
         );

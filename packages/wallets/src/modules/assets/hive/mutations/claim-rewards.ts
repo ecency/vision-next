@@ -6,6 +6,7 @@ import {
   getHiveAssetGeneralInfoQueryOptions,
   getHivePowerAssetGeneralInfoQueryOptions,
 } from "../queries";
+import { getVisionPortfolioQueryOptions } from "@/modules/wallets/queries";
 import { delay } from "@/modules/wallets/utils";
 
 export function useClaimRewards(
@@ -53,6 +54,9 @@ export function useClaimRewards(
         queryKey: getAccountFullQueryOptions(username).queryKey,
       });
       queryClient.invalidateQueries({
+        queryKey: getVisionPortfolioQueryOptions(username).queryKey,
+      });
+      queryClient.invalidateQueries({
         queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey,
       });
       queryClient.invalidateQueries({
@@ -66,6 +70,30 @@ export function useClaimRewards(
           queryKey: ["ecency-wallets", "asset-info", username, asset],
         });
       });
+
+      // Fallback refetch in case the first invalidate hits before state is updated.
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: getAccountFullQueryOptions(username).queryKey,
+        });
+        queryClient.invalidateQueries({
+          queryKey: getVisionPortfolioQueryOptions(username).queryKey,
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey,
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey,
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey,
+        });
+        ["HIVE", "HBD", "HP"].forEach((asset) => {
+          queryClient.invalidateQueries({
+            queryKey: ["ecency-wallets", "asset-info", username, asset],
+          });
+        });
+      }, 5000);
     },
     auth
   );

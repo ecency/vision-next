@@ -25,6 +25,7 @@ import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
 import type { AuthContext } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getAccountWalletAssetInfoQueryOptions } from "../queries";
+import { getVisionPortfolioQueryOptions } from "../queries/get-vision-portfolio-query-options";
 
 const operationToFunctionMap: Record<
   string,
@@ -138,6 +139,14 @@ export function useWalletOperation(
           5000
         );
       });
+
+      setTimeout(
+        () =>
+          getQueryClient().invalidateQueries({
+            queryKey: getVisionPortfolioQueryOptions(username).queryKey,
+          }),
+        4000
+      );
     },
   });
 }
