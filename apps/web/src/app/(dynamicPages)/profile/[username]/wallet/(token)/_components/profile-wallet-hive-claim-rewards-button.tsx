@@ -11,6 +11,7 @@ import i18next from "i18next";
 import { useMemo } from "react";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 import { formatError } from "@/api/operations";
+import { getSdkAuthContext } from "@/utils";
 
 type Props = {
   username: string;
@@ -63,11 +64,13 @@ export function ProfileWalletHiveClaimRewardsButton({
   className,
   showIcon = false,
 }: Props) {
+  const { activeUser } = useActiveAccount();
   const { isOwnProfile, rewardBalance, hasRewards } =
     useProfileWalletHiveClaimState(username);
 
   const { mutateAsync: claimRewards, isPending } = useClaimRewards(
     username,
+    getSdkAuthContext(activeUser, username),
     () => success(i18next.t("wallet.claim-reward-balance-ok"))
   );
 
@@ -109,4 +112,3 @@ export function ProfileWalletHiveClaimRewardsButton({
     </Button>
   );
 }
-

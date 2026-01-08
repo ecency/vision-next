@@ -1,4 +1,4 @@
-import { CONFIG, getAccessToken } from "@ecency/sdk";
+import { CONFIG } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getBoundFetch } from "@/modules/wallets/utils";
 
@@ -12,7 +12,10 @@ interface Payload {
   };
 }
 
-export function useUpdateAccountWithWallets(username: string) {
+export function useUpdateAccountWithWallets(
+  username: string,
+  accessToken: string | undefined
+) {
   const fetchApi = getBoundFetch();
 
   return useMutation({
@@ -26,6 +29,12 @@ export function useUpdateAccountWithWallets(username: string) {
 
       const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
 
+      if (!accessToken) {
+        throw new Error(
+          "[SDK][Wallets][PrivateApi][WalletsAdd] – access token wasn`t found"
+        );
+      }
+
       return fetchApi(CONFIG.privateApiHost + "/private-api/wallets-add", {
         method: "POST",
         headers: {
@@ -33,7 +42,7 @@ export function useUpdateAccountWithWallets(username: string) {
         },
         body: JSON.stringify({
           username,
-          code: getAccessToken(username),
+          code: accessToken,
           token: primaryToken,
           address: primaryAddress,
           status: 3,

@@ -1,9 +1,7 @@
 "use client";
 
-import { claimRewards } from "@/api/hive-engine";
 import { formatError } from "@/api/operations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { QueryIdentifiers } from "@/core/react-query";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { formattedNumber } from "@/utils";
@@ -12,8 +10,12 @@ import clsx from "clsx";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
-import { getHiveEngineUnclaimedRewardsQueryOptions } from "@ecency/wallets";
+import { claimHiveEngineRewards, getHiveEngineUnclaimedRewardsQueryOptions } from "@ecency/wallets";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
+import { getUser } from "@/utils/user-token";
+import { getSdkAuthContext } from "@/utils/sdk-auth";
+import { shouldUseHiveAuth } from "@/utils/client";
+import { PrivateKey } from "@hiveio/dhive";
 
 type PendingAmountInfo = {
   formatted: string;
@@ -116,9 +118,14 @@ export function HiveEngineClaimRewardsButton({
   showIcon = false,
   fullWidth = false,
 }: HiveEngineClaimRewardsButtonProps) {
+  const { activeUser } = useActiveAccount();
   const params = useParams();
   const { token, username } = params ?? {};
   const queryClient = useQueryClient();
+  const auth = useMemo(
+    () => (activeUser ? getSdkAuthContext(getUser(activeUser.username)) : undefined),
+    [activeUser]
+  );
 
   const tokenFromParams =
     typeof token === "string" ? token.toUpperCase() : undefined;
@@ -145,7 +152,28 @@ export function HiveEngineClaimRewardsButton({
         return formattedAmount;
       }
 
-      await claimRewards(cleanUsername, [tokenSymbol]);
+      const user = getUser(cleanUsername);
+      const loginType = user?.loginType;
+      const signType =
+        loginType === "hivesigner"
+          ? "hivesigner"
+          : shouldUseHiveAuth(cleanUsername)
+            ? "hiveauth"
+            : "keychain";
+
+      if (loginType === "privateKey" && user?.postingKey) {
+        await claimHiveEngineRewards({
+          account: cleanUsername,
+          tokens: [tokenSymbol],
+          type: "key",
+          key: PrivateKey.fromString(user.postingKey)
+        });
+      } else {
+        await claimHiveEngineRewards(
+          { account: cleanUsername, tokens: [tokenSymbol], type: signType },
+          auth
+        );
+      }
       return formattedAmount;
     },
     onSuccess: async (formattedAmount) => {

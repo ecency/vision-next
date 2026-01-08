@@ -28,6 +28,7 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
+import { getSdkAuthContext } from "@/utils";
 import { useCallback, useState } from "react";
 
 interface Props {
@@ -85,14 +86,19 @@ export function SetupExternalCreate({ onBack }: Props) {
       setStep("sign");
     }
   });
-  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(activeUser?.username!, {
-    onError: (err) => {
-      error(...formatError(err));
-      setStep("sign");
+  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(
+    activeUser?.username!,
+    getSdkAuthContext(activeUser, activeUser?.username),
+    {
+      onError: (err) => {
+        error(...formatError(err));
+        setStep("sign");
+      }
     }
-  });
+  );
   const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
-    activeUser?.username!
+    activeUser?.username!,
+    activeUser?.accessToken
   );
 
   const handleLinkByKey = useCallback(

@@ -1,4 +1,4 @@
-import { CONFIG, EcencyAnalytics, getAccessToken } from "@ecency/sdk";
+import { CONFIG, EcencyAnalytics } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getBoundFetch } from "@/modules/wallets/utils";
 import { getPointsQueryOptions } from "../queries";
@@ -6,6 +6,7 @@ import { Points } from "../types";
 
 export function useClaimPoints(
   username: string | undefined,
+  accessToken: string | undefined,
   onSuccess?: () => void,
   onError?: Parameters<typeof useMutation>["0"]["onError"]
 ) {
@@ -22,13 +23,30 @@ export function useClaimPoints(
         );
       }
 
-      return fetchApi(CONFIG.privateApiHost + "/private-api/points-claim", {
+      if (!accessToken) {
+        throw new Error(
+          "[SDK][Wallets][Assets][Points][Claim] – access token wasn`t found"
+        );
+      }
+
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/points-claim",
+        {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ code: getAccessToken(username) }),
-      });
+          body: JSON.stringify({ code: accessToken }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `[SDK][Wallets][Assets][Points][Claim] – failed with status ${response.status}`
+        );
+      }
+
+      return response;
     },
     onError,
     onSuccess: () => {

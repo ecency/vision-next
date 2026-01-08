@@ -20,7 +20,7 @@ import i18next from "i18next";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import { getAccessToken } from "@/utils";
+import { getAccessToken, getSdkAuthContext } from "@/utils";
 
 const ECENCY = "ecency";
 
@@ -71,7 +71,8 @@ export function AccountRecovery() {
     {
       onError: (e) => error(...formatError(e)),
       onSuccess: () => success(i18next.t("account-recovery.success-message"))
-    }
+    },
+    getSdkAuthContext(activeUser, activeUser?.username)
   );
 
   const update = useCallback(() => setKeyDialog(true), []);

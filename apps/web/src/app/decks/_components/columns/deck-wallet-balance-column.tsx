@@ -23,8 +23,8 @@ import {
   parseAsset,
   vestsToHp
 } from "@/utils";
-import { getHiveEngineTokenBalances, getMetrics } from "@/api/hive-engine";
-import { getSpkWallet } from "@/api/spk-api";
+import { getHiveEngineMetrics } from "@ecency/sdk";
+import { getHiveEngineTokensBalancesQueryOptions, getSpkWalletQueryOptions } from "@ecency/wallets";
 import i18next from "i18next";
 import { FormattedCurrency } from "@/features/shared";
 import useMount from "react-use/lib/useMount";
@@ -165,8 +165,10 @@ export const DeckWalletBalanceColumn = ({
     setEngineLoading(true);
 
     try {
-      const tokens = await getMetrics();
-      const userTokens = await getHiveEngineTokenBalances(username);
+      const tokens = await getHiveEngineMetrics();
+      const userTokens = await queryClient.fetchQuery(
+        getHiveEngineTokensBalancesQueryOptions(username)
+      );
 
       const pricePerHive =
         (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base /
@@ -198,13 +200,13 @@ export const DeckWalletBalanceColumn = ({
     } finally {
       setEngineLoading(false);
     }
-  }, [dynamicProps, username]);
+  }, [dynamicProps, queryClient, username]);
 
   const fetchSpk = useCallback(async () => {
     setSpkLoading(true);
 
     try {
-      const response = await getSpkWallet(username);
+      const response = await queryClient.fetchQuery(getSpkWalletQueryOptions(username));
       setSpk(formattedNumber(response.spk / 1000, { suffix: "SPK" }));
       setLarynx(formattedNumber(response.balance / 1000, { suffix: "LARYNX" }));
       setLarynxPower(formattedNumber(response.poweredUp / 1000, { suffix: "LARYNX" }));
@@ -214,7 +216,7 @@ export const DeckWalletBalanceColumn = ({
     } finally {
       setSpkLoading(false);
     }
-  }, [username]);
+  }, [queryClient, username]);
 
   const fetch = useCallback(() => {
     if (tab === "ecency") {

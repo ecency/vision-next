@@ -1,5 +1,6 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
+import { AuthContext, useBroadcastMutation } from '@ecency/sdk';
 import { BaseWallet, SignTxParams } from '@okxweb3/coin-base';
 import { OperationName, VirtualOperationName, SMTAsset, PrivateKey, Operation, TransactionConfirmation, Client } from '@hiveio/dhive';
 import { Transaction, SignedTransaction, TransactionConfirmation as TransactionConfirmation$1 } from '@hiveio/dhive/lib/chain/transaction';
@@ -10,7 +11,6 @@ import { SolSignParam } from '@okxweb3/coin-solana/dist/SolWallet';
 import { TrxSignParam } from '@okxweb3/coin-tron/dist/TrxWallet';
 import { TxData } from '@okxweb3/coin-ton/dist/api/types';
 import { AptosParam } from '@okxweb3/coin-aptos/dist/AptosWallet';
-import { useBroadcastMutation } from '@ecency/sdk';
 
 declare enum EcencyWalletCurrency {
     BTC = "BTC",
@@ -92,7 +92,7 @@ interface Payload$6 {
         memoPublicKey: string;
     };
 }
-declare function useUpdateAccountWithWallets(username: string): _tanstack_react_query.UseMutationResult<Response, Error, Payload$6, unknown>;
+declare function useUpdateAccountWithWallets(username: string, accessToken: string | undefined): _tanstack_react_query.UseMutationResult<Response, Error, Payload$6, unknown>;
 
 declare const index_useCheckWalletExistence: typeof useCheckWalletExistence;
 declare const index_useCreateAccountWithWallets: typeof useCreateAccountWithWallets;
@@ -122,10 +122,7 @@ declare function useImportWallet(username: string, currency: EcencyWalletCurrenc
  * Basically, this mutation is a convenient wrapper for update profile operation
  */
 type SaveWalletInformationOptions = Pick<UseMutationOptions<unknown, Error, EcencyTokenMetadata[]>, "onSuccess" | "onError">;
-declare function useSaveWalletInformationToMetadata(username: string, accessToken?: string, auth?: {
-    postingKey?: string | null;
-    loginType?: string | null;
-}, options?: SaveWalletInformationOptions): _tanstack_react_query.UseMutationResult<unknown, Error, EcencyTokenMetadata[], unknown>;
+declare function useSaveWalletInformationToMetadata(username: string, auth?: AuthContext, options?: SaveWalletInformationOptions): _tanstack_react_query.UseMutationResult<unknown, Error, EcencyTokenMetadata[], unknown>;
 
 declare function getHiveAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     name: string;
@@ -810,7 +807,7 @@ interface TransferPayload<T extends HiveBasedAssetSignType> {
 }
 declare function transferHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? TransferPayload<T> & {
     key: PrivateKey;
-} : TransferPayload<T>): Promise<unknown>;
+} : TransferPayload<T>, auth?: AuthContext): Promise<unknown>;
 
 interface Payload$4<T extends HiveBasedAssetSignType> {
     from: string;
@@ -821,7 +818,7 @@ interface Payload$4<T extends HiveBasedAssetSignType> {
 }
 declare function transferToSavingsHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$4<T> & {
     key: PrivateKey;
-} : Payload$4<T>): Promise<unknown>;
+} : Payload$4<T>, auth?: AuthContext): Promise<unknown>;
 
 interface PayloadBase$1 {
     from: string;
@@ -835,7 +832,7 @@ interface PayloadWithKey$1<T extends HiveBasedAssetSignType> extends PayloadBase
 }
 declare function transferFromSavingsHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? PayloadWithKey$1<T> & {
     key: PrivateKey;
-} : PayloadWithKey$1<T>): Promise<unknown>;
+} : PayloadWithKey$1<T>, auth?: AuthContext): Promise<unknown>;
 
 interface Payload$3<T extends HiveBasedAssetSignType> {
     from: string;
@@ -846,7 +843,7 @@ interface Payload$3<T extends HiveBasedAssetSignType> {
 }
 declare function powerUpHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$3<T> & {
     key: PrivateKey;
-} : Payload$3<T>): Promise<unknown>;
+} : Payload$3<T>, auth?: AuthContext): Promise<unknown>;
 
 interface Payload$2<T extends HiveBasedAssetSignType> {
     from: string;
@@ -857,7 +854,7 @@ interface Payload$2<T extends HiveBasedAssetSignType> {
 }
 declare function delegateHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$2<T> & {
     key: PrivateKey;
-} : Payload$2<T>): Promise<unknown>;
+} : Payload$2<T>, auth?: AuthContext): Promise<unknown>;
 
 interface Payload$1<T extends HiveBasedAssetSignType> {
     from: string;
@@ -866,7 +863,7 @@ interface Payload$1<T extends HiveBasedAssetSignType> {
 }
 declare function powerDownHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$1<T> & {
     key: PrivateKey;
-} : Payload$1<T>): Promise<unknown>;
+} : Payload$1<T>, auth?: AuthContext): Promise<unknown>;
 
 interface Payload<T extends HiveBasedAssetSignType> {
     from_account: string;
@@ -877,9 +874,9 @@ interface Payload<T extends HiveBasedAssetSignType> {
 }
 declare function withdrawVestingRouteHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload<T> & {
     key: PrivateKey;
-} : Payload<T>): Promise<unknown>;
+} : Payload<T>, auth?: AuthContext): Promise<unknown>;
 
-declare function useClaimRewards(username: string, accessToken: string | undefined, onSuccess: () => void): ReturnType<typeof useBroadcastMutation<void>>;
+declare function useClaimRewards(username: string, auth: AuthContext | undefined, onSuccess: () => void): ReturnType<typeof useBroadcastMutation<void>>;
 
 interface PayloadBase {
     from: string;
@@ -893,7 +890,7 @@ interface PayloadWithKey<T extends HiveBasedAssetSignType> extends PayloadBase {
 }
 declare function claimInterestHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? PayloadWithKey<T> & {
     key: PrivateKey;
-} : PayloadWithKey<T>): Promise<unknown>;
+} : PayloadWithKey<T>, auth?: AuthContext): Promise<unknown>;
 
 declare const HIVE_ACCOUNT_OPERATION_GROUPS: Record<HiveOperationGroup, number[]>;
 
@@ -942,7 +939,7 @@ interface SpkTransferPayload<T extends HiveBasedAssetSignType> {
 }
 declare function transferSpk<T extends HiveBasedAssetSignType>(payload: T extends "key" ? SpkTransferPayload<T> & {
     key: PrivateKey;
-} : SpkTransferPayload<T>): Promise<unknown>;
+} : SpkTransferPayload<T>, auth?: AuthContext): Promise<unknown>;
 
 interface SpkLockPayload<T extends HiveBasedAssetSignType> {
     mode: "lock" | "unlock";
@@ -952,7 +949,7 @@ interface SpkLockPayload<T extends HiveBasedAssetSignType> {
 }
 declare const lockLarynx: <T extends HiveBasedAssetSignType>(payload: T extends "key" ? SpkLockPayload<T> & {
     key: PrivateKey;
-} : SpkLockPayload<T>) => Promise<unknown>;
+} : SpkLockPayload<T>, auth?: AuthContext) => Promise<unknown>;
 
 interface SpkPowerPayload<T extends HiveBasedAssetSignType> {
     mode: "up" | "down";
@@ -962,7 +959,7 @@ interface SpkPowerPayload<T extends HiveBasedAssetSignType> {
 }
 declare function powerUpLarynx<T extends HiveBasedAssetSignType>(payload: T extends "key" ? SpkPowerPayload<T> & {
     key: PrivateKey;
-} : SpkPowerPayload<T>): Promise<unknown>;
+} : SpkPowerPayload<T>, auth?: AuthContext): Promise<unknown>;
 
 interface LarynxTransferPayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -973,7 +970,7 @@ interface LarynxTransferPayload<T extends HiveBasedAssetSignType> {
 }
 declare function transferLarynx<T extends HiveBasedAssetSignType>(payload: T extends "key" ? LarynxTransferPayload<T> & {
     key: PrivateKey;
-} : LarynxTransferPayload<T>): Promise<unknown>;
+} : LarynxTransferPayload<T>, auth?: AuthContext): Promise<unknown>;
 
 declare function getLarynxAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     name: string;
@@ -1478,7 +1475,7 @@ interface DelegateEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function delegateEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? DelegateEnginePayload<T> & {
     key: PrivateKey;
-} : DelegateEnginePayload<T>): Promise<unknown>;
+} : DelegateEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
 
 interface UndelegateEnginePayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1489,7 +1486,7 @@ interface UndelegateEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function undelegateEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? UndelegateEnginePayload<T> & {
     key: PrivateKey;
-} : UndelegateEnginePayload<T>): Promise<unknown>;
+} : UndelegateEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
 
 interface StakeEnginePayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1500,7 +1497,7 @@ interface StakeEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function stakeEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? StakeEnginePayload<T> & {
     key: PrivateKey;
-} : StakeEnginePayload<T>): Promise<unknown>;
+} : StakeEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
 
 interface UnstakeEnginePayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1511,7 +1508,7 @@ interface UnstakeEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function unstakeEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? UnstakeEnginePayload<T> & {
     key: PrivateKey;
-} : UnstakeEnginePayload<T>): Promise<unknown>;
+} : UnstakeEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
 
 interface TransferEnginePayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1523,9 +1520,9 @@ interface TransferEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function transferEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? TransferEnginePayload<T> & {
     key: PrivateKey;
-} : TransferEnginePayload<T>): Promise<unknown>;
+} : TransferEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
 
-declare function useClaimPoints(username: string | undefined, onSuccess?: () => void, onError?: Parameters<typeof useMutation>["0"]["onError"]): _tanstack_react_query.UseMutationResult<Response, unknown, unknown, unknown>;
+declare function useClaimPoints(username: string | undefined, accessToken: string | undefined, onSuccess?: () => void, onError?: Parameters<typeof useMutation>["0"]["onError"]): _tanstack_react_query.UseMutationResult<Response, unknown, unknown, unknown>;
 
 type PointsSignType = "key" | "keychain" | "hivesigner" | "hiveauth";
 interface PointsTransferPayloadBase {
@@ -1538,7 +1535,7 @@ interface PointsTransferPayloadBase {
 type PointsTransferPayload<T extends PointsSignType> = T extends "key" ? PointsTransferPayloadBase & {
     key: PrivateKey;
 } : PointsTransferPayloadBase;
-declare function transferPoint<T extends PointsSignType>({ from, to, amount, memo, type, ...payload }: PointsTransferPayload<T>): Promise<unknown>;
+declare function transferPoint<T extends PointsSignType>({ from, to, amount, memo, type, ...payload }: PointsTransferPayload<T>, auth?: AuthContext): Promise<unknown>;
 
 declare function getPointsQueryOptions(username?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     readonly points: any;
@@ -1679,7 +1676,7 @@ declare function getPointsAssetTransactionsQueryOptions(username: string | undef
     };
 };
 
-declare function useWalletOperation(username: string, asset: string, operation: AssetOperation): _tanstack_react_query.UseMutationResult<any, Error, Record<string, unknown>, unknown>;
+declare function useWalletOperation(username: string, asset: string, operation: AssetOperation, auth?: AuthContext): _tanstack_react_query.UseMutationResult<any, Error, Record<string, unknown>, unknown>;
 
 interface ExternalWalletBalance {
     chain: string;

@@ -6,5 +6,8 @@ export * from "./hive-engine-metric";
 export * from "./hive-engine-token-balance";
 export * from "./hive-engine-token-status";
 export * from "./hive-engine-token-info";
+export * from "./hive-engine-order-book-entry";
+export * from "./hive-engine-trade-history-entry";
+export * from "./hive-engine-open-order";
 export * from "./token";
 export * from "./token-metadata";

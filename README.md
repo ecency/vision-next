@@ -21,6 +21,53 @@ Feel free to test it out and submit improvements and pull requests.
 
 ***
 
+## Data Fetching and Broadcasting
+
+### Data Fetching (Web + SDK)
+
+The web app uses `@ecency/sdk` for data fetching. Requests are built with query option helpers and
+sent to `CONFIG.privateApiHost`.
+
+In the web app, `CONFIG.privateApiHost` is set to `""` in `apps/web/src/core/sdk-init.ts`, so
+private API calls go to the current origin:
+
+- `POST /private-api/*`
+- `POST /search-api/*`
+
+If you run the app against a different backend, update `NEXT_PUBLIC_APP_BASE` or override the SDK
+host in `apps/web/src/core/sdk-init.ts`.
+
+### Broadcasting (Web + SDK)
+
+Broadcasting in the SDK is platform-agnostic. The SDK can:
+
+- Use a posting key (server-side or direct key usage).
+- Use a Hivesigner access token.
+- Defer to an injected broadcaster for platform-specific signing (Keychain, HiveAuth, mobile).
+
+In the web app, `getSdkAuthContext` wires Keychain/HiveAuth:
+
+```ts
+import { getSdkAuthContext } from "@/utils";
+import { useAccountUpdate } from "@ecency/sdk";
+
+const auth = getSdkAuthContext(activeUser, activeUser?.username);
+const { mutateAsync } = useAccountUpdate(activeUser?.username ?? "", auth);
+await mutateAsync({ profile: { about: "..." } });
+```
+
+Wallet operations follow the same pattern:
+
+```ts
+import { useWalletOperation } from "@ecency/wallets";
+import { getSdkAuthContext } from "@/utils";
+
+const auth = getSdkAuthContext(activeUser, activeUser?.username);
+const { mutateAsync } = useWalletOperation(username, asset, operation, auth);
+```
+
+***
+
 ## Build instructions
 
 ##### Requirements

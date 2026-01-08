@@ -5,22 +5,24 @@ import Decimal from "decimal.js";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import {
-  cancelEngineOrder,
+  AssetOperation,
   EngineOrderBroadcastOptions,
   EngineOrderSignMethod,
-  getEngineOpenOrders,
-  getEngineOrderBook,
-  getEngineTradeHistory,
-  getTokenBalances,
-  getTokens,
-  placeEngineBuyOrder,
-  placeEngineSellOrder
-} from "@/api/hive-engine";
+  cancelHiveEngineOrder,
+  getHiveEngineTokensBalancesQueryOptions,
+  getHiveEngineTokensMetadataQueryOptions,
+  placeHiveEngineBuyOrder,
+  placeHiveEngineSellOrder
+} from "@ecency/wallets";
+import {
+  getHiveEngineOpenOrders,
+  getHiveEngineOrderBook,
+  getHiveEngineTradeHistory
+} from "@ecency/sdk";
 import { HiveEngineOpenOrder, HiveEngineTokenInfo, Token } from "@/entities";
 import { success, error, KeyOrHot } from "@/features/shared";
 import { WalletOperationsDialog } from "@/features/wallet";
 import i18next from "i18next";
-import { AssetOperation } from "@ecency/wallets";
 import {
   EngineMarketSummary,
   EngineOrderBook,
@@ -32,6 +34,8 @@ import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { PrivateKey } from "@hiveio/dhive";
 import { shouldUseHiveAuth } from "@/utils/client";
 import { useActiveAccount } from "@/core/hooks";
+import { getUser } from "@/utils/user-token";
+import { getSdkAuthContext } from "@/utils/sdk-auth";
 
 interface Props {
   symbol: string;
@@ -67,6 +71,10 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
   const [prefillSellKey, setPrefillSellKey] = useState(0);
   const [signRequest, setSignRequest] = useState<EngineOrderRequest | null>(null);
   const [isSigning, setIsSigning] = useState(false);
+  const auth = useMemo(
+    () => (username ? getSdkAuthContext(getUser(username)) : undefined),
+    [username]
+  );
 
   useEffect(() => {
     setPrefillBuyPrice(undefined);
@@ -76,41 +84,36 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
   }, [symbol]);
 
   const tokenDefinitionQuery = useQuery({
-    queryKey: ["hive-engine-token-definition", symbol],
-    queryFn: async () => {
-      const response = await getTokens([symbol]);
-      return response[0];
-    },
+    ...getHiveEngineTokensMetadataQueryOptions(symbol ? [symbol] : []),
     enabled: !!symbol
   });
 
-  const tokenDefinition = tokenDefinitionQuery.data as Token | undefined;
+  const tokenDefinition = (tokenDefinitionQuery.data as Token[] | undefined)?.[0];
   const tokenPrecision = tokenDefinition?.precision ?? 8;
 
   const orderBookQuery = useQuery({
     queryKey: ["hive-engine-order-book", symbol],
-    queryFn: () => getEngineOrderBook(symbol),
+    queryFn: () => getHiveEngineOrderBook(symbol),
     enabled: !!symbol,
     refetchInterval: 10000
   });
 
   const tradeHistoryQuery = useQuery({
     queryKey: ["hive-engine-trades", symbol],
-    queryFn: () => getEngineTradeHistory(symbol),
+    queryFn: () => getHiveEngineTradeHistory(symbol),
     enabled: !!symbol,
     refetchInterval: 15000
   });
 
   const balancesQuery = useQuery({
-    queryKey: ["hive-engine-balances", username],
-    queryFn: () => getTokenBalances(username!),
+    ...getHiveEngineTokensBalancesQueryOptions(username ?? ""),
     enabled: !!username,
     refetchInterval: 60000
   });
 
   const openOrdersQuery = useQuery({
     queryKey: ["hive-engine-open-orders", username, symbol],
-    queryFn: () => getEngineOpenOrders(username!, symbol),
+    queryFn: () => getHiveEngineOpenOrders(username!, symbol),
     enabled: !!username && !!symbol,
     refetchInterval: 20000
   });
@@ -247,7 +250,7 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
     }
 
     const request = signRequest;
-    const options: EngineOrderBroadcastOptions = { method };
+    const options: EngineOrderBroadcastOptions = { method, auth };
 
     if (method === "key") {
       if (!key) {
@@ -261,17 +264,17 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
 
     try {
       if (request.kind === "buy") {
-        await placeEngineBuyOrder(username, symbol, request.quantity, request.price, options);
+        await placeHiveEngineBuyOrder(username, symbol, request.quantity, request.price, options);
         success(i18next.t("market.engine.order-placed"));
         await refreshData();
         request.resolve();
       } else if (request.kind === "sell") {
-        await placeEngineSellOrder(username, symbol, request.quantity, request.price, options);
+        await placeHiveEngineSellOrder(username, symbol, request.quantity, request.price, options);
         success(i18next.t("market.engine.order-placed"));
         await refreshData();
         request.resolve();
       } else {
-        await cancelEngineOrder(username, request.order.type, request.order.id, options);
+        await cancelHiveEngineOrder(username, request.order.type, request.order.id, options);
         success(i18next.t("market.engine.order-cancelled"));
         await refreshData();
         request.resolve();

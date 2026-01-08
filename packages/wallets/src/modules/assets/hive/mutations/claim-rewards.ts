@@ -1,11 +1,12 @@
 import { getAccountFullQueryOptions, useBroadcastMutation } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getHivePowerAssetGeneralInfoQueryOptions } from "../queries";
 import { delay } from "@/modules/wallets/utils";
 
 export function useClaimRewards(
   username: string,
-  accessToken: string | undefined,
+  auth: AuthContext | undefined,
   onSuccess: () => void
 ): ReturnType<typeof useBroadcastMutation<void>> {
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -15,7 +16,6 @@ export function useClaimRewards(
   return useBroadcastMutation<void>(
     ["assets", "hive", "claim-rewards", data?.name],
     username,
-    accessToken,
     () => {
       if (!data) {
         throw new Error("Failed to fetch account while claiming balance");
@@ -51,6 +51,7 @@ export function useClaimRewards(
       queryClient.invalidateQueries({
         queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey,
       });
-    }
+    },
+    auth
   );
 }

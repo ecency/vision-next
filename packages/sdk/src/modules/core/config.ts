@@ -1,13 +1,9 @@
 import { Client } from "@hiveio/dhive";
-import { MockStorage } from "./mock-storage";
 import { QueryClient } from "@tanstack/react-query";
 
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",
-  storage:
-    typeof window === "undefined" ? new MockStorage() : window.localStorage,
-  storagePrefix: "ecency",
   hiveClient: new Client(
     [
       "https://api.hive.blog",

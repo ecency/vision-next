@@ -43,7 +43,9 @@ export function SignupWalletAccountCreating({ username, validatedWallet }: Props
   const { mutateAsync: createAccount, isSuccess: isAccountCreateScheduled } =
     EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const { mutateAsync: saveWalletInformationToMetadata } =
-    useSaveWalletInformationToMetadata(username);
+    useSaveWalletInformationToMetadata(username, {
+      postingKey: loginKey
+    });
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
     "signed-up-with-wallets"

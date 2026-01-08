@@ -55,3 +55,11 @@ export async function getCurrencyRates(): Promise<CurrencyRates> {
   const response = await fetchApi(CONFIG.privateApiHost + "/private-api/market-data/latest");
   return parseJsonResponse<CurrencyRates>(response);
 }
+
+export async function getHivePrice(): Promise<{ hive: { usd: number } }> {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(
+    "https://api.coingecko.com/api/v3/simple/price?ids=hive&vs_currencies=usd"
+  );
+  return parseJsonResponse<{ hive: { usd: number } }>(response);
+}

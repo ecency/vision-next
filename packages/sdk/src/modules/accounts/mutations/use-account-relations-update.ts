@@ -1,4 +1,5 @@
 import { broadcastJson, getQueryClient } from "@/modules/core";
+import type { AuthContext } from "@/modules/core/types";
 import { useMutation } from "@tanstack/react-query";
 import { getRelationshipBetweenAccountsQueryOptions } from "../queries";
 import { AccountRelationship } from "../types";
@@ -8,6 +9,7 @@ type Kind = "toggle-ignore" | "toggle-follow";
 export function useAccountRelationsUpdate(
   reference: string | undefined,
   target: string | undefined,
+  auth: AuthContext | undefined,
   onSuccess: (data: Partial<AccountRelationship> | undefined) => void,
   onError: (e: Error) => void
 ) {
@@ -23,7 +25,10 @@ export function useAccountRelationsUpdate(
         relationsQuery.queryKey
       );
 
-      await broadcastJson(reference, "follow", [
+      await broadcastJson(
+        reference,
+        "follow",
+        [
         "follow",
         {
           follower: reference,
@@ -37,7 +42,9 @@ export function useAccountRelationsUpdate(
               : []),
           ],
         },
-      ]);
+        ],
+        auth
+      );
 
       return {
         ...actualRelation,

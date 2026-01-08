@@ -1,4 +1,5 @@
-import { CONFIG, Keychain } from "@ecency/sdk";
+import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
@@ -21,7 +22,8 @@ export async function claimInterestHive<
 >(
   payload: T extends "key"
     ? PayloadWithKey<T> & { key: PrivateKey }
-    : PayloadWithKey<T>
+    : PayloadWithKey<T>,
+  auth?: AuthContext
 ) {
   const requestId = payload.request_id ?? (Date.now() >>> 0);
   const baseOperation = {
@@ -47,12 +49,14 @@ export async function claimInterestHive<
     return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
   }
 
-  if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, operations, "Active") as Promise<unknown>;
-  }
-
-  if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, operations, "active");
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast(operations, auth, "Active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, operations, "active");
+    }
+    throw new Error("[SDK][Wallets] – missing keychain broadcaster");
   }
 
   return hs.sendOperations(operations, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});

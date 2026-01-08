@@ -1,10 +1,11 @@
-import { Keychain } from "@/modules/keychain";
 import { Operation } from "@hiveio/dhive";
 import { useMutation } from "@tanstack/react-query";
+import type { AuthContext } from "@/modules/core/types";
 
 export function useSignOperationByKeychain(
   username: string | undefined,
-  keyType: Keychain.KeychainAuthorityTypes = "Active"
+  auth?: AuthContext,
+  keyType: "Owner" | "Active" | "Posting" | "Memo" = "Active"
 ) {
   return useMutation({
     mutationKey: ["operations", "sign-keychain", username],
@@ -14,7 +15,11 @@ export function useSignOperationByKeychain(
           "[SDK][Keychain] – cannot sign operation with anon user"
         );
       }
-      return Keychain.broadcast(username, [operation], keyType) as Promise<any>;
+      if (!auth?.broadcast) {
+        throw new Error("[SDK][Keychain] – missing keychain broadcaster");
+      }
+
+      return auth.broadcast([operation], auth, keyType);
     },
   });
 }

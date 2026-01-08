@@ -1,4 +1,5 @@
 import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
@@ -16,7 +17,8 @@ export interface UnstakeEnginePayload<T extends HiveBasedAssetSignType> {
 export async function unstakeEngineToken<T extends HiveBasedAssetSignType>(
   payload: T extends "key"
     ? UnstakeEnginePayload<T> & { key: PrivateKey }
-    : UnstakeEnginePayload<T>
+    : UnstakeEnginePayload<T>,
+  auth?: AuthContext
 ) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
@@ -58,25 +60,14 @@ export async function unstakeEngineToken<T extends HiveBasedAssetSignType>(
     };
 
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise((resolve, reject) =>
-      (window as any).hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Unstaking",
-        (resp: { success: boolean }) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], auth, "Active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] – missing keychain broadcaster");
   } else {
     return hs.sendOperation(
       operation,

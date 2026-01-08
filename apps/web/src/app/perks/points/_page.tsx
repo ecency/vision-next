@@ -25,6 +25,7 @@ export function PointsPage() {
 
   const { mutateAsync: claim, isPending } = useClaimPoints(
     activeUser?.username,
+    activeUser?.accessToken,
     () => success(i18next.t("points.claim-ok")),
     (err) => error(...formatError(err))
   );
