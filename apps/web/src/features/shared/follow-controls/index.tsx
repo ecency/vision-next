@@ -5,6 +5,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, LoginRequired, success } from "@/features/shared";
 import { getRelationshipBetweenAccountsQueryOptions, useAccountRelationsUpdate } from "@ecency/sdk";
 import { getSdkAuthContext } from "@/utils";
+import { getUser } from "@/utils/user-token";
 import { useQuery } from "@tanstack/react-query";
 import { UilBell, UilBellSlash } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
@@ -31,7 +32,7 @@ function MuteButton({ disabled, following }: ButtonProps) {
   const { mutateAsync: updateRelation, isPending } = useAccountRelationsUpdate(
     activeUser?.username,
     following,
-    getSdkAuthContext(activeUser, activeUser?.username),
+    getSdkAuthContext(getUser(activeUser?.username ?? "")),
     (data) =>
       success(
         data?.ignores === true
@@ -76,7 +77,7 @@ function FollowButton({ disabled, following }: ButtonProps) {
   const { mutateAsync: updateRelation, isPending } = useAccountRelationsUpdate(
     activeUser?.username,
     following,
-    getSdkAuthContext(activeUser, activeUser?.username),
+    getSdkAuthContext(getUser(activeUser?.username ?? "")),
     (data) => {},
     (err) => error(...formatError(err))
   );

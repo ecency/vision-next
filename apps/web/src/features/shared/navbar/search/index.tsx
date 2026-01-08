@@ -13,7 +13,7 @@ import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { getPointsQueryOptions, useClaimPoints, useClaimRewards } from "@ecency/wallets";
 import { success, error } from "@/features/shared";
 import { formatError } from "@/api/operations";
-import { formatNumber, getSdkAuthContext } from "@/utils";
+import { formatNumber, getSdkAuthContext, getUser } from "@/utils";
 import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { DraftsDialog } from "@/features/shared/drafts";
 import { GalleryDialog } from "@/features/shared/gallery";
@@ -71,7 +71,7 @@ export function Search({ containerClassName }: Props) {
 
   const { mutateAsync: claimHiveRewards, isPending: isClaimingHiveRewards } = useClaimRewards(
     username ?? "",
-    getSdkAuthContext(activeUser, username ?? ""),
+    getSdkAuthContext(getUser(activeUser?.username ?? "")),
     () => success(i18next.t("wallet.claim-reward-balance-ok"))
   );
 

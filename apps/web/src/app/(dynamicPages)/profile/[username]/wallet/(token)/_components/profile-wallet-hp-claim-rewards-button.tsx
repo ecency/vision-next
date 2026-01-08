@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
-import { formatNumber, parseAsset, vestsToHp, getSdkAuthContext } from "@/utils";
+import { formatNumber, parseAsset, vestsToHp, getSdkAuthContext, getUser } from "@/utils";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 import { formatError } from "@/api/operations";
 
@@ -74,7 +74,7 @@ export function ProfileWalletHpClaimRewardsButton({
 
   const { mutateAsync: claimRewards, isPending } = useClaimRewards(
     username,
-    getSdkAuthContext(activeUser, username),
+    getSdkAuthContext(getUser(activeUser?.username ?? username)),
     () => success(i18next.t("wallet.claim-reward-balance-ok"))
   );
 

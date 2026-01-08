@@ -10,7 +10,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { WalletOperationSigning } from "./wallet-operations-signing";
 import { shouldUseHiveAuth } from "@/utils/client";
-import { getSdkAuthContext } from "@/utils";
+import { getSdkAuthContext, getUser } from "@/utils";
 
 interface Props {
   asset: string;
@@ -44,7 +44,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
     data.from as string,
     asset,
     operation,
-    getSdkAuthContext(activeUser, activeUser?.username)
+    getSdkAuthContext(getUser(activeUser?.username ?? ""))
   );
 
   useEffect(() => {

@@ -18,7 +18,7 @@ import { KeyOrHot } from "../key-or-hot";
 import { PrivateKey } from "@hiveio/dhive";
 import { usePathname } from "next/navigation";
 import { error } from "../feedback";
-import { getSdkAuthContext } from "@/utils";
+import { getSdkAuthContext, getUser } from "@/utils";
 
 interface Props {
   show: boolean;
@@ -38,7 +38,7 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
   const { mutateAsync: signOperationByKeychain, isPending: isSigningKeychain } =
     useSignOperationByKeychain(
       activeUser?.username,
-      getSdkAuthContext(activeUser, activeUser?.username)
+      getSdkAuthContext(getUser(activeUser?.username ?? ""))
     );
   const { mutateAsync: signOperationByHivesigner } = useSignOperationByHivesigner(
     `https://ecency.com/${pathname}`

@@ -29,6 +29,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { getSdkAuthContext } from "@/utils";
+import { getUser } from "@/utils/user-token";
 import { useCallback, useMemo, useState } from "react";
 
 interface Props {
@@ -80,8 +81,8 @@ export function SetupExternalCreate({ onBack }: Props) {
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
   const { data: tokens } = useWalletsCacheQuery(activeUser?.username);
   const authContext = useMemo(
-    () => getSdkAuthContext(activeUser, activeUser?.username),
-    [activeUser]
+    () => getSdkAuthContext(getUser(activeUser?.username ?? "")),
+    [activeUser?.username]
   );
 
   const { mutateAsync: saveKeys, isPending } = useAccountUpdateKeyAuths(activeUser?.username!, {
