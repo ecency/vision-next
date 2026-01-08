@@ -65,11 +65,7 @@ export function useAccountRevokePosting(
         if (!auth?.broadcast) {
           throw new Error("[SDK][Accounts] – missing keychain broadcaster");
         }
-        return auth.broadcast(
-          [["account_update", operationBody]],
-          auth,
-          "Active"
-        );
+        return auth.broadcast([["account_update", operationBody]], "active");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`,

@@ -26,7 +26,7 @@ export function useBroadcastMutation<T>(
       }
 
       if (auth?.broadcast) {
-        return auth.broadcast(operations(payload), auth, "Posting");
+        return auth.broadcast(operations(payload), "posting");
       }
 
       const postingKey = auth?.postingKey;
@@ -41,9 +41,9 @@ export function useBroadcastMutation<T>(
 
       const accessToken = auth?.accessToken;
       if (accessToken) {
-        const response = await new hs.Client({ accessToken }).broadcast(
-          operations(payload)
-        );
+        const ops = operations(payload);
+        const client = new hs.Client({ accessToken });
+        const response = await client.broadcast(ops);
         return response.result;
       }
 

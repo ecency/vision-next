@@ -19,13 +19,13 @@ export function useClaimPoints(
     mutationFn: async () => {
       if (!username) {
         throw new Error(
-          "[SDK][Wallets][Assets][Points][Claim] – username wasn`t provided"
+          "[SDK][Wallets][Assets][Points][Claim] – username wasn't provided"
         );
       }
 
       if (!accessToken) {
         throw new Error(
-          "[SDK][Wallets][Assets][Points][Claim] – access token wasn`t found"
+          "[SDK][Wallets][Assets][Points][Claim] – access token wasn't found"
         );
       }
 
@@ -41,12 +41,13 @@ export function useClaimPoints(
       );
 
       if (!response.ok) {
+        const body = await response.text();
         throw new Error(
-          `[SDK][Wallets][Assets][Points][Claim] – failed with status ${response.status}`
+          `[SDK][Wallets][Assets][Points][Claim] – failed with status ${response.status}${body ? `: ${body}` : ""}`
         );
       }
 
-      return response;
+      return response.json();
     },
     onError,
     onSuccess: () => {

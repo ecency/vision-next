@@ -6,7 +6,6 @@ export interface AuthContext {
   loginType?: string | null;
   broadcast?: (
     operations: Operation[],
-    auth: AuthContext,
-    authority?: "Active" | "Posting" | "Owner" | "Memo"
+    authority?: "active" | "posting" | "owner" | "memo"
   ) => Promise<unknown>;
 }

@@ -4,7 +4,7 @@ import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
 import { parseAsset } from "../../utils";
-import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastHiveEngineOperation } from "./broadcast-hive-engine-operation";
 
 export interface UndelegateEnginePayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -61,13 +61,7 @@ export async function undelegateEngineToken<T extends HiveBasedAssetSignType>(
 
     return CONFIG.hiveClient.broadcast.json(op, key);
   } else if (payload.type === "keychain" || payload.type === "hiveauth") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], auth, "Active");
-    }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
-    throw new Error("[SDK][Wallets] – missing keychain broadcaster");
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,

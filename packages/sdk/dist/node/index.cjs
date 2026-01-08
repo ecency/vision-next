@@ -45,7 +45,7 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
         );
       }
       if (auth?.broadcast) {
-        return auth.broadcast(operations(payload), auth, "Posting");
+        return auth.broadcast(operations(payload), "posting");
       }
       const postingKey = auth?.postingKey;
       if (postingKey) {
@@ -57,9 +57,9 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
       }
       const accessToken = auth?.accessToken;
       if (accessToken) {
-        const response = await new hs__default.default.Client({ accessToken }).broadcast(
-          operations(payload)
-        );
+        const ops2 = operations(payload);
+        const client = new hs__default.default.Client({ accessToken });
+        const response = await client.broadcast(ops2);
         return response.result;
       }
       throw new Error(
@@ -238,7 +238,7 @@ async function broadcastJson(username, id, payload, auth) {
     json: JSON.stringify(payload)
   };
   if (auth?.broadcast) {
-    return auth.broadcast([["custom_json", jjson]], auth, "Posting");
+    return auth.broadcast([["custom_json", jjson]], "posting");
   }
   const postingKey = auth?.postingKey;
   if (postingKey) {
@@ -2637,11 +2637,7 @@ function useAccountRevokePosting(username, options, auth) {
         if (!auth?.broadcast) {
           throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
         }
-        return auth.broadcast(
-          [["account_update", operationBody]],
-          auth,
-          "Active"
-        );
+        return auth.broadcast([["account_update", operationBody]], "active");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`
@@ -2714,11 +2710,7 @@ function useAccountUpdateRecovery(username, code, options, auth) {
         if (!auth?.broadcast) {
           throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
         }
-        return auth.broadcast(
-          [["change_recovery_account", operationBody]],
-          auth,
-          "Active"
-        );
+        return auth.broadcast([["change_recovery_account", operationBody]], "active");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`
@@ -2938,7 +2930,7 @@ function useSignOperationByKey(username) {
     }
   });
 }
-function useSignOperationByKeychain(username, auth, keyType = "Active") {
+function useSignOperationByKeychain(username, auth, keyType = "active") {
   return reactQuery.useMutation({
     mutationKey: ["operations", "sign-keychain", username],
     mutationFn: ({ operation }) => {
@@ -2950,7 +2942,7 @@ function useSignOperationByKeychain(username, auth, keyType = "Active") {
       if (!auth?.broadcast) {
         throw new Error("[SDK][Keychain] \u2013 missing keychain broadcaster");
       }
-      return auth.broadcast([operation], auth, keyType);
+      return auth.broadcast([operation], keyType);
     }
   });
 }

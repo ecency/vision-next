@@ -82,7 +82,7 @@ const auth: AuthContext = {
   accessToken,
   postingKey,
   loginType,
-  broadcast: async (operations, _auth, authority = "Posting") => {
+  broadcast: async (operations, authority = "posting") => {
     // App-specific broadcaster (Keychain, HiveAuth, mobile wallet)
     return myBroadcaster(operations, authority);
   }
@@ -101,13 +101,12 @@ For operations that must be signed with Active or Owner authority, use
 `useSignOperationByKey` and pass the appropriate private key:
 
 ```ts
-import { PrivateKey } from "@hiveio/dhive";
 import { useSignOperationByKey } from "@ecency/sdk";
 
 const { mutateAsync } = useSignOperationByKey(username);
 await mutateAsync({
   operation: ["account_update", { /* ... */ }],
-  key: PrivateKey.fromString(activeKey)
+  keyOrSeed: activeKey
 });
 ```
 
@@ -117,7 +116,7 @@ use the `authority` argument:
 
 ```ts
 const auth = {
-  broadcast: (ops, _auth, authority = "Posting") => {
+  broadcast: (ops, authority = "posting") => {
     return myBroadcaster(ops, authority);
   }
 };
@@ -125,7 +124,7 @@ const auth = {
 
 ## Module Layout
 
-```
+```text
 src/modules/
   accounts/       queries, mutations, utils, types
   posts/          queries, mutations, utils, types

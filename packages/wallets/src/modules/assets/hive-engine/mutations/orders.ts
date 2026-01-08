@@ -69,12 +69,12 @@ async function broadcastEngineOperation(
     case "keychain":
     case "hiveauth": {
       if (options.auth?.broadcast) {
-        return options.auth.broadcast([opTuple], options.auth, "Active");
+        return options.auth.broadcast([opTuple], "active");
       }
       if (options.method === "hiveauth") {
         return broadcastWithWalletHiveAuth(account, [opTuple], "active");
       }
-      throw new Error("[SDK][Wallets] – missing keychain broadcaster");
+      throw new Error("[SDK][Wallets] – missing broadcaster");
     }
     case "hivesigner":
       return hs.sendOperation(

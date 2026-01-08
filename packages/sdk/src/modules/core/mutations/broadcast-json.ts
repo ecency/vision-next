@@ -22,7 +22,7 @@ export async function broadcastJson<T>(
   };
 
   if (auth?.broadcast) {
-    return auth.broadcast([["custom_json", jjson]], auth, "Posting");
+    return auth.broadcast([["custom_json", jjson]], "posting");
   }
 
   const postingKey = auth?.postingKey;

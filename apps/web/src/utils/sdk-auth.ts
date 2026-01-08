@@ -22,15 +22,24 @@ export function getSdkAuthContext(
   };
 
   if (activeUser.loginType === "keychain") {
-    auth.broadcast = (operations, _auth, authority = "Posting") =>
-      keychain
-        .broadcast(activeUser.username, operations, authority)
+    auth.broadcast = (operations, authority = "posting") => {
+      const keychainAuthority =
+        authority === "active"
+          ? "Active"
+          : authority === "posting"
+            ? "Posting"
+            : authority === "owner"
+              ? "Owner"
+              : "Memo";
+      return keychain
+        .broadcast(activeUser.username, operations, keychainAuthority)
         .then((result: any) => result.result);
+    };
   }
 
   if (activeUser.loginType === "hiveauth" || shouldUseHiveAuth(activeUser.username)) {
-    auth.broadcast = (operations, _auth, authority = "Posting") => {
-      const keyType = authority === "Active" ? "active" : "posting";
+    auth.broadcast = (operations, authority = "posting") => {
+      const keyType = authority === "active" ? "active" : "posting";
       return broadcastWithHiveAuth(activeUser.username, operations, keyType);
     };
   }

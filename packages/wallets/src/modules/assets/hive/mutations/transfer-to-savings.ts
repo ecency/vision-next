@@ -33,12 +33,12 @@ export async function transferToSavingsHive<T extends HiveBasedAssetSignType>(
     );
   } else if (payload.type === "keychain" || payload.type === "hiveauth") {
     if (auth?.broadcast) {
-      return auth.broadcast([operation], auth, "Active");
+      return auth.broadcast([operation], "active");
     }
     if (payload.type === "hiveauth") {
       return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
     }
-    throw new Error("[SDK][Wallets] – missing keychain broadcaster");
+    throw new Error("[SDK][Wallets] – missing broadcaster");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});
   }

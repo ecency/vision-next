@@ -25,7 +25,7 @@ interface AuthContext {
     accessToken?: string;
     postingKey?: string | null;
     loginType?: string | null;
-    broadcast?: (operations: Operation[], auth: AuthContext, authority?: "Active" | "Posting" | "Owner" | "Memo") => Promise<unknown>;
+    broadcast?: (operations: Operation[], authority?: "active" | "posting" | "owner" | "memo") => Promise<unknown>;
 }
 
 interface AccountFollowStats {
@@ -1189,7 +1189,7 @@ declare function useSignOperationByKey(username: string | undefined): _tanstack_
     keyOrSeed: string;
 }, unknown>;
 
-declare function useSignOperationByKeychain(username: string | undefined, auth?: AuthContext, keyType?: "Owner" | "Active" | "Posting" | "Memo"): _tanstack_react_query.UseMutationResult<unknown, Error, {
+declare function useSignOperationByKeychain(username: string | undefined, auth?: AuthContext, keyType?: "owner" | "active" | "posting" | "memo"): _tanstack_react_query.UseMutationResult<unknown, Error, {
     operation: Operation;
 }, unknown>;
 

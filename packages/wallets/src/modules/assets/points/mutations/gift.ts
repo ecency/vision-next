@@ -49,12 +49,12 @@ export async function transferPoint<T extends PointsSignType>({
 
   if (type === "keychain" || type === "hiveauth") {
     if (auth?.broadcast) {
-      return auth.broadcast([op], auth, "Active");
+      return auth.broadcast([op], "active");
     }
     if (type === "hiveauth") {
       return broadcastWithWalletHiveAuth(from, [op], "active");
     }
-    throw new Error("[SDK][Wallets] – missing keychain broadcaster");
+    throw new Error("[SDK][Wallets] – missing broadcaster");
   }
 
   // Default to hivesigner

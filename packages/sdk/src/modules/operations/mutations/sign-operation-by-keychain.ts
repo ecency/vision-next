@@ -5,7 +5,7 @@ import type { AuthContext } from "@/modules/core/types";
 export function useSignOperationByKeychain(
   username: string | undefined,
   auth?: AuthContext,
-  keyType: "Owner" | "Active" | "Posting" | "Memo" = "Active"
+  keyType: "owner" | "active" | "posting" | "memo" = "active"
 ) {
   return useMutation({
     mutationKey: ["operations", "sign-keychain", username],
@@ -19,7 +19,7 @@ export function useSignOperationByKeychain(
         throw new Error("[SDK][Keychain] – missing keychain broadcaster");
       }
 
-      return auth.broadcast([operation], auth, keyType);
+      return auth.broadcast([operation], keyType);
     },
   });
 }

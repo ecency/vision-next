@@ -32,12 +32,12 @@ export async function claimHiveEngineRewards<T extends HiveBasedAssetSignType>(
 
   if (payload.type === "keychain" || payload.type === "hiveauth") {
     if (auth?.broadcast) {
-      return auth.broadcast([operation], auth, "Posting");
+      return auth.broadcast([operation], "posting");
     }
     if (payload.type === "hiveauth") {
       return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
     }
-    throw new Error("[SDK][Wallets] – missing keychain broadcaster");
+    throw new Error("[SDK][Wallets] – missing broadcaster");
   }
 
   return hs.sendOperation(

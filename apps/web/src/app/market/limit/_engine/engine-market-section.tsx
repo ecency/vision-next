@@ -11,6 +11,7 @@ import {
   cancelHiveEngineOrder,
   getHiveEngineTokensBalancesQueryOptions,
   getHiveEngineTokensMetadataQueryOptions,
+  HiveEngineTokenMetadataResponse,
   placeHiveEngineBuyOrder,
   placeHiveEngineSellOrder
 } from "@ecency/wallets";
@@ -19,7 +20,7 @@ import {
   getHiveEngineOrderBook,
   getHiveEngineTradeHistory
 } from "@ecency/sdk";
-import { HiveEngineOpenOrder, HiveEngineTokenInfo, Token } from "@/entities";
+import { HiveEngineOpenOrder, HiveEngineTokenInfo } from "@/entities";
 import { success, error, KeyOrHot } from "@/features/shared";
 import { WalletOperationsDialog } from "@/features/wallet";
 import i18next from "i18next";
@@ -88,7 +89,7 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
     enabled: !!symbol
   });
 
-  const tokenDefinition = (tokenDefinitionQuery.data as Token[] | undefined)?.[0];
+  const tokenDefinition = (tokenDefinitionQuery.data as HiveEngineTokenMetadataResponse[] | undefined)?.[0];
   const tokenPrecision = tokenDefinition?.precision ?? 8;
 
   const orderBookQuery = useQuery({
