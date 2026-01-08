@@ -1757,8 +1757,7 @@ function getSpkMarketsQueryOptions() {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(`${sdk.CONFIG.spkNode}/markets`);
-      const data = await response.json();
+      const data = await sdk.getSpkMarkets();
       return {
         list: Object.entries(data.markets.node).map(([name, node]) => ({
           name,
@@ -1773,8 +1772,7 @@ function getSpkWalletQueryOptions(username) {
   return reactQuery.queryOptions({
     queryKey: ["assets", "spk", "wallet", username],
     queryFn: async () => {
-      const response = await fetch(sdk.CONFIG.spkNode + `/@${username}`);
-      return response.json();
+      return sdk.getSpkWallet(username);
     },
     enabled: !!username,
     staleTime: 6e4,
@@ -1946,32 +1944,7 @@ function getAllHiveEngineTokensQueryOptions(account, symbol) {
   return reactQuery.queryOptions({
     queryKey: ["assets", "hive-engine", "all-tokens", account, symbol],
     queryFn: async () => {
-      try {
-        const response = await fetch(
-          `${sdk.CONFIG.privateApiHost}/private-api/engine-api`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              jsonrpc: "2.0",
-              method: "find",
-              params: {
-                contract: "market",
-                table: "metrics",
-                query: {
-                  ...symbol && { symbol },
-                  ...account && { account }
-                }
-              },
-              id: 1
-            }),
-            headers: { "Content-type": "application/json" }
-          }
-        );
-        const data = await response.json();
-        return data.result;
-      } catch (e) {
-        return [];
-      }
+      return sdk.getHiveEngineTokensMarket(account, symbol);
     }
   });
 }
@@ -2077,48 +2050,10 @@ function getHiveEngineBalancesWithUsdQueryOptions(account, dynamicProps, allToke
       if (!account) {
         throw new Error("[HiveEngine] No account in a balances query");
       }
-      const balancesResponse = await fetch(
-        `${sdk.CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "balances",
-              query: {
-                account
-              }
-            },
-            id: 1
-          }),
-          headers: { "Content-type": "application/json" }
-        }
+      const balances = await sdk.getHiveEngineTokensBalances(account);
+      const tokens = await sdk.getHiveEngineTokensMetadata(
+        balances.map((t) => t.symbol)
       );
-      const balancesData = await balancesResponse.json();
-      const balances = balancesData.result || [];
-      const tokensResponse = await fetch(
-        `${sdk.CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "tokens",
-              query: {
-                symbol: { $in: balances.map((t) => t.symbol) }
-              }
-            },
-            id: 2
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const tokensData = await tokensResponse.json();
-      const tokens = tokensData.result || [];
       const pricePerHive = dynamicProps ? dynamicProps.base / dynamicProps.quote : 0;
       const metrics = Array.isArray(
         allTokens
@@ -2163,27 +2098,7 @@ function getHiveEngineTokensMetadataQueryOptions(tokens) {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${sdk.CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "tokens",
-              query: {
-                symbol: { $in: tokens }
-              }
-            },
-            id: 2
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return sdk.getHiveEngineTokensMetadata(tokens);
     }
   });
 }
@@ -2193,27 +2108,7 @@ function getHiveEngineTokensBalancesQueryOptions(username) {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${sdk.CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "balances",
-              query: {
-                account: username
-              }
-            },
-            id: 1
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return sdk.getHiveEngineTokensBalances(username);
     }
   });
 }
@@ -2223,25 +2118,7 @@ function getHiveEngineTokensMarketQueryOptions() {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${sdk.CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "market",
-              table: "metrics",
-              query: {}
-            },
-            id: 1
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return sdk.getHiveEngineTokensMarket();
     }
   });
 }
@@ -2311,18 +2188,12 @@ function getHiveEngineTokenTransactionsQueryOptions(username, symbol, limit = 20
           "[SDK][Wallets] \u2013 hive engine token or username missed"
         );
       }
-      const url = new URL(
-        `${sdk.CONFIG.privateApiHost}/private-api/engine-account-history`
+      return sdk.getHiveEngineTokenTransactions(
+        username,
+        symbol,
+        limit,
+        pageParam
       );
-      url.searchParams.set("account", username);
-      url.searchParams.set("symbol", symbol);
-      url.searchParams.set("limit", limit.toString());
-      url.searchParams.set("offset", pageParam.toString());
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-type": "application/json" }
-      });
-      return await response.json();
     }
   });
 }
@@ -2332,15 +2203,7 @@ function getHiveEngineTokensMetricsQueryOptions(symbol, interval = "daily") {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const url = new URL(
-        `${sdk.CONFIG.privateApiHost}/private-api/engine-chart-api`
-      );
-      url.searchParams.set("symbol", symbol);
-      url.searchParams.set("interval", interval);
-      const response = await fetch(url, {
-        headers: { "Content-type": "application/json" }
-      });
-      return await response.json();
+      return sdk.getHiveEngineTokenMetrics(symbol, interval);
     }
   });
 }
@@ -2352,13 +2215,9 @@ function getHiveEngineUnclaimedRewardsQueryOptions(username) {
     enabled: !!username,
     queryFn: async () => {
       try {
-        const response = await fetch(
-          sdk.CONFIG.privateApiHost + `/private-api/engine-reward-api/${username}?hive=1`
+        const data = await sdk.getHiveEngineUnclaimedRewards(
+          username
         );
-        if (!response.ok) {
-          return [];
-        }
-        const data = await response.json();
         return Object.values(data).filter(
           ({ pending_token }) => pending_token > 0
         );
@@ -2639,6 +2498,105 @@ async function transferEngineToken(payload, auth) {
       }
     );
   }
+}
+var ENGINE_CONTRACT_ID = "ssc-mainnet-hive";
+function buildEngineOrderPayload(action, symbol, quantity, price) {
+  return {
+    contractName: "market",
+    contractAction: action,
+    contractPayload: { symbol, quantity, price }
+  };
+}
+function buildEngineCancelPayload(type, orderId) {
+  return {
+    contractName: "market",
+    contractAction: "cancel",
+    contractPayload: { type, id: orderId }
+  };
+}
+function buildEngineOperation(account, payload) {
+  return {
+    id: ENGINE_CONTRACT_ID,
+    required_auths: [account],
+    required_posting_auths: [],
+    json: JSON.stringify(payload)
+  };
+}
+async function broadcastEngineOperation(account, payload, options2) {
+  const operation = buildEngineOperation(account, payload);
+  const opTuple = ["custom_json", operation];
+  switch (options2?.method) {
+    case "key": {
+      if (!options2.key) {
+        throw new Error("[SDK][Wallets] \u2013 active key is required");
+      }
+      return sdk.CONFIG.hiveClient.broadcast.json(operation, options2.key);
+    }
+    case "keychain":
+    case "hiveauth": {
+      if (options2.auth?.broadcast) {
+        return options2.auth.broadcast([opTuple], options2.auth, "Active");
+      }
+      if (options2.method === "hiveauth") {
+        return broadcastWithWalletHiveAuth(account, [opTuple], "active");
+      }
+      throw new Error("[SDK][Wallets] \u2013 missing keychain broadcaster");
+    }
+    case "hivesigner":
+      return hs__default.default.sendOperation(
+        opTuple,
+        { callback: `https://ecency.com/@${account}/wallet/engine` },
+        () => {
+        }
+      );
+    default:
+      throw new Error("[SDK][Wallets] \u2013 broadcast method is required");
+  }
+}
+var placeHiveEngineBuyOrder = async (account, symbol, quantity, price, options2) => broadcastEngineOperation(
+  account,
+  buildEngineOrderPayload("buy", symbol, quantity, price),
+  options2
+);
+var placeHiveEngineSellOrder = async (account, symbol, quantity, price, options2) => broadcastEngineOperation(
+  account,
+  buildEngineOrderPayload("sell", symbol, quantity, price),
+  options2
+);
+var cancelHiveEngineOrder = async (account, type, orderId, options2) => broadcastEngineOperation(
+  account,
+  buildEngineCancelPayload(type, orderId),
+  options2
+);
+async function claimHiveEngineRewards(payload, auth) {
+  const json = JSON.stringify(payload.tokens.map((symbol) => ({ symbol })));
+  const operation = [
+    "custom_json",
+    {
+      id: "scot_claim_token",
+      required_auths: [],
+      required_posting_auths: [payload.account],
+      json
+    }
+  ];
+  if (payload.type === "key" && "key" in payload) {
+    return sdk.CONFIG.hiveClient.broadcast.sendOperations([operation], payload.key);
+  }
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], auth, "Posting");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing keychain broadcaster");
+  }
+  return hs__default.default.sendOperation(
+    operation,
+    { callback: `https://ecency.com/@${payload.account}/wallet/engine` },
+    () => {
+    }
+  );
 }
 function getPointsQueryOptions(username) {
   return reactQuery.queryOptions({
@@ -4337,6 +4295,22 @@ function useWalletOperation(username, asset, operation, auth) {
 // src/index.ts
 rememberScryptBsvVersion();
 
+Object.defineProperty(exports, "getHiveEngineMetrics", {
+  enumerable: true,
+  get: function () { return sdk.getHiveEngineMetrics; }
+});
+Object.defineProperty(exports, "getHiveEngineOpenOrders", {
+  enumerable: true,
+  get: function () { return sdk.getHiveEngineOpenOrders; }
+});
+Object.defineProperty(exports, "getHiveEngineOrderBook", {
+  enumerable: true,
+  get: function () { return sdk.getHiveEngineOrderBook; }
+});
+Object.defineProperty(exports, "getHiveEngineTradeHistory", {
+  enumerable: true,
+  get: function () { return sdk.getHiveEngineTradeHistory; }
+});
 exports.AssetOperation = AssetOperation;
 exports.EcencyWalletBasicTokens = EcencyWalletBasicTokens;
 exports.EcencyWalletCurrency = EcencyWalletCurrency;
@@ -4357,6 +4331,8 @@ exports.buildPsbt = buildPsbt;
 exports.buildSolTx = buildSolTx;
 exports.buildTonTx = buildTonTx;
 exports.buildTronTx = buildTronTx;
+exports.cancelHiveEngineOrder = cancelHiveEngineOrder;
+exports.claimHiveEngineRewards = claimHiveEngineRewards;
 exports.claimInterestHive = claimInterestHive;
 exports.decryptMemoWithAccounts = decryptMemoWithAccounts;
 exports.decryptMemoWithKeys = decryptMemoWithKeys;
@@ -4411,6 +4387,8 @@ exports.isEmptyDate = isEmptyDate;
 exports.lockLarynx = lockLarynx;
 exports.mnemonicToSeedBip39 = mnemonicToSeedBip39;
 exports.parseAsset = parseAsset;
+exports.placeHiveEngineBuyOrder = placeHiveEngineBuyOrder;
+exports.placeHiveEngineSellOrder = placeHiveEngineSellOrder;
 exports.powerDownHive = powerDownHive;
 exports.powerUpHive = powerUpHive;
 exports.powerUpLarynx = powerUpLarynx;

@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { getHiveEngineTokenTransactions } from "@ecency/sdk";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { HiveEngineTransaction } from "../types";
 
@@ -18,20 +18,12 @@ export function getHiveEngineTokenTransactionsQueryOptions(
           "[SDK][Wallets] – hive engine token or username missed"
         );
       }
-
-      const url = new URL(
-        `${CONFIG.privateApiHost}/private-api/engine-account-history`
+      return getHiveEngineTokenTransactions<HiveEngineTransaction>(
+        username,
+        symbol,
+        limit,
+        pageParam as number
       );
-      url.searchParams.set("account", username);
-      url.searchParams.set("symbol", symbol);
-      url.searchParams.set("limit", limit.toString());
-      url.searchParams.set("offset", (pageParam as number).toString());
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-type": "application/json" },
-      });
-      return (await response.json()) as HiveEngineTransaction[];
     },
   });
 }

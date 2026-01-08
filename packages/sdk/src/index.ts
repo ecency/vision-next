@@ -19,3 +19,4 @@ export * from "./modules/bridge";
 export * from "./modules/private-api";
 export * from "./modules/auth";
 export * from "./modules/hive-engine";
+export * from "./modules/spk";

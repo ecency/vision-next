@@ -18,12 +18,6 @@ export interface EngineOrderBroadcastOptions {
   auth?: AuthContext;
 }
 
-const ENGINE_ORDER_MESSAGES: Record<"buy" | "sell" | "cancel", string> = {
-  buy: "Engine buy order",
-  sell: "Engine sell order",
-  cancel: "Cancel engine order",
-};
-
 function buildEngineOrderPayload(
   action: "buy" | "sell",
   symbol: string,
@@ -60,7 +54,6 @@ function buildEngineOperation(
 async function broadcastEngineOperation(
   account: string,
   payload: ReturnType<typeof buildEngineOrderPayload> | ReturnType<typeof buildEngineCancelPayload>,
-  action: "buy" | "sell" | "cancel",
   options?: EngineOrderBroadcastOptions
 ) {
   const operation = buildEngineOperation(account, payload);
@@ -104,7 +97,6 @@ export const placeHiveEngineBuyOrder = async (
   broadcastEngineOperation(
     account,
     buildEngineOrderPayload("buy", symbol, quantity, price),
-    "buy",
     options
   );
 
@@ -118,7 +110,6 @@ export const placeHiveEngineSellOrder = async (
   broadcastEngineOperation(
     account,
     buildEngineOrderPayload("sell", symbol, quantity, price),
-    "sell",
     options
   );
 
@@ -131,6 +122,5 @@ export const cancelHiveEngineOrder = async (
   broadcastEngineOperation(
     account,
     buildEngineCancelPayload(type, orderId),
-    "cancel",
     options
   );

@@ -4113,6 +4113,13 @@ async function getCurrencyRates() {
   const response = await fetchApi(CONFIG.privateApiHost + "/private-api/market-data/latest");
   return parseJsonResponse(response);
 }
+async function getHivePrice() {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(
+    "https://api.coingecko.com/api/v3/simple/price?ids=hive&vs_currencies=usd"
+  );
+  return parseJsonResponse(response);
+}
 function getPointsQueryOptions(username, filter = 0) {
   return reactQuery.queryOptions({
     queryKey: ["points", username, filter],
@@ -4841,6 +4848,279 @@ async function hsTokenRenew(code) {
   return data;
 }
 
+// src/modules/hive-engine/requests.ts
+var ENGINE_RPC_HEADERS = { "Content-type": "application/json" };
+async function engineRpc(payload) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(`${CONFIG.privateApiHost}/private-api/engine-api`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: ENGINE_RPC_HEADERS
+  });
+  if (!response.ok) {
+    throw new Error(
+      `[SDK][HiveEngine] \u2013 request failed with ${response.status}`
+    );
+  }
+  const data = await response.json();
+  return data.result;
+}
+async function engineRpcSafe(payload, fallback) {
+  try {
+    return await engineRpc(payload);
+  } catch (e) {
+    return fallback;
+  }
+}
+async function getHiveEngineOrderBook(symbol, limit = 50) {
+  const baseParams = {
+    jsonrpc: "2.0",
+    method: "find",
+    params: {
+      contract: "market",
+      query: { symbol },
+      limit,
+      offset: 0
+    },
+    id: 1
+  };
+  const [buy, sell] = await Promise.all([
+    engineRpcSafe(
+      {
+        ...baseParams,
+        params: {
+          ...baseParams.params,
+          table: "buyBook",
+          indexes: [{ index: "price", descending: true }]
+        }
+      },
+      []
+    ),
+    engineRpcSafe(
+      {
+        ...baseParams,
+        params: {
+          ...baseParams.params,
+          table: "sellBook",
+          indexes: [{ index: "price", descending: false }]
+        }
+      },
+      []
+    )
+  ]);
+  const sortByPriceDesc = (items) => items.sort((a, b) => {
+    const left = Number(a.price ?? 0);
+    const right = Number(b.price ?? 0);
+    return right - left;
+  });
+  const sortByPriceAsc = (items) => items.sort((a, b) => {
+    const left = Number(a.price ?? 0);
+    const right = Number(b.price ?? 0);
+    return left - right;
+  });
+  return {
+    buy: sortByPriceDesc(buy),
+    sell: sortByPriceAsc(sell)
+  };
+}
+async function getHiveEngineTradeHistory(symbol, limit = 50) {
+  return engineRpcSafe(
+    {
+      jsonrpc: "2.0",
+      method: "find",
+      params: {
+        contract: "market",
+        table: "tradesHistory",
+        query: { symbol },
+        limit,
+        offset: 0,
+        indexes: [{ index: "timestamp", descending: true }]
+      },
+      id: 1
+    },
+    []
+  );
+}
+async function getHiveEngineOpenOrders(account, symbol, limit = 100) {
+  const baseParams = {
+    jsonrpc: "2.0",
+    method: "find",
+    params: {
+      contract: "market",
+      query: { symbol, account },
+      limit,
+      offset: 0
+    },
+    id: 1
+  };
+  const [buyRaw, sellRaw] = await Promise.all([
+    engineRpcSafe(
+      {
+        ...baseParams,
+        params: {
+          ...baseParams.params,
+          table: "buyBook",
+          indexes: [{ index: "timestamp", descending: true }]
+        }
+      },
+      []
+    ),
+    engineRpcSafe(
+      {
+        ...baseParams,
+        params: {
+          ...baseParams.params,
+          table: "sellBook",
+          indexes: [{ index: "timestamp", descending: true }]
+        }
+      },
+      []
+    )
+  ]);
+  const formatTotal = (quantity, price) => (Number(quantity || 0) * Number(price || 0)).toFixed(8);
+  const buy = buyRaw.map((order) => ({
+    id: order.txId,
+    type: "buy",
+    account: order.account,
+    symbol: order.symbol,
+    quantity: order.quantity,
+    price: order.price,
+    total: order.tokensLocked ?? formatTotal(order.quantity, order.price),
+    timestamp: Number(order.timestamp ?? 0)
+  }));
+  const sell = sellRaw.map((order) => ({
+    id: order.txId,
+    type: "sell",
+    account: order.account,
+    symbol: order.symbol,
+    quantity: order.quantity,
+    price: order.price,
+    total: formatTotal(order.quantity, order.price),
+    timestamp: Number(order.timestamp ?? 0)
+  }));
+  return [...buy, ...sell].sort((a, b) => b.timestamp - a.timestamp);
+}
+async function getHiveEngineMetrics(symbol, account) {
+  return engineRpcSafe(
+    {
+      jsonrpc: "2.0",
+      method: "find",
+      params: {
+        contract: "market",
+        table: "metrics",
+        query: {
+          ...symbol ? { symbol } : {},
+          ...account ? { account } : {}
+        }
+      },
+      id: 1
+    },
+    []
+  );
+}
+async function getHiveEngineTokensMarket(account, symbol) {
+  return getHiveEngineMetrics(symbol, account);
+}
+async function getHiveEngineTokensBalances(username) {
+  return engineRpcSafe(
+    {
+      jsonrpc: "2.0",
+      method: "find",
+      params: {
+        contract: "tokens",
+        table: "balances",
+        query: {
+          account: username
+        }
+      },
+      id: 1
+    },
+    []
+  );
+}
+async function getHiveEngineTokensMetadata(tokens) {
+  return engineRpcSafe(
+    {
+      jsonrpc: "2.0",
+      method: "find",
+      params: {
+        contract: "tokens",
+        table: "tokens",
+        query: {
+          symbol: { $in: tokens }
+        }
+      },
+      id: 2
+    },
+    []
+  );
+}
+async function getHiveEngineTokenTransactions(username, symbol, limit, offset) {
+  const fetchApi = getBoundFetch();
+  const url = new URL(
+    `${CONFIG.privateApiHost}/private-api/engine-account-history`
+  );
+  url.searchParams.set("account", username);
+  url.searchParams.set("symbol", symbol);
+  url.searchParams.set("limit", limit.toString());
+  url.searchParams.set("offset", offset.toString());
+  const response = await fetchApi(url.toString(), {
+    method: "GET",
+    headers: { "Content-type": "application/json" }
+  });
+  if (!response.ok) {
+    throw new Error(
+      `[SDK][HiveEngine] \u2013 account history failed with ${response.status}`
+    );
+  }
+  return await response.json();
+}
+async function getHiveEngineTokenMetrics(symbol, interval = "daily") {
+  const fetchApi = getBoundFetch();
+  const url = new URL(`${CONFIG.privateApiHost}/private-api/engine-chart-api`);
+  url.searchParams.set("symbol", symbol);
+  url.searchParams.set("interval", interval);
+  const response = await fetchApi(url.toString(), {
+    headers: { "Content-type": "application/json" }
+  });
+  if (!response.ok) {
+    throw new Error(
+      `[SDK][HiveEngine] \u2013 chart failed with ${response.status}`
+    );
+  }
+  return await response.json();
+}
+async function getHiveEngineUnclaimedRewards(username) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(
+    `${CONFIG.privateApiHost}/private-api/engine-reward-api/${username}?hive=1`
+  );
+  if (!response.ok) {
+    throw new Error(
+      `[SDK][HiveEngine] \u2013 rewards failed with ${response.status}`
+    );
+  }
+  return await response.json();
+}
+
+// src/modules/spk/requests.ts
+async function getSpkWallet(username) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(`${CONFIG.spkNode}/@${username}`);
+  if (!response.ok) {
+    throw new Error(`[SDK][SPK] \u2013 wallet failed with ${response.status}`);
+  }
+  return await response.json();
+}
+async function getSpkMarkets() {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(`${CONFIG.spkNode}/markets`);
+  if (!response.ok) {
+    throw new Error(`[SDK][SPK] \u2013 markets failed with ${response.status}`);
+  }
+  return await response.json();
+}
+
 exports.ACCOUNT_OPERATION_GROUPS = ACCOUNT_OPERATION_GROUPS;
 exports.ALL_ACCOUNT_OPERATIONS = ALL_ACCOUNT_OPERATIONS;
 exports.ALL_NOTIFY_TYPES = ALL_NOTIFY_TYPES;
@@ -4922,8 +5202,19 @@ exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
 exports.getFriendsInfiniteQueryOptions = getFriendsInfiniteQueryOptions;
 exports.getGalleryImagesQueryOptions = getGalleryImagesQueryOptions;
 exports.getGameStatusCheckQueryOptions = getGameStatusCheckQueryOptions;
+exports.getHiveEngineMetrics = getHiveEngineMetrics;
+exports.getHiveEngineOpenOrders = getHiveEngineOpenOrders;
+exports.getHiveEngineOrderBook = getHiveEngineOrderBook;
+exports.getHiveEngineTokenMetrics = getHiveEngineTokenMetrics;
+exports.getHiveEngineTokenTransactions = getHiveEngineTokenTransactions;
+exports.getHiveEngineTokensBalances = getHiveEngineTokensBalances;
+exports.getHiveEngineTokensMarket = getHiveEngineTokensMarket;
+exports.getHiveEngineTokensMetadata = getHiveEngineTokensMetadata;
+exports.getHiveEngineTradeHistory = getHiveEngineTradeHistory;
+exports.getHiveEngineUnclaimedRewards = getHiveEngineUnclaimedRewards;
 exports.getHiveHbdStatsQueryOptions = getHiveHbdStatsQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
+exports.getHivePrice = getHivePrice;
 exports.getImagesQueryOptions = getImagesQueryOptions;
 exports.getIncomingRcQueryOptions = getIncomingRcQueryOptions;
 exports.getMarketData = getMarketData;
@@ -4976,6 +5267,8 @@ exports.getSearchFriendsQueryOptions = getSearchFriendsQueryOptions;
 exports.getSearchPathQueryOptions = getSearchPathQueryOptions;
 exports.getSearchTopicsQueryOptions = getSearchTopicsQueryOptions;
 exports.getSimilarEntriesQueryOptions = getSimilarEntriesQueryOptions;
+exports.getSpkMarkets = getSpkMarkets;
+exports.getSpkWallet = getSpkWallet;
 exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getSubscribers = getSubscribers;
 exports.getSubscriptions = getSubscriptions;

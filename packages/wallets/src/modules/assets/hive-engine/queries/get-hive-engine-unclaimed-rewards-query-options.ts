@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { getHiveEngineUnclaimedRewards } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { HiveEngineTokenStatus } from "../types";
 
@@ -12,19 +12,9 @@ export function getHiveEngineUnclaimedRewardsQueryOptions(
     enabled: !!username,
     queryFn: async () => {
       try {
-        const response = await fetch(
-          CONFIG.privateApiHost +
-            `/private-api/engine-reward-api/${username}?hive=1`
+        const data = await getHiveEngineUnclaimedRewards<HiveEngineTokenStatus>(
+          username as string
         );
-        if (!response.ok) {
-          return [];
-        }
-
-        const data = (await response.json()) as Record<
-          string,
-          HiveEngineTokenStatus
-        >;
-
         return Object.values(data).filter(
           ({ pending_token }) => pending_token > 0
         );
