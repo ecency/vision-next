@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Misc util 1 - Invalid 1`] = `null`;
+
+exports[`Misc util 1 - Invalid 2`] = `null`;
+
+exports[`Misc util 1 - Invalid 3`] = `null`;
+
+exports[`Misc util 2 - Valid 1`] = `"https://ecency.com/"`;
+
+exports[`Misc util 2 - Valid 2`] = `"https://ecency.com/"`;
+
+exports[`Misc util 2 - Valid 3`] = `"https://ecency.com/hive-125125/@ecency/onboarding-more-users-join-us"`;

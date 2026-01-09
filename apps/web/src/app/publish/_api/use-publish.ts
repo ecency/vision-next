@@ -88,15 +88,30 @@ export function usePublishApi() {
 
       let permlink = createPermlink(title!);
 
-      // permlink duplication check
-      try {
-        const existingEntry = await getQueryClient().fetchQuery(getPostHeaderQueryOptions(author, permlink));
+      // permlink duplication check - ensure uniqueness with retry logic
+      let attempts = 0;
+      const maxAttempts = 10;
+      while (attempts < maxAttempts) {
+        try {
+          const existingEntry = await getQueryClient().fetchQuery(getPostHeaderQueryOptions(author, permlink));
 
-        if (existingEntry?.author) {
-          // create permlink with random suffix
-          permlink = createPermlink(title!, true);
+          if (existingEntry?.author) {
+            // Permlink collision detected, create new permlink with random suffix
+            permlink = createPermlink(title!, true);
+            attempts++;
+          } else {
+            // No collision, permlink is unique
+            break;
+          }
+        } catch (e) {
+          // Fetch failed (likely 404), permlink is available
+          break;
         }
-      } catch (e) {}
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error("[Publish] Failed to generate unique permlink after multiple attempts");
+      }
 
       const [parentPermlink] = tags!;
       const videoMetadata = publishingVideo

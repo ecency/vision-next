@@ -9,6 +9,7 @@ import { generateFeedMetadata } from "@/app/(dynamicPages)/feed/[...sections]/_h
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   params: Promise<{ sections: string[] }>;
@@ -32,7 +33,11 @@ export default async function FeedPage({ params, searchParams }: Props) {
 
   // Prefetch data on server for hydration
   await prefetchGetPostsFeedQuery(filter, tag, 20, observer);
-  await getQueryClient().prefetchQuery(getPromotedPostsQuery());
+
+  // Only prefetch promoted posts if promotions feature is enabled
+  if (EcencyConfigManager.CONFIG.visionFeatures.promotions.enabled) {
+    await getQueryClient().prefetchQuery(getPromotedPostsQuery());
+  }
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

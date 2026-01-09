@@ -87,17 +87,31 @@ export function usePublishApi(onClear: () => void) {
 
       let permlink = createPermlink(title);
 
-      // permlink duplication check
-      let c;
-      try {
-        c = await queryClient.fetchQuery(
-          getPostHeaderQueryOptions(author, permlink)
-        );
-      } catch (e) {}
+      // permlink duplication check - ensure uniqueness with retry logic
+      let attempts = 0;
+      const maxAttempts = 10;
+      while (attempts < maxAttempts) {
+        try {
+          const existingEntry = await queryClient.fetchQuery(
+            getPostHeaderQueryOptions(author, permlink)
+          );
 
-      if (c && c.author) {
-        // create permlink with random suffix
-        permlink = createPermlink(title, true);
+          if (existingEntry && existingEntry.author) {
+            // Permlink collision detected, create new permlink with random suffix
+            permlink = createPermlink(title, true);
+            attempts++;
+          } else {
+            // No collision, permlink is unique
+            break;
+          }
+        } catch (e) {
+          // Fetch failed (likely 404), permlink is available
+          break;
+        }
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error("[Publish] Failed to generate unique permlink after multiple attempts");
       }
 
       const [parentPermlink] = tags;

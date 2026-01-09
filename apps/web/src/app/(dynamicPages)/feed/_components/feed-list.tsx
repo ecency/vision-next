@@ -10,6 +10,7 @@ import {
   EntryListContentLoading,
   EntryListContentNoData
 } from "@/features/shared";
+import { useEcencyConfigManager } from "@/config";
 
 interface Props {
   filter: string;
@@ -21,6 +22,8 @@ interface Props {
 type Page = Entry[] | SearchResponse;
 
 export function FeedList({ filter, tag, observer, now }: Props) {
+  const { visionFeatures } = useEcencyConfigManager();
+
   // Single source of truth - one query call
   const { data, fetchNextPage, isLoading, isFetching, isFetchingNextPage } =
     usePostsFeedQuery(filter, tag, observer) as UseInfiniteQueryResult<Page, Error>;
@@ -69,7 +72,7 @@ export function FeedList({ filter, tag, observer, now }: Props) {
         loading={false}
         entries={entries}
         sectionParam={filter}
-        isPromoted={true}
+        isPromoted={visionFeatures.promotions.enabled}
         showEmptyPlaceholder={false}
         now={now}
       />
