@@ -10,7 +10,7 @@ import {
   EntryListContentLoading,
   EntryListContentNoData
 } from "@/features/shared";
-import { useEcencyConfigManager } from "@/config";
+import { EcencyConfigManager } from "@/config";
 
 interface Props {
   filter: string;
@@ -22,7 +22,7 @@ interface Props {
 type Page = Entry[] | SearchResponse;
 
 export function FeedList({ filter, tag, observer, now }: Props) {
-  const { visionFeatures } = useEcencyConfigManager();
+  const visionFeatures = EcencyConfigManager.CONFIG.visionFeatures;
 
   // Single source of truth - one query call
   const { data, fetchNextPage, isLoading, isFetching, isFetchingNextPage } =
