@@ -11,6 +11,8 @@ import {
   EntryListContentNoData
 } from "@/features/shared";
 import { EcencyConfigManager } from "@/config";
+import { getPromotedPostsQuery } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   filter: string;
@@ -23,6 +25,12 @@ type Page = Entry[] | SearchResponse;
 
 export function FeedList({ filter, tag, observer, now }: Props) {
   const visionFeatures = EcencyConfigManager.CONFIG.visionFeatures;
+
+  // Fetch promoted posts if feature is enabled
+  useQuery({
+    ...getPromotedPostsQuery(),
+    enabled: visionFeatures.promotions.enabled
+  });
 
   // Single source of truth - one query call
   const { data, fetchNextPage, isLoading, isFetching, isFetchingNextPage } =

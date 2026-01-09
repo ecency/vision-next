@@ -47,13 +47,15 @@ export function useScheduleApi(onClear: () => void) {
       let permlink = createPermlink(title);
 
       // permlink duplication check - ensure uniqueness with retry logic
+      // IMPORTANT: Always fetch fresh data (staleTime: 0) to ensure accurate collision detection
       let attempts = 0;
       const maxAttempts = 10;
       while (attempts < maxAttempts) {
         try {
-          const existingEntry = await queryClient.fetchQuery(
-            getPostHeaderQueryOptions(author, permlink)
-          );
+          const existingEntry = await queryClient.fetchQuery({
+            ...getPostHeaderQueryOptions(author, permlink),
+            staleTime: 0 // Force fresh fetch - never use cached data for collision checks
+          });
 
           if (existingEntry && existingEntry.author) {
             // Permlink collision detected, create new permlink with random suffix
