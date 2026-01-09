@@ -26,8 +26,8 @@ type Page = Entry[] | SearchResponse;
 export function FeedList({ filter, tag, observer, now }: Props) {
   const visionFeatures = EcencyConfigManager.CONFIG.visionFeatures;
 
-  // Fetch promoted posts if feature is enabled
-  useQuery({
+  // Fetch promoted posts if feature is enabled and get the data
+  const { data: promotedPosts } = useQuery({
     ...getPromotedPostsQuery(),
     enabled: visionFeatures.promotions.enabled
   });
@@ -81,6 +81,7 @@ export function FeedList({ filter, tag, observer, now }: Props) {
         entries={entries}
         sectionParam={filter}
         isPromoted={visionFeatures.promotions.enabled}
+        promotedEntries={promotedPosts ?? []}
         showEmptyPlaceholder={false}
         now={now}
       />

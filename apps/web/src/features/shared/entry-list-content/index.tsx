@@ -2,15 +2,14 @@ import React from "react";
 import "./_index.scss";
 import { Account, Community, Entry } from "@/entities";
 import { EntryListItem } from "@/features/shared";
-import { getPromotedPostsQuery } from "@ecency/sdk";
 import { EntryListContentNoData } from "./entry-list-content-no-data";
-import { getQueryData } from "@/core/react-query";
 
 interface Props {
   loading: boolean;
   entries: Entry[];
   sectionParam: string;
   isPromoted: boolean;
+  promotedEntries?: Entry[];
   username: string;
   showEmptyPlaceholder?: boolean;
   account?: Account;
@@ -22,6 +21,7 @@ export function EntryListContent({
   sectionParam: section,
   entries,
   isPromoted,
+  promotedEntries = [],
   loading,
   username,
   showEmptyPlaceholder = true,
@@ -30,11 +30,6 @@ export function EntryListContent({
   now
 }: Props) {
   let dataToRender = [...entries];
-  let promotedEntries: Entry[] = [];
-  if (isPromoted) {
-    const promotedEntriesResponse = getQueryData(getPromotedPostsQuery());
-    promotedEntries = promotedEntriesResponse ?? [];
-  }
 
   return (
     <>
@@ -42,7 +37,7 @@ export function EntryListContent({
         ? dataToRender.map((e, i) => {
             const l = [];
 
-            if (i % 4 === 0 && i > 0) {
+            if (isPromoted && i % 4 === 0 && i > 0) {
               const ix = i / 4 - 1;
 
               if (promotedEntries?.[ix]) {
