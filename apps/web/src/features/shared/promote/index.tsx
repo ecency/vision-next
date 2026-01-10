@@ -151,7 +151,7 @@ export function Promote({ onHide, entry }: Props) {
               {inProgress && <LinearProgress />}
               <div className="transaction-form-body flex flex-col">
                 <div className="self-center mb-4">
-                  <a href="/faq#how-promotion-work">{i18next.t("promote.learn-more")}</a>
+                  <a href="https://docs.ecency.com/ecency/boost-and-promote/#what-is-promote">{i18next.t("promote.learn-more")}</a>
                 </div>
                 <div className="grid grid-cols-12 mb-4">
                   <div className="col-span-12 sm:col-span-2 flex items-center">
