@@ -40,21 +40,22 @@ interface Props {
 export function ProfileCard({ account }: Props) {
   const { username: activeUsername, account: activeAccount } = useActiveAccount();
 
+  const isMyProfile = useMemo(
+    () => activeUsername === account?.name && activeAccount?.profile,
+    [account?.name, activeUsername, activeAccount]
+  );
+
   const { data } = useQuery(getAccountFullQueryOptions(account.name));
   const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
-  const { data: relationshipBetweenAccounts } = useQuery(
-    getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined)
-  );
+  const { data: relationshipBetweenAccounts } = useQuery({
+    ...getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined),
+    enabled: !isMyProfile && !!account?.name && !!activeUsername
+  });
   const { data: subscriptions } = useQuery(getAccountSubscriptionsQueryOptions(account?.name));
 
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
-
-  const isMyProfile = useMemo(
-    () => activeUsername === account?.name && activeAccount?.profile,
-    [account?.name, activeUsername, activeAccount]
-  );
   const moderatedCommunities = useMemo(
     () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin") ?? [],
     [subscriptions]

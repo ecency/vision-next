@@ -46,7 +46,7 @@ export function Promote({ onHide, entry }: Props) {
 
   const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
 
-  const { data: activeUserPoints } = useQuery(
+  const { data: activeUserPoints, isPending: isPointsPending } = useQuery(
     withFeatureFlag(
       ({ visionFeatures }) => visionFeatures.points.enabled,
       getPointsQueryOptions(activeUser?.username)
@@ -163,7 +163,7 @@ export function Promote({ onHide, entry }: Props) {
                       className={`balance-input ${balanceError ? "is-invalid" : ""}`}
                       plaintext={true}
                       readOnly={true}
-                      value={`${activeUserPoints?.points} POINTS`}
+                      value={isPointsPending ? "..." : `${activeUserPoints?.points ?? "0"} POINTS`}
                     />
                     {balanceError && <small className="pl-3 text-red">{balanceError}</small>}
                   </div>

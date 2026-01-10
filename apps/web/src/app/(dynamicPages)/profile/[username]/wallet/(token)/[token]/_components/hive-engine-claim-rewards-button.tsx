@@ -10,7 +10,7 @@ import clsx from "clsx";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
-import { claimHiveEngineRewards, getHiveEngineUnclaimedRewardsQueryOptions } from "@ecency/wallets";
+import { claimHiveEngineRewards, getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 import { getUser } from "@/utils/user-token";
 import { getSdkAuthContext } from "@/utils/sdk-auth";
@@ -52,55 +52,47 @@ export function useHiveEngineClaimRewardsState(
   const shouldQuery =
     enabled &&
     Boolean(sanitizedUsername) &&
+    Boolean(sanitizedTokenSymbol) &&
     activeUser?.username === sanitizedUsername;
 
-  const { data: unclaimedRewards } = useQuery(
-    getHiveEngineUnclaimedRewardsQueryOptions(
-      shouldQuery && sanitizedUsername ? sanitizedUsername : undefined
-    )
-  );
-
-  const pendingReward = useMemo(
-    () =>
-      enabled && sanitizedTokenSymbol
-        ? unclaimedRewards?.find(
-            (reward) => reward.symbol?.toUpperCase() === sanitizedTokenSymbol
-          )
-        : undefined,
-    [enabled, sanitizedTokenSymbol, unclaimedRewards]
-  );
+  // Get wallet asset info from portfolio v2
+  const { data: walletAssetInfo } = useQuery({
+    ...getAccountWalletAssetInfoQueryOptions(
+      sanitizedUsername ?? "",
+      sanitizedTokenSymbol ?? ""
+    ),
+    enabled: shouldQuery
+  });
 
   const pendingAmountInfo = useMemo<PendingAmountInfo | undefined>(() => {
-    if (!enabled || !pendingReward) {
+    if (!enabled || !walletAssetInfo) {
       return undefined;
     }
 
-    const rawPending = Number(pendingReward.pending_token);
-    const decimals = Math.max(0, Number(pendingReward.precision ?? 0));
-    const divisor = Math.pow(10, decimals);
+    // Get pending rewards directly from portfolio v2
+    const rawPending = walletAssetInfo.pendingRewards;
 
     if (
+      rawPending === undefined ||
       !Number.isFinite(rawPending) ||
-      rawPending <= 0 ||
-      !Number.isFinite(divisor) ||
-      divisor === 0
+      rawPending <= 0
     ) {
       return undefined;
     }
 
-    const amount = rawPending / divisor;
-
     // Only show rewards if amount is meaningful (> 0.000001)
     // This prevents showing "0.000000+" for dust amounts
     const threshold = 0.000001;
-    if (amount < threshold) {
+    if (rawPending < threshold) {
       return undefined;
     }
 
+    // Use up to 8 decimal places for precision
+    const decimals = 8;
     return {
-      formatted: formattedNumber(amount, { fractionDigits: decimals })
+      formatted: formattedNumber(rawPending, { fractionDigits: decimals })
     };
-  }, [enabled, pendingReward]);
+  }, [enabled, walletAssetInfo]);
 
   const hasPendingRewards = Boolean(pendingAmountInfo);
   const isOwnProfile = Boolean(

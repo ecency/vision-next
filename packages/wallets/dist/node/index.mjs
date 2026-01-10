@@ -3140,6 +3140,7 @@ function parseToken(rawToken) {
   );
   const accountBalance = normalizeNumber(token.balance) ?? normalizeNumber(token.accountBalance) ?? normalizeNumber(token.totalBalance) ?? normalizeNumber(token.total) ?? normalizeNumber(token.amount) ?? (baseParts ? baseParts.reduce((total, part) => total + (part.balance ?? 0), 0) : parts ? parts.reduce((total, part) => total + (part.balance ?? 0), 0) : 0);
   const layer = normalizeString(token.layer) ?? normalizeString(token.chain) ?? normalizeString(token.category) ?? normalizeString(token.type);
+  const pendingRewards = normalizeNumber(token.pendingRewards);
   return {
     symbol: normalizedSymbol,
     info: {
@@ -3149,6 +3150,7 @@ function parseToken(rawToken) {
       accountBalance,
       apr: apr ?? void 0,
       layer: layer ?? void 0,
+      pendingRewards: pendingRewards ?? void 0,
       parts
     },
     operations: mapActions(

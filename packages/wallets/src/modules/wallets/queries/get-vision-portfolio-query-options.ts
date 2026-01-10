@@ -414,6 +414,7 @@ function parseToken(rawToken: unknown): VisionPortfolioWalletItem | undefined {
     normalizeString(token.chain) ??
     normalizeString(token.category) ??
     normalizeString(token.type);
+  const pendingRewards = normalizeNumber(token.pendingRewards);
 
   return {
     symbol: normalizedSymbol,
@@ -424,6 +425,7 @@ function parseToken(rawToken: unknown): VisionPortfolioWalletItem | undefined {
       accountBalance,
       apr: apr ?? undefined,
       layer: layer ?? undefined,
+      pendingRewards: pendingRewards ?? undefined,
       parts,
     },
     operations: mapActions(

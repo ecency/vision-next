@@ -697,6 +697,7 @@ interface GeneralAssetInfo {
     accountBalance: number;
     apr?: string;
     layer?: string;
+    pendingRewards?: number;
     parts?: {
         name: string;
         balance: number;

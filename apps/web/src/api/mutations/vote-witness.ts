@@ -48,6 +48,7 @@ export function useVoteWitness(witness: string) {
         return;
       }
 
+      // Optimistically update the UI immediately for instant feedback
       if (payload.voted) {
         queryClient.setQueryData<string[]>(
           [QueryIdentifiers.WITNESSES_VOTES, activeUser?.username, "votes"],
@@ -59,6 +60,16 @@ export function useVoteWitness(witness: string) {
           (data) => [...(data ?? []), witness]
         );
       }
+
+      // Invalidate after delay to refetch actual blockchain state
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: [QueryIdentifiers.WITNESSES_VOTES, activeUser?.username, "votes"]
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["accounts", activeUser?.username]
+        });
+      }, 3500); // 3.5 seconds - enough time for block confirmation
     }
   });
 }

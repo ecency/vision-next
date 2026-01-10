@@ -33,30 +33,38 @@ export function useProposalVoteByKey(proposalId: number) {
       ] as const;
     },
     onSuccess: ([approve]) => {
+      // Optimistically update the UI immediately for instant feedback
       queryClient.setQueryData<InfiniteData<ProposalVote[]>>(
         [QueryIdentifiers.PROPOSAL_VOTES, proposalId, activeUser?.username, 1],
         (data) => {
           if (!data) {
-            return data;
+            return {
+              pages: [
+                approve
+                  ? [{ id: 1, voter: activeUser?.username ?? "" }]
+                  : []
+              ],
+              pageParams: [""]
+            };
           }
 
           return {
+            ...data,
             pages: [
-              [
-                ...(approve
-                  ? [
-                      {
-                        id: 1,
-                        voter: activeUser?.username ?? ""
-                      }
-                    ]
-                  : [])
-              ]
-            ],
-            pageParams: [""]
+              approve
+                ? [{ id: 1, voter: activeUser?.username ?? "" }]
+                : []
+            ]
           };
         }
       );
+
+      // Invalidate after delay to refetch actual blockchain state
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: [QueryIdentifiers.PROPOSAL_VOTES, proposalId, activeUser?.username, 1]
+        });
+      }, 3500); // 3.5 seconds - enough time for block confirmation
     },
     onError: (e) => error(...formatError(e))
   });
@@ -89,30 +97,38 @@ export function useProposalVoteByKeychain(proposalId: number) {
       ] as const;
     },
     onSuccess: ([approve]) => {
+      // Optimistically update the UI immediately for instant feedback
       queryClient.setQueryData<InfiniteData<ProposalVote[]>>(
         [QueryIdentifiers.PROPOSAL_VOTES, proposalId, activeUser?.username, 1],
         (data) => {
           if (!data) {
-            return data;
+            return {
+              pages: [
+                approve
+                  ? [{ id: 1, voter: activeUser?.username ?? "" }]
+                  : []
+              ],
+              pageParams: [""]
+            };
           }
 
           return {
+            ...data,
             pages: [
-              [
-                ...(approve
-                  ? [
-                      {
-                        id: 1,
-                        voter: activeUser?.username ?? ""
-                      }
-                    ]
-                  : [])
-              ]
-            ],
-            pageParams: [""]
+              approve
+                ? [{ id: 1, voter: activeUser?.username ?? "" }]
+                : []
+            ]
           };
         }
       );
+
+      // Invalidate after delay to refetch actual blockchain state
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: [QueryIdentifiers.PROPOSAL_VOTES, proposalId, activeUser?.username, 1]
+        });
+      }, 3500); // 3.5 seconds - enough time for block confirmation
     },
     onError: (e) => error(...formatError(e))
   });
