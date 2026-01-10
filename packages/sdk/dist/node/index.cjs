@@ -4549,7 +4549,16 @@ async function parseJsonResponse3(response) {
     error.data = errorData;
     throw error;
   }
-  return await response.json();
+  const text = await response.text();
+  if (!text || text.trim() === "") {
+    return "";
+  }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.warn("[SDK] Failed to parse JSON response:", e, "Response:", text);
+    return "";
+  }
 }
 async function signUp(username, email, referral) {
   const fetchApi = getBoundFetch();

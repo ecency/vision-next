@@ -20,7 +20,19 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
     throw error;
   }
 
-  return (await response.json()) as T;
+  // Handle empty responses gracefully (e.g., 204 No Content or empty body)
+  const text = await response.text();
+  if (!text || text.trim() === "") {
+    return "" as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch (e) {
+    // If JSON parsing fails, return empty string as fallback
+    console.warn("[SDK] Failed to parse JSON response:", e, "Response:", text);
+    return "" as T;
+  }
 }
 
 export async function signUp(
