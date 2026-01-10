@@ -29,7 +29,7 @@ export function PromotePostSetup({ onSuccess }: Props) {
 
   const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
 
-  const { data: activeUserPoints } = useQuery(
+  const { data: activeUserPoints, isPending: isPointsPending } = useQuery(
     withFeatureFlag(
       ({ visionFeatures }) => visionFeatures.points.enabled,
       getPointsQueryOptions(activeUser?.username)
@@ -60,7 +60,9 @@ export function PromotePostSetup({ onSuccess }: Props) {
     <div>
       <div className="flex items-center gap-2 mb-4">
         <div className="opacity-50">{i18next.t("redeem-common.balance")}:</div>
-        <div className="text-blue-dark-sky">{activeUserPoints?.points ?? 0} POINTS</div>
+        <div className="text-blue-dark-sky">
+          {isPointsPending ? "..." : `${activeUserPoints?.points ?? "0"} POINTS`}
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
         <div>

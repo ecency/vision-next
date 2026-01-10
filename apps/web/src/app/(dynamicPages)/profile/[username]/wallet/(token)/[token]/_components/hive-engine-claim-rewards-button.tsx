@@ -90,6 +90,13 @@ export function useHiveEngineClaimRewardsState(
 
     const amount = rawPending / divisor;
 
+    // Only show rewards if amount is meaningful (> 0.000001)
+    // This prevents showing "0.000000+" for dust amounts
+    const threshold = 0.000001;
+    if (amount < threshold) {
+      return undefined;
+    }
+
     return {
       formatted: formattedNumber(amount, { fractionDigits: decimals })
     };
