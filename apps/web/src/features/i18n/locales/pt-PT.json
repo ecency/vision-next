@@ -420,7 +420,7 @@
     },
     "load-more": {
       "cta": "Carregue mais",
-      "loading": "Carregandochar@@0",
+      "loading": "Carregando...",
       "done": "Sem mais tags"
     }
   },
