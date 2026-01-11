@@ -2996,7 +2996,7 @@ function getVisionPortfolioQueryOptions(username, currency = "usd") {
       if (!username) {
         throw new Error("[SDK][Wallets] \u2013 username is required");
       }
-      if (!CONFIG.privateApiHost) {
+      if (CONFIG.privateApiHost === void 0 || CONFIG.privateApiHost === null) {
         throw new Error(
           "[SDK][Wallets] \u2013 privateApiHost isn't configured for portfolio"
         );
