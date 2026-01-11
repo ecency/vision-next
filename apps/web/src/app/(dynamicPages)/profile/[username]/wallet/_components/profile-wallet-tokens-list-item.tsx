@@ -66,7 +66,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const assetSymbol = useMemo(() => asset.toUpperCase(), [asset]);
 
   const { data } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset, { refetch: false, currency })
+    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset, { refetch: false, currency: currency || "usd" })
   );
   const { data: allTokens } = useQuery(
     getAllTokensListQueryOptions(sanitizedUsername)
@@ -76,7 +76,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
       assetSymbol,
       sanitizedUsername,
       activeUser?.username === sanitizedUsername,
-      currency
+      currency || "usd"
     )
   );
   const layer2Token = useMemo(

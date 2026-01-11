@@ -41,14 +41,15 @@ export function ProfileWalletTokenActions() {
     (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase();
   const cleanUsername = (username as string).replace("%40", "");
 
-  const { data: operations } = useQuery(
-    getTokenOperationsQueryOptions(
+  const { data: operations } = useQuery({
+    ...getTokenOperationsQueryOptions(
       tokenSymbol,
       cleanUsername,
       activeUser?.username === cleanUsername,
-      currency
-    )
-  );
+      currency || "usd"
+    ),
+    enabled: !!tokenSymbol && !!cleanUsername,
+  });
 
   const isExternalToken = useMemo(
     () =>

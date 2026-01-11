@@ -84,7 +84,7 @@ export function getAccountWalletListQueryOptions(username: string, currency: str
       try {
         const portfolio = await queryClient.fetchQuery(portfolioQuery);
         const tokensFromPortfolio = portfolio.wallets.map(
-          (asset) => asset.info.name
+          (asset) => asset.name
         );
 
         if (tokensFromPortfolio.length > 0) {

@@ -2874,51 +2874,6 @@ function getAllTokensListQueryOptions(username) {
     }
   });
 }
-var ACTION_ALIAS_MAP = {
-  "transfer-to-savings": "transfer-saving" /* TransferToSavings */,
-  "transfer-savings": "transfer-saving" /* TransferToSavings */,
-  "savings-transfer": "transfer-saving" /* TransferToSavings */,
-  "withdraw-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
-  "withdraw-savings": "withdraw-saving" /* WithdrawFromSavings */,
-  "savings-withdraw": "withdraw-saving" /* WithdrawFromSavings */,
-  "transfer-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
-  "powerup": "power-up" /* PowerUp */,
-  "power-down": "power-down" /* PowerDown */,
-  "powerdown": "power-down" /* PowerDown */,
-  "withdraw-vesting": "power-down" /* PowerDown */,
-  "hp-delegate": "delegate" /* Delegate */,
-  "delegate-hp": "delegate" /* Delegate */,
-  "delegate-power": "delegate" /* Delegate */,
-  "delegate-vesting-shares": "delegate" /* Delegate */,
-  "undelegate-power": "undelegate" /* Undelegate */,
-  "undelegate-token": "undelegate" /* Undelegate */,
-  "stake-token": "stake" /* Stake */,
-  "stake-power": "stake" /* Stake */,
-  "unstake-token": "unstake" /* Unstake */,
-  "unstake-power": "unstake" /* Unstake */,
-  "transfer-to-vesting": "power-up" /* PowerUp */,
-  "lock-liquidity": "lock" /* LockLiquidity */,
-  "lock-liq": "lock" /* LockLiquidity */,
-  "gift-points": "gift" /* Gift */,
-  "points-gift": "gift" /* Gift */,
-  "promote-post": "promote" /* Promote */,
-  "promote-entry": "promote" /* Promote */,
-  boost: "promote" /* Promote */,
-  convert: "swap" /* Swap */,
-  "swap-token": "swap" /* Swap */,
-  "swap_tokens": "swap" /* Swap */,
-  "claim-points": "claim" /* Claim */,
-  "claim-rewards": "claim" /* Claim */,
-  "buy-points": "buy" /* Buy */,
-  "ecency-point-transfer": "transfer" /* Transfer */,
-  "spkcc-spk-send": "transfer" /* Transfer */,
-  "withdraw-routes": "withdraw-routes" /* WithdrawRoutes */,
-  "withdrawroutes": "withdraw-routes" /* WithdrawRoutes */,
-  "claim-interest": "claim-interest" /* ClaimInterest */
-};
-var KNOWN_OPERATION_VALUES = new Map(
-  Object.values(AssetOperation).map((value) => [value, value])
-);
 var DERIVED_PART_KEY_MAP = {
   liquid: ["liquid", "liquidBalance", "liquid_amount", "liquidTokens"],
   savings: ["savings", "savingsBalance", "savings_amount"],
@@ -3084,34 +3039,6 @@ function normalizeExtraDataParts(rawExtraData) {
   }).filter((part) => Boolean(part));
   return parts.length ? parts : void 0;
 }
-function normalizeActionKey(value) {
-  return value.trim().toLowerCase().replace(/[\s_]+/g, "-");
-}
-function mapActions(rawActions) {
-  if (!rawActions) {
-    return [];
-  }
-  const rawList = Array.isArray(rawActions) ? rawActions : [rawActions];
-  const result = [];
-  for (const raw of rawList) {
-    let candidate;
-    if (typeof raw === "string") {
-      candidate = raw;
-    } else if (raw && typeof raw === "object") {
-      const record = raw;
-      candidate = normalizeString(record.code) ?? normalizeString(record.id) ?? normalizeString(record.name) ?? normalizeString(record.action);
-    }
-    if (!candidate) {
-      continue;
-    }
-    const canonical = normalizeActionKey(candidate);
-    const operation = KNOWN_OPERATION_VALUES.get(canonical) ?? ACTION_ALIAS_MAP[canonical];
-    if (operation && !result.includes(operation)) {
-      result.push(operation);
-    }
-  }
-  return result;
-}
 function parseToken(rawToken) {
   if (!rawToken || typeof rawToken !== "object") {
     return void 0;
@@ -3141,19 +3068,17 @@ function parseToken(rawToken) {
   const pendingRewards = normalizeNumber(token.pendingRewards);
   return {
     symbol: normalizedSymbol,
-    info: {
-      name: normalizedSymbol,
-      title,
-      price,
-      accountBalance,
-      apr: apr ?? void 0,
-      layer: layer ?? void 0,
-      pendingRewards: pendingRewards ?? void 0,
-      parts
-    },
-    operations: mapActions(
-      token.actions ?? token.available_actions ?? token.availableActions ?? token.operations ?? token.supportedActions
-    )
+    name: normalizedSymbol,
+    title,
+    price,
+    accountBalance,
+    apr: apr ? Number.parseFloat(apr) : void 0,
+    layer: layer ?? void 0,
+    pendingRewards: pendingRewards ?? void 0,
+    parts,
+    actions: token.actions ?? token.available_actions ?? token.availableActions ?? token.operations ?? token.supportedActions,
+    fiatRate: normalizeNumber(token.fiatRate) ?? void 0,
+    fiatCurrency: normalizeString(token.fiatCurrency) ?? void 0
   };
 }
 function extractTokens(payload) {
@@ -3310,7 +3235,7 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
       try {
         const portfolio = await queryClient.fetchQuery(portfolioQuery);
         const tokensFromPortfolio = portfolio.wallets.map(
-          (asset) => asset.info.name
+          (asset) => asset.name
         );
         if (tokensFromPortfolio.length > 0) {
           const visibleTokens = tokensFromPortfolio.map((token) => token?.toUpperCase?.()).filter((token) => Boolean(token)).filter(isTokenVisible);
@@ -3784,9 +3709,19 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
     try {
       const portfolio = await queryClient.fetchQuery(portfolioQuery);
       const assetInfo = portfolio.wallets.find(
-        (assetItem) => assetItem.info.name === asset.toUpperCase()
+        (assetItem) => assetItem.name === asset.toUpperCase()
       );
-      return assetInfo?.info;
+      if (!assetInfo) return void 0;
+      return {
+        name: assetInfo.name,
+        title: assetInfo.title,
+        price: assetInfo.price ?? assetInfo.fiatRate ?? 0,
+        accountBalance: assetInfo.accountBalance ?? 0,
+        apr: assetInfo.apr,
+        layer: assetInfo.layer,
+        pendingRewards: assetInfo.pendingRewards,
+        parts: assetInfo.parts
+      };
     } catch (e) {
       return void 0;
     }
@@ -3845,16 +3780,6 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
     }
   });
 }
-function normalizePartKey2(value) {
-  return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
-}
-function hasNonZeroSavingsBalance(parts) {
-  return Boolean(
-    parts?.some(
-      (part) => normalizePartKey2(part.name) === "savings" && Number(part.balance) > 0
-    )
-  );
-}
 function getTokenOperationsQueryOptions(token, username, isForOwner = false, currency = "usd") {
   return queryOptions({
     queryKey: ["wallets", "token-operations", token, username, isForOwner, currency],
@@ -3869,16 +3794,93 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
           getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
-          (assetItem) => assetItem.info.name === normalizedToken
+          (assetItem) => assetItem.symbol?.toUpperCase() === normalizedToken
         );
         if (!assetEntry) {
           return [];
         }
-        const operations = assetEntry.operations ?? [];
-        const isHiveOrHbd = ["HIVE", "HBD"].includes(
-          assetEntry.info.name.toUpperCase()
-        );
-        if (isHiveOrHbd && !hasNonZeroSavingsBalance(assetEntry.info.parts)) {
+        const rawActions = assetEntry.actions ?? [];
+        const operations = rawActions.map((action) => {
+          if (typeof action === "string") return action;
+          if (action && typeof action === "object") {
+            const record = action;
+            return record.id ?? record.code ?? record.name ?? record.action;
+          }
+          return void 0;
+        }).filter((id) => Boolean(id)).map((id) => {
+          const canonical = id.trim().toLowerCase().replace(/[\s_]+/g, "-");
+          const aliasMap = {
+            // Common operations
+            "transfer": "transfer" /* Transfer */,
+            "ecency-point-transfer": "transfer" /* Transfer */,
+            "spkcc-spk-send": "transfer" /* Transfer */,
+            // Savings operations
+            "transfer-to-savings": "transfer-saving" /* TransferToSavings */,
+            "transfer-savings": "transfer-saving" /* TransferToSavings */,
+            "savings-transfer": "transfer-saving" /* TransferToSavings */,
+            "withdraw-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
+            "transfer-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
+            "withdraw-savings": "withdraw-saving" /* WithdrawFromSavings */,
+            "savings-withdraw": "withdraw-saving" /* WithdrawFromSavings */,
+            // Vesting/Power operations
+            "transfer-to-vesting": "power-up" /* PowerUp */,
+            "powerup": "power-up" /* PowerUp */,
+            "power-up": "power-up" /* PowerUp */,
+            "withdraw-vesting": "power-down" /* PowerDown */,
+            "power-down": "power-down" /* PowerDown */,
+            "powerdown": "power-down" /* PowerDown */,
+            // Delegation
+            "delegate": "delegate" /* Delegate */,
+            "delegate-vesting-shares": "delegate" /* Delegate */,
+            "hp-delegate": "delegate" /* Delegate */,
+            "delegate-hp": "delegate" /* Delegate */,
+            "delegate-power": "delegate" /* Delegate */,
+            "undelegate": "undelegate" /* Undelegate */,
+            "undelegate-power": "undelegate" /* Undelegate */,
+            "undelegate-token": "undelegate" /* Undelegate */,
+            // Staking (Layer 2)
+            "stake": "stake" /* Stake */,
+            "stake-token": "stake" /* Stake */,
+            "stake-power": "stake" /* Stake */,
+            "unstake": "unstake" /* Unstake */,
+            "unstake-token": "unstake" /* Unstake */,
+            "unstake-power": "unstake" /* Unstake */,
+            // Swap/Convert
+            "swap": "swap" /* Swap */,
+            "swap-token": "swap" /* Swap */,
+            "swap-tokens": "swap" /* Swap */,
+            "convert": "swap" /* Swap */,
+            // Points operations
+            "promote": "promote" /* Promote */,
+            "promote-post": "promote" /* Promote */,
+            "promote-entry": "promote" /* Promote */,
+            "boost": "promote" /* Promote */,
+            "gift": "gift" /* Gift */,
+            "gift-points": "gift" /* Gift */,
+            "points-gift": "gift" /* Gift */,
+            "claim": "claim" /* Claim */,
+            "claim-rewards": "claim" /* Claim */,
+            "claim-points": "claim" /* Claim */,
+            "buy": "buy" /* Buy */,
+            "buy-points": "buy" /* Buy */,
+            // Other
+            "claim-interest": "claim-interest" /* ClaimInterest */,
+            "withdraw-routes": "withdraw-routes" /* WithdrawRoutes */,
+            "withdrawroutes": "withdraw-routes" /* WithdrawRoutes */,
+            "lock": "lock" /* LockLiquidity */,
+            "lock-liquidity": "lock" /* LockLiquidity */,
+            "lock-liq": "lock" /* LockLiquidity */
+          };
+          const mapped = aliasMap[canonical];
+          if (mapped) return mapped;
+          const directMatch = Object.values(AssetOperation).find(
+            (op) => op.toLowerCase() === canonical
+          );
+          return directMatch;
+        }).filter((op) => Boolean(op));
+        const isHiveOrHbd = ["HIVE", "HBD"].includes(normalizedToken);
+        const hasSavings = Number(assetEntry.savings ?? 0) > 0;
+        if (isHiveOrHbd && !hasSavings) {
           return operations.filter(
             (operation) => operation !== "withdraw-saving" /* WithdrawFromSavings */
           );

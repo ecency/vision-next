@@ -20,11 +20,11 @@ export function ProfileWalletSummary() {
   const { username } = useParams();
   const currency = useGlobalStore((state) => state.currency);
   const { data } = useQuery(
-    getAccountWalletListQueryOptions((username as string).replace("%40", ""), currency)
+    getAccountWalletListQueryOptions((username as string).replace("%40", ""), currency || "usd")
   );
   const queriesResult = useQueries({
     queries: (data ?? []).map((item: string) =>
-      getAccountWalletAssetInfoQueryOptions((username as string).replace("%40", ""), item, { refetch: false, currency })
+      getAccountWalletAssetInfoQueryOptions((username as string).replace("%40", ""), item, { refetch: false, currency: currency || "usd" })
     )
   });
   const totalBalance = useMemo(
