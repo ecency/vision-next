@@ -71,10 +71,22 @@ export function getAccountWalletAssetInfoQueryOptions(
     try {
       const portfolio = await queryClient.fetchQuery(portfolioQuery);
       const assetInfo = portfolio.wallets.find(
-        (assetItem) => assetItem.info.name === asset.toUpperCase()
+        (assetItem) => assetItem.name === asset.toUpperCase()
       );
 
-      return assetInfo?.info;
+      // Convert VisionPortfolioWalletItem to GeneralAssetInfo
+      if (!assetInfo) return undefined;
+
+      return {
+        name: assetInfo.name,
+        title: assetInfo.title,
+        price: assetInfo.price ?? assetInfo.fiatRate ?? 0,
+        accountBalance: assetInfo.accountBalance ?? 0,
+        apr: assetInfo.apr,
+        layer: assetInfo.layer,
+        pendingRewards: assetInfo.pendingRewards,
+        parts: assetInfo.parts,
+      } as GeneralAssetInfo;
     } catch (e) {
       return undefined;
     }

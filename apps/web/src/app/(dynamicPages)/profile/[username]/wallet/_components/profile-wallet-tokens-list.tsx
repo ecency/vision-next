@@ -24,7 +24,7 @@ export function ProfileWalletTokensList() {
   );
 
   const { data } = useQuery(
-    getAccountWalletListQueryOptions(sanitizedUsername, currency)
+    getAccountWalletListQueryOptions(sanitizedUsername, currency || "usd")
   );
   const { data: availableTokens } = useQuery(
     getAllTokensListQueryOptions(sanitizedUsername)

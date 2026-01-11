@@ -1816,8 +1816,23 @@ declare function useWalletsCacheQuery(username?: string): _tanstack_react_query.
 
 interface VisionPortfolioWalletItem {
     symbol: string;
-    info: GeneralAssetInfo;
-    operations: AssetOperation[];
+    name: string;
+    title?: string;
+    price?: number;
+    accountBalance?: number;
+    apr?: number;
+    layer?: string;
+    pendingRewards?: number;
+    parts?: {
+        name: string;
+        balance: number;
+    }[];
+    actions?: Array<{
+        id: string;
+        [key: string]: unknown;
+    } | string>;
+    fiatRate?: number;
+    fiatCurrency?: string;
 }
 interface VisionPortfolioResponse {
     username: string;

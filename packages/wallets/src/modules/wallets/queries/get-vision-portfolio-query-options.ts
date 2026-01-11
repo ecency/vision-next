@@ -1,11 +1,20 @@
-import { AssetOperation, type GeneralAssetInfo } from "@/modules/assets";
+import { type GeneralAssetInfo } from "@/modules/assets";
 import { CONFIG } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 
 export interface VisionPortfolioWalletItem {
   symbol: string;
-  info: GeneralAssetInfo;
-  operations: AssetOperation[];
+  name: string;
+  title?: string;
+  price?: number;
+  accountBalance?: number;
+  apr?: number;
+  layer?: string;
+  pendingRewards?: number;
+  parts?: { name: string; balance: number }[];
+  actions?: Array<{ id: string; [key: string]: unknown } | string>;
+  fiatRate?: number;
+  fiatCurrency?: string;
 }
 
 export interface VisionPortfolioResponse {
@@ -13,53 +22,6 @@ export interface VisionPortfolioResponse {
   currency?: string;
   wallets: VisionPortfolioWalletItem[];
 }
-
-const ACTION_ALIAS_MAP: Record<string, AssetOperation> = {
-  "transfer-to-savings": AssetOperation.TransferToSavings,
-  "transfer-savings": AssetOperation.TransferToSavings,
-  "savings-transfer": AssetOperation.TransferToSavings,
-  "withdraw-from-savings": AssetOperation.WithdrawFromSavings,
-  "withdraw-savings": AssetOperation.WithdrawFromSavings,
-  "savings-withdraw": AssetOperation.WithdrawFromSavings,
-  "transfer-from-savings": AssetOperation.WithdrawFromSavings,
-  "powerup": AssetOperation.PowerUp,
-  "power-down": AssetOperation.PowerDown,
-  "powerdown": AssetOperation.PowerDown,
-  "withdraw-vesting": AssetOperation.PowerDown,
-  "hp-delegate": AssetOperation.Delegate,
-  "delegate-hp": AssetOperation.Delegate,
-  "delegate-power": AssetOperation.Delegate,
-  "delegate-vesting-shares": AssetOperation.Delegate,
-  "undelegate-power": AssetOperation.Undelegate,
-  "undelegate-token": AssetOperation.Undelegate,
-  "stake-token": AssetOperation.Stake,
-  "stake-power": AssetOperation.Stake,
-  "unstake-token": AssetOperation.Unstake,
-  "unstake-power": AssetOperation.Unstake,
-  "transfer-to-vesting": AssetOperation.PowerUp,
-  "lock-liquidity": AssetOperation.LockLiquidity,
-  "lock-liq": AssetOperation.LockLiquidity,
-  "gift-points": AssetOperation.Gift,
-  "points-gift": AssetOperation.Gift,
-  "promote-post": AssetOperation.Promote,
-  "promote-entry": AssetOperation.Promote,
-  boost: AssetOperation.Promote,
-  convert: AssetOperation.Swap,
-  "swap-token": AssetOperation.Swap,
-  "swap_tokens": AssetOperation.Swap,
-  "claim-points": AssetOperation.Claim,
-  "claim-rewards": AssetOperation.Claim,
-  "buy-points": AssetOperation.Buy,
-  "ecency-point-transfer": AssetOperation.Transfer,
-  "spkcc-spk-send": AssetOperation.Transfer,
-  "withdraw-routes": AssetOperation.WithdrawRoutes,
-  "withdrawroutes": AssetOperation.WithdrawRoutes,
-  "claim-interest": AssetOperation.ClaimInterest,
-};
-
-const KNOWN_OPERATION_VALUES = new Map<string, AssetOperation>(
-  Object.values(AssetOperation).map((value) => [value, value])
-);
 
 const DERIVED_PART_KEY_MAP: Record<string, string[]> = {
   liquid: ["liquid", "liquidBalance", "liquid_amount", "liquidTokens"],
@@ -299,47 +261,6 @@ function normalizeExtraDataParts(
   return parts.length ? parts : undefined;
 }
 
-function normalizeActionKey(value: string) {
-  return value.trim().toLowerCase().replace(/[\s_]+/g, "-");
-}
-
-function mapActions(rawActions: unknown): AssetOperation[] {
-  if (!rawActions) {
-    return [];
-  }
-
-  const rawList = Array.isArray(rawActions) ? rawActions : [rawActions];
-  const result: AssetOperation[] = [];
-
-  for (const raw of rawList) {
-    let candidate: string | undefined;
-    if (typeof raw === "string") {
-      candidate = raw;
-    } else if (raw && typeof raw === "object") {
-      const record = raw as Record<string, unknown>;
-      candidate =
-        normalizeString(record.code) ??
-        normalizeString(record.id) ??
-        normalizeString(record.name) ??
-        normalizeString(record.action);
-    }
-
-    if (!candidate) {
-      continue;
-    }
-
-    const canonical = normalizeActionKey(candidate);
-    const operation =
-      KNOWN_OPERATION_VALUES.get(canonical) ?? ACTION_ALIAS_MAP[canonical];
-
-    if (operation && !result.includes(operation)) {
-      result.push(operation);
-    }
-  }
-
-  return result;
-}
-
 function parseToken(rawToken: unknown): VisionPortfolioWalletItem | undefined {
   if (!rawToken || typeof rawToken !== "object") {
     return undefined;
@@ -409,23 +330,21 @@ function parseToken(rawToken: unknown): VisionPortfolioWalletItem | undefined {
 
   return {
     symbol: normalizedSymbol,
-    info: {
-      name: normalizedSymbol,
-      title,
-      price,
-      accountBalance,
-      apr: apr ?? undefined,
-      layer: layer ?? undefined,
-      pendingRewards: pendingRewards ?? undefined,
-      parts,
-    },
-    operations: mapActions(
-      token.actions ??
-        token.available_actions ??
-        token.availableActions ??
-        token.operations ??
-        token.supportedActions
-    ),
+    name: normalizedSymbol,
+    title,
+    price,
+    accountBalance,
+    apr: apr ? Number.parseFloat(apr) : undefined,
+    layer: layer ?? undefined,
+    pendingRewards: pendingRewards ?? undefined,
+    parts,
+    actions: (token.actions ??
+      token.available_actions ??
+      token.availableActions ??
+      token.operations ??
+      token.supportedActions) as VisionPortfolioWalletItem["actions"],
+    fiatRate: normalizeNumber(token.fiatRate) ?? undefined,
+    fiatCurrency: normalizeString(token.fiatCurrency) ?? undefined,
   };
 }
 

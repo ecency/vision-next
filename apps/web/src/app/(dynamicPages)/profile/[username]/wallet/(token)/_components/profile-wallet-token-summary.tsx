@@ -67,7 +67,7 @@ export function ProfileWalletTokenSummary() {
     );
 
   const { data, isFetching } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback, { refetch: false, currency })
+    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback, { refetch: false, currency: currency || "usd" })
   );
 
   const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
