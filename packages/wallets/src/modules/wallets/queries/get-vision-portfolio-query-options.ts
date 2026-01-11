@@ -182,7 +182,7 @@ export function getVisionPortfolioQueryOptions(username: string, currency: strin
         throw new Error("[SDK][Wallets] – username is required");
       }
 
-      if (!CONFIG.privateApiHost) {
+      if (CONFIG.privateApiHost === undefined || CONFIG.privateApiHost === null) {
         throw new Error(
           "[SDK][Wallets] – privateApiHost isn't configured for portfolio"
         );
