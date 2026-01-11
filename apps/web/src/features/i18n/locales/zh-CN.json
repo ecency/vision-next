@@ -47,6 +47,7 @@
     "hot": "订阅源",
     "trending": "订阅源",
     "created": "订阅源",
+    "promoted": "已升级",
     "muted": "静音",
     "trail": "轨迹",
     "controversial": "有争议的",
@@ -295,7 +296,7 @@
     "description": "Freespeech, True own, financial freedom!",
     "description-2": "Hive 增强了许多应用的能力，并完全由世界各地的社区成员来运行。 使用一个帐户，您可以直接访问生态系统。",
     "bottom-description": "一个帐户，一个钱包来管理Blockchain上的一切。",
-    "learn-more": "在我们的 <a href=\"/faq#how-to-join\">常见问题</a>中了解更多好处",
+    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
     "username": "选择用户名",
     "email": "输入您的电子邮件地址",
     "ref": "推荐用户 (可选)",
@@ -407,6 +408,22 @@
     "ascending": "升序",
     "descending": "降序"
   },
+  "tags-page": {
+    "title": "热门标签",
+    "description": "发现最活跃的主题，包括评论体积、顶级帖子和薪酬。",
+    "error": "现在无法加载趋势标签。",
+    "columns": {
+      "tag": "标签",
+      "comments": "评论",
+      "top-posts": "顶部帖子",
+      "total-payouts": "付款总额"
+    },
+    "load-more": {
+      "cta": "加载更多",
+      "loading": "加载中...",
+      "done": "没有更多标签"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "转发帖子",
     "cross-posted-to": "至",
@@ -445,7 +462,10 @@
     "delete-success": "转发已删除"
   },
   "entry-tip": {
-    "title": "礼物"
+    "title": "礼物",
+    "send-tip": "发送提示",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "分享"
@@ -1111,7 +1131,7 @@
     "confirm": "确认",
     "cancel": "取消",
     "check-faq": "了解更多关于我们的 RC的信息",
-    "learn-more": "/faq#what are-rc",
+    "learn-more": "https://docs.ecency.com/hive/resourcescredits/",
     "faq-link": "常见问题",
     "insufficient-rc-error": "资源积分不足",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1402,6 +1422,7 @@
     "to-placeholder": "用户名",
     "to-not-found": "您正在尝试转账资金的用户不存在！",
     "to-bad-actor": "请谨慎发送到此账户。请仔细检查您的拼写，以免误入可疑的钓鱼账号。",
+    "external-wallets-label": "钱包 (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "数量",
     "amount-placeholder": "数量",
     "wrong-amount": "错误数量",
@@ -1532,7 +1553,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "使用 HiveAuth 登录"
+    "with-hiveauth": "使用 HiveAuth 登录",
+    "invalid-key": "密钥格式无效。请检查无效字符。",
+    "key-error": "处理密钥失败。请验证它是否正确。"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -2133,7 +2156,12 @@
     "enter-private-key-detail": "输入私钥导入所有聊天",
     "message-search-results": "消息搜索结果",
     "no-messages-found": "未找到消息。",
-    "no-message": "没有消息内容。"
+    "no-message": "没有消息内容。",
+    "translate": "翻译",
+    "translate-target-language": "目标语言",
+    "pinned-messages": "置頂消息",
+    "pin-message": "置顶消息",
+    "unpin-message": "取消置顶消息"
   },
   "add-image": {
     "title": "添加图像",
@@ -2493,7 +2521,7 @@
   "chain-error": {
     "min-root-comment": "您只能每五分钟发布一次。",
     "identical-vote": "您当前对此内容的投票与本次投票完全相同。",
-    "must-claim": "待处理奖励已经领取。",
+    "must-claim": "没有索要余额或已经索要。",
     "insufficient-resource": "资源积分不足。",
     "delete-comment-with-vote": "不能删除正等待奖励的内容。",
     "comment-cashout": "不能删除他们付款后的内容。",
@@ -3001,7 +3029,7 @@
     },
     "operations": {
       "transfer": "转移",
-      "transfer-saving": "储蓄存款",
+      "transfer-saving": "储蓄账户",
       "power-up": "电源上移",
       "power-down": "电源断开",
       "swap": "切换",

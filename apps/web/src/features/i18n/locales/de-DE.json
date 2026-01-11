@@ -47,6 +47,7 @@
     "hot": "Feed",
     "trending": "Feed",
     "created": "Feed",
+    "promoted": "beworben",
     "muted": "stumm",
     "trail": "P",
     "controversial": "umstritten",
@@ -295,7 +296,7 @@
     "description": "Redefreiheit, echte Inhaberschaft, finanzielle Freiheit!",
     "description-2": "Hive-Macht viele Apps und wird komplett dezentralisiert von Gemeinschaftsmitgliedern auf der ganzen Welt. Mit einem Konto haben Sie direkten Zugriff auf das Ökosystem.",
     "bottom-description": "Ein Konto, eine Wallet, um alles in der Blockchain zu erledigen.",
-    "learn-more": "Erfahren Sie mehr über die Vorteile in unserer <a href=\"/faq#how-to-join\">FAQ</a>",
+    "learn-more": "Erfahren Sie mehr über die Vorteile in unserer <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
     "username": "Wähle einen Benutzernamen",
     "email": "E-Mail Adresse eingeben",
     "ref": "Referral Nutzer (optional)",
@@ -407,6 +408,22 @@
     "ascending": "Aufsteigend",
     "descending": "Absteigend"
   },
+  "tags-page": {
+    "title": "Trend-Tags",
+    "description": "Entdecken Sie die aktivsten Themen mit ihrem Kommentarvolumen, Top-Posts und Auszahlungen.",
+    "error": "Trend-Tags können momentan nicht geladen werden.",
+    "columns": {
+      "tag": "Markierung",
+      "comments": "Kommentare",
+      "top-posts": "Top Beiträge",
+      "total-payouts": "Gesamte Auszahlungen"
+    },
+    "load-more": {
+      "cta": "Mehr laden",
+      "loading": "Wird geladen...",
+      "done": "Keine weiteren Tags"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "cross Post",
     "cross-posted-to": "zu",
@@ -445,7 +462,10 @@
     "delete-success": "Reblog entfernt"
   },
   "entry-tip": {
-    "title": "Hinweis"
+    "title": "Hinweis",
+    "send-tip": "Tipp senden",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} Tipps"
   },
   "entry-share": {
     "title": "Teilen"
@@ -1111,7 +1131,7 @@
     "confirm": "Bestätigen",
     "cancel": "Abbrechen",
     "check-faq": "Erfahren Sie mehr über RC in unseren",
-    "learn-more": "/faq#was-are-rc",
+    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
     "faq-link": "FAQ",
     "insufficient-rc-error": "Unzureichende Ressourcen-Credits",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1402,6 +1422,7 @@
     "to-placeholder": "Benutzername",
     "to-not-found": "Der Benutzer dem Du die Mittel überweisen möchtest, existiert nicht!",
     "to-bad-actor": "Sei vorsichtig beim Senden an dieses Konto. Bitte überprüfe die Rechtschreibung auf mögliche Phishing-Versuche.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Betrag",
     "amount-placeholder": "Menge",
     "wrong-amount": "Falsche Menge",
@@ -1532,7 +1553,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Mit HiveAuh signieren"
+    "with-hiveauth": "Mit HiveAuh signieren",
+    "invalid-key": "Ungültiges Schlüsselformat. Bitte überprüfen Sie ungültige Zeichen.",
+    "key-error": "Fehler bei der Verarbeitung des Schlüssels. Bitte überprüfen Sie, ob er korrekt ist."
   },
   "hive-auth": {
     "pending-request": "HiveAuth Anfrage ausstehend. Match ID {{id}} in Ihrer Wallet."
@@ -2133,7 +2156,12 @@
     "enter-private-key-detail": "Chat-Privatschlüssel eingeben um alle Chats zu importieren",
     "message-search-results": "Nachrichten Suchergebnisse",
     "no-messages-found": "Keine Nachrichten gefunden.",
-    "no-message": "Kein Nachrichteninhalt."
+    "no-message": "Kein Nachrichteninhalt.",
+    "translate": "Übersetzen",
+    "translate-target-language": "Zielsprache",
+    "pinned-messages": "Angeheftete Nachrichten",
+    "pin-message": "Nachricht anheften",
+    "unpin-message": "Nachricht lösen"
   },
   "add-image": {
     "title": "Bild hinzufügen",
@@ -2493,7 +2521,7 @@
   "chain-error": {
     "min-root-comment": "Du kannst nur einmal alle fünf Minuten posten.",
     "identical-vote": "Ihre aktuelle Abstimmung über diesen Inhalt ist identisch mit dieser Abstimmung.",
-    "must-claim": "Ausstehende Belohnungen bereits abgeholt.",
+    "must-claim": "Kein beanspruchender Saldo oder bereits beansprucht.",
     "insufficient-resource": "Unzureichende Ressourcen-Credits.",
     "delete-comment-with-vote": "Ein Inhalt mit positiven ausstehenden Belohnungen kann nicht gelöscht werden.",
     "comment-cashout": "Inhalt nach der Auszahlung kann nicht gelöscht werden.",
@@ -3001,7 +3029,7 @@
     },
     "operations": {
       "transfer": "Überweisung",
-      "transfer-saving": "Spareinlage",
+      "transfer-saving": "An Einsparungen",
       "power-up": "Hochfahren",
       "power-down": "Strom runter",
       "swap": "Tausch",

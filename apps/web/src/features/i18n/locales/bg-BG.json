@@ -47,6 +47,7 @@
     "hot": "моят поток",
     "trending": "моят поток",
     "created": "моят поток",
+    "promoted": "promoted",
     "muted": "заглушен",
     "trail": "Пътеки",
     "controversial": "Спорно",
@@ -295,7 +296,7 @@
     "description": "Freespeech, True ownership, Financial freedom!",
     "description-2": "Hive powers many apps and is run completely decentralized by community members all around the world. With an account, you have direct access to the ecosystem.",
     "bottom-description": "One account, one wallet to manage everything on Blockchain.",
-    "learn-more": "Научете повече за ползвите от нашите <a href=\"/faq#how-to-join\">Често Задавани Въпроси</a>",
+    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
     "username": "Изберете потребителско име",
     "email": "Въведете вашия имейл адрес",
     "ref": "Кой ви покани в платформата(Опция)",
@@ -407,6 +408,22 @@
     "ascending": "Ascending",
     "descending": "Descending"
   },
+  "tags-page": {
+    "title": "Trending tags",
+    "description": "Discover the most active topics with their comment volume, top posts, and payouts.",
+    "error": "Unable to load trending tags right now.",
+    "columns": {
+      "tag": "Tag",
+      "comments": "Comments",
+      "top-posts": "Top posts",
+      "total-payouts": "Total payouts"
+    },
+    "load-more": {
+      "cta": "Load more",
+      "loading": "Loading...",
+      "done": "No more tags"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "кръстосано публикуване",
     "cross-posted-to": "to",
@@ -445,7 +462,10 @@
     "delete-success": "Споделянето е отменено"
   },
   "entry-tip": {
-    "title": "Бакшиш"
+    "title": "Бакшиш",
+    "send-tip": "Send a tip",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Share"
@@ -1111,7 +1131,7 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "check-faq": "Learn more about RC in our",
-    "learn-more": "/faq#what-are-rc",
+    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
     "faq-link": "FAQ",
     "insufficient-rc-error": "Insufficient resource credits",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1402,6 +1422,7 @@
     "to-placeholder": "потребителско име",
     "to-not-found": "Потребителят към когото се опитваш да прехвърлиш сумата не съществува!",
     "to-bad-actor": "Бъди предпазлив когато изпращаш на този акаунт. Моля проверявайте изписването за възможни грешки.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Сума",
     "amount-placeholder": "сума",
     "wrong-amount": "Грешно количество сума",
@@ -1532,7 +1553,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Sign with HiveAuth"
+    "with-hiveauth": "Sign with HiveAuth",
+    "invalid-key": "Invalid key format. Please check for invalid characters.",
+    "key-error": "Failed to process the key. Please verify it is correct."
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -2133,7 +2156,12 @@
     "enter-private-key-detail": "Enter chat private key to import all chats",
     "message-search-results": "Message search results",
     "no-messages-found": "No messages found.",
-    "no-message": "No message content."
+    "no-message": "No message content.",
+    "translate": "Translate",
+    "translate-target-language": "Target language",
+    "pinned-messages": "Pinned messages",
+    "pin-message": "Pin message",
+    "unpin-message": "Unpin message"
   },
   "add-image": {
     "title": "Добави Снимка",
@@ -2493,7 +2521,7 @@
   "chain-error": {
     "min-root-comment": "You may only post once every five minutes.",
     "identical-vote": "Your current vote on this content is identical to this vote.",
-    "must-claim": "Pending rewards already claimed.",
+    "must-claim": "No claiming balance or already claimed.",
     "insufficient-resource": "Insufficient Resource Credits.",
     "delete-comment-with-vote": "Cannot delete a content with positive pending rewards.",
     "comment-cashout": "Content after their payout cannot be deleted.",
@@ -3001,7 +3029,7 @@
     },
     "operations": {
       "transfer": "Transfer",
-      "transfer-saving": "Savings Deposit",
+      "transfer-saving": "To Savings",
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Swap",

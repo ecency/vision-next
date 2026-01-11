@@ -47,6 +47,7 @@
     "hot": "fil d'actualités",
     "trending": "fil d'actualités",
     "created": "fil d'actualités",
+    "promoted": "promu",
     "muted": "mis en sourdine",
     "trail": "traînée",
     "controversial": "controversé",
@@ -295,7 +296,7 @@
     "description": "Freespeech, Vrai propriété, Liberté financière!",
     "description-2": "Hive active de nombreuses applications et est entièrement décentralisée par les membres de la communauté dans le monde entier. Avec un compte, vous avez un accès direct à l'écosystème.",
     "bottom-description": "Un compte, un portefeuille pour gérer tout sur la Blockchain.",
-    "learn-more": "En savoir plus sur les avantages dans notre <a href=\"/faq#how-to-join\">FAQ</a>",
+    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
     "username": "Choisissez un nom d’utilisateur",
     "email": "Entrez votre adresse mail",
     "ref": "Utilisateur référé (facultatif)",
@@ -407,6 +408,22 @@
     "ascending": "Ascendant",
     "descending": "Descendant"
   },
+  "tags-page": {
+    "title": "Tags tendances",
+    "description": "Découvrez les sujets les plus actifs avec leur volume de commentaires, les meilleurs messages et les paiements.",
+    "error": "Impossible de charger les balises tendances pour le moment.",
+    "columns": {
+      "tag": "Étiquette",
+      "comments": "Commentaires",
+      "top-posts": "Top messages",
+      "total-payouts": "Total des paiements"
+    },
+    "load-more": {
+      "cta": "Charger plus",
+      "loading": "Chargement en cours...",
+      "done": "Plus aucun tag"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "message croisé",
     "cross-posted-to": "à",
@@ -445,7 +462,10 @@
     "delete-success": "Reblog supprimé"
   },
   "entry-tip": {
-    "title": "Pourboire"
+    "title": "Pourboire",
+    "send-tip": "Envoyer une astuce",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} conseils"
   },
   "entry-share": {
     "title": "Partager"
@@ -1111,7 +1131,7 @@
     "confirm": "Valider",
     "cancel": "Abandonner",
     "check-faq": "En savoir plus sur la RC dans notre",
-    "learn-more": "/faq#what-are-rc",
+    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
     "faq-link": "Foire Aux Questions",
     "insufficient-rc-error": "Crédits de ressources insuffisants",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1402,6 +1422,7 @@
     "to-placeholder": "nom d'utilisateur",
     "to-not-found": "L'utilisateur auquel vous essayez d'envoyer des fonds n'existe pas !",
     "to-bad-actor": "Faites preuve de prudence en envoyant à ce compte. Veuillez vérifier votre orthographe pour de possibles hameçonnages.",
+    "external-wallets-label": "Portefeuille (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Montant",
     "amount-placeholder": "montant",
     "wrong-amount": "Mauvaise valeur de montant",
@@ -1532,7 +1553,9 @@
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
     "with-keychain": "Sign with keychain",
-    "with-hiveauth": "Signer avec HiveAuth"
+    "with-hiveauth": "Signer avec HiveAuth",
+    "invalid-key": "Format de clé invalide. Veuillez vérifier s'il y a des caractères non valides.",
+    "key-error": "Impossible de traiter la clé. Veuillez vérifier qu'elle est correcte."
   },
   "hive-auth": {
     "pending-request": "Requête HiveAuth en attente. ID {{id}} dans votre portefeuille."
@@ -2133,7 +2156,12 @@
     "enter-private-key-detail": "Entrez la clé privée du chat pour importer toutes les conversations",
     "message-search-results": "Résultats de la recherche de messages",
     "no-messages-found": "Aucun message trouvé.",
-    "no-message": "Aucun contenu de message."
+    "no-message": "Aucun contenu de message.",
+    "translate": "Traduire",
+    "translate-target-language": "Langue cible",
+    "pinned-messages": "Messages épinglés",
+    "pin-message": "Épingler le message",
+    "unpin-message": "Désépingler le message"
   },
   "add-image": {
     "title": "Ajouter une image",
@@ -2493,7 +2521,7 @@
   "chain-error": {
     "min-root-comment": "Vous ne pouvez poster qu'une seule fois toutes les cinq minutes.",
     "identical-vote": "Votre vote actuel sur ce contenu est identique à ce vote.",
-    "must-claim": "Récompenses en attente déjà réclamées.",
+    "must-claim": "Aucun solde réclamé ou déjà réclamé.",
     "insufficient-resource": "Crédits de Ressources insuffisants.",
     "delete-comment-with-vote": "Impossible de supprimer un contenu avec des récompenses positives en attente.",
     "comment-cashout": "Le contenu après leur paiement ne peut pas être supprimé.",
@@ -3001,7 +3029,7 @@
     },
     "operations": {
       "transfer": "Transférer",
-      "transfer-saving": "Dépôt d'épargne",
+      "transfer-saving": "Épargner",
       "power-up": "Power Up",
       "power-down": "Descendre",
       "swap": "Permuter",
