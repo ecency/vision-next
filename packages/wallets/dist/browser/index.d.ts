@@ -775,6 +775,7 @@ declare enum AssetOperation {
     WithdrawRoutes = "withdraw-routes",
     ClaimInterest = "claim-interest",
     Swap = "swap",
+    Convert = "convert",
     Gift = "gift",
     Promote = "promote",
     Claim = "claim",
@@ -1823,10 +1824,7 @@ interface VisionPortfolioWalletItem {
     apr?: number;
     layer?: string;
     pendingRewards?: number;
-    parts?: {
-        name: string;
-        balance: number;
-    }[];
+    savings?: number;
     actions?: Array<{
         id: string;
         [key: string]: unknown;

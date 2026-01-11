@@ -1562,6 +1562,7 @@ var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
   AssetOperation2["WithdrawRoutes"] = "withdraw-routes";
   AssetOperation2["ClaimInterest"] = "claim-interest";
   AssetOperation2["Swap"] = "swap";
+  AssetOperation2["Convert"] = "convert";
   AssetOperation2["Gift"] = "gift";
   AssetOperation2["Promote"] = "promote";
   AssetOperation2["Claim"] = "claim";
@@ -2874,35 +2875,6 @@ function getAllTokensListQueryOptions(username) {
     }
   });
 }
-var DERIVED_PART_KEY_MAP = {
-  liquid: ["liquid", "liquidBalance", "liquid_amount", "liquidTokens"],
-  savings: ["savings", "savingsBalance", "savings_amount"],
-  staked: ["staked", "stakedBalance", "staking", "stake", "power"],
-  delegated: ["delegated", "delegatedBalance", "delegationsOut"],
-  received: ["received", "receivedBalance", "delegationsIn"],
-  pending: [
-    "pending",
-    "pendingRewards",
-    "unclaimed",
-    "unclaimedBalance",
-    "pendingReward"
-  ]
-};
-var EXTRA_DATA_PART_KEY_MAP = {
-  delegated: "outgoing_delegations",
-  outgoing: "outgoing_delegations",
-  delegations_out: "outgoing_delegations",
-  delegated_hive_power: "outgoing_delegations",
-  delegated_hp: "outgoing_delegations",
-  received: "incoming_delegations",
-  incoming: "incoming_delegations",
-  delegations_in: "incoming_delegations",
-  received_hive_power: "incoming_delegations",
-  received_hp: "incoming_delegations",
-  powering_down: "pending_power_down",
-  power_down: "pending_power_down",
-  powering_down_hive_power: "pending_power_down"
-};
 function normalizeString(value) {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -2945,100 +2917,6 @@ function normalizeApr(value) {
   }
   return numeric.toString();
 }
-function normalizeParts(rawParts) {
-  if (Array.isArray(rawParts)) {
-    const parsed = rawParts.map((item) => {
-      if (!item || typeof item !== "object") {
-        return void 0;
-      }
-      const name = normalizeString(
-        item.name ?? item.label ?? item.type ?? item.part
-      );
-      const balance = normalizeNumber(
-        item.balance ?? item.amount ?? item.value
-      );
-      if (!name || balance === void 0) {
-        return void 0;
-      }
-      return { name, balance };
-    }).filter((item) => Boolean(item));
-    return parsed.length ? parsed : void 0;
-  }
-  if (rawParts && typeof rawParts === "object") {
-    const parsed = Object.entries(rawParts).map(([name, amount]) => {
-      const balance = normalizeNumber(amount);
-      if (!name || balance === void 0) {
-        return void 0;
-      }
-      return { name, balance };
-    }).filter((item) => Boolean(item));
-    return parsed.length ? parsed : void 0;
-  }
-  return void 0;
-}
-function deriveParts(record) {
-  const derived = Object.entries(DERIVED_PART_KEY_MAP).map(([name, keys]) => {
-    for (const key of keys) {
-      const value = normalizeNumber(record[key]);
-      if (value !== void 0) {
-        return { name, balance: value };
-      }
-    }
-    return void 0;
-  }).filter((item) => Boolean(item));
-  return derived.length ? derived : void 0;
-}
-function normalizePartKey(value) {
-  return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
-}
-function mergeParts(...sources) {
-  const order = [];
-  const values2 = /* @__PURE__ */ new Map();
-  for (const parts of sources) {
-    if (!parts) {
-      continue;
-    }
-    for (const part of parts) {
-      if (!part?.name || typeof part.balance !== "number") {
-        continue;
-      }
-      const existing = values2.get(part.name);
-      if (existing === void 0) {
-        order.push(part.name);
-        values2.set(part.name, part.balance);
-      } else {
-        values2.set(part.name, existing + part.balance);
-      }
-    }
-  }
-  return order.length ? order.map((name) => ({ name, balance: values2.get(name) })) : void 0;
-}
-function normalizeExtraDataParts(rawExtraData) {
-  const items = Array.isArray(rawExtraData) ? rawExtraData : rawExtraData && typeof rawExtraData === "object" ? Object.values(rawExtraData) : [];
-  const parts = items.map((item) => {
-    if (!item || typeof item !== "object") {
-      return void 0;
-    }
-    const record = item;
-    const keyCandidate = normalizeString(record.dataKey) ?? normalizeString(record.key) ?? normalizeString(record.name);
-    if (!keyCandidate) {
-      return void 0;
-    }
-    const canonical = normalizePartKey(keyCandidate);
-    const partName = EXTRA_DATA_PART_KEY_MAP[canonical];
-    if (!partName) {
-      return void 0;
-    }
-    const balance = normalizeNumber(
-      record.balance ?? record.amount ?? record.value ?? record.displayValue ?? record.text
-    );
-    if (balance === void 0) {
-      return void 0;
-    }
-    return { name: partName, balance: Math.abs(balance) };
-  }).filter((part) => Boolean(part));
-  return parts.length ? parts : void 0;
-}
 function parseToken(rawToken) {
   if (!rawToken || typeof rawToken !== "object") {
     return void 0;
@@ -3054,18 +2932,10 @@ function parseToken(rawToken) {
   const apr = normalizeApr(token.apr) ?? normalizeApr(token.aprPercent) ?? normalizeApr(token.metrics?.apr) ?? normalizeApr(
     token.metrics?.aprPercent
   );
-  const baseParts = normalizeParts(
-    token.parts ?? token.balances ?? token.sections ?? token.breakdown ?? token.accountBreakdown ?? token.walletParts
-  ) ?? deriveParts(token);
-  const parts = mergeParts(
-    baseParts,
-    normalizeExtraDataParts(
-      token.extraData ?? token.extra_data ?? token.extra ?? token.badges
-    )
-  );
-  const accountBalance = normalizeNumber(token.balance) ?? normalizeNumber(token.accountBalance) ?? normalizeNumber(token.totalBalance) ?? normalizeNumber(token.total) ?? normalizeNumber(token.amount) ?? (baseParts ? baseParts.reduce((total, part) => total + (part.balance ?? 0), 0) : parts ? parts.reduce((total, part) => total + (part.balance ?? 0), 0) : 0);
+  const accountBalance = normalizeNumber(token.balance) ?? normalizeNumber(token.accountBalance) ?? normalizeNumber(token.totalBalance) ?? normalizeNumber(token.total) ?? normalizeNumber(token.amount) ?? 0;
   const layer = normalizeString(token.layer) ?? normalizeString(token.chain) ?? normalizeString(token.category) ?? normalizeString(token.type);
   const pendingRewards = normalizeNumber(token.pendingRewards);
+  const savings = normalizeNumber(token.savings);
   return {
     symbol: normalizedSymbol,
     name: normalizedSymbol,
@@ -3075,7 +2945,7 @@ function parseToken(rawToken) {
     apr: apr ? Number.parseFloat(apr) : void 0,
     layer: layer ?? void 0,
     pendingRewards: pendingRewards ?? void 0,
-    parts,
+    savings: savings ?? void 0,
     actions: token.actions ?? token.available_actions ?? token.availableActions ?? token.operations ?? token.supportedActions,
     fiatRate: normalizeNumber(token.fiatRate) ?? void 0,
     fiatCurrency: normalizeString(token.fiatCurrency) ?? void 0
@@ -3714,13 +3584,12 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
       if (!assetInfo) return void 0;
       return {
         name: assetInfo.name,
-        title: assetInfo.title,
+        title: assetInfo.title ?? assetInfo.name,
         price: assetInfo.price ?? assetInfo.fiatRate ?? 0,
         accountBalance: assetInfo.accountBalance ?? 0,
-        apr: assetInfo.apr,
+        apr: assetInfo.apr?.toString(),
         layer: assetInfo.layer,
-        pendingRewards: assetInfo.pendingRewards,
-        parts: assetInfo.parts
+        pendingRewards: assetInfo.pendingRewards
       };
     } catch (e) {
       return void 0;
@@ -3794,7 +3663,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
           getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
-          (assetItem) => assetItem.symbol?.toUpperCase() === normalizedToken
+          (assetItem) => assetItem.symbol?.toUpperCase() === normalizedToken || assetItem.name?.toUpperCase() === normalizedToken
         );
         if (!assetEntry) {
           return [];
@@ -3849,7 +3718,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
             "swap": "swap" /* Swap */,
             "swap-token": "swap" /* Swap */,
             "swap-tokens": "swap" /* Swap */,
-            "convert": "swap" /* Swap */,
+            "convert": "convert" /* Convert */,
             // Points operations
             "promote": "promote" /* Promote */,
             "promote-post": "promote" /* Promote */,
@@ -3877,9 +3746,10 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
             (op) => op.toLowerCase() === canonical
           );
           return directMatch;
-        }).filter((op) => Boolean(op));
+        }).filter((op) => Boolean(op)).filter((op, index, self) => self.indexOf(op) === index);
         const isHiveOrHbd = ["HIVE", "HBD"].includes(normalizedToken);
-        const hasSavings = Number(assetEntry.savings ?? 0) > 0;
+        const rawToken = assetEntry;
+        const hasSavings = Number(rawToken.savings ?? 0) > 0;
         if (isHiveOrHbd && !hasSavings) {
           return operations.filter(
             (operation) => operation !== "withdraw-saving" /* WithdrawFromSavings */

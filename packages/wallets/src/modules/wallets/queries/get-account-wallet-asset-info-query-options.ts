@@ -79,13 +79,12 @@ export function getAccountWalletAssetInfoQueryOptions(
 
       return {
         name: assetInfo.name,
-        title: assetInfo.title,
+        title: assetInfo.title ?? assetInfo.name,
         price: assetInfo.price ?? assetInfo.fiatRate ?? 0,
         accountBalance: assetInfo.accountBalance ?? 0,
-        apr: assetInfo.apr,
+        apr: assetInfo.apr?.toString(),
         layer: assetInfo.layer,
         pendingRewards: assetInfo.pendingRewards,
-        parts: assetInfo.parts,
       } as GeneralAssetInfo;
     } catch (e) {
       return undefined;

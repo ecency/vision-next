@@ -11,6 +11,7 @@ export enum AssetOperation {
   WithdrawRoutes = "withdraw-routes",
   ClaimInterest = "claim-interest",
   Swap = "swap",
+  Convert = "convert",
 
   // Points
   Gift = "gift",

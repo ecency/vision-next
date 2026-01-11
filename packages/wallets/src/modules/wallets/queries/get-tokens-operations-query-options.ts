@@ -24,7 +24,9 @@ export function getTokenOperationsQueryOptions(
           getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
-          (assetItem) => assetItem.symbol?.toUpperCase() === normalizedToken
+          (assetItem) =>
+            assetItem.symbol?.toUpperCase() === normalizedToken ||
+            assetItem.name?.toUpperCase() === normalizedToken
         );
 
         if (!assetEntry) {
@@ -94,7 +96,7 @@ export function getTokenOperationsQueryOptions(
               "swap": AssetOperation.Swap,
               "swap-token": AssetOperation.Swap,
               "swap-tokens": AssetOperation.Swap,
-              "convert": AssetOperation.Swap,
+              "convert": AssetOperation.Convert,
 
               // Points operations
               "promote": AssetOperation.Promote,
@@ -129,10 +131,14 @@ export function getTokenOperationsQueryOptions(
             );
             return directMatch;
           })
-          .filter((op): op is AssetOperation => Boolean(op));
+          .filter((op): op is AssetOperation => Boolean(op))
+          // Remove duplicates - API may return multiple actions that map to same operation
+          .filter((op, index, self) => self.indexOf(op) === index);
 
         const isHiveOrHbd = ["HIVE", "HBD"].includes(normalizedToken);
-        const hasSavings = Number((assetEntry as any).savings ?? 0) > 0;
+        // Check if there's a non-zero savings balance
+        const rawToken = assetEntry as any;
+        const hasSavings = Number(rawToken.savings ?? 0) > 0;
 
         if (
           isHiveOrHbd &&
