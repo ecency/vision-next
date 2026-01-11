@@ -1,4 +1,4 @@
-import { CONFIG, getAccountFullQueryOptions, getQueryClient, getDynamicPropsQueryOptions, useBroadcastMutation, getSpkMarkets, getSpkWallet, getHiveEngineTokensMarket, getHiveEngineTokensBalances, getHiveEngineTokensMetadata, getHiveEngineTokenTransactions, getHiveEngineTokenMetrics, getHiveEngineUnclaimedRewards, EcencyAnalytics, useAccountUpdate } from '@ecency/sdk';
+import { CONFIG, getAccountFullQueryOptions, getQueryClient, getDynamicPropsQueryOptions, useBroadcastMutation, getSpkMarkets, getSpkWallet, getHiveEngineTokensMarket, getHiveEngineTokensBalances, getHiveEngineTokensMetadata, getHiveEngineTokenTransactions, getHiveEngineTokenMetrics, getHiveEngineUnclaimedRewards, EcencyAnalytics, useAccountUpdate, getCurrencyRate } from '@ecency/sdk';
 export { getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTradeHistory } from '@ecency/sdk';
 import { useQuery, queryOptions, infiniteQueryOptions, useQueryClient, useMutation } from '@tanstack/react-query';
 import bip39, { mnemonicToSeedSync } from 'bip39';
@@ -3764,6 +3764,21 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
     }
     return queryClient.getQueryData(queryOptions43.queryKey);
   };
+  const convertPriceToUserCurrency = async (assetInfo) => {
+    if (!assetInfo || currency === "usd") {
+      return assetInfo;
+    }
+    try {
+      const conversionRate = await getCurrencyRate(currency);
+      return {
+        ...assetInfo,
+        price: assetInfo.price * conversionRate
+      };
+    } catch (error) {
+      console.warn(`Failed to convert price from USD to ${currency}:`, error);
+      return assetInfo;
+    }
+  };
   const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
   const getPortfolioAssetInfo = async () => {
     try {
@@ -3780,50 +3795,53 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
     queryKey: ["ecency-wallets", "asset-info", username, asset, currency],
     queryFn: async () => {
       const portfolioAssetInfo = await getPortfolioAssetInfo();
-      if (portfolioAssetInfo) {
+      if (portfolioAssetInfo && portfolioAssetInfo.price > 0) {
         return portfolioAssetInfo;
       }
+      let assetInfo;
       if (asset === "HIVE") {
-        return fetchQuery(getHiveAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getHiveAssetGeneralInfoQueryOptions(username));
       } else if (asset === "HP") {
-        return fetchQuery(getHivePowerAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getHivePowerAssetGeneralInfoQueryOptions(username));
       } else if (asset === "HBD") {
-        return fetchQuery(getHbdAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getHbdAssetGeneralInfoQueryOptions(username));
       } else if (asset === "SPK") {
-        return fetchQuery(getSpkAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getSpkAssetGeneralInfoQueryOptions(username));
       } else if (asset === "LARYNX") {
-        return fetchQuery(getLarynxAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getLarynxAssetGeneralInfoQueryOptions(username));
       } else if (asset === "LP") {
-        return fetchQuery(getLarynxPowerAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getLarynxPowerAssetGeneralInfoQueryOptions(username));
       } else if (asset === "POINTS") {
-        return fetchQuery(getPointsAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getPointsAssetGeneralInfoQueryOptions(username));
       } else if (asset === "APT") {
-        return fetchQuery(getAptAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getAptAssetGeneralInfoQueryOptions(username));
       } else if (asset === "BNB") {
-        return fetchQuery(getBnbAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getBnbAssetGeneralInfoQueryOptions(username));
       } else if (asset === "BTC") {
-        return fetchQuery(getBtcAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getBtcAssetGeneralInfoQueryOptions(username));
       } else if (asset === "ETH") {
-        return fetchQuery(getEthAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getEthAssetGeneralInfoQueryOptions(username));
       } else if (asset === "SOL") {
-        return fetchQuery(getSolAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getSolAssetGeneralInfoQueryOptions(username));
       } else if (asset === "TON") {
-        return fetchQuery(getTonAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getTonAssetGeneralInfoQueryOptions(username));
       } else if (asset === "TRX") {
-        return fetchQuery(getTronAssetGeneralInfoQueryOptions(username));
-      }
-      const balances = await queryClient.ensureQueryData(
-        getHiveEngineTokensBalancesQueryOptions(username)
-      );
-      if (balances.some((balance) => balance.symbol === asset)) {
-        return await fetchQuery(
-          getHiveEngineTokenGeneralInfoQueryOptions(username, asset)
-        );
+        assetInfo = await fetchQuery(getTronAssetGeneralInfoQueryOptions(username));
       } else {
-        throw new Error(
-          "[SDK][Wallets] \u2013 has requested unrecognized asset info"
+        const balances = await queryClient.ensureQueryData(
+          getHiveEngineTokensBalancesQueryOptions(username)
         );
+        if (balances.some((balance) => balance.symbol === asset)) {
+          assetInfo = await fetchQuery(
+            getHiveEngineTokenGeneralInfoQueryOptions(username, asset)
+          );
+        } else {
+          throw new Error(
+            "[SDK][Wallets] \u2013 has requested unrecognized asset info"
+          );
+        }
       }
+      return await convertPriceToUserCurrency(assetInfo);
     }
   });
 }

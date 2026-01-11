@@ -8,6 +8,7 @@ import { currencySymbol } from "@/utils/currency-symbol";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { runWithRetries } from "@/utils/run-with-retries";
 import type { AppWindow } from "@/types/app-window";
+import { getQueryClient } from "@/core/react-query";
 
 export function createGlobalState() {
   const storedCurrency = ls.get("currency");
@@ -100,6 +101,22 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
         currencyRate: rate,
         currencySymbol: symbol
       });
+
+      // Invalidate wallet-related queries so they refetch with new currency
+      const queryClient = getQueryClient();
+      await queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey;
+          if (!Array.isArray(key) || key.length < 2) return false;
+
+          // Invalidate portfolio, asset-info, and list queries
+          return (
+            (key[0] === "ecency-wallets" &&
+             (key[1] === "portfolio" || key[1] === "asset-info" || key[1] === "list"))
+          );
+        },
+      });
+
       success(i18next.t("preferences.updated"));
     },
     setNsfw(value: string) {

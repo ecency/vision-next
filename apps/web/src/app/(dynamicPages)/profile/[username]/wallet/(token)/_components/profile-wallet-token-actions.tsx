@@ -1,4 +1,5 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { WalletOperationsDialog } from "@/features/wallet";
 import {
   AssetOperation,
@@ -32,6 +33,7 @@ import {
 
 export function ProfileWalletTokenActions() {
   const { activeUser } = useActiveAccount();
+  const currency = useGlobalStore((state) => state.currency);
   const { token, username } = useParams();
   const pathname = usePathname();
 
@@ -43,7 +45,8 @@ export function ProfileWalletTokenActions() {
     getTokenOperationsQueryOptions(
       tokenSymbol,
       cleanUsername,
-      activeUser?.username === cleanUsername
+      activeUser?.username === cleanUsername,
+      currency
     )
   );
 
