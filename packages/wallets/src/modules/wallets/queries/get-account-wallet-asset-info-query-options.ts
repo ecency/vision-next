@@ -71,17 +71,17 @@ export function getAccountWalletAssetInfoQueryOptions(
     try {
       const portfolio = await queryClient.fetchQuery(portfolioQuery);
       const assetInfo = portfolio.wallets.find(
-        (assetItem) => assetItem.name === asset.toUpperCase()
+        (assetItem) => assetItem.symbol.toUpperCase() === asset.toUpperCase()
       );
 
-      // Convert VisionPortfolioWalletItem to GeneralAssetInfo
+      // Convert VisionPortfolioWalletItem (PortfolioItem from API) to GeneralAssetInfo
       if (!assetInfo) return undefined;
 
       return {
-        name: assetInfo.name,
-        title: assetInfo.title ?? assetInfo.name,
-        price: assetInfo.price ?? assetInfo.fiatRate ?? 0,
-        accountBalance: assetInfo.accountBalance ?? 0,
+        name: assetInfo.symbol,
+        title: assetInfo.name,
+        price: assetInfo.fiatRate,
+        accountBalance: assetInfo.balance,
         apr: assetInfo.apr?.toString(),
         layer: assetInfo.layer,
         pendingRewards: assetInfo.pendingRewards,

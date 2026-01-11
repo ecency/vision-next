@@ -1815,22 +1815,36 @@ declare function getTokenOperationsQueryOptions(token: string, username: string,
 
 declare function useWalletsCacheQuery(username?: string): _tanstack_react_query.DefinedUseQueryResult<Map<EcencyWalletCurrency, EcencyTokenMetadata>, Error>;
 
+type PortfolioLayer = "points" | "hive" | "chain" | "spk" | "engine";
+interface TokenAction {
+    id: string;
+    [key: string]: unknown;
+}
 interface VisionPortfolioWalletItem {
-    symbol: string;
     name: string;
-    title?: string;
-    price?: number;
-    accountBalance?: number;
-    apr?: number;
-    layer?: string;
+    symbol: string;
+    layer: PortfolioLayer;
+    balance: number;
+    fiatRate: number;
+    currency: string;
+    precision: number;
+    address?: string;
+    error?: string;
     pendingRewards?: number;
+    pendingRewardsFiat?: number;
+    liquid?: number;
+    liquidFiat?: number;
     savings?: number;
-    actions?: Array<{
-        id: string;
-        [key: string]: unknown;
-    } | string>;
-    fiatRate?: number;
-    fiatCurrency?: string;
+    savingsFiat?: number;
+    staked?: number;
+    stakedFiat?: number;
+    iconUrl?: string;
+    actions?: TokenAction[];
+    extraData?: Array<{
+        dataKey: string;
+        value: any;
+    }>;
+    apr?: number;
 }
 interface VisionPortfolioResponse {
     username: string;

@@ -2908,49 +2908,33 @@ function normalizeNumber(value) {
   }
   return void 0;
 }
-function normalizeApr(value) {
-  const numeric = normalizeNumber(value);
-  if (numeric === void 0) {
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      return trimmed.length > 0 ? trimmed : void 0;
-    }
-    return void 0;
-  }
-  return numeric.toString();
-}
 function parseToken(rawToken) {
   if (!rawToken || typeof rawToken !== "object") {
     return void 0;
   }
   const token = rawToken;
-  const symbol = normalizeString(token.symbol) ?? normalizeString(token.asset) ?? normalizeString(token.name);
-  if (!symbol) {
-    return void 0;
-  }
-  const normalizedSymbol = symbol.toUpperCase();
-  const title = normalizeString(token.title) ?? normalizeString(token.display) ?? normalizeString(token.label) ?? normalizeString(token.friendlyName) ?? normalizeString(token.name) ?? normalizedSymbol;
-  const price = normalizeNumber(token.fiatRate) ?? 0;
-  const apr = normalizeApr(token.apr) ?? normalizeApr(token.aprPercent) ?? normalizeApr(token.metrics?.apr) ?? normalizeApr(
-    token.metrics?.aprPercent
-  );
-  const accountBalance = normalizeNumber(token.balance) ?? normalizeNumber(token.accountBalance) ?? normalizeNumber(token.totalBalance) ?? normalizeNumber(token.total) ?? normalizeNumber(token.amount) ?? 0;
-  const layer = normalizeString(token.layer) ?? normalizeString(token.chain) ?? normalizeString(token.category) ?? normalizeString(token.type);
-  const pendingRewards = normalizeNumber(token.pendingRewards);
-  const savings = normalizeNumber(token.savings);
   return {
-    symbol: normalizedSymbol,
-    name: normalizedSymbol,
-    title,
-    price,
-    accountBalance,
-    apr: apr ? Number.parseFloat(apr) : void 0,
-    layer: layer ?? void 0,
-    pendingRewards: pendingRewards ?? void 0,
-    savings: savings ?? void 0,
-    actions: token.actions ?? token.available_actions ?? token.availableActions ?? token.operations ?? token.supportedActions,
-    fiatRate: normalizeNumber(token.fiatRate) ?? void 0,
-    fiatCurrency: normalizeString(token.fiatCurrency) ?? void 0
+    name: normalizeString(token.name) ?? "",
+    symbol: normalizeString(token.symbol) ?? "",
+    layer: normalizeString(token.layer) ?? "hive",
+    balance: normalizeNumber(token.balance) ?? 0,
+    fiatRate: normalizeNumber(token.fiatRate) ?? 0,
+    currency: normalizeString(token.currency) ?? "usd",
+    precision: normalizeNumber(token.precision) ?? 3,
+    address: normalizeString(token.address),
+    error: normalizeString(token.error),
+    pendingRewards: normalizeNumber(token.pendingRewards),
+    pendingRewardsFiat: normalizeNumber(token.pendingRewardsFiat),
+    liquid: normalizeNumber(token.liquid),
+    liquidFiat: normalizeNumber(token.liquidFiat),
+    savings: normalizeNumber(token.savings),
+    savingsFiat: normalizeNumber(token.savingsFiat),
+    staked: normalizeNumber(token.staked),
+    stakedFiat: normalizeNumber(token.stakedFiat),
+    iconUrl: normalizeString(token.iconUrl),
+    actions: token.actions ?? [],
+    extraData: token.extraData ?? [],
+    apr: normalizeNumber(token.apr)
   };
 }
 function extractTokens(payload) {
@@ -3107,7 +3091,7 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
       try {
         const portfolio = await queryClient.fetchQuery(portfolioQuery);
         const tokensFromPortfolio = portfolio.wallets.map(
-          (asset) => asset.name
+          (asset) => asset.symbol
         );
         if (tokensFromPortfolio.length > 0) {
           const visibleTokens = tokensFromPortfolio.map((token) => token?.toUpperCase?.()).filter((token) => Boolean(token)).filter(isTokenVisible);
@@ -3581,14 +3565,14 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
     try {
       const portfolio = await queryClient.fetchQuery(portfolioQuery);
       const assetInfo = portfolio.wallets.find(
-        (assetItem) => assetItem.name === asset.toUpperCase()
+        (assetItem) => assetItem.symbol.toUpperCase() === asset.toUpperCase()
       );
       if (!assetInfo) return void 0;
       return {
-        name: assetInfo.name,
-        title: assetInfo.title ?? assetInfo.name,
-        price: assetInfo.price ?? assetInfo.fiatRate ?? 0,
-        accountBalance: assetInfo.accountBalance ?? 0,
+        name: assetInfo.symbol,
+        title: assetInfo.name,
+        price: assetInfo.fiatRate,
+        accountBalance: assetInfo.balance,
         apr: assetInfo.apr?.toString(),
         layer: assetInfo.layer,
         pendingRewards: assetInfo.pendingRewards
@@ -3665,7 +3649,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
           getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
-          (assetItem) => assetItem.symbol?.toUpperCase() === normalizedToken || assetItem.name?.toUpperCase() === normalizedToken
+          (assetItem) => assetItem.symbol.toUpperCase() === normalizedToken
         );
         if (!assetEntry) {
           return [];

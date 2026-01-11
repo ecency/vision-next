@@ -24,9 +24,7 @@ export function getTokenOperationsQueryOptions(
           getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
-          (assetItem) =>
-            assetItem.symbol?.toUpperCase() === normalizedToken ||
-            assetItem.name?.toUpperCase() === normalizedToken
+          (assetItem) => assetItem.symbol.toUpperCase() === normalizedToken
         );
 
         if (!assetEntry) {

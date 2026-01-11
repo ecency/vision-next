@@ -1,19 +1,35 @@
 import { CONFIG } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 
+type PortfolioLayer = "points" | "hive" | "chain" | "spk" | "engine";
+
+interface TokenAction {
+  id: string;
+  [key: string]: unknown;
+}
+
 export interface VisionPortfolioWalletItem {
-  symbol: string;
   name: string;
-  title?: string;
-  price?: number;
-  accountBalance?: number;
-  apr?: number;
-  layer?: string;
+  symbol: string;
+  layer: PortfolioLayer;
+  balance: number;
+  fiatRate: number;
+  currency: string;
+  precision: number;
+  address?: string;
+  error?: string;
   pendingRewards?: number;
+  pendingRewardsFiat?: number;
+  liquid?: number;
+  liquidFiat?: number;
   savings?: number;
-  actions?: Array<{ id: string; [key: string]: unknown } | string>;
-  fiatRate?: number;
-  fiatCurrency?: string;
+  savingsFiat?: number;
+  staked?: number;
+  stakedFiat?: number;
+  iconUrl?: string;
+  actions?: TokenAction[];
+  extraData?: Array<{ dataKey: string; value: any }>;
+  apr?: number;
 }
 
 export interface VisionPortfolioResponse {
@@ -60,84 +76,36 @@ function normalizeNumber(value: unknown): number | undefined {
   return undefined;
 }
 
-function normalizeApr(value: unknown): string | undefined {
-  const numeric = normalizeNumber(value);
-
-  if (numeric === undefined) {
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      return trimmed.length > 0 ? trimmed : undefined;
-    }
-
-    return undefined;
-  }
-
-  return numeric.toString();
-}
-
 function parseToken(rawToken: unknown): VisionPortfolioWalletItem | undefined {
   if (!rawToken || typeof rawToken !== "object") {
     return undefined;
   }
 
   const token = rawToken as Record<string, unknown>;
-  const symbol =
-    normalizeString(token.symbol) ??
-    normalizeString(token.asset) ??
-    normalizeString(token.name);
 
-  if (!symbol) {
-    return undefined;
-  }
-
-  const normalizedSymbol = symbol.toUpperCase();
-  const title =
-    normalizeString(token.title) ??
-    normalizeString(token.display) ??
-    normalizeString(token.label) ??
-    normalizeString(token.friendlyName) ??
-    normalizeString(token.name) ??
-    normalizedSymbol;
-  const price = normalizeNumber(token.fiatRate) ?? 0;
-  const apr =
-    normalizeApr(token.apr) ??
-    normalizeApr(token.aprPercent) ??
-    normalizeApr((token.metrics as Record<string, unknown> | undefined)?.apr) ??
-    normalizeApr(
-      (token.metrics as Record<string, unknown> | undefined)?.aprPercent
-    );
-  const accountBalance =
-    normalizeNumber(token.balance) ??
-    normalizeNumber(token.accountBalance) ??
-    normalizeNumber(token.totalBalance) ??
-    normalizeNumber(token.total) ??
-    normalizeNumber(token.amount) ??
-    0;
-  const layer =
-    normalizeString(token.layer) ??
-    normalizeString(token.chain) ??
-    normalizeString(token.category) ??
-    normalizeString(token.type);
-  const pendingRewards = normalizeNumber(token.pendingRewards);
-  const savings = normalizeNumber(token.savings);
-
+  // Portfolio v2 returns well-defined PortfolioItem structure
   return {
-    symbol: normalizedSymbol,
-    name: normalizedSymbol,
-    title,
-    price,
-    accountBalance,
-    apr: apr ? Number.parseFloat(apr) : undefined,
-    layer: layer ?? undefined,
-    pendingRewards: pendingRewards ?? undefined,
-    savings: savings ?? undefined,
-    actions: (token.actions ??
-      token.available_actions ??
-      token.availableActions ??
-      token.operations ??
-      token.supportedActions) as VisionPortfolioWalletItem["actions"],
-    fiatRate: normalizeNumber(token.fiatRate) ?? undefined,
-    fiatCurrency: normalizeString(token.fiatCurrency) ?? undefined,
+    name: normalizeString(token.name) ?? "",
+    symbol: normalizeString(token.symbol) ?? "",
+    layer: (normalizeString(token.layer) ?? "hive") as PortfolioLayer,
+    balance: normalizeNumber(token.balance) ?? 0,
+    fiatRate: normalizeNumber(token.fiatRate) ?? 0,
+    currency: normalizeString(token.currency) ?? "usd",
+    precision: normalizeNumber(token.precision) ?? 3,
+    address: normalizeString(token.address),
+    error: normalizeString(token.error),
+    pendingRewards: normalizeNumber(token.pendingRewards),
+    pendingRewardsFiat: normalizeNumber(token.pendingRewardsFiat),
+    liquid: normalizeNumber(token.liquid),
+    liquidFiat: normalizeNumber(token.liquidFiat),
+    savings: normalizeNumber(token.savings),
+    savingsFiat: normalizeNumber(token.savingsFiat),
+    staked: normalizeNumber(token.staked),
+    stakedFiat: normalizeNumber(token.stakedFiat),
+    iconUrl: normalizeString(token.iconUrl),
+    actions: (token.actions ?? []) as TokenAction[],
+    extraData: (token.extraData ?? []) as Array<{ dataKey: string; value: any }>,
+    apr: normalizeNumber(token.apr),
   };
 }
 
