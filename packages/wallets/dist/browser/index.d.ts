@@ -1781,7 +1781,7 @@ declare function getAllTokensListQueryOptions(username?: string): _tanstack_reac
     };
 };
 
-declare function getAccountWalletListQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], string[]>, "queryFn"> & {
+declare function getAccountWalletListQueryOptions(username: string, currency?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<string[], string[], never> | undefined;
 } & {
     queryKey: string[] & {
@@ -1792,6 +1792,7 @@ declare function getAccountWalletListQueryOptions(username: string): _tanstack_r
 
 interface Options {
     refetch: boolean;
+    currency?: string;
 }
 declare function getAccountWalletAssetInfoQueryOptions(username: string, asset: string, options?: Options): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GeneralAssetInfo | undefined, Error, GeneralAssetInfo | undefined, string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<GeneralAssetInfo | undefined, string[], never> | undefined;
@@ -1802,7 +1803,7 @@ declare function getAccountWalletAssetInfoQueryOptions(username: string, asset: 
     };
 };
 
-declare function getTokenOperationsQueryOptions(token: string, username: string, isForOwner?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AssetOperation[], Error, AssetOperation[], (string | boolean)[]>, "queryFn"> & {
+declare function getTokenOperationsQueryOptions(token: string, username: string, isForOwner?: boolean, currency?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AssetOperation[], Error, AssetOperation[], (string | boolean)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<AssetOperation[], (string | boolean)[], never> | undefined;
 } & {
     queryKey: (string | boolean)[] & {
@@ -1823,7 +1824,7 @@ interface VisionPortfolioResponse {
     currency?: string;
     wallets: VisionPortfolioWalletItem[];
 }
-declare function getVisionPortfolioQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<VisionPortfolioResponse, Error, VisionPortfolioResponse, string[]>, "queryFn"> & {
+declare function getVisionPortfolioQueryOptions(username: string, currency?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<VisionPortfolioResponse, Error, VisionPortfolioResponse, string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<VisionPortfolioResponse, string[], never> | undefined;
 } & {
     queryKey: string[] & {

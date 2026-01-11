@@ -21,10 +21,11 @@ function hasNonZeroSavingsBalance(
 export function getTokenOperationsQueryOptions(
   token: string,
   username: string,
-  isForOwner = false
+  isForOwner = false,
+  currency: string = "usd"
 ) {
   return queryOptions({
-    queryKey: ["wallets", "token-operations", token, username, isForOwner],
+    queryKey: ["wallets", "token-operations", token, username, isForOwner, currency],
     queryFn: async () => {
       const queryClient = getQueryClient();
       const normalizedToken = token.toUpperCase();
@@ -35,7 +36,7 @@ export function getTokenOperationsQueryOptions(
 
       try {
         const portfolio = await queryClient.fetchQuery(
-          getVisionPortfolioQueryOptions(username)
+          getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
           (assetItem) => assetItem.info.name === normalizedToken

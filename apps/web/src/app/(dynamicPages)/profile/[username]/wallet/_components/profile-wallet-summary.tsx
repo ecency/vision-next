@@ -1,5 +1,6 @@
 "use client";
 
+import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
 import {
   GeneralAssetInfo,
@@ -17,12 +18,13 @@ import { StyledTooltip } from "@/features/ui";
 
 export function ProfileWalletSummary() {
   const { username } = useParams();
+  const currency = useGlobalStore((state) => state.currency);
   const { data } = useQuery(
-    getAccountWalletListQueryOptions((username as string).replace("%40", ""))
+    getAccountWalletListQueryOptions((username as string).replace("%40", ""), currency)
   );
   const queriesResult = useQueries({
     queries: (data ?? []).map((item: string) =>
-      getAccountWalletAssetInfoQueryOptions((username as string).replace("%40", ""), item)
+      getAccountWalletAssetInfoQueryOptions((username as string).replace("%40", ""), item, { refetch: false, currency })
     )
   });
   const totalBalance = useMemo(
@@ -101,7 +103,7 @@ export function ProfileWalletSummary() {
           {queriesResult.some((q) => q.isPending) ? (
             <div className="w-[80px] rounded-lg animate-pulse h-[28px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
           ) : (
-            <FormattedCurrency value={totalBalance} />
+            <FormattedCurrency value={totalBalance} skipConversion />
           )}
         </div>
       </div>

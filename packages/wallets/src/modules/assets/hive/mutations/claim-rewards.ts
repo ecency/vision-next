@@ -6,7 +6,6 @@ import {
   getHiveAssetGeneralInfoQueryOptions,
   getHivePowerAssetGeneralInfoQueryOptions,
 } from "../queries";
-import { getVisionPortfolioQueryOptions } from "@/modules/wallets/queries";
 import { delay } from "@/modules/wallets/utils";
 
 export function useClaimRewards(
@@ -54,7 +53,7 @@ export function useClaimRewards(
         queryKey: getAccountFullQueryOptions(username).queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: getVisionPortfolioQueryOptions(username).queryKey,
+        queryKey: ["ecency-wallets", "portfolio", "v2", username],
       });
       queryClient.invalidateQueries({
         queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey,
@@ -77,7 +76,7 @@ export function useClaimRewards(
           queryKey: getAccountFullQueryOptions(username).queryKey,
         });
         queryClient.invalidateQueries({
-          queryKey: getVisionPortfolioQueryOptions(username).queryKey,
+          queryKey: ["ecency-wallets", "portfolio", "v2", username],
         });
         queryClient.invalidateQueries({
           queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey,

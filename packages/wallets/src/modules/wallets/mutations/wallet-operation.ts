@@ -25,7 +25,6 @@ import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
 import type { AuthContext } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getAccountWalletAssetInfoQueryOptions } from "../queries";
-import { getVisionPortfolioQueryOptions } from "../queries/get-vision-portfolio-query-options";
 
 const operationToFunctionMap: Record<
   string,
@@ -143,7 +142,7 @@ export function useWalletOperation(
       setTimeout(
         () =>
           getQueryClient().invalidateQueries({
-            queryKey: getVisionPortfolioQueryOptions(username).queryKey,
+            queryKey: ["ecency-wallets", "portfolio", "v2", username],
           }),
         4000
       );

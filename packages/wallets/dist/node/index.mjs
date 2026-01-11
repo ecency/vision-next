@@ -1475,7 +1475,7 @@ function useClaimRewards(username, auth, onSuccess) {
         queryKey: getAccountFullQueryOptions(username).queryKey
       });
       queryClient.invalidateQueries({
-        queryKey: getVisionPortfolioQueryOptions(username).queryKey
+        queryKey: ["ecency-wallets", "portfolio", "v2", username]
       });
       queryClient.invalidateQueries({
         queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
@@ -1496,7 +1496,7 @@ function useClaimRewards(username, auth, onSuccess) {
           queryKey: getAccountFullQueryOptions(username).queryKey
         });
         queryClient.invalidateQueries({
-          queryKey: getVisionPortfolioQueryOptions(username).queryKey
+          queryKey: ["ecency-wallets", "portfolio", "v2", username]
         });
         queryClient.invalidateQueries({
           queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
@@ -3123,9 +3123,7 @@ function parseToken(rawToken) {
   }
   const normalizedSymbol = symbol.toUpperCase();
   const title = normalizeString(token.title) ?? normalizeString(token.display) ?? normalizeString(token.label) ?? normalizeString(token.friendlyName) ?? normalizeString(token.name) ?? normalizedSymbol;
-  const price = normalizeNumber(token.fiatRate) ?? normalizeNumber(token.price) ?? normalizeNumber(token.priceUsd) ?? normalizeNumber(token.usdPrice) ?? normalizeNumber(token.metrics?.price) ?? normalizeNumber(
-    token.metrics?.priceUsd
-  ) ?? 0;
+  const price = normalizeNumber(token.fiatRate) ?? 0;
   const apr = normalizeApr(token.apr) ?? normalizeApr(token.aprPercent) ?? normalizeApr(token.metrics?.apr) ?? normalizeApr(
     token.metrics?.aprPercent
   );
@@ -3202,14 +3200,15 @@ function resolveUsername(payload) {
   const record = payload;
   return normalizeString(record.username) ?? normalizeString(record.name) ?? normalizeString(record.account);
 }
-function getVisionPortfolioQueryOptions(username) {
+function getVisionPortfolioQueryOptions(username, currency = "usd") {
   return queryOptions({
     queryKey: [
       "ecency-wallets",
       "portfolio",
       "v2",
       username,
-      "only-enabled"
+      "only-enabled",
+      currency
     ],
     enabled: Boolean(username),
     staleTime: 6e4,
@@ -3230,7 +3229,7 @@ function getVisionPortfolioQueryOptions(username) {
           Accept: "application/json",
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username, onlyEnabled: true })
+        body: JSON.stringify({ username, onlyEnabled: true, currency })
       });
       if (!response.ok) {
         throw new Error(
@@ -3247,7 +3246,7 @@ function getVisionPortfolioQueryOptions(username) {
       return {
         username: resolveUsername(payload) ?? username,
         currency: normalizeString(
-          payload?.currency
+          payload?.fiatCurrency ?? payload?.currency
         )?.toUpperCase(),
         wallets: tokens
       };
@@ -3273,12 +3272,12 @@ var BASIC_TOKENS = [
   "HP" /* HivePower */,
   "HBD" /* HiveDollar */
 ];
-function getAccountWalletListQueryOptions(username) {
+function getAccountWalletListQueryOptions(username, currency = "usd") {
   return queryOptions({
-    queryKey: ["ecency-wallets", "list", username],
+    queryKey: ["ecency-wallets", "list", username, currency],
     enabled: !!username,
     queryFn: async () => {
-      const portfolioQuery = getVisionPortfolioQueryOptions(username);
+      const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
       const queryClient = getQueryClient();
       const accountQuery = getAccountFullQueryOptions(username);
       let account;
@@ -3756,6 +3755,7 @@ function getTronAssetGeneralInfoQueryOptions(username) {
 // src/modules/wallets/queries/get-account-wallet-asset-info-query-options.ts
 function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { refetch: false }) {
   const queryClient = getQueryClient();
+  const currency = options2.currency ?? "usd";
   const fetchQuery = async (queryOptions43) => {
     if (options2.refetch) {
       await queryClient.fetchQuery(queryOptions43);
@@ -3764,7 +3764,7 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
     }
     return queryClient.getQueryData(queryOptions43.queryKey);
   };
-  const portfolioQuery = getVisionPortfolioQueryOptions(username);
+  const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
   const getPortfolioAssetInfo = async () => {
     try {
       const portfolio = await queryClient.fetchQuery(portfolioQuery);
@@ -3777,7 +3777,7 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
     }
   };
   return queryOptions({
-    queryKey: ["ecency-wallets", "asset-info", username, asset],
+    queryKey: ["ecency-wallets", "asset-info", username, asset, currency],
     queryFn: async () => {
       const portfolioAssetInfo = await getPortfolioAssetInfo();
       if (portfolioAssetInfo) {
@@ -3837,9 +3837,9 @@ function hasNonZeroSavingsBalance(parts) {
     )
   );
 }
-function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
+function getTokenOperationsQueryOptions(token, username, isForOwner = false, currency = "usd") {
   return queryOptions({
-    queryKey: ["wallets", "token-operations", token, username, isForOwner],
+    queryKey: ["wallets", "token-operations", token, username, isForOwner, currency],
     queryFn: async () => {
       const queryClient = getQueryClient();
       const normalizedToken = token.toUpperCase();
@@ -3848,7 +3848,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
       }
       try {
         const portfolio = await queryClient.fetchQuery(
-          getVisionPortfolioQueryOptions(username)
+          getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
           (assetItem) => assetItem.info.name === normalizedToken
@@ -4300,7 +4300,7 @@ function useWalletOperation(username, asset, operation, auth) {
       });
       setTimeout(
         () => getQueryClient().invalidateQueries({
-          queryKey: getVisionPortfolioQueryOptions(username).queryKey
+          queryKey: ["ecency-wallets", "portfolio", "v2", username]
         }),
         4e3
       );
