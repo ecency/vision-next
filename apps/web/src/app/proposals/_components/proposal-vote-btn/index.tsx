@@ -52,7 +52,7 @@ export function ProposalVoteBtn({ proposal }: Props) {
         outline={!voted}
         noPadding={true}
         className="w-[34px]"
-        isLoading={isVotingByKey}
+        isLoading={isVotingByKey || isVotingByKeychain}
       />
     </KeyOrHotDialog>
   );

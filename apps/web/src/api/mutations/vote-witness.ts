@@ -5,6 +5,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { witnessVote, witnessVoteHot, witnessVoteKc } from "@/api/operations";
 import { PrivateKey } from "@hiveio/dhive";
 import { QueryIdentifiers } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface KindOfPayload<T extends string> {
   kind: T;
@@ -30,46 +31,61 @@ export function useVoteWitness(witness: string) {
         throw new Error("[VoteWitness] – no active user");
       }
 
+      // Broadcast transaction
       switch (payload.kind) {
         case "app":
-          await witnessVote(activeUser!!.username, payload.key, witness, approve);
-          return payload;
+          await witnessVote(activeUser.username, payload.key, witness, approve);
+          break;
         case "hot":
-          return witnessVoteHot(activeUser!!.username, witness, approve);
+          await witnessVoteHot(activeUser.username, witness, approve);
+          break;
         case "kc":
-          await witnessVoteKc(activeUser!!.username, witness, approve);
-          return payload;
+          await witnessVoteKc(activeUser.username, witness, approve);
+          break;
         default:
           throw new Error("[VoteWitness] – not known vote kind");
       }
+
+      // Poll for blockchain confirmation to keep loading state active
+      const pollForConfirmation = async (attempts = 0): Promise<void> => {
+        if (attempts >= 5) {
+          // After 5 attempts (~15 seconds), give up
+          return;
+        }
+
+        // Wait 3 seconds between polls (Hive block time)
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Fetch fresh account data from blockchain
+        const account = await queryClient.fetchQuery(
+          getAccountFullQueryOptions(activeUser.username)
+        );
+
+        const witnessVotes = account?.witness_votes ?? [];
+        const hasVote = witnessVotes.includes(witness);
+
+        // Check if vote state matches what we expect
+        if ((approve && hasVote) || (!approve && !hasVote)) {
+          // Vote confirmed!
+          return;
+        } else {
+          // Not confirmed yet, poll again
+          await pollForConfirmation(attempts + 1);
+        }
+      };
+
+      await pollForConfirmation();
+
+      return approve;
     },
-    onSuccess: (payload) => {
-      if (!payload) {
-        return;
-      }
-
-      // Optimistically update the UI immediately for instant feedback
-      if (payload.voted) {
-        queryClient.setQueryData<string[]>(
-          [QueryIdentifiers.WITNESSES_VOTES, activeUser?.username, "votes"],
-          (data) => (data ?? []).filter((wv) => wv !== witness)
-        );
-      } else {
-        queryClient.setQueryData<string[]>(
-          [QueryIdentifiers.WITNESSES_VOTES, activeUser?.username, "votes"],
-          (data) => [...(data ?? []), witness]
-        );
-      }
-
-      // Invalidate after delay to refetch actual blockchain state
-      setTimeout(() => {
-        queryClient.invalidateQueries({
-          queryKey: [QueryIdentifiers.WITNESSES_VOTES, activeUser?.username, "votes"]
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["accounts", activeUser?.username]
-        });
-      }, 3500); // 3.5 seconds - enough time for block confirmation
+    onSuccess: async (approve) => {
+      // Invalidate to refresh UI with confirmed data
+      await queryClient.invalidateQueries({
+        queryKey: ["accounts", activeUser?.username]
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [QueryIdentifiers.WITNESSES_VOTES, activeUser?.username, "votes"]
+      });
     }
   });
 }

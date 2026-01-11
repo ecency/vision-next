@@ -207,7 +207,8 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     useHiveEngineClaimRewardsState(
       sanitizedUsername,
       assetSymbol,
-      Boolean(layer2Token)
+      Boolean(layer2Token),
+      data?.pendingRewards
     );
 
   const handleLinkClick = useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -268,6 +269,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         username={sanitizedUsername}
         showIcon
         fullWidth
+        pendingRewards={data?.pendingRewards}
       />
     );
   }

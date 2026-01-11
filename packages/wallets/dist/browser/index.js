@@ -3774,7 +3774,7 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
         (assetItem) => assetItem.info.name === asset.toUpperCase()
       );
       return assetInfo?.info;
-    } catch {
+    } catch (e) {
       return void 0;
     }
   };

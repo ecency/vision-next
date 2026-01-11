@@ -51,7 +51,7 @@ export function getAccountWalletAssetInfoQueryOptions(
       );
 
       return assetInfo?.info;
-    } catch {
+    } catch (e) {
       return undefined;
     }
   };

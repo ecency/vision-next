@@ -27,6 +27,7 @@ export type HiveEngineClaimRewardsButtonProps = {
   username?: string;
   showIcon?: boolean;
   fullWidth?: boolean;
+  pendingRewards?: number; // Direct value from portfolio v2
 };
 
 type HiveEngineClaimRewardsState = {
@@ -41,7 +42,8 @@ type HiveEngineClaimRewardsState = {
 export function useHiveEngineClaimRewardsState(
   username?: string,
   tokenSymbol?: string,
-  enabled = true
+  enabled = true,
+  pendingRewardsProp?: number // Optional direct value from portfolio v2
 ): HiveEngineClaimRewardsState {
   const { activeUser } = useActiveAccount();
 
@@ -53,9 +55,10 @@ export function useHiveEngineClaimRewardsState(
     enabled &&
     Boolean(sanitizedUsername) &&
     Boolean(sanitizedTokenSymbol) &&
-    activeUser?.username === sanitizedUsername;
+    activeUser?.username === sanitizedUsername &&
+    pendingRewardsProp === undefined; // Only query if not provided as prop
 
-  // Get wallet asset info from portfolio v2
+  // Get wallet asset info from portfolio v2 (only if not provided as prop)
   const { data: walletAssetInfo } = useQuery({
     ...getAccountWalletAssetInfoQueryOptions(
       sanitizedUsername ?? "",
@@ -65,12 +68,12 @@ export function useHiveEngineClaimRewardsState(
   });
 
   const pendingAmountInfo = useMemo<PendingAmountInfo | undefined>(() => {
-    if (!enabled || !walletAssetInfo) {
+    if (!enabled) {
       return undefined;
     }
 
-    // Get pending rewards directly from portfolio v2
-    const rawPending = walletAssetInfo.pendingRewards;
+    // Use prop value if provided, otherwise get from query
+    const rawPending = pendingRewardsProp ?? walletAssetInfo?.pendingRewards;
 
     if (
       rawPending === undefined ||
@@ -92,7 +95,7 @@ export function useHiveEngineClaimRewardsState(
     return {
       formatted: formattedNumber(rawPending, { fractionDigits: decimals })
     };
-  }, [enabled, walletAssetInfo]);
+  }, [enabled, pendingRewardsProp, walletAssetInfo]);
 
   const hasPendingRewards = Boolean(pendingAmountInfo);
   const isOwnProfile = Boolean(
@@ -116,6 +119,7 @@ export function HiveEngineClaimRewardsButton({
   username: usernameProp,
   showIcon = false,
   fullWidth = false,
+  pendingRewards: pendingRewardsProp,
 }: HiveEngineClaimRewardsButtonProps) {
   const { activeUser } = useActiveAccount();
   const params = useParams();
@@ -142,7 +146,8 @@ export function HiveEngineClaimRewardsButton({
   } = useHiveEngineClaimRewardsState(
     usernameProp ?? usernameFromParams,
     tokenSymbolProp ?? tokenFromParams,
-    Boolean(tokenSymbolProp ?? tokenFromParams)
+    Boolean(tokenSymbolProp ?? tokenFromParams),
+    pendingRewardsProp
   );
 
   const { mutate: claimTokenRewards, isPending: isClaiming } = useMutation({
@@ -204,7 +209,6 @@ export function HiveEngineClaimRewardsButton({
     },
     onError: (err) => error(...formatError(err))
   });
-
   if (!hasPendingRewards || !pendingAmountInfo || !tokenSymbol) {
     return null;
   }
