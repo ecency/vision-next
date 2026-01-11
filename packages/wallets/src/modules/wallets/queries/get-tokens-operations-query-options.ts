@@ -25,7 +25,7 @@ export function getTokenOperationsQueryOptions(
   currency: string = "usd"
 ) {
   return queryOptions({
-    queryKey: ["wallets", "token-operations", token, username, isForOwner],
+    queryKey: ["wallets", "token-operations", token, username, isForOwner, currency],
     queryFn: async () => {
       const queryClient = getQueryClient();
       const normalizedToken = token.toUpperCase();
