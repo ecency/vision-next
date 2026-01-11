@@ -1260,7 +1260,7 @@ function filterDmcaEntry(entryOrEntries) {
 function applyFilter(entry) {
   if (!entry) return entry;
   const entryPath = `@${entry.author}/${entry.permlink}`;
-  const isDmca = CONFIG.dmcaPatternRegexes.some((regex) => regex.test(entryPath));
+  const isDmca = CONFIG.dmcaPatterns.includes(entryPath) || CONFIG.dmcaPatternRegexes.some((regex) => regex.test(entryPath));
   if (isDmca) {
     return {
       ...entry,
