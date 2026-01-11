@@ -25,6 +25,7 @@ import { getVisionPortfolioQueryOptions } from "./get-vision-portfolio-query-opt
 
 interface Options {
   refetch: boolean;
+  currency?: string;
 }
 
 export function getAccountWalletAssetInfoQueryOptions(
@@ -34,6 +35,7 @@ export function getAccountWalletAssetInfoQueryOptions(
 ) {
   // Helper function to handle both prefetch and refetch cases
   const queryClient = getQueryClient();
+  const currency = options.currency ?? "usd";
   const fetchQuery = async (queryOptions: any) => {
     if (options.refetch) {
       await queryClient.fetchQuery(queryOptions);
@@ -42,7 +44,7 @@ export function getAccountWalletAssetInfoQueryOptions(
     }
     return queryClient.getQueryData<GeneralAssetInfo>(queryOptions.queryKey);
   };
-  const portfolioQuery = getVisionPortfolioQueryOptions(username);
+  const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
   const getPortfolioAssetInfo = async () => {
     try {
       const portfolio = await queryClient.fetchQuery(portfolioQuery);
@@ -57,7 +59,7 @@ export function getAccountWalletAssetInfoQueryOptions(
   };
 
   return queryOptions({
-    queryKey: ["ecency-wallets", "asset-info", username, asset],
+    queryKey: ["ecency-wallets", "asset-info", username, asset, currency],
     queryFn: async () => {
       const portfolioAssetInfo = await getPortfolioAssetInfo();
 

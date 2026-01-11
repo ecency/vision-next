@@ -1,6 +1,7 @@
 "use client";
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { getTokenLogo, WalletOperationsDialog } from "@/features/wallet";
@@ -56,6 +57,7 @@ interface Props {
 
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const { activeUser } = useActiveAccount();
+  const currency = useGlobalStore((state) => state.currency);
   const sanitizedUsername = useMemo(
     () => sanitizeWalletUsername(username),
     [username]
@@ -64,7 +66,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const assetSymbol = useMemo(() => asset.toUpperCase(), [asset]);
 
   const { data } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset)
+    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset, { refetch: false, currency })
   );
   const { data: allTokens } = useQuery(
     getAllTokensListQueryOptions(sanitizedUsername)
@@ -73,7 +75,8 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     getTokenOperationsQueryOptions(
       assetSymbol,
       sanitizedUsername,
-      activeUser?.username === sanitizedUsername
+      activeUser?.username === sanitizedUsername,
+      currency
     )
   );
   const layer2Token = useMemo(
@@ -308,7 +311,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
               {formattedApr && <Badge>{formattedApr}% APR</Badge>}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+              <FormattedCurrency value={data?.price ?? 0} fixAt={3} skipConversion />
             </div>
             <div
               className={clsx(

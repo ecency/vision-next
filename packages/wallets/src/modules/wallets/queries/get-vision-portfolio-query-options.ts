@@ -363,16 +363,7 @@ function parseToken(rawToken: unknown): VisionPortfolioWalletItem | undefined {
     normalizeString(token.friendlyName) ??
     normalizeString(token.name) ??
     normalizedSymbol;
-  const price =
-    normalizeNumber(token.fiatRate) ??
-    normalizeNumber(token.price) ??
-    normalizeNumber(token.priceUsd) ??
-    normalizeNumber(token.usdPrice) ??
-    normalizeNumber((token.metrics as Record<string, unknown> | undefined)?.price) ??
-    normalizeNumber(
-      (token.metrics as Record<string, unknown> | undefined)?.priceUsd
-    ) ??
-    0;
+  const price = normalizeNumber(token.fiatRate) ?? 0;
   const apr =
     normalizeApr(token.apr) ??
     normalizeApr(token.aprPercent) ??
@@ -493,7 +484,7 @@ function resolveUsername(payload: unknown): string | undefined {
   );
 }
 
-export function getVisionPortfolioQueryOptions(username: string) {
+export function getVisionPortfolioQueryOptions(username: string, currency: string = "usd") {
   return queryOptions({
     queryKey: [
       "ecency-wallets",
@@ -501,6 +492,7 @@ export function getVisionPortfolioQueryOptions(username: string) {
       "v2",
       username,
       "only-enabled",
+      currency,
     ],
     enabled: Boolean(username),
     staleTime: 60000,
@@ -523,7 +515,7 @@ export function getVisionPortfolioQueryOptions(username: string) {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, onlyEnabled: true }),
+        body: JSON.stringify({ username, onlyEnabled: true, currency }),
       });
 
       if (!response.ok) {
@@ -546,6 +538,7 @@ export function getVisionPortfolioQueryOptions(username: string) {
       return {
         username: resolveUsername(payload) ?? username,
         currency: normalizeString(
+          (payload as Record<string, unknown> | undefined)?.fiatCurrency ??
           (payload as Record<string, unknown> | undefined)?.currency
         )?.toUpperCase(),
         wallets: tokens,

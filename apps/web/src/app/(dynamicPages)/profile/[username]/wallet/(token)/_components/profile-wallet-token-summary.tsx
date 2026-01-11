@@ -67,7 +67,7 @@ export function ProfileWalletTokenSummary() {
     );
 
   const { data, isFetching } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback)
+    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback, { refetch: false, currency })
   );
 
   const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
@@ -171,7 +171,7 @@ export function ProfileWalletTokenSummary() {
         </div>
         <div className="flex flex-col gap-2 sm:items-end sm:text-right">
           <div className="text-blue-dark-sky">
-            <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+            <FormattedCurrency value={data?.price ?? 0} fixAt={3} skipConversion />
           </div>
           <HiveEngineClaimRewardsButton className="w-full sm:w-auto" />
           {tokenWithFallback === "POINTS" && hasPendingPoints && (

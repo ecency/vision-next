@@ -1,5 +1,6 @@
 "use client";
 
+import { useGlobalStore } from "@/core/global-store";
 import { StyledTooltip } from "@/features/ui";
 import {
   getAccountWalletListQueryOptions,
@@ -16,13 +17,14 @@ import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-usernam
 
 export function ProfileWalletTokensList() {
   const { username } = useParams();
+  const currency = useGlobalStore((state) => state.currency);
   const sanitizedUsername = useMemo(
     () => sanitizeWalletUsername(username),
     [username]
   );
 
   const { data } = useQuery(
-    getAccountWalletListQueryOptions(sanitizedUsername)
+    getAccountWalletListQueryOptions(sanitizedUsername, currency)
   );
   const { data: availableTokens } = useQuery(
     getAllTokensListQueryOptions(sanitizedUsername)
